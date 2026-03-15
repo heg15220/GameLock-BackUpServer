@@ -2,6 +2,10 @@
 
 Frontend en React + JavaScript + CSS para una plataforma SaaS de juegos.
 
+## Backend penalties game
+
+ npm run backend:penalty-shootout
+
 ## Que incluye
 
 - Catalogo de juegos por tematica en formato tarjetas (imagen + titulo).
