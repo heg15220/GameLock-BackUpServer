@@ -1,0 +1,68 @@
+{
+  "updatedAt": "2026-03-15T17:58:54.506Z",
+  "matchesPlayed": 17,
+  "matchesWon": 5,
+  "byDifficulty": {
+    "competitive": {
+      "played": 14,
+      "won": 5
+    },
+    "professional": {
+      "played": 2,
+      "won": 0
+    },
+    "amateur": {
+      "played": 1,
+      "won": 0
+    }
+  },
+  "byRival": {
+    "harbor-athletic": {
+      "played": 13,
+      "won": 4,
+      "goalsFor": 29,
+      "goalsAgainst": 38
+    },
+    "sunset-rovers": {
+      "played": 3,
+      "won": 0,
+      "goalsFor": 6,
+      "goalsAgainst": 10
+    },
+    "summit-fc": {
+      "played": 1,
+      "won": 1,
+      "goalsFor": 4,
+      "goalsAgainst": 1
+    }
+  },
+  "favoriteZones": {
+    "down-left": 24,
+    "top-left": 20,
+    "center": 10,
+    "down-right": 11,
+    "top-right": 10
+  },
+  "conversionByZone": {
+    "down-left": {
+      "attempts": 24,
+      "goals": 10
+    },
+    "top-left": {
+      "attempts": 20,
+      "goals": 13
+    },
+    "center": {
+      "attempts": 10,
+      "goals": 3
+    },
+    "down-right": {
+      "attempts": 11,
+      "goals": 8
+    },
+    "top-right": {
+      "attempts": 10,
+      "goals": 5
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "id": "amateur",
+      "tier": "AMATEUR",
+      "displayName": "Amateur",
+      "adaptationRate": 0.05,
+      "recencyWeight": 0.22,
+      "transitionWeight": 0.1,
+      "explorationNoise": 0.18,
+      "reactionMsMin": 260,
+      "reactionMsMax": 380,
+      "coverageRadius": 122,
+      "keeperOwnErrorRate": 0.18,
+      "saveBias": 0.02,
+      "bluffRate": 0.05,
+      "misreadRate": 0.22,
+      "rivalShotSkill": 0.56
+    },
+    {
+      "id": "competitive",
+      "tier": "COMPETITIVE",
+      "displayName": "Competitive",
+      "adaptationRate": 0.08,
+      "recencyWeight": 0.28,
+      "transitionWeight": 0.14,
+      "explorationNoise": 0.12,
+      "reactionMsMin": 220,
+      "reactionMsMax": 330,
+      "coverageRadius": 138,
+      "keeperOwnErrorRate": 0.12,
+      "saveBias": 0.05,
+      "bluffRate": 0.07,
+      "misreadRate": 0.16,
+      "rivalShotSkill": 0.64
+    },
+    {
+      "id": "professional",
+      "tier": "PROFESSIONAL",
+      "displayName": "Professional",
+      "adaptationRate": 0.11,
+      "recencyWeight": 0.34,
+      "transitionWeight": 0.18,
+      "explorationNoise": 0.08,
+      "reactionMsMin": 190,
+      "reactionMsMax": 290,
+      "coverageRadius": 152,
+      "keeperOwnErrorRate": 0.08,
+      "saveBias": 0.08,
+      "bluffRate": 0.09,
+      "misreadRate": 0.1,
+      "rivalShotSkill": 0.72
+    },
+    {
+      "id": "elite",
+      "tier": "ELITE",
+      "displayName": "Elite",
+      "adaptationRate": 0.14,
+      "recencyWeight": 0.38,
+      "transitionWeight": 0.22,
+      "explorationNoise": 0.05,
+      "reactionMsMin": 165,
+      "reactionMsMax": 250,
+      "coverageRadius": 166,
+      "keeperOwnErrorRate": 0.05,
+      "saveBias": 0.11,
+      "bluffRate": 0.11,
+      "misreadRate": 0.06,
+      "rivalShotSkill": 0.81
+    }
+  ]
+}

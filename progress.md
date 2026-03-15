@@ -2972,3 +2972,25 @@ Pendiente sugerido:
 - Removed the Cosmic Vanguard side panels that rendered leaderboard and event log entries in the game UI.
 - Kept the backend snapshot and event generation logic intact; only the visible component blocks were removed from the React view.
 - Validation note: no build or Playwright pass was completed in this iteration because sandbox-escalated checks were interrupted.
+
+## 2026-03-15 - Penalty shootout backend architecture plan
+- Added a full implementation design for the next-generation penalty game in:
+  - `docs/plans/2026-03-15-penalty-shootout-architecture.md`
+- The plan is aligned with the current repo reality:
+  - existing frontend-only prototype at `src/games/arcade/penalty-neural-keeper/index.jsx`;
+  - existing lightweight Node backend pattern under `server/`;
+  - optional Spring Boot mapping kept explicit for future migration.
+- Added backend-owned configuration samples in:
+  - `server/data/penalty-shootout/teams.sample.json`
+  - `server/data/penalty-shootout/difficulty-profiles.sample.json`
+- Scope covered by the plan:
+  - frontend/backend responsibilities;
+  - concrete folder structure;
+  - REST endpoints and DTO payload examples;
+  - match state machine and shootout rules;
+  - adaptive goalkeeper AI algorithm and difficulty tuning;
+  - physics, animation, assets, testing, risks, and phased rollout.
+- Next recommended implementation step:
+  - create `server/penalty-shootout/` with match create/get/shot endpoints and port the current frontend prototype to consume backend shot resolution.
+
+- 2026-03-15: Ajustado el color de los puntos del historial en Penalty Neural Keeper: GOAL=verde, SAVE/MISS/POST=rojo.

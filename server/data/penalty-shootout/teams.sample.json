@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "teams": [
+    {
+      "id": "harbor-athletic",
+      "slug": "harbor-athletic",
+      "displayName": "Harbor Athletic",
+      "shortName": "HAR",
+      "crestAsset": "/assets/penalty/teams/harbor-athletic/crest.svg",
+      "colors": {
+        "primary": "#0D3B66",
+        "secondary": "#F4D35E",
+        "accent": "#FAF0CA"
+      },
+      "uniform": {
+        "shirt": "#0D3B66",
+        "shorts": "#102A43",
+        "socks": "#F4D35E",
+        "keeper": "#DA4167"
+      },
+      "stadiumThemeId": "harbor-night",
+      "difficultyProfileId": "competitive",
+      "goalkeeperProfile": {
+        "styleId": "balanced-reader",
+        "reflex": 0.62,
+        "anticipation": 0.58,
+        "coverage": 0.61,
+        "bluffRate": 0.07,
+        "errorRate": 0.12
+      },
+      "crowdPalette": ["#0D3B66", "#F4D35E", "#FAF0CA"],
+      "enabled": true
+    },
+    {
+      "id": "iron-keepers",
+      "slug": "iron-keepers",
+      "displayName": "Iron Keepers",
+      "shortName": "IRN",
+      "crestAsset": "/assets/penalty/teams/iron-keepers/crest.svg",
+      "colors": {
+        "primary": "#3C3C3C",
+        "secondary": "#F95738",
+        "accent": "#F4F4F4"
+      },
+      "uniform": {
+        "shirt": "#3C3C3C",
+        "shorts": "#2A2A2A",
+        "socks": "#F95738",
+        "keeper": "#00A6A6"
+      },
+      "stadiumThemeId": "metro-floodlights",
+      "difficultyProfileId": "professional",
+      "goalkeeperProfile": {
+        "styleId": "pattern-hunter",
+        "reflex": 0.7,
+        "anticipation": 0.73,
+        "coverage": 0.68,
+        "bluffRate": 0.08,
+        "errorRate": 0.08
+      },
+      "crowdPalette": ["#3C3C3C", "#F95738", "#EAEAEA"],
+      "enabled": true
+    },
+    {
+      "id": "summit-fc",
+      "slug": "summit-fc",
+      "displayName": "Summit FC",
+      "shortName": "SUM",
+      "crestAsset": "/assets/penalty/teams/summit-fc/crest.svg",
+      "colors": {
+        "primary": "#174C3C",
+        "secondary": "#D9BF77",
+        "accent": "#F6F1D1"
+      },
+      "uniform": {
+        "shirt": "#174C3C",
+        "shorts": "#10382B",
+        "socks": "#D9BF77",
+        "keeper": "#8C1C13"
+      },
+      "stadiumThemeId": "summit-arena",
+      "difficultyProfileId": "elite",
+      "goalkeeperProfile": {
+        "styleId": "center-line-trapper",
+        "reflex": 0.82,
+        "anticipation": 0.8,
+        "coverage": 0.79,
+        "bluffRate": 0.1,
+        "errorRate": 0.05
+      },
+      "crowdPalette": ["#174C3C", "#D9BF77", "#F6F1D1"],
+      "enabled": true
+    },
+    {
+      "id": "sunset-rovers",
+      "slug": "sunset-rovers",
+      "displayName": "Sunset Rovers",
+      "shortName": "SUN",
+      "crestAsset": "/assets/penalty/teams/sunset-rovers/crest.svg",
+      "colors": {
+        "primary": "#7B2CBF",
+        "secondary": "#FF9F1C",
+        "accent": "#FFF3B0"
+      },
+      "uniform": {
+        "shirt": "#7B2CBF",
+        "shorts": "#5A189A",
+        "socks": "#FF9F1C",
+        "keeper": "#1F7A8C"
+      },
+      "stadiumThemeId": "sunset-bowl",
+      "difficultyProfileId": "amateur",
+      "goalkeeperProfile": {
+        "styleId": "aggressive-guesser",
+        "reflex": 0.52,
+        "anticipation": 0.44,
+        "coverage": 0.5,
+        "bluffRate": 0.12,
+        "errorRate": 0.18
+      },
+      "crowdPalette": ["#7B2CBF", "#FF9F1C", "#FFF3B0"],
+      "enabled": true
+    }
+  ]
+}

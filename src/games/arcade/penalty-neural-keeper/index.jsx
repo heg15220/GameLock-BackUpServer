@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
+import { createPenaltyMatch, fetchPenaltyTeams, submitPenaltyShot } from "./backendClient";
 
 const CANVAS_WIDTH = 1080;
 const CANVAS_HEIGHT = 620;
@@ -96,8 +97,11 @@ const UI_COPY = {
     diveRead: "Lectura probable",
     saveChance: "Prob. de parada estimada",
     controlsTitle: "Seleccion de zona",
+    defendTitle: "Control del portero",
     controlsHint:
       "Raton/touch o teclado: 1=abajo izq, 2=abajo der, 3=arriba izq, 4=arriba der, 5=centro. R reinicia, F pantalla completa.",
+    defendHint:
+      "Cuando ataca el rival, usa 1-5 para decidir la estirada del portero. La IA chutara automaticamente en cuanto elijas.",
     timelineTitle: "Ultimas tiradas",
     timelineEmpty: "Sin historial todavia.",
     menuTitle: "Penalty Neural Keeper",
@@ -108,13 +112,23 @@ const UI_COPY = {
     finishedTitle: "Tanda finalizada",
     finishedBody: "Resume y vuelve a lanzar otra serie para medir si puedes romper la lectura del portero.",
     chooseZone: "Elige una zona de disparo para iniciar el siguiente penalti.",
+    chooseSave: "El rival va a tirar. Elige la estirada de tu portero.",
     preparing: "Preparando ejecucion...",
+    rivalPreparing: "El rival prepara su disparo...",
     shotGoal: "Gol: el balon supera la estirada del portero.",
     shotSave: "Parada: el portero cierra la zona y bloquea el tiro.",
     nextPenalty: "Listo para el siguiente penalti.",
+    rivalGoal: "El rival marca.",
+    keeperSave: "Paradon: tu portero evita el gol.",
     finalMessage: "Resultado final",
     tendencyUnknown: "Sin patron claro aun",
     controlsAria: "Controles de disparo de penaltis",
+    turnAttack: "Tu disparo",
+    turnSave: "Rival al tiro",
+    roleTitle: "Rol actual",
+    roleAttack: "Eres el lanzador. Busca el gol.",
+    roleSave: "Eres el portero. Decide donde parar.",
+    aiShooterLabel: "IA AL TIRO",
   },
   en: {
     title: "Penalty Neural Keeper",
@@ -136,8 +150,11 @@ const UI_COPY = {
     diveRead: "Likely read",
     saveChance: "Estimated save chance",
     controlsTitle: "Shot target",
+    defendTitle: "Goalkeeper control",
     controlsHint:
       "Mouse/touch or keyboard: 1=bottom left, 2=bottom right, 3=top left, 4=top right, 5=center. R restarts, F fullscreen.",
+    defendHint:
+      "When the rival attacks, use 1-5 to choose your keeper dive. The AI will shoot automatically as soon as you commit.",
     timelineTitle: "Recent shots",
     timelineEmpty: "No history yet.",
     menuTitle: "Penalty Neural Keeper",
@@ -148,13 +165,23 @@ const UI_COPY = {
     finishedTitle: "Shootout complete",
     finishedBody: "Review the run and fire a new series to see whether you can break the goalkeeper read.",
     chooseZone: "Pick a target zone to launch the next penalty.",
+    chooseSave: "The rival is about to shoot. Pick your goalkeeper dive.",
     preparing: "Preparing shot...",
+    rivalPreparing: "Opponent preparing the shot...",
     shotGoal: "Goal: the ball beats the goalkeeper stretch.",
     shotSave: "Save: the goalkeeper closes the lane and blocks the shot.",
     nextPenalty: "Ready for the next penalty.",
+    rivalGoal: "The opponent scores.",
+    keeperSave: "Big save: your goalkeeper keeps it out.",
     finalMessage: "Final result",
     tendencyUnknown: "No clear pattern yet",
     controlsAria: "Penalty shot controls",
+    turnAttack: "Your shot",
+    turnSave: "Opponent shooting",
+    roleTitle: "Current role",
+    roleAttack: "You are the shooter. Go for goal.",
+    roleSave: "You are the goalkeeper. Pick where to save.",
+    aiShooterLabel: "AI SHOOTING",
   },
 };
 
@@ -213,6 +240,11 @@ function shortZone(zoneId, locale) {
     return zoneId;
   }
   return zone.short[locale] ?? zone.short.en;
+}
+
+function localizeKeeperDive(zoneId, locale) {
+  const zoneLabel = localizeZone(zoneId, locale);
+  return locale === "es" ? `Parar ${zoneLabel.toLowerCase()}` : `Save ${zoneLabel.toLowerCase()}`;
 }
 
 function findTendencyZone(history) {
@@ -704,7 +736,7 @@ function tickGame(state, deltaMs) {
     }
 
     if (updatedShot.elapsedMs >= updatedShot.totalMs) {
-      next = settleShot(next);
+      next = settleResolvedShot(next);
     }
   } else if (next.phase === "intermission") {
     const remainingMs = next.intermissionMs - safeDeltaMs;
@@ -715,19 +747,11 @@ function tickGame(state, deltaMs) {
       };
       changed = true;
     } else {
-      const read = resolveKeeperPrediction(next.history, next.attemptsTaken, false);
       next = {
         ...next,
         phase: "ready",
         intermissionMs: 0,
-        aiTelemetry: {
-          adaptation: read.adaptation,
-          confidence: read.confidence,
-          learningIndex: read.learningIndex,
-          tendencyZone: read.tendencyZone,
-          predictedZoneId: read.predictedZoneId,
-          saveProbability: next.aiTelemetry.saveProbability,
-        },
+        message: "",
       };
       changed = true;
     }
@@ -747,181 +771,805 @@ function runTime(state, milliseconds) {
   return next;
 }
 
-function drawPitch(ctx) {
-  const gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
-  gradient.addColorStop(0, "#0b2232");
-  gradient.addColorStop(0.2, "#122d42");
-  gradient.addColorStop(1, "#06131f");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+function hexToRgb(value) {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const normalized = value.trim().replace(/^#/, "");
+  if (![3, 6].includes(normalized.length)) {
+    return null;
+  }
+  const expanded =
+    normalized.length === 3
+      ? normalized
+          .split("")
+          .map((character) => character + character)
+          .join("")
+      : normalized;
+  const parsed = Number.parseInt(expanded, 16);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+  return {
+    r: (parsed >> 16) & 255,
+    g: (parsed >> 8) & 255,
+    b: parsed & 255,
+  };
+}
 
-  ctx.fillStyle = "#15374d";
-  ctx.fillRect(0, 64, CANVAS_WIDTH, 84);
+function mixHexColors(colorA, colorB, weight = 0.5) {
+  const rgbA = hexToRgb(colorA);
+  const rgbB = hexToRgb(colorB);
+  if (!rgbA && !rgbB) {
+    return "#ffffff";
+  }
+  if (!rgbA) {
+    return colorB;
+  }
+  if (!rgbB) {
+    return colorA;
+  }
+  const amount = clamp(weight, 0, 1);
+  const mix = (channelA, channelB) => Math.round(channelA + (channelB - channelA) * amount);
+  return `rgb(${mix(rgbA.r, rgbB.r)}, ${mix(rgbA.g, rgbB.g)}, ${mix(rgbA.b, rgbB.b)})`;
+}
 
-  const fieldGradient = ctx.createLinearGradient(0, 140, 0, CANVAS_HEIGHT);
-  fieldGradient.addColorStop(0, "#2e9f47");
-  fieldGradient.addColorStop(1, "#1b6f34");
-  ctx.fillStyle = fieldGradient;
-  ctx.fillRect(0, 140, CANVAS_WIDTH, CANVAS_HEIGHT - 140);
+function colorWithAlpha(color, alpha) {
+  const rgb = hexToRgb(color);
+  if (!rgb) {
+    return color;
+  }
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${clamp(alpha, 0, 1)})`;
+}
 
-  const stripeHeight = (CANVAS_HEIGHT - 140) / 12;
-  for (let index = 0; index < 12; index += 1) {
-    ctx.fillStyle = index % 2 === 0 ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.06)";
-    ctx.fillRect(0, 140 + index * stripeHeight, CANVAS_WIDTH, stripeHeight);
+function pathRoundedRect(ctx, x, y, width, height, radius) {
+  const safeRadius = Math.max(0, Math.min(radius, width * 0.5, height * 0.5));
+  ctx.beginPath();
+  ctx.moveTo(x + safeRadius, y);
+  ctx.lineTo(x + width - safeRadius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+  ctx.lineTo(x + width, y + height - safeRadius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+  ctx.lineTo(x + safeRadius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+  ctx.lineTo(x, y + safeRadius);
+  ctx.quadraticCurveTo(x, y, x + safeRadius, y);
+  ctx.closePath();
+}
+
+function buildCanvasDots(history) {
+  const rows = {
+    PLAYER: [],
+    RIVAL: [],
+  };
+  for (const entry of history ?? []) {
+    if (entry.actor !== "PLAYER" && entry.actor !== "RIVAL") {
+      continue;
+    }
+    if (rows[entry.actor].length >= 5) {
+      continue;
+    }
+    rows[entry.actor].push(entry.result);
+  }
+  return rows;
+}
+
+function dotColorForResult(result) {
+  if (result === "GOAL") {
+    return "#22c55e";
+  }
+  if (result === "SAVE") {
+    return "#ef4444";
+  }
+  if (result === "MISS" || result === "POST") {
+    return "#ef4444";
+  }
+  return "#334155";
+}
+
+function drawBannerPanel(ctx, { x, y, width, height, title, subtitle, accent, primary }) {
+  const background = ctx.createLinearGradient(x, y, x, y + height);
+  background.addColorStop(0, mixHexColors(primary, "#0f172a", 0.18));
+  background.addColorStop(1, mixHexColors(primary, "#020617", 0.72));
+  ctx.fillStyle = background;
+  pathRoundedRect(ctx, x, y, width, height, 10);
+  ctx.fill();
+
+  ctx.strokeStyle = colorWithAlpha("#f8fafc", 0.2);
+  ctx.lineWidth = 1.5;
+  pathRoundedRect(ctx, x + 1, y + 1, width - 2, height - 2, 9);
+  ctx.stroke();
+
+  ctx.fillStyle = colorWithAlpha(accent, 0.92);
+  ctx.font = "900 18px 'Trebuchet MS', sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(title, x + width * 0.5, y + 21);
+
+  ctx.fillStyle = colorWithAlpha("#f8fafc", 0.88);
+  ctx.font = "700 11px 'Trebuchet MS', sans-serif";
+  ctx.fillText(subtitle, x + width * 0.5, y + 39);
+}
+
+function drawPitch(ctx, game) {
+  const rivalPrimary = game.rivalTeam?.colors?.primary ?? "#1e3a5f";
+  const rivalSecondary = game.rivalTeam?.colors?.secondary ?? "#7dd3fc";
+  const rivalAccent = game.rivalTeam?.colors?.accent ?? "#f59e0b";
+
+  const skyGradient = ctx.createLinearGradient(0, 0, 0, 240);
+  skyGradient.addColorStop(0, mixHexColors(rivalPrimary, "#dbeafe", 0.82));
+  skyGradient.addColorStop(0.52, mixHexColors(rivalSecondary, "#bfdbfe", 0.68));
+  skyGradient.addColorStop(1, mixHexColors(rivalPrimary, "#1d3557", 0.42));
+  ctx.fillStyle = skyGradient;
+  ctx.fillRect(0, 0, CANVAS_WIDTH, 220);
+
+  const haze = ctx.createRadialGradient(CANVAS_WIDTH * 0.72, 72, 20, CANVAS_WIDTH * 0.72, 72, 250);
+  haze.addColorStop(0, "rgba(255, 232, 158, 0.82)");
+  haze.addColorStop(0.38, "rgba(255, 232, 158, 0.26)");
+  haze.addColorStop(1, "rgba(255, 232, 158, 0)");
+  ctx.fillStyle = haze;
+  ctx.fillRect(0, 0, CANVAS_WIDTH, 220);
+
+  ctx.fillStyle = "rgba(14, 31, 57, 0.24)";
+  ctx.fillRect(0, 34, CANVAS_WIDTH, 74);
+  ctx.strokeStyle = "rgba(214, 233, 255, 0.2)";
+  ctx.lineWidth = 1;
+  for (let x = -20; x <= CANVAS_WIDTH + 20; x += 30) {
+    ctx.beginPath();
+    ctx.moveTo(x, 24);
+    ctx.lineTo(x + 12, 144);
+    ctx.stroke();
+  }
+  for (let y = 36; y <= 132; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(CANVAS_WIDTH, y);
+    ctx.stroke();
   }
 
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.lineWidth = 5;
+  ctx.fillStyle = "#88402b";
+  ctx.fillRect(0, 122, CANVAS_WIDTH, 70);
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.18)";
+  for (let y = 140; y <= 192; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(CANVAS_WIDTH, y);
+    ctx.stroke();
+  }
+  for (let x = 0; x <= CANVAS_WIDTH; x += 42) {
+    const offset = (Math.floor(x / 42) % 2) * 18;
+    ctx.beginPath();
+    ctx.moveTo(x, 122);
+    ctx.lineTo(x, 156 - offset);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x + 21, 156 - offset);
+    ctx.lineTo(x + 21, 192);
+    ctx.stroke();
+  }
+
+  drawBannerPanel(ctx, {
+    x: 32,
+    y: 130,
+    width: 220,
+    height: 50,
+    title: "PENALTY LAB",
+    subtitle: game.rivalTeam?.displayName ?? "RIVAL CLUB",
+    accent: rivalAccent,
+    primary: rivalPrimary,
+  });
+  drawBannerPanel(ctx, {
+    x: CANVAS_WIDTH * 0.5 - 144,
+    y: 126,
+    width: 288,
+    height: 58,
+    title: game.scoreboard?.suddenDeath ? "SUDDEN DEATH" : "AI KEEPER",
+    subtitle: game.scoreboard?.suddenDeath
+      ? "ONE SHOT DECIDES IT"
+      : `${game.rivalTeam?.shortName ?? "RIV"} READS PATTERNS`,
+    accent: "#fbbf24",
+    primary: mixHexColors(rivalPrimary, "#172554", 0.4),
+  });
+  drawBannerPanel(ctx, {
+    x: CANVAS_WIDTH - 252,
+    y: 130,
+    width: 220,
+    height: 50,
+    title: "ROUND " + String(game.scoreboard?.round ?? 1),
+    subtitle: game.selectedDifficultyId?.toUpperCase?.() ?? "COMPETITIVE",
+    accent: rivalSecondary,
+    primary: rivalPrimary,
+  });
+
+  const crowdGradient = ctx.createLinearGradient(0, 188, 0, 224);
+  crowdGradient.addColorStop(0, "rgba(7, 18, 35, 0.92)");
+  crowdGradient.addColorStop(1, "rgba(14, 31, 57, 0.65)");
+  ctx.fillStyle = crowdGradient;
+  ctx.fillRect(0, 188, CANVAS_WIDTH, 42);
+  for (let index = 0; index < 46; index += 1) {
+    const x = 18 + index * 24;
+    const height = 8 + (index % 4) * 4;
+    ctx.fillStyle = index % 2 === 0 ? "rgba(248, 250, 252, 0.16)" : colorWithAlpha(rivalAccent, 0.2);
+    ctx.beginPath();
+    ctx.arc(x, 214 - height * 0.4, 7, Math.PI, 0);
+    ctx.fill();
+  }
+
+  const pitchTop = 220;
+  const fieldGradient = ctx.createLinearGradient(0, pitchTop, 0, CANVAS_HEIGHT);
+  fieldGradient.addColorStop(0, "#3ba74b");
+  fieldGradient.addColorStop(0.55, "#257c39");
+  fieldGradient.addColorStop(1, "#174f29");
+  ctx.fillStyle = fieldGradient;
+  ctx.fillRect(0, pitchTop, CANVAS_WIDTH, CANVAS_HEIGHT - pitchTop);
+
+  const stripeHeight = (CANVAS_HEIGHT - pitchTop) / 10;
+  for (let index = 0; index < 10; index += 1) {
+    ctx.fillStyle = index % 2 === 0 ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.07)";
+    ctx.fillRect(0, pitchTop + index * stripeHeight, CANVAS_WIDTH, stripeHeight);
+  }
+
+  const fieldShadow = ctx.createLinearGradient(0, pitchTop, 0, CANVAS_HEIGHT);
+  fieldShadow.addColorStop(0, "rgba(0, 0, 0, 0)");
+  fieldShadow.addColorStop(1, "rgba(0, 0, 0, 0.18)");
+  ctx.fillStyle = fieldShadow;
+  ctx.fillRect(0, pitchTop, CANVAS_WIDTH, CANVAS_HEIGHT - pitchTop);
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.38)";
+  ctx.lineWidth = 4;
   ctx.strokeRect(124, 212, CANVAS_WIDTH - 248, CANVAS_HEIGHT - 248);
-  ctx.strokeRect(250, 160, CANVAS_WIDTH - 500, 206);
+  ctx.lineWidth = 3;
+  ctx.strokeRect(248, 160, CANVAS_WIDTH - 496, 206);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(372, 160, CANVAS_WIDTH - 744, 88);
+
   ctx.beginPath();
-  ctx.arc(PENALTY_SPOT.x, PENALTY_SPOT.y, 11, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.arc(PENALTY_SPOT.x, PENALTY_SPOT.y, 8, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.82)";
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.55)";
+  ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(PENALTY_SPOT.x, PENALTY_SPOT.y - 78, 85, Math.PI * 0.17, Math.PI * 0.83);
+  ctx.arc(PENALTY_SPOT.x, PENALTY_SPOT.y - 76, 84, Math.PI * 0.17, Math.PI * 0.83);
   ctx.stroke();
 }
 
 function drawGoal(ctx, game) {
   const rippleStrength = clamp(game.netRippleMs / 540, 0, 1);
-  const rippleWave = Math.sin((performance.now() / 1000) * 8) * rippleStrength * 6;
-  const frameShadow = ctx.createLinearGradient(0, GOAL_FRAME.y, 0, GOAL_FRAME.y + GOAL_FRAME.h + 30);
-  frameShadow.addColorStop(0, "rgba(0, 0, 0, 0.34)");
-  frameShadow.addColorStop(1, "rgba(0, 0, 0, 0)");
-  ctx.fillStyle = frameShadow;
-  ctx.fillRect(GOAL_FRAME.x - 24, GOAL_FRAME.y - 4, GOAL_FRAME.w + 48, GOAL_FRAME.h + 56);
-
-  ctx.fillStyle = "#f6f7fb";
-  ctx.fillRect(GOAL_FRAME.x - 8, GOAL_FRAME.y - 12, GOAL_FRAME.w + 16, 12);
-  ctx.fillRect(GOAL_FRAME.x - 8, GOAL_FRAME.y - 12, 10, GOAL_FRAME.h + 20);
-  ctx.fillRect(GOAL_FRAME.x + GOAL_FRAME.w - 2, GOAL_FRAME.y - 12, 10, GOAL_FRAME.h + 20);
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(GOAL_FRAME.x + 4, GOAL_FRAME.y + 4, GOAL_FRAME.w - 8, GOAL_FRAME.h - 8);
-  ctx.clip();
-
-  ctx.fillStyle = "#e8eef7";
-  ctx.fillRect(GOAL_FRAME.x + 4, GOAL_FRAME.y + 4, GOAL_FRAME.w - 8, GOAL_FRAME.h - 8);
-
-  ctx.strokeStyle = "rgba(63, 85, 116, 0.45)";
-  ctx.lineWidth = 1.6;
-  for (let x = GOAL_FRAME.x + 10; x <= GOAL_FRAME.x + GOAL_FRAME.w - 10; x += 28) {
-    const offset = rippleWave * Math.sin((x - GOAL_FRAME.x) / 46);
-    ctx.beginPath();
-    ctx.moveTo(x + offset, GOAL_FRAME.y + 4);
-    ctx.lineTo(x - offset, GOAL_FRAME.y + GOAL_FRAME.h - 4);
-    ctx.stroke();
-  }
-  for (let y = GOAL_FRAME.y + 10; y <= GOAL_FRAME.y + GOAL_FRAME.h - 10; y += 18) {
-    const offset = rippleWave * Math.cos((y - GOAL_FRAME.y) / 38);
-    ctx.beginPath();
-    ctx.moveTo(GOAL_FRAME.x + 4, y + offset);
-    ctx.lineTo(GOAL_FRAME.x + GOAL_FRAME.w - 4, y - offset);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function drawKeeper(ctx, keeper) {
-  const torsoWidth = 70 * keeper.stretch;
-  const torsoHeight = 88;
-  const diveTilt = (keeper.x - GOAL_CENTER_X) / 310;
-
-  ctx.save();
-  ctx.translate(keeper.x, keeper.y - keeper.lift);
-  ctx.rotate(diveTilt * 0.33);
+  const rippleWave = Math.sin((performance.now() / 1000) * 8.5) * rippleStrength * 6;
+  const depth = 38;
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
   ctx.beginPath();
-  ctx.ellipse(0, 28, 66, 18, 0, 0, Math.PI * 2);
+  ctx.ellipse(GOAL_CENTER_X, GOAL_FRAME.y + GOAL_FRAME.h + 18, GOAL_FRAME.w * 0.56, 26, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  const jersey = ctx.createLinearGradient(-torsoWidth * 0.4, -84, torsoWidth * 0.4, 0);
-  jersey.addColorStop(0, "#f97316");
-  jersey.addColorStop(1, "#dc2626");
-  ctx.fillStyle = jersey;
-  ctx.fillRect(-torsoWidth * 0.42, -84, torsoWidth * 0.84, torsoHeight);
-
-  ctx.fillStyle = "#0f172a";
-  ctx.fillRect(-torsoWidth * 0.5, -8, torsoWidth, 28);
-
-  ctx.strokeStyle = "#f8fafc";
-  ctx.lineWidth = 8;
-  ctx.lineCap = "round";
-  const armReach = 64 + keeper.stretch * 26;
+  ctx.fillStyle = "rgba(236, 244, 255, 0.18)";
   ctx.beginPath();
-  ctx.moveTo(-torsoWidth * 0.34, -58);
-  ctx.lineTo(-armReach, -32);
-  ctx.moveTo(torsoWidth * 0.34, -58);
-  ctx.lineTo(armReach, -32);
+  ctx.moveTo(GOAL_FRAME.x + 8, GOAL_FRAME.y - 12);
+  ctx.lineTo(GOAL_FRAME.x - depth, GOAL_FRAME.y + 6);
+  ctx.lineTo(GOAL_FRAME.x - depth, GOAL_FRAME.y + GOAL_FRAME.h + 18);
+  ctx.lineTo(GOAL_FRAME.x + 8, GOAL_FRAME.y + GOAL_FRAME.h + 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(GOAL_FRAME.x + GOAL_FRAME.w - 8, GOAL_FRAME.y - 12);
+  ctx.lineTo(GOAL_FRAME.x + GOAL_FRAME.w + depth, GOAL_FRAME.y + 6);
+  ctx.lineTo(GOAL_FRAME.x + GOAL_FRAME.w + depth, GOAL_FRAME.y + GOAL_FRAME.h + 18);
+  ctx.lineTo(GOAL_FRAME.x + GOAL_FRAME.w - 8, GOAL_FRAME.y + GOAL_FRAME.h + 4);
+  ctx.closePath();
+  ctx.fill();
+
+  const frameGradient = ctx.createLinearGradient(GOAL_FRAME.x, GOAL_FRAME.y, GOAL_FRAME.x + GOAL_FRAME.w, GOAL_FRAME.y);
+  frameGradient.addColorStop(0, "#d9e5f2");
+  frameGradient.addColorStop(0.5, "#ffffff");
+  frameGradient.addColorStop(1, "#c7d3df");
+  ctx.fillStyle = frameGradient;
+  ctx.fillRect(GOAL_FRAME.x - 10, GOAL_FRAME.y - 16, GOAL_FRAME.w + 20, 14);
+  ctx.fillRect(GOAL_FRAME.x - 10, GOAL_FRAME.y - 16, 12, GOAL_FRAME.h + 28);
+  ctx.fillRect(GOAL_FRAME.x + GOAL_FRAME.w - 2, GOAL_FRAME.y - 16, 12, GOAL_FRAME.h + 28);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(GOAL_FRAME.x + 6, GOAL_FRAME.y + 2, GOAL_FRAME.w - 12, GOAL_FRAME.h - 4);
+  ctx.clip();
+
+  const netBackground = ctx.createLinearGradient(0, GOAL_FRAME.y, 0, GOAL_FRAME.y + GOAL_FRAME.h);
+  netBackground.addColorStop(0, "#f5f7fb");
+  netBackground.addColorStop(1, "#d7e2f0");
+  ctx.fillStyle = netBackground;
+  ctx.fillRect(GOAL_FRAME.x + 6, GOAL_FRAME.y + 2, GOAL_FRAME.w - 12, GOAL_FRAME.h - 4);
+
+  ctx.strokeStyle = "rgba(79, 104, 138, 0.46)";
+  ctx.lineWidth = 1.4;
+  for (let x = GOAL_FRAME.x + 8; x <= GOAL_FRAME.x + GOAL_FRAME.w - 8; x += 28) {
+    const offset = rippleWave * Math.sin((x - GOAL_FRAME.x) / 46);
+    ctx.beginPath();
+    ctx.moveTo(x + offset, GOAL_FRAME.y + 2);
+    ctx.lineTo(x - offset, GOAL_FRAME.y + GOAL_FRAME.h - 2);
+    ctx.stroke();
+  }
+  for (let y = GOAL_FRAME.y + 8; y <= GOAL_FRAME.y + GOAL_FRAME.h - 8; y += 18) {
+    const offset = rippleWave * Math.cos((y - GOAL_FRAME.y) / 42);
+    ctx.beginPath();
+    ctx.moveTo(GOAL_FRAME.x + 6, y + offset);
+    ctx.lineTo(GOAL_FRAME.x + GOAL_FRAME.w - 6, y - offset);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  const topShade = ctx.createLinearGradient(0, GOAL_FRAME.y - 20, 0, GOAL_FRAME.y + GOAL_FRAME.h + 40);
+  topShade.addColorStop(0, "rgba(0, 0, 0, 0.28)");
+  topShade.addColorStop(0.4, "rgba(0, 0, 0, 0.08)");
+  topShade.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = topShade;
+  ctx.fillRect(GOAL_FRAME.x - 32, GOAL_FRAME.y - 20, GOAL_FRAME.w + 64, GOAL_FRAME.h + 68);
+}
+
+function drawFigureGlow(ctx, x, y, radiusX, radiusY, color, alpha = 0.22) {
+  const glow = ctx.createRadialGradient(x, y, 16, x, y, Math.max(radiusX, radiusY));
+  glow.addColorStop(0, colorWithAlpha(color, alpha));
+  glow.addColorStop(0.42, colorWithAlpha(color, alpha * 0.35));
+  glow.addColorStop(1, colorWithAlpha(color, 0));
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.ellipse(x, y, radiusX, radiusY, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawKeeper(ctx, keeper, rivalTeam) {
+  const zone = ZONE_BY_ID[keeper.predictedZoneId] ?? null;
+  const diveTilt = (keeper.x - GOAL_CENTER_X) / 280;
+  const direction = zone?.side === "right" ? 1 : -1;
+  const committed =
+    zone && zone.side !== "center" && (Math.abs(keeper.x - GOAL_CENTER_X) > 6 || keeper.lift > 4);
+  const pose = !committed || !zone || zone.side === "center" ? "set" : zone.row === 0 ? "high" : "low";
+  const glowColor = rivalTeam?.colors?.accent ?? rivalTeam?.colors?.primary ?? "#7f1d1d";
+  const silhouette = "#040507";
+
+  ctx.save();
+  ctx.translate(keeper.x, keeper.y - keeper.lift + 6);
+  ctx.rotate(diveTilt * 0.16);
+
+  drawFigureGlow(ctx, 0, -26, pose === "set" ? 88 : 106, 120, glowColor, 0.18);
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+  ctx.beginPath();
+  ctx.ellipse(0, 42, 68, 16, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (pose === "set") {
+    ctx.fillStyle = silhouette;
+    pathRoundedRect(ctx, -30, -90, 60, 66, 22);
+    ctx.fill();
+
+    ctx.strokeStyle = silhouette;
+    ctx.lineWidth = 18;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-14, -54);
+    ctx.lineTo(-66, -14);
+    ctx.moveTo(14, -54);
+    ctx.lineTo(66, -14);
+    ctx.moveTo(-14, -20);
+    ctx.lineTo(-38, 38);
+    ctx.moveTo(14, -20);
+    ctx.lineTo(38, 38);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(0, -104, 22, 0, Math.PI * 2);
+    ctx.arc(-66, -14, 9, 0, Math.PI * 2);
+    ctx.arc(66, -14, 9, 0, Math.PI * 2);
+    ctx.ellipse(-40, 42, 16, 7, 0.08, 0, Math.PI * 2);
+    ctx.ellipse(40, 42, 16, 7, -0.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = colorWithAlpha(glowColor, 0.14);
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-18, -72);
+    ctx.lineTo(-44, -36);
+    ctx.moveTo(18, -72);
+    ctx.lineTo(44, -36);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  if (pose === "high") {
+    ctx.translate(direction * 12, -10);
+    ctx.rotate(direction * 0.58);
+
+    ctx.fillStyle = silhouette;
+    pathRoundedRect(ctx, -26, -78, 54, 46, 18);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(8, -88, 18, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = silhouette;
+    ctx.lineWidth = 16;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-2, -58);
+    ctx.lineTo(direction * 92, -108);
+    ctx.moveTo(8, -52);
+    ctx.lineTo(direction * 20, -84);
+    ctx.moveTo(-12, -24);
+    ctx.lineTo(-direction * 48, 34);
+    ctx.moveTo(8, -18);
+    ctx.lineTo(-direction * 12, 46);
+    ctx.stroke();
+
+    ctx.fillStyle = silhouette;
+    ctx.beginPath();
+    ctx.arc(direction * 92, -108, 8, 0, Math.PI * 2);
+    ctx.arc(direction * 20, -84, 8, 0, Math.PI * 2);
+    ctx.ellipse(-direction * 52, 38, 16, 6, 0.12 * direction, 0, Math.PI * 2);
+    ctx.ellipse(-direction * 16, 48, 14, 6, -0.06 * direction, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.translate(direction * 18, 12);
+    ctx.rotate(direction * 0.12);
+
+    ctx.fillStyle = silhouette;
+    pathRoundedRect(ctx, -34, -58, 68, 34, 16);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(direction * 6, -52, 17, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = silhouette;
+    ctx.lineWidth = 16;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-18, -44);
+    ctx.lineTo(direction * 88, -8);
+    ctx.moveTo(-6, -34);
+    ctx.lineTo(direction * 104, 16);
+    ctx.moveTo(-16, -18);
+    ctx.lineTo(-direction * 42, 26);
+    ctx.moveTo(8, -18);
+    ctx.lineTo(-direction * 8, 34);
+    ctx.stroke();
+
+    ctx.fillStyle = silhouette;
+    ctx.beginPath();
+    ctx.arc(direction * 88, -8, 8, 0, Math.PI * 2);
+    ctx.arc(direction * 104, 16, 8, 0, Math.PI * 2);
+    ctx.ellipse(-direction * 46, 30, 15, 6, 0.08 * direction, 0, Math.PI * 2);
+    ctx.ellipse(-direction * 10, 38, 14, 6, -0.08 * direction, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = colorWithAlpha(glowColor, 0.14);
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  if (pose === "high") {
+    ctx.moveTo(2, -72);
+    ctx.lineTo(direction * 56, -84);
+    ctx.moveTo(-10, -22);
+    ctx.lineTo(-direction * 26, 12);
+  } else {
+    ctx.moveTo(-10, -36);
+    ctx.lineTo(direction * 38, -8);
+    ctx.moveTo(-14, -16);
+    ctx.lineTo(-direction * 22, 18);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawShooter(ctx, game) {
+  const shotProgress = game.activeShot
+    ? clamp(game.activeShot.elapsedMs / Math.max(game.activeShot.totalMs, 1), 0, 1)
+    : 0;
+  const kickPhase = game.activeShot ? clamp(shotProgress / 0.22, 0, 1) : 0;
+  const fade = game.activeShot ? 1 - clamp((shotProgress - 0.22) / 0.18, 0, 1) : 1;
+  if (fade <= 0.02) {
+    return;
+  }
+
+  const shootingTeam =
+    game.activeShot?.actor === "RIVAL" || (!game.activeShot && game.turnMode === "save")
+      ? game.rivalTeam
+      : game.playerTeam;
+  const glowColor = shootingTeam?.colors?.primary ?? "#7f1d1d";
+  const silhouette = "#040507";
+
+  ctx.save();
+  ctx.globalAlpha = fade;
+  ctx.translate(PENALTY_SPOT.x - 76 + kickPhase * 18, PENALTY_SPOT.y + 8);
+  ctx.rotate(-0.18 + kickPhase * 0.24);
+
+  drawFigureGlow(ctx, 12, -40, 82, 128, glowColor, 0.16);
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+  ctx.beginPath();
+  ctx.ellipse(12, 20, 36, 10, -0.08, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = silhouette;
+  ctx.lineWidth = 16;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-2, -8);
+  ctx.lineTo(-12, 42);
+  ctx.moveTo(10, -6);
+  ctx.lineTo(42 + kickPhase * 12, 18 - kickPhase * 4);
+  ctx.moveTo(-4, -54);
+  ctx.lineTo(-28, -26);
+  ctx.moveTo(18, -54);
+  ctx.lineTo(34, -34);
   ctx.stroke();
 
-  ctx.fillStyle = "#f6d6b6";
+  ctx.fillStyle = silhouette;
   ctx.beginPath();
-  ctx.arc(0, -106, 22, 0, Math.PI * 2);
+  ctx.ellipse(-12, 44, 14, 6, 0.06, 0, Math.PI * 2);
+  ctx.ellipse(48 + kickPhase * 12, 20 - kickPhase * 4, 14, 6, -0.24, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = "#111827";
-  ctx.fillRect(-18, -128, 36, 8);
+  pathRoundedRect(ctx, -18, -74, 44, 68, 22);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(4, -92, 20, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = colorWithAlpha(glowColor, 0.12);
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-8, -58);
+  ctx.lineTo(-20, -18);
+  ctx.moveTo(10, -56);
+  ctx.lineTo(34, -4);
+  ctx.moveTo(-8, -70);
+  ctx.lineTo(-22, -40);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawShooterRoleBadge(ctx, game, locale) {
+  const rivalShooting =
+    game.activeShot?.actor === "RIVAL" || (!game.activeShot && game.turnMode === "save");
+  if (!rivalShooting) {
+    return;
+  }
+
+  const ui = UI_COPY[locale] ?? UI_COPY.en;
+  const label = ui.aiShooterLabel;
+  const badgeWidth = 160;
+  const badgeHeight = 28;
+  const badgeX = PENALTY_SPOT.x - 164;
+  const badgeY = PENALTY_SPOT.y - 172;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(7, 14, 25, 0.86)";
+  pathRoundedRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, 14);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(249, 115, 22, 0.75)";
+  ctx.lineWidth = 1.5;
+  pathRoundedRect(ctx, badgeX + 1, badgeY + 1, badgeWidth - 2, badgeHeight - 2, 13);
+  ctx.stroke();
+
+  ctx.fillStyle = "#f97316";
+  ctx.beginPath();
+  ctx.arc(badgeX + 18, badgeY + badgeHeight * 0.5, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#f8fafc";
+  ctx.font = "900 13px 'Trebuchet MS', sans-serif";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, badgeX + 30, badgeY + badgeHeight * 0.5 + 1);
   ctx.restore();
 }
 
 function drawBall(ctx, ball) {
+  const perspective = clamp((ball.y - GOAL_FRAME.y) / (PENALTY_SPOT.y - GOAL_FRAME.y), 0, 1);
+  const radius = lerp(10.5, 15, perspective);
+
   for (const trailNode of ball.trail) {
     if (trailNode.alpha <= 0) continue;
-    ctx.fillStyle = `rgba(255, 255, 255, ${0.35 * trailNode.alpha})`;
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.34 * trailNode.alpha})`;
     ctx.beginPath();
-    ctx.arc(trailNode.x, trailNode.y, 5.5, 0, Math.PI * 2);
+    ctx.arc(trailNode.x, trailNode.y, 4.8 * trailNode.alpha + 1.2, 0, Math.PI * 2);
     ctx.fill();
   }
+
+  ctx.fillStyle = `rgba(0, 0, 0, ${0.16 + perspective * 0.16})`;
+  ctx.beginPath();
+  ctx.ellipse(ball.x + 4, ball.y + radius + 6, radius * 0.9, radius * 0.42, -0.12, 0, Math.PI * 2);
+  ctx.fill();
 
   ctx.save();
   ctx.translate(ball.x, ball.y);
   ctx.rotate(ball.rotation);
-  ctx.fillStyle = "#f8fafc";
+  const fill = ctx.createRadialGradient(-radius * 0.24, -radius * 0.34, radius * 0.18, 0, 0, radius * 1.05);
+  fill.addColorStop(0, "#ffffff");
+  fill.addColorStop(0.65, "#d8dee8");
+  fill.addColorStop(1, "#8b95a5");
+  ctx.fillStyle = fill;
   ctx.beginPath();
-  ctx.arc(0, 0, 15, 0, Math.PI * 2);
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = "#111827";
-  ctx.lineWidth = 2.4;
+  ctx.lineWidth = Math.max(1.8, radius * 0.14);
   ctx.beginPath();
-  ctx.moveTo(-9, -4);
-  ctx.lineTo(-2, -10);
-  ctx.lineTo(6, -8);
-  ctx.lineTo(9, 0);
-  ctx.lineTo(2, 8);
-  ctx.lineTo(-6, 8);
+  ctx.moveTo(-radius * 0.62, -radius * 0.26);
+  ctx.lineTo(-radius * 0.16, -radius * 0.72);
+  ctx.lineTo(radius * 0.42, -radius * 0.56);
+  ctx.lineTo(radius * 0.62, 0);
+  ctx.lineTo(radius * 0.12, radius * 0.56);
+  ctx.lineTo(-radius * 0.46, radius * 0.54);
   ctx.closePath();
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(0, 0, 11, 0.35, 2.5);
+  ctx.arc(0, 0, radius * 0.72, 0.25, 2.5);
   ctx.stroke();
   ctx.restore();
 }
 
 function drawZoneHints(ctx, locale) {
   ctx.save();
-  ctx.font = "600 17px 'Trebuchet MS', sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   for (let index = 0; index < SHOT_ZONES.length; index += 1) {
     const zone = SHOT_ZONES[index];
     const pulse = 1 + Math.sin((performance.now() / 1000) * 4 + index) * 0.05;
-    ctx.fillStyle = "rgba(56, 189, 248, 0.27)";
+    const radius = 24 * pulse;
+    ctx.fillStyle = "rgba(125, 211, 252, 0.24)";
     ctx.beginPath();
-    ctx.arc(zone.target.x, zone.target.y, 22 * pulse, 0, Math.PI * 2);
+    ctx.arc(zone.target.x, zone.target.y, radius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = "rgba(224, 242, 254, 0.7)";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(254, 240, 138, 0.72)";
+    ctx.lineWidth = 2.2;
     ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(zone.target.x - 9, zone.target.y);
+    ctx.lineTo(zone.target.x + 9, zone.target.y);
+    ctx.moveTo(zone.target.x, zone.target.y - 9);
+    ctx.lineTo(zone.target.x, zone.target.y + 9);
+    ctx.stroke();
+
     ctx.fillStyle = "#f8fafc";
-    ctx.fillText(String(index + 1), zone.target.x, zone.target.y);
-    ctx.fillStyle = "rgba(226, 232, 240, 0.8)";
-    ctx.font = "500 11px 'Trebuchet MS', sans-serif";
-    ctx.fillText(shortZone(zone.id, locale), zone.target.x, zone.target.y + 20);
-    ctx.font = "600 17px 'Trebuchet MS', sans-serif";
+    ctx.font = "900 16px 'Trebuchet MS', sans-serif";
+    ctx.fillText(String(index + 1), zone.target.x, zone.target.y - 2);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = "700 10px 'Trebuchet MS', sans-serif";
+    ctx.fillText(shortZone(zone.id, locale), zone.target.x, zone.target.y + 18);
   }
+  ctx.restore();
+}
+
+function drawCanvasHud(ctx, game, locale) {
+  const dots = buildCanvasDots(game.history);
+  const scoreboardX = CANVAS_WIDTH * 0.5 - 146;
+  const scoreboardY = 20;
+  const playerLabel = game.playerTeam?.shortName ?? (locale === "es" ? "TUS" : "YOU");
+  const rivalLabel = game.rivalTeam?.shortName ?? "RIV";
+
+  ctx.save();
+  const background = ctx.createLinearGradient(scoreboardX, scoreboardY, scoreboardX, scoreboardY + 70);
+  background.addColorStop(0, "rgba(10, 20, 37, 0.94)");
+  background.addColorStop(1, "rgba(3, 8, 18, 0.88)");
+  ctx.fillStyle = background;
+  pathRoundedRect(ctx, scoreboardX, scoreboardY, 292, 70, 16);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+  ctx.lineWidth = 1.5;
+  pathRoundedRect(ctx, scoreboardX + 1, scoreboardY + 1, 290, 68, 15);
+  ctx.stroke();
+
+  ctx.fillStyle = colorWithAlpha(game.playerTeam?.colors?.primary ?? "#1d4ed8", 0.95);
+  pathRoundedRect(ctx, scoreboardX + 14, scoreboardY + 12, 54, 20, 8);
+  ctx.fill();
+  ctx.fillStyle = colorWithAlpha(game.rivalTeam?.colors?.primary ?? "#ef4444", 0.95);
+  pathRoundedRect(ctx, scoreboardX + 224, scoreboardY + 12, 54, 20, 8);
+  ctx.fill();
+
+  ctx.fillStyle = "#f8fafc";
+  ctx.font = "900 13px 'Trebuchet MS', sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(playerLabel, scoreboardX + 41, scoreboardY + 26);
+  ctx.fillText(rivalLabel, scoreboardX + 251, scoreboardY + 26);
+
+  ctx.font = "900 34px 'Trebuchet MS', sans-serif";
+  ctx.fillText(String(game.scoreboard?.playerGoals ?? 0), scoreboardX + 112, scoreboardY + 33);
+  ctx.fillText(String(game.scoreboard?.rivalGoals ?? 0), scoreboardX + 180, scoreboardY + 33);
+  ctx.fillStyle = "rgba(226, 232, 240, 0.7)";
+  ctx.font = "900 28px 'Trebuchet MS', sans-serif";
+  ctx.fillText(":", scoreboardX + 146, scoreboardY + 33);
+
+  const drawDotRow = (entries, startX, y) => {
+    for (let index = 0; index < 5; index += 1) {
+      ctx.fillStyle = dotColorForResult(entries[index]);
+      ctx.beginPath();
+      ctx.arc(startX + index * 14, y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  };
+  drawDotRow(dots.PLAYER, scoreboardX + 34, scoreboardY + 52);
+  drawDotRow(dots.RIVAL, scoreboardX + 190, scoreboardY + 52);
+
+  const infoX = 24;
+  pathRoundedRect(ctx, infoX, 22, 336, 30, 12);
+  ctx.fillStyle = "rgba(6, 12, 24, 0.78)";
+  ctx.fill();
+  ctx.fillStyle = game.backendStatus === "online" ? "#4ade80" : "#f97316";
+  ctx.beginPath();
+  ctx.arc(infoX + 16, 37, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#e2e8f0";
+  ctx.font = "800 12px 'Trebuchet MS', sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText(
+    `${game.turnMode === "save" ? "SAVE MODE" : "ATTACK MODE"}  |  ${game.backendStatus === "online" ? "AI ONLINE" : "BACKEND OFF"}  |  ${localizeDifficulty(game.selectedDifficultyId, locale).toUpperCase()}`,
+    infoX + 28,
+    41
+  );
+  ctx.restore();
+}
+
+function drawStatusRibbon(ctx, game, locale) {
+  let label = "";
+  if (game.phase === "finished") {
+    label = locale === "es" ? "TANDA CERRADA" : "SHOOTOUT COMPLETE";
+  } else if (game.phase === "shot") {
+    label =
+      game.activeShot?.actor === "RIVAL"
+        ? game.activeShot?.outcome?.isSave
+          ? locale === "es"
+            ? "TU PORTERO TOCA EL BALON"
+            : "YOUR KEEPER GETS A HAND TO IT"
+          : locale === "es"
+            ? "EL RIVAL REMATA"
+            : "OPPONENT STRIKES"
+        : game.activeShot?.outcome?.isSave
+          ? locale === "es"
+            ? "EL PORTERO LEE EL TIRO"
+            : "KEEPER READING THE SHOT"
+          : locale === "es"
+            ? "DISPARO EN CURSO"
+            : "SHOT IN FLIGHT";
+  } else if (game.phase === "intermission") {
+    label = (game.message || "").toUpperCase();
+  } else if (game.phase === "ready") {
+    label =
+      game.turnMode === "save"
+        ? locale === "es"
+          ? "RIVAL AL TIRO: ELIGE TU ESTIRADA"
+          : "OPPONENT SHOOTING: PICK YOUR DIVE"
+        : locale === "es"
+          ? "ELIGE ZONA Y GOLPEA"
+          : "PICK A ZONE AND STRIKE";
+  } else if (game.phase === "menu") {
+    label = locale === "es" ? "SELECCIONA RIVAL Y DIFICULTAD" : "SELECT RIVAL AND DIFFICULTY";
+  }
+  if (!label) {
+    return;
+  }
+
+  ctx.save();
+  const width = Math.min(560, 180 + label.length * 9);
+  const x = CANVAS_WIDTH * 0.5 - width * 0.5;
+  const y = CANVAS_HEIGHT - 52;
+  ctx.fillStyle = "rgba(4, 10, 20, 0.78)";
+  pathRoundedRect(ctx, x, y, width, 28, 14);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+  ctx.lineWidth = 1.2;
+  pathRoundedRect(ctx, x + 1, y + 1, width - 2, 26, 13);
+  ctx.stroke();
+  ctx.fillStyle = "#f8fafc";
+  ctx.font = "900 13px 'Trebuchet MS', sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(label, CANVAS_WIDTH * 0.5, y + 18);
   ctx.restore();
 }
 
@@ -935,7 +1583,7 @@ function drawCanvasScene(canvas, game, locale) {
   }
 
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  drawPitch(ctx);
+  drawPitch(ctx, game);
 
   ctx.save();
   if (game.cameraShakeMs > 0) {
@@ -944,13 +1592,21 @@ function drawCanvasScene(canvas, game, locale) {
   }
   drawGoal(ctx, game);
 
+  const defendingTeam =
+    game.activeShot?.actor === "RIVAL" || (!game.activeShot && game.turnMode === "save")
+      ? game.playerTeam
+      : game.rivalTeam;
+
   const keeper = game.activeShot?.keeper ?? {
     x: GOAL_CENTER_X,
     y: KEEPER_BASE_Y,
+    predictedZoneId: "center",
     stretch: 1,
     lift: 0,
   };
-  drawKeeper(ctx, keeper);
+  drawKeeper(ctx, keeper, defendingTeam);
+  drawShooter(ctx, game);
+  drawShooterRoleBadge(ctx, game, locale);
 
   const ball = game.activeShot?.ball ?? {
     x: PENALTY_SPOT.x,
@@ -961,38 +1617,221 @@ function drawCanvasScene(canvas, game, locale) {
   drawBall(ctx, ball);
   ctx.restore();
 
+  drawCanvasHud(ctx, game, locale);
+  drawStatusRibbon(ctx, game, locale);
+
   if (game.phase === "menu" || game.phase === "ready") {
     drawZoneHints(ctx, locale);
   }
 }
 
+const DIFFICULTY_OPTIONS = [
+  { id: "amateur", label: { es: "Amateur", en: "Amateur" } },
+  { id: "competitive", label: { es: "Competitivo", en: "Competitive" } },
+  { id: "professional", label: { es: "Profesional", en: "Professional" } },
+  { id: "elite", label: { es: "Elite", en: "Elite" } },
+];
+
+function createEmptyScoreboard() {
+  return {
+    playerGoals: 0,
+    rivalGoals: 0,
+    playerShotsTaken: 0,
+    rivalShotsTaken: 0,
+    round: 1,
+    remainingInitialShots: 5,
+    suddenDeath: false,
+    maxInitialShots: 5,
+  };
+}
+
+function createRemoteInitialState(locale) {
+  return {
+    ...createInitialState(locale),
+    phase: "booting",
+    turnMode: "attack",
+    teamsLoading: true,
+    teams: [],
+    teamsError: "",
+    selectedRivalId: null,
+    selectedDifficultyId: "competitive",
+    matchId: null,
+    playerTeam:
+      locale === "es"
+        ? {
+            id: "player-default",
+            displayName: "Tu Club",
+            shortName: "TUS",
+            colors: {
+              primary: "#d4a017",
+              secondary: "#e2e8f0",
+            },
+            uniform: {
+              shirt: "#d4a017",
+              shorts: "#2a4a8a",
+              socks: "#e2e8f0",
+            },
+          }
+        : {
+            id: "player-default",
+            displayName: "Your Club",
+            shortName: "YOU",
+            colors: {
+              primary: "#d4a017",
+              secondary: "#e2e8f0",
+            },
+            uniform: {
+              shirt: "#d4a017",
+              shorts: "#2a4a8a",
+              socks: "#e2e8f0",
+            },
+          },
+    rivalTeam: null,
+    scoreboard: createEmptyScoreboard(),
+    pendingResolution: null,
+    pendingRequestKey: null,
+    backendStatus: "loading",
+  };
+}
+
+function createIdempotencyKey() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `shot-${Date.now()}-${Math.round(Math.random() * 99999)}`;
+}
+
+function localizeDifficulty(difficultyId, locale) {
+  const difficulty = DIFFICULTY_OPTIONS.find((entry) => entry.id === difficultyId);
+  return difficulty?.label?.[locale] ?? difficulty?.label?.en ?? difficultyId;
+}
+
+function hydrateRemoteMatch(previous, snapshot, phaseOverride) {
+  const turnMode =
+    snapshot.turnMode ??
+    (snapshot.phase === "awaiting_player_save" ? "save" : "attack");
+  return {
+    ...previous,
+    phase: phaseOverride ?? (snapshot.finished ? "finished" : "ready"),
+    turnMode,
+    matchId: snapshot.matchId ?? previous.matchId,
+    playerTeam: snapshot.playerTeam ?? previous.playerTeam,
+    rivalTeam: snapshot.rivalTeam ?? previous.rivalTeam,
+    selectedRivalId: snapshot.rivalTeam?.id ?? previous.selectedRivalId,
+    selectedDifficultyId: snapshot.difficultyId ?? previous.selectedDifficultyId,
+    scoreboard: snapshot.scoreboard ?? previous.scoreboard,
+    attemptsTaken: snapshot.scoreboard?.playerShotsTaken ?? previous.attemptsTaken,
+    goals: snapshot.scoreboard?.playerGoals ?? previous.goals,
+    saves: snapshot.scoreboard?.rivalGoals ?? previous.saves,
+    history: Array.isArray(snapshot.history) ? snapshot.history : previous.history,
+    aiTelemetry: {
+      ...baseTelemetry(),
+      ...(snapshot.goalkeeperRead ?? {}),
+    },
+    intermissionMs: 0,
+    activeShot: null,
+    pendingResolution: null,
+    pendingRequestKey: null,
+    teamsLoading: false,
+    teamsError: "",
+    backendStatus: "online",
+  };
+}
+
+function buildTurnSummary(payload, locale, rivalTeam) {
+  const rivalName = rivalTeam?.displayName ?? (locale === "es" ? "El rival" : "Opponent");
+  if (payload?.playerShot) {
+    const playerText =
+      payload.playerShot.outcome?.type === "SAVE"
+        ? locale === "es"
+          ? "Parada del portero."
+          : "Saved by the keeper."
+        : locale === "es"
+          ? "Gol."
+          : "Goal.";
+    const followUp =
+      payload.finished
+        ? ""
+        : locale === "es"
+          ? `${rivalName} responde. Ponte bajo palos.`
+          : `${rivalName} answers next. Get in goal.`;
+    return `${playerText} ${followUp}`.trim();
+  }
+  if (payload?.rivalShot) {
+    if (payload.rivalShot.outcome?.type === "SAVE") {
+      return locale === "es"
+        ? "Paradon. Recuperas la iniciativa para el siguiente lanzamiento."
+        : "Huge save. You get the initiative back for the next kick.";
+    }
+    if (payload.rivalShot.outcome?.type === "GOAL") {
+      return locale === "es"
+        ? `${rivalName} marca. Te toca volver a lanzar.`
+        : `${rivalName} scores. Your turn to shoot again.`;
+    }
+    return locale === "es"
+      ? `${rivalName} falla su disparo.`
+      : `${rivalName} misses the attempt.`;
+  }
+  return "";
+}
+
+function settleResolvedShot(state) {
+  if (!state.activeShot || state.activeShot.outcome.settled) {
+    return state;
+  }
+  if (!state.pendingResolution?.payload) {
+    return {
+      ...state,
+      activeShot: null,
+      pendingResolution: null,
+      pendingRequestKey: null,
+      phase: "ready",
+    };
+  }
+  const shot = state.activeShot;
+  const payload = state.pendingResolution.payload;
+  const outcomeType = shot.outcome.type ?? (shot.outcome.isSave ? "SAVE" : "GOAL");
+  const isGoal = outcomeType === "GOAL";
+  const isSave = outcomeType === "SAVE";
+  const isOffTarget = outcomeType === "MISS" || outcomeType === "POST";
+  return {
+    ...hydrateRemoteMatch(state, payload, payload.finished ? "finished" : "intermission"),
+    intermissionMs: payload.finished ? 0 : 980,
+    message: state.pendingResolution.summary,
+    cameraShakeMs: isSave ? 210 : isOffTarget ? 110 : 160,
+    crowdPulseMs: isSave ? 340 : isOffTarget ? 220 : 420,
+    netRippleMs: isGoal ? 520 : state.netRippleMs,
+    aiTelemetry: {
+      ...baseTelemetry(),
+      ...(payload.goalkeeperRead ?? {}),
+      saveProbability: payload.playerShot?.outcome?.saveProbability ?? payload.rivalShot?.outcome?.saveProbability ?? 0,
+    },
+  };
+}
+
 function buildTextPayload(state) {
-  const preview = resolveKeeperPrediction(state.history, state.attemptsTaken, false);
   const liveShot = state.activeShot;
-  const predictedZone = liveShot?.keeper.predictedZoneId ?? preview.predictedZoneId;
   return {
     mode: "arcade-penalty-neural-keeper",
     phase: state.phase,
+    turnMode: state.turnMode,
     coordinates: COORDINATE_SYSTEM,
-    penalties: {
-      taken: state.attemptsTaken,
-      remaining: TOTAL_PENALTIES - state.attemptsTaken,
-      total: TOTAL_PENALTIES,
-    },
-    score: {
-      goals: state.goals,
-      saves: state.saves,
-    },
+    backendStatus: state.backendStatus,
+    matchId: state.matchId,
+    rivalTeam: state.rivalTeam?.id ?? null,
+    difficultyId: state.selectedDifficultyId,
+    scoreboard: state.scoreboard ?? createEmptyScoreboard(),
     ai: {
-      adaptation: Number((liveShot?.keeper.adaptation ?? preview.adaptation).toFixed(3)),
-      confidence: Number((liveShot?.keeper.confidence ?? preview.confidence).toFixed(3)),
-      learningIndex: Number((liveShot?.keeper.learningIndex ?? preview.learningIndex).toFixed(3)),
-      tendencyZone: liveShot?.keeper.tendencyZone ?? preview.tendencyZone,
-      predictedZone,
-      saveProbability: Number((state.aiTelemetry.saveProbability ?? 0).toFixed(3)),
+      adaptation: Number((liveShot?.keeper.adaptation ?? state.aiTelemetry.adaptation ?? 0).toFixed(3)),
+      confidence: Number((liveShot?.keeper.confidence ?? state.aiTelemetry.confidence ?? 0).toFixed(3)),
+      learningIndex: Number((liveShot?.keeper.learningIndex ?? state.aiTelemetry.learningIndex ?? 0).toFixed(3)),
+      tendencyZone: liveShot?.keeper.tendencyZone ?? state.aiTelemetry.tendencyZone ?? null,
+      predictedZone: liveShot?.keeper.predictedZoneId ?? state.aiTelemetry.predictedZoneId ?? null,
+      saveProbability: Number((liveShot?.outcome?.saveProbability ?? state.aiTelemetry.saveProbability ?? 0).toFixed(3)),
     },
     activeShot: liveShot
       ? {
+          actor: liveShot.actor ?? "PLAYER",
           shotNumber: liveShot.shotNumber,
           selectedZone: liveShot.zoneId,
           keeperZone: liveShot.keeper.predictedZoneId,
@@ -1008,12 +1847,13 @@ function buildTextPayload(state) {
           isSaveForecast: liveShot.outcome.isSave,
         }
       : null,
-    recentShots: state.history.slice(-6).map((entry) => ({
-      attempt: entry.attempt,
+    recentShots: state.history.slice(-8).map((entry) => ({
+      actor: entry.actor,
+      attempt: entry.attempt ?? entry.sequence,
       zone: entry.zoneId,
-      keeperZone: entry.keeperZoneId,
+      keeperZone: entry.keeperZoneId ?? null,
       result: entry.result,
-      saveProbability: Number(entry.saveProbability.toFixed(3)),
+      saveProbability: Number((entry.saveProbability ?? 0).toFixed(3)),
     })),
     selectableZones: ZONE_IDS,
     message: state.message,
@@ -1022,14 +1862,57 @@ function buildTextPayload(state) {
 
 function PenaltyNeuralKeeperGame() {
   const locale = useMemo(() => (resolveBrowserLanguage() === "es" ? "es" : "en"), []);
+  const isEs = locale === "es";
   const ui = useMemo(() => UI_COPY[locale] ?? UI_COPY.en, [locale]);
   const canvasRef = useRef(null);
   const shellRef = useRef(null);
-  const [game, setGame] = useState(() => createInitialState(locale));
+  const [game, setGame] = useState(() => createRemoteInitialState(locale));
 
   useEffect(() => {
     drawCanvasScene(canvasRef.current, game, locale);
   }, [game, locale]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const payload = await fetchPenaltyTeams();
+        if (cancelled) {
+          return;
+        }
+        const teams = Array.isArray(payload.teams) ? payload.teams : [];
+        setGame((previous) => ({
+          ...previous,
+          phase: "menu",
+          teamsLoading: false,
+          backendStatus: "online",
+          teams,
+          teamsError: teams.length ? "" : isEs ? "No hay rivales disponibles." : "No rivals available.",
+          selectedRivalId: previous.selectedRivalId ?? teams[0]?.id ?? null,
+          selectedDifficultyId: previous.selectedDifficultyId || teams[0]?.difficultyProfileId || "competitive",
+          rivalTeam: teams.find((team) => team.id === (previous.selectedRivalId ?? teams[0]?.id)) ?? previous.rivalTeam,
+        }));
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+        setGame((previous) => ({
+          ...previous,
+          phase: "menu",
+          teamsLoading: false,
+          backendStatus: "offline",
+          teams: [],
+          teamsError: isEs
+            ? "Backend no disponible. Ejecuta npm run backend:penalty-shootout."
+            : "Backend unavailable. Run npm run backend:penalty-shootout.",
+          message: error.message || "",
+        }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isEs]);
 
   useEffect(() => {
     let frameId = 0;
@@ -1046,17 +1929,133 @@ function PenaltyNeuralKeeperGame() {
     return () => window.cancelAnimationFrame(frameId);
   }, []);
 
-  const startShootout = useCallback(() => {
-    setGame((previous) => beginShootout(previous));
-  }, []);
+  const startShootout = useCallback(async () => {
+    let requestPayload = null;
+    setGame((previous) => {
+      if (!previous.selectedRivalId || previous.teamsLoading) {
+        return previous;
+      }
+      requestPayload = {
+        playerTeamId: previous.playerTeam.id,
+        rivalTeamId: previous.selectedRivalId,
+        difficultyId: previous.selectedDifficultyId,
+      };
+      return {
+        ...previous,
+        phase: "starting",
+        message: isEs ? "Preparando duelo..." : "Preparing duel...",
+      };
+    });
+    if (!requestPayload) {
+      return;
+    }
+    try {
+      const snapshot = await createPenaltyMatch(requestPayload);
+      setGame((previous) => ({
+        ...hydrateRemoteMatch(previous, snapshot, snapshot.finished ? "finished" : "ready"),
+        message: "",
+      }));
+    } catch (error) {
+      setGame((previous) => ({
+        ...previous,
+        phase: "menu",
+        backendStatus: "offline",
+        teamsError:
+          error.message ||
+          (isEs
+            ? "No se pudo iniciar la tanda contra el backend."
+            : "Could not start the shootout against the backend."),
+      }));
+    }
+  }, [isEs]);
 
   const restartShootout = useCallback(() => {
-    setGame((previous) => beginShootout(previous));
+    setGame((previous) => ({
+      ...createRemoteInitialState(previous.locale),
+      phase: "menu",
+      teamsLoading: false,
+      backendStatus: previous.backendStatus,
+      teams: previous.teams,
+      teamsError: previous.teamsError,
+      playerTeam: previous.playerTeam,
+      selectedRivalId: previous.selectedRivalId ?? previous.teams[0]?.id ?? null,
+      selectedDifficultyId: previous.selectedDifficultyId,
+      rivalTeam: previous.rivalTeam,
+    }));
   }, []);
 
-  const launchShotForZone = useCallback((zoneId) => {
-    setGame((previous) => launchShot(previous, zoneId));
+  const selectRival = useCallback((team) => {
+    setGame((previous) => ({
+      ...previous,
+      selectedRivalId: team.id,
+      rivalTeam: team,
+    }));
   }, []);
+
+  const selectDifficulty = useCallback((difficultyId) => {
+    setGame((previous) => ({
+      ...previous,
+      selectedDifficultyId: difficultyId,
+    }));
+  }, []);
+
+  const launchShotForZone = useCallback(async (zoneId) => {
+    let matchId = null;
+    let requestKey = null;
+    let actionType = "ATTACK";
+    setGame((previous) => {
+      if (previous.phase !== "ready" || !previous.matchId) {
+        return previous;
+      }
+      matchId = previous.matchId;
+      requestKey = createIdempotencyKey();
+      actionType = previous.turnMode === "save" ? "SAVE" : "ATTACK";
+      return {
+        ...previous,
+        phase: "resolving",
+        pendingRequestKey: requestKey,
+        message:
+          actionType === "SAVE"
+            ? isEs
+              ? "El rival arma el disparo..."
+              : "Opponent winding up..."
+            : isEs
+              ? "Procesando disparo..."
+              : "Resolving shot...",
+      };
+    });
+    if (!matchId || !requestKey) {
+      return;
+    }
+    try {
+      const payload = await submitPenaltyShot(matchId, { selectedZone: zoneId, actionType }, requestKey);
+      const resolvedShot = payload.playerShot ?? payload.rivalShot;
+      setGame((previous) => ({
+        ...previous,
+        backendStatus: "online",
+        phase: "shot",
+        activeShot: resolvedShot,
+        pendingResolution: {
+          payload,
+          summary: buildTurnSummary(payload, locale, payload.rivalTeam ?? previous.rivalTeam),
+        },
+        aiTelemetry: {
+          ...baseTelemetry(),
+          ...(payload.goalkeeperRead ?? {}),
+          saveProbability: resolvedShot?.outcome?.saveProbability ?? 0,
+        },
+      }));
+    } catch (error) {
+      setGame((previous) => ({
+        ...previous,
+        phase: "ready",
+        pendingRequestKey: null,
+        message:
+          error.message ||
+          (isEs ? "El backend rechazo el disparo." : "The backend rejected the shot."),
+      }));
+    }
+  }, [isEs, locale]);
 
   const requestFullscreen = useCallback(async () => {
     const shell = shellRef.current;
@@ -1133,34 +2132,46 @@ function PenaltyNeuralKeeperGame() {
 
   useGameRuntimeBridge(game, buildTextPayload, advanceTime);
 
-  const previewRead = useMemo(
-    () => resolveKeeperPrediction(game.history, game.attemptsTaken, false),
-    [game.history, game.attemptsTaken]
-  );
-  const attemptDisplay = game.phase === "menu" ? 0 : game.phase === "finished" ? TOTAL_PENALTIES : Math.min(TOTAL_PENALTIES, game.attemptsTaken + 1);
-  const readZoneId = game.activeShot?.keeper.predictedZoneId ?? previewRead.predictedZoneId;
-  const tendencyZoneId = game.activeShot?.keeper.tendencyZone ?? previewRead.tendencyZone;
-  const adaptation = game.activeShot?.keeper.adaptation ?? previewRead.adaptation;
-  const confidence = game.activeShot?.keeper.confidence ?? previewRead.confidence;
-  const learningIndex = game.activeShot?.keeper.learningIndex ?? previewRead.learningIndex;
+  const attackAttempt = game.scoreboard.playerShotsTaken + (game.phase === "finished" || game.turnMode === "save" ? 0 : 1);
+  const saveAttempt = game.scoreboard.rivalShotsTaken + (game.phase === "finished" || game.turnMode === "attack" ? 0 : 1);
+  const attemptDisplay = game.phase === "menu" ? 0 : game.turnMode === "save" ? saveAttempt : attackAttempt;
+  const readZoneId = game.activeShot?.keeper.predictedZoneId ?? game.aiTelemetry.predictedZoneId;
+  const tendencyZoneId = game.activeShot?.keeper.tendencyZone ?? game.aiTelemetry.tendencyZone;
+  const adaptation = game.activeShot?.keeper.adaptation ?? game.aiTelemetry.adaptation ?? 0;
+  const confidence = game.activeShot?.keeper.confidence ?? game.aiTelemetry.confidence ?? 0;
+  const learningIndex = game.activeShot?.keeper.learningIndex ?? game.aiTelemetry.learningIndex ?? 0;
   const saveProbability = game.activeShot?.outcome.saveProbability ?? game.aiTelemetry.saveProbability ?? 0;
-  const actionDisabled = game.phase !== "ready";
+  const actionDisabled = game.phase !== "ready" || !game.matchId;
+  const controlsTitle = game.turnMode === "save" ? ui.defendTitle : ui.controlsTitle;
+  const controlsHint = game.turnMode === "save" ? ui.defendHint : ui.controlsHint;
+  const turnLedLabel = game.turnMode === "save" ? ui.turnSave : ui.turnAttack;
+  const turnLedClass = game.turnMode === "save" ? "save" : "attack";
   const trendLabel = tendencyZoneId ? localizeZone(tendencyZoneId, locale) : ui.tendencyUnknown;
   const readLabel = readZoneId ? localizeZone(readZoneId, locale) : ui.tendencyUnknown;
-  const historyRows = game.history.slice(-6).reverse();
+  const historyRows = game.history.slice(-8).reverse();
   const finalSummary =
     game.phase === "finished"
-      ? `${ui.finalMessage}: ${game.goals} ${ui.goals.toLowerCase()} / ${game.saves} ${ui.saves.toLowerCase()}`
+      ? `${ui.finalMessage}: ${game.playerTeam.displayName} ${game.scoreboard.playerGoals} - ${game.scoreboard.rivalGoals} ${game.rivalTeam?.displayName ?? (isEs ? "Rival" : "Rival")}`
       : null;
 
   let statusMessage = game.message;
   if (!statusMessage) {
-    if (game.phase === "ready") statusMessage = ui.chooseZone;
+    if (game.phase === "booting") statusMessage = isEs ? "Cargando rivales..." : "Loading rivals...";
+    if (game.phase === "menu") statusMessage = game.teamsError || (isEs ? "Selecciona rival y dificultad." : "Select rival and difficulty.");
+    if (game.phase === "starting") statusMessage = isEs ? "Preparando duelo..." : "Preparing duel...";
+    if (game.phase === "resolving") statusMessage = game.turnMode === "save" ? ui.rivalPreparing : (isEs ? "Procesando disparo..." : "Resolving shot...");
+    if (game.phase === "ready") statusMessage = game.turnMode === "save" ? ui.chooseSave : ui.chooseZone;
     if (game.phase === "shot") statusMessage = ui.preparing;
     if (game.phase === "intermission") statusMessage = ui.nextPenalty;
     if (game.phase === "finished") statusMessage = finalSummary;
   }
-  if (game.phase === "shot" && game.activeShot?.outcome.isSave) {
+  if (game.phase === "shot" && game.activeShot?.actor === "RIVAL" && game.activeShot?.outcome.type === "SAVE") {
+    statusMessage = ui.keeperSave;
+  } else if (game.phase === "shot" && game.activeShot?.actor === "RIVAL" && game.activeShot?.outcome.type === "GOAL") {
+    statusMessage = ui.rivalGoal;
+  } else if (game.phase === "shot" && game.activeShot?.actor === "RIVAL" && ["MISS", "POST"].includes(game.activeShot?.outcome.type)) {
+    statusMessage = isEs ? "El rival falla su disparo." : "The opponent misses the shot.";
+  } else if (game.phase === "shot" && game.activeShot?.outcome.isSave) {
     statusMessage = ui.shotSave;
   } else if (game.phase === "shot" && game.activeShot) {
     statusMessage = ui.shotGoal;
@@ -1175,12 +2186,12 @@ function PenaltyNeuralKeeperGame() {
         </div>
         <div className="penalty-head-actions">
           {(game.phase === "menu" || game.phase === "finished") ? (
-            <button id="penalty-start-btn" type="button" onClick={startShootout}>
-              {game.phase === "finished" ? ui.continue : ui.start}
+            <button id="penalty-start-btn" type="button" onClick={startShootout} disabled={!game.selectedRivalId || game.teamsLoading}>
+              {game.phase === "finished" ? (isEs ? "Revancha" : "Rematch") : (isEs ? "Iniciar duelo" : "Start duel")}
             </button>
           ) : null}
           <button id="penalty-restart-btn" type="button" onClick={restartShootout}>
-            {ui.restart}
+            {isEs ? "Menu" : "Menu"}
           </button>
           <button id="penalty-fullscreen-btn" type="button" onClick={requestFullscreen}>
             {ui.fullscreen}
@@ -1200,14 +2211,50 @@ function PenaltyNeuralKeeperGame() {
             />
           </div>
 
-          {(game.phase === "menu" || game.phase === "finished") ? (
-            <div className="penalty-overlay">
-              <h5>{game.phase === "menu" ? ui.menuTitle : ui.finishedTitle}</h5>
-              <p>{game.phase === "menu" ? ui.menuBody : ui.finishedBody}</p>
-              <p>{game.phase === "menu" ? ui.menuHint : finalSummary}</p>
-              <button type="button" onClick={startShootout}>
-                {game.phase === "menu" ? ui.start : ui.continue}
-              </button>
+          {(["booting", "menu", "starting", "finished"].includes(game.phase)) ? (
+            <div className="penalty-overlay penalty-overlay-menu">
+              <h5>
+                {game.phase === "finished"
+                  ? (isEs ? "Resultado final" : "Final result")
+                  : game.phase === "booting"
+                    ? (isEs ? "Cargando rivales" : "Loading rivals")
+                    : (isEs ? "Selecciona rival" : "Select rival")}
+              </h5>
+              <p>{game.phase === "finished" ? finalSummary : ui.menuBody}</p>
+              <p>{game.teamsError || (game.phase === "finished" ? ui.finishedBody : ui.menuHint)}</p>
+              {!game.teamsLoading ? (
+                <>
+                  <div className="penalty-team-grid">
+                    {game.teams.map((team) => (
+                      <button
+                        key={team.id}
+                        type="button"
+                        className={`penalty-team-card${team.id === game.selectedRivalId ? " selected" : ""}`}
+                        style={{ "--penalty-team-accent": team.colors?.primary ?? "#38bdf8" }}
+                        onClick={() => selectRival(team)}
+                      >
+                        <strong>{team.displayName}</strong>
+                        <span>{localizeDifficulty(team.difficultyProfileId, locale)}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="penalty-difficulty-row">
+                    {DIFFICULTY_OPTIONS.map((difficulty) => (
+                      <button
+                        key={difficulty.id}
+                        type="button"
+                        className={difficulty.id === game.selectedDifficultyId ? "selected" : ""}
+                        onClick={() => selectDifficulty(difficulty.id)}
+                      >
+                        {difficulty.label[locale] ?? difficulty.label.en}
+                      </button>
+                    ))}
+                  </div>
+                  <button type="button" onClick={startShootout} disabled={!game.selectedRivalId || game.phase === "starting"}>
+                    {game.phase === "finished" ? (isEs ? "Jugar otra vez" : "Play again") : (isEs ? "Arrancar tanda" : "Start shootout")}
+                  </button>
+                </>
+              ) : null}
             </div>
           ) : null}
         </section>
@@ -1215,21 +2262,30 @@ function PenaltyNeuralKeeperGame() {
         <aside className="penalty-sidepanel">
           <section className="penalty-panel">
             <header>
-              <span>{ui.score}</span>
+              <span>{isEs ? "Enfrentamiento" : "Matchup"}</span>
               <strong>
-                {ui.attempt} {attemptDisplay}/{TOTAL_PENALTIES}
+                {game.scoreboard.suddenDeath ? (isEs ? "Muerte subita" : "Sudden death") : `${isEs ? "Ronda" : "Round"} ${game.scoreboard.round}`}
               </strong>
             </header>
+            <div className={`penalty-turn-led ${turnLedClass}`}>
+              <span className="penalty-turn-led-dot" />
+              <strong>{turnLedLabel}</strong>
+            </div>
+            <p className={`penalty-role-copy ${game.turnMode === "save" ? "save" : "attack"}`}>
+              <strong>{ui.roleTitle}:</strong> {game.turnMode === "save" ? ui.roleSave : ui.roleAttack}
+            </p>
             <div className="penalty-score-grid">
               <article>
-                <h6>{ui.goals}</h6>
-                <p>{game.goals}</p>
+                <h6>{game.playerTeam.displayName}</h6>
+                <p>{game.scoreboard.playerGoals}</p>
               </article>
               <article>
-                <h6>{ui.saves}</h6>
-                <p>{game.saves}</p>
+                <h6>{game.rivalTeam?.displayName ?? (isEs ? "Rival" : "Rival")}</h6>
+                <p>{game.scoreboard.rivalGoals}</p>
               </article>
             </div>
+            <p>{isEs ? "Dificultad" : "Difficulty"}: <strong>{localizeDifficulty(game.selectedDifficultyId, locale)}</strong></p>
+            <p>{isEs ? "Restantes" : "Remaining"}: <strong>{game.scoreboard.remainingInitialShots}</strong></p>
           </section>
 
           <section className="penalty-panel">
@@ -1265,10 +2321,10 @@ function PenaltyNeuralKeeperGame() {
 
           <section className="penalty-panel">
             <header>
-              <span>{ui.controlsTitle}</span>
+              <span>{controlsTitle}</span>
               <strong>{ui.attempt} {attemptDisplay}</strong>
             </header>
-            <div className="penalty-zone-grid" role="group" aria-label={ui.controlsAria}>
+            <div className={`penalty-zone-grid${game.turnMode === "save" ? " save-mode" : ""}`} role="group" aria-label={ui.controlsAria}>
               {SHOT_ZONES.map((zone, index) => (
                 <button
                   id={`penalty-zone-${zone.id}`}
@@ -1279,11 +2335,11 @@ function PenaltyNeuralKeeperGame() {
                   className={zone.id === "center" ? "center-zone" : ""}
                 >
                   <span>{index + 1}</span>
-                  {localizeZone(zone.id, locale)}
+                  {game.turnMode === "save" ? localizeKeeperDive(zone.id, locale) : localizeZone(zone.id, locale)}
                 </button>
               ))}
             </div>
-            <p className="penalty-controls-hint">{ui.controlsHint}</p>
+            <p className="penalty-controls-hint">{controlsHint}</p>
           </section>
 
           <section className="penalty-panel">
@@ -1294,11 +2350,11 @@ function PenaltyNeuralKeeperGame() {
             {historyRows.length ? (
               <ul className="penalty-history-list">
                 {historyRows.map((entry) => (
-                  <li key={`shot-${entry.attempt}`}>
-                    <span>#{entry.attempt}</span>
-                    <span>{shortZone(entry.zoneId, locale)}</span>
-                    <span>{entry.result === "save" ? ui.saves : ui.goals}</span>
-                    <span>{Math.round(entry.saveProbability * 100)}%</span>
+                  <li key={`shot-${entry.sequence ?? entry.attempt}`}>
+                    <span>{entry.actor === "PLAYER" ? game.playerTeam.shortName : (game.rivalTeam?.shortName ?? "RIV")}</span>
+                    <span>{entry.zoneId ? shortZone(entry.zoneId, locale) : "--"}</span>
+                    <span>{entry.result}</span>
+                    <span>{entry.saveProbability ? `${Math.round(entry.saveProbability * 100)}%` : "--"}</span>
                   </li>
                 ))}
               </ul>

@@ -528,18 +528,18 @@ export const games = [
 
     title: "Penalty Neural Keeper",
     category: "Arcade",
-    tagline: "Tanda de 10 penaltis con fisica de tiro y portero IA que aprende tus ultimos patrones.",
+    tagline: "Tanda de penaltis por equipos con backend Node, rivales configurables y portero IA adaptativo.",
     description:
-      "Arcade de penaltis en vista de campo completo: el usuario selecciona cinco zonas de tiro (abajo izq/der, arriba izq/der y centro), el balon sigue una trayectoria con curvatura y potencia, y un portero con IA adaptativa analiza frecuencia, repeticion y transiciones recientes para mejorar su lectura en tiempo real.",
+      "Arcade de penaltis por equipos con backend ligero: eliges rival y dificultad, juegas tanda clasica de 5 lanzamientos mas muerte subita y cada disparo se resuelve en servidor con IA adaptativa del portero, historial de tiros y simulacion automatica del turno rival.",
     objective_es:
-      "Marca mas goles que paradas en una tanda de 10 penaltis evitando caer en patrones repetitivos que la IA pueda anticipar.",
+      "Supera al equipo rival en una tanda de 5 lanzamientos mas muerte subita evitando caer en patrones repetitivos que el portero pueda aprender.",
     howToPlay_es:
       "Selecciona la zona con botones o teclado: 1 abajo izq, 2 abajo der, 3 arriba izq, 4 arriba der, 5 centro. R reinicia tanda, F pantalla completa.",
     highlights: [
-      "10 tiros por partida con progresion clara de aprendizaje del portero durante la serie.",
+      "Tanda clasica de 5 tiros mas muerte subita con rival configurado por backend.",
       "Fisica de disparo con potencia, curva, trayectorias altas/bajas y rebote visual en caso de parada.",
-      "IA dinamica con analisis de frecuencia, transiciones entre zonas y deteccion de repeticion.",
-      "Telemetria visible de adaptacion, confianza, indice de aprendizaje y probabilidad de parada.",
+      "IA dinamica con analisis de frecuencia, recencia, transiciones entre zonas y deteccion de repeticion.",
+      "Backend Node con estado de match, historial, idempotencia razonable y telemetria visible de adaptacion, confianza e indice de aprendizaje.",
       "Render Canvas con cesped por franjas, porteria con red reactiva, animacion de estirada y trazas del balon.",
       "Bridge QA con render_game_to_text y avance temporal determinista via advanceTime.",
     ],
@@ -550,18 +550,18 @@ export const games = [
     techFocus: "Modelado de tiro por curvas quadraticas + IA adaptativa de corto plazo + telemetria QA completa.",
 
     category_en: "Arcade",
-    tagline_en: "10-penalty shootout with detailed shot physics and an AI goalkeeper that learns your latest patterns.",
+    tagline_en: "Team shootout with Node backend, configurable rivals, and an adaptive AI goalkeeper.",
     description_en:
-      "Full-pitch penalty arcade where players choose between five target zones (bottom left/right, top left/right, center). The ball follows curved trajectories with variable power, while an adaptive goalkeeper AI analyzes recent frequency, repetition, and transition patterns to improve decisions in real time.",
+      "Team-based penalty arcade backed by a lightweight server: choose rival and difficulty, play a classic 5-shot shootout plus sudden death, and have every attempt resolved server-side with adaptive goalkeeper AI, shot history, and simulated rival turns.",
     objective_en:
-      "Score more goals than saves over a 10-penalty shootout while avoiding repetitive patterns the AI can exploit.",
+      "Beat the rival team over a 5-shot shootout plus sudden death while avoiding repetitive patterns the goalkeeper can learn.",
     howToPlay_en:
       "Choose target zone with buttons or keyboard: 1 bottom left, 2 bottom right, 3 top left, 4 top right, 5 center. R restarts, F toggles fullscreen.",
     highlights_en: [
-      "10-shot match format with clear in-run goalkeeper learning progression.",
+      "Classic 5-shot format plus sudden death with server-configured rival profiles.",
       "Shot physics with power, curve, high/low trajectories, and visual rebound on saves.",
-      "Dynamic AI combining zone frequency, transition reads, and repetition detection.",
-      "Live telemetry for adaptation, confidence, learning index, and estimated save chance.",
+      "Dynamic AI combining frequency, recency, transition reads, and repetition detection.",
+      "Node backend with match state, shot history, reasonable idempotency, and live telemetry for adaptation, confidence, and learning index.",
       "Canvas render with striped grass, reactive net, dive animation, and ball trails.",
       "QA bridge exposing render_game_to_text plus deterministic advanceTime stepping.",
     ],
