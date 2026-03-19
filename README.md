@@ -10,6 +10,9 @@ Frontend en React + JavaScript + CSS para una plataforma SaaS de juegos.
 
 npm run backend:wikipedia-gacha
 
+## Caché wiki
+npm run generate:wikipedia-gacha-catalog -- --target 1000000 --sleep-ms 400
+
 ## Que incluye
 
 - Catalogo de juegos por tematica en formato tarjetas (imagen + titulo).
