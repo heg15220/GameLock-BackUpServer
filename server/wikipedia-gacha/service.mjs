@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import https from "node:https";
 import path from "node:path";
 import {
   ARTICLES,
@@ -34,9 +35,66 @@ const ARTICLES_BY_RARITY = ARTICLES.reduce((accumulator, article) => {
 }, {});
 const MISSION_BY_ID = new Map(MISSIONS.map((mission) => [mission.id, mission]));
 const TROPHY_BY_ID = new Map(TROPHIES.map((trophy) => [trophy.id, trophy]));
+const ENRICH_CACHE_OK_MS = 12 * 60 * 60 * 1000;
+const ENRICH_CACHE_FAIL_MS = 15 * 60 * 1000;
+const WIKIPEDIA_API_USER_AGENT =
+  process.env.WIKIPEDIA_GACHA_USER_AGENT ??
+  "WikipediaGacha/1.0 (https://wikigacha.com; contact@wikigacha.com)";
+const WIKIPEDIA_API_HEADERS = {
+  Accept: "application/json",
+  "User-Agent": WIKIPEDIA_API_USER_AGENT,
+  "Api-User-Agent": WIKIPEDIA_API_USER_AGENT,
+};
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function normalizeArticleText(value) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function requestJson(url, { timeoutMs = 2500, headers = {} } = {}) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(
+      url,
+      {
+        headers: { ...WIKIPEDIA_API_HEADERS, ...headers },
+      },
+      (res) => {
+        const chunks = [];
+        res.on("data", (chunk) => chunks.push(chunk));
+        res.on("end", () => {
+          if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
+            reject(new Error(`http_${res.statusCode}`));
+            return;
+          }
+          try {
+            const raw = Buffer.concat(chunks).toString("utf8");
+            resolve(JSON.parse(raw));
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+    );
+
+    req.setTimeout(timeoutMs, () => {
+      req.destroy(new Error("request_timeout"));
+    });
+    req.on("error", reject);
+  });
+}
+
+function isSyntheticExtract(value) {
+  const text = normalizeArticleText(value).toLowerCase();
+  return (
+    text.includes(
+      "has a dedicated encyclopedia article that expands on its background"
+    ) ||
+    text.includes("wikipedia profile:") ||
+    text.includes("categories:")
+  );
 }
 
 function isoDate(now) {
@@ -219,6 +277,7 @@ function serializePackCardResult(article, collectionEntry, packCard) {
     atk: article.atk,
     def: article.defStat,
     imageUrl: article.imageUrl,
+    extractText: article.extractText,
     flavorText: article.flavorText,
     wasNew: packCard.wasNew,
     copiesAfterPull: collectionEntry.copies,
@@ -229,13 +288,31 @@ function serializePackCardResult(article, collectionEntry, packCard) {
 }
 
 function serializePackHistoryEntry(opening) {
+  const normalizedCards = (opening.cards ?? []).map((card) => {
+    const article = ARTICLE_BY_ID.get(card.articleId);
+    if (!article) return card;
+    const hasCardExtract = typeof card.extractText === "string" && card.extractText.trim().length > 0;
+    const safeCardExtract = hasCardExtract && !isSyntheticExtract(card.extractText)
+      ? card.extractText
+      : null;
+    return {
+      ...card,
+      title: card.title ?? article.wikipediaTitle,
+      imageUrl: card.imageUrl ?? article.imageUrl ?? null,
+      extractText: safeCardExtract ?? article.extractText,
+      flavorText: card.flavorText ?? article.flavorText ?? null,
+      sourceUrl: card.sourceUrl ?? article.sourceUrl,
+      topicGroup: card.topicGroup ?? article.topicGroup,
+    };
+  });
+
   return {
     packOpeningId: opening.id,
     openedAt: opening.openedAt,
     guaranteedSrPlus: opening.guaranteedSrPlus,
     packType: opening.packType,
     resultSummary: opening.resultSummary,
-    cards: opening.cards,
+    cards: normalizedCards,
   };
 }
 
@@ -454,6 +531,7 @@ function serializeCollectionEntry(entry) {
     atk: article.atk,
     def: article.defStat,
     imageUrl: article.imageUrl,
+    extractText: article.extractText,
     flavorText: article.flavorText,
     topicGroup: article.topicGroup,
     sourceUrl: article.sourceUrl,
@@ -611,8 +689,175 @@ export function createWikipediaGachaService({
   randomFn = Math.random,
   nowFn = () => new Date(),
   randomBytesFn = crypto.randomBytes,
+  enableRemoteArticleEnrichment = false,
 } = {}) {
   const store = createJsonStore({ storeFile });
+  const articleEnrichmentCache = new Map();
+  let enrichmentBackoffUntilMs = 0;
+
+  function markEnrichmentBackoff(error) {
+    const reason = String(error?.message ?? error?.code ?? "");
+    if (
+      reason.includes("ENOTFOUND") ||
+      reason.includes("EAI_AGAIN") ||
+      reason.includes("ECONNRESET") ||
+      reason.includes("request_timeout") ||
+      reason.includes("http_403") ||
+      reason.includes("http_429") ||
+      reason.includes("http_503")
+    ) {
+      enrichmentBackoffUntilMs = Date.now() + 5 * 60 * 1000;
+    }
+  }
+
+  async function fetchRemoteArticleEnrichment(article) {
+    if (!enableRemoteArticleEnrichment || !article?.wikipediaTitle) {
+      return null;
+    }
+    if (Date.now() < enrichmentBackoffUntilMs) {
+      return null;
+    }
+
+    let extractText = "";
+    let imageUrl = null;
+
+    const params = new URLSearchParams({
+      action: "query",
+      format: "json",
+      formatversion: "2",
+      redirects: "1",
+      prop: "extracts|pageimages",
+      explaintext: "1",
+      exsectionformat: "plain",
+      exintro: "1",
+      exchars: "3600",
+      piprop: "original|thumbnail",
+      pithumbsize: "1200",
+      titles: article.wikipediaTitle,
+    });
+
+    try {
+      const payload = await requestJson(
+        `https://en.wikipedia.org/w/api.php?${params.toString()}`,
+        { timeoutMs: 2500 }
+      );
+      const page = payload?.query?.pages?.[0];
+      extractText = normalizeArticleText(page?.extract);
+      imageUrl = page?.original?.source ?? page?.thumbnail?.source ?? null;
+    } catch (error) {
+      markEnrichmentBackoff(error);
+      // summary fallback
+    }
+
+    if (!extractText || !imageUrl) {
+      try {
+        const summaryPayload = await requestJson(
+          `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
+            article.wikipediaTitle ?? article.wikipediaSlug ?? ""
+          )}`,
+          { timeoutMs: 2000 }
+        );
+        const summaryExtract = normalizeArticleText(summaryPayload?.extract);
+        if (summaryExtract.length > extractText.length) {
+          extractText = summaryExtract;
+        }
+        imageUrl =
+          imageUrl ??
+          summaryPayload?.originalimage?.source ??
+          summaryPayload?.thumbnail?.source ??
+          null;
+      } catch (error) {
+        markEnrichmentBackoff(error);
+      }
+    }
+
+    if (!extractText && !imageUrl) {
+      return null;
+    }
+
+    return {
+      extractText: extractText || null,
+      imageUrl,
+    };
+  }
+
+  async function getArticleEnrichment(article) {
+    if (!enableRemoteArticleEnrichment || !article?.id) {
+      return null;
+    }
+
+    const cached = articleEnrichmentCache.get(article.id);
+    if (cached) {
+      const ageMs = Date.now() - cached.fetchedAt;
+      const ttlMs = cached.data ? ENRICH_CACHE_OK_MS : ENRICH_CACHE_FAIL_MS;
+      if (ageMs < ttlMs) {
+        return cached.data;
+      }
+    }
+
+    const data = await fetchRemoteArticleEnrichment(article);
+    articleEnrichmentCache.set(article.id, {
+      fetchedAt: Date.now(),
+      data,
+    });
+    return data;
+  }
+
+  function resolveArticleFromCardLike(cardLike) {
+    const rawId = cardLike?.articleId ?? cardLike?.id;
+    const articleId = Number(rawId);
+    if (!Number.isFinite(articleId)) return null;
+    return ARTICLE_BY_ID.get(articleId) ?? null;
+  }
+
+  async function hydrateCardLike(cardLike) {
+    if (!cardLike || typeof cardLike !== "object") return cardLike;
+
+    const article = resolveArticleFromCardLike(cardLike);
+    if (!article) return cardLike;
+
+    const enrichment = await getArticleEnrichment(article);
+    const cardExtract = normalizeArticleText(cardLike.extractText);
+    const baseExtract = isSyntheticExtract(cardExtract)
+      ? normalizeArticleText(article.extractText)
+      : cardExtract;
+    const extractText =
+      normalizeArticleText(enrichment?.extractText) ||
+      baseExtract ||
+      normalizeArticleText(article.extractText);
+
+    const imageUrl =
+      enrichment?.imageUrl ??
+      cardLike.imageUrl ??
+      article.imageUrl ??
+      null;
+
+    return {
+      ...cardLike,
+      extractText,
+      imageUrl,
+    };
+  }
+
+  async function hydrateCards(cards) {
+    return Promise.all((cards ?? []).map((card) => hydrateCardLike(card)));
+  }
+
+  async function hydrateDashboard(dashboard) {
+    const recentPackHistory = await Promise.all(
+      (dashboard.recentPackHistory ?? []).map(async (entry) => ({
+        ...entry,
+        cards: await hydrateCards(entry.cards ?? []),
+      }))
+    );
+    const recentCollection = await hydrateCards(dashboard.recentCollection ?? []);
+
+    return {
+      ...dashboard,
+      recentPackHistory,
+      recentCollection,
+    };
+  }
 
   async function bootstrapSession(payload = {}) {
     const now = nowFn();
@@ -669,7 +914,7 @@ export function createWikipediaGachaService({
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
-    return buildDashboard(state, profile, now);
+    return hydrateDashboard(buildDashboard(state, profile, now));
   }
 
   async function getPackStatus(browserToken) {
@@ -781,7 +1026,11 @@ export function createWikipediaGachaService({
       return draft;
     });
 
-    return state.__lastOpenPackResponse;
+    const response = state.__lastOpenPackResponse;
+    return {
+      ...response,
+      cards: await hydrateCards(response.cards ?? []),
+    };
   }
 
   async function getPackHistory(browserToken) {
@@ -794,11 +1043,17 @@ export function createWikipediaGachaService({
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
-    return {
-      packHistory: getProfilePackHistory(state, profile.id).map(
-        serializePackHistoryEntry
-      ),
-    };
+    const packHistory = await Promise.all(
+      getProfilePackHistory(state, profile.id).map(async (entry) => {
+        const serialized = serializePackHistoryEntry(entry);
+        return {
+          ...serialized,
+          cards: await hydrateCards(serialized.cards ?? []),
+        };
+      })
+    );
+
+    return { packHistory };
   }
 
   async function getCollection(browserToken, filters = {}) {
@@ -828,12 +1083,13 @@ export function createWikipediaGachaService({
     const sorted = sortCollectionItems(filtered, filters.sortBy);
     const startIndex = (page - 1) * pageSize;
     const items = sorted.slice(startIndex, startIndex + pageSize);
+    const hydratedItems = await hydrateCards(items);
 
     return {
       page,
       pageSize,
       total: sorted.length,
-      items,
+      items: hydratedItems,
       summary: getCollectionSummary(state, profile.id),
       availableTopics: Array.from(
         new Set(serialized.map((item) => item.topicGroup).filter(Boolean))
@@ -861,7 +1117,7 @@ export function createWikipediaGachaService({
       error.code = "collection_item_not_found";
       throw error;
     }
-    return serializeCollectionEntry(collectionEntry);
+    return hydrateCardLike(serializeCollectionEntry(collectionEntry));
   }
 
   async function toggleFavorite(browserToken, articleId, favorite) {
@@ -892,7 +1148,7 @@ export function createWikipediaGachaService({
       (entry) =>
         entry.browserProfileId === profile.id && entry.articleId === articleId
     );
-    return serializeCollectionEntry(collectionEntry);
+    return hydrateCardLike(serializeCollectionEntry(collectionEntry));
   }
 
   async function getArticle(articleId, browserToken = null) {
@@ -905,7 +1161,7 @@ export function createWikipediaGachaService({
     }
 
     if (!browserToken) {
-      return clone(article);
+      return hydrateCardLike(clone(article));
     }
 
     const state = await store.read();
@@ -919,12 +1175,12 @@ export function createWikipediaGachaService({
         )
       : null;
 
-    return {
+    return hydrateCardLike({
       ...clone(article),
       inCollection: Boolean(collectionEntry),
       copies: collectionEntry?.copies ?? 0,
       favorite: collectionEntry?.favorite ?? false,
-    };
+    });
   }
 
   async function searchArticles(query) {
@@ -1243,7 +1499,7 @@ export function createWikipediaGachaService({
       return draft;
     });
 
-    return state.__importResponse;
+    return hydrateDashboard(state.__importResponse);
   }
 
   return {
@@ -1272,6 +1528,7 @@ export function createWikipediaGachaService({
 export const wikipediaGachaService = createWikipediaGachaService({
   storeFile:
     process.env.WIKIPEDIA_GACHA_STORE_FILE ?? DEFAULT_STORE_FILE,
+  enableRemoteArticleEnrichment: process.env.WIKIPEDIA_GACHA_ENABLE_REMOTE_ENRICHMENT !== "0",
 });
 
 export {

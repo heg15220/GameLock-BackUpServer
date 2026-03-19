@@ -80,6 +80,14 @@ function articleUrl(slug) {
   return `https://en.wikipedia.org/wiki/${slug}`;
 }
 
+function normalizeText(value) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function buildExtendedExtract(seed) {
+  return normalizeText(seed.extractText || seed.flavorText || "Wikipedia article.");
+}
+
 function buildArticle(seed, index) {
   const rarityCode = seed.rarityCode ?? getRarityFromQScore(seed.qualityScore);
   return {
@@ -90,7 +98,7 @@ function buildArticle(seed, index) {
     languageCode: "en",
     sourceUrl: articleUrl(seed.slug),
     imageUrl: seed.imageUrl ?? null,
-    extractText: seed.extractText,
+    extractText: buildExtendedExtract(seed),
     contentLength: seed.contentLength,
     sectionCount: seed.sectionCount,
     referenceCount: seed.referenceCount,

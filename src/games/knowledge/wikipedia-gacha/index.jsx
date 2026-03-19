@@ -71,13 +71,14 @@ function getDef(card) {
 }
 
 function getBlurb(card) {
-  return (
-    card?.extractText ??
-    card?.flavorText ??
-    (card?.topicGroup
-      ? `${card.topicGroup} archive entry added to your browser vault.`
-      : "Wikipedia entry archived for your browser collection.")
-  );
+  const normalize = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
+  const extract = normalize(card?.cardDescription ?? card?.extractText ?? card?.description ?? card?.summary);
+  if (extract) return extract;
+  const flavor = normalize(card?.flavorText);
+  if (flavor) return flavor;
+  return card?.topicGroup
+    ? `${card.topicGroup} archive entry added to your browser vault.`
+    : "Wikipedia entry archived for your browser collection.";
 }
 
 function toCollectionParams(filters) {
@@ -324,6 +325,9 @@ function TopicGlyph({ topicGroup }) {
 function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite, onCardActivate }) {
   const rarity = getRarity(card);
   const title = getTitle(card);
+  const titleClassName = `wg-stack-title${
+    title.length > 72 ? " is-longer" : title.length > 48 ? " is-long" : ""
+  }`;
   const hasImage = Boolean(card?.imageUrl);
   const articleId = card.articleId ?? card.id;
   const topicLabel = card.topicGroup ?? archiveLabel;
@@ -371,7 +375,7 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite,
           <header className="wg-stack-header">
             <div className="wg-stack-header-main">
               <span className="wg-stack-rarity">{rarity}</span>
-              <span className="wg-stack-title">{title}</span>
+              <span className={titleClassName}>{title}</span>
             </div>
             <div className="wg-stack-header-meta">
               <span className="wg-stack-topic-tag">{topicLabel}</span>
