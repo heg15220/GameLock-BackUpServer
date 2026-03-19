@@ -2,12 +2,12 @@ import crypto from "node:crypto";
 import https from "node:https";
 import path from "node:path";
 import {
-  ARTICLES,
   DEFAULT_MAX_PACKS,
   DEFAULT_STARTING_PACKS,
   DUPLICATE_SHARDS_BY_RARITY,
   GUARANTEED_SR_PLUS_WEIGHTS,
   MISSIONS,
+  NEW_CARD_WEIGHT_BOOST,
   PACK_REGEN_INTERVAL_MS,
   PACK_SIZE,
   PITY_THRESHOLD,
@@ -17,6 +17,7 @@ import {
   TROPHIES,
   compareRarity,
 } from "./constants.mjs";
+import { createWikipediaGachaCatalog } from "./catalog.mjs";
 import { createJsonStore } from "./storage.mjs";
 
 const DEFAULT_STORE_FILE = path.join(
@@ -26,13 +27,13 @@ const DEFAULT_STORE_FILE = path.join(
   "wikipedia-gacha",
   "store.json"
 );
-
-const ARTICLE_BY_ID = new Map(ARTICLES.map((article) => [article.id, article]));
-const ARTICLES_BY_RARITY = ARTICLES.reduce((accumulator, article) => {
-  accumulator[article.rarityCode] ??= [];
-  accumulator[article.rarityCode].push(article);
-  return accumulator;
-}, {});
+const DEFAULT_EXTERNAL_CATALOG_FILE = path.join(
+  process.cwd(),
+  "server",
+  "data",
+  "wikipedia-gacha",
+  "catalog.ndjson"
+);
 const MISSION_BY_ID = new Map(MISSIONS.map((mission) => [mission.id, mission]));
 const TROPHY_BY_ID = new Map(TROPHIES.map((trophy) => [trophy.id, trophy]));
 const ENRICH_CACHE_OK_MS = 12 * 60 * 60 * 1000;
@@ -121,12 +122,6 @@ function pickWeighted(items, randomFn) {
     }
   }
   return items[items.length - 1]?.rarity ?? "C";
-}
-
-function pickArticleForRarity(rarityCode, randomFn) {
-  const bucket = ARTICLES_BY_RARITY[rarityCode] ?? ARTICLES;
-  const index = Math.floor(randomFn() * bucket.length) % bucket.length;
-  return bucket[index];
 }
 
 function rarityAtLeast(rarityCode, targetCode) {
@@ -288,23 +283,15 @@ function serializePackCardResult(article, collectionEntry, packCard) {
 }
 
 function serializePackHistoryEntry(opening) {
-  const normalizedCards = (opening.cards ?? []).map((card) => {
-    const article = ARTICLE_BY_ID.get(card.articleId);
-    if (!article) return card;
-    const hasCardExtract = typeof card.extractText === "string" && card.extractText.trim().length > 0;
-    const safeCardExtract = hasCardExtract && !isSyntheticExtract(card.extractText)
-      ? card.extractText
-      : null;
-    return {
-      ...card,
-      title: card.title ?? article.wikipediaTitle,
-      imageUrl: card.imageUrl ?? article.imageUrl ?? null,
-      extractText: safeCardExtract ?? article.extractText,
-      flavorText: card.flavorText ?? article.flavorText ?? null,
-      sourceUrl: card.sourceUrl ?? article.sourceUrl,
-      topicGroup: card.topicGroup ?? article.topicGroup,
-    };
-  });
+  const normalizedCards = (opening.cards ?? []).map((card) => ({
+    ...card,
+    title: card.title ?? `Article #${card.articleId}`,
+    imageUrl: card.imageUrl ?? null,
+    extractText: normalizeArticleText(card.extractText) || "",
+    flavorText: card.flavorText ?? null,
+    sourceUrl: card.sourceUrl ?? null,
+    topicGroup: card.topicGroup ?? "General",
+  }));
 
   return {
     packOpeningId: opening.id,
@@ -316,7 +303,7 @@ function serializePackHistoryEntry(opening) {
   };
 }
 
-function getCollectionSummary(state, profileId) {
+function getCollectionSummary(state, profileId, getRarityForArticleId) {
   const entries = getProfileCollections(state, profileId);
   const uniqueCards = entries.length;
   const totalCopies = entries.reduce(
@@ -330,11 +317,9 @@ function getCollectionSummary(state, profileId) {
   }, {});
 
   for (const entry of entries) {
-    const article = ARTICLE_BY_ID.get(entry.articleId);
-    if (article) {
-      rarityBreakdown[article.rarityCode] =
-        (rarityBreakdown[article.rarityCode] ?? 0) + 1;
-    }
+    const rarityCode =
+      entry.bestRarityCode || getRarityForArticleId(entry.articleId) || "C";
+    rarityBreakdown[rarityCode] = (rarityBreakdown[rarityCode] ?? 0) + 1;
   }
 
   return {
@@ -435,7 +420,12 @@ function serializeMissionEntry(entry) {
   };
 }
 
-function getTrophyConditions(state, profile) {
+function getTrophyConditions(
+  state,
+  profile,
+  getTopicGroupForArticleId,
+  getRarityForArticleId
+) {
   const collection = getProfileCollections(state, profile.id);
   const uniqueCount = collection.length;
   const duplicateCopies = collection.reduce(
@@ -443,18 +433,19 @@ function getTrophyConditions(state, profile) {
     0
   );
   const scienceCount = collection.filter((entry) => {
-    const article = ARTICLE_BY_ID.get(entry.articleId);
-    return article?.topicGroup === "Science";
+    const topic = entry.topicGroup || getTopicGroupForArticleId(entry.articleId);
+    return topic === "Science";
   }).length;
   const historyCount = collection.filter((entry) => {
-    const article = ARTICLE_BY_ID.get(entry.articleId);
-    return article?.topicGroup === "History";
+    const topic = entry.topicGroup || getTopicGroupForArticleId(entry.articleId);
+    return topic === "History";
   }).length;
   const highestRarity = collection.reduce((best, entry) => {
-    const article = ARTICLE_BY_ID.get(entry.articleId);
-    if (!article) return best;
-    if (!best || compareRarity(article.rarityCode, best) > 0) {
-      return article.rarityCode;
+    const rarityCode =
+      entry.bestRarityCode || getRarityForArticleId(entry.articleId);
+    if (!rarityCode) return best;
+    if (!best || compareRarity(rarityCode, best) > 0) {
+      return rarityCode;
     }
     return best;
   }, null);
@@ -470,14 +461,25 @@ function getTrophyConditions(state, profile) {
   };
 }
 
-function ensureTrophiesUnlocked(state, profile, now) {
+function ensureTrophiesUnlocked(
+  state,
+  profile,
+  now,
+  getTopicGroupForArticleId,
+  getRarityForArticleId
+) {
   const unlocked = state.browserTrophies.filter(
     (entry) => entry.browserProfileId === profile.id
   );
   const unlockedCodes = new Set(
     unlocked.map((entry) => TROPHY_BY_ID.get(entry.trophyId)?.code).filter(Boolean)
   );
-  const conditions = getTrophyConditions(state, profile);
+  const conditions = getTrophyConditions(
+    state,
+    profile,
+    getTopicGroupForArticleId,
+    getRarityForArticleId
+  );
 
   for (const trophy of TROPHIES) {
     if (unlockedCodes.has(trophy.code) || !conditions[trophy.code]) {
@@ -498,8 +500,20 @@ function ensureTrophiesUnlocked(state, profile, now) {
   );
 }
 
-function getTrophySummary(state, profile, now) {
-  const unlocked = ensureTrophiesUnlocked(state, profile, now);
+function getTrophySummary(
+  state,
+  profile,
+  now,
+  getTopicGroupForArticleId,
+  getRarityForArticleId
+) {
+  const unlocked = ensureTrophiesUnlocked(
+    state,
+    profile,
+    now,
+    getTopicGroupForArticleId,
+    getRarityForArticleId
+  );
   return {
     total: TROPHIES.length,
     unlocked: unlocked.length,
@@ -521,8 +535,30 @@ function serializeTrophyEntry(entry) {
   };
 }
 
-function serializeCollectionEntry(entry) {
-  const article = ARTICLE_BY_ID.get(entry.articleId);
+async function serializeCollectionEntry(entry, getArticleById) {
+  const article = await getArticleById(entry.articleId);
+  if (!article) {
+    return {
+      articleId: entry.articleId,
+      title: `Article #${entry.articleId}`,
+      rarity: entry.bestRarityCode ?? "C",
+      qualityScore: 0,
+      atk: 0,
+      def: 0,
+      imageUrl: null,
+      extractText: "",
+      flavorText: null,
+      topicGroup: entry.topicGroup ?? "General",
+      sourceUrl: null,
+      categories: [],
+      copies: entry.copies,
+      favorite: entry.favorite,
+      bestRarityCode: entry.bestRarityCode,
+      firstObtainedAt: entry.firstObtainedAt,
+      lastObtainedAt: entry.lastObtainedAt,
+    };
+  }
+
   return {
     articleId: article.id,
     title: article.wikipediaTitle,
@@ -599,8 +635,13 @@ function applyCollectionFilters(items, filters) {
   });
 }
 
-function createPackCards(state, profile, now, randomFn) {
+function createPackCards(state, profile, now, randomFn, articleCatalog) {
   const guaranteedSrPlus = profile.pityCounter >= PITY_THRESHOLD;
+  const ownedArticleIds = new Set(
+    state.browserCollection
+      .filter((entry) => entry.browserProfileId === profile.id)
+      .map((entry) => entry.articleId)
+  );
   const packCards = [];
   let containsSrOrHigher = false;
   let newCardsCount = 0;
@@ -612,44 +653,59 @@ function createPackCards(state, profile, now, randomFn) {
       forceGuaranteedSlot ? GUARANTEED_SR_PLUS_WEIGHTS : STANDARD_RARITY_WEIGHTS,
       randomFn
     );
-    const article = pickArticleForRarity(rarity, randomFn);
-    containsSrOrHigher ||= rarityAtLeast(article.rarityCode, "SR");
+    const articleId = articleCatalog.pickArticleIdForRarity(
+      rarity,
+      randomFn,
+      ownedArticleIds,
+      NEW_CARD_WEIGHT_BOOST
+    );
+    if (!articleId) {
+      continue;
+    }
+    const articleRarity = articleCatalog.getRarityForArticleId(articleId) ?? rarity;
+    const articleTopicGroup =
+      articleCatalog.getTopicGroupForArticleId(articleId) ?? "General";
+    containsSrOrHigher ||= rarityAtLeast(articleRarity, "SR");
 
     let collectionEntry = state.browserCollection.find(
       (entry) =>
-        entry.browserProfileId === profile.id && entry.articleId === article.id
+        entry.browserProfileId === profile.id && entry.articleId === articleId
     );
     const duplicateCountBefore = collectionEntry?.copies ?? 0;
     const wasNew = !collectionEntry;
     const shardsEarned = wasNew
       ? 0
-      : DUPLICATE_SHARDS_BY_RARITY[article.rarityCode] ?? 0;
+      : DUPLICATE_SHARDS_BY_RARITY[articleRarity] ?? 0;
 
     if (!collectionEntry) {
       collectionEntry = {
         id: createId(state, "collection"),
         browserProfileId: profile.id,
-        articleId: article.id,
+        articleId,
         copies: 1,
         firstObtainedAt: isoDate(now),
         lastObtainedAt: isoDate(now),
         favorite: false,
-        bestRarityCode: article.rarityCode,
+        bestRarityCode: articleRarity,
+        topicGroup: articleTopicGroup,
       };
       state.browserCollection.push(collectionEntry);
+      ownedArticleIds.add(articleId);
       newCardsCount += 1;
     } else {
       collectionEntry.copies += 1;
       collectionEntry.lastObtainedAt = isoDate(now);
+      collectionEntry.bestRarityCode = collectionEntry.bestRarityCode ?? articleRarity;
+      collectionEntry.topicGroup = collectionEntry.topicGroup ?? articleTopicGroup;
     }
 
     profile.shards += shardsEarned;
     totalShards += shardsEarned;
 
     packCards.push({
-      articleId: article.id,
+      articleId,
       slotNumber: slotIndex + 1,
-      rarity: article.rarityCode,
+      rarity: articleRarity,
       wasNew,
       duplicateCountBefore,
       shardsEarned,
@@ -666,21 +722,39 @@ function createPackCards(state, profile, now, randomFn) {
   };
 }
 
-function buildDashboard(state, profile, now) {
+async function buildDashboard(state, profile, now, articleCatalog) {
+  const recentCollection = await Promise.all(
+    sortCollectionItems(
+      await Promise.all(
+        getProfileCollections(state, profile.id).map((entry) =>
+          serializeCollectionEntry(entry, articleCatalog.getArticleById)
+        )
+      ),
+      "recent"
+    ).slice(0, 8)
+  );
+
   return {
     browserToken: profile.browserToken,
     profile: serializeProfile(profile),
     packStatus: serializePackStatus(profile, now),
-    collectionSummary: getCollectionSummary(state, profile.id),
+    collectionSummary: getCollectionSummary(
+      state,
+      profile.id,
+      articleCatalog.getRarityForArticleId
+    ),
     missionSummary: getMissionSummary(state, profile, now),
-    trophySummary: getTrophySummary(state, profile, now),
+    trophySummary: getTrophySummary(
+      state,
+      profile,
+      now,
+      articleCatalog.getTopicGroupForArticleId,
+      articleCatalog.getRarityForArticleId
+    ),
     recentPackHistory: getProfilePackHistory(state, profile.id)
       .slice(0, 4)
       .map(serializePackHistoryEntry),
-    recentCollection: sortCollectionItems(
-      getProfileCollections(state, profile.id).map(serializeCollectionEntry),
-      "recent"
-    ).slice(0, 8),
+    recentCollection,
   };
 }
 
@@ -690,8 +764,21 @@ export function createWikipediaGachaService({
   nowFn = () => new Date(),
   randomBytesFn = crypto.randomBytes,
   enableRemoteArticleEnrichment = false,
+  externalCatalogFile = DEFAULT_EXTERNAL_CATALOG_FILE,
+  externalCatalogIndexFile = null,
+  articleCacheSize = Number(process.env.WIKIPEDIA_GACHA_ARTICLE_CACHE_SIZE || 5000),
 } = {}) {
   const store = createJsonStore({ storeFile });
+  const articleCatalog = createWikipediaGachaCatalog({
+    externalCatalogFile:
+      process.env.WIKIPEDIA_GACHA_ENABLE_EXTERNAL_CATALOG === "0"
+        ? null
+        : externalCatalogFile,
+    externalCatalogIndexFile:
+      process.env.WIKIPEDIA_GACHA_CATALOG_INDEX_FILE ??
+      externalCatalogIndexFile,
+    cacheSize: articleCacheSize,
+  });
   const articleEnrichmentCache = new Map();
   let enrichmentBackoffUntilMs = 0;
 
@@ -708,6 +795,10 @@ export function createWikipediaGachaService({
     ) {
       enrichmentBackoffUntilMs = Date.now() + 5 * 60 * 1000;
     }
+  }
+
+  async function ensureCatalogReady() {
+    await articleCatalog.ready();
   }
 
   async function fetchRemoteArticleEnrichment(article) {
@@ -803,17 +894,17 @@ export function createWikipediaGachaService({
     return data;
   }
 
-  function resolveArticleFromCardLike(cardLike) {
+  async function resolveArticleFromCardLike(cardLike) {
     const rawId = cardLike?.articleId ?? cardLike?.id;
     const articleId = Number(rawId);
     if (!Number.isFinite(articleId)) return null;
-    return ARTICLE_BY_ID.get(articleId) ?? null;
+    return articleCatalog.getArticleById(articleId);
   }
 
   async function hydrateCardLike(cardLike) {
     if (!cardLike || typeof cardLike !== "object") return cardLike;
 
-    const article = resolveArticleFromCardLike(cardLike);
+    const article = await resolveArticleFromCardLike(cardLike);
     if (!article) return cardLike;
 
     const enrichment = await getArticleEnrichment(article);
@@ -860,6 +951,7 @@ export function createWikipediaGachaService({
   }
 
   async function bootstrapSession(payload = {}) {
+    await ensureCatalogReady();
     const now = nowFn();
     const browserToken = createToken(randomBytesFn);
     const profile = {
@@ -882,11 +974,17 @@ export function createWikipediaGachaService({
       lastPackOpenedAt: null,
     };
 
-    const state = await store.update((draft) => {
+    const state = await store.update(async (draft) => {
       profile.id = createId(draft, "profile");
       draft.browserProfiles.push(profile);
       ensureDailyMissions(draft, profile, now);
-      ensureTrophiesUnlocked(draft, profile, now);
+      ensureTrophiesUnlocked(
+        draft,
+        profile,
+        now,
+        articleCatalog.getTopicGroupForArticleId,
+        articleCatalog.getRarityForArticleId
+      );
       return draft;
     });
 
@@ -901,6 +999,7 @@ export function createWikipediaGachaService({
   }
 
   async function getSessionMe(browserToken) {
+    await ensureCatalogReady();
     const now = nowFn();
     const state = await store.update((draft) => {
       const profile = ensureProfile(draft, browserToken);
@@ -908,18 +1007,27 @@ export function createWikipediaGachaService({
       profile.lastSeenAt = isoDate(now);
       profile.updatedAt = isoDate(now);
       recomputeMissionProgress(draft, profile, now);
-      ensureTrophiesUnlocked(draft, profile, now);
+      ensureTrophiesUnlocked(
+        draft,
+        profile,
+        now,
+        articleCatalog.getTopicGroupForArticleId,
+        articleCatalog.getRarityForArticleId
+      );
       return draft;
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
-    return hydrateDashboard(buildDashboard(state, profile, now));
+    return hydrateDashboard(
+      await buildDashboard(state, profile, now, articleCatalog)
+    );
   }
 
   async function getPackStatus(browserToken) {
+    await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       applyPackRegeneration(profile, now);
       profile.lastSeenAt = isoDate(now);
@@ -933,8 +1041,9 @@ export function createWikipediaGachaService({
   }
 
   async function openPack(browserToken) {
+    await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       applyPackRegeneration(profile, now);
 
@@ -956,16 +1065,30 @@ export function createWikipediaGachaService({
       }
 
       const wasAtCap = profile.packsAvailable >= profile.maxPacks;
-      const packResult = createPackCards(draft, profile, now, randomFn);
-      const openingCards = packResult.packCards.map((packCard) => {
-        const article = ARTICLE_BY_ID.get(packCard.articleId);
-        const collectionEntry = draft.browserCollection.find(
-          (entry) =>
-            entry.browserProfileId === profile.id &&
-            entry.articleId === packCard.articleId
-        );
-        return serializePackCardResult(article, collectionEntry, packCard);
-      });
+      const packResult = createPackCards(
+        draft,
+        profile,
+        now,
+        randomFn,
+        articleCatalog
+      );
+      const openingCards = await Promise.all(
+        packResult.packCards.map(async (packCard) => {
+          const article = await articleCatalog.getArticleById(packCard.articleId);
+          if (!article) {
+            const error = new Error(`Article ${packCard.articleId} not found.`);
+            error.statusCode = 500;
+            error.code = "catalog_article_not_found";
+            throw error;
+          }
+          const collectionEntry = draft.browserCollection.find(
+            (entry) =>
+              entry.browserProfileId === profile.id &&
+              entry.articleId === packCard.articleId
+          );
+          return serializePackCardResult(article, collectionEntry, packCard);
+        })
+      );
 
       profile.packsAvailable -= 1;
       profile.totalPackOpens += 1;
@@ -1013,7 +1136,13 @@ export function createWikipediaGachaService({
       }
 
       recomputeMissionProgress(draft, profile, now);
-      ensureTrophiesUnlocked(draft, profile, now);
+      ensureTrophiesUnlocked(
+        draft,
+        profile,
+        now,
+        articleCatalog.getTopicGroupForArticleId,
+        articleCatalog.getRarityForArticleId
+      );
       draft.__lastOpenPackResponse = {
         packOpeningId: opening.id,
         guaranteedSrPlus: packResult.guaranteedSrPlus,
@@ -1034,6 +1163,7 @@ export function createWikipediaGachaService({
   }
 
   async function getPackHistory(browserToken) {
+    await ensureCatalogReady();
     const now = nowFn();
     const state = await store.update((draft) => {
       const profile = ensureProfile(draft, browserToken);
@@ -1057,6 +1187,7 @@ export function createWikipediaGachaService({
   }
 
   async function getCollection(browserToken, filters = {}) {
+    await ensureCatalogReady();
     const now = nowFn();
     const state = await store.update((draft) => {
       const profile = ensureProfile(draft, browserToken);
@@ -1069,8 +1200,10 @@ export function createWikipediaGachaService({
     const page = Math.max(1, Number(filters.page) || 1);
     const pageSize = Math.min(60, Math.max(1, Number(filters.pageSize) || 24));
 
-    const serialized = getProfileCollections(state, profile.id).map(
-      serializeCollectionEntry
+    const serialized = await Promise.all(
+      getProfileCollections(state, profile.id).map((entry) =>
+        serializeCollectionEntry(entry, articleCatalog.getArticleById)
+      )
     );
     const filtered = applyCollectionFilters(serialized, {
       query: filters.query,
@@ -1090,7 +1223,11 @@ export function createWikipediaGachaService({
       pageSize,
       total: sorted.length,
       items: hydratedItems,
-      summary: getCollectionSummary(state, profile.id),
+      summary: getCollectionSummary(
+        state,
+        profile.id,
+        articleCatalog.getRarityForArticleId
+      ),
       availableTopics: Array.from(
         new Set(serialized.map((item) => item.topicGroup).filter(Boolean))
       ).sort((left, right) => left.localeCompare(right)),
@@ -1098,6 +1235,7 @@ export function createWikipediaGachaService({
   }
 
   async function getCollectionItem(browserToken, articleId) {
+    await ensureCatalogReady();
     const now = nowFn();
     const state = await store.update((draft) => {
       const profile = ensureProfile(draft, browserToken);
@@ -1117,10 +1255,13 @@ export function createWikipediaGachaService({
       error.code = "collection_item_not_found";
       throw error;
     }
-    return hydrateCardLike(serializeCollectionEntry(collectionEntry));
+    return hydrateCardLike(
+      await serializeCollectionEntry(collectionEntry, articleCatalog.getArticleById)
+    );
   }
 
   async function toggleFavorite(browserToken, articleId, favorite) {
+    await ensureCatalogReady();
     const now = nowFn();
     const state = await store.update((draft) => {
       const profile = ensureProfile(draft, browserToken);
@@ -1148,11 +1289,14 @@ export function createWikipediaGachaService({
       (entry) =>
         entry.browserProfileId === profile.id && entry.articleId === articleId
     );
-    return hydrateCardLike(serializeCollectionEntry(collectionEntry));
+    return hydrateCardLike(
+      await serializeCollectionEntry(collectionEntry, articleCatalog.getArticleById)
+    );
   }
 
   async function getArticle(articleId, browserToken = null) {
-    const article = ARTICLE_BY_ID.get(articleId);
+    await ensureCatalogReady();
+    const article = await articleCatalog.getArticleById(articleId);
     if (!article) {
       const error = new Error("Article not found.");
       error.statusCode = 404;
@@ -1184,26 +1328,15 @@ export function createWikipediaGachaService({
   }
 
   async function searchArticles(query) {
-    const term = String(query ?? "").trim().toLowerCase();
-    const items = ARTICLES.filter((article) => {
-      if (!term) return true;
-      return article.wikipediaTitle.toLowerCase().includes(term);
-    })
-      .slice(0, 20)
-      .map((article) => ({
-        articleId: article.id,
-        title: article.wikipediaTitle,
-        rarity: article.rarityCode,
-        qualityScore: article.qualityScore,
-        topicGroup: article.topicGroup,
-        sourceUrl: article.sourceUrl,
-      }));
+    await ensureCatalogReady();
+    const items = await articleCatalog.searchArticles(query, 20);
     return { items };
   }
 
   async function registerArticleClick(browserToken, articleId) {
+    await ensureCatalogReady();
     const now = nowFn();
-    const article = ARTICLE_BY_ID.get(articleId);
+    const article = await articleCatalog.getArticleById(articleId);
     if (!article) {
       const error = new Error("Article not found.");
       error.statusCode = 404;
@@ -1226,6 +1359,7 @@ export function createWikipediaGachaService({
   }
 
   async function getMissions(browserToken) {
+    await ensureCatalogReady();
     const now = nowFn();
     const state = await store.update((draft) => {
       const profile = ensureProfile(draft, browserToken);
@@ -1242,6 +1376,7 @@ export function createWikipediaGachaService({
   }
 
   async function claimMission(browserToken, missionId) {
+    await ensureCatalogReady();
     const now = nowFn();
     const state = await store.update((draft) => {
       const profile = ensureProfile(draft, browserToken);
@@ -1306,10 +1441,17 @@ export function createWikipediaGachaService({
   }
 
   async function getTrophies(browserToken, { unlockedOnly = false } = {}) {
+    await ensureCatalogReady();
     const now = nowFn();
     const state = await store.update((draft) => {
       const profile = ensureProfile(draft, browserToken);
-      ensureTrophiesUnlocked(draft, profile, now);
+      ensureTrophiesUnlocked(
+        draft,
+        profile,
+        now,
+        articleCatalog.getTopicGroupForArticleId,
+        articleCatalog.getRarityForArticleId
+      );
       return draft;
     });
     const profile = state.browserProfiles.find(
@@ -1342,13 +1484,20 @@ export function createWikipediaGachaService({
 
     return {
       trophies,
-      summary: getTrophySummary(state, profile, now),
+      summary: getTrophySummary(
+        state,
+        profile,
+        now,
+        articleCatalog.getTopicGroupForArticleId,
+        articleCatalog.getRarityForArticleId
+      ),
     };
   }
 
   async function exportRecoveryCode(browserToken) {
+    await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       const code = createRecoveryCode(randomBytesFn);
       const collection = getProfileCollections(draft, profile.id);
@@ -1378,6 +1527,7 @@ export function createWikipediaGachaService({
             copies: entry.copies,
             favorite: entry.favorite,
             bestRarityCode: entry.bestRarityCode,
+            topicGroup: entry.topicGroup,
             firstObtainedAt: entry.firstObtainedAt,
             lastObtainedAt: entry.lastObtainedAt,
           })),
@@ -1415,8 +1565,9 @@ export function createWikipediaGachaService({
   }
 
   async function importRecoveryCode(browserToken, recoveryCode) {
+    await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       const recovery = draft.recoveries.find(
         (entry) => entry.code === recoveryCode
@@ -1494,8 +1645,19 @@ export function createWikipediaGachaService({
       }
 
       recomputeMissionProgress(draft, profile, now);
-      ensureTrophiesUnlocked(draft, profile, now);
-      draft.__importResponse = buildDashboard(draft, profile, now);
+      ensureTrophiesUnlocked(
+        draft,
+        profile,
+        now,
+        articleCatalog.getTopicGroupForArticleId,
+        articleCatalog.getRarityForArticleId
+      );
+      draft.__importResponse = await buildDashboard(
+        draft,
+        profile,
+        now,
+        articleCatalog
+      );
       return draft;
     });
 
@@ -1519,8 +1681,12 @@ export function createWikipediaGachaService({
     getTrophies,
     exportRecoveryCode,
     importRecoveryCode,
-    getCatalog() {
-      return ARTICLES.map((article) => clone(article));
+    async getCatalog(limit = 500) {
+      await ensureCatalogReady();
+      return articleCatalog.listCatalog(limit);
+    },
+    async close() {
+      await articleCatalog.close();
     },
   };
 }
@@ -1529,6 +1695,9 @@ export const wikipediaGachaService = createWikipediaGachaService({
   storeFile:
     process.env.WIKIPEDIA_GACHA_STORE_FILE ?? DEFAULT_STORE_FILE,
   enableRemoteArticleEnrichment: process.env.WIKIPEDIA_GACHA_ENABLE_REMOTE_ENRICHMENT !== "0",
+  externalCatalogFile:
+    process.env.WIKIPEDIA_GACHA_CATALOG_FILE ?? DEFAULT_EXTERNAL_CATALOG_FILE,
+  articleCacheSize: Number(process.env.WIKIPEDIA_GACHA_ARTICLE_CACHE_SIZE || 5000),
 });
 
 export {

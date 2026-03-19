@@ -44,6 +44,8 @@ export const DUPLICATE_SHARDS_BY_RARITY = {
   LR: 80,
 };
 
+export const NEW_CARD_WEIGHT_BOOST = 3;
+
 export const RECOVERY_CODE_PREFIX = "WKVLT";
 
 export function getRarityFromQScore(score) {
@@ -88,10 +90,10 @@ function buildExtendedExtract(seed) {
   return normalizeText(seed.extractText || seed.flavorText || "Wikipedia article.");
 }
 
-function buildArticle(seed, index) {
+export function buildArticleFromSeed(seed, id) {
   const rarityCode = seed.rarityCode ?? getRarityFromQScore(seed.qualityScore);
   return {
-    id: index + 1,
+    id,
     wikipediaPageId: seed.wikipediaPageId,
     wikipediaTitle: seed.title,
     wikipediaSlug: seed.slug,
@@ -549,7 +551,9 @@ const ARTICLE_SEEDS = [
   },
 ];
 
-export const ARTICLES = ARTICLE_SEEDS.map(buildArticle);
+export const ARTICLES = ARTICLE_SEEDS.map((seed, index) =>
+  buildArticleFromSeed(seed, index + 1)
+);
 
 export const MISSIONS = [
   {
