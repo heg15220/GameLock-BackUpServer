@@ -2,11 +2,11 @@
   "version": 1,
   "nextIds": {
     "profile": 13,
-    "collection": 64,
-    "packOpening": 34,
+    "collection": 67,
+    "packOpening": 36,
     "browserMission": 85,
     "browserTrophy": 25,
-    "rewardEvent": 22,
+    "rewardEvent": 24,
     "dailyStat": 14
   },
   "browserProfiles": [
@@ -203,16 +203,16 @@
       "displayName": "Anonymous Archivist",
       "packsAvailable": 9,
       "maxPacks": 10,
-      "lastPackRegenAt": "2026-03-19T09:32:46.511Z",
+      "lastPackRegenAt": "2026-03-19T09:36:55.100Z",
       "gems": 50,
-      "shards": 456,
+      "shards": 534,
       "trophiesPoints": 130,
-      "totalPackOpens": 15,
+      "totalPackOpens": 17,
       "pityCounter": 0,
       "createdAt": "2026-03-18T22:18:09.702Z",
-      "updatedAt": "2026-03-19T09:32:46.541Z",
-      "lastSeenAt": "2026-03-19T09:32:46.541Z",
-      "lastPackOpenedAt": "2026-03-19T09:32:46.511Z"
+      "updatedAt": "2026-03-19T09:36:55.140Z",
+      "lastSeenAt": "2026-03-19T09:36:55.140Z",
+      "lastPackOpenedAt": "2026-03-19T09:36:55.100Z"
     }
   ],
   "browserCollection": [
@@ -490,11 +490,11 @@
       "id": 45,
       "browserProfileId": 12,
       "articleId": 8,
-      "copies": 7,
+      "copies": 8,
       "favorite": false,
       "bestRarityCode": "UC",
       "firstObtainedAt": "2026-03-18T22:18:19.969Z",
-      "lastObtainedAt": "2026-03-19T09:28:54.185Z"
+      "lastObtainedAt": "2026-03-19T09:36:55.100Z"
     },
     {
       "id": 46,
@@ -520,11 +520,11 @@
       "id": 48,
       "browserProfileId": 12,
       "articleId": 1,
-      "copies": 6,
+      "copies": 7,
       "favorite": false,
       "bestRarityCode": "C",
       "firstObtainedAt": "2026-03-18T22:18:19.969Z",
-      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+      "lastObtainedAt": "2026-03-19T09:36:55.100Z"
     },
     {
       "id": 49,
@@ -540,21 +540,21 @@
       "id": 50,
       "browserProfileId": 12,
       "articleId": 6,
-      "copies": 7,
+      "copies": 8,
       "favorite": false,
       "bestRarityCode": "UC",
       "firstObtainedAt": "2026-03-18T22:45:24.591Z",
-      "lastObtainedAt": "2026-03-19T09:32:46.511Z"
+      "lastObtainedAt": "2026-03-19T09:34:11.292Z"
     },
     {
       "id": 51,
       "browserProfileId": 12,
       "articleId": 4,
-      "copies": 6,
+      "copies": 7,
       "favorite": false,
       "bestRarityCode": "C",
       "firstObtainedAt": "2026-03-18T22:45:24.591Z",
-      "lastObtainedAt": "2026-03-19T09:14:48.275Z"
+      "lastObtainedAt": "2026-03-19T09:34:11.292Z"
     },
     {
       "id": 52,
@@ -590,21 +590,21 @@
       "id": 55,
       "browserProfileId": 12,
       "articleId": 18,
-      "copies": 2,
+      "copies": 3,
       "favorite": false,
       "bestRarityCode": "SR",
       "firstObtainedAt": "2026-03-18T23:38:51.429Z",
-      "lastObtainedAt": "2026-03-19T09:10:33.368Z"
+      "lastObtainedAt": "2026-03-19T09:36:55.100Z"
     },
     {
       "id": 56,
       "browserProfileId": 12,
       "articleId": 13,
-      "copies": 3,
+      "copies": 4,
       "favorite": false,
       "bestRarityCode": "R",
       "firstObtainedAt": "2026-03-18T23:38:51.429Z",
-      "lastObtainedAt": "2026-03-19T09:14:48.275Z"
+      "lastObtainedAt": "2026-03-19T09:36:55.100Z"
     },
     {
       "id": 57,
@@ -650,11 +650,11 @@
       "id": 61,
       "browserProfileId": 12,
       "articleId": 19,
-      "copies": 2,
+      "copies": 3,
       "favorite": false,
       "bestRarityCode": "SR",
       "firstObtainedAt": "2026-03-19T09:12:37.817Z",
-      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+      "lastObtainedAt": "2026-03-19T09:34:11.292Z"
     },
     {
       "id": 62,
@@ -675,6 +675,36 @@
       "lastObtainedAt": "2026-03-19T09:32:46.511Z",
       "favorite": false,
       "bestRarityCode": "SSR"
+    },
+    {
+      "id": 64,
+      "browserProfileId": 12,
+      "articleId": 24,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T09:34:11.292Z",
+      "lastObtainedAt": "2026-03-19T09:34:11.292Z",
+      "favorite": false,
+      "bestRarityCode": "SSR"
+    },
+    {
+      "id": 65,
+      "browserProfileId": 12,
+      "articleId": 16,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T09:34:11.292Z",
+      "lastObtainedAt": "2026-03-19T09:34:11.292Z",
+      "favorite": false,
+      "bestRarityCode": "SR"
+    },
+    {
+      "id": 66,
+      "browserProfileId": 12,
+      "articleId": 17,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T09:36:55.100Z",
+      "lastObtainedAt": "2026-03-19T09:36:55.100Z",
+      "favorite": false,
+      "bestRarityCode": "SR"
     }
   ],
   "packOpenings": [
@@ -2462,6 +2492,176 @@
           "topicGroup": "Astronomy"
         }
       ]
+    },
+    {
+      "id": 34,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:34:11.292Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SSR, 2 SR, 1 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 24,
+          "title": "Internet",
+          "rarity": "SSR",
+          "qualityScore": 82,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Invisible roads, impossible scale, and the whole planet on the wire.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Internet",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 19,
+          "title": "Machine learning",
+          "rarity": "SR",
+          "qualityScore": 78,
+          "atk": 13084,
+          "def": 12003,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Machine_learning",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 16,
+          "title": "Photosynthesis",
+          "rarity": "SR",
+          "qualityScore": 62,
+          "atk": 8868,
+          "def": 9804,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Photosynthesis",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 8,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:36:55.100Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "2 SR, 1 R, 1 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 8,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 13,
+          "title": "Antarctica",
+          "rarity": "R",
+          "qualityScore": 54,
+          "atk": 6933,
+          "def": 8192,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 17,
+          "title": "Apollo 11",
+          "rarity": "SR",
+          "qualityScore": 71,
+          "atk": 12573,
+          "def": 12023,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Apollo_11",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 18,
+          "title": "Ancient Rome",
+          "rarity": "SR",
+          "qualityScore": 75,
+          "atk": 11193,
+          "def": 12308,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+          "topicGroup": "History"
+        }
+      ]
     }
   ],
   "browserMissions": [
@@ -3200,7 +3400,7 @@
       "claimed": true,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:32:46.555Z"
+      "updatedAt": "2026-03-19T09:36:55.149Z"
     },
     {
       "id": 80,
@@ -3211,7 +3411,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:32:46.555Z"
+      "updatedAt": "2026-03-19T09:36:55.149Z"
     },
     {
       "id": 81,
@@ -3222,7 +3422,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:32:46.555Z"
+      "updatedAt": "2026-03-19T09:36:55.149Z"
     },
     {
       "id": 82,
@@ -3233,7 +3433,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:32:46.555Z"
+      "updatedAt": "2026-03-19T09:36:55.149Z"
     },
     {
       "id": 83,
@@ -3244,7 +3444,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:32:46.555Z"
+      "updatedAt": "2026-03-19T09:36:55.149Z"
     },
     {
       "id": 84,
@@ -3255,7 +3455,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:32:46.555Z"
+      "updatedAt": "2026-03-19T09:36:55.149Z"
     }
   ],
   "browserTrophies": [
@@ -3608,6 +3808,28 @@
       "metadataJson": {
         "packOpeningId": 33
       }
+    },
+    {
+      "id": 22,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 33,
+      "createdAt": "2026-03-19T09:34:11.292Z",
+      "metadataJson": {
+        "packOpeningId": 34
+      }
+    },
+    {
+      "id": 23,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 45,
+      "createdAt": "2026-03-19T09:36:55.100Z",
+      "metadataJson": {
+        "packOpeningId": 35
+      }
     }
   ],
   "dailyBrowserStats": [
@@ -3735,10 +3957,10 @@
       "id": 13,
       "browserProfileId": 12,
       "statDate": "2026-03-19",
-      "packsOpened": 8,
-      "cardsObtained": 40,
-      "newCardsObtained": 5,
-      "srOrHigherCount": 7,
+      "packsOpened": 10,
+      "cardsObtained": 50,
+      "newCardsObtained": 8,
+      "srOrHigherCount": 12,
       "wikipediaClicks": 1
     }
   ],

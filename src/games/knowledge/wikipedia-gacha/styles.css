@@ -1745,7 +1745,9 @@
   height: 340px;
   padding: 8px;
   border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.8),
+    0 0 0 1px color-mix(in srgb, var(--wg-rarity-accent) 28%, rgba(255, 255, 255, 0.16));
   cursor: pointer;
   transition: transform 0.18s ease;
 }
@@ -1778,15 +1780,24 @@
   border-radius: 12px;
   border: 2px solid color-mix(in srgb, var(--wg-rarity-accent) 55%, #1f2937);
   overflow: hidden;
-  background: linear-gradient(165deg, rgba(11, 15, 22, 0.95), rgba(6, 8, 13, 0.98));
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--wg-rarity-accent) 56%, #f8fafc) 0%,
+    color-mix(in srgb, var(--wg-rarity-accent) 42%, #e5e7eb) 44%,
+    color-mix(in srgb, var(--wg-rarity-accent) 30%, #0f172a) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    inset 0 -30px 44px rgba(0, 0, 0, 0.22);
 }
 
 .wg-stack-fx {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--wg-rarity-accent) 32%, transparent), transparent 30%),
-    radial-gradient(circle at 85% 100%, rgba(255, 255, 255, 0.06), transparent 45%);
+    radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--wg-rarity-accent) 42%, rgba(255, 255, 255, 0.18)), transparent 34%),
+    radial-gradient(circle at 85% 100%, color-mix(in srgb, var(--wg-rarity-accent) 24%, rgba(255, 255, 255, 0.08)), transparent 50%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 35%);
 }
 
 .wg-stack-inner {
@@ -1796,7 +1807,13 @@
   flex-direction: column;
   height: 100%;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.22);
+  background:
+    linear-gradient(180deg, rgba(6, 9, 14, 0.16), rgba(6, 9, 14, 0.32)),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--wg-rarity-accent) 34%, #131a27),
+      color-mix(in srgb, var(--wg-rarity-accent) 22%, #0b111c)
+    );
   border: 1px solid rgba(255, 255, 255, 0.12);
   overflow: hidden;
 }
@@ -1807,7 +1824,11 @@
   gap: 8px;
   padding: 7px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.22));
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--wg-rarity-accent) 40%, rgba(0, 0, 0, 0.56)),
+    rgba(0, 0, 0, 0.22)
+  );
 }
 
 .wg-stack-rarity {
@@ -1835,7 +1856,11 @@
   margin: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.18);
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-  background: linear-gradient(to bottom, #232938, #171b26);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--wg-rarity-accent) 36%, #232938),
+    color-mix(in srgb, var(--wg-rarity-accent) 24%, #171b26)
+  );
   overflow: hidden;
 }
 
@@ -1916,7 +1941,21 @@
   overflow: hidden;
 }
 
+.wg-stack-blurb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--wg-rarity-accent) 20%, rgba(17, 24, 39, 0.42)),
+    rgba(10, 16, 28, 0.44)
+  );
+  pointer-events: none;
+}
+
 .wg-stack-blurb p {
+  position: relative;
+  z-index: 1;
   margin: 0;
   display: -webkit-box;
   overflow: hidden;
@@ -1929,7 +1968,11 @@
   display: flex;
   height: 50px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.78);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--wg-rarity-accent) 22%, rgba(0, 0, 0, 0.82)),
+    rgba(0, 0, 0, 0.82)
+  );
 }
 
 .wg-stack-stat {
@@ -1939,7 +1982,7 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
-  background: rgba(0, 0, 0, 0.25);
+  background: color-mix(in srgb, var(--wg-rarity-accent) 18%, rgba(0, 0, 0, 0.24));
 }
 
 .wg-stack-stat.is-attack {
