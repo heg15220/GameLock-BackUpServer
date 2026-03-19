@@ -152,6 +152,7 @@ function createInitialState(language) {
   return {
     version: 1,
     language,
+    continueParams: null,
     continueToken: null,
     totalWritten: 0,
     requestCount: 0,
@@ -169,11 +170,25 @@ async function loadState(options) {
   try {
     const raw = await readFile(options.state, "utf8");
     const parsed = JSON.parse(raw);
-    return {
+    const hydrated = {
       ...createInitialState(options.language),
       ...parsed,
       language: options.language,
     };
+
+    // Legacy state files only tracked gapcontinue as a string token.
+    if (
+      !hydrated.continueParams &&
+      typeof hydrated.continueToken === "string" &&
+      hydrated.continueToken.trim()
+    ) {
+      hydrated.continueParams = {
+        continue: "gapcontinue||",
+        gapcontinue: hydrated.continueToken,
+      };
+    }
+
+    return hydrated;
   } catch (error) {
     if (error && error.code === "ENOENT") {
       return createInitialState(options.language);
@@ -322,9 +337,15 @@ function buildApiUrl(options, continueToken) {
   url.searchParams.set("exchars", String(options.extractChars));
   url.searchParams.set("piprop", "original|thumbnail");
   url.searchParams.set("pithumbsize", "1200");
-  url.searchParams.set("cllimit", String(options.categoryLimit));
-  if (continueToken) {
-    url.searchParams.set("gapcontinue", continueToken);
+  // Ask MediaWiki for the maximum category payload to reduce clcontinue loops.
+  url.searchParams.set("cllimit", "max");
+  if (continueToken && typeof continueToken === "object") {
+    for (const [key, value] of Object.entries(continueToken)) {
+      url.searchParams.set(key, String(value));
+    }
+  } else {
+    // Required for modern MediaWiki continuation API.
+    url.searchParams.set("continue", "");
   }
   return url.toString();
 }
@@ -419,14 +440,35 @@ async function main() {
         break;
       }
 
-      const requestUrl = buildApiUrl(options, state.continueToken);
+      const requestUrl = buildApiUrl(options, state.continueParams);
       const payload = await requestJsonWithRetry(requestUrl, options);
       state.requestCount += 1;
 
       const pages = Array.isArray(payload?.query?.pages) ? payload.query.pages : [];
+      const nextContinue =
+        payload?.continue && typeof payload.continue === "object"
+          ? payload.continue
+          : null;
+      const nextToken = nextContinue?.gapcontinue ?? null;
+      const hasContinuation = Boolean(nextContinue && Object.keys(nextContinue).length > 0);
+
       if (!pages.length) {
-        console.log("No pages returned. Stopping.");
-        break;
+        if (!hasContinuation) {
+          console.log("No pages returned and no continuation token. Stopping.");
+          break;
+        }
+
+        state.continueParams = nextContinue;
+        state.continueToken = nextToken;
+        await persistState(state, options);
+        await persistMeta(state, options);
+        console.log(
+          `request=${state.requestCount} batch=0 total=${state.totalWritten} next=${
+            nextToken ?? nextContinue?.clcontinue ?? "none"
+          } (empty batch, continuing)`
+        );
+        await sleep(options.sleepMs);
+        continue;
       }
 
       let writtenInBatch = 0;
@@ -461,7 +503,7 @@ async function main() {
         knownRecent.add(value);
       }
 
-      const nextToken = payload?.continue?.gapcontinue ?? null;
+      state.continueParams = nextContinue;
       state.continueToken = nextToken;
 
       await persistState(state, options);
@@ -469,12 +511,13 @@ async function main() {
 
       console.log(
         `request=${state.requestCount} batch=${writtenInBatch} total=${state.totalWritten} next=${
-          nextToken ?? "none"
+          nextToken ?? nextContinue?.clcontinue ?? "none"
         }`
       );
 
-      if (!nextToken) {
+      if (!hasContinuation) {
         console.log("Reached end of allpages stream. Resetting continuation token.");
+        state.continueParams = null;
         state.continueToken = null;
       }
 

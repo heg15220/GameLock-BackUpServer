@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-03-19T19:47:34.790Z",
+  "language": "en",
+  "totalEntries": 11,
+  "requestCount": 3,
+  "continueToken": "!Por_que_no_te_callas!",
+  "rarityCounts": {
+    "C": 0,
+    "UC": 0,
+    "R": 0,
+    "SR": 3,
+    "SSR": 3,
+    "UR": 2,
+    "LR": 3
+  },
+  "topicCounts": {
+    "Arts": 11
+  }
+}

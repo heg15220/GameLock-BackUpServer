@@ -1,0 +1,48 @@
+{
+  "updatedAt": "2026-03-19T22:37:24.456Z",
+  "matchesPlayed": 108,
+  "matchesWon": 26,
+  "byDifficulty": {
+    "competitive": {
+      "played": 108,
+      "won": 26
+    }
+  },
+  "byRival": {
+    "harbor-athletic": {
+      "played": 108,
+      "won": 26,
+      "goalsFor": 282,
+      "goalsAgainst": 375
+    }
+  },
+  "favoriteZones": {
+    "top-left": 98,
+    "center": 99,
+    "down-right": 105,
+    "top-right": 101,
+    "down-left": 93
+  },
+  "conversionByZone": {
+    "top-left": {
+      "attempts": 98,
+      "goals": 72
+    },
+    "center": {
+      "attempts": 99,
+      "goals": 38
+    },
+    "down-right": {
+      "attempts": 105,
+      "goals": 64
+    },
+    "top-right": {
+      "attempts": 101,
+      "goals": 52
+    },
+    "down-left": {
+      "attempts": 93,
+      "goals": 56
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-03-19T23:55:41.580Z",
+  "language": "en",
+  "totalEntries": 108899,
+  "requestCount": 9371,
+  "continueToken": "1971–72_New_Zealand_eight",
+  "rarityCounts": {
+    "C": 0,
+    "UC": 0,
+    "R": 735,
+    "SR": 22392,
+    "SSR": 31274,
+    "UR": 27077,
+    "LR": 27421
+  },
+  "topicCounts": {
+    "Arts": 87393,
+    "General": 1553,
+    "History": 7305,
+    "Geography": 10588,
+    "Science": 1114,
+    "People": 24,
+    "Technology": 269,
+    "Sports": 653
+  }
+}

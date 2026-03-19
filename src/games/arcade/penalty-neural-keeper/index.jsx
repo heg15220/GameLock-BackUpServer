@@ -207,6 +207,188 @@ function randomBetween(min, max) {
   return min + Math.random() * (max - min);
 }
 
+function normalizeResultCode(value) {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const normalized = value.trim().toUpperCase();
+  return normalized || null;
+}
+
+function outcomeTypeFromOutcome(outcome) {
+  const explicitType = normalizeResultCode(outcome?.type);
+  if (explicitType) {
+    return explicitType;
+  }
+  if (typeof outcome?.isSave === "boolean") {
+    return outcome.isSave ? "SAVE" : "GOAL";
+  }
+  return null;
+}
+
+function isSaveOutcome(outcome) {
+  return outcomeTypeFromOutcome(outcome) === "SAVE";
+}
+
+function normalizeShotOutcome(shot) {
+  if (!shot || typeof shot !== "object") {
+    return shot;
+  }
+  const normalizedType = outcomeTypeFromOutcome(shot.outcome);
+  if (!normalizedType) {
+    return shot;
+  }
+  return {
+    ...shot,
+    outcome: {
+      ...(shot.outcome ?? {}),
+      type: normalizedType,
+      isSave: normalizedType === "SAVE",
+    },
+  };
+}
+
+function normalizeHistoryEntries(history) {
+  if (!Array.isArray(history)) {
+    return [];
+  }
+  return history.map((entry) => {
+    const normalizedResult = normalizeResultCode(entry?.result);
+    if (!normalizedResult) {
+      return entry;
+    }
+    return {
+      ...entry,
+      result: normalizedResult,
+    };
+  });
+}
+
+function buildScoreboardFromCounts({
+  playerGoals,
+  rivalGoals,
+  playerShotsTaken,
+  rivalShotsTaken,
+  maxInitialShots,
+}) {
+  const safeMaxInitialShots = Math.max(1, Number(maxInitialShots) || 5);
+  const completedInitialPairs = Math.min(
+    safeMaxInitialShots,
+    Math.max(playerShotsTaken, rivalShotsTaken)
+  );
+  return {
+    playerGoals,
+    rivalGoals,
+    playerShotsTaken,
+    rivalShotsTaken,
+    round: Math.max(playerShotsTaken, rivalShotsTaken) + 1,
+    remainingInitialShots: Math.max(0, safeMaxInitialShots - completedInitialPairs),
+    suddenDeath:
+      playerShotsTaken >= safeMaxInitialShots &&
+      rivalShotsTaken >= safeMaxInitialShots &&
+      playerGoals === rivalGoals,
+    maxInitialShots: safeMaxInitialShots,
+  };
+}
+
+function enforceDeterministicShot(shot) {
+  const normalizedShot = normalizeShotOutcome(shot);
+  if (!normalizedShot) {
+    return normalizedShot;
+  }
+  const keeperZoneId = normalizedShot.keeper?.predictedZoneId;
+  const shotZoneId = normalizedShot.zoneId;
+  if (!keeperZoneId || !shotZoneId) {
+    return normalizedShot;
+  }
+  const isSave = keeperZoneId === shotZoneId;
+  return {
+    ...normalizedShot,
+    outcome: {
+      ...(normalizedShot.outcome ?? {}),
+      type: isSave ? "SAVE" : "GOAL",
+      isSave,
+      saveProbability: isSave ? 1 : 0,
+    },
+  };
+}
+
+function patchHistoryWithResolvedShot(history, resolvedShot) {
+  const normalizedHistory = normalizeHistoryEntries(history);
+  if (!resolvedShot || !normalizedHistory.length) {
+    return normalizedHistory;
+  }
+  const lastIndex = normalizedHistory.length - 1;
+  const lastEntry = normalizedHistory[lastIndex];
+  if (!lastEntry || lastEntry.actor !== resolvedShot.actor) {
+    return normalizedHistory;
+  }
+  const resolvedType = outcomeTypeFromOutcome(resolvedShot.outcome) ?? lastEntry.result;
+  const patchedEntry = {
+    ...lastEntry,
+    result: resolvedType,
+    saveProbability: resolvedShot.outcome?.saveProbability ?? lastEntry.saveProbability ?? 0,
+  };
+  return [...normalizedHistory.slice(0, lastIndex), patchedEntry];
+}
+
+function enforceDeterministicPayload(previous, payload) {
+  if (!payload || typeof payload !== "object") {
+    return payload;
+  }
+  const playerShot = payload.playerShot ? enforceDeterministicShot(payload.playerShot) : null;
+  const rivalShot = payload.rivalShot ? enforceDeterministicShot(payload.rivalShot) : null;
+  const resolvedShot = playerShot ?? rivalShot;
+  const previousScoreboard = previous.scoreboard ?? createEmptyScoreboard();
+  const maxInitialShots =
+    Number(payload.scoreboard?.maxInitialShots ?? previousScoreboard.maxInitialShots ?? 5) || 5;
+
+  let playerGoals = Number(previousScoreboard.playerGoals ?? 0);
+  let rivalGoals = Number(previousScoreboard.rivalGoals ?? 0);
+  let playerShotsTaken = Number(previousScoreboard.playerShotsTaken ?? 0);
+  let rivalShotsTaken = Number(previousScoreboard.rivalShotsTaken ?? 0);
+
+  if (playerShot) {
+    playerShotsTaken += 1;
+    if (outcomeTypeFromOutcome(playerShot.outcome) === "GOAL") {
+      playerGoals += 1;
+    }
+  }
+  if (rivalShot) {
+    rivalShotsTaken += 1;
+    if (outcomeTypeFromOutcome(rivalShot.outcome) === "GOAL") {
+      rivalGoals += 1;
+    }
+  }
+
+  const scoreboard = buildScoreboardFromCounts({
+    playerGoals,
+    rivalGoals,
+    playerShotsTaken,
+    rivalShotsTaken,
+    maxInitialShots,
+  });
+
+  const summary = {
+    ...(payload.summary ?? {}),
+  };
+  if (playerShot) {
+    summary.playerOutcome = outcomeTypeFromOutcome(playerShot.outcome);
+  }
+  if (rivalShot) {
+    summary.rivalOutcome = outcomeTypeFromOutcome(rivalShot.outcome);
+  }
+
+  return {
+    ...payload,
+    playerShot,
+    rivalShot,
+    history: patchHistoryWithResolvedShot(payload.history, resolvedShot),
+    scoreboard,
+    summary,
+  };
+}
+
 function createZoneMap(seedValue = 0) {
   return ZONE_IDS.reduce((accumulator, zoneId) => {
     accumulator[zoneId] = seedValue;
@@ -438,8 +620,16 @@ function keeperDiveX(zoneId) {
   if (!zone) {
     return GOAL_CENTER_X;
   }
-  const jitter = zone.side === "center" ? 0 : randomBetween(-10, 10);
-  return clamp(zone.target.x + jitter, GOAL_FRAME.x + 44, GOAL_FRAME.x + GOAL_FRAME.w - 44);
+  if (zone.side === "center") {
+    return GOAL_CENTER_X;
+  }
+  const direction = zone.side === "left" ? -1 : 1;
+  if (zone.row === 0) {
+    const topDiveOffset = GOAL_FRAME.w * 0.19;
+    return clamp(GOAL_CENTER_X + direction * topDiveOffset, GOAL_FRAME.x + 72, GOAL_FRAME.x + GOAL_FRAME.w - 72);
+  }
+  // Ground dives stay centered so the stretched body can cover center -> post without clipping.
+  return GOAL_CENTER_X;
 }
 
 function saveProbabilityForShot(zoneId, prediction, history) {
@@ -466,8 +656,9 @@ function createShot(state, zoneId) {
   }
 
   const prediction = resolveKeeperPrediction(state.history, state.attemptsTaken, true);
-  const saveProbability = saveProbabilityForShot(zoneId, prediction, state.history);
-  const isSave = Math.random() < saveProbability;
+  // Deterministic local fallback, aligned with backend: exact read means save.
+  const isSave = prediction.predictedZoneId === zoneId;
+  const saveProbability = isSave ? 1 : 0;
   const shotPower =
     zone.row === 0
       ? randomBetween(0.8, 1)
@@ -526,6 +717,7 @@ function createShot(state, zoneId) {
       lift: 0,
     },
     outcome: {
+      type: isSave ? "SAVE" : "GOAL",
       isSave,
       saveProbability,
       settled: false,
@@ -583,13 +775,13 @@ function settleShot(state) {
     return state;
   }
   const shot = state.activeShot;
-  const isSave = shot.outcome.isSave;
+  const isSave = isSaveOutcome(shot.outcome);
   const attemptsTaken = state.attemptsTaken + 1;
   const historyEntry = {
     attempt: shot.shotNumber,
     zoneId: shot.zoneId,
     keeperZoneId: shot.keeper.predictedZoneId,
-    result: isSave ? "save" : "goal",
+    result: isSave ? "SAVE" : "GOAL",
     saveProbability: shot.outcome.saveProbability,
     confidence: shot.keeper.confidence,
     adaptation: shot.keeper.adaptation,
@@ -648,10 +840,11 @@ function updateActiveShot(shot, deltaMs) {
   const elapsedMs = Math.min(shot.totalMs, shot.elapsedMs + deltaMs);
   const flightRaw = clamp(elapsedMs / shot.durationMs, 0, 1);
   const flightT = easeOutCubic(flightRaw);
+  const isSave = isSaveOutcome(shot.outcome);
   let ballX;
   let ballY;
 
-  if (shot.outcome.isSave && flightRaw >= shot.interceptT) {
+  if (isSave && flightRaw >= shot.interceptT) {
     const localT = clamp((flightRaw - shot.interceptT) / (1 - shot.interceptT), 0, 1);
     ballX = lerp(shot.interceptPoint.x, shot.reboundPoint.x, easeOutCubic(localT));
     ballY = lerp(shot.interceptPoint.y, shot.reboundPoint.y, easeInOutSine(localT));
@@ -665,8 +858,10 @@ function updateActiveShot(shot, deltaMs) {
   const keeperT = clamp(keeperElapsed / shot.keeper.diveDurationMs, 0, 1);
   const keeperEase = easeOutCubic(keeperT);
   const keeperX = lerp(GOAL_CENTER_X, shot.keeper.targetX, keeperEase);
+  const keeperZone = ZONE_BY_ID[shot.keeper.predictedZoneId] ?? null;
   const liftFactor = Math.sin(Math.PI * keeperT);
-  const keeperLift = liftFactor * (shot.keeper.predictedZoneId === "center" ? 16 : 24);
+  const keeperLiftPeak = keeperZone?.side === "center" ? 16 : keeperZone?.row === 0 ? 52 : 10;
+  const keeperLift = liftFactor * keeperLiftPeak;
   const keeperStretch = 1 + keeperEase * 0.46 + shot.keeper.learningIndex * 0.12;
   const rotationStep = (0.045 + shot.shotPower * 0.07) * (deltaMs / 16.67);
   const fadedTrail = shot.ball.trail.map((entry) => ({
@@ -724,14 +919,15 @@ function tickGame(state, deltaMs) {
     };
     changed = true;
 
-    const triggerPoint = updatedShot.outcome.isSave ? updatedShot.durationMs * updatedShot.interceptT : updatedShot.durationMs * 0.95;
+    const isSave = isSaveOutcome(updatedShot.outcome);
+    const triggerPoint = isSave ? updatedShot.durationMs * updatedShot.interceptT : updatedShot.durationMs * 0.95;
     if (!updatedShot.impactTriggered && updatedShot.elapsedMs >= triggerPoint) {
       next = {
         ...next,
         activeShot: { ...updatedShot, impactTriggered: true },
-        cameraShakeMs: updatedShot.outcome.isSave ? 220 : Math.max(next.cameraShakeMs, 160),
-        netRippleMs: updatedShot.outcome.isSave ? next.netRippleMs : 540,
-        crowdPulseMs: updatedShot.outcome.isSave ? 340 : 460,
+        cameraShakeMs: isSave ? 220 : Math.max(next.cameraShakeMs, 160),
+        netRippleMs: isSave ? next.netRippleMs : 540,
+        crowdPulseMs: isSave ? 340 : 460,
       };
     }
 
@@ -855,13 +1051,14 @@ function buildCanvasDots(history) {
 }
 
 function dotColorForResult(result) {
-  if (result === "GOAL") {
+  const normalizedResult = normalizeResultCode(result);
+  if (normalizedResult === "GOAL") {
     return "#22c55e";
   }
-  if (result === "SAVE") {
+  if (normalizedResult === "SAVE") {
     return "#ef4444";
   }
-  if (result === "MISS" || result === "POST") {
+  if (normalizedResult === "MISS" || normalizedResult === "POST") {
     return "#ef4444";
   }
   return "#334155";
@@ -1119,143 +1316,254 @@ function drawFigureGlow(ctx, x, y, radiusX, radiusY, color, alpha = 0.22) {
 
 function drawKeeper(ctx, keeper, rivalTeam) {
   const zone = ZONE_BY_ID[keeper.predictedZoneId] ?? null;
-  const diveTilt = (keeper.x - GOAL_CENTER_X) / 280;
+  const lateralOffset = keeper.x - GOAL_CENTER_X;
+  const diveTilt = lateralOffset / 300;
+  const diveProgress = clamp(Math.max(Math.abs(lateralOffset) / 176, keeper.lift / 26), 0, 1);
   const direction = zone?.side === "right" ? 1 : -1;
-  const committed =
-    zone && zone.side !== "center" && (Math.abs(keeper.x - GOAL_CENTER_X) > 6 || keeper.lift > 4);
+  const committed = zone && zone.side !== "center" && (Math.abs(lateralOffset) > 6 || keeper.lift > 4);
   const pose = !committed || !zone || zone.side === "center" ? "set" : zone.row === 0 ? "high" : "low";
-  const glowColor = rivalTeam?.colors?.accent ?? rivalTeam?.colors?.primary ?? "#7f1d1d";
-  const silhouette = "#040507";
+
+  const glowColor = rivalTeam?.colors?.accent ?? rivalTeam?.colors?.primary ?? "#0ea5e9";
+  const jerseyColor = rivalTeam?.uniform?.shirt ?? rivalTeam?.colors?.primary ?? "#163b71";
+  const shortsColor = rivalTeam?.uniform?.shorts ?? "#0b1220";
+  const socksColor = rivalTeam?.uniform?.socks ?? "#e2e8f0";
+  const trimColor = rivalTeam?.colors?.secondary ?? "#f8fafc";
+  const gloveColor = "#f8fafc";
+  const skinColor = "#e6bf98";
+  const outlineColor = "#05070c";
+  const goalClipInset = 6;
+
+  const drawLimb = (x1, y1, x2, y2, width, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  };
+
+  const drawGlove = (x, y, radius = 6) => {
+    ctx.fillStyle = gloveColor;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = colorWithAlpha(outlineColor, 0.28);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+  };
+
+  const drawHead = (x, y, radius) => {
+    ctx.fillStyle = skinColor;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = outlineColor;
+    pathRoundedRect(ctx, x - radius * 0.7, y - radius - 4, radius * 1.4, 6, 3);
+    ctx.fill();
+  };
+
+  const drawTorso = (x, y, width, height) => {
+    const corner = Math.min(16, height * 0.33);
+    ctx.fillStyle = jerseyColor;
+    pathRoundedRect(ctx, x, y, width, height, corner);
+    ctx.fill();
+
+    ctx.strokeStyle = colorWithAlpha(outlineColor, 0.35);
+    ctx.lineWidth = 1.8;
+    pathRoundedRect(ctx, x + 0.6, y + 0.6, width - 1.2, height - 1.2, Math.max(3, corner - 1));
+    ctx.stroke();
+
+    ctx.strokeStyle = colorWithAlpha(trimColor, 0.5);
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(x + width * 0.28, y + 5);
+    ctx.lineTo(x + width * 0.5, y + height - 7);
+    ctx.lineTo(x + width * 0.72, y + 5);
+    ctx.stroke();
+  };
 
   ctx.save();
-  ctx.translate(keeper.x, keeper.y - keeper.lift + 6);
-  ctx.rotate(diveTilt * 0.16);
-
-  drawFigureGlow(ctx, 0, -26, pose === "set" ? 88 : 106, 120, glowColor, 0.18);
-
-  ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+  // Keep the goalkeeper silhouette inside the goal's lateral bounds at all times.
   ctx.beginPath();
-  ctx.ellipse(0, 42, 68, 16, 0, 0, Math.PI * 2);
+  ctx.rect(GOAL_FRAME.x + goalClipInset, 0, GOAL_FRAME.w - goalClipInset * 2, CANVAS_HEIGHT);
+  ctx.clip();
+  ctx.translate(keeper.x, keeper.y - keeper.lift + 6);
+  ctx.rotate(diveTilt * 0.1);
+
+  drawFigureGlow(ctx, 0, -26, pose === "set" ? 88 : 110, 120, glowColor, 0.18);
+
+  const shadowShift = pose === "set" ? 0 : direction * (8 + diveProgress * 14);
+  const shadowScale = pose === "set" ? 1 : 1 + diveProgress * 0.24;
+  const goalInnerLeft = GOAL_FRAME.x + goalClipInset + 8;
+  const goalInnerRight = GOAL_FRAME.x + GOAL_FRAME.w - goalClipInset - 8;
+  const availableToPost = direction === 1 ? goalInnerRight - keeper.x : keeper.x - goalInnerLeft;
+  const safeReach = clamp(availableToPost, 60, GOAL_FRAME.w * 0.5 - 10);
+  ctx.fillStyle = "rgba(1, 6, 16, 0.25)";
+  ctx.beginPath();
+  ctx.ellipse(shadowShift, 42 + diveProgress * 2, 66 * shadowScale, 14, 0, 0, Math.PI * 2);
   ctx.fill();
 
   if (pose === "set") {
-    ctx.fillStyle = silhouette;
-    pathRoundedRect(ctx, -30, -90, 60, 66, 22);
+    drawTorso(-26, -86, 52, 58);
+
+    ctx.fillStyle = shortsColor;
+    pathRoundedRect(ctx, -24, -32, 48, 16, 8);
     ctx.fill();
 
-    ctx.strokeStyle = silhouette;
-    ctx.lineWidth = 18;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(-14, -54);
-    ctx.lineTo(-66, -14);
-    ctx.moveTo(14, -54);
-    ctx.lineTo(66, -14);
-    ctx.moveTo(-14, -20);
-    ctx.lineTo(-38, 38);
-    ctx.moveTo(14, -20);
-    ctx.lineTo(38, 38);
-    ctx.stroke();
+    drawHead(0, -104, 18);
 
+    drawLimb(-16, -58, -62, -20, 12, jerseyColor);
+    drawLimb(16, -58, 62, -20, 12, jerseyColor);
+    drawLimb(-12, -18, -28, 34, 11, socksColor);
+    drawLimb(12, -18, 28, 34, 11, socksColor);
+
+    drawGlove(-62, -20, 6);
+    drawGlove(62, -20, 6);
+
+    ctx.fillStyle = outlineColor;
     ctx.beginPath();
-    ctx.arc(0, -104, 22, 0, Math.PI * 2);
-    ctx.arc(-66, -14, 9, 0, Math.PI * 2);
-    ctx.arc(66, -14, 9, 0, Math.PI * 2);
-    ctx.ellipse(-40, 42, 16, 7, 0.08, 0, Math.PI * 2);
-    ctx.ellipse(40, 42, 16, 7, -0.08, 0, Math.PI * 2);
+    ctx.ellipse(-30, 38, 16, 6, 0.08, 0, Math.PI * 2);
+    ctx.ellipse(30, 38, 16, 6, -0.08, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.strokeStyle = colorWithAlpha(glowColor, 0.14);
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(-18, -72);
-    ctx.lineTo(-44, -36);
-    ctx.moveTo(18, -72);
-    ctx.lineTo(44, -36);
-    ctx.stroke();
     ctx.restore();
     return;
   }
 
+  const swing = easeOutCubic(diveProgress);
   if (pose === "high") {
-    ctx.translate(direction * 12, -10);
-    ctx.rotate(direction * 0.58);
+    const coreStartX = -direction * lerp(48, 62, swing);
+    const coreStartY = lerp(16, 8, swing);
+    const highReach = Math.min(safeReach, lerp(126, 152, swing));
+    const coreEndX = direction * highReach;
+    const coreEndY = lerp(-100, -132, swing);
+    const coreDx = coreEndX - coreStartX;
+    const coreDy = coreEndY - coreStartY;
+    const coreLength = Math.max(1, Math.hypot(coreDx, coreDy));
+    const ux = coreDx / coreLength;
+    const uy = coreDy / coreLength;
+    const px = -uy;
+    const py = ux;
 
-    ctx.fillStyle = silhouette;
-    pathRoundedRect(ctx, -26, -78, 54, 46, 18);
+    const torsoCenterX = coreStartX + coreDx * 0.52;
+    const torsoCenterY = coreStartY + coreDy * 0.52;
+    ctx.save();
+    ctx.translate(torsoCenterX, torsoCenterY);
+    ctx.rotate(Math.atan2(coreDy, coreDx));
+    drawTorso(-38, -11, 76, 22);
+    ctx.fillStyle = shortsColor;
+    pathRoundedRect(ctx, -18, -10, 36, 12, 6);
     ctx.fill();
-    ctx.beginPath();
-    ctx.arc(8, -88, 18, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.restore();
 
-    ctx.strokeStyle = silhouette;
-    ctx.lineWidth = 16;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(-2, -58);
-    ctx.lineTo(direction * 92, -108);
-    ctx.moveTo(8, -52);
-    ctx.lineTo(direction * 20, -84);
-    ctx.moveTo(-12, -24);
-    ctx.lineTo(-direction * 48, 34);
-    ctx.moveTo(8, -18);
-    ctx.lineTo(-direction * 12, 46);
-    ctx.stroke();
+    const headX = coreStartX + coreDx * 0.72 + px * 8;
+    const headY = coreStartY + coreDy * 0.72 + py * 8;
+    drawHead(headX, headY, 12);
 
-    ctx.fillStyle = silhouette;
+    const shoulderLeadX = coreStartX + coreDx * 0.62 + px * 6;
+    const shoulderLeadY = coreStartY + coreDy * 0.62 + py * 6;
+    const shoulderSupportX = coreStartX + coreDx * 0.54 - px * 6;
+    const shoulderSupportY = coreStartY + coreDy * 0.54 - py * 6;
+    const leadArmX = coreEndX + px * 2;
+    const leadArmY = coreEndY + py * 2;
+    const supportArmX = coreStartX + coreDx * 0.93 - px * 12;
+    const supportArmY = coreStartY + coreDy * 0.93 - py * 12;
+    const hipsX = coreStartX + coreDx * 0.36 - px * 2;
+    const hipsY = coreStartY + coreDy * 0.36 - py * 2;
+    const backLegX = coreStartX + coreDx * 0.14 - px * 14;
+    const backLegY = coreStartY + coreDy * 0.14 - py * 14;
+    const frontLegX = coreStartX + coreDx * 0.18 + px * 10;
+    const frontLegY = coreStartY + coreDy * 0.18 + py * 10;
+
+    drawLimb(shoulderLeadX, shoulderLeadY, leadArmX, leadArmY, 11, jerseyColor);
+    drawLimb(shoulderSupportX, shoulderSupportY, supportArmX, supportArmY, 10, jerseyColor);
+    drawLimb(hipsX, hipsY, backLegX, backLegY, 10, socksColor);
+    drawLimb(hipsX - px * 3, hipsY - py * 3, frontLegX, frontLegY, 10, socksColor);
+
+    drawGlove(leadArmX, leadArmY, 6);
+    drawGlove(supportArmX, supportArmY, 5);
+
+    ctx.fillStyle = outlineColor;
     ctx.beginPath();
-    ctx.arc(direction * 92, -108, 8, 0, Math.PI * 2);
-    ctx.arc(direction * 20, -84, 8, 0, Math.PI * 2);
-    ctx.ellipse(-direction * 52, 38, 16, 6, 0.12 * direction, 0, Math.PI * 2);
-    ctx.ellipse(-direction * 16, 48, 14, 6, -0.06 * direction, 0, Math.PI * 2);
+    ctx.ellipse(backLegX, backLegY + 3, 12, 5, 0.11 * direction, 0, Math.PI * 2);
+    ctx.ellipse(frontLegX, frontLegY + 3, 11, 5, -0.08 * direction, 0, Math.PI * 2);
     ctx.fill();
   } else {
-    ctx.translate(direction * 18, 12);
-    ctx.rotate(direction * 0.12);
+    const lowReach = Math.min(safeReach, lerp(146, 224, swing));
+    const coreStartX = -direction * 12;
+    const coreStartY = lerp(10, 14, swing);
+    const coreEndX = direction * lowReach;
+    const coreEndY = lerp(14, 20, swing);
+    const coreDx = coreEndX - coreStartX;
+    const coreDy = coreEndY - coreStartY;
+    const coreLength = Math.max(1, Math.hypot(coreDx, coreDy));
+    const ux = coreDx / coreLength;
+    const uy = coreDy / coreLength;
+    const px = -uy;
+    const py = ux;
 
-    ctx.fillStyle = silhouette;
-    pathRoundedRect(ctx, -34, -58, 68, 34, 16);
+    const torsoCenterX = coreStartX + coreDx * 0.44;
+    const torsoCenterY = coreStartY + coreDy * 0.44;
+    ctx.save();
+    ctx.translate(torsoCenterX, torsoCenterY);
+    ctx.rotate(Math.atan2(coreDy, coreDx));
+    drawTorso(-46, -10, 92, 20);
+    ctx.fillStyle = shortsColor;
+    pathRoundedRect(ctx, -20, -9, 40, 12, 6);
     ctx.fill();
-    ctx.beginPath();
-    ctx.arc(direction * 6, -52, 17, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.restore();
 
-    ctx.strokeStyle = silhouette;
-    ctx.lineWidth = 16;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(-18, -44);
-    ctx.lineTo(direction * 88, -8);
-    ctx.moveTo(-6, -34);
-    ctx.lineTo(direction * 104, 16);
-    ctx.moveTo(-16, -18);
-    ctx.lineTo(-direction * 42, 26);
-    ctx.moveTo(8, -18);
-    ctx.lineTo(-direction * 8, 34);
-    ctx.stroke();
+    const headX = coreStartX + coreDx * 0.72 + px * 5;
+    const headY = coreStartY + coreDy * 0.72 + py * 5;
+    drawHead(headX, headY, 12);
 
-    ctx.fillStyle = silhouette;
+    const shoulderLeadX = coreStartX + coreDx * 0.57 + px * 5;
+    const shoulderLeadY = coreStartY + coreDy * 0.57 + py * 5;
+    const shoulderSupportX = coreStartX + coreDx * 0.51 - px * 5;
+    const shoulderSupportY = coreStartY + coreDy * 0.51 - py * 5;
+    const leadArmX = coreEndX + px * 2;
+    const leadArmY = coreEndY + py * 2;
+    const supportArmX = coreStartX + coreDx * 0.88 - px * 11;
+    const supportArmY = coreStartY + coreDy * 0.88 - py * 11;
+    const hipsX = coreStartX + coreDx * 0.32 - px * 2;
+    const hipsY = coreStartY + coreDy * 0.32 - py * 2;
+    const backLegX = coreStartX - direction * lerp(16, 24, swing);
+    const backLegY = coreStartY + lerp(14, 20, swing);
+    const frontLegX = coreStartX + direction * lerp(8, 16, swing);
+    const frontLegY = coreStartY + lerp(18, 24, swing);
+
+    drawLimb(shoulderLeadX, shoulderLeadY, leadArmX, leadArmY, 10, jerseyColor);
+    drawLimb(shoulderSupportX, shoulderSupportY, supportArmX, supportArmY, 9, jerseyColor);
+    drawLimb(hipsX, hipsY, backLegX, backLegY, 10, socksColor);
+    drawLimb(hipsX - px * 2, hipsY - py * 2, frontLegX, frontLegY, 10, socksColor);
+
+    drawGlove(leadArmX, leadArmY, 6);
+    drawGlove(supportArmX, supportArmY, 5);
+
+    ctx.fillStyle = outlineColor;
     ctx.beginPath();
-    ctx.arc(direction * 88, -8, 8, 0, Math.PI * 2);
-    ctx.arc(direction * 104, 16, 8, 0, Math.PI * 2);
-    ctx.ellipse(-direction * 46, 30, 15, 6, 0.08 * direction, 0, Math.PI * 2);
-    ctx.ellipse(-direction * 10, 38, 14, 6, -0.08 * direction, 0, Math.PI * 2);
+    ctx.ellipse(backLegX, backLegY + 3, 13, 5, 0.1 * direction, 0, Math.PI * 2);
+    ctx.ellipse(frontLegX, frontLegY + 3, 12, 5, -0.08 * direction, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  ctx.strokeStyle = colorWithAlpha(glowColor, 0.14);
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = colorWithAlpha(trimColor, 0.45);
+  ctx.lineWidth = 2.4;
   ctx.beginPath();
   if (pose === "high") {
-    ctx.moveTo(2, -72);
-    ctx.lineTo(direction * 56, -84);
-    ctx.moveTo(-10, -22);
-    ctx.lineTo(-direction * 26, 12);
+    ctx.moveTo(-direction * 32, 10);
+    ctx.lineTo(direction * 108, -112);
+    ctx.moveTo(-direction * 12, 4);
+    ctx.lineTo(direction * 88, -84);
   } else {
-    ctx.moveTo(-10, -36);
-    ctx.lineTo(direction * 38, -8);
-    ctx.moveTo(-14, -16);
-    ctx.lineTo(-direction * 22, 18);
+    ctx.moveTo(-direction * 6, 6);
+    ctx.lineTo(direction * 92, 18);
+    ctx.moveTo(-direction * 16, 2);
+    ctx.lineTo(direction * 62, 24);
   }
   ctx.stroke();
   ctx.restore();
@@ -1518,19 +1826,21 @@ function drawCanvasHud(ctx, game, locale) {
 
 function drawStatusRibbon(ctx, game, locale) {
   let label = "";
+  const activeOutcomeType = outcomeTypeFromOutcome(game.activeShot?.outcome);
+  const activeIsSave = activeOutcomeType === "SAVE";
   if (game.phase === "finished") {
     label = locale === "es" ? "TANDA CERRADA" : "SHOOTOUT COMPLETE";
   } else if (game.phase === "shot") {
     label =
       game.activeShot?.actor === "RIVAL"
-        ? game.activeShot?.outcome?.isSave
+        ? activeIsSave
           ? locale === "es"
             ? "TU PORTERO TOCA EL BALON"
             : "YOUR KEEPER GETS A HAND TO IT"
           : locale === "es"
             ? "EL RIVAL REMATA"
             : "OPPONENT STRIKES"
-        : game.activeShot?.outcome?.isSave
+        : activeIsSave
           ? locale === "es"
             ? "EL PORTERO LEE EL TIRO"
             : "KEEPER READING THE SHOT"
@@ -1723,7 +2033,7 @@ function hydrateRemoteMatch(previous, snapshot, phaseOverride) {
     attemptsTaken: snapshot.scoreboard?.playerShotsTaken ?? previous.attemptsTaken,
     goals: snapshot.scoreboard?.playerGoals ?? previous.goals,
     saves: snapshot.scoreboard?.rivalGoals ?? previous.saves,
-    history: Array.isArray(snapshot.history) ? snapshot.history : previous.history,
+    history: Array.isArray(snapshot.history) ? normalizeHistoryEntries(snapshot.history) : previous.history,
     aiTelemetry: {
       ...baseTelemetry(),
       ...(snapshot.goalkeeperRead ?? {}),
@@ -1741,8 +2051,9 @@ function hydrateRemoteMatch(previous, snapshot, phaseOverride) {
 function buildTurnSummary(payload, locale, rivalTeam) {
   const rivalName = rivalTeam?.displayName ?? (locale === "es" ? "El rival" : "Opponent");
   if (payload?.playerShot) {
+    const playerOutcomeType = outcomeTypeFromOutcome(payload.playerShot.outcome);
     const playerText =
-      payload.playerShot.outcome?.type === "SAVE"
+      playerOutcomeType === "SAVE"
         ? locale === "es"
           ? "Parada del portero."
           : "Saved by the keeper."
@@ -1758,12 +2069,13 @@ function buildTurnSummary(payload, locale, rivalTeam) {
     return `${playerText} ${followUp}`.trim();
   }
   if (payload?.rivalShot) {
-    if (payload.rivalShot.outcome?.type === "SAVE") {
+    const rivalOutcomeType = outcomeTypeFromOutcome(payload.rivalShot.outcome);
+    if (rivalOutcomeType === "SAVE") {
       return locale === "es"
         ? "Paradon. Recuperas la iniciativa para el siguiente lanzamiento."
         : "Huge save. You get the initiative back for the next kick.";
     }
-    if (payload.rivalShot.outcome?.type === "GOAL") {
+    if (rivalOutcomeType === "GOAL") {
       return locale === "es"
         ? `${rivalName} marca. Te toca volver a lanzar.`
         : `${rivalName} scores. Your turn to shoot again.`;
@@ -1790,7 +2102,7 @@ function settleResolvedShot(state) {
   }
   const shot = state.activeShot;
   const payload = state.pendingResolution.payload;
-  const outcomeType = shot.outcome.type ?? (shot.outcome.isSave ? "SAVE" : "GOAL");
+  const outcomeType = outcomeTypeFromOutcome(shot.outcome) ?? "GOAL";
   const isGoal = outcomeType === "GOAL";
   const isSave = outcomeType === "SAVE";
   const isOffTarget = outcomeType === "MISS" || outcomeType === "POST";
@@ -1844,7 +2156,7 @@ function buildTextPayload(state) {
             x: Number(liveShot.keeper.x.toFixed(2)),
             y: Number((liveShot.keeper.y - liveShot.keeper.lift).toFixed(2)),
           },
-          isSaveForecast: liveShot.outcome.isSave,
+          isSaveForecast: isSaveOutcome(liveShot.outcome),
         }
       : null,
     recentShots: state.history.slice(-8).map((entry) => ({
@@ -2029,22 +2341,29 @@ function PenaltyNeuralKeeperGame() {
     }
     try {
       const payload = await submitPenaltyShot(matchId, { selectedZone: zoneId, actionType }, requestKey);
-      const resolvedShot = payload.playerShot ?? payload.rivalShot;
-      setGame((previous) => ({
-        ...previous,
-        backendStatus: "online",
-        phase: "shot",
-        activeShot: resolvedShot,
-        pendingResolution: {
-          payload,
-          summary: buildTurnSummary(payload, locale, payload.rivalTeam ?? previous.rivalTeam),
-        },
-        aiTelemetry: {
-          ...baseTelemetry(),
-          ...(payload.goalkeeperRead ?? {}),
-          saveProbability: resolvedShot?.outcome?.saveProbability ?? 0,
-        },
-      }));
+      setGame((previous) => {
+        const deterministicPayload = enforceDeterministicPayload(previous, payload);
+        const resolvedShot = deterministicPayload.playerShot ?? deterministicPayload.rivalShot;
+        return {
+          ...previous,
+          backendStatus: "online",
+          phase: "shot",
+          activeShot: resolvedShot,
+          pendingResolution: {
+            payload: deterministicPayload,
+            summary: buildTurnSummary(
+              deterministicPayload,
+              locale,
+              deterministicPayload.rivalTeam ?? previous.rivalTeam
+            ),
+          },
+          aiTelemetry: {
+            ...baseTelemetry(),
+            ...(deterministicPayload.goalkeeperRead ?? {}),
+            saveProbability: resolvedShot?.outcome?.saveProbability ?? 0,
+          },
+        };
+      });
     } catch (error) {
       setGame((previous) => ({
         ...previous,
@@ -2155,6 +2474,8 @@ function PenaltyNeuralKeeperGame() {
       : null;
 
   let statusMessage = game.message;
+  const activeOutcomeType = outcomeTypeFromOutcome(game.activeShot?.outcome);
+  const activeIsSave = activeOutcomeType === "SAVE";
   if (!statusMessage) {
     if (game.phase === "booting") statusMessage = isEs ? "Cargando rivales..." : "Loading rivals...";
     if (game.phase === "menu") statusMessage = game.teamsError || (isEs ? "Selecciona rival y dificultad." : "Select rival and difficulty.");
@@ -2165,13 +2486,13 @@ function PenaltyNeuralKeeperGame() {
     if (game.phase === "intermission") statusMessage = ui.nextPenalty;
     if (game.phase === "finished") statusMessage = finalSummary;
   }
-  if (game.phase === "shot" && game.activeShot?.actor === "RIVAL" && game.activeShot?.outcome.type === "SAVE") {
+  if (game.phase === "shot" && game.activeShot?.actor === "RIVAL" && activeOutcomeType === "SAVE") {
     statusMessage = ui.keeperSave;
-  } else if (game.phase === "shot" && game.activeShot?.actor === "RIVAL" && game.activeShot?.outcome.type === "GOAL") {
+  } else if (game.phase === "shot" && game.activeShot?.actor === "RIVAL" && activeOutcomeType === "GOAL") {
     statusMessage = ui.rivalGoal;
-  } else if (game.phase === "shot" && game.activeShot?.actor === "RIVAL" && ["MISS", "POST"].includes(game.activeShot?.outcome.type)) {
+  } else if (game.phase === "shot" && game.activeShot?.actor === "RIVAL" && ["MISS", "POST"].includes(activeOutcomeType)) {
     statusMessage = isEs ? "El rival falla su disparo." : "The opponent misses the shot.";
-  } else if (game.phase === "shot" && game.activeShot?.outcome.isSave) {
+  } else if (game.phase === "shot" && activeIsSave) {
     statusMessage = ui.shotSave;
   } else if (game.phase === "shot" && game.activeShot) {
     statusMessage = ui.shotGoal;

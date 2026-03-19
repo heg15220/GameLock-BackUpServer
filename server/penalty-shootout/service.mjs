@@ -26,6 +26,25 @@ function randomBetween(randomFn, min, max) {
   return min + randomFn() * (max - min);
 }
 
+function normalizeResultCode(value) {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const normalized = value.trim().toUpperCase();
+  return normalized || null;
+}
+
+function outcomeTypeFromOutcome(outcome) {
+  const explicitType = normalizeResultCode(outcome?.type);
+  if (explicitType) {
+    return explicitType;
+  }
+  if (typeof outcome?.isSave === "boolean") {
+    return outcome.isSave ? "SAVE" : "GOAL";
+  }
+  return null;
+}
+
 function lerp(start, end, t) {
   return start + (end - start) * t;
 }
@@ -137,6 +156,7 @@ export function determineWinner(match) {
 }
 
 function buildPlayerHistoryEntry(match, playerShot) {
+  const outcomeType = outcomeTypeFromOutcome(playerShot.outcome) ?? "GOAL";
   return {
     actor: "PLAYER",
     sequence: match.history.length + 1,
@@ -144,7 +164,7 @@ function buildPlayerHistoryEntry(match, playerShot) {
     attempt: match.playerShotsTaken + 1,
     zoneId: playerShot.zoneId,
     keeperZoneId: playerShot.keeper.predictedZoneId,
-    result: playerShot.outcome.type,
+    result: outcomeType,
     saveProbability: playerShot.outcome.saveProbability,
     confidence: playerShot.keeper.confidence,
     adaptation: playerShot.keeper.adaptation,
@@ -203,16 +223,9 @@ function saveProbabilityForShot(randomFn, zoneId, prediction, history, difficult
 
 function createPlayerShotPayload(randomFn, match, zoneId, prediction) {
   const zone = ZONE_BY_ID[zoneId];
-  const playerHistory = match.history.filter((entry) => entry.actor === "PLAYER");
-  const saveProbability = saveProbabilityForShot(
-    randomFn,
-    zoneId,
-    prediction,
-    playerHistory,
-    match.difficultyProfile,
-    match.rivalTeam.goalkeeperProfile
-  );
-  const isSave = randomFn() < saveProbability;
+  // Deterministic resolution: if the AI keeper reads the exact zone, it's a save.
+  const isSave = prediction.predictedZoneId === zoneId;
+  const saveProbability = isSave ? 1 : 0;
   const shotPower =
     zone.row === 0
       ? randomBetween(randomFn, 0.8, 1)
@@ -301,6 +314,7 @@ function createPlayerShotPayload(randomFn, match, zoneId, prediction) {
 }
 
 function buildRivalHistoryEntry(match, rivalShot) {
+  const outcomeType = outcomeTypeFromOutcome(rivalShot.outcome) ?? "MISS";
   return {
     actor: "RIVAL",
     sequence: match.history.length + 1,
@@ -308,7 +322,7 @@ function buildRivalHistoryEntry(match, rivalShot) {
     attempt: match.rivalShotsTaken + 1,
     zoneId: rivalShot.zoneId,
     keeperZoneId: rivalShot.keeper.predictedZoneId,
-    result: rivalShot.outcome.type,
+    result: outcomeType,
     saveProbability: rivalShot.outcome.saveProbability,
   };
 }
@@ -316,15 +330,8 @@ function buildRivalHistoryEntry(match, rivalShot) {
 function planRivalTurn(randomFn, match) {
   const targetZoneId = createRivalTarget(randomFn, match.difficultyProfile);
   const shotSkill = clamp(Number(match.difficultyProfile?.rivalShotSkill ?? 0.64), 0.35, 0.92);
-  const errorRoll = randomFn();
-  const postChance = clamp(0.06 + (1 - shotSkill) * 0.04, 0.03, 0.12);
-  const missChance = clamp(0.08 + (1 - shotSkill) * 0.08, 0.04, 0.18);
-  let offTargetType = null;
-  if (errorRoll < postChance) {
-    offTargetType = "POST";
-  } else if (errorRoll < postChance + missChance) {
-    offTargetType = "MISS";
-  }
+  // Deterministic rival resolution by zone-vs-zone match only.
+  const offTargetType = null;
   return {
     targetZoneId,
     shotSkill,
@@ -353,21 +360,15 @@ function createRivalShotPayload(randomFn, match, keeperDiveZoneId, rivalPlan) {
         : randomBetween(randomFn, 0.72, 0.94);
   let targetX = zone.target.x + randomBetween(randomFn, -14, 14);
   let targetY = zone.target.y + randomBetween(randomFn, zone.row === 0 ? -8 : -4, zone.row === 0 ? 10 : 12);
-  if (rivalPlan.offTargetType === "POST") {
-    targetX = zone.side === "left" ? GOAL_FRAME.x + 8 : zone.side === "right" ? GOAL_FRAME.x + GOAL_FRAME.w - 8 : GOAL_CENTER_X;
-    targetY = zone.row === 0 ? GOAL_FRAME.y + 18 : GOAL_FRAME.y + GOAL_FRAME.h - 24;
-  } else if (rivalPlan.offTargetType === "MISS") {
-    targetX += zone.side === "left" ? -56 : zone.side === "right" ? 56 : randomBetween(randomFn, -42, 42);
-    targetY += zone.row === 0 ? -26 : 34;
-  }
   const curveDirection = zone.side === "left" ? -1 : zone.side === "right" ? 1 : 0;
   const controlX =
     lerp(PENALTY_SPOT.x, targetX, 0.5) + curveDirection * randomBetween(randomFn, 18, 48) + randomBetween(randomFn, -8, 8);
   const arcLift = zone.row === 0 ? randomBetween(randomFn, -194, -146) : randomBetween(randomFn, -126, -88);
   const controlY = Math.min(PENALTY_SPOT.y - 42, lerp(PENALTY_SPOT.y, targetY, 0.48) + arcLift);
   const durationMs = Math.round(clamp(980 - shotPower * 400 + randomBetween(randomFn, -24, 42), 490, 940));
-  const saveProbability = rivalPlan.offTargetType ? 0 : playerSaveProbability(randomFn, rivalPlan.targetZoneId, keeperDiveZoneId, rivalPlan);
-  const isSave = !rivalPlan.offTargetType && randomFn() < saveProbability;
+  // Deterministic resolution for user keeper: exact read equals save.
+  const isSave = keeperDiveZoneId === rivalPlan.targetZoneId;
+  const saveProbability = isSave ? 1 : 0;
   const interceptT = clamp(0.68 + (1 - rivalPlan.shotSkill) * 0.04 + saveProbability * 0.1, 0.66, 0.9);
   const interceptPoint = quadraticPoint(
     PENALTY_SPOT,
@@ -383,7 +384,7 @@ function createRivalShotPayload(randomFn, match, keeperDiveZoneId, rivalPlan) {
     ),
     y: clamp(interceptPoint.y + randomBetween(randomFn, 74, 158), GOAL_FRAME.y + GOAL_FRAME.h - 8, PENALTY_SPOT.y - 18),
   };
-  const outcomeType = rivalPlan.offTargetType ?? (isSave ? "SAVE" : "GOAL");
+  const outcomeType = isSave ? "SAVE" : "GOAL";
 
   return {
     actor: "RIVAL",
@@ -394,7 +395,7 @@ function createRivalShotPayload(randomFn, match, keeperDiveZoneId, rivalPlan) {
     control: { x: controlX, y: controlY },
     elapsedMs: 0,
     durationMs,
-    totalMs: durationMs + ((isSave || rivalPlan.offTargetType) ? 330 : 260),
+    totalMs: durationMs + (isSave ? 330 : 260),
     interceptT,
     interceptPoint,
     reboundPoint,
@@ -624,7 +625,7 @@ export function createPenaltyShootoutService({
       store.favoriteZones[entry.zoneId] = (store.favoriteZones[entry.zoneId] ?? 0) + 1;
       const zoneStats = store.conversionByZone[entry.zoneId] ?? { attempts: 0, goals: 0 };
       zoneStats.attempts += 1;
-      if (entry.result === "GOAL") {
+      if (normalizeResultCode(entry.result) === "GOAL") {
         zoneStats.goals += 1;
       }
       store.conversionByZone[entry.zoneId] = zoneStats;
@@ -676,8 +677,9 @@ export function createPenaltyShootoutService({
       });
       const playerShot = createPlayerShotPayload(randomFn, match, selectedZone, prediction);
       const playerHistoryEntry = buildPlayerHistoryEntry(match, playerShot);
+      const playerOutcomeType = outcomeTypeFromOutcome(playerShot.outcome) ?? "GOAL";
       match.playerShotsTaken += 1;
-      if (!playerShot.outcome.isSave) {
+      if (playerOutcomeType === "GOAL") {
         match.playerGoals += 1;
       }
       match.history.push(playerHistoryEntry);
@@ -710,7 +712,7 @@ export function createPenaltyShootoutService({
         },
         finished: match.status === "FINISHED",
         summary: {
-          playerOutcome: playerShot.outcome.type,
+          playerOutcome: playerOutcomeType,
           rivalOutcome: null,
           winner: match.winner,
         },
@@ -722,8 +724,9 @@ export function createPenaltyShootoutService({
       match.phase = "resolving_rival_shot";
       const rivalShot = createRivalShotPayload(randomFn, match, selectedZone, match.pendingRivalTurn);
       const rivalHistoryEntry = buildRivalHistoryEntry(match, rivalShot);
+      const rivalOutcomeType = outcomeTypeFromOutcome(rivalShot.outcome) ?? "MISS";
       match.rivalShotsTaken += 1;
-      if (rivalShot.outcome.type === "GOAL") {
+      if (rivalOutcomeType === "GOAL") {
         match.rivalGoals += 1;
       }
       match.history.push(rivalHistoryEntry);
@@ -753,7 +756,7 @@ export function createPenaltyShootoutService({
         finished: match.status === "FINISHED",
         summary: {
           playerOutcome: null,
-          rivalOutcome: rivalShot.outcome.type,
+          rivalOutcome: rivalOutcomeType,
           winner: match.winner,
         },
       };

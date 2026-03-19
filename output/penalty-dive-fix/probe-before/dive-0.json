@@ -1,0 +1,65 @@
+{
+  "predictedZone": "down-left",
+  "snapshot": {
+    "mode": "arcade-penalty-neural-keeper",
+    "phase": "shot",
+    "turnMode": "attack",
+    "coordinates": "origin_top_left_x_right_y_down_pixels",
+    "backendStatus": "online",
+    "matchId": "ps_e16b2cf631574e",
+    "rivalTeam": "harbor-athletic",
+    "difficultyId": "competitive",
+    "scoreboard": {
+      "playerGoals": 0,
+      "rivalGoals": 1,
+      "playerShotsTaken": 0,
+      "rivalShotsTaken": 1,
+      "round": 2,
+      "remainingInitialShots": 4,
+      "suddenDeath": false,
+      "maxInitialShots": 5
+    },
+    "ai": {
+      "adaptation": 0.222,
+      "confidence": 0.275,
+      "learningIndex": 0.199,
+      "tendencyZone": "top-left",
+      "predictedZone": "down-left",
+      "saveProbability": 0.329
+    },
+    "activeShot": {
+      "actor": "PLAYER",
+      "shotNumber": 1,
+      "selectedZone": "top-left",
+      "keeperZone": "down-left",
+      "progress": 0.211,
+      "ball": {
+        "x": 438.82,
+        "y": 227.22
+      },
+      "keeper": {
+        "x": 540,
+        "y": 274
+      },
+      "isSaveForecast": true
+    },
+    "recentShots": [
+      {
+        "actor": "RIVAL",
+        "attempt": 1,
+        "zone": "top-right",
+        "keeperZone": "center",
+        "result": "GOAL",
+        "saveProbability": 0.02
+      }
+    ],
+    "selectableZones": [
+      "down-left",
+      "down-right",
+      "top-left",
+      "top-right",
+      "center"
+    ],
+    "message": "Procesando disparo..."
+  }
+}

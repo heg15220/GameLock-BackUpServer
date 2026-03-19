@@ -1,0 +1,53 @@
+{
+  "mode": "arcade-penalty-neural-keeper",
+  "phase": "shot",
+  "turnMode": "save",
+  "coordinates": "origin_top_left_x_right_y_down_pixels",
+  "backendStatus": "online",
+  "matchId": "ps_41dc6933cf8b4f",
+  "rivalTeam": "harbor-athletic",
+  "difficultyId": "competitive",
+  "scoreboard": {
+    "playerGoals": 0,
+    "rivalGoals": 0,
+    "playerShotsTaken": 0,
+    "rivalShotsTaken": 0,
+    "round": 1,
+    "remainingInitialShots": 5,
+    "suddenDeath": false,
+    "maxInitialShots": 5
+  },
+  "ai": {
+    "adaptation": 0,
+    "confidence": 0,
+    "learningIndex": 0,
+    "tendencyZone": null,
+    "predictedZone": "top-left",
+    "saveProbability": 0.172
+  },
+  "activeShot": {
+    "actor": "RIVAL",
+    "shotNumber": 1,
+    "selectedZone": "down-left",
+    "keeperZone": "top-left",
+    "progress": 0.22,
+    "ball": {
+      "x": 433.85,
+      "y": 344.28
+    },
+    "keeper": {
+      "x": 500.97,
+      "y": 260.48
+    },
+    "isSaveForecast": false
+  },
+  "recentShots": [],
+  "selectableZones": [
+    "down-left",
+    "down-right",
+    "top-left",
+    "top-right",
+    "center"
+  ],
+  "message": "El rival arma el disparo..."
+}
