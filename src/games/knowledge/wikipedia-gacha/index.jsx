@@ -20,6 +20,7 @@ import "./styles.css";
 const STORAGE_KEY = "wikipedia_gacha_browser_token";
 const TAB_ORDER = ["home", "packs", "collection", "missions", "trophies"];
 const RARITY_ORDER = ["LR", "UR", "SSR", "SR", "R", "UC", "C"];
+const TOP_TIER_RARITIES = new Set(RARITY_ORDER.slice(0, 2));
 const PACK_PITY_TARGET = 10;
 const PACK_REGEN_SECONDS = 60;
 
@@ -320,11 +321,22 @@ function TopicGlyph({ topicGroup }) {
   );
 }
 
-function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite }) {
+function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite, onCardActivate }) {
   const rarity = getRarity(card);
   const title = getTitle(card);
   const hasImage = Boolean(card?.imageUrl);
   const articleId = card.articleId ?? card.id;
+  const topicLabel = card.topicGroup ?? archiveLabel;
+  const qualityValue = Number.isFinite(Number(card?.qualityScore)) ? Number(card.qualityScore) : "--";
+  const serialId = articleId ? String(articleId).padStart(4, "0") : "----";
+  const handleActivate = () => {
+    if (!articleId) return;
+    if (typeof onCardActivate === "function") {
+      onCardActivate(articleId);
+      return;
+    }
+    if (typeof onOpen === "function") onOpen(articleId);
+  };
 
   return (
     <article
@@ -332,11 +344,11 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite 
       style={{ "--wg-rarity-accent": RARITY_ACCENTS[rarity] ?? "#8e8a82" }}
       role="button"
       tabIndex={0}
-      onClick={() => articleId && onOpen(articleId)}
+      onClick={handleActivate}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          if (articleId) onOpen(articleId);
+          handleActivate();
         }
       }}
     >
@@ -347,7 +359,7 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite 
         aria-label={card.favorite ? "Remove favorite" : "Add favorite"}
         onClick={(event) => {
           event.stopPropagation();
-          if (articleId) onToggleFavorite(articleId, !card.favorite);
+          if (articleId && typeof onToggleFavorite === "function") onToggleFavorite(articleId, !card.favorite);
         }}
       >
         <FavoriteIcon active={Boolean(card.favorite)} />
@@ -357,8 +369,14 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite 
         <div className="wg-stack-fx" />
         <div className="wg-stack-inner">
           <header className="wg-stack-header">
-            <span className="wg-stack-rarity">{rarity}</span>
-            <span className="wg-stack-title">{title}</span>
+            <div className="wg-stack-header-main">
+              <span className="wg-stack-rarity">{rarity}</span>
+              <span className="wg-stack-title">{title}</span>
+            </div>
+            <div className="wg-stack-header-meta">
+              <span className="wg-stack-topic-tag">{topicLabel}</span>
+              <span className="wg-stack-quality-badge">Q {qualityValue}</span>
+            </div>
           </header>
 
           <div className="wg-stack-art">
@@ -380,7 +398,7 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite 
               aria-label="Inspect card"
               onClick={(event) => {
                 event.stopPropagation();
-                if (articleId) onOpen(articleId);
+                if (articleId && typeof onOpen === "function") onOpen(articleId);
               }}
             >
               i
@@ -389,6 +407,12 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite 
 
           <div className="wg-stack-blurb">
             <p>{getBlurb(card)}</p>
+          </div>
+
+          <div className="wg-stack-serial">
+            <span>#{serialId}</span>
+            <span>{rarity}</span>
+            <span>x{formatNumber(card?.copies ?? 1)}</span>
           </div>
 
           <footer className="wg-stack-stats">
@@ -589,7 +613,13 @@ export default function WikipediaGachaGame() {
     quickRules: es ? "Reglas rapidas" : "Quick rules",
     support: es ? "Soporte" : "Support",
     missionRewardNote: es ? "Recompensa: +2 sobres por mision completada" : "Reward: +2 packs per completed mission",
-    noPackCards: es ? "Abre un sobre para cargar cartas en el carrusel." : "Open a pack to load cards into the carousel.",
+    noPackCards: es ? "Abre un sobre para cargar cartas en la baraja." : "Open a pack to load cards into the deck.",
+    fullHandReady: es ? "Todas vistas: mazo en mano." : "All seen: full hand view.",
+    tapToFlip: es ? "Toca la carta para girarla." : "Tap the card to flip it.",
+    tapToNextCard: es ? "Toca de nuevo para pasar a la siguiente." : "Tap again to move to the next card.",
+    dailyMissionUnlocked: es ? "Mision diaria desbloqueada" : "Daily mission unlocked",
+    topRarityPull: es ? "Drop de rareza maxima" : "Top-tier rarity pull",
+    topRarityPullHint: es ? "Has obtenido una carta de las rarezas mas altas." : "You pulled at least one card from the top rarities.",
     cardCarousel: es ? "Carrusel de cartas" : "Card carousel",
     sourceLink: es ? "Ver fuente" : "View source",
     backToGacha: es ? "Volver al Gacha" : "Back to Gacha",
@@ -605,7 +635,11 @@ export default function WikipediaGachaGame() {
   const [trophies, setTrophies] = useState({ trophies: [], summary: null });
   const [collectionFilters, setCollectionFilters] = useState({ query: "", rarity: "", topicGroup: "", favorite: false, duplicatesOnly: false, sortBy: "recent", page: 1, pageSize: 12 });
   const [packResult, setPackResult] = useState(null);
-  const [packFocusIndex, setPackFocusIndex] = useState(0);
+  const [revealCursor, setRevealCursor] = useState(0);
+  const [revealFace, setRevealFace] = useState("back");
+  const [seenPackCardIndices, setSeenPackCardIndices] = useState([]);
+  const [fanShiftDirection, setFanShiftDirection] = useState("");
+  const [handCenterIndex, setHandCenterIndex] = useState(0);
   const [packHeroAnimState, setPackHeroAnimState] = useState("idle");
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [recoveryCode, setRecoveryCode] = useState("");
@@ -614,11 +648,17 @@ export default function WikipediaGachaGame() {
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
+  const [missionUnlockFeed, setMissionUnlockFeed] = useState([]);
+  const [rareDropFx, setRareDropFx] = useState(null);
 
   const tokenRef = useRef(browserToken);
   const nowRef = useRef(nowMs);
   const autoRefreshKeyRef = useRef("");
   const packHeroTimeoutsRef = useRef([]);
+  const revealFlipTimeoutRef = useRef(null);
+  const fanShiftTimeoutRef = useRef(null);
+  const missionFeedTimeoutsRef = useRef([]);
+  const rareDropTimeoutRef = useRef(null);
 
   useEffect(() => {
     tokenRef.current = browserToken;
@@ -633,9 +673,39 @@ export default function WikipediaGachaGame() {
     packHeroTimeoutsRef.current = [];
   };
 
+  const clearRevealTimeouts = () => {
+    if (revealFlipTimeoutRef.current) {
+      window.clearTimeout(revealFlipTimeoutRef.current);
+      revealFlipTimeoutRef.current = null;
+    }
+  };
+
+  const clearFanShiftTimeout = () => {
+    if (fanShiftTimeoutRef.current) {
+      window.clearTimeout(fanShiftTimeoutRef.current);
+      fanShiftTimeoutRef.current = null;
+    }
+  };
+
+  const clearMissionFeedTimeouts = () => {
+    missionFeedTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    missionFeedTimeoutsRef.current = [];
+  };
+
+  const clearRareDropTimeout = () => {
+    if (rareDropTimeoutRef.current) {
+      window.clearTimeout(rareDropTimeoutRef.current);
+      rareDropTimeoutRef.current = null;
+    }
+  };
+
   useEffect(
     () => () => {
       clearPackHeroTimeouts();
+      clearRevealTimeouts();
+      clearFanShiftTimeout();
+      clearMissionFeedTimeouts();
+      clearRareDropTimeout();
     },
     []
   );
@@ -686,7 +756,7 @@ export default function WikipediaGachaGame() {
   }, [browserToken, collectionFilters, es]);
 
   const refreshAll = async (message = "") => {
-    if (!tokenRef.current) return;
+    if (!tokenRef.current) return null;
     setBusy(true);
     setErrorMessage("");
     try {
@@ -702,11 +772,48 @@ export default function WikipediaGachaGame() {
       setMissions(missionsData);
       setTrophies(trophiesData);
       if (message) setStatusMessage(message);
+      return { dashboardData, collectionData, missionsData, trophiesData };
     } catch (error) {
       setErrorMessage(getErrorMessage(error, es));
+      return null;
     } finally {
       setBusy(false);
     }
+  };
+
+  const showMissionUnlockFeed = (missionsUnlocked) => {
+    if (!missionsUnlocked.length) return;
+    const baseTime = Date.now();
+    const entries = missionsUnlocked.slice(0, 3).map((mission, index) => ({
+      id: `mission-unlock-${mission.id}-${baseTime}-${index}`,
+      title: mission.title,
+      rewardAmount: mission.rewardAmount,
+      rewardType: mission.rewardType,
+    }));
+
+    setMissionUnlockFeed((current) => [...current, ...entries].slice(-4));
+    entries.forEach((entry, index) => {
+      const timeoutId = window.setTimeout(() => {
+        setMissionUnlockFeed((current) => current.filter((notice) => notice.id !== entry.id));
+        missionFeedTimeoutsRef.current = missionFeedTimeoutsRef.current.filter((scheduled) => scheduled !== timeoutId);
+      }, 4300 + index * 240);
+      missionFeedTimeoutsRef.current.push(timeoutId);
+    });
+  };
+
+  const showTopRarityFx = (packCards) => {
+    const topRarityCards = packCards.filter((card) => TOP_TIER_RARITIES.has(getRarity(card)));
+    if (!topRarityCards.length) return;
+    const rarities = [...new Set(topRarityCards.map((card) => getRarity(card)))].sort(
+      (left, right) => RARITY_ORDER.indexOf(left) - RARITY_ORDER.indexOf(right)
+    );
+    const eventId = `top-rarity-${Date.now()}`;
+    setRareDropFx({ id: eventId, rarities, topRarity: rarities[0] ?? "UR" });
+    clearRareDropTimeout();
+    rareDropTimeoutRef.current = window.setTimeout(() => {
+      setRareDropFx((current) => (current?.id === eventId ? null : current));
+      rareDropTimeoutRef.current = null;
+    }, 2200);
   };
 
   const livePackStatus = useMemo(() => {
@@ -731,19 +838,34 @@ export default function WikipediaGachaGame() {
   const revealedCount = packResult ? Math.max(0, Math.min(packResult.cards.length, Math.floor((nowMs - packResult.startedAtMs) / 240))) : 0;
   const currentPackCards = packResult?.cards ?? dashboard?.recentPackHistory?.[0]?.cards ?? [];
   const visiblePackCards = packResult ? currentPackCards.slice(0, Math.max(1, revealedCount)) : currentPackCards;
-  const focusedPackCard = currentPackCards[Math.min(packFocusIndex, Math.max(0, currentPackCards.length - 1))] ?? null;
+  const packDeckSignature = useMemo(
+    () => currentPackCards.map((card, index) => String(card.articleId ?? card.id ?? `${getTitle(card)}-${index}`)).join("|"),
+    [currentPackCards]
+  );
+  const clampedRevealCursor = Math.max(0, Math.min(revealCursor, Math.max(0, currentPackCards.length - 1)));
+  const focusedPackCard = currentPackCards[clampedRevealCursor] ?? null;
+  const focusedPackDeckIndex = clampedRevealCursor;
+  const canCyclePackDeck = currentPackCards.length > 1;
+  const allPackCardsSeen = currentPackCards.length > 0 && seenPackCardIndices.length >= currentPackCards.length;
+  const revealHistoryIndices = useMemo(
+    () => seenPackCardIndices.filter((index) => index < clampedRevealCursor).sort((a, b) => a - b).slice(-4),
+    [seenPackCardIndices, clampedRevealCursor]
+  );
+  const clampedHandCenterIndex = Math.max(0, Math.min(handCenterIndex, Math.max(0, currentPackCards.length - 1)));
+  const activePackDeckIndex = allPackCardsSeen ? clampedHandCenterIndex : focusedPackDeckIndex;
+  const activePackCard = allPackCardsSeen
+    ? currentPackCards[clampedHandCenterIndex] ?? focusedPackCard
+    : focusedPackCard;
 
   useEffect(() => {
-    setPackFocusIndex(0);
-  }, [packResult?.packOpeningId]);
-
-  useEffect(() => {
-    if (packResult && revealedCount > 0) setPackFocusIndex(revealedCount - 1);
-  }, [packResult, revealedCount]);
-
-  useEffect(() => {
-    setPackFocusIndex((current) => Math.min(current, Math.max(0, currentPackCards.length - 1)));
-  }, [currentPackCards.length]);
+    clearRevealTimeouts();
+    clearFanShiftTimeout();
+    setFanShiftDirection("");
+    setRevealCursor(0);
+    setRevealFace("back");
+    setSeenPackCardIndices([]);
+    setHandCenterIndex(0);
+  }, [packDeckSignature]);
 
   const handleOpenPack = async () => {
     if (!tokenRef.current || busy || loading) return;
@@ -751,10 +873,23 @@ export default function WikipediaGachaGame() {
     setErrorMessage("");
     setStatusMessage("");
     try {
+      const previousMissionsById = new Map(
+        (missions.missions ?? []).map((mission) => [mission.id, { completed: Boolean(mission.completed) }])
+      );
       const result = await openWikipediaGachaPack(tokenRef.current);
       setPackResult({ ...result, startedAtMs: nowRef.current + 120 });
       setActiveTab("packs");
-      await refreshAll();
+      showTopRarityFx(result.cards ?? []);
+
+      const refreshed = await refreshAll();
+      const updatedMissions = refreshed?.missionsData?.missions ?? [];
+      if (updatedMissions.length) {
+        const unlockedNow = updatedMissions.filter((mission) => {
+          if (!mission.completed || mission.claimed) return false;
+          return !previousMissionsById.get(mission.id)?.completed;
+        });
+        showMissionUnlockFeed(unlockedNow);
+      }
     } catch (error) {
       setErrorMessage(getErrorMessage(error, es));
     } finally {
@@ -781,6 +916,82 @@ export default function WikipediaGachaGame() {
     }, 1800);
 
     packHeroTimeoutsRef.current.push(burstTimeoutId, openTimeoutId, resetTimeoutId);
+  };
+
+  const handleRevealCurrentCard = () => {
+    if (allPackCardsSeen) return;
+    if (!currentPackCards.length) return;
+    if (revealFace !== "back") return;
+
+    clearRevealTimeouts();
+    setRevealFace("flipping");
+
+    revealFlipTimeoutRef.current = window.setTimeout(() => {
+      setRevealFace("front");
+      revealFlipTimeoutRef.current = null;
+    }, 320);
+  };
+
+  const handleAdvanceRevealedCard = () => {
+    if (allPackCardsSeen) return;
+    if (!currentPackCards.length) return;
+    if (revealFace !== "front") return;
+
+    const revealedIndex = clampedRevealCursor;
+    const lastIndex = Math.max(0, currentPackCards.length - 1);
+    const isLastCard = revealedIndex >= lastIndex;
+
+    setSeenPackCardIndices((current) => (current.includes(revealedIndex) ? current : [...current, revealedIndex]));
+    if (isLastCard) {
+      setHandCenterIndex(revealedIndex);
+      return;
+    }
+
+    setRevealCursor(revealedIndex + 1);
+    setRevealFace("back");
+  };
+
+  const handleRevealStep = () => {
+    if (revealFace === "back") {
+      handleRevealCurrentCard();
+      return;
+    }
+    if (revealFace === "front") handleAdvanceRevealedCard();
+  };
+
+  const handleShiftPackDeck = (direction) => {
+    if (!canCyclePackDeck || fanShiftDirection) return;
+
+    if (allPackCardsSeen) {
+      const nextIndex = Math.max(0, Math.min(clampedHandCenterIndex + direction, currentPackCards.length - 1));
+      if (nextIndex === clampedHandCenterIndex) return;
+      clearFanShiftTimeout();
+      setFanShiftDirection(direction < 0 ? "left" : "right");
+      fanShiftTimeoutRef.current = window.setTimeout(() => {
+        setFanShiftDirection("");
+        fanShiftTimeoutRef.current = null;
+      }, 460);
+      setHandCenterIndex(nextIndex);
+      return;
+    }
+  };
+
+  const handleSelectPackSlot = (targetDeckIndex) => {
+    if (allPackCardsSeen) {
+      if (targetDeckIndex === clampedHandCenterIndex) return;
+      const direction = targetDeckIndex > clampedHandCenterIndex ? 1 : -1;
+      clearFanShiftTimeout();
+      setFanShiftDirection(direction < 0 ? "left" : "right");
+      fanShiftTimeoutRef.current = window.setTimeout(() => {
+        setFanShiftDirection("");
+        fanShiftTimeoutRef.current = null;
+      }, 460);
+      setHandCenterIndex(targetDeckIndex);
+      return;
+    }
+    clearRevealTimeouts();
+    setRevealCursor(targetDeckIndex);
+    setRevealFace("back");
   };
 
   const handleToggleFavorite = async (articleId, favorite) => {
@@ -865,20 +1076,30 @@ export default function WikipediaGachaGame() {
       if (["1", "2", "3", "4", "5"].includes(event.key)) setActiveTab(TAB_ORDER[Number(event.key) - 1]);
       if ((event.key === " " || event.key === "Enter") && activeTab === "packs") {
         event.preventDefault();
-        void handleOpenPack();
+        if (currentPackCards.length && !allPackCardsSeen) {
+          handleRevealStep();
+        } else if (!currentPackCards.length) {
+          void handleOpenPack();
+        }
       }
-      if (event.key === "ArrowLeft" && activeTab === "packs" && currentPackCards.length > 1) {
-        setPackFocusIndex((current) => Math.max(0, current - 1));
+      if (event.key === "ArrowLeft" && activeTab === "packs" && currentPackCards.length > 1 && allPackCardsSeen) {
+        event.preventDefault();
+        handleShiftPackDeck(-1);
       }
       if (event.key === "ArrowRight" && activeTab === "packs" && currentPackCards.length > 1) {
-        setPackFocusIndex((current) => Math.min(currentPackCards.length - 1, current + 1));
+        event.preventDefault();
+        if (allPackCardsSeen) {
+          handleShiftPackDeck(1);
+        } else {
+          handleRevealStep();
+        }
       }
       if (event.key.toLowerCase() === "r") void refreshAll(text.syncOk);
       if (event.key === "Escape") setSelectedArticle(null);
     };
     window.addEventListener("keydown", handleKeydown);
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, [activeTab, currentPackCards.length, text.syncOk]);
+  }, [activeTab, currentPackCards.length, text.syncOk, canCyclePackDeck, allPackCardsSeen, revealFace, clampedRevealCursor]);
 
   const packStatus = livePackStatus ?? getDisplayPackStatus(dashboard?.packStatus ?? null);
   const pityPullsRemaining = packStatus ? Math.max(0, PACK_PITY_TARGET - (packStatus.pityCounter ?? 0)) : PACK_PITY_TARGET;
@@ -905,7 +1126,7 @@ export default function WikipediaGachaGame() {
     { id: "missions", label: text.missionsTab },
     { id: "trophies", label: text.trophiesTab },
   ];
-  const focusedPackSource = focusedPackCard ?? currentPackCards[0] ?? null;
+  const focusedPackSource = activePackCard ?? currentPackCards[0] ?? null;
 
   useGameRuntimeBridge(
     {
@@ -1006,11 +1227,34 @@ export default function WikipediaGachaGame() {
         </div>
       </nav>
 
+      <div className={`wg-live-feedback-layer${activeTab === "packs" ? " is-packs" : ""}`} aria-live="polite">
+        {rareDropFx ? (
+          <div className={`wg-rare-drop-fx is-${String(rareDropFx.topRarity).toLowerCase()}`}>
+            <span className="wg-rare-drop-kicker">{text.topRarityPull}</span>
+            <strong>{rareDropFx.rarities.join(" · ")}</strong>
+            <p>{text.topRarityPullHint}</p>
+          </div>
+        ) : null}
+        {missionUnlockFeed.length ? (
+          <aside className="wg-mission-unlock-stack">
+            {missionUnlockFeed.map((notice) => (
+              <article key={notice.id} className="wg-mission-unlock-toast">
+                <header>
+                  <strong>{text.dailyMissionUnlocked}</strong>
+                  <span>+{notice.rewardAmount} {String(notice.rewardType).toUpperCase()}</span>
+                </header>
+                <p>{notice.title}</p>
+              </article>
+            ))}
+          </aside>
+        ) : null}
+      </div>
+
       <main className="wg-main-content">
         <p className="wg-controls">
           {es
-            ? "Atajos QA: 1-5 cambia pestana, Espacio/Enter abre sobre en Battle, Flechas recorre cartas, R sincroniza y Esc cierra detalle."
-            : "QA shortcuts: 1-5 switch tabs, Space/Enter opens a pack in Battle, Arrow keys browse cards, R syncs, and Esc closes details."}
+            ? "Atajos QA: 1-5 cambia pestana, Espacio/Enter gira carta (o abre sobre si no hay cartas), Flechas mueven el mazo en vista final, R sincroniza y Esc cierra detalle."
+            : "QA shortcuts: 1-5 switch tabs, Space/Enter flips card (or opens a pack when empty), arrows move the deck in final view, R syncs, and Esc closes details."}
         </p>
 
         {errorMessage ? <div className="wg-banner is-error">{errorMessage}</div> : null}
@@ -1079,59 +1323,135 @@ export default function WikipediaGachaGame() {
 
         {!loading && activeTab === "packs" ? (
           <section className="wg-stack-panel">
-            <div className="wg-stack-shell">
-              <button
-                type="button"
-                aria-label={es ? "Carta anterior" : "Previous card"}
-                className="wg-stack-nav is-prev"
-                onClick={() => setPackFocusIndex((current) => Math.max(0, current - 1))}
-                disabled={packFocusIndex <= 0 || !currentPackCards.length}
-              >
-                {"<"}
-              </button>
-              <button
-                type="button"
-                aria-label={es ? "Siguiente carta" : "Next card"}
-                className="wg-stack-nav is-next"
-                onClick={() => setPackFocusIndex((current) => Math.min(currentPackCards.length - 1, current + 1))}
-                disabled={packFocusIndex >= currentPackCards.length - 1 || !currentPackCards.length}
-              >
-                {">"}
-              </button>
-
+            <div className="wg-stack-shell is-deck">
               <div className="wg-stack-track">
                 {currentPackCards.length ? (
-                  packSlots.map((card, index) => {
-                    if (!card) return null;
-                    const offset = index - packFocusIndex;
-                    if (Math.abs(offset) > 4) return null;
-                    const translateX = offset * 16;
-                    const translateY = Math.abs(offset) * 8;
-                    const scale = Math.max(0.86, 1 - Math.abs(offset) * 0.03);
-                    const rotate = offset * 2;
-                    const layer = 120 - Math.abs(offset);
-                    return (
-                      <div
-                        key={`${card.articleId}-${index}`}
-                        className={`wg-stack-layer${offset === 0 ? " is-active" : ""}${Math.abs(offset) >= 3 ? " is-far" : ""}`}
-                        style={{
-                          "--wg-stack-x": `${translateX}px`,
-                          "--wg-stack-y": `${translateY}px`,
-                          "--wg-stack-scale": scale,
-                          "--wg-stack-rotate": `${rotate}deg`,
-                          "--wg-stack-z": layer,
-                        }}
-                      >
-                        <StackCard
-                          card={card}
-                          archiveLabel={text.archive}
-                          formatNumber={formatNumber}
-                          onOpen={(articleId) => void handleSelectArticle(articleId)}
-                          onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
-                        />
+                  allPackCardsSeen ? (
+                    <div className={`wg-hand-wrap${fanShiftDirection ? ` is-shifting-${fanShiftDirection}` : ""}`}>
+                      <div className="wg-hand-shell">
+                        {canCyclePackDeck ? (
+                          <>
+                            <button
+                              type="button"
+                              className="wg-hand-nav is-prev"
+                              aria-label={es ? "Mover mazo a la izquierda" : "Move deck left"}
+                              onClick={() => handleShiftPackDeck(-1)}
+                              disabled={Boolean(fanShiftDirection) || clampedHandCenterIndex <= 0}
+                            >
+                              {"<"}
+                            </button>
+                            <button
+                              type="button"
+                              className="wg-hand-nav is-next"
+                              aria-label={es ? "Mover mazo a la derecha" : "Move deck right"}
+                              onClick={() => handleShiftPackDeck(1)}
+                              disabled={Boolean(fanShiftDirection) || clampedHandCenterIndex >= currentPackCards.length - 1}
+                            >
+                              {">"}
+                            </button>
+                          </>
+                        ) : null}
+                        <div className="wg-hand-viewport">
+                          {currentPackCards.map((card, index) => {
+                            const offset = index - clampedHandCenterIndex;
+                            if (Math.abs(offset) > 4) return null;
+                            const depth = Math.abs(offset);
+                            const translateX = offset * 16;
+                            const translateY = depth * 8;
+                            const scale = Math.max(0.88, 1 - depth * 0.03);
+                            const rotate = offset * 2;
+                            const layer = 120 - depth;
+                            const isActive = offset === 0;
+                            return (
+                              <div
+                                key={`${card.articleId ?? card.id ?? getTitle(card)}-${index}`}
+                                className={`wg-hand-layer${isActive ? " is-active" : ""}`}
+                                style={{
+                                  "--wg-hand-x": `${translateX}px`,
+                                  "--wg-hand-y": `${translateY}px`,
+                                  "--wg-hand-scale": scale,
+                                  "--wg-hand-rotate": `${rotate}deg`,
+                                  "--wg-hand-z": layer,
+                                }}
+                              >
+                                <StackCard
+                                  card={card}
+                                  archiveLabel={text.archive}
+                                  formatNumber={formatNumber}
+                                  onOpen={(articleId) => void handleSelectArticle(articleId)}
+                                  onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
+                                  onCardActivate={isActive ? () => handleShiftPackDeck(1) : undefined}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    );
-                  })
+                    </div>
+                  ) : (
+                    <div className="wg-deck-stage">
+                      {revealHistoryIndices.map((historyIndex, listIndex) => {
+                        const historyCard = currentPackCards[historyIndex];
+                        if (!historyCard) return null;
+                        const distance = revealHistoryIndices.length - listIndex;
+                        const translateX = -Math.min(176, 56 + (distance - 1) * 42);
+                        const translateY = 8 + distance * 8;
+                        const scale = Math.max(0.88, 1 - distance * 0.03);
+                        const rotate = -distance * 2;
+                        const layer = 104 - distance;
+                        return (
+                          <div
+                            key={`revealed-left-${historyIndex}`}
+                            className="wg-stack-layer wg-deck-history-layer"
+                            style={{
+                              "--wg-stack-x": `${translateX}px`,
+                              "--wg-stack-y": `${translateY}px`,
+                              "--wg-stack-scale": scale,
+                              "--wg-stack-rotate": `${rotate}deg`,
+                              "--wg-stack-z": layer,
+                            }}
+                          >
+                            <StackCard
+                              card={historyCard}
+                              archiveLabel={text.archive}
+                              formatNumber={formatNumber}
+                              onOpen={(articleId) => void handleSelectArticle(articleId)}
+                              onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
+                            />
+                          </div>
+                        );
+                      })}
+                      {focusedPackCard ? (
+                        <div className="wg-stack-layer is-active wg-deck-active">
+                          <div className={`wg-reveal-flip${revealFace === "back" ? "" : " is-flipped"}${revealFace === "flipping" ? " is-animating" : ""}`}>
+                            <button
+                              type="button"
+                              className="wg-reveal-face is-back"
+                              aria-label={text.tapToFlip}
+                              onClick={handleRevealCurrentCard}
+                              style={{ "--wg-rarity-accent": RARITY_ACCENTS[getRarity(focusedPackCard)] ?? "#8e8a82" }}
+                            >
+                              <span className="wg-reveal-back-glow" aria-hidden="true" />
+                              <span className="wg-reveal-back-frame" aria-hidden="true" />
+                              <span className="wg-reveal-back-mark">
+                                <img src="/wikipedia-logo-w.png" alt="Wikipedia W logo" />
+                              </span>
+                            </button>
+                            <div className="wg-reveal-face is-front">
+                              <StackCard
+                                card={focusedPackCard}
+                                archiveLabel={text.archive}
+                                formatNumber={formatNumber}
+                                onOpen={(articleId) => void handleSelectArticle(articleId)}
+                                onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
+                                onCardActivate={handleAdvanceRevealedCard}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  )
                 ) : (
                   <div className="wg-pack-empty-state">
                     <p>{text.noPackCards}</p>
@@ -1173,17 +1493,27 @@ export default function WikipediaGachaGame() {
                 </button>
               </div>
 
+              {canCyclePackDeck && !allPackCardsSeen ? (
+                <p className="wg-deck-hint">{revealFace === "front" ? text.tapToNextCard : text.tapToFlip}</p>
+              ) : null}
+              {allPackCardsSeen ? (
+                <p className="wg-deck-hint">{text.fullHandReady}</p>
+              ) : null}
+
               <div className="wg-stack-slots">
                 {packSlots.map((card, index) => (
                   <button
                     key={`slot-${index}`}
                     type="button"
-                    className={`wg-stack-slot${packFocusIndex === index ? " is-active" : ""}`}
-                    onClick={() => card && setPackFocusIndex(index)}
-                    disabled={!card}
+                    className={`wg-stack-slot${activePackDeckIndex === index ? " is-active" : ""}`}
+                    onClick={() => {
+                      if (!card) return;
+                      handleSelectPackSlot(index);
+                    }}
+                    disabled={!card || (!allPackCardsSeen && index !== clampedRevealCursor)}
                   >
                     <span>#{index + 1}</span>
-                    <strong>{card ? `${getRarity(card)} · ${getTitle(card)}` : text.pending}</strong>
+                    <strong>{card ? `${getRarity(card)} - ${getTitle(card)}` : text.pending}</strong>
                   </button>
                 ))}
               </div>

@@ -2,11 +2,11 @@
   "version": 1,
   "nextIds": {
     "profile": 13,
-    "collection": 67,
-    "packOpening": 36,
+    "collection": 76,
+    "packOpening": 61,
     "browserMission": 85,
-    "browserTrophy": 25,
-    "rewardEvent": 24,
+    "browserTrophy": 26,
+    "rewardEvent": 49,
     "dailyStat": 14
   },
   "browserProfiles": [
@@ -201,18 +201,18 @@
       "id": 12,
       "browserToken": "4747a1c2134ac4fb290b83a8cf4b303d29e97886f355b3cdba012f17d8ad45b4",
       "displayName": "Anonymous Archivist",
-      "packsAvailable": 9,
+      "packsAvailable": 8,
       "maxPacks": 10,
-      "lastPackRegenAt": "2026-03-19T09:36:55.100Z",
+      "lastPackRegenAt": "2026-03-19T11:02:53.721Z",
       "gems": 50,
-      "shards": 534,
-      "trophiesPoints": 130,
-      "totalPackOpens": 17,
+      "shards": 2016,
+      "trophiesPoints": 160,
+      "totalPackOpens": 42,
       "pityCounter": 0,
       "createdAt": "2026-03-18T22:18:09.702Z",
-      "updatedAt": "2026-03-19T09:36:55.140Z",
-      "lastSeenAt": "2026-03-19T09:36:55.140Z",
-      "lastPackOpenedAt": "2026-03-19T09:36:55.100Z"
+      "updatedAt": "2026-03-19T11:03:26.385Z",
+      "lastSeenAt": "2026-03-19T11:03:26.385Z",
+      "lastPackOpenedAt": "2026-03-19T11:03:26.348Z"
     }
   ],
   "browserCollection": [
@@ -490,179 +490,179 @@
       "id": 45,
       "browserProfileId": 12,
       "articleId": 8,
-      "copies": 8,
+      "copies": 12,
       "favorite": false,
       "bestRarityCode": "UC",
       "firstObtainedAt": "2026-03-18T22:18:19.969Z",
-      "lastObtainedAt": "2026-03-19T09:36:55.100Z"
+      "lastObtainedAt": "2026-03-19T11:03:26.348Z"
     },
     {
       "id": 46,
       "browserProfileId": 12,
       "articleId": 9,
-      "copies": 5,
+      "copies": 9,
       "favorite": false,
       "bestRarityCode": "R",
       "firstObtainedAt": "2026-03-18T22:18:19.969Z",
-      "lastObtainedAt": "2026-03-19T09:32:46.511Z"
+      "lastObtainedAt": "2026-03-19T10:22:37.048Z"
     },
     {
       "id": 47,
       "browserProfileId": 12,
       "articleId": 2,
-      "copies": 7,
+      "copies": 12,
       "favorite": false,
       "bestRarityCode": "C",
       "firstObtainedAt": "2026-03-18T22:18:19.969Z",
-      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+      "lastObtainedAt": "2026-03-19T11:02:13.897Z"
     },
     {
       "id": 48,
       "browserProfileId": 12,
       "articleId": 1,
-      "copies": 7,
+      "copies": 14,
       "favorite": false,
       "bestRarityCode": "C",
       "firstObtainedAt": "2026-03-18T22:18:19.969Z",
-      "lastObtainedAt": "2026-03-19T09:36:55.100Z"
+      "lastObtainedAt": "2026-03-19T11:03:26.348Z"
     },
     {
       "id": 49,
       "browserProfileId": 12,
       "articleId": 3,
-      "copies": 9,
+      "copies": 20,
       "favorite": false,
       "bestRarityCode": "C",
       "firstObtainedAt": "2026-03-18T22:45:24.591Z",
-      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+      "lastObtainedAt": "2026-03-19T11:03:26.348Z"
     },
     {
       "id": 50,
       "browserProfileId": 12,
       "articleId": 6,
-      "copies": 8,
+      "copies": 16,
       "favorite": false,
       "bestRarityCode": "UC",
       "firstObtainedAt": "2026-03-18T22:45:24.591Z",
-      "lastObtainedAt": "2026-03-19T09:34:11.292Z"
+      "lastObtainedAt": "2026-03-19T10:53:15.713Z"
     },
     {
       "id": 51,
       "browserProfileId": 12,
       "articleId": 4,
-      "copies": 7,
+      "copies": 24,
       "favorite": false,
       "bestRarityCode": "C",
       "firstObtainedAt": "2026-03-18T22:45:24.591Z",
-      "lastObtainedAt": "2026-03-19T09:34:11.292Z"
+      "lastObtainedAt": "2026-03-19T11:02:13.897Z"
     },
     {
       "id": 52,
       "browserProfileId": 12,
       "articleId": 14,
-      "copies": 3,
+      "copies": 6,
       "favorite": false,
       "bestRarityCode": "SR",
       "firstObtainedAt": "2026-03-18T22:51:35.953Z",
-      "lastObtainedAt": "2026-03-19T09:28:54.185Z"
+      "lastObtainedAt": "2026-03-19T11:03:26.348Z"
     },
     {
       "id": 53,
       "browserProfileId": 12,
       "articleId": 5,
-      "copies": 6,
+      "copies": 11,
       "favorite": false,
       "bestRarityCode": "UC",
       "firstObtainedAt": "2026-03-18T23:38:22.670Z",
-      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+      "lastObtainedAt": "2026-03-19T10:53:15.713Z"
     },
     {
       "id": 54,
       "browserProfileId": 12,
       "articleId": 10,
-      "copies": 2,
+      "copies": 9,
       "favorite": false,
       "bestRarityCode": "R",
       "firstObtainedAt": "2026-03-18T23:38:22.670Z",
-      "lastObtainedAt": "2026-03-19T09:32:46.511Z"
+      "lastObtainedAt": "2026-03-19T10:52:02.024Z"
     },
     {
       "id": 55,
       "browserProfileId": 12,
       "articleId": 18,
-      "copies": 3,
+      "copies": 7,
       "favorite": false,
       "bestRarityCode": "SR",
       "firstObtainedAt": "2026-03-18T23:38:51.429Z",
-      "lastObtainedAt": "2026-03-19T09:36:55.100Z"
+      "lastObtainedAt": "2026-03-19T10:29:04.158Z"
     },
     {
       "id": 56,
       "browserProfileId": 12,
       "articleId": 13,
-      "copies": 4,
+      "copies": 7,
       "favorite": false,
       "bestRarityCode": "R",
       "firstObtainedAt": "2026-03-18T23:38:51.429Z",
-      "lastObtainedAt": "2026-03-19T09:36:55.100Z"
+      "lastObtainedAt": "2026-03-19T10:30:10.614Z"
     },
     {
       "id": 57,
       "browserProfileId": 12,
       "articleId": 7,
-      "copies": 4,
+      "copies": 7,
       "favorite": false,
       "bestRarityCode": "UC",
       "firstObtainedAt": "2026-03-18T23:38:51.429Z",
-      "lastObtainedAt": "2026-03-19T09:32:46.511Z"
+      "lastObtainedAt": "2026-03-19T10:52:02.024Z"
     },
     {
       "id": 58,
       "browserProfileId": 12,
       "articleId": 20,
-      "copies": 1,
+      "copies": 3,
       "favorite": false,
       "bestRarityCode": "SSR",
       "firstObtainedAt": "2026-03-18T23:39:31.109Z",
-      "lastObtainedAt": "2026-03-18T23:39:31.109Z"
+      "lastObtainedAt": "2026-03-19T10:53:15.713Z"
     },
     {
       "id": 59,
       "browserProfileId": 12,
       "articleId": 12,
-      "copies": 2,
+      "copies": 8,
       "favorite": false,
       "bestRarityCode": "R",
       "firstObtainedAt": "2026-03-19T09:10:33.368Z",
-      "lastObtainedAt": "2026-03-19T09:28:54.185Z"
+      "lastObtainedAt": "2026-03-19T11:03:26.348Z"
     },
     {
       "id": 60,
       "browserProfileId": 12,
       "articleId": 27,
-      "copies": 1,
+      "copies": 3,
       "favorite": false,
       "bestRarityCode": "UR",
       "firstObtainedAt": "2026-03-19T09:12:02.038Z",
-      "lastObtainedAt": "2026-03-19T09:12:02.038Z"
+      "lastObtainedAt": "2026-03-19T11:02:13.897Z"
     },
     {
       "id": 61,
       "browserProfileId": 12,
       "articleId": 19,
-      "copies": 3,
+      "copies": 7,
       "favorite": false,
       "bestRarityCode": "SR",
       "firstObtainedAt": "2026-03-19T09:12:37.817Z",
-      "lastObtainedAt": "2026-03-19T09:34:11.292Z"
+      "lastObtainedAt": "2026-03-19T10:59:13.012Z"
     },
     {
       "id": 62,
       "browserProfileId": 12,
       "articleId": 11,
-      "copies": 1,
+      "copies": 7,
       "firstObtainedAt": "2026-03-19T09:28:54.185Z",
-      "lastObtainedAt": "2026-03-19T09:28:54.185Z",
+      "lastObtainedAt": "2026-03-19T10:59:13.012Z",
       "favorite": false,
       "bestRarityCode": "R"
     },
@@ -680,9 +680,9 @@
       "id": 64,
       "browserProfileId": 12,
       "articleId": 24,
-      "copies": 1,
+      "copies": 3,
       "firstObtainedAt": "2026-03-19T09:34:11.292Z",
-      "lastObtainedAt": "2026-03-19T09:34:11.292Z",
+      "lastObtainedAt": "2026-03-19T11:01:53.721Z",
       "favorite": false,
       "bestRarityCode": "SSR"
     },
@@ -690,9 +690,9 @@
       "id": 65,
       "browserProfileId": 12,
       "articleId": 16,
-      "copies": 1,
+      "copies": 3,
       "firstObtainedAt": "2026-03-19T09:34:11.292Z",
-      "lastObtainedAt": "2026-03-19T09:34:11.292Z",
+      "lastObtainedAt": "2026-03-19T10:52:38.568Z",
       "favorite": false,
       "bestRarityCode": "SR"
     },
@@ -700,11 +700,101 @@
       "id": 66,
       "browserProfileId": 12,
       "articleId": 17,
-      "copies": 1,
+      "copies": 5,
       "firstObtainedAt": "2026-03-19T09:36:55.100Z",
-      "lastObtainedAt": "2026-03-19T09:36:55.100Z",
+      "lastObtainedAt": "2026-03-19T11:01:53.721Z",
       "favorite": false,
       "bestRarityCode": "SR"
+    },
+    {
+      "id": 67,
+      "browserProfileId": 12,
+      "articleId": 15,
+      "copies": 4,
+      "firstObtainedAt": "2026-03-19T09:41:49.749Z",
+      "lastObtainedAt": "2026-03-19T10:48:54.787Z",
+      "favorite": false,
+      "bestRarityCode": "SR"
+    },
+    {
+      "id": 68,
+      "browserProfileId": 12,
+      "articleId": 26,
+      "copies": 4,
+      "firstObtainedAt": "2026-03-19T09:45:09.707Z",
+      "lastObtainedAt": "2026-03-19T10:59:45.371Z",
+      "favorite": false,
+      "bestRarityCode": "UR"
+    },
+    {
+      "id": 69,
+      "browserProfileId": 12,
+      "articleId": 28,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T10:05:16.466Z",
+      "lastObtainedAt": "2026-03-19T10:05:16.466Z",
+      "favorite": false,
+      "bestRarityCode": "UR"
+    },
+    {
+      "id": 70,
+      "browserProfileId": 12,
+      "articleId": 25,
+      "copies": 2,
+      "firstObtainedAt": "2026-03-19T10:26:11.721Z",
+      "lastObtainedAt": "2026-03-19T10:33:19.109Z",
+      "favorite": false,
+      "bestRarityCode": "SSR"
+    },
+    {
+      "id": 71,
+      "browserProfileId": 12,
+      "articleId": 22,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T10:33:19.109Z",
+      "lastObtainedAt": "2026-03-19T10:33:19.109Z",
+      "favorite": false,
+      "bestRarityCode": "SSR"
+    },
+    {
+      "id": 72,
+      "browserProfileId": 12,
+      "articleId": 29,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T10:42:00.325Z",
+      "lastObtainedAt": "2026-03-19T10:42:00.325Z",
+      "favorite": false,
+      "bestRarityCode": "UR"
+    },
+    {
+      "id": 73,
+      "browserProfileId": 12,
+      "articleId": 23,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T10:42:00.325Z",
+      "lastObtainedAt": "2026-03-19T10:42:00.325Z",
+      "favorite": false,
+      "bestRarityCode": "SSR"
+    },
+    {
+      "id": 74,
+      "browserProfileId": 12,
+      "articleId": 30,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T10:59:13.012Z",
+      "lastObtainedAt": "2026-03-19T10:59:13.012Z",
+      "favorite": false,
+      "bestRarityCode": "LR"
+    },
+    {
+      "id": 75,
+      "browserProfileId": 12,
+      "articleId": 31,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T11:02:13.897Z",
+      "lastObtainedAt": "2026-03-19T11:02:13.897Z",
+      "favorite": false,
+      "bestRarityCode": "LR"
     }
   ],
   "packOpenings": [
@@ -2662,6 +2752,2131 @@
           "topicGroup": "History"
         }
       ]
+    },
+    {
+      "id": 36,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:40:03.127Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UR, 1 R, 2 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 8,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 9,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 12,
+          "title": "Steam engine",
+          "rarity": "R",
+          "qualityScore": 47,
+          "atk": 4911,
+          "def": 5852,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Steam_engine",
+          "topicGroup": "Engineering"
+        },
+        {
+          "articleId": 27,
+          "title": "Solar System",
+          "rarity": "UR",
+          "qualityScore": 93,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Not a card, a map of every path light takes to come back home.",
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 50,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Solar_System",
+          "topicGroup": "Science"
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:40:52.309Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "2 R, 3 C",
+      "cards": [
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 8,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 10,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 10,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:41:49.749Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "2 SR, 1 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 12,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 18,
+          "title": "Ancient Rome",
+          "rarity": "SR",
+          "qualityScore": 75,
+          "atk": 11193,
+          "def": 12308,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 15,
+          "title": "Pacific Ocean",
+          "rarity": "SR",
+          "qualityScore": 63,
+          "atk": 9149,
+          "def": 9075,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Pacific_Ocean",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 12,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 10,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:45:09.707Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UR, 1 SR, 2 R, 1 UC",
+      "cards": [
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 11,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 26,
+          "title": "Leonardo da Vinci",
+          "rarity": "UR",
+          "qualityScore": 94,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Every discipline in the deck feels like one of his unfinished sketches.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Leonardo_da_Vinci",
+          "topicGroup": "Art"
+        },
+        {
+          "articleId": 19,
+          "title": "Machine learning",
+          "rarity": "SR",
+          "qualityScore": 78,
+          "atk": 13084,
+          "def": 12003,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Machine_learning",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 11,
+          "title": "Volcano",
+          "rarity": "R",
+          "qualityScore": 42,
+          "atk": 5378,
+          "def": 6319,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Volcano",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 12,
+          "title": "Steam engine",
+          "rarity": "R",
+          "qualityScore": 47,
+          "atk": 4911,
+          "def": 5852,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Steam_engine",
+          "topicGroup": "Engineering"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:00:00.557Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 3 R, 1 C",
+      "cards": [
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 9,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 18,
+          "title": "Ancient Rome",
+          "rarity": "SR",
+          "qualityScore": 75,
+          "atk": 11193,
+          "def": 12308,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 12,
+          "title": "Steam engine",
+          "rarity": "R",
+          "qualityScore": 47,
+          "atk": 4911,
+          "def": 5852,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Steam_engine",
+          "topicGroup": "Engineering"
+        },
+        {
+          "articleId": 11,
+          "title": "Volcano",
+          "rarity": "R",
+          "qualityScore": 42,
+          "atk": 5378,
+          "def": 6319,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Volcano",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:05:16.466Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UR, 2 SR, 2 R",
+      "cards": [
+        {
+          "articleId": 19,
+          "title": "Machine learning",
+          "rarity": "SR",
+          "qualityScore": 78,
+          "atk": 13084,
+          "def": 12003,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Machine_learning",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 12,
+          "title": "Steam engine",
+          "rarity": "R",
+          "qualityScore": 47,
+          "atk": 4911,
+          "def": 5852,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Steam_engine",
+          "topicGroup": "Engineering"
+        },
+        {
+          "articleId": 28,
+          "title": "The Beatles",
+          "rarity": "UR",
+          "qualityScore": 91,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Four names, one signal. The whole century still hums the chorus.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/The_Beatles",
+          "topicGroup": "Culture"
+        },
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 14,
+          "title": "Chess",
+          "rarity": "SR",
+          "qualityScore": 67,
+          "atk": 10350,
+          "def": 10190,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+          "topicGroup": "Games"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:18:46.380Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UR, 1 R, 1 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 13,
+          "title": "Antarctica",
+          "rarity": "R",
+          "qualityScore": 54,
+          "atk": 6933,
+          "def": 8192,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 12,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 14,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 26,
+          "title": "Leonardo da Vinci",
+          "rarity": "UR",
+          "qualityScore": 94,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Every discipline in the deck feels like one of his unfinished sketches.",
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 50,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Leonardo_da_Vinci",
+          "topicGroup": "Art"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 14,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:20:09.115Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 R, 1 UC, 3 C",
+      "cards": [
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 11,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 8,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 15,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 11,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 8,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:22:37.048Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 R, 1 UC, 3 C",
+      "cards": [
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 9,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 10,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 12,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 9,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 8,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:26:11.721Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SSR, 2 SR, 1 R, 1 C",
+      "cards": [
+        {
+          "articleId": 15,
+          "title": "Pacific Ocean",
+          "rarity": "SR",
+          "qualityScore": 63,
+          "atk": 9149,
+          "def": 9075,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Pacific_Ocean",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 18,
+          "title": "Ancient Rome",
+          "rarity": "SR",
+          "qualityScore": 75,
+          "atk": 11193,
+          "def": 12308,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 25,
+          "title": "DNA",
+          "rarity": "SSR",
+          "qualityScore": 81,
+          "atk": 15000,
+          "def": 14551,
+          "imageUrl": null,
+          "flavorText": "A helix of instructions, folded small enough to fit inside wonder.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/DNA",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 13,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 13,
+          "title": "Antarctica",
+          "rarity": "R",
+          "qualityScore": 54,
+          "atk": 6933,
+          "def": 8192,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+          "topicGroup": "Geography"
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:27:37.980Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "3 SR, 1 R, 1 UC",
+      "cards": [
+        {
+          "articleId": 11,
+          "title": "Volcano",
+          "rarity": "R",
+          "qualityScore": 42,
+          "atk": 5378,
+          "def": 6319,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Volcano",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 17,
+          "title": "Apollo 11",
+          "rarity": "SR",
+          "qualityScore": 71,
+          "atk": 12573,
+          "def": 12023,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Apollo_11",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 15,
+          "title": "Pacific Ocean",
+          "rarity": "SR",
+          "qualityScore": 63,
+          "atk": 9149,
+          "def": 9075,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Pacific_Ocean",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 7,
+          "title": "Sundial",
+          "rarity": "UC",
+          "qualityScore": 26,
+          "atk": 2240,
+          "def": 3136,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+          "topicGroup": "Astronomy"
+        },
+        {
+          "articleId": 19,
+          "title": "Machine learning",
+          "rarity": "SR",
+          "qualityScore": 78,
+          "atk": 13084,
+          "def": 12003,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Machine_learning",
+          "topicGroup": "Technology"
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:29:04.158Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SSR, 2 SR, 1 R, 1 UC",
+      "cards": [
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 14,
+          "title": "Chess",
+          "rarity": "SR",
+          "qualityScore": 67,
+          "atk": 10350,
+          "def": 10190,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+          "topicGroup": "Games"
+        },
+        {
+          "articleId": 18,
+          "title": "Ancient Rome",
+          "rarity": "SR",
+          "qualityScore": 75,
+          "atk": 11193,
+          "def": 12308,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 13,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 20,
+          "title": "Ada Lovelace",
+          "rarity": "SSR",
+          "qualityScore": 84,
+          "atk": 13520,
+          "def": 12932,
+          "imageUrl": null,
+          "flavorText": "She saw an engine of numbers and imagined a machine of ideas.",
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 32,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ada_Lovelace",
+          "topicGroup": "Science"
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:30:10.614Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SSR, 1 SR, 2 R, 1 C",
+      "cards": [
+        {
+          "articleId": 24,
+          "title": "Internet",
+          "rarity": "SSR",
+          "qualityScore": 82,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Invisible roads, impossible scale, and the whole planet on the wire.",
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 32,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Internet",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 17,
+          "title": "Apollo 11",
+          "rarity": "SR",
+          "qualityScore": 71,
+          "atk": 12573,
+          "def": 12023,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Apollo_11",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 12,
+          "title": "Steam engine",
+          "rarity": "R",
+          "qualityScore": 47,
+          "atk": 4911,
+          "def": 5852,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Steam_engine",
+          "topicGroup": "Engineering"
+        },
+        {
+          "articleId": 13,
+          "title": "Antarctica",
+          "rarity": "R",
+          "qualityScore": 54,
+          "atk": 6933,
+          "def": 8192,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 11,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:33:19.109Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "2 SSR, 1 R, 1 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 11,
+          "title": "Volcano",
+          "rarity": "R",
+          "qualityScore": 42,
+          "atk": 5378,
+          "def": 6319,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Volcano",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 9,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 10,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 22,
+          "title": "Mona Lisa",
+          "rarity": "SSR",
+          "qualityScore": 83,
+          "atk": 15000,
+          "def": 12169,
+          "imageUrl": null,
+          "flavorText": "A single smile that turned an entire museum into its frame.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Mona_Lisa",
+          "topicGroup": "Art"
+        },
+        {
+          "articleId": 25,
+          "title": "DNA",
+          "rarity": "SSR",
+          "qualityScore": 81,
+          "atk": 15000,
+          "def": 14551,
+          "imageUrl": null,
+          "flavorText": "A helix of instructions, folded small enough to fit inside wonder.",
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 32,
+          "sourceUrl": "https://en.wikipedia.org/wiki/DNA",
+          "topicGroup": "Science"
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:42:00.325Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UR, 1 SSR, 2 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 29,
+          "title": "United States",
+          "rarity": "UR",
+          "qualityScore": 92,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "An article so broad it plays like a continent-sized event banner.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/United_States",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 23,
+          "title": "Black hole",
+          "rarity": "SSR",
+          "qualityScore": 88,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "The card does not consume the page. It bends the room around it.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Black_hole",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 14,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 10,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 10,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:48:54.787Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 2 R, 1 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 15,
+          "title": "Pacific Ocean",
+          "rarity": "SR",
+          "qualityScore": 63,
+          "atk": 9149,
+          "def": 9075,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Pacific_Ocean",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 15,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 14,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:51:40.705Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "2 UC, 3 C",
+      "cards": [
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 15,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 18,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 18,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 18,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 7,
+          "title": "Sundial",
+          "rarity": "UC",
+          "qualityScore": 26,
+          "atk": 2240,
+          "def": 3136,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+          "topicGroup": "Astronomy"
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:52:02.024Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UR, 1 SR, 2 R, 1 UC",
+      "cards": [
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 9,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 9,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 7,
+          "title": "Sundial",
+          "rarity": "UC",
+          "qualityScore": 26,
+          "atk": 2240,
+          "def": 3136,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+          "topicGroup": "Astronomy"
+        },
+        {
+          "articleId": 16,
+          "title": "Photosynthesis",
+          "rarity": "SR",
+          "qualityScore": 62,
+          "atk": 8868,
+          "def": 9804,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Photosynthesis",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 26,
+          "title": "Leonardo da Vinci",
+          "rarity": "UR",
+          "qualityScore": 94,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Every discipline in the deck feels like one of his unfinished sketches.",
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 50,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Leonardo_da_Vinci",
+          "topicGroup": "Art"
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:52:38.568Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 1 R, 3 C",
+      "cards": [
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 20,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 10,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 11,
+          "title": "Volcano",
+          "rarity": "R",
+          "qualityScore": 42,
+          "atk": 5378,
+          "def": 6319,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Volcano",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 20,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 16,
+          "title": "Photosynthesis",
+          "rarity": "SR",
+          "qualityScore": 62,
+          "atk": 8868,
+          "def": 9804,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Photosynthesis",
+          "topicGroup": "Science"
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:53:15.713Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SSR, 1 SR, 2 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 20,
+          "title": "Ada Lovelace",
+          "rarity": "SSR",
+          "qualityScore": 84,
+          "atk": 13520,
+          "def": 12932,
+          "imageUrl": null,
+          "flavorText": "She saw an engine of numbers and imagined a machine of ideas.",
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 32,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ada_Lovelace",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 21,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 17,
+          "title": "Apollo 11",
+          "rarity": "SR",
+          "qualityScore": 71,
+          "atk": 12573,
+          "def": 12023,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Apollo_11",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 16,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 11,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:59:13.012Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 LR, 1 SR, 1 R, 2 C",
+      "cards": [
+        {
+          "articleId": 19,
+          "title": "Machine learning",
+          "rarity": "SR",
+          "qualityScore": 78,
+          "atk": 13084,
+          "def": 12003,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Machine_learning",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 30,
+          "title": "Albert Einstein",
+          "rarity": "LR",
+          "qualityScore": 100,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "The room tilts. Time stretches. Even the pack odds feel relative now.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Albert_Einstein",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 22,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 12,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 11,
+          "title": "Volcano",
+          "rarity": "R",
+          "qualityScore": 42,
+          "atk": 5378,
+          "def": 6319,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Volcano",
+          "topicGroup": "Science"
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T10:59:45.371Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UR, 1 UC, 3 C",
+      "cards": [
+        {
+          "articleId": 26,
+          "title": "Leonardo da Vinci",
+          "rarity": "UR",
+          "qualityScore": 94,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Every discipline in the deck feels like one of his unfinished sketches.",
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 50,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Leonardo_da_Vinci",
+          "topicGroup": "Art"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 13,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 11,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 11,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 16,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T11:01:53.721Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SSR, 1 SR, 3 C",
+      "cards": [
+        {
+          "articleId": 24,
+          "title": "Internet",
+          "rarity": "SSR",
+          "qualityScore": 82,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Invisible roads, impossible scale, and the whole planet on the wire.",
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 32,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Internet",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 17,
+          "title": "Apollo 11",
+          "rarity": "SR",
+          "qualityScore": 71,
+          "atk": 12573,
+          "def": 12023,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Apollo_11",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 19,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 19,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 19,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T11:02:13.897Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 LR, 1 UR, 3 C",
+      "cards": [
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 24,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 12,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 27,
+          "title": "Solar System",
+          "rarity": "UR",
+          "qualityScore": 93,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Not a card, a map of every path light takes to come back home.",
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 50,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Solar_System",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 24,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 31,
+          "title": "World War II",
+          "rarity": "LR",
+          "qualityScore": 100,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Its scale is so vast the whole collection feels smaller around it.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/World_War_II",
+          "topicGroup": "History"
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T11:03:26.348Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 1 R, 1 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 12,
+          "title": "Steam engine",
+          "rarity": "R",
+          "qualityScore": 47,
+          "atk": 4911,
+          "def": 5852,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 8,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Steam_engine",
+          "topicGroup": "Engineering"
+        },
+        {
+          "articleId": 14,
+          "title": "Chess",
+          "rarity": "SR",
+          "qualityScore": 67,
+          "atk": 10350,
+          "def": 10190,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+          "topicGroup": "Games"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 20,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 12,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 14,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        }
+      ]
     }
   ],
   "browserMissions": [
@@ -3400,7 +5615,7 @@
       "claimed": true,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:36:55.149Z"
+      "updatedAt": "2026-03-19T11:03:26.397Z"
     },
     {
       "id": 80,
@@ -3411,7 +5626,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:36:55.149Z"
+      "updatedAt": "2026-03-19T11:03:26.397Z"
     },
     {
       "id": 81,
@@ -3422,7 +5637,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:36:55.149Z"
+      "updatedAt": "2026-03-19T11:03:26.397Z"
     },
     {
       "id": 82,
@@ -3433,7 +5648,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:36:55.149Z"
+      "updatedAt": "2026-03-19T11:03:26.397Z"
     },
     {
       "id": 83,
@@ -3444,7 +5659,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:36:55.149Z"
+      "updatedAt": "2026-03-19T11:03:26.397Z"
     },
     {
       "id": 84,
@@ -3455,7 +5670,7 @@
       "claimed": false,
       "resetDate": "2026-03-19",
       "createdAt": "2026-03-19T09:10:28.352Z",
-      "updatedAt": "2026-03-19T09:36:55.149Z"
+      "updatedAt": "2026-03-19T11:03:26.397Z"
     }
   ],
   "browserTrophies": [
@@ -3572,6 +5787,12 @@
       "browserProfileId": 12,
       "trophyId": 4,
       "unlockedAt": "2026-03-19T09:10:33.368Z"
+    },
+    {
+      "id": 25,
+      "browserProfileId": 12,
+      "trophyId": 6,
+      "unlockedAt": "2026-03-19T10:26:11.721Z"
     }
   ],
   "rewardEvents": [
@@ -3830,6 +6051,281 @@
       "metadataJson": {
         "packOpeningId": 35
       }
+    },
+    {
+      "id": 24,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 83,
+      "createdAt": "2026-03-19T09:40:03.127Z",
+      "metadataJson": {
+        "packOpeningId": 36
+      }
+    },
+    {
+      "id": 25,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 39,
+      "createdAt": "2026-03-19T09:40:52.309Z",
+      "metadataJson": {
+        "packOpeningId": 37
+      }
+    },
+    {
+      "id": 26,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 38,
+      "createdAt": "2026-03-19T09:41:49.749Z",
+      "metadataJson": {
+        "packOpeningId": 38
+      }
+    },
+    {
+      "id": 27,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 52,
+      "createdAt": "2026-03-19T09:45:09.707Z",
+      "metadataJson": {
+        "packOpeningId": 39
+      }
+    },
+    {
+      "id": 28,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 61,
+      "createdAt": "2026-03-19T10:00:00.557Z",
+      "metadataJson": {
+        "packOpeningId": 40
+      }
+    },
+    {
+      "id": 29,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 64,
+      "createdAt": "2026-03-19T10:05:16.466Z",
+      "metadataJson": {
+        "packOpeningId": 41
+      }
+    },
+    {
+      "id": 30,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 80,
+      "createdAt": "2026-03-19T10:18:46.380Z",
+      "metadataJson": {
+        "packOpeningId": 42
+      }
+    },
+    {
+      "id": 31,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 35,
+      "createdAt": "2026-03-19T10:20:09.115Z",
+      "metadataJson": {
+        "packOpeningId": 43
+      }
+    },
+    {
+      "id": 32,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 35,
+      "createdAt": "2026-03-19T10:22:37.048Z",
+      "metadataJson": {
+        "packOpeningId": 44
+      }
+    },
+    {
+      "id": 33,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 57,
+      "createdAt": "2026-03-19T10:26:11.721Z",
+      "metadataJson": {
+        "packOpeningId": 45
+      }
+    },
+    {
+      "id": 34,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 80,
+      "createdAt": "2026-03-19T10:27:37.980Z",
+      "metadataJson": {
+        "packOpeningId": 46
+      }
+    },
+    {
+      "id": 35,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 92,
+      "createdAt": "2026-03-19T10:29:04.158Z",
+      "metadataJson": {
+        "packOpeningId": 47
+      }
+    },
+    {
+      "id": 36,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 81,
+      "createdAt": "2026-03-19T10:30:10.614Z",
+      "metadataJson": {
+        "packOpeningId": 48
+      }
+    },
+    {
+      "id": 37,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 57,
+      "createdAt": "2026-03-19T10:33:19.109Z",
+      "metadataJson": {
+        "packOpeningId": 49
+      }
+    },
+    {
+      "id": 38,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 21,
+      "createdAt": "2026-03-19T10:42:00.325Z",
+      "metadataJson": {
+        "packOpeningId": 50
+      }
+    },
+    {
+      "id": 39,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 57,
+      "createdAt": "2026-03-19T10:48:54.787Z",
+      "metadataJson": {
+        "packOpeningId": 51
+      }
+    },
+    {
+      "id": 40,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 31,
+      "createdAt": "2026-03-19T10:51:40.705Z",
+      "metadataJson": {
+        "packOpeningId": 52
+      }
+    },
+    {
+      "id": 41,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 102,
+      "createdAt": "2026-03-19T10:52:02.024Z",
+      "metadataJson": {
+        "packOpeningId": 53
+      }
+    },
+    {
+      "id": 42,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 47,
+      "createdAt": "2026-03-19T10:52:38.568Z",
+      "metadataJson": {
+        "packOpeningId": 54
+      }
+    },
+    {
+      "id": 43,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 73,
+      "createdAt": "2026-03-19T10:53:15.713Z",
+      "metadataJson": {
+        "packOpeningId": 55
+      }
+    },
+    {
+      "id": 44,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 42,
+      "createdAt": "2026-03-19T10:59:13.012Z",
+      "metadataJson": {
+        "packOpeningId": 56
+      }
+    },
+    {
+      "id": 45,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 73,
+      "createdAt": "2026-03-19T10:59:45.371Z",
+      "metadataJson": {
+        "packOpeningId": 57
+      }
+    },
+    {
+      "id": 46,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 67,
+      "createdAt": "2026-03-19T11:01:53.721Z",
+      "metadataJson": {
+        "packOpeningId": 58
+      }
+    },
+    {
+      "id": 47,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 65,
+      "createdAt": "2026-03-19T11:02:13.897Z",
+      "metadataJson": {
+        "packOpeningId": 59
+      }
+    },
+    {
+      "id": 48,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 50,
+      "createdAt": "2026-03-19T11:03:26.348Z",
+      "metadataJson": {
+        "packOpeningId": 60
+      }
     }
   ],
   "dailyBrowserStats": [
@@ -3957,11 +6453,11 @@
       "id": 13,
       "browserProfileId": 12,
       "statDate": "2026-03-19",
-      "packsOpened": 10,
-      "cardsObtained": 50,
-      "newCardsObtained": 8,
-      "srOrHigherCount": 12,
-      "wikipediaClicks": 1
+      "packsOpened": 35,
+      "cardsObtained": 175,
+      "newCardsObtained": 17,
+      "srOrHigherCount": 51,
+      "wikipediaClicks": 5
     }
   ],
   "recoveries": [
