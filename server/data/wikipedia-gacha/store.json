@@ -1,0 +1,5787 @@
+{
+  "version": 1,
+  "nextIds": {
+    "profile": 13,
+    "collection": 64,
+    "packOpening": 34,
+    "browserMission": 85,
+    "browserTrophy": 25,
+    "rewardEvent": 22,
+    "dailyStat": 14
+  },
+  "browserProfiles": [
+    {
+      "id": 1,
+      "browserToken": "159ec784a4be0a6c3ab2d60ab92571d8e958f516c8e3bcd55495013ec97f6273",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 9,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T21:58:31.417Z",
+      "gems": 0,
+      "shards": 5,
+      "trophiesPoints": 10,
+      "totalPackOpens": 1,
+      "pityCounter": 1,
+      "createdAt": "2026-03-18T21:58:30.643Z",
+      "updatedAt": "2026-03-18T21:58:32.831Z",
+      "lastSeenAt": "2026-03-18T21:58:32.831Z",
+      "lastPackOpenedAt": "2026-03-18T21:58:31.417Z"
+    },
+    {
+      "id": 2,
+      "browserToken": "5b9729c5d39fad3b22a87020bff0ee7c429888058192c3a6b5bcad7c5b99773f",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 10,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T21:59:11.255Z",
+      "gems": 0,
+      "shards": 0,
+      "trophiesPoints": 0,
+      "totalPackOpens": 0,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T21:59:11.255Z",
+      "updatedAt": "2026-03-18T21:59:11.506Z",
+      "lastSeenAt": "2026-03-18T21:59:11.506Z",
+      "lastPackOpenedAt": null
+    },
+    {
+      "id": 3,
+      "browserToken": "980be52baa52052538785f5cc4aadb38f48e608040b7d62aa1ef818cae0c34ee",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 10,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T21:59:14.345Z",
+      "gems": 0,
+      "shards": 0,
+      "trophiesPoints": 0,
+      "totalPackOpens": 0,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T21:59:14.345Z",
+      "updatedAt": "2026-03-18T21:59:18.317Z",
+      "lastSeenAt": "2026-03-18T21:59:18.317Z",
+      "lastPackOpenedAt": null
+    },
+    {
+      "id": 4,
+      "browserToken": "159c1e9648026600e4e53e6536e44df055f02604175f4edf2f844b12eb9a327f",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 10,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T21:59:27.782Z",
+      "gems": 0,
+      "shards": 0,
+      "trophiesPoints": 0,
+      "totalPackOpens": 0,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T21:59:27.782Z",
+      "updatedAt": "2026-03-18T21:59:35.283Z",
+      "lastSeenAt": "2026-03-18T21:59:35.283Z",
+      "lastPackOpenedAt": null
+    },
+    {
+      "id": 5,
+      "browserToken": "80cbdf0df3320a4eb1c125c12fe9f28009b50dce8100a08cd4a451ae5b1803e7",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 10,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T21:59:37.345Z",
+      "gems": 0,
+      "shards": 0,
+      "trophiesPoints": 0,
+      "totalPackOpens": 0,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T21:59:37.345Z",
+      "updatedAt": "2026-03-18T21:59:41.462Z",
+      "lastSeenAt": "2026-03-18T21:59:41.462Z",
+      "lastPackOpenedAt": null
+    },
+    {
+      "id": 6,
+      "browserToken": "f73b9fa08d3994b2aff6c60b5c812d2bd08d96f01ccd0bcb6720a8b993ad4917",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 9,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T22:00:49.462Z",
+      "gems": 50,
+      "shards": 0,
+      "trophiesPoints": 65,
+      "totalPackOpens": 1,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T22:00:48.495Z",
+      "updatedAt": "2026-03-18T22:01:01.189Z",
+      "lastSeenAt": "2026-03-18T22:01:01.189Z",
+      "lastPackOpenedAt": "2026-03-18T22:00:49.462Z"
+    },
+    {
+      "id": 7,
+      "browserToken": "f83d4e42fb29a0c7a0d45155e6fdf95709599bdf1757fd3ec6708c0a4c66dd4c",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 9,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T22:08:39.644Z",
+      "gems": 0,
+      "shards": 8,
+      "trophiesPoints": 30,
+      "totalPackOpens": 1,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T22:08:36.425Z",
+      "updatedAt": "2026-03-18T22:08:39.656Z",
+      "lastSeenAt": "2026-03-18T22:08:39.656Z",
+      "lastPackOpenedAt": "2026-03-18T22:08:39.644Z"
+    },
+    {
+      "id": 8,
+      "browserToken": "fc015fad412155108c0c1fd32dc8a9ff48c6b264d147e2197d4e2206c4fff769",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 9,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T22:09:36.525Z",
+      "gems": 0,
+      "shards": 0,
+      "trophiesPoints": 65,
+      "totalPackOpens": 1,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T22:09:32.971Z",
+      "updatedAt": "2026-03-18T22:09:36.541Z",
+      "lastSeenAt": "2026-03-18T22:09:36.541Z",
+      "lastPackOpenedAt": "2026-03-18T22:09:36.525Z"
+    },
+    {
+      "id": 9,
+      "browserToken": "c09de2d92b51824610ea1e2802150bbccc37ae8bc596878f281fb3ae285a0c5a",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 9,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T22:10:36.328Z",
+      "gems": 0,
+      "shards": 12,
+      "trophiesPoints": 30,
+      "totalPackOpens": 1,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T22:10:32.923Z",
+      "updatedAt": "2026-03-18T22:10:36.352Z",
+      "lastSeenAt": "2026-03-18T22:10:36.352Z",
+      "lastPackOpenedAt": "2026-03-18T22:10:36.328Z"
+    },
+    {
+      "id": 10,
+      "browserToken": "99ee6b475de280b38079e5edb34692b9e8bd56028cf4792a284b5e41cd9c6d2b",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 9,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T22:11:44.935Z",
+      "gems": 50,
+      "shards": 0,
+      "trophiesPoints": 65,
+      "totalPackOpens": 1,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T22:11:40.869Z",
+      "updatedAt": "2026-03-18T22:12:01.093Z",
+      "lastSeenAt": "2026-03-18T22:12:01.093Z",
+      "lastPackOpenedAt": "2026-03-18T22:11:44.935Z"
+    },
+    {
+      "id": 11,
+      "browserToken": "2e76c9b67683de60c2d3f75dcb5a2a297abaec006ce02b2233ef2e26e068022d",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 10,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-18T22:18:09.699Z",
+      "gems": 0,
+      "shards": 0,
+      "trophiesPoints": 0,
+      "totalPackOpens": 0,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T22:18:09.699Z",
+      "updatedAt": "2026-03-18T22:18:09.742Z",
+      "lastSeenAt": "2026-03-18T22:18:09.742Z",
+      "lastPackOpenedAt": null
+    },
+    {
+      "id": 12,
+      "browserToken": "4747a1c2134ac4fb290b83a8cf4b303d29e97886f355b3cdba012f17d8ad45b4",
+      "displayName": "Anonymous Archivist",
+      "packsAvailable": 9,
+      "maxPacks": 10,
+      "lastPackRegenAt": "2026-03-19T09:32:46.511Z",
+      "gems": 50,
+      "shards": 456,
+      "trophiesPoints": 130,
+      "totalPackOpens": 15,
+      "pityCounter": 0,
+      "createdAt": "2026-03-18T22:18:09.702Z",
+      "updatedAt": "2026-03-19T09:32:46.541Z",
+      "lastSeenAt": "2026-03-19T09:32:46.541Z",
+      "lastPackOpenedAt": "2026-03-19T09:32:46.511Z"
+    }
+  ],
+  "browserCollection": [
+    {
+      "id": 1,
+      "browserProfileId": 1,
+      "articleId": 7,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T21:58:31.417Z",
+      "lastObtainedAt": "2026-03-18T21:58:31.417Z",
+      "favorite": false,
+      "bestRarityCode": "UC"
+    },
+    {
+      "id": 2,
+      "browserProfileId": 1,
+      "articleId": 9,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T21:58:31.417Z",
+      "lastObtainedAt": "2026-03-18T21:58:31.417Z",
+      "favorite": false,
+      "bestRarityCode": "R"
+    },
+    {
+      "id": 3,
+      "browserProfileId": 1,
+      "articleId": 5,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T21:58:31.417Z",
+      "lastObtainedAt": "2026-03-18T21:58:31.417Z",
+      "favorite": false,
+      "bestRarityCode": "UC"
+    },
+    {
+      "id": 4,
+      "browserProfileId": 1,
+      "articleId": 4,
+      "copies": 2,
+      "firstObtainedAt": "2026-03-18T21:58:31.417Z",
+      "lastObtainedAt": "2026-03-18T21:58:31.417Z",
+      "favorite": false,
+      "bestRarityCode": "C"
+    },
+    {
+      "id": 5,
+      "browserProfileId": 6,
+      "articleId": 9,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+      "lastObtainedAt": "2026-03-18T22:00:49.462Z",
+      "favorite": false,
+      "bestRarityCode": "R"
+    },
+    {
+      "id": 6,
+      "browserProfileId": 6,
+      "articleId": 1,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+      "lastObtainedAt": "2026-03-18T22:00:49.462Z",
+      "favorite": false,
+      "bestRarityCode": "C"
+    },
+    {
+      "id": 7,
+      "browserProfileId": 6,
+      "articleId": 28,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+      "lastObtainedAt": "2026-03-18T22:00:49.462Z",
+      "favorite": false,
+      "bestRarityCode": "UR"
+    },
+    {
+      "id": 8,
+      "browserProfileId": 6,
+      "articleId": 6,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+      "lastObtainedAt": "2026-03-18T22:00:49.462Z",
+      "favorite": false,
+      "bestRarityCode": "UC"
+    },
+    {
+      "id": 9,
+      "browserProfileId": 6,
+      "articleId": 8,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+      "lastObtainedAt": "2026-03-18T22:00:49.462Z",
+      "favorite": false,
+      "bestRarityCode": "UC"
+    },
+    {
+      "id": 10,
+      "browserProfileId": 7,
+      "articleId": 8,
+      "copies": 2,
+      "firstObtainedAt": "2026-03-18T22:08:39.644Z",
+      "lastObtainedAt": "2026-03-18T22:08:39.644Z",
+      "favorite": false,
+      "bestRarityCode": "UC"
+    },
+    {
+      "id": 11,
+      "browserProfileId": 7,
+      "articleId": 4,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:08:39.644Z",
+      "lastObtainedAt": "2026-03-18T22:08:39.644Z",
+      "favorite": false,
+      "bestRarityCode": "C"
+    },
+    {
+      "id": 12,
+      "browserProfileId": 7,
+      "articleId": 14,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:08:39.644Z",
+      "lastObtainedAt": "2026-03-18T22:08:39.644Z",
+      "favorite": false,
+      "bestRarityCode": "SR"
+    },
+    {
+      "id": 13,
+      "browserProfileId": 7,
+      "articleId": 3,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:08:39.644Z",
+      "lastObtainedAt": "2026-03-18T22:08:39.644Z",
+      "favorite": false,
+      "bestRarityCode": "C"
+    },
+    {
+      "id": 14,
+      "browserProfileId": 8,
+      "articleId": 2,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:09:36.525Z",
+      "lastObtainedAt": "2026-03-18T22:09:36.525Z",
+      "favorite": false,
+      "bestRarityCode": "C"
+    },
+    {
+      "id": 15,
+      "browserProfileId": 8,
+      "articleId": 10,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:09:36.525Z",
+      "lastObtainedAt": "2026-03-18T22:09:36.525Z",
+      "favorite": false,
+      "bestRarityCode": "R"
+    },
+    {
+      "id": 16,
+      "browserProfileId": 8,
+      "articleId": 6,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:09:36.525Z",
+      "lastObtainedAt": "2026-03-18T22:09:36.525Z",
+      "favorite": false,
+      "bestRarityCode": "UC"
+    },
+    {
+      "id": 17,
+      "browserProfileId": 8,
+      "articleId": 13,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:09:36.525Z",
+      "lastObtainedAt": "2026-03-18T22:09:36.525Z",
+      "favorite": false,
+      "bestRarityCode": "R"
+    },
+    {
+      "id": 18,
+      "browserProfileId": 8,
+      "articleId": 23,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:09:36.525Z",
+      "lastObtainedAt": "2026-03-18T22:09:36.525Z",
+      "favorite": false,
+      "bestRarityCode": "SSR"
+    },
+    {
+      "id": 19,
+      "browserProfileId": 9,
+      "articleId": 16,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:10:36.328Z",
+      "lastObtainedAt": "2026-03-18T22:10:36.328Z",
+      "favorite": false,
+      "bestRarityCode": "SR"
+    },
+    {
+      "id": 20,
+      "browserProfileId": 9,
+      "articleId": 10,
+      "copies": 2,
+      "firstObtainedAt": "2026-03-18T22:10:36.328Z",
+      "lastObtainedAt": "2026-03-18T22:10:36.328Z",
+      "favorite": false,
+      "bestRarityCode": "R"
+    },
+    {
+      "id": 21,
+      "browserProfileId": 9,
+      "articleId": 11,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:10:36.328Z",
+      "lastObtainedAt": "2026-03-18T22:10:36.328Z",
+      "favorite": false,
+      "bestRarityCode": "R"
+    },
+    {
+      "id": 22,
+      "browserProfileId": 9,
+      "articleId": 1,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:10:36.328Z",
+      "lastObtainedAt": "2026-03-18T22:10:36.328Z",
+      "favorite": false,
+      "bestRarityCode": "C"
+    },
+    {
+      "id": 23,
+      "browserProfileId": 10,
+      "articleId": 23,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+      "lastObtainedAt": "2026-03-18T22:11:44.935Z",
+      "favorite": false,
+      "bestRarityCode": "SSR"
+    },
+    {
+      "id": 24,
+      "browserProfileId": 10,
+      "articleId": 3,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+      "lastObtainedAt": "2026-03-18T22:11:44.935Z",
+      "favorite": false,
+      "bestRarityCode": "C"
+    },
+    {
+      "id": 25,
+      "browserProfileId": 10,
+      "articleId": 1,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+      "lastObtainedAt": "2026-03-18T22:11:44.935Z",
+      "favorite": false,
+      "bestRarityCode": "C"
+    },
+    {
+      "id": 26,
+      "browserProfileId": 10,
+      "articleId": 14,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+      "lastObtainedAt": "2026-03-18T22:11:44.935Z",
+      "favorite": false,
+      "bestRarityCode": "SR"
+    },
+    {
+      "id": 27,
+      "browserProfileId": 10,
+      "articleId": 31,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+      "lastObtainedAt": "2026-03-18T22:11:44.935Z",
+      "favorite": false,
+      "bestRarityCode": "LR"
+    },
+    {
+      "id": 45,
+      "browserProfileId": 12,
+      "articleId": 8,
+      "copies": 7,
+      "favorite": false,
+      "bestRarityCode": "UC",
+      "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+      "lastObtainedAt": "2026-03-19T09:28:54.185Z"
+    },
+    {
+      "id": 46,
+      "browserProfileId": 12,
+      "articleId": 9,
+      "copies": 5,
+      "favorite": false,
+      "bestRarityCode": "R",
+      "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+      "lastObtainedAt": "2026-03-19T09:32:46.511Z"
+    },
+    {
+      "id": 47,
+      "browserProfileId": 12,
+      "articleId": 2,
+      "copies": 7,
+      "favorite": false,
+      "bestRarityCode": "C",
+      "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+    },
+    {
+      "id": 48,
+      "browserProfileId": 12,
+      "articleId": 1,
+      "copies": 6,
+      "favorite": false,
+      "bestRarityCode": "C",
+      "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+    },
+    {
+      "id": 49,
+      "browserProfileId": 12,
+      "articleId": 3,
+      "copies": 9,
+      "favorite": false,
+      "bestRarityCode": "C",
+      "firstObtainedAt": "2026-03-18T22:45:24.591Z",
+      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+    },
+    {
+      "id": 50,
+      "browserProfileId": 12,
+      "articleId": 6,
+      "copies": 7,
+      "favorite": false,
+      "bestRarityCode": "UC",
+      "firstObtainedAt": "2026-03-18T22:45:24.591Z",
+      "lastObtainedAt": "2026-03-19T09:32:46.511Z"
+    },
+    {
+      "id": 51,
+      "browserProfileId": 12,
+      "articleId": 4,
+      "copies": 6,
+      "favorite": false,
+      "bestRarityCode": "C",
+      "firstObtainedAt": "2026-03-18T22:45:24.591Z",
+      "lastObtainedAt": "2026-03-19T09:14:48.275Z"
+    },
+    {
+      "id": 52,
+      "browserProfileId": 12,
+      "articleId": 14,
+      "copies": 3,
+      "favorite": false,
+      "bestRarityCode": "SR",
+      "firstObtainedAt": "2026-03-18T22:51:35.953Z",
+      "lastObtainedAt": "2026-03-19T09:28:54.185Z"
+    },
+    {
+      "id": 53,
+      "browserProfileId": 12,
+      "articleId": 5,
+      "copies": 6,
+      "favorite": false,
+      "bestRarityCode": "UC",
+      "firstObtainedAt": "2026-03-18T23:38:22.670Z",
+      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+    },
+    {
+      "id": 54,
+      "browserProfileId": 12,
+      "articleId": 10,
+      "copies": 2,
+      "favorite": false,
+      "bestRarityCode": "R",
+      "firstObtainedAt": "2026-03-18T23:38:22.670Z",
+      "lastObtainedAt": "2026-03-19T09:32:46.511Z"
+    },
+    {
+      "id": 55,
+      "browserProfileId": 12,
+      "articleId": 18,
+      "copies": 2,
+      "favorite": false,
+      "bestRarityCode": "SR",
+      "firstObtainedAt": "2026-03-18T23:38:51.429Z",
+      "lastObtainedAt": "2026-03-19T09:10:33.368Z"
+    },
+    {
+      "id": 56,
+      "browserProfileId": 12,
+      "articleId": 13,
+      "copies": 3,
+      "favorite": false,
+      "bestRarityCode": "R",
+      "firstObtainedAt": "2026-03-18T23:38:51.429Z",
+      "lastObtainedAt": "2026-03-19T09:14:48.275Z"
+    },
+    {
+      "id": 57,
+      "browserProfileId": 12,
+      "articleId": 7,
+      "copies": 4,
+      "favorite": false,
+      "bestRarityCode": "UC",
+      "firstObtainedAt": "2026-03-18T23:38:51.429Z",
+      "lastObtainedAt": "2026-03-19T09:32:46.511Z"
+    },
+    {
+      "id": 58,
+      "browserProfileId": 12,
+      "articleId": 20,
+      "copies": 1,
+      "favorite": false,
+      "bestRarityCode": "SSR",
+      "firstObtainedAt": "2026-03-18T23:39:31.109Z",
+      "lastObtainedAt": "2026-03-18T23:39:31.109Z"
+    },
+    {
+      "id": 59,
+      "browserProfileId": 12,
+      "articleId": 12,
+      "copies": 2,
+      "favorite": false,
+      "bestRarityCode": "R",
+      "firstObtainedAt": "2026-03-19T09:10:33.368Z",
+      "lastObtainedAt": "2026-03-19T09:28:54.185Z"
+    },
+    {
+      "id": 60,
+      "browserProfileId": 12,
+      "articleId": 27,
+      "copies": 1,
+      "favorite": false,
+      "bestRarityCode": "UR",
+      "firstObtainedAt": "2026-03-19T09:12:02.038Z",
+      "lastObtainedAt": "2026-03-19T09:12:02.038Z"
+    },
+    {
+      "id": 61,
+      "browserProfileId": 12,
+      "articleId": 19,
+      "copies": 2,
+      "favorite": false,
+      "bestRarityCode": "SR",
+      "firstObtainedAt": "2026-03-19T09:12:37.817Z",
+      "lastObtainedAt": "2026-03-19T09:28:45.088Z"
+    },
+    {
+      "id": 62,
+      "browserProfileId": 12,
+      "articleId": 11,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T09:28:54.185Z",
+      "lastObtainedAt": "2026-03-19T09:28:54.185Z",
+      "favorite": false,
+      "bestRarityCode": "R"
+    },
+    {
+      "id": 63,
+      "browserProfileId": 12,
+      "articleId": 21,
+      "copies": 1,
+      "firstObtainedAt": "2026-03-19T09:32:46.511Z",
+      "lastObtainedAt": "2026-03-19T09:32:46.511Z",
+      "favorite": false,
+      "bestRarityCode": "SSR"
+    }
+  ],
+  "packOpenings": [
+    {
+      "id": 1,
+      "browserProfileId": 1,
+      "openedAt": "2026-03-18T21:58:31.417Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 R, 2 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 7,
+          "title": "Sundial",
+          "rarity": "UC",
+          "qualityScore": 26,
+          "atk": 2240,
+          "def": 3136,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+          "topicGroup": "Astronomy"
+        },
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 2,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "browserProfileId": 6,
+      "openedAt": "2026-03-18T22:00:49.462Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UR, 1 R, 2 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 28,
+          "title": "The Beatles",
+          "rarity": "UR",
+          "qualityScore": 91,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Four names, one signal. The whole century still hums the chorus.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/The_Beatles",
+          "topicGroup": "Culture"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "browserProfileId": 7,
+      "openedAt": "2026-03-18T22:08:39.644Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 2 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 2,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 14,
+          "title": "Chess",
+          "rarity": "SR",
+          "qualityScore": 67,
+          "atk": 10350,
+          "def": 10190,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+          "topicGroup": "Games"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "browserProfileId": 8,
+      "openedAt": "2026-03-18T22:09:36.525Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SSR, 2 R, 1 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 13,
+          "title": "Antarctica",
+          "rarity": "R",
+          "qualityScore": 54,
+          "atk": 6933,
+          "def": 8192,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 23,
+          "title": "Black hole",
+          "rarity": "SSR",
+          "qualityScore": 88,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "The card does not consume the page. It bends the room around it.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Black_hole",
+          "topicGroup": "Science"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "browserProfileId": 9,
+      "openedAt": "2026-03-18T22:10:36.328Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 3 R, 1 C",
+      "cards": [
+        {
+          "articleId": 16,
+          "title": "Photosynthesis",
+          "rarity": "SR",
+          "qualityScore": 62,
+          "atk": 8868,
+          "def": 9804,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Photosynthesis",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 2,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 11,
+          "title": "Volcano",
+          "rarity": "R",
+          "qualityScore": 42,
+          "atk": 5378,
+          "def": 6319,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Volcano",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "browserProfileId": 10,
+      "openedAt": "2026-03-18T22:11:44.935Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 LR, 1 SSR, 1 SR, 2 C",
+      "cards": [
+        {
+          "articleId": 23,
+          "title": "Black hole",
+          "rarity": "SSR",
+          "qualityScore": 88,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "The card does not consume the page. It bends the room around it.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Black_hole",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 14,
+          "title": "Chess",
+          "rarity": "SR",
+          "qualityScore": 67,
+          "atk": 10350,
+          "def": 10190,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+          "topicGroup": "Games"
+        },
+        {
+          "articleId": 31,
+          "title": "World War II",
+          "rarity": "LR",
+          "qualityScore": 100,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Its scale is so vast the whole collection feels smaller around it.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/World_War_II",
+          "topicGroup": "History"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:28:13.767Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "3 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 7,
+          "title": "Sundial",
+          "rarity": "UC",
+          "qualityScore": 26,
+          "atk": 2240,
+          "def": 3136,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+          "topicGroup": "Astronomy"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:14:48.275Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 1 R, 3 C",
+      "cards": [
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 14,
+          "title": "Chess",
+          "rarity": "SR",
+          "qualityScore": 67,
+          "atk": 10350,
+          "def": 10190,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+          "topicGroup": "Games"
+        },
+        {
+          "articleId": 13,
+          "title": "Antarctica",
+          "rarity": "R",
+          "qualityScore": 54,
+          "atk": 6933,
+          "def": 8192,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:12:37.817Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 2 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 19,
+          "title": "Machine learning",
+          "rarity": "SR",
+          "qualityScore": 78,
+          "atk": 13084,
+          "def": 12003,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Machine_learning",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 8,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:12:02.038Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UR, 2 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 27,
+          "title": "Solar System",
+          "rarity": "UR",
+          "qualityScore": 93,
+          "atk": 15000,
+          "def": 15000,
+          "imageUrl": null,
+          "flavorText": "Not a card, a map of every path light takes to come back home.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Solar_System",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:10:33.368Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 2 R, 2 C",
+      "cards": [
+        {
+          "articleId": 12,
+          "title": "Steam engine",
+          "rarity": "R",
+          "qualityScore": 47,
+          "atk": 4911,
+          "def": 5852,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Steam_engine",
+          "topicGroup": "Engineering"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 18,
+          "title": "Ancient Rome",
+          "rarity": "SR",
+          "qualityScore": 75,
+          "atk": 11193,
+          "def": 12308,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 13,
+          "title": "Antarctica",
+          "rarity": "R",
+          "qualityScore": 54,
+          "atk": 6933,
+          "def": 8192,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-18T23:39:31.109Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SSR, 1 UC, 3 C",
+      "cards": [
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 20,
+          "title": "Ada Lovelace",
+          "rarity": "SSR",
+          "qualityScore": 84,
+          "atk": 13520,
+          "def": 12932,
+          "imageUrl": null,
+          "flavorText": "She saw an engine of numbers and imagined a machine of ideas.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ada_Lovelace",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-18T23:38:51.429Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 2 R, 1 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 18,
+          "title": "Ancient Rome",
+          "rarity": "SR",
+          "qualityScore": 75,
+          "atk": 11193,
+          "def": 12308,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 13,
+          "title": "Antarctica",
+          "rarity": "R",
+          "qualityScore": 54,
+          "atk": 6933,
+          "def": 8192,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 7,
+          "title": "Sundial",
+          "rarity": "UC",
+          "qualityScore": 26,
+          "atk": 2240,
+          "def": 3136,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+          "topicGroup": "Astronomy"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-18T23:38:22.670Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 R, 3 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-18T22:51:35.953Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 1 R, 2 UC, 1 C",
+      "cards": [
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 14,
+          "title": "Chess",
+          "rarity": "SR",
+          "qualityScore": 67,
+          "atk": 10350,
+          "def": 10190,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+          "topicGroup": "Games"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-18T22:50:33.987Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 R, 2 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-18T22:45:24.591Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 UC, 4 C",
+      "cards": [
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 2,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        },
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 2,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 4,
+          "title": "Lantern",
+          "rarity": "C",
+          "qualityScore": 8,
+          "atk": 1031,
+          "def": 1786,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+          "topicGroup": "Design"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-18T22:18:19.969Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 R, 2 UC, 2 C",
+      "cards": [
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 2,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:28:45.088Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 1 UC, 3 C",
+      "cards": [
+        {
+          "articleId": 5,
+          "title": "Compass",
+          "rarity": "UC",
+          "qualityScore": 22,
+          "atk": 2900,
+          "def": 3778,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 19,
+          "title": "Machine learning",
+          "rarity": "SR",
+          "qualityScore": 78,
+          "atk": 13084,
+          "def": 12003,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Machine_learning",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 1,
+          "title": "Abacus",
+          "rarity": "C",
+          "qualityScore": 12,
+          "atk": 1351,
+          "def": 2125,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 6,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 2,
+          "title": "Papyrus",
+          "rarity": "C",
+          "qualityScore": 15,
+          "atk": 1493,
+          "def": 2278,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+          "topicGroup": "History"
+        },
+        {
+          "articleId": 3,
+          "title": "Ink",
+          "rarity": "C",
+          "qualityScore": 10,
+          "atk": 1156,
+          "def": 1974,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 9,
+          "shardsEarned": 5,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+          "topicGroup": "Materials"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:28:54.185Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SR, 2 R, 2 UC",
+      "cards": [
+        {
+          "articleId": 14,
+          "title": "Chess",
+          "rarity": "SR",
+          "qualityScore": 67,
+          "atk": 10350,
+          "def": 10190,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 20,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+          "topicGroup": "Games"
+        },
+        {
+          "articleId": 8,
+          "title": "Lighthouse",
+          "rarity": "UC",
+          "qualityScore": 31,
+          "atk": 3440,
+          "def": 4350,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+          "topicGroup": "Architecture"
+        },
+        {
+          "articleId": 12,
+          "title": "Steam engine",
+          "rarity": "R",
+          "qualityScore": 47,
+          "atk": 4911,
+          "def": 5852,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Steam_engine",
+          "topicGroup": "Engineering"
+        },
+        {
+          "articleId": 7,
+          "title": "Sundial",
+          "rarity": "UC",
+          "qualityScore": 26,
+          "atk": 2240,
+          "def": 3136,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 3,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+          "topicGroup": "Astronomy"
+        },
+        {
+          "articleId": 11,
+          "title": "Volcano",
+          "rarity": "R",
+          "qualityScore": 42,
+          "atk": 5378,
+          "def": 6319,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Volcano",
+          "topicGroup": "Science"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "browserProfileId": 12,
+      "openedAt": "2026-03-19T09:32:46.511Z",
+      "guaranteedSrPlus": false,
+      "packType": "standard",
+      "resultSummary": "1 SSR, 2 R, 2 UC",
+      "cards": [
+        {
+          "articleId": 6,
+          "title": "Morse code",
+          "rarity": "UC",
+          "qualityScore": 24,
+          "atk": 2760,
+          "def": 3508,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 7,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+          "topicGroup": "Technology"
+        },
+        {
+          "articleId": 21,
+          "title": "Marie Curie",
+          "rarity": "SSR",
+          "qualityScore": 87,
+          "atk": 15000,
+          "def": 14282,
+          "imageUrl": null,
+          "flavorText": "Few names glow brighter where science and resolve meet.",
+          "wasNew": true,
+          "copiesAfterPull": 1,
+          "shardsEarned": 0,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Marie_Curie",
+          "topicGroup": "Science"
+        },
+        {
+          "articleId": 10,
+          "title": "Fibonacci number",
+          "rarity": "R",
+          "qualityScore": 39,
+          "atk": 4356,
+          "def": 5361,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 2,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+          "topicGroup": "Mathematics"
+        },
+        {
+          "articleId": 9,
+          "title": "Atlas",
+          "rarity": "R",
+          "qualityScore": 37,
+          "atk": 4067,
+          "def": 5048,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 5,
+          "shardsEarned": 12,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+          "topicGroup": "Geography"
+        },
+        {
+          "articleId": 7,
+          "title": "Sundial",
+          "rarity": "UC",
+          "qualityScore": 26,
+          "atk": 2240,
+          "def": 3136,
+          "imageUrl": null,
+          "flavorText": null,
+          "wasNew": false,
+          "copiesAfterPull": 4,
+          "shardsEarned": 8,
+          "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+          "topicGroup": "Astronomy"
+        }
+      ]
+    }
+  ],
+  "browserMissions": [
+    {
+      "id": 1,
+      "browserProfileId": 1,
+      "missionId": 1,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:58:30.643Z",
+      "updatedAt": "2026-03-18T21:58:32.837Z"
+    },
+    {
+      "id": 2,
+      "browserProfileId": 1,
+      "missionId": 2,
+      "progressValue": 1,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:58:30.643Z",
+      "updatedAt": "2026-03-18T21:58:32.837Z"
+    },
+    {
+      "id": 3,
+      "browserProfileId": 1,
+      "missionId": 3,
+      "progressValue": 2,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:58:30.643Z",
+      "updatedAt": "2026-03-18T21:58:32.837Z"
+    },
+    {
+      "id": 4,
+      "browserProfileId": 1,
+      "missionId": 4,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:58:30.643Z",
+      "updatedAt": "2026-03-18T21:58:32.837Z"
+    },
+    {
+      "id": 5,
+      "browserProfileId": 1,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:58:30.643Z",
+      "updatedAt": "2026-03-18T21:58:32.837Z"
+    },
+    {
+      "id": 6,
+      "browserProfileId": 1,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:58:30.643Z",
+      "updatedAt": "2026-03-18T21:58:32.837Z"
+    },
+    {
+      "id": 7,
+      "browserProfileId": 2,
+      "missionId": 1,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:11.255Z",
+      "updatedAt": "2026-03-18T21:59:11.564Z"
+    },
+    {
+      "id": 8,
+      "browserProfileId": 2,
+      "missionId": 2,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:11.255Z",
+      "updatedAt": "2026-03-18T21:59:11.564Z"
+    },
+    {
+      "id": 9,
+      "browserProfileId": 2,
+      "missionId": 3,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:11.255Z",
+      "updatedAt": "2026-03-18T21:59:11.564Z"
+    },
+    {
+      "id": 10,
+      "browserProfileId": 2,
+      "missionId": 4,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:11.255Z",
+      "updatedAt": "2026-03-18T21:59:11.564Z"
+    },
+    {
+      "id": 11,
+      "browserProfileId": 2,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:11.255Z",
+      "updatedAt": "2026-03-18T21:59:11.564Z"
+    },
+    {
+      "id": 12,
+      "browserProfileId": 2,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:11.255Z",
+      "updatedAt": "2026-03-18T21:59:11.564Z"
+    },
+    {
+      "id": 13,
+      "browserProfileId": 3,
+      "missionId": 1,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:14.345Z",
+      "updatedAt": "2026-03-18T21:59:18.430Z"
+    },
+    {
+      "id": 14,
+      "browserProfileId": 3,
+      "missionId": 2,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:14.345Z",
+      "updatedAt": "2026-03-18T21:59:18.430Z"
+    },
+    {
+      "id": 15,
+      "browserProfileId": 3,
+      "missionId": 3,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:14.345Z",
+      "updatedAt": "2026-03-18T21:59:18.430Z"
+    },
+    {
+      "id": 16,
+      "browserProfileId": 3,
+      "missionId": 4,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:14.345Z",
+      "updatedAt": "2026-03-18T21:59:18.430Z"
+    },
+    {
+      "id": 17,
+      "browserProfileId": 3,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:14.345Z",
+      "updatedAt": "2026-03-18T21:59:18.430Z"
+    },
+    {
+      "id": 18,
+      "browserProfileId": 3,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:14.345Z",
+      "updatedAt": "2026-03-18T21:59:18.430Z"
+    },
+    {
+      "id": 19,
+      "browserProfileId": 4,
+      "missionId": 1,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:27.782Z",
+      "updatedAt": "2026-03-18T21:59:35.467Z"
+    },
+    {
+      "id": 20,
+      "browserProfileId": 4,
+      "missionId": 2,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:27.782Z",
+      "updatedAt": "2026-03-18T21:59:35.467Z"
+    },
+    {
+      "id": 21,
+      "browserProfileId": 4,
+      "missionId": 3,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:27.782Z",
+      "updatedAt": "2026-03-18T21:59:35.467Z"
+    },
+    {
+      "id": 22,
+      "browserProfileId": 4,
+      "missionId": 4,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:27.782Z",
+      "updatedAt": "2026-03-18T21:59:35.467Z"
+    },
+    {
+      "id": 23,
+      "browserProfileId": 4,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:27.782Z",
+      "updatedAt": "2026-03-18T21:59:35.467Z"
+    },
+    {
+      "id": 24,
+      "browserProfileId": 4,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:27.782Z",
+      "updatedAt": "2026-03-18T21:59:35.467Z"
+    },
+    {
+      "id": 25,
+      "browserProfileId": 5,
+      "missionId": 1,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:37.345Z",
+      "updatedAt": "2026-03-18T21:59:41.499Z"
+    },
+    {
+      "id": 26,
+      "browserProfileId": 5,
+      "missionId": 2,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:37.345Z",
+      "updatedAt": "2026-03-18T21:59:41.499Z"
+    },
+    {
+      "id": 27,
+      "browserProfileId": 5,
+      "missionId": 3,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:37.345Z",
+      "updatedAt": "2026-03-18T21:59:41.499Z"
+    },
+    {
+      "id": 28,
+      "browserProfileId": 5,
+      "missionId": 4,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:37.345Z",
+      "updatedAt": "2026-03-18T21:59:41.499Z"
+    },
+    {
+      "id": 29,
+      "browserProfileId": 5,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:37.345Z",
+      "updatedAt": "2026-03-18T21:59:41.499Z"
+    },
+    {
+      "id": 30,
+      "browserProfileId": 5,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T21:59:37.345Z",
+      "updatedAt": "2026-03-18T21:59:41.499Z"
+    },
+    {
+      "id": 31,
+      "browserProfileId": 6,
+      "missionId": 1,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": true,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:00:48.495Z",
+      "updatedAt": "2026-03-18T22:01:01.194Z"
+    },
+    {
+      "id": 32,
+      "browserProfileId": 6,
+      "missionId": 2,
+      "progressValue": 1,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:00:48.495Z",
+      "updatedAt": "2026-03-18T22:01:01.194Z"
+    },
+    {
+      "id": 33,
+      "browserProfileId": 6,
+      "missionId": 3,
+      "progressValue": 2,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:00:48.495Z",
+      "updatedAt": "2026-03-18T22:01:01.194Z"
+    },
+    {
+      "id": 34,
+      "browserProfileId": 6,
+      "missionId": 4,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:00:48.495Z",
+      "updatedAt": "2026-03-18T22:01:01.194Z"
+    },
+    {
+      "id": 35,
+      "browserProfileId": 6,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:00:48.495Z",
+      "updatedAt": "2026-03-18T22:01:01.194Z"
+    },
+    {
+      "id": 36,
+      "browserProfileId": 6,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:00:48.495Z",
+      "updatedAt": "2026-03-18T22:01:01.194Z"
+    },
+    {
+      "id": 37,
+      "browserProfileId": 7,
+      "missionId": 1,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:08:36.425Z",
+      "updatedAt": "2026-03-18T22:08:39.660Z"
+    },
+    {
+      "id": 38,
+      "browserProfileId": 7,
+      "missionId": 2,
+      "progressValue": 1,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:08:36.425Z",
+      "updatedAt": "2026-03-18T22:08:39.660Z"
+    },
+    {
+      "id": 39,
+      "browserProfileId": 7,
+      "missionId": 3,
+      "progressValue": 2,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:08:36.425Z",
+      "updatedAt": "2026-03-18T22:08:39.660Z"
+    },
+    {
+      "id": 40,
+      "browserProfileId": 7,
+      "missionId": 4,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:08:36.425Z",
+      "updatedAt": "2026-03-18T22:08:39.660Z"
+    },
+    {
+      "id": 41,
+      "browserProfileId": 7,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:08:36.425Z",
+      "updatedAt": "2026-03-18T22:08:39.660Z"
+    },
+    {
+      "id": 42,
+      "browserProfileId": 7,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:08:36.425Z",
+      "updatedAt": "2026-03-18T22:08:39.660Z"
+    },
+    {
+      "id": 43,
+      "browserProfileId": 8,
+      "missionId": 1,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:09:32.971Z",
+      "updatedAt": "2026-03-18T22:09:36.546Z"
+    },
+    {
+      "id": 44,
+      "browserProfileId": 8,
+      "missionId": 2,
+      "progressValue": 1,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:09:32.971Z",
+      "updatedAt": "2026-03-18T22:09:36.546Z"
+    },
+    {
+      "id": 45,
+      "browserProfileId": 8,
+      "missionId": 3,
+      "progressValue": 2,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:09:32.971Z",
+      "updatedAt": "2026-03-18T22:09:36.546Z"
+    },
+    {
+      "id": 46,
+      "browserProfileId": 8,
+      "missionId": 4,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:09:32.971Z",
+      "updatedAt": "2026-03-18T22:09:36.546Z"
+    },
+    {
+      "id": 47,
+      "browserProfileId": 8,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:09:32.971Z",
+      "updatedAt": "2026-03-18T22:09:36.546Z"
+    },
+    {
+      "id": 48,
+      "browserProfileId": 8,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:09:32.971Z",
+      "updatedAt": "2026-03-18T22:09:36.546Z"
+    },
+    {
+      "id": 49,
+      "browserProfileId": 9,
+      "missionId": 1,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:10:32.923Z",
+      "updatedAt": "2026-03-18T22:10:36.355Z"
+    },
+    {
+      "id": 50,
+      "browserProfileId": 9,
+      "missionId": 2,
+      "progressValue": 1,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:10:32.923Z",
+      "updatedAt": "2026-03-18T22:10:36.355Z"
+    },
+    {
+      "id": 51,
+      "browserProfileId": 9,
+      "missionId": 3,
+      "progressValue": 2,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:10:32.923Z",
+      "updatedAt": "2026-03-18T22:10:36.355Z"
+    },
+    {
+      "id": 52,
+      "browserProfileId": 9,
+      "missionId": 4,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:10:32.923Z",
+      "updatedAt": "2026-03-18T22:10:36.355Z"
+    },
+    {
+      "id": 53,
+      "browserProfileId": 9,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:10:32.923Z",
+      "updatedAt": "2026-03-18T22:10:36.355Z"
+    },
+    {
+      "id": 54,
+      "browserProfileId": 9,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:10:32.923Z",
+      "updatedAt": "2026-03-18T22:10:36.355Z"
+    },
+    {
+      "id": 55,
+      "browserProfileId": 10,
+      "missionId": 1,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": true,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:11:40.869Z",
+      "updatedAt": "2026-03-18T22:12:01.101Z"
+    },
+    {
+      "id": 56,
+      "browserProfileId": 10,
+      "missionId": 2,
+      "progressValue": 1,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:11:40.869Z",
+      "updatedAt": "2026-03-18T22:12:01.101Z"
+    },
+    {
+      "id": 57,
+      "browserProfileId": 10,
+      "missionId": 3,
+      "progressValue": 2,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:11:40.869Z",
+      "updatedAt": "2026-03-18T22:12:01.101Z"
+    },
+    {
+      "id": 58,
+      "browserProfileId": 10,
+      "missionId": 4,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:11:40.869Z",
+      "updatedAt": "2026-03-18T22:12:01.101Z"
+    },
+    {
+      "id": 59,
+      "browserProfileId": 10,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:11:40.869Z",
+      "updatedAt": "2026-03-18T22:12:01.101Z"
+    },
+    {
+      "id": 60,
+      "browserProfileId": 10,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:11:40.869Z",
+      "updatedAt": "2026-03-18T22:12:01.101Z"
+    },
+    {
+      "id": 61,
+      "browserProfileId": 11,
+      "missionId": 1,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:18:09.699Z",
+      "updatedAt": "2026-03-18T22:18:09.746Z"
+    },
+    {
+      "id": 62,
+      "browserProfileId": 11,
+      "missionId": 2,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:18:09.699Z",
+      "updatedAt": "2026-03-18T22:18:09.746Z"
+    },
+    {
+      "id": 63,
+      "browserProfileId": 11,
+      "missionId": 3,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:18:09.699Z",
+      "updatedAt": "2026-03-18T22:18:09.746Z"
+    },
+    {
+      "id": 64,
+      "browserProfileId": 11,
+      "missionId": 4,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:18:09.699Z",
+      "updatedAt": "2026-03-18T22:18:09.746Z"
+    },
+    {
+      "id": 65,
+      "browserProfileId": 11,
+      "missionId": 5,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:18:09.699Z",
+      "updatedAt": "2026-03-18T22:18:09.746Z"
+    },
+    {
+      "id": 66,
+      "browserProfileId": 11,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-18",
+      "createdAt": "2026-03-18T22:18:09.699Z",
+      "updatedAt": "2026-03-18T22:18:09.746Z"
+    },
+    {
+      "id": 79,
+      "browserProfileId": 12,
+      "missionId": 1,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": true,
+      "resetDate": "2026-03-19",
+      "createdAt": "2026-03-19T09:10:28.352Z",
+      "updatedAt": "2026-03-19T09:32:46.555Z"
+    },
+    {
+      "id": 80,
+      "browserProfileId": 12,
+      "missionId": 2,
+      "progressValue": 3,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-19",
+      "createdAt": "2026-03-19T09:10:28.352Z",
+      "updatedAt": "2026-03-19T09:32:46.555Z"
+    },
+    {
+      "id": 81,
+      "browserProfileId": 12,
+      "missionId": 3,
+      "progressValue": 2,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-19",
+      "createdAt": "2026-03-19T09:10:28.352Z",
+      "updatedAt": "2026-03-19T09:32:46.555Z"
+    },
+    {
+      "id": 82,
+      "browserProfileId": 12,
+      "missionId": 4,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-19",
+      "createdAt": "2026-03-19T09:10:28.352Z",
+      "updatedAt": "2026-03-19T09:32:46.555Z"
+    },
+    {
+      "id": 83,
+      "browserProfileId": 12,
+      "missionId": 5,
+      "progressValue": 1,
+      "completed": true,
+      "claimed": false,
+      "resetDate": "2026-03-19",
+      "createdAt": "2026-03-19T09:10:28.352Z",
+      "updatedAt": "2026-03-19T09:32:46.555Z"
+    },
+    {
+      "id": 84,
+      "browserProfileId": 12,
+      "missionId": 6,
+      "progressValue": 0,
+      "completed": false,
+      "claimed": false,
+      "resetDate": "2026-03-19",
+      "createdAt": "2026-03-19T09:10:28.352Z",
+      "updatedAt": "2026-03-19T09:32:46.555Z"
+    }
+  ],
+  "browserTrophies": [
+    {
+      "id": 1,
+      "browserProfileId": 1,
+      "trophyId": 1,
+      "unlockedAt": "2026-03-18T21:58:31.417Z"
+    },
+    {
+      "id": 2,
+      "browserProfileId": 6,
+      "trophyId": 1,
+      "unlockedAt": "2026-03-18T22:00:49.462Z"
+    },
+    {
+      "id": 3,
+      "browserProfileId": 6,
+      "trophyId": 2,
+      "unlockedAt": "2026-03-18T22:00:49.462Z"
+    },
+    {
+      "id": 4,
+      "browserProfileId": 6,
+      "trophyId": 3,
+      "unlockedAt": "2026-03-18T22:00:49.462Z"
+    },
+    {
+      "id": 5,
+      "browserProfileId": 7,
+      "trophyId": 1,
+      "unlockedAt": "2026-03-18T22:08:39.644Z"
+    },
+    {
+      "id": 6,
+      "browserProfileId": 7,
+      "trophyId": 2,
+      "unlockedAt": "2026-03-18T22:08:39.644Z"
+    },
+    {
+      "id": 7,
+      "browserProfileId": 8,
+      "trophyId": 1,
+      "unlockedAt": "2026-03-18T22:09:36.525Z"
+    },
+    {
+      "id": 8,
+      "browserProfileId": 8,
+      "trophyId": 2,
+      "unlockedAt": "2026-03-18T22:09:36.525Z"
+    },
+    {
+      "id": 9,
+      "browserProfileId": 8,
+      "trophyId": 3,
+      "unlockedAt": "2026-03-18T22:09:36.525Z"
+    },
+    {
+      "id": 10,
+      "browserProfileId": 9,
+      "trophyId": 1,
+      "unlockedAt": "2026-03-18T22:10:36.328Z"
+    },
+    {
+      "id": 11,
+      "browserProfileId": 9,
+      "trophyId": 2,
+      "unlockedAt": "2026-03-18T22:10:36.328Z"
+    },
+    {
+      "id": 12,
+      "browserProfileId": 10,
+      "trophyId": 1,
+      "unlockedAt": "2026-03-18T22:11:44.935Z"
+    },
+    {
+      "id": 13,
+      "browserProfileId": 10,
+      "trophyId": 2,
+      "unlockedAt": "2026-03-18T22:11:44.935Z"
+    },
+    {
+      "id": 14,
+      "browserProfileId": 10,
+      "trophyId": 3,
+      "unlockedAt": "2026-03-18T22:11:44.935Z"
+    },
+    {
+      "id": 20,
+      "browserProfileId": 12,
+      "trophyId": 1,
+      "unlockedAt": "2026-03-18T22:18:19.969Z"
+    },
+    {
+      "id": 21,
+      "browserProfileId": 12,
+      "trophyId": 2,
+      "unlockedAt": "2026-03-18T22:51:35.953Z"
+    },
+    {
+      "id": 22,
+      "browserProfileId": 12,
+      "trophyId": 5,
+      "unlockedAt": "2026-03-18T22:51:35.953Z"
+    },
+    {
+      "id": 23,
+      "browserProfileId": 12,
+      "trophyId": 3,
+      "unlockedAt": "2026-03-18T23:39:31.109Z"
+    },
+    {
+      "id": 24,
+      "browserProfileId": 12,
+      "trophyId": 4,
+      "unlockedAt": "2026-03-19T09:10:33.368Z"
+    }
+  ],
+  "rewardEvents": [
+    {
+      "id": 1,
+      "browserProfileId": 1,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 5,
+      "createdAt": "2026-03-18T21:58:31.417Z",
+      "metadataJson": {
+        "packOpeningId": 1
+      }
+    },
+    {
+      "id": 2,
+      "browserProfileId": 6,
+      "rewardSource": "mission_claim",
+      "rewardType": "gems",
+      "rewardAmount": 50,
+      "createdAt": "2026-03-18T22:01:01.172Z",
+      "metadataJson": {
+        "missionId": 1,
+        "missionCode": "open-1-pack"
+      }
+    },
+    {
+      "id": 3,
+      "browserProfileId": 7,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 8,
+      "createdAt": "2026-03-18T22:08:39.644Z",
+      "metadataJson": {
+        "packOpeningId": 3
+      }
+    },
+    {
+      "id": 4,
+      "browserProfileId": 9,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 12,
+      "createdAt": "2026-03-18T22:10:36.328Z",
+      "metadataJson": {
+        "packOpeningId": 5
+      }
+    },
+    {
+      "id": 5,
+      "browserProfileId": 10,
+      "rewardSource": "mission_claim",
+      "rewardType": "gems",
+      "rewardAmount": 50,
+      "createdAt": "2026-03-18T22:12:01.072Z",
+      "metadataJson": {
+        "missionId": 1,
+        "missionCode": "open-1-pack"
+      }
+    },
+    {
+      "id": 6,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 8,
+      "createdAt": "2026-03-18T22:18:19.969Z",
+      "metadataJson": {
+        "packOpeningId": 7
+      }
+    },
+    {
+      "id": 7,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 10,
+      "createdAt": "2026-03-18T22:45:24.591Z",
+      "metadataJson": {
+        "packOpeningId": 8
+      }
+    },
+    {
+      "id": 8,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 38,
+      "createdAt": "2026-03-18T22:50:33.987Z",
+      "metadataJson": {
+        "packOpeningId": 9
+      }
+    },
+    {
+      "id": 9,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 33,
+      "createdAt": "2026-03-18T22:51:35.953Z",
+      "metadataJson": {
+        "packOpeningId": 10
+      }
+    },
+    {
+      "id": 10,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 21,
+      "createdAt": "2026-03-18T23:38:22.670Z",
+      "metadataJson": {
+        "packOpeningId": 11
+      }
+    },
+    {
+      "id": 11,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 17,
+      "createdAt": "2026-03-18T23:38:51.429Z",
+      "metadataJson": {
+        "packOpeningId": 12
+      }
+    },
+    {
+      "id": 12,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 23,
+      "createdAt": "2026-03-18T23:39:31.109Z",
+      "metadataJson": {
+        "packOpeningId": 13
+      }
+    },
+    {
+      "id": 13,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 42,
+      "createdAt": "2026-03-19T09:10:33.368Z",
+      "metadataJson": {
+        "packOpeningId": 14
+      }
+    },
+    {
+      "id": 14,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 26,
+      "createdAt": "2026-03-19T09:12:02.038Z",
+      "metadataJson": {
+        "packOpeningId": 15
+      }
+    },
+    {
+      "id": 15,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 26,
+      "createdAt": "2026-03-19T09:12:37.817Z",
+      "metadataJson": {
+        "packOpeningId": 16
+      }
+    },
+    {
+      "id": 16,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 47,
+      "createdAt": "2026-03-19T09:14:48.275Z",
+      "metadataJson": {
+        "packOpeningId": 17
+      }
+    },
+    {
+      "id": 17,
+      "browserProfileId": 12,
+      "rewardSource": "mission_claim",
+      "rewardType": "gems",
+      "rewardAmount": 50,
+      "createdAt": "2026-03-19T09:14:59.667Z",
+      "metadataJson": {
+        "missionId": 1,
+        "missionCode": "open-1-pack"
+      }
+    },
+    {
+      "id": 18,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 34,
+      "createdAt": "2026-03-19T09:28:13.767Z",
+      "metadataJson": {
+        "packOpeningId": 18
+      }
+    },
+    {
+      "id": 19,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 43,
+      "createdAt": "2026-03-19T09:28:45.088Z",
+      "metadataJson": {
+        "packOpeningId": 31
+      }
+    },
+    {
+      "id": 20,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 48,
+      "createdAt": "2026-03-19T09:28:54.185Z",
+      "metadataJson": {
+        "packOpeningId": 32
+      }
+    },
+    {
+      "id": 21,
+      "browserProfileId": 12,
+      "rewardSource": "duplicate_cards",
+      "rewardType": "shards",
+      "rewardAmount": 40,
+      "createdAt": "2026-03-19T09:32:46.511Z",
+      "metadataJson": {
+        "packOpeningId": 33
+      }
+    }
+  ],
+  "dailyBrowserStats": [
+    {
+      "id": 1,
+      "browserProfileId": 1,
+      "statDate": "2026-03-18",
+      "packsOpened": 1,
+      "cardsObtained": 5,
+      "newCardsObtained": 4,
+      "srOrHigherCount": 0,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 2,
+      "browserProfileId": 2,
+      "statDate": "2026-03-18",
+      "packsOpened": 0,
+      "cardsObtained": 0,
+      "newCardsObtained": 0,
+      "srOrHigherCount": 0,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 3,
+      "browserProfileId": 3,
+      "statDate": "2026-03-18",
+      "packsOpened": 0,
+      "cardsObtained": 0,
+      "newCardsObtained": 0,
+      "srOrHigherCount": 0,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 4,
+      "browserProfileId": 4,
+      "statDate": "2026-03-18",
+      "packsOpened": 0,
+      "cardsObtained": 0,
+      "newCardsObtained": 0,
+      "srOrHigherCount": 0,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 5,
+      "browserProfileId": 5,
+      "statDate": "2026-03-18",
+      "packsOpened": 0,
+      "cardsObtained": 0,
+      "newCardsObtained": 0,
+      "srOrHigherCount": 0,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 6,
+      "browserProfileId": 6,
+      "statDate": "2026-03-18",
+      "packsOpened": 1,
+      "cardsObtained": 5,
+      "newCardsObtained": 5,
+      "srOrHigherCount": 1,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 7,
+      "browserProfileId": 7,
+      "statDate": "2026-03-18",
+      "packsOpened": 1,
+      "cardsObtained": 5,
+      "newCardsObtained": 4,
+      "srOrHigherCount": 1,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 8,
+      "browserProfileId": 8,
+      "statDate": "2026-03-18",
+      "packsOpened": 1,
+      "cardsObtained": 5,
+      "newCardsObtained": 5,
+      "srOrHigherCount": 1,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 9,
+      "browserProfileId": 9,
+      "statDate": "2026-03-18",
+      "packsOpened": 1,
+      "cardsObtained": 5,
+      "newCardsObtained": 4,
+      "srOrHigherCount": 1,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 10,
+      "browserProfileId": 10,
+      "statDate": "2026-03-18",
+      "packsOpened": 1,
+      "cardsObtained": 5,
+      "newCardsObtained": 5,
+      "srOrHigherCount": 3,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 11,
+      "browserProfileId": 11,
+      "statDate": "2026-03-18",
+      "packsOpened": 0,
+      "cardsObtained": 0,
+      "newCardsObtained": 0,
+      "srOrHigherCount": 0,
+      "wikipediaClicks": 0
+    },
+    {
+      "id": 12,
+      "browserProfileId": 12,
+      "statDate": "2026-03-18",
+      "packsOpened": 7,
+      "cardsObtained": 35,
+      "newCardsObtained": 14,
+      "srOrHigherCount": 3,
+      "wikipediaClicks": 3
+    },
+    {
+      "id": 13,
+      "browserProfileId": 12,
+      "statDate": "2026-03-19",
+      "packsOpened": 8,
+      "cardsObtained": 40,
+      "newCardsObtained": 5,
+      "srOrHigherCount": 7,
+      "wikipediaClicks": 1
+    }
+  ],
+  "recoveries": [
+    {
+      "code": "WKVLT-58D1-ECB8-ED23",
+      "createdAt": "2026-03-18T21:59:12.049Z",
+      "snapshot": {
+        "profile": {
+          "displayName": "Anonymous Archivist",
+          "packsAvailable": 10,
+          "maxPacks": 10,
+          "lastPackRegenAt": "2026-03-18T21:59:11.255Z",
+          "gems": 0,
+          "shards": 0,
+          "trophiesPoints": 0,
+          "totalPackOpens": 0,
+          "pityCounter": 0
+        },
+        "collection": [],
+        "packHistory": [],
+        "trophies": [],
+        "missions": [
+          {
+            "missionId": 1,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T21:59:11.255Z",
+            "updatedAt": "2026-03-18T21:59:11.564Z"
+          },
+          {
+            "missionId": 2,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T21:59:11.255Z",
+            "updatedAt": "2026-03-18T21:59:11.564Z"
+          },
+          {
+            "missionId": 3,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T21:59:11.255Z",
+            "updatedAt": "2026-03-18T21:59:11.564Z"
+          },
+          {
+            "missionId": 4,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T21:59:11.255Z",
+            "updatedAt": "2026-03-18T21:59:11.564Z"
+          },
+          {
+            "missionId": 5,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T21:59:11.255Z",
+            "updatedAt": "2026-03-18T21:59:11.564Z"
+          },
+          {
+            "missionId": 6,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T21:59:11.255Z",
+            "updatedAt": "2026-03-18T21:59:11.564Z"
+          }
+        ]
+      }
+    },
+    {
+      "code": "WKVLT-6FB5-12AF-D66E",
+      "createdAt": "2026-03-18T22:01:06.834Z",
+      "snapshot": {
+        "profile": {
+          "displayName": "Anonymous Archivist",
+          "packsAvailable": 9,
+          "maxPacks": 10,
+          "lastPackRegenAt": "2026-03-18T22:00:49.462Z",
+          "gems": 50,
+          "shards": 0,
+          "trophiesPoints": 65,
+          "totalPackOpens": 1,
+          "pityCounter": 0
+        },
+        "collection": [
+          {
+            "articleId": 9,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "R",
+            "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+            "lastObtainedAt": "2026-03-18T22:00:49.462Z"
+          },
+          {
+            "articleId": 1,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+            "lastObtainedAt": "2026-03-18T22:00:49.462Z"
+          },
+          {
+            "articleId": 28,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "UR",
+            "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+            "lastObtainedAt": "2026-03-18T22:00:49.462Z"
+          },
+          {
+            "articleId": 6,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "UC",
+            "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+            "lastObtainedAt": "2026-03-18T22:00:49.462Z"
+          },
+          {
+            "articleId": 8,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "UC",
+            "firstObtainedAt": "2026-03-18T22:00:49.462Z",
+            "lastObtainedAt": "2026-03-18T22:00:49.462Z"
+          }
+        ],
+        "packHistory": [
+          {
+            "openedAt": "2026-03-18T22:00:49.462Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 UR, 1 R, 2 UC, 1 C",
+            "cards": [
+              {
+                "articleId": 9,
+                "title": "Atlas",
+                "rarity": "R",
+                "qualityScore": 37,
+                "atk": 4067,
+                "def": 5048,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 1,
+                "title": "Abacus",
+                "rarity": "C",
+                "qualityScore": 12,
+                "atk": 1351,
+                "def": 2125,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+                "topicGroup": "Mathematics"
+              },
+              {
+                "articleId": 28,
+                "title": "The Beatles",
+                "rarity": "UR",
+                "qualityScore": 91,
+                "atk": 15000,
+                "def": 15000,
+                "imageUrl": null,
+                "flavorText": "Four names, one signal. The whole century still hums the chorus.",
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/The_Beatles",
+                "topicGroup": "Culture"
+              },
+              {
+                "articleId": 6,
+                "title": "Morse code",
+                "rarity": "UC",
+                "qualityScore": 24,
+                "atk": 2760,
+                "def": 3508,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+                "topicGroup": "Technology"
+              },
+              {
+                "articleId": 8,
+                "title": "Lighthouse",
+                "rarity": "UC",
+                "qualityScore": 31,
+                "atk": 3440,
+                "def": 4350,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+                "topicGroup": "Architecture"
+              }
+            ]
+          }
+        ],
+        "trophies": [
+          {
+            "trophyId": 1,
+            "unlockedAt": "2026-03-18T22:00:49.462Z"
+          },
+          {
+            "trophyId": 2,
+            "unlockedAt": "2026-03-18T22:00:49.462Z"
+          },
+          {
+            "trophyId": 3,
+            "unlockedAt": "2026-03-18T22:00:49.462Z"
+          }
+        ],
+        "missions": [
+          {
+            "missionId": 1,
+            "progressValue": 1,
+            "completed": true,
+            "claimed": true,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:00:48.495Z",
+            "updatedAt": "2026-03-18T22:01:01.194Z"
+          },
+          {
+            "missionId": 2,
+            "progressValue": 1,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:00:48.495Z",
+            "updatedAt": "2026-03-18T22:01:01.194Z"
+          },
+          {
+            "missionId": 3,
+            "progressValue": 2,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:00:48.495Z",
+            "updatedAt": "2026-03-18T22:01:01.194Z"
+          },
+          {
+            "missionId": 4,
+            "progressValue": 1,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:00:48.495Z",
+            "updatedAt": "2026-03-18T22:01:01.194Z"
+          },
+          {
+            "missionId": 5,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:00:48.495Z",
+            "updatedAt": "2026-03-18T22:01:01.194Z"
+          },
+          {
+            "missionId": 6,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:00:48.495Z",
+            "updatedAt": "2026-03-18T22:01:01.194Z"
+          }
+        ]
+      }
+    },
+    {
+      "code": "WKVLT-CD0C-9D82-763F",
+      "createdAt": "2026-03-18T22:12:08.697Z",
+      "snapshot": {
+        "profile": {
+          "displayName": "Anonymous Archivist",
+          "packsAvailable": 9,
+          "maxPacks": 10,
+          "lastPackRegenAt": "2026-03-18T22:11:44.935Z",
+          "gems": 50,
+          "shards": 0,
+          "trophiesPoints": 65,
+          "totalPackOpens": 1,
+          "pityCounter": 0
+        },
+        "collection": [
+          {
+            "articleId": 23,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "SSR",
+            "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+            "lastObtainedAt": "2026-03-18T22:11:44.935Z"
+          },
+          {
+            "articleId": 3,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+            "lastObtainedAt": "2026-03-18T22:11:44.935Z"
+          },
+          {
+            "articleId": 1,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+            "lastObtainedAt": "2026-03-18T22:11:44.935Z"
+          },
+          {
+            "articleId": 14,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "SR",
+            "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+            "lastObtainedAt": "2026-03-18T22:11:44.935Z"
+          },
+          {
+            "articleId": 31,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "LR",
+            "firstObtainedAt": "2026-03-18T22:11:44.935Z",
+            "lastObtainedAt": "2026-03-18T22:11:44.935Z"
+          }
+        ],
+        "packHistory": [
+          {
+            "openedAt": "2026-03-18T22:11:44.935Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 LR, 1 SSR, 1 SR, 2 C",
+            "cards": [
+              {
+                "articleId": 23,
+                "title": "Black hole",
+                "rarity": "SSR",
+                "qualityScore": 88,
+                "atk": 15000,
+                "def": 15000,
+                "imageUrl": null,
+                "flavorText": "The card does not consume the page. It bends the room around it.",
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Black_hole",
+                "topicGroup": "Science"
+              },
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              },
+              {
+                "articleId": 1,
+                "title": "Abacus",
+                "rarity": "C",
+                "qualityScore": 12,
+                "atk": 1351,
+                "def": 2125,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+                "topicGroup": "Mathematics"
+              },
+              {
+                "articleId": 14,
+                "title": "Chess",
+                "rarity": "SR",
+                "qualityScore": 67,
+                "atk": 10350,
+                "def": 10190,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+                "topicGroup": "Games"
+              },
+              {
+                "articleId": 31,
+                "title": "World War II",
+                "rarity": "LR",
+                "qualityScore": 100,
+                "atk": 15000,
+                "def": 15000,
+                "imageUrl": null,
+                "flavorText": "Its scale is so vast the whole collection feels smaller around it.",
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/World_War_II",
+                "topicGroup": "History"
+              }
+            ]
+          }
+        ],
+        "trophies": [
+          {
+            "trophyId": 1,
+            "unlockedAt": "2026-03-18T22:11:44.935Z"
+          },
+          {
+            "trophyId": 2,
+            "unlockedAt": "2026-03-18T22:11:44.935Z"
+          },
+          {
+            "trophyId": 3,
+            "unlockedAt": "2026-03-18T22:11:44.935Z"
+          }
+        ],
+        "missions": [
+          {
+            "missionId": 1,
+            "progressValue": 1,
+            "completed": true,
+            "claimed": true,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:11:40.869Z",
+            "updatedAt": "2026-03-18T22:12:01.101Z"
+          },
+          {
+            "missionId": 2,
+            "progressValue": 1,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:11:40.869Z",
+            "updatedAt": "2026-03-18T22:12:01.101Z"
+          },
+          {
+            "missionId": 3,
+            "progressValue": 2,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:11:40.869Z",
+            "updatedAt": "2026-03-18T22:12:01.101Z"
+          },
+          {
+            "missionId": 4,
+            "progressValue": 1,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:11:40.869Z",
+            "updatedAt": "2026-03-18T22:12:01.101Z"
+          },
+          {
+            "missionId": 5,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:11:40.869Z",
+            "updatedAt": "2026-03-18T22:12:01.101Z"
+          },
+          {
+            "missionId": 6,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:11:40.869Z",
+            "updatedAt": "2026-03-18T22:12:01.101Z"
+          }
+        ]
+      }
+    },
+    {
+      "code": "WKVLT-F5C5-C74A-89A0",
+      "createdAt": "2026-03-18T22:45:35.431Z",
+      "snapshot": {
+        "profile": {
+          "displayName": "Anonymous Archivist",
+          "packsAvailable": 9,
+          "maxPacks": 10,
+          "lastPackRegenAt": "2026-03-18T22:45:24.591Z",
+          "gems": 0,
+          "shards": 18,
+          "trophiesPoints": 10,
+          "totalPackOpens": 2,
+          "pityCounter": 2
+        },
+        "collection": [
+          {
+            "articleId": 8,
+            "copies": 2,
+            "favorite": false,
+            "bestRarityCode": "UC",
+            "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+            "lastObtainedAt": "2026-03-18T22:18:19.969Z"
+          },
+          {
+            "articleId": 9,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "R",
+            "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+            "lastObtainedAt": "2026-03-18T22:18:19.969Z"
+          },
+          {
+            "articleId": 2,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+            "lastObtainedAt": "2026-03-18T22:18:19.969Z"
+          },
+          {
+            "articleId": 1,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+            "lastObtainedAt": "2026-03-18T22:18:19.969Z"
+          },
+          {
+            "articleId": 3,
+            "copies": 2,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:45:24.591Z",
+            "lastObtainedAt": "2026-03-18T22:45:24.591Z"
+          },
+          {
+            "articleId": 6,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "UC",
+            "firstObtainedAt": "2026-03-18T22:45:24.591Z",
+            "lastObtainedAt": "2026-03-18T22:45:24.591Z"
+          },
+          {
+            "articleId": 4,
+            "copies": 2,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:45:24.591Z",
+            "lastObtainedAt": "2026-03-18T22:45:24.591Z"
+          }
+        ],
+        "packHistory": [
+          {
+            "openedAt": "2026-03-18T22:45:24.591Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 UC, 4 C",
+            "cards": [
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 2,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              },
+              {
+                "articleId": 6,
+                "title": "Morse code",
+                "rarity": "UC",
+                "qualityScore": 24,
+                "atk": 2760,
+                "def": 3508,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+                "topicGroup": "Technology"
+              },
+              {
+                "articleId": 4,
+                "title": "Lantern",
+                "rarity": "C",
+                "qualityScore": 8,
+                "atk": 1031,
+                "def": 1786,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 2,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+                "topicGroup": "Design"
+              },
+              {
+                "articleId": 4,
+                "title": "Lantern",
+                "rarity": "C",
+                "qualityScore": 8,
+                "atk": 1031,
+                "def": 1786,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+                "topicGroup": "Design"
+              },
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-18T22:18:19.969Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 R, 2 UC, 2 C",
+            "cards": [
+              {
+                "articleId": 8,
+                "title": "Lighthouse",
+                "rarity": "UC",
+                "qualityScore": 31,
+                "atk": 3440,
+                "def": 4350,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 2,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+                "topicGroup": "Architecture"
+              },
+              {
+                "articleId": 9,
+                "title": "Atlas",
+                "rarity": "R",
+                "qualityScore": 37,
+                "atk": 4067,
+                "def": 5048,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 8,
+                "title": "Lighthouse",
+                "rarity": "UC",
+                "qualityScore": 31,
+                "atk": 3440,
+                "def": 4350,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+                "topicGroup": "Architecture"
+              },
+              {
+                "articleId": 2,
+                "title": "Papyrus",
+                "rarity": "C",
+                "qualityScore": 15,
+                "atk": 1493,
+                "def": 2278,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+                "topicGroup": "History"
+              },
+              {
+                "articleId": 1,
+                "title": "Abacus",
+                "rarity": "C",
+                "qualityScore": 12,
+                "atk": 1351,
+                "def": 2125,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+                "topicGroup": "Mathematics"
+              }
+            ]
+          }
+        ],
+        "trophies": [
+          {
+            "trophyId": 1,
+            "unlockedAt": "2026-03-18T22:18:19.969Z"
+          }
+        ],
+        "missions": [
+          {
+            "missionId": 1,
+            "progressValue": 1,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:18:09.702Z",
+            "updatedAt": "2026-03-18T22:45:24.610Z"
+          },
+          {
+            "missionId": 2,
+            "progressValue": 2,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:18:09.702Z",
+            "updatedAt": "2026-03-18T22:45:24.610Z"
+          },
+          {
+            "missionId": 3,
+            "progressValue": 2,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:18:09.702Z",
+            "updatedAt": "2026-03-18T22:45:24.610Z"
+          },
+          {
+            "missionId": 4,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:18:09.702Z",
+            "updatedAt": "2026-03-18T22:45:24.610Z"
+          },
+          {
+            "missionId": 5,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:18:09.702Z",
+            "updatedAt": "2026-03-18T22:45:24.610Z"
+          },
+          {
+            "missionId": 6,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-18",
+            "createdAt": "2026-03-18T22:18:09.702Z",
+            "updatedAt": "2026-03-18T22:45:24.610Z"
+          }
+        ]
+      }
+    },
+    {
+      "code": "WKVLT-535A-C4A6-8FA0",
+      "createdAt": "2026-03-19T09:28:22.001Z",
+      "snapshot": {
+        "profile": {
+          "displayName": "Anonymous Archivist",
+          "packsAvailable": 9,
+          "maxPacks": 10,
+          "lastPackRegenAt": "2026-03-19T09:28:13.767Z",
+          "gems": 50,
+          "shards": 325,
+          "trophiesPoints": 130,
+          "totalPackOpens": 12,
+          "pityCounter": 1
+        },
+        "collection": [
+          {
+            "articleId": 8,
+            "copies": 6,
+            "favorite": false,
+            "bestRarityCode": "UC",
+            "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+            "lastObtainedAt": "2026-03-19T09:28:13.767Z"
+          },
+          {
+            "articleId": 9,
+            "copies": 4,
+            "favorite": false,
+            "bestRarityCode": "R",
+            "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+            "lastObtainedAt": "2026-03-18T23:38:51.429Z"
+          },
+          {
+            "articleId": 2,
+            "copies": 6,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+            "lastObtainedAt": "2026-03-19T09:14:48.275Z"
+          },
+          {
+            "articleId": 1,
+            "copies": 5,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:18:19.969Z",
+            "lastObtainedAt": "2026-03-19T09:28:13.767Z"
+          },
+          {
+            "articleId": 3,
+            "copies": 8,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:45:24.591Z",
+            "lastObtainedAt": "2026-03-19T09:12:37.817Z"
+          },
+          {
+            "articleId": 6,
+            "copies": 6,
+            "favorite": false,
+            "bestRarityCode": "UC",
+            "firstObtainedAt": "2026-03-18T22:45:24.591Z",
+            "lastObtainedAt": "2026-03-19T09:12:37.817Z"
+          },
+          {
+            "articleId": 4,
+            "copies": 6,
+            "favorite": false,
+            "bestRarityCode": "C",
+            "firstObtainedAt": "2026-03-18T22:45:24.591Z",
+            "lastObtainedAt": "2026-03-19T09:14:48.275Z"
+          },
+          {
+            "articleId": 14,
+            "copies": 2,
+            "favorite": false,
+            "bestRarityCode": "SR",
+            "firstObtainedAt": "2026-03-18T22:51:35.953Z",
+            "lastObtainedAt": "2026-03-19T09:14:48.275Z"
+          },
+          {
+            "articleId": 5,
+            "copies": 5,
+            "favorite": false,
+            "bestRarityCode": "UC",
+            "firstObtainedAt": "2026-03-18T23:38:22.670Z",
+            "lastObtainedAt": "2026-03-19T09:28:13.767Z"
+          },
+          {
+            "articleId": 10,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "R",
+            "firstObtainedAt": "2026-03-18T23:38:22.670Z",
+            "lastObtainedAt": "2026-03-18T23:38:22.670Z"
+          },
+          {
+            "articleId": 18,
+            "copies": 2,
+            "favorite": false,
+            "bestRarityCode": "SR",
+            "firstObtainedAt": "2026-03-18T23:38:51.429Z",
+            "lastObtainedAt": "2026-03-19T09:10:33.368Z"
+          },
+          {
+            "articleId": 13,
+            "copies": 3,
+            "favorite": false,
+            "bestRarityCode": "R",
+            "firstObtainedAt": "2026-03-18T23:38:51.429Z",
+            "lastObtainedAt": "2026-03-19T09:14:48.275Z"
+          },
+          {
+            "articleId": 7,
+            "copies": 2,
+            "favorite": false,
+            "bestRarityCode": "UC",
+            "firstObtainedAt": "2026-03-18T23:38:51.429Z",
+            "lastObtainedAt": "2026-03-19T09:28:13.767Z"
+          },
+          {
+            "articleId": 20,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "SSR",
+            "firstObtainedAt": "2026-03-18T23:39:31.109Z",
+            "lastObtainedAt": "2026-03-18T23:39:31.109Z"
+          },
+          {
+            "articleId": 12,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "R",
+            "firstObtainedAt": "2026-03-19T09:10:33.368Z",
+            "lastObtainedAt": "2026-03-19T09:10:33.368Z"
+          },
+          {
+            "articleId": 27,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "UR",
+            "firstObtainedAt": "2026-03-19T09:12:02.038Z",
+            "lastObtainedAt": "2026-03-19T09:12:02.038Z"
+          },
+          {
+            "articleId": 19,
+            "copies": 1,
+            "favorite": false,
+            "bestRarityCode": "SR",
+            "firstObtainedAt": "2026-03-19T09:12:37.817Z",
+            "lastObtainedAt": "2026-03-19T09:12:37.817Z"
+          }
+        ],
+        "packHistory": [
+          {
+            "openedAt": "2026-03-19T09:28:13.767Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "3 UC, 2 C",
+            "cards": [
+              {
+                "articleId": 1,
+                "title": "Abacus",
+                "rarity": "C",
+                "qualityScore": 12,
+                "atk": 1351,
+                "def": 2125,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 5,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+                "topicGroup": "Mathematics"
+              },
+              {
+                "articleId": 5,
+                "title": "Compass",
+                "rarity": "UC",
+                "qualityScore": 22,
+                "atk": 2900,
+                "def": 3778,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 5,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 7,
+                "title": "Sundial",
+                "rarity": "UC",
+                "qualityScore": 26,
+                "atk": 2240,
+                "def": 3136,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+                "topicGroup": "Astronomy"
+              },
+              {
+                "articleId": 8,
+                "title": "Lighthouse",
+                "rarity": "UC",
+                "qualityScore": 31,
+                "atk": 3440,
+                "def": 4350,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 6,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+                "topicGroup": "Architecture"
+              },
+              {
+                "articleId": 1,
+                "title": "Abacus",
+                "rarity": "C",
+                "qualityScore": 12,
+                "atk": 1351,
+                "def": 2125,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 5,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+                "topicGroup": "Mathematics"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-19T09:14:48.275Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 SR, 1 R, 3 C",
+            "cards": [
+              {
+                "articleId": 4,
+                "title": "Lantern",
+                "rarity": "C",
+                "qualityScore": 8,
+                "atk": 1031,
+                "def": 1786,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 6,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+                "topicGroup": "Design"
+              },
+              {
+                "articleId": 14,
+                "title": "Chess",
+                "rarity": "SR",
+                "qualityScore": 67,
+                "atk": 10350,
+                "def": 10190,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 20,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+                "topicGroup": "Games"
+              },
+              {
+                "articleId": 13,
+                "title": "Antarctica",
+                "rarity": "R",
+                "qualityScore": 54,
+                "atk": 6933,
+                "def": 8192,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 3,
+                "shardsEarned": 12,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 4,
+                "title": "Lantern",
+                "rarity": "C",
+                "qualityScore": 8,
+                "atk": 1031,
+                "def": 1786,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 6,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+                "topicGroup": "Design"
+              },
+              {
+                "articleId": 2,
+                "title": "Papyrus",
+                "rarity": "C",
+                "qualityScore": 15,
+                "atk": 1493,
+                "def": 2278,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 6,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+                "topicGroup": "History"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-19T09:12:37.817Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 SR, 2 UC, 2 C",
+            "cards": [
+              {
+                "articleId": 6,
+                "title": "Morse code",
+                "rarity": "UC",
+                "qualityScore": 24,
+                "atk": 2760,
+                "def": 3508,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 6,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+                "topicGroup": "Technology"
+              },
+              {
+                "articleId": 5,
+                "title": "Compass",
+                "rarity": "UC",
+                "qualityScore": 22,
+                "atk": 2900,
+                "def": 3778,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 4,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 4,
+                "title": "Lantern",
+                "rarity": "C",
+                "qualityScore": 8,
+                "atk": 1031,
+                "def": 1786,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 4,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+                "topicGroup": "Design"
+              },
+              {
+                "articleId": 19,
+                "title": "Machine learning",
+                "rarity": "SR",
+                "qualityScore": 78,
+                "atk": 13084,
+                "def": 12003,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Machine_learning",
+                "topicGroup": "Technology"
+              },
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 8,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-19T09:12:02.038Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 UR, 2 UC, 2 C",
+            "cards": [
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 7,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              },
+              {
+                "articleId": 1,
+                "title": "Abacus",
+                "rarity": "C",
+                "qualityScore": 12,
+                "atk": 1351,
+                "def": 2125,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 3,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+                "topicGroup": "Mathematics"
+              },
+              {
+                "articleId": 27,
+                "title": "Solar System",
+                "rarity": "UR",
+                "qualityScore": 93,
+                "atk": 15000,
+                "def": 15000,
+                "imageUrl": null,
+                "flavorText": "Not a card, a map of every path light takes to come back home.",
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Solar_System",
+                "topicGroup": "Science"
+              },
+              {
+                "articleId": 5,
+                "title": "Compass",
+                "rarity": "UC",
+                "qualityScore": 22,
+                "atk": 2900,
+                "def": 3778,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 3,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 6,
+                "title": "Morse code",
+                "rarity": "UC",
+                "qualityScore": 24,
+                "atk": 2760,
+                "def": 3508,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 5,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+                "topicGroup": "Technology"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-19T09:10:33.368Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 SR, 2 R, 2 C",
+            "cards": [
+              {
+                "articleId": 12,
+                "title": "Steam engine",
+                "rarity": "R",
+                "qualityScore": 47,
+                "atk": 4911,
+                "def": 5852,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Steam_engine",
+                "topicGroup": "Engineering"
+              },
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 6,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              },
+              {
+                "articleId": 18,
+                "title": "Ancient Rome",
+                "rarity": "SR",
+                "qualityScore": 75,
+                "atk": 11193,
+                "def": 12308,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 20,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+                "topicGroup": "History"
+              },
+              {
+                "articleId": 13,
+                "title": "Antarctica",
+                "rarity": "R",
+                "qualityScore": 54,
+                "atk": 6933,
+                "def": 8192,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 12,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 6,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-18T23:39:31.109Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 SSR, 1 UC, 3 C",
+            "cards": [
+              {
+                "articleId": 5,
+                "title": "Compass",
+                "rarity": "UC",
+                "qualityScore": 22,
+                "atk": 2900,
+                "def": 3778,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 4,
+                "title": "Lantern",
+                "rarity": "C",
+                "qualityScore": 8,
+                "atk": 1031,
+                "def": 1786,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 3,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+                "topicGroup": "Design"
+              },
+              {
+                "articleId": 20,
+                "title": "Ada Lovelace",
+                "rarity": "SSR",
+                "qualityScore": 84,
+                "atk": 13520,
+                "def": 12932,
+                "imageUrl": null,
+                "flavorText": "She saw an engine of numbers and imagined a machine of ideas.",
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ada_Lovelace",
+                "topicGroup": "Science"
+              },
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 4,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              },
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 4,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-18T23:38:51.429Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 SR, 2 R, 1 UC, 1 C",
+            "cards": [
+              {
+                "articleId": 9,
+                "title": "Atlas",
+                "rarity": "R",
+                "qualityScore": 37,
+                "atk": 4067,
+                "def": 5048,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 4,
+                "shardsEarned": 12,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 18,
+                "title": "Ancient Rome",
+                "rarity": "SR",
+                "qualityScore": 75,
+                "atk": 11193,
+                "def": 12308,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+                "topicGroup": "History"
+              },
+              {
+                "articleId": 13,
+                "title": "Antarctica",
+                "rarity": "R",
+                "qualityScore": 54,
+                "atk": 6933,
+                "def": 8192,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Antarctica",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 7,
+                "title": "Sundial",
+                "rarity": "UC",
+                "qualityScore": 26,
+                "atk": 2240,
+                "def": 3136,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Sundial",
+                "topicGroup": "Astronomy"
+              },
+              {
+                "articleId": 1,
+                "title": "Abacus",
+                "rarity": "C",
+                "qualityScore": 12,
+                "atk": 1351,
+                "def": 2125,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+                "topicGroup": "Mathematics"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-18T23:38:22.670Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 R, 3 UC, 1 C",
+            "cards": [
+              {
+                "articleId": 5,
+                "title": "Compass",
+                "rarity": "UC",
+                "qualityScore": 22,
+                "atk": 2900,
+                "def": 3778,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Compass",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 8,
+                "title": "Lighthouse",
+                "rarity": "UC",
+                "qualityScore": 31,
+                "atk": 3440,
+                "def": 4350,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 5,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+                "topicGroup": "Architecture"
+              },
+              {
+                "articleId": 8,
+                "title": "Lighthouse",
+                "rarity": "UC",
+                "qualityScore": 31,
+                "atk": 3440,
+                "def": 4350,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 5,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+                "topicGroup": "Architecture"
+              },
+              {
+                "articleId": 10,
+                "title": "Fibonacci number",
+                "rarity": "R",
+                "qualityScore": 39,
+                "atk": 4356,
+                "def": 5361,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Fibonacci_number",
+                "topicGroup": "Mathematics"
+              },
+              {
+                "articleId": 2,
+                "title": "Papyrus",
+                "rarity": "C",
+                "qualityScore": 15,
+                "atk": 1493,
+                "def": 2278,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 5,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+                "topicGroup": "History"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-18T22:51:35.953Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 SR, 1 R, 2 UC, 1 C",
+            "cards": [
+              {
+                "articleId": 6,
+                "title": "Morse code",
+                "rarity": "UC",
+                "qualityScore": 24,
+                "atk": 2760,
+                "def": 3508,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 4,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+                "topicGroup": "Technology"
+              },
+              {
+                "articleId": 14,
+                "title": "Chess",
+                "rarity": "SR",
+                "qualityScore": 67,
+                "atk": 10350,
+                "def": 10190,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Chess",
+                "topicGroup": "Games"
+              },
+              {
+                "articleId": 6,
+                "title": "Morse code",
+                "rarity": "UC",
+                "qualityScore": 24,
+                "atk": 2760,
+                "def": 3508,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 4,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+                "topicGroup": "Technology"
+              },
+              {
+                "articleId": 9,
+                "title": "Atlas",
+                "rarity": "R",
+                "qualityScore": 37,
+                "atk": 4067,
+                "def": 5048,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 3,
+                "shardsEarned": 12,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 2,
+                "title": "Papyrus",
+                "rarity": "C",
+                "qualityScore": 15,
+                "atk": 1493,
+                "def": 2278,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 4,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+                "topicGroup": "History"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-18T22:50:33.987Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 R, 2 UC, 2 C",
+            "cards": [
+              {
+                "articleId": 9,
+                "title": "Atlas",
+                "rarity": "R",
+                "qualityScore": 37,
+                "atk": 4067,
+                "def": 5048,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 12,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 8,
+                "title": "Lighthouse",
+                "rarity": "UC",
+                "qualityScore": 31,
+                "atk": 3440,
+                "def": 4350,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 3,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+                "topicGroup": "Architecture"
+              },
+              {
+                "articleId": 2,
+                "title": "Papyrus",
+                "rarity": "C",
+                "qualityScore": 15,
+                "atk": 1493,
+                "def": 2278,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 3,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+                "topicGroup": "History"
+              },
+              {
+                "articleId": 6,
+                "title": "Morse code",
+                "rarity": "UC",
+                "qualityScore": 24,
+                "atk": 2760,
+                "def": 3508,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+                "topicGroup": "Technology"
+              },
+              {
+                "articleId": 2,
+                "title": "Papyrus",
+                "rarity": "C",
+                "qualityScore": 15,
+                "atk": 1493,
+                "def": 2278,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 3,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+                "topicGroup": "History"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-18T22:45:24.591Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 UC, 4 C",
+            "cards": [
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 2,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              },
+              {
+                "articleId": 6,
+                "title": "Morse code",
+                "rarity": "UC",
+                "qualityScore": 24,
+                "atk": 2760,
+                "def": 3508,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Morse_code",
+                "topicGroup": "Technology"
+              },
+              {
+                "articleId": 4,
+                "title": "Lantern",
+                "rarity": "C",
+                "qualityScore": 8,
+                "atk": 1031,
+                "def": 1786,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 2,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+                "topicGroup": "Design"
+              },
+              {
+                "articleId": 4,
+                "title": "Lantern",
+                "rarity": "C",
+                "qualityScore": 8,
+                "atk": 1031,
+                "def": 1786,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lantern",
+                "topicGroup": "Design"
+              },
+              {
+                "articleId": 3,
+                "title": "Ink",
+                "rarity": "C",
+                "qualityScore": 10,
+                "atk": 1156,
+                "def": 1974,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 5,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Ink",
+                "topicGroup": "Materials"
+              }
+            ]
+          },
+          {
+            "openedAt": "2026-03-18T22:18:19.969Z",
+            "guaranteedSrPlus": false,
+            "packType": "standard",
+            "resultSummary": "1 R, 2 UC, 2 C",
+            "cards": [
+              {
+                "articleId": 8,
+                "title": "Lighthouse",
+                "rarity": "UC",
+                "qualityScore": 31,
+                "atk": 3440,
+                "def": 4350,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 2,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+                "topicGroup": "Architecture"
+              },
+              {
+                "articleId": 9,
+                "title": "Atlas",
+                "rarity": "R",
+                "qualityScore": 37,
+                "atk": 4067,
+                "def": 5048,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Atlas",
+                "topicGroup": "Geography"
+              },
+              {
+                "articleId": 8,
+                "title": "Lighthouse",
+                "rarity": "UC",
+                "qualityScore": 31,
+                "atk": 3440,
+                "def": 4350,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": false,
+                "copiesAfterPull": 2,
+                "shardsEarned": 8,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Lighthouse",
+                "topicGroup": "Architecture"
+              },
+              {
+                "articleId": 2,
+                "title": "Papyrus",
+                "rarity": "C",
+                "qualityScore": 15,
+                "atk": 1493,
+                "def": 2278,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Papyrus",
+                "topicGroup": "History"
+              },
+              {
+                "articleId": 1,
+                "title": "Abacus",
+                "rarity": "C",
+                "qualityScore": 12,
+                "atk": 1351,
+                "def": 2125,
+                "imageUrl": null,
+                "flavorText": null,
+                "wasNew": true,
+                "copiesAfterPull": 1,
+                "shardsEarned": 0,
+                "sourceUrl": "https://en.wikipedia.org/wiki/Abacus",
+                "topicGroup": "Mathematics"
+              }
+            ]
+          }
+        ],
+        "trophies": [
+          {
+            "trophyId": 1,
+            "unlockedAt": "2026-03-18T22:18:19.969Z"
+          },
+          {
+            "trophyId": 2,
+            "unlockedAt": "2026-03-18T22:51:35.953Z"
+          },
+          {
+            "trophyId": 5,
+            "unlockedAt": "2026-03-18T22:51:35.953Z"
+          },
+          {
+            "trophyId": 3,
+            "unlockedAt": "2026-03-18T23:39:31.109Z"
+          },
+          {
+            "trophyId": 4,
+            "unlockedAt": "2026-03-19T09:10:33.368Z"
+          }
+        ],
+        "missions": [
+          {
+            "missionId": 1,
+            "progressValue": 1,
+            "completed": true,
+            "claimed": true,
+            "resetDate": "2026-03-19",
+            "createdAt": "2026-03-19T09:10:28.352Z",
+            "updatedAt": "2026-03-19T09:28:13.882Z"
+          },
+          {
+            "missionId": 2,
+            "progressValue": 3,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-19",
+            "createdAt": "2026-03-19T09:10:28.352Z",
+            "updatedAt": "2026-03-19T09:28:13.882Z"
+          },
+          {
+            "missionId": 3,
+            "progressValue": 2,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-19",
+            "createdAt": "2026-03-19T09:10:28.352Z",
+            "updatedAt": "2026-03-19T09:28:13.882Z"
+          },
+          {
+            "missionId": 4,
+            "progressValue": 1,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-19",
+            "createdAt": "2026-03-19T09:10:28.352Z",
+            "updatedAt": "2026-03-19T09:28:13.882Z"
+          },
+          {
+            "missionId": 5,
+            "progressValue": 1,
+            "completed": true,
+            "claimed": false,
+            "resetDate": "2026-03-19",
+            "createdAt": "2026-03-19T09:10:28.352Z",
+            "updatedAt": "2026-03-19T09:28:13.882Z"
+          },
+          {
+            "missionId": 6,
+            "progressValue": 0,
+            "completed": false,
+            "claimed": false,
+            "resetDate": "2026-03-19",
+            "createdAt": "2026-03-19T09:10:28.352Z",
+            "updatedAt": "2026-03-19T09:28:13.882Z"
+          }
+        ]
+      }
+    }
+  ]
+}

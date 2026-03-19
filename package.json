@@ -7,6 +7,7 @@
     "dev": "vite",
     "backend:cosmic-vanguard": "node server/cosmic-vanguard-backend.mjs",
     "backend:penalty-shootout": "node server/penalty-shootout/index.mjs",
+    "backend:wikipedia-gacha": "node server/wikipedia-gacha/index.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",

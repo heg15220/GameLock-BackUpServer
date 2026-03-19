@@ -1,0 +1,77 @@
+{
+  "mode": "ready",
+  "coordinateSystem": "ui_dom_top_left_x_right_y_down",
+  "activeTab": "trophies",
+  "browserTokenSuffix": "cd9c6d2b",
+  "profile": {
+    "packsAvailable": 9,
+    "maxPacks": 10,
+    "gems": 50,
+    "shards": 0,
+    "trophiesPoints": 65,
+    "pityCounter": 0,
+    "secondsUntilNextPack": 41,
+    "nextPackGuaranteedSrPlus": false
+  },
+  "collection": {
+    "total": 5,
+    "page": 1,
+    "visibleItems": 5,
+    "filters": {
+      "q": "",
+      "rarity": "",
+      "topicGroup": "",
+      "favorite": false,
+      "duplicatesOnly": false
+    }
+  },
+  "latestPack": {
+    "packOpeningId": 6,
+    "guaranteedSrPlus": false,
+    "revealedCount": 5,
+    "totalCards": 5,
+    "cards": [
+      {
+        "title": "Black hole",
+        "rarity": "SSR",
+        "wasNew": true,
+        "visible": true
+      },
+      {
+        "title": "Ink",
+        "rarity": "C",
+        "wasNew": true,
+        "visible": true
+      },
+      {
+        "title": "Abacus",
+        "rarity": "C",
+        "wasNew": true,
+        "visible": true
+      },
+      {
+        "title": "Chess",
+        "rarity": "SR",
+        "wasNew": true,
+        "visible": true
+      },
+      {
+        "title": "World War II",
+        "rarity": "LR",
+        "wasNew": true,
+        "visible": true
+      }
+    ]
+  },
+  "missions": {
+    "total": 6,
+    "completed": 3,
+    "claimable": 2
+  },
+  "trophies": {
+    "total": 7,
+    "unlocked": 3,
+    "points": 65
+  },
+  "selectedArticle": null
+}

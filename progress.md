@@ -2994,3 +2994,43 @@ Pendiente sugerido:
   - create `server/penalty-shootout/` with match create/get/shot endpoints and port the current frontend prototype to consume backend shot resolution.
 
 - 2026-03-15: Ajustado el color de los puntos del historial en Penalty Neural Keeper: GOAL=verde, SAVE/MISS/POST=rojo.
+
+## 2026-03-18 - Wikipedia Gacha vertical slice
+- Implementado nuevo juego `knowledge-wikipedia-gacha` e integrado en catalogo, portada SVG y `src/games/registry.jsx`.
+- Frontend nuevo en `src/games/knowledge/wikipedia-gacha/`:
+  - tabs internas `Home / Open Pack / Collection / Missions / Trophies`;
+  - sesion anonima persistida por `localStorage` (`wikipedia_gacha_browser_token`);
+  - apertura de sobres de 5 cartas con reveal progresivo;
+  - coleccion con filtros, favoritas, detalle de carta y enlace a Wikipedia;
+  - misiones, trofeos y recovery export/import por codigo.
+- Backend nuevo en `server/wikipedia-gacha/` con servidor HTTP nativo:
+  - `session/bootstrap`, `session/me`;
+  - `packs/status`, `packs/open`, `packs/history`;
+  - `collection`, `collection/:id`, `collection/:id/favorite`;
+  - `articles/:id`, `articles/search`, `articles/:id/click`;
+  - `missions`, `missions/:id/claim`;
+  - `trophies`, `trophies/unlocked`;
+  - `recovery/export`, `recovery/import`.
+- Persistencia runtime resuelta con JSON local en `server/data/wikipedia-gacha/` porque este repo no trae `express`/`mysql2`/`prisma` instalados; aun asi se dejo `server/wikipedia-gacha/schema.mysql.sql` listo para migracion real a MySQL.
+- Incluidos seeds locales de articulos, misiones y trofeos, junto con reglas de rareza, pity SR+, regeneracion 1 pack/min y shards por duplicados.
+- Anadidos tests en `server/wikipedia-gacha/service.test.js` para regeneracion y pity.
+- Validacion pendiente:
+  - `npm test` y `npm run build` requieren salir del sandbox (`spawn EPERM` con vite/esbuild en este entorno).
+  - Falta ejecutar la pasada Playwright del skill sobre `knowledge-wikipedia-gacha`, revisar capturas y confirmar que no haya errores de consola.
+- TODO recomendado inmediato:
+  - correr backend + Vite fuera del sandbox;
+  - ejecutar build/tests;
+  - anadir artefactos QA (`output/...`) y ajustar cualquier bug visual o de estado detectado.
+## 2026-03-18 - Wikipedia Gacha validacion
+- Build de produccion revalidado con `npm run build` fuera del sandbox: OK.
+- Test dedicado `server/wikipedia-gacha/service.test.js`: 2/2 OK.
+- Suite global `npm test`: el vertical slice nuevo pasa, pero siguen fallando regresiones previas ajenas en:
+  - `src/games/arcade/cosmic-vanguard/runtime.test.js`
+  - `src/games/knowledge/crosswordGenerator.test.js`
+  - `src/games/platformer/levels/levelReachability.test.js`
+- Backend y preview confirmados en `http://127.0.0.1:8790/health` y `http://127.0.0.1:4177`.
+- E2E Playwright rehecho contra la build actual. Artefactos frescos en `output/knowledge-wikipedia-gacha-validation/recheck/`.
+- Resultado E2E: apertura de pack, detalle de carta, reclamacion de mision, vista de trofeos y export de recovery OK; sin errores de consola ni page errors.
+- Snapshot funcional principal (`output/knowledge-wikipedia-gacha-validation/recheck/summary.json`): pack de 5 cartas con `LR`, coleccion total 5, gems 0 -> 50 tras claim, 3 trofeos desbloqueados y recovery code generado.
+- Riesgo pendiente: la persistencia runtime sigue en JSON local; el esquema MySQL esta preparado pero no integrado todavia.
+- 2026-03-18: puerto por defecto de Wikipedia Gacha movido de `8790` a `8791` en backend y cliente frontend para evitar conflicto local al arrancar con `npm run backend:wikipedia-gacha`.

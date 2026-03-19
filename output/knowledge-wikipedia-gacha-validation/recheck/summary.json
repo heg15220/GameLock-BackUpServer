@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-03-18T22:12:11.903Z",
+  "activeTabInitial": "home",
+  "packsBefore": 10,
+  "packsAfter": 9,
+  "latestPackCards": [
+    {
+      "title": "Black hole",
+      "rarity": "SSR",
+      "wasNew": true,
+      "visible": true
+    },
+    {
+      "title": "Ink",
+      "rarity": "C",
+      "wasNew": true,
+      "visible": true
+    },
+    {
+      "title": "Abacus",
+      "rarity": "C",
+      "wasNew": true,
+      "visible": true
+    },
+    {
+      "title": "Chess",
+      "rarity": "SR",
+      "wasNew": true,
+      "visible": true
+    },
+    {
+      "title": "World War II",
+      "rarity": "LR",
+      "wasNew": true,
+      "visible": true
+    }
+  ],
+  "collectionTotal": 5,
+  "selectedArticle": {
+    "articleId": 23,
+    "title": "Black hole",
+    "rarity": "SSR"
+  },
+  "missionClaimAttempted": true,
+  "missionClaimableBefore": 3,
+  "missionClaimableAfter": 2,
+  "gemsBeforeClaim": 0,
+  "gemsAfterClaim": 50,
+  "trophiesUnlocked": 3,
+  "trophiesPoints": 65,
+  "recoveryCode": "WKVLT-CD0C-9D82-763F",
+  "errors": []
+}

@@ -1,0 +1,2 @@
+npm WARN config global `--global`, `--local` are deprecated. Use `--location=global` instead.
+npm WARN logfile could not be created: Error: EPERM: operation not permitted, open 'C:\Users\hugoe\AppData\Local\npm-cache\_logs\2026-03-19T09_09_22_868Z-debug-0.log'

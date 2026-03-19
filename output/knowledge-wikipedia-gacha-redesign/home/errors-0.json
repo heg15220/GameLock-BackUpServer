@@ -1,0 +1,10 @@
+[
+  {
+    "type": "console.error",
+    "text": "ReferenceError: loading is not defined\n    at http://127.0.0.1:4177/assets/index-010377a9.js:1:39059"
+  },
+  {
+    "type": "pageerror",
+    "text": "ReferenceError: loading is not defined"
+  }
+]

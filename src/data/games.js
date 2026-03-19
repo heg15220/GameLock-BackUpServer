@@ -30,6 +30,7 @@ import knowledgeTablaPeriodicaImage from "../assets/games/knowledge-tabla-period
 import knowledgeMapasImage from "../assets/games/knowledge-mapas.svg";
 import knowledgeAdivinaPaisImage from "../assets/games/knowledge-adivina-pais.svg";
 import knowledgeRefranesImage from "../assets/games/knowledge-refranes.svg";
+import knowledgeWikipediaGachaImage from "../assets/games/knowledge-wikipedia-gacha.svg";
 import chessGrandmasterArenaImage from "../assets/games/chess-grandmaster-arena.svg";
 import strategySudokuTecnicasImage from "../assets/games/strategy-sudoku-tecnicas.svg";
 import strategyDamasProfesionalImage from "../assets/games/strategy-damas-professional.svg";
@@ -990,6 +991,55 @@ export const games = [
     viability_en: "High: closed local dataset, text validation and a clear 5-round loop.",
     visualStyle_en: "Editorial quote-card layout focused on typography and proverb recall.",
     techFocus_en: "Bilingual public-source proverb bank, text normalization, and prompt-plus-answer validation.",
+  },
+
+  {
+    id: "knowledge-wikipedia-gacha",
+    image: knowledgeWikipediaGachaImage,
+    sessionTime: "4-12 min",
+
+    title: "Wikipedia Gacha",
+    category: "Conocimiento",
+    tagline: "Sobres de articulos de Wikipedia con rareza por Q-Score, sesion anonima por navegador y coleccion persistente.",
+    description:
+      "Vertical slice jugable de un gacha de conocimiento: cada navegador obtiene un token anonimo, abre sobres de 5 cartas, acumula duplicados, completa misiones diarias y desbloquea trofeos sin crear cuenta.",
+    objective_es:
+      "Construye tu coleccion de articulos, persigue cartas SR+, reclama misiones diarias y guarda un codigo de recuperacion para no perder el progreso del navegador.",
+    howToPlay_es:
+      "Usa las pestanas Home / Open Pack / Collection / Missions / Trophies. En Open Pack puedes abrir sobres con boton o con Espacio/Enter; 1-5 cambian de pantalla y R sincroniza el estado.",
+    highlights: [
+      "Sesion anonima por navegador con token persistente en localStorage.",
+      "Backend propio con pity SR+, regeneracion 1 pack/min y coleccion persistente.",
+      "Pack reveal de 5 cartas con rarezas C-LR, flavor text SSR+ y shards por duplicados.",
+      "Misiones diarias, trofeos, historial de sobres y export/import por codigo de recuperacion.",
+      "Esquema MySQL listo para migracion real y vertical slice funcional dentro del repo actual.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo",
+    viability: "Alta: contrato backend estable, estado compacto por navegador y dataset local cacheado.",
+    visualStyle: "Archivo editorial con papel, laton y paneles de gabinete de museo reinterpretados para UI interactiva.",
+    techFocus: "Sesion anonima, RNG de sobres, pity, persistencia de coleccion, misiones, trofeos y render_game_to_text para QA.",
+
+    category_en: "Knowledge",
+    tagline_en: "Wikipedia article packs with Q-Score rarity, anonymous browser sessions, and persistent collection progress.",
+    description_en:
+      "Playable vertical slice of a knowledge gacha: every browser gets an anonymous token, opens 5-card packs, collects duplicates, clears daily missions, and unlocks trophies without creating an account.",
+    objective_en:
+      "Build your article collection, chase SR+ pulls, claim daily missions, and keep a recovery code so browser progress is not lost.",
+    howToPlay_en:
+      "Use the Home / Open Pack / Collection / Missions / Trophies tabs. In Open Pack you can open packs with the button or Space/Enter; keys 1-5 switch screens and R syncs state.",
+    highlights_en: [
+      "Anonymous browser session with a persistent localStorage token.",
+      "Custom backend with SR+ pity, 1 pack/min regen, and persistent collection state.",
+      "Five-card reveal flow with C-LR rarities, SSR+ flavor text, and shard rewards for duplicates.",
+      "Daily missions, trophies, pack history, and export/import via recovery code.",
+      "MySQL schema prepared for real migration plus a functional vertical slice in the current repo.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo",
+    viability_en: "High: stable backend contract, compact per-browser state, and cached local dataset.",
+    visualStyle_en: "Editorial archive with paper, brass, and cabinet-of-curiosities UI framing.",
+    techFocus_en: "Anonymous session flow, pack RNG, pity, collection persistence, missions, trophies, and render_game_to_text QA output.",
   },
 
   {

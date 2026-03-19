@@ -49,6 +49,7 @@ const PenaltyNeuralKeeperGame = lazy(() => import("./arcade/penalty-neural-keepe
 const CosmicVanguardGame = lazy(() => import("./arcade/cosmic-vanguard"));
 const OrchardMatchBlastGame = lazy(() => import("./arcade/orchard-match-blast"));
 const ReactorTossGame = lazy(() => import("./arcade/reactor-toss"));
+const WikipediaGachaGame = lazy(() => import("./knowledge/wikipedia-gacha"));
 
 // KnowledgeArcadeGame variants
 const KnowledgeSudokuGame    = () => <KnowledgeArcadeGame variant="sudoku" />;
@@ -74,6 +75,7 @@ export const GAME_REGISTRY = {
   "knowledge-quiz-nexus":        KnowledgeGame,
   "knowledge-logic-vault":       KnowledgeGame,
   "knowledge-refranes-clasicos": KnowledgeRefranesGame,
+  "knowledge-wikipedia-gacha":   WikipediaGachaGame,
   "knowledge-sudoku-sprint":     KnowledgeSudokuGame,
   "knowledge-domino-chain":      DominoStrategyGame,
   "knowledge-ahorcado-flash":    KnowledgeAhorcadoGame,
@@ -124,6 +126,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "knowledge-quiz-nexus":        "Selecciona respuesta por botón y avanza al bloquear la pregunta.",
     "knowledge-logic-vault":       "Selecciona respuesta por botón y avanza al bloquear la pregunta.",
     "knowledge-refranes-clasicos": "5 rondas: lee el inicio del refran, escribe la continuacion y valida con Enter. N pasa a la siguiente ronda ya revisada y R reinicia.",
+    "knowledge-wikipedia-gacha":   "Gacha de articulos: 1 Home, 2 Packs, 3 Collection, 4 Missions, 5 Trophies. Espacio/Enter abre sobre en Open Pack, R sincroniza y Esc cierra detalle.",
     "knowledge-sudoku-sprint":     "Flechas para navegar, 1-4 / A/S/D/F para rellenar, Backspace borra, R partida aleatoria.",
     "knowledge-domino-chain":      "Domino 4P por parejas: izq/der elige ficha, arriba/abajo extremo, Enter juega, P pasa, N avanza ronda, R reinicia.",
     "knowledge-ahorcado-flash":    "Escribe letras para adivinar; Enter o botón para nueva partida.",
@@ -167,6 +170,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "knowledge-quiz-nexus":        "Select an answer button and advance after locking the question.",
     "knowledge-logic-vault":       "Select an answer button and advance after locking the question.",
     "knowledge-refranes-clasicos": "5 rounds: read the proverb opening, type the continuation, and press Enter to check. N advances reviewed rounds and R restarts.",
+    "knowledge-wikipedia-gacha":   "Article gacha: 1 Home, 2 Packs, 3 Collection, 4 Missions, 5 Trophies. Space/Enter opens a pack in Open Pack, R syncs, Esc closes details.",
     "knowledge-sudoku-sprint":     "Arrows to navigate, 1-4 / A/S/D/F to fill, Backspace clears, R random match.",
     "knowledge-domino-chain":      "4-player team domino: left/right chooses tile, up/down edge, Enter plays, P passes, N advances round, R restarts.",
     "knowledge-ahorcado-flash":    "Type letters to guess; Enter or button for a new word.",
