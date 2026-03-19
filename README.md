@@ -6,6 +6,10 @@ Frontend en React + JavaScript + CSS para una plataforma SaaS de juegos.
 
  npm run backend:penalty-shootout
 
+ ## Backend wiki game
+
+npm run backend:wikipedia-gacha
+
 ## Que incluye
 
 - Catalogo de juegos por tematica en formato tarjetas (imagen + titulo).
