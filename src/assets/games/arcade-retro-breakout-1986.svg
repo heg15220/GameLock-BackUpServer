@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Breakout 1986 Remix">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b1d0d"/>
+      <stop offset="55%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#7c2d12"/>
+    </linearGradient>
+    <linearGradient id="paddle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <rect x="28" y="24" width="584" height="312" rx="24" fill="rgba(2,6,23,0.72)" stroke="rgba(253,186,116,0.38)"/>
+  <rect x="72" y="66" width="496" height="210" rx="14" fill="rgba(15,23,42,0.86)"/>
+  <g transform="translate(96 86)">
+    <rect x="0" y="0" width="68" height="22" rx="5" fill="#fb7185"/>
+    <rect x="74" y="0" width="68" height="22" rx="5" fill="#f59e0b"/>
+    <rect x="148" y="0" width="68" height="22" rx="5" fill="#f97316"/>
+    <rect x="222" y="0" width="68" height="22" rx="5" fill="#facc15"/>
+    <rect x="296" y="0" width="68" height="22" rx="5" fill="#fb7185"/>
+    <rect x="370" y="0" width="68" height="22" rx="5" fill="#f59e0b"/>
+    <rect x="0" y="28" width="68" height="22" rx="5" fill="#fb923c"/>
+    <rect x="74" y="28" width="68" height="22" rx="5" fill="#f97316"/>
+    <rect x="148" y="28" width="68" height="22" rx="5" fill="#facc15"/>
+    <rect x="222" y="28" width="68" height="22" rx="5" fill="#fb7185"/>
+    <rect x="296" y="28" width="68" height="22" rx="5" fill="#fb923c"/>
+    <rect x="370" y="28" width="68" height="22" rx="5" fill="#f97316"/>
+  </g>
+  <rect x="236" y="252" width="168" height="16" rx="8" fill="url(#paddle)"/>
+  <circle cx="334" cy="215" r="10" fill="#f8fafc"/>
+  <path d="M334 215 L306 236" stroke="rgba(253,186,116,0.44)" stroke-width="5" stroke-linecap="round"/>
+  <text x="74" y="302" fill="#fef3c7" font-size="34" font-family="'Bricolage Grotesque','Segoe UI',sans-serif" font-weight="700">Breakout 1986 Remix</text>
+  <text x="74" y="326" fill="#fed7aa" font-size="16" font-family="'JetBrains Mono','Consolas',monospace">Modern glow bricks, polished paddle feedback</text>
+</svg>

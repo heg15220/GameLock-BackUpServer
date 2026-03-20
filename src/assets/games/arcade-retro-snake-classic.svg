@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Snake Clasico 1977">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#042f2e"/>
+      <stop offset="48%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0e7490"/>
+    </linearGradient>
+    <linearGradient id="snake" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+    <radialGradient id="food" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <rect x="32" y="22" width="576" height="316" rx="24" fill="rgba(2,6,23,0.72)" stroke="rgba(186,230,253,0.38)"/>
+  <rect x="72" y="70" width="496" height="192" rx="14" fill="rgba(3,18,27,0.9)"/>
+  <path d="M72 102h496M72 134h496M72 166h496M72 198h496M72 230h496" stroke="rgba(34,211,238,0.16)" stroke-width="2"/>
+  <path d="M136 198h96v-32h128v64h160" fill="none" stroke="url(#snake)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="530" cy="230" r="15" fill="url(#snake)"/>
+  <circle cx="535" cy="226" r="2.6" fill="#ecfeff"/>
+  <circle cx="522" cy="226" r="2.6" fill="#ecfeff"/>
+  <circle cx="440" cy="142" r="14" fill="url(#food)"/>
+  <circle cx="440" cy="142" r="23" fill="none" stroke="rgba(249,115,22,0.42)" stroke-width="4"/>
+  <text x="84" y="300" fill="#f8fafc" font-size="36" font-family="'Bricolage Grotesque','Segoe UI',sans-serif" font-weight="700">Snake Clasico 1977</text>
+  <text x="84" y="326" fill="#bae6fd" font-size="16" font-family="'JetBrains Mono','Consolas',monospace">Neon grid, glow, and modern arcade polish</text>
+</svg>

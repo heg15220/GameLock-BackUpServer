@@ -50,6 +50,7 @@ const CosmicVanguardGame = lazy(() => import("./arcade/cosmic-vanguard"));
 const OrchardMatchBlastGame = lazy(() => import("./arcade/orchard-match-blast"));
 const ReactorTossGame = lazy(() => import("./arcade/reactor-toss"));
 const WikipediaGachaGame = lazy(() => import("./knowledge/wikipedia-gacha"));
+const RetroClassicsGame = lazy(() => import("./arcade/retro-classics"));
 
 // KnowledgeArcadeGame variants
 const KnowledgeSudokuGame    = () => <KnowledgeArcadeGame variant="sudoku" />;
@@ -66,6 +67,12 @@ const KnowledgeMapasGame = () => <KnowledgeArcadeGame variant="mapas" />;
 const KnowledgeMapasCaminoCortoGame = () => <KnowledgeArcadeGame variant="mapas-camino-corto" />;
 const KnowledgeAdivinaPaisGame = () => <KnowledgeArcadeGame variant="adivina-pais" />;
 const KnowledgeRefranesGame = () => <KnowledgeArcadeGame variant="refranes" />;
+const ArcadeSnakeClassicGame = () => <RetroClassicsGame variant="snake-classic" />;
+const ArcadeBreakout1986Game = () => <RetroClassicsGame variant="breakout-1986" />;
+const ArcadeSpaceInvadersGame = () => <RetroClassicsGame variant="space-invaders" />;
+const ArcadeTetrisBlockfallGame = () => <RetroClassicsGame variant="tetris-blockfall" />;
+const ArcadeFroggerCrossingGame = () => <RetroClassicsGame variant="frogger-crossing" />;
+const ArcadeBomberGridGame = () => <RetroClassicsGame variant="bomber-grid" />;
 
 // ─── Registry ─────────────────────────────────────────────────────────────
 export const GAME_REGISTRY = {
@@ -109,6 +116,12 @@ export const GAME_REGISTRY = {
   "arcade-cosmic-vanguard":      CosmicVanguardGame,
   "arcade-pong-neon-arena":      PongGame,
   "arcade-buscaminas-classic":   MinesweeperGame,
+  "arcade-retro-snake-classic":  ArcadeSnakeClassicGame,
+  "arcade-retro-breakout-1986":  ArcadeBreakout1986Game,
+  "arcade-retro-space-invaders": ArcadeSpaceInvadersGame,
+  "arcade-retro-tetris-blockfall": ArcadeTetrisBlockfallGame,
+  "arcade-retro-frogger-crossing": ArcadeFroggerCrossingGame,
+  "arcade-retro-bomber-grid":    ArcadeBomberGridGame,
   "racing-race2dpro":            RaceGame2DPro,
   "racing-sunset-slipstream":    SunsetSlipstream,
 };
@@ -160,6 +173,12 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-pacman-maze-protocol": "WASD/flechas mover, Enter/Espacio empezar, P/Esc pausa, R reinicia, M sonido.",
     "arcade-pong-neon-arena":      "W/S o flechas arriba/abajo para mover vertical. A/D o flechas izq/der para avanzar o retroceder (sin cruzar el centro). Ratón también controla vertical. Enter/Espacio empezar, P pausa, R reinicia, M sonido, F pantalla completa.",
     "arcade-buscaminas-classic":   "Click izq abre, click der o pulsación larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA y R reinicia. En competitivo puntúan celdas y tiempo.",
+    "arcade-retro-snake-classic": "Snake tradicional: flechas/WASD para girar, Enter/Espacio iniciar, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-breakout-1986": "Breakout: A/D o flechas para mover pala, Espacio para lanzar bola, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-space-invaders": "Space Invaders: A/D o flechas mueve nave, Espacio dispara, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-tetris-blockfall": "Tetris: A/D mueve, arriba rota, abajo acelera caida, Espacio hard drop, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-frogger-crossing": "Frogger: flechas/WASD para saltar por casillas, cruza carretera y rio, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-bomber-grid": "Bomber Grid: flechas/WASD para moverte, Espacio coloca bomba, P pausa, R reinicia y F pantalla completa.",
     "racing-race2dpro":            "Arriba/abajo acelerar/frenar, izq/der girar. Móvil: joystick táctil izq. + botones der. R reinicia.",
     "racing-sunset-slipstream":    "Izq/der maniobra, arriba acelera, abajo enfria el ritmo, Espacio activa focus y R reinicia.",
   },
@@ -204,8 +223,17 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-pacman-maze-protocol": "WASD/arrows move, Enter/Space start, P/Esc pause, R restart, M sound.",
     "arcade-pong-neon-arena":      "W/S or up/down arrows for vertical. A/D or left/right arrows to advance or retreat (cannot cross centre line). Mouse also controls vertical. Enter/Space start, P pause, R restart, M sound, F fullscreen.",
     "arcade-buscaminas-classic":   "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells and time.",
+    "arcade-retro-snake-classic": "Classic Snake: arrows/WASD steer, Enter/Space starts, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-breakout-1986": "Breakout: A/D or arrows move paddle, Space launches ball, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-space-invaders": "Space Invaders: A/D or arrows move ship, Space shoots, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-tetris-blockfall": "Tetris: A/D moves, up rotates, down soft drops, Space hard drops, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-frogger-crossing": "Frogger: arrows/WASD hop tiles, cross roads and river, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-bomber-grid": "Bomber Grid: arrows/WASD move, Space plants bomb, P pauses, R restarts, F fullscreen.",
     "racing-race2dpro":            "Up/down throttle/brake, left/right steer. Mobile: left touch joystick + right buttons. R restart.",
     "racing-sunset-slipstream":    "Left/right steers, up accelerates, down cools the pace, Space activates focus, and R restarts.",
   },
 };
+
+
+
 

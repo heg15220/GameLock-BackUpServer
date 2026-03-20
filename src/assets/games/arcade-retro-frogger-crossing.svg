@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Frogger Crossing DX">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b3a2c"/>
+      <stop offset="45%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0d3f7f"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <rect x="30" y="24" width="580" height="312" rx="24" fill="rgba(2,6,23,0.72)" stroke="rgba(74,222,128,0.34)"/>
+  <rect x="72" y="74" width="496" height="34" rx="8" fill="#166534"/>
+  <rect x="72" y="116" width="496" height="34" rx="8" fill="#334155"/>
+  <rect x="72" y="158" width="496" height="34" rx="8" fill="#1d4ed8"/>
+  <rect x="72" y="200" width="496" height="34" rx="8" fill="#334155"/>
+  <rect x="72" y="242" width="496" height="34" rx="8" fill="#1e3a8a"/>
+  <rect x="132" y="122" width="84" height="22" rx="8" fill="#fb923c"/>
+  <rect x="374" y="122" width="104" height="22" rx="8" fill="#f97316"/>
+  <rect x="96" y="164" width="132" height="22" rx="8" fill="#92400e"/>
+  <rect x="328" y="248" width="146" height="22" rx="8" fill="#a16207"/>
+  <circle cx="286" cy="221" r="14" fill="#84cc16"/>
+  <circle cx="281" cy="217" r="2.5" fill="#ecfeff"/>
+  <circle cx="291" cy="217" r="2.5" fill="#ecfeff"/>
+  <text x="76" y="302" fill="#f8fafc" font-size="34" font-family="'Bricolage Grotesque','Segoe UI',sans-serif" font-weight="700">Frogger Crossing DX</text>
+  <text x="76" y="326" fill="#bbf7d0" font-size="16" font-family="'JetBrains Mono','Consolas',monospace">Layered lanes, richer props, modern arcade scene</text>
+</svg>
