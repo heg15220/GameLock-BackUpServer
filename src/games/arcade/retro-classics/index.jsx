@@ -89,6 +89,55 @@ const DEFINITIONS = {
     accent: "#f43f5e",
     lives: 3,
   },
+  "galaga-quantum": {
+    title: { es: "Galaga Quantum", en: "Galaga Quantum" },
+    objective: { es: "Limpia la oleada y evita los impactos.", en: "Clear the wave and avoid impacts." },
+    controls: { es: "A/D mover, Espacio dispara.", en: "A/D move, Space shoot." },
+    accent: "#fb7185",
+    lives: 3,
+  },
+  "qbert-prism": {
+    title: { es: "Qbert Prism Jump", en: "Qbert Prism Jump" },
+    objective: { es: "Convierte toda la piramide de color.", en: "Convert the full pyramid colors." },
+    controls: { es: "Flechas/WASD en diagonales de salto.", en: "Arrows/WASD for diagonal hops." },
+    accent: "#f97316",
+    lives: 3,
+  },
+  "lunar-lander-orbit": {
+    title: { es: "Lunar Lander Orbit", en: "Lunar Lander Orbit" },
+    objective: { es: "Aterriza suave sobre la plataforma.", en: "Land softly on the target platform." },
+    controls: { es: "A/D rota, W impulso principal.", en: "A/D rotate, W main thruster." },
+    accent: "#a78bfa",
+    lives: 3,
+  },
+  "centipede-circuit": {
+    title: { es: "Centipede Circuit", en: "Centipede Circuit" },
+    objective: { es: "Elimina todos los segmentos centipede.", en: "Eliminate every centipede segment." },
+    controls: { es: "Flechas/WASD mover, Espacio disparar.", en: "Arrows/WASD move, Space fire." },
+    accent: "#84cc16",
+    lives: 3,
+  },
+  "river-raid-neon": {
+    title: { es: "River Raid Neon", en: "River Raid Neon" },
+    objective: { es: "Sobrevive al cañon y gestiona combustible.", en: "Survive the canyon and manage fuel." },
+    controls: { es: "A/D mover, W acelera, S frena, Espacio dispara.", en: "A/D steer, W throttle, S brake, Space fire." },
+    accent: "#06b6d4",
+    lives: 3,
+  },
+  "tron-lightcycles": {
+    title: { es: "Tron Lightcycles", en: "Tron Lightcycles" },
+    objective: { es: "Encierra a la IA sin tocar estelas.", en: "Trap the AI without touching trails." },
+    controls: { es: "Flechas/WASD para cambiar direccion.", en: "Arrows/WASD to change direction." },
+    accent: "#0ea5e9",
+    lives: 3,
+  },
+  "road-fighter-synth": {
+    title: { es: "Road Fighter Synth", en: "Road Fighter Synth" },
+    objective: { es: "Completa distancia evitando trafico.", en: "Clear the distance while dodging traffic." },
+    controls: { es: "A/D cambia carril, W acelera, S frena.", en: "A/D lane swap, W accelerate, S brake." },
+    accent: "#f43f5e",
+    lives: 3,
+  },
 };
 
 const ORDER = Object.keys(DEFINITIONS);
@@ -377,6 +426,7 @@ function createGalaga(level, seed) {
     fireCd: 1,
     combo: 0,
     comboCd: 0,
+    rng,
   };
 }
 
@@ -411,6 +461,113 @@ function createMissile(level, seed) {
     quota: 16 + level * 3,
     shotCd: 0,
     rng,
+  };
+}
+
+function createLander(level, seed) {
+  const rng = createRng(seed);
+  const padWidth = Math.max(76, 146 - level * 4);
+  const padX = randInt(rng, 170, WIDTH - 170);
+  return {
+    ship: { x: WIDTH * 0.5, y: 120, vx: 0, vy: 0, a: -Math.PI * 0.5, fuel: 100 },
+    pad: { x: padX, y: HEIGHT - 78, w: padWidth },
+    gravity: 94 + level * 8,
+    safeVx: Math.max(32, 64 - level * 2),
+    safeVy: Math.max(70, 120 - level * 3),
+    safeAngle: 0.32,
+    stars: Array.from({ length: 58 }, () => ({
+      x: rng() * WIDTH,
+      y: rng() * (HEIGHT - 130),
+      r: 1 + rng() * 2,
+    })),
+    ridge: Array.from({ length: 14 }, (_, idx) => ({
+      x: (idx / 13) * WIDTH,
+      y: HEIGHT - 54 - rng() * 38,
+    })),
+  };
+}
+
+function createCentipede(level, seed) {
+  const rng = createRng(seed);
+  const cols = 28;
+  const rows = 20;
+  const mushrooms = new Set();
+  const target = 26 + level * 3;
+  while (mushrooms.size < target) {
+    const x = randInt(rng, 0, cols);
+    const y = randInt(rng, 3, rows - 4);
+    mushrooms.add(cellKey(x, y));
+  }
+  const segments = [];
+  const total = 8 + Math.min(10, level * 2);
+  for (let i = 0; i < total; i += 1) {
+    segments.push({ x: i, y: 1 });
+  }
+  return {
+    cols,
+    rows,
+    cell: 24,
+    player: { x: Math.floor(cols * 0.5), y: rows - 2, shotCd: 0, moveCd: 0 },
+    segments,
+    dir: 1,
+    stepAcc: 0,
+    stepDelay: Math.max(0.18 - level * 0.01, 0.07),
+    bullets: [],
+    mushrooms,
+    flea: { active: false, x: 0, y: 0, vy: 0, cd: 1.7 },
+    rng,
+  };
+}
+
+function createRiverRaid(level, seed) {
+  const rng = createRng(seed);
+  return {
+    playerX: WIDTH * 0.5,
+    playerY: HEIGHT - 92,
+    fuel: 100,
+    distance: 0,
+    targetDistance: 2800 + level * 650,
+    baseSpeed: 210 + level * 18,
+    shotCd: 0,
+    spawnCd: 0.4,
+    bullets: [],
+    obstacles: [],
+    rng,
+  };
+}
+
+function createTron(level, seed) {
+  const rng = createRng(seed);
+  const cols = 34;
+  const rows = 20;
+  const player = { x: 6, y: Math.floor(rows * 0.5), dir: { x: 1, y: 0 }, next: { x: 1, y: 0 } };
+  const ai = { x: cols - 7, y: Math.floor(rows * 0.5), dir: { x: -1, y: 0 }, next: { x: -1, y: 0 }, think: 0.1 };
+  return {
+    cols,
+    rows,
+    trails: new Set([cellKey(player.x, player.y), cellKey(ai.x, ai.y)]),
+    player,
+    ai,
+    stepAcc: 0,
+    stepDelay: Math.max(0.14 - level * 0.005, 0.06),
+    roundMs: 0,
+    limitMs: 68000,
+    rng,
+  };
+}
+
+function createRoadFighter(level, seed) {
+  return {
+    lanes: 5,
+    playerLane: 2,
+    playerY: HEIGHT - 102,
+    laneCd: 0,
+    cars: [],
+    spawnCd: 0.34,
+    distance: 0,
+    targetDistance: 2500 + level * 560,
+    baseSpeed: 220 + level * 18,
+    rng: createRng(seed),
   };
 }
 
@@ -459,6 +616,13 @@ function createGame(variant, level, run) {
     case "tetris-blockfall": return createTetris(level, seed);
     case "frogger-crossing": return createFrogger(level, seed);
     case "bomber-grid": return createBomber(level, seed);
+    case "galaga-quantum": return createGalaga(level, seed);
+    case "qbert-prism": return createQbert(level, seed);
+    case "lunar-lander-orbit": return createLander(level, seed);
+    case "centipede-circuit": return createCentipede(level, seed);
+    case "river-raid-neon": return createRiverRaid(level, seed);
+    case "tron-lightcycles": return createTron(level, seed);
+    case "road-fighter-synth": return createRoadFighter(level, seed);
     default: return createSnake(level, seed);
   }
 }
@@ -513,10 +677,28 @@ function pointRect(px, py, rx, ry, rw, rh) {
   return px >= rx && px <= rx + rw && py >= ry && py <= ry + rh;
 }
 
+function rectOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
+  return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+}
+
 function dist2(ax, ay, bx, by) {
   const dx = ax - bx;
   const dy = ay - by;
   return dx * dx + dy * dy;
+}
+
+function cellKey(x, y) {
+  return `${x}:${y}`;
+}
+
+function riverBounds(distance, level) {
+  const sway = Math.sin(distance * 0.0017) * (112 + Math.min(76, level * 5));
+  const center = WIDTH * 0.5 + sway;
+  const width = Math.max(308, 432 - level * 7 + Math.sin(distance * 0.0022) * 36);
+  return {
+    left: center - width * 0.5,
+    right: center + width * 0.5,
+  };
 }
 
 function updateSnake(state, input, dt) {
@@ -1111,6 +1293,399 @@ function updateMissile(state, input, dt) {
   if (g.spawned >= g.quota && g.enemies.length === 0) levelUp(state, "Oleada detenida", "Wave stopped", 720 + state.level * 90);
 }
 
+function updateLander(state, input, dt) {
+  const g = state.game;
+  const ship = g.ship;
+  if (input.down("ArrowLeft") || input.down("KeyA")) ship.a -= 2.4 * dt;
+  if (input.down("ArrowRight") || input.down("KeyD")) ship.a += 2.4 * dt;
+  if ((input.down("ArrowUp") || input.down("KeyW")) && ship.fuel > 0) {
+    const thrust = 210 + state.level * 10;
+    ship.vx += Math.cos(ship.a) * thrust * dt;
+    ship.vy += Math.sin(ship.a) * thrust * dt;
+    ship.fuel = Math.max(0, ship.fuel - dt * 23);
+  }
+  ship.vy += g.gravity * dt;
+  ship.vx *= 0.996;
+  ship.vy *= 0.998;
+  ship.x = clamp(ship.x + ship.vx * dt, 10, WIDTH - 10);
+  ship.y += ship.vy * dt;
+  if (ship.y < 30) {
+    ship.y = 30;
+    ship.vy = Math.max(0, ship.vy);
+  }
+  if (ship.y >= g.pad.y - 11) {
+    const onPad = ship.x >= g.pad.x - g.pad.w * 0.5 && ship.x <= g.pad.x + g.pad.w * 0.5;
+    const angle = Math.abs(Math.atan2(Math.sin(ship.a + Math.PI * 0.5), Math.cos(ship.a + Math.PI * 0.5)));
+    if (onPad && Math.abs(ship.vx) <= g.safeVx && Math.abs(ship.vy) <= g.safeVy && angle <= g.safeAngle) {
+      addScore(state, Math.round(320 + ship.fuel * 4));
+      levelUp(state, "Aterrizaje limpio", "Clean landing", 520 + state.level * 65);
+      return;
+    }
+    loseLife(state, "Aterrizaje fallido", "Crash landing");
+    return;
+  }
+  const fuelInfo = Math.round(ship.fuel);
+  state.message = state.locale === "es"
+    ? `Fuel ${fuelInfo}% · VX ${Math.round(ship.vx)} · VY ${Math.round(ship.vy)}`
+    : `Fuel ${fuelInfo}% · VX ${Math.round(ship.vx)} · VY ${Math.round(ship.vy)}`;
+}
+
+function updateCentipede(state, input, dt) {
+  const g = state.game;
+  const player = g.player;
+  player.moveCd = Math.max(0, player.moveCd - dt);
+  if (player.moveCd <= 0) {
+    let nx = player.x;
+    let ny = player.y;
+    if (input.pressed("ArrowLeft") || input.pressed("KeyA")) nx -= 1;
+    else if (input.pressed("ArrowRight") || input.pressed("KeyD")) nx += 1;
+    else if (input.pressed("ArrowUp") || input.pressed("KeyW")) ny -= 1;
+    else if (input.pressed("ArrowDown") || input.pressed("KeyS")) ny += 1;
+    nx = clamp(nx, 0, g.cols - 1);
+    ny = clamp(ny, g.rows - 6, g.rows - 1);
+    if (nx !== player.x || ny !== player.y) {
+      player.x = nx;
+      player.y = ny;
+      player.moveCd = 0.06;
+    }
+  }
+  player.shotCd = Math.max(0, player.shotCd - dt);
+  if ((input.pressed("Space") || input.pressed("Enter")) && player.shotCd <= 0) {
+    g.bullets.push({ x: player.x + 0.5, y: player.y - 0.25, vy: -22 });
+    player.shotCd = 0.14;
+  }
+  for (const bullet of g.bullets) bullet.y += bullet.vy * dt;
+  g.bullets = g.bullets.filter((bullet) => bullet.y > -2);
+
+  g.stepAcc += dt;
+  while (g.stepAcc >= g.stepDelay) {
+    g.stepAcc -= g.stepDelay;
+    if (g.segments.length === 0) break;
+    const previous = g.segments.map((segment) => ({ ...segment }));
+    const head = previous[0];
+    let nx = head.x + g.dir;
+    let ny = head.y;
+    if (nx < 0 || nx >= g.cols || g.mushrooms.has(cellKey(nx, ny))) {
+      g.dir *= -1;
+      nx = clamp(head.x + g.dir, 0, g.cols - 1);
+      ny += 1;
+    }
+    g.segments[0] = { x: nx, y: ny };
+    for (let index = 1; index < g.segments.length; index += 1) {
+      g.segments[index] = previous[index - 1];
+    }
+    if (g.segments[0].y >= g.rows - 1) {
+      loseLife(state, "Centipede invadio la base", "Centipede breached the base");
+      return;
+    }
+  }
+
+  g.flea.cd -= dt;
+  if (!g.flea.active && g.flea.cd <= 0) {
+    g.flea.active = true;
+    g.flea.x = randInt(g.rng, 0, g.cols);
+    g.flea.y = -1;
+    g.flea.vy = 7 + state.level * 0.45;
+    g.flea.cd = Math.max(1.1, 2.8 - state.level * 0.08);
+  }
+  if (g.flea.active) {
+    g.flea.y += g.flea.vy * dt;
+    if (g.flea.y > g.rows + 1) g.flea.active = false;
+  }
+
+  const nextBullets = [];
+  for (const bullet of g.bullets) {
+    let consumed = false;
+    for (let index = g.segments.length - 1; index >= 0; index -= 1) {
+      const segment = g.segments[index];
+      if (Math.abs(segment.x + 0.5 - bullet.x) < 0.5 && Math.abs(segment.y + 0.5 - bullet.y) < 0.62) {
+        g.mushrooms.add(cellKey(segment.x, segment.y));
+        g.segments.splice(index, 1);
+        addScore(state, 85 + state.level * 8);
+        consumed = true;
+        break;
+      }
+    }
+    if (!consumed && g.flea.active && Math.abs(g.flea.x + 0.5 - bullet.x) < 0.55 && Math.abs(g.flea.y + 0.5 - bullet.y) < 0.72) {
+      g.flea.active = false;
+      const y = clamp(Math.round(g.flea.y), 2, g.rows - 4);
+      g.mushrooms.add(cellKey(g.flea.x, y));
+      addScore(state, 130 + state.level * 10);
+      consumed = true;
+    }
+    if (!consumed) nextBullets.push(bullet);
+  }
+  g.bullets = nextBullets;
+
+  if (g.segments.some((segment) => segment.x === player.x && segment.y === player.y)) {
+    loseLife(state, "Colision con centipede", "Centipede collision");
+    return;
+  }
+  if (g.flea.active && Math.round(g.flea.x) === player.x && Math.round(g.flea.y) === player.y) {
+    loseLife(state, "Contacto con flea", "Flea collision");
+    return;
+  }
+  if (g.segments.length === 0) {
+    levelUp(state, "Oleada centipede neutralizada", "Centipede wave neutralized", 760 + state.level * 85);
+    return;
+  }
+  state.message = state.locale === "es"
+    ? `Segmentos ${g.segments.length} · Hongos ${g.mushrooms.size}`
+    : `Segments ${g.segments.length} · Mushrooms ${g.mushrooms.size}`;
+}
+
+function updateRiverRaid(state, input, dt) {
+  const g = state.game;
+  const throttle = input.down("ArrowUp") || input.down("KeyW")
+    ? 1.24
+    : (input.down("ArrowDown") || input.down("KeyS") ? 0.72 : 1);
+  const runSpeed = g.baseSpeed * throttle;
+  if (input.down("ArrowLeft") || input.down("KeyA")) g.playerX -= 320 * dt;
+  if (input.down("ArrowRight") || input.down("KeyD")) g.playerX += 320 * dt;
+  g.playerX = clamp(g.playerX, 24, WIDTH - 24);
+
+  g.shotCd = Math.max(0, g.shotCd - dt);
+  if ((input.pressed("Space") || input.pressed("Enter")) && g.shotCd <= 0) {
+    g.bullets.push({ x: g.playerX, y: g.playerY - 24, vy: -540 });
+    g.shotCd = 0.13;
+  }
+  for (const bullet of g.bullets) bullet.y += bullet.vy * dt;
+  g.bullets = g.bullets.filter((bullet) => bullet.y > -40 && !bullet.dead);
+
+  g.spawnCd -= dt;
+  if (g.spawnCd <= 0) {
+    const future = riverBounds(g.distance + 520, state.level);
+    const roll = g.rng();
+    const type = roll < 0.22 ? "fuel" : roll < 0.66 ? "drone" : "frigate";
+    const w = type === "fuel" ? 34 : type === "frigate" ? 74 : 48;
+    const h = type === "fuel" ? 34 : type === "frigate" ? 38 : 26;
+    const minX = future.left + 24;
+    const maxX = future.right - w - 24;
+    const x = minX >= maxX ? minX : minX + g.rng() * (maxX - minX);
+    g.obstacles.push({
+      x,
+      y: -90,
+      w,
+      h,
+      type,
+      hp: type === "frigate" ? 2 : 1,
+      vy: 96 + g.rng() * 120 + state.level * 8,
+    });
+    g.spawnCd = Math.max(0.16, 0.42 - state.level * 0.012);
+  }
+
+  const activeObstacles = [];
+  for (const obstacle of g.obstacles) {
+    obstacle.y += (runSpeed * 0.56 + obstacle.vy) * dt;
+    if (obstacle.y > HEIGHT + 90) {
+      if (obstacle.type !== "fuel") addScore(state, 12);
+      continue;
+    }
+    for (const bullet of g.bullets) {
+      if (bullet.dead || obstacle.type === "fuel") continue;
+      if (rectOverlap(bullet.x - 2, bullet.y - 8, 4, 14, obstacle.x, obstacle.y, obstacle.w, obstacle.h)) {
+        bullet.dead = true;
+        obstacle.hp -= 1;
+        if (obstacle.hp <= 0) addScore(state, obstacle.type === "frigate" ? 130 : 85);
+      }
+    }
+    if (obstacle.hp > 0) activeObstacles.push(obstacle);
+  }
+  g.obstacles = activeObstacles;
+  g.bullets = g.bullets.filter((bullet) => !bullet.dead && bullet.y > -40);
+
+  const playerW = 32;
+  const playerH = 42;
+  const px = g.playerX - playerW * 0.5;
+  const py = g.playerY - playerH * 0.5;
+  const bounds = riverBounds(g.distance, state.level);
+  if (px < bounds.left + 6 || px + playerW > bounds.right - 6) {
+    loseLife(state, "Impacto contra barranco", "Canyon wall impact");
+    return;
+  }
+  for (const obstacle of g.obstacles) {
+    if (!rectOverlap(px, py, playerW, playerH, obstacle.x, obstacle.y, obstacle.w, obstacle.h)) continue;
+    if (obstacle.type === "fuel") {
+      g.fuel = clamp(g.fuel + 34, 0, 100);
+      obstacle.collected = true;
+      addScore(state, 90);
+    } else {
+      loseLife(state, "Colision con objetivo", "Target collision");
+      return;
+    }
+  }
+  g.obstacles = g.obstacles.filter((obstacle) => !obstacle.collected);
+
+  g.distance += runSpeed * dt;
+  g.fuel -= dt * (3.4 + state.level * 0.22) * throttle;
+  if (g.fuel <= 0) {
+    loseLife(state, "Sin combustible", "Out of fuel");
+    return;
+  }
+  if (g.distance >= g.targetDistance) {
+    levelUp(state, "Canon superado", "Canyon sector cleared", 840 + state.level * 90);
+    return;
+  }
+  state.message = state.locale === "es"
+    ? `Fuel ${Math.round(g.fuel)}% · Dist ${Math.round(g.distance)}/${g.targetDistance}`
+    : `Fuel ${Math.round(g.fuel)}% · Dist ${Math.round(g.distance)}/${g.targetDistance}`;
+}
+
+function tronInBounds(g, x, y) {
+  return x >= 0 && y >= 0 && x < g.cols && y < g.rows;
+}
+
+function tronSafe(g, x, y) {
+  return tronInBounds(g, x, y) && !g.trails.has(cellKey(x, y));
+}
+
+function isReverseDirection(current, next) {
+  return current.x + next.x === 0 && current.y + next.y === 0;
+}
+
+function updateTron(state, input, dt) {
+  const g = state.game;
+  const player = g.player;
+  const ai = g.ai;
+  const dirs = [
+    { code: ["ArrowLeft", "KeyA"], dir: { x: -1, y: 0 } },
+    { code: ["ArrowRight", "KeyD"], dir: { x: 1, y: 0 } },
+    { code: ["ArrowUp", "KeyW"], dir: { x: 0, y: -1 } },
+    { code: ["ArrowDown", "KeyS"], dir: { x: 0, y: 1 } },
+  ];
+  for (const entry of dirs) {
+    if (entry.code.some((code) => input.pressed(code)) && !isReverseDirection(player.dir, entry.dir)) {
+      player.next = entry.dir;
+      break;
+    }
+  }
+
+  ai.think -= dt;
+  if (ai.think <= 0) {
+    const left = { x: -ai.dir.y, y: ai.dir.x };
+    const right = { x: ai.dir.y, y: -ai.dir.x };
+    const candidates = [ai.dir, left, right].filter((dir) => {
+      if (isReverseDirection(ai.dir, dir)) return false;
+      return tronSafe(g, ai.x + dir.x, ai.y + dir.y);
+    });
+    ai.next = candidates.length > 0 ? candidates[randInt(g.rng, 0, candidates.length)] : ai.dir;
+    ai.think = 0.08 + g.rng() * 0.16;
+  }
+
+  g.roundMs += dt * 1000;
+  if (g.roundMs >= g.limitMs) {
+    loseLife(state, "Tiempo agotado en duelo", "Duel timeout");
+    return;
+  }
+
+  g.stepAcc += dt;
+  while (g.stepAcc >= g.stepDelay) {
+    g.stepAcc -= g.stepDelay;
+    player.dir = player.next;
+    ai.dir = ai.next;
+    const pNext = { x: player.x + player.dir.x, y: player.y + player.dir.y };
+    const aNext = { x: ai.x + ai.dir.x, y: ai.y + ai.dir.y };
+    const headOn = pNext.x === aNext.x && pNext.y === aNext.y;
+    const swap = pNext.x === ai.x && pNext.y === ai.y && aNext.x === player.x && aNext.y === player.y;
+    const playerCrash = headOn || swap || !tronSafe(g, pNext.x, pNext.y);
+    const aiCrash = headOn || swap || !tronSafe(g, aNext.x, aNext.y);
+    if (playerCrash && aiCrash) {
+      loseLife(state, "Choque simultaneo", "Simultaneous crash");
+      return;
+    }
+    if (playerCrash) {
+      loseLife(state, "Tu ciclo impacto", "Your cycle crashed");
+      return;
+    }
+    if (aiCrash) {
+      addScore(state, 220 + state.level * 30);
+      levelUp(state, "Duelo ganado", "Duel won", 640 + state.level * 70);
+      return;
+    }
+    player.x = pNext.x;
+    player.y = pNext.y;
+    ai.x = aNext.x;
+    ai.y = aNext.y;
+    g.trails.add(cellKey(player.x, player.y));
+    g.trails.add(cellKey(ai.x, ai.y));
+  }
+  state.message = state.locale === "es"
+    ? `Trails ${g.trails.size} · Tiempo ${Math.max(0, Math.round((g.limitMs - g.roundMs) / 1000))}s`
+    : `Trails ${g.trails.size} · Time ${Math.max(0, Math.round((g.limitMs - g.roundMs) / 1000))}s`;
+}
+
+function roadLaneCenter(lanes, lane) {
+  const roadWidth = 360;
+  const left = (WIDTH - roadWidth) * 0.5;
+  const laneWidth = roadWidth / lanes;
+  return left + laneWidth * (lane + 0.5);
+}
+
+function updateRoadFighter(state, input, dt) {
+  const g = state.game;
+  g.laneCd = Math.max(0, g.laneCd - dt);
+  if (g.laneCd <= 0) {
+    if (input.pressed("ArrowLeft") || input.pressed("KeyA")) {
+      g.playerLane = clamp(g.playerLane - 1, 0, g.lanes - 1);
+      g.laneCd = 0.09;
+    } else if (input.pressed("ArrowRight") || input.pressed("KeyD")) {
+      g.playerLane = clamp(g.playerLane + 1, 0, g.lanes - 1);
+      g.laneCd = 0.09;
+    }
+  }
+  const throttle = input.down("ArrowUp") || input.down("KeyW")
+    ? 1.2
+    : (input.down("ArrowDown") || input.down("KeyS") ? 0.74 : 1);
+  const runSpeed = g.baseSpeed * throttle;
+
+  g.spawnCd -= dt;
+  if (g.spawnCd <= 0) {
+    const lane = randInt(g.rng, 0, g.lanes);
+    const heavy = g.rng() < 0.26;
+    g.cars.push({
+      lane,
+      y: -140,
+      w: heavy ? 56 : 44,
+      h: heavy ? 108 : 82,
+      speed: 120 + g.rng() * 170 + state.level * 10,
+      color: heavy ? "#ef4444" : g.rng() < 0.5 ? "#facc15" : "#38bdf8",
+    });
+    g.spawnCd = Math.max(0.16, 0.45 - state.level * 0.012);
+  }
+
+  const survivors = [];
+  for (const car of g.cars) {
+    car.y += (runSpeed * 0.55 + car.speed) * dt;
+    if (car.y > HEIGHT + 150) {
+      addScore(state, 18);
+      continue;
+    }
+    survivors.push(car);
+  }
+  g.cars = survivors;
+
+  const playerW = 46;
+  const playerH = 78;
+  const playerX = roadLaneCenter(g.lanes, g.playerLane) - playerW * 0.5;
+  const playerY = g.playerY - playerH * 0.5;
+  for (const car of g.cars) {
+    const carX = roadLaneCenter(g.lanes, car.lane) - car.w * 0.5;
+    if (rectOverlap(playerX, playerY, playerW, playerH, carX, car.y, car.w, car.h)) {
+      loseLife(state, "Impacto de trafico", "Traffic collision");
+      return;
+    }
+  }
+
+  g.distance += runSpeed * dt;
+  if (g.distance >= g.targetDistance) {
+    levelUp(state, "Tramo superado", "Road segment cleared", 760 + state.level * 80);
+    return;
+  }
+  state.message = state.locale === "es"
+    ? `Dist ${Math.round(g.distance)}/${g.targetDistance} · Carril ${g.playerLane + 1}`
+    : `Dist ${Math.round(g.distance)}/${g.targetDistance} · Lane ${g.playerLane + 1}`;
+}
+
 function bomberBlocked(g, x, y) {
   if (x < 0 || y < 0 || x >= g.cols || y >= g.rows) return true;
   if (g.map[y][x] === 1 || g.map[y][x] === 2) return true;
@@ -1212,6 +1787,13 @@ function updateGame(state, input, dt) {
     case "space-invaders": updateInvaders(state, input, dt); break;
     case "tetris-blockfall": updateTetris(state, input, dt); break;
     case "frogger-crossing": updateFrogger(state, input, dt); break;
+    case "galaga-quantum": updateGalaga(state, input, dt); break;
+    case "qbert-prism": updateQbert(state, input, dt); break;
+    case "lunar-lander-orbit": updateLander(state, input, dt); break;
+    case "centipede-circuit": updateCentipede(state, input, dt); break;
+    case "river-raid-neon": updateRiverRaid(state, input, dt); break;
+    case "tron-lightcycles": updateTron(state, input, dt); break;
+    case "road-fighter-synth": updateRoadFighter(state, input, dt); break;
     case "bomber-grid": updateBomber(state, input, dt); break;
     default: updateSnake(state, input, dt); break;
   }
@@ -1220,793 +1802,7 @@ function updateGame(state, input, dt) {
 const VISUAL_THEME = {
   "snake-classic": { accent: "#2dd4bf", accentSoft: "#22d3ee", panel: "#083344" },
   "breakout-1986": { accent: "#f59e0b", accentSoft: "#fb7185", panel: "#451a03" },
-  "space-invaders": { accent: "#a3e635", accentSoft: "#38bdf8", panel: "#365314" },
-  "tetris-blockfall": { accent: "#34d399", accentSoft: "#a78bfa", panel: "#052e2b" },
-  "frogger-crossing": { accent: "#22c55e", accentSoft: "#06b6d4", panel: "#14532d" },
-  "bomber-grid": { accent: "#f97316", accentSoft: "#f43f5e", panel: "#431407" },
-};
-
-function themeFor(variant) {
-  return VISUAL_THEME[variant] ?? VISUAL_THEME["snake-classic"];
-}
-
-function drawRoundedRect(ctx, x, y, w, h, radius) {
-  const r = Math.max(2, Math.min(radius, w * 0.5, h * 0.5));
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
-  ctx.closePath();
-}
-
-function drawGlow(ctx, x, y, radius, color, alpha = 0.36) {
-  const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
-  glow.addColorStop(0, `rgba(255,255,255,${alpha})`);
-  glow.addColorStop(0.24, color);
-  glow.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawBackground(ctx, state) {
-  const theme = themeFor(state.variant);
-  const t = state.elapsedMs * 0.001;
-  const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-  gradient.addColorStop(0, "#020617");
-  gradient.addColorStop(0.45, "#0b1324");
-  gradient.addColorStop(1, "#111827");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-  drawGlow(ctx, WIDTH * 0.2, 98 + Math.sin(t * 0.8) * 28, 280, theme.accentSoft, 0.24);
-  drawGlow(ctx, WIDTH * 0.86, 142 + Math.cos(t * 0.65) * 26, 250, theme.accent, 0.2);
-
-  ctx.save();
-  ctx.globalAlpha = 0.22;
-  for (let index = 0; index < 48; index += 1) {
-    const px = (index * 191 + Math.sin(index * 2.4 + t) * 32 + t * 14) % WIDTH;
-    const py = (index * 97 + Math.cos(index * 1.8 + t * 0.6) * 16 + t * 6) % HEIGHT;
-    const size = 1 + (index % 3);
-    ctx.fillStyle = index % 2 === 0 ? "#e2e8f0" : theme.accent;
-    ctx.fillRect(px, py, size, size);
-  }
-  ctx.restore();
-
-  ctx.save();
-  ctx.globalAlpha = 0.08;
-  ctx.strokeStyle = theme.accentSoft;
-  const shift = (t * 44) % 22;
-  for (let y = 88 + shift; y < HEIGHT; y += 22) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(WIDTH, y);
-    ctx.stroke();
-  }
-  for (let x = (t * 38) % 42; x < WIDTH; x += 42) {
-    ctx.beginPath();
-    ctx.moveTo(x, 78);
-    ctx.lineTo(x, HEIGHT);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  const vignette = ctx.createRadialGradient(WIDTH * 0.5, HEIGHT * 0.48, 120, WIDTH * 0.5, HEIGHT * 0.5, 620);
-  vignette.addColorStop(0, "rgba(2,6,23,0)");
-  vignette.addColorStop(1, "rgba(2,6,23,0.68)");
-  ctx.fillStyle = vignette;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
-}
-
-function drawHeader(ctx, state, locale) {
-  const ui = UI[locale] ?? UI.en;
-  const definition = DEFINITIONS[state.variant];
-  const theme = themeFor(state.variant);
-  drawRoundedRect(ctx, 16, 14, WIDTH - 32, 72, 16);
-  ctx.fillStyle = "rgba(2, 6, 23, 0.76)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.28)";
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  drawRoundedRect(ctx, 22, 20, 8, 60, 4);
-  ctx.fillStyle = theme.accent;
-  ctx.fill();
-
-  ctx.fillStyle = "#f8fafc";
-  ctx.font = "700 20px 'Bricolage Grotesque', sans-serif";
-  ctx.fillText(text(locale, definition.title), 42, 41);
-  ctx.fillStyle = "#cbd5e1";
-  ctx.font = "500 13px 'JetBrains Mono', monospace";
-  ctx.fillText(text(locale, definition.objective), 42, 63);
-  ctx.fillStyle = "#f8fafc";
-  ctx.textAlign = "right";
-  ctx.font = "700 14px 'JetBrains Mono', monospace";
-  ctx.fillText(`${ui.score}: ${state.score}`, WIDTH - 30, 34);
-  ctx.fillText(`${ui.best}: ${state.best}`, WIDTH - 30, 52);
-  ctx.fillText(`${ui.level}: ${state.level} · ${ui.lives}: ${state.lives}`, WIDTH - 30, 70);
-  ctx.textAlign = "left";
-}
-
-function drawSnake(ctx, state) {
-  const g = state.game;
-  const x0 = 150;
-  const y0 = 106;
-  const cell = 21;
-  const boardW = g.cols * cell;
-  const boardH = g.rows * cell;
-  const pulse = 0.5 + 0.5 * Math.sin(state.elapsedMs * 0.01);
-
-  drawRoundedRect(ctx, x0 - 14, y0 - 14, boardW + 28, boardH + 28, 20);
-  ctx.fillStyle = "rgba(2, 6, 23, 0.84)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
-  ctx.stroke();
-
-  const field = ctx.createLinearGradient(x0, y0, x0, y0 + boardH);
-  field.addColorStop(0, "#052a34");
-  field.addColorStop(1, "#0f172a");
-  ctx.fillStyle = field;
-  ctx.fillRect(x0, y0, boardW, boardH);
-
-  ctx.save();
-  ctx.globalAlpha = 0.18;
-  ctx.strokeStyle = "#38bdf8";
-  for (let row = 0; row <= g.rows; row += 1) {
-    const y = y0 + row * cell + 0.5;
-    ctx.beginPath();
-    ctx.moveTo(x0, y);
-    ctx.lineTo(x0 + boardW, y);
-    ctx.stroke();
-  }
-  for (let col = 0; col <= g.cols; col += 1) {
-    const x = x0 + col * cell + 0.5;
-    ctx.beginPath();
-    ctx.moveTo(x, y0);
-    ctx.lineTo(x, y0 + boardH);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  const foodX = x0 + g.food.x * cell + cell * 0.5;
-  const foodY = y0 + g.food.y * cell + cell * 0.5;
-  drawGlow(ctx, foodX, foodY, 28 + pulse * 8, "#fb7185", 0.42);
-  ctx.fillStyle = "#f97316";
-  ctx.beginPath();
-  ctx.arc(foodX, foodY, 6 + pulse * 2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(251, 146, 60, 0.58)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(foodX, foodY, 10 + pulse * 4, 0, Math.PI * 2);
-  ctx.stroke();
-
-  for (let i = 0; i < g.snake.length; i += 1) {
-    const segment = g.snake[i];
-    const sx = x0 + segment.x * cell + 2;
-    const sy = y0 + segment.y * cell + 2;
-    const tint = i === 0 ? "#2dd4bf" : "#67e8f9";
-    const body = ctx.createLinearGradient(sx, sy, sx + cell, sy + cell);
-    body.addColorStop(0, tint);
-    body.addColorStop(1, i === 0 ? "#0ea5e9" : "#0891b2");
-    drawRoundedRect(ctx, sx, sy, cell - 4, cell - 4, 5);
-    ctx.fillStyle = body;
-    ctx.fill();
-    if (i === 0) {
-      const eyeDX = g.dir.x === 0 ? 5 : g.dir.x > 0 ? 8 : 3;
-      const eyeDY = g.dir.y === 0 ? 5 : g.dir.y > 0 ? 8 : 3;
-      ctx.fillStyle = "#e2e8f0";
-      ctx.beginPath();
-      ctx.arc(sx + eyeDX, sy + eyeDY, 1.8, 0, Math.PI * 2);
-      ctx.arc(sx + cell - 6 - (g.dir.x < 0 ? 5 : 0), sy + cell - 6 - (g.dir.y < 0 ? 5 : 0), 1.8, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-}
-
-function drawPong(ctx, state) {
-  const g = state.game;
-  ctx.setLineDash([8, 10]);
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.5)";
-  ctx.beginPath();
-  ctx.moveTo(WIDTH * 0.5, 98);
-  ctx.lineTo(WIDTH * 0.5, HEIGHT - 30);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = "#67e8f9";
-  ctx.fillRect(28, g.playerY, 14, g.paddleH);
-  ctx.fillStyle = "#fda4af";
-  ctx.fillRect(WIDTH - 42, g.aiY, 14, g.paddleH);
-  ctx.fillStyle = "#f8fafc";
-  ctx.beginPath();
-  ctx.arc(g.ball.x, g.ball.y, 10, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.font = "700 42px 'JetBrains Mono', monospace";
-  ctx.fillText(String(g.scoreA), WIDTH * 0.5 - 90, 145);
-  ctx.fillText(String(g.scoreB), WIDTH * 0.5 + 60, 145);
-}
-
-function drawBreakout(ctx, state) {
-  const g = state.game;
-  const playX = 82;
-  const playY = 88;
-  const playW = WIDTH - 164;
-  const playH = HEIGHT - 132;
-  drawRoundedRect(ctx, playX, playY, playW, playH, 18);
-  const bg = ctx.createLinearGradient(playX, playY, playX, playY + playH);
-  bg.addColorStop(0, "#1a0f24");
-  bg.addColorStop(1, "#0f172a");
-  ctx.fillStyle = bg;
-  ctx.fill();
-  ctx.strokeStyle = "rgba(248, 250, 252, 0.2)";
-  ctx.stroke();
-
-  const paddleY = HEIGHT - 64;
-  drawGlow(ctx, g.paddleX + g.paddleW * 0.5, paddleY + 8, 58, "#f59e0b", 0.34);
-  const paddleGrad = ctx.createLinearGradient(g.paddleX, paddleY, g.paddleX, paddleY + 16);
-  paddleGrad.addColorStop(0, "#fde68a");
-  paddleGrad.addColorStop(1, "#f59e0b");
-  drawRoundedRect(ctx, g.paddleX, paddleY, g.paddleW, 16, 6);
-  ctx.fillStyle = paddleGrad;
-  ctx.fill();
-
-  const trailX = g.ball.x - g.ball.vx * 0.018;
-  const trailY = g.ball.y - g.ball.vy * 0.018;
-  ctx.strokeStyle = "rgba(251, 191, 36, 0.32)";
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(g.ball.x, g.ball.y);
-  ctx.lineTo(trailX, trailY);
-  ctx.stroke();
-  drawGlow(ctx, g.ball.x, g.ball.y, 24, "#fde68a", 0.44);
-  ctx.fillStyle = "#f8fafc";
-  ctx.beginPath();
-  ctx.arc(g.ball.x, g.ball.y, g.ball.r, 0, Math.PI * 2);
-  ctx.fill();
-
-  for (const brick of g.bricks) {
-    if (brick.hp <= 0) continue;
-    const hue = brick.boost ? 318 : brick.hp === 2 ? 140 : 36;
-    const brickGrad = ctx.createLinearGradient(brick.x, brick.y, brick.x, brick.y + brick.h);
-    brickGrad.addColorStop(0, `hsl(${hue} 94% 72%)`);
-    brickGrad.addColorStop(1, `hsl(${hue} 78% 48%)`);
-    drawRoundedRect(ctx, brick.x, brick.y, brick.w, brick.h, 5);
-    ctx.fillStyle = brickGrad;
-    ctx.fill();
-    if (brick.hp > 1) {
-      ctx.fillStyle = "rgba(15, 23, 42, 0.26)";
-      ctx.fillRect(brick.x + 5, brick.y + brick.h * 0.5, brick.w - 10, 3);
-    }
-    ctx.strokeStyle = "rgba(15, 23, 42, 0.5)";
-    ctx.stroke();
-  }
-}
-
-function drawInvaders(ctx, state) {
-  const g = state.game;
-  const floorY = HEIGHT - 72;
-  const floorGrad = ctx.createLinearGradient(0, floorY - 10, 0, HEIGHT);
-  floorGrad.addColorStop(0, "rgba(15, 23, 42, 0.2)");
-  floorGrad.addColorStop(1, "rgba(2, 6, 23, 0.9)");
-  ctx.fillStyle = floorGrad;
-  ctx.fillRect(0, floorY, WIDTH, HEIGHT - floorY);
-
-  drawGlow(ctx, g.playerX, HEIGHT - 58, 52, "#38bdf8", 0.26);
-  const hull = ctx.createLinearGradient(g.playerX - 22, HEIGHT - 86, g.playerX + 22, HEIGHT - 42);
-  hull.addColorStop(0, "#22d3ee");
-  hull.addColorStop(1, "#0ea5e9");
-  ctx.fillStyle = hull;
-  ctx.beginPath();
-  ctx.moveTo(g.playerX, HEIGHT - 88);
-  ctx.lineTo(g.playerX - 24, HEIGHT - 52);
-  ctx.lineTo(g.playerX - 8, HEIGHT - 44);
-  ctx.lineTo(g.playerX + 8, HEIGHT - 44);
-  ctx.lineTo(g.playerX + 24, HEIGHT - 52);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = "rgba(14, 165, 233, 0.62)";
-  ctx.fillRect(g.playerX - 4, HEIGHT - 44, 8, 9);
-
-  for (const enemy of g.enemies) {
-    drawGlow(ctx, enemy.x + enemy.w * 0.5, enemy.y + enemy.h * 0.5, 22, "#a3e635", 0.16);
-    const shell = ctx.createLinearGradient(enemy.x, enemy.y, enemy.x, enemy.y + enemy.h);
-    shell.addColorStop(0, "#d9f99d");
-    shell.addColorStop(1, "#65a30d");
-    drawRoundedRect(ctx, enemy.x, enemy.y, enemy.w, enemy.h, 6);
-    ctx.fillStyle = shell;
-    ctx.fill();
-    ctx.fillStyle = "#14532d";
-    ctx.fillRect(enemy.x + 8, enemy.y + 8, 5, 4);
-    ctx.fillRect(enemy.x + enemy.w - 13, enemy.y + 8, 5, 4);
-    ctx.fillRect(enemy.x + 7, enemy.y + enemy.h - 6, enemy.w - 14, 3);
-  }
-  ctx.strokeStyle = "#f8fafc";
-  ctx.lineWidth = 2.3;
-  for (const bullet of g.bullets) {
-    ctx.beginPath();
-    ctx.moveTo(bullet.x, bullet.y - 10);
-    ctx.lineTo(bullet.x, bullet.y + 8);
-    ctx.stroke();
-  }
-  ctx.strokeStyle = "#fb7185";
-  ctx.lineWidth = 2;
-  for (const bullet of g.enemyBullets) {
-    ctx.beginPath();
-    ctx.moveTo(bullet.x, bullet.y - 7);
-    ctx.lineTo(bullet.x, bullet.y + 9);
-    ctx.stroke();
-  }
-}
-
-function drawAsteroids(ctx, state) {
-  const g = state.game;
-  const ship = g.ship;
-  ctx.save();
-  ctx.translate(ship.x, ship.y);
-  ctx.rotate(ship.a + Math.PI * 0.5);
-  ctx.strokeStyle = "#e2e8f0";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, -14);
-  ctx.lineTo(-10, 10);
-  ctx.lineTo(0, 6);
-  ctx.lineTo(10, 10);
-  ctx.closePath();
-  ctx.stroke();
-  ctx.restore();
-  for (const rock of g.rocks) {
-    ctx.strokeStyle = "#fcd34d";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(rock.x, rock.y, rock.r, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  ctx.fillStyle = "#38bdf8";
-  for (const bullet of g.bullets) ctx.fillRect(bullet.x - 2, bullet.y - 2, 4, 4);
-}
-
-function drawTetris(ctx, state) {
-  const g = state.game;
-  const x0 = 306;
-  const y0 = 100;
-  const cell = 18;
-  const boardW = 10 * cell;
-  const boardH = 20 * cell;
-  drawRoundedRect(ctx, x0 - 20, y0 - 16, boardW + 40, boardH + 34, 18);
-  ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
-  ctx.stroke();
-
-  const boardBg = ctx.createLinearGradient(x0, y0, x0, y0 + boardH);
-  boardBg.addColorStop(0, "#051f2d");
-  boardBg.addColorStop(1, "#0f172a");
-  ctx.fillStyle = boardBg;
-  ctx.fillRect(x0, y0, boardW, boardH);
-
-  for (let row = 0; row < 20; row += 1) {
-    for (let col = 0; col < 10; col += 1) {
-      const x = x0 + col * cell;
-      const y = y0 + row * cell;
-      ctx.fillStyle = g.board[row][col] || "rgba(15, 23, 42, 0.74)";
-      ctx.fillRect(x, y, cell - 1, cell - 1);
-      if (g.board[row][col]) {
-        ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-        ctx.fillRect(x + 2, y + 2, cell - 6, 3);
-      }
-    }
-  }
-
-  const ghost = { ...g.piece, m: g.piece.m };
-  while (!tetrisCollision(g.board, ghost, 0, 1)) ghost.y += 1;
-  ctx.save();
-  ctx.globalAlpha = 0.25;
-  for (let row = 0; row < ghost.m.length; row += 1) {
-    for (let col = 0; col < ghost.m[row].length; col += 1) {
-      if (!ghost.m[row][col]) continue;
-      const x = ghost.x + col;
-      const y = ghost.y + row;
-      if (y < 0) continue;
-      ctx.fillStyle = g.piece.c;
-      ctx.fillRect(x0 + x * cell, y0 + y * cell, cell - 1, cell - 1);
-    }
-  }
-  ctx.restore();
-
-  for (let row = 0; row < g.piece.m.length; row += 1) {
-    for (let col = 0; col < g.piece.m[row].length; col += 1) {
-      if (!g.piece.m[row][col]) continue;
-      const x = g.piece.x + col;
-      const y = g.piece.y + row;
-      if (y < 0) continue;
-      drawGlow(ctx, x0 + x * cell + cell * 0.5, y0 + y * cell + cell * 0.5, 16, g.piece.c, 0.12);
-      ctx.fillStyle = g.piece.c;
-      ctx.fillRect(x0 + x * cell, y0 + y * cell, cell - 1, cell - 1);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.fillRect(x0 + x * cell + 2, y0 + y * cell + 2, cell - 6, 3);
-    }
-  }
-
-  const panelX = x0 + boardW + 24;
-  const panelY = y0 + 16;
-  drawRoundedRect(ctx, panelX, panelY, 128, 120, 12);
-  ctx.fillStyle = "rgba(15, 23, 42, 0.82)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.24)";
-  ctx.stroke();
-  ctx.fillStyle = "#cbd5e1";
-  ctx.font = "600 12px 'JetBrains Mono', monospace";
-  ctx.fillText(state.locale === "es" ? "Siguiente" : "Next", panelX + 14, panelY + 22);
-  for (let row = 0; row < g.next.m.length; row += 1) {
-    for (let col = 0; col < g.next.m[row].length; col += 1) {
-      if (!g.next.m[row][col]) continue;
-      ctx.fillStyle = g.next.c;
-      ctx.fillRect(panelX + 26 + col * 18, panelY + 38 + row * 18, 16, 16);
-    }
-  }
-}
-
-function drawFrogger(ctx, state) {
-  const g = state.game;
-  const t = state.elapsedMs * 0.001;
-  const bankX = 44;
-  const bankW = WIDTH - 88;
-  ctx.fillStyle = "#166534";
-  ctx.fillRect(bankX, rowY(1), bankW, 34);
-  for (const slot of [2, 5, 8, 11, 14]) {
-    const sx = frogX(slot) - 18;
-    const sy = rowY(1) + 6;
-    drawRoundedRect(ctx, sx, sy, 36, 22, 7);
-    ctx.fillStyle = g.homes.has(slot) ? "#22c55e" : "rgba(248, 250, 252, 0.22)";
-    ctx.fill();
-    if (g.homes.has(slot)) drawGlow(ctx, sx + 18, sy + 11, 16, "#22c55e", 0.2);
-  }
-
-  for (const lane of g.lanes) {
-    const laneY = rowY(lane.row);
-    const isRoad = lane.kind === "road";
-    const laneGrad = ctx.createLinearGradient(bankX, laneY, bankX, laneY + 34);
-    laneGrad.addColorStop(0, isRoad ? "#334155" : "#1d4ed8");
-    laneGrad.addColorStop(1, isRoad ? "#1e293b" : "#1e3a8a");
-    ctx.fillStyle = laneGrad;
-    ctx.fillRect(bankX, laneY, bankW, 34);
-    if (!isRoad) {
-      ctx.strokeStyle = "rgba(125, 211, 252, 0.3)";
-      ctx.lineWidth = 1;
-      for (let x = bankX - 30; x < WIDTH; x += 48) {
-        const wave = Math.sin(t * 3 + x * 0.05 + lane.row) * 3;
-        ctx.beginPath();
-        ctx.moveTo(x, laneY + 10 + wave);
-        ctx.lineTo(x + 22, laneY + 12 + wave);
-        ctx.stroke();
-      }
-    }
-    for (const item of lane.items) {
-      if (isRoad) {
-        drawRoundedRect(ctx, item.x, laneY + 5, item.w, 24, 8);
-        const carGrad = ctx.createLinearGradient(item.x, laneY + 5, item.x, laneY + 29);
-        carGrad.addColorStop(0, "#fb923c");
-        carGrad.addColorStop(1, "#ea580c");
-        ctx.fillStyle = carGrad;
-        ctx.fill();
-        ctx.fillStyle = "rgba(15, 23, 42, 0.35)";
-        ctx.fillRect(item.x + 10, laneY + 11, Math.max(18, item.w - 20), 6);
-      } else {
-        drawRoundedRect(ctx, item.x, laneY + 4, item.w, 26, 7);
-        const logGrad = ctx.createLinearGradient(item.x, laneY + 4, item.x, laneY + 30);
-        logGrad.addColorStop(0, "#a16207");
-        logGrad.addColorStop(1, "#78350f");
-        ctx.fillStyle = logGrad;
-        ctx.fill();
-        ctx.fillStyle = "rgba(217, 119, 6, 0.42)";
-        ctx.fillRect(item.x + 7, laneY + 11, Math.max(8, item.w - 14), 2);
-      }
-    }
-  }
-
-  const frogPx = frogX(g.frog.x);
-  const frogPy = rowY(g.frog.y) + 17;
-  drawGlow(ctx, frogPx, frogPy, 24, "#84cc16", 0.32);
-  ctx.fillStyle = "#84cc16";
-  ctx.beginPath();
-  ctx.arc(frogPx, frogPy, 12, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#e2e8f0";
-  ctx.beginPath();
-  ctx.arc(frogPx - 4, frogPy - 3, 1.8, 0, Math.PI * 2);
-  ctx.arc(frogPx + 4, frogPy - 3, 1.8, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawGalaga(ctx, state) {
-  const g = state.game;
-  ctx.fillStyle = "#60a5fa";
-  ctx.beginPath();
-  ctx.moveTo(g.playerX, HEIGHT - 84);
-  ctx.lineTo(g.playerX - 22, HEIGHT - 44);
-  ctx.lineTo(g.playerX + 22, HEIGHT - 44);
-  ctx.closePath();
-  ctx.fill();
-  for (const enemy of g.enemies) {
-    ctx.fillStyle = enemy.boss ? "#ef4444" : "#f97316";
-    ctx.beginPath();
-    ctx.ellipse(enemy.x, enemy.y, enemy.boss ? 24 : 16, enemy.boss ? 18 : 12, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.fillStyle = "#f8fafc";
-  for (const bullet of g.bullets) ctx.fillRect(bullet.x - 2, bullet.y - 8, 4, 12);
-  ctx.fillStyle = "#fb7185";
-  for (const bullet of g.enemyBullets) ctx.fillRect(bullet.x - 2, bullet.y - 8, 4, 12);
-}
-
-function qbertPos(row, col) {
-  return { x: WIDTH * 0.5 + (col - row * 0.5) * 72, y: 144 + row * 40 };
-}
-
-function drawQbert(ctx, state) {
-  const g = state.game;
-  for (let row = 0; row < g.size; row += 1) {
-    for (let col = 0; col <= row; col += 1) {
-      const p = qbertPos(row, col);
-      const ratio = g.tiles[row][col] / Math.max(1, g.target);
-      const hue = 45 + ratio * 270;
-      ctx.fillStyle = `hsl(${hue} 88% 58%)`;
-      ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x + 30, p.y + 16);
-      ctx.lineTo(p.x, p.y + 32);
-      ctx.lineTo(p.x - 30, p.y + 16);
-      ctx.closePath();
-      ctx.fill();
-    }
-  }
-  const player = qbertPos(g.player.row, g.player.col);
-  ctx.fillStyle = "#fb923c";
-  ctx.beginPath();
-  ctx.arc(player.x, player.y + 11, 12, 0, Math.PI * 2);
-  ctx.fill();
-  if (g.enemy.active) {
-    const enemy = qbertPos(g.enemy.row, g.enemy.col);
-    ctx.fillStyle = "#f43f5e";
-    ctx.beginPath();
-    ctx.arc(enemy.x, enemy.y + 12, 10, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
-function drawMissile(ctx, state) {
-  const g = state.game;
-  ctx.fillStyle = "#0b1220";
-  ctx.fillRect(0, HEIGHT - 70, WIDTH, 70);
-  for (const city of g.cities) {
-    ctx.fillStyle = city.alive ? "#22c55e" : "#4b5563";
-    ctx.fillRect(city.x - 22, HEIGHT - 58, 44, 22);
-  }
-  ctx.strokeStyle = "#60a5fa";
-  for (const missile of g.players) {
-    ctx.beginPath();
-    ctx.moveTo(missile.x, missile.y);
-    ctx.lineTo(missile.tx, missile.ty);
-    ctx.stroke();
-  }
-  ctx.strokeStyle = "#fb7185";
-  for (const missile of g.enemies) {
-    ctx.beginPath();
-    ctx.moveTo(missile.x, missile.y);
-    ctx.lineTo(missile.tx, HEIGHT - 44);
-    ctx.stroke();
-  }
-  for (const blast of g.blasts) {
-    ctx.fillStyle = "rgba(250, 204, 21, 0.35)";
-    ctx.beginPath();
-    ctx.arc(blast.x, blast.y, blast.r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.strokeStyle = "#e2e8f0";
-  ctx.beginPath();
-  ctx.arc(g.cross.x, g.cross.y, 14, 0, Math.PI * 2);
-  ctx.stroke();
-}
-
-function drawBomber(ctx, state) {
-  const g = state.game;
-  const cell = 34;
-  const x0 = Math.floor((WIDTH - g.cols * cell) / 2);
-  const y0 = 110;
-  drawRoundedRect(ctx, x0 - 14, y0 - 14, g.cols * cell + 28, g.rows * cell + 28, 16);
-  ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.32)";
-  ctx.stroke();
-
-  for (let row = 0; row < g.rows; row += 1) {
-    for (let col = 0; col < g.cols; col += 1) {
-      const tile = g.map[row][col];
-      const x = x0 + col * cell;
-      const y = y0 + row * cell;
-      if (tile === 1) {
-        const wall = ctx.createLinearGradient(x, y, x, y + cell);
-        wall.addColorStop(0, "#64748b");
-        wall.addColorStop(1, "#334155");
-        ctx.fillStyle = wall;
-      } else if (tile === 2) {
-        const crate = ctx.createLinearGradient(x, y, x, y + cell);
-        crate.addColorStop(0, "#b45309");
-        crate.addColorStop(1, "#7c2d12");
-        ctx.fillStyle = crate;
-      } else {
-        ctx.fillStyle = "#0f172a";
-      }
-      ctx.fillRect(x, y, cell - 1, cell - 1);
-      if (tile === 2) {
-        ctx.fillStyle = "rgba(251, 191, 36, 0.24)";
-        ctx.fillRect(x + 6, y + 6, cell - 14, 2);
-      }
-    }
-  }
-  for (const item of g.power) {
-    const px = x0 + item.x * cell + 17;
-    const py = y0 + item.y * cell + 17;
-    drawGlow(ctx, px, py, 22, item.type === "range" ? "#22d3ee" : "#facc15", 0.2);
-    ctx.fillStyle = item.type === "range" ? "#22d3ee" : "#facc15";
-    ctx.beginPath();
-    ctx.arc(px, py, 7, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  for (const bomb of g.bombs) {
-    const bx = x0 + bomb.x * cell + 17;
-    const by = y0 + bomb.y * cell + 17;
-    drawGlow(ctx, bx, by, 26, "#f97316", 0.22);
-    ctx.fillStyle = "#e2e8f0";
-    ctx.beginPath();
-    ctx.arc(bx, by, 10, 0, Math.PI * 2);
-    ctx.fill();
-    const spark = (state.elapsedMs * 0.018) % (Math.PI * 2);
-    ctx.strokeStyle = "#fb7185";
-    ctx.beginPath();
-    ctx.moveTo(bx, by - 11);
-    ctx.lineTo(bx + Math.cos(spark) * 7, by - 17 + Math.sin(spark) * 2);
-    ctx.stroke();
-  }
-  for (const flame of g.flames) {
-    const fx = x0 + flame.x * cell + 17;
-    const fy = y0 + flame.y * cell + 17;
-    drawGlow(ctx, fx, fy, 28, "#fb923c", 0.28);
-    const flameGrad = ctx.createRadialGradient(fx, fy, 1, fx, fy, 14);
-    flameGrad.addColorStop(0, "rgba(254, 215, 170, 0.95)");
-    flameGrad.addColorStop(0.38, "rgba(251, 146, 60, 0.9)");
-    flameGrad.addColorStop(1, "rgba(239, 68, 68, 0.18)");
-    ctx.fillStyle = flameGrad;
-    ctx.beginPath();
-    ctx.arc(fx, fy, 13, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  for (const enemy of g.enemies) {
-    const ex = x0 + enemy.x * cell + 7;
-    const ey = y0 + enemy.y * cell + 7;
-    drawRoundedRect(ctx, ex, ey, 20, 20, 6);
-    ctx.fillStyle = "#fb7185";
-    ctx.fill();
-    ctx.fillStyle = "#7f1d1d";
-    ctx.fillRect(ex + 4, ey + 5, 4, 4);
-    ctx.fillRect(ex + 12, ey + 5, 4, 4);
-  }
-  const px = x0 + g.player.x * cell + 7;
-  const py = y0 + g.player.y * cell + 7;
-  drawGlow(ctx, px + 10, py + 10, 24, "#22c55e", 0.26);
-  drawRoundedRect(ctx, px, py, 20, 20, 6);
-  ctx.fillStyle = "#4ade80";
-  ctx.fill();
-  ctx.fillStyle = "#14532d";
-  ctx.fillRect(px + 4, py + 4, 12, 3);
-}
-
-function drawBody(ctx, state) {
-  switch (state.variant) {
-    case "snake-classic": drawSnake(ctx, state); break;
-    case "breakout-1986": drawBreakout(ctx, state); break;
-    case "space-invaders": drawInvaders(ctx, state); break;
-    case "tetris-blockfall": drawTetris(ctx, state); break;
-    case "frogger-crossing": drawFrogger(ctx, state); break;
-    case "bomber-grid": drawBomber(ctx, state); break;
-    default: drawSnake(ctx, state); break;
-  }
-}
-
-function drawOverlay(ctx, state, locale) {
-  if (state.phase === "playing") return;
-  const ui = UI[locale] ?? UI.en;
-  const definition = DEFINITIONS[state.variant];
-  drawRoundedRect(ctx, 116, 156, WIDTH - 232, HEIGHT - 236, 20);
-  ctx.fillStyle = "rgba(2, 6, 23, 0.72)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.34)";
-  ctx.stroke();
-  const title = state.phase === "gameover"
-    ? (locale === "es" ? "Partida terminada" : "Game over")
-    : state.phase === "paused"
-      ? (locale === "es" ? "Pausa" : "Paused")
-      : (locale === "es" ? "Lista para jugar" : "Ready to play");
-  ctx.fillStyle = "#f8fafc";
-  ctx.font = "700 30px 'Bricolage Grotesque', sans-serif";
-  ctx.fillText(title, 144, 204);
-  ctx.fillStyle = "#cbd5e1";
-  ctx.font = "500 16px 'Bricolage Grotesque', sans-serif";
-  ctx.fillText(text(locale, definition.objective), 144, 242);
-  ctx.fillText(text(locale, definition.controls), 144, 278);
-  ctx.fillStyle = "#93c5fd";
-  ctx.font = "600 14px 'JetBrains Mono', monospace";
-  ctx.fillText(locale === "es" ? "Pulsa Enter o Iniciar para comenzar" : "Press Enter or Start to begin", 144, HEIGHT - 136);
-  ctx.fillStyle = "#e2e8f0";
-  ctx.fillText(ui.hint, 144, HEIGHT - 106);
-}
-
-function renderCanvas(ctx, state, locale) {
-  drawBackground(ctx, state);
-  drawHeader(ctx, state, locale);
-  drawBody(ctx, state);
-  drawRoundedRect(ctx, 16, HEIGHT - 52, WIDTH - 32, 34, 11);
-  ctx.fillStyle = "rgba(15, 23, 42, 0.7)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.26)";
-  ctx.stroke();
-  ctx.fillStyle = "#e2e8f0";
-  ctx.font = "500 12px 'JetBrains Mono', monospace";
-  ctx.fillText(state.message, 28, HEIGHT - 30);
-  drawOverlay(ctx, state, locale);
-}
-
-function summary(state) {
-  const g = state.game;
-  switch (state.variant) {
-    case "snake-classic":
-      return { snakeLength: g.snake.length, head: g.snake[0], food: g.food, progress: `${g.foods}/${g.targetFoods}` };
-    case "breakout-1986":
-      return { bricks: g.bricks.filter((brick) => brick.hp > 0).length, ball: { x: Math.round(g.ball.x), y: Math.round(g.ball.y), stuck: g.ball.stuck } };
-    case "space-invaders":
-      return { enemies: g.enemies.length, bullets: g.bullets.length, enemyBullets: g.enemyBullets.length };
-    case "tetris-blockfall":
-      return { lines: g.lines, piece: { x: g.piece.x, y: g.piece.y }, delay: Math.round(g.dropDelay * 1000) };
-    case "frogger-crossing":
-      return { frog: { x: g.frog.x, y: g.frog.y }, homes: g.homes.size, timeLeftMs: Math.max(0, Math.round(g.limitMs - g.roundMs)) };
-    case "bomber-grid":
-      return { player: { x: g.player.x, y: g.player.y, range: g.player.range, cap: g.player.cap }, enemies: g.enemies.length, bombs: g.bombs.length, flames: g.flames.length };
-    default:
-      return {};
-  }
-}
-
-function snapshot(state, locale) {
-  const ui = UI[locale] ?? UI.en;
-  return {
-    mode: "retro-classics",
-    variant: state.variant,
-    phase: state.phase,
-    phaseLabel: state.phase === "playing" ? ui.phasePlaying : state.phase === "paused" ? ui.phasePaused : state.phase === "gameover" ? ui.phaseGameOver : ui.phaseMenu,
-    score: state.score,
-    highScore: state.best,
-    level: state.level,
-    lives: state.lives,
-    elapsedMs: Math.round(state.elapsedMs),
-    message: state.message,
-    locale: state.locale,
-    summary: summary(state),
-    fullscreen: state.isFullscreen,
-    coordinates: "origin_top_left_x_right_y_down_pixels",
-  };
-}
-
-function RetroClassicsGame({ variant = "snake-classic" }) {
-  const locale = useMemo(() => (resolveBrowserLanguage() === "es" ? "es" : "en"), []);
-  const ui = useMemo(() => UI[locale] ?? UI.en, [locale]);
-  const definition = useMemo(() => DEFINITIONS[ORDER.includes(variant) ? variant : "snake-classic"], [variant]);
-  const touch = useMemo(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia?.("(pointer: coarse)")?.matches || (navigator.maxTouchPoints ?? 0) > 0;
-  }, []);
+  "space-invaders": { accent: "#a3e635", accentSoft: "#38bdf8", panel: "#365314" }, []);
 
   const canvasRef = useRef(null);
   const shellRef = useRef(null);
@@ -2205,3 +2001,4 @@ function RetroClassicsGame({ variant = "snake-classic" }) {
 }
 
 export default RetroClassicsGame;
+

@@ -49,6 +49,7 @@ const PenaltyNeuralKeeperGame = lazy(() => import("./arcade/penalty-neural-keepe
 const CosmicVanguardGame = lazy(() => import("./arcade/cosmic-vanguard"));
 const OrchardMatchBlastGame = lazy(() => import("./arcade/orchard-match-blast"));
 const ReactorTossGame = lazy(() => import("./arcade/reactor-toss"));
+const TerritoryWarGame = lazy(() => import("./arcade/territory-war"));
 const WikipediaGachaGame = lazy(() => import("./knowledge/wikipedia-gacha"));
 const RetroClassicsGame = lazy(() => import("./arcade/retro-classics"));
 
@@ -73,6 +74,13 @@ const ArcadeSpaceInvadersGame = () => <RetroClassicsGame variant="space-invaders
 const ArcadeTetrisBlockfallGame = () => <RetroClassicsGame variant="tetris-blockfall" />;
 const ArcadeFroggerCrossingGame = () => <RetroClassicsGame variant="frogger-crossing" />;
 const ArcadeBomberGridGame = () => <RetroClassicsGame variant="bomber-grid" />;
+const ArcadeGalagaQuantumGame = () => <RetroClassicsGame variant="galaga-quantum" />;
+const ArcadeQbertPrismGame = () => <RetroClassicsGame variant="qbert-prism" />;
+const ArcadeLunarLanderOrbitGame = () => <RetroClassicsGame variant="lunar-lander-orbit" />;
+const ArcadeCentipedeCircuitGame = () => <RetroClassicsGame variant="centipede-circuit" />;
+const ArcadeRiverRaidNeonGame = () => <RetroClassicsGame variant="river-raid-neon" />;
+const ArcadeTronLightcyclesGame = () => <RetroClassicsGame variant="tron-lightcycles" />;
+const ArcadeRoadFighterSynthGame = () => <RetroClassicsGame variant="road-fighter-synth" />;
 
 // ─── Registry ─────────────────────────────────────────────────────────────
 export const GAME_REGISTRY = {
@@ -109,6 +117,7 @@ export const GAME_REGISTRY = {
   "sports-head-soccer-arena":    HeadSoccerGame,
   "arcade-pacman-maze-protocol": PacmanGame,
   "arcade-reactor-toss":         ReactorTossGame,
+  "arcade-territory-war":        TerritoryWarGame,
   "arcade-orchard-match-blast": OrchardMatchBlastGame,
   "arcade-billar-pool-club":     BilliardsGame,
   "arcade-bowling-pro-tour":     BowlingGame,
@@ -122,6 +131,13 @@ export const GAME_REGISTRY = {
   "arcade-retro-tetris-blockfall": ArcadeTetrisBlockfallGame,
   "arcade-retro-frogger-crossing": ArcadeFroggerCrossingGame,
   "arcade-retro-bomber-grid":    ArcadeBomberGridGame,
+  "arcade-retro-galaga-quantum": ArcadeGalagaQuantumGame,
+  "arcade-retro-qbert-prism": ArcadeQbertPrismGame,
+  "arcade-retro-lunar-lander-orbit": ArcadeLunarLanderOrbitGame,
+  "arcade-retro-centipede-circuit": ArcadeCentipedeCircuitGame,
+  "arcade-retro-river-raid-neon": ArcadeRiverRaidNeonGame,
+  "arcade-retro-tron-lightcycles": ArcadeTronLightcyclesGame,
+  "arcade-retro-road-fighter-synth": ArcadeRoadFighterSynthGame,
   "racing-race2dpro":            RaceGame2DPro,
   "racing-sunset-slipstream":    SunsetSlipstream,
 };
@@ -165,6 +181,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "fighter-neon-dojo":           "A/D moverse, W saltar, J jab, K heavy, L guardia, U/B especial.",
     "sports-head-soccer-arena":    "A/D o izq/der mover, arriba/W saltar, mantener Espacio para cargar y soltar para disparar, Enter iniciar, R reiniciar, P pausa.",
     "arcade-reactor-toss": "Touch/raton: tira hacia atras desde la orbita y suelta. Flechas o A/D apuntan, W/S ajustan potencia, Enter/Espacio lanza, P pausa, R reinicia, L selecciona nivel, M audio y F pantalla completa.",
+    "arcade-territory-war": "Turnos estilo Territory War: A/D o flechas mueven, W/arriba salta, Q/E o arriba/abajo ajustan angulo, mantener Espacio o click carga potencia y al soltar lanza granada. P pausa, R reinicia y F pantalla completa.",
     "arcade-orchard-match-blast": "Match-3 original: intercambia dos bloques de color adyacentes. Flechas mueven cursor, Enter/Espacio confirma, H pista, S mezcla, B Bloom, R reinicia y F pantalla completa.",
     "arcade-billar-pool-club":     "Raton opcional para apuntar, A/D afinan angulo, W/S potencia, Space tira, O push out, V safety, 1/2 decisiones, flechas/WASD mueven la blanca en mano, Enter/Space confirma, P autocoloca y F pantalla completa.",
     "arcade-bowling-pro-tour":     "A/D ajustan linea, W/S potencia, Q/E efecto y Enter/Espacio lanza. R reinicia serie y F pantalla completa.",
@@ -179,6 +196,13 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-retro-tetris-blockfall": "Tetris: A/D mueve, arriba rota, abajo acelera caida, Espacio hard drop, P pausa, R reinicia y F pantalla completa.",
     "arcade-retro-frogger-crossing": "Frogger: flechas/WASD para saltar por casillas, cruza carretera y rio, P pausa, R reinicia y F pantalla completa.",
     "arcade-retro-bomber-grid": "Bomber Grid: flechas/WASD para moverte, Espacio coloca bomba, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-galaga-quantum": "Galaga Quantum: A/D o flechas mueve nave, Espacio dispara, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-qbert-prism": "Qbert Prism: flechas/WASD para saltos diagonales, Enter/Espacio inicia, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-lunar-lander-orbit": "Lunar Lander Orbit: A/D rota, W propulsa, aterriza suave en plataforma, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-centipede-circuit": "Centipede Circuit: flechas/WASD mueven nave, Espacio dispara, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-river-raid-neon": "River Raid Neon: A/D maniobra, W acelera, S frena, Espacio dispara, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-tron-lightcycles": "Tron Lightcycles: flechas/WASD cambian direccion, evita estelas, P pausa, R reinicia y F pantalla completa.",
+    "arcade-retro-road-fighter-synth": "Road Fighter Synth: A/D cambia carril, W acelera, S frena, P pausa, R reinicia y F pantalla completa.",
     "racing-race2dpro":            "Arriba/abajo acelerar/frenar, izq/der girar. Móvil: joystick táctil izq. + botones der. R reinicia.",
     "racing-sunset-slipstream":    "Izq/der maniobra, arriba acelera, abajo enfria el ritmo, Espacio activa focus y R reinicia.",
   },
@@ -215,6 +239,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "fighter-neon-dojo":           "A/D move, W jump, J jab, K heavy, L guard, U/B special.",
     "sports-head-soccer-arena":    "A/D or left/right move, up/W jump, hold Space to charge and release to shoot, Enter start, R restart, P pause.",
     "arcade-reactor-toss": "Touch/mouse: pull back from the orb and release. Arrows or A/D aim, W/S tune power, Enter/Space launches, P pauses, R restarts, L opens level select, M audio, and F fullscreen.",
+    "arcade-territory-war": "Turn-based Territory War rules: A/D or arrows move, W/up jumps, Q/E or up/down tunes angle, hold Space or mouse to charge and release to throw. P pauses, R restarts, F fullscreen.",
     "arcade-orchard-match-blast": "Original match-3: swap two adjacent cells. Arrows move cursor, Enter/Space confirms, H hint, S shuffle, R restart, and F toggles fullscreen.",
     "arcade-billar-pool-club":     "Mouse aiming is optional: A/D fine tune angle, W/S power, Space shoots, O push out, V safety, 1/2 decisions, arrows/WASD move cue ball in hand, Enter/Space confirms, P auto-places, and F toggles fullscreen.",
     "arcade-bowling-pro-tour":     "A/D adjust line, W/S power, Q/E spin, Enter/Space throw. R restarts the series and F toggles fullscreen.",
@@ -229,6 +254,13 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-retro-tetris-blockfall": "Tetris: A/D moves, up rotates, down soft drops, Space hard drops, P pauses, R restarts, F fullscreen.",
     "arcade-retro-frogger-crossing": "Frogger: arrows/WASD hop tiles, cross roads and river, P pauses, R restarts, F fullscreen.",
     "arcade-retro-bomber-grid": "Bomber Grid: arrows/WASD move, Space plants bomb, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-galaga-quantum": "Galaga Quantum: A/D or arrows move ship, Space shoots, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-qbert-prism": "Qbert Prism: arrows/WASD for diagonal hops, Enter/Space starts, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-lunar-lander-orbit": "Lunar Lander Orbit: A/D rotates, W thrusts, land softly on pad, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-centipede-circuit": "Centipede Circuit: arrows/WASD move, Space shoots, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-river-raid-neon": "River Raid Neon: A/D steer, W throttle, S brake, Space fire, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-tron-lightcycles": "Tron Lightcycles: arrows/WASD change direction, avoid trails, P pauses, R restarts, F fullscreen.",
+    "arcade-retro-road-fighter-synth": "Road Fighter Synth: A/D lane swap, W accelerate, S brake, P pauses, R restarts, F fullscreen.",
     "racing-race2dpro":            "Up/down throttle/brake, left/right steer. Mobile: left touch joystick + right buttons. R restart.",
     "racing-sunset-slipstream":    "Left/right steers, up accelerates, down cools the pace, Space activates focus, and R restarts.",
   },

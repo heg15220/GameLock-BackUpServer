@@ -1,0 +1,15 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'>
+  <rect width='320' height='180' fill='#1a1026' rx='20'/>
+  <g fill='#a855f7' stroke='#f5d0fe' stroke-width='2'>
+    <polygon points='160,46 188,62 160,78 132,62'/>
+    <polygon points='128,72 156,88 128,104 100,88'/>
+    <polygon points='192,72 220,88 192,104 164,88'/>
+    <polygon points='96,98 124,114 96,130 68,114'/>
+    <polygon points='160,98 188,114 160,130 132,114'/>
+    <polygon points='224,98 252,114 224,130 196,114'/>
+  </g>
+  <circle cx='160' cy='112' r='12' fill='#fb923c'/>
+  <circle cx='156' cy='108' r='2' fill='#111827'/>
+  <circle cx='164' cy='108' r='2' fill='#111827'/>
+  <text x='16' y='26' fill='#f3e8ff' font-family='JetBrains Mono, monospace' font-size='15'>QBERT PRISM</text>
+</svg>

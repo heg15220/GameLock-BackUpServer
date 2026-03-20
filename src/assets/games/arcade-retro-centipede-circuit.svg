@@ -1,0 +1,22 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'>
+  <rect width='320' height='180' fill='#082314' rx='20'/>
+  <g stroke='#14532d' stroke-width='1'>
+    <path d='M20 40 H300 M20 70 H300 M20 100 H300 M20 130 H300'/>
+    <path d='M60 30 V150 M100 30 V150 M140 30 V150 M180 30 V150 M220 30 V150 M260 30 V150'/>
+  </g>
+  <g fill='#84cc16'>
+    <circle cx='56' cy='60' r='9'/>
+    <circle cx='78' cy='60' r='8'/>
+    <circle cx='100' cy='60' r='8'/>
+    <circle cx='122' cy='60' r='8'/>
+    <circle cx='144' cy='60' r='8'/>
+    <circle cx='166' cy='60' r='8'/>
+  </g>
+  <g fill='#f97316'>
+    <path d='M210 96 a8 8 0 1 1 16 0 v6 h-16z'/>
+    <path d='M250 120 a8 8 0 1 1 16 0 v6 h-16z'/>
+  </g>
+  <polygon points='160,148 146,128 174,128' fill='#38bdf8'/>
+  <line x1='160' y1='128' x2='160' y2='110' stroke='#f8fafc' stroke-width='3'/>
+  <text x='12' y='26' fill='#dcfce7' font-family='JetBrains Mono, monospace' font-size='14'>CENTIPEDE CIRCUIT</text>
+</svg>

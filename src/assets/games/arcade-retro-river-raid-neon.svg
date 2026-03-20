@@ -1,0 +1,12 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'>
+  <rect width='320' height='180' fill='#052e2b' rx='20'/>
+  <path d='M0 30 L88 30 L112 180 L0 180 Z' fill='#14532d'/>
+  <path d='M320 30 L232 30 L208 180 L320 180 Z' fill='#14532d'/>
+  <path d='M88 30 L232 30 L208 180 L112 180 Z' fill='#0ea5e9'/>
+  <polygon points='160,144 146,116 174,116' fill='#22d3ee'/>
+  <rect x='157' y='116' width='6' height='14' fill='#082f49'/>
+  <rect x='122' y='66' width='20' height='12' rx='3' fill='#f43f5e'/>
+  <rect x='178' y='84' width='34' height='14' rx='4' fill='#fb7185'/>
+  <rect x='154' y='96' width='12' height='12' fill='#facc15'/>
+  <text x='14' y='24' fill='#ccfbf1' font-family='JetBrains Mono, monospace' font-size='14'>RIVER RAID NEON</text>
+</svg>
