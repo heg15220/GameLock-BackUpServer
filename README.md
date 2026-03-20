@@ -22,7 +22,7 @@ npm run generate:wikipedia-gacha-catalog -- --target 1000000 --sleep-ms 400
 - Vertical slices arcade:
   - `Sky Runner DX` (plataformas estilo Mario con motor Canvas modular por tiles).
   - `Neon Dojo Clash` (fighting 2D estilo Street Fighter).
-  - `Head Soccer Arena X` (futbol 1v1 arcade con habilidades y fisicas elasticas).
+  - `Head Soccer Pro` (futbol 1v1 arcade reconstruido con fisica determinista, HUD competitivo e IA por niveles).
 - Conocimiento con diseno visual mejorado y banco masivo de preguntas (>10k).
 - Seleccion de quiz balanceada para mezclar categorias en cada ronda.
 - Direccion artistica por categoria inspirada en referencias arcade/plataformas, con HUD y telemetria mejorados.
@@ -70,3 +70,4 @@ src/
   main.jsx
   styles.css
 ```
+

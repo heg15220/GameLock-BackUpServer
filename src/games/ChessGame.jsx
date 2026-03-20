@@ -506,6 +506,22 @@ function ChessGame() {
     }
 
     if (piece && piece.color === playerColorRef.current) {
+      const selectedPiece = current.board[selectedSquare];
+      const canTryRookCastling =
+        selectedPiece?.type === PIECES.KING &&
+        selectedPiece.color === playerColorRef.current &&
+        piece.type === PIECES.ROOK;
+      if (canTryRookCastling) {
+        const castleSide = toCol(square) > toCol(selectedSquare) ? "K" : "Q";
+        const castleMove = current.legalMoves.find(
+          (move) => move.from === selectedSquare && move.isCastle === castleSide
+        );
+        if (castleMove) {
+          performMove(castleMove, "player");
+          return;
+        }
+      }
+
       setSelectedSquare(square);
       return;
     }

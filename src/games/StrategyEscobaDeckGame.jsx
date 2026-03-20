@@ -323,6 +323,7 @@ const cardText = (card) =>
   card ? `${card.rankLabel}${card.suitSymbol}` : "--";
 const sumValues = (cards) =>
   cards.reduce((sum, card) => sum + (card?.captureValue || 0), 0);
+const clamp01 = (value) => Math.max(0, Math.min(1, value));
 const sameIdSet = (idsA, idsB) => {
   if (idsA.length !== idsB.length) return false;
   const setA = new Set(idsA);
@@ -480,34 +481,158 @@ const aiOptionScore = (option, tableSize) => {
   );
 };
 
+const estimateNoOutDrawRate = (population, outs, draws) => {
+  const total = Math.max(0, Math.floor(population));
+  const threatOuts = Math.max(0, Math.min(total, Math.floor(outs)));
+  const take = Math.max(0, Math.floor(draws));
+  if (!take) return 1;
+  if (!total) return 0;
+  if (!threatOuts) return 1;
+  const safeCards = total - threatOuts;
+  if (safeCards <= 0) return 0;
+  const loops = Math.min(take, total);
+  let rate = 1;
+  for (let i = 0; i < loops; i += 1) {
+    const denominator = total - i;
+    const numerator = safeCards - i;
+    if (denominator <= 0 || numerator <= 0) return 0;
+    rate *= numerator / denominator;
+  }
+  return clamp01(rate);
+};
+
+const buildEscobaUnknownCards = (state, playerId) => {
+  const knownIds = new Set();
+  (state.hands[playerId] || []).forEach((card) => knownIds.add(card.id));
+  (state.tableCards || []).forEach((card) => knownIds.add(card.id));
+  Object.values(state.captures || {}).forEach((cards) => {
+    (cards || []).forEach((card) => knownIds.add(card.id));
+  });
+  return buildDeck(state.deckId).filter((card) => !knownIds.has(card.id));
+};
+
+const estimateEscobaTableRisk = (tableCards) =>
+  (tableCards || []).reduce((risk, card) => {
+    let total = risk + 0.45;
+    if (card.rank === 7) total += 0.85;
+    if (card.suitId === "oros") total += 0.35;
+    if (card.rank === 7 && card.suitId === "oros") total += 2.1;
+    return total;
+  }, 0);
+
+const buildEscobaOutsProfile = (projectedTable, unknownCards, drawsAhead, rewardScore, riskScore) => {
+  const outsAgainst = (unknownCards || []).reduce((count, card) => {
+    const captureOpts = captureOptionsForCard(card, projectedTable);
+    return captureOpts.length ? count + 1 : count;
+  }, 0);
+  const unseen = unknownCards.length;
+  const failRateExact = unseen > 0
+    ? 1 - estimateNoOutDrawRate(unseen, outsAgainst, drawsAhead)
+    : 0;
+  const safeRateExact = 1 - failRateExact;
+  const failRateRule2 = clamp01((outsAgainst * 2 * Math.max(1, drawsAhead)) / 100);
+  const failRateRule4 = clamp01((outsAgainst * (drawsAhead >= 2 ? 4 : 2)) / 100);
+  const safeRateRule2 = 1 - failRateRule2;
+  const safeRateRule4 = 1 - failRateRule4;
+  const safeOddsRatio = safeRateExact > 0 ? failRateExact / safeRateExact : Infinity;
+  const reward = Math.max(1, rewardScore);
+  const risk = Math.max(1, riskScore);
+  const requiredSafeRate = risk / (reward + risk);
+  const priceRatio = reward / risk;
+  return {
+    unseen,
+    outsAgainst,
+    safeRateExact,
+    safeRateRule2,
+    safeRateRule4,
+    safeOddsRatio,
+    requiredSafeRate,
+    priceRatio,
+  };
+};
+
 const pickAiMove = (state, playerId) => {
   const hand = state.hands[playerId] || [];
   const diff = DIFF[state.difficultyId] || DIFF.medium;
-  const moves = hand.map((card, cardIndex) => {
-    const options = captureOptionsForCard(card, state.tableCards);
-    if (!options.length) {
+  if (diff.id !== "expert") {
+    const moves = hand.map((card, cardIndex) => {
+      const options = captureOptionsForCard(card, state.tableCards);
+      if (!options.length) {
+        return {
+          cardIndex,
+          option: null,
+          score:
+            -(card.captureValue * 9) -
+            (card.rank >= 11 ? 8 : 0) +
+            Math.random() * diff.noise,
+        };
+      }
+      const ranked = options
+        .map((opt) => ({
+          ...opt,
+          score:
+            aiOptionScore({ ...opt, cards: [...opt.cards, card] }, state.tableCards.length) +
+            Math.random() * diff.noise,
+        }))
+        .sort((a, b) => b.score - a.score);
       return {
         cardIndex,
-        option: null,
-        score:
-          -(card.captureValue * 9) -
-          (card.rank >= 11 ? 8 : 0) +
-          Math.random() * diff.noise,
+        option: ranked[0],
+        score: ranked[0].score + card.captureValue,
       };
-    }
-    const ranked = options
-      .map((opt) => ({
-        ...opt,
-        score:
-          aiOptionScore({ ...opt, cards: [...opt.cards, card] }, state.tableCards.length) +
-          Math.random() * diff.noise,
-      }))
-      .sort((a, b) => b.score - a.score);
-    return {
-      cardIndex,
-      option: ranked[0],
-      score: ranked[0].score + card.captureValue,
-    };
+    });
+    const best = moves.sort((a, b) => b.score - a.score)[0];
+    return best || { cardIndex: 0, option: null };
+  }
+
+  const unknownCards = buildEscobaUnknownCards(state, playerId);
+  const playersToActBeforeReturn = state.order.reduce((count, id) => {
+    if (id === playerId) return count;
+    return count + ((state.hands[id] || []).length > 0 ? 1 : 0);
+  }, 0);
+  const drawsAhead = Math.max(1, playersToActBeforeReturn);
+  const moves = [];
+  hand.forEach((card, cardIndex) => {
+    const options = captureOptionsForCard(card, state.tableCards);
+    const optionPool = options.length ? [...options] : [null];
+    if (options.length && !state.mandatoryCapture) optionPool.push(null);
+    optionPool.forEach((option) => {
+      const optionIds = new Set(option?.ids || []);
+      const projectedTable = option?.cards?.length
+        ? state.tableCards.filter((tableCard) => !optionIds.has(tableCard.id))
+        : [...state.tableCards, card];
+      const immediateBase = option?.cards?.length
+        ? aiOptionScore({ ...option, cards: [...option.cards, card] }, state.tableCards.length) + card.captureValue
+        : -(card.captureValue * 9) - (card.rank >= 11 ? 8 : 0);
+      const rewardScore = option?.cards?.length
+        ? Math.max(6, immediateBase * 0.18)
+        : Math.max(2, 9 - card.captureValue);
+      const riskScore = Math.max(1, estimateEscobaTableRisk(projectedTable));
+      const oddsOuts = buildEscobaOutsProfile(
+        projectedTable,
+        unknownCards,
+        drawsAhead,
+        rewardScore,
+        riskScore
+      );
+      const safeComposite = Math.max(
+        oddsOuts.safeRateExact,
+        oddsOuts.safeRateRule2 * 0.85,
+        oddsOuts.safeRateRule4 * 0.6
+      );
+      const edge = safeComposite - oddsOuts.requiredSafeRate;
+      const oddsBeatPrice =
+        safeComposite >= oddsOuts.requiredSafeRate - 0.02 ||
+        (Number.isFinite(oddsOuts.safeOddsRatio) &&
+          oddsOuts.safeOddsRatio <= oddsOuts.priceRatio * 1.03);
+      let score = immediateBase;
+      score += edge * 95;
+      score += oddsBeatPrice ? 10 : -10;
+      score -= oddsOuts.outsAgainst * 0.42;
+      if (option?.cards?.length && projectedTable.length === 0) score += 18;
+      score += Math.random() * diff.noise;
+      moves.push({ cardIndex, option, score });
+    });
   });
   const best = moves.sort((a, b) => b.score - a.score)[0];
   return best || { cardIndex: 0, option: null };

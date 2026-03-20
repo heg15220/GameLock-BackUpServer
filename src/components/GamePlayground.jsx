@@ -113,7 +113,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "rpg-emberfall": "Explora con WASD/flechas y usa atacar, habilidad, defender, enfocar, invocar (U) y pocion.",
     "platformer-sky-runner": "Movimiento con A/D o flechas, salto variable con W/arriba/espacio y accion con F en rutas de 8 sectores con springs, viento, checkpoints y bosses.",
     "fighter-neon-dojo": "Combate con A/D o flechas, salto W/arriba, jab J/espacio, heavy K/enter, guardia L/abajo y special U/B.",
-    "sports-head-soccer-arena": "Flechas izquierda/derecha para mover, arriba para salto, Space para disparo y B para habilidad.",
+    "sports-head-soccer-arena": "A/D o flechas para mover, arriba/W para salto, mantener Space para cargar y soltar para disparar. Enter inicia, R reinicia, P pausa.",
     "arcade-reactor-toss": "Touch/raton: tira hacia atras desde la orbita y suelta. Flechas o A/D apuntan, W/S ajustan potencia, Enter/Espacio lanza, P pausa, R reinicia, L selecciona nivel, M audio y F pantalla completa.",
     "arcade-orchard-match-blast": "Match-3 original: elige meta de puntos (Basica/Clasica/Avanzada/Extrema) antes de empezar. Intercambia bloques de color adyacentes; flechas mueven cursor, Enter/Espacio confirma, H pista, S mezclar, B Bloom, R reinicia y F pantalla completa.",
     "arcade-billar-pool-club": "Raton opcional para apuntar: A/D afinan angulo, W/S regulan potencia, Space tira, O push out, V safety, 1/2 decisiones. En blanca en mano usa flechas/WASD para mover, Enter/Space para fijar y P para autocolocar. F pantalla completa.",
@@ -154,7 +154,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "rpg-emberfall": "Explore with WASD/arrows and use attack, skill, defend, focus, summon (U) and potion.",
     "platformer-sky-runner": "Move with A/D or arrows, use variable jump with W/up/space and F action in 8-sector routes with springs, wind, checkpoints and boss fights.",
     "fighter-neon-dojo": "Fight with A/D or arrows, jump W/up, jab J/space, heavy K/enter, guard L/down and special U/B.",
-    "sports-head-soccer-arena": "Left/right arrows move, up jumps, Space shoots and B triggers skill.",
+    "sports-head-soccer-arena": "A/D or arrows move, up/W jumps, hold Space to charge and release to shoot. Enter starts, R restarts, P pauses.",
     "arcade-reactor-toss": "Touch/mouse: pull back from the orb and release. Arrows or A/D aim, W/S adjust power, Enter/Space launches, P pauses, R restarts, L opens level select, M sound, and F toggles fullscreen.",
     "arcade-orchard-match-blast": "Original match-3: choose a score goal preset (Basic/Standard/Advanced/Extreme) before starting. Swap adjacent color blocks; arrows move cursor, Enter/Space confirms, H hint, S shuffle, B Bloom, R restart, and F toggles fullscreen.",
     "arcade-billar-pool-club": "Mouse aiming is optional: A/D fine tune angle, W/S adjust power, Space shoots, O push out, V safety, and 1/2 decisions. With ball in hand, use arrows/WASD to move the cue ball, Enter/Space to confirm, and P to auto-place. F toggles fullscreen.",
@@ -221,4 +221,5 @@ function GamePlayground({ game }) {
 }
 
 export default GamePlayground;
+
 

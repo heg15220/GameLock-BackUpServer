@@ -157,6 +157,7 @@ const normDiff = (id) => (DIFF[id] ? id : "medium");
 const rank2 = (n) => String(n).padStart(2, "0");
 const cardText = (card) => (card ? `${card.rankLabel}${card.suitSymbol}` : "--");
 const points = (cards) => cards.reduce((sum, c) => sum + (c?.points || 0), 0);
+const clamp01 = (value) => Math.max(0, Math.min(1, value));
 
 const clampAi = (variantId, value) => {
   const options = VARIANTS[normVariant(variantId)].aiOptions;
@@ -276,6 +277,86 @@ const rotateFrom = (order, id) => {
   return [...order.slice(i), ...order.slice(0, i)];
 };
 
+const estimateNoOutDrawRate = (population, outs, draws) => {
+  const total = Math.max(0, Math.floor(population));
+  const threatOuts = Math.max(0, Math.min(total, Math.floor(outs)));
+  const take = Math.max(0, Math.floor(draws));
+  if (!take) return 1;
+  if (!total) return 0;
+  if (!threatOuts) return 1;
+  const safeCards = total - threatOuts;
+  if (safeCards <= 0) return 0;
+  const loops = Math.min(take, total);
+  let rate = 1;
+  for (let i = 0; i < loops; i += 1) {
+    const denominator = total - i;
+    const numerator = safeCards - i;
+    if (denominator <= 0 || numerator <= 0) return 0;
+    rate *= numerator / denominator;
+  }
+  return clamp01(rate);
+};
+
+const buildBriscaUnknownCards = (state, playerId) => {
+  const deckCards = buildDeck(deckFor(state.locale));
+  const knownIds = new Set();
+  (state.hands[playerId] || []).forEach((card) => knownIds.add(card.id));
+  (state.table || []).forEach((entry) => {
+    if (entry?.card?.id) knownIds.add(entry.card.id);
+  });
+  Object.values(state.won || {}).forEach((cards) => {
+    (cards || []).forEach((card) => {
+      if (card?.id) knownIds.add(card.id);
+    });
+  });
+  if (state.trumpCard?.id) knownIds.add(state.trumpCard.id);
+  return deckCards.filter((card) => !knownIds.has(card.id));
+};
+
+const buildBriscaOutsProfile = (state, card, candidateTable, unknownCards, drawsAhead, pendingPoints) => {
+  const outsAgainst = unknownCards.reduce((count, maybeOut) => {
+    const trial = winnerEntry(
+      [...candidateTable, { playerId: "__outs__", card: maybeOut }],
+      state.trumpSuit
+    );
+    return trial?.playerId === "__outs__" ? count + 1 : count;
+  }, 0);
+  const unseen = unknownCards.length;
+  const beatenRateExact = unseen > 0
+    ? 1 - estimateNoOutDrawRate(unseen, outsAgainst, drawsAhead)
+    : 0;
+  const holdRateExact = 1 - beatenRateExact;
+  const beatenRateRule2 = clamp01((outsAgainst * 2 * Math.max(1, drawsAhead)) / 100);
+  const beatenRateRule4 = clamp01((outsAgainst * (drawsAhead >= 2 ? 4 : 2)) / 100);
+  const holdRateRule2 = 1 - beatenRateRule2;
+  const holdRateRule4 = 1 - beatenRateRule4;
+  const holdOddsRatio = holdRateExact > 0 ? beatenRateExact / holdRateExact : Infinity;
+  const reward = Math.max(
+    1,
+    pendingPoints +
+      (card?.points || 0) +
+      (card?.suitId === state.trumpSuit ? 2 : 1)
+  );
+  const risk = Math.max(
+    1,
+    (card?.points || 0) * 1.4 +
+      (card?.power || 0) * 0.08 +
+      (card?.suitId === state.trumpSuit ? 3.5 : 1.5)
+  );
+  const requiredHoldRate = risk / (reward + risk);
+  const priceRatio = reward / risk;
+  return {
+    unseen,
+    outsAgainst,
+    holdRateExact,
+    holdRateRule2,
+    holdRateRule4,
+    holdOddsRatio,
+    requiredHoldRate,
+    priceRatio,
+  };
+};
+
 const teammateHint = (s, t) => {
   if (!s.variant.team || !s.mateId) return null;
   const hand = s.hands[s.mateId] || [];
@@ -383,9 +464,13 @@ const aiPick = (s, player) => {
   const mateWinning = s.variant.team && currentWin && s.byId[currentWin.playerId]?.side === player.side;
   const pending = s.table.reduce((sum, e) => sum + (e.card?.points || 0), 0);
   const remaining = s.stock.length + (s.trumpCard ? 1 : 0);
+  const expertMode = profile.id === "expert";
+  const unknownCards = expertMode ? buildBriscaUnknownCards(s, player.id) : [];
+  const drawsAhead = Math.max(0, s.players.length - (s.table.length + 1));
   const scored = legal.map((idx) => {
     const c = hand[idx];
-    const winNow = winnerEntry([...s.table, { playerId: player.id, card: c }], s.trumpSuit)?.playerId === player.id;
+    const candidateTable = [...s.table, { playerId: player.id, card: c }];
+    const winNow = winnerEntry(candidateTable, s.trumpSuit)?.playerId === player.id;
     const isTrump = c.suitId === s.trumpSuit;
     let score = 0;
     score += winNow ? profile.win * (pending + c.points + c.power * 0.06) : -pending * 0.35;
@@ -397,6 +482,29 @@ const aiPick = (s, player) => {
       if (!winNow) score += profile.team * c.points * 1.6;
     }
     if (remaining < s.players.length) score += winNow ? c.power * 0.06 : -c.power * 0.03;
+    if (expertMode && winNow) {
+      const oddsOuts = buildBriscaOutsProfile(
+        s,
+        c,
+        candidateTable,
+        unknownCards,
+        drawsAhead,
+        pending
+      );
+      const holdComposite = Math.max(
+        oddsOuts.holdRateExact,
+        oddsOuts.holdRateRule2,
+        oddsOuts.holdRateRule4 * 0.65
+      );
+      const edge = holdComposite - oddsOuts.requiredHoldRate;
+      const oddsBeatPrice =
+        holdComposite >= oddsOuts.requiredHoldRate - 0.015 ||
+        (Number.isFinite(oddsOuts.holdOddsRatio) &&
+          oddsOuts.holdOddsRatio <= oddsOuts.priceRatio * 1.03);
+      score += edge * 28;
+      score += oddsBeatPrice ? 4.2 : -6.4;
+      score -= oddsOuts.outsAgainst * 0.08;
+    }
     score += (Math.random() * 2 - 1) * profile.noise;
     return { idx, score };
   }).sort((a, b) => b.score - a.score);

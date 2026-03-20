@@ -1,117 +1,1354 @@
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../utils/useGameRuntimeBridge";
-import headSoccerGoalLeftUrl      from "../assets/games/head-soccer-goal-left.svg";
-import headSoccerGoalRightUrl     from "../assets/games/head-soccer-goal-right.svg";
-import headSoccerStadiumBackdropUrl from "../assets/games/head-soccer-stadium-backdrop.svg";
-import { createHeadSoccerAudio } from "./headSoccer/audio.js";
-import {
-  CHARACTERS,
-  DIFFICULTY,
-  MODES,
-  STEP_MS,
-  WIDTH,
-  HEIGHT,
-} from "./headSoccer/config.js";
-import {
-  applyHeadSoccerConfig,
-  createInitialHeadSoccerState,
-  createInputState,
-  snapshotHeadSoccerState,
-  updateHeadSoccer,
-} from "./headSoccer/engine.js";
-import { renderHeadSoccer } from "./headSoccer/render.js";
 
-const DOUBLE_TAP_MS = 230;
+const WIDTH = 900;
+const HEIGHT = 560;
+const STEP_MS = 1000 / 60;
+const STEP_SECONDS = 1 / 60;
 
-function loadImageAsset(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload  = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
+const FIELD = {
+  groundY: 420,
+  left: 36,
+  right: 864,
+  ceilingY: 94,
+  goalWidth: 65,
+  goalHeight: 122,
+  ballRadius: 17,
+  goalTop: 420 - 122,
+};
+
+const PHYSICS = {
+  playerGravity: 0.5,
+  ballGravity: 0.34,
+  bounce: 0.84,
+  friction: 0.992,
+  speed: 4.8,
+  jumpVelocity: -14.6,
+  playerHalfWidth: 22,
+};
+
+const MATCH_OPTIONS = [45, 60, 90];
+
+const DIFFICULTIES = {
+  rookie: {
+    id: "rookie",
+    label: "Rookie",
+    reactionSeconds: 0.34,
+    anticipation: 18,
+    minX: 370,
+    jumpRange: 122,
+    jumpOffset: 6,
+    chargeDistance: 70,
+    chargeChance: 0.22,
+    releaseMin: 0.24,
+    releaseMax: 0.4,
+  },
+  pro: {
+    id: "pro",
+    label: "Pro",
+    reactionSeconds: 0.25,
+    anticipation: 40,
+    minX: 350,
+    jumpRange: 136,
+    jumpOffset: 0,
+    chargeDistance: 80,
+    chargeChance: 0.35,
+    releaseMin: 0.14,
+    releaseMax: 0.32,
+  },
+  elite: {
+    id: "elite",
+    label: "Elite",
+    reactionSeconds: 0.17,
+    anticipation: 58,
+    minX: 330,
+    jumpRange: 160,
+    jumpOffset: -8,
+    chargeDistance: 95,
+    chargeChance: 0.52,
+    releaseMin: 0.1,
+    releaseMax: 0.22,
+  },
+};
+
+const PLAYER_PROFILES = {
+  left: {
+    side: "left",
+    flag: "KOR",
+    skin: "#f0c090",
+    hair: "#101015",
+    jersey: "#1e2480",
+    shorts: "#14185a",
+    boots: "#1f2937",
+    accent: "#f8fafc",
+    bald: false,
+    brow: "#111111",
+    eye: "#222222",
+  },
+  right: {
+    side: "right",
+    flag: "CMR",
+    skin: "#6a3410",
+    hair: "#1a0a04",
+    jersey: "#1c7a38",
+    shorts: "#0e4a20",
+    boots: "#2b2b2b",
+    accent: "#e8cc00",
+    bald: true,
+    brow: "#090603",
+    eye: "#1a0a04",
+  },
+};
+
+function createRandom(seed) {
+  let value = seed >>> 0;
+  return () => {
+    value += 0x6d2b79f5;
+    let t = value;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function round2(value) {
+  return Math.round(value * 100) / 100;
+}
+
+function formatClock(seconds) {
+  const safeSeconds = Math.max(0, Math.floor(seconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const rest = safeSeconds % 60;
+  return `${minutes}:${String(rest).padStart(2, "0")}`;
+}
+
+function roundedRectPath(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+}
+
+function drawRoundedRect(ctx, x, y, width, height, radius, fill, stroke = "#111111", lineWidth = 2) {
+  ctx.beginPath();
+  roundedRectPath(ctx, x, y, width, height, radius);
+  if (fill) {
+    ctx.fillStyle = fill;
+    ctx.fill();
+  }
+  if (stroke) {
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+  }
+}
+
+function buildCrowdLayer() {
+  const layer = document.createElement("canvas");
+  layer.width = WIDTH;
+  layer.height = 260;
+  const ctx = layer.getContext("2d");
+
+  const skyGradient = ctx.createLinearGradient(0, 0, 0, 130);
+  skyGradient.addColorStop(0, "#6ec6f5");
+  skyGradient.addColorStop(1, "#b8e4f9");
+  ctx.fillStyle = skyGradient;
+  ctx.fillRect(0, 0, WIDTH, 260);
+
+  const cloud = (x, y, radius) => {
+    ctx.save();
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + radius * 0.7, y + radius * 0.2, radius * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x - radius * 0.6, y + radius * 0.25, radius * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  };
+
+  cloud(120, 40, 28);
+  cloud(340, 25, 22);
+  cloud(600, 35, 32);
+  cloud(820, 28, 20);
+
+  ctx.fillStyle = "#8a9aaa";
+  ctx.fillRect(0, 60, WIDTH, 60);
+  ctx.fillStyle = "#6a7a8a";
+  ctx.fillRect(0, 120, WIDTH, 40);
+  ctx.fillStyle = "#9aaa8a";
+  ctx.fillRect(0, 160, WIDTH, 50);
+  ctx.fillStyle = "#7a8a6a";
+  ctx.fillRect(0, 210, WIDTH, 50);
+  ctx.fillStyle = "#556";
+  ctx.fillRect(0, 117, WIDTH, 5);
+  ctx.fillStyle = "#667";
+  ctx.fillRect(0, 157, WIDTH, 5);
+  ctx.fillStyle = "#445";
+  ctx.fillRect(0, 207, WIDTH, 5);
+
+  const random = createRandom(71237);
+  const colors = [
+    "#e74c3c",
+    "#3498db",
+    "#2ecc71",
+    "#f39c12",
+    "#9b59b6",
+    "#1abc9c",
+    "#e67e22",
+    "#16a085",
+    "#d35400",
+    "#2980b9",
+    "#8e44ad",
+    "#27ae60",
+    "#c0392b",
+    "#2c3e50",
+    "#f1c40f",
+  ];
+  const skins = ["#fddbb4", "#f0b27a", "#d4955a", "#c27b3e", "#8d5524", "#5c3317"];
+  const rows = [
+    { y: 90, n: 80, size: 12 },
+    { y: 108, n: 80, size: 11 },
+    { y: 130, n: 75, size: 12 },
+    { y: 148, n: 75, size: 11 },
+    { y: 175, n: 70, size: 13 },
+    { y: 195, n: 70, size: 12 },
+    { y: 220, n: 65, size: 14 },
+    { y: 243, n: 65, size: 13 },
+  ];
+
+  const pick = (list) => list[Math.floor(random() * list.length)];
+
+  rows.forEach((row) => {
+    const step = WIDTH / row.n;
+    for (let i = 0; i < row.n; i += 1) {
+      const x = i * step + step / 2 + (random() - 0.5) * 4;
+      const y = row.y + (random() - 0.5) * 3;
+      const skin = pick(skins);
+      const shirt = pick(colors);
+      const radius = row.size;
+
+      ctx.fillStyle = shirt;
+      ctx.beginPath();
+      ctx.ellipse(x, y + radius * 0.5, radius * 0.65, radius * 0.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = skin;
+      ctx.beginPath();
+      ctx.arc(x, y - radius * 0.1, radius * 0.52, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = random() > 0.4 ? "#1a0a00" : "#4a2a10";
+      ctx.beginPath();
+      ctx.arc(x, y - radius * 0.2, radius * 0.48, Math.PI * 0.9, 0);
+      ctx.fill();
+
+      if (random() > 0.82) {
+        ctx.fillStyle = pick(colors);
+        ctx.fillRect(x - radius * 0.15, y - radius * 1.8, radius * 0.3, radius * 0.9);
+        ctx.fillRect(x - radius * 0.5, y - radius * 2, radius, radius * 0.35);
+      }
+    }
+  });
+
+  return layer;
+}
+
+function drawField(ctx, crowdLayer) {
+  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+  ctx.drawImage(crowdLayer, 0, 0, WIDTH, 260);
+
+  const banners = [
+    { background: "#1a1a2a", foreground: "#ffee00", text: "ARCADE TOUR", width: 220 },
+    { background: "#1a3a1a", foreground: "#ffffff", text: "HEAD SOCCER PRO", width: 240 },
+    { background: "#ff2200", foreground: "#ffffff", text: "LIVE MATCH", width: 180 },
+    { background: "#1a1a3a", foreground: "#88aaff", text: "STADIUM PACK", width: 180 },
+    { background: "#2a1a00", foreground: "#ffcc00", text: "SEASON 2026", width: 170 },
+  ];
+
+  let bannerX = 0;
+  const bannerY = 258;
+  const bannerHeight = 34;
+  banners.forEach((banner) => {
+    ctx.fillStyle = banner.background;
+    ctx.fillRect(bannerX, bannerY, banner.width, bannerHeight);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    ctx.strokeRect(bannerX, bannerY, banner.width, bannerHeight);
+    ctx.fillStyle = banner.foreground;
+    ctx.font = "700 13px 'Bricolage Grotesque', sans-serif";
+    ctx.textBaseline = "middle";
+    ctx.fillText(banner.text, bannerX + 8, bannerY + bannerHeight / 2);
+    bannerX += banner.width;
+  });
+
+  const wallTop = 294;
+  const wallBottom = FIELD.groundY - 34;
+  const turfTop = FIELD.groundY - 22;
+
+  const wallGradient = ctx.createLinearGradient(0, wallTop, 0, wallBottom);
+  wallGradient.addColorStop(0, "#535e6f");
+  wallGradient.addColorStop(0.55, "#3f4a59");
+  wallGradient.addColorStop(1, "#2e3948");
+  ctx.fillStyle = wallGradient;
+  ctx.fillRect(0, wallTop, WIDTH, wallBottom - wallTop);
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+  ctx.lineWidth = 1;
+  for (let rib = 0; rib <= 14; rib += 1) {
+    const x = (rib * WIDTH) / 14;
+    ctx.beginPath();
+    ctx.moveTo(x, wallTop + 8);
+    ctx.lineTo(x, wallBottom - 6);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(18, 25, 36, 0.5)";
+  ctx.fillRect(0, wallBottom - 24, WIDTH, 24);
+
+  const turfGradient = ctx.createLinearGradient(0, turfTop, 0, HEIGHT);
+  turfGradient.addColorStop(0, "#389f45");
+  turfGradient.addColorStop(0.45, "#2f9640");
+  turfGradient.addColorStop(1, "#287f38");
+  ctx.fillStyle = turfGradient;
+  ctx.fillRect(0, turfTop, WIDTH, HEIGHT - turfTop);
+
+  const stripeCount = 8;
+  for (let stripe = 0; stripe < stripeCount; stripe += 1) {
+    const y = turfTop + (stripe * (HEIGHT - turfTop)) / stripeCount;
+    const h = (HEIGHT - turfTop) / stripeCount;
+    ctx.fillStyle = stripe % 2 === 0 ? "rgba(255, 255, 255, 0.045)" : "rgba(0, 0, 0, 0.04)";
+    ctx.fillRect(0, y, WIDTH, h);
+  }
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.28)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(FIELD.left, turfTop + 8);
+  ctx.lineTo(FIELD.right, turfTop + 8);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.72)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(FIELD.left, FIELD.groundY + 1);
+  ctx.lineTo(FIELD.right, FIELD.groundY + 1);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(WIDTH / 2, FIELD.groundY - 13);
+  ctx.lineTo(WIDTH / 2, FIELD.groundY + 10);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.58)";
+  ctx.beginPath();
+  ctx.ellipse(WIDTH / 2, FIELD.groundY - 2, 10, 3.6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+  ctx.fillRect(FIELD.left + 108, FIELD.groundY - 3, 16, 2.5);
+  ctx.fillRect(FIELD.right - 124, FIELD.groundY - 3, 16, 2.5);
+
+  const foregroundShade = ctx.createLinearGradient(0, FIELD.groundY + 12, 0, HEIGHT);
+  foregroundShade.addColorStop(0, "rgba(0, 0, 0, 0)");
+  foregroundShade.addColorStop(1, "rgba(0, 0, 0, 0.16)");
+  ctx.fillStyle = foregroundShade;
+  ctx.fillRect(0, FIELD.groundY + 8, WIDTH, HEIGHT - FIELD.groundY - 8);
+}
+
+function drawGoals(ctx) {
+  const post = 14;
+  const netCell = 10;
+  const goalDepth = 56;
+
+  const drawCheckeredPost = (x, y, width, height) => {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(x, y, width, height);
+
+    const cell = Math.max(10, Math.floor(Math.min(width, height) / 2) * 2);
+    const columns = Math.ceil(width / cell);
+    const rows = Math.ceil(height / cell);
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        if ((row + column) % 2 === 0) {
+          ctx.fillStyle = "#dd1111";
+          ctx.fillRect(
+            x + column * cell,
+            y + row * cell,
+            Math.min(cell, width - column * cell),
+            Math.min(cell, height - row * cell)
+          );
+        }
+      }
+    }
+
+    ctx.strokeStyle = "#aaaaaa";
+    ctx.lineWidth = 1.4;
+    ctx.strokeRect(x, y, width, height);
+  };
+
+  const drawGoal = (isLeft) => {
+    const nearX = isLeft ? FIELD.left : FIELD.right;
+    const depthDir = isLeft ? -1 : 1;
+    const backX = nearX + depthDir * goalDepth;
+    const goalTop = FIELD.goalTop;
+    const goalBottom = FIELD.groundY;
+    const backTop = goalTop + 8;
+    const backBottom = goalBottom + 6;
+
+    const frameX = Math.min(nearX, backX) - post / 2;
+    const frameWidth = Math.abs(backX - nearX) + post;
+
+    ctx.fillStyle = "rgba(14, 54, 25, 0.38)";
+    ctx.beginPath();
+    ctx.moveTo(nearX, goalTop);
+    ctx.lineTo(backX, backTop);
+    ctx.lineTo(backX, backBottom);
+    ctx.lineTo(nearX, goalBottom);
+    ctx.closePath();
+    ctx.fill();
+
+    const netRows = Math.max(8, Math.floor(FIELD.goalHeight / netCell));
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.56)";
+    ctx.lineWidth = 0.85;
+    for (let row = 0; row <= netRows; row += 1) {
+      const t = row / netRows;
+      const yFront = goalTop + t * (goalBottom - goalTop);
+      const yBack = backTop + t * (backBottom - backTop);
+      ctx.beginPath();
+      ctx.moveTo(nearX, yFront);
+      ctx.lineTo(backX, yBack);
+      ctx.stroke();
+    }
+
+    const netCols = Math.max(4, Math.floor(goalDepth / netCell));
+    for (let column = 0; column <= netCols; column += 1) {
+      const t = column / netCols;
+      const x = nearX + depthDir * goalDepth * t;
+      const yTop = goalTop + (backTop - goalTop) * t;
+      const yBottom = goalBottom + (backBottom - goalBottom) * t;
+      ctx.beginPath();
+      ctx.moveTo(x, yTop);
+      ctx.lineTo(x, yBottom);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.17)";
+    ctx.beginPath();
+    ctx.ellipse(nearX + depthDir * goalDepth * 0.55, goalBottom + 9, goalDepth * 0.9, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    drawCheckeredPost(frameX, goalTop - post, frameWidth, post);
+    drawCheckeredPost(frameX, goalBottom, frameWidth, post);
+    drawCheckeredPost(nearX - post / 2, goalTop - post, post, FIELD.goalHeight + post);
+    drawCheckeredPost(backX - post / 2, backTop - post, post, backBottom - backTop + post);
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.42)";
+    ctx.lineWidth = 1.25;
+    ctx.beginPath();
+    ctx.moveTo(nearX + depthDir * 2, goalTop - post + 2);
+    ctx.lineTo(backX + depthDir * 2, backTop - post + 2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(nearX + depthDir * 2, goalBottom + 2);
+    ctx.lineTo(backX + depthDir * 2, backBottom + 2);
+    ctx.stroke();
+  };
+
+  drawGoal(true);
+  drawGoal(false);
+}
+function drawPlayer(ctx, player) {
+  const { x, y, dir, charging, power, kick, kickTimer, special, profile } = player;
+
+  const headRadius = 30;
+  const headCenterX = x;
+  const headCenterY = y - 62;
+  const neckY = headCenterY + headRadius - 3;
+  const hipY = y - 24;
+
+  const kickBlend = kick ? clamp(kickTimer / 0.24, 0, 1) : 0;
+  const supportFootX = x - dir * 10;
+  const supportFootY = y - 1;
+  const kickFootX = x + dir * (16 + 20 * kickBlend);
+  const kickFootY = y - (2 + 13 * kickBlend);
+  const kickKneeX = x + dir * (6 + 9 * kickBlend);
+  const kickKneeY = y - (14 + 7 * kickBlend);
+
+  const drawBoot = (bootX, bootY, orientation, highlight = false) => {
+    ctx.save();
+    ctx.translate(bootX, bootY);
+    ctx.rotate(orientation * 0.12);
+    ctx.fillStyle = profile.boots;
+    ctx.strokeStyle = "#10151d";
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 14, 7.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = highlight ? "#f8fafc" : "rgba(248, 250, 252, 0.55)";
+    ctx.beginPath();
+    ctx.ellipse(orientation * 4, -1, 5, 2.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  };
+
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  if (charging) {
+    const glowRadius = 54;
+    const glow = ctx.createRadialGradient(headCenterX, headCenterY, 6, headCenterX, headCenterY, glowRadius);
+    const glowStrength = clamp(power / 100, 0, 1);
+    glow.addColorStop(0, `rgba(255, 245, 95, ${0.5 * glowStrength})`);
+    glow.addColorStop(1, "rgba(255, 170, 0, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(headCenterX, headCenterY, glowRadius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2, 23, 5.2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = profile.jersey;
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(x, neckY);
+  ctx.lineTo(x, hipY);
+  ctx.stroke();
+
+  ctx.strokeStyle = profile.shorts;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(x, hipY);
+  ctx.lineTo(supportFootX, y - 8);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x, hipY);
+  ctx.lineTo(kickKneeX, kickKneeY);
+  ctx.lineTo(kickFootX, kickFootY);
+  ctx.stroke();
+
+  drawBoot(supportFootX, supportFootY, dir, false);
+  drawBoot(kickFootX, kickFootY, dir, true);
+
+  const headGradient = ctx.createRadialGradient(
+    headCenterX - 11,
+    headCenterY - 14,
+    5,
+    headCenterX,
+    headCenterY,
+    headRadius + 4
+  );
+  headGradient.addColorStop(0, profile.side === "left" ? "#ffe8b9" : "#f6c389");
+  headGradient.addColorStop(1, profile.side === "left" ? "#f3b66e" : "#d3873f");
+  ctx.fillStyle = headGradient;
+  ctx.strokeStyle = "#111111";
+  ctx.lineWidth = 3.2;
+  ctx.beginPath();
+  ctx.arc(headCenterX, headCenterY, headRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  if (kick && kickTimer > 0.08) {
+    ctx.save();
+    ctx.globalAlpha = clamp(kickTimer / 0.24, 0, 1);
+    ctx.fillStyle = special ? "#ff8800" : "#ffee44";
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 1.5;
+    const burstX = x + dir * 34;
+    const burstY = y - 16;
+    ctx.beginPath();
+    for (let i = 0; i < 10; i += 1) {
+      const angle = (i / 10) * Math.PI * 2 - Math.PI / 2;
+      const radius = i % 2 === 0 ? 21 : 9;
+      const pointX = burstX + Math.cos(angle) * radius;
+      const pointY = burstY + Math.sin(angle) * radius;
+      if (i === 0) {
+        ctx.moveTo(pointX, pointY);
+      } else {
+        ctx.lineTo(pointX, pointY);
+      }
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function drawBall(ctx, ball) {
+  const radius = FIELD.ballRadius;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+  ctx.beginPath();
+  ctx.ellipse(ball.x, ball.y + radius + 2, radius * 0.8, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(ball.x, ball.y);
+  ctx.rotate(ball.rot);
+
+  const bodyGradient = ctx.createRadialGradient(-6, -6, 2, 0, 0, radius);
+  bodyGradient.addColorStop(0, "#ffffff");
+  bodyGradient.addColorStop(0.4, "#eeeeee");
+  bodyGradient.addColorStop(1, "#aaaaaa");
+  ctx.fillStyle = bodyGradient;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#888888";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  const drawPentagon = (x, y, pentagonRadius) => {
+    ctx.beginPath();
+    for (let i = 0; i < 5; i += 1) {
+      const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
+      const pointX = x + pentagonRadius * Math.cos(angle);
+      const pointY = y + pentagonRadius * Math.sin(angle);
+      if (i === 0) {
+        ctx.moveTo(pointX, pointY);
+      } else {
+        ctx.lineTo(pointX, pointY);
+      }
+    }
+    ctx.closePath();
+    ctx.fill();
+  };
+
+  ctx.fillStyle = "#222222";
+  drawPentagon(0, 0, 6);
+  drawPentagon(0, -radius + 5, 5);
+  drawPentagon(radius * Math.cos(Math.PI / 5) - 3, radius * Math.sin(Math.PI / 5) - 4, 4);
+  drawPentagon(-radius * Math.cos(Math.PI / 5) + 3, radius * Math.sin(Math.PI / 5) - 4, 4);
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+  ctx.beginPath();
+  ctx.ellipse(-5, -6, 6, 4, -0.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawFx(ctx, state) {
+  state.fx.forEach((fx) => {
+    const ratio = 1 - fx.life / fx.maxLife;
+    ctx.save();
+    ctx.globalAlpha = clamp(1 - ratio, 0, 1);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `700 ${Math.round(28 + ratio * 40)}px 'Bricolage Grotesque', sans-serif`;
+    ctx.fillStyle = fx.color || "#ffffff";
+    ctx.fillText(fx.label, fx.x, fx.y - ratio * 50);
+    ctx.restore();
   });
 }
 
-function clearTransientInput(input) {
-  input.jump    = false;
-  input.kick    = false;
-  input.power   = false;
-  input.start   = false;
-  input.restart = false;
-  input.dash    = false;
-  input.dashDir = 0;
+function drawScene(ctx, state, crowdLayer) {
+  drawField(ctx, crowdLayer);
+  drawGoals(ctx);
+  drawPlayer(ctx, state.players.left);
+  drawPlayer(ctx, state.players.right);
+  drawBall(ctx, state.ball);
+  drawFx(ctx, state);
+
+  if (state.paused && state.phase !== "intro" && state.phase !== "finished") {
+    ctx.fillStyle = "rgba(6, 12, 20, 0.45)";
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.fillStyle = "#f8fafc";
+    ctx.textAlign = "center";
+    ctx.font = "700 50px 'Bricolage Grotesque', sans-serif";
+    ctx.fillText("PAUSED", WIDTH / 2, HEIGHT / 2 - 10);
+  }
 }
 
+function createPlayer(side) {
+  const x = side === "left" ? 200 : 700;
+  const direction = side === "left" ? 1 : -1;
+  return {
+    side,
+    profile: PLAYER_PROFILES[side],
+    x,
+    y: FIELD.groundY,
+    vx: 0,
+    vy: 0,
+    onGround: true,
+    dir: direction,
+    power: 0,
+    kickPower: 0,
+    charging: false,
+    kick: false,
+    kickTimer: 0,
+    special: false,
+  };
+}
+
+function createInitialState() {
+  return {
+    phase: "intro",
+    running: false,
+    paused: false,
+    matchDuration: 60,
+    difficultyId: "pro",
+    timer: 60,
+    goalDelay: 0,
+    scores: { left: 0, right: 0 },
+    result: { title: "", subtitle: "", accent: "#f8fafc" },
+    message: "Press Kick Off to start the match.",
+    logs: ["Head Soccer Pro loaded."],
+    players: {
+      left: createPlayer("left"),
+      right: createPlayer("right"),
+    },
+    ball: {
+      x: WIDTH / 2,
+      y: FIELD.groundY - 140,
+      vx: 0,
+      vy: 0,
+      rot: 0,
+      bounceChain: 0,
+    },
+    fx: [],
+    ai: {
+      left: false,
+      right: false,
+      jump: false,
+      charge: false,
+      rethinkIn: 0,
+      releaseDelay: 0,
+    },
+  };
+}
+
+function createControlState() {
+  return {
+    keys: Object.create(null),
+    touch: {
+      left: false,
+      right: false,
+      jump: false,
+      kick: false,
+    },
+    queue: {
+      start: false,
+      restart: false,
+      pause: false,
+    },
+    prevJumpHeld: false,
+  };
+}
+
+function pushLog(state, entry) {
+  state.logs = [entry, ...state.logs].slice(0, 8);
+}
+
+function spawnFx(state, x, y, label, color = "#ffffff", maxLife = 0.75) {
+  state.fx.push({ x, y, label, color, life: maxLife, maxLife });
+}
+
+function resetKickoff(state) {
+  const left = state.players.left;
+  const right = state.players.right;
+
+  left.x = 200;
+  left.y = FIELD.groundY;
+  left.vx = 0;
+  left.vy = 0;
+  left.onGround = true;
+  left.dir = 1;
+  left.power = 0;
+  left.kickPower = 0;
+  left.charging = false;
+  left.kick = false;
+  left.kickTimer = 0;
+  left.special = false;
+
+  right.x = 700;
+  right.y = FIELD.groundY;
+  right.vx = 0;
+  right.vy = 0;
+  right.onGround = true;
+  right.dir = -1;
+  right.power = 0;
+  right.kickPower = 0;
+  right.charging = false;
+  right.kick = false;
+  right.kickTimer = 0;
+  right.special = false;
+
+  state.ball.x = WIDTH / 2;
+  state.ball.y = FIELD.groundY - 200;
+  state.ball.vx = (Math.random() - 0.5) * 3;
+  state.ball.vy = -2;
+  state.ball.rot = 0;
+  state.ball.bounceChain = 0;
+}
+
+function startMatch(state, settings) {
+  const duration = Number(settings.duration) || 60;
+  const difficultyId = settings.difficultyId in DIFFICULTIES ? settings.difficultyId : "pro";
+
+  state.matchDuration = duration;
+  state.difficultyId = difficultyId;
+  state.timer = duration;
+  state.scores.left = 0;
+  state.scores.right = 0;
+  state.running = true;
+  state.paused = false;
+  state.phase = "playing";
+  state.goalDelay = 0;
+  state.fx = [];
+  state.logs = [];
+  state.ai.left = false;
+  state.ai.right = false;
+  state.ai.jump = false;
+  state.ai.charge = false;
+  state.ai.rethinkIn = 0;
+  state.ai.releaseDelay = 0;
+  state.message = "Kick off. Jump and attack with headers to create space.";
+
+  resetKickoff(state);
+  pushLog(state, `Kick off - ${duration}s - ${DIFFICULTIES[difficultyId].label} CPU.`);
+}
+
+function finishMatch(state) {
+  state.running = false;
+  state.paused = false;
+  state.phase = "finished";
+
+  if (state.scores.left > state.scores.right) {
+    state.result.title = "VICTORY";
+    state.result.subtitle = "You controlled the match.";
+    state.result.accent = "#f0c030";
+    state.message = "Final whistle. You win.";
+  } else if (state.scores.left < state.scores.right) {
+    state.result.title = "DEFEAT";
+    state.result.subtitle = "CPU edged the match. Try again.";
+    state.result.accent = "#e74c3c";
+    state.message = "Final whistle. CPU wins.";
+  } else {
+    state.result.title = "DRAW";
+    state.result.subtitle = "Balanced game from both sides.";
+    state.result.accent = "#cbd5e1";
+    state.message = "Final whistle. Draw.";
+  }
+
+  pushLog(state, `Final score ${state.scores.left}-${state.scores.right}.`);
+}
+
+function registerGoal(state, side) {
+  if (state.phase !== "playing") {
+    return;
+  }
+
+  const ball = state.ball;
+  const scoredOnRightGoal = side === "left";
+  const insideGoalX = scoredOnRightGoal ? FIELD.right + FIELD.goalWidth * 0.34 : FIELD.left - FIELD.goalWidth * 0.34;
+  const insideGoalY = FIELD.goalTop + FIELD.goalHeight * 0.72;
+
+  state.scores[side] += 1;
+  state.phase = "goal";
+  state.goalDelay = 1.15;
+
+  ball.x = insideGoalX;
+  ball.y = insideGoalY;
+  ball.vx = 0;
+  ball.vy = 0;
+  ball.bounceChain = 0;
+
+  if (side === "left") {
+    state.message = "Goal for YOU.";
+    pushLog(state, "You scored.");
+  } else {
+    state.message = "Goal for CPU.";
+    pushLog(state, "CPU scored.");
+  }
+
+  spawnFx(state, WIDTH / 2, FIELD.groundY - 180, "GOAL", "#ffffff", 0.9);
+}
+function releaseKick(player, state) {
+  if (!player.charging) {
+    return;
+  }
+
+  const chargedPower = clamp(player.power, 0, 100);
+  player.charging = false;
+  player.kick = true;
+  player.kickTimer = 0.24;
+  player.kickPower = chargedPower;
+  player.special = chargedPower >= 88;
+
+  if (player.special) {
+    spawnFx(state, player.x, player.y - 60, "POWER", "#ffd55a", 0.5);
+  }
+
+  player.power = 0;
+}
+
+function applyBallHits(player, state) {
+  const ball = state.ball;
+  const headX = player.x;
+  const headY = player.y - 61;
+  const headDistance = Math.hypot(ball.x - headX, ball.y - headY);
+  const ballSpeed = Math.hypot(ball.vx, ball.vy);
+  const airborneHeader = !player.onGround && ball.y < player.y - 24;
+
+  if (headDistance < FIELD.ballRadius + 31) {
+    const angle = Math.atan2(ball.y - headY, ball.x - headX);
+    const approachBonus = clamp(Math.abs(player.vx) * 0.35 + Math.max(0, -player.vy) * 0.22, 0, 4.5);
+    const speed = Math.max(airborneHeader ? 13 : 10.5, ballSpeed * 1.08 + (airborneHeader ? 6.6 : 4.4) + approachBonus);
+    const forwardDrive = player.dir * (airborneHeader ? 5.4 : 3.1);
+    const upwardLift = airborneHeader ? -4.6 : -2.8;
+    ball.vx = Math.cos(angle) * speed + forwardDrive;
+    ball.vy = Math.sin(angle) * speed + upwardLift;
+    ball.vx = clamp(ball.vx, -22, 22);
+    ball.vy = clamp(ball.vy, -22, 22);
+    ball.bounceChain = 0;
+  }
+
+  if (player.kick && player.kickTimer > 0.07) {
+    const footX = player.x + player.dir * 27;
+    const footY = player.y - 6;
+    const kickDistance = Math.hypot(ball.x - footX, ball.y - footY);
+    const lowBall = ball.y > player.y - 42;
+
+    if (lowBall && kickDistance < FIELD.ballRadius + 12) {
+      const wasSpecial = player.special;
+      const chargeRatio = clamp(player.kickPower / 100, 0, 1);
+      const power = wasSpecial ? 1.55 : 0.82 + chargeRatio * 0.68;
+      const angle = Math.atan2(ball.y - footY, ball.x - footX);
+      ball.vx = Math.cos(angle) * 13.5 * power;
+      ball.vy = Math.sin(angle) * 12.8 * power - 3.1;
+      ball.vx = clamp(ball.vx, -18.5, 18.5);
+      ball.vy = clamp(ball.vy, -18.5, 18.5);
+      ball.bounceChain = 0;
+      player.kick = false;
+      player.special = false;
+      player.kickPower = 0;
+
+      if (wasSpecial) {
+        spawnFx(state, ball.x, ball.y, "FIRE", "#ff9a3c", 0.45);
+      }
+    }
+  }
+}
+
+function updatePlayerPhysics(player, controls, state, dt) {
+  const frame = dt * 60;
+
+  if (player.charging) {
+    player.power = Math.min(100, player.power + 1.5 * frame);
+  } else if (player.power > 0) {
+    player.power = Math.max(0, player.power - 4 * frame);
+  }
+
+  if (controls.left && !controls.right) {
+    player.vx = -PHYSICS.speed;
+    player.dir = -1;
+  } else if (controls.right && !controls.left) {
+    player.vx = PHYSICS.speed;
+    player.dir = 1;
+  } else {
+    player.vx *= Math.pow(0.72, frame);
+  }
+
+  if (controls.jump && player.onGround) {
+    player.vy = PHYSICS.jumpVelocity;
+    player.onGround = false;
+  }
+
+  player.vy += PHYSICS.playerGravity * frame;
+  player.x += player.vx * frame;
+  player.y += player.vy * frame;
+
+  if (player.y >= FIELD.groundY) {
+    player.y = FIELD.groundY;
+    player.vy = 0;
+    player.onGround = true;
+  }
+
+  if (player.x < FIELD.left + PHYSICS.playerHalfWidth) {
+    player.x = FIELD.left + PHYSICS.playerHalfWidth;
+    player.vx = 0;
+  }
+
+  if (player.x > FIELD.right - PHYSICS.playerHalfWidth) {
+    player.x = FIELD.right - PHYSICS.playerHalfWidth;
+    player.vx = 0;
+  }
+
+  if (player.kick) {
+    player.kickTimer -= dt;
+    if (player.kickTimer <= 0) {
+      player.kick = false;
+      player.special = false;
+      player.kickPower = 0;
+    }
+  }
+
+  applyBallHits(player, state);
+}
+
+function updateBallPhysics(state, dt) {
+  if (state.phase !== "playing") {
+    return;
+  }
+
+  const frame = dt * 60;
+  const ball = state.ball;
+
+  ball.vy += PHYSICS.ballGravity * frame;
+  ball.vx *= Math.pow(PHYSICS.friction, frame);
+  ball.vy *= Math.pow(PHYSICS.friction, frame);
+  ball.x += ball.vx * frame;
+  ball.y += ball.vy * frame;
+  ball.rot += ball.vx * 0.05 * frame;
+
+  if (ball.y + FIELD.ballRadius >= FIELD.groundY) {
+    const incoming = Math.abs(ball.vy);
+    const chain = Math.min(ball.bounceChain || 0, 8);
+    const scriptedBounce = [18.8, 16.2, 13.9, 11.8, 9.9, 8.3, 7.0, 6.1, 5.4][chain];
+    const carryMultiplier = Math.max(0.34, 0.86 - chain * 0.07);
+    const rebound = clamp(Math.max(scriptedBounce, incoming * PHYSICS.bounce * carryMultiplier), 5.2, 24);
+    ball.y = FIELD.groundY - FIELD.ballRadius;
+    ball.vy = -rebound;
+    ball.vx *= Math.max(0.72, 0.92 - chain * 0.03);
+    ball.bounceChain = chain + 1;
+  }
+
+  if (ball.y - FIELD.ballRadius < FIELD.ceilingY) {
+    ball.y = FIELD.ceilingY + FIELD.ballRadius;
+    ball.vy = Math.abs(ball.vy) * 0.58;
+  }
+
+  if (ball.x - FIELD.ballRadius <= FIELD.left && ball.y > FIELD.goalTop) {
+    registerGoal(state, "right");
+    return;
+  }
+
+  if (ball.x + FIELD.ballRadius >= FIELD.right && ball.y > FIELD.goalTop) {
+    registerGoal(state, "left");
+    return;
+  }
+
+  if (ball.x - FIELD.ballRadius < FIELD.left && ball.y <= FIELD.goalTop) {
+    ball.x = FIELD.left + FIELD.ballRadius;
+    ball.vx = Math.abs(ball.vx) * 0.7;
+  }
+
+  if (ball.x + FIELD.ballRadius > FIELD.right && ball.y <= FIELD.goalTop) {
+    ball.x = FIELD.right - FIELD.ballRadius;
+    ball.vx = -Math.abs(ball.vx) * 0.7;
+  }
+
+  const left = state.players.left;
+  const right = state.players.right;
+  const deltaX = right.x - left.x;
+
+  if (Math.abs(deltaX) < PHYSICS.playerHalfWidth * 2 && Math.abs(right.y - left.y) < 60) {
+    const overlap = PHYSICS.playerHalfWidth * 2 - Math.abs(deltaX);
+    const direction = Math.sign(deltaX || 1);
+    left.x -= (overlap / 2) * direction;
+    right.x += (overlap / 2) * direction;
+    left.vx -= overlap * 0.3 * direction;
+    right.vx += overlap * 0.3 * direction;
+
+    left.x = clamp(left.x, FIELD.left + PHYSICS.playerHalfWidth, FIELD.right - PHYSICS.playerHalfWidth);
+    right.x = clamp(right.x, FIELD.left + PHYSICS.playerHalfWidth, FIELD.right - PHYSICS.playerHalfWidth);
+  }
+}
+
+function updateAi(state, dt) {
+  const profile = DIFFICULTIES[state.difficultyId] || DIFFICULTIES.pro;
+  const ai = state.ai;
+  const cpu = state.players.right;
+  const ball = state.ball;
+
+  ai.rethinkIn -= dt;
+  if (ai.rethinkIn <= 0) {
+    const deltaX = ball.x - cpu.x;
+    const deltaY = ball.y - (cpu.y - 80);
+    const distance = Math.hypot(deltaX, deltaY);
+
+    const targetX = ball.vx > 0 ? ball.x + profile.anticipation : ball.x;
+
+    ai.left = cpu.x > targetX + 15 && cpu.x > profile.minX;
+    ai.right = cpu.x < targetX - 15;
+    ai.jump = deltaY < -40 + profile.jumpOffset && Math.abs(deltaX) < profile.jumpRange && cpu.onGround;
+    ai.charge = distance < profile.chargeDistance && Math.random() < profile.chargeChance;
+    ai.rethinkIn = profile.reactionSeconds;
+  }
+
+  if (ai.charge && !cpu.charging) {
+    cpu.charging = true;
+    ai.releaseDelay = profile.releaseMin + Math.random() * (profile.releaseMax - profile.releaseMin);
+  }
+
+  if (cpu.charging) {
+    ai.releaseDelay -= dt;
+    if (ai.releaseDelay <= 0) {
+      releaseKick(cpu, state);
+      ai.charge = false;
+    }
+  }
+
+  const jumpNow = ai.jump;
+  ai.jump = false;
+
+  updatePlayerPhysics(
+    cpu,
+    {
+      left: ai.left,
+      right: ai.right,
+      jump: jumpNow,
+    },
+    state,
+    dt
+  );
+}
+
+function updateFx(state, dt) {
+  state.fx = state.fx
+    .map((fx) => ({ ...fx, life: fx.life - dt }))
+    .filter((fx) => fx.life > 0);
+}
+
+function readInput(controls) {
+  const keys = controls.keys;
+  const touch = controls.touch;
+
+  const left = Boolean(keys.KeyA || keys.ArrowLeft || touch.left);
+  const right = Boolean(keys.KeyD || keys.ArrowRight || touch.right);
+  const jumpHeld = Boolean(keys.KeyW || keys.ArrowUp || touch.jump);
+  const kickHeld = Boolean(keys.Space || touch.kick);
+
+  const jumpPressed = jumpHeld && !controls.prevJumpHeld;
+  controls.prevJumpHeld = jumpHeld;
+
+  const startPressed = controls.queue.start;
+  controls.queue.start = false;
+
+  const restartPressed = controls.queue.restart;
+  controls.queue.restart = false;
+
+  const pausePressed = controls.queue.pause;
+  controls.queue.pause = false;
+
+  return {
+    left,
+    right,
+    jumpPressed,
+    kickHeld,
+    startPressed,
+    restartPressed,
+    pausePressed,
+  };
+}
+
+function stepGame(state, controls, settings, dt) {
+  const input = readInput(controls);
+
+  if (input.restartPressed) {
+    startMatch(state, settings);
+    return;
+  }
+
+  if (input.startPressed && (state.phase === "intro" || state.phase === "finished")) {
+    startMatch(state, settings);
+    return;
+  }
+
+  if (input.pausePressed && (state.phase === "playing" || state.phase === "goal")) {
+    state.paused = !state.paused;
+    state.message = state.paused ? "Paused." : "Match resumed.";
+    pushLog(state, state.paused ? "Game paused." : "Game resumed.");
+  }
+
+  if (state.phase === "intro" || state.phase === "finished" || state.paused) {
+    updateFx(state, dt);
+    return;
+  }
+
+  if (state.phase === "goal") {
+    state.goalDelay -= dt;
+    updateFx(state, dt);
+    if (state.goalDelay <= 0) {
+      resetKickoff(state);
+      state.phase = "playing";
+      state.message = "Match live.";
+    }
+    return;
+  }
+
+  if (!state.running) {
+    return;
+  }
+
+  state.timer = Math.max(0, state.timer - dt);
+  if (state.timer <= 0) {
+    finishMatch(state);
+    return;
+  }
+
+  const player = state.players.left;
+  if (input.kickHeld && !player.charging) {
+    player.charging = true;
+  }
+  if (!input.kickHeld && player.charging) {
+    releaseKick(player, state);
+  }
+
+  updatePlayerPhysics(
+    player,
+    {
+      left: input.left,
+      right: input.right,
+      jump: input.jumpPressed,
+    },
+    state,
+    dt
+  );
+
+  updateAi(state, dt);
+  updateBallPhysics(state, dt);
+  updateFx(state, dt);
+}
+
+function buildSnapshot(state) {
+  const ballSpeed = Math.hypot(state.ball.vx, state.ball.vy);
+  const difficulty = DIFFICULTIES[state.difficultyId] || DIFFICULTIES.pro;
+
+  return {
+    phase: state.phase,
+    running: state.running,
+    paused: state.paused,
+    difficultyId: state.difficultyId,
+    difficultyLabel: difficulty.label,
+    matchDuration: state.matchDuration,
+    timer: round2(state.timer),
+    timerLabel: formatClock(state.timer),
+    score: {
+      you: state.scores.left,
+      cpu: state.scores.right,
+    },
+    powers: {
+      you: Math.round(state.players.left.power),
+      cpu: Math.round(state.players.right.power),
+    },
+    result: state.result,
+    message: state.message,
+    logs: [...state.logs],
+    player: {
+      x: round2(state.players.left.x),
+      y: round2(state.players.left.y),
+      vx: round2(state.players.left.vx),
+      vy: round2(state.players.left.vy),
+      charging: state.players.left.charging,
+      kick: state.players.left.kick,
+    },
+    cpu: {
+      x: round2(state.players.right.x),
+      y: round2(state.players.right.y),
+      vx: round2(state.players.right.vx),
+      vy: round2(state.players.right.vy),
+      charging: state.players.right.charging,
+      kick: state.players.right.kick,
+    },
+    ball: {
+      x: round2(state.ball.x),
+      y: round2(state.ball.y),
+      vx: round2(state.ball.vx),
+      vy: round2(state.ball.vy),
+      speed: round2(ballSpeed),
+    },
+  };
+}
+
+const DIFFICULTY_OPTIONS = Object.values(DIFFICULTIES);
 export default function HeadSoccerGame() {
-  const canvasRef         = useRef(null);
-  const ctxRef            = useRef(null);
-  const stateRef          = useRef(createInitialHeadSoccerState());
-  const inputRef          = useRef(createInputState());
-  const frameRef          = useRef(0);
-  const prevTimeRef       = useRef(0);
-  const accRef            = useRef(0);
-  const audioRef          = useRef(createHeadSoccerAudio());
-  const artAssetsRef      = useRef({ backdrop: null, goalLeft: null, goalRight: null });
-  const previousScoreRef  = useRef({ player: 0, cpu: 0 });
-  const lastTapRef        = useRef({ left: 0, right: 0 });
+  const canvasRef = useRef(null);
+  const ctxRef = useRef(null);
+  const crowdLayerRef = useRef(null);
 
-  const [snapshot, setSnapshot] = useState(() => snapshotHeadSoccerState(stateRef.current));
+  const stateRef = useRef(createInitialState());
+  const controlsRef = useRef(createControlState());
 
-  const syncSnapshot = useCallback(() => setSnapshot(snapshotHeadSoccerState(stateRef.current)), []);
-  const draw         = useCallback((time) => {
-    const ctx = ctxRef.current;
-    if (ctx) renderHeadSoccer(ctx, stateRef.current, time, artAssetsRef.current);
+  const frameRef = useRef(0);
+  const previousTimeRef = useRef(0);
+  const accumulatorRef = useRef(0);
+
+  const [settings, setSettings] = useState({ difficultyId: "pro", duration: 60 });
+  const settingsRef = useRef(settings);
+  const [snapshot, setSnapshot] = useState(() => buildSnapshot(stateRef.current));
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
+
+  const syncSnapshot = useCallback(() => {
+    setSnapshot(buildSnapshot(stateRef.current));
   }, []);
 
-  const flushOneShot = useCallback(() => {
-    updateHeadSoccer(stateRef.current, inputRef.current, STEP_MS / 1000);
-    clearTransientInput(inputRef.current);
-    draw(performance.now());
-    syncSnapshot();
-  }, [draw, syncSnapshot]);
-
-  const applyConfig = useCallback((patch) => {
-    applyHeadSoccerConfig(stateRef.current, patch);
-    syncSnapshot();
-    draw(performance.now());
-  }, [draw, syncSnapshot]);
-
-  const tap = useCallback((key, cue = null, immediate = false) => {
-    inputRef.current[key] = true;
-    audioRef.current.unlock();
-    if (cue) audioRef.current.play(cue);
-    if (immediate) flushOneShot();
-  }, [flushOneShot]);
-
-  const hold = useCallback((key, value) => {
-    inputRef.current[key] = value;
-    audioRef.current.unlock();
+  const draw = useCallback((time = 0) => {
+    if (!ctxRef.current) {
+      return;
+    }
+    if (!crowdLayerRef.current) {
+      crowdLayerRef.current = buildCrowdLayer();
+    }
+    drawScene(ctxRef.current, stateRef.current, crowdLayerRef.current, time);
   }, []);
 
-  const bindHoldHandlers = useCallback((key) => ({
-    onPointerDown:   (e) => { e.preventDefault(); hold(key, true); },
-    onPointerUp:     ()  => hold(key, false),
-    onPointerLeave:  ()  => hold(key, false),
-    onPointerCancel: ()  => hold(key, false),
-  }), [hold]);
-
-  // Game loop
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return undefined;
+    if (!canvas) {
+      return undefined;
+    }
+
     ctxRef.current = canvas.getContext("2d");
+    crowdLayerRef.current = buildCrowdLayer();
     draw(0);
 
     const tick = (time) => {
-      if (!prevTimeRef.current) prevTimeRef.current = time;
-      let delta = Math.min(40, time - prevTimeRef.current);
-      prevTimeRef.current = time;
-      accRef.current += delta;
+      if (!previousTimeRef.current) {
+        previousTimeRef.current = time;
+      }
 
-      while (accRef.current >= STEP_MS) {
-        updateHeadSoccer(stateRef.current, inputRef.current, STEP_MS / 1000);
-        clearTransientInput(inputRef.current);
-        accRef.current -= STEP_MS;
+      const delta = Math.min(100, time - previousTimeRef.current);
+      previousTimeRef.current = time;
+      accumulatorRef.current += delta;
+
+      while (accumulatorRef.current >= STEP_MS) {
+        stepGame(stateRef.current, controlsRef.current, settingsRef.current, STEP_SECONDS);
+        accumulatorRef.current -= STEP_MS;
       }
 
       draw(time);
@@ -120,271 +1357,305 @@ export default function HeadSoccerGame() {
     };
 
     frameRef.current = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frameRef.current);
+    return () => {
+      window.cancelAnimationFrame(frameRef.current);
+    };
   }, [draw, syncSnapshot]);
 
-  // Art assets
-  useEffect(() => {
-    let active = true;
-    Promise.all([
-      loadImageAsset(headSoccerStadiumBackdropUrl),
-      loadImageAsset(headSoccerGoalLeftUrl),
-      loadImageAsset(headSoccerGoalRightUrl),
-    ])
-      .then(([backdrop, goalLeft, goalRight]) => {
-        if (!active) return;
-        artAssetsRef.current = { backdrop, goalLeft, goalRight };
-        draw(performance.now());
-      })
-      .catch(() => {});
-    return () => { active = false; };
-  }, [draw]);
+  const queueAction = useCallback((action) => {
+    controlsRef.current.queue[action] = true;
+  }, []);
 
-  // Keyboard controls with double-tap dash detection
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      const tag = e.target?.tagName?.toLowerCase();
-      if (tag === "input" || tag === "select" || tag === "textarea") return;
+  const setTouchState = useCallback((name, value) => {
+    controlsRef.current.touch[name] = value;
+  }, []);
 
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        const now = performance.now();
-        if (now - lastTapRef.current.left < DOUBLE_TAP_MS) {
-          inputRef.current.dash    = true;
-          inputRef.current.dashDir = -1;
-          audioRef.current.unlock();
-        }
-        lastTapRef.current.left = now;
-        hold("left", true);
+  const bindTouchHold = useCallback(
+    (name) => ({
+      onPointerDown: (event) => {
+        event.preventDefault();
+        setTouchState(name, true);
+      },
+      onPointerUp: () => setTouchState(name, false),
+      onPointerLeave: () => setTouchState(name, false),
+      onPointerCancel: () => setTouchState(name, false),
+    }),
+    [setTouchState]
+  );
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      const tag = event.target?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "select" || tag === "textarea") {
+        return;
       }
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        const now = performance.now();
-        if (now - lastTapRef.current.right < DOUBLE_TAP_MS) {
-          inputRef.current.dash    = true;
-          inputRef.current.dashDir = 1;
-          audioRef.current.unlock();
-        }
-        lastTapRef.current.right = now;
-        hold("right", true);
+
+      if (
+        event.code === "ArrowLeft" ||
+        event.code === "ArrowRight" ||
+        event.code === "ArrowUp" ||
+        event.code === "Space"
+      ) {
+        event.preventDefault();
       }
-      if (e.key === "ArrowUp")   { e.preventDefault(); tap("jump",  "jump",  true); }
-      if (e.code === "Space")    { e.preventDefault(); tap("kick",  "kick",  true); }
-      if (e.key === "b" || e.key === "B") { e.preventDefault(); tap("power", "power", true); }
-      if (e.key === "Enter")     { e.preventDefault(); tap("start", "start", true); }
-      if (e.key === "r" || e.key === "R") { e.preventDefault(); tap("restart", null, true); }
+
+      controlsRef.current.keys[event.code] = true;
+
+      if (!event.repeat && event.code === "Enter") {
+        queueAction("start");
+      }
+      if (!event.repeat && event.code === "KeyR") {
+        queueAction("restart");
+      }
+      if (!event.repeat && event.code === "KeyP") {
+        queueAction("pause");
+      }
     };
-    const onKeyUp = (e) => {
-      if (e.key === "ArrowLeft")  hold("left",  false);
-      if (e.key === "ArrowRight") hold("right", false);
+
+    const onKeyUp = (event) => {
+      controlsRef.current.keys[event.code] = false;
     };
+
     window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup",   onKeyUp);
+    window.addEventListener("keyup", onKeyUp);
+
     return () => {
       window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup",   onKeyUp);
+      window.removeEventListener("keyup", onKeyUp);
     };
-  }, [hold, tap]);
+  }, [queueAction]);
 
-  // Goal sound
-  useEffect(() => {
-    const prev = previousScoreRef.current;
-    if (snapshot.score.player !== prev.player || snapshot.score.cpu !== prev.cpu) {
-      audioRef.current.play("goal");
-      previousScoreRef.current = snapshot.score;
-    }
-  }, [snapshot.score]);
-
-  // Runtime bridge
-  const buildTextPayload = useCallback((current) => ({
-    mode: "head_soccer_arcade",
-    coordinates: "origin_top_left_x_right_y_down",
-    status: current.status,
-    match: {
-      modeId: current.gameModeId, modeLabel: current.gameModeLabel,
-      difficultyId: current.difficultyId,
-      roundIndex: current.roundIndex, roundLabel: current.roundLabel,
-      timer: current.timer, clock: current.clock, goldenGoal: current.goldenGoal,
+  const buildTextPayload = useCallback(
+    (current) => ({
+      mode: "head_soccer_pro",
+      coordinates: "origin_top_left_x_right_y_down",
+      phase: current.phase,
+      running: current.running,
+      paused: current.paused,
+      difficulty: {
+        id: current.difficultyId,
+        label: current.difficultyLabel,
+      },
+      matchDuration: current.matchDuration,
+      timer: current.timer,
+      timerLabel: current.timerLabel,
       score: current.score,
-      rival: { name: current.opponentName, nation: current.opponentNation },
-    },
-    player: { characterId: current.playerCharacterId, characterName: current.playerCharacterName, powerLabel: current.playerPowerLabel, ...current.player },
-    cpu:    { characterId: current.cpuCharacterId,    characterName: current.cpuCharacterName,    powerLabel: current.cpuPowerLabel,    ...current.cpu    },
-    ball: current.ball, series: current.series, message: current.message, logs: current.logs,
-  }), []);
+      powers: current.powers,
+      player: current.player,
+      cpu: current.cpu,
+      ball: current.ball,
+      result: current.result,
+      message: current.message,
+      logs: current.logs,
+    }),
+    []
+  );
 
-  const advanceTime = useCallback((ms) => {
-    const loops = Math.max(1, Math.round(ms / STEP_MS));
-    for (let i = 0; i < loops; i++) {
-      updateHeadSoccer(stateRef.current, inputRef.current, STEP_MS / 1000);
-      clearTransientInput(inputRef.current);
-    }
-    draw(performance.now());
-    syncSnapshot();
-  }, [draw, syncSnapshot]);
+  const advanceTime = useCallback(
+    (ms) => {
+      const loops = Math.max(1, Math.round(ms / STEP_MS));
+      for (let i = 0; i < loops; i += 1) {
+        stepGame(stateRef.current, controlsRef.current, settingsRef.current, STEP_SECONDS);
+      }
+      draw(performance.now());
+      syncSnapshot();
+    },
+    [draw, syncSnapshot]
+  );
 
   useGameRuntimeBridge(snapshot, buildTextPayload, advanceTime);
 
-  const startLabel = snapshot.status === "playing"    ? "Match Live"
-    : snapshot.status === "goal" || snapshot.status === "halftime" || snapshot.status === "fulltime" ? "Stoppage"
-    : snapshot.status === "series-end" ? "Play Again"
-    : snapshot.status === "round-end"  ? "Next Rival"
-    : "Start Match";
+  const introVisible = snapshot.phase === "intro";
+  const resultVisible = snapshot.phase === "finished";
+  const pauseLabel = snapshot.paused ? "Resume" : "Pause";
 
-  const lastTouchLabel = snapshot.ball.lastTouchType === "kick"
-    ? "Kick"
-    : snapshot.ball.lastTouchType === "header"
-      ? "Header"
-      : snapshot.ball.lastTouchType === "head"
-        ? "Head"
-        : "None";
-  const lastTouchOwner = snapshot.ball.lastTouch === "player"
-    ? "You"
-    : snapshot.ball.lastTouch === "cpu"
-      ? "CPU"
-      : "Open play";
-
-  const modeOptions       = useMemo(() => Object.values(MODES),       []);
-  const characterOptions  = useMemo(() => Object.values(CHARACTERS),  []);
-  const difficultyOptions = useMemo(() => Object.values(DIFFICULTY),  []);
+  const controlsHint = useMemo(
+    () => "A/D or arrows move, W or up jumps, Space charges a low kick, and aerial headers are stronger. Enter starts, R restarts, P pauses.",
+    []
+  );
 
   return (
-    <div className="mini-game head-soccer-game">
+    <div className="mini-game head-soccer-game head-soccer-pro">
       <div className="mini-head">
         <div>
-          <h4>Head Soccer Arena X</h4>
-          <p>1v1 football with grounded single-jump physics, halftime resets, headers, kicks and arcade powers.</p>
+          <h4>Head Soccer Pro</h4>
+          <p>Rebuilt from the v2 reference with deterministic physics, polished HUD, touch controls and competitive AI tiers.</p>
         </div>
-        <div className="head-soccer-actions">
-          <button type="button" onClick={() => tap("start",   "start", true)}>{startLabel}</button>
-          <button type="button" onClick={() => tap("restart", null,    true)}>Restart Series</button>
+        <div className="head-soccer-pro-actions">
+          <button type="button" onClick={() => queueAction("start")}>
+            {introVisible ? "Kick Off" : resultVisible ? "Play Again" : "Start"}
+          </button>
+          <button type="button" onClick={() => queueAction("restart")}>Restart</button>
+          <button
+            type="button"
+            onClick={() => queueAction("pause")}
+            disabled={snapshot.phase === "intro" || snapshot.phase === "finished"}
+          >
+            {pauseLabel}
+          </button>
         </div>
       </div>
 
-      <div className="head-soccer-shell">
-        <aside className="head-soccer-side">
-          <section className="head-soccer-panel head-soccer-selectors">
-            <label htmlFor="hs-mode">
-              Mode
-              <select id="hs-mode" value={snapshot.gameModeId}
-                onChange={(e) => applyConfig({ gameModeId: e.target.value })}>
-                {modeOptions.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
-              </select>
-            </label>
-            <label htmlFor="hs-char">
-              Character
-              <select id="hs-char" value={snapshot.playerCharacterId}
-                onChange={(e) => applyConfig({ playerCharacterId: e.target.value })}>
-                {characterOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </label>
-            <label htmlFor="hs-diff">
-              CPU
-              <select id="hs-diff" value={snapshot.difficultyId}
-                onChange={(e) => applyConfig({ difficultyId: e.target.value })}>
-                {difficultyOptions.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
-              </select>
-            </label>
-          </section>
+      <div className="head-soccer-pro-layout">
+        <section className="head-soccer-pro-stage">
+          <div className="head-soccer-pro-canvas-shell">
+            <canvas
+              ref={canvasRef}
+              width={WIDTH}
+              height={HEIGHT}
+              aria-label="Head Soccer Pro canvas"
+            />
 
-          <section className="head-soccer-panel">
-            <div className="head-soccer-panel-head">
-              <span className={`head-mode-chip ${snapshot.gameModeId}`}>{snapshot.gameModeLabel}</span>
-              <strong>{snapshot.roundLabel}</strong>
-            </div>
-            <p>{snapshot.rules}</p>
-            <div className="head-soccer-opponent-card">
-              <span>Rival</span>
-              <strong>{snapshot.opponentName}</strong>
-              <small>{snapshot.opponentNation}</small>
-            </div>
-          </section>
+            <button
+              type="button"
+              className="head-soccer-pro-pause-btn"
+              onClick={() => queueAction("pause")}
+              disabled={snapshot.phase === "intro" || snapshot.phase === "finished"}
+            >
+              {snapshot.paused ? "Play" : "Pause"}
+            </button>
 
-          <section className="head-soccer-panel">
-            <div className="head-soccer-stat-grid">
-              <div>
-                <span>Player power</span>
-                <strong>{Math.round(snapshot.player.powerMeter)}%</strong>
-                <em>{snapshot.player.freezeTimer > 0 ? "Frozen" : snapshot.player.giantTimer > 0 ? "Mega head" : snapshot.player.chargedShot ? "Charged!" : "Ready"}</em>
-              </div>
-              <div>
-                <span>CPU power</span>
-                <strong>{Math.round(snapshot.cpu.powerMeter)}%</strong>
-                <em>{snapshot.cpu.freezeTimer > 0 ? "Frozen" : snapshot.cpu.giantTimer > 0 ? "Mega head" : snapshot.cpu.chargedShot ? "Charged!" : "Ready"}</em>
-              </div>
-              <div>
-                <span>W-L-D</span>
-                <strong>{snapshot.series.wins}-{snapshot.series.losses}-{snapshot.series.draws}</strong>
-                <em>Pts {snapshot.series.points}</em>
-              </div>
-              <div>
-                <span>Goals</span>
-                <strong>{snapshot.series.goalsFor}-{snapshot.series.goalsAgainst}</strong>
-                <em>Streak {snapshot.series.bestStreak}</em>
-              </div>
-              <div>
-                <span>Match clock</span>
-                <strong>{snapshot.clock.displayLabel}</strong>
-                <em>{snapshot.clock.periodLabel}</em>
-              </div>
-              <div>
-                <span>Last contact</span>
-                <strong>{lastTouchLabel}</strong>
-                <em>{lastTouchOwner}</em>
-              </div>
-            </div>
-          </section>
+            <div className="head-soccer-pro-hud">
+              <div className="head-soccer-pro-hud-top">
+                <div className="head-soccer-pro-wing">
+                  <span>YOU</span>
+                  <div className="head-soccer-pro-track">
+                    <div className="head-soccer-pro-track-fill" style={{ width: `${snapshot.powers.you}%` }} />
+                  </div>
+                  <strong>{PLAYER_PROFILES.left.flag}</strong>
+                </div>
 
-          <section className="head-soccer-panel">
-            <h5>Recent rounds</h5>
-            <ul className="head-soccer-history">
-              {snapshot.series.history.length ? (
-                snapshot.series.history.map((entry, i) => (
-                  <li key={`${entry.round}-${i}`}>
-                    <strong>{entry.round}</strong>
-                    <span>{entry.rival}</span>
-                    <em>{entry.score}</em>
-                  </li>
-                ))
-              ) : (
-                <li className="empty">No finished rounds yet.</li>
-              )}
-            </ul>
-          </section>
-        </aside>
+                <div className="head-soccer-pro-timer">
+                  <small>TIME</small>
+                  <strong className={snapshot.timer <= 10 ? "danger" : ""}>{snapshot.timerLabel}</strong>
+                </div>
 
-        <section className="head-soccer-stage-wrap">
-          <div className="phaser-canvas-shell head-soccer-canvas-frame">
-            <div className="phaser-canvas-host">
-              <canvas
-                ref={canvasRef}
-                width={WIDTH}
-                height={HEIGHT}
-                aria-label="Head Soccer 1v1 stadium canvas"
-              />
-            </div>
-          </div>
+                <div className="head-soccer-pro-wing right">
+                  <span>CPU</span>
+                  <div className="head-soccer-pro-track">
+                    <div className="head-soccer-pro-track-fill" style={{ width: `${snapshot.powers.cpu}%` }} />
+                  </div>
+                  <strong>{PLAYER_PROFILES.right.flag}</strong>
+                </div>
+              </div>
 
-          {/* Mobile controls — matching reference image style */}
-          <div className="head-soccer-mobile">
-            <div className="hs-touch-dpad">
-              <button type="button" className="hs-btn-arrow" {...bindHoldHandlers("left")}>◀ L</button>
-              <button type="button" className="hs-btn-arrow" {...bindHoldHandlers("right")}>R ▶</button>
+              <div className="head-soccer-pro-score-strip">
+                <b>{snapshot.score.you}</b>
+                <span>-</span>
+                <b>{snapshot.score.cpu}</b>
+              </div>
             </div>
-            <div className="hs-touch-actions">
-              <button type="button" className="hs-btn-action hs-btn-kick" onClick={() => tap("kick", "kick", true)}>Kick</button>
-              <button type="button" className="hs-btn-action hs-btn-jump" onClick={() => tap("jump", "jump", true)}>Jump</button>
-              <button type="button" className="hs-btn-action hs-btn-power" onClick={() => tap("power", "power", true)}>Power</button>
+
+            <div className="head-soccer-pro-controls">
+              <div className="head-soccer-pro-pad">
+                <button type="button" className="head-soccer-pro-btn dir" {...bindTouchHold("left")}>Left</button>
+                <button type="button" className="head-soccer-pro-btn dir" {...bindTouchHold("right")}>Right</button>
+              </div>
+              <div className="head-soccer-pro-pad actions">
+                <button type="button" className="head-soccer-pro-btn kick" {...bindTouchHold("kick")}>Kick</button>
+                <button type="button" className="head-soccer-pro-btn jump" {...bindTouchHold("jump")}>Jump</button>
+              </div>
             </div>
+
+            {introVisible ? (
+              <div className="head-soccer-pro-overlay">
+                <div className="head-soccer-pro-overlay-card">
+                  <h5>Head Soccer Pro</h5>
+                  <p>Classic 1v1 arcade football. Use jumps and headers as your main attacking weapon.</p>
+                  <button type="button" onClick={() => queueAction("start")}>Kick Off</button>
+                </div>
+              </div>
+            ) : null}
+
+            {resultVisible ? (
+              <div className="head-soccer-pro-overlay result">
+                <div className="head-soccer-pro-overlay-card">
+                  <h5 style={{ color: snapshot.result.accent }}>{snapshot.result.title}</h5>
+                  <p>{snapshot.result.subtitle}</p>
+                  <p className="scoreline">{snapshot.score.you} - {snapshot.score.cpu}</p>
+                  <button type="button" onClick={() => queueAction("start")}>Rematch</button>
+                </div>
+              </div>
+            ) : null}
           </div>
         </section>
+
+        <aside className="head-soccer-pro-sidebar">
+          <section className="head-soccer-pro-panel">
+            <h5>Match Setup</h5>
+            <label htmlFor="hs-difficulty">
+              CPU level
+              <select
+                id="hs-difficulty"
+                value={settings.difficultyId}
+                onChange={(event) => {
+                  const nextDifficulty = event.target.value;
+                  setSettings((previous) => ({ ...previous, difficultyId: nextDifficulty }));
+                }}
+              >
+                {DIFFICULTY_OPTIONS.map((difficulty) => (
+                  <option key={difficulty.id} value={difficulty.id}>
+                    {difficulty.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label htmlFor="hs-duration">
+              Match duration
+              <select
+                id="hs-duration"
+                value={settings.duration}
+                onChange={(event) => {
+                  const nextDuration = Number(event.target.value);
+                  setSettings((previous) => ({ ...previous, duration: nextDuration }));
+                }}
+              >
+                {MATCH_OPTIONS.map((duration) => (
+                  <option key={duration} value={duration}>
+                    {duration}s
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <p className="note">Settings apply on next kickoff or restart.</p>
+          </section>
+
+          <section className="head-soccer-pro-panel">
+            <h5>Live Status</h5>
+            <div className="head-soccer-pro-grid">
+              <div>
+                <span>State</span>
+                <strong>{snapshot.phase.toUpperCase()}</strong>
+              </div>
+              <div>
+                <span>Difficulty</span>
+                <strong>{snapshot.difficultyLabel}</strong>
+              </div>
+              <div>
+                <span>Ball speed</span>
+                <strong>{snapshot.ball.speed}</strong>
+              </div>
+              <div>
+                <span>Timer</span>
+                <strong>{snapshot.timerLabel}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="head-soccer-pro-panel">
+            <h5>Controls</h5>
+            <p>{controlsHint}</p>
+          </section>
+        </aside>
       </div>
 
-      <p className="game-message">
-        {snapshot.message} — ← → move · ↑ single jump · Space kick · B power · double-tap dash · Enter start · R restart
-      </p>
+      <p className="game-message">{snapshot.message}</p>
       <ul className="game-log">
-        {snapshot.logs.map((entry, i) => <li key={`${entry}-${i}`}>{entry}</li>)}
+        {snapshot.logs.map((entry, index) => (
+          <li key={`${entry}-${index}`}>{entry}</li>
+        ))}
       </ul>
     </div>
   );

@@ -655,6 +655,74 @@ const computePotOdds = (pot, toCall) => {
   if (toCall <= 0) return 0;
   return clamp01(toCall / Math.max(1, pot + toCall));
 };
+const computeStraightOneCardOuts = (hand) => {
+  if (!hand || hand.length !== HAND_CARDS) return 0;
+  const rankSet = new Set(hand.map((card) => card.rank));
+  if (rankSet.has(14)) rankSet.add(1);
+  const candidateRanks = new Set();
+  for (let start = 1; start <= 10; start += 1) {
+    const window = [start, start + 1, start + 2, start + 3, start + 4];
+    const missing = window.filter((rank) => !rankSet.has(rank));
+    if (missing.length === 1) {
+      const rank = missing[0] === 1 ? 14 : missing[0];
+      candidateRanks.add(rank);
+    }
+  }
+  let outs = 0;
+  for (const rank of candidateRanks) {
+    const inHand = hand.filter((card) => card.rank === rank).length;
+    outs += Math.max(0, 4 - inHand);
+  }
+  return outs;
+};
+const computeFlushOneCardOuts = (hand) => {
+  if (!hand || hand.length !== HAND_CARDS) return 0;
+  const suitCounts = hand.reduce((acc, card) => {
+    acc[card.suit] = (acc[card.suit] || 0) + 1;
+    return acc;
+  }, {});
+  const suitPeak = Math.max(...Object.values(suitCounts), 0);
+  if (suitPeak !== 4) return 0;
+  return Math.max(0, 13 - suitPeak);
+};
+const buildOddsOutsProfile = (hand, handValue, phase) => {
+  if (!hand || hand.length !== HAND_CARDS || phase !== "pre-bet" || (handValue?.cat ?? 0) >= 5) {
+    return {
+      outs: 0,
+      straightOuts: 0,
+      flushOuts: 0,
+      hitRateExact: 0,
+      hitRateRule2: 0,
+      hitRateRule4: 0,
+      hitRateComposite: 0,
+      oddsRatio: Infinity
+    };
+  }
+  const unseenCards = 52 - HAND_CARDS;
+  const straightOuts = computeStraightOneCardOuts(hand);
+  const flushOuts = computeFlushOneCardOuts(hand);
+  let outs = Math.max(straightOuts, flushOuts);
+  if (straightOuts > 0 && flushOuts > 0) {
+    // Combo draw approximation: sum outs with small overlap discount.
+    outs = Math.min(15, straightOuts + flushOuts - 1);
+  }
+  const safeOuts = clampPercent(Math.floor(outs), 0, unseenCards);
+  const hitRateExact = safeOuts > 0 ? clamp01(safeOuts / unseenCards) : 0;
+  const hitRateRule2 = clamp01((safeOuts * 2) / 100);
+  const hitRateRule4 = clamp01((safeOuts * 4) / 100);
+  const hitRateComposite = clamp01(hitRateExact * 0.7 + hitRateRule2 * 0.3);
+  const oddsRatio = safeOuts > 0 ? Math.max(0, (unseenCards - safeOuts) / safeOuts) : Infinity;
+  return {
+    outs: safeOuts,
+    straightOuts,
+    flushOuts,
+    hitRateExact,
+    hitRateRule2,
+    hitRateRule4,
+    hitRateComposite,
+    oddsRatio
+  };
+};
 const estimateStraightPotential = (hand) => {
   const rankSet = new Set(hand.map((card) => card.rank));
   if (rankSet.has(14)) rankSet.add(1);
@@ -793,6 +861,7 @@ const buildAiBetContext = (state, seat, handValue, style) => {
   const actor = state.players[seat];
   const opponents = activeOpponentSeats(state, seat);
   const opponentReads = summarizeOpponentReads(state, seat);
+  const oddsOuts = buildOddsOutsProfile(actor.hand, handValue, state.phase);
   const toCall = Math.max(0, state.currentBet - actor.currentBet);
   const potOdds = computePotOdds(state.pot, toCall);
   const drawPotential = state.phase === "pre-bet" ? estimateDrawPotential(actor.hand, handValue) : 0;
@@ -826,6 +895,14 @@ const buildAiBetContext = (state, seat, handValue, style) => {
     toCall,
     potOdds,
     drawPotential,
+    drawOuts: oddsOuts.outs,
+    drawStraightOuts: oddsOuts.straightOuts,
+    drawFlushOuts: oddsOuts.flushOuts,
+    drawHitRate: oddsOuts.hitRateComposite,
+    drawHitRateExact: oddsOuts.hitRateExact,
+    drawHitRateRule2: oddsOuts.hitRateRule2,
+    drawHitRateRule4: oddsOuts.hitRateRule4,
+    drawOddsRatio: oddsOuts.oddsRatio,
     winRate,
     handStrength: handStrengthScore(handValue),
     handValue,
@@ -1272,6 +1349,16 @@ const decideAi = (state, seat) => {
       const amount = resolveRaiseAmount(state, actor, context, style, "value");
       if (amount != null) return { type: "raise", amount, note: context.winRate > 0.72 ? "Apuesta de valor calculada." : "Sube por valor." };
     }
+    if (
+      level.id === "expert" &&
+      context.phase === "pre-bet" &&
+      canRaise &&
+      context.drawOuts >= 8 &&
+      context.handValue.cat <= 2
+    ) {
+      const amount = resolveRaiseAmount(state, actor, context, style, "semi");
+      if (amount != null) return { type: "raise", amount, note: "Semi-farol con proyecto." };
+    }
     if (canRaise && shouldSemiBluff(context, style)) {
       const amount = resolveRaiseAmount(state, actor, context, style, "semi");
       if (amount != null) return { type: "raise", amount, note: "Semi-farol con proyecto." };
@@ -1287,7 +1374,15 @@ const decideAi = (state, seat) => {
 
   if (canAllIn && shouldValueJam(context, style)) return { type: "all-in", note: "All-in por valor." };
 
-  if (context.winRate + style.callMargin + context.bluffCatchBonus >= context.potOdds) {
+  const expertMathEdge = level.id === "expert"
+    ? Math.max(context.drawHitRateExact, context.drawHitRateRule2, context.drawHitRateRule4 * 0.55) + style.callMargin * 0.25
+    : 0;
+  const effectiveCallEquity = Math.max(
+    context.winRate + style.callMargin + context.bluffCatchBonus,
+    expertMathEdge
+  );
+
+  if (effectiveCallEquity >= context.potOdds) {
     const wantsValueRaise =
       canRaise &&
       (context.winRate >= style.valueRaiseThreshold + 0.04 || (context.handValue.cat >= 4 && context.equityEdge > 0.06));
@@ -1298,6 +1393,36 @@ const decideAi = (state, seat) => {
     if (canCall) {
       if (context.toCall <= Math.max(1, Math.floor(actor.chips * 0.1))) return { type: "call", note: "Controla el bote." };
       return { type: "call", note: context.handValue.cat >= 3 ? "Iguala con mano fuerte." : "Iguala por precio." };
+    }
+  }
+
+  if (
+    level.id === "expert" &&
+    context.phase === "pre-bet" &&
+    context.drawOuts > 0
+  ) {
+    const potOddsRatio = context.potOdds > 0 ? (1 - context.potOdds) / Math.max(0.0001, context.potOdds) : Infinity;
+    const drawBeatsPrice =
+      context.drawHitRateExact >= context.potOdds - 0.015 ||
+      (Number.isFinite(context.drawOddsRatio) && context.drawOddsRatio <= potOddsRatio * 1.03);
+    if (
+      drawBeatsPrice &&
+      canRaise &&
+      context.drawOuts >= 9 &&
+      context.toCall <= Math.max(state.bigBlind * 2, Math.floor(actor.chips * 0.18))
+    ) {
+      const amount = resolveRaiseAmount(state, actor, context, style, "semi");
+      if (amount != null) return { type: "raise", amount, note: "Semi-farol con proyecto." };
+    }
+    if (
+      drawBeatsPrice &&
+      canCall &&
+      context.toCall <= Math.max(1, Math.floor(actor.chips * Math.max(0.22, style.speculativeCallMax)))
+    ) {
+      return { type: "call", note: "Iguala por precio." };
+    }
+    if (!drawBeatsPrice && canFold && context.handValue.cat <= 1) {
+      return { type: "fold", note: "No compensa pagar." };
     }
   }
 
