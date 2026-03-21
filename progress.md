@@ -3198,3 +3198,32 @@ pm run build en sandbox sigue bloqueado por spawn EPERM (esbuild);
     - artefactos en `output/territory-war-ai-validation-v3/` (`shot-0..2.png`, `state-0..2.json`),
     - sin `errors-*.json`,
     - `state-2.json` confirma `aimDeg` > rango anterior y decision IA con `useCannon: true`.
+## 2026-03-21 - Head Soccer: single + tournament mode with bracket
+- Reestructurado `src/games/HeadSoccerGame.jsx` para soportar dos modos jugables: `single` (logica actual de partido unico) y `tournament`.
+- Anadidos 8 monigotes seleccionables en modo torneo (`TOURNAMENT_CHARACTERS`) y flujo de seleccion de personaje previo al inicio.
+- Implementado cuadro de torneo con rondas: `Octavos de final`, `Cuartos de final`, `Semifinal` y `Final`, con simulacion del resto de cruces y avance por ronda del jugador.
+- Al final de cada partido de torneo se actualizan resultados, resumen y estado del cuadro.
+- Si el usuario gana la final: estado `champion`, trofeo y animacion de celebracion en overlay final.
+- Pendiente inmediato: validar build y ejecutar pasada Playwright con capturas/estado para QA visual y funcional.
+## 2026-03-21 - Ajustes solicitados (torneo dificultad + cuadro + gol de oro)
+- Modo torneo ahora usa selector de dificultad de IA igual que el modo `single` (`settings.difficultyId` aplicado tambien en torneos).
+- Implementado `goldenGoal` para ambos modos: si el tiempo acaba en empate, el partido continua hasta el siguiente gol.
+  - activacion en `stepGame` al acabar tiempo con empate;
+  - cierre inmediato tras el siguiente gol durante fase `goal`;
+  - logs/mensajes y FX especificos de `Golden Goal`.
+- Reubicado cuadro de torneo justo debajo del gameplay (dentro de la columna principal del escenario) para disponer de mas ancho util.
+- Eliminada visualizacion del cuadro en la sidebar para evitar compresion de espacio.
+
+## 2026-03-21 - Flux Basin expansion pack (niveles 51-100 + tiempo 5m)
+- Se amplio `WORLD1_LEVELS` de 50 a 100 en `src/games/arcade/reactor-toss/core/level/world1.js`.
+- Se anadieron los niveles `flux-51` a `flux-100` mediante generacion parametrica por patrones (direct, one-bounce, controlled-drop, timing, puzzle-physics, precision, two-bounce, risk-reward, anti-habit, wow) con progresion por tier.
+- Se ajustaron 5 niveles detectados como excesivamente cerrados (`flux-51`, `flux-61`, `flux-63`, `flux-70`, `flux-97`) para asegurar rutas validas sin bajar demasiado la dificultad.
+- Validacion automatizada de resolubilidad sobre los 50 niveles nuevos (busqueda angulo/potencia con el motor fisico real): 50/50 resolubles.
+- Se actualizaron textos/UI a 100 niveles en:
+  - `src/games/arcade/reactor-toss/copy.js`
+  - `src/games/arcade/reactor-toss/index.jsx` (snapshot inicial usa `WORLD1_LEVELS.length`)
+  - `src/data/games.js`
+- Extra solicitado: tiempo por nivel ampliado a 5 minutos (`300000 ms`) en:
+  - `src/games/arcade/reactor-toss/core/physics/constants.js`
+  - `src/games/arcade/reactor-toss/index.jsx`
+- Nota QA: `npm run build` en sandbox sigue fallando por `vite:esbuild spawn EPERM`; se solicito ejecucion fuera de sandbox pero la peticion fue interrumpida por el usuario.

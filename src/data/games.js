@@ -343,11 +343,11 @@ export const games = [
     description:
       "Arcade 2D original ambientado en una fundicion neon-industrial. Dominas una orbita energetica con un unico gesto principal: tirar hacia atras y soltar. La dificultad crece con bumpers, rampas, compuertas temporizadas, portales, ventiladores, campos de gravedad y superficies gel.",
     objective_es:
-      "Completa 20 niveles cortos llevando la orbita hasta la capsula receptora con el menor numero posible de intentos, rebotes y tiempo.",
+      "Completa 100 niveles cortos llevando la orbita hasta la capsula receptora con el menor numero posible de intentos, rebotes y tiempo.",
     howToPlay_es:
       "Touch/raton: tira hacia atras desde la orbita y suelta. Teclado: flechas/A-D apuntan, W/S ajustan potencia, Enter/Espacio lanza, P pausa, R reinicia, L abre seleccion de nivel y F alterna pantalla completa.",
     highlights: [
-      "20 niveles mobile-first con curva pedagogica: directo, bank shot, timing, portales y combinaciones.",
+      "100 niveles mobile-first con curva pedagogica: directo, bank shot, timing, portales y combinaciones.",
       "10 prefabs de obstaculo preparados para escalar a nuevos mundos y 100+ niveles.",
       "Sistema propio de 3 estrellas por precision, tiempo, limpieza y primer intento.",
       "5 skins desbloqueables por estrellas acumuladas y guardado local versionado.",
@@ -381,11 +381,11 @@ export const games = [
     description_en:
       "An original 2D physics arcade set inside a neon-industrial foundry. You command an energy orb with one main gesture: pull back and release. Difficulty escalates through bumpers, ramps, timed gates, portals, fans, gravity wells, and gel surfaces.",
     objective_en:
-      "Clear 20 short levels by guiding the orb into the receiver capsule with as few attempts, rebounds, and seconds as possible.",
+      "Clear 100 short levels by guiding the orb into the receiver capsule with as few attempts, rebounds, and seconds as possible.",
     howToPlay_en:
       "Touch/mouse: pull back from the orb and release. Keyboard: arrows/A-D aim, W/S power, Enter/Space launch, P pause, R restart, L opens level select, and F toggles fullscreen.",
     highlights_en: [
-      "20 mobile-first levels with a proper teaching curve: direct shots, banks, timing, portals, and layered combinations.",
+      "100 mobile-first levels with a proper teaching curve: direct shots, banks, timing, portals, and layered combinations.",
       "10 obstacle prefabs ready to scale into new worlds and 100+ levels.",
       "Original 3-star system based on precision, time, cleanliness, and first-try clears.",
       "5 unlockable skins tied to cumulative stars plus versioned local save data.",

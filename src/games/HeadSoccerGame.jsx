@@ -29,6 +29,19 @@ const PHYSICS = {
 };
 
 const MATCH_OPTIONS = [45, 60, 90];
+const TOURNAMENT_MATCH_OPTIONS = [45, 60, 75, 90];
+
+const GAME_MODE_OPTIONS = [
+  { id: "single", label: "Single match" },
+  { id: "tournament", label: "Tournament" },
+];
+
+const TOURNAMENT_ROUNDS = [
+  { id: "round16", label: "Octavos de final", matchCount: 8, difficultyId: "rookie", duration: 45 },
+  { id: "quarterfinal", label: "Cuartos de final", matchCount: 4, difficultyId: "pro", duration: 60 },
+  { id: "semifinal", label: "Semifinal", matchCount: 2, difficultyId: "elite", duration: 75 },
+  { id: "final", label: "Final", matchCount: 1, difficultyId: "elite", duration: 90 },
+];
 
 const DIFFICULTIES = {
   rookie: {
@@ -72,34 +85,171 @@ const DIFFICULTIES = {
   },
 };
 
-const PLAYER_PROFILES = {
-  left: {
-    side: "left",
-    flag: "KOR",
-    skin: "#f0c090",
-    hair: "#101015",
-    jersey: "#1e2480",
-    shorts: "#14185a",
-    boots: "#1f2937",
-    accent: "#f8fafc",
+const TOURNAMENT_CHARACTERS = [
+  {
+    id: "volt",
+    name: "Volt Vega",
+    flag: "ESP",
+    skinLight: "#ffd9b5",
+    skinDark: "#cd8650",
+    hair: "#1e293b",
+    jersey: "#1d4ed8",
+    shorts: "#1e3a8a",
+    boots: "#111827",
+    accent: "#93c5fd",
+    brow: "#1f2937",
+    eye: "#0f172a",
     bald: false,
-    brow: "#111111",
-    eye: "#222222",
+    rating: 84,
   },
-  right: {
-    side: "right",
+  {
+    id: "nova",
+    name: "Nova Kim",
+    flag: "KOR",
+    skinLight: "#f7cfab",
+    skinDark: "#cf8756",
+    hair: "#111827",
+    jersey: "#dc2626",
+    shorts: "#991b1b",
+    boots: "#0f172a",
+    accent: "#fecaca",
+    brow: "#1f2937",
+    eye: "#111827",
+    bald: false,
+    rating: 82,
+  },
+  {
+    id: "atlas",
+    name: "Atlas Mamba",
     flag: "CMR",
-    skin: "#6a3410",
-    hair: "#1a0a04",
-    jersey: "#1c7a38",
-    shorts: "#0e4a20",
+    skinLight: "#ad6a3e",
+    skinDark: "#6c3f24",
+    hair: "#1f0f08",
+    jersey: "#16a34a",
+    shorts: "#166534",
     boots: "#2b2b2b",
-    accent: "#e8cc00",
+    accent: "#bbf7d0",
+    brow: "#20120a",
+    eye: "#120a05",
     bald: true,
-    brow: "#090603",
-    eye: "#1a0a04",
+    rating: 83,
   },
-};
+  {
+    id: "zen",
+    name: "Zen Ito",
+    flag: "JPN",
+    skinLight: "#f0c59e",
+    skinDark: "#bb7b45",
+    hair: "#111111",
+    jersey: "#7c3aed",
+    shorts: "#5b21b6",
+    boots: "#111827",
+    accent: "#ddd6fe",
+    brow: "#1e1b4b",
+    eye: "#111111",
+    bald: false,
+    rating: 80,
+  },
+  {
+    id: "rio",
+    name: "Rio Blaze",
+    flag: "BRA",
+    skinLight: "#efbe90",
+    skinDark: "#b66a35",
+    hair: "#2f1a10",
+    jersey: "#059669",
+    shorts: "#065f46",
+    boots: "#1f2937",
+    accent: "#a7f3d0",
+    brow: "#3f1f12",
+    eye: "#1b130f",
+    bald: false,
+    rating: 81,
+  },
+  {
+    id: "onyx",
+    name: "Onyx Storm",
+    flag: "USA",
+    skinLight: "#cf8a5d",
+    skinDark: "#7f4a2f",
+    hair: "#0b0f1a",
+    jersey: "#ea580c",
+    shorts: "#9a3412",
+    boots: "#111827",
+    accent: "#fed7aa",
+    brow: "#111827",
+    eye: "#0f172a",
+    bald: false,
+    rating: 79,
+  },
+  {
+    id: "luna",
+    name: "Luna Frost",
+    flag: "ARG",
+    skinLight: "#ffd7bc",
+    skinDark: "#c5815a",
+    hair: "#0f172a",
+    jersey: "#0ea5e9",
+    shorts: "#0369a1",
+    boots: "#1e293b",
+    accent: "#bae6fd",
+    brow: "#0f172a",
+    eye: "#082f49",
+    bald: false,
+    rating: 85,
+  },
+  {
+    id: "rajin",
+    name: "Rajin Bolt",
+    flag: "NGA",
+    skinLight: "#be7a4f",
+    skinDark: "#6a3d26",
+    hair: "#22120c",
+    jersey: "#eab308",
+    shorts: "#a16207",
+    boots: "#292524",
+    accent: "#fde68a",
+    brow: "#29140a",
+    eye: "#1c1009",
+    bald: true,
+    rating: 86,
+  },
+];
+
+const QUALIFIER_PROFILES = Array.from({ length: 8 }, (_, index) => {
+  const palette = [
+    ["#60a5fa", "#1d4ed8"],
+    ["#f472b6", "#be185d"],
+    ["#34d399", "#0f766e"],
+    ["#f59e0b", "#b45309"],
+    ["#a78bfa", "#6d28d9"],
+    ["#f87171", "#b91c1c"],
+    ["#22d3ee", "#0e7490"],
+    ["#4ade80", "#166534"],
+  ][index];
+
+  return {
+    id: `qualifier-${index + 1}`,
+    name: `Qualifier ${index + 1}`,
+    flag: "CPU",
+    skinLight: "#efbf8f",
+    skinDark: "#b97645",
+    hair: "#1f2937",
+    jersey: palette[0],
+    shorts: palette[1],
+    boots: "#1f2937",
+    accent: "#e2e8f0",
+    brow: "#111827",
+    eye: "#111827",
+    bald: index % 2 === 0,
+    rating: 70 + index,
+  };
+});
+
+const DEFAULT_SINGLE_PLAYER_ID = TOURNAMENT_CHARACTERS[0].id;
+const DEFAULT_SINGLE_CPU_ID = TOURNAMENT_CHARACTERS[2].id;
+const ALL_PROFILES = [...TOURNAMENT_CHARACTERS, ...QUALIFIER_PROFILES];
+const PROFILE_BY_ID = new Map(ALL_PROFILES.map((profile) => [profile.id, profile]));
 
 function createRandom(seed) {
   let value = seed >>> 0;
@@ -125,6 +275,141 @@ function formatClock(seconds) {
   const minutes = Math.floor(safeSeconds / 60);
   const rest = safeSeconds % 60;
   return `${minutes}:${String(rest).padStart(2, "0")}`;
+}
+
+function shuffleList(values, random = Math.random) {
+  const next = [...values];
+  for (let i = next.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [next[i], next[j]] = [next[j], next[i]];
+  }
+  return next;
+}
+
+function getProfileById(profileId, fallbackId = DEFAULT_SINGLE_PLAYER_ID) {
+  return PROFILE_BY_ID.get(profileId) || PROFILE_BY_ID.get(fallbackId) || TOURNAMENT_CHARACTERS[0];
+}
+
+function createTournamentMatch(matchId) {
+  return {
+    id: matchId,
+    homeId: null,
+    awayId: null,
+    homeScore: null,
+    awayScore: null,
+    winnerId: null,
+    played: false,
+    simulated: false,
+    containsPlayer: false,
+  };
+}
+
+function createEmptyTournament(playerCharacterId = DEFAULT_SINGLE_PLAYER_ID) {
+  return {
+    active: false,
+    status: "idle",
+    playerCharacterId,
+    currentRoundIndex: 0,
+    currentMatchIndex: -1,
+    rounds: TOURNAMENT_ROUNDS.map((round) => ({
+      ...round,
+      matches: Array.from({ length: round.matchCount }, (_, index) => createTournamentMatch(`${round.id}-${index + 1}`)),
+    })),
+    summary: null,
+    celebrationTimer: 0,
+  };
+}
+
+function winnerFromRatings(homeId, awayId, random = Math.random) {
+  const homeRating = getProfileById(homeId).rating || 75;
+  const awayRating = getProfileById(awayId).rating || 75;
+  const total = homeRating + awayRating;
+  if (total <= 0) {
+    return random() < 0.5 ? "home" : "away";
+  }
+  return random() < homeRating / total ? "home" : "away";
+}
+
+function buildScoreline(homeWins, random = Math.random) {
+  const loserGoals = Math.floor(random() * 3);
+  const winnerGoals = loserGoals + 1 + Math.floor(random() * 3);
+  return homeWins
+    ? { homeScore: winnerGoals, awayScore: loserGoals }
+    : { homeScore: loserGoals, awayScore: winnerGoals };
+}
+
+function applyMatchResult(match, homeScore, awayScore, winnerId, simulated) {
+  match.homeScore = homeScore;
+  match.awayScore = awayScore;
+  match.winnerId = winnerId;
+  match.played = true;
+  match.simulated = simulated;
+}
+
+function resolveSimulatedMatch(match, random = Math.random) {
+  if (!match.homeId || !match.awayId) {
+    return;
+  }
+  const winnerSide = winnerFromRatings(match.homeId, match.awayId, random);
+  const scoreline = buildScoreline(winnerSide === "home", random);
+  const winnerId = winnerSide === "home" ? match.homeId : match.awayId;
+  applyMatchResult(match, scoreline.homeScore, scoreline.awayScore, winnerId, true);
+}
+
+function buildTournament(playerCharacterId, seed = Date.now()) {
+  const tournament = createEmptyTournament(playerCharacterId);
+  const random = createRandom(seed >>> 0);
+
+  const remaining = TOURNAMENT_CHARACTERS
+    .map((character) => character.id)
+    .filter((characterId) => characterId !== playerCharacterId);
+  const seededCharacters = shuffleList([playerCharacterId, ...remaining], random);
+  const qualifiers = shuffleList(QUALIFIER_PROFILES.map((profile) => profile.id), random);
+
+  const firstRound = tournament.rounds[0];
+  firstRound.matches.forEach((match, index) => {
+    match.homeId = seededCharacters[index];
+    match.awayId = qualifiers[index];
+    match.containsPlayer = match.homeId === playerCharacterId || match.awayId === playerCharacterId;
+  });
+
+  tournament.active = true;
+  tournament.status = "active";
+  tournament.currentRoundIndex = 0;
+  tournament.currentMatchIndex = firstRound.matches.findIndex((match) => match.containsPlayer);
+  tournament.summary = {
+    title: "Tournament seeded",
+    text: "Octavos listos. Empieza tu primer cruce.",
+    accent: "#38bdf8",
+  };
+
+  return tournament;
+}
+
+function hydrateNextRound(tournament, nextRoundIndex, playerCharacterId, random = Math.random) {
+  if (nextRoundIndex <= 0 || nextRoundIndex >= tournament.rounds.length) {
+    return;
+  }
+
+  const previousRound = tournament.rounds[nextRoundIndex - 1];
+  const nextRound = tournament.rounds[nextRoundIndex];
+
+  nextRound.matches.forEach((match, index) => {
+    const left = previousRound.matches[index * 2];
+    const right = previousRound.matches[index * 2 + 1];
+    match.homeId = left?.winnerId || null;
+    match.awayId = right?.winnerId || null;
+    match.containsPlayer = match.homeId === playerCharacterId || match.awayId === playerCharacterId;
+  });
+
+  tournament.currentRoundIndex = nextRoundIndex;
+  tournament.currentMatchIndex = nextRound.matches.findIndex((match) => match.containsPlayer);
+
+  nextRound.matches.forEach((match, index) => {
+    if (index !== tournament.currentMatchIndex && match.homeId && match.awayId && !match.played) {
+      resolveSimulatedMatch(match, random);
+    }
+  });
 }
 
 function roundedRectPath(ctx, x, y, width, height, radius) {
@@ -563,8 +848,8 @@ function drawPlayer(ctx, player) {
     headCenterY,
     headRadius + 4
   );
-  headGradient.addColorStop(0, profile.side === "left" ? "#ffe8b9" : "#f6c389");
-  headGradient.addColorStop(1, profile.side === "left" ? "#f3b66e" : "#d3873f");
+  headGradient.addColorStop(0, profile.skinLight || "#f4d3b0");
+  headGradient.addColorStop(1, profile.skinDark || "#ca8a53");
   ctx.fillStyle = headGradient;
   ctx.strokeStyle = "#111111";
   ctx.lineWidth = 3.2;
@@ -690,12 +975,16 @@ function drawScene(ctx, state, crowdLayer) {
   }
 }
 
-function createPlayer(side) {
+function createPlayer(side, profileId) {
   const x = side === "left" ? 200 : 700;
   const direction = side === "left" ? 1 : -1;
+  const fallback = side === "left" ? DEFAULT_SINGLE_PLAYER_ID : DEFAULT_SINGLE_CPU_ID;
+  const profile = getProfileById(profileId || fallback, fallback);
+
   return {
     side,
-    profile: PLAYER_PROFILES[side],
+    profileId: profile.id,
+    profile,
     x,
     y: FIELD.groundY,
     vx: 0,
@@ -712,21 +1001,31 @@ function createPlayer(side) {
 }
 
 function createInitialState() {
+  const selectedId = DEFAULT_SINGLE_PLAYER_ID;
+  const initialTournament = createEmptyTournament(selectedId);
+
   return {
     phase: "intro",
     running: false,
     paused: false,
+    gameMode: "single",
     matchDuration: 60,
     difficultyId: "pro",
     timer: 60,
+    goldenGoal: false,
     goalDelay: 0,
     scores: { left: 0, right: 0 },
     result: { title: "", subtitle: "", accent: "#f8fafc" },
     message: "Press Kick Off to start the match.",
     logs: ["Head Soccer Pro loaded."],
+    matchMeta: {
+      roundLabel: "Single match",
+      playerName: getProfileById(selectedId).name,
+      cpuName: getProfileById(DEFAULT_SINGLE_CPU_ID).name,
+    },
     players: {
-      left: createPlayer("left"),
-      right: createPlayer("right"),
+      left: createPlayer("left", selectedId),
+      right: createPlayer("right", DEFAULT_SINGLE_CPU_ID),
     },
     ball: {
       x: WIDTH / 2,
@@ -737,6 +1036,7 @@ function createInitialState() {
       bounceChain: 0,
     },
     fx: [],
+    tournament: initialTournament,
     ai: {
       left: false,
       right: false,
@@ -772,6 +1072,19 @@ function pushLog(state, entry) {
 
 function spawnFx(state, x, y, label, color = "#ffffff", maxLife = 0.75) {
   state.fx.push({ x, y, label, color, life: maxLife, maxLife });
+}
+
+function setPlayersForMatch(state, leftProfileId, rightProfileId) {
+  const leftProfile = getProfileById(leftProfileId, DEFAULT_SINGLE_PLAYER_ID);
+  const rightProfile = getProfileById(rightProfileId, DEFAULT_SINGLE_CPU_ID);
+
+  state.players.left.profileId = leftProfile.id;
+  state.players.left.profile = leftProfile;
+  state.players.right.profileId = rightProfile.id;
+  state.players.right.profile = rightProfile;
+
+  state.matchMeta.playerName = leftProfile.name;
+  state.matchMeta.cpuName = rightProfile.name;
 }
 
 function resetKickoff(state) {
@@ -812,13 +1125,19 @@ function resetKickoff(state) {
   state.ball.bounceChain = 0;
 }
 
-function startMatch(state, settings) {
-  const duration = Number(settings.duration) || 60;
-  const difficultyId = settings.difficultyId in DIFFICULTIES ? settings.difficultyId : "pro";
+function startMatch(state, settings, options = {}) {
+  const duration = Number(options.duration ?? settings.duration) || 60;
+  const difficultyIdCandidate = options.difficultyId ?? settings.difficultyId;
+  const difficultyId = difficultyIdCandidate in DIFFICULTIES ? difficultyIdCandidate : "pro";
+
+  const leftProfileId = options.leftProfileId || state.players.left.profileId || DEFAULT_SINGLE_PLAYER_ID;
+  const rightProfileId = options.rightProfileId || state.players.right.profileId || DEFAULT_SINGLE_CPU_ID;
+  setPlayersForMatch(state, leftProfileId, rightProfileId);
 
   state.matchDuration = duration;
   state.difficultyId = difficultyId;
   state.timer = duration;
+  state.goldenGoal = false;
   state.scores.left = 0;
   state.scores.right = 0;
   state.running = true;
@@ -833,15 +1152,188 @@ function startMatch(state, settings) {
   state.ai.charge = false;
   state.ai.rethinkIn = 0;
   state.ai.releaseDelay = 0;
-  state.message = "Kick off. Jump and attack with headers to create space.";
+  state.result = { title: "", subtitle: "", accent: "#f8fafc" };
+  state.matchMeta.roundLabel = options.roundLabel || "Single match";
+  state.message = options.message || "Kick off. Jump and attack with headers to create space.";
 
   resetKickoff(state);
-  pushLog(state, `Kick off - ${duration}s - ${DIFFICULTIES[difficultyId].label} CPU.`);
+  pushLog(
+    state,
+    `${state.matchMeta.roundLabel}: ${state.matchMeta.playerName} vs ${state.matchMeta.cpuName} - ${duration}s - ${DIFFICULTIES[difficultyId].label}.`
+  );
+}
+
+function setupIntroFromSettings(state, settings) {
+  const mode = settings.mode === "tournament" ? "tournament" : "single";
+  const selectedCharacter = getProfileById(settings.tournamentCharacterId, DEFAULT_SINGLE_PLAYER_ID);
+  const defaultCpu = TOURNAMENT_CHARACTERS.find((entry) => entry.id !== selectedCharacter.id) || getProfileById(DEFAULT_SINGLE_CPU_ID);
+  const introDuration = mode === "tournament"
+    ? Number(settings.tournamentDuration) || 60
+    : Number(settings.duration) || 60;
+
+  state.phase = "intro";
+  state.running = false;
+  state.paused = false;
+  state.goldenGoal = false;
+  state.goalDelay = 0;
+  state.fx = [];
+  state.scores.left = 0;
+  state.scores.right = 0;
+  state.result = { title: "", subtitle: "", accent: "#f8fafc" };
+  state.gameMode = mode;
+  state.tournament = createEmptyTournament(selectedCharacter.id);
+
+  setPlayersForMatch(state, selectedCharacter.id, defaultCpu.id);
+  state.matchMeta.roundLabel = mode === "tournament" ? "Tournament" : "Single match";
+  state.timer = introDuration;
+  state.matchDuration = introDuration;
+  state.message = mode === "tournament"
+    ? "Choose your fighter and press Kick Off to start the tournament."
+    : "Press Kick Off to start a single match.";
+  state.logs = [mode === "tournament" ? "Tournament mode ready." : "Single match mode ready."];
+
+  resetKickoff(state);
+}
+
+function startSingleMatch(state, settings) {
+  const selectedCharacter = getProfileById(settings.tournamentCharacterId, DEFAULT_SINGLE_PLAYER_ID);
+  const cpuPool = TOURNAMENT_CHARACTERS.filter((entry) => entry.id !== selectedCharacter.id);
+  const cpu = cpuPool[Math.floor(Math.random() * cpuPool.length)] || getProfileById(DEFAULT_SINGLE_CPU_ID);
+
+  state.gameMode = "single";
+  state.tournament = createEmptyTournament(selectedCharacter.id);
+  startMatch(state, settings, {
+    leftProfileId: selectedCharacter.id,
+    rightProfileId: cpu.id,
+    roundLabel: "Single match",
+    message: "Kick off. Jump and attack with headers to create space.",
+  });
+}
+
+function startCurrentTournamentMatch(state, settings) {
+  const tournament = state.tournament;
+  if (!tournament.active) {
+    return;
+  }
+
+  const round = tournament.rounds[tournament.currentRoundIndex];
+  const match = round?.matches[tournament.currentMatchIndex];
+  if (!match) {
+    return;
+  }
+
+  const playerId = tournament.playerCharacterId;
+  const opponentId = match.homeId === playerId ? match.awayId : match.homeId;
+  const duration = Number(settings.tournamentDuration) || Number(round.duration) || 60;
+
+  startMatch(state, settings, {
+    duration,
+    difficultyId: settings.difficultyId,
+    leftProfileId: playerId,
+    rightProfileId: opponentId || DEFAULT_SINGLE_CPU_ID,
+    roundLabel: round.label,
+    message: `${round.label}: ${getProfileById(playerId).name} vs ${getProfileById(opponentId).name}.`,
+  });
+
+  tournament.status = "active";
+  tournament.summary = {
+    title: round.label,
+    text: `${getProfileById(playerId).name} vs ${getProfileById(opponentId).name}`,
+    accent: "#38bdf8",
+  };
+}
+
+function startTournament(state, settings) {
+  const selectedCharacter = getProfileById(settings.tournamentCharacterId, DEFAULT_SINGLE_PLAYER_ID);
+  const tournament = buildTournament(selectedCharacter.id);
+  const random = createRandom((Date.now() * 17) >>> 0);
+  const firstRound = tournament.rounds[0];
+
+  firstRound.matches.forEach((match, index) => {
+    if (index !== tournament.currentMatchIndex) {
+      resolveSimulatedMatch(match, random);
+    }
+  });
+
+  state.gameMode = "tournament";
+  state.tournament = tournament;
+  startCurrentTournamentMatch(state, settings);
+}
+
+function handleTournamentResult(state, playerWon) {
+  const tournament = state.tournament;
+  if (!tournament.active) {
+    return;
+  }
+
+  const currentRound = tournament.rounds[tournament.currentRoundIndex];
+  const currentMatch = currentRound?.matches[tournament.currentMatchIndex];
+  if (!currentRound || !currentMatch) {
+    return;
+  }
+
+  const playerId = tournament.playerCharacterId;
+  const opponentId = currentMatch.homeId === playerId ? currentMatch.awayId : currentMatch.homeId;
+  const playerIsHome = currentMatch.homeId === playerId;
+  const homeScore = playerIsHome ? state.scores.left : state.scores.right;
+  const awayScore = playerIsHome ? state.scores.right : state.scores.left;
+  const winnerId = playerWon ? playerId : opponentId;
+
+  applyMatchResult(currentMatch, homeScore, awayScore, winnerId, false);
+
+  if (!playerWon) {
+    tournament.status = "eliminated";
+    tournament.summary = {
+      title: "Eliminated",
+      text: `${getProfileById(opponentId).name} knocked you out in ${currentRound.label}.`,
+      accent: "#ef4444",
+    };
+    state.result.title = "ELIMINATED";
+    state.result.subtitle = `${currentRound.label} ended your run.`;
+    state.result.accent = "#ef4444";
+    state.message = "Tournament run ended. Restart to try again.";
+    pushLog(state, `Eliminated in ${currentRound.label}.`);
+    return;
+  }
+
+  const nextRoundIndex = tournament.currentRoundIndex + 1;
+  if (nextRoundIndex >= tournament.rounds.length) {
+    tournament.status = "champion";
+    tournament.celebrationTimer = 4.2;
+    tournament.summary = {
+      title: "Champion",
+      text: `${getProfileById(playerId).name} lifted the trophy.`,
+      accent: "#facc15",
+    };
+    state.result.title = "CHAMPION";
+    state.result.subtitle = "You won the final and conquered the tournament.";
+    state.result.accent = "#facc15";
+    state.message = "Trophy secured. You are the champion.";
+    spawnFx(state, WIDTH / 2, FIELD.groundY - 190, "TROPHY", "#facc15", 1.3);
+    pushLog(state, "Tournament completed. Champion crowned.");
+    return;
+  }
+
+  const random = createRandom((Date.now() + nextRoundIndex * 131 + homeScore * 17 + awayScore * 31) >>> 0);
+  hydrateNextRound(tournament, nextRoundIndex, playerId, random);
+  const nextRound = tournament.rounds[nextRoundIndex];
+  tournament.status = "between_rounds";
+  tournament.summary = {
+    title: `${currentRound.label} cleared`,
+    text: `You advance to ${nextRound.label}.`,
+    accent: "#22c55e",
+  };
+  state.result.title = "ADVANCE";
+  state.result.subtitle = `Round won. Next: ${nextRound.label}.`;
+  state.result.accent = "#22c55e";
+  state.message = `Great match. ${nextRound.label} unlocked.`;
+  pushLog(state, `Qualified for ${nextRound.label}.`);
 }
 
 function finishMatch(state) {
   state.running = false;
   state.paused = false;
+  state.goldenGoal = false;
   state.phase = "finished";
 
   if (state.scores.left > state.scores.right) {
@@ -862,6 +1354,10 @@ function finishMatch(state) {
   }
 
   pushLog(state, `Final score ${state.scores.left}-${state.scores.right}.`);
+
+  if (state.gameMode === "tournament" && state.tournament.active) {
+    handleTournamentResult(state, state.scores.left > state.scores.right);
+  }
 }
 
 function registerGoal(state, side) {
@@ -884,15 +1380,16 @@ function registerGoal(state, side) {
   ball.vy = 0;
   ball.bounceChain = 0;
 
+  const goalText = state.goldenGoal ? "GOLDEN GOAL" : "GOAL";
   if (side === "left") {
-    state.message = "Goal for YOU.";
-    pushLog(state, "You scored.");
+    state.message = state.goldenGoal ? "Golden goal for YOU." : "Goal for YOU.";
+    pushLog(state, state.goldenGoal ? "Golden goal scored by YOU." : "You scored.");
   } else {
-    state.message = "Goal for CPU.";
-    pushLog(state, "CPU scored.");
+    state.message = state.goldenGoal ? "Golden goal for CPU." : "Goal for CPU.";
+    pushLog(state, state.goldenGoal ? "Golden goal scored by CPU." : "CPU scored.");
   }
 
-  spawnFx(state, WIDTH / 2, FIELD.groundY - 180, "GOAL", "#ffffff", 0.9);
+  spawnFx(state, WIDTH / 2, FIELD.groundY - 180, goalText, state.goldenGoal ? "#facc15" : "#ffffff", 0.9);
 }
 function releaseKick(player, state) {
   if (!player.charging) {
@@ -1139,6 +1636,10 @@ function updateFx(state, dt) {
   state.fx = state.fx
     .map((fx) => ({ ...fx, life: fx.life - dt }))
     .filter((fx) => fx.life > 0);
+
+  if (state.tournament?.celebrationTimer > 0) {
+    state.tournament.celebrationTimer = Math.max(0, state.tournament.celebrationTimer - dt);
+  }
 }
 
 function readInput(controls) {
@@ -1175,14 +1676,27 @@ function readInput(controls) {
 
 function stepGame(state, controls, settings, dt) {
   const input = readInput(controls);
+  const mode = settings.mode === "tournament" ? "tournament" : "single";
 
   if (input.restartPressed) {
-    startMatch(state, settings);
+    if (mode === "tournament") {
+      startTournament(state, settings);
+    } else {
+      startSingleMatch(state, settings);
+    }
     return;
   }
 
   if (input.startPressed && (state.phase === "intro" || state.phase === "finished")) {
-    startMatch(state, settings);
+    if (mode === "tournament") {
+      if (state.tournament.active && state.tournament.status === "between_rounds") {
+        startCurrentTournamentMatch(state, settings);
+      } else {
+        startTournament(state, settings);
+      }
+    } else {
+      startSingleMatch(state, settings);
+    }
     return;
   }
 
@@ -1201,9 +1715,13 @@ function stepGame(state, controls, settings, dt) {
     state.goalDelay -= dt;
     updateFx(state, dt);
     if (state.goalDelay <= 0) {
-      resetKickoff(state);
-      state.phase = "playing";
-      state.message = "Match live.";
+      if (state.goldenGoal && state.scores.left !== state.scores.right) {
+        finishMatch(state);
+      } else {
+        resetKickoff(state);
+        state.phase = "playing";
+        state.message = state.goldenGoal ? "Golden goal continues." : "Match live.";
+      }
     }
     return;
   }
@@ -1212,10 +1730,18 @@ function stepGame(state, controls, settings, dt) {
     return;
   }
 
-  state.timer = Math.max(0, state.timer - dt);
-  if (state.timer <= 0) {
-    finishMatch(state);
-    return;
+  if (!state.goldenGoal) {
+    state.timer = Math.max(0, state.timer - dt);
+    if (state.timer <= 0) {
+      if (state.scores.left === state.scores.right) {
+        state.goldenGoal = true;
+        state.message = "Time over. Golden goal is active: next goal wins.";
+        pushLog(state, "Golden goal activated.");
+      } else {
+        finishMatch(state);
+        return;
+      }
+    }
   }
 
   const player = state.players.left;
@@ -1245,16 +1771,36 @@ function stepGame(state, controls, settings, dt) {
 function buildSnapshot(state) {
   const ballSpeed = Math.hypot(state.ball.vx, state.ball.vy);
   const difficulty = DIFFICULTIES[state.difficultyId] || DIFFICULTIES.pro;
+  const tournament = state.tournament || createEmptyTournament(DEFAULT_SINGLE_PLAYER_ID);
+  const currentRound = tournament.rounds[tournament.currentRoundIndex];
+
+  const tournamentRounds = tournament.rounds.map((round) => ({
+    id: round.id,
+    label: round.label,
+    matches: round.matches.map((match) => ({
+      id: match.id,
+      homeName: match.homeId ? getProfileById(match.homeId).name : "TBD",
+      awayName: match.awayId ? getProfileById(match.awayId).name : "TBD",
+      homeScore: match.homeScore,
+      awayScore: match.awayScore,
+      winnerId: match.winnerId,
+      played: match.played,
+      containsPlayer: match.containsPlayer,
+    })),
+  }));
 
   return {
+    mode: state.gameMode,
     phase: state.phase,
     running: state.running,
     paused: state.paused,
     difficultyId: state.difficultyId,
     difficultyLabel: difficulty.label,
+    roundLabel: state.matchMeta.roundLabel,
     matchDuration: state.matchDuration,
+    goldenGoal: state.goldenGoal,
     timer: round2(state.timer),
-    timerLabel: formatClock(state.timer),
+    timerLabel: state.goldenGoal ? "GOLDEN" : formatClock(state.timer),
     score: {
       you: state.scores.left,
       cpu: state.scores.right,
@@ -1263,9 +1809,33 @@ function buildSnapshot(state) {
       you: Math.round(state.players.left.power),
       cpu: Math.round(state.players.right.power),
     },
+    competitors: {
+      you: {
+        id: state.players.left.profileId,
+        name: state.players.left.profile.name,
+        flag: state.players.left.profile.flag,
+      },
+      cpu: {
+        id: state.players.right.profileId,
+        name: state.players.right.profile.name,
+        flag: state.players.right.profile.flag,
+      },
+    },
     result: state.result,
     message: state.message,
     logs: [...state.logs],
+    tournament: {
+      active: tournament.active,
+      status: tournament.status,
+      playerCharacterId: tournament.playerCharacterId,
+      playerCharacterName: getProfileById(tournament.playerCharacterId).name,
+      currentRoundIndex: tournament.currentRoundIndex,
+      currentRoundLabel: currentRound?.label || null,
+      currentMatchIndex: tournament.currentMatchIndex,
+      summary: tournament.summary,
+      celebrationTimer: round2(tournament.celebrationTimer),
+      rounds: tournamentRounds,
+    },
     player: {
       x: round2(state.players.left.x),
       y: round2(state.players.left.y),
@@ -1305,7 +1875,13 @@ export default function HeadSoccerGame() {
   const previousTimeRef = useRef(0);
   const accumulatorRef = useRef(0);
 
-  const [settings, setSettings] = useState({ difficultyId: "pro", duration: 60 });
+  const [settings, setSettings] = useState({
+    mode: "single",
+    difficultyId: "pro",
+    duration: 60,
+    tournamentDuration: 60,
+    tournamentCharacterId: DEFAULT_SINGLE_PLAYER_ID,
+  });
   const settingsRef = useRef(settings);
   const [snapshot, setSnapshot] = useState(() => buildSnapshot(stateRef.current));
 
@@ -1326,6 +1902,16 @@ export default function HeadSoccerGame() {
     }
     drawScene(ctxRef.current, stateRef.current, crowdLayerRef.current, time);
   }, []);
+
+  useEffect(() => {
+    const currentState = stateRef.current;
+    if (currentState.phase === "playing" || currentState.phase === "goal") {
+      return;
+    }
+    setupIntroFromSettings(currentState, settingsRef.current);
+    draw(performance.now());
+    syncSnapshot();
+  }, [settings.mode, settings.tournamentCharacterId, draw, syncSnapshot]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1428,10 +2014,13 @@ export default function HeadSoccerGame() {
   const buildTextPayload = useCallback(
     (current) => ({
       mode: "head_soccer_pro",
+      gameMode: current.mode,
       coordinates: "origin_top_left_x_right_y_down",
       phase: current.phase,
       running: current.running,
       paused: current.paused,
+      roundLabel: current.roundLabel,
+      goldenGoal: current.goldenGoal,
       difficulty: {
         id: current.difficultyId,
         label: current.difficultyLabel,
@@ -1447,6 +2036,8 @@ export default function HeadSoccerGame() {
       result: current.result,
       message: current.message,
       logs: current.logs,
+      competitors: current.competitors,
+      tournament: current.tournament,
     }),
     []
   );
@@ -1467,7 +2058,26 @@ export default function HeadSoccerGame() {
 
   const introVisible = snapshot.phase === "intro";
   const resultVisible = snapshot.phase === "finished";
+  const setupLocked = snapshot.phase === "playing" || snapshot.phase === "goal";
+  const isTournamentMode = settings.mode === "tournament";
+  const tournamentStatus = snapshot.tournament.status;
+  const championVisible = resultVisible && snapshot.mode === "tournament" && tournamentStatus === "champion";
   const pauseLabel = snapshot.paused ? "Resume" : "Pause";
+  const startLabel = introVisible
+    ? "Kick Off"
+    : resultVisible
+      ? snapshot.mode === "tournament"
+        ? tournamentStatus === "between_rounds"
+          ? "Next Round"
+          : "Start New Tournament"
+        : "Play Again"
+      : "Start";
+  const restartLabel = isTournamentMode ? "Restart Tournament" : "Restart";
+  const resultActionLabel = snapshot.mode === "tournament"
+    ? tournamentStatus === "between_rounds"
+      ? "Play Next Round"
+      : "Start New Tournament"
+    : "Rematch";
 
   const controlsHint = useMemo(
     () => "A/D or arrows move, W or up jumps, Space charges a low kick, and aerial headers are stronger. Enter starts, R restarts, P pauses.",
@@ -1479,13 +2089,13 @@ export default function HeadSoccerGame() {
       <div className="mini-head">
         <div>
           <h4>Head Soccer Pro</h4>
-          <p>Rebuilt from the v2 reference with deterministic physics, polished HUD, touch controls and competitive AI tiers.</p>
+          <p>Choose single match or tournament mode, build your run through octavos-cuarto-semi-final and fight for the trophy.</p>
         </div>
         <div className="head-soccer-pro-actions">
           <button type="button" onClick={() => queueAction("start")}>
-            {introVisible ? "Kick Off" : resultVisible ? "Play Again" : "Start"}
+            {startLabel}
           </button>
-          <button type="button" onClick={() => queueAction("restart")}>Restart</button>
+          <button type="button" onClick={() => queueAction("restart")}>{restartLabel}</button>
           <button
             type="button"
             onClick={() => queueAction("pause")}
@@ -1522,7 +2132,7 @@ export default function HeadSoccerGame() {
                   <div className="head-soccer-pro-track">
                     <div className="head-soccer-pro-track-fill" style={{ width: `${snapshot.powers.you}%` }} />
                   </div>
-                  <strong>{PLAYER_PROFILES.left.flag}</strong>
+                  <strong>{snapshot.competitors.you.flag}</strong>
                 </div>
 
                 <div className="head-soccer-pro-timer">
@@ -1535,7 +2145,7 @@ export default function HeadSoccerGame() {
                   <div className="head-soccer-pro-track">
                     <div className="head-soccer-pro-track-fill" style={{ width: `${snapshot.powers.cpu}%` }} />
                   </div>
-                  <strong>{PLAYER_PROFILES.right.flag}</strong>
+                  <strong>{snapshot.competitors.cpu.flag}</strong>
                 </div>
               </div>
 
@@ -1543,6 +2153,9 @@ export default function HeadSoccerGame() {
                 <b>{snapshot.score.you}</b>
                 <span>-</span>
                 <b>{snapshot.score.cpu}</b>
+              </div>
+              <div className="head-soccer-pro-round-tag">
+                {snapshot.roundLabel}{snapshot.goldenGoal ? " | GOLDEN GOAL" : ""} | {snapshot.competitors.you.name} vs {snapshot.competitors.cpu.name}
               </div>
             </div>
 
@@ -1560,8 +2173,12 @@ export default function HeadSoccerGame() {
             {introVisible ? (
               <div className="head-soccer-pro-overlay">
                 <div className="head-soccer-pro-overlay-card">
-                  <h5>Head Soccer Pro</h5>
-                  <p>Classic 1v1 arcade football. Use jumps and headers as your main attacking weapon.</p>
+                  <h5>{isTournamentMode ? "Tournament Mode" : "Single Match"}</h5>
+                  <p>
+                    {isTournamentMode
+                      ? "Choose one of 8 fighters and clear octavos, cuartos, semifinal and final to lift the trophy."
+                      : "Classic 1v1 arcade football. Use jumps and headers as your main attacking weapon."}
+                  </p>
                   <button type="button" onClick={() => queueAction("start")}>Kick Off</button>
                 </div>
               </div>
@@ -1573,21 +2190,84 @@ export default function HeadSoccerGame() {
                   <h5 style={{ color: snapshot.result.accent }}>{snapshot.result.title}</h5>
                   <p>{snapshot.result.subtitle}</p>
                   <p className="scoreline">{snapshot.score.you} - {snapshot.score.cpu}</p>
-                  <button type="button" onClick={() => queueAction("start")}>Rematch</button>
+                  {snapshot.mode === "tournament" && snapshot.tournament.summary ? (
+                    <p className="head-soccer-tournament-summary" style={{ color: snapshot.tournament.summary.accent }}>
+                      {snapshot.tournament.summary.title}: {snapshot.tournament.summary.text}
+                    </p>
+                  ) : null}
+                  {championVisible ? (
+                    <div className="head-soccer-trophy-celebration" aria-hidden="true">
+                      <div className="head-soccer-trophy-icon">🏆</div>
+                      <div className="head-soccer-confetti">
+                        {Array.from({ length: 18 }, (_, index) => (
+                          <span key={`confetti-${index}`} className={`tone-${index % 6}`} />
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  <button type="button" onClick={() => queueAction("start")}>{resultActionLabel}</button>
                 </div>
               </div>
             ) : null}
           </div>
+
+          {isTournamentMode ? (
+            <section className={`head-soccer-tournament-board${resultVisible ? " expanded" : ""}`}>
+              <h5>{resultVisible ? "Tournament bracket update" : "Tournament bracket"}</h5>
+              <div className="head-soccer-bracket-grid">
+                {snapshot.tournament.rounds.map((round) => (
+                  <div key={round.id} className="head-soccer-bracket-round">
+                    <h6>{round.label}</h6>
+                    {round.matches.map((match) => (
+                      <article
+                        key={match.id}
+                        className={`head-soccer-bracket-match${match.containsPlayer ? " player-path" : ""}${match.played ? " played" : ""}`}
+                      >
+                        <span>{match.homeName}</span>
+                        <strong>{match.played ? `${match.homeScore}-${match.awayScore}` : "VS"}</strong>
+                        <span>{match.awayName}</span>
+                      </article>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              {snapshot.tournament.summary ? (
+                <p className="head-soccer-tournament-board-note" style={{ color: snapshot.tournament.summary.accent }}>
+                  {snapshot.tournament.summary.title}: {snapshot.tournament.summary.text}
+                </p>
+              ) : null}
+            </section>
+          ) : null}
         </section>
 
         <aside className="head-soccer-pro-sidebar">
           <section className="head-soccer-pro-panel">
-            <h5>Match Setup</h5>
+            <h5>Mode & Match Setup</h5>
+            <label htmlFor="hs-mode">
+              Mode
+              <select
+                id="hs-mode"
+                value={settings.mode}
+                disabled={setupLocked}
+                onChange={(event) => {
+                  const nextMode = event.target.value === "tournament" ? "tournament" : "single";
+                  setSettings((previous) => ({ ...previous, mode: nextMode }));
+                }}
+              >
+                {GAME_MODE_OPTIONS.map((modeOption) => (
+                  <option key={modeOption.id} value={modeOption.id}>
+                    {modeOption.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <label htmlFor="hs-difficulty">
               CPU level
               <select
                 id="hs-difficulty"
                 value={settings.difficultyId}
+                disabled={setupLocked}
                 onChange={(event) => {
                   const nextDifficulty = event.target.value;
                   setSettings((previous) => ({ ...previous, difficultyId: nextDifficulty }));
@@ -1601,33 +2281,90 @@ export default function HeadSoccerGame() {
               </select>
             </label>
 
-            <label htmlFor="hs-duration">
-              Match duration
-              <select
-                id="hs-duration"
-                value={settings.duration}
-                onChange={(event) => {
-                  const nextDuration = Number(event.target.value);
-                  setSettings((previous) => ({ ...previous, duration: nextDuration }));
-                }}
-              >
-                {MATCH_OPTIONS.map((duration) => (
-                  <option key={duration} value={duration}>
-                    {duration}s
-                  </option>
-                ))}
-              </select>
-            </label>
+            {settings.mode === "single" ? (
+              <>
+                <label htmlFor="hs-duration">
+                  Match duration
+                  <select
+                    id="hs-duration"
+                    value={settings.duration}
+                    disabled={setupLocked}
+                    onChange={(event) => {
+                      const nextDuration = Number(event.target.value);
+                      setSettings((previous) => ({ ...previous, duration: nextDuration }));
+                    }}
+                  >
+                    {MATCH_OPTIONS.map((duration) => (
+                      <option key={duration} value={duration}>
+                        {duration}s
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </>
+            ) : (
+              <label htmlFor="hs-tournament-duration">
+                Tournament round time
+                <select
+                  id="hs-tournament-duration"
+                  value={settings.tournamentDuration}
+                  disabled={setupLocked}
+                  onChange={(event) => {
+                    const nextDuration = Number(event.target.value);
+                    setSettings((previous) => ({ ...previous, tournamentDuration: nextDuration }));
+                  }}
+                >
+                  {TOURNAMENT_MATCH_OPTIONS.map((duration) => (
+                    <option key={duration} value={duration}>
+                      {duration}s
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
 
-            <p className="note">Settings apply on next kickoff or restart.</p>
+            <p className="note">Settings apply on next kickoff/restart in both modes.</p>
           </section>
+
+          {isTournamentMode ? (
+            <section className="head-soccer-pro-panel">
+              <h5>Select Fighter (8)</h5>
+              <div className="head-soccer-character-grid">
+                {TOURNAMENT_CHARACTERS.map((character) => {
+                  const selected = settings.tournamentCharacterId === character.id;
+                  return (
+                    <button
+                      key={character.id}
+                      type="button"
+                      className={`head-soccer-character-card${selected ? " selected" : ""}`}
+                      disabled={setupLocked}
+                      onClick={() => {
+                        setSettings((previous) => ({ ...previous, tournamentCharacterId: character.id }));
+                      }}
+                    >
+                      <span className="flag">{character.flag}</span>
+                      <strong>{character.name}</strong>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
 
           <section className="head-soccer-pro-panel">
             <h5>Live Status</h5>
             <div className="head-soccer-pro-grid">
               <div>
+                <span>Mode</span>
+                <strong>{snapshot.mode === "tournament" ? "TOURNAMENT" : "SINGLE"}</strong>
+              </div>
+              <div>
                 <span>State</span>
                 <strong>{snapshot.phase.toUpperCase()}</strong>
+              </div>
+              <div>
+                <span>Round</span>
+                <strong>{snapshot.roundLabel}</strong>
               </div>
               <div>
                 <span>Difficulty</span>

@@ -3,6 +3,7 @@ import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
 import { UI_COPY, localize } from "./copy";
 import { STAGE_HEIGHT, STAGE_WIDTH } from "./core/physics/constants";
+import { WORLD1_LEVELS } from "./core/level/world1";
 import FluxBasinRuntime from "./runtime";
 
 const DEFAULT_SNAPSHOT = {
@@ -13,7 +14,7 @@ const DEFAULT_SNAPSHOT = {
   worldSubtitle: "",
   levelId: "flux-01",
   levelIndex: 0,
-  levelTotal: 50,
+  levelTotal: WORLD1_LEVELS.length,
   levelName: "Calibration",
   taxonomy: "direct",
   score: 0,
@@ -24,7 +25,7 @@ const DEFAULT_SNAPSHOT = {
   launches: 0,
   rebounds: 0,
   elapsedMs: 0,
-  timeLimitMs: 45000,
+  timeLimitMs: 300000,
   selectedSkinId: "ember-core",
   selectedSkinName: "Ember",
   unlockedSkinIds: ["ember-core"],

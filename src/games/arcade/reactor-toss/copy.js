@@ -32,7 +32,7 @@ export const UI_COPY = {
     sections: {
       menuTagline: "Tira hacia atras, suelta y deja que la fisica haga el resto.",
       objective: "Introduce la orbita en la capsula receptora. El juego premia precision, limpieza y pocos intentos.",
-      worldSummary: "50 niveles cortos en un laboratorio neon-industrial, con curva progresiva, nuevas combinaciones y reinicio instantaneo.",
+      worldSummary: "100 niveles cortos en un laboratorio neon-industrial, con curva progresiva, nuevas combinaciones y reinicio instantaneo.",
       settingsHint: "Perfil Comfort amplifica la ayuda visual y reduce sensibilidad para mejorar control tactil.",
       controls: "Touch: arrastra desde la orbita hacia atras y suelta. Teclado: flechas/A-D apuntan, W/S potencia, Enter/Espacio lanza, P pausa, R reinicia, M audio, F pantalla completa.",
       controlsTouch: "Touch: arrastra desde la orbita hasta el punto al que quieres enviar el tiro y suelta. La linea marca la direccion final y la distancia del gesto define la fuerza.",
@@ -104,7 +104,7 @@ export const UI_COPY = {
     sections: {
       menuTagline: "Pull back, release, and let readable physics do the rest.",
       objective: "Sink the orb into the receiving capsule. The game rewards precision, cleanliness, and low-attempt clears.",
-      worldSummary: "50 short levels in a neon-industrial lab with progressive difficulty, new combinations, and instant retry.",
+      worldSummary: "100 short levels in a neon-industrial lab with progressive difficulty, new combinations, and instant retry.",
       settingsHint: "Comfort profile adds stronger visual assistance and lower sensitivity for steadier touch play.",
       controls: "Touch: pull back from the orb and release. Keyboard: arrows/A-D aim, W/S power, Enter/Space fire, P pause, R restart, M audio, F fullscreen.",
       controlsTouch: "Touch: drag from the orb to the point where you want the shot to go, then release. The line sets the final direction and the swipe distance sets the force.",

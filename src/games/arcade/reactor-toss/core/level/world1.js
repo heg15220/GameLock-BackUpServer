@@ -11,7 +11,7 @@ const level = (index, config) =>
     ...config,
   });
 
-export const WORLD1_LEVELS = [
+const WORLD1_BASE_LEVELS = [
   level(0, {
     id: "flux-01",
     name: { es: "Calibracion", en: "Calibration" },
@@ -1129,3 +1129,602 @@ export const WORLD1_LEVELS = [
     ),
   }),
 ];
+
+const EXPANSION_NAME_PREFIX = [
+  { es: "Resonancia", en: "Resonance" },
+  { es: "Trenza", en: "Braid" },
+  { es: "Helice", en: "Helix" },
+  { es: "Compas", en: "Pulse" },
+  { es: "Prisma", en: "Prism" },
+  { es: "Vector", en: "Vector" },
+  { es: "Cadena", en: "Chain" },
+  { es: "Pulso", en: "Rhythm" },
+  { es: "Nexo", en: "Nexus" },
+  { es: "Corona", en: "Crown" },
+];
+
+const EXPANSION_NAME_SUFFIX = [
+  { es: "de Cobre", en: "Copper" },
+  { es: "de Titanio", en: "Titanium" },
+  { es: "de Cromo", en: "Chrome" },
+  { es: "de Iridio", en: "Iridium" },
+  { es: "de Neutron", en: "Neutron" },
+];
+
+const EXPANSION_BACKGROUNDS = ["neon-grid", "alloy-dawn", "prism-bay"];
+const EXPANSION_DIFFICULTY = ["challenge", "challenge", "wow", "boss", "boss"];
+
+const toFluxId = (levelNumber) => `flux-${String(levelNumber).padStart(2, "0")}`;
+
+const buildExpansionName = (slot, tier) => {
+  const prefix = EXPANSION_NAME_PREFIX[slot];
+  const suffix = EXPANSION_NAME_SUFFIX[tier];
+  return {
+    es: `${prefix.es} ${suffix.es}`,
+    en: `${suffix.en} ${prefix.en}`,
+  };
+};
+
+const buildExpansionHints = (slot, tier) => {
+  const chapter = tier + 6;
+  switch (slot) {
+    case 0:
+      return hints(
+        [
+          `Acto ${chapter}: abre sobre la pared baja y deja caer la orbita sin forzar.`,
+          "Si el primer contacto es limpio, el resto del nivel se simplifica.",
+        ],
+        [
+          `Act ${chapter}: open above the low wall and let the orb drop without forcing it.`,
+          "If the first touch is clean, the rest of the route becomes simple.",
+        ]
+      );
+    case 1:
+      return hints(
+        [
+          `Acto ${chapter}: este patron premia un unico rebote de calidad, no una cadena de impactos.`,
+          "Ajusta potencia para que el bumper te entregue al borde del objetivo.",
+        ],
+        [
+          `Act ${chapter}: this pattern rewards one quality bank, not a chain of impacts.`,
+          "Tune power so the bumper delivers you on the basin rim.",
+        ]
+      );
+    case 2:
+      return hints(
+        [
+          `Acto ${chapter}: la rampa define la curva y el ventilador mantiene altura.`,
+          "Entra con angulo medio para evitar saturar la salida.",
+        ],
+        [
+          `Act ${chapter}: the ramp defines shape and the fan keeps altitude.`,
+          "Enter on a medium angle to avoid overdriving the exit.",
+        ]
+      );
+    case 3:
+      return hints(
+        [
+          `Acto ${chapter}: observa un ciclo entero de barra y compuerta antes de tirar.`,
+          "Aqui gana el ritmo, no la reaccion instantanea.",
+        ],
+        [
+          `Act ${chapter}: watch one full bar and gate cycle before releasing.`,
+          "Rhythm wins here, not instant reaction.",
+        ]
+      );
+    case 4:
+      return hints(
+        [
+          `Acto ${chapter}: portal y pozo se complementan, no compiten.`,
+          "Piensa la salida del portal como un segundo punto de lanzamiento.",
+        ],
+        [
+          `Act ${chapter}: portal and well complement each other, they do not compete.`,
+          "Treat the portal exit as a second launch point.",
+        ]
+      );
+    case 5:
+      return hints(
+        [
+          `Acto ${chapter}: pasillo estrecho, lectura fina y control de velocidad al final.`,
+          "El gel corrige exceso, pero no salva una linea mala.",
+        ],
+        [
+          `Act ${chapter}: narrow lane, fine reading and controlled finish speed.`,
+          "Gel trims excess speed, but it will not save a bad line.",
+        ]
+      );
+    case 6:
+      return hints(
+        [
+          `Acto ${chapter}: memoriza la cadencia de bumpers, no un unico punto de impacto.`,
+          "El tercer contacto solo funciona si llegas con energia util.",
+        ],
+        [
+          `Act ${chapter}: memorize bumper cadence, not one isolated contact point.`,
+          "The third touch only works if you arrive with useful energy.",
+        ]
+      );
+    case 7:
+      return hints(
+        [
+          `Acto ${chapter}: zona de riesgo con ventana corta. Prioriza ruta limpia sobre potencia.`,
+          "Si dudas en mitad del tiro, el hazard se vuelve inevitable.",
+        ],
+        [
+          `Act ${chapter}: short-window risk zone. Prioritize clean route over raw power.`,
+          "If you hesitate mid-flight, the hazard becomes inevitable.",
+        ]
+      );
+    case 8:
+      return hints(
+        [
+          `Acto ${chapter}: escenario espejo, lectura de derecha a izquierda.`,
+          "Lanza con intencion, no por reflejo. El mapa pide otra memoria muscular.",
+        ],
+        [
+          `Act ${chapter}: mirrored stage, read it from right to left.`,
+          "Release with intent, not reflex. The map asks for different muscle memory.",
+        ]
+      );
+    default:
+      return hints(
+        [
+          `Acto ${chapter}: nivel sintesis. Cada sistema aporta una correccion distinta.`,
+          "No busques caos: la ruta correcta sigue siendo legible de principio a fin.",
+        ],
+        [
+          `Act ${chapter}: synthesis stage. Each system contributes a different correction.`,
+          "Do not chase chaos: the correct route stays readable from start to finish.",
+        ]
+      );
+  }
+};
+
+const buildExpansionLevel = (offset) => {
+  const levelNumber = 51 + offset;
+  const slot = offset % 10;
+  const tier = Math.floor(offset / 10);
+  const levelIndex = 50 + offset;
+  const id = toFluxId(levelNumber);
+  const pairId = `X${levelNumber}`;
+  const backgroundId = EXPANSION_BACKGROUNDS[(offset + tier) % EXPANSION_BACKGROUNDS.length];
+  const difficultyBand = EXPANSION_DIFFICULTY[tier] ?? "boss";
+  const name = buildExpansionName(slot, tier);
+  const tutorialHints = buildExpansionHints(slot, tier);
+
+  if (levelNumber === 51) {
+    return level(levelIndex, {
+      id,
+      name,
+      taxonomy: "direct",
+      difficultyBand,
+      backgroundId,
+      ballSpawn: { x: 136, y: 430, aimDeg: -37, power: 0.84 },
+      target: { x: 808, y: 186 },
+      obstacles: [{ type: "wall", x: 556, y: 302, w: 126, h: 18 }],
+      starRules: { parTimeMs: 9600, parBounces: 2 },
+      tutorialHints,
+    });
+  }
+
+  if (levelNumber === 61) {
+    return level(levelIndex, {
+      id,
+      name,
+      taxonomy: "direct",
+      difficultyBand,
+      backgroundId,
+      ballSpawn: { x: 138, y: 430, aimDeg: -40, power: 0.88 },
+      target: { x: 818, y: 168 },
+      obstacles: [
+        { type: "wall", x: 566, y: 294, w: 136, h: 18 },
+        { type: "ramp", x1: 676, y1: 318, x2: 802, y2: 234, thickness: 18 },
+      ],
+      starRules: { parTimeMs: 10300, parBounces: 2 },
+      tutorialHints,
+    });
+  }
+
+  if (levelNumber === 63) {
+    return level(levelIndex, {
+      id,
+      name,
+      taxonomy: "controlled-drop",
+      difficultyBand,
+      backgroundId,
+      ballSpawn: { x: 136, y: 432, aimDeg: -35, power: 0.64 },
+      target: { x: 832, y: 162 },
+      obstacles: [
+        { type: "ramp", x1: 444, y1: 358, x2: 640, y2: 252, thickness: 18 },
+        { type: "fan", x: 710, y: 250, w: 152, h: 180, forceX: 60, forceY: -960 },
+        { type: "wall", x: 598, y: 360, w: 128, h: 18 },
+      ],
+      starRules: { parTimeMs: 11400, parBounces: 3 },
+      tutorialHints,
+    });
+  }
+
+  if (levelNumber === 70) {
+    return level(levelIndex, {
+      id,
+      name,
+      taxonomy: "wow",
+      difficultyBand,
+      backgroundId,
+      ballSpawn: { x: 134, y: 432, aimDeg: -40, power: 0.61 },
+      target: { x: 820, y: 140, innerW: 46, tolerance: 10 },
+      obstacles: [
+        {
+          type: "movingBar",
+          x: 300,
+          y: 384,
+          w: 112,
+          h: 18,
+          movement: { axis: "y", min: 248, max: 410, speed: 124, phase: 0.18 },
+        },
+        { type: "portal", x: 396, y: 226, radius: 28, pairId },
+        { type: "portal", x: 684, y: 354, radius: 28, pairId },
+        { type: "bumper", x: 534, y: 264, radius: 34 },
+        { type: "gate", x: 604, y: 220, w: 24, h: 206, periodMs: 2300, openMs: 1100, phaseMs: 540 },
+        { type: "stickyPad", x: 792, y: 282, w: 118, h: 24 },
+        { type: "spikeStrip", x: 520, y: 500, w: 230, h: 24 },
+      ],
+      starRules: { parTimeMs: 14600, parBounces: 5 },
+      tutorialHints,
+    });
+  }
+
+  if (levelNumber === 97) {
+    return level(levelIndex, {
+      id,
+      name,
+      taxonomy: "two-bounce",
+      difficultyBand,
+      backgroundId,
+      ballSpawn: { x: 136, y: 432, aimDeg: -24, power: 0.52 },
+      target: { x: 828, y: 150 },
+      obstacles: [
+        { type: "bumper", x: 286, y: 352, radius: 34 },
+        { type: "bumper", x: 512, y: 248, radius: 40 },
+        { type: "bumper", x: 718, y: 216, radius: 32 },
+        { type: "wall", x: 650, y: 340, w: 128, h: 18 },
+      ],
+      starRules: { parTimeMs: 13200, parBounces: 5 },
+      tutorialHints,
+    });
+  }
+
+  switch (slot) {
+    case 0:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "direct",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 136, y: 430, aimDeg: -36 - tier * 1.5, power: 0.58 + tier * 0.03 },
+        target:
+          tier >= 3
+            ? {
+                x: 804 + tier * 7,
+                y: 192 - tier * 8,
+                moving: {
+                  axis: "y",
+                  min: 170 - tier * 3,
+                  max: 220 - tier * 3,
+                  speed: 56 + tier * 8,
+                  phase: 0.12 + tier * 0.03,
+                },
+              }
+            : { x: 804 + tier * 7, y: 192 - tier * 8 },
+        obstacles: [
+          { type: "wall", x: 520 + tier * 10, y: 304 - tier * 8, w: 122 + tier * 6, h: 18 },
+          ...(tier >= 2 ? [{ type: "ramp", x1: 656, y1: 316, x2: 772, y2: 238, thickness: 18 }] : []),
+        ],
+        starRules: { parTimeMs: 9800 + tier * 450, parBounces: 2 + (tier >= 3 ? 1 : 0) },
+        tutorialHints,
+      });
+    case 1:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "one-bounce",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 142, y: 428, aimDeg: -58 + tier * 1.2, power: 0.56 + tier * 0.03 },
+        target: { x: 816 + tier * 6, y: 176 - tier * 6 },
+        obstacles: [
+          { type: "bumper", x: 388 + tier * 12, y: 336 - tier * 10, radius: 34 + (tier % 2) * 2 },
+          { type: "wall", x: 630 + tier * 6, y: 270 + tier * 4, w: 122, h: 18 },
+          ...(tier >= 3 ? [{ type: "stickyPad", x: 748, y: 282, w: 118, h: 24 }] : []),
+        ],
+        starRules: { parTimeMs: 10200 + tier * 420, parBounces: 2 + (tier >= 4 ? 1 : 0) },
+        tutorialHints,
+      });
+    case 2:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "controlled-drop",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 134, y: 434, aimDeg: -42 + tier, power: 0.52 + tier * 0.03 },
+        target: { x: 834 - tier * 2, y: 170 - tier * 8 },
+        obstacles: [
+          { type: "ramp", x1: 430, y1: 372 - tier * 8, x2: 612, y2: 262 - tier * 10, thickness: 18 },
+          {
+            type: "fan",
+            x: 690,
+            y: 262 - tier * 4,
+            w: 146,
+            h: 174,
+            forceX: 45 + tier * 10,
+            forceY: -940 - tier * 80,
+          },
+          ...(tier >= 2 ? [{ type: "spikeStrip", x: 520, y: 500, w: 180 + tier * 20, h: 24 }] : []),
+        ],
+        starRules: { parTimeMs: 10800 + tier * 460, parBounces: 3 + (tier >= 4 ? 1 : 0) },
+        tutorialHints,
+      });
+    case 3:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "timing",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 138, y: 432, aimDeg: -39 - tier * 0.8, power: 0.6 + tier * 0.02 },
+        target:
+          tier >= 4
+            ? {
+                x: 824,
+                y: 154,
+                moving: { axis: "x", min: 770, max: 850, speed: 84, phase: 0.2 },
+              }
+            : { x: 824, y: 154 - tier * 4 },
+        obstacles: [
+          {
+            type: "movingBar",
+            x: 430 + tier * 10,
+            y: 300 - tier * 6,
+            w: 128,
+            h: 18,
+            movement: { axis: "y", min: 196 - tier * 6, max: 392 - tier * 4, speed: 100 + tier * 14, phase: 0.1 },
+          },
+          {
+            type: "gate",
+            x: 634 + tier * 4,
+            y: 226,
+            w: 24,
+            h: 206,
+            periodMs: 2200 - tier * 120,
+            openMs: 980 - tier * 80,
+            phaseMs: 360 + tier * 40,
+          },
+          ...(tier >= 1 ? [{ type: "wall", x: 772, y: 330, w: 104, h: 18 }] : []),
+        ],
+        starRules: { parTimeMs: 11400 + tier * 520, parBounces: 3 + (tier >= 3 ? 1 : 0) },
+        tutorialHints,
+      });
+    case 4:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "puzzle-physics",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 146, y: 432, aimDeg: -33 + tier * 0.8, power: 0.48 + tier * 0.03 },
+        target: { x: 812 + tier * 6, y: 150 - tier * 6 },
+        obstacles: [
+          { type: "portal", x: 332, y: 370, radius: 28, pairId },
+          { type: "portal", x: 654, y: 214, radius: 28, pairId },
+          { type: "gravityWell", x: 512 + tier * 10, y: 248 - tier * 6, radius: 78 + tier * 6, strength: 68000 + tier * 8000 },
+          { type: "wall", x: 726, y: 322 - tier * 8, w: 132, h: 18 },
+          ...(tier >= 2
+            ? [
+                {
+                  type: "gate",
+                  x: 590,
+                  y: 214,
+                  w: 22,
+                  h: 208,
+                  periodMs: 2140 - tier * 90,
+                  openMs: 900 - tier * 70,
+                  phaseMs: 280 + tier * 60,
+                },
+              ]
+            : []),
+        ],
+        physicsProfile: { gravity: 880 + tier * 10, drag: 0.012 },
+        starRules: { parTimeMs: 12000 + tier * 560, parBounces: 3 + (tier >= 4 ? 1 : 0) },
+        tutorialHints,
+      });
+    case 5:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "precision",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 148, y: 432, aimDeg: -29 + tier * 0.6, power: 0.5 + tier * 0.02 },
+        target: {
+          x: 830 - tier * 2,
+          y: 180 - tier * 4,
+          innerW: 52 - tier * 2,
+          tolerance: 13 - tier,
+        },
+        obstacles: [
+          { type: "wall", x: 360, y: 190, w: 112, h: 18 },
+          { type: "wall", x: 360, y: 396, w: 112, h: 18 },
+          { type: "wall", x: 590, y: 190, w: 112, h: 18 },
+          { type: "wall", x: 590, y: 396, w: 112, h: 18 },
+          { type: "stickyPad", x: 724, y: 280, w: 128, h: 24 },
+          { type: "bumper", x: 486, y: 290, radius: 30 + (tier >= 3 ? 2 : 0) },
+          ...(tier >= 2 ? [{ type: "spikeStrip", x: 488, y: 500, w: 236, h: 24 }] : []),
+        ],
+        starRules: { parTimeMs: 12400 + tier * 540, parBounces: 4 + (tier >= 4 ? 1 : 0) },
+        tutorialHints,
+      });
+    case 6:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "two-bounce",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 136, y: 432, aimDeg: -22 + tier * 0.5, power: 0.44 + tier * 0.02 },
+        target:
+          tier >= 3
+            ? {
+                x: 830,
+                y: 162 - tier * 2,
+                moving: { axis: "y", min: 140, max: 220, speed: 70 + tier * 6, phase: 0.28 },
+              }
+            : { x: 830, y: 162 - tier * 4 },
+        obstacles: [
+          { type: "bumper", x: 286, y: 352, radius: 34 },
+          { type: "bumper", x: 512, y: 252, radius: 34 + tier * 2 },
+          { type: "bumper", x: 718, y: 214, radius: 30 + (tier % 2) * 2 },
+          { type: "wall", x: 642, y: 346, w: 132, h: 18 },
+          ...(tier >= 3
+            ? [
+                {
+                  type: "movingBar",
+                  x: 460,
+                  y: 174,
+                  w: 118,
+                  h: 18,
+                  movement: { axis: "x", min: 390, max: 610, speed: 96 + tier * 12, phase: 0.22 },
+                },
+              ]
+            : []),
+        ],
+        starRules: { parTimeMs: 11800 + tier * 520, parBounces: 4 + (tier >= 4 ? 1 : 0) },
+        tutorialHints,
+      });
+    case 7:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "risk-reward",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 134, y: 434, aimDeg: -18 + tier * 0.5, power: 0.4 + tier * 0.02 },
+        target: { x: 842, y: 176 - tier * 5 },
+        obstacles: [
+          { type: "fan", x: 304, y: 288, w: 132, h: 178, forceX: 190 + tier * 20, forceY: -640 - tier * 70 },
+          { type: "spikeStrip", x: 420, y: 500, w: 260 + tier * 18, h: 24 },
+          { type: "wall", x: 532, y: 320, w: 124, h: 18 },
+          { type: "ramp", x1: 676, y1: 320, x2: 812, y2: 236, thickness: 18 },
+          ...(tier >= 2
+            ? [
+                {
+                  type: "movingBar",
+                  x: 580,
+                  y: 250,
+                  w: 120,
+                  h: 18,
+                  movement: { axis: "x", min: 522, max: 676, speed: 112 + tier * 10, phase: 0.18 },
+                },
+              ]
+            : []),
+        ],
+        starRules: { parTimeMs: 11200 + tier * 500, parBounces: 3 + (tier >= 3 ? 1 : 0) },
+        tutorialHints,
+      });
+    case 8:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "anti-habit",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 816, y: 416, aimDeg: -154 + tier * 2, power: 0.57 + tier * 0.02 },
+        target: { x: 170 + tier * 2, y: 170 - tier * 4 },
+        obstacles: [
+          { type: "portal", x: 676, y: 336, radius: 28, pairId },
+          { type: "portal", x: 352, y: 218, radius: 28, pairId },
+          { type: "fan", x: 516, y: 234, w: 154, h: 168, forceX: -140 - tier * 20, forceY: -780 - tier * 60 },
+          { type: "wall", x: 520, y: 424, w: 160, h: 18 },
+          { type: "bumper", x: 236, y: 274, radius: 34 + tier * 2 },
+          ...(tier >= 1
+            ? [
+                {
+                  type: "gate",
+                  x: 442,
+                  y: 214,
+                  w: 24,
+                  h: 212,
+                  periodMs: 2180 - tier * 100,
+                  openMs: 960 - tier * 70,
+                  phaseMs: 340 + tier * 40,
+                },
+              ]
+            : []),
+          ...(tier >= 3 ? [{ type: "spikeStrip", x: 300, y: 500, w: 220, h: 24 }] : []),
+        ],
+        starRules: { parTimeMs: 12600 + tier * 580, parBounces: 4 + (tier >= 3 ? 1 : 0) },
+        tutorialHints,
+      });
+    default:
+      return level(levelIndex, {
+        id,
+        name,
+        taxonomy: "wow",
+        difficultyBand,
+        backgroundId,
+        ballSpawn: { x: 132, y: 432, aimDeg: -38, power: 0.6 + tier * 0.02 },
+        target:
+          tier >= 2
+            ? {
+                x: 818,
+                y: 136 - tier * 2,
+                innerW: 46 - tier,
+                tolerance: 10 - tier * 0.8,
+                moving: {
+                  axis: "x",
+                  min: 782,
+                  max: 846,
+                  speed: 58 + tier * 8,
+                  phase: 0.2 + tier * 0.03,
+                },
+              }
+            : { x: 818, y: 136 - tier * 2, innerW: 46 - tier, tolerance: 10 - tier * 0.8 },
+        obstacles: [
+          {
+            type: "movingBar",
+            x: 286,
+            y: 388,
+            w: 112,
+            h: 18,
+            movement: { axis: "y", min: 220, max: 420, speed: 138 + tier * 10, phase: 0.18 },
+          },
+          { type: "gravityWell", x: 458, y: 242, radius: 74 + tier * 4, strength: 64000 + tier * 6000 },
+          {
+            type: "gate",
+            x: 582,
+            y: 214,
+            w: 24,
+            h: 214,
+            periodMs: 2200 - tier * 100,
+            openMs: 930 - tier * 70,
+            phaseMs: 450,
+          },
+          { type: "portal", x: 694, y: 350, radius: 28, pairId },
+          { type: "portal", x: 806, y: 206, radius: 28, pairId },
+          { type: "stickyPad", x: 790, y: 282, w: 120, h: 24 },
+          { type: "bumper", x: 516, y: 292, radius: 32 },
+          { type: "fan", x: 868, y: 266, w: 104, h: 160, forceX: -40, forceY: -760 - tier * 50 },
+          { type: "spikeStrip", x: 500, y: 500, w: 280, h: 24 },
+        ],
+        physicsProfile: { gravity: 910 + tier * 6, restitution: 0.8, drag: 0.012 },
+        starRules: { parTimeMs: 13800 + tier * 620, parBounces: 5 + (tier >= 4 ? 1 : 0) },
+        tutorialHints,
+      });
+  }
+};
+
+const WORLD1_EXPANSION_LEVELS = Array.from({ length: 50 }, (_, index) => buildExpansionLevel(index));
+
+export const WORLD1_LEVELS = [...WORLD1_BASE_LEVELS, ...WORLD1_EXPANSION_LEVELS];

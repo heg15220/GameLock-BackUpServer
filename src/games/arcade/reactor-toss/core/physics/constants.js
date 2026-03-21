@@ -28,7 +28,7 @@ export const DEFAULT_PHYSICS = {
   apparentMass: 1,
   linearDamping: 0.028,
   angularDamping: 0.05,
-  timeLimitMs: 45000,
+  timeLimitMs: 300000,
   targetHoldMs: TARGET_DWELL_MS,
   settleSpeed: TARGET_SETTLE_SPEED,
   maxBouncesBeforeClamp: 8,

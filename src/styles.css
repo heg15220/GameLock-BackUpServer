@@ -903,6 +903,25 @@ body {
   font-size: 0.94rem;
 }
 
+.head-soccer-pro-round-tag {
+  margin: 0.26rem auto 0;
+  width: fit-content;
+  max-width: calc(100% - 1.2rem);
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, 0.56);
+  background: rgba(8, 30, 56, 0.84);
+  color: #dbeafe;
+  padding: 0.14rem 0.58rem;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .head-soccer-pro-controls {
   position: absolute;
   inset: auto 0 0 0;
@@ -1009,6 +1028,66 @@ body {
   cursor: pointer;
 }
 
+.head-soccer-tournament-summary {
+  margin-top: 0.56rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.head-soccer-trophy-celebration {
+  position: relative;
+  margin: 0.62rem auto 0;
+  width: min(280px, 92%);
+  border-radius: 14px;
+  border: 1px solid rgba(250, 204, 21, 0.46);
+  background:
+    radial-gradient(circle at 50% -50%, rgba(250, 204, 21, 0.35), transparent 58%),
+    rgba(13, 28, 55, 0.88);
+  padding: 0.5rem 0.46rem 0.62rem;
+  overflow: hidden;
+}
+
+.head-soccer-trophy-icon {
+  position: relative;
+  z-index: 3;
+  font-size: 2rem;
+  line-height: 1;
+  animation: headSoccerTrophyPulse 1.05s ease-in-out infinite alternate;
+}
+
+.head-soccer-confetti {
+  position: absolute;
+  inset: 0;
+}
+
+.head-soccer-confetti span {
+  position: absolute;
+  top: -12%;
+  width: 8px;
+  height: 18px;
+  border-radius: 999px;
+  opacity: 0;
+  animation: headSoccerConfettiFall 1.7s linear infinite;
+}
+
+.head-soccer-confetti span.tone-0 { left: 8%; background: #facc15; animation-delay: 0.03s; }
+.head-soccer-confetti span.tone-1 { left: 22%; background: #fb7185; animation-delay: 0.22s; }
+.head-soccer-confetti span.tone-2 { left: 36%; background: #38bdf8; animation-delay: 0.48s; }
+.head-soccer-confetti span.tone-3 { left: 52%; background: #4ade80; animation-delay: 0.08s; }
+.head-soccer-confetti span.tone-4 { left: 68%; background: #a78bfa; animation-delay: 0.32s; }
+.head-soccer-confetti span.tone-5 { left: 84%; background: #f97316; animation-delay: 0.58s; }
+
+@keyframes headSoccerTrophyPulse {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-4px) scale(1.08); }
+}
+
+@keyframes headSoccerConfettiFall {
+  0% { transform: translateY(-12px) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.92; }
+  100% { transform: translateY(115px) rotate(250deg); opacity: 0; }
+}
+
 .head-soccer-pro-sidebar {
   display: grid;
   gap: 0.52rem;
@@ -1066,6 +1145,143 @@ body {
   font-size: 0.7rem;
 }
 
+.head-soccer-character-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.34rem;
+}
+
+.head-soccer-character-card {
+  border: 1px solid rgba(125, 211, 252, 0.26);
+  border-radius: 11px;
+  background: rgba(15, 23, 42, 0.56);
+  color: #e2e8f0;
+  padding: 0.36rem 0.42rem;
+  display: grid;
+  gap: 0.08rem;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+
+.head-soccer-character-card .flag {
+  color: #93c5fd;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.head-soccer-character-card strong {
+  font-size: 0.76rem;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.head-soccer-character-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.72);
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.head-soccer-character-card.selected {
+  border-color: rgba(250, 204, 21, 0.76);
+  background:
+    radial-gradient(circle at 100% -10%, rgba(250, 204, 21, 0.18), transparent 55%),
+    rgba(28, 37, 59, 0.9);
+}
+
+.head-soccer-character-card:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.head-soccer-bracket-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(170px, 1fr));
+  gap: 0.42rem;
+  overflow-x: auto;
+  padding-bottom: 0.12rem;
+}
+
+.head-soccer-bracket-round {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 170px;
+}
+
+.head-soccer-bracket-round h6 {
+  margin: 0;
+  color: #dbeafe;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.head-soccer-bracket-match {
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.56);
+  padding: 0.3rem 0.4rem;
+  display: grid;
+  gap: 0.04rem;
+}
+
+.head-soccer-bracket-match span {
+  color: #dbeafe;
+  font-size: 0.66rem;
+  line-height: 1.2;
+}
+
+.head-soccer-bracket-match strong {
+  color: #f8fafc;
+  font-size: 0.71rem;
+  letter-spacing: 0.04em;
+}
+
+.head-soccer-bracket-match.played strong {
+  color: #facc15;
+}
+
+.head-soccer-bracket-match.player-path {
+  border-color: rgba(250, 204, 21, 0.72);
+  background:
+    radial-gradient(circle at 90% 0%, rgba(250, 204, 21, 0.18), transparent 55%),
+    rgba(30, 41, 59, 0.84);
+}
+
+.head-soccer-tournament-board {
+  margin-top: 0.64rem;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  border-radius: 16px;
+  padding: 0.66rem;
+  background:
+    radial-gradient(circle at 95% -28%, rgba(56, 189, 248, 0.16), transparent 48%),
+    rgba(8, 30, 56, 0.85);
+  display: grid;
+  gap: 0.44rem;
+}
+
+.head-soccer-tournament-board.expanded {
+  border-color: rgba(250, 204, 21, 0.48);
+  box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.18);
+}
+
+.head-soccer-tournament-board h5 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 0.84rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.head-soccer-tournament-board-note {
+  margin: 0;
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+
 .head-soccer-pro-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1118,6 +1334,14 @@ body {
 @media (max-width: 860px) {
   .head-soccer-pro-sidebar {
     grid-template-columns: 1fr;
+  }
+
+  .head-soccer-character-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .head-soccer-bracket-grid {
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
   }
 
   .head-soccer-pro-controls {
