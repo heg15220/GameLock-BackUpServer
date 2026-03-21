@@ -26,6 +26,7 @@ const PenaltyNeuralKeeperGame = lazy(() => import("../games/arcade/penalty-neura
 const CosmicVanguardGame = lazy(() => import("../games/arcade/cosmic-vanguard"));
 const OrchardMatchBlastGame = lazy(() => import("../games/arcade/orchard-match-blast"));
 const ReactorTossGame = lazy(() => import("../games/arcade/reactor-toss"));
+const TerritoryWarGame = lazy(() => import("../games/arcade/territory-war"));
 const KnowledgeSudokuGame = () => <KnowledgeArcadeGame variant="sudoku" />;
 const KnowledgeAhorcadoGame = () => <KnowledgeArcadeGame variant="ahorcado" />;
 const KnowledgePacienciaGame = () => <KnowledgeArcadeGame variant="paciencia" />;
@@ -73,6 +74,7 @@ const GAME_COMPONENTS = {
   "sports-head-soccer-arena": HeadSoccerGame,
   "arcade-pacman-maze-protocol": PacmanGame,
   "arcade-reactor-toss": ReactorTossGame,
+  "arcade-territory-war": TerritoryWarGame,
   "arcade-orchard-match-blast": OrchardMatchBlastGame,
   "arcade-billar-pool-club": BilliardsGame,
   "arcade-bowling-pro-tour": BowlingGame,
@@ -115,6 +117,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "fighter-neon-dojo": "Combate con A/D o flechas, salto W/arriba, jab J/espacio, heavy K/enter, guardia L/abajo y special U/B.",
     "sports-head-soccer-arena": "A/D o flechas para mover, arriba/W para salto, mantener Space para cargar y soltar para disparar. Enter inicia, R reinicia, P pausa.",
     "arcade-reactor-toss": "Touch/raton: tira hacia atras desde la orbita y suelta. Flechas o A/D apuntan, W/S ajustan potencia, Enter/Espacio lanza, P pausa, R reinicia, L selecciona nivel, M audio y F pantalla completa.",
+    "arcade-territory-war": "Turnos Territory War: A/D o flechas mueven, W/arriba salta, Q/E o arriba/abajo ajustan angulo, mantener Espacio o click carga potencia y al soltar lanza granada. P pausa, R reinicia y F pantalla completa.",
     "arcade-orchard-match-blast": "Match-3 original: elige meta de puntos (Basica/Clasica/Avanzada/Extrema) antes de empezar. Intercambia bloques de color adyacentes; flechas mueven cursor, Enter/Espacio confirma, H pista, S mezclar, B Bloom, R reinicia y F pantalla completa.",
     "arcade-billar-pool-club": "Raton opcional para apuntar: A/D afinan angulo, W/S regulan potencia, Space tira, O push out, V safety, 1/2 decisiones. En blanca en mano usa flechas/WASD para mover, Enter/Space para fijar y P para autocolocar. F pantalla completa.",
     "arcade-bowling-pro-tour": "A/D ajustan linea, W/S potencia, Q/E efecto y Enter/Espacio lanza. R reinicia la serie y F activa pantalla completa.",
@@ -156,6 +159,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "fighter-neon-dojo": "Fight with A/D or arrows, jump W/up, jab J/space, heavy K/enter, guard L/down and special U/B.",
     "sports-head-soccer-arena": "A/D or arrows move, up/W jumps, hold Space to charge and release to shoot. Enter starts, R restarts, P pauses.",
     "arcade-reactor-toss": "Touch/mouse: pull back from the orb and release. Arrows or A/D aim, W/S adjust power, Enter/Space launches, P pauses, R restarts, L opens level select, M sound, and F toggles fullscreen.",
+    "arcade-territory-war": "Territory War turn-based flow: A/D or arrows move, W/up jumps, Q/E or up/down tune angle, hold Space or mouse to charge and release to throw. P pauses, R restarts, F fullscreen.",
     "arcade-orchard-match-blast": "Original match-3: choose a score goal preset (Basic/Standard/Advanced/Extreme) before starting. Swap adjacent color blocks; arrows move cursor, Enter/Space confirms, H hint, S shuffle, B Bloom, R restart, and F toggles fullscreen.",
     "arcade-billar-pool-club": "Mouse aiming is optional: A/D fine tune angle, W/S adjust power, Space shoots, O push out, V safety, and 1/2 decisions. With ball in hand, use arrows/WASD to move the cue ball, Enter/Space to confirm, and P to auto-place. F toggles fullscreen.",
     "arcade-bowling-pro-tour": "A/D adjust line, W/S power, Q/E spin, and Enter/Space throws. R restarts the series and F toggles fullscreen.",

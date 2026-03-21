@@ -1,0 +1,12 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'>
+  <rect width='320' height='180' fill='#050816' rx='20'/>
+  <g stroke='#1e293b' stroke-width='1'>
+    <path d='M20 30 H300 M20 55 H300 M20 80 H300 M20 105 H300 M20 130 H300 M20 155 H300'/>
+    <path d='M40 20 V160 M70 20 V160 M100 20 V160 M130 20 V160 M160 20 V160 M190 20 V160 M220 20 V160 M250 20 V160 M280 20 V160'/>
+  </g>
+  <polyline points='48,128 82,128 82,92 124,92' fill='none' stroke='#22d3ee' stroke-width='8' stroke-linecap='round'/>
+  <polyline points='272,58 236,58 236,100 198,100' fill='none' stroke='#fb7185' stroke-width='8' stroke-linecap='round'/>
+  <circle cx='124' cy='92' r='7' fill='#22d3ee'/>
+  <circle cx='198' cy='100' r='7' fill='#fb7185'/>
+  <text x='16' y='24' fill='#bfdbfe' font-family='JetBrains Mono, monospace' font-size='14'>TRON LIGHTCYCLES</text>
+</svg>

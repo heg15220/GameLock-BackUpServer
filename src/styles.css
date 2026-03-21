@@ -16895,4 +16895,278 @@ button.brisca-card.playable:disabled {
   }
 }
 
+.territory-war-game {
+  background:
+    radial-gradient(circle at 86% -26%, rgba(59, 130, 246, 0.26), transparent 50%),
+    radial-gradient(circle at 8% -22%, rgba(239, 68, 68, 0.2), transparent 48%),
+    linear-gradient(165deg, #0e1c34 0%, #122744 100%);
+  border-color: rgba(191, 219, 254, 0.34);
+  color: #dbeafe;
+}
+
+.territory-war-head h4 {
+  color: #f8fafc;
+}
+
+.territory-war-head p {
+  color: #bfdbfe;
+}
+
+.territory-war-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+}
+
+.territory-war-actions button {
+  border: 1px solid rgba(191, 219, 254, 0.4);
+  border-radius: 10px;
+  padding: 0.42rem 0.74rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f8fafc;
+  background: linear-gradient(130deg, rgba(30, 64, 175, 0.92), rgba(29, 78, 216, 0.88));
+}
+
+.territory-war-actions button:hover {
+  filter: brightness(1.08);
+}
+
+.territory-war-config {
+  margin-top: 0.62rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 0.5rem;
+}
+
+.territory-war-config label {
+  display: grid;
+  gap: 0.24rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #dbeafe;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.territory-war-config select {
+  border: 1px solid rgba(191, 219, 254, 0.3);
+  border-radius: 9px;
+  background: rgba(15, 23, 42, 0.75);
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.4rem 0.48rem;
+}
+
+.territory-war-shell {
+  margin-top: 0.66rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(220px, 1fr);
+  gap: 0.68rem;
+}
+
+.territory-war-stage-shell {
+  position: relative;
+  border: 1px solid rgba(125, 211, 252, 0.34);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.territory-war-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 16 / 9;
+  touch-action: none;
+}
+
+.territory-war-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 6, 23, 0.58);
+}
+
+.territory-war-overlay-muted {
+  background: rgba(2, 6, 23, 0.68);
+}
+
+.territory-war-overlay-card {
+  width: min(88%, 440px);
+  border: 1px solid rgba(125, 211, 252, 0.42);
+  border-radius: 16px;
+  background: linear-gradient(155deg, rgba(14, 33, 63, 0.95), rgba(11, 27, 52, 0.95));
+  box-shadow: 0 14px 30px rgba(2, 6, 23, 0.45);
+  padding: 0.96rem 1rem;
+  text-align: center;
+  display: grid;
+  gap: 0.54rem;
+}
+
+.territory-war-overlay-card.compact {
+  width: min(82%, 320px);
+}
+
+.territory-war-overlay-card h5 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1.2rem;
+}
+
+.territory-war-overlay-card p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.territory-war-overlay-card button {
+  justify-self: center;
+  border: 1px solid rgba(250, 204, 21, 0.45);
+  border-radius: 10px;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  background: linear-gradient(130deg, #facc15, #f97316);
+}
+
+.territory-war-sidebar {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.territory-war-panel {
+  border: 1px solid rgba(125, 211, 252, 0.24);
+  border-radius: 12px;
+  background: rgba(8, 30, 56, 0.86);
+  padding: 0.6rem 0.66rem;
+  display: grid;
+  gap: 0.36rem;
+}
+
+.territory-war-panel h5 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 0.79rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.territory-war-panel p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.74rem;
+  line-height: 1.42;
+}
+
+.territory-war-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.32rem;
+}
+
+.territory-war-grid div {
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.56);
+  padding: 0.36rem 0.42rem;
+  display: grid;
+  gap: 0.08rem;
+}
+
+.territory-war-grid span {
+  color: #bfdbfe;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.territory-war-grid strong {
+  color: #f8fafc;
+  font-size: 0.85rem;
+}
+
+.territory-war-turn-meta {
+  color: #f8fafc;
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+
+.territory-war-health-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.76);
+  overflow: hidden;
+}
+
+.territory-war-health-track span {
+  display: block;
+  height: 100%;
+}
+
+.territory-war-touch-controls {
+  margin-top: 0.56rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.46rem;
+}
+
+.territory-war-touch-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.36rem;
+}
+
+.territory-war-touch-group button {
+  border: 1px solid rgba(191, 219, 254, 0.34);
+  border-radius: 10px;
+  min-height: 2.25rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #f8fafc;
+  background: rgba(15, 23, 42, 0.82);
+}
+
+.territory-war-touch-group button:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 980px) {
+  .territory-war-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .territory-war-sidebar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .territory-war-head {
+    grid-template-columns: 1fr;
+  }
+
+  .territory-war-actions {
+    width: 100%;
+  }
+
+  .territory-war-actions button {
+    flex: 1;
+  }
+
+  .territory-war-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .territory-war-touch-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
 

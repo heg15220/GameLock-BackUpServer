@@ -6,6 +6,8 @@ const WIDTH = 960;
 const HEIGHT = 540;
 const DT = 1 / 60;
 const DT_MS = 1000 / 60;
+const BODY_TOP = 68;
+const BODY_BOTTOM = HEIGHT - 56;
 
 const UI = {
   es: {
@@ -22,9 +24,9 @@ const UI = {
     objective: "Objetivo",
     controls: "Controles",
     phaseMenu: "menu",
-    phasePlaying: "jugando",
+    phasePlaying: "activa",
     phasePaused: "pausa",
-    phaseGameOver: "fin",
+    phaseGameOver: "terminada",
   },
   en: {
     start: "Start",
@@ -86,6 +88,55 @@ const DEFINITIONS = {
     title: { es: "Bomber Grid 1989", en: "Bomber Grid 1989" },
     objective: { es: "Elimina enemigos con bombas.", en: "Eliminate enemies with bombs." },
     controls: { es: "Flechas/WASD mover, Espacio bomba.", en: "Arrows/WASD move, Space bomb." },
+    accent: "#f43f5e",
+    lives: 3,
+  },
+  "galaga-quantum": {
+    title: { es: "Galaga Quantum", en: "Galaga Quantum" },
+    objective: { es: "Limpia la oleada y evita los impactos.", en: "Clear the wave and avoid impacts." },
+    controls: { es: "A/D mover, Espacio dispara.", en: "A/D move, Space shoot." },
+    accent: "#fb7185",
+    lives: 3,
+  },
+  "qbert-prism": {
+    title: { es: "Qbert Prism Jump", en: "Qbert Prism Jump" },
+    objective: { es: "Convierte toda la piramide de color.", en: "Convert the full pyramid colors." },
+    controls: { es: "Flechas/WASD en diagonales de salto.", en: "Arrows/WASD for diagonal hops." },
+    accent: "#f97316",
+    lives: 3,
+  },
+  "lunar-lander-orbit": {
+    title: { es: "Lunar Lander Orbit", en: "Lunar Lander Orbit" },
+    objective: { es: "Aterriza suave sobre la plataforma.", en: "Land softly on the target platform." },
+    controls: { es: "A/D rota, W impulso principal.", en: "A/D rotate, W main thruster." },
+    accent: "#a78bfa",
+    lives: 3,
+  },
+  "centipede-circuit": {
+    title: { es: "Centipede Circuit", en: "Centipede Circuit" },
+    objective: { es: "Elimina todos los segmentos centipede.", en: "Eliminate every centipede segment." },
+    controls: { es: "Flechas/WASD mover, Espacio disparar.", en: "Arrows/WASD move, Space fire." },
+    accent: "#84cc16",
+    lives: 3,
+  },
+  "river-raid-neon": {
+    title: { es: "River Raid Neon", en: "River Raid Neon" },
+    objective: { es: "Sobrevive al cañon y gestiona combustible.", en: "Survive the canyon and manage fuel." },
+    controls: { es: "A/D mover, W acelera, S frena, Espacio dispara.", en: "A/D steer, W throttle, S brake, Space fire." },
+    accent: "#06b6d4",
+    lives: 3,
+  },
+  "tron-lightcycles": {
+    title: { es: "Tron Lightcycles", en: "Tron Lightcycles" },
+    objective: { es: "Encierra a la IA sin tocar estelas.", en: "Trap the AI without touching trails." },
+    controls: { es: "Flechas/WASD para cambiar direccion.", en: "Arrows/WASD to change direction." },
+    accent: "#0ea5e9",
+    lives: 3,
+  },
+  "road-fighter-synth": {
+    title: { es: "Road Fighter Synth", en: "Road Fighter Synth" },
+    objective: { es: "Completa distancia evitando trafico.", en: "Clear the distance while dodging traffic." },
+    controls: { es: "A/D cambia carril, W acelera, S frena.", en: "A/D lane swap, W accelerate, S brake." },
     accent: "#f43f5e",
     lives: 3,
   },
@@ -377,6 +428,7 @@ function createGalaga(level, seed) {
     fireCd: 1,
     combo: 0,
     comboCd: 0,
+    rng,
   };
 }
 
@@ -411,6 +463,113 @@ function createMissile(level, seed) {
     quota: 16 + level * 3,
     shotCd: 0,
     rng,
+  };
+}
+
+function createLander(level, seed) {
+  const rng = createRng(seed);
+  const padWidth = Math.max(76, 146 - level * 4);
+  const padX = randInt(rng, 170, WIDTH - 170);
+  return {
+    ship: { x: WIDTH * 0.5, y: 120, vx: 0, vy: 0, a: -Math.PI * 0.5, fuel: 100 },
+    pad: { x: padX, y: HEIGHT - 78, w: padWidth },
+    gravity: 94 + level * 8,
+    safeVx: Math.max(32, 64 - level * 2),
+    safeVy: Math.max(70, 120 - level * 3),
+    safeAngle: 0.32,
+    stars: Array.from({ length: 58 }, () => ({
+      x: rng() * WIDTH,
+      y: rng() * (HEIGHT - 130),
+      r: 1 + rng() * 2,
+    })),
+    ridge: Array.from({ length: 14 }, (_, idx) => ({
+      x: (idx / 13) * WIDTH,
+      y: HEIGHT - 54 - rng() * 38,
+    })),
+  };
+}
+
+function createCentipede(level, seed) {
+  const rng = createRng(seed);
+  const cols = 28;
+  const rows = 20;
+  const mushrooms = new Set();
+  const target = 26 + level * 3;
+  while (mushrooms.size < target) {
+    const x = randInt(rng, 0, cols);
+    const y = randInt(rng, 3, rows - 4);
+    mushrooms.add(cellKey(x, y));
+  }
+  const segments = [];
+  const total = 8 + Math.min(10, level * 2);
+  for (let i = 0; i < total; i += 1) {
+    segments.push({ x: i, y: 1 });
+  }
+  return {
+    cols,
+    rows,
+    cell: 24,
+    player: { x: Math.floor(cols * 0.5), y: rows - 2, shotCd: 0, moveCd: 0 },
+    segments,
+    dir: 1,
+    stepAcc: 0,
+    stepDelay: Math.max(0.18 - level * 0.01, 0.07),
+    bullets: [],
+    mushrooms,
+    flea: { active: false, x: 0, y: 0, vy: 0, cd: 1.7 },
+    rng,
+  };
+}
+
+function createRiverRaid(level, seed) {
+  const rng = createRng(seed);
+  return {
+    playerX: WIDTH * 0.5,
+    playerY: HEIGHT - 92,
+    fuel: 100,
+    distance: 0,
+    targetDistance: 2800 + level * 650,
+    baseSpeed: 210 + level * 18,
+    shotCd: 0,
+    spawnCd: 0.4,
+    bullets: [],
+    obstacles: [],
+    rng,
+  };
+}
+
+function createTron(level, seed) {
+  const rng = createRng(seed);
+  const cols = 34;
+  const rows = 20;
+  const player = { x: 6, y: Math.floor(rows * 0.5), dir: { x: 1, y: 0 }, next: { x: 1, y: 0 } };
+  const ai = { x: cols - 7, y: Math.floor(rows * 0.5), dir: { x: -1, y: 0 }, next: { x: -1, y: 0 }, think: 0.1 };
+  return {
+    cols,
+    rows,
+    trails: new Set([cellKey(player.x, player.y), cellKey(ai.x, ai.y)]),
+    player,
+    ai,
+    stepAcc: 0,
+    stepDelay: Math.max(0.14 - level * 0.005, 0.06),
+    roundMs: 0,
+    limitMs: 68000,
+    rng,
+  };
+}
+
+function createRoadFighter(level, seed) {
+  return {
+    lanes: 5,
+    playerLane: 2,
+    playerY: HEIGHT - 102,
+    laneCd: 0,
+    cars: [],
+    spawnCd: 0.34,
+    distance: 0,
+    targetDistance: 2500 + level * 560,
+    baseSpeed: 220 + level * 18,
+    rng: createRng(seed),
   };
 }
 
@@ -459,6 +618,13 @@ function createGame(variant, level, run) {
     case "tetris-blockfall": return createTetris(level, seed);
     case "frogger-crossing": return createFrogger(level, seed);
     case "bomber-grid": return createBomber(level, seed);
+    case "galaga-quantum": return createGalaga(level, seed);
+    case "qbert-prism": return createQbert(level, seed);
+    case "lunar-lander-orbit": return createLander(level, seed);
+    case "centipede-circuit": return createCentipede(level, seed);
+    case "river-raid-neon": return createRiverRaid(level, seed);
+    case "tron-lightcycles": return createTron(level, seed);
+    case "road-fighter-synth": return createRoadFighter(level, seed);
     default: return createSnake(level, seed);
   }
 }
@@ -513,10 +679,28 @@ function pointRect(px, py, rx, ry, rw, rh) {
   return px >= rx && px <= rx + rw && py >= ry && py <= ry + rh;
 }
 
+function rectOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
+  return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+}
+
 function dist2(ax, ay, bx, by) {
   const dx = ax - bx;
   const dy = ay - by;
   return dx * dx + dy * dy;
+}
+
+function cellKey(x, y) {
+  return `${x}:${y}`;
+}
+
+function riverBounds(distance, level) {
+  const sway = Math.sin(distance * 0.0017) * (112 + Math.min(76, level * 5));
+  const center = WIDTH * 0.5 + sway;
+  const width = Math.max(308, 432 - level * 7 + Math.sin(distance * 0.0022) * 36);
+  return {
+    left: center - width * 0.5,
+    right: center + width * 0.5,
+  };
 }
 
 function updateSnake(state, input, dt) {
@@ -1111,6 +1295,399 @@ function updateMissile(state, input, dt) {
   if (g.spawned >= g.quota && g.enemies.length === 0) levelUp(state, "Oleada detenida", "Wave stopped", 720 + state.level * 90);
 }
 
+function updateLander(state, input, dt) {
+  const g = state.game;
+  const ship = g.ship;
+  if (input.down("ArrowLeft") || input.down("KeyA")) ship.a -= 2.4 * dt;
+  if (input.down("ArrowRight") || input.down("KeyD")) ship.a += 2.4 * dt;
+  if ((input.down("ArrowUp") || input.down("KeyW")) && ship.fuel > 0) {
+    const thrust = 210 + state.level * 10;
+    ship.vx += Math.cos(ship.a) * thrust * dt;
+    ship.vy += Math.sin(ship.a) * thrust * dt;
+    ship.fuel = Math.max(0, ship.fuel - dt * 23);
+  }
+  ship.vy += g.gravity * dt;
+  ship.vx *= 0.996;
+  ship.vy *= 0.998;
+  ship.x = clamp(ship.x + ship.vx * dt, 10, WIDTH - 10);
+  ship.y += ship.vy * dt;
+  if (ship.y < 30) {
+    ship.y = 30;
+    ship.vy = Math.max(0, ship.vy);
+  }
+  if (ship.y >= g.pad.y - 11) {
+    const onPad = ship.x >= g.pad.x - g.pad.w * 0.5 && ship.x <= g.pad.x + g.pad.w * 0.5;
+    const angle = Math.abs(Math.atan2(Math.sin(ship.a + Math.PI * 0.5), Math.cos(ship.a + Math.PI * 0.5)));
+    if (onPad && Math.abs(ship.vx) <= g.safeVx && Math.abs(ship.vy) <= g.safeVy && angle <= g.safeAngle) {
+      addScore(state, Math.round(320 + ship.fuel * 4));
+      levelUp(state, "Aterrizaje limpio", "Clean landing", 520 + state.level * 65);
+      return;
+    }
+    loseLife(state, "Aterrizaje fallido", "Crash landing");
+    return;
+  }
+  const fuelInfo = Math.round(ship.fuel);
+  state.message = state.locale === "es"
+    ? `Fuel ${fuelInfo}% · VX ${Math.round(ship.vx)} · VY ${Math.round(ship.vy)}`
+    : `Fuel ${fuelInfo}% · VX ${Math.round(ship.vx)} · VY ${Math.round(ship.vy)}`;
+}
+
+function updateCentipede(state, input, dt) {
+  const g = state.game;
+  const player = g.player;
+  player.moveCd = Math.max(0, player.moveCd - dt);
+  if (player.moveCd <= 0) {
+    let nx = player.x;
+    let ny = player.y;
+    if (input.pressed("ArrowLeft") || input.pressed("KeyA")) nx -= 1;
+    else if (input.pressed("ArrowRight") || input.pressed("KeyD")) nx += 1;
+    else if (input.pressed("ArrowUp") || input.pressed("KeyW")) ny -= 1;
+    else if (input.pressed("ArrowDown") || input.pressed("KeyS")) ny += 1;
+    nx = clamp(nx, 0, g.cols - 1);
+    ny = clamp(ny, g.rows - 6, g.rows - 1);
+    if (nx !== player.x || ny !== player.y) {
+      player.x = nx;
+      player.y = ny;
+      player.moveCd = 0.06;
+    }
+  }
+  player.shotCd = Math.max(0, player.shotCd - dt);
+  if ((input.pressed("Space") || input.pressed("Enter")) && player.shotCd <= 0) {
+    g.bullets.push({ x: player.x + 0.5, y: player.y - 0.25, vy: -22 });
+    player.shotCd = 0.14;
+  }
+  for (const bullet of g.bullets) bullet.y += bullet.vy * dt;
+  g.bullets = g.bullets.filter((bullet) => bullet.y > -2);
+
+  g.stepAcc += dt;
+  while (g.stepAcc >= g.stepDelay) {
+    g.stepAcc -= g.stepDelay;
+    if (g.segments.length === 0) break;
+    const previous = g.segments.map((segment) => ({ ...segment }));
+    const head = previous[0];
+    let nx = head.x + g.dir;
+    let ny = head.y;
+    if (nx < 0 || nx >= g.cols || g.mushrooms.has(cellKey(nx, ny))) {
+      g.dir *= -1;
+      nx = clamp(head.x + g.dir, 0, g.cols - 1);
+      ny += 1;
+    }
+    g.segments[0] = { x: nx, y: ny };
+    for (let index = 1; index < g.segments.length; index += 1) {
+      g.segments[index] = previous[index - 1];
+    }
+    if (g.segments[0].y >= g.rows - 1) {
+      loseLife(state, "Centipede invadio la base", "Centipede breached the base");
+      return;
+    }
+  }
+
+  g.flea.cd -= dt;
+  if (!g.flea.active && g.flea.cd <= 0) {
+    g.flea.active = true;
+    g.flea.x = randInt(g.rng, 0, g.cols);
+    g.flea.y = -1;
+    g.flea.vy = 7 + state.level * 0.45;
+    g.flea.cd = Math.max(1.1, 2.8 - state.level * 0.08);
+  }
+  if (g.flea.active) {
+    g.flea.y += g.flea.vy * dt;
+    if (g.flea.y > g.rows + 1) g.flea.active = false;
+  }
+
+  const nextBullets = [];
+  for (const bullet of g.bullets) {
+    let consumed = false;
+    for (let index = g.segments.length - 1; index >= 0; index -= 1) {
+      const segment = g.segments[index];
+      if (Math.abs(segment.x + 0.5 - bullet.x) < 0.5 && Math.abs(segment.y + 0.5 - bullet.y) < 0.62) {
+        g.mushrooms.add(cellKey(segment.x, segment.y));
+        g.segments.splice(index, 1);
+        addScore(state, 85 + state.level * 8);
+        consumed = true;
+        break;
+      }
+    }
+    if (!consumed && g.flea.active && Math.abs(g.flea.x + 0.5 - bullet.x) < 0.55 && Math.abs(g.flea.y + 0.5 - bullet.y) < 0.72) {
+      g.flea.active = false;
+      const y = clamp(Math.round(g.flea.y), 2, g.rows - 4);
+      g.mushrooms.add(cellKey(g.flea.x, y));
+      addScore(state, 130 + state.level * 10);
+      consumed = true;
+    }
+    if (!consumed) nextBullets.push(bullet);
+  }
+  g.bullets = nextBullets;
+
+  if (g.segments.some((segment) => segment.x === player.x && segment.y === player.y)) {
+    loseLife(state, "Colision con centipede", "Centipede collision");
+    return;
+  }
+  if (g.flea.active && Math.round(g.flea.x) === player.x && Math.round(g.flea.y) === player.y) {
+    loseLife(state, "Contacto con flea", "Flea collision");
+    return;
+  }
+  if (g.segments.length === 0) {
+    levelUp(state, "Oleada centipede neutralizada", "Centipede wave neutralized", 760 + state.level * 85);
+    return;
+  }
+  state.message = state.locale === "es"
+    ? `Segmentos ${g.segments.length} · Hongos ${g.mushrooms.size}`
+    : `Segments ${g.segments.length} · Mushrooms ${g.mushrooms.size}`;
+}
+
+function updateRiverRaid(state, input, dt) {
+  const g = state.game;
+  const throttle = input.down("ArrowUp") || input.down("KeyW")
+    ? 1.24
+    : (input.down("ArrowDown") || input.down("KeyS") ? 0.72 : 1);
+  const runSpeed = g.baseSpeed * throttle;
+  if (input.down("ArrowLeft") || input.down("KeyA")) g.playerX -= 320 * dt;
+  if (input.down("ArrowRight") || input.down("KeyD")) g.playerX += 320 * dt;
+  g.playerX = clamp(g.playerX, 24, WIDTH - 24);
+
+  g.shotCd = Math.max(0, g.shotCd - dt);
+  if ((input.pressed("Space") || input.pressed("Enter")) && g.shotCd <= 0) {
+    g.bullets.push({ x: g.playerX, y: g.playerY - 24, vy: -540 });
+    g.shotCd = 0.13;
+  }
+  for (const bullet of g.bullets) bullet.y += bullet.vy * dt;
+  g.bullets = g.bullets.filter((bullet) => bullet.y > -40 && !bullet.dead);
+
+  g.spawnCd -= dt;
+  if (g.spawnCd <= 0) {
+    const future = riverBounds(g.distance + 520, state.level);
+    const roll = g.rng();
+    const type = roll < 0.22 ? "fuel" : roll < 0.66 ? "drone" : "frigate";
+    const w = type === "fuel" ? 34 : type === "frigate" ? 74 : 48;
+    const h = type === "fuel" ? 34 : type === "frigate" ? 38 : 26;
+    const minX = future.left + 24;
+    const maxX = future.right - w - 24;
+    const x = minX >= maxX ? minX : minX + g.rng() * (maxX - minX);
+    g.obstacles.push({
+      x,
+      y: -90,
+      w,
+      h,
+      type,
+      hp: type === "frigate" ? 2 : 1,
+      vy: 96 + g.rng() * 120 + state.level * 8,
+    });
+    g.spawnCd = Math.max(0.16, 0.42 - state.level * 0.012);
+  }
+
+  const activeObstacles = [];
+  for (const obstacle of g.obstacles) {
+    obstacle.y += (runSpeed * 0.56 + obstacle.vy) * dt;
+    if (obstacle.y > HEIGHT + 90) {
+      if (obstacle.type !== "fuel") addScore(state, 12);
+      continue;
+    }
+    for (const bullet of g.bullets) {
+      if (bullet.dead || obstacle.type === "fuel") continue;
+      if (rectOverlap(bullet.x - 2, bullet.y - 8, 4, 14, obstacle.x, obstacle.y, obstacle.w, obstacle.h)) {
+        bullet.dead = true;
+        obstacle.hp -= 1;
+        if (obstacle.hp <= 0) addScore(state, obstacle.type === "frigate" ? 130 : 85);
+      }
+    }
+    if (obstacle.hp > 0) activeObstacles.push(obstacle);
+  }
+  g.obstacles = activeObstacles;
+  g.bullets = g.bullets.filter((bullet) => !bullet.dead && bullet.y > -40);
+
+  const playerW = 32;
+  const playerH = 42;
+  const px = g.playerX - playerW * 0.5;
+  const py = g.playerY - playerH * 0.5;
+  const bounds = riverBounds(g.distance, state.level);
+  if (px < bounds.left + 6 || px + playerW > bounds.right - 6) {
+    loseLife(state, "Impacto contra barranco", "Canyon wall impact");
+    return;
+  }
+  for (const obstacle of g.obstacles) {
+    if (!rectOverlap(px, py, playerW, playerH, obstacle.x, obstacle.y, obstacle.w, obstacle.h)) continue;
+    if (obstacle.type === "fuel") {
+      g.fuel = clamp(g.fuel + 34, 0, 100);
+      obstacle.collected = true;
+      addScore(state, 90);
+    } else {
+      loseLife(state, "Colision con objetivo", "Target collision");
+      return;
+    }
+  }
+  g.obstacles = g.obstacles.filter((obstacle) => !obstacle.collected);
+
+  g.distance += runSpeed * dt;
+  g.fuel -= dt * (3.4 + state.level * 0.22) * throttle;
+  if (g.fuel <= 0) {
+    loseLife(state, "Sin combustible", "Out of fuel");
+    return;
+  }
+  if (g.distance >= g.targetDistance) {
+    levelUp(state, "Canon superado", "Canyon sector cleared", 840 + state.level * 90);
+    return;
+  }
+  state.message = state.locale === "es"
+    ? `Fuel ${Math.round(g.fuel)}% · Dist ${Math.round(g.distance)}/${g.targetDistance}`
+    : `Fuel ${Math.round(g.fuel)}% · Dist ${Math.round(g.distance)}/${g.targetDistance}`;
+}
+
+function tronInBounds(g, x, y) {
+  return x >= 0 && y >= 0 && x < g.cols && y < g.rows;
+}
+
+function tronSafe(g, x, y) {
+  return tronInBounds(g, x, y) && !g.trails.has(cellKey(x, y));
+}
+
+function isReverseDirection(current, next) {
+  return current.x + next.x === 0 && current.y + next.y === 0;
+}
+
+function updateTron(state, input, dt) {
+  const g = state.game;
+  const player = g.player;
+  const ai = g.ai;
+  const dirs = [
+    { code: ["ArrowLeft", "KeyA"], dir: { x: -1, y: 0 } },
+    { code: ["ArrowRight", "KeyD"], dir: { x: 1, y: 0 } },
+    { code: ["ArrowUp", "KeyW"], dir: { x: 0, y: -1 } },
+    { code: ["ArrowDown", "KeyS"], dir: { x: 0, y: 1 } },
+  ];
+  for (const entry of dirs) {
+    if (entry.code.some((code) => input.pressed(code)) && !isReverseDirection(player.dir, entry.dir)) {
+      player.next = entry.dir;
+      break;
+    }
+  }
+
+  ai.think -= dt;
+  if (ai.think <= 0) {
+    const left = { x: -ai.dir.y, y: ai.dir.x };
+    const right = { x: ai.dir.y, y: -ai.dir.x };
+    const candidates = [ai.dir, left, right].filter((dir) => {
+      if (isReverseDirection(ai.dir, dir)) return false;
+      return tronSafe(g, ai.x + dir.x, ai.y + dir.y);
+    });
+    ai.next = candidates.length > 0 ? candidates[randInt(g.rng, 0, candidates.length)] : ai.dir;
+    ai.think = 0.08 + g.rng() * 0.16;
+  }
+
+  g.roundMs += dt * 1000;
+  if (g.roundMs >= g.limitMs) {
+    loseLife(state, "Tiempo agotado en duelo", "Duel timeout");
+    return;
+  }
+
+  g.stepAcc += dt;
+  while (g.stepAcc >= g.stepDelay) {
+    g.stepAcc -= g.stepDelay;
+    player.dir = player.next;
+    ai.dir = ai.next;
+    const pNext = { x: player.x + player.dir.x, y: player.y + player.dir.y };
+    const aNext = { x: ai.x + ai.dir.x, y: ai.y + ai.dir.y };
+    const headOn = pNext.x === aNext.x && pNext.y === aNext.y;
+    const swap = pNext.x === ai.x && pNext.y === ai.y && aNext.x === player.x && aNext.y === player.y;
+    const playerCrash = headOn || swap || !tronSafe(g, pNext.x, pNext.y);
+    const aiCrash = headOn || swap || !tronSafe(g, aNext.x, aNext.y);
+    if (playerCrash && aiCrash) {
+      loseLife(state, "Choque simultaneo", "Simultaneous crash");
+      return;
+    }
+    if (playerCrash) {
+      loseLife(state, "Tu ciclo impacto", "Your cycle crashed");
+      return;
+    }
+    if (aiCrash) {
+      addScore(state, 220 + state.level * 30);
+      levelUp(state, "Duelo ganado", "Duel won", 640 + state.level * 70);
+      return;
+    }
+    player.x = pNext.x;
+    player.y = pNext.y;
+    ai.x = aNext.x;
+    ai.y = aNext.y;
+    g.trails.add(cellKey(player.x, player.y));
+    g.trails.add(cellKey(ai.x, ai.y));
+  }
+  state.message = state.locale === "es"
+    ? `Trails ${g.trails.size} · Tiempo ${Math.max(0, Math.round((g.limitMs - g.roundMs) / 1000))}s`
+    : `Trails ${g.trails.size} · Time ${Math.max(0, Math.round((g.limitMs - g.roundMs) / 1000))}s`;
+}
+
+function roadLaneCenter(lanes, lane) {
+  const roadWidth = 360;
+  const left = (WIDTH - roadWidth) * 0.5;
+  const laneWidth = roadWidth / lanes;
+  return left + laneWidth * (lane + 0.5);
+}
+
+function updateRoadFighter(state, input, dt) {
+  const g = state.game;
+  g.laneCd = Math.max(0, g.laneCd - dt);
+  if (g.laneCd <= 0) {
+    if (input.pressed("ArrowLeft") || input.pressed("KeyA")) {
+      g.playerLane = clamp(g.playerLane - 1, 0, g.lanes - 1);
+      g.laneCd = 0.09;
+    } else if (input.pressed("ArrowRight") || input.pressed("KeyD")) {
+      g.playerLane = clamp(g.playerLane + 1, 0, g.lanes - 1);
+      g.laneCd = 0.09;
+    }
+  }
+  const throttle = input.down("ArrowUp") || input.down("KeyW")
+    ? 1.2
+    : (input.down("ArrowDown") || input.down("KeyS") ? 0.74 : 1);
+  const runSpeed = g.baseSpeed * throttle;
+
+  g.spawnCd -= dt;
+  if (g.spawnCd <= 0) {
+    const lane = randInt(g.rng, 0, g.lanes);
+    const heavy = g.rng() < 0.26;
+    g.cars.push({
+      lane,
+      y: -140,
+      w: heavy ? 56 : 44,
+      h: heavy ? 108 : 82,
+      speed: 120 + g.rng() * 170 + state.level * 10,
+      color: heavy ? "#ef4444" : g.rng() < 0.5 ? "#facc15" : "#38bdf8",
+    });
+    g.spawnCd = Math.max(0.16, 0.45 - state.level * 0.012);
+  }
+
+  const survivors = [];
+  for (const car of g.cars) {
+    car.y += (runSpeed * 0.55 + car.speed) * dt;
+    if (car.y > HEIGHT + 150) {
+      addScore(state, 18);
+      continue;
+    }
+    survivors.push(car);
+  }
+  g.cars = survivors;
+
+  const playerW = 46;
+  const playerH = 78;
+  const playerX = roadLaneCenter(g.lanes, g.playerLane) - playerW * 0.5;
+  const playerY = g.playerY - playerH * 0.5;
+  for (const car of g.cars) {
+    const carX = roadLaneCenter(g.lanes, car.lane) - car.w * 0.5;
+    if (rectOverlap(playerX, playerY, playerW, playerH, carX, car.y, car.w, car.h)) {
+      loseLife(state, "Impacto de trafico", "Traffic collision");
+      return;
+    }
+  }
+
+  g.distance += runSpeed * dt;
+  if (g.distance >= g.targetDistance) {
+    levelUp(state, "Tramo superado", "Road segment cleared", 760 + state.level * 80);
+    return;
+  }
+  state.message = state.locale === "es"
+    ? `Dist ${Math.round(g.distance)}/${g.targetDistance} · Carril ${g.playerLane + 1}`
+    : `Dist ${Math.round(g.distance)}/${g.targetDistance} · Lane ${g.playerLane + 1}`;
+}
+
 function bomberBlocked(g, x, y) {
   if (x < 0 || y < 0 || x >= g.cols || y >= g.rows) return true;
   if (g.map[y][x] === 1 || g.map[y][x] === 2) return true;
@@ -1212,6 +1789,13 @@ function updateGame(state, input, dt) {
     case "space-invaders": updateInvaders(state, input, dt); break;
     case "tetris-blockfall": updateTetris(state, input, dt); break;
     case "frogger-crossing": updateFrogger(state, input, dt); break;
+    case "galaga-quantum": updateGalaga(state, input, dt); break;
+    case "qbert-prism": updateQbert(state, input, dt); break;
+    case "lunar-lander-orbit": updateLander(state, input, dt); break;
+    case "centipede-circuit": updateCentipede(state, input, dt); break;
+    case "river-raid-neon": updateRiverRaid(state, input, dt); break;
+    case "tron-lightcycles": updateTron(state, input, dt); break;
+    case "road-fighter-synth": updateRoadFighter(state, input, dt); break;
     case "bomber-grid": updateBomber(state, input, dt); break;
     default: updateSnake(state, input, dt); break;
   }
@@ -1224,7 +1808,21 @@ const VISUAL_THEME = {
   "tetris-blockfall": { accent: "#34d399", accentSoft: "#a78bfa", panel: "#052e2b" },
   "frogger-crossing": { accent: "#22c55e", accentSoft: "#06b6d4", panel: "#14532d" },
   "bomber-grid": { accent: "#f97316", accentSoft: "#f43f5e", panel: "#431407" },
+  "galaga-quantum": { accent: "#fb7185", accentSoft: "#67e8f9", panel: "#3f1023" },
+  "qbert-prism": { accent: "#f97316", accentSoft: "#fbbf24", panel: "#431407" },
+  "lunar-lander-orbit": { accent: "#a78bfa", accentSoft: "#93c5fd", panel: "#2e1065" },
+  "centipede-circuit": { accent: "#84cc16", accentSoft: "#22d3ee", panel: "#1a2e05" },
+  "river-raid-neon": { accent: "#06b6d4", accentSoft: "#38bdf8", panel: "#0b2f3a" },
+  "tron-lightcycles": { accent: "#0ea5e9", accentSoft: "#67e8f9", panel: "#0b1d3a" },
+  "road-fighter-synth": { accent: "#f43f5e", accentSoft: "#f59e0b", panel: "#3f0f1b" },
 };
+
+const STATIC_BACKGROUND_VARIANTS = new Set([
+  "snake-classic",
+  "breakout-1986",
+  "space-invaders",
+  "tetris-blockfall",
+]);
 
 function themeFor(variant) {
   return VISUAL_THEME[variant] ?? VISUAL_THEME["snake-classic"];
@@ -1254,7 +1852,7 @@ function drawGlow(ctx, x, y, radius, color, alpha = 0.36) {
 
 function drawBackground(ctx, state) {
   const theme = themeFor(state.variant);
-  const t = state.elapsedMs * 0.001;
+  const t = STATIC_BACKGROUND_VARIANTS.has(state.variant) ? 0 : state.elapsedMs * 0.001;
   const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
   gradient.addColorStop(0, "#020617");
   gradient.addColorStop(0.45, "#0b1324");
@@ -1301,36 +1899,75 @@ function drawBackground(ctx, state) {
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 }
 
+function headerKpi(state, locale) {
+  const g = state.game;
+  if (!g) return "";
+  switch (state.variant) {
+    case "snake-classic":
+      return locale === "es" ? `Meta ${g.foods}/${g.targetFoods}` : `Goal ${g.foods}/${g.targetFoods}`;
+    case "breakout-1986":
+      return locale === "es"
+        ? `Bloques ${g.bricks.filter((brick) => brick.hp > 0).length}`
+        : `Bricks ${g.bricks.filter((brick) => brick.hp > 0).length}`;
+    case "space-invaders":
+      return locale === "es" ? `Invasores ${g.enemies.length}` : `Invaders ${g.enemies.length}`;
+    case "tetris-blockfall":
+      return locale === "es" ? `Lineas ${g.lines}` : `Lines ${g.lines}`;
+    case "frogger-crossing":
+      return locale === "es" ? `Guaridas ${g.homes.size}/5` : `Homes ${g.homes.size}/5`;
+    case "galaga-quantum":
+      return locale === "es" ? `Combo x${Math.max(1, g.combo)}` : `Combo x${Math.max(1, g.combo)}`;
+    case "qbert-prism": {
+      const total = (g.size * (g.size + 1)) / 2;
+      const colored = g.tiles.flat().filter((tile) => tile >= g.target).length;
+      return locale === "es" ? `Piramide ${colored}/${total}` : `Pyramid ${colored}/${total}`;
+    }
+    case "lunar-lander-orbit":
+      return locale === "es" ? `Fuel ${Math.round(g.ship.fuel)}%` : `Fuel ${Math.round(g.ship.fuel)}%`;
+    case "centipede-circuit":
+      return locale === "es" ? `Segmentos ${g.segments.length}` : `Segments ${g.segments.length}`;
+    case "river-raid-neon":
+      return locale === "es" ? `Fuel ${Math.round(g.fuel)}%` : `Fuel ${Math.round(g.fuel)}%`;
+    case "tron-lightcycles":
+      return locale === "es" ? `Rastro ${g.trails.size}` : `Trails ${g.trails.size}`;
+    case "road-fighter-synth":
+      return locale === "es" ? `Dist ${Math.round(g.distance)}/${g.targetDistance}` : `Dist ${Math.round(g.distance)}/${g.targetDistance}`;
+    case "bomber-grid":
+      return locale === "es" ? `Enemigos ${g.enemies.length}` : `Enemies ${g.enemies.length}`;
+    default:
+      return "";
+  }
+}
+
 function drawHeader(ctx, state, locale) {
   const ui = UI[locale] ?? UI.en;
   const definition = DEFINITIONS[state.variant];
   const theme = themeFor(state.variant);
-  drawRoundedRect(ctx, 16, 14, WIDTH - 32, 72, 16);
-  ctx.fillStyle = "rgba(2, 6, 23, 0.76)";
+  const kpi = headerKpi(state, locale);
+
+  drawRoundedRect(ctx, 16, 12, WIDTH - 32, 50, 12);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.78)";
   ctx.fill();
   ctx.strokeStyle = "rgba(148, 163, 184, 0.28)";
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  drawRoundedRect(ctx, 22, 20, 8, 60, 4);
+  drawRoundedRect(ctx, 22, 18, 6, 38, 3);
   ctx.fillStyle = theme.accent;
   ctx.fill();
 
   ctx.fillStyle = "#f8fafc";
-  ctx.font = "700 20px 'Bricolage Grotesque', sans-serif";
-  ctx.fillText(text(locale, definition.title), 42, 41);
-  ctx.fillStyle = "#cbd5e1";
-  ctx.font = "500 13px 'JetBrains Mono', monospace";
-  ctx.fillText(text(locale, definition.objective), 42, 63);
+  ctx.font = "700 16px 'Bricolage Grotesque', sans-serif";
+  ctx.fillText(text(locale, definition.title), 40, 33);
+
   ctx.fillStyle = "#f8fafc";
   ctx.textAlign = "right";
-  ctx.font = "700 14px 'JetBrains Mono', monospace";
-  ctx.fillText(`${ui.score}: ${state.score}`, WIDTH - 30, 34);
-  ctx.fillText(`${ui.best}: ${state.best}`, WIDTH - 30, 52);
-  ctx.fillText(`${ui.level}: ${state.level} · ${ui.lives}: ${state.lives}`, WIDTH - 30, 70);
+  ctx.font = "600 12px 'JetBrains Mono', monospace";
+  const compact = `${ui.score} ${state.score} | ${ui.best} ${state.best} | ${ui.level} ${state.level} | ${ui.lives} ${state.lives}`;
+  ctx.fillText(compact, WIDTH - 28, 31);
+  if (kpi) ctx.fillText(kpi, WIDTH - 28, 47);
   ctx.textAlign = "left";
 }
-
 function drawSnake(ctx, state) {
   const g = state.game;
   const x0 = 150;
@@ -1904,6 +2541,269 @@ function drawBomber(ctx, state) {
   ctx.fillRect(px + 4, py + 4, 12, 3);
 }
 
+function drawLander(ctx, state) {
+  const g = state.game;
+  const ship = g.ship;
+  ctx.fillStyle = "#020617";
+  ctx.fillRect(0, BODY_TOP, WIDTH, BODY_BOTTOM - BODY_TOP);
+  ctx.fillStyle = "rgba(226, 232, 240, 0.7)";
+  for (const star of g.stars) {
+    if (star.y < BODY_TOP || star.y > BODY_BOTTOM) continue;
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.moveTo(0, BODY_BOTTOM);
+  for (const point of g.ridge) ctx.lineTo(point.x, point.y);
+  ctx.lineTo(WIDTH, BODY_BOTTOM);
+  ctx.closePath();
+  ctx.fillStyle = "#334155";
+  ctx.fill();
+
+  const padX = g.pad.x - g.pad.w * 0.5;
+  drawRoundedRect(ctx, padX, g.pad.y - 6, g.pad.w, 12, 4);
+  ctx.fillStyle = "#22c55e";
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(ship.x, ship.y);
+  ctx.rotate(ship.a + Math.PI * 0.5);
+  drawGlow(ctx, 0, 0, 24, "#a78bfa", 0.26);
+  ctx.beginPath();
+  ctx.moveTo(0, -12);
+  ctx.lineTo(9, 10);
+  ctx.lineTo(-9, 10);
+  ctx.closePath();
+  ctx.fillStyle = "#e2e8f0";
+  ctx.fill();
+  ctx.strokeStyle = "#a78bfa";
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawCentipede(ctx, state) {
+  const g = state.game;
+  const cell = g.cell;
+  const x0 = Math.floor((WIDTH - g.cols * cell) * 0.5);
+  const y0 = 96;
+  drawRoundedRect(ctx, x0 - 12, y0 - 12, g.cols * cell + 24, g.rows * cell + 24, 14);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.8)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(148, 163, 184, 0.25)";
+  ctx.stroke();
+
+  ctx.fillStyle = "#0f172a";
+  ctx.fillRect(x0, y0, g.cols * cell, g.rows * cell);
+
+  ctx.fillStyle = "#a3e635";
+  for (const key of g.mushrooms) {
+    const [sx, sy] = key.split(":").map(Number);
+    const mx = x0 + sx * cell + cell * 0.5;
+    const my = y0 + sy * cell + cell * 0.5;
+    ctx.beginPath();
+    ctx.arc(mx, my, 6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  for (let i = 0; i < g.segments.length; i += 1) {
+    const segment = g.segments[i];
+    const cx = x0 + segment.x * cell + cell * 0.5;
+    const cy = y0 + segment.y * cell + cell * 0.5;
+    ctx.fillStyle = i === 0 ? "#f97316" : "#84cc16";
+    ctx.beginPath();
+    ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "#38bdf8";
+  for (const bullet of g.bullets) {
+    const bx = x0 + bullet.x * cell;
+    const by = y0 + bullet.y * cell;
+    ctx.beginPath();
+    ctx.moveTo(bx, by);
+    ctx.lineTo(bx, by - 10);
+    ctx.stroke();
+  }
+
+  if (g.flea.active) {
+    const fx = x0 + (g.flea.x + 0.5) * cell;
+    const fy = y0 + (g.flea.y + 0.5) * cell;
+    drawGlow(ctx, fx, fy, 20, "#f43f5e", 0.25);
+    ctx.fillStyle = "#fb7185";
+    ctx.beginPath();
+    ctx.arc(fx, fy, 7, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const px = x0 + (g.player.x + 0.5) * cell;
+  const py = y0 + (g.player.y + 0.5) * cell;
+  drawGlow(ctx, px, py, 22, "#22d3ee", 0.24);
+  drawRoundedRect(ctx, px - 10, py - 8, 20, 16, 6);
+  ctx.fillStyle = "#22d3ee";
+  ctx.fill();
+}
+
+function drawRiverRaid(ctx, state) {
+  const g = state.game;
+  const step = 10;
+  const leftPoints = [];
+  const rightPoints = [];
+  for (let y = BODY_TOP; y <= BODY_BOTTOM; y += step) {
+    const distance = g.distance + (BODY_BOTTOM - y) * 3.8;
+    const bounds = riverBounds(distance, state.level);
+    leftPoints.push({ x: bounds.left, y });
+    rightPoints.push({ x: bounds.right, y });
+  }
+  ctx.fillStyle = "#0f172a";
+  ctx.fillRect(0, BODY_TOP, WIDTH, BODY_BOTTOM - BODY_TOP);
+
+  ctx.beginPath();
+  ctx.moveTo(leftPoints[0].x, leftPoints[0].y);
+  for (const point of leftPoints) ctx.lineTo(point.x, point.y);
+  for (let i = rightPoints.length - 1; i >= 0; i -= 1) {
+    const point = rightPoints[i];
+    ctx.lineTo(point.x, point.y);
+  }
+  ctx.closePath();
+  const riverGrad = ctx.createLinearGradient(0, BODY_TOP, 0, BODY_BOTTOM);
+  riverGrad.addColorStop(0, "#0ea5e9");
+  riverGrad.addColorStop(1, "#0369a1");
+  ctx.fillStyle = riverGrad;
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(226, 232, 240, 0.3)";
+  for (let i = 0; i < leftPoints.length; i += 1) {
+    ctx.beginPath();
+    ctx.moveTo(leftPoints[i].x, leftPoints[i].y);
+    ctx.lineTo(rightPoints[i].x, rightPoints[i].y);
+    ctx.stroke();
+  }
+
+  for (const obstacle of g.obstacles) {
+    if (obstacle.y + obstacle.h < BODY_TOP || obstacle.y > BODY_BOTTOM) continue;
+    if (obstacle.type === "fuel") ctx.fillStyle = "#22c55e";
+    else if (obstacle.type === "frigate") ctx.fillStyle = "#f97316";
+    else ctx.fillStyle = "#f43f5e";
+    drawRoundedRect(ctx, obstacle.x, obstacle.y, obstacle.w, obstacle.h, 5);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "#e2e8f0";
+  for (const bullet of g.bullets) {
+    ctx.beginPath();
+    ctx.moveTo(bullet.x, bullet.y);
+    ctx.lineTo(bullet.x, bullet.y - 10);
+    ctx.stroke();
+  }
+
+  ctx.save();
+  ctx.translate(g.playerX, g.playerY);
+  drawGlow(ctx, 0, 0, 22, "#38bdf8", 0.25);
+  ctx.beginPath();
+  ctx.moveTo(0, -18);
+  ctx.lineTo(11, 14);
+  ctx.lineTo(0, 8);
+  ctx.lineTo(-11, 14);
+  ctx.closePath();
+  ctx.fillStyle = "#e2e8f0";
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawTron(ctx, state) {
+  const g = state.game;
+  const cell = 20;
+  const x0 = Math.floor((WIDTH - g.cols * cell) * 0.5);
+  const y0 = 102;
+  drawRoundedRect(ctx, x0 - 10, y0 - 10, g.cols * cell + 20, g.rows * cell + 20, 14);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(56, 189, 248, 0.3)";
+  ctx.stroke();
+
+  ctx.fillStyle = "#030712";
+  ctx.fillRect(x0, y0, g.cols * cell, g.rows * cell);
+
+  for (const key of g.trails) {
+    const [sx, sy] = key.split(":").map(Number);
+    const tx = x0 + sx * cell + 2;
+    const ty = y0 + sy * cell + 2;
+    const playerHit = sx === g.player.x && sy === g.player.y;
+    const aiHit = sx === g.ai.x && sy === g.ai.y;
+    if (playerHit) ctx.fillStyle = "#22d3ee";
+    else if (aiHit) ctx.fillStyle = "#f43f5e";
+    else ctx.fillStyle = "rgba(148, 163, 184, 0.35)";
+    ctx.fillRect(tx, ty, cell - 4, cell - 4);
+  }
+}
+
+function drawRoadFighter(ctx, state) {
+  const g = state.game;
+  const roadWidth = 360;
+  const left = (WIDTH - roadWidth) * 0.5;
+  const laneWidth = roadWidth / g.lanes;
+  const y0 = BODY_TOP;
+  const h = BODY_BOTTOM - BODY_TOP;
+
+  ctx.fillStyle = "#0f172a";
+  ctx.fillRect(0, y0, WIDTH, h);
+  drawRoundedRect(ctx, left - 16, y0, roadWidth + 32, h, 20);
+  ctx.fillStyle = "#111827";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(148, 163, 184, 0.28)";
+  ctx.stroke();
+
+  const dashOffset = (state.elapsedMs * 0.35) % 46;
+  ctx.strokeStyle = "rgba(226, 232, 240, 0.45)";
+  ctx.setLineDash([18, 18]);
+  for (let lane = 1; lane < g.lanes; lane += 1) {
+    const x = left + lane * laneWidth;
+    ctx.beginPath();
+    ctx.moveTo(x, y0 + dashOffset);
+    ctx.lineTo(x, BODY_BOTTOM);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  for (const car of g.cars) {
+    const x = roadLaneCenter(g.lanes, car.lane) - car.w * 0.5;
+    drawRoundedRect(ctx, x, car.y, car.w, car.h, 8);
+    ctx.fillStyle = car.color;
+    ctx.fill();
+    ctx.fillStyle = "rgba(2, 6, 23, 0.45)";
+    ctx.fillRect(x + 8, car.y + 10, car.w - 16, 14);
+  }
+
+  const playerW = 46;
+  const playerH = 78;
+  const playerX = roadLaneCenter(g.lanes, g.playerLane) - playerW * 0.5;
+  const playerY = g.playerY - playerH * 0.5;
+  drawGlow(ctx, playerX + playerW * 0.5, playerY + playerH * 0.5, 32, "#f43f5e", 0.22);
+  drawRoundedRect(ctx, playerX, playerY, playerW, playerH, 10);
+  ctx.fillStyle = "#e11d48";
+  ctx.fill();
+  ctx.fillStyle = "rgba(248, 250, 252, 0.85)";
+  ctx.fillRect(playerX + 10, playerY + 14, playerW - 20, 16);
+}
+
+function drawUnsupported(ctx, state) {
+  drawRoundedRect(ctx, 156, 120, WIDTH - 312, HEIGHT - 206, 20);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(148, 163, 184, 0.3)";
+  ctx.stroke();
+  ctx.fillStyle = "#f8fafc";
+  ctx.font = "700 24px 'Bricolage Grotesque', sans-serif";
+  ctx.fillText(
+    state.locale === "es" ? "Render retro en progreso" : "Retro render in progress",
+    184,
+    HEIGHT * 0.5 - 12
+  );
+  ctx.fillStyle = "#cbd5e1";
+  ctx.font = "500 15px 'JetBrains Mono', monospace";
+  ctx.fillText(state.variant, 184, HEIGHT * 0.5 + 22);
+}
 function drawBody(ctx, state) {
   switch (state.variant) {
     case "snake-classic": drawSnake(ctx, state); break;
@@ -1911,11 +2811,22 @@ function drawBody(ctx, state) {
     case "space-invaders": drawInvaders(ctx, state); break;
     case "tetris-blockfall": drawTetris(ctx, state); break;
     case "frogger-crossing": drawFrogger(ctx, state); break;
+    case "galaga-quantum": drawGalaga(ctx, state); break;
+    case "qbert-prism": drawQbert(ctx, state); break;
+    case "pong-duel": drawPong(ctx, state); break;
+    case "asteroids-vector": drawAsteroids(ctx, state); break;
+    case "missile-command": drawMissile(ctx, state); break;
     case "bomber-grid": drawBomber(ctx, state); break;
-    default: drawSnake(ctx, state); break;
+    case "lunar-lander-orbit": drawLander(ctx, state); break;
+    case "centipede-circuit": drawCentipede(ctx, state); break;
+    case "river-raid-neon": drawRiverRaid(ctx, state); break;
+    case "tron-lightcycles": drawTron(ctx, state); break;
+    case "road-fighter-synth": drawRoadFighter(ctx, state); break;
+    default:
+      drawUnsupported(ctx, state);
+      break;
   }
 }
-
 function drawOverlay(ctx, state, locale) {
   if (state.phase === "playing") return;
   const ui = UI[locale] ?? UI.en;
@@ -1929,7 +2840,7 @@ function drawOverlay(ctx, state, locale) {
     ? (locale === "es" ? "Partida terminada" : "Game over")
     : state.phase === "paused"
       ? (locale === "es" ? "Pausa" : "Paused")
-      : (locale === "es" ? "Lista para jugar" : "Ready to play");
+      : (locale === "es" ? "Lista para iniciar" : "Ready");
   ctx.fillStyle = "#f8fafc";
   ctx.font = "700 30px 'Bricolage Grotesque', sans-serif";
   ctx.fillText(title, 144, 204);
@@ -1947,7 +2858,12 @@ function drawOverlay(ctx, state, locale) {
 function renderCanvas(ctx, state, locale) {
   drawBackground(ctx, state);
   drawHeader(ctx, state, locale);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(10, BODY_TOP, WIDTH - 20, BODY_BOTTOM - BODY_TOP);
+  ctx.clip();
   drawBody(ctx, state);
+  ctx.restore();
   drawRoundedRect(ctx, 16, HEIGHT - 52, WIDTH - 32, 34, 11);
   ctx.fillStyle = "rgba(15, 23, 42, 0.7)";
   ctx.fill();
@@ -1958,7 +2874,6 @@ function renderCanvas(ctx, state, locale) {
   ctx.fillText(state.message, 28, HEIGHT - 30);
   drawOverlay(ctx, state, locale);
 }
-
 function summary(state) {
   const g = state.game;
   switch (state.variant) {
@@ -1972,13 +2887,26 @@ function summary(state) {
       return { lines: g.lines, piece: { x: g.piece.x, y: g.piece.y }, delay: Math.round(g.dropDelay * 1000) };
     case "frogger-crossing":
       return { frog: { x: g.frog.x, y: g.frog.y }, homes: g.homes.size, timeLeftMs: Math.max(0, Math.round(g.limitMs - g.roundMs)) };
+    case "galaga-quantum":
+      return { enemies: g.enemies.length, bullets: g.bullets.length, enemyBullets: g.enemyBullets.length, combo: g.combo };
+    case "qbert-prism":
+      return { row: g.player.row, col: g.player.col, target: g.target, colored: g.tiles.flat().filter((tile) => tile >= g.target).length };
+    case "lunar-lander-orbit":
+      return { fuel: Math.round(g.ship.fuel), vx: Math.round(g.ship.vx), vy: Math.round(g.ship.vy), safeVy: g.safeVy };
+    case "centipede-circuit":
+      return { segments: g.segments.length, mushrooms: g.mushrooms.size, bullets: g.bullets.length, flea: g.flea.active };
+    case "river-raid-neon":
+      return { fuel: Math.round(g.fuel), distance: Math.round(g.distance), targetDistance: g.targetDistance, obstacles: g.obstacles.length };
+    case "tron-lightcycles":
+      return { player: { x: g.player.x, y: g.player.y }, ai: { x: g.ai.x, y: g.ai.y }, trails: g.trails.size };
+    case "road-fighter-synth":
+      return { lane: g.playerLane + 1, distance: Math.round(g.distance), targetDistance: g.targetDistance, traffic: g.cars.length };
     case "bomber-grid":
       return { player: { x: g.player.x, y: g.player.y, range: g.player.range, cap: g.player.cap }, enemies: g.enemies.length, bombs: g.bombs.length, flames: g.flames.length };
     default:
       return {};
   }
 }
-
 function snapshot(state, locale) {
   const ui = UI[locale] ?? UI.en;
   return {
@@ -2189,10 +3117,10 @@ function RetroClassicsGame({ variant = "snake-classic" }) {
 
       {touch ? (
         <div className="retro-arcade-touch">
-          <button type="button" {...holdProps("ArrowLeft")}>◀</button>
-          <button type="button" {...holdProps("ArrowUp")}>▲</button>
-          <button type="button" {...holdProps("ArrowDown")}>▼</button>
-          <button type="button" {...holdProps("ArrowRight")}>▶</button>
+          <button type="button" {...holdProps("ArrowLeft")}>?</button>
+          <button type="button" {...holdProps("ArrowUp")}>?</button>
+          <button type="button" {...holdProps("ArrowDown")}>?</button>
+          <button type="button" {...holdProps("ArrowRight")}>?</button>
           <button type="button" {...holdProps("Space")}>A</button>
           <button type="button" {...holdProps("Enter")}>B</button>
           <button type="button" {...holdProps("KeyP")}>P</button>
@@ -2205,3 +3133,4 @@ function RetroClassicsGame({ variant = "snake-classic" }) {
 }
 
 export default RetroClassicsGame;
+

@@ -1,0 +1,18 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'>
+  <rect width='320' height='180' fill='#140a1f' rx='20'/>
+  <g fill='#fb7185'>
+    <ellipse cx='72' cy='54' rx='16' ry='10'/>
+    <ellipse cx='122' cy='54' rx='16' ry='10'/>
+    <ellipse cx='172' cy='54' rx='16' ry='10'/>
+    <ellipse cx='222' cy='54' rx='16' ry='10'/>
+    <ellipse cx='272' cy='54' rx='16' ry='10'/>
+  </g>
+  <g fill='#f97316'>
+    <ellipse cx='96' cy='86' rx='18' ry='11'/>
+    <ellipse cx='160' cy='86' rx='18' ry='11'/>
+    <ellipse cx='224' cy='86' rx='18' ry='11'/>
+  </g>
+  <polygon points='160,152 142,126 178,126' fill='#60a5fa'/>
+  <line x1='160' y1='126' x2='160' y2='102' stroke='#e2e8f0' stroke-width='3'/>
+  <text x='14' y='26' fill='#fbcfe8' font-family='JetBrains Mono, monospace' font-size='15'>GALAGA QUANTUM</text>
+</svg>
