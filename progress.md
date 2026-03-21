@@ -3169,3 +3169,32 @@ pm run build en sandbox sigue bloqueado por spawn EPERM (esbuild);
   - Escoba runtime: `output/strategy-escoba-odds-check/shot-0.png`, `shot-1.png`, `state-0.json`, `state-1.json`.
   - Brisca con selector en Experto visible: `output/strategy-brisca-expert-odds-check/shot-0.png`, `shot-1.png`.
   - Escoba con cambio de modo funcional (la dificultad se mantuvo en media en esa automatización): `output/strategy-escoba-expert-odds-check/shot-0.png`, `state-0.json`.
+## 2026-03-21 - Territory War: IA dinamica + canones + 12 escenarios nuevos
+- Archivo actualizado: `src/games/arcade/territory-war/index.jsx`.
+- IA profesionalizada para decision dinamica por contexto de partida:
+  - memoria adaptativa (`confidence`, `aggression`, `aimBias`, `chargeBias`, `recentShots`),
+  - priorizacion de objetivos por amenaza/vida/proximidad,
+  - evaluacion tactica de posicion por terreno (`ground/log/stone`), altura, exposicion, clustering aliado y riesgo,
+  - decision de avance/repliegue en funcion de diferencial de HP total y distancia al frente,
+  - anti-camping (`campPenalty`) para evitar quedarse siempre en el mismo punto,
+  - deteccion de atasco (`stuckMs`) y replanificacion para desbloqueo.
+- Angulo de disparo ampliado en juego:
+  - nuevo rango global `AIM_MIN=6` a `AIM_MAX=174` para usuario e IA.
+- Nueva mecanica de canones de largo alcance para usuario e IA:
+  - canones por equipo en cada mapa (`buildMapCannons`),
+  - usuario: alterna canion con tecla `C` (y boton tactil/UI),
+  - IA: evalua y usa canion automaticamente en situaciones de larga distancia,
+  - fisica dedicada del canion: mayor velocidad de salida y menor deriva por viento.
+- Escenarios:
+  - mantenidos los 5 originales y anadidos 12 nuevos totalmente conectados para ambos equipos,
+  - IDs nuevos: `skyline`, `sunken-harbor`, `forge`, `overgrowth`, `icebridge`, `catacombs`, `frontier`, `floodgate`, `sky-ruins`, `quarry`, `citadel`, `eclipse`.
+- UI/HUD y telemetria:
+  - visualizacion de arma activa (`Grenade/Cannon`),
+  - control `C` en panel de controles,
+  - estado snapshot enriquecido con `cannons` y telemetria IA.
+- Validacion:
+  - `npm run build` (fuera de sandbox) OK.
+  - Playwright enfocado a `#game=arcade-territory-war` OK:
+    - artefactos en `output/territory-war-ai-validation-v3/` (`shot-0..2.png`, `state-0..2.json`),
+    - sin `errors-*.json`,
+    - `state-2.json` confirma `aimDeg` > rango anterior y decision IA con `useCannon: true`.
