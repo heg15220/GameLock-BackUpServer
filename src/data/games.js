@@ -15,6 +15,7 @@ import arcadeBowlingProTourImage from "../assets/games/arcade-bowling-pro-tour.s
 import arcadePenaltyNeuralKeeperImage from "../assets/games/arcade-penalty-neural-keeper.svg";
 import arcadeCosmicVanguardImage from "../assets/games/arcade-cosmic-vanguard.svg";
 import arcadeGolfTour2DImage from "../assets/games/arcade-golf-tour-2d.svg";
+import arcadeArcheryHorizonImage from "../assets/games/arcade-archery-horizon.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
 import arcadeTerritoryWarImage from "../assets/games/arcade-territory-war.svg";
@@ -737,6 +738,58 @@ export const games = [
     viability_en: "High: deterministic Canvas runtime with serializable state and lightweight local persistence.",
     visualStyle_en: "Color-rich side-view mini golf direction with layered terrain perspective and mountain horizon.",
     techFocus_en: "Modular runtime (levels/physics/render) with continuous terrain collision and 100-level progression architecture.",
+  },
+  {
+    id: "arcade-archery-horizon",
+    image: arcadeArcheryHorizonImage,
+    sessionTime: "4-10 min",
+
+    title: "Archery Horizon 100",
+    category: "Arcade",
+    tagline: "Tiro con arco 3D en perspectiva de horizonte con 100 niveles, camara de vuelo y fisica avanzada.",
+    description:
+      "Campana de 100 niveles de tiro con arco donde la distancia crece con la dificultad: cuanto mas avanzado el nivel, mas lejos aparece la diana en la profundidad del mapa. El jugador configura intensidad y trayectoria antes de disparar, la flecha vuela con gravedad, drag, viento dinamico y zonas de corriente, y la camara sigue toda la parabola hasta el punto de impacto.",
+    objective_es:
+      "Ajusta trayectoria e intensidad para impactar la diana en cada nivel y desbloquear progresivamente los 100 escenarios.",
+    howToPlay_es:
+      "Desvio con A/D o flechas izq/der, trayectoria con arriba/abajo, intensidad con W/S, Enter/Espacio para disparar, P pausa, R reinicia, N siguiente nivel y F pantalla completa.",
+    highlights: [
+      "100 niveles diferentes con escalado de distancia, viento y precision requerida.",
+      "Entornos variados (valle, canones, hielo, tormenta, volcan, meseta) con fisicas calibradas por biome.",
+      "Mecanicas avanzadas: dianas moviles, muros con huecos, corredores de corriente ascendente y viento por rafagas.",
+      "Vista pseudo-3D de horizonte para leer profundidad y anticipar la trayectoria.",
+      "Camara dinamica que cambia de vista de arco a seguimiento de flecha y bloqueo de impacto.",
+      "Feedback de anillos (bullseye/interior/medio/exterior) con scoring y rachas.",
+      "Bridge QA con render_game_to_text + advanceTime para validacion automatizada determinista.",
+    ],
+    difficulty: "Variable (Rookie / Pro / Elite / Master / Legend)",
+    multiplayer: "Solo",
+    viability: "Alta: motor Canvas determinista con niveles procedurales controlados y estado serializable.",
+    visualStyle: "Paisajes de horizonte con profundidad marcada, dianas de alto contraste y HUD tecnico de tiro.",
+    techFocus: "Simulacion balistica 3D simplificada + colision en plano de objetivo + camara follow-shot + progresion de 100 niveles.",
+
+    category_en: "Arcade",
+    tagline_en: "Horizon-depth 3D archery with 100 levels, flight camera tracking, and advanced physics.",
+    description_en:
+      "A 100-level archery campaign where difficulty scales mainly through range: the harder the level, the farther the target sits on the map horizon. Players set intensity and trajectory before each release, then watch a full camera-follow shot driven by gravity, drag, dynamic wind, moving targets, and tactical obstacle layers.",
+    objective_en:
+      "Tune trajectory and intensity to hit each target and clear all 100 levels with consistent precision.",
+    howToPlay_en:
+      "Yaw with A/D or left/right arrows, trajectory with up/down, intensity with W/S, Enter/Space to fire, P pause, R restart, N next level, and F fullscreen.",
+    highlights_en: [
+      "100 distinct levels with escalating distance, wind variance, and precision thresholds.",
+      "Multiple biomes (valley, canyon, frost, storm, volcanic, plateau) with tuned physics profiles.",
+      "Advanced mechanics: moving targets, slit walls, updraft corridors, and gusting crosswinds.",
+      "Pseudo-3D horizon rendering so players can read depth before committing to a shot.",
+      "Dynamic camera flow: bow setup view -> in-flight arrow follow -> impact lock.",
+      "Ring-based hit feedback (bullseye/inner/mid/outer) with streak and score progression.",
+      "QA bridge exposing render_game_to_text and deterministic advanceTime stepping.",
+    ],
+    difficulty_en: "Variable (Rookie / Pro / Elite / Master / Legend)",
+    multiplayer_en: "Solo",
+    viability_en: "High: deterministic Canvas runtime with controlled procedural levels and serializable state.",
+    visualStyle_en: "Depth-rich horizon landscapes, high-contrast targets, and technical archery HUD language.",
+    techFocus_en: "Simplified 3D ballistic simulation + target-plane collision + shot-follow camera + 100-level progression.",
   },
   {
     id: "arcade-pong-neon-arena",

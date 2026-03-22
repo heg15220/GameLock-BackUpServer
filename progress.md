@@ -3255,3 +3255,33 @@ pm run build en sandbox sigue bloqueado por spawn EPERM (esbuild);
   - Playwright client process can hang in this Windows environment after artifact creation; latest run still produced valid screenshot/state outputs and no fresh error artifact in the new folder.
 - Additional QA pass: `output/arcade-golf-tour-2d-validation-v3/` generated `shot-0.png` + `state-0.json` after runtime fix, with no new `errors-*.json` in that folder.
 - Environment note: Playwright client still hangs on exit in this Windows setup, so commands may timeout even when artifacts are produced successfully.
+
+## 2026-03-22 - Arcade Archery Horizon 100 (implementacion)
+- Nuevo juego `arcade-archery-horizon` implementado en `src/games/arcade/archery-horizon/index.jsx`.
+- Runtime Canvas con 100 niveles (progresion por distancia + dificultad) y seis entornos con parametros fisicos propios (gravedad/drag/viento).
+- Mecanicas incluidas: seleccion de intensidad + trayectoria, dianas moviles, obstaculos con hueco, zonas de corriente ascendente y scoring por anillos.
+- Camara dinamica: vista de arco -> seguimiento de flecha en vuelo -> bloqueo de impacto.
+- Integracion completa en catalogo y registro: `src/data/games.js`, `src/games/registry.jsx`, `src/components/GamePlayground.jsx`, asset `src/assets/games/arcade-archery-horizon.svg`, estilos en `src/styles.css`.
+- Persistencia local de progreso (nivel desbloqueado, rachas, puntuacion) y bridge QA con `render_game_to_text` + `advanceTime`.
+- Pendiente inmediato: build + pasada Playwright del nuevo juego para verificar controles, capturas y ausencia de errores.
+- Ajuste de camara solicitado (2026-03-22): posicion inicial de camara movida al punto del arco (`z=0`), eliminando arranque desde atras. Seguimiento en vuelo acercado (`arrow.z - 2.6`) y bloqueo de impacto tambien adelantado (`impact.z - 6`) para mantener POV desde el arco.
+- Ajuste POV adicional (2026-03-22): anadido `drawPovBowOverlay()` en `archery-horizon` para mostrar el dibujo del arco y cuerda en primera persona durante el estado de apuntado, antes del lanzamiento.
+- Ajuste POV (2026-03-22): `drawPovBowOverlay()` rehecho para mostrar el arco en perspectiva oblicua del usuario (tilt + profundidad + cuerda hacia nock), evitando la geometria plana perpendicular a camara.
+- Ajuste POV final (2026-03-22): incrementada longitud del vector de flecha en overlay (`overlayArrowLength`) para que el trazo converja visualmente hacia el horizonte/objetivo y no se perciba horizontal.
+- Refinado POV (2026-03-22): overlay de arco/flecha recalculado con base vectorial 3D (forward/right/up) y orientacion de flecha hacia objetivo real (`targetDir`) para eliminar percepcion horizontal plana en primera persona.
+- Refinado adicional POV (2026-03-22): direccion de flecha en overlay ajustada con blend `targetDir + forward` (shotDir) para mantener convergencia al objetivo sin perder inclinacion de trayectoria; nock ligeramente mas bajo para reforzar lectura angular.
+- Refinado UX/POV (2026-03-22): trayectoria previa cambiada a trazo continuo suave (elimina look de 'puntos blancos tipo pelota'), anadida reticula de impacto en el plano de la diana (`drawAimReticle`), y ocultado `drawArcher()` durante apuntado para mantener POV limpio con arco/flecha en primer plano.
+- Ajuste visual extra (2026-03-22): anadidas empunadura del arco y plumas en cola de flecha en POV para reforzar continuidad visual arco-cuerda-flecha y evitar efecto de linea suelta.
+- Correccion solicitada por captura (2026-03-22): `drawPovBowOverlay()` simplificado para mostrar exclusivamente flecha de POV (sin arco), anclada en la parte inferior de pantalla y orientada hacia el punto de apuntado en profundidad.
+
+## 2026-03-22 - Archery Horizon: puntos por ronda visibles
+- Se anadio resumen explicito de fin de ronda en rcade-archery-horizon para mostrar los puntos obtenidos en cada tiro.
+- El resultado ahora incluye desglose: zonePoints (anillo impactado) + distanceBonus (dificultad/profundidad), y ambos se exponen en snapshot.result.
+- Nuevos overlays:
+  - impacto sin acierto: tarjeta compacta de resumen de ronda con +0 puntos.
+  - impacto con acierto: overlay de nivel superado muestra Puntos de ronda y desglose zona + bonus distancia.
+  - fin de campana: tambien muestra puntos de la ultima ronda.
+- Mensaje de estado en fallo ahora incluye (+0) para hacer explicita la puntuacion de la ronda.
+- Estilos nuevos en src/styles.css para rchery-horizon-round-points y rchery-horizon-round-breakdown.
+- Nota de QA: compilacion 
+pm run build sigue bloqueada en sandbox por spawn EPERM de esbuild; intento de ejecucion con elevacion fue interrumpido por el usuario, por lo que no hay build final validado en este turno.

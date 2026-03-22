@@ -1,0 +1,35 @@
+<svg width="800" height="500" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="400" y1="32" x2="400" y2="390" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1D3E6F"/>
+      <stop offset="1" stop-color="#9ED8FF"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="400" y1="260" x2="400" y2="500" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5A7A42"/>
+      <stop offset="1" stop-color="#233722"/>
+    </linearGradient>
+    <linearGradient id="targetGlow" x1="566" y1="170" x2="566" y2="262" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFEE5"/>
+      <stop offset="1" stop-color="#FFC050"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" rx="32" fill="#0D1524"/>
+  <rect x="26" y="26" width="748" height="448" rx="24" fill="url(#sky)"/>
+  <path d="M26 242C96 218 164 228 232 248C300 268 370 254 438 238C506 222 574 226 642 250C700 268 742 284 774 292V474H26V242Z" fill="#6F88A2" fill-opacity="0.75"/>
+  <path d="M26 262C106 270 170 302 242 322C316 342 392 328 462 312C534 296 608 300 686 330C720 344 752 362 774 376V474H26V262Z" fill="url(#ground)"/>
+  <path d="M120 300L408 224L684 286" stroke="white" stroke-opacity="0.26" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 10"/>
+  <circle cx="566" cy="218" r="44" fill="url(#targetGlow)" stroke="#EEEFD1" stroke-width="5"/>
+  <circle cx="566" cy="218" r="31" fill="#D03A3A"/>
+  <circle cx="566" cy="218" r="20" fill="#1D58D8"/>
+  <circle cx="566" cy="218" r="9" fill="#F8CE4E"/>
+  <rect x="562" y="238" width="8" height="74" rx="4" fill="#6A3A1A"/>
+  <path d="M112 334C116 302 142 278 178 272" stroke="#5E3117" stroke-width="9" stroke-linecap="round"/>
+  <path d="M178 272V356" stroke="#EEEDE6" stroke-width="3" stroke-linecap="round"/>
+  <path d="M186 314L226 302" stroke="#ECECEC" stroke-width="4" stroke-linecap="round"/>
+  <path d="M224 302L244 296" stroke="#FF7E3D" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="244" cy="296" r="4.8" fill="#FFD2B2"/>
+  <path d="M438 58H716" stroke="white" stroke-opacity="0.34" stroke-width="4" stroke-linecap="round"/>
+  <path d="M438 78H636" stroke="white" stroke-opacity="0.24" stroke-width="3" stroke-linecap="round"/>
+  <text x="438" y="130" fill="#F4F9FF" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700">ARCHERY HORIZON 100</text>
+  <text x="438" y="164" fill="#D5ECFF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Long range archery tour</text>
+</svg>
