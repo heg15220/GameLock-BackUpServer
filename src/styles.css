@@ -18417,6 +18417,64 @@ button.brisca-card.playable:disabled {
   gap: 0.46rem;
 }
 
+.archery-horizon-level-picker {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.archery-horizon-level-picker-label {
+  margin: 0;
+  font-size: 0.78rem;
+  color: rgba(160, 210, 255, 0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.archery-horizon-level-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-height: 148px;
+  overflow-y: auto;
+  padding: 3px 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 170, 240, 0.35) transparent;
+}
+
+.archery-horizon-level-btn {
+  width: 30px;
+  height: 27px;
+  padding: 0;
+  background: rgba(22, 48, 78, 0.82);
+  border: 1px solid rgba(90, 150, 210, 0.22);
+  border-radius: 5px;
+  color: rgba(195, 224, 250, 0.85);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  line-height: 1;
+}
+
+.archery-horizon-level-btn:hover {
+  background: rgba(45, 88, 145, 0.88);
+  border-color: rgba(120, 190, 255, 0.5);
+  color: #fff;
+}
+
+.archery-horizon-level-btn.selected {
+  background: rgba(32, 108, 215, 0.78);
+  border-color: rgba(135, 198, 255, 0.9);
+  color: #fff;
+  box-shadow: 0 0 6px rgba(80, 160, 255, 0.4);
+}
+
+.archery-horizon-level-preview {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(175, 218, 255, 0.88);
+}
+
 .archery-horizon-stage-foot {
   background: rgba(10, 24, 39, 0.84);
   border: 1px solid rgba(145, 197, 244, 0.2);

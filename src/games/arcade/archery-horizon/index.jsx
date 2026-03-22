@@ -668,6 +668,9 @@ class ArcheryHorizonRuntime {
     this.previewCacheKey = "";
     this.previewCache = [];
 
+    this.cloudDrift = 0;
+    this.horizonFrac = 0.34;
+
     this.lastFrame = 0;
     this.accumulator = 0;
     this.snapshotAccumulator = 0;
@@ -1395,6 +1398,17 @@ class ArcheryHorizonRuntime {
 
   update(dt) {
     this.time += dt;
+
+    const cameraLift = clamp((this.camera.y - 1.75) / 7.5, 0, 1);
+    const level = this.currentLevel;
+    const camZProgress = level ? clamp(this.camera.z / Math.max(1, level.target.z * 0.9), 0, 1) : 0;
+    this.horizonFrac = 0.34 - cameraLift * 0.1 - camZProgress * 0.025;
+
+    if (level && !this.paused) {
+      const wind = this.resolveWind(level, this.time);
+      this.cloudDrift = ((this.cloudDrift + wind.x * dt * 1.4) % (this.viewport.width * 2) + this.viewport.width * 2) % (this.viewport.width * 2);
+    }
+
     if (this.screen !== "play") {
       this.clearAimKeyState();
       this.updateCamera(dt);
@@ -1755,7 +1769,7 @@ class ArcheryHorizonRuntime {
   project(point) {
     const { width, height } = this.viewport;
     const focal = width * 0.58;
-    const horizonY = height * 0.34;
+    const horizonY = this.horizonFrac * height;
 
     const relX = point.x - this.camera.x;
     const relY = point.y - this.camera.y;
@@ -1776,98 +1790,591 @@ class ArcheryHorizonRuntime {
     };
   }
 
+  _drawPuffCloud(ctx, cx, cy, rx, ry, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx - rx * 0.42, cy + ry * 0.28, rx * 0.62, ry * 0.68, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + rx * 0.44, cy + ry * 0.3, rx * 0.58, ry * 0.62, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + rx * 0.1, cy - ry * 0.2, rx * 0.7, ry * 0.76, 0, 0, Math.PI * 2); ctx.fill();
+  }
+
+  _drawScreenPineTree(ctx, bx, by, h, dark, light, lean = 0) {
+    const lx = lean;
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.moveTo(bx + lx, by - h); ctx.lineTo(bx - h * 0.38, by - h * 0.56); ctx.lineTo(bx + h * 0.38, by - h * 0.56); ctx.fill();
+    ctx.fillStyle = light;
+    ctx.beginPath(); ctx.moveTo(bx + lx * 0.65, by - h * 0.62); ctx.lineTo(bx - h * 0.46, by - h * 0.22); ctx.lineTo(bx + h * 0.46, by - h * 0.22); ctx.fill();
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.moveTo(bx + lx * 0.3, by - h * 0.28); ctx.lineTo(bx - h * 0.52, by); ctx.lineTo(bx + h * 0.52, by); ctx.fill();
+    ctx.fillStyle = "#3a2012"; ctx.fillRect(bx - h * 0.045, by - h * 0.06, h * 0.09, h * 0.06);
+  }
+
+  _drawScreenPalmTree(ctx, bx, by, h, lean = 0) {
+    const leanCp = lean * 0.7;
+    ctx.strokeStyle = "#6b4a1e"; ctx.lineWidth = Math.max(2, h * 0.07); ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(bx, by); ctx.bezierCurveTo(bx + h * 0.06 + leanCp, by - h * 0.4, bx + h * 0.14 + lean, by - h * 0.7, bx + h * 0.1 + lean, by - h); ctx.stroke();
+    const tx = bx + h * 0.1 + lean, ty = by - h;
+    const fronds = [
+      [-h * 0.58, -h * 0.22, "#1a4820"], [-h * 0.44, -h * 0.46, "#1e5224"],
+      [+h * 0.06, -h * 0.56, "#1a4820"], [+h * 0.54, -h * 0.32, "#1e5224"],
+      [+h * 0.48, +h * 0.08, "#1a4820"], [-h * 0.34, +h * 0.1, "#1e5224"],
+    ];
+    for (const [dx, dy, col] of fronds) {
+      ctx.strokeStyle = col; ctx.lineWidth = Math.max(1.5, h * 0.032); ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(tx, ty); ctx.quadraticCurveTo(tx + dx * 0.55, ty + dy * 0.55 + h * 0.05, tx + dx, ty + dy); ctx.stroke();
+    }
+  }
+
+  _drawScreenCactus(ctx, bx, by, h) {
+    const w = Math.max(2, h * 0.13);
+    ctx.fillStyle = "#3d6b28";
+    ctx.beginPath(); ctx.rect(bx - w, by - h, w * 2, h); ctx.fill();
+    ctx.beginPath(); ctx.rect(bx - w * 5.2, by - h * 0.58, w * 4.2, w * 1.7); ctx.fill();
+    ctx.beginPath(); ctx.rect(bx - w * 5.2, by - h * 0.58 - h * 0.28, w * 1.8, h * 0.3); ctx.fill();
+    ctx.beginPath(); ctx.rect(bx + w, by - h * 0.44, w * 3.8, w * 1.7); ctx.fill();
+    ctx.beginPath(); ctx.rect(bx + w * 3.2, by - h * 0.44 - h * 0.22, w * 1.8, h * 0.24); ctx.fill();
+    ctx.fillStyle = "#4a8030";
+    ctx.fillRect(bx - w + 1, by - h, 3, h); ctx.fillRect(bx + w - 4, by - h, 3, h);
+  }
+
+  _drawPineHorizonBand(ctx, baseY, width, colorA, colorB, xOff = 0) {
+    const spacing = 22;
+    const extra = spacing * 3;
+    for (let xi = -1; xi * spacing < width + extra; xi++) {
+      const bx = xi * spacing + ((xi * 7) % 11) - 5 + ((xOff % spacing) + spacing) % spacing - spacing;
+      const h = 42 + ((xi * 17 + 3) % 24);
+      ctx.fillStyle = xi % 2 === 0 ? colorA : colorB;
+      ctx.beginPath(); ctx.moveTo(bx, baseY); ctx.lineTo(bx - h * 0.38, baseY - h * 0.55); ctx.lineTo(bx + h * 0.38, baseY - h * 0.55); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(bx, baseY - h * 0.5); ctx.lineTo(bx - h * 0.46, baseY - h * 0.12); ctx.lineTo(bx + h * 0.46, baseY - h * 0.12); ctx.fill();
+    }
+  }
+
+  _drawJungleHorizonBand(ctx, baseY, width, colorA, colorB, xOff = 0) {
+    const spacing = 16;
+    const extra = spacing * 3;
+    for (let xi = -1; xi * spacing < width + extra; xi++) {
+      const bx = xi * spacing + ((xi * 11) % 14) - 6 + ((xOff % spacing) + spacing) % spacing - spacing;
+      const h = 40 + ((xi * 13 + 5) % 30);
+      ctx.fillStyle = xi % 2 === 0 ? colorA : colorB;
+      ctx.beginPath(); ctx.arc(bx, baseY - h * 0.5, h * 0.52, Math.PI, 0); ctx.lineTo(bx + h * 0.52, baseY); ctx.lineTo(bx - h * 0.52, baseY); ctx.fill();
+      ctx.fillStyle = colorB;
+      ctx.beginPath(); ctx.arc(bx - h * 0.3, baseY - h * 0.32, h * 0.28, Math.PI, 0); ctx.lineTo(bx + h * 0.01, baseY); ctx.lineTo(bx - h * 0.6, baseY); ctx.fill();
+    }
+  }
+
+  _drawMesaRange(ctx, baseY, width, colorA, colorB, xOff = 0) {
+    const segments = [
+      [0, 0.14, 0.55], [0.1, 0.24, 0.42], [0.22, 0.38, 0.52],
+      [0.36, 0.48, 0.45], [0.46, 0.62, 0.58], [0.6, 0.74, 0.44],
+      [0.7, 0.88, 0.5], [0.84, 1.02, 0.46],
+    ];
+    for (const [x1f, x2f, yf] of segments) {
+      const x1 = x1f * width + xOff, x2 = x2f * width + xOff, topY = baseY - yf * 82;
+      ctx.fillStyle = colorA;
+      ctx.beginPath();
+      ctx.moveTo(x1 - 10, baseY); ctx.lineTo(x1 + 8, topY + 14); ctx.lineTo(x1 + 22, topY);
+      ctx.lineTo(x2 - 22, topY); ctx.lineTo(x2 - 8, topY + 14); ctx.lineTo(x2 + 10, baseY);
+      ctx.fill();
+      ctx.fillStyle = colorB; ctx.fillRect(x1 + 22, topY, x2 - x1 - 44, 5);
+    }
+  }
+
+  _drawJaggedPeaksRange(ctx, baseY, peakDrop, width, bodyColor, snowColor, xOff = 0) {
+    const peaks = [
+      [0.04, 0.72], [0.12, 0.9], [0.21, 0.97], [0.3, 0.78], [0.4, 1.0],
+      [0.52, 0.84], [0.6, 0.94], [0.7, 0.76], [0.8, 0.99], [0.9, 0.86], [1.0, 0.7],
+    ];
+    const pts = peaks.map(([xf, h]) => ({ x: xf * width + xOff, y: baseY - h * peakDrop }));
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath(); ctx.moveTo(xOff - width, baseY);
+    for (const p of pts) ctx.lineTo(p.x, p.y);
+    ctx.lineTo(width * 2 + xOff, baseY); ctx.fill();
+    ctx.fillStyle = snowColor;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const p = pts[i], pL = pts[i - 1], pR = pts[i + 1];
+      if (p.y < baseY - peakDrop * 0.5) {
+        const snowBottom = p.y + (baseY - p.y) * 0.28;
+        ctx.beginPath(); ctx.moveTo(p.x, p.y);
+        ctx.lineTo((p.x + pL.x) * 0.5, snowBottom); ctx.lineTo((p.x + pR.x) * 0.5, snowBottom);
+        ctx.fill();
+      }
+    }
+  }
+
+  _drawVolcanoPeaks(ctx, horizon, width, bodyColor, t, xOff = 0) {
+    const baseY = horizon + 30;
+    const peakDrop = 175;
+    const peaks = [
+      { xf: 0.08, hf: 0.62 }, { xf: 0.22, hf: 0.78 }, { xf: 0.48, hf: 1.0 },
+      { xf: 0.7, hf: 0.85 }, { xf: 0.88, hf: 0.7 },
+    ];
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath(); ctx.moveTo(-10 + xOff, baseY);
+    for (const { xf, hf } of peaks) {
+      const x = xf * width + xOff, y = baseY - hf * peakDrop;
+      ctx.lineTo(x - peakDrop * 0.14, y + peakDrop * 0.22); ctx.lineTo(x, y); ctx.lineTo(x + peakDrop * 0.14, y + peakDrop * 0.22);
+    }
+    ctx.lineTo(width + 10 + xOff, baseY); ctx.fill();
+    const vx = peaks[2].xf * width + xOff, vy = baseY - peaks[2].hf * peakDrop;
+    const gA = 0.5 + Math.sin(t * 2.2) * 0.18;
+    const glowR = ctx.createRadialGradient(vx, vy, 2, vx, vy, 60);
+    glowR.addColorStop(0, `rgba(255,140,20,${gA})`); glowR.addColorStop(0.5, `rgba(200,50,0,${gA * 0.4})`); glowR.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = glowR; ctx.fillRect(vx - 60, vy - 60, 120, 120);
+    for (let s = 0; s < 4; s++) {
+      const sOff = (t * 18 + s * 22) % 80;
+      ctx.fillStyle = `rgba(70,52,44,${0.14 - s * 0.025})`;
+      ctx.beginPath(); ctx.ellipse(vx + Math.sin(t + s) * 7, vy - sOff, 14 + s * 4, 10 + s * 3, 0, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
   drawBackground(level) {
     const ctx = this.ctx;
     const { width, height } = this.viewport;
+    const env = level.environment;
+    const id = env.id;
+    const horizon = this.horizonFrac * height;
+    const t = this.time;
 
-    const sky = ctx.createLinearGradient(0, 0, 0, height);
-    sky.addColorStop(0, level.environment.skyTop);
-    sky.addColorStop(0.58, level.environment.skyBottom);
-    sky.addColorStop(1, level.environment.groundFar);
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, width, height);
+    // Parallax offsets from camera
+    const camX = this.camera.x;
+    const pxCloud = -camX * 1.8 + this.cloudDrift * 0.8;
+    const pxFar   = -camX * 4;
+    const pxMid   = -camX * 8;
+    const pxNear  = -camX * 16;
+    // Depth phase shift makes mountains "slide" as camera advances
+    const zPhase  = this.camera.z * 3;
 
-    const horizon = height * 0.34;
+    const sky = ctx.createLinearGradient(0, 0, 0, horizon * 1.15);
+    sky.addColorStop(0, env.skyTop); sky.addColorStop(1, env.skyBottom);
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, width, height);
 
-    const drawRange = (baseY, ampA, ampB, freqA, freqB, color, phase) => {
-      ctx.beginPath();
-      ctx.moveTo(0, height);
-      for (let x = 0; x <= width; x += 8) {
-        const y =
-          baseY +
-          Math.sin((x + phase) * freqA) * ampA +
-          Math.sin((x + phase * 0.65) * freqB) * ampB;
-        ctx.lineTo(x, y);
+    const drawRange = (baseY, ampA, ampB, freqA, freqB, color, phase, xOff = 0) => {
+      ctx.beginPath(); ctx.moveTo(xOff - 60, height);
+      for (let x = -60; x <= width + 60; x += 6) {
+        ctx.lineTo(x + xOff, baseY + Math.sin((x + phase) * freqA) * ampA + Math.sin((x + phase * 0.65) * freqB) * ampB);
       }
-      ctx.lineTo(width, height);
-      ctx.closePath();
-      ctx.fillStyle = color;
-      ctx.fill();
+      ctx.lineTo(width + xOff + 60, height); ctx.closePath(); ctx.fillStyle = color; ctx.fill();
     };
 
-    drawRange(
-      horizon + 40,
-      16,
-      9,
-      0.007,
-      0.019,
-      level.environment.mountainB,
-      this.time * 18
-    );
+    if (id === "cedar-valley") {
+      const sunX = width * 0.72 + pxCloud * 0.4;
+      const sg = ctx.createRadialGradient(sunX, horizon * 0.36, 10, sunX, horizon * 0.36, 78);
+      sg.addColorStop(0, "rgba(255,252,200,0.95)"); sg.addColorStop(0.35, "rgba(255,240,160,0.45)"); sg.addColorStop(1, "rgba(255,240,160,0)");
+      ctx.fillStyle = sg; ctx.fillRect(0, 0, width, horizon);
+      ctx.fillStyle = "rgba(255,250,190,0.92)"; ctx.beginPath(); ctx.arc(sunX, horizon * 0.36, 22, 0, Math.PI * 2); ctx.fill();
+      this._drawPuffCloud(ctx, width * 0.14 + pxCloud,       horizon * 0.28, 65, 28, "rgba(255,255,255,0.87)");
+      this._drawPuffCloud(ctx, width * 0.44 + pxCloud * 0.9, horizon * 0.16, 82, 34, "rgba(255,255,255,0.82)");
+      this._drawPuffCloud(ctx, width * 0.82 + pxCloud * 1.1, horizon * 0.34, 50, 22, "rgba(255,255,255,0.78)");
+      drawRange(horizon - 18, 30, 15, 0.0045, 0.01, "#7da3c2", 80 + zPhase * 0.4, pxFar);
+      drawRange(horizon + 2,  22, 11, 0.007,  0.016, "#587aa2", 130 + zPhase * 0.7, pxMid);
+      this._drawPineHorizonBand(ctx, horizon + 24, width, "#2a4a20", "#1e3518", pxNear);
+      drawRange(horizon + 44, 10, 4, 0.014, 0.03, "#2d5228", 210, pxNear * 1.2);
 
-    drawRange(
-      horizon + 70,
-      22,
-      12,
-      0.011,
-      0.023,
-      level.environment.mountainA,
-      this.time * 24 + 40
-    );
+    } else if (id === "dune-canyon") {
+      const sunX = width * 0.62 + pxCloud * 0.5;
+      const sg = ctx.createRadialGradient(sunX, horizon * 0.78, 8, sunX, horizon * 0.78, 120);
+      sg.addColorStop(0, "rgba(255,220,80,0.88)"); sg.addColorStop(0.4, "rgba(255,150,40,0.45)"); sg.addColorStop(1, "rgba(255,80,0,0)");
+      ctx.fillStyle = sg; ctx.fillRect(0, 0, width, horizon);
+      ctx.fillStyle = "rgba(255,230,120,0.95)"; ctx.beginPath(); ctx.arc(sunX, horizon * 0.78, 18, 0, Math.PI * 2); ctx.fill();
+      for (let i = 0; i < 4; i++) { ctx.fillStyle = `rgba(220,160,80,${0.06 - i * 0.01})`; ctx.fillRect(0, horizon * (0.4 + i * 0.14) - 8, width, 18); }
+      this._drawMesaRange(ctx, horizon + 10, width, env.mountainA, env.mountainB, pxFar);
+      drawRange(horizon + 30, 14, 6, 0.009, 0.02, env.mountainA, 50 + zPhase, pxMid);
+      drawRange(horizon + 52, 9,  4, 0.015, 0.032, "#8a5318", 160, pxNear);
 
-    ctx.fillStyle = level.environment.haze;
-    ctx.fillRect(0, horizon - 18, width, 80);
+    } else if (id === "frost-ridge") {
+      for (let i = 0; i < 4; i++) {
+        const aA = 0.06 + Math.sin(t * 0.7 + i * 1.4) * 0.035;
+        ctx.fillStyle = `rgba(80,240,180,${aA})`; ctx.fillRect(0, horizon * (0.05 + i * 0.18), width, 20);
+      }
+      const sunX = width * 0.28 + pxCloud * 0.3;
+      const sg = ctx.createRadialGradient(sunX, horizon * 0.42, 6, sunX, horizon * 0.42, 60);
+      sg.addColorStop(0, "rgba(210,235,255,0.9)"); sg.addColorStop(0.5, "rgba(180,210,255,0.35)"); sg.addColorStop(1, "rgba(180,210,255,0)");
+      ctx.fillStyle = sg; ctx.fillRect(0, 0, width, horizon);
+      ctx.fillStyle = "rgba(225,240,255,0.88)"; ctx.beginPath(); ctx.arc(sunX, horizon * 0.42, 18, 0, Math.PI * 2); ctx.fill();
+      this._drawPuffCloud(ctx, width * 0.12 + pxCloud,       horizon * 0.22, 85, 18, "rgba(210,230,255,0.5)");
+      this._drawPuffCloud(ctx, width * 0.66 + pxCloud * 0.8, horizon * 0.1,  70, 14, "rgba(210,230,255,0.44)");
+      this._drawJaggedPeaksRange(ctx, horizon - 30, 110, width, env.mountainB, "#e8f2fa", pxFar);
+      this._drawJaggedPeaksRange(ctx, horizon - 4,  80,  width, env.mountainA, "#d0e4f0", pxMid);
+      this._drawPineHorizonBand(ctx, horizon + 22, width, "#3a4a52", "#2c3a42", pxNear);
+      drawRange(horizon + 38, 7, 3, 0.014, 0.028, "#c8dce6", 60, pxNear * 1.1);
+
+    } else if (id === "storm-harbor") {
+      for (let layer = 0; layer < 4; layer++) {
+        ctx.fillStyle = `rgba(30,38,58,${0.55 - layer * 0.1})`;
+        for (let ci = 0; ci < 5 + layer; ci++) {
+          const cx2 = ((ci * 211 + layer * 83) % (width + 160)) - 80 + pxCloud * (0.5 + layer * 0.3);
+          const cy2 = horizon * (0.08 + layer * 0.2) + (ci * 37 % 40) - 20;
+          const cr = 60 + (ci * 43 % 80);
+          ctx.beginPath(); ctx.ellipse(cx2, cy2, cr, cr * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      if (Math.sin(t * 3.1) > 0.92) {
+        ctx.strokeStyle = "rgba(200,220,255,0.7)"; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(width * 0.35, 10); ctx.lineTo(width * 0.33, 50); ctx.lineTo(width * 0.37, 80); ctx.lineTo(width * 0.35, 120); ctx.stroke();
+      }
+      drawRange(horizon - 20, 35, 18, 0.006, 0.013, env.mountainB, 70 + zPhase * 0.5, pxFar);
+      drawRange(horizon + 6,  26, 13, 0.009, 0.018, env.mountainA, 130 + zPhase * 0.8, pxMid);
+      drawRange(horizon + 30, 5, 2, 0.012, 0.028, "#1a2a3a", 40,  pxMid);
+      drawRange(horizon + 46, 4, 2, 0.018, 0.038, "#172436", 190, pxNear);
+
+    } else if (id === "volcanic-dusk") {
+      for (let i = 0; i < 5; i++) {
+        const bA = 0.06 + Math.sin(t * 0.6 + i * 0.9) * 0.03;
+        ctx.fillStyle = `rgba(180,60,10,${bA})`; ctx.fillRect(0, horizon * (0.1 + i * 0.15), width, 16);
+      }
+      for (let layer = 0; layer < 3; layer++) {
+        ctx.fillStyle = `rgba(45,32,28,${0.5 - layer * 0.12})`;
+        for (let ci = 0; ci < 6; ci++) {
+          const cx2 = ((ci * 167 + layer * 113) % (width + 200)) - 100 + pxCloud * (0.4 + layer * 0.3);
+          const cy2 = horizon * (0.12 + layer * 0.22) + (ci * 29 % 30);
+          const crx = 70 + (ci * 53 % 60);
+          ctx.beginPath(); ctx.ellipse(cx2, cy2, crx, crx * 0.48, 0, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      this._drawVolcanoPeaks(ctx, horizon, width, env.mountainA, t, pxFar);
+      drawRange(horizon + 30, 10, 4, 0.01, 0.022, "#2a100a", 90 + zPhase, pxMid);
+
+    } else if (id === "emerald-plateau") {
+      const sunX = width * 0.8 + pxCloud * 0.4;
+      const sg = ctx.createRadialGradient(sunX, horizon * 0.24, 12, sunX, horizon * 0.24, 100);
+      sg.addColorStop(0, "rgba(255,255,220,0.95)"); sg.addColorStop(0.4, "rgba(255,245,170,0.5)"); sg.addColorStop(1, "rgba(255,240,170,0)");
+      ctx.fillStyle = sg; ctx.fillRect(0, 0, width, horizon);
+      ctx.fillStyle = "rgba(255,255,210,0.95)"; ctx.beginPath(); ctx.arc(sunX, horizon * 0.24, 26, 0, Math.PI * 2); ctx.fill();
+      this._drawPuffCloud(ctx, width * 0.12 + pxCloud,       horizon * 0.26, 72, 38, "rgba(255,255,255,0.88)");
+      this._drawPuffCloud(ctx, width * 0.55 + pxCloud * 0.9, horizon * 0.11, 88, 46, "rgba(255,255,255,0.84)");
+      this._drawPuffCloud(ctx, width * 0.9  + pxCloud * 1.1, horizon * 0.3,  58, 30, "rgba(255,255,255,0.8)");
+      ctx.fillStyle = "rgba(200,255,228,0.12)"; ctx.fillRect(0, horizon * 0.65, width, 22);
+      ctx.fillStyle = "rgba(200,255,228,0.08)"; ctx.fillRect(0, horizon * 0.82, width, 18);
+      drawRange(horizon - 38, 38, 20, 0.004, 0.009, "#3d6e5a", 60  + zPhase * 0.3, pxFar);
+      drawRange(horizon - 18, 30, 14, 0.006, 0.013, "#326048", 120 + zPhase * 0.6, pxMid);
+      this._drawJungleHorizonBand(ctx, horizon + 8, width, "#1e4d30", "#163d24", pxNear);
+      drawRange(horizon + 44, 7, 3, 0.014, 0.03, "#244e35", 200, pxNear * 1.2);
+    }
+
+    // Depth-based atmospheric haze — thickens as camera advances
+    const hazeAlphaBoost = clamp(this.camera.z / Math.max(1, level.target.z) * 0.35, 0, 0.35);
+    ctx.fillStyle = env.haze;
+    ctx.fillRect(0, horizon - 20, width, 72);
+    if (hazeAlphaBoost > 0.02) {
+      ctx.fillStyle = `rgba(255,255,255,${hazeAlphaBoost})`;
+      ctx.fillRect(0, horizon - 30, width, 90);
+    }
   }
 
   drawGroundGrid(level) {
     const ctx = this.ctx;
     const { width, height } = this.viewport;
-
+    const env = level.environment;
+    const id = env.id;
     const horizon = height * 0.34;
+    const t = this.time;
+
     const groundGradient = ctx.createLinearGradient(0, horizon, 0, height);
-    groundGradient.addColorStop(0, level.environment.groundFar);
-    groundGradient.addColorStop(1, level.environment.groundNear);
+    groundGradient.addColorStop(0, env.groundFar);
+    groundGradient.addColorStop(1, env.groundNear);
     ctx.fillStyle = groundGradient;
     ctx.fillRect(0, horizon, width, height - horizon);
 
-    ctx.lineWidth = 1;
+    if (id === "cedar-valley") {
+      for (let i = 0; i < 55; i++) {
+        const gx = (i * 241 + 7) % width;
+        const gy = horizon + (i * 97 + 13) % (height - horizon);
+        ctx.strokeStyle = "rgba(60,140,40,0.28)"; ctx.lineWidth = 1.5;
+        for (let b = 0; b < 3; b++) {
+          ctx.beginPath(); ctx.moveTo(gx + b * 4, gy); ctx.lineTo(gx + b * 4 - 2, gy - 9); ctx.stroke();
+        }
+      }
+    } else if (id === "frost-ridge") {
+      for (let i = 0; i < 90; i++) {
+        const sx = (i * 173 + 11) % width;
+        const sy = horizon + (i * 87 + 7) % (height - horizon);
+        const sa = 0.35 + Math.sin(t * 3.2 + i * 0.7) * 0.3;
+        ctx.fillStyle = `rgba(255,255,255,${sa})`; ctx.fillRect(sx, sy, 2, 2);
+      }
+    } else if (id === "volcanic-dusk") {
+      const crAlpha = 0.22 + Math.sin(t * 1.8) * 0.08;
+      const cracks = [
+        [0.35, 0.15, 0.42, 0.6], [0.55, 0.3, 0.62, 0.8],
+        [0.2, 0.5, 0.28, 0.9], [0.7, 0.2, 0.76, 0.65], [0.48, 0.55, 0.5, 0.95],
+      ];
+      for (const [x1f, y1f, x2f, y2f] of cracks) {
+        const gy1 = horizon + y1f * (height - horizon), gy2 = horizon + y2f * (height - horizon);
+        ctx.strokeStyle = `rgba(255,80,0,${crAlpha * 0.38})`; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(x1f * width, gy1); ctx.lineTo(x2f * width, gy2); ctx.stroke();
+        ctx.strokeStyle = `rgba(255,140,20,${crAlpha})`; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(x1f * width, gy1); ctx.lineTo(x2f * width, gy2); ctx.stroke();
+      }
+    } else if (id === "storm-harbor") {
+      ctx.strokeStyle = "rgba(160,195,235,0.14)"; ctx.lineWidth = 0.8;
+      for (let i = 0; i < 45; i++) {
+        const rx = ((i * 173 + Math.floor(t * 3) * 97) % width + width) % width;
+        const ry = horizon + ((i * 61 + Math.floor(t * 6) * 43) % (height - horizon));
+        ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx + 3, ry + 14); ctx.stroke();
+      }
+    } else if (id === "dune-canyon") {
+      ctx.lineWidth = 0.6;
+      for (let i = 0; i < 12; i++) {
+        const ry = horizon + (i + 1) * ((height - horizon) / 13);
+        ctx.strokeStyle = `rgba(200,150,80,${0.06 + (i / 12) * 0.08})`;
+        ctx.beginPath();
+        for (let x = 0; x <= width; x += 30) {
+          const yOff = Math.sin((x + i * 37) * 0.022) * 3;
+          x === 0 ? ctx.moveTo(x, ry + yOff) : ctx.lineTo(x, ry + yOff);
+        }
+        ctx.stroke();
+      }
+    } else if (id === "emerald-plateau") {
+      for (let i = 0; i < 45; i++) {
+        const gx = (i * 241 + 7) % width;
+        const gy = horizon + (i * 97 + 13) % (height - horizon);
+        ctx.strokeStyle = "rgba(80,200,80,0.25)"; ctx.lineWidth = 1.5;
+        for (let b = 0; b < 3; b++) {
+          ctx.beginPath(); ctx.moveTo(gx + b * 4, gy); ctx.lineTo(gx + b * 4 - 2, gy - 9); ctx.stroke();
+        }
+      }
+    }
 
+    const gridColor = id === "frost-ridge" ? "240,248,255" : id === "volcanic-dusk" ? "255,120,60" : id === "dune-canyon" ? "220,180,120" : id === "emerald-plateau" ? "180,255,190" : id === "storm-harbor" ? "180,200,230" : "230,250,255";
+    const gridMax = id === "frost-ridge" ? 0.18 : id === "volcanic-dusk" ? 0.1 : id === "storm-harbor" ? 0.12 : 0.22;
+
+    ctx.lineWidth = 1;
     for (let z = 12; z < level.target.z + 120; z += 14) {
       const left = this.project({ x: -28, y: 0, z });
       const right = this.project({ x: 28, y: 0, z });
-      if (!left || !right) {
-        continue;
-      }
-      const alpha = clamp(1 - z / (level.target.z + 120), 0.08, 0.32);
-      ctx.strokeStyle = `rgba(240, 255, 255, ${alpha})`;
-      ctx.beginPath();
-      ctx.moveTo(left.x, left.y);
-      ctx.lineTo(right.x, right.y);
-      ctx.stroke();
+      if (!left || !right) continue;
+      const alpha = clamp(1 - z / (level.target.z + 120), 0.06, gridMax);
+      ctx.strokeStyle = `rgba(${gridColor},${alpha})`;
+      ctx.beginPath(); ctx.moveTo(left.x, left.y); ctx.lineTo(right.x, right.y); ctx.stroke();
     }
-
     for (let x = -28; x <= 28; x += 4) {
       const near = this.project({ x, y: 0, z: 6 });
       const far = this.project({ x, y: 0, z: level.target.z + 100 });
-      if (!near || !far) {
-        continue;
+      if (!near || !far) continue;
+      const alpha = x % 8 === 0 ? gridMax : gridMax * 0.45;
+      ctx.strokeStyle = `rgba(${gridColor},${alpha})`;
+      ctx.beginPath(); ctx.moveTo(near.x, near.y); ctx.lineTo(far.x, far.y); ctx.stroke();
+    }
+  }
+
+  drawEnvironmentProps(level) {
+    const ctx = this.ctx;
+    const id = level.environment.id;
+    const t = this.time;
+    const wind = this.resolveWind(level, t);
+    const windLean = wind.x * 1.4; // sway amplitude in screen-units (scaled by tree height)
+
+    if (id === "cedar-valley") {
+      const trees = [
+        { x: -18, z: 12 }, { x: -22, z: 22 }, { x: -16, z: 36 }, { x: -21, z: 56 },
+        { x: 18, z: 10 }, { x: 22, z: 20 }, { x: 16, z: 33 }, { x: 21, z: 50 },
+        { x: -28, z: 16 }, { x: 28, z: 19 }, { x: -26, z: 44 }, { x: 26, z: 62 },
+      ];
+      for (const { x, z } of trees) {
+        const pt = this.project({ x, y: 0, z });
+        if (!pt) continue;
+        const h = Math.max(8, 82 * pt.scale);
+        const sway = Math.sin(t * 1.2 + x * 0.7) * windLean * h * 0.04;
+        this._drawScreenPineTree(ctx, pt.x, pt.y, h, "#1e3518", "#2a4a20", sway);
       }
-      const alpha = x % 8 === 0 ? 0.22 : 0.1;
-      ctx.strokeStyle = `rgba(230, 250, 255, ${alpha})`;
-      ctx.beginPath();
-      ctx.moveTo(near.x, near.y);
-      ctx.lineTo(far.x, far.y);
-      ctx.stroke();
+
+    } else if (id === "dune-canyon") {
+      const cacti = [
+        { x: -16, z: 14 }, { x: 18, z: 18 }, { x: -22, z: 32 },
+        { x: 20, z: 28 }, { x: -14, z: 52 }, { x: 23, z: 45 },
+      ];
+      for (const { x, z } of cacti) {
+        const pt = this.project({ x, y: 0, z });
+        if (!pt) continue;
+        const h = Math.max(6, 78 * pt.scale);
+        this._drawScreenCactus(ctx, pt.x, pt.y, h);
+      }
+
+    } else if (id === "frost-ridge") {
+      const trees = [
+        { x: -17, z: 14 }, { x: -24, z: 30 }, { x: 19, z: 12 }, { x: 25, z: 26 },
+        { x: -21, z: 47 }, { x: 22, z: 42 },
+      ];
+      for (const { x, z } of trees) {
+        const pt = this.project({ x, y: 0, z });
+        if (!pt) continue;
+        const h = Math.max(7, 72 * pt.scale);
+        const sway = Math.sin(t * 0.9 + x * 0.5) * windLean * h * 0.025;
+        this._drawScreenPineTree(ctx, pt.x, pt.y, h, "#2c3a42", "#4a5f6a", sway);
+        ctx.fillStyle = "rgba(220,240,255,0.88)";
+        ctx.beginPath(); ctx.ellipse(pt.x + sway * 0.5, pt.y - h * 0.96, h * 0.22, h * 0.1, 0, 0, Math.PI * 2); ctx.fill();
+      }
+      const rocks = [{ x: -26, z: 20 }, { x: 27, z: 36 }, { x: -19, z: 62 }];
+      for (const { x, z } of rocks) {
+        const pt = this.project({ x, y: 0, z });
+        if (!pt) continue;
+        const s = Math.max(4, 42 * pt.scale);
+        ctx.fillStyle = "rgba(180,210,235,0.82)";
+        ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt.x - s * 0.7, pt.y - s * 0.9); ctx.lineTo(pt.x + s * 0.5, pt.y - s * 1.1); ctx.lineTo(pt.x + s * 0.9, pt.y); ctx.fill();
+        ctx.strokeStyle = "rgba(220,240,255,0.5)"; ctx.lineWidth = 1; ctx.stroke();
+      }
+
+    } else if (id === "storm-harbor") {
+      // Wind-driven 3D rain streaks
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < 35; i++) {
+        const rx = -24 + (i * 173 % 48);
+        const rz = 5 + (i * 89 % 140);
+        const dropT = (t * (6 + (i * 23 % 8)) + i * 0.6) % 5.5;
+        const ry = 0.2 + dropT * 1.0;
+        const pt = this.project({ x: rx, y: ry, z: rz });
+        if (!pt) continue;
+        const endPt = this.project({ x: rx + wind.x * 0.08, y: ry - 0.6, z: rz });
+        if (!endPt) continue;
+        const alpha = 0.18 + 0.12 * Math.sin(i * 1.3);
+        ctx.strokeStyle = `rgba(170,205,242,${alpha})`;
+        ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(endPt.x, endPt.y); ctx.stroke();
+      }
+      const rocks = [{ x: -24, z: 18 }, { x: 26, z: 22 }, { x: -20, z: 42 }, { x: 23, z: 52 }];
+      for (const { x, z } of rocks) {
+        const pt = this.project({ x, y: 0, z });
+        if (!pt) continue;
+        const s = Math.max(4, 40 * pt.scale);
+        ctx.fillStyle = "#2a3545";
+        ctx.beginPath(); ctx.ellipse(pt.x, pt.y - s * 0.35, s * 0.7, s * 0.42, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#3a4858";
+        ctx.beginPath(); ctx.ellipse(pt.x - s * 0.15, pt.y - s * 0.55, s * 0.42, s * 0.28, 0, 0, Math.PI * 2); ctx.fill();
+      }
+
+    } else if (id === "volcanic-dusk") {
+      // Embers rising from ground
+      for (let i = 0; i < 28; i++) {
+        const ex = -24 + (i * 137 % 48);
+        const speed = 0.8 + (i * 37 % 30) * 0.06;
+        const ePhase = (t * speed + i * 0.9) % 9;
+        const ey = 0.05 + ePhase * 1.2;
+        const driftX = Math.sin(t * 1.8 + i * 0.8) * 0.4 + wind.x * ePhase * 0.06;
+        const ez = 3 + (i * 89 % 120);
+        const pt = this.project({ x: ex + driftX, y: ey, z: ez });
+        if (!pt) continue;
+        const lifeAlpha = Math.max(0, 1 - ePhase / 9);
+        const eA = (0.5 + Math.sin(t * 5 + i) * 0.4) * lifeAlpha;
+        ctx.fillStyle = `rgba(255,${80 + (i * 37 % 100)},5,${Math.min(1, eA * pt.scale * 6)})`;
+        const er = Math.max(0.6, 2.2 * pt.scale * lifeAlpha);
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, er, 0, Math.PI * 2); ctx.fill();
+      }
+      const rocks = [{ x: -22, z: 16 }, { x: 24, z: 20 }, { x: -18, z: 40 }, { x: 23, z: 46 }];
+      for (const { x, z } of rocks) {
+        const pt = this.project({ x, y: 0, z });
+        if (!pt) continue;
+        const s = Math.max(4, 44 * pt.scale);
+        ctx.fillStyle = "#1c0a04";
+        ctx.beginPath(); ctx.moveTo(pt.x - s * 0.6, pt.y); ctx.lineTo(pt.x - s * 0.1, pt.y - s * 0.9); ctx.lineTo(pt.x + s * 0.5, pt.y - s * 0.6); ctx.lineTo(pt.x + s * 0.7, pt.y); ctx.fill();
+        const lg = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, s * 0.9);
+        lg.addColorStop(0, `rgba(255,80,0,${0.18 + Math.sin(t * 2.2 + x) * 0.07})`); lg.addColorStop(1, "rgba(255,80,0,0)");
+        ctx.fillStyle = lg; ctx.fillRect(pt.x - s, pt.y - s * 0.9, s * 2, s * 0.9);
+      }
+
+    } else if (id === "emerald-plateau") {
+      const palms = [
+        { x: -17, z: 13 }, { x: -24, z: 30 }, { x: 19, z: 11 }, { x: 26, z: 24 },
+        { x: -21, z: 46 }, { x: 22, z: 40 }, { x: -15, z: 62 }, { x: 24, z: 57 },
+      ];
+      for (const { x, z } of palms) {
+        const pt = this.project({ x, y: 0, z });
+        if (!pt) continue;
+        const h = Math.max(8, 88 * pt.scale);
+        const sway = Math.sin(t * 1.0 + x * 0.6) * windLean * h * 0.06;
+        this._drawScreenPalmTree(ctx, pt.x, pt.y, h, sway);
+      }
+    }
+  }
+
+  drawAtmosphericParticles(level) {
+    const ctx = this.ctx;
+    const { width, height } = this.viewport;
+    const id = level.environment.id;
+    const t = this.time;
+    const wind = this.resolveWind(level, t);
+
+    if (id === "frost-ridge") {
+      // Falling snow — screen-space, wind-drifted
+      for (let i = 0; i < 55; i++) {
+        const seed = i * 137.508;
+        const speed = 0.8 + (seed % 0.9);
+        const sx = ((seed * 9.1 + t * (wind.x * 18 + 12) * 0.8 + i * 17.4) % (width + 60) + width + 60) % (width + 60) - 30;
+        const sy = (t * speed * 55 + seed * 41.3) % height;
+        const alpha = 0.45 + 0.4 * Math.sin(t * 2.8 + i * 0.9);
+        const r = 1.2 + (seed % 2.2);
+        ctx.fillStyle = `rgba(218,238,255,${alpha})`;
+        ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
+      }
+
+    } else if (id === "storm-harbor") {
+      // Screen-space rain streaks, angled by wind
+      const angle = Math.atan2(wind.x * 0.5, 5);
+      const dx = Math.sin(angle) * 22, dy = 22;
+      ctx.strokeStyle = "rgba(165,200,238,0.28)"; ctx.lineWidth = 0.75;
+      for (let i = 0; i < 90; i++) {
+        const seed = i * 91.3;
+        const rx = ((seed * 6.7 + t * 340 + wind.x * 22) % (width + 80) + width + 80) % (width + 80) - 40;
+        const ry = (t * 340 + seed * 44) % height;
+        ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx + dx, ry + dy); ctx.stroke();
+      }
+      // Puddle ripples on ground (screen-space lower third)
+      for (let i = 0; i < 8; i++) {
+        const seed = i * 211.3;
+        const px = (seed * 123.7) % width;
+        const py = height * 0.72 + (seed * 77.1) % (height * 0.26);
+        const rPhase = (t * 0.9 + i * 0.4) % 1.8;
+        const rr = rPhase * 18;
+        const alpha = Math.max(0, (0.18 - rPhase * 0.09));
+        ctx.strokeStyle = `rgba(160,195,230,${alpha})`; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.ellipse(px, py, rr, rr * 0.35, 0, 0, Math.PI * 2); ctx.stroke();
+      }
+
+    } else if (id === "dune-canyon") {
+      // Wind-blown sand particles in lower sky / upper ground area
+      for (let i = 0; i < 35; i++) {
+        const seed = i * 173.2;
+        const px = ((seed * 8.3 + t * wind.x * 90 + seed) % (width + 100) + width + 100) % (width + 100) - 50;
+        const py = height * 0.36 + (seed * 7.1) % (height * 0.55);
+        const alpha = 0.04 + 0.06 * Math.sin(t * 1.1 + i * 0.8);
+        const rx = 5 + (seed % 18), ry = rx * 0.28;
+        ctx.fillStyle = `rgba(205,158,72,${alpha})`;
+        ctx.beginPath(); ctx.ellipse(px, py, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+      }
+
+    } else if (id === "volcanic-dusk") {
+      // Fine embers / ash — screen-space, rise then drift
+      for (let i = 0; i < 28; i++) {
+        const seed = i * 97.4;
+        const px = (seed * 11.3 + wind.x * 8) % width;
+        const py = height - ((t * (30 + seed % 25) + seed * 37) % (height * 0.85));
+        const alpha = Math.max(0, 0.55 + 0.4 * Math.sin(t * 5.5 + i * 0.7)) * (py / height);
+        const r = 0.8 + (seed % 1.8);
+        ctx.fillStyle = `rgba(255,${60 + (i * 53 % 80)},0,${alpha})`;
+        ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
+      }
+
+    } else if (id === "cedar-valley") {
+      // Pollen / light motes drifting on breeze
+      for (let i = 0; i < 20; i++) {
+        const seed = i * 151.7;
+        const px = ((seed * 7.9 + t * (wind.x * 12 + 6) + seed * 0.5) % (width + 60) + width + 60) % (width + 60) - 30;
+        const py = height * 0.38 + (seed * 11.3) % (height * 0.5);
+        const wobble = Math.sin(t * 1.4 + i * 1.1) * 4;
+        const alpha = 0.25 + 0.2 * Math.sin(t * 2 + i * 0.7);
+        ctx.fillStyle = `rgba(255,248,160,${alpha})`;
+        ctx.beginPath(); ctx.arc(px + wobble, py, 1.5 + (seed % 1.5), 0, Math.PI * 2); ctx.fill();
+      }
+
+    } else if (id === "emerald-plateau") {
+      // Tropical firefly / light bokeh
+      for (let i = 0; i < 18; i++) {
+        const seed = i * 163.9;
+        const px = (seed * 9.3 + wind.x * 5) % width;
+        const py = height * 0.42 + (seed * 13.1) % (height * 0.48);
+        const glow = 0.3 + 0.55 * Math.abs(Math.sin(t * 1.8 + i * 0.9));
+        ctx.fillStyle = `rgba(180,255,160,${glow * 0.5})`;
+        ctx.beginPath(); ctx.arc(px, py, 2.5 + (seed % 2), 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = `rgba(220,255,200,${glow})`;
+        ctx.beginPath(); ctx.arc(px, py, 0.9, 0, Math.PI * 2); ctx.fill();
+      }
     }
   }
 
@@ -2321,6 +2828,8 @@ class ArcheryHorizonRuntime {
 
     this.drawBackground(level);
     this.drawGroundGrid(level);
+    this.drawEnvironmentProps(level);
+    this.drawAtmosphericParticles(level);
     this.drawUpdrafts(level);
     this.drawWalls(level);
     this.drawTarget(level);
@@ -2345,6 +2854,7 @@ function ArcheryHorizonGame() {
 
   const [deviceProfile, setDeviceProfile] = useState(resolveDeviceProfile);
   const [snapshot, setSnapshot] = useState({ ...DEFAULT_SNAPSHOT, locale });
+  const [menuLevel, setMenuLevel] = useState(() => loadProgress().lastLevel);
 
   const requestFullscreen = useCallback(async () => {
     const shell = shellRef.current;
@@ -2451,6 +2961,11 @@ function ArcheryHorizonGame() {
   useGameRuntimeBridge(snapshot, buildTextPayload, advanceTime);
 
   const showOverlayMenu = snapshot.screen === "menu";
+
+  useEffect(() => {
+    if (showOverlayMenu) setMenuLevel(snapshot.level.index);
+  }, [showOverlayMenu]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const showOverlayPause = snapshot.screen === "play" && snapshot.paused;
   const showOverlayRoundResult = snapshot.screen === "play"
     && snapshot.playState === "result"
@@ -2651,8 +3166,41 @@ function ArcheryHorizonGame() {
                 <div className="archery-horizon-overlay-card">
                   <h5>{ui.overlays.menuTitle}</h5>
                   <p>{ui.overlays.menuBody}</p>
+                  <div className="archery-horizon-level-picker">
+                    <p className="archery-horizon-level-picker-label">{ui.labels.levelSelector}</p>
+                    <div className="archery-horizon-level-grid">
+                      {Array.from({ length: snapshot.level.unlocked }, (_, i) => i + 1).map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          className={`archery-horizon-level-btn${menuLevel === n ? " selected" : ""}`}
+                          onClick={() => setMenuLevel(n)}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                    {(() => {
+                      const lvl = LEVELS[menuLevel - 1];
+                      const envName = locale === "es" ? lvl.environment.nameEs : lvl.environment.nameEn;
+                      const diff = getDifficultyLabel(menuLevel - 1, locale);
+                      return (
+                        <p className="archery-horizon-level-preview">
+                          {envName} &middot; {diff} &middot; {lvl.target.z.toFixed(0)} m
+                        </p>
+                      );
+                    })()}
+                  </div>
                   <div className="archery-horizon-overlay-actions">
-                    <button type="button" onClick={() => runtimeRef.current?.startTour()}>{ui.buttons.start}</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        runtimeRef.current?.selectLevel(menuLevel);
+                        runtimeRef.current?.startTour();
+                      }}
+                    >
+                      {ui.buttons.start}{menuLevel > 1 ? ` — ${ui.labels.level} ${menuLevel}` : ""}
+                    </button>
                   </div>
                 </div>
               </div>
