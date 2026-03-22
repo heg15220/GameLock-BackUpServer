@@ -3285,3 +3285,29 @@ pm run build en sandbox sigue bloqueado por spawn EPERM (esbuild);
 - Estilos nuevos en src/styles.css para rchery-horizon-round-points y rchery-horizon-round-breakdown.
 - Nota de QA: compilacion 
 pm run build sigue bloqueada en sandbox por spawn EPERM de esbuild; intento de ejecucion con elevacion fue interrumpido por el usuario, por lo que no hay build final validado en este turno.
+## 2026-03-22 - Sky Runner DX camera vertical safety (elevated platforms + HUD reservation)
+- Updated platformer camera tuning in `src/games/platformer/config.js`:
+  - Increased vertical lead and upward look-ahead (`verticalLeadPixels`, `upwardLookAheadMax`, `upwardVelocityLookAheadFactor`).
+  - Added explicit HUD reservation parameter (`hudReservePixels`) and stronger top-safe-zone defaults.
+  - Increased vertical catch-up lerp for faster upward camera response.
+- Updated `updateCamera()` in `src/games/platformer/core/PlatformerEngine.js`:
+  - Added hard top snap when player enters HUD-reserved region.
+  - Added top/bottom safe-zone logic using HUD-aware top threshold.
+  - Kept smooth follow but with accelerated catch-up while ascending or near top cutline.
+- Validation:
+  - Syntax checks OK (`node --check` on modified platformer files).
+  - Playwright visual regression was attempted but sandbox/browser escalation was interrupted by the user, so there is no screenshot-based confirmation in this pass.
+## 2026-03-22 - Sky Runner DX camera raised further (user request)
+- Camera lifted again to prioritize elevated platforms over HUD overlap.
+- Tuned in `src/games/platformer/config.js`:
+  - `verticalLeadPixels` 44 -> 62
+  - `upwardLookAheadMax` 128 -> 156
+  - `upwardVelocityLookAheadFactor` 0.14 -> 0.16
+  - `topSafeZoneRatio` 0.36 -> 0.44
+  - `hudReservePixels` 96 -> 122
+  - `verticalCatchupLerp` 0.42 -> 0.48
+- Extra hard-safe tightening in `src/games/platformer/core/PlatformerEngine.js`:
+  - top safe line now uses `hudReserve + 24`
+  - hard HUD snap line now uses `hudReserve + 16`
+  - fast catch-up threshold lowered (upward velocity > 130)
+- Syntax check OK (`node --check` on modified files).

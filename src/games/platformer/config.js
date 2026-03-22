@@ -85,7 +85,13 @@ export const CAMERA_SETTINGS = {
   followLerp: 0.2,
   followLerpY: 0.16,
   leadPixels: 36,
-  verticalLeadPixels: 26
+  verticalLeadPixels: 62,
+  upwardLookAheadMax: 156,
+  upwardVelocityLookAheadFactor: 0.16,
+  topSafeZoneRatio: 0.44,
+  bottomSafeZoneRatio: 0.79,
+  hudReservePixels: 122,
+  verticalCatchupLerp: 0.48
 };
 
 export const SCORE_VALUES = {

@@ -1069,16 +1069,54 @@ export default class PlatformerEngine {
   updateCamera() {
     const worldWidth = getWorldWidth(this.state.level);
     const worldHeight = getWorldHeight(this.state.level);
+    const maxCameraX = Math.max(0, worldWidth - VIEWPORT_WIDTH);
+    const maxCameraY = Math.max(0, worldHeight - VIEWPORT_HEIGHT);
     const lead = this.state.player.facing === "right" ? CAMERA_SETTINGS.leadPixels : -CAMERA_SETTINGS.leadPixels;
     const targetX = this.state.player.x + this.state.player.w * 0.5 - VIEWPORT_WIDTH * 0.5 + lead;
-    const clampedTarget = clamp(targetX, 0, Math.max(0, worldWidth - VIEWPORT_WIDTH));
+    const clampedTarget = clamp(targetX, 0, maxCameraX);
     this.state.camera.x += (clampedTarget - this.state.camera.x) * CAMERA_SETTINGS.followLerp;
-    this.state.camera.x = clamp(this.state.camera.x, 0, Math.max(0, worldWidth - VIEWPORT_WIDTH));
+    this.state.camera.x = clamp(this.state.camera.x, 0, maxCameraX);
 
-    const targetY = this.state.player.y + this.state.player.h * 0.5 - VIEWPORT_HEIGHT * 0.5 - CAMERA_SETTINGS.verticalLeadPixels;
-    const clampedY = clamp(targetY, 0, Math.max(0, worldHeight - VIEWPORT_HEIGHT));
-    this.state.camera.y += (clampedY - this.state.camera.y) * CAMERA_SETTINGS.followLerpY;
-    this.state.camera.y = clamp(this.state.camera.y, 0, Math.max(0, worldHeight - VIEWPORT_HEIGHT));
+    const upwardVelocity = Math.max(0, -(this.state.player.vy || 0));
+    const upwardLookAhead = Math.min(
+      CAMERA_SETTINGS.upwardLookAheadMax ?? 0,
+      upwardVelocity * (CAMERA_SETTINGS.upwardVelocityLookAheadFactor ?? 0)
+    );
+    let targetY = this.state.player.y + this.state.player.h * 0.5
+      - VIEWPORT_HEIGHT * 0.5
+      - (CAMERA_SETTINGS.verticalLeadPixels + upwardLookAhead);
+
+    const hudReservePixels = CAMERA_SETTINGS.hudReservePixels ?? 0;
+    const topSafeZone = Math.max(
+      VIEWPORT_HEIGHT * (CAMERA_SETTINGS.topSafeZoneRatio ?? 0.28),
+      hudReservePixels + 24
+    );
+    const bottomSafeZone = VIEWPORT_HEIGHT * (CAMERA_SETTINGS.bottomSafeZoneRatio ?? 0.74);
+    const hardHudSafeLine = hudReservePixels + 16;
+    let playerTopInView = this.state.player.y - this.state.camera.y;
+    let playerBottomInView = this.state.player.y + this.state.player.h - this.state.camera.y;
+
+    if (playerTopInView < hardHudSafeLine) {
+      const snappedY = clamp(this.state.player.y - hardHudSafeLine, 0, maxCameraY);
+      this.state.camera.y = Math.min(this.state.camera.y, snappedY);
+      playerTopInView = this.state.player.y - this.state.camera.y;
+      playerBottomInView = this.state.player.y + this.state.player.h - this.state.camera.y;
+    }
+
+    if (playerTopInView < topSafeZone) {
+      targetY = Math.min(targetY, this.state.player.y - topSafeZone);
+    }
+    if (playerBottomInView > bottomSafeZone) {
+      targetY = Math.max(targetY, this.state.player.y + this.state.player.h - bottomSafeZone);
+    }
+
+    const clampedY = clamp(targetY, 0, maxCameraY);
+    const shouldCatchUpFast = playerTopInView < topSafeZone || upwardVelocity > 130;
+    const followLerpY = shouldCatchUpFast
+      ? Math.max(CAMERA_SETTINGS.followLerpY, CAMERA_SETTINGS.verticalCatchupLerp ?? CAMERA_SETTINGS.followLerpY)
+      : CAMERA_SETTINGS.followLerpY;
+    this.state.camera.y += (clampedY - this.state.camera.y) * followLerpY;
+    this.state.camera.y = clamp(this.state.camera.y, 0, maxCameraY);
   }
 
   step(dt) {

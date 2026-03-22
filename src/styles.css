@@ -16350,6 +16350,443 @@ button.brisca-card.playable:disabled {
   }
 }
 
+/* === Sky Runner DX (Flux Basin component distribution) === */
+.sky-runner-dx-game {
+  display: grid;
+  gap: 0.95rem;
+  border-color: rgba(72, 168, 255, 0.26);
+  background:
+    radial-gradient(circle at 86% -22%, rgba(62, 204, 255, 0.2), transparent 44%),
+    radial-gradient(circle at 8% -18%, rgba(255, 205, 124, 0.14), transparent 42%),
+    linear-gradient(160deg, #0a1629 0%, #102543 54%, #12395c 100%);
+  color: #ecf7ff;
+  box-shadow:
+    0 22px 36px rgba(3, 10, 24, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.sky-runner-dx-world {
+  margin: 0 0 0.32rem;
+  color: #7ee8ff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sky-runner-dx-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.sky-runner-dx-head h4 {
+  margin: 0;
+  color: #f6fbff;
+  font-size: clamp(1.45rem, 2vw, 1.8rem);
+}
+
+.sky-runner-dx-head p {
+  margin: 0.34rem 0 0;
+  color: #c4dff3;
+}
+
+.sky-runner-dx-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.sky-runner-dx-actions button,
+.sky-runner-dx-toggle-grid button,
+.sky-runner-dx-touch-controls button {
+  border: 1px solid rgba(122, 218, 255, 0.24);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(11, 25, 45, 0.95), rgba(8, 18, 35, 0.9));
+  color: #eff9ff;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.sky-runner-dx-actions button,
+.sky-runner-dx-touch-controls button {
+  padding: 0.72rem 0.96rem;
+}
+
+.sky-runner-dx-actions button:hover,
+.sky-runner-dx-toggle-grid button:hover,
+.sky-runner-dx-touch-controls button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(122, 218, 255, 0.56);
+}
+
+.sky-runner-dx-shell {
+  display: grid;
+  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.sky-runner-dx-side {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.sky-runner-dx-panel,
+.sky-runner-dx-stage-wrap {
+  border: 1px solid rgba(122, 218, 255, 0.2);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 88% -22%, rgba(62, 204, 255, 0.14), transparent 44%),
+    rgba(7, 17, 33, 0.84);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 26px rgba(2, 8, 24, 0.22);
+}
+
+.sky-runner-dx-panel {
+  padding: 0.82rem;
+  display: grid;
+  gap: 0.68rem;
+}
+
+.sky-runner-dx-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.48rem;
+}
+
+.sky-runner-dx-stat-grid.compact {
+  gap: 0.34rem;
+}
+
+.sky-runner-dx-stat-grid div {
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.54rem 0.6rem;
+  border-radius: 14px;
+  border: 1px solid rgba(122, 218, 255, 0.16);
+  background: rgba(9, 22, 40, 0.58);
+}
+
+.sky-runner-dx-stat-grid.compact div {
+  padding: 0.42rem 0.5rem;
+}
+
+.sky-runner-dx-stat-grid span,
+.sky-runner-dx-settings-head p,
+.sky-runner-dx-current-level p,
+.sky-runner-dx-controls-copy,
+.sky-runner-dx-stage-head p,
+.sky-runner-dx-stage-footer p {
+  margin: 0;
+  color: #bfd7ee;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.sky-runner-dx-stat-grid strong,
+.sky-runner-dx-current-level strong,
+.sky-runner-dx-settings-head strong,
+.sky-runner-dx-stage-head strong {
+  color: #f8fcff;
+}
+
+.sky-runner-dx-current-level {
+  display: grid;
+  gap: 0.16rem;
+}
+
+.sky-runner-dx-hints {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.34rem;
+  color: #e0f0ff;
+  font-size: 0.8rem;
+}
+
+.sky-runner-dx-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.46rem;
+}
+
+.sky-runner-dx-toggle-grid button {
+  padding: 0.64rem 0.72rem;
+  text-align: left;
+  font-size: 0.78rem;
+}
+
+.sky-runner-dx-stage-wrap {
+  padding: 0.82rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.sky-runner-dx-stage-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.sky-runner-dx-stage-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.38rem;
+}
+
+.sky-runner-dx-stage-chips span {
+  border-radius: 999px;
+  border: 1px solid rgba(122, 218, 255, 0.2);
+  background: rgba(11, 20, 36, 0.76);
+  color: #dcf4ff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.22rem 0.56rem;
+}
+
+.sky-runner-dx-route-strip {
+  display: flex;
+  gap: 0.42rem;
+  overflow-x: auto;
+  padding-bottom: 0.12rem;
+}
+
+.sky-runner-dx-route-node {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid rgba(122, 218, 255, 0.2);
+  background: rgba(10, 24, 42, 0.72);
+  color: #d2e8fb;
+  padding: 0.3rem 0.56rem;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.sky-runner-dx-route-node.active {
+  color: #0d2744;
+  background: linear-gradient(130deg, #79ddff, #a0efff);
+}
+
+.sky-runner-dx-route-node.cleared {
+  background: rgba(95, 244, 193, 0.18);
+  border-color: rgba(95, 244, 193, 0.34);
+  color: #bbffe5;
+}
+
+.sky-runner-dx-route-node.boss {
+  box-shadow: inset 0 0 0 1px rgba(255, 151, 131, 0.42);
+}
+
+.sky-runner-dx-mechanics-band {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+}
+
+.sky-runner-dx-mechanics-band span {
+  border-radius: 999px;
+  border: 1px solid rgba(122, 218, 255, 0.2);
+  background: rgba(9, 20, 36, 0.68);
+  color: #d9efff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.24rem 0.54rem;
+}
+
+.sky-runner-dx-canvas-shell {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  border: 1px solid rgba(122, 218, 255, 0.16);
+  background: rgba(5, 12, 22, 0.9);
+}
+
+.sky-runner-dx-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  background: #050f1d;
+  aspect-ratio: 16 / 9;
+}
+
+.sky-runner-dx-stage-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sky-runner-dx-callout {
+  color: #94f0ff;
+  font-weight: 700;
+}
+
+.sky-runner-dx-touch-controls {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+
+.sky-runner-dx-touch-controls button {
+  font-size: 0.78rem;
+  min-height: 52px;
+}
+
+.sky-runner-dx-canvas-shell:fullscreen,
+.sky-runner-dx-canvas-shell:-webkit-full-screen {
+  display: grid;
+  place-items: center;
+  width: 100dvw;
+  height: 100dvh;
+  max-height: none;
+  padding: 0;
+  border-radius: 0;
+  background: #020611;
+}
+
+.sky-runner-dx-canvas-shell:fullscreen .sky-runner-dx-canvas,
+.sky-runner-dx-canvas-shell:-webkit-full-screen .sky-runner-dx-canvas {
+  width: auto;
+  height: 100dvh;
+  max-width: 100dvw;
+  max-height: 100dvh;
+  aspect-ratio: auto;
+}
+
+.sky-runner-dx-game--touch .sky-runner-dx-canvas-shell {
+  border-radius: 28px;
+  aspect-ratio: 16 / 9;
+  min-height: clamp(220px, 38vw, 460px);
+}
+
+.sky-runner-dx-game--touch .sky-runner-dx-canvas {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+}
+
+@media (orientation: landscape) and (max-height: 860px) {
+  .sky-runner-dx-game--touch .sky-runner-dx-head {
+    gap: 0.28rem;
+    align-items: center;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-head > div:first-child > p:not(.sky-runner-dx-world) {
+    display: none;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-actions {
+    gap: 0.28rem;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-actions button {
+    padding: 0.44rem 0.62rem;
+    font-size: 0.74rem;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-shell {
+    grid-template-columns: 1fr;
+    gap: 0.34rem;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-stage-wrap {
+    order: -1;
+    padding: 0.2rem;
+    gap: 0.25rem;
+    border-radius: 18px;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.34rem;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-panel {
+    padding: 0.5rem;
+    gap: 0.36rem;
+    border-radius: 18px;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-stage-head {
+    gap: 0.36rem;
+    align-items: center;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-stage-chips {
+    gap: 0.22rem;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-stage-chips span {
+    padding: 0.16rem 0.36rem;
+    font-size: 0.64rem;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-stage-head p,
+  .sky-runner-dx-game--touch .sky-runner-dx-hints,
+  .sky-runner-dx-game--touch .sky-runner-dx-controls-copy,
+  .sky-runner-dx-game--touch .sky-runner-dx-stage-footer {
+    display: none;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-stat-grid span,
+  .sky-runner-dx-game--touch .sky-runner-dx-settings-head p,
+  .sky-runner-dx-game--touch .sky-runner-dx-current-level p {
+    font-size: 0.74rem;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-canvas-shell {
+    min-height: clamp(264px, 52vw, 600px);
+    padding: 0;
+    border-radius: 16px;
+  }
+
+  .sky-runner-dx-game--touch .sky-runner-dx-canvas {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 1080px) {
+  .sky-runner-dx-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sky-runner-dx-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .sky-runner-dx-head,
+  .sky-runner-dx-stage-head,
+  .sky-runner-dx-stage-footer {
+    flex-direction: column;
+  }
+
+  .sky-runner-dx-side,
+  .sky-runner-dx-toggle-grid,
+  .sky-runner-dx-touch-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .sky-runner-dx-stage-chips {
+    justify-content: flex-start;
+  }
+}
+
 /* === Penalty Neural Keeper === */
 .penalty-shootout-game {
   color: #e2e8f0;

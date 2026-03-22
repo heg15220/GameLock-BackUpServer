@@ -13,12 +13,61 @@ const statusByScreen = {
   game_complete: "Route Cleared"
 };
 
-const ratioToPercent = (value) => `${Math.max(0, Math.min(100, value * 100)).toFixed(1)}%`;
+const resolveDeviceProfile = () => {
+  if (typeof window === "undefined") {
+    return "desktop";
+  }
+  const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches;
+  const hasTouchPoints = (navigator.maxTouchPoints ?? 0) > 0;
+  return coarsePointer || hasTouchPoints ? "touch" : "desktop";
+};
+
+const formatSeconds = (value) => `${Math.max(0, Math.ceil(value || 0))}s`;
 
 function PlatformerGame() {
   const canvasRef = useRef(null);
+  const shellRef = useRef(null);
   const engineRef = useRef(null);
+
   const [snapshot, setSnapshot] = useState(INITIAL_SNAPSHOT);
+  const [deviceProfile, setDeviceProfile] = useState(resolveDeviceProfile);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [uiConfig, setUiConfig] = useState(() => ({
+    compactHud: false,
+    showRoute: true,
+    showMechanics: true,
+    showHelp: true,
+    showTouchControls: resolveDeviceProfile() === "touch"
+  }));
+
+  const toggleUiConfig = useCallback((key) => {
+    setUiConfig((current) => ({
+      ...current,
+      [key]: !current[key]
+    }));
+  }, []);
+
+  const requestFullscreen = useCallback(async () => {
+    const element = shellRef.current;
+    if (!element) {
+      return;
+    }
+    try {
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      } else if (element.requestFullscreen) {
+        await element.requestFullscreen();
+      } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+      }
+    } catch {
+      // Ignore browser policy fullscreen errors.
+    }
+  }, []);
 
   useEffect(() => {
     if (!canvasRef.current || engineRef.current) {
@@ -41,6 +90,33 @@ function PlatformerGame() {
       isMounted = false;
       engine.destroy();
       engineRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+    const media = window.matchMedia?.("(pointer: coarse)");
+    const updateDeviceProfile = () => setDeviceProfile(resolveDeviceProfile());
+    updateDeviceProfile();
+    window.addEventListener("resize", updateDeviceProfile);
+    media?.addEventListener?.("change", updateDeviceProfile);
+    return () => {
+      window.removeEventListener("resize", updateDeviceProfile);
+      media?.removeEventListener?.("change", updateDeviceProfile);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setFullscreen(Boolean(document.fullscreenElement || document.webkitFullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
     };
   }, []);
 
@@ -120,8 +196,6 @@ function PlatformerGame() {
   useGameRuntimeBridge(snapshot, buildTextPayload, advanceTime);
 
   const statusLabel = statusByScreen[snapshot.screen] || snapshot.screen;
-  const coinsProgress = snapshot.coinsTotal > 0 ? snapshot.coinsCollected / snapshot.coinsTotal : 0;
-  const timeProgress = snapshot.timeLimit > 0 ? snapshot.timeLeft / snapshot.timeLimit : 0;
   const routeProgress = snapshot.levelCount > 0 ? snapshot.levelIndex / snapshot.levelCount : 0;
   const bossProgress = snapshot.runBossLevelCount > 0 && snapshot.runStages.length
     ? snapshot.runStages
@@ -131,177 +205,231 @@ function PlatformerGame() {
   const canRestart = useMemo(() => snapshot.screen !== "start", [snapshot.screen]);
   const mechanics = snapshot.levelMechanics || [];
   const routeStages = snapshot.runStages || [];
+  const isTouchLayout = deviceProfile === "touch";
+  const showTouchControls = isTouchLayout || uiConfig.showTouchControls;
+  const controlsCopy = isTouchLayout
+    ? "Touch controls: hold Left/Right to move, hold Jump for variable jump, tap Action to fire, Start to begin and Restart to reload the sector."
+    : "Keyboard controls: A/D or Arrow keys move, W/Up/Space jumps, F/J/B uses action, Enter starts run and R restarts the current sector.";
+  const helpHints = [
+    snapshot.activeWind
+      ? `Wind active (${snapshot.activeWind.label}): X ${snapshot.activeWind.forceX}, Y ${snapshot.activeWind.forceY}.`
+      : "No active wind zone around the player.",
+    snapshot.checkpoints.activeId
+      ? `Active checkpoint: ${snapshot.checkpoints.activeId}.`
+      : "No checkpoint active yet. Respawn remains at sector spawn.",
+    snapshot.isBossLevel
+      ? (snapshot.activeBoss
+        ? `Boss objective: defeat ${snapshot.activeBoss.name} before capturing the beacon.`
+        : "Boss objective: secure the beacon after clearing enemies.")
+      : `Coin objective: ${snapshot.coinsCollected}/${snapshot.coinsTotal} collected.`,
+    snapshot.hazardCount > 0
+      ? `Hazards in sector: ${snapshot.hazardCount}.`
+      : "No hazard lanes detected in this sector."
+  ];
+  const routeCompletion = `${Math.round(routeProgress * 100)}%`;
+  const bossCompletion = `${Math.round(bossProgress * 100)}%`;
 
   return (
-    <div className="mini-game platformer-game">
-      <div className="mini-head platformer-briefing-head">
+    <div className={`mini-game sky-runner-dx-game sky-runner-dx-game--${deviceProfile}`}>
+      <div className="mini-head sky-runner-dx-head">
         <div>
+          <p className="sky-runner-dx-world">Skyline Route</p>
           <h4>Sky Runner DX</h4>
           <p>
-            32 sectores artesanales, ruta de {snapshot.levelCount} fases por run, bosses con variantes,
-            checkpoints, springs, viento y hazards bien telegráficos.
+            32 handcrafted sectors with route progression, checkpoint routing, spring tech, wind lanes and boss arenas.
           </p>
         </div>
-        <div className="platformer-actions">
+        <div className="sky-runner-dx-actions">
           <button type="button" onClick={onStart}>
-            {snapshot.screen === "start" ? "Start Route" : "Continue"}
+            {snapshot.screen === "start" ? "Start Route" : "Resume Run"}
           </button>
           <button type="button" onClick={onRestart} disabled={!canRestart}>
             Restart Sector
           </button>
+          <button type="button" onClick={requestFullscreen}>
+            {fullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          </button>
         </div>
       </div>
 
-      <div className="status-row platformer-status-row">
-        <span className={`status-pill ${snapshot.screen}`}>{statusLabel}</span>
-        <span>Sector <strong>{snapshot.levelIndex + 1}</strong>/{snapshot.levelCount}</span>
-        <span>Biome <strong>{snapshot.levelBiome}</strong></span>
-        <span>Difficulty <strong>{snapshot.levelDifficulty}/5</strong></span>
-        {snapshot.isBossLevel && <span className="status-pill boss">Boss Sector</span>}
-        <span>Score <strong>{snapshot.score}</strong></span>
-        <span>Lives <strong>{snapshot.lives}</strong></span>
-      </div>
+      <div className="sky-runner-dx-shell">
+        <div className="sky-runner-dx-side">
+          <section className="sky-runner-dx-panel sky-runner-dx-panel-primary">
+            <div className={`sky-runner-dx-stat-grid ${uiConfig.compactHud ? "compact" : ""}`.trim()}>
+              <div>
+                <span>Status</span>
+                <strong>{statusLabel}</strong>
+              </div>
+              <div>
+                <span>Sector</span>
+                <strong>{snapshot.levelIndex + 1}/{snapshot.levelCount}</strong>
+              </div>
+              <div>
+                <span>Score</span>
+                <strong>{snapshot.score}</strong>
+              </div>
+              <div>
+                <span>Lives</span>
+                <strong>{snapshot.lives}</strong>
+              </div>
+              <div>
+                <span>Coins</span>
+                <strong>{snapshot.coinsCollected}/{snapshot.coinsTotal}</strong>
+              </div>
+              <div>
+                <span>Time</span>
+                <strong>{formatSeconds(snapshot.timeLeft)}</strong>
+              </div>
+              <div>
+                <span>Route</span>
+                <strong>{routeCompletion}</strong>
+              </div>
+              <div>
+                <span>Bosses</span>
+                <strong>{bossCompletion}</strong>
+              </div>
+            </div>
+            <div className="sky-runner-dx-current-level">
+              <strong>{snapshot.levelName}</strong>
+              <p>{snapshot.levelSubtitle || "Deterministic arcade platforming sector."}</p>
+              <p>Biome: {snapshot.levelBiome} | Difficulty: {snapshot.levelDifficulty}/5</p>
+            </div>
+            {uiConfig.showHelp ? (
+              <ul className="sky-runner-dx-hints">
+                {helpHints.map((hint) => <li key={hint}>{hint}</li>)}
+              </ul>
+            ) : null}
+            <p className="sky-runner-dx-controls-copy">{controlsCopy}</p>
+          </section>
 
-      <section className="platformer-command-deck">
-        <article className="platformer-command-card hero">
-          <p className="eyebrow">Current Sector</p>
-          <h5>{snapshot.levelName}</h5>
-          <strong>{snapshot.levelBiome}</strong>
-          <span>{snapshot.levelSubtitle || "Handcrafted platforming sector with deterministic physics."}</span>
-        </article>
+          <section className="sky-runner-dx-panel sky-runner-dx-panel-settings">
+            <div className="sky-runner-dx-settings-head">
+              <strong>Configuration</strong>
+              <p>Layout controls for HUD, route map and on-screen actions.</p>
+            </div>
+            <div className="sky-runner-dx-toggle-grid">
+              <button type="button" onClick={() => toggleUiConfig("compactHud")}>
+                HUD density: {uiConfig.compactHud ? "Compact" : "Detailed"}
+              </button>
+              <button type="button" onClick={() => toggleUiConfig("showHelp")}>
+                Help text: {uiConfig.showHelp ? "On" : "Off"}
+              </button>
+              <button type="button" onClick={() => toggleUiConfig("showRoute")}>
+                Route strip: {uiConfig.showRoute ? "On" : "Off"}
+              </button>
+              <button type="button" onClick={() => toggleUiConfig("showMechanics")}>
+                Mechanics chips: {uiConfig.showMechanics ? "On" : "Off"}
+              </button>
+              <button type="button" onClick={() => toggleUiConfig("showTouchControls")}>
+                Virtual controls: {showTouchControls ? "On" : "Off"}
+              </button>
+              <button type="button" onClick={requestFullscreen}>
+                Display: {fullscreen ? "Fullscreen" : "Window"}
+              </button>
+            </div>
+          </section>
+        </div>
 
-        <article className="platformer-command-card">
-          <p className="eyebrow">Environment</p>
-          <strong>{snapshot.activeWind ? snapshot.activeWind.label : "Calm Air"}</strong>
-          <span>
-            {snapshot.activeWind
-              ? `Wind ${snapshot.activeWind.forceX}/${snapshot.activeWind.forceY}`
-              : "No active gust zones around the player."}
-          </span>
-        </article>
-
-        <article className="platformer-command-card">
-          <p className="eyebrow">Checkpoints</p>
-          <strong>{snapshot.checkpoints.activated}/{snapshot.checkpoints.total}</strong>
-          <span>
-            {snapshot.checkpoints.activeId
-              ? `Active: ${snapshot.checkpoints.activeId}`
-              : "Respawn anchored at sector start."}
-          </span>
-        </article>
-
-        <article className="platformer-command-card">
-          <p className="eyebrow">Hazards</p>
-          <strong>{snapshot.hazardCount}</strong>
-          <span>{snapshot.hazardCount ? "Telegraphed danger lanes in this sector." : "Pure traversal sector."}</span>
-        </article>
-      </section>
-
-      <div className="platformer-route-strip">
-        {routeStages.map((stage, index) => (
-          <span
-            key={`${stage.id}-${index}`}
-            className={[
-              "platformer-route-node",
-              index === snapshot.levelIndex ? "active" : "",
-              index < snapshot.levelIndex ? "cleared" : "",
-              stage.isBossLevel ? "boss" : ""
-            ].join(" ").trim()}
-          >
-            {index + 1}. {stage.name}
-          </span>
-        ))}
-      </div>
-
-      <div className="meter-stack platformer-meter-stack">
-        <div className="meter-line compact">
-          <p>Coins</p>
-          <div className="meter-track">
-            <span className="meter-fill quiz" style={{ width: ratioToPercent(coinsProgress) }} />
+        <div className="sky-runner-dx-stage-wrap">
+          <div className="sky-runner-dx-stage-head">
+            <div>
+              <strong>{snapshot.levelName}</strong>
+              <p>{snapshot.levelSubtitle || "Sector runtime telemetry synchronized with gameplay canvas."}</p>
+            </div>
+            <div className="sky-runner-dx-stage-chips">
+              <span>{snapshot.levelBiome}</span>
+              <span>Time {formatSeconds(snapshot.timeLeft)}</span>
+              <span>Checkpoints {snapshot.checkpoints.activated}/{snapshot.checkpoints.total}</span>
+              {snapshot.isBossLevel ? <span>Boss sector</span> : null}
+            </div>
           </div>
-          <strong>{snapshot.coinsCollected}/{snapshot.coinsTotal}</strong>
-        </div>
-        <div className="meter-line compact">
-          <p>Time</p>
-          <div className="meter-track">
-            <span className="meter-fill timer" style={{ width: ratioToPercent(timeProgress) }} />
+
+          {uiConfig.showRoute ? (
+            <div className="sky-runner-dx-route-strip">
+              {routeStages.map((stage, index) => (
+                <span
+                  key={`${stage.id}-${index}`}
+                  className={[
+                    "sky-runner-dx-route-node",
+                    index === snapshot.levelIndex ? "active" : "",
+                    index < snapshot.levelIndex ? "cleared" : "",
+                    stage.isBossLevel ? "boss" : ""
+                  ].join(" ").trim()}
+                >
+                  {index + 1}. {stage.name}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          {uiConfig.showMechanics && mechanics.length ? (
+            <div className="sky-runner-dx-mechanics-band">
+              {mechanics.map((mechanic) => (
+                <span key={mechanic}>{mechanic}</span>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="sky-runner-dx-canvas-shell" ref={shellRef}>
+            <canvas ref={canvasRef} className="sky-runner-dx-canvas" aria-label="Sky Runner DX canvas" />
           </div>
-          <strong>{Math.max(0, Math.ceil(snapshot.timeLeft))}s</strong>
-        </div>
-        <div className="meter-line compact">
-          <p>Route</p>
-          <div className="meter-track">
-            <span className="meter-fill action" style={{ width: ratioToPercent(routeProgress) }} />
+
+          <div className="sky-runner-dx-stage-footer">
+            <p>{snapshot.message || "Ready to deploy on the skyline route."}</p>
+            <p className="sky-runner-dx-callout">
+              Player ({snapshot.player.x}, {snapshot.player.y}) | Vel ({snapshot.player.vx}, {snapshot.player.vy}) |
+              Boss {snapshot.activeBoss ? `${snapshot.activeBoss.health}/${snapshot.activeBoss.maxHealth}` : "inactive"}
+            </p>
           </div>
-          <strong>{snapshot.levelIndex}/{snapshot.levelCount}</strong>
+
+          {showTouchControls ? (
+            <div className="sky-runner-dx-touch-controls" role="group" aria-label="Sky Runner DX touch controls">
+              <button
+                type="button"
+                onMouseDown={onAxisPress(-1)}
+                onMouseUp={onAxisRelease}
+                onMouseLeave={onAxisRelease}
+                onTouchStart={onAxisPress(-1)}
+                onTouchEnd={onAxisRelease}
+                onTouchCancel={onAxisRelease}
+              >
+                Left
+              </button>
+              <button
+                type="button"
+                onMouseDown={onAxisPress(1)}
+                onMouseUp={onAxisRelease}
+                onMouseLeave={onAxisRelease}
+                onTouchStart={onAxisPress(1)}
+                onTouchEnd={onAxisRelease}
+                onTouchCancel={onAxisRelease}
+              >
+                Right
+              </button>
+              <button
+                type="button"
+                onMouseDown={onJumpDown}
+                onMouseUp={onJumpUp}
+                onMouseLeave={onJumpUp}
+                onTouchStart={onJumpDown}
+                onTouchEnd={onJumpUp}
+                onTouchCancel={onJumpUp}
+              >
+                Jump
+              </button>
+              <button type="button" onClick={onAction}>
+                Action
+              </button>
+              <button type="button" onClick={onStart}>
+                Start
+              </button>
+              <button type="button" onClick={onRestart} disabled={!canRestart}>
+                Restart
+              </button>
+            </div>
+          ) : null}
         </div>
-        <div className="meter-line compact">
-          <p>Bosses</p>
-          <div className="meter-track">
-            <span className="meter-fill boss" style={{ width: ratioToPercent(bossProgress) }} />
-          </div>
-          <strong>{snapshot.runBossLevelCount}</strong>
-        </div>
       </div>
-
-      <div className="platformer-mechanics-band">
-        {mechanics.map((mechanic) => (
-          <span key={mechanic}>{mechanic}</span>
-        ))}
-      </div>
-
-      <div className="phaser-canvas-shell platformer-stage-shell">
-        <div className="phaser-canvas-host">
-          <canvas ref={canvasRef} aria-label="Arcade platformer canvas" />
-        </div>
-      </div>
-
-      <div className="phaser-controls">
-        <button
-          className="platformer-ctrl move"
-          type="button"
-          onMouseDown={onAxisPress(-1)}
-          onMouseUp={onAxisRelease}
-          onMouseLeave={onAxisRelease}
-          onTouchStart={onAxisPress(-1)}
-          onTouchEnd={onAxisRelease}
-          onTouchCancel={onAxisRelease}
-        >
-          Left
-        </button>
-        <button
-          className="platformer-ctrl move"
-          type="button"
-          onMouseDown={onAxisPress(1)}
-          onMouseUp={onAxisRelease}
-          onMouseLeave={onAxisRelease}
-          onTouchStart={onAxisPress(1)}
-          onTouchEnd={onAxisRelease}
-          onTouchCancel={onAxisRelease}
-        >
-          Right
-        </button>
-        <button
-          className="platformer-ctrl jump"
-          type="button"
-          onMouseDown={onJumpDown}
-          onMouseUp={onJumpUp}
-          onMouseLeave={onJumpUp}
-          onTouchStart={onJumpDown}
-          onTouchEnd={onJumpUp}
-          onTouchCancel={onJumpUp}
-        >
-          Jump
-        </button>
-        <button className="platformer-ctrl action" type="button" onClick={onAction}>
-          Action
-        </button>
-        <button className="platformer-ctrl system" type="button" onClick={onStart}>
-          Start
-        </button>
-      </div>
-
-      {snapshot.message && <p className="game-message">{snapshot.message}</p>}
     </div>
   );
 }
