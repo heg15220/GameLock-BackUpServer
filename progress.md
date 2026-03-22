@@ -3227,3 +3227,31 @@ pm run build en sandbox sigue bloqueado por spawn EPERM (esbuild);
   - `src/games/arcade/reactor-toss/core/physics/constants.js`
   - `src/games/arcade/reactor-toss/index.jsx`
 - Nota QA: `npm run build` en sandbox sigue fallando por `vite:esbuild spawn EPERM`; se solicito ejecucion fuera de sandbox pero la peticion fue interrumpida por el usuario.
+## 2026-03-22 - Arcade Golf Tour 2D: side-view completion (difficulty + biomes + cup + touch swipe)
+- Reworked `src/games/arcade/golf-tour-2d/levels.js`:
+  - 72 levels confirmed (`6` biomes x `12` levels).
+  - Added explicit difficulty bands with even distribution: `rookie/pro/elite/master` (18 each).
+  - Added obstacle generation per level: `surfacePatches`, `hazardPits`, `bumpers`, `movingBumpers`, `walls`, `windZones`.
+  - Added 6 distinct environments and atmospheres: `day`, `sunset`, `night`, `volcanic-night`, `neon`, `storm`.
+- Reworked `src/games/arcade/golf-tour-2d/runtime.js`:
+  - Added runtime handling for all obstacle types and dynamic obstacle updates.
+  - Added surface-specific friction/bounce behavior.
+  - Added hazard penalty checks and wind-zone force/lift influence.
+  - Fixed cup behavior to remove hard wall-like rebounds at hole edge: soft capture + attraction logic.
+  - Added mobile/tablet swipe launch from any screen area (gesture trajectory drives shot), keeping drag-from-ball support.
+  - Extended snapshot output (`zones`, `walls`, `movers`, `bumpers`) for QA.
+- Reworked `src/games/arcade/golf-tour-2d/render.js`:
+  - Added atmosphere-specific sky rendering for day/sunset/night/storm/neon styles.
+  - Added visual rendering for hazards, surface patches, wind zones, walls, static bumpers, and moving bumpers.
+  - Preserved side-view terrain layers, cup tube + flag, aim dots, and ball trail.
+- Updated copy in `src/games/arcade/golf-tour-2d/copy.js`:
+  - Controls now explicitly describe global touch swipe launch for mobile/tablet.
+  - Added obstacle/biome diversity messaging and `master` difficulty label.
+- Validation:
+  - Syntax checks OK (`node --check` on levels/runtime/render/copy).
+  - Build OK outside sandbox (`npm run build`), sandbox still fails with expected `vite:esbuild spawn EPERM`.
+  - Playwright run produced gameplay artifacts in `output/arcade-golf-tour-2d-validation-v2/` (`shot-0.png`, `state-0.json`), and screenshot review confirms side-view render with cup + trajectory + terrain.
+- Note:
+  - Playwright client process can hang in this Windows environment after artifact creation; latest run still produced valid screenshot/state outputs and no fresh error artifact in the new folder.
+- Additional QA pass: `output/arcade-golf-tour-2d-validation-v3/` generated `shot-0.png` + `state-0.json` after runtime fix, with no new `errors-*.json` in that folder.
+- Environment note: Playwright client still hangs on exit in this Windows setup, so commands may timeout even when artifacts are produced successfully.

@@ -1,0 +1,45 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="62" y1="22" x2="448" y2="492" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#79D7A8"/>
+      <stop offset="0.55" stop-color="#2E8F6A"/>
+      <stop offset="1" stop-color="#1E4E41"/>
+    </linearGradient>
+    <linearGradient id="fairway" x1="72" y1="206" x2="448" y2="484" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8BE067"/>
+      <stop offset="1" stop-color="#3F8F42"/>
+    </linearGradient>
+    <linearGradient id="obstacle" x1="170" y1="206" x2="348" y2="316" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFE7D2"/>
+      <stop offset="1" stop-color="#A19072"/>
+    </linearGradient>
+    <radialGradient id="ball" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(126 162) rotate(45) scale(66)">
+      <stop stop-color="white"/>
+      <stop offset="1" stop-color="#C8D7DA"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="40" fill="url(#sky)"/>
+  <ellipse cx="130" cy="100" rx="120" ry="52" fill="white" opacity="0.12"/>
+  <ellipse cx="382" cy="136" rx="146" ry="64" fill="white" opacity="0.09"/>
+
+  <rect x="0" y="228" width="512" height="284" fill="url(#fairway)"/>
+  <path d="M0 278C66 256 128 254 188 270C246 286 306 320 364 312C418 304 462 266 512 242V512H0V278Z" fill="#51A24A" opacity="0.66"/>
+  <path d="M0 350C84 330 162 346 228 382C300 422 380 446 512 410V512H0V350Z" fill="#3F843D" opacity="0.74"/>
+
+  <rect x="168" y="212" width="28" height="210" rx="12" fill="url(#obstacle)"/>
+  <rect x="310" y="166" width="28" height="218" rx="12" fill="url(#obstacle)"/>
+  <rect x="234" y="314" width="124" height="30" rx="14" fill="url(#obstacle)"/>
+
+  <ellipse cx="404" cy="356" rx="34" ry="19" fill="#0B1318" opacity="0.58"/>
+  <circle cx="404" cy="346" r="20" fill="#04090D"/>
+  <circle cx="404" cy="346" r="25" stroke="#C3F3D7" stroke-width="4" opacity="0.72"/>
+
+  <path d="M430 346V254" stroke="#F5FCFF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M430 254C458 260 458 282 430 290V254Z" fill="#FF6E63"/>
+
+  <path d="M118 190C194 142 274 138 342 164" stroke="#D8FFF1" stroke-width="14" stroke-linecap="round" stroke-dasharray="10 18"/>
+  <circle cx="126" cy="166" r="34" fill="url(#ball)"/>
+  <circle cx="126" cy="166" r="34" stroke="#70898F" stroke-width="5"/>
+  <ellipse cx="112" cy="151" rx="15" ry="11" fill="white" opacity="0.9"/>
+</svg>

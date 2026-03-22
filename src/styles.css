@@ -17393,4 +17393,346 @@ button.brisca-card.playable:disabled {
   }
 }
 
+.golf-tour-game {
+  background: linear-gradient(145deg, #12202a 0%, #111a26 46%, #0f1722 100%);
+  border: 1px solid rgba(145, 255, 188, 0.22);
+  border-radius: 20px;
+  color: #e8f4ef;
+  padding: 1rem;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.35);
+}
+
+.golf-tour-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.golf-tour-tag {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8fdac0;
+}
+
+.golf-tour-head h4 {
+  margin: 0.18rem 0 0.22rem;
+}
+
+.golf-tour-head p {
+  margin: 0;
+  color: rgba(224, 242, 236, 0.8);
+}
+
+.golf-tour-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.48rem;
+  justify-content: flex-end;
+}
+
+.golf-tour-actions button,
+.golf-tour-overlay-actions button,
+.golf-tour-level-head button,
+.golf-tour-level-button,
+.golf-tour-touch-controls button {
+  border: 1px solid rgba(157, 255, 196, 0.35);
+  border-radius: 10px;
+  padding: 0.48rem 0.72rem;
+  background: rgba(19, 41, 54, 0.82);
+  color: #ebfff5;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.golf-tour-actions button:hover,
+.golf-tour-overlay-actions button:hover,
+.golf-tour-level-head button:hover,
+.golf-tour-level-button:hover,
+.golf-tour-touch-controls button:hover {
+  transform: translateY(-1px);
+  background: rgba(47, 91, 74, 0.9);
+  border-color: rgba(186, 255, 215, 0.8);
+}
+
+.golf-tour-shell {
+  display: grid;
+  grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.golf-tour-panel {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+}
+
+.golf-tour-panel section {
+  background: rgba(11, 26, 35, 0.86);
+  border: 1px solid rgba(157, 242, 194, 0.18);
+  border-radius: 14px;
+  padding: 0.7rem 0.8rem;
+}
+
+.golf-tour-panel h5 {
+  margin: 0 0 0.42rem;
+}
+
+.golf-tour-panel p {
+  margin: 0;
+  color: rgba(218, 236, 230, 0.88);
+  line-height: 1.34;
+}
+
+.golf-tour-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.golf-tour-stats-grid article {
+  background: rgba(22, 44, 51, 0.58);
+  border: 1px solid rgba(156, 255, 196, 0.2);
+  border-radius: 10px;
+  padding: 0.42rem 0.5rem;
+}
+
+.golf-tour-stats-grid span {
+  display: block;
+  font-size: 0.76rem;
+  color: rgba(182, 231, 210, 0.86);
+}
+
+.golf-tour-stats-grid strong {
+  font-size: 0.95rem;
+}
+
+.golf-tour-status p {
+  margin-bottom: 0.32rem;
+}
+
+.golf-tour-coords {
+  margin-top: 0.52rem !important;
+  font-size: 0.76rem;
+  color: rgba(166, 218, 197, 0.9) !important;
+}
+
+.golf-tour-stage-wrap {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.golf-tour-stage-head {
+  background: rgba(11, 26, 35, 0.86);
+  border: 1px solid rgba(157, 242, 194, 0.18);
+  border-radius: 14px;
+  padding: 0.68rem 0.78rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.golf-tour-stage-head strong {
+  display: block;
+  margin-bottom: 0.1rem;
+}
+
+.golf-tour-stage-head p {
+  margin: 0;
+  color: rgba(198, 228, 217, 0.86);
+}
+
+.golf-tour-head-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.36rem;
+}
+
+.golf-tour-head-chips span {
+  background: rgba(25, 51, 56, 0.78);
+  border: 1px solid rgba(157, 242, 194, 0.24);
+  border-radius: 999px;
+  padding: 0.26rem 0.56rem;
+  font-size: 0.75rem;
+}
+
+.golf-tour-canvas-shell {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(185, 255, 213, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  background: #0f1a20;
+  min-height: 340px;
+}
+
+.golf-tour-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.golf-tour-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(6, 11, 15, 0.66);
+  padding: 0.8rem;
+}
+
+.golf-tour-overlay-card {
+  width: min(760px, 96%);
+  background: rgba(12, 26, 33, 0.96);
+  border: 1px solid rgba(175, 255, 212, 0.3);
+  border-radius: 14px;
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.golf-tour-overlay-card h5 {
+  margin: 0;
+  font-size: 1.12rem;
+}
+
+.golf-tour-overlay-card p {
+  margin: 0;
+  color: rgba(220, 244, 234, 0.88);
+}
+
+.golf-tour-overlay-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.golf-tour-overlay-wide {
+  width: min(980px, 98%);
+}
+
+.golf-tour-level-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.golf-tour-level-head h5 {
+  margin: 0;
+}
+
+.golf-tour-level-grid {
+  max-height: 55vh;
+  overflow: auto;
+  padding-right: 0.2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.44rem;
+}
+
+.golf-tour-level-button {
+  display: grid;
+  gap: 0.18rem;
+  text-align: left;
+  padding: 0.52rem 0.56rem;
+}
+
+.golf-tour-level-button strong {
+  font-size: 0.95rem;
+}
+
+.golf-tour-level-button span {
+  font-size: 0.73rem;
+  color: rgba(205, 233, 222, 0.92);
+}
+
+.golf-tour-level-button em {
+  font-style: normal;
+  font-size: 0.69rem;
+  color: rgba(177, 233, 203, 0.82);
+}
+
+.golf-tour-level-button.cleared {
+  background: rgba(32, 71, 62, 0.9);
+}
+
+.golf-tour-level-button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.golf-tour-stage-foot {
+  background: rgba(11, 26, 35, 0.86);
+  border: 1px solid rgba(157, 242, 194, 0.18);
+  border-radius: 12px;
+  padding: 0.5rem 0.66rem;
+}
+
+.golf-tour-stage-foot p {
+  margin: 0;
+  color: rgba(216, 238, 229, 0.92);
+}
+
+.golf-tour-touch-controls {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.golf-tour-touch .golf-tour-touch-controls {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 980px) {
+  .golf-tour-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .golf-tour-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .golf-tour-panel section:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .golf-tour-head {
+    flex-direction: column;
+  }
+
+  .golf-tour-actions {
+    width: 100%;
+  }
+
+  .golf-tour-actions button {
+    flex: 1;
+  }
+
+  .golf-tour-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .golf-tour-stage-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .golf-tour-head-chips {
+    justify-content: flex-start;
+  }
+
+  .golf-tour-touch-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 

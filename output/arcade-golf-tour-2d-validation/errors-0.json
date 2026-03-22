@@ -1,0 +1,10 @@
+[
+  {
+    "type": "console.error",
+    "text": "ReferenceError: coinsCollected is not defined\n    at st.getSnapshot (http://127.0.0.1:4177/assets/index-da01fa33.js:1:43247)\n    at st.emit (http://127.0.0.1:4177/assets/index-da01fa33.js:1:44407)\n    at st.start (http://127.0.0.1:4177/assets/index-da01fa33.js:1:27570)\n    at http://127.0.0.1:4177/assets/index-da01fa33.js:1:46282\n    at Do (http://127.0.0.1:4177/assets/index-d6ac0048.js:32:24283)\n    at x5 (http://127.0.0.1:4177/assets/index-d6ac0048.js:32:42406)\n    at http://127.0.0.1:4177/assets/index-d6ac0048.js:32:40723\n    at p (http://127.0.0.1:4177/assets/index-d6ac0048.js:17:1535)\n    at MessagePort.M (http://127.0.0.1:4177/assets/index-d6ac0048.js:17:1894)"
+  },
+  {
+    "type": "pageerror",
+    "text": "ReferenceError: coinsCollected is not defined"
+  }
+]

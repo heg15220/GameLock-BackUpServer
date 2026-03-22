@@ -27,6 +27,7 @@ const CosmicVanguardGame = lazy(() => import("../games/arcade/cosmic-vanguard"))
 const OrchardMatchBlastGame = lazy(() => import("../games/arcade/orchard-match-blast"));
 const ReactorTossGame = lazy(() => import("../games/arcade/reactor-toss"));
 const TerritoryWarGame = lazy(() => import("../games/arcade/territory-war"));
+const GolfTour2DGame = lazy(() => import("../games/arcade/golf-tour-2d"));
 const KnowledgeSudokuGame = () => <KnowledgeArcadeGame variant="sudoku" />;
 const KnowledgeAhorcadoGame = () => <KnowledgeArcadeGame variant="ahorcado" />;
 const KnowledgePacienciaGame = () => <KnowledgeArcadeGame variant="paciencia" />;
@@ -80,6 +81,7 @@ const GAME_COMPONENTS = {
   "arcade-bowling-pro-tour": BowlingGame,
   "arcade-penalty-neural-keeper": PenaltyNeuralKeeperGame,
   "arcade-cosmic-vanguard": CosmicVanguardGame,
+  "arcade-golf-tour-2d": GolfTour2DGame,
   "arcade-buscaminas-classic": MinesweeperGame,
   "racing-race2dpro": RaceGame2DPro,
   "racing-sunset-slipstream": SunsetSlipstream,
@@ -123,6 +125,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-bowling-pro-tour": "A/D ajustan linea, W/S potencia, Q/E efecto y Enter/Espacio lanza. R reinicia la serie y F activa pantalla completa.",
     "arcade-penalty-neural-keeper": "Selecciona rival y dificultad, inicia la tanda y usa 1-5 para elegir zona (abajo izq/der, arriba izq/der, centro). R vuelve al menu y F pantalla completa.",
     "arcade-cosmic-vanguard": "A/D o izq/der rotan, W impulsa, S frena, Shift boost, Espacio dispara, E/X pulso EMP, P pausa, R reinicia y F pantalla completa. Las pasadas al limite cargan Vanguard Drive.",
+    "arcade-golf-tour-2d": "Mini golf 2D: arrastra desde la bola para apuntar y potencia. A/D o flechas angulo, W/S potencia, Enter/Espacio lanza, P pausa, R reinicia, L selector y F pantalla completa.",
     "arcade-pacman-maze-protocol": "WASD o flechas para mover, Enter/Espacio para empezar, P/Esc para pausa, R reinicia, M sonido y G debug.",
     "arcade-buscaminas-classic": "Click izq abre, click der o pulsacion larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA, R reinicia. En competitivo puntuan celdas + tiempo.",
     "racing-race2dpro": "Arriba/abajo acelerar/frenar, izq/der girar. Móvil: joystick táctil izq. + botones der. R reinicia.",
@@ -165,6 +168,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-bowling-pro-tour": "A/D adjust line, W/S power, Q/E spin, and Enter/Space throws. R restarts the series and F toggles fullscreen.",
     "arcade-penalty-neural-keeper": "Choose rival and difficulty, start the shootout, then use 1-5 for target zones (bottom left/right, top left/right, center). R returns to menu and F toggles fullscreen.",
     "arcade-cosmic-vanguard": "A/D or left/right rotate, W thrusts, S brakes, Shift boosts, Space fires, E/X launches an EMP pulse, P pauses, R restarts, and F toggles fullscreen. Close passes charge Vanguard Drive.",
+    "arcade-golf-tour-2d": "2D mini golf: drag from the ball to set angle and power. A/D or arrows adjust angle, W/S power, Enter/Space launches, P pause, R restart, L level select, and F fullscreen.",
     "arcade-pacman-maze-protocol": "Use arrows or WASD to move, Enter/Space to start, P/Esc to pause, R restart, M sound and G debug.",
     "arcade-buscaminas-classic": "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells + time.",
     "racing-race2dpro": "Up/down throttle/brake, left/right steer. Mobile: left touch joystick + right buttons. R restart.",

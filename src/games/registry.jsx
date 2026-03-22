@@ -50,6 +50,7 @@ const CosmicVanguardGame = lazy(() => import("./arcade/cosmic-vanguard"));
 const OrchardMatchBlastGame = lazy(() => import("./arcade/orchard-match-blast"));
 const ReactorTossGame = lazy(() => import("./arcade/reactor-toss"));
 const TerritoryWarGame = lazy(() => import("./arcade/territory-war"));
+const GolfTour2DGame = lazy(() => import("./arcade/golf-tour-2d"));
 const WikipediaGachaGame = lazy(() => import("./knowledge/wikipedia-gacha"));
 const RetroClassicsGame = lazy(() => import("./arcade/retro-classics"));
 
@@ -123,6 +124,7 @@ export const GAME_REGISTRY = {
   "arcade-bowling-pro-tour":     BowlingGame,
   "arcade-penalty-neural-keeper": PenaltyNeuralKeeperGame,
   "arcade-cosmic-vanguard":      CosmicVanguardGame,
+  "arcade-golf-tour-2d":         GolfTour2DGame,
   "arcade-pong-neon-arena":      PongGame,
   "arcade-buscaminas-classic":   MinesweeperGame,
   "arcade-retro-snake-classic":  ArcadeSnakeClassicGame,
@@ -187,6 +189,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-bowling-pro-tour":     "A/D ajustan linea, W/S potencia, Q/E efecto y Enter/Espacio lanza. R reinicia serie y F pantalla completa.",
     "arcade-penalty-neural-keeper": "Tanda de 10 penaltis: elige zona con 1-5 (abajo izq/der, arriba izq/der, centro). R reinicia y F pantalla completa.",
     "arcade-cosmic-vanguard":      "A/D o izq/der rotan, W impulsa, S frena, Shift boost, Espacio dispara, E/X pulso EMP, P pausa, R reinicia y F pantalla completa. Las pasadas al limite cargan Vanguard Drive.",
+    "arcade-golf-tour-2d":        "Mini golf 2D: arrastra desde la bola para apuntar y potencia. Teclado A/D o flechas angulo, W/S potencia, Enter/Espacio lanza, P pausa, R reinicia, L selector y F pantalla completa.",
     "arcade-pacman-maze-protocol": "WASD/flechas mover, Enter/Espacio empezar, P/Esc pausa, R reinicia, M sonido.",
     "arcade-pong-neon-arena":      "W/S o flechas arriba/abajo para mover vertical. A/D o flechas izq/der para avanzar o retroceder (sin cruzar el centro). Ratón también controla vertical. Enter/Espacio empezar, P pausa, R reinicia, M sonido, F pantalla completa.",
     "arcade-buscaminas-classic":   "Click izq abre, click der o pulsación larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA y R reinicia. En competitivo puntúan celdas y tiempo.",
@@ -245,6 +248,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-bowling-pro-tour":     "A/D adjust line, W/S power, Q/E spin, Enter/Space throw. R restarts the series and F toggles fullscreen.",
     "arcade-penalty-neural-keeper": "10-penalty shootout: pick zones with 1-5 (bottom left/right, top left/right, center). R restarts and F toggles fullscreen.",
     "arcade-cosmic-vanguard":      "A/D or left/right rotate, W thrusts, S brakes, Shift boosts, Space fires, E/X triggers EMP pulse, P pauses, R restarts, and F toggles fullscreen. Close passes charge Vanguard Drive.",
+    "arcade-golf-tour-2d":        "2D mini golf: drag from the ball to set direction and power. Keyboard A/D or arrows adjusts angle, W/S power, Enter/Space launches, P pause, R restart, L level select, and F fullscreen.",
     "arcade-pacman-maze-protocol": "WASD/arrows move, Enter/Space start, P/Esc pause, R restart, M sound.",
     "arcade-pong-neon-arena":      "W/S or up/down arrows for vertical. A/D or left/right arrows to advance or retreat (cannot cross centre line). Mouse also controls vertical. Enter/Space start, P pause, R restart, M sound, F fullscreen.",
     "arcade-buscaminas-classic":   "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells and time.",

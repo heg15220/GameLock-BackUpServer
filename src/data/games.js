@@ -14,6 +14,7 @@ import arcadeBillarPoolClubImage from "../assets/games/arcade-billar-pool-club.s
 import arcadeBowlingProTourImage from "../assets/games/arcade-bowling-pro-tour.svg";
 import arcadePenaltyNeuralKeeperImage from "../assets/games/arcade-penalty-neural-keeper.svg";
 import arcadeCosmicVanguardImage from "../assets/games/arcade-cosmic-vanguard.svg";
+import arcadeGolfTour2DImage from "../assets/games/arcade-golf-tour-2d.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
 import arcadeTerritoryWarImage from "../assets/games/arcade-territory-war.svg";
@@ -685,6 +686,58 @@ export const games = [
     techFocus_en: "Deterministic 2D engine + layered dogfight AI + risk/reward combat systems + remote/local run persistence.",
   },
 
+  {
+    id: "arcade-golf-tour-2d",
+    image: arcadeGolfTour2DImage,
+    sessionTime: "4-12 min",
+
+    title: "Golf Tour 2D Pro",
+    category: "Arcade",
+    tagline: "Mini golf 2D side-view con 100 niveles, terrenos en pendiente y hoyos estilo arcade clasico.",
+    description:
+      "Campana larga y rejugable de mini golf 2D en vista lateral: 100 niveles repartidos en biomas de dia, ocaso, noche, neon y tormenta, con terreno estratificado (capa verde + subsuelo), montanas de fondo, bandera y hoyo con tubo vertical. El gameplay se basa en tiros parabolicos con gravedad, rebote sobre pendientes, control de viento y gestion de obstaculos.",
+    objective_es:
+      "Emboca en el menor numero de golpes posible y optimiza estrellas por ejecucion limpia en los 100 mapas del tour.",
+    howToPlay_es:
+      "Arrastra desde la bola para apuntar y ajustar potencia. Teclado: A/D o flechas para angulo, W/S para potencia, Enter/Espacio lanza, P pausa, R reinicia, L abre selector y F pantalla completa.",
+    highlights: [
+      "100 niveles diferentes con progresion de dificultad y mapas pensados para mobile-first.",
+      "Fisica side-view con gravedad real, rebotes en slope, rodadura y parada natural por friccion.",
+      "Hoyo estilo tubo con bandera y deteccion de embocado por velocidad/entrada al cup.",
+      "Direccion artistica inspirada en minigolf lateral: capas de terreno, montanas, arboles y cielo limpio.",
+      "Progresion por estrellas, mejor numero de golpes y desbloqueo secuencial de niveles.",
+      "UI profesional con overlays de menu, pausa, fin de nivel, fin de campana y selector completo.",
+      "Bridge QA con render_game_to_text + advanceTime para validacion automatizada y determinista.",
+    ],
+    difficulty: "Variable (Rookie / Pro / Elite / Master)",
+    multiplayer: "Solo",
+    viability: "Alta: motor Canvas determinista con estado serializable y persistencia local ligera.",
+    visualStyle: "Minigolf side-view colorista con perspectiva de suelo por capas y horizonte de montanas.",
+    techFocus: "Runtime modular (niveles/fisica/render) con colision sobre terreno continuo y campana de 100 mapas.",
+
+    category_en: "Arcade",
+    tagline_en: "Side-view 2D mini golf with 100 levels, layered terrain slopes, and classic cup presentation.",
+    description_en:
+      "A long-form replayable side-view 2D mini golf campaign: 100 levels across diverse day/night biomes with layered ground perspective, mountain backdrops, and tube-style cup + flag targets. Gameplay focuses on arc shots under gravity, slope rebounds, wind control, and obstacle management.",
+    objective_en:
+      "Sink the ball with the lowest stroke count possible and optimize stars through clean execution across all 100 tour layouts.",
+    howToPlay_en:
+      "Drag from the ball to set direction and power. Keyboard: A/D or arrows for angle, W/S for power, Enter/Space launches, P pauses, R restarts, L opens level select, and F toggles fullscreen.",
+    highlights_en: [
+      "100 distinct levels with mobile-first pacing and escalating obstacle complexity.",
+      "Side-view physics with gravity, slope collision, rolling friction, and natural stopping behavior.",
+      "Tube-style cup + flag goal with speed-sensitive sink detection.",
+      "Visual direction inspired by classic lateral mini golf: layered ground, mountains, trees, clear sky.",
+      "Star progression with best-strokes tracking and sequential unlock flow.",
+      "Professional UX with menu/pause/clear/campaign-complete overlays and full level select.",
+      "QA bridge exposing render_game_to_text and advanceTime deterministic stepping.",
+    ],
+    difficulty_en: "Variable (Rookie / Pro / Elite / Master)",
+    multiplayer_en: "Solo",
+    viability_en: "High: deterministic Canvas runtime with serializable state and lightweight local persistence.",
+    visualStyle_en: "Color-rich side-view mini golf direction with layered terrain perspective and mountain horizon.",
+    techFocus_en: "Modular runtime (levels/physics/render) with continuous terrain collision and 100-level progression architecture.",
+  },
   {
     id: "arcade-pong-neon-arena",
     image: pongNeonArenaImage,
