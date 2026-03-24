@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#080b14"/>
+      <stop offset="100%" stop-color="#04060e"/>
+    </linearGradient>
+    <radialGradient id="r0" cx="35%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#ff8899"/>
+      <stop offset="100%" stop-color="#cc2244"/>
+    </radialGradient>
+    <radialGradient id="r1" cx="35%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#88bbff"/>
+      <stop offset="100%" stop-color="#2255cc"/>
+    </radialGradient>
+    <radialGradient id="r2" cx="35%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#88ffaa"/>
+      <stop offset="100%" stop-color="#22aa55"/>
+    </radialGradient>
+    <radialGradient id="r3" cx="35%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#ffff88"/>
+      <stop offset="100%" stop-color="#ccaa00"/>
+    </radialGradient>
+    <radialGradient id="r4" cx="35%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#dd99ff"/>
+      <stop offset="100%" stop-color="#8822cc"/>
+    </radialGradient>
+    <radialGradient id="r5" cx="35%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#ffbb77"/>
+      <stop offset="100%" stop-color="#cc5511"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="200" height="200" fill="url(#bg)" rx="10"/>
+
+  <!-- Row 1 (6 bubbles) -->
+  <g filter="url(#glow)">
+    <circle cx="26"  cy="36" r="13" fill="url(#r0)"/><circle cx="26"  cy="36" r="5" fill="white" opacity="0.4"/>
+    <circle cx="52"  cy="36" r="13" fill="url(#r1)"/><circle cx="52"  cy="36" r="5" fill="white" opacity="0.4"/>
+    <circle cx="78"  cy="36" r="13" fill="url(#r2)"/><circle cx="78"  cy="36" r="5" fill="white" opacity="0.4"/>
+    <circle cx="104" cy="36" r="13" fill="url(#r3)"/><circle cx="104" cy="36" r="5" fill="white" opacity="0.4"/>
+    <circle cx="130" cy="36" r="13" fill="url(#r4)"/><circle cx="130" cy="36" r="5" fill="white" opacity="0.4"/>
+    <circle cx="156" cy="36" r="13" fill="url(#r5)"/><circle cx="156" cy="36" r="5" fill="white" opacity="0.4"/>
+    <circle cx="182" cy="36" r="13" fill="url(#r0)"/><circle cx="182" cy="36" r="5" fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- Row 2 (offset, 6 bubbles) -->
+  <g filter="url(#glow)">
+    <circle cx="39"  cy="58" r="13" fill="url(#r3)"/><circle cx="39"  cy="58" r="5" fill="white" opacity="0.4"/>
+    <circle cx="65"  cy="58" r="13" fill="url(#r4)"/><circle cx="65"  cy="58" r="5" fill="white" opacity="0.4"/>
+    <circle cx="91"  cy="58" r="13" fill="url(#r0)"/><circle cx="91"  cy="58" r="5" fill="white" opacity="0.4"/>
+    <circle cx="117" cy="58" r="13" fill="url(#r2)"/><circle cx="117" cy="58" r="5" fill="white" opacity="0.4"/>
+    <circle cx="143" cy="58" r="13" fill="url(#r1)"/><circle cx="143" cy="58" r="5" fill="white" opacity="0.4"/>
+    <circle cx="169" cy="58" r="13" fill="url(#r5)"/><circle cx="169" cy="58" r="5" fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- Row 3 -->
+  <g filter="url(#glow)">
+    <circle cx="26"  cy="80" r="13" fill="url(#r2)"/><circle cx="26"  cy="80" r="5" fill="white" opacity="0.4"/>
+    <circle cx="52"  cy="80" r="13" fill="url(#r0)"/><circle cx="52"  cy="80" r="5" fill="white" opacity="0.4"/>
+    <circle cx="78"  cy="80" r="13" fill="url(#r1)"/><circle cx="78"  cy="80" r="5" fill="white" opacity="0.4"/>
+    <circle cx="104" cy="80" r="13" fill="url(#r4)"/><circle cx="104" cy="80" r="5" fill="white" opacity="0.4"/>
+    <circle cx="130" cy="80" r="13" fill="url(#r3)"/><circle cx="130" cy="80" r="5" fill="white" opacity="0.4"/>
+    <circle cx="156" cy="80" r="13" fill="url(#r2)"/><circle cx="156" cy="80" r="5" fill="white" opacity="0.4"/>
+    <circle cx="182" cy="80" r="13" fill="url(#r5)"/><circle cx="182" cy="80" r="5" fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- Row 4 (partial, some missing = popped) -->
+  <g filter="url(#glow)">
+    <circle cx="39"  cy="102" r="13" fill="url(#r1)"/><circle cx="39"  cy="102" r="5" fill="white" opacity="0.4"/>
+    <circle cx="117" cy="102" r="13" fill="url(#r3)"/><circle cx="117" cy="102" r="5" fill="white" opacity="0.4"/>
+    <circle cx="143" cy="102" r="13" fill="url(#r0)"/><circle cx="143" cy="102" r="5" fill="white" opacity="0.4"/>
+    <circle cx="169" cy="102" r="13" fill="url(#r4)"/><circle cx="169" cy="102" r="5" fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- Pop particles (simulated explosion) -->
+  <g opacity="0.7">
+    <circle cx="68" cy="110" r="4" fill="#ff4466"/>
+    <circle cx="80" cy="96"  r="3" fill="#ff8833"/>
+    <circle cx="58" cy="95"  r="3" fill="#ff4466"/>
+    <circle cx="72" cy="122" r="2" fill="#cc44ff"/>
+    <circle cx="90" cy="106" r="2" fill="#ff4466"/>
+    <circle cx="52" cy="108" r="2" fill="#ffee33"/>
+  </g>
+
+  <!-- Dashed aim line -->
+  <line x1="100" y1="185" x2="100" y2="120" stroke="rgba(200,220,255,0.4)" stroke-width="1.5" stroke-dasharray="5,6"/>
+
+  <!-- Shooter cannon + bubble -->
+  <rect x="95" y="165" width="10" height="22" rx="4" fill="#3366bb" opacity="0.9"/>
+  <circle cx="100" cy="185" r="12" fill="url(#r2)" filter="url(#glow)"/>
+  <circle cx="96"  cy="181" r="4"  fill="white" opacity="0.5"/>
+
+  <!-- Title -->
+  <text x="100" y="197" text-anchor="middle" font-family="monospace" font-weight="700" font-size="9" fill="#88ccff" filter="url(#glow)" letter-spacing="1">BUBBLE STORM</text>
+</svg>

@@ -17,6 +17,7 @@ import arcadeCosmicVanguardImage from "../assets/games/arcade-cosmic-vanguard.sv
 import arcadeGolfTour2DImage from "../assets/games/arcade-golf-tour-2d.svg";
 import arcadeArcheryHorizonImage from "../assets/games/arcade-archery-horizon.svg";
 import arcadePinballWizardImage from "../assets/games/arcade-pinball-wizard.svg";
+import arcadeBubbleStormImage from "../assets/games/arcade-bubble-storm.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
 import arcadeTerritoryWarImage from "../assets/games/arcade-territory-war.svg";
@@ -848,6 +849,63 @@ export const games = [
     viability_en: "High: pure Canvas engine, serializable state, no external dependencies.",
     visualStyle_en: "Neon noir: dark felt table, metallic walls, magenta bumpers, cyan targets, and chrome ball with radial gradient.",
     techFocus_en: "Real flipper physics with angular omega + sub-stepping + capsule-segment collision + elastic bumper + procedural audio.",
+  },
+
+  {
+    id: "arcade-bubble-storm",
+    image: arcadeBubbleStormImage,
+    sessionTime: "5-15 min",
+
+    title: "Bubble Storm",
+    category: "Arcade",
+    tagline: "Dispara burbujas de colores a la rejilla hexagonal, forma grupos de 3+ para hacerlos explotar y encadena caídas en cascada.",
+    description:
+      "Bubble Storm es un juego de disparo de burbujas estilo Bust-a-Move con rejilla hexagonal real, trayectoria con rebote en paredes y lógica de caída de burbujas aisladas. El cañón central apunta siguiendo el ratón; la línea de ayuda punteada muestra la trayectoria exacta antes de disparar. Cada niveles añade colores adicionales a la rejilla. Cada N disparos aparece una nueva fila en la parte superior que empuja todo hacia abajo — si las burbujas cruzan la línea de peligro, es game over.",
+    objective_es:
+      "Elimina todas las burbujas de la rejilla antes de que alcancen la zona de peligro. Provoca caídas en cadena para maximizar el score.",
+    howToPlay_es:
+      "Mueve el ratón para apuntar. Haz clic (o pulsa Espacio) para disparar. Tab o S cambia la burbuja siguiente con la actual. Agrupa 3 o más burbujas del mismo color para hacerlas explotar. Las burbujas que quedan flotando sin conexión con el techo caen automáticamente.",
+    highlights: [
+      "Rejilla hexagonal real con 11 columnas desfasadas — la burbuja encaja en el hueco más cercano al punto de impacto.",
+      "Trayectoria de ayuda con rebote en paredes calculada en tiempo real.",
+      "Detección de grupos por BFS flood-fill sobre el grafo de vecinos hexagonales.",
+      "Caída de burbujas aisladas: BFS desde el techo, todo lo que no cuelga cae con física de gravedad.",
+      "Swap de burbujas: intercambia actual y siguiente para preparar jugadas.",
+      "Color de siguiente burbuja siempre entre los colores presentes — nunca colores sin posición.",
+      "Push de nueva fila animado suavemente cada N disparos.",
+      "Progresión por niveles: al limpiar el tablero se añaden más filas y más colores.",
+      "Audio procedural via Web Audio API. Hi-score persistente en localStorage.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo",
+    viability: "Alta: Canvas 2D puro, sin librerías externas, estado serializable.",
+    visualStyle: "Neon oscuro: fondo #080b14 con vignette, burbujas brillantes con gradiente radial 3D y glow de color, partículas al explotar.",
+    techFocus: "Rejilla hexagonal offset con BFS match + BFS flood-fill de aislamiento + snap-to-nearest-empty + trayectoria con rebotes.",
+
+    category_en: "Arcade",
+    tagline_en: "Shoot coloured bubbles at the hex grid, match 3+ to pop them, and chain cascade drops for massive scores.",
+    description_en:
+      "Bubble Storm is a Bust-a-Move-style bubble shooter with a true hexagonal grid, wall-bouncing trajectory, and isolated-bubble drop logic. The central cannon aims with the mouse; a dotted guide line shows the exact trajectory before shooting. Each level adds more colours to the grid. Every N shots a new row pushes in from the top — if bubbles cross the danger line, it's game over.",
+    objective_en:
+      "Clear all bubbles from the grid before they reach the danger zone. Trigger cascade drops to maximise your score.",
+    howToPlay_en:
+      "Move the mouse to aim. Click (or press Space) to shoot. Tab or S swaps the next bubble with the current one. Group 3 or more same-colour bubbles to pop them. Bubbles that have no path to the ceiling fall automatically.",
+    highlights_en: [
+      "True hexagonal grid with 11 staggered columns — the bubble snaps to the empty slot closest to the impact point.",
+      "Real-time aim guide with wall-bounce trajectory preview.",
+      "Group detection via BFS flood-fill over the hex neighbour graph.",
+      "Isolated-bubble drop: BFS from ceiling; anything not hanging falls under gravity.",
+      "Bubble swap: exchange current and next bubbles to plan ahead.",
+      "Next bubble always chosen from colours present in the grid — no unshootable orphans.",
+      "Smooth animated new-row push every N shots.",
+      "Level progression: clearing the board adds more rows and colours.",
+      "Procedural audio via Web Audio API. Persistent hi-score in localStorage.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo",
+    viability_en: "High: pure Canvas 2D, no external libraries, serializable state.",
+    visualStyle_en: "Dark neon: #080b14 background with vignette, radial-gradient 3D bubbles with colour glow, particle explosions.",
+    techFocus_en: "Offset hex grid with BFS match + BFS ceiling-connectivity isolation + snap-to-nearest-empty + wall-bounce trajectory.",
   },
 
   {

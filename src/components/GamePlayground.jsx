@@ -30,6 +30,7 @@ const TerritoryWarGame = lazy(() => import("../games/arcade/territory-war"));
 const GolfTour2DGame = lazy(() => import("../games/arcade/golf-tour-2d"));
 const ArcheryHorizonGame = lazy(() => import("../games/arcade/archery-horizon"));
 const PinballWizardGame  = lazy(() => import("../games/arcade/pinball-wizard"));
+const BubbleStormGame    = lazy(() => import("../games/arcade/bubble-storm"));
 const KnowledgeSudokuGame = () => <KnowledgeArcadeGame variant="sudoku" />;
 const KnowledgeAhorcadoGame = () => <KnowledgeArcadeGame variant="ahorcado" />;
 const KnowledgePacienciaGame = () => <KnowledgeArcadeGame variant="paciencia" />;
@@ -86,6 +87,7 @@ const GAME_COMPONENTS = {
   "arcade-golf-tour-2d": GolfTour2DGame,
   "arcade-archery-horizon": ArcheryHorizonGame,
   "arcade-pinball-wizard":  PinballWizardGame,
+  "arcade-bubble-storm":    BubbleStormGame,
   "arcade-buscaminas-classic": MinesweeperGame,
   "racing-race2dpro": RaceGame2DPro,
   "racing-sunset-slipstream": SunsetSlipstream,
@@ -132,6 +134,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-golf-tour-2d": "Mini golf 2D: arrastra desde la bola para apuntar y potencia. A/D o flechas angulo, W/S potencia, Enter/Espacio lanza, P pausa, R reinicia, L selector y F pantalla completa.",
     "arcade-archery-horizon": "Tiro con arco por profundidad: A/D o J/L desvio, arriba/abajo o I/K trayectoria, Q/E ajuste grueso de trayectoria, W/S o +/- intensidad, Z/X ajuste fino, Shift modo fino, 1-5 presets y 6 recomendado. Enter/Espacio dispara, P pausa, R reinicia, N avanza y F pantalla completa.",
     "arcade-pinball-wizard": "Z o flecha izquierda para flipper izquierdo, X o flecha derecha para el derecho. Mantén Espacio para cargar el plunger y suéltalo para lanzar. R reinicia.",
+    "arcade-bubble-storm": "Mueve el ratón para apuntar y haz clic para disparar burbujas. Tab o S cambia la burbuja siguiente. Forma grupos de 3+ del mismo color para hacerlos explotar. R reinicia.",
     "arcade-pacman-maze-protocol": "WASD o flechas para mover, Enter/Espacio para empezar, P/Esc para pausa, R reinicia, M sonido y G debug.",
     "arcade-buscaminas-classic": "Click izq abre, click der o pulsacion larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA, R reinicia. En competitivo puntuan celdas + tiempo.",
     "racing-race2dpro": "Arriba/abajo acelerar/frenar, izq/der girar. Móvil: joystick táctil izq. + botones der. R reinicia.",
@@ -177,6 +180,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-golf-tour-2d": "2D mini golf: drag from the ball to set angle and power. A/D or arrows adjust angle, W/S power, Enter/Space launches, P pause, R restart, L level select, and F fullscreen.",
     "arcade-archery-horizon": "Depth archery mode: A/D or J/L tune yaw, up/down or I/K trajectory, Q/E coarse trajectory trim, W/S or +/- intensity, Z/X fine trim, Shift fine mode, 1-5 presets and 6 recommendation. Enter/Space fires, P pauses, R restarts, N advances, F toggles fullscreen.",
     "arcade-pinball-wizard": "Z or left arrow for left flipper, X or right arrow for right flipper. Hold Space to charge the plunger and release to launch. R restarts.",
+    "arcade-bubble-storm": "Move the mouse to aim and click to shoot bubbles. Tab or S swaps the next bubble. Match 3+ same-colour bubbles to pop them. R restarts.",
     "arcade-pacman-maze-protocol": "Use arrows or WASD to move, Enter/Space to start, P/Esc to pause, R restart, M sound and G debug.",
     "arcade-buscaminas-classic": "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells + time.",
     "racing-race2dpro": "Up/down throttle/brake, left/right steer. Mobile: left touch joystick + right buttons. R restart.",
