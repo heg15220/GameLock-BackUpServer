@@ -727,19 +727,39 @@ export default function WikipediaGachaGame() {
         if (!token) {
           token = (await bootstrapWikipediaGachaSession()).browserToken;
           window.localStorage.setItem(STORAGE_KEY, token);
+          setBrowserToken(token);
         }
-        setBrowserToken(token);
-        const [dashboardData, collectionData, missionsData, trophiesData] = await Promise.all([
-          fetchWikipediaGachaSession(token),
-          fetchWikipediaGachaCollection(token, toCollectionParams(collectionFilters)),
-          fetchWikipediaGachaMissions(token),
-          fetchWikipediaGachaTrophies(token),
-        ]);
-        setDashboard(dashboardData);
-        setDashboardStampMs(nowRef.current);
-        setCollection(collectionData);
-        setMissions(missionsData);
-        setTrophies(trophiesData);
+        try {
+          const [dashboardData, collectionData, missionsData, trophiesData] = await Promise.all([
+            fetchWikipediaGachaSession(token),
+            fetchWikipediaGachaCollection(token, toCollectionParams(collectionFilters)),
+            fetchWikipediaGachaMissions(token),
+            fetchWikipediaGachaTrophies(token),
+          ]);
+          setDashboard(dashboardData);
+          setDashboardStampMs(nowRef.current);
+          setCollection(collectionData);
+          setMissions(missionsData);
+          setTrophies(trophiesData);
+        } catch (error) {
+          if (error?.code !== "invalid_browser_token") throw error;
+          // Token stale (backend restarted or DB reset) — create a fresh session
+          window.localStorage.removeItem(STORAGE_KEY);
+          const freshToken = (await bootstrapWikipediaGachaSession()).browserToken;
+          window.localStorage.setItem(STORAGE_KEY, freshToken);
+          setBrowserToken(freshToken);
+          const [dashboardData, collectionData, missionsData, trophiesData] = await Promise.all([
+            fetchWikipediaGachaSession(freshToken),
+            fetchWikipediaGachaCollection(freshToken, toCollectionParams(collectionFilters)),
+            fetchWikipediaGachaMissions(freshToken),
+            fetchWikipediaGachaTrophies(freshToken),
+          ]);
+          setDashboard(dashboardData);
+          setDashboardStampMs(nowRef.current);
+          setCollection(collectionData);
+          setMissions(missionsData);
+          setTrophies(trophiesData);
+        }
       } catch (error) {
         setErrorMessage(getErrorMessage(error, es));
       } finally {

@@ -9,6 +9,7 @@
     "backend:penalty-shootout": "node server/penalty-shootout/index.mjs",
     "backend:wikipedia-gacha": "node server/wikipedia-gacha/index.mjs",
     "generate:wikipedia-gacha-catalog": "node scripts/generate-wikipedia-gacha-catalog.mjs",
+    "migrate:wikipedia-gacha-store": "node scripts/migrate-store-to-sqlite.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
@@ -18,7 +19,8 @@
     "howler": "^2.2.4",
     "phaser": "^3.90.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "playwright": "^1.44.1",

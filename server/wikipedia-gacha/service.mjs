@@ -1,6 +1,4 @@
 import crypto from "node:crypto";
-import https from "node:https";
-import path from "node:path";
 import {
   DEFAULT_MAX_PACKS,
   DEFAULT_STARTING_PACKS,
@@ -18,34 +16,11 @@ import {
   compareRarity,
 } from "./constants.mjs";
 import { createWikipediaGachaCatalog } from "./catalog.mjs";
-import { createJsonStore } from "./storage.mjs";
+import { createSqliteStore } from "./storage.mjs";
+import { openStateDb, DEFAULT_DB_PATH } from "./db.mjs";
 
-const DEFAULT_STORE_FILE = path.join(
-  process.cwd(),
-  "server",
-  "data",
-  "wikipedia-gacha",
-  "store.json"
-);
-const DEFAULT_EXTERNAL_CATALOG_FILE = path.join(
-  process.cwd(),
-  "server",
-  "data",
-  "wikipedia-gacha",
-  "catalog.ndjson"
-);
 const MISSION_BY_ID = new Map(MISSIONS.map((mission) => [mission.id, mission]));
 const TROPHY_BY_ID = new Map(TROPHIES.map((trophy) => [trophy.id, trophy]));
-const ENRICH_CACHE_OK_MS = 12 * 60 * 60 * 1000;
-const ENRICH_CACHE_FAIL_MS = 15 * 60 * 1000;
-const WIKIPEDIA_API_USER_AGENT =
-  process.env.WIKIPEDIA_GACHA_USER_AGENT ??
-  "WikipediaGacha/1.0 (https://wikigacha.com; contact@wikigacha.com)";
-const WIKIPEDIA_API_HEADERS = {
-  Accept: "application/json",
-  "User-Agent": WIKIPEDIA_API_USER_AGENT,
-  "Api-User-Agent": WIKIPEDIA_API_USER_AGENT,
-};
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -53,49 +28,6 @@ function clone(value) {
 
 function normalizeArticleText(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
-}
-
-function requestJson(url, { timeoutMs = 2500, headers = {} } = {}) {
-  return new Promise((resolve, reject) => {
-    const req = https.get(
-      url,
-      {
-        headers: { ...WIKIPEDIA_API_HEADERS, ...headers },
-      },
-      (res) => {
-        const chunks = [];
-        res.on("data", (chunk) => chunks.push(chunk));
-        res.on("end", () => {
-          if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
-            reject(new Error(`http_${res.statusCode}`));
-            return;
-          }
-          try {
-            const raw = Buffer.concat(chunks).toString("utf8");
-            resolve(JSON.parse(raw));
-          } catch (error) {
-            reject(error);
-          }
-        });
-      }
-    );
-
-    req.setTimeout(timeoutMs, () => {
-      req.destroy(new Error("request_timeout"));
-    });
-    req.on("error", reject);
-  });
-}
-
-function isSyntheticExtract(value) {
-  const text = normalizeArticleText(value).toLowerCase();
-  return (
-    text.includes(
-      "has a dedicated encyclopedia article that expands on its background"
-    ) ||
-    text.includes("wikipedia profile:") ||
-    text.includes("categories:")
-  );
 }
 
 function isoDate(now) {
@@ -759,139 +691,23 @@ async function buildDashboard(state, profile, now, articleCatalog) {
 }
 
 export function createWikipediaGachaService({
-  storeFile = DEFAULT_STORE_FILE,
+  dbPath = DEFAULT_DB_PATH,
   randomFn = Math.random,
   nowFn = () => new Date(),
   randomBytesFn = crypto.randomBytes,
-  enableRemoteArticleEnrichment = false,
-  externalCatalogFile = DEFAULT_EXTERNAL_CATALOG_FILE,
-  externalCatalogIndexFile = null,
-  articleCacheSize = Number(process.env.WIKIPEDIA_GACHA_ARTICLE_CACHE_SIZE || 5000),
 } = {}) {
-  const store = createJsonStore({ storeFile });
-  const articleCatalog = createWikipediaGachaCatalog({
-    externalCatalogFile:
-      process.env.WIKIPEDIA_GACHA_ENABLE_EXTERNAL_CATALOG === "0"
-        ? null
-        : externalCatalogFile,
-    externalCatalogIndexFile:
-      process.env.WIKIPEDIA_GACHA_CATALOG_INDEX_FILE ??
-      externalCatalogIndexFile,
-    cacheSize: articleCacheSize,
-  });
-  const articleEnrichmentCache = new Map();
-  let enrichmentBackoffUntilMs = 0;
+  // SQLite-backed store — per-user write queues, no global serial bottleneck.
+  const db    = openStateDb(dbPath);
+  const store = createSqliteStore({ db });
 
-  function markEnrichmentBackoff(error) {
-    const reason = String(error?.message ?? error?.code ?? "");
-    if (
-      reason.includes("ENOTFOUND") ||
-      reason.includes("EAI_AGAIN") ||
-      reason.includes("ECONNRESET") ||
-      reason.includes("request_timeout") ||
-      reason.includes("http_403") ||
-      reason.includes("http_429") ||
-      reason.includes("http_503")
-    ) {
-      enrichmentBackoffUntilMs = Date.now() + 5 * 60 * 1000;
-    }
-  }
+  // Live-Wikipedia pool: articles are fetched from the Wikipedia API and held
+  // in RAM.  Pack openings are O(1) synchronous lookups — no disk or network
+  // I/O in the critical path.
+  const articleCatalog = createWikipediaGachaCatalog();
 
   async function ensureCatalogReady() {
+    await db.ready;
     await articleCatalog.ready();
-  }
-
-  async function fetchRemoteArticleEnrichment(article) {
-    if (!enableRemoteArticleEnrichment || !article?.wikipediaTitle) {
-      return null;
-    }
-    if (Date.now() < enrichmentBackoffUntilMs) {
-      return null;
-    }
-
-    let extractText = "";
-    let imageUrl = null;
-
-    const params = new URLSearchParams({
-      action: "query",
-      format: "json",
-      formatversion: "2",
-      redirects: "1",
-      prop: "extracts|pageimages",
-      explaintext: "1",
-      exsectionformat: "plain",
-      exintro: "1",
-      exchars: "3600",
-      piprop: "original|thumbnail",
-      pithumbsize: "1200",
-      titles: article.wikipediaTitle,
-    });
-
-    try {
-      const payload = await requestJson(
-        `https://en.wikipedia.org/w/api.php?${params.toString()}`,
-        { timeoutMs: 2500 }
-      );
-      const page = payload?.query?.pages?.[0];
-      extractText = normalizeArticleText(page?.extract);
-      imageUrl = page?.original?.source ?? page?.thumbnail?.source ?? null;
-    } catch (error) {
-      markEnrichmentBackoff(error);
-      // summary fallback
-    }
-
-    if (!extractText || !imageUrl) {
-      try {
-        const summaryPayload = await requestJson(
-          `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
-            article.wikipediaTitle ?? article.wikipediaSlug ?? ""
-          )}`,
-          { timeoutMs: 2000 }
-        );
-        const summaryExtract = normalizeArticleText(summaryPayload?.extract);
-        if (summaryExtract.length > extractText.length) {
-          extractText = summaryExtract;
-        }
-        imageUrl =
-          imageUrl ??
-          summaryPayload?.originalimage?.source ??
-          summaryPayload?.thumbnail?.source ??
-          null;
-      } catch (error) {
-        markEnrichmentBackoff(error);
-      }
-    }
-
-    if (!extractText && !imageUrl) {
-      return null;
-    }
-
-    return {
-      extractText: extractText || null,
-      imageUrl,
-    };
-  }
-
-  async function getArticleEnrichment(article) {
-    if (!enableRemoteArticleEnrichment || !article?.id) {
-      return null;
-    }
-
-    const cached = articleEnrichmentCache.get(article.id);
-    if (cached) {
-      const ageMs = Date.now() - cached.fetchedAt;
-      const ttlMs = cached.data ? ENRICH_CACHE_OK_MS : ENRICH_CACHE_FAIL_MS;
-      if (ageMs < ttlMs) {
-        return cached.data;
-      }
-    }
-
-    const data = await fetchRemoteArticleEnrichment(article);
-    articleEnrichmentCache.set(article.id, {
-      fetchedAt: Date.now(),
-      data,
-    });
-    return data;
   }
 
   async function resolveArticleFromCardLike(cardLike) {
@@ -901,32 +717,23 @@ export function createWikipediaGachaService({
     return articleCatalog.getArticleById(articleId);
   }
 
+  /**
+   * Fills in missing extractText / imageUrl from the in-memory pool article.
+   * Pool articles are already fully hydrated from the Wikipedia API, so this
+   * is an O(1) RAM lookup with no network I/O.
+   */
   async function hydrateCardLike(cardLike) {
     if (!cardLike || typeof cardLike !== "object") return cardLike;
 
     const article = await resolveArticleFromCardLike(cardLike);
     if (!article) return cardLike;
 
-    const enrichment = await getArticleEnrichment(article);
-    const cardExtract = normalizeArticleText(cardLike.extractText);
-    const baseExtract = isSyntheticExtract(cardExtract)
-      ? normalizeArticleText(article.extractText)
-      : cardExtract;
-    const extractText =
-      normalizeArticleText(enrichment?.extractText) ||
-      baseExtract ||
-      normalizeArticleText(article.extractText);
-
-    const imageUrl =
-      enrichment?.imageUrl ??
-      cardLike.imageUrl ??
-      article.imageUrl ??
-      null;
-
     return {
       ...cardLike,
-      extractText,
-      imageUrl,
+      extractText:
+        normalizeArticleText(cardLike.extractText) ||
+        normalizeArticleText(article.extractText),
+      imageUrl: cardLike.imageUrl ?? article.imageUrl ?? null,
     };
   }
 
@@ -974,7 +781,7 @@ export function createWikipediaGachaService({
       lastPackOpenedAt: null,
     };
 
-    const state = await store.update(async (draft) => {
+    const state = await store.forToken(browserToken).update(async (draft) => {
       profile.id = createId(draft, "profile");
       draft.browserProfiles.push(profile);
       ensureDailyMissions(draft, profile, now);
@@ -1001,7 +808,7 @@ export function createWikipediaGachaService({
   async function getSessionMe(browserToken) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       applyPackRegeneration(profile, now);
       profile.lastSeenAt = isoDate(now);
@@ -1027,7 +834,7 @@ export function createWikipediaGachaService({
   async function getPackStatus(browserToken) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update(async (draft) => {
+    const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       applyPackRegeneration(profile, now);
       profile.lastSeenAt = isoDate(now);
@@ -1043,7 +850,7 @@ export function createWikipediaGachaService({
   async function openPack(browserToken) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update(async (draft) => {
+    const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       applyPackRegeneration(profile, now);
 
@@ -1165,7 +972,7 @@ export function createWikipediaGachaService({
   async function getPackHistory(browserToken) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       applyPackRegeneration(profile, now);
       return draft;
@@ -1189,7 +996,7 @@ export function createWikipediaGachaService({
   async function getCollection(browserToken, filters = {}) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       applyPackRegeneration(profile, now);
       return draft;
@@ -1237,7 +1044,7 @@ export function createWikipediaGachaService({
   async function getCollectionItem(browserToken, articleId) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       applyPackRegeneration(profile, now);
       return draft;
@@ -1263,7 +1070,7 @@ export function createWikipediaGachaService({
   async function toggleFavorite(browserToken, articleId, favorite) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       const collectionEntry = draft.browserCollection.find(
         (entry) =>
@@ -1308,7 +1115,7 @@ export function createWikipediaGachaService({
       return hydrateCardLike(clone(article));
     }
 
-    const state = await store.read();
+    const state = await store.forToken(browserToken).read();
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
@@ -1343,7 +1150,7 @@ export function createWikipediaGachaService({
       error.code = "article_not_found";
       throw error;
     }
-    await store.update((draft) => {
+    await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       const stats = getTodaysStats(draft, profile.id, now);
       stats.wikipediaClicks += 1;
@@ -1361,7 +1168,7 @@ export function createWikipediaGachaService({
   async function getMissions(browserToken) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       recomputeMissionProgress(draft, profile, now);
       return draft;
@@ -1378,7 +1185,7 @@ export function createWikipediaGachaService({
   async function claimMission(browserToken, missionId) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       const entries = recomputeMissionProgress(draft, profile, now);
       const entry = entries.find((candidate) => candidate.missionId === missionId);
@@ -1443,7 +1250,7 @@ export function createWikipediaGachaService({
   async function getTrophies(browserToken, { unlockedOnly = false } = {}) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update((draft) => {
+    const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       ensureTrophiesUnlocked(
         draft,
@@ -1497,7 +1304,7 @@ export function createWikipediaGachaService({
   async function exportRecoveryCode(browserToken) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update(async (draft) => {
+    const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       const code = createRecoveryCode(randomBytesFn);
       const collection = getProfileCollections(draft, profile.id);
@@ -1567,19 +1374,21 @@ export function createWikipediaGachaService({
   async function importRecoveryCode(browserToken, recoveryCode) {
     await ensureCatalogReady();
     const now = nowFn();
-    const state = await store.update(async (draft) => {
-      const profile = ensureProfile(draft, browserToken);
-      const recovery = draft.recoveries.find(
-        (entry) => entry.code === recoveryCode
-      );
-      if (!recovery) {
-        const error = new Error("Recovery code not found.");
-        error.statusCode = 404;
-        error.code = "recovery_code_not_found";
-        throw error;
-      }
 
-      const snapshot = recovery.snapshot;
+    // Recovery codes are stored in a separate indexed table, not inside the
+    // per-user state blob.  Pre-fetch the snapshot before entering the
+    // serialised per-user update so we can still throw a 404 quickly.
+    const recoverySnapshot = await store.findRecovery(recoveryCode);
+    if (!recoverySnapshot) {
+      const error = new Error("Recovery code not found.");
+      error.statusCode = 404;
+      error.code = "recovery_code_not_found";
+      throw error;
+    }
+
+    const state = await store.forToken(browserToken).update(async (draft) => {
+      const profile = ensureProfile(draft, browserToken);
+      const snapshot = recoverySnapshot;
       Object.assign(profile, {
         displayName: snapshot.profile.displayName,
         packsAvailable: snapshot.profile.packsAvailable,
@@ -1687,17 +1496,13 @@ export function createWikipediaGachaService({
     },
     async close() {
       await articleCatalog.close();
+      await db.close();
     },
   };
 }
 
 export const wikipediaGachaService = createWikipediaGachaService({
-  storeFile:
-    process.env.WIKIPEDIA_GACHA_STORE_FILE ?? DEFAULT_STORE_FILE,
-  enableRemoteArticleEnrichment: process.env.WIKIPEDIA_GACHA_ENABLE_REMOTE_ENRICHMENT !== "0",
-  externalCatalogFile:
-    process.env.WIKIPEDIA_GACHA_CATALOG_FILE ?? DEFAULT_EXTERNAL_CATALOG_FILE,
-  articleCacheSize: Number(process.env.WIKIPEDIA_GACHA_ARTICLE_CACHE_SIZE || 5000),
+  dbPath: process.env.WIKIPEDIA_GACHA_DB_PATH ?? DEFAULT_DB_PATH,
 });
 
 export {
