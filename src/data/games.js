@@ -16,6 +16,7 @@ import arcadePenaltyNeuralKeeperImage from "../assets/games/arcade-penalty-neura
 import arcadeCosmicVanguardImage from "../assets/games/arcade-cosmic-vanguard.svg";
 import arcadeGolfTour2DImage from "../assets/games/arcade-golf-tour-2d.svg";
 import arcadeArcheryHorizonImage from "../assets/games/arcade-archery-horizon.svg";
+import arcadePinballWizardImage from "../assets/games/arcade-pinball-wizard.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
 import arcadeTerritoryWarImage from "../assets/games/arcade-territory-war.svg";
@@ -791,6 +792,64 @@ export const games = [
     visualStyle_en: "Depth-rich horizon landscapes, high-contrast targets, and technical archery HUD language.",
     techFocus_en: "Simplified 3D ballistic simulation + target-plane collision + shot-follow camera + 100-level progression.",
   },
+
+  {
+    id: "arcade-pinball-wizard",
+    image: arcadePinballWizardImage,
+    sessionTime: "3-10 min",
+
+    title: "Pinball Wizard",
+    category: "Arcade",
+    tagline: "Pinball arcade neon con físicas reales de flipper, bumpers pop, slingshots y sistema de multiplicador.",
+    description:
+      "Mesa de pinball 2D con motor de física propio: bola de cromo con gravedad y fricción de aire, flippers con velocidad angular real que transfieren energía a la bola, tres bumpers pop de expulsión elástica, cinco drop-targets con reset de multiplicador, dos slingshots laterales y tres rollover lanes en la parte superior. El plunger de resorte se carga manteniendo Espacio — la potencia determina el alcance inicial de la bola.",
+    objective_es:
+      "Mantén la bola en juego el mayor tiempo posible, derriba todos los targets para subir el multiplicador y encadena golpes a bumpers para obtener combos.",
+    howToPlay_es:
+      "Z o flecha izquierda activa el flipper izquierdo, X o flecha derecha el derecho. Mantén Espacio para cargar el plunger y suéltalo para lanzar. Derriba los 5 targets para aumentar el multiplicador (hasta ×6). Ilumina las 3 lanes superiores para +5000 puntos.",
+    highlights: [
+      "Flippers con velocidad angular real: la bola gana energía del flipper en movimiento.",
+      "Motor de sub-stepping (4 pasos/frame) para colisiones precisas a cualquier velocidad.",
+      "3 bumpers pop con combo encadenado: el multiplicador de puntos escala con hits consecutivos.",
+      "5 drop-targets: derribarlos todos incrementa el multiplicador global y resetea los objetivos.",
+      "2 slingshots laterales con boost de velocidad y efecto elástico.",
+      "3 rollover lanes en la parte superior con bonificación de 5000 al completar el set.",
+      "Audio procedural completo via Web Audio API: bumpers, targets, slings, lanzamiento y drain.",
+      "Plunger con barra de carga visual y velocidad mínima/máxima configurable.",
+      "Récord persistente en localStorage.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo",
+    viability: "Alta: motor Canvas puro, estado serializable, sin dependencias externas.",
+    visualStyle: "Neon noir: mesa oscura con felt, paredes metálicas, bumpers magenta, targets cyan y bola cromada con gradiente.",
+    techFocus: "Física real de flipper con omega angular + sub-stepping + colisión cápsula-segmento + bumper elástico + audio procedural.",
+
+    category_en: "Arcade",
+    tagline_en: "Neon arcade pinball with real flipper physics, pop bumpers, slingshots, and a multiplier system.",
+    description_en:
+      "A 2D pinball table with a custom physics engine: chrome ball with gravity and air friction, flippers with real angular velocity that transfer energy to the ball, three elastically ejecting pop bumpers, five resetting drop targets, two lateral slingshots, and three top rollover lanes. The spring plunger charges while Space is held — release power determines initial ball speed.",
+    objective_en:
+      "Keep the ball alive as long as possible, knock down all targets to raise the multiplier, and chain bumper hits for combo bonuses.",
+    howToPlay_en:
+      "Z or left arrow activates the left flipper, X or right arrow the right one. Hold Space to charge the plunger and release to launch. Knock down all 5 targets to raise the multiplier (up to ×6). Light all 3 top lanes for a +5000 bonus.",
+    highlights_en: [
+      "Flippers with real angular velocity: ball gains energy from a swinging flipper.",
+      "4-substep physics per frame for accurate high-speed collisions.",
+      "3 pop bumpers with chained combos: bonus multiplier scales with consecutive hits.",
+      "5 drop targets: clearing all raises the global multiplier and resets the bank.",
+      "2 lateral slingshots with speed boost and elastic effect.",
+      "3 top rollover lanes with 5000-pt bonus for lighting the full set.",
+      "Full procedural audio via Web Audio API: bumpers, targets, slings, launch, and drain.",
+      "Plunger with visual charge bar and configurable min/max launch speed.",
+      "Persistent high score in localStorage.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo",
+    viability_en: "High: pure Canvas engine, serializable state, no external dependencies.",
+    visualStyle_en: "Neon noir: dark felt table, metallic walls, magenta bumpers, cyan targets, and chrome ball with radial gradient.",
+    techFocus_en: "Real flipper physics with angular omega + sub-stepping + capsule-segment collision + elastic bumper + procedural audio.",
+  },
+
   {
     id: "arcade-pong-neon-arena",
     image: pongNeonArenaImage,

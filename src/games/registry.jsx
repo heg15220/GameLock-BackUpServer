@@ -52,6 +52,7 @@ const ReactorTossGame = lazy(() => import("./arcade/reactor-toss"));
 const TerritoryWarGame = lazy(() => import("./arcade/territory-war"));
 const GolfTour2DGame = lazy(() => import("./arcade/golf-tour-2d"));
 const ArcheryHorizonGame = lazy(() => import("./arcade/archery-horizon"));
+const PinballWizardGame  = lazy(() => import("./arcade/pinball-wizard"));
 const WikipediaGachaGame = lazy(() => import("./knowledge/wikipedia-gacha"));
 const RetroClassicsGame = lazy(() => import("./arcade/retro-classics"));
 
@@ -127,6 +128,7 @@ export const GAME_REGISTRY = {
   "arcade-cosmic-vanguard":      CosmicVanguardGame,
   "arcade-golf-tour-2d":         GolfTour2DGame,
   "arcade-archery-horizon":      ArcheryHorizonGame,
+  "arcade-pinball-wizard":       PinballWizardGame,
   "arcade-pong-neon-arena":      PongGame,
   "arcade-buscaminas-classic":   MinesweeperGame,
   "arcade-retro-snake-classic":  ArcadeSnakeClassicGame,
@@ -193,6 +195,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-cosmic-vanguard":      "A/D o izq/der rotan, W impulsa, S frena, Shift boost, Espacio dispara, E/X pulso EMP, P pausa, R reinicia y F pantalla completa. Las pasadas al limite cargan Vanguard Drive.",
     "arcade-golf-tour-2d":        "Mini golf 2D: arrastra desde la bola para apuntar y potencia. Teclado A/D o flechas angulo, W/S potencia, Enter/Espacio lanza, P pausa, R reinicia, L selector y F pantalla completa.",
     "arcade-archery-horizon":      "Tiro con arco en profundidad: A/D o J/L desvio, arriba/abajo o I/K trayectoria, Q/E ajuste grueso de trayectoria, W/S o +/- intensidad, Z/X ajuste fino, Shift modo fino, 1-5 presets y 6 recomendado. Enter/Espacio dispara. P pausa, R reinicia, N siguiente nivel y F pantalla completa.",
+    "arcade-pinball-wizard":       "Z o flecha izq para flipper izquierdo, X o flecha der para flipper derecho, mantén Espacio para cargar el plunger y suelta para lanzar. R reinicia.",
     "arcade-pacman-maze-protocol": "WASD/flechas mover, Enter/Espacio empezar, P/Esc pausa, R reinicia, M sonido.",
     "arcade-pong-neon-arena":      "W/S o flechas arriba/abajo para mover vertical. A/D o flechas izq/der para avanzar o retroceder (sin cruzar el centro). Ratón también controla vertical. Enter/Espacio empezar, P pausa, R reinicia, M sonido, F pantalla completa.",
     "arcade-buscaminas-classic":   "Click izq abre, click der o pulsación larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA y R reinicia. En competitivo puntúan celdas y tiempo.",
@@ -253,6 +256,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-cosmic-vanguard":      "A/D or left/right rotate, W thrusts, S brakes, Shift boosts, Space fires, E/X triggers EMP pulse, P pauses, R restarts, and F toggles fullscreen. Close passes charge Vanguard Drive.",
     "arcade-golf-tour-2d":        "2D mini golf: drag from the ball to set direction and power. Keyboard A/D or arrows adjusts angle, W/S power, Enter/Space launches, P pause, R restart, L level select, and F fullscreen.",
     "arcade-archery-horizon":      "Depth-based archery: A/D or J/L tune yaw, up/down or I/K trajectory, Q/E coarse trajectory trim, W/S or +/- intensity, Z/X fine trim, Shift fine mode, 1-5 shot presets and 6 level recommendation. Enter/Space fires. P pauses, R restarts, N advances level, and F toggles fullscreen.",
+    "arcade-pinball-wizard":       "Z or left arrow for left flipper, X or right arrow for right flipper, hold Space to charge the plunger and release to launch. R restarts.",
     "arcade-pacman-maze-protocol": "WASD/arrows move, Enter/Space start, P/Esc pause, R restart, M sound.",
     "arcade-pong-neon-arena":      "W/S or up/down arrows for vertical. A/D or left/right arrows to advance or retreat (cannot cross centre line). Mouse also controls vertical. Enter/Space start, P pause, R restart, M sound, F fullscreen.",
     "arcade-buscaminas-classic":   "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells and time.",
