@@ -76,6 +76,8 @@ function _sumPageviews(pvMap) {
 
 /** Minimum extract length (chars) for an article to enter the pool. */
 const MIN_EXTRACT_LENGTH = 60;
+const PREVIEW_EXTRACT_LENGTH = 600;
+const DETAIL_EXTRACT_LENGTH = 2400;
 
 /**
  * Convert one raw MediaWiki page object into our article-seed shape.
@@ -103,22 +105,23 @@ export function pageToArticleSeed(page) {
     return null;
   }
 
-  const extract = String(page.extract ?? "").replace(/\s+/g, " ").trim();
+  const normalizedExtract = String(page.extract ?? "").replace(/\s+/g, " ").trim();
 
   // Drop articles whose extract is empty, too short to be useful, or is a
   // disambiguation list ("X may refer to:").
   if (
-    extract.length < MIN_EXTRACT_LENGTH ||
-    extract.includes(" may refer to:") ||
-    extract.includes(" can refer to:")
+    normalizedExtract.length < MIN_EXTRACT_LENGTH ||
+    normalizedExtract.includes(" may refer to:") ||
+    normalizedExtract.includes(" can refer to:")
   ) {
     return null;
   }
 
-  const trimmedExtract = extract.slice(0, 600);
+  const trimmedExtract = normalizedExtract.slice(0, PREVIEW_EXTRACT_LENGTH);
+  const longExtract = normalizedExtract.slice(0, DETAIL_EXTRACT_LENGTH);
 
   // page.length is byte count of the wikitext source
-  const contentLength = Number(page.length) || Math.max(500, trimmedExtract.length * 4);
+  const contentLength = Number(page.length) || Math.max(500, longExtract.length * 4);
   const pageviews30d = _sumPageviews(page.pageviews);
   const imageUrl = page.thumbnail?.source ?? null;
 
@@ -132,6 +135,7 @@ export function pageToArticleSeed(page) {
     title,
     slug: title.replace(/\s+/g, "_"),
     extract: trimmedExtract,
+    longExtract,
     contentLength,
     pageviews30d,
     imageUrl,
@@ -159,7 +163,7 @@ export async function fetchArticlesByTitles(titles) {
     titles:        batch.join("|"),
     prop:          "extracts|pageimages|info|pageviews|categories|pageprops",
     exintro:       "1",
-    exchars:       "600",
+    exchars:       String(DETAIL_EXTRACT_LENGTH),
     explaintext:   "1",
     piprop:        "thumbnail",
     pithumbsize:   "400",
@@ -198,7 +202,7 @@ export async function fetchRandomArticles(count = 50) {
     grnlimit:      String(n),
     prop:          "extracts|pageimages|info|pageviews|categories|pageprops",
     exintro:       "1",       // intro section only (required for exchars to work reliably)
-    exchars:       "600",     // character limit — more reliable than exsentences for sparse articles
+    exchars:       String(DETAIL_EXTRACT_LENGTH),     // character limit — more reliable than exsentences for sparse articles
     explaintext:   "1",       // plain text, no HTML
     ppprop:        "disambiguation", // only fetch the disambiguation flag, not all pageprops
     piprop:        "thumbnail",

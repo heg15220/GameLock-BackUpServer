@@ -86,8 +86,18 @@ function normalizeText(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
-function buildExtendedExtract(seed) {
-  return normalizeText(seed.extractText || seed.flavorText || "Wikipedia article.");
+function buildExtractPreview(seed) {
+  const text = normalizeText(
+    seed.extractText || seed.longExtractText || seed.flavorText || "Wikipedia article."
+  );
+  return text.slice(0, 600);
+}
+
+function buildExtractDetails(seed) {
+  const text = normalizeText(
+    seed.longExtractText || seed.extractText || seed.flavorText || "Wikipedia article."
+  );
+  return text.slice(0, 2400);
 }
 
 export function buildArticleFromSeed(seed, id) {
@@ -100,7 +110,8 @@ export function buildArticleFromSeed(seed, id) {
     languageCode: "en",
     sourceUrl: articleUrl(seed.slug),
     imageUrl: seed.imageUrl ?? null,
-    extractText: buildExtendedExtract(seed),
+    extractText: buildExtractPreview(seed),
+    longExtractText: buildExtractDetails(seed),
     contentLength: seed.contentLength,
     sectionCount: seed.sectionCount,
     referenceCount: seed.referenceCount,

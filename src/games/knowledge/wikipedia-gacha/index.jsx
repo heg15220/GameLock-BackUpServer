@@ -70,15 +70,29 @@ function getDef(card) {
   return card?.def ?? card?.defStat ?? 0;
 }
 
+function normalizeArticleCopy(value) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
 function getBlurb(card) {
-  const normalize = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
-  const extract = normalize(card?.cardDescription ?? card?.extractText ?? card?.description ?? card?.summary);
+  const extract = normalizeArticleCopy(card?.cardDescription ?? card?.extractText ?? card?.description ?? card?.summary);
   if (extract) return extract;
-  const flavor = normalize(card?.flavorText);
+  const flavor = normalizeArticleCopy(card?.flavorText);
   if (flavor) return flavor;
   return card?.topicGroup
     ? `${card.topicGroup} archive entry added to your browser vault.`
     : "Wikipedia entry archived for your browser collection.";
+}
+
+function getExtendedBlurb(card) {
+  const detailedExtract = normalizeArticleCopy(
+    card?.longExtractText ??
+      card?.extendedExtractText ??
+      card?.cardDescriptionLong ??
+      card?.longDescription
+  );
+  if (detailedExtract) return detailedExtract;
+  return getBlurb(card);
 }
 
 function toCollectionParams(filters) {
@@ -435,6 +449,63 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite,
   );
 }
 
+function DetailFlipCard({
+  card,
+  archiveLabel,
+  formatNumber,
+  isFlipped,
+  onFlip,
+  flipHint,
+  flipBackHint,
+  detailDescriptionTitle,
+  sourceLabel,
+}) {
+  const rarity = getRarity(card);
+  const title = getTitle(card);
+  const detailText = getExtendedBlurb(card);
+
+  return (
+    <div
+      className={`wg-detail-flip${isFlipped ? " is-flipped" : ""}`}
+      role="button"
+      tabIndex={0}
+      aria-label={isFlipped ? flipBackHint : flipHint}
+      onClick={onFlip}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onFlip();
+        }
+      }}
+    >
+      <div className="wg-detail-flip-face is-front">
+        <div className="wg-detail-front-card">
+          <StackCard
+            card={card}
+            archiveLabel={archiveLabel}
+            formatNumber={formatNumber}
+            onOpen={() => {}}
+            onToggleFavorite={() => {}}
+          />
+        </div>
+        <p className="wg-detail-flip-hint">{flipHint}</p>
+      </div>
+
+      <article className="wg-detail-flip-face is-back">
+        <header className="wg-detail-back-head">
+          <RarityBadge rarity={rarity} />
+          <span className="wg-chip">{card.topicGroup ?? archiveLabel}</span>
+          <span className="wg-detail-back-source">{sourceLabel}</span>
+        </header>
+        <h4>{title}</h4>
+        <h5>{detailDescriptionTitle}</h5>
+        <p className="wg-detail-back-description">{detailText}</p>
+        <p className="wg-detail-flip-hint">{flipBackHint}</p>
+      </article>
+    </div>
+  );
+}
+
 function TrophyIcon({ iconKey }) {
   if (iconKey === "atom") {
     return (
@@ -608,7 +679,7 @@ export default function WikipediaGachaGame() {
     latestPack: es ? "Ultimo pack" : "Latest pack",
     gachaTab: "Gacha",
     collectionTab: es ? "Coleccion" : "Collection",
-    battleTab: "Battle",
+    battleTab: es ? "Cartas" : "Cards",
     missionsTab: es ? "Misiones" : "Missions",
     trophiesTab: es ? "Trofeos" : "Trophies",
     packsReady: es ? "Sobres cargados" : "Packs full",
@@ -627,6 +698,10 @@ export default function WikipediaGachaGame() {
     cardCarousel: es ? "Carrusel de cartas" : "Card carousel",
     sourceLink: es ? "Ver fuente" : "View source",
     backToGacha: es ? "Volver al Gacha" : "Back to Gacha",
+    detailFlipHint: es ? "Haz click en la carta para ver mas descripcion." : "Click the card to read more description.",
+    detailFlipBackHint: es ? "Haz click para volver al frente." : "Click to flip back to the front.",
+    detailDescriptionTitle: es ? "Descripcion extendida" : "Extended description",
+    detailSourceLabel: es ? "Wikipedia backend" : "Wikipedia backend",
   };
 
   const [activeTab, setActiveTab] = useState("home");
@@ -646,6 +721,7 @@ export default function WikipediaGachaGame() {
   const [handCenterIndex, setHandCenterIndex] = useState(0);
   const [packHeroAnimState, setPackHeroAnimState] = useState("idle");
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [detailCardFlipped, setDetailCardFlipped] = useState(false);
   const [recoveryCode, setRecoveryCode] = useState("");
   const [recoveryImport, setRecoveryImport] = useState("");
   const [loading, setLoading] = useState(true);
@@ -671,6 +747,10 @@ export default function WikipediaGachaGame() {
   useEffect(() => {
     nowRef.current = nowMs;
   }, [nowMs]);
+
+  useEffect(() => {
+    setDetailCardFlipped(false);
+  }, [selectedArticle?.articleId, selectedArticle?.id]);
 
   const clearPackHeroTimeouts = () => {
     packHeroTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
@@ -1774,12 +1854,16 @@ export default function WikipediaGachaGame() {
             <div className="wg-modal-grid">
               <div className="wg-modal-card-shell">
                 <div className="wg-modal-stack-preview">
-                  <StackCard
+                  <DetailFlipCard
                     card={selectedArticle}
                     archiveLabel={text.archive}
                     formatNumber={formatNumber}
-                    onOpen={(articleId) => void handleSelectArticle(articleId)}
-                    onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
+                    isFlipped={detailCardFlipped}
+                    onFlip={() => setDetailCardFlipped((current) => !current)}
+                    flipHint={text.detailFlipHint}
+                    flipBackHint={text.detailFlipBackHint}
+                    detailDescriptionTitle={text.detailDescriptionTitle}
+                    sourceLabel={text.detailSourceLabel}
                   />
                 </div>
               </div>

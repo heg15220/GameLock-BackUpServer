@@ -205,6 +205,7 @@ function serializePackCardResult(article, collectionEntry, packCard) {
     def: article.defStat,
     imageUrl: article.imageUrl,
     extractText: article.extractText,
+    longExtractText: article.longExtractText ?? article.extractText,
     flavorText: article.flavorText,
     wasNew: packCard.wasNew,
     copiesAfterPull: collectionEntry.copies,
@@ -220,6 +221,10 @@ function serializePackHistoryEntry(opening) {
     title: card.title ?? `Article #${card.articleId}`,
     imageUrl: card.imageUrl ?? null,
     extractText: normalizeArticleText(card.extractText) || "",
+    longExtractText:
+      normalizeArticleText(card.longExtractText) ||
+      normalizeArticleText(card.extractText) ||
+      "",
     flavorText: card.flavorText ?? null,
     sourceUrl: card.sourceUrl ?? null,
     topicGroup: card.topicGroup ?? "General",
@@ -479,6 +484,7 @@ async function serializeCollectionEntry(entry, getArticleById) {
       def: 0,
       imageUrl: null,
       extractText: "",
+      longExtractText: "",
       flavorText: null,
       topicGroup: entry.topicGroup ?? "General",
       sourceUrl: null,
@@ -500,6 +506,7 @@ async function serializeCollectionEntry(entry, getArticleById) {
     def: article.defStat,
     imageUrl: article.imageUrl,
     extractText: article.extractText,
+    longExtractText: article.longExtractText ?? article.extractText,
     flavorText: article.flavorText,
     topicGroup: article.topicGroup,
     sourceUrl: article.sourceUrl,
@@ -718,7 +725,7 @@ export function createWikipediaGachaService({
   }
 
   /**
-   * Fills in missing extractText / imageUrl from the in-memory pool article.
+   * Fills in missing extractText / longExtractText / imageUrl from the in-memory pool article.
    * Pool articles are already fully hydrated from the Wikipedia API, so this
    * is an O(1) RAM lookup with no network I/O.
    */
@@ -732,6 +739,10 @@ export function createWikipediaGachaService({
       ...cardLike,
       extractText:
         normalizeArticleText(cardLike.extractText) ||
+        normalizeArticleText(article.extractText),
+      longExtractText:
+        normalizeArticleText(cardLike.longExtractText) ||
+        normalizeArticleText(article.longExtractText) ||
         normalizeArticleText(article.extractText),
       imageUrl: cardLike.imageUrl ?? article.imageUrl ?? null,
     };

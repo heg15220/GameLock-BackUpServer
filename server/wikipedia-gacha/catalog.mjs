@@ -160,6 +160,7 @@ function seedToArticle(raw) {
       title:           raw.title,
       slug:            raw.slug,
       extractText:     raw.extract,
+      longExtractText: raw.longExtract ?? raw.extract,
       contentLength:   raw.contentLength,
       // Estimated from byte length — good enough for stat computation
       sectionCount:    Math.max(1, Math.round(raw.contentLength / 2000)),
@@ -261,6 +262,12 @@ export function createWikipediaGachaCatalog() {
         if (!stored) continue;
         if (!stored.imageUrl && seed.imageUrl) stored.imageUrl = seed.imageUrl;
         if (!stored.pageviews30d && seed.pageviews30d) stored.pageviews30d = seed.pageviews30d;
+        if (seed.extract && (!stored.extractText || stored.extractText.length < 40)) {
+          stored.extractText = seed.extract;
+        }
+        if (seed.longExtract) {
+          stored.longExtractText = seed.longExtract;
+        }
       }
     } catch (err) {
       console.warn(`[wikipedia-gacha] static enrichment error: ${err.message}`);
