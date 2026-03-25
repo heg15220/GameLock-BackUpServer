@@ -55,6 +55,8 @@ const ArcheryHorizonGame = lazy(() => import("./arcade/archery-horizon"));
 const PinballWizardGame  = lazy(() => import("./arcade/pinball-wizard"));
 const BubbleStormGame        = lazy(() => import("./arcade/bubble-storm"));
 const BasketballCourtGame    = lazy(() => import("./arcade/basketball-court"));
+const IceStrikeProGame       = lazy(() => import("./arcade/ice-strike-pro"));
+const NeonCryptGame          = lazy(() => import("./arcade/neon-crypt"));
 const WikipediaGachaGame = lazy(() => import("./knowledge/wikipedia-gacha"));
 const RetroClassicsGame = lazy(() => import("./arcade/retro-classics"));
 
@@ -132,6 +134,8 @@ export const GAME_REGISTRY = {
   "arcade-archery-horizon":      ArcheryHorizonGame,
   "arcade-pinball-wizard":       PinballWizardGame,
   "arcade-bubble-storm":         BubbleStormGame,
+  "arcade-ice-strike-pro":       IceStrikeProGame,
+  "arcade-neon-crypt":           NeonCryptGame,
   "sports-basketball-court":     BasketballCourtGame,
   "arcade-pong-neon-arena":      PongGame,
   "arcade-buscaminas-classic":   MinesweeperGame,
@@ -201,6 +205,8 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-archery-horizon":      "Tiro con arco en profundidad: A/D o J/L desvio, arriba/abajo o I/K trayectoria, Q/E ajuste grueso de trayectoria, W/S o +/- intensidad, Z/X ajuste fino, Shift modo fino, 1-5 presets y 6 recomendado. Enter/Espacio dispara. P pausa, R reinicia, N siguiente nivel y F pantalla completa.",
     "arcade-pinball-wizard":       "Z o flecha izq para flipper izquierdo, X o flecha der para flipper derecho, mantén Espacio para cargar el plunger y suelta para lanzar. R reinicia.",
     "arcade-bubble-storm":         "Mueve el ratón para apuntar y haz clic para disparar. Tab o S cambia la burbuja siguiente. Forma grupos de 3+ del mismo color para hacerlos explotar. R reinicia.",
+    "arcade-ice-strike-pro":       "←→/AD apuntan, W sube potencia, Q giro interior, E giro exterior, Espacio lanza. S barre durante el vuelo. R reinicia, Esc menú.",
+    "arcade-neon-crypt":           "WASD/flechas mover, ratón apuntar, Click/Espacio atacar con espada, Shift/E esquivar (invencible), recoge orbes verdes para recuperar vida. R reinicia, Esc menú.",
     "sports-basketball-court":     "Baloncesto 6 posiciones: arriba/abajo ajustan arco, izq/der la desviación lateral y W/S la potencia. Space o Enter lanza. P pausa, R nueva ronda y F pantalla completa.",
     "arcade-pacman-maze-protocol": "WASD/flechas mover, Enter/Espacio empezar, P/Esc pausa, R reinicia, M sonido.",
     "arcade-pong-neon-arena":      "W/S o flechas arriba/abajo para mover vertical. A/D o flechas izq/der para avanzar o retroceder (sin cruzar el centro). Ratón también controla vertical. Enter/Espacio empezar, P pausa, R reinicia, M sonido, F pantalla completa.",
@@ -264,6 +270,8 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-archery-horizon":      "Depth-based archery: A/D or J/L tune yaw, up/down or I/K trajectory, Q/E coarse trajectory trim, W/S or +/- intensity, Z/X fine trim, Shift fine mode, 1-5 shot presets and 6 level recommendation. Enter/Space fires. P pauses, R restarts, N advances level, and F toggles fullscreen.",
     "arcade-pinball-wizard":       "Z or left arrow for left flipper, X or right arrow for right flipper, hold Space to charge the plunger and release to launch. R restarts.",
     "arcade-bubble-storm":         "Move the mouse to aim and click to shoot. Tab or S swaps the next bubble. Match 3+ same-colour bubbles to pop them. R restarts.",
+    "arcade-ice-strike-pro":       "←→/AD aim, W raise power, Q in-turn, E out-turn, Space deliver. S sweeps mid-flight. R restart, Esc menu.",
+    "arcade-neon-crypt":           "WASD/arrows move, mouse aim, Click/Space sword attack, Shift/E dash (brief invincibility). Collect green orbs to restore HP. R restart, Esc menu.",
     "sports-basketball-court":     "Basketball 6 positions: up/down tune arc, left/right lateral aim, W/S power. Space or Enter shoots. P pauses, R starts a new round, and F toggles fullscreen.",
     "arcade-pacman-maze-protocol": "WASD/arrows move, Enter/Space start, P/Esc pause, R restart, M sound.",
     "arcade-pong-neon-arena":      "W/S or up/down arrows for vertical. A/D or left/right arrows to advance or retreat (cannot cross centre line). Mouse also controls vertical. Enter/Space start, P pause, R restart, M sound, F fullscreen.",

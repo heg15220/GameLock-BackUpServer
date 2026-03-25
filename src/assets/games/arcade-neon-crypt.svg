@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0d1a30"/>
+      <stop offset="100%" stop-color="#04070e"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3a8ef0" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#3a8ef0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orbg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#20d070" stop-opacity="0.80"/>
+      <stop offset="100%" stop-color="#20d070" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="120" height="120" rx="18" fill="url(#bg)"/>
+
+  <!-- Ambient glow -->
+  <ellipse cx="60" cy="60" rx="52" ry="52" fill="url(#glow)"/>
+
+  <!-- Floor grid hint -->
+  <line x1="20" y1="45" x2="100" y2="45" stroke="#1a2840" stroke-width="0.8"/>
+  <line x1="20" y1="62" x2="100" y2="62" stroke="#1a2840" stroke-width="0.8"/>
+  <line x1="20" y1="79" x2="100" y2="79" stroke="#1a2840" stroke-width="0.8"/>
+  <line x1="38" y1="38" x2="38" y2="95" stroke="#1a2840" stroke-width="0.8"/>
+  <line x1="60" y1="38" x2="60" y2="95" stroke="#1a2840" stroke-width="0.8"/>
+  <line x1="82" y1="38" x2="82" y2="95" stroke="#1a2840" stroke-width="0.8"/>
+
+  <!-- Stone pillars -->
+  <circle cx="35" cy="42" r="8" fill="#182030" stroke="#243050" stroke-width="1.2"/>
+  <circle cx="35" cy="42" r="4.5" fill="#1e2a40"/>
+  <circle cx="85" cy="42" r="8" fill="#182030" stroke="#243050" stroke-width="1.2"/>
+  <circle cx="85" cy="42" r="4.5" fill="#1e2a40"/>
+
+  <!-- Enemy grunt (purple circle) -->
+  <circle cx="85" cy="75" r="9" fill="#9020d0" stroke="#c040f8" stroke-width="1.5"/>
+  <circle cx="87.5" cy="73" r="2" fill="white"/>
+
+  <!-- Enemy archer (teal diamond) -->
+  <polygon points="38,58 44,64 38,70 32,64" fill="#16c088" stroke="#28f0b0" stroke-width="1.5"/>
+  <circle cx="39.5" cy="62.5" r="1.8" fill="white"/>
+
+  <!-- Player (blue glowing circle) -->
+  <circle cx="60" cy="72" r="11" fill="#3a8ef0" fill-opacity="0.25"/>
+  <circle cx="60" cy="72" r="8" fill="#46b4ff" stroke="#90d0ff" stroke-width="1.8"/>
+  <circle cx="60" cy="72" r="3" fill="rgba(160,220,255,0.35)"/>
+
+  <!-- Sword swing arc -->
+  <path d="M60 72 L78 56" stroke="#c8e8ff" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="78" cy="56" r="3" fill="white"/>
+  <path d="M60 72 A20 20 0 0 1 75 60" stroke="rgba(160,230,255,0.55)" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+  <!-- Health orb -->
+  <circle cx="45" cy="87" r="5" fill="url(#orbg)"/>
+  <circle cx="45" cy="87" r="3.5" fill="#20d070"/>
+  <line x1="45" y1="84" x2="45" y2="90" stroke="rgba(200,255,215,0.80)" stroke-width="1.2"/>
+  <line x1="42" y1="87" x2="48" y2="87" stroke="rgba(200,255,215,0.80)" stroke-width="1.2"/>
+
+  <!-- Arena border -->
+  <rect x="16" y="16" width="88" height="88" rx="4" fill="none" stroke="#192840" stroke-width="1.5"/>
+
+  <!-- Corner brackets -->
+  <path d="M16 28 L16 16 L28 16" fill="none" stroke="rgba(70,160,255,0.55)" stroke-width="1.5"/>
+  <path d="M92 16 L104 16 L104 28" fill="none" stroke="rgba(70,160,255,0.55)" stroke-width="1.5"/>
+  <path d="M16 92 L16 104 L28 104" fill="none" stroke="rgba(70,160,255,0.55)" stroke-width="1.5"/>
+  <path d="M104 92 L104 104 L92 104" fill="none" stroke="rgba(70,160,255,0.55)" stroke-width="1.5"/>
+</svg>

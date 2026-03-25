@@ -18,6 +18,8 @@ import arcadeGolfTour2DImage from "../assets/games/arcade-golf-tour-2d.svg";
 import arcadeArcheryHorizonImage from "../assets/games/arcade-archery-horizon.svg";
 import arcadePinballWizardImage from "../assets/games/arcade-pinball-wizard.svg";
 import arcadeBubbleStormImage from "../assets/games/arcade-bubble-storm.svg";
+import arcadeIceStrikeProImage from "../assets/games/arcade-ice-strike-pro.svg";
+import arcadeNeonCryptImage from "../assets/games/arcade-neon-crypt.svg";
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
@@ -907,6 +909,116 @@ export const games = [
     viability_en: "High: pure Canvas 2D, no external libraries, serializable state.",
     visualStyle_en: "Dark neon: #080b14 background with vignette, radial-gradient 3D bubbles with colour glow, particle explosions.",
     techFocus_en: "Offset hex grid with BFS match + BFS ceiling-connectivity isolation + snap-to-nearest-empty + wall-bounce trajectory.",
+  },
+
+  {
+    id: "arcade-ice-strike-pro",
+    image: arcadeIceStrikeProImage,
+    sessionTime: "5-15 min",
+
+    title: "Ice Strike Pro",
+    category: "Arcade",
+    tagline: "Curling profesional con física real de curl, IA estratégica y mecánica de barrido.",
+    description:
+      "Ice Strike Pro es un simulador de curling 2D con física auténtica: las piedras curvan según la rotación aplicada, el rozamiento reduce la velocidad, y barrer con la escoba (tecla S) disminuye la fricción en pleno vuelo. La IA planifica tiros de draw, guardas y takeouts. Cada partida dura 6 ends con 4 piedras por equipo y fin.",
+    objective_es:
+      "Acumula más puntos que la CPU después de 6 ends. Cada end suma los puntos de la piedra más cercana al centro del house; sólo puntúa el equipo cuya piedra quede más pegada al botón.",
+    howToPlay_es:
+      "Usa ← → o A/D para apuntar, W sube la potencia, Q selecciona giro interior y E giro exterior. Pulsa Espacio para lanzar. Mantén S para barrer durante el vuelo y reducir la curva. R reinicia la partida, Esc vuelve al menú.",
+    highlights: [
+      "Física de curl real: la piedra curva según la rotación y la velocidad hacia adelante.",
+      "Barrido en tiempo real con tecla S — reduce fricción un 28 % y limita la curvatura.",
+      "IA con tres estrategias adaptativas: draw al botón, guarda frente al house y takeout.",
+      "Colisiones elásticas entre piedras con corrección posicional (COR 0.90).",
+      "Línea de trayectoria predictiva con curva simulada y piedra fantasma en el destino.",
+      "6 ends completos con marcador por end, historial de resultados y lógica de hammer.",
+      "Puntuación en vivo mostrando quién puntúa en el end actual antes de terminar.",
+      "Canvas 2D nativo — sin librerías externas.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo vs IA",
+    viability: "Alta: Canvas 2D puro, física determinista, sin dependencias externas.",
+    visualStyle: "Azul hielo: hoja de curling con textura de pebble, anillos de casa en rojo y blanco, HUD lateral oscuro con panel de info.",
+    techFocus: "Física de curl con velocidad lateral proporcional a la velocidad frontal + collisiones elásticas multi-piedra + predicción de trayectoria en tiempo real.",
+
+    category_en: "Arcade",
+    tagline_en: "Professional curling with real curl physics, strategic AI, and a live sweeping mechanic.",
+    description_en:
+      "Ice Strike Pro is a 2D curling simulator with authentic physics: stones curl based on applied rotation, friction gradually slows them down, and sweeping with the broom (S key) reduces friction mid-flight. The AI plans draw shots, guards, and takeouts. Each match lasts 6 ends with 4 stones per team per end.",
+    objective_en:
+      "Outscore the CPU after 6 ends. Each end awards points to the team whose stone sits closest to the button; only the leading team scores, counting all stones closer than the opponent's nearest.",
+    howToPlay_en:
+      "Use ← → or A/D to aim, W raises power, Q selects in-turn and E out-turn. Press Space to deliver. Hold S to sweep mid-flight and reduce the curl. R restarts the match, Esc returns to the menu.",
+    highlights_en: [
+      "Real curl physics: the stone bends according to rotation and forward speed.",
+      "Live sweeping with the S key — cuts friction by 28% and limits the curve.",
+      "Adaptive AI with three strategies: draw to the button, guard in front of the house, and takeout.",
+      "Elastic stone-on-stone collisions with positional correction (COR 0.90).",
+      "Predictive aim line with simulated curl and a ghost stone at the projected destination.",
+      "6 complete ends with per-end scoring, end-log history, and hammer logic.",
+      "Live score preview showing who is scoring in the current end before it concludes.",
+      "Native Canvas 2D — no external libraries.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo vs AI",
+    viability_en: "High: pure Canvas 2D, deterministic physics, no external dependencies.",
+    visualStyle_en: "Ice blue: curling sheet with pebble texture, red-and-white house rings, dark side HUD with info panel.",
+    techFocus_en: "Curl physics with lateral velocity proportional to forward speed + multi-stone elastic collisions + real-time trajectory prediction.",
+  },
+
+  {
+    id: "arcade-neon-crypt",
+    image: arcadeNeonCryptImage,
+    sessionTime: "5-20 min",
+
+    title: "Neon Crypt",
+    category: "Arcade",
+    tagline: "Dungeon crawler arcade: combate por oleadas con espada, esquiva y enemigos con IA.",
+    description:
+      "Neon Crypt es un arena dungeon crawler top-down por oleadas. Muévete con WASD, apunta con el ratón y ataca con un arco de espada de 86°. El dash te da invencibilidad breve para esquivar proyectiles. Cada oleada incluye Grunts que cargan, Arqueros que mantienen distancia y disparan, Brutos lentos pero demoledores, y Jefes cada 5 oleadas con ataques en ráfaga de 8 proyectiles. Recoge orbes verdes de los enemigos caídos para recuperar vida.",
+    objective_es:
+      "Sobrevivir el mayor número de oleadas posible y acumular la puntuación más alta. Las oleadas aumentan en dificultad: más enemigos, más tipos simultáneos y jefes con ataques en ráfaga.",
+    howToPlay_es:
+      "WASD o flechas para moverte, ratón para apuntar, Click o Espacio para atacar con la espada. Shift o E activa el dash — te hace invencible brevemente y te reposiciona. Los orbes verdes restauran 1 punto de vida. R reinicia, Esc vuelve al menú.",
+    highlights: [
+      "3 tipos de enemigos con comportamientos distintos: Grunt (carga), Archer (distancia + proyectil), Brute (tanque lento).",
+      "Jefe cada 5 oleadas: melee + ráfaga de 8 proyectiles en patrón circular.",
+      "Dash con invencibilidad temporal — esencial para esquivar ráfagas de jefe.",
+      "Arco de espada de 86° con detección precisa de ángulo; rebote visual de fallo.",
+      "Orbes de vida con drop aleatorio (35%) y recogida automática por proximidad.",
+      "Separación dinámica entre enemigos para evitar apilamiento; arqueros con strafe lateral.",
+      "Partículas procedurales: impacto, muerte, dash trail, spark de espada.",
+      "Canvas 2D nativo — sin librerías externas.",
+    ],
+    difficulty: "Progresiva",
+    multiplayer: "Solo",
+    viability: "Alta: Canvas 2D puro, física de steer + colisiones circulares, sin dependencias externas.",
+    visualStyle: "Estética neon gótica: suelo con rejilla oscura y puntos de textura, pilares de piedra con brillo de borde, enemigos con formas distintas (círculo, diamante, cuadrado, estrella) y aura neon.",
+    techFocus: "Steering behavior con separación dinámica + colisiones circulares + arco de hitbox angular + sistema de partículas procedural + proyectiles con trail de elipse.",
+
+    category_en: "Arcade",
+    tagline_en: "Arena dungeon crawler: wave combat with sword, dash, and AI-driven enemies.",
+    description_en:
+      "Neon Crypt is a top-down arena dungeon crawler with wave-based combat. Move with WASD, aim with the mouse, and attack with an 86° sword arc. The dash grants brief invincibility to dodge projectiles. Each wave includes Grunts that charge, Archers who keep distance and shoot, slow-but-hard-hitting Brutes, and a Boss every 5 waves firing an 8-projectile circular burst. Collect green orbs from fallen enemies to restore HP.",
+    objective_en:
+      "Survive as many waves as possible and reach the highest score. Waves scale in difficulty: more enemies, more types simultaneously, and bosses with burst attacks.",
+    howToPlay_en:
+      "WASD or arrows to move, mouse to aim, Click or Space to swing your sword. Shift or E activates the dash — grants brief invincibility and repositions you. Green orbs restore 1 HP. R restarts, Esc returns to the menu.",
+    highlights_en: [
+      "3 enemy types with distinct behaviors: Grunt (rushes), Archer (keeps distance + shoots), Brute (slow tank).",
+      "Boss every 5 waves: melee attacks + 8-projectile circular burst.",
+      "Dash with temporary invincibility — essential for dodging boss bursts.",
+      "86° sword arc with precise angle detection; visual spark on miss.",
+      "HP orbs with random drop (35%) and auto-pickup by proximity.",
+      "Dynamic enemy separation prevents stacking; Archers strafe laterally.",
+      "Procedural particles: hit, death, dash trail, sword spark.",
+      "Native Canvas 2D — no external libraries.",
+    ],
+    difficulty_en: "Progressive",
+    multiplayer_en: "Solo",
+    viability_en: "High: pure Canvas 2D, steering + circular collision physics, no external dependencies.",
+    visualStyle_en: "Neon gothic aesthetic: dark grid floor with texture dots, stone pillars with edge glow, distinct enemy shapes (circle, diamond, square, star) with neon aura.",
+    techFocus_en: "Steering behavior with dynamic separation + circular collisions + angular hitbox arc + procedural particle system + projectiles with ellipse trail.",
   },
 
   {

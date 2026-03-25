@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#060d1a"/>
+      <stop offset="100%" stop-color="#030810"/>
+    </linearGradient>
+    <linearGradient id="ice" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c6ddf0"/>
+      <stop offset="50%" stop-color="#d8eef8"/>
+      <stop offset="100%" stop-color="#cce3f2"/>
+    </linearGradient>
+    <radialGradient id="sr" cx="38%" cy="32%" r="62%">
+      <stop offset="0%" stop-color="#ff9090"/>
+      <stop offset="55%" stop-color="#d82828"/>
+      <stop offset="100%" stop-color="#7a0e0e"/>
+    </radialGradient>
+    <radialGradient id="sy" cx="38%" cy="32%" r="62%">
+      <stop offset="0%" stop-color="#fff890"/>
+      <stop offset="55%" stop-color="#d4a000"/>
+      <stop offset="100%" stop-color="#6a4800"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="200" fill="url(#bg)" rx="10"/>
+
+  <!-- Ice sheet -->
+  <rect x="58" y="18" width="84" height="156" rx="8" fill="url(#ice)" opacity="0.95"/>
+
+  <!-- Pebble texture dots -->
+  <g opacity="0.25" fill="white">
+    <circle cx="72" cy="30" r="1.2"/><circle cx="90" cy="26" r="1"/><circle cx="110" cy="32" r="1.4"/>
+    <circle cx="128" cy="28" r="1.1"/><circle cx="80"  cy="45" r="1.3"/><circle cx="120" cy="42" r="1"/>
+    <circle cx="68"  cy="60" r="1"/><circle cx="105" cy="58" r="1.2"/><circle cx="135" cy="55" r="1.1"/>
+  </g>
+
+  <!-- Back line -->
+  <line x1="58" y1="30" x2="142" y2="30" stroke="rgba(50,110,180,0.55)" stroke-width="1"/>
+
+  <!-- House rings -->
+  <circle cx="100" cy="52" r="32" fill="rgba(218,38,38,0.82)"/>
+  <circle cx="100" cy="52" r="22" fill="rgba(240,243,255,0.90)"/>
+  <circle cx="100" cy="52" r="12" fill="rgba(218,38,38,0.88)"/>
+  <circle cx="100" cy="52" r="4"  fill="rgba(245,248,255,0.95)"/>
+
+  <!-- Tee line -->
+  <line x1="58" y1="52" x2="142" y2="52" stroke="rgba(50,110,180,0.50)" stroke-width="1.2"/>
+
+  <!-- Centre line (dashed) -->
+  <line x1="100" y1="18" x2="100" y2="174" stroke="rgba(50,110,180,0.28)" stroke-width="1" stroke-dasharray="5,5"/>
+
+  <!-- Hog line -->
+  <line x1="58" y1="138" x2="142" y2="138" stroke="rgba(210,40,40,0.65)" stroke-width="1.8"/>
+
+  <!-- Hack -->
+  <circle cx="100" cy="162" r="6" fill="rgba(30,50,90,0.40)"/>
+  <circle cx="100" cy="162" r="6" fill="none" stroke="rgba(70,110,200,0.55)" stroke-width="1.2"/>
+
+  <!-- Red stone (player, in house) -->
+  <circle cx="96"  cy="58" r="10" fill="url(#sr)" filter="url(#glow)"/>
+  <circle cx="96"  cy="58" r="10" fill="none" stroke="rgba(255,170,170,0.70)" stroke-width="1.5"/>
+  <circle cx="96"  cy="58" r="4"  fill="rgba(255,255,255,0.15)"/>
+  <circle cx="93"  cy="55" r="2.5" fill="rgba(255,255,255,0.30)"/>
+
+  <!-- Yellow stone (AI, near button) -->
+  <circle cx="105" cy="48" r="10" fill="url(#sy)" filter="url(#glow)"/>
+  <circle cx="105" cy="48" r="10" fill="none" stroke="rgba(255,235,100,0.70)" stroke-width="1.5"/>
+  <circle cx="105" cy="48" r="4"  fill="rgba(255,255,255,0.15)"/>
+  <circle cx="102" cy="45" r="2.5" fill="rgba(255,255,255,0.30)"/>
+
+  <!-- Flying stone with trail -->
+  <line x1="100" y1="162" x2="99"  y2="115" stroke="rgba(255,80,80,0.18)" stroke-width="6"/>
+  <line x1="99"  y1="140" x2="98.5" y2="115" stroke="rgba(255,80,80,0.25)" stroke-width="5"/>
+  <circle cx="98" cy="112" r="9" fill="url(#sr)" filter="url(#glow)"/>
+  <circle cx="98" cy="112" r="9" fill="none" stroke="rgba(255,80,80,0.55)" stroke-width="1.5"/>
+  <circle cx="95" cy="109" r="2.2" fill="rgba(255,255,255,0.28)"/>
+
+  <!-- Dashed aim/trajectory -->
+  <line x1="100" y1="162" x2="98" y2="85" stroke="rgba(255,215,50,0.30)" stroke-width="1.5" stroke-dasharray="5,5"/>
+
+  <!-- Sweep broom lines under flying stone -->
+  <g opacity="0.40" stroke="#b0cce8" stroke-width="1.5">
+    <line x1="92" y1="120" x2="91" y2="128"/>
+    <line x1="97" y1="119" x2="96" y2="127"/>
+    <line x1="102" y1="119" x2="101" y2="127"/>
+    <line x1="107" y1="120" x2="106" y2="128"/>
+  </g>
+
+  <!-- Title -->
+  <text x="100" y="195" text-anchor="middle" font-family="monospace" font-weight="700"
+        font-size="8" fill="#4fa3f0" filter="url(#glow)" letter-spacing="0.8">ICE STRIKE PRO</text>
+</svg>
