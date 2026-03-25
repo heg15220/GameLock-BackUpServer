@@ -330,25 +330,43 @@ function saveBest(s) {
 
 // ─── Render colours ───────────────────────────────────────────────────────────
 const C = {
-  gymCeil:      "#131720",
-  floorNear:    "#c08838",
-  floorFar:     "#8a5e20",
-  floorLine:    "rgba(0,0,0,0.11)",
-  courtLine:    "rgba(255,255,255,0.84)",
-  paint:        "rgba(180,55,18,0.22)",
-  rim:          "#e05500",
-  bbBoard:      "rgba(236,242,255,0.90)",
-  bbFrame:      "#b8c4d4",
-  bbBox:        "rgba(255,45,45,0.80)",
-  netLine:      "rgba(230,235,240,0.72)",
-  panelBg0:     "#0c1220",
-  panelBg1:     "#101828",
+  gymCeil:      "#080d16",
+  floorNear:    "#d49448",
+  floorMid:     "#c08030",
+  floorFar:     "#7a4e1a",
+  floorLine:    "rgba(0,0,0,0.08)",
+  floorAlt:     "rgba(130,65,10,0.07)",
+  floorGloss:   "rgba(255,215,150,0.06)",
+  courtLine:    "rgba(255,255,255,0.88)",
+  paint:        "rgba(195,60,15,0.30)",
+  paintBorder:  "rgba(220,80,20,0.55)",
+  rim:          "#e84800",
+  rimHighlight: "rgba(255,130,50,0.70)",
+  rimShadow:    "rgba(80,20,0,0.60)",
+  bbGlass:      "rgba(185,220,255,0.13)",
+  bbGlossHL:    "rgba(200,230,255,0.13)",
+  bbEdge:       "#8aa0bc",
+  bbFrame:      "rgba(140,170,210,0.40)",
+  bbBox:        "rgba(255,40,40,0.90)",
+  netLine:      "rgba(235,242,248,0.78)",
+  netShadow:    "rgba(0,0,0,0.25)",
+  panelBg0:     "#080f1c",
+  panelBg1:     "#0e1826",
   accentOrange: "#f0a030",
   textMuted:    "#5a7090",
   textDim:      "#3a5068",
-  ballHigh:     "#ff8c28",
+  ballHigh:     "#ffb040",
   ballMid:      "#d44e0c",
   ballLow:      "#8a2400",
+  truss:        "rgba(42,58,88,0.80)",
+  trussD:       "rgba(38,52,80,0.50)",
+  wallDark:     "#0f1825",
+  wallMid:      "#141f32",
+  wallLight:    "#1c2a42",
+  scoreBoard:   "#050810",
+  scoreBorder:  "rgba(255,100,20,0.45)",
+  bannerBlue:   "rgba(40,100,200,0.55)",
+  bannerRed:    "rgba(180,40,40,0.55)",
 };
 
 // ─── Runtime ──────────────────────────────────────────────────────────────────
@@ -778,44 +796,65 @@ class BasketballRuntime {
 
   // ── Gym background ───────────────────────────────────────────
   drawGym(ctx, cam, vW, vH) {
-    // Find horizon Y to split ceiling and floor
-    // Horizon: project a far point along the camera's actual forward direction
     const FAR = 500;
     const hor = p3(cam.x + Math.sin(cam.yaw) * FAR, 0, cam.z + Math.cos(cam.yaw) * FAR, cam, vW, vH);
     const horY = hor ? clamp(hor.y, 0, vH * 0.72) : vH * 0.44;
 
-    // Ceiling gradient
+    // ── Ceiling ──────────────────────────────────────────────
     const cg = ctx.createLinearGradient(0, 0, 0, horY);
-    cg.addColorStop(0, "#0f1420"); cg.addColorStop(1, "#1c253a");
+    cg.addColorStop(0, "#060b12"); cg.addColorStop(0.55, "#0d1628"); cg.addColorStop(1, "#18223c");
     ctx.fillStyle = cg; ctx.fillRect(0, 0, vW, horY);
 
-    // Ceiling girders / trusses
-    ctx.strokeStyle = "rgba(50,60,90,0.6)"; ctx.lineWidth = 2;
-    [0, 5, 10, 15].forEach(gz => {
-      ctx.beginPath();
-      line3D(ctx, cam, vW, vH, -8, 7, gz, 8, 7, gz);
-      ctx.stroke();
-      ctx.beginPath();
-      line3D(ctx, cam, vW, vH, -8, 8.5, gz, 8, 8.5, gz);
-      ctx.stroke();
+    // Main longitudinal beams (top chord)
+    const BH = 8.3;
+    ctx.strokeStyle = C.truss; ctx.lineWidth = 3.5;
+    [-4, 0, 4].forEach(bx => {
+      ctx.beginPath(); line3D(ctx, cam, vW, vH, bx, BH, -2, bx, BH, 22); ctx.stroke();
     });
 
-    // Ceiling lights
-    [0, 5, 11, 17].forEach(lz => {
-      const lp = p3(0, 8.8, lz, cam, vW, vH);
-      if (!lp) return;
-      const r = Math.max(2, 160 / (lp.depth + 1));
-      const lg = ctx.createRadialGradient(lp.x, lp.y, 0, lp.x, lp.y, r * 5);
-      lg.addColorStop(0, "rgba(255,245,210,0.30)");
-      lg.addColorStop(1, "rgba(255,245,210,0)");
-      ctx.fillStyle = lg;
-      ctx.beginPath(); ctx.arc(lp.x, lp.y, r * 5, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "rgba(255,252,230,0.85)";
-      ctx.beginPath(); ctx.arc(lp.x, lp.y, r * 0.9, 0, Math.PI * 2); ctx.fill();
+    // Cross beams at regular intervals
+    ctx.strokeStyle = C.truss; ctx.lineWidth = 2.5;
+    [0, 4, 8, 12, 16, 20].forEach(gz => {
+      ctx.beginPath(); line3D(ctx, cam, vW, vH, -8, BH,   gz, 8, BH,   gz); ctx.stroke();
+      ctx.beginPath(); line3D(ctx, cam, vW, vH, -8, 7.4,  gz, 8, 7.4,  gz); ctx.stroke();
     });
 
-    // Side walls (bleachers suggestion)
-    [-7.5, 7.5].forEach(wx => {
+    // Diagonal braces (celosía) on side walls
+    ctx.strokeStyle = C.trussD; ctx.lineWidth = 1.5;
+    [0, 4, 8, 12, 16].forEach(gz => {
+      [-8, 8].forEach(wx => {
+        ctx.beginPath(); line3D(ctx, cam, vW, vH, wx, BH,  gz, wx, 7.4, gz + 4); ctx.stroke();
+        ctx.beginPath(); line3D(ctx, cam, vW, vH, wx, 7.4, gz, wx, BH,  gz + 4); ctx.stroke();
+      });
+    });
+
+    // ── Ceiling lights (luminarias industriales) ──────────────
+    [1, 5.5, 10, 14.5, 19].forEach(lz => {
+      [-3.5, 0, 3.5].forEach(lx => {
+        const lp = p3(lx, 8.8, lz, cam, vW, vH);
+        if (!lp || lp.depth > 220) return;
+        const r = Math.max(2.5, 160 / (lp.depth + 1));
+
+        // Outer glow
+        const lg = ctx.createRadialGradient(lp.x, lp.y, 0, lp.x, lp.y, r * 7);
+        lg.addColorStop(0, "rgba(255,250,210,0.16)");
+        lg.addColorStop(0.5, "rgba(255,245,200,0.05)");
+        lg.addColorStop(1, "rgba(255,245,200,0)");
+        ctx.fillStyle = lg;
+        ctx.beginPath(); ctx.arc(lp.x, lp.y, r * 7, 0, Math.PI * 2); ctx.fill();
+
+        // Fixture housing
+        ctx.fillStyle = "rgba(50,62,92,0.92)";
+        ctx.fillRect(lp.x - r * 2.2, lp.y - r * 0.4, r * 4.4, r * 0.8);
+
+        // Bright bulb core
+        ctx.fillStyle = "rgba(255,252,225,0.93)";
+        ctx.beginPath(); ctx.arc(lp.x, lp.y, r * 0.88, 0, Math.PI * 2); ctx.fill();
+      });
+    });
+
+    // ── Side walls with colour band & panel divisions ─────────
+    [-7.5, 7.5].forEach((wx) => {
       const wPts = [
         p3(wx, 0, -2, cam, vW, vH), p3(wx, 7, -2, cam, vW, vH),
         p3(wx, 7, 22, cam, vW, vH), p3(wx, 0, 22, cam, vW, vH),
@@ -825,54 +864,137 @@ class BasketballRuntime {
         ctx.moveTo(wPts[0].x, wPts[0].y);
         wPts.slice(1).forEach(pt => ctx.lineTo(pt.x, pt.y));
         ctx.closePath();
-        ctx.fillStyle = "#161e30"; ctx.fill();
-        // Wall stripe
-        ctx.strokeStyle = "rgba(80,100,140,0.3)"; ctx.lineWidth = 1;
-        ctx.stroke();
+        const wg = ctx.createLinearGradient(0, wPts[1]?.y ?? 0, 0, wPts[0]?.y ?? vH);
+        wg.addColorStop(0, C.wallDark); wg.addColorStop(0.65, C.wallMid); wg.addColorStop(1, C.wallLight);
+        ctx.fillStyle = wg; ctx.fill();
+        // Accent stripe
+        ctx.strokeStyle = "rgba(240,120,20,0.22)"; ctx.lineWidth = 4;
+        ctx.beginPath(); line3D(ctx, cam, vW, vH, wx, 2.0, -2, wx, 2.0, 22); ctx.stroke();
+        ctx.strokeStyle = "rgba(240,120,20,0.10)"; ctx.lineWidth = 2;
+        ctx.beginPath(); line3D(ctx, cam, vW, vH, wx, 2.35, -2, wx, 2.35, 22); ctx.stroke();
+        // Panel dividers
+        ctx.strokeStyle = "rgba(55,75,115,0.20)"; ctx.lineWidth = 0.8;
+        [0, 4, 8, 12, 16, 20].forEach(pz => {
+          ctx.beginPath(); line3D(ctx, cam, vW, vH, wx, 0, pz, wx, 7, pz); ctx.stroke();
+        });
       }
     });
 
-    // Back wall
+    // ── Back wall with scoreboard & banners ───────────────────
     const bwPts = [
       p3(-8, 0, -2, cam, vW, vH), p3(-8, 8, -2, cam, vW, vH),
-      p3(8,  8, -2, cam, vW, vH), p3(8,  0, -2, cam, vW, vH),
+      p3( 8, 8, -2, cam, vW, vH), p3( 8, 0, -2, cam, vW, vH),
     ].filter(Boolean);
     if (bwPts.length === 4) {
       ctx.beginPath();
       ctx.moveTo(bwPts[0].x, bwPts[0].y);
       bwPts.slice(1).forEach(pt => ctx.lineTo(pt.x, pt.y));
       ctx.closePath();
-      ctx.fillStyle = "#1a2235"; ctx.fill();
+      const bwg = ctx.createLinearGradient(0, bwPts[1].y, 0, bwPts[0].y);
+      bwg.addColorStop(0, "#08101e"); bwg.addColorStop(1, "#16243a");
+      ctx.fillStyle = bwg; ctx.fill();
+
+      // Scoreboard
+      const sbTL = p3(-2.8, 5.8, -1.92, cam, vW, vH);
+      const sbBR = p3( 2.8, 4.1, -1.92, cam, vW, vH);
+      if (sbTL && sbBR) {
+        const sbW = Math.abs(sbBR.x - sbTL.x), sbH = Math.abs(sbBR.y - sbTL.y);
+        const sbX = Math.min(sbTL.x, sbBR.x), sbY = Math.min(sbTL.y, sbBR.y);
+        ctx.fillStyle = C.scoreBoard; ctx.fillRect(sbX, sbY, sbW, sbH);
+        ctx.strokeStyle = C.scoreBorder; ctx.lineWidth = 1.5;
+        ctx.strokeRect(sbX + 1, sbY + 1, sbW - 2, sbH - 2);
+        if (sbW > 24) {
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          const fs = Math.max(7, sbH * 0.38);
+          ctx.fillStyle = "#ff6020"; ctx.font = `bold ${fs}px monospace`;
+          ctx.fillText("HOME", sbX + sbW * 0.25, sbY + sbH * 0.30);
+          ctx.fillText("AWAY", sbX + sbW * 0.75, sbY + sbH * 0.30);
+          ctx.strokeStyle = "rgba(255,100,20,0.28)"; ctx.lineWidth = 0.5;
+          ctx.beginPath(); ctx.moveTo(sbX + sbW * 0.5, sbY + 2); ctx.lineTo(sbX + sbW * 0.5, sbY + sbH - 2); ctx.stroke();
+          ctx.fillStyle = "#ffcc00"; ctx.font = `bold ${Math.max(10, sbH * 0.54)}px monospace`;
+          ctx.fillText(String(this.roundPts).padStart(2, "0"), sbX + sbW * 0.25, sbY + sbH * 0.70);
+          ctx.fillText("00", sbX + sbW * 0.75, sbY + sbH * 0.70);
+          ctx.textBaseline = "alphabetic";
+        }
+      }
+
+      // Team banners
+      [-5.5, 5.5].forEach((bx, bi) => {
+        const t = p3(bx, 6.9, -1.94, cam, vW, vH);
+        const b2 = p3(bx, 5.1, -1.94, cam, vW, vH);
+        const tr = p3(bx + 0.95, 6.9, -1.94, cam, vW, vH);
+        if (t && b2 && tr) {
+          const bw2 = Math.abs(tr.x - t.x), bh2 = Math.abs(b2.y - t.y);
+          ctx.fillStyle = bi === 0 ? C.bannerBlue : C.bannerRed;
+          ctx.fillRect(t.x, t.y, bw2, bh2);
+          ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 0.5;
+          ctx.strokeRect(t.x, t.y, bw2, bh2);
+          ctx.fillStyle = "rgba(255,255,255,0.14)";
+          ctx.fillRect(t.x, t.y + bh2 * 0.42, bw2, bh2 * 0.16);
+        }
+      });
     }
   }
 
   // ── Floor ────────────────────────────────────────────────────
   drawFloor(ctx, cam, vW, vH) {
-    // Horizon: project a far point along the camera's actual forward direction
     const FAR = 500;
     const hor = p3(cam.x + Math.sin(cam.yaw) * FAR, 0, cam.z + Math.cos(cam.yaw) * FAR, cam, vW, vH);
     const horY = hor ? clamp(hor.y, 0, vH * 0.72) : vH * 0.44;
 
-    // Base floor rectangle
+    // Base hardwood gradient – warm maple tones
     const fg = ctx.createLinearGradient(0, horY, 0, vH);
-    fg.addColorStop(0, C.floorFar); fg.addColorStop(1, C.floorNear);
+    fg.addColorStop(0,    C.floorFar);
+    fg.addColorStop(0.38, C.floorMid);
+    fg.addColorStop(1,    C.floorNear);
     ctx.fillStyle = fg; ctx.fillRect(0, horY, vW, vH - horY);
 
-    // Hardwood planks – lines running Z direction (depth)
-    ctx.strokeStyle = C.floorLine; ctx.lineWidth = 0.6;
+    // Alternating plank colour bands (every 2 planks slightly darker)
+    const PW = 0.30;
+    for (let px = -7.5; px <= 7.5; px += PW * 2) {
+      const n0 = p3(px,      0.001, 0,  cam, vW, vH);
+      const n1 = p3(px + PW, 0.001, 0,  cam, vW, vH);
+      const f0 = p3(px,      0.001, 22, cam, vW, vH);
+      const f1 = p3(px + PW, 0.001, 22, cam, vW, vH);
+      if (!n0 || !n1 || !f0 || !f1) continue;
+      ctx.beginPath();
+      ctx.moveTo(n0.x, n0.y); ctx.lineTo(n1.x, n1.y);
+      ctx.lineTo(f1.x, f1.y); ctx.lineTo(f0.x, f0.y);
+      ctx.closePath();
+      ctx.fillStyle = C.floorAlt; ctx.fill();
+    }
+
+    // Plank separation lines (lengthwise grain)
+    ctx.strokeStyle = C.floorLine; ctx.lineWidth = 0.7;
     ctx.beginPath();
-    for (let px = -7.5; px <= 7.5; px += 0.38) {
-      const near = p3(px, 0.001, 0, cam, vW, vH);
+    for (let px = -7.5; px <= 7.5; px += PW) {
+      const near = p3(px, 0.001, 0,  cam, vW, vH);
       const far  = p3(px, 0.001, 22, cam, vW, vH);
       if (near && far) { ctx.moveTo(near.x, near.y); ctx.lineTo(far.x, far.y); }
     }
-    // Cross-grain cuts every ~2.4m
-    for (let pz = 0; pz <= 22; pz += 2.4) {
+    ctx.stroke();
+
+    // Cross-grain end cuts every ~1.2 m (more fine-grained)
+    ctx.strokeStyle = "rgba(0,0,0,0.06)"; ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    for (let pz = 0; pz <= 22; pz += 1.2) {
       const l = p3(-7.5, 0.001, pz, cam, vW, vH);
-      const r = p3(7.5,  0.001, pz, cam, vW, vH);
+      const r = p3( 7.5, 0.001, pz, cam, vW, vH);
       if (l && r) { ctx.moveTo(l.x, l.y); ctx.lineTo(r.x, r.y); }
     }
     ctx.stroke();
+
+    // Varnish gloss highlight near camera
+    const g0 = p3(0, 0.002, 0.5, cam, vW, vH);
+    const g1 = p3(0, 0.002, 3.5, cam, vW, vH);
+    if (g0 && g1) {
+      const glosG = ctx.createLinearGradient(0, g0.y, 0, g1.y);
+      glosG.addColorStop(0, C.floorGloss);
+      glosG.addColorStop(0.5, "rgba(255,215,150,0.03)");
+      glosG.addColorStop(1, "rgba(255,215,150,0)");
+      ctx.fillStyle = glosG;
+      ctx.fillRect(0, g0.y, vW, vH - g0.y);
+    }
   }
 
   // ── Court markings ───────────────────────────────────────────
@@ -981,84 +1103,170 @@ class BasketballRuntime {
 
   // ── Basket ───────────────────────────────────────────────────
   drawBasket(ctx, cam, vW, vH) {
-    // Support pole
-    ctx.strokeStyle = "#555e70"; ctx.lineWidth = 5;
-    ctx.beginPath(); line3D(ctx, cam, vW, vH, 0, 0, -1.22, 0, 3.35, -1.22); ctx.stroke();
-    // Horizontal arm to backboard
-    ctx.lineWidth = 3.5;
-    ctx.beginPath(); line3D(ctx, cam, vW, vH, 0, 3.35, -1.22, 0, 3.35, BACKBOARD_Z - 0.05); ctx.stroke();
+    // ── Support structure ──────────────────────────────────────
+    // Base plate
+    const basePt = p3(0, 0.04, -1.22, cam, vW, vH);
+    if (basePt) {
+      ctx.fillStyle = "#383f50";
+      ctx.beginPath(); ctx.ellipse(basePt.x, basePt.y, 9, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+    }
 
-    // Backboard
+    // Main pole with 3D gradient
+    const poleBot = p3(0, 0,    -1.22, cam, vW, vH);
+    const poleTop = p3(0, 3.35, -1.22, cam, vW, vH);
+    if (poleBot && poleTop) {
+      const pw = Math.max(3, 7 / (poleBot.depth + 0.5));
+      const polG = ctx.createLinearGradient(poleBot.x - pw * 2, 0, poleBot.x + pw * 2, 0);
+      polG.addColorStop(0, "#22303f"); polG.addColorStop(0.35, "#50636e");
+      polG.addColorStop(0.65, "#607080"); polG.addColorStop(1, "#22303f");
+      ctx.strokeStyle = polG; ctx.lineWidth = pw * 2;
+      ctx.beginPath(); ctx.moveTo(poleBot.x, poleBot.y); ctx.lineTo(poleTop.x, poleTop.y); ctx.stroke();
+    }
+
+    // Horizontal arm + diagonal brace
+    ctx.strokeStyle = "#455060"; ctx.lineWidth = 3.5;
+    ctx.beginPath(); line3D(ctx, cam, vW, vH, 0, 3.35, -1.22, 0, 3.35, BACKBOARD_Z - 0.04); ctx.stroke();
+    ctx.strokeStyle = "#354050"; ctx.lineWidth = 2;
+    ctx.beginPath(); line3D(ctx, cam, vW, vH, 0, 3.05, -1.22, 0, 3.35, BACKBOARD_Z - 0.04); ctx.stroke();
+
+    // ── Backboard (tempered glass look) ───────────────────────
     const BB_HW = 0.915, BB_B = 2.9, BB_T = 3.975;
     const bbPts = [
       p3(-BB_HW, BB_B, BACKBOARD_Z, cam, vW, vH), p3(BB_HW, BB_B, BACKBOARD_Z, cam, vW, vH),
       p3(BB_HW,  BB_T, BACKBOARD_Z, cam, vW, vH), p3(-BB_HW, BB_T, BACKBOARD_Z, cam, vW, vH),
     ];
     if (bbPts.every(Boolean)) {
+      // Glass fill
       ctx.beginPath();
       ctx.moveTo(bbPts[0].x, bbPts[0].y);
       bbPts.slice(1).forEach(b => ctx.lineTo(b.x, b.y));
       ctx.closePath();
-      ctx.fillStyle = C.bbBoard; ctx.fill();
-      ctx.strokeStyle = C.bbFrame; ctx.lineWidth = 3; ctx.stroke();
-      // Shooting box
+      ctx.fillStyle = C.bbGlass; ctx.fill();
+
+      // Gloss reflection (left third of backboard)
+      const hlPts = [
+        p3(-BB_HW * 0.90, BB_T - 0.08, BACKBOARD_Z - 0.001, cam, vW, vH),
+        p3(-BB_HW * 0.22, BB_T - 0.08, BACKBOARD_Z - 0.001, cam, vW, vH),
+        p3(-BB_HW * 0.22, BB_B + 0.18, BACKBOARD_Z - 0.001, cam, vW, vH),
+        p3(-BB_HW * 0.90, BB_B + 0.18, BACKBOARD_Z - 0.001, cam, vW, vH),
+      ];
+      if (hlPts.every(Boolean)) {
+        ctx.beginPath();
+        ctx.moveTo(hlPts[0].x, hlPts[0].y);
+        hlPts.slice(1).forEach(h => ctx.lineTo(h.x, h.y));
+        ctx.closePath();
+        ctx.fillStyle = C.bbGlossHL; ctx.fill();
+      }
+
+      // Thick border frame
+      ctx.beginPath();
+      ctx.moveTo(bbPts[0].x, bbPts[0].y);
+      bbPts.slice(1).forEach(b => ctx.lineTo(b.x, b.y));
+      ctx.closePath();
+      ctx.strokeStyle = C.bbEdge; ctx.lineWidth = 4.5; ctx.stroke();
+
+      // Inner border line
+      const FR = 0.065;
+      const ibbPts = [
+        p3(-(BB_HW - FR), BB_B + FR, BACKBOARD_Z - 0.002, cam, vW, vH),
+        p3(  BB_HW - FR,  BB_B + FR, BACKBOARD_Z - 0.002, cam, vW, vH),
+        p3(  BB_HW - FR,  BB_T - FR, BACKBOARD_Z - 0.002, cam, vW, vH),
+        p3(-(BB_HW - FR), BB_T - FR, BACKBOARD_Z - 0.002, cam, vW, vH),
+      ];
+      if (ibbPts.every(Boolean)) {
+        ctx.beginPath();
+        ctx.moveTo(ibbPts[0].x, ibbPts[0].y);
+        ibbPts.slice(1).forEach(b => ctx.lineTo(b.x, b.y));
+        ctx.closePath();
+        ctx.strokeStyle = C.bbFrame; ctx.lineWidth = 1; ctx.stroke();
+      }
+
+      // Shooting box (red rectangle)
       const SBW = 0.295, SBH = 0.45, SBB = 2.92;
       const sbPts = [
-        p3(-SBW, SBB,       BACKBOARD_Z - 0.001, cam, vW, vH),
-        p3( SBW, SBB,       BACKBOARD_Z - 0.001, cam, vW, vH),
-        p3( SBW, SBB + SBH, BACKBOARD_Z - 0.001, cam, vW, vH),
-        p3(-SBW, SBB + SBH, BACKBOARD_Z - 0.001, cam, vW, vH),
+        p3(-SBW, SBB,       BACKBOARD_Z - 0.003, cam, vW, vH),
+        p3( SBW, SBB,       BACKBOARD_Z - 0.003, cam, vW, vH),
+        p3( SBW, SBB + SBH, BACKBOARD_Z - 0.003, cam, vW, vH),
+        p3(-SBW, SBB + SBH, BACKBOARD_Z - 0.003, cam, vW, vH),
       ];
       if (sbPts.every(Boolean)) {
         ctx.beginPath();
         ctx.moveTo(sbPts[0].x, sbPts[0].y);
         sbPts.slice(1).forEach(s => ctx.lineTo(s.x, s.y));
         ctx.closePath();
-        ctx.strokeStyle = C.bbBox; ctx.lineWidth = 2; ctx.stroke();
+        ctx.strokeStyle = C.bbBox; ctx.lineWidth = 2.5; ctx.stroke();
       }
     }
 
-    // Rim
-    ctx.strokeStyle = C.rim; ctx.lineWidth = 4.5;
-    ctx.beginPath();
-    let rimFirst = true;
-    for (let i = 0; i <= 32; i++) {
-      const a  = (i / 32) * Math.PI * 2;
-      const pt = p3(Math.cos(a) * RIM_RADIUS, RIM_HEIGHT, Math.sin(a) * RIM_RADIUS, cam, vW, vH);
-      if (!pt) { rimFirst = true; continue; }
-      rimFirst ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
-      rimFirst = false;
-    }
-    ctx.stroke();
+    // ── Rim ────────────────────────────────────────────────────
+    const drawRimRing = (rad, y, lw, col) => {
+      ctx.strokeStyle = col; ctx.lineWidth = lw;
+      ctx.beginPath();
+      let rf = true;
+      for (let i = 0; i <= 48; i++) {
+        const a  = (i / 48) * Math.PI * 2;
+        const pt = p3(Math.cos(a) * rad, y, Math.sin(a) * rad, cam, vW, vH);
+        if (!pt) { rf = true; continue; }
+        rf ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
+        rf = false;
+      }
+      ctx.stroke();
+    };
 
-    // Net
-    const NL = 12, NH = 0.44;
-    const swX = Math.sin(this.time * 8)  * this.netSway * 0.038;
-    const swZ = Math.cos(this.time * 6)  * this.netSway * 0.028;
-    ctx.strokeStyle = C.netLine; ctx.lineWidth = 1;
+    // Arm from backboard bottom to rim
+    ctx.strokeStyle = "#485560"; ctx.lineWidth = 2.5;
+    ctx.beginPath(); line3D(ctx, cam, vW, vH, 0, RIM_HEIGHT, BACKBOARD_Z + 0.02, 0, RIM_HEIGHT, RIM_RADIUS); ctx.stroke();
+
+    // Shadow ring (depth illusion)
+    drawRimRing(RIM_RADIUS + 0.020, RIM_HEIGHT - 0.016, 7.5, C.rimShadow);
+    // Main rim
+    drawRimRing(RIM_RADIUS, RIM_HEIGHT, 5.5, C.rim);
+    // Top highlight (tube surface)
+    drawRimRing(RIM_RADIUS - 0.008, RIM_HEIGHT + 0.007, 2.5, C.rimHighlight);
+
+    // ── Net ────────────────────────────────────────────────────
+    const NL = 18, NH = 0.50;
+    const swX = Math.sin(this.time * 8) * this.netSway * 0.040;
+    const swZ = Math.cos(this.time * 6) * this.netSway * 0.030;
+
     for (let i = 0; i < NL; i++) {
       const a  = (i / NL) * Math.PI * 2;
-      const tx = Math.cos(a) * RIM_RADIUS, tz = Math.sin(a) * RIM_RADIUS;
-      const bx = Math.cos(a) * RIM_RADIUS * 0.48 + swX;
-      const bz = Math.sin(a) * RIM_RADIUS * 0.48 + swZ;
-      const top = p3(tx, RIM_HEIGHT, tz, cam, vW, vH);
-      const mid = p3(bx, RIM_HEIGHT - NH * 0.5, bz, cam, vW, vH);
-      const bot = p3(bx * 0.6, RIM_HEIGHT - NH, bz * 0.6, cam, vW, vH);
-      if (top && mid && bot) {
-        ctx.beginPath();
-        ctx.moveTo(top.x, top.y); ctx.lineTo(mid.x, mid.y); ctx.lineTo(bot.x, bot.y);
-        ctx.stroke();
-      }
+      const tX = Math.cos(a) * RIM_RADIUS, tZ = Math.sin(a) * RIM_RADIUS;
+      const mX = Math.cos(a) * RIM_RADIUS * 0.56 + swX * 0.5;
+      const mZ = Math.sin(a) * RIM_RADIUS * 0.56 + swZ * 0.5;
+      const bX = Math.cos(a) * RIM_RADIUS * 0.30 + swX;
+      const bZ = Math.sin(a) * RIM_RADIUS * 0.30 + swZ;
+      const top = p3(tX, RIM_HEIGHT,          tZ, cam, vW, vH);
+      const mid = p3(mX, RIM_HEIGHT - NH * 0.45, mZ, cam, vW, vH);
+      const bot = p3(bX, RIM_HEIGHT - NH,     bZ, cam, vW, vH);
+      if (!top || !mid || !bot) continue;
+
+      // Shadow string
+      ctx.strokeStyle = C.netShadow; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(top.x + 1, top.y + 1);
+      ctx.quadraticCurveTo(mid.x + 1, mid.y + 1, bot.x + 1, bot.y + 1);
+      ctx.stroke();
+
+      // Main string with slight brightness variation
+      const alpha = 0.55 + 0.20 * Math.cos(a);
+      ctx.strokeStyle = `rgba(230,240,248,${alpha.toFixed(2)})`; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(top.x, top.y);
+      ctx.quadraticCurveTo(mid.x, mid.y, bot.x, bot.y);
+      ctx.stroke();
     }
-    // Net horizontal rings
-    [0.3, 0.6, 0.9, 1.0].forEach(t => {
-      const rR = RIM_RADIUS * (1 - t * 0.5);
-      const rY = RIM_HEIGHT - NH * t;
+
+    // Net horizontal rings (mesh illusion)
+    [0.20, 0.42, 0.62, 0.80, 1.0].forEach(t => {
+      const rR  = RIM_RADIUS * (1 - t * 0.62);
+      const rY  = RIM_HEIGHT - NH * t;
       const rsX = swX * t, rsZ = swZ * t;
+      ctx.strokeStyle = `rgba(220,232,242,${(0.50 + t * 0.18).toFixed(2)})`; ctx.lineWidth = 0.9;
       ctx.beginPath();
       let nf = true;
-      for (let i = 0; i <= 16; i++) {
-        const a  = (i / 16) * Math.PI * 2;
+      for (let i = 0; i <= 24; i++) {
+        const a  = (i / 24) * Math.PI * 2;
         const pt = p3(Math.cos(a) * rR + rsX, rY, Math.sin(a) * rR + rsZ, cam, vW, vH);
         if (!pt) { nf = true; continue; }
         nf ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
@@ -1110,33 +1318,62 @@ class BasketballRuntime {
     if (!bp) return;
     const sr = clamp(BALL_RADIUS * 360 / (bp.depth + 1.5), 5, 38);
 
-    // Shadow
+    // Ground shadow (scales with height)
     const sh = p3(this.ball.x, 0, this.ball.z, cam, vW, vH);
     if (sh) {
-      const fade = clamp(1 - this.ball.y / 9, 0.05, 0.38);
-      ctx.beginPath(); ctx.ellipse(sh.x, sh.y, sr * 1.15, sr * 0.38, 0, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(0,0,0,${fade})`; ctx.fill();
+      const fade = clamp(1 - this.ball.y / 9, 0.04, 0.46);
+      const shW  = sr * 1.25 * clamp(1 - this.ball.y * 0.04, 0.4, 1);
+      ctx.beginPath(); ctx.ellipse(sh.x, sh.y, Math.max(3, shW), Math.max(2, shW * 0.36), 0, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,0,0,${fade.toFixed(2)})`; ctx.fill();
     }
 
-    // Ball body
+    // Outer dark border (depth)
+    ctx.beginPath(); ctx.arc(bp.x, bp.y, sr + 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(0,0,0,0.32)"; ctx.fill();
+
+    // Ball body – 3-stop radial gradient for rounder 3D look
     const grad = ctx.createRadialGradient(
-      bp.x - sr * 0.28, bp.y - sr * 0.30, sr * 0.08,
-      bp.x, bp.y, sr
+      bp.x - sr * 0.30, bp.y - sr * 0.34, sr * 0.04,
+      bp.x + sr * 0.08, bp.y + sr * 0.08, sr * 1.05
     );
-    grad.addColorStop(0, C.ballHigh); grad.addColorStop(0.58, C.ballMid); grad.addColorStop(1, C.ballLow);
+    grad.addColorStop(0,    "#ffb848");
+    grad.addColorStop(0.28, C.ballHigh);
+    grad.addColorStop(0.62, C.ballMid);
+    grad.addColorStop(1,    C.ballLow);
     ctx.beginPath(); ctx.arc(bp.x, bp.y, sr, 0, Math.PI * 2);
     ctx.fillStyle = grad; ctx.fill();
 
-    // Seams
-    const sw = Math.max(0.5, sr * 0.07);
-    ctx.strokeStyle = "rgba(0,0,0,0.42)"; ctx.lineWidth = sw;
-    ctx.beginPath(); ctx.arc(bp.x, bp.y, sr * 0.94, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.ellipse(bp.x, bp.y, sr * 0.28, sr, 0, 0, Math.PI * 2); ctx.stroke();
+    // Seams clipped to ball shape (NBA peanut pattern)
+    ctx.save();
+    ctx.beginPath(); ctx.arc(bp.x, bp.y, sr, 0, Math.PI * 2); ctx.clip();
+    const sw = Math.max(0.7, sr * 0.075);
+    ctx.strokeStyle = "rgba(55,16,4,0.52)"; ctx.lineWidth = sw;
+    // Equator line
     ctx.beginPath(); ctx.moveTo(bp.x - sr, bp.y); ctx.lineTo(bp.x + sr, bp.y); ctx.stroke();
+    // Longitudinal oval
+    ctx.beginPath(); ctx.ellipse(bp.x, bp.y, sr * 0.27, sr, 0, 0, Math.PI * 2); ctx.stroke();
+    // Upper peanut curve
+    ctx.beginPath();
+    ctx.moveTo(bp.x - sr, bp.y);
+    ctx.bezierCurveTo(bp.x - sr * 0.48, bp.y - sr * 0.44, bp.x + sr * 0.48, bp.y - sr * 0.44, bp.x + sr, bp.y);
+    ctx.stroke();
+    // Lower peanut curve
+    ctx.beginPath();
+    ctx.moveTo(bp.x - sr, bp.y);
+    ctx.bezierCurveTo(bp.x - sr * 0.48, bp.y + sr * 0.44, bp.x + sr * 0.48, bp.y + sr * 0.44, bp.x + sr, bp.y);
+    ctx.stroke();
+    ctx.restore();
 
-    // Specular
-    ctx.beginPath(); ctx.arc(bp.x - sr * 0.26, bp.y - sr * 0.30, sr * 0.20, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255,255,210,0.28)"; ctx.fill();
+    // Specular highlight
+    const hg = ctx.createRadialGradient(
+      bp.x - sr * 0.28, bp.y - sr * 0.32, 0,
+      bp.x - sr * 0.16, bp.y - sr * 0.20, sr * 0.46
+    );
+    hg.addColorStop(0, "rgba(255,255,220,0.40)");
+    hg.addColorStop(0.55, "rgba(255,240,200,0.12)");
+    hg.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.beginPath(); ctx.arc(bp.x, bp.y, sr, 0, Math.PI * 2);
+    ctx.fillStyle = hg; ctx.fill();
   }
 
   // ── Player marker ────────────────────────────────────────────
