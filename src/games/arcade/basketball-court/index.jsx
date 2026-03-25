@@ -190,12 +190,15 @@ function buildCamera(pos) {
 
 function project3D(wx, wy, wz, cam, vW, vH) {
   const dx = wx - cam.x, dy = wy - cam.y, dz = wz - cam.z;
-  const cY = Math.cos(-cam.yaw),  sY = Math.sin(-cam.yaw);
-  const cx  = dx * cY - dz * sY;
-  const cz  = dx * sY + dz * cY;
-  const cP  = Math.cos(-cam.pitch), sP = Math.sin(-cam.pitch);
-  const pz  = cz * cP - dy * sP;
-  const py  = cz * sP + dy * cP;
+  // Yaw (rotation around Y).  Camera right = (-fZ, fX), forward = (fX, fZ).
+  // Correct world-to-camera: cx = dot(d_xz, right), cz = dot(d_xz, forward)
+  const cosY = Math.cos(cam.yaw), sinY = Math.sin(cam.yaw);
+  const cx = -dx * cosY + dz * sinY;   // right component
+  const cz =  dx * sinY + dz * cosY;   // forward depth
+  // Pitch (rotation around X after yaw)
+  const cosP = Math.cos(cam.pitch), sinP = Math.sin(cam.pitch);
+  const pz =  cz * cosP + dy * sinP;
+  const py = -cz * sinP + dy * cosP;
   if (pz <= 0.04) return null;
   const F = vH * 0.86;
   return { x: vW / 2 + cx * F / pz, y: vH / 2 - py * F / pz, depth: pz };
@@ -393,6 +396,7 @@ class BasketballRuntime {
     this._onResize  = ()   => this.handleResize();
     this._onKD      = (e)  => this.onKeyDown(e);
     this._onKU      = (e)  => this.onKeyUp(e);
+    this._onClick   = (e)  => this.onCanvasClick(e);
   }
 
   get pos() { return SHOT_POSITIONS[this.shotIdx]; }
@@ -403,6 +407,7 @@ class BasketballRuntime {
     window.addEventListener("resize", this._onResize);
     window.addEventListener("keydown", this._onKD);
     window.addEventListener("keyup",   this._onKU);
+    this.canvas.addEventListener("click", this._onClick);
     this.lastFrame = performance.now();
     this.raf = requestAnimationFrame(this._onFrame);
   }
@@ -413,6 +418,7 @@ class BasketballRuntime {
     window.removeEventListener("resize", this._onResize);
     window.removeEventListener("keydown", this._onKD);
     window.removeEventListener("keyup",   this._onKU);
+    this.canvas.removeEventListener("click", this._onClick);
   }
 
   handleResize() {
@@ -508,6 +514,17 @@ class BasketballRuntime {
   }
 
   onKeyUp(e) { this.keys[e.code] = false; }
+
+  onCanvasClick(e) {
+    if (this.screen === "menu" || this.screen === "summary") {
+      this.startRound();
+      return;
+    }
+    if (this.screen === "play" && !this.paused) {
+      if (this.shotState === "aiming")  { this.shoot();       return; }
+      if (this.shotState === "result")  { this.advanceShot(); return; }
+    }
+  }
 
   // ── Update ───────────────────────────────────────────────────
   applyAimKeys(dt) {
@@ -762,8 +779,10 @@ class BasketballRuntime {
   // ── Gym background ───────────────────────────────────────────
   drawGym(ctx, cam, vW, vH) {
     // Find horizon Y to split ceiling and floor
-    const hor = p3(0, 0, 200, cam, vW, vH);
-    const horY = hor ? clamp(hor.y, 0, vH * 0.7) : vH * 0.42;
+    // Horizon: project a far point along the camera's actual forward direction
+    const FAR = 500;
+    const hor = p3(cam.x + Math.sin(cam.yaw) * FAR, 0, cam.z + Math.cos(cam.yaw) * FAR, cam, vW, vH);
+    const horY = hor ? clamp(hor.y, 0, vH * 0.72) : vH * 0.44;
 
     // Ceiling gradient
     const cg = ctx.createLinearGradient(0, 0, 0, horY);
@@ -829,8 +848,10 @@ class BasketballRuntime {
 
   // ── Floor ────────────────────────────────────────────────────
   drawFloor(ctx, cam, vW, vH) {
-    const hor = p3(0, 0, 200, cam, vW, vH);
-    const horY = hor ? clamp(hor.y, 0, vH * 0.7) : vH * 0.42;
+    // Horizon: project a far point along the camera's actual forward direction
+    const FAR = 500;
+    const hor = p3(cam.x + Math.sin(cam.yaw) * FAR, 0, cam.z + Math.cos(cam.yaw) * FAR, cam, vW, vH);
+    const horY = hor ? clamp(hor.y, 0, vH * 0.72) : vH * 0.44;
 
     // Base floor rectangle
     const fg = ctx.createLinearGradient(0, horY, 0, vH);
