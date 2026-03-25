@@ -18,6 +18,7 @@ import arcadeGolfTour2DImage from "../assets/games/arcade-golf-tour-2d.svg";
 import arcadeArcheryHorizonImage from "../assets/games/arcade-archery-horizon.svg";
 import arcadePinballWizardImage from "../assets/games/arcade-pinball-wizard.svg";
 import arcadeBubbleStormImage from "../assets/games/arcade-bubble-storm.svg";
+import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
 import arcadeTerritoryWarImage from "../assets/games/arcade-territory-war.svg";
@@ -2811,6 +2812,63 @@ export const games = [
     viability_en: "High: deterministic lane runner architecture.",
     visualStyle_en: "Synthwave highway with modern lighting language.",
     techFocus_en: "Lane traffic manager, collision model, distance pacing.",
+  },
+
+  {
+    id: "sports-basketball-court",
+    image: sportsBasketballCourtImage,
+    sessionTime: "3-8 min",
+
+    title: "Basketball Court Pro",
+    category: "Deportes",
+    tagline: "Entrena desde las 6 posiciones reglamentarias del baloncesto con físicas balisticas reales y perspectiva 3D del pabellón.",
+    description:
+      "Juego de baloncesto de entrenamiento donde cada ronda recorre las 6 posiciones reglamentarias: tiro libre, media distancia, triple esquina izquierda, triple esquina derecha, triple lateral izquierdo y triple central. El jugador ajusta el ángulo de arco (38-66°), la potencia y la desviación lateral antes de cada lanzamiento. La bola sigue una trayectoria balística real con gravedad y drag aerodinámico, rebota físicamente en el aro y la tabla, y la cámara 3D se posiciona detrás del tirador en cada posición para mostrar el pabellón de entrenamiento desde su perspectiva.",
+    objective_es:
+      "Encestar el máximo de los 6 tiros posibles en cada ronda para acumular puntos y batir tu récord (máximo 15 puntos: 1+2+3+3+3+3).",
+    howToPlay_es:
+      "Arriba/abajo ajustan el arco del lanzamiento, izquierda/derecha la desviación lateral y W/S la potencia. Space o Enter lanza. Los indicadores de color en los controles muestran cuándo los parámetros se acercan al ángulo y potencia ideales para cada posición. P pausa, R nueva ronda y F pantalla completa.",
+    highlights: [
+      "6 posiciones reglamentarias FIBA: tiro libre (1 pt), media distancia (2 pts) y cuatro triples (3 pts c/u).",
+      "Física balística 3D completa: gravedad 9.82 m/s², drag aerodinámico y colisión elástica con el aro (16 puntos de contacto).",
+      "Rebotes realistas en el aro y la tabla trasera: los balls cercanos pueden entrar por carambola.",
+      "Cámara 3D perspectiva detrás del tirador que cambia de posición para cada tiro.",
+      "Pabellón de entrenamiento detallado: suelo de parqué con vetas, líneas FIBA, zona de pintura, arco de triple, tablero con caja de tiro y red animada.",
+      "Preview de trayectoria en tiempo real antes del lanzamiento.",
+      "Vista de pájaro del aro (rim view) para leer la desviación lateral antes de disparar.",
+      "Gauges de color (arco, potencia, lateral) que indican la distancia al parámetro ideal de cada posición.",
+      "Récord persistente en localStorage.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo",
+    viability: "Alta: motor Canvas determinista, física balística exacta y estado serializable.",
+    visualStyle: "Pabellón de entrenamiento NBA/FIBA con suelo de parqué, iluminación cenital y basket reglamentario en perspectiva 3D.",
+    techFocus: "Proyección perspectiva 3D custom, física balística con substep, colisión esférica aro + tabla y preview de trayectoria en tiempo real.",
+
+    category_en: "Sports",
+    tagline_en: "Train from all 6 regulation basketball spots with real ballistic physics and a 3D gymnasium perspective view.",
+    description_en:
+      "A basketball training game where each round cycles through 6 regulation positions: free throw, mid-range, left corner 3, right corner 3, left wing 3, and center 3. Players tune arc angle (38-66°), power, and lateral deviation before each shot. The ball follows a real ballistic trajectory with gravity and aerodynamic drag, physically bounces off the rim and backboard, and the 3D camera repositions behind the shooter at each spot to show the gymnasium from their perspective.",
+    objective_en:
+      "Score as many of the 6 shots as possible each round and beat your record (maximum 15 points: 1+2+3+3+3+3).",
+    howToPlay_en:
+      "Up/down keys tune arc, left/right lateral deviation, and W/S power. Space or Enter shoots. Colour-coded gauges show when each parameter is close to the ideal for that position. P pauses, R starts a new round, and F toggles fullscreen.",
+    highlights_en: [
+      "6 FIBA regulation spots: free throw (1 pt), mid-range (2 pts), and four three-pointers (3 pts each).",
+      "Full 3D ballistic physics: 9.82 m/s² gravity, aerodynamic drag, and elastic collision with the rim (16 contact points).",
+      "Realistic rim and backboard bounces: close shots can still go in off the iron.",
+      "3D perspective camera repositions behind the shooter for each new position.",
+      "Detailed training gymnasium: hardwood floor with wood-grain, full FIBA markings, paint zone, three-point arc, backboard with shooting box, and animated net.",
+      "Real-time trajectory preview arc before every shot.",
+      "Bird's-eye rim view to read lateral deviation before release.",
+      "Colour gauges (arc, power, lateral) indicating distance from each position's ideal parameters.",
+      "Persistent best-score record in localStorage.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo",
+    viability_en: "High: deterministic Canvas engine, exact ballistic physics, and serialisable state.",
+    visualStyle_en: "NBA/FIBA training gymnasium with hardwood floor, overhead lighting, and regulation basket in custom 3D perspective.",
+    techFocus_en: "Custom 3D perspective projection, ballistic physics with sub-stepping, spherical rim + backboard collision, and real-time trajectory preview.",
   },
 ];
 
