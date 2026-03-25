@@ -81,6 +81,25 @@ const SHOT_POSITIONS = [
 
 const MAX_POSSIBLE = SHOT_POSITIONS.reduce((s, p) => s + p.pts, 0); // 15
 
+// ─── Game "21" constants ──────────────────────────────────────────────────────
+const G21_POSITIONS = [
+  { id: "paint",   x:  0,    z: 3.0,  labelEs: "Zona",        labelEn: "Paint",        idealArc: 56, idealPower: 0.65 },
+  { id: "ft",      x:  0,    z: 4.57, labelEs: "Tiro Libre",  labelEn: "Free Throw",   idealArc: 52, idealPower: 0.72 },
+  { id: "elbowL",  x: -2.8,  z: 5.2,  labelEs: "Codo Izq",    labelEn: "Left Elbow",   idealArc: 50, idealPower: 0.76 },
+  { id: "elbowR",  x:  2.8,  z: 5.2,  labelEs: "Codo Der",    labelEn: "Right Elbow",  idealArc: 50, idealPower: 0.76 },
+  { id: "wingL",   x: -4.77, z: 4.77, labelEs: "Ala Izq",     labelEn: "Left Wing",    idealArc: 50, idealPower: 0.86 },
+  { id: "wingR",   x:  4.77, z: 4.77, labelEs: "Ala Der",     labelEn: "Right Wing",   idealArc: 50, idealPower: 0.86 },
+  { id: "top3",    x:  0,    z: 6.75, labelEs: "Triple",      labelEn: "3-Pointer",    idealArc: 52, idealPower: 0.90 },
+];
+const G21_FT_POS   = { x: 0, z: 4.57, idealArc: 52, idealPower: 0.72 };
+const G21_TARGET   = 21;
+const G21_BUST     = 11;
+const G21_FG_PTS   = 2;
+const G21_FT_PTS   = 1;
+const G21_STOR_KEY = "basketball_21_best_v1";
+const G21_AI_THINK = 1.5;
+const G21_AI_AIM   = 1.2;
+
 // ─── UI copy ──────────────────────────────────────────────────────────────────
 const UI = {
   es: {
@@ -134,6 +153,50 @@ const UI = {
       newRecord:  "⭐ New record!",
       again:      "Play again (Enter)",
     },
+  },
+};
+
+// ─── Game "21" UI copy ────────────────────────────────────────────────────────
+const UI21 = {
+  es: {
+    title:      "El 21",
+    subtitle:   "Sé el primero en anotar exactamente 21 puntos",
+    you:        "TÚ",  ai: "IA",
+    yourTurn:   "Tu turno · elige posición",
+    aiTurn:     "TURNO IA",
+    aiThinks:   "La IA está calculando...",
+    selectHint: "←→ posición  ·  Enter confirmar",
+    shootHint:  "↑↓ arco · ←→ lateral · W/S pot · Space lanza",
+    ftHint:     "Tiro libre consecutivo – Space lanza",
+    rebound:    "REBOTE →",
+    bust:       "¡Pasado! Baja a",
+    fg:         "CANASTA +2",
+    ftMade:     "LIBRE +1",
+    miss:       "FALLO",
+    winner:     { you: "¡GANASTE! 🏆", ai: "La IA gana" },
+    again:      "Jugar de nuevo (Enter)",
+    best:       "Récord",
+    ftLabel:    "TIRO LIBRE",
+  },
+  en: {
+    title:      "21",
+    subtitle:   "Be the first to score exactly 21 points",
+    you:        "YOU", ai: "AI",
+    yourTurn:   "Your turn · pick a spot",
+    aiTurn:     "AI TURN",
+    aiThinks:   "AI is calculating...",
+    selectHint: "←→ spot  ·  Enter confirm",
+    shootHint:  "↑↓ arc · ←→ lateral · W/S power · Space shoot",
+    ftHint:     "Consecutive free throw – Space shoot",
+    rebound:    "REBOUND →",
+    bust:       "BUST! Reset to",
+    fg:         "BASKET +2",
+    ftMade:     "FREE +1",
+    miss:       "MISS",
+    winner:     { you: "YOU WIN! 🏆", ai: "AI wins" },
+    again:      "Play again (Enter)",
+    best:       "Best",
+    ftLabel:    "FREE THROW",
   },
 };
 
@@ -379,9 +442,10 @@ class BasketballRuntime {
     this.onSnapshot  = onSnapshot;
     this.onFullscreen = onFullscreen;
 
-    this.screen    = "menu";     // menu | play | summary
+    this.screen    = "menu";     // menu | play | summary | play21 | summary21
     this.paused    = false;
     this.fullscreen = false;
+    this.gameMode  = "classic";  // "classic" | "21"
 
     this.shotIdx   = 0;
     this.results   = [];         // { made, pts }[]
@@ -400,6 +464,7 @@ class BasketballRuntime {
     this.camera     = buildCamera(SHOT_POSITIONS[0]);
     this.preview    = [];
     this.previewDirty = true;
+    this.g21        = null;   // active game-21 state
 
     this.time       = 0;
     this.vW         = WIDTH;
@@ -516,31 +581,83 @@ class BasketballRuntime {
     if (e.repeat) return;
 
     if (code === "KeyF") { this.onFullscreen?.(); return; }
+    if (code === "Escape" && this.screen !== "menu") { this.screen = "menu"; this.g21 = null; this.emit(); return; }
 
     if (code === "KeyP" && this.screen === "play") {
       this.paused = !this.paused; this.emit(); return;
     }
     if (code === "KeyR" && this.screen !== "menu") { this.startRound(); return; }
 
-    if (this.screen === "menu" && (code === "Enter" || code === "Space")) { this.startRound(); return; }
+    if (this.screen === "menu") {
+      if (code === "Digit1" || code === "Numpad1") { this.gameMode = "classic"; this.startRound(); return; }
+      if (code === "Digit2" || code === "Numpad2") { this.gameMode = "21"; this.startGame21(); return; }
+      if (code === "Enter" || code === "Space") {
+        if (this.gameMode === "21") this.startGame21(); else this.startRound();
+        return;
+      }
+      if (code === "ArrowLeft" || code === "ArrowRight") {
+        this.gameMode = this.gameMode === "classic" ? "21" : "classic"; return;
+      }
+    }
     if (this.screen === "summary" && (code === "Enter" || code === "Space" || code === "KeyR")) { this.startRound(); return; }
+    if (this.screen === "summary21" && (code === "Enter" || code === "Space" || code === "KeyR")) { this.startGame21(); return; }
 
     if (this.screen === "play" && !this.paused) {
       if (this.shotState === "aiming"  && (code === "Enter" || code === "Space")) { this.shoot(); return; }
       if (this.shotState === "result"  && (code === "Enter" || code === "Space")) { this.advanceShot(); return; }
+    }
+
+    if (this.screen === "play21" && this.g21) {
+      this.onKeyDown21(code);
+    }
+  }
+
+  onKeyDown21(code) {
+    const g = this.g21;
+    if (g.phase === "playerSelect") {
+      if (code === "ArrowLeft")  { g.posIdx = (g.posIdx - 1 + G21_POSITIONS.length) % G21_POSITIONS.length; this.camera = buildCamera(G21_POSITIONS[g.posIdx]); }
+      if (code === "ArrowRight") { g.posIdx = (g.posIdx + 1) % G21_POSITIONS.length; this.camera = buildCamera(G21_POSITIONS[g.posIdx]); }
+      if (code === "Enter" || code === "Space") { this.g21confirmPos(); }
+    }
+    if (g.phase === "playerAim" || g.phase === "playerFT") {
+      if (code === "Enter" || code === "Space") { this.g21shoot(); }
+    }
+    if (g.phase === "gameOver") {
+      if (code === "Enter" || code === "Space" || code === "KeyR") { this.startGame21(); }
     }
   }
 
   onKeyUp(e) { this.keys[e.code] = false; }
 
   onCanvasClick(e) {
-    if (this.screen === "menu" || this.screen === "summary") {
-      this.startRound();
+    if (this.screen === "menu") {
+      // Detect which mode card was clicked
+      const rect = this.canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) * (this.vW / rect.width);
+      const my = (e.clientY - rect.top)  * (this.vH / rect.height);
+      const cw = Math.min(620, this.vW * 0.90);
+      const mcW = (cw - 56 - 16) / 2;
+      const mcX1 = this.vW / 2 - cw / 2 + 28;
+      const mcX2 = mcX1 + mcW + 16;
+      const mcY  = this.vH / 2 - 360 / 2 - 10 + 82;
+      if (mx >= mcX1 && mx <= mcX1 + mcW && my >= mcY && my <= mcY + 175) {
+        this.gameMode = "classic"; this.startRound(); return;
+      }
+      if (mx >= mcX2 && mx <= mcX2 + mcW && my >= mcY && my <= mcY + 175) {
+        this.gameMode = "21"; this.startGame21(); return;
+      }
       return;
     }
+    if (this.screen === "summary") { this.startRound(); return; }
+    if (this.screen === "summary21") { this.startGame21(); return; }
     if (this.screen === "play" && !this.paused) {
       if (this.shotState === "aiming")  { this.shoot();       return; }
       if (this.shotState === "result")  { this.advanceShot(); return; }
+    }
+    if (this.screen === "play21" && this.g21) {
+      const g = this.g21;
+      if (g.phase === "playerSelect") { this.g21confirmPos(); return; }
+      if (g.phase === "playerAim" || g.phase === "playerFT") { this.g21shoot(); return; }
     }
   }
 
@@ -560,6 +677,7 @@ class BasketballRuntime {
 
   update(dt) {
     this.time += dt;
+    if (this.screen === "play21") { this.update21(dt); return; }
     if (this.screen !== "play" || this.paused) return;
 
     if (this.shotState === "aiming") {
@@ -628,8 +746,10 @@ class BasketballRuntime {
     const ctx = this.ctx, vW = this.vW, vH = this.vH;
     ctx.clearRect(0, 0, vW, vH);
 
-    if (this.screen === "menu")    { this.drawMenu(ctx, vW, vH);    return; }
-    if (this.screen === "summary") { this.drawSummary(ctx, vW, vH); return; }
+    if (this.screen === "menu")       { this.drawMenu(ctx, vW, vH);       return; }
+    if (this.screen === "summary")    { this.drawSummary(ctx, vW, vH);    return; }
+    if (this.screen === "play21")     { this.drawPlay21(ctx, vW, vH);     return; }
+    if (this.screen === "summary21")  { this.drawSummary21(ctx, vW, vH);  return; }
 
     // Split: court view left 68%, HUD panel right 32%
     const courtW = Math.floor(vW * 0.68);
@@ -670,59 +790,85 @@ class BasketballRuntime {
     ctx.globalAlpha = 1;
 
     // Dark overlay
-    ctx.fillStyle = "rgba(8,12,22,0.72)"; ctx.fillRect(0, 0, vW, vH);
+    ctx.fillStyle = "rgba(8,12,22,0.76)"; ctx.fillRect(0, 0, vW, vH);
 
-    // Card
-    const cw = Math.min(530, vW * 0.86), ch = 310;
+    // Main card
+    const cw = Math.min(620, vW * 0.90), ch = 360;
     const cx = vW / 2 - cw / 2, cy = vH / 2 - ch / 2 - 10;
-    ctx.fillStyle = "rgba(10,16,28,0.92)";
+    ctx.fillStyle = "rgba(9,14,26,0.94)";
     ctx.beginPath(); roundRect(ctx, cx, cy, cw, ch, 18); ctx.fill();
-    ctx.strokeStyle = "rgba(240,160,48,0.38)"; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(240,160,48,0.32)"; ctx.lineWidth = 1.5;
     ctx.beginPath(); roundRect(ctx, cx, cy, cw, ch, 18); ctx.stroke();
 
-    const ui = this.ui;
     ctx.textAlign = "center";
-
     ctx.fillStyle = C.accentOrange;
-    ctx.font = "bold 28px Arial, sans-serif";
-    ctx.fillText("🏀  " + ui.title, vW / 2, cy + 48);
+    ctx.font = "bold 26px Arial, sans-serif";
+    ctx.fillText("🏀  Basketball", vW / 2, cy + 42);
+    ctx.fillStyle = "#6888a8"; ctx.font = "13px Arial, sans-serif";
+    ctx.fillText("Selecciona un modo de juego / Select game mode", vW / 2, cy + 64);
 
-    ctx.fillStyle = "#8098b8";
-    ctx.font = "14px Arial, sans-serif";
-    ctx.fillText(ui.subtitle, vW / 2, cy + 74);
+    // Mode cards: Classic (left) | 21 (right)
+    const mcGap = 16, mcW = (cw - 56 - mcGap) / 2, mcH = 175;
+    const mcY = cy + 82;
+    const mcX1 = cx + 28, mcX2 = cx + 28 + mcW + mcGap;
 
-    // Shot list
-    const colCount = 3;
-    SHOT_POSITIONS.forEach((sp, i) => {
-      const col = i % colCount, row = Math.floor(i / colCount);
-      const px = cx + 28 + col * ((cw - 56) / colCount) + (cw - 56) / colCount / 2;
-      const py = cy + 110 + row * 28;
-      const lbl = this.locale === "es" ? sp.labelEs : sp.labelEn;
-      ctx.fillStyle = "#5878a0";
-      ctx.font = "12px Arial, sans-serif";
-      ctx.fillText(`${i + 1}. ${lbl}  (+${sp.pts})`, px, py);
-    });
+    const drawModeCard = (x, y, w, h, selected, accent, title, sub, lines, keyHint) => {
+      const isHov = this.gameMode === selected;
+      ctx.fillStyle = isHov ? "rgba(240,160,48,0.10)" : "rgba(255,255,255,0.04)";
+      ctx.beginPath(); roundRect(ctx, x, y, w, h, 12); ctx.fill();
+      ctx.strokeStyle = isHov ? accent : "rgba(255,255,255,0.10)";
+      ctx.lineWidth = isHov ? 2 : 1;
+      ctx.beginPath(); roundRect(ctx, x, y, w, h, 12); ctx.stroke();
+      ctx.textAlign = "center";
+      const cx2 = x + w / 2;
+      ctx.fillStyle = isHov ? accent : "#a0b8d0";
+      ctx.font = `bold 17px Arial, sans-serif`;
+      ctx.fillText(title, cx2, y + 28);
+      ctx.fillStyle = "#5878a0"; ctx.font = "11px Arial, sans-serif";
+      ctx.fillText(sub, cx2, y + 46);
+      lines.forEach((ln, i) => {
+        ctx.fillStyle = "#486080"; ctx.font = "11px Arial, sans-serif";
+        ctx.fillText(ln, cx2, y + 68 + i * 18);
+      });
+      const by2 = y + h - 40, bw2 = w - 24;
+      const btnG = ctx.createLinearGradient(x + 12, by2, x + 12, by2 + 30);
+      if (isHov) { btnG.addColorStop(0, "#d86010"); btnG.addColorStop(1, "#9a3c08"); }
+      else       { btnG.addColorStop(0, "#243448"); btnG.addColorStop(1, "#182838"); }
+      ctx.fillStyle = btnG;
+      ctx.beginPath(); roundRect(ctx, x + 12, by2, bw2, 30, 7); ctx.fill();
+      ctx.fillStyle = isHov ? "#fff" : "#6888a8";
+      ctx.font = `bold 12px Arial, sans-serif`;
+      ctx.fillText(keyHint, cx2, by2 + 20);
+    };
 
-    ctx.fillStyle = "#6888a8";
-    ctx.font = "12px Arial, sans-serif";
-    ctx.fillText(ui.menuHint, vW / 2, cy + 180);
+    drawModeCard(mcX1, mcY, mcW, mcH, "classic", C.accentOrange,
+      "Court Pro",
+      this.locale === "es" ? "6 posiciones · 1 ronda · Puntúa máximo" : "6 spots · 1 round · Score max",
+      this.locale === "es"
+        ? ["Tira desde 6 posiciones", "reglamentarias", "Tiro libre, media distancia,", "triples desde todas las zonas"]
+        : ["Shoot from 6 regulation", "positions", "Free throw, mid-range,", "3-pointers from all zones"],
+      this.locale === "es" ? "Jugar Court Pro  (1)" : "Play Court Pro  (1)"
+    );
 
-    // Best score
-    if (this.best > 0) {
-      ctx.fillStyle = "#4a6888";
-      ctx.font = "12px Arial, sans-serif";
-      ctx.fillText(`${ui.bestLabel}: ${this.best} / ${MAX_POSSIBLE}`, vW / 2, cy + 200);
-    }
+    drawModeCard(mcX2, mcY, mcW, mcH, "21", "#40d878",
+      "El 21",
+      this.locale === "es" ? "1 vs IA · Primero en llegar a 21 gana" : "1 vs AI · First to 21 wins",
+      this.locale === "es"
+        ? ["Canastas = +2 pts", "Tiros libres = +1 pt (hasta fallar)", "Rebote disputado tras fallo", "¡Pasarse de 21 baja la puntuación!"]
+        : ["Field goals = +2 pts", "Free throws = +1 pt (until miss)", "Rebound contest on FT miss", "Busting 21 resets your score!"],
+      this.locale === "es" ? "Jugar El 21  (2)" : "Play 21  (2)"
+    );
 
-    // Start button
-    const bw = 210, bh = 44, bx = vW / 2 - bw / 2, by = cy + ch - 68;
-    const bg = ctx.createLinearGradient(bx, by, bx, by + bh);
-    bg.addColorStop(0, "#d85c10"); bg.addColorStop(1, "#9a3c08");
-    ctx.fillStyle = bg;
-    ctx.beginPath(); roundRect(ctx, bx, by, bw, bh, 10); ctx.fill();
-    ctx.fillStyle = "#fff";
-    ctx.font = "bold 16px Arial, sans-serif";
-    ctx.fillText(ui.menuStart + "  (Enter)", vW / 2, by + 28);
+    // Current best scores row
+    ctx.textAlign = "center"; ctx.fillStyle = "#3a5068"; ctx.font = "11px Arial, sans-serif";
+    const bestC  = this.best;
+    const best21 = this.loadG21Best();
+    ctx.fillText(
+      (this.locale === "es" ? "Récord Court Pro:" : "Court Pro best:") + ` ${bestC}/${MAX_POSSIBLE}` +
+      "    " +
+      (this.locale === "es" ? "Récord El 21:" : "21 best:") + ` ${best21}`,
+      vW / 2, cy + ch - 14
+    );
   }
 
   // ── Summary screen ───────────────────────────────────────────
@@ -1564,6 +1710,606 @@ class BasketballRuntime {
     ctx.textAlign = "center";
     ctx.fillStyle = C.textDim; ctx.font = "9.5px Arial, sans-serif";
     ctx.fillText(this.ui.rimView, cx, cy + r + 15);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // GAME "21" – LOGIC
+  // ═══════════════════════════════════════════════════════════════
+
+  loadG21Best() {
+    try { return Math.max(0, Number(JSON.parse(localStorage.getItem(G21_STOR_KEY) || "{}").wins) || 0); } catch { return 0; }
+  }
+  saveG21Best() {
+    try { const b = this.loadG21Best(); localStorage.setItem(G21_STOR_KEY, JSON.stringify({ wins: b + 1 })); } catch { /* */ }
+  }
+
+  startGame21() {
+    this.g21 = {
+      phase: "playerSelect",
+      playerScore: 0, aiScore: 0,
+      posIdx: 1,
+      aim: { arc: 52, power: 0.75, lat: 0 },
+      ball: null, trail: [], netSway: 0,
+      preview: [], previewDirty: true,
+      resultType: null, resultTimer: 0,
+      ftStreak: 0, aiFtStreak: 0,
+      aiPosIdx: 1, aiTargetAim: null,
+      aiCurrentAim: { arc: 50, power: 0.75, lat: 0 },
+      aiThinkTimer: 0, aiAimTimer: 0,
+      ledTimer: 0,
+      reboundWinner: null, reboundTimer: 0,
+      winner: null, winnerTimer: 0,
+      message: null, messageTimer: 0,
+    };
+    this.screen = "play21";
+    this.camera = buildCamera(G21_POSITIONS[1]);
+    this.emit();
+  }
+
+  g21confirmPos() {
+    const g = this.g21;
+    if (g.phase !== "playerSelect") return;
+    const pos = G21_POSITIONS[g.posIdx];
+    g.aim = {
+      arc:   clamp(pos.idealArc   + (Math.random() - 0.5) * 5, MIN_ARC, MAX_ARC),
+      power: clamp(pos.idealPower + (Math.random() - 0.5) * 0.08, MIN_POWER, MAX_POWER),
+      lat:   (Math.random() - 0.5) * 8,
+    };
+    g.previewDirty = true;
+    g.phase = "playerAim";
+    this.camera = buildCamera(pos);
+  }
+
+  g21shoot() {
+    const g = this.g21;
+    if (g.phase !== "playerAim" && g.phase !== "playerFT") return;
+    const pos = g.phase === "playerFT" ? G21_FT_POS : G21_POSITIONS[g.posIdx];
+    const v = computeLaunch(pos, g.aim.arc, g.aim.power, g.aim.lat);
+    g.ball  = { x: pos.x, y: RELEASE_HEIGHT, z: pos.z, ...v };
+    g.trail = [];
+    g.preview = [];
+    g.phase = g.phase === "playerFT" ? "playerFTFlight" : "playerFlight";
+  }
+
+  g21applyAimKeys(dt) {
+    const k = this.keys, g = this.g21;
+    if (g.phase !== "playerAim" && g.phase !== "playerFT") return;
+    const ARC = 20 * dt, LAT = 18 * dt, POW = 0.25 * dt;
+    let dirty = false;
+    if (k["ArrowUp"]    || k["KeyI"]) { g.aim.arc   = clamp(g.aim.arc   + ARC, MIN_ARC,      MAX_ARC);     dirty = true; }
+    if (k["ArrowDown"]  || k["KeyK"]) { g.aim.arc   = clamp(g.aim.arc   - ARC, MIN_ARC,      MAX_ARC);     dirty = true; }
+    if (k["ArrowLeft"]  || k["KeyJ"]) { g.aim.lat   = clamp(g.aim.lat   - LAT, -MAX_LATERAL, MAX_LATERAL); dirty = true; }
+    if (k["ArrowRight"] || k["KeyL"]) { g.aim.lat   = clamp(g.aim.lat   + LAT, -MAX_LATERAL, MAX_LATERAL); dirty = true; }
+    if (k["KeyW"] || k["Equal"])      { g.aim.power = clamp(g.aim.power + POW, MIN_POWER,    MAX_POWER);   dirty = true; }
+    if (k["KeyS"] || k["Minus"])      { g.aim.power = clamp(g.aim.power - POW, MIN_POWER,    MAX_POWER);   dirty = true; }
+    if (dirty) g.previewDirty = true;
+  }
+
+  g21applyScore(who, pts) {
+    const g = this.g21;
+    if (who === "player") {
+      g.playerScore += pts;
+      if (g.playerScore > G21_TARGET) {
+        g.playerScore = G21_BUST;
+        g.message = `${UI21[this.locale].bust} ${G21_BUST}`;
+        g.messageTimer = 2.5;
+      } else if (g.playerScore === G21_TARGET) {
+        g.winner = "player";
+        this.saveG21Best();
+      }
+    } else {
+      g.aiScore += pts;
+      if (g.aiScore > G21_TARGET) { g.aiScore = G21_BUST; }
+      else if (g.aiScore === G21_TARGET) { g.winner = "ai"; }
+    }
+  }
+
+  g21handleFlight(dt, who) {
+    const g = this.g21;
+    if (!g.ball) return;
+    const SUBS = 4, sdt = dt / SUBS;
+    let terminal = null;
+    for (let i = 0; i < SUBS && !terminal; i++) {
+      const prev = { ...g.ball };
+      stepBall(g.ball, sdt);
+      if (i === 0) {
+        g.trail.push({ x: g.ball.x, y: g.ball.y, z: g.ball.z });
+        if (g.trail.length > 45) g.trail.shift();
+      }
+      const col = checkCollisions(g.ball, prev);
+      if (col) {
+        if (col.type === "basket") g.netSway = 1.0;
+        if (col.type === "basket" || col.type === "ground" || col.type === "miss") terminal = col;
+      }
+    }
+    if (!terminal) return;
+    const made = terminal.type === "basket";
+    g.resultTimer = 0;
+
+    if (who === "player") {
+      if (made) {
+        this.g21applyScore("player", G21_FG_PTS);
+        if (g.winner === "player") { g.phase = "gameOver"; g.winnerTimer = 0; return; }
+        g.ftStreak = 0; g.phase = "playerFTSetup";
+      } else {
+        g.phase = "reboundContest"; g.reboundTimer = 1.2;
+      }
+    } else if (who === "playerFT") {
+      if (made) {
+        this.g21applyScore("player", G21_FT_PTS);
+        if (g.winner === "player") { g.phase = "gameOver"; g.winnerTimer = 0; return; }
+        g.ftStreak++;
+        g.phase = "playerFTSetup";
+      } else {
+        g.phase = "reboundContest"; g.reboundTimer = 1.2;
+      }
+    } else if (who === "ai") {
+      if (made) {
+        this.g21applyScore("ai", G21_FG_PTS);
+        if (g.winner === "ai") { g.phase = "gameOver"; g.winnerTimer = 0; return; }
+        g.aiFtStreak = 0; g.phase = "aiFTSetup";
+      } else {
+        g.phase = "reboundContest"; g.reboundTimer = 1.2;
+      }
+    } else if (who === "aiFT") {
+      if (made) {
+        this.g21applyScore("ai", G21_FT_PTS);
+        if (g.winner === "ai") { g.phase = "gameOver"; g.winnerTimer = 0; return; }
+        g.aiFtStreak++;
+        g.phase = "aiFTSetup";
+      } else {
+        g.phase = "reboundContest"; g.reboundTimer = 1.2;
+      }
+    }
+  }
+
+  g21chooseAIPos() {
+    const g = this.g21;
+    const need = G21_TARGET - g.aiScore;
+    let candidates;
+    if (need <= 3)       candidates = [0, 1, 2, 3];
+    else if (need > 12)  candidates = [2, 3, 4, 5, 6];
+    else                 candidates = [0, 1, 2, 3, 4, 5, 6];
+    const weights = candidates.map(i => {
+      const d = Math.sqrt(G21_POSITIONS[i].x ** 2 + G21_POSITIONS[i].z ** 2);
+      return Math.max(0.1, 9 - d);
+    });
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    let chosen = candidates[0];
+    for (let i = 0; i < candidates.length; i++) { r -= weights[i]; if (r <= 0) { chosen = candidates[i]; break; } }
+    return chosen;
+  }
+
+  g21computeAIAim(pos) {
+    const errArc = (Math.random() - 0.5) * 4.5;
+    const errPow = (Math.random() - 0.5) * 0.10;
+    const errLat = (Math.random() - 0.5) * 8;
+    return {
+      arc:   clamp(pos.idealArc   + errArc, MIN_ARC,   MAX_ARC),
+      power: clamp(pos.idealPower + errPow, MIN_POWER, MAX_POWER),
+      lat:   clamp(errLat, -MAX_LATERAL, MAX_LATERAL),
+    };
+  }
+
+  update21(dt) {
+    const g = this.g21;
+    if (!g) return;
+    g.ledTimer += dt;
+    if (g.netSway > 0) g.netSway = Math.max(0, g.netSway - dt * 1.4);
+    if (g.messageTimer > 0) g.messageTimer -= dt;
+
+    if (g.phase === "playerAim" || g.phase === "playerFT") {
+      this.g21applyAimKeys(dt);
+      const pos = g.phase === "playerFT" ? G21_FT_POS : G21_POSITIONS[g.posIdx];
+      if (g.previewDirty) {
+        g.preview = previewTrajectory(pos, g.aim.arc, g.aim.power, g.aim.lat);
+        g.previewDirty = false;
+      }
+    }
+
+    if (g.phase === "playerFTSetup") {
+      g.resultTimer += dt;
+      if (g.resultTimer > 0.9) {
+        g.aim = {
+          arc:   clamp(G21_FT_POS.idealArc   + (Math.random() - 0.5) * 5, MIN_ARC, MAX_ARC),
+          power: clamp(G21_FT_POS.idealPower + (Math.random() - 0.5) * 0.07, MIN_POWER, MAX_POWER),
+          lat:   (Math.random() - 0.5) * 6,
+        };
+        g.ball = null; g.trail = [];
+        g.previewDirty = true; g.resultTimer = 0;
+        g.phase = "playerFT";
+        this.camera = buildCamera(G21_FT_POS);
+      }
+    }
+
+    if (g.phase === "playerFlight")   this.g21handleFlight(dt, "player");
+    if (g.phase === "playerFTFlight") this.g21handleFlight(dt, "playerFT");
+
+    if (g.phase === "reboundContest") {
+      g.reboundTimer -= dt;
+      if (g.reboundTimer <= 0) {
+        g.reboundWinner = Math.random() < 0.45 ? "player" : "ai";
+        g.phase = "reboundShow";
+        g.reboundTimer = 1.4;
+        g.ball = null; g.trail = [];
+      }
+    }
+
+    if (g.phase === "reboundShow") {
+      g.reboundTimer -= dt;
+      if (g.reboundTimer <= 0) {
+        if (g.reboundWinner === "player") {
+          g.posIdx = 1;
+          g.phase = "playerSelect";
+          this.camera = buildCamera(G21_POSITIONS[g.posIdx]);
+        } else {
+          g.phase = "aiThink";
+          g.aiThinkTimer = G21_AI_THINK;
+          g.aiPosIdx = this.g21chooseAIPos();
+        }
+      }
+    }
+
+    if (g.phase === "aiThink") {
+      g.aiThinkTimer -= dt;
+      if (g.aiThinkTimer <= 0) {
+        const aiPos = G21_POSITIONS[g.aiPosIdx];
+        g.aiTargetAim = this.g21computeAIAim(aiPos);
+        g.aiCurrentAim = { arc: 50, power: 0.75, lat: 0 };
+        g.aiAimTimer = 0;
+        g.phase = "aiAim";
+        this.camera = buildCamera(aiPos);
+        g.preview = [];
+      }
+    }
+
+    if (g.phase === "aiAim") {
+      g.aiAimTimer += dt;
+      const t = clamp(g.aiAimTimer / G21_AI_AIM, 0, 1);
+      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const tgt = g.aiTargetAim;
+      g.aiCurrentAim.arc   = 50  + (tgt.arc   - 50)   * e;
+      g.aiCurrentAim.power = 0.75 + (tgt.power - 0.75) * e;
+      g.aiCurrentAim.lat   = tgt.lat * e;
+      if (t > 0.3) g.preview = previewTrajectory(G21_POSITIONS[g.aiPosIdx], g.aiCurrentAim.arc, g.aiCurrentAim.power, g.aiCurrentAim.lat);
+      if (t >= 1) {
+        const aiPos = G21_POSITIONS[g.aiPosIdx];
+        const v = computeLaunch(aiPos, tgt.arc, tgt.power, tgt.lat);
+        g.ball  = { x: aiPos.x, y: RELEASE_HEIGHT, z: aiPos.z, ...v };
+        g.trail = []; g.preview = [];
+        g.phase = "aiFlight";
+      }
+    }
+
+    if (g.phase === "aiFlight")   this.g21handleFlight(dt, "ai");
+    if (g.phase === "aiFTFlight") this.g21handleFlight(dt, "aiFT");
+
+    if (g.phase === "aiFTSetup") {
+      g.resultTimer += dt;
+      if (g.resultTimer > 0.8) {
+        g.aiTargetAim = this.g21computeAIAim(G21_FT_POS);
+        g.aiCurrentAim = { arc: 50, power: 0.75, lat: 0 };
+        g.aiAimTimer = 0;
+        g.ball = null; g.trail = [];
+        g.resultTimer = 0; g.phase = "aiFTAim";
+        this.camera = buildCamera(G21_FT_POS);
+      }
+    }
+
+    if (g.phase === "aiFTAim") {
+      g.aiAimTimer += dt;
+      const t = clamp(g.aiAimTimer / (G21_AI_AIM * 0.7), 0, 1);
+      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const tgt = g.aiTargetAim;
+      g.aiCurrentAim.arc   = 50   + (tgt.arc   - 50)   * e;
+      g.aiCurrentAim.power = 0.75 + (tgt.power - 0.75) * e;
+      g.aiCurrentAim.lat   = tgt.lat * e;
+      if (t > 0.4) g.preview = previewTrajectory(G21_FT_POS, g.aiCurrentAim.arc, g.aiCurrentAim.power, g.aiCurrentAim.lat);
+      if (t >= 1) {
+        const v = computeLaunch(G21_FT_POS, tgt.arc, tgt.power, tgt.lat);
+        g.ball  = { x: G21_FT_POS.x, y: RELEASE_HEIGHT, z: G21_FT_POS.z, ...v };
+        g.trail = []; g.preview = [];
+        g.phase = "aiFTFlight";
+      }
+    }
+
+    if (g.phase === "gameOver") {
+      g.winnerTimer = (g.winnerTimer || 0) + dt;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // GAME "21" – RENDERING
+  // ═══════════════════════════════════════════════════════════════
+
+  drawPlay21(ctx, vW, vH) {
+    const g = this.g21;
+    if (!g) return;
+    const courtW = Math.floor(vW * 0.68);
+    const cam = this.camera;
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, courtW, vH); ctx.clip();
+    this.drawGym(ctx, cam, vW, vH);
+    this.drawFloor(ctx, cam, vW, vH);
+    this.drawCourtLines(ctx, cam, vW, vH);
+    this.draw21PositionMarkers(ctx, cam, vW, vH);
+    this.drawBasket(ctx, cam, vW, vH);
+
+    const showPreview = (
+      g.phase === "playerAim" || g.phase === "playerFT" ||
+      (g.phase === "aiAim"   && g.aiAimTimer > G21_AI_AIM * 0.3) ||
+      (g.phase === "aiFTAim" && g.aiAimTimer > G21_AI_AIM * 0.25)
+    );
+    if (showPreview && g.preview.length > 2) {
+      const isAI = g.phase === "aiAim" || g.phase === "aiFTAim";
+      this.drawPreview21(ctx, cam, vW, vH, isAI);
+    }
+
+    if (g.ball) {
+      const savedBall  = this.ball;
+      const savedTrail = this.trail;
+      const savedSway  = this.netSway;
+      this.ball = g.ball; this.trail = g.trail; this.netSway = g.netSway;
+      this.drawBallTrail(ctx, cam, vW, vH);
+      this.drawBall(ctx, cam, vW, vH);
+      this.ball = savedBall; this.trail = savedTrail; this.netSway = savedSway;
+    }
+
+    if (g.phase === "playerSelect" || g.phase === "playerAim") {
+      const pos = G21_POSITIONS[g.posIdx];
+      const pt  = p3(pos.x, 0.02, pos.z, cam, vW, vH);
+      if (pt) {
+        const r = clamp(380 / (pt.depth + 1), 7, 20);
+        ctx.strokeStyle = "rgba(255,215,40,0.92)"; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pt.x - r * 1.7, pt.y); ctx.lineTo(pt.x - r * 0.55, pt.y);
+        ctx.moveTo(pt.x + r * 0.55, pt.y); ctx.lineTo(pt.x + r * 1.7, pt.y);
+        ctx.moveTo(pt.x, pt.y - r * 1.7); ctx.lineTo(pt.x, pt.y - r * 0.55);
+        ctx.moveTo(pt.x, pt.y + r * 0.55); ctx.lineTo(pt.x, pt.y + r * 1.7);
+        ctx.stroke();
+      }
+    }
+
+    if (g.phase === "playerFT" || g.phase === "playerFTFlight" ||
+        g.phase === "aiFTAim" || g.phase === "aiFTFlight") {
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255,215,40,0.82)"; ctx.font = "bold 13px Arial, sans-serif";
+      ctx.fillText(UI21[this.locale].ftLabel, courtW / 2, 22);
+    }
+
+    if (g.phase === "reboundContest" || g.phase === "reboundShow") {
+      ctx.fillStyle = "rgba(0,0,0,0.52)"; ctx.fillRect(0, 0, courtW, vH);
+      ctx.textAlign = "center"; ctx.fillStyle = "#ffd700";
+      ctx.font = "bold 34px Arial, sans-serif";
+      if (g.phase === "reboundShow" && g.reboundWinner) {
+        const winner = g.reboundWinner === "player" ? UI21[this.locale].you : UI21[this.locale].ai;
+        ctx.fillText(`${UI21[this.locale].rebound} ${winner}`, courtW / 2, vH / 2 - 10);
+      } else {
+        ctx.fillStyle = "#8098b8"; ctx.font = "bold 22px Arial, sans-serif";
+        ctx.fillText("...", courtW / 2, vH / 2 - 10);
+      }
+    }
+
+    if (g.message && g.messageTimer > 0) {
+      const a = clamp(g.messageTimer / 0.6, 0, 1);
+      ctx.save(); ctx.globalAlpha = a;
+      ctx.textAlign = "center"; ctx.fillStyle = "#ff4444";
+      ctx.font = "bold 30px Arial, sans-serif";
+      ctx.fillText(g.message, courtW / 2, vH / 2 - 20);
+      ctx.restore();
+    }
+
+    if (g.phase === "gameOver") this.draw21GameOver(ctx, courtW, vH);
+
+    ctx.restore();
+    this.drawHUD21(ctx, vW, vH, courtW);
+  }
+
+  draw21PositionMarkers(ctx, cam, vW, vH) {
+    const g = this.g21;
+    const isPlayerPhase = ["playerSelect","playerAim","playerFT"].includes(g.phase);
+    G21_POSITIONS.forEach((pos, i) => {
+      const pt = p3(pos.x, 0.025, pos.z, cam, vW, vH);
+      if (!pt) return;
+      const isSel = i === g.posIdx && isPlayerPhase;
+      const r = clamp(280 / (pt.depth + 1), 4, 14);
+      if (isSel) {
+        const glow = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r * 3.5);
+        glow.addColorStop(0, "rgba(255,215,40,0.28)");
+        glow.addColorStop(1, "rgba(255,215,40,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, r * 3.5, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = isSel ? "rgba(255,215,40,0.95)" : "rgba(120,160,200,0.28)";
+      ctx.fill();
+      ctx.strokeStyle = isSel ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.18)";
+      ctx.lineWidth = 1.2; ctx.stroke();
+      if (isSel) {
+        const lbl = this.locale === "es" ? pos.labelEs : pos.labelEn;
+        ctx.textAlign = "center"; ctx.fillStyle = "#ffd700";
+        ctx.font = "bold 11px Arial, sans-serif";
+        ctx.fillText(lbl, pt.x, pt.y - r - 4);
+      }
+      if (!isSel) {
+        ctx.textAlign = "center"; ctx.fillStyle = "rgba(140,170,210,0.55)";
+        ctx.font = "9px Arial, sans-serif";
+        ctx.fillText(i + 1, pt.x, pt.y + 3);
+      }
+    });
+  }
+
+  drawPreview21(ctx, cam, vW, vH, isAI) {
+    const g = this.g21;
+    const proj = g.preview.map(pt => p3(pt.x, pt.y, pt.z, cam, vW, vH)).filter(Boolean);
+    if (proj.length < 2) return;
+    const col = isAI ? "rgba(80,200,255,0.50)" : "rgba(255,205,45,0.50)";
+    ctx.setLineDash([5, 8]); ctx.lineWidth = 1.8;
+    ctx.strokeStyle = col;
+    ctx.beginPath();
+    proj.forEach((pt, i) => i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    const last = proj[proj.length - 1];
+    ctx.beginPath(); ctx.arc(last.x, last.y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = isAI ? "rgba(80,200,255,0.70)" : "rgba(255,205,45,0.70)"; ctx.fill();
+  }
+
+  draw21GameOver(ctx, courtW, vH) {
+    const g = this.g21;
+    const ui = UI21[this.locale];
+    const playerWon = g.winner === "player";
+    const alpha = clamp((g.winnerTimer || 0) / 0.5, 0, 1);
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.fillStyle = "rgba(0,0,0,0.62)"; ctx.fillRect(0, 0, courtW, vH);
+    ctx.textAlign = "center";
+    ctx.fillStyle = playerWon ? "#ffd700" : "#ff5555";
+    ctx.font = "bold 52px Arial, sans-serif";
+    if (playerWon) { ctx.shadowBlur = 28; ctx.shadowColor = "#ffd700"; }
+    ctx.fillText(playerWon ? ui.winner.you : ui.winner.ai, courtW / 2, vH / 2 - 18);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#a0c0e0"; ctx.font = "16px Arial, sans-serif";
+    ctx.fillText(ui.again, courtW / 2, vH / 2 + 28);
+    ctx.restore();
+  }
+
+  drawHUD21(ctx, vW, vH, courtW) {
+    const g = this.g21;
+    const ui = UI21[this.locale];
+    const panW = vW - courtW, px = courtW, cx = px + panW / 2;
+
+    const pbg = ctx.createLinearGradient(px, 0, vW, 0);
+    pbg.addColorStop(0, C.panelBg0); pbg.addColorStop(1, C.panelBg1);
+    ctx.fillStyle = pbg; ctx.fillRect(px, 0, panW, vH);
+    ctx.strokeStyle = "rgba(240,160,48,0.18)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, vH); ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = C.accentOrange; ctx.font = "bold 15px Arial, sans-serif";
+    ctx.fillText("🏀 " + ui.title, cx, 26);
+    ctx.fillStyle = C.textMuted; ctx.font = "10px Arial, sans-serif";
+    ctx.fillText(this.locale === "es" ? "Primero a 21 gana" : "First to 21 wins", cx, 40);
+
+    // Scoreboard card
+    const sbY = 52, sbH = 88, sbW = panW - 22;
+    ctx.fillStyle = "rgba(0,0,0,0.38)";
+    ctx.beginPath(); roundRect(ctx, px + 11, sbY, sbW, sbH, 10); ctx.fill();
+
+    const isPlayerTurn = ["playerSelect","playerAim","playerFT","playerFlight","playerFTFlight","playerFTSetup"].includes(g.phase);
+    const isAITurn     = ["aiThink","aiAim","aiFlight","aiFTSetup","aiFTAim","aiFTFlight"].includes(g.phase);
+    const ledOn = Math.sin(g.ledTimer * 6) > 0;
+
+    const halfW = sbW / 2 - 5;
+    const drawScore = (lbl, score, x, active) => {
+      ctx.textAlign = "center";
+      const cx2 = x + halfW / 2;
+      ctx.fillStyle = active ? (ledOn ? "#ffffff" : "#a0c0e0") : "#4a6888";
+      ctx.font = "bold 11px Arial, sans-serif";
+      ctx.fillText(lbl, cx2, sbY + 18);
+      if (active) {
+        ctx.beginPath(); ctx.arc(cx2 + 20, sbY + 13, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = ledOn ? "#40ff80" : "#183028"; ctx.fill();
+        ctx.strokeStyle = "rgba(64,255,128,0.60)"; ctx.lineWidth = 0.8;
+        ctx.beginPath(); ctx.arc(cx2 + 20, sbY + 13, 4.5, 0, Math.PI * 2); ctx.stroke();
+      }
+      const scoreCol = score >= 18 ? "#ff4444" : score >= 14 ? "#ffaa00" : active ? "#40d878" : "#3a6080";
+      ctx.fillStyle = scoreCol;
+      ctx.font = `bold ${Math.min(36, halfW * 0.7)}px Arial, sans-serif`;
+      ctx.fillText(score, cx2, sbY + 58);
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      ctx.fillRect(x + 4, sbY + 68, halfW - 8, 7);
+      ctx.fillStyle = active ? scoreCol : "#2a5070";
+      ctx.fillRect(x + 4, sbY + 68, Math.max(0, (halfW - 8) * (score / G21_TARGET)), 7);
+    };
+
+    drawScore(ui.you, g.playerScore, px + 11,              isPlayerTurn);
+    drawScore(ui.ai,  g.aiScore,     px + 11 + halfW + 10, isAITurn);
+    ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px + 11 + halfW + 5, sbY + 10); ctx.lineTo(px + 11 + halfW + 5, sbY + sbH - 10); ctx.stroke();
+    ctx.textAlign = "center"; ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.font = "9px Arial, sans-serif";
+    ctx.fillText("vs", px + 11 + halfW + 5, sbY + 40);
+
+    ctx.fillStyle = "#2a4058"; ctx.font = "10px Arial, sans-serif";
+    ctx.fillText(`→ ${G21_TARGET}   ${this.locale === "es" ? "pasarse→" : "bust→"} ${G21_BUST}`, cx, sbY + sbH + 13);
+
+    const phaseY = sbY + sbH + 30;
+
+    if (isAITurn) {
+      ctx.fillStyle = "rgba(80,200,255,0.92)"; ctx.font = "bold 12px Arial, sans-serif";
+      ctx.fillText(ui.aiTurn, cx, phaseY);
+      if (g.phase === "aiThink") {
+        ctx.fillStyle = "#4080a0"; ctx.font = "11px Arial, sans-serif";
+        const dotCount = Math.floor(g.ledTimer * 2.5) % 4;
+        ctx.fillText(ui.aiThinks.replace("...", ".".repeat(dotCount)), cx, phaseY + 18);
+      }
+      if (g.phase === "aiAim" || g.phase === "aiFTAim") {
+        const pos = g.phase === "aiFTAim" ? G21_FT_POS : G21_POSITIONS[g.aiPosIdx];
+        const lbl = g.phase === "aiFTAim"
+          ? (this.locale === "es" ? "Tiro Libre" : "Free Throw")
+          : (this.locale === "es" ? G21_POSITIONS[g.aiPosIdx].labelEs : G21_POSITIONS[g.aiPosIdx].labelEn);
+        ctx.fillStyle = "#4898b8"; ctx.font = "11px Arial, sans-serif";
+        ctx.fillText(lbl, cx, phaseY + 18);
+        const a = g.aiCurrentAim;
+        this.gauge21(ctx, px + 10, phaseY + 32, panW - 20, 18, "Arc",   a.arc,   MIN_ARC,   MAX_ARC,   pos.idealArc,   "°");
+        this.gauge21(ctx, px + 10, phaseY + 60, panW - 20, 18, "Power", a.power, MIN_POWER, MAX_POWER, pos.idealPower, "");
+        this.gauge21(ctx, px + 10, phaseY + 88, panW - 20, 18, "Lat",   a.lat,   -MAX_LATERAL, MAX_LATERAL, 0, "°");
+      }
+    } else if (isPlayerTurn) {
+      ctx.fillStyle = "rgba(255,215,40,0.92)"; ctx.font = "bold 12px Arial, sans-serif";
+      ctx.fillText(ui.yourTurn, cx, phaseY);
+      if (g.phase === "playerSelect") {
+        const pos = G21_POSITIONS[g.posIdx];
+        const lbl = this.locale === "es" ? pos.labelEs : pos.labelEn;
+        ctx.fillStyle = "#ffd700"; ctx.font = "bold 13px Arial, sans-serif";
+        ctx.fillText(lbl, cx, phaseY + 18);
+        ctx.fillStyle = "#405870"; ctx.font = "10px Arial, sans-serif";
+        wrapText(ctx, ui.selectHint, cx, phaseY + 34, panW - 16, 13);
+      }
+      if (g.phase === "playerAim" || g.phase === "playerFT") {
+        const pos = g.phase === "playerFT" ? G21_FT_POS : G21_POSITIONS[g.posIdx];
+        this.gauge21(ctx, px + 10, phaseY + 10, panW - 20, 18, "Arc",   g.aim.arc,   MIN_ARC,   MAX_ARC,   pos.idealArc,   "°");
+        this.gauge21(ctx, px + 10, phaseY + 38, panW - 20, 18, "Power", g.aim.power, MIN_POWER, MAX_POWER, pos.idealPower, "");
+        this.gauge21(ctx, px + 10, phaseY + 66, panW - 20, 18, "Lat",   g.aim.lat,   -MAX_LATERAL, MAX_LATERAL, 0, "°");
+        ctx.fillStyle = "#405870"; ctx.font = "10px Arial, sans-serif"; ctx.textAlign = "center";
+        wrapText(ctx, g.phase === "playerFT" ? ui.ftHint : ui.shootHint, cx, phaseY + 96, panW - 16, 13);
+        if (g.ftStreak > 0) {
+          ctx.fillStyle = "#40d878"; ctx.font = "bold 11px Arial, sans-serif";
+          ctx.fillText(`${g.ftStreak}× ${this.locale === "es" ? "consecutivo" : "consecutive"}`, cx, phaseY + 124);
+        }
+      }
+    } else if (g.phase === "reboundContest" || g.phase === "reboundShow") {
+      ctx.fillStyle = "#ffd700"; ctx.font = "bold 12px Arial, sans-serif";
+      ctx.fillText(UI21[this.locale].rebound, cx, phaseY);
+    }
+
+    // Back to menu hint
+    ctx.fillStyle = "#223040"; ctx.font = "9px Arial, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(this.locale === "es" ? "Esc / menú" : "Esc / menu", cx, vH - 12);
+  }
+
+  gauge21(ctx, x, y, w, h, label, value, lo, hi, ideal, suffix) {
+    const t = (value - lo) / (hi - lo);
+    const tI = (ideal  - lo) / (hi - lo);
+    const dist = Math.abs(t - tI);
+    ctx.textAlign = "left";  ctx.fillStyle = C.textMuted; ctx.font = "9px Arial, sans-serif";
+    ctx.fillText(label, x, y - 1);
+    ctx.textAlign = "right"; ctx.fillStyle = "#b8cce0"; ctx.font = "bold 9px Arial, sans-serif";
+    ctx.fillText(suffix === "°" ? `${value.toFixed(1)}°` : value.toFixed(2), x + w, y - 1);
+    ctx.fillStyle = "#18243a";
+    ctx.beginPath(); roundRect(ctx, x, y, w, h, 2); ctx.fill();
+    const fc = dist < 0.06 ? "#38d860" : dist < 0.14 ? "#d8c038" : "#c03830";
+    ctx.fillStyle = fc;
+    ctx.beginPath(); roundRect(ctx, x, y, Math.max(0, clamp(t, 0, 1) * w), h, 2); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.50)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x + tI * w, y); ctx.lineTo(x + tI * w, y + h); ctx.stroke();
+  }
+
+  drawSummary21(ctx, vW, vH) {
+    // Currently unused – gameOver is shown inline. Kept as fallback.
+    this.drawPlay21(ctx, vW, vH);
   }
 }
 
