@@ -18803,3 +18803,940 @@ button.brisca-card.playable:disabled {
   object-fit: contain;
   border-radius: 8px;
 }
+
+.strategy-mansion-enigma-game {
+  --mansion-paper: #f6efe2;
+  --mansion-paper-dark: #e8dac4;
+  --mansion-ink: #1f2937;
+  --mansion-accent: #9a3412;
+  --mansion-accent-soft: #f97316;
+  --mansion-shadow: 0 18px 38px rgba(15, 23, 42, 0.26);
+  background:
+    radial-gradient(circle at 100% -5%, rgba(250, 204, 21, 0.28), transparent 46%),
+    radial-gradient(circle at 0% 0%, rgba(249, 115, 22, 0.22), transparent 44%),
+    linear-gradient(165deg, #0f172a 0%, #1e293b 42%, #111827 100%);
+  border: 1px solid rgba(250, 204, 21, 0.25);
+  box-shadow: var(--mansion-shadow);
+  color: #f8fafc;
+  display: grid;
+  gap: 0.5rem;
+  font-family: "Bricolage Grotesque", "Outfit", sans-serif;
+}
+
+.strategy-mansion-enigma-game.is-ai-turn .mansion-stage {
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.26), 0 0 0 1px rgba(56, 189, 248, 0.16);
+  animation: mansion-stage-pulse 2.6s ease-in-out infinite;
+}
+
+.strategy-mansion-enigma-game.is-ai-turn .mansion-room-cell.is-legal {
+  animation: mansion-room-scan 1.8s ease-in-out infinite;
+}
+
+.mansion-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.52rem;
+  align-items: center;
+}
+
+.mansion-hero-copy h4 {
+  margin: 0;
+  font-size: clamp(1rem, 1.7vw, 1.25rem);
+  color: #f8fafc;
+}
+
+.mansion-hero-copy p {
+  margin: 0.18rem 0 0;
+  max-width: 62ch;
+  color: #fde68a;
+  font-size: 0.72rem;
+  line-height: 1.32;
+}
+
+.mansion-hero-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.36rem;
+  max-width: 48%;
+}
+
+.mansion-hero-metrics span {
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.55);
+  color: #e2e8f0;
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 0.2rem 0.56rem;
+}
+
+.mansion-hero-metrics button,
+.mansion-action-row button {
+  border: 1px solid rgba(251, 191, 36, 0.48);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f97316, #b45309);
+  color: #fff7ed;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  padding: 0.22rem 0.72rem;
+  cursor: pointer;
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+.mansion-hero-metrics button:hover,
+.mansion-action-row button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.mansion-action-row button.ghost {
+  border-color: rgba(148, 163, 184, 0.44);
+  background: rgba(15, 23, 42, 0.72);
+  color: #e2e8f0;
+}
+
+.mansion-player-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.48rem;
+  margin-top: 0.08rem;
+}
+
+.mansion-player-chip {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.46rem 0.56rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.46rem;
+  align-items: center;
+}
+
+.mansion-player-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(248, 250, 252, 0.5);
+  color: #0f172a;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.mansion-player-chip h5 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 0.76rem;
+}
+
+.mansion-player-chip p,
+.mansion-player-chip span {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.64rem;
+  font-weight: 700;
+  line-height: 1.32;
+}
+
+.mansion-player-chip.is-active {
+  border-color: rgba(251, 191, 36, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.34);
+}
+
+.mansion-player-chip.is-eliminated {
+  opacity: 0.56;
+  border-color: rgba(248, 113, 113, 0.46);
+}
+
+.mansion-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.2fr) minmax(300px, 0.95fr);
+  gap: 0.56rem;
+}
+
+.mansion-stage {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 18px;
+  background:
+    linear-gradient(160deg, rgba(30, 41, 59, 0.84), rgba(15, 23, 42, 0.92)),
+    radial-gradient(circle at top, rgba(251, 191, 36, 0.1), transparent 52%);
+  padding: 0.54rem;
+  display: grid;
+  gap: 0.42rem;
+}
+
+.mansion-stage-head h5 {
+  margin: 0;
+  color: #fef3c7;
+  font-size: 0.84rem;
+}
+
+.mansion-stage-head p {
+  margin: 0.12rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.64rem;
+  line-height: 1.28;
+}
+
+.mansion-board-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(100px, 1fr));
+  gap: 0.45rem;
+}
+
+.mansion-room-cell {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 14px;
+  background: #0f172a;
+  min-height: 104px;
+  padding: 0;
+  cursor: pointer;
+  isolation: isolate;
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.mansion-room-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.06) contrast(1.02);
+}
+
+.mansion-room-overlay {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.36rem 0.42rem;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.84), rgba(15, 23, 42, 0));
+}
+
+.mansion-room-overlay .room-name {
+  color: #f8fafc;
+  font-size: 0.66rem;
+  font-weight: 900;
+  text-align: left;
+  letter-spacing: 0.01em;
+}
+
+.mansion-room-overlay .room-secret {
+  justify-self: start;
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  border-radius: 999px;
+  background: rgba(146, 64, 14, 0.55);
+  color: #fef3c7;
+  font-size: 0.53rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.08rem 0.3rem;
+}
+
+.mansion-room-cell .room-occupants {
+  position: absolute;
+  inset: auto auto 0.34rem 0.34rem;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.22rem;
+}
+
+.mansion-room-cell .room-occupants strong {
+  min-width: 1.32rem;
+  height: 1.32rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 6px 10px rgba(15, 23, 42, 0.4);
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0 0.22rem;
+}
+
+.mansion-room-cell.is-legal {
+  border-color: rgba(56, 189, 248, 0.84);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.36);
+}
+
+.mansion-room-cell.is-selected {
+  border-color: rgba(251, 191, 36, 0.92);
+  box-shadow:
+    inset 0 0 0 1px rgba(251, 191, 36, 0.45),
+    0 8px 18px rgba(251, 191, 36, 0.18);
+}
+
+.mansion-room-cell:disabled {
+  cursor: default;
+  opacity: 0.88;
+}
+
+.mansion-room-cell:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.mansion-stage-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+}
+
+.mansion-stage-legend .legend {
+  border-radius: 999px;
+  padding: 0.14rem 0.56rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.mansion-stage-legend .legend.legal {
+  border: 1px solid rgba(56, 189, 248, 0.72);
+  color: #bae6fd;
+  background: rgba(14, 116, 144, 0.32);
+}
+
+.mansion-stage-legend .legend.selected {
+  border: 1px solid rgba(251, 191, 36, 0.72);
+  color: #fef3c7;
+  background: rgba(146, 64, 14, 0.32);
+}
+
+.mansion-stage-legend .legend.secret {
+  border: 1px solid rgba(192, 132, 252, 0.72);
+  color: #f3e8ff;
+  background: rgba(107, 33, 168, 0.32);
+}
+
+.strategy-mansion-enigma-game .game-message {
+  margin: 0;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.58);
+  color: #fde68a;
+  font-size: 0.69rem;
+  font-weight: 700;
+  line-height: 1.36;
+  padding: 0.34rem 0.52rem;
+}
+
+.mansion-desk {
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 18px;
+  background:
+    linear-gradient(170deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.7)),
+    linear-gradient(165deg, rgba(251, 191, 36, 0.08), transparent 48%);
+  padding: 0.48rem;
+  display: grid;
+  gap: 0.46rem;
+}
+
+.mansion-desk-head {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.mansion-desk-head h5 {
+  margin: 0;
+  color: #fef3c7;
+  font-size: 0.84rem;
+}
+
+.mansion-desk-head p {
+  margin: 0.1rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.63rem;
+  line-height: 1.28;
+}
+
+.mansion-instructions {
+  margin: 0.24rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.mansion-instructions li {
+  border-left: 2px solid rgba(251, 191, 36, 0.52);
+  padding-left: 0.34rem;
+  color: #e2e8f0;
+  font-size: 0.6rem;
+  line-height: 1.26;
+}
+
+.mansion-tab-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.32rem;
+}
+
+.mansion-tab-row button {
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.66);
+  color: #cbd5e1;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  padding: 0.34rem 0.44rem;
+  cursor: pointer;
+}
+
+.mansion-tab-row button.is-active {
+  border-color: rgba(251, 191, 36, 0.62);
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.34), rgba(120, 53, 15, 0.44));
+  color: #fef3c7;
+}
+
+.mansion-panel {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mansion-ai-activity,
+.mansion-ai-last-action {
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(15, 23, 42, 0.66));
+  padding: 0.36rem 0.46rem;
+  display: grid;
+  gap: 0.22rem;
+}
+
+.mansion-ai-activity p,
+.mansion-ai-last-action p {
+  margin: 0;
+  color: #e0f2fe;
+  font-size: 0.66rem;
+  line-height: 1.34;
+  font-weight: 700;
+}
+
+.mansion-ai-activity small {
+  color: #bae6fd;
+  font-size: 0.61rem;
+  line-height: 1.3;
+}
+
+.mansion-ai-activity small strong {
+  color: #fef9c3;
+}
+
+.mansion-ai-last-action h6 {
+  margin: 0;
+  color: #dbeafe;
+  font-size: 0.66rem;
+}
+
+.mansion-ai-history-list {
+  margin-top: 0.3rem;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.42);
+  padding: 0.24rem;
+  max-height: 190px;
+  overflow-y: auto;
+  display: grid;
+  gap: 0.24rem;
+}
+
+.mansion-ai-history-item {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.54);
+  padding: 0.22rem 0.28rem;
+  display: grid;
+  gap: 0.08rem;
+}
+
+.mansion-ai-history-item small {
+  color: #93c5fd;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.mansion-ai-history-item p {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: 0.62rem;
+  line-height: 1.32;
+}
+
+.mansion-ai-history-empty {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.62rem;
+  line-height: 1.3;
+}
+
+.mansion-ai-lights {
+  display: inline-flex;
+  gap: 0.24rem;
+}
+
+.mansion-ai-lights span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #7dd3fc;
+  box-shadow: 0 0 12px rgba(125, 211, 252, 0.72);
+  animation: mansion-light-blink 1.2s ease-in-out infinite;
+}
+
+.mansion-ai-lights span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.mansion-ai-lights span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.mansion-ai-activity.stage-executing {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: linear-gradient(135deg, rgba(146, 64, 14, 0.3), rgba(15, 23, 42, 0.68));
+}
+
+.mansion-step h6,
+.mansion-known-cards h6,
+.mansion-notes-block > h6,
+.mansion-hints-box h6,
+.mansion-log-box h6,
+.mansion-trust-section h6,
+.mansion-case-closed h5 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 0.72rem;
+}
+
+.mansion-choice-strip {
+  margin-top: 0.32rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(102px, 1fr));
+  gap: 0.34rem;
+}
+
+.mansion-choice-strip button {
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.66);
+  color: #f1f5f9;
+  padding: 0.24rem;
+  display: grid;
+  gap: 0.2rem;
+  justify-items: center;
+  cursor: pointer;
+}
+
+.mansion-choice-strip button img {
+  width: 100%;
+  height: 46px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.mansion-choice-strip button span {
+  font-size: 0.61rem;
+  font-weight: 700;
+}
+
+.mansion-choice-strip button.is-picked {
+  border-color: rgba(251, 191, 36, 0.74);
+  box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.34);
+}
+
+.mansion-suspect-grid,
+.mansion-weapon-grid {
+  margin-top: 0.32rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.34rem;
+}
+
+.mansion-suspect-grid button,
+.mansion-weapon-grid button {
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.66);
+  color: #e2e8f0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.34rem;
+  padding: 0.28rem 0.34rem;
+  cursor: pointer;
+}
+
+.mansion-suspect-grid button span {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: #f8fafc;
+  font-size: 0.62rem;
+  font-weight: 900;
+}
+
+.mansion-suspect-grid button strong,
+.mansion-weapon-grid button span {
+  font-size: 0.64rem;
+  text-align: left;
+  line-height: 1.28;
+}
+
+.mansion-weapon-grid button img {
+  width: 26px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.mansion-suspect-grid button.is-picked,
+.mansion-weapon-grid button.is-picked {
+  border-color: rgba(56, 189, 248, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.3);
+}
+
+.mansion-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+}
+
+.mansion-current-picks {
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.48);
+  padding: 0.36rem 0.46rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.mansion-current-picks span {
+  color: #cbd5e1;
+  font-size: 0.65rem;
+  line-height: 1.3;
+}
+
+.mansion-current-picks strong {
+  color: #f8fafc;
+}
+
+.mansion-accusation-box,
+.mansion-reveal-box,
+.mansion-hints-box,
+.mansion-log-box,
+.mansion-case-closed,
+.mansion-summary-card {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.48);
+  padding: 0.42rem;
+}
+
+.mansion-accusation-box label {
+  margin-top: 0.32rem;
+  display: grid;
+  gap: 0.16rem;
+  color: #cbd5e1;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.mansion-accusation-box select {
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.74);
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.26rem 0.36rem;
+}
+
+.mansion-reveal-box p,
+.mansion-summary-card p,
+.mansion-case-closed p {
+  margin: 0.26rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.67rem;
+  line-height: 1.35;
+}
+
+.mansion-reveal-content {
+  margin-top: 0.34rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mansion-reveal-content img,
+.mansion-known-card img,
+.mansion-notes-kind li img {
+  width: 34px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: #0f172a;
+}
+
+.mansion-reveal-badge,
+.mansion-known-card span,
+.mansion-notes-kind li > span {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: #f8fafc;
+  font-size: 0.63rem;
+  font-weight: 900;
+}
+
+.mansion-reveal-content strong {
+  color: #f8fafc;
+  font-size: 0.7rem;
+}
+
+.mansion-key-help {
+  margin: 0;
+  color: #fcd34d;
+  font-size: 0.62rem;
+  line-height: 1.32;
+}
+
+.mansion-known-grid {
+  margin-top: 0.32rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 0.34rem;
+}
+
+.mansion-known-card {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.58);
+  padding: 0.3rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.34rem;
+  align-items: center;
+}
+
+.mansion-known-card strong {
+  color: #e2e8f0;
+  font-size: 0.64rem;
+  line-height: 1.28;
+}
+
+.mansion-notes-block {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.mansion-notes-kind {
+  display: grid;
+  gap: 0.26rem;
+}
+
+.mansion-notes-kind ul,
+.mansion-trust-section ul,
+.mansion-hints-box ul,
+.mansion-log-box ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.24rem;
+}
+
+.mansion-notes-kind li {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.42);
+  padding: 0.24rem 0.3rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 0.28rem;
+  align-items: center;
+}
+
+.mansion-notes-kind li strong {
+  color: #e2e8f0;
+  font-size: 0.63rem;
+  line-height: 1.28;
+}
+
+.mansion-notes-kind li em {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.22);
+  color: #dbeafe;
+  font-style: normal;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.08rem 0.28rem;
+}
+
+.mansion-notes-kind li small {
+  color: #93c5fd;
+  font-size: 0.57rem;
+  font-weight: 700;
+}
+
+.mansion-notes-kind li.status-own {
+  border-color: rgba(74, 222, 128, 0.52);
+}
+
+.mansion-notes-kind li.status-seen {
+  border-color: rgba(56, 189, 248, 0.54);
+}
+
+.mansion-notes-kind li.status-hot {
+  border-color: rgba(251, 191, 36, 0.54);
+}
+
+.mansion-notes-kind li.status-cold {
+  border-color: rgba(148, 163, 184, 0.44);
+}
+
+.mansion-trust-section li,
+.mansion-hints-box li,
+.mansion-log-box li {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.42);
+  color: #dbeafe;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.34;
+  padding: 0.24rem 0.34rem;
+}
+
+.mansion-trust-section li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.36rem;
+}
+
+.mansion-trust-section li strong {
+  color: #f8fafc;
+}
+
+.mansion-hints-box li.empty,
+.mansion-log-box li.empty {
+  color: #94a3b8;
+}
+
+.mansion-log-box li.tone-warning {
+  border-color: rgba(251, 146, 60, 0.5);
+  color: #fed7aa;
+}
+
+.mansion-log-box li.tone-success {
+  border-color: rgba(74, 222, 128, 0.5);
+  color: #bbf7d0;
+}
+
+.mansion-standby {
+  margin: 0;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.46);
+  color: #cbd5e1;
+  font-size: 0.69rem;
+  line-height: 1.38;
+  padding: 0.4rem 0.48rem;
+}
+
+@keyframes mansion-stage-pulse {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2), 0 0 0 1px rgba(56, 189, 248, 0.12);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.38), 0 0 0 2px rgba(56, 189, 248, 0.22);
+  }
+}
+
+@keyframes mansion-room-scan {
+  0%,
+  100% {
+    filter: saturate(1);
+  }
+  50% {
+    filter: saturate(1.14) brightness(1.06);
+  }
+}
+
+@keyframes mansion-light-blink {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 1180px) {
+  .mansion-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mansion-hero {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .mansion-hero-metrics {
+    justify-content: flex-start;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .mansion-board-grid {
+    grid-template-rows: repeat(3, minmax(86px, 1fr));
+  }
+
+  .mansion-player-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mansion-choice-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mansion-suspect-grid,
+  .mansion-weapon-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mansion-tab-row button {
+    font-size: 0.63rem;
+  }
+
+  .mansion-known-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

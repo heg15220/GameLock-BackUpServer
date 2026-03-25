@@ -37,6 +37,7 @@ import StrategySudokuGame from "./StrategySudokuGame";
 import PokerTexasHoldemGame from "./PokerTexasHoldemGame";
 import ParchisStrategyGame from "./ParchisStrategyGame";
 import StrategyBarajaModesGame from "./StrategyBarajaModesGame";
+import StrategyMansionTripleEnigmaGame from "./StrategyMansionTripleEnigmaGame";
 import RaceGame2DPro from "./RaceGame2DPro";
 import SunsetSlipstream from "./racing/midnight-traffic";
 
@@ -118,6 +119,7 @@ export const GAME_REGISTRY = {
   "strategy-poker-holdem-no-bet": PokerTexasHoldemGame,
   "strategy-parchis-ludoteka":   ParchisStrategyGame,
   "strategy-baraja-ia-arena":    StrategyBarajaModesGame,
+  "strategy-mansion-triple-enigma": StrategyMansionTripleEnigmaGame,
   "rpg-emberfall":               RpgGame,
   "platformer-sky-runner":       PlatformerGame,
   "fighter-neon-dojo":           FighterGame,
@@ -190,6 +192,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "strategy-poker-holdem-no-bet": "Poker clasico 5 cartas con apuestas: ciegas, bote y acciones de pasar/igualar/subir/all-in/retirarse. Enter resolver accion principal, U subir, A all-in, F retirarse, 1-5 seleccionar descarte, D descartar, S servirse, N siguiente mano, R reiniciar.",
     "strategy-parchis-ludoteka":  "S/Enter inicia partida, R/Enter/Space tira dado, 1..9 elige jugada, Enter primera jugada, X continua sin jugada y N nueva partida.",
     "strategy-baraja-ia-arena":   "Modo baraja con Brisca/Tute, Mus y Escoba: cambia modalidad arriba. Mus permite 2/4/6 jugadores IA+tu. Escoba usa baraja espanola si el navegador es* y baraja inglesa adaptada en otros idiomas. Marca cartas de mesa y juega para sumar 15. Brisca usa click/1-3; Mus usa M/X + 1-4; Escoba usa click + 1-3. N siguiente mano, R reinicio.",
+    "strategy-mansion-triple-enigma": "Deduccion de misterio: elige sala conectada, sospechoso y arma para sospechar. A abre/cierra acusacion final, Enter confirma y N reinicia caso.",
     "rpg-emberfall":               "WASD/flechas para explorar. Atacar, habilidad, defender, enfocar, invocar (U) y poción.",
     "platformer-sky-runner":       "A/D o flechas para moverse, W/arriba/espacio para saltar, F accion, con springs, viento y checkpoints.",
     "fighter-neon-dojo":           "A/D moverse, W saltar, J jab, K heavy, L guardia, U/B especial.",
@@ -255,6 +258,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "strategy-poker-holdem-no-bet": "Classic 5-card draw with betting: blinds, real pot and check/call/raise/all-in/fold decisions. Enter resolves main action, U raise, A all-in, F fold, 1-5 select discard, D discard, S stand pat, N next hand, R restart.",
     "strategy-parchis-ludoteka":  "S/Enter starts the match, R/Enter/Space rolls the die, 1..9 picks a move, Enter first move, X continues without move, and N starts a new match.",
     "strategy-baraja-ia-arena":   "Card-table mode with Brisca/Tute, Mus, and Escoba: switch mode at the top. Mus supports 2/4/6 players. Escoba uses the Spanish deck when browser locale starts with es, and adapted English deck otherwise. Mark table cards and play to sum 15. Brisca uses click/1-3; Mus uses M/X + 1-4; Escoba uses click + 1-3. N next hand, R restart.",
+    "strategy-mansion-triple-enigma": "Mystery deduction mode: pick a connected room, suspect, and weapon for each suggestion. A toggles final accusation, Enter confirms, and N restarts the case.",
     "rpg-emberfall":               "WASD/arrows to explore. Attack, skill, defend, focus, summon (U) and potion.",
     "platformer-sky-runner":       "A/D or arrows to move, W/up/space to jump, F action, with springs, wind and checkpoints.",
     "fighter-neon-dojo":           "A/D move, W jump, J jab, K heavy, L guard, U/B special.",

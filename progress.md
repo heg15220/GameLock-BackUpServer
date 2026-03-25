@@ -3311,3 +3311,14 @@ pm run build sigue bloqueada en sandbox por spawn EPERM de esbuild; intento de e
   - hard HUD snap line now uses `hudReserve + 16`
   - fast catch-up threshold lowered (upward velocity > 130)
 - Syntax check OK (`node --check` on modified files).
+
+## 2026-03-25 - Mansion UX fix (board vertical placement)
+- Reordenado StrategyMansionTripleEnigmaGame: mansion-layout (tablero + mesa) ahora se renderiza antes de mansion-player-strip, evitando que la parrilla de salas quede desplazada hacia abajo por bloques informativos superiores.
+- Compactados espacios verticales en src/styles.css para Mansion (hero, layout, stage, desk, instrucciones) reduciendo altura consumida en cabecera y mejorando uso de la parte superior visible.
+- Resultado esperado: la mansión aparece significativamente más arriba en pantalla sin perder información funcional.
+
+## 2026-03-25 - Mansion IA history sidebar
+- En StrategyMansionTripleEnigmaGame.jsx se sustituyo el bloque de ultima jugada IA por historial acumulado completo de jugadas IA (iActionHistory) durante la partida.
+- Cada turno IA ahora anade entrada al historial con turno, IA, sospechoso, arma y sala; el panel lateral de juego lo renderiza en lista con scroll vertical.
+- Añadidas copys ES/EN para titulo y estado vacio del historial (iHistoryTitle, iHistoryEmpty).
+- Estilos nuevos en styles.css: mansion-ai-history-list, mansion-ai-history-item, mansion-ai-history-empty con max-height + overflow-y: auto.

@@ -58,6 +58,7 @@ import strategyDamasProfesionalImage from "../assets/games/strategy-damas-profes
 import strategyPokerNoBetImage from "../assets/games/strategy-poker-no-bet.svg";
 import strategyParchisLudotekaImage from "../assets/games/strategy-parchis-ludoteka.svg";
 import strategyBarajaIaImage from "../assets/games/strategy-baraja-ia.svg";
+import strategyMansionTripleEnigmaImage from "../assets/games/strategy-mansion-triple-enigma.svg";
 import race2dproImage from "../assets/games/race2dpro.svg";
 import sunsetSlipstreamImage from "../assets/games/sunset-slipstream.svg";
 
@@ -2302,6 +2303,55 @@ export const games = [
   },
 
   {
+    id: "strategy-mansion-triple-enigma",
+    image: strategyMansionTripleEnigmaImage,
+    sessionTime: "6-14 min",
+
+    title: "Mansion Triple Enigma",
+    category: "Estrategia",
+    tagline: "Deduccion competitiva tipo misterio con IA adaptativa, faroles y pistas publicas.",
+    description:
+      "Version independiente inspirada en la formula de deduccion de sospechoso + arma + sala. Juegas contra tres IAs que observan el contexto de la mesa, ajustan su nivel de riesgo y deciden cuando farolear en sugerencias o lanzar pistas verdaderas/enganosas para proteger su ventaja.",
+    objective_es: "Resuelve antes que nadie la combinacion exacta del caso: culpable, arma y habitacion.",
+    howToPlay_es: "En tu turno elige una sala conectada, plantea una sospecha (sospechoso + arma + sala) y observa quien puede refutar. Cruza la informacion de la bitacora y lanza acusacion final solo cuando tengas alta certeza.",
+    highlights: [
+      "Sobre secreto con una carta por categoria (sospechoso, arma y sala).",
+      "Refutacion en orden de turno con informacion privada parcial.",
+      "IA con memoria de cartas conocidas, mapa de sospecha y umbral dinamico de acusacion.",
+      "Farol contextual: la IA decide cuando desviar sospechas con jugadas ambiguas.",
+      "Pistas publicas de IA que pueden ser veraces o interesadas segun presion competitiva.",
+      "Libreta de detective integrada con estado de cartas y termometro de sospecha.",
+      "Bridge QA con render_game_to_text y avance temporal determinista.",
+    ],
+    difficulty: "Media-Alta",
+    multiplayer: "Solo vs 3 IAs",
+    viability: "Alta: estado discreto, reglas de deduccion claras y motor IA heuristico trazable.",
+    visualStyle: "Mansion noir estilizada con panel de investigacion, grafo de salas y bitacora de mesa.",
+    techFocus: "Motor de inferencia por eventos (refutaciones, no-respuestas, pistas) + politica IA de bluff/riesgo contextual.",
+
+    category_en: "Strategy",
+    tagline_en: "Competitive mystery deduction with adaptive AI, bluff timing, and public hint mind-games.",
+    description_en:
+      "Independent take on suspect + weapon + room deduction. You face three AIs that read table context, adjust risk appetite, and decide when to bluff through misleading suggestions or signal true/false hints to protect their line.",
+    objective_en: "Solve the exact case combination first: culprit, weapon, and room.",
+    howToPlay_en: "Each turn pick a connected room, issue a suggestion (suspect + weapon + room), and track who can refute. Cross-reference the log and launch a final accusation only when confidence is high.",
+    highlights_en: [
+      "Hidden envelope built from one card per category.",
+      "Turn-ordered refutation with private partial information.",
+      "AI memory model: known cards, suspicion map, and dynamic accusation threshold.",
+      "Context-aware bluffing to redirect table pressure.",
+      "Public AI hints that may be truthful or self-serving.",
+      "Integrated detective notebook with per-card suspicion telemetry.",
+      "QA bridge with render_game_to_text and deterministic time stepping.",
+    ],
+    difficulty_en: "Medium-High",
+    multiplayer_en: "Solo vs 3 AIs",
+    viability_en: "High: discrete state machine, clear deduction rules, and traceable heuristic AI.",
+    visualStyle_en: "Stylized noir mansion with investigation panel, room graph, and tactical log feed.",
+    techFocus_en: "Event-driven inference engine (refutes, no-refutes, hints) plus contextual bluff/risk AI policy.",
+  },
+
+  {
     id: "strategy-chess-grandmaster",
     image: chessGrandmasterArenaImage,
     sessionTime: "5-25 min",
@@ -2983,4 +3033,3 @@ export const games = [
     techFocus_en: "Custom 3D perspective projection, ballistic physics with sub-stepping, spherical rim + backboard collision, and real-time trajectory preview.",
   },
 ];
-

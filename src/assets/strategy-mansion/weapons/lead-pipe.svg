@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="220" viewBox="0 0 160 220" fill="none">
+  <defs>
+    <linearGradient id="card" x1="12" y1="12" x2="148" y2="208" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E5E7EB"/>
+      <stop offset="1" stop-color="#D1D5DB"/>
+    </linearGradient>
+    <linearGradient id="pipe" x1="42" y1="148" x2="120" y2="70" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#64748B"/>
+      <stop offset="0.5" stop-color="#CBD5E1"/>
+      <stop offset="1" stop-color="#475569"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="140" height="200" rx="16" fill="url(#card)" stroke="#0F172A" stroke-width="3"/>
+  <rect x="44" y="132" width="72" height="22" rx="11" transform="rotate(-35 44 132)" fill="url(#pipe)" stroke="#334155" stroke-width="3"/>
+  <ellipse cx="53" cy="138" rx="8" ry="11" transform="rotate(-35 53 138)" fill="#E2E8F0" stroke="#334155" stroke-width="2"/>
+  <ellipse cx="108" cy="98" rx="8" ry="11" transform="rotate(-35 108 98)" fill="#CBD5E1" stroke="#334155" stroke-width="2"/>
+  <path d="M76 160L97 145" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+</svg>
