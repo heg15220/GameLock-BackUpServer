@@ -1,0 +1,61 @@
+<svg width="800" height="520" viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="timeline-bg" x1="40" y1="26" x2="756" y2="490" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E1A34"/>
+      <stop offset="1" stop-color="#1F3A5F"/>
+    </linearGradient>
+    <linearGradient id="timeline-panel" x1="74" y1="72" x2="724" y2="454" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#132649" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#102036" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="timeline-line" x1="132" y1="262" x2="668" y2="262" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#22C55E"/>
+    </linearGradient>
+    <linearGradient id="timeline-card" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1E3A5E"/>
+      <stop offset="1" stop-color="#162A45"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="18" y="18" width="764" height="484" rx="32" fill="url(#timeline-bg)"/>
+  <rect x="46" y="46" width="708" height="428" rx="24" fill="url(#timeline-panel)" stroke="#93C5FD" stroke-opacity="0.28" stroke-width="2"/>
+
+  <g fill="#E2E8F0" font-family="Inter, Arial, sans-serif" font-weight="700">
+    <text x="86" y="96" font-size="28">Cronologia Maestra</text>
+    <text x="86" y="122" font-size="14" fill="#A5B4FC">Orden tactico de eventos historicos</text>
+  </g>
+
+  <line x1="132" y1="262" x2="668" y2="262" stroke="url(#timeline-line)" stroke-width="8" stroke-linecap="round"/>
+
+  <g fill="url(#timeline-card)" stroke="#38BDF8" stroke-opacity="0.48" stroke-width="1.5">
+    <rect x="106" y="170" width="126" height="72" rx="12"/>
+    <rect x="256" y="296" width="126" height="72" rx="12"/>
+    <rect x="406" y="170" width="126" height="72" rx="12"/>
+    <rect x="556" y="296" width="126" height="72" rx="12"/>
+  </g>
+
+  <g fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700">
+    <text x="122" y="194">1450</text>
+    <text x="122" y="210">Imprenta</text>
+    <text x="272" y="320">1776</text>
+    <text x="272" y="336">Independencia</text>
+    <text x="422" y="194">1969</text>
+    <text x="422" y="210">Apollo 11</text>
+    <text x="572" y="320">2015</text>
+    <text x="572" y="336">Acuerdo Paris</text>
+  </g>
+
+  <g>
+    <circle cx="169" cy="262" r="12" fill="#38BDF8"/>
+    <circle cx="319" cy="262" r="12" fill="#0EA5E9"/>
+    <circle cx="469" cy="262" r="12" fill="#22C55E"/>
+    <circle cx="619" cy="262" r="12" fill="#84CC16"/>
+  </g>
+
+  <rect x="86" y="392" width="628" height="58" rx="12" fill="#0F172A" fill-opacity="0.54" stroke="#60A5FA" stroke-opacity="0.34"/>
+  <text x="104" y="418" fill="#DBEAFE" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600">
+    Modo mision: pistas, analitica de errores y ranking final por consistencia temporal.
+  </text>
+</svg>
+

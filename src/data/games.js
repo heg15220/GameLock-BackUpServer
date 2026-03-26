@@ -50,6 +50,7 @@ import knowledgeCalculoMentalImage from "../assets/games/knowledge-calculo-menta
 import knowledgeTablaPeriodicaImage from "../assets/games/knowledge-tabla-periodica.svg";
 import knowledgeMapasImage from "../assets/games/knowledge-mapas.svg";
 import knowledgeAdivinaPaisImage from "../assets/games/knowledge-adivina-pais.svg";
+import knowledgeCronologiaImage from "../assets/games/knowledge-cronologia.svg";
 import knowledgeRefranesImage from "../assets/games/knowledge-refranes.svg";
 import knowledgeWikipediaGachaImage from "../assets/games/knowledge-wikipedia-gacha.svg";
 import chessGrandmasterArenaImage from "../assets/games/chess-grandmaster-arena.svg";
@@ -2063,6 +2064,57 @@ export const games = [
     viability_en: "High: discrete rules, existing datasets, and local text validation.",
     visualStyle_en: "Single-silhouette board with side panel for input, recommendations, and history.",
     techFocus_en: "Incremental country filtering + alias-based validation + dynamic SVG silhouette zoom.",
+  },
+
+  {
+    id: "knowledge-cronologia-maestra",
+    image: knowledgeCronologiaImage,
+    sessionTime: "6-16 min",
+
+    title: "Cronologia Maestra",
+    category: "Conocimiento",
+    tagline: "Mision profunda de orden temporal con pistas tacticas, analitica y ranking final.",
+    description:
+      "Juego de conocimiento historico orientado a precision cronologica. En cada ronda recibes eventos reales mezclados, un evento ancla y recursos limitados de Intel para pedir pistas. Debes construir la linea temporal correcta y sostener consistencia a lo largo de toda la mision.",
+    objective_es:
+      "Ordena correctamente los eventos de cada ronda para maximizar puntuacion, racha y rango final de mision.",
+    howToPlay_es:
+      "Coloca cartas por clic o con teclas 1-9, elimina la ultima con Backspace y valida con Enter. Usa H/J/K para pistas (rango, fecha exacta, relacion con ancla), N para avanzar ronda ya revisada y R para nueva mision.",
+    highlights: [
+      "Motor determinista de misiones por semilla con 4 modos: mix, ciencia, geopolitica y cultura.",
+      "Tres dificultades con distinto numero de rondas, tiempo e Intel inicial.",
+      "Sistema de evaluacion profesional: precision, consistencia temporal, inversiones y error total.",
+      "Economia de pistas con coste de Intel y recompensa por rondas perfectas.",
+      "Informe detallado por ronda con orden correcto, orden enviado y metricas comparables.",
+      "Bridge QA serializable con estado completo de ronda, cartas visibles y telemetria.",
+    ],
+    difficulty: "Variable (Analista/Experto/Maestro)",
+    multiplayer: "Solo",
+    viability: "Alta: dataset local, reglas discretas y evaluacion reproducible sin dependencias externas.",
+    visualStyle: "Panel tactico de inteligencia historica con cards, timeline y tablero de analitica.",
+    techFocus: "Generacion procedural por semilla + evaluacion de orden + sistema de pistas y scoring avanzado.",
+
+    category_en: "Knowledge",
+    tagline_en: "Deep timeline mission with tactical hints, analytics, and final ranking.",
+    description_en:
+      "Historical-knowledge game focused on chronology accuracy. Every round gives mixed real events, one anchor event, and limited Intel resources for hints. Build the correct timeline and keep consistency across the entire mission.",
+    objective_en:
+      "Sort each round's events correctly to maximize score, streak, and final mission rank.",
+    howToPlay_en:
+      "Place cards with clicks or keys 1-9, remove the latest card with Backspace, and validate with Enter. Use H/J/K for hints (range, exact year, anchor relation), N to advance reviewed rounds, and R for a new mission.",
+    highlights_en: [
+      "Deterministic seed-driven mission engine with 4 modes: mix, science, geopolitics, and culture.",
+      "Three difficulty tiers with different round count, timer pressure, and initial Intel.",
+      "Professional evaluation metrics: accuracy, chronology consistency, inversion count, and total error.",
+      "Hint economy with Intel costs and perfect-round rewards.",
+      "Detailed round report with correct order, submitted order, and comparable metrics.",
+      "Serializable QA bridge exposing full round state, visible cards, and telemetry.",
+    ],
+    difficulty_en: "Variable (Analyst/Expert/Master)",
+    multiplayer_en: "Solo",
+    viability_en: "High: local dataset, discrete rules, and reproducible scoring without external dependencies.",
+    visualStyle_en: "Historical intelligence board with tactical cards, timeline track, and analytics panel.",
+    techFocus_en: "Seed-based procedural mission generation + ordering evaluation + advanced hint economy.",
   },
 
   {

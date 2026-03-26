@@ -3322,3 +3322,12 @@ pm run build sigue bloqueada en sandbox por spawn EPERM de esbuild; intento de e
 - Cada turno IA ahora anade entrada al historial con turno, IA, sospechoso, arma y sala; el panel lateral de juego lo renderiza en lista con scroll vertical.
 - Añadidas copys ES/EN para titulo y estado vacio del historial (iHistoryTitle, iHistoryEmpty).
 - Estilos nuevos en styles.css: mansion-ai-history-list, mansion-ai-history-item, mansion-ai-history-empty con max-height + overflow-y: auto.
+## 2026-03-26 - Cronologia Maestra UX simplificada + i18n refinada
+- Reestructurado `src/games/knowledge/TimelineKnowledgeGame.jsx` para eliminar el layout tipo panel lateral y pasar a un tablero de juego: hero compacto, KPIs, barra de tiempo visual, modo/dificultad con botones tipo pill, tablero central (ancla + timeline + pendientes), dock de acciones y feedback unificado.
+- Internacionalizacion revisada en ES/EN para nuevos textos de interfaz (`orderCleared`) y mejoras de robustez de locale (`getPreferredLocale` evita dependencia directa de `document`/`navigator` cuando no existen).
+- Mejorada coherencia de feedback: mensajes de falta de Intel/targets/cartas pendientes ahora se reflejan tambien en la bitacora.
+- Reescrito bloque de estilos cronologia en `src/styles.css` con direccion visual mas inmersiva y simple (ambient glow, paneles suaves, animaciones de entrada, rail animado, hover states, barra de tiempo pulsante y responsive mobile/desktop).
+- Pendiente inmediato: validacion tecnica (test/build) y pasada Playwright con capturas/estado del juego actualizado.
+- Ajuste i18n adicional (2026-03-26): se internacionalizo tambien la telemetria/snapshot (`coordinates`) y la presentacion de rango en resumen/fin de mision con etiquetas localizadas ES/EN (`rankLabels`).
+- Fix i18n critico (2026-03-26): `TimelineKnowledgeGame` ya no toma `document.documentElement.lang` (que estaba fijo en `index.html: es`), ahora usa `resolveKnowledgeArcadeLocale` como el resto de juegos y muestra EN cuando corresponde.
+- Refuerzo QA i18n: test de timeline actualizado para exigir que cada `title`/`summary` en EN exista y no sea copia normalizada del ES.
