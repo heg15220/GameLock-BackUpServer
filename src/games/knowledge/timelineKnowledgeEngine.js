@@ -20,7 +20,7 @@ export const TIMELINE_MODE_CONFIG = Object.freeze([
   },
   {
     id: "geopolitics",
-    tags: ["geopolitics", "war", "rights", "economy", "exploration"],
+    tags: ["geopolitics", "politics"],
   },
   {
     id: "culture",
@@ -146,6 +146,28 @@ const extractGeneratedCategoryId = (eventId) => {
   return eventId.slice(3, qMarker);
 };
 
+const GEOPOLITICS_ALLOWED_GENERATED_CATEGORY_SET = new Set([
+  "historical-event",
+  "election",
+  "military-conflict",
+  "war",
+  "treaty",
+  "political-party",
+]);
+
+const GEOPOLITICS_ALLOWED_TAG_SET = new Set([
+  "geopolitics",
+  "politics",
+]);
+
+const isValidGeopoliticsEvent = (event) => {
+  if (!event) return false;
+  const categoryId = extractGeneratedCategoryId(event.id);
+  if (categoryId) return GEOPOLITICS_ALLOWED_GENERATED_CATEGORY_SET.has(categoryId);
+  const tags = event.tags ?? [];
+  return tags.some((tag) => GEOPOLITICS_ALLOWED_TAG_SET.has(tag));
+};
+
 const resolveMixThemeForEvent = (event) => {
   if (!event) return null;
   const categoryId = extractGeneratedCategoryId(event.id);
@@ -245,6 +267,12 @@ const buildRound = ({
 
 const buildModePool = (modeId) => {
   const mode = resolveTimelineMode(modeId);
+  if (mode.id === "geopolitics") {
+    const pool = TIMELINE_EVENT_BANK
+      .filter((event) => isValidGeopoliticsEvent(event))
+      .sort(sortEvents);
+    return pool.length ? pool : [...TIMELINE_EVENT_BANK].sort(sortEvents);
+  }
   const tagSet = mode.tags ? new Set(mode.tags) : null;
   const pool = TIMELINE_EVENT_BANK
     .filter((event) => (tagSet ? event.tags.some((tag) => tagSet.has(tag)) : true))

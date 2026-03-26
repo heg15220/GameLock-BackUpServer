@@ -47,6 +47,27 @@ const extractGeneratedCategoryId = (eventId) => {
   return eventId.slice(3, qMarker);
 };
 
+const GEOPOLITICS_ALLOWED_GENERATED_CATEGORY_SET = new Set([
+  "historical-event",
+  "election",
+  "military-conflict",
+  "war",
+  "treaty",
+  "political-party",
+]);
+
+const GEOPOLITICS_ALLOWED_TAG_SET = new Set([
+  "geopolitics",
+  "politics",
+]);
+
+const isEventValidForGeopoliticsMode = (event) => {
+  const categoryId = extractGeneratedCategoryId(event?.id);
+  if (categoryId) return GEOPOLITICS_ALLOWED_GENERATED_CATEGORY_SET.has(categoryId);
+  const tags = event?.tags ?? [];
+  return tags.some((tag) => GEOPOLITICS_ALLOWED_TAG_SET.has(tag));
+};
+
 const isEventValidForTheme = (event, themeId) => {
   const tags = event.tags ?? [];
   const categoryId = extractGeneratedCategoryId(event.id);
@@ -156,6 +177,17 @@ describe("timelineKnowledgeEngine", () => {
     expect(exact.scoreDelta).toBeGreaterThan(reversed.scoreDelta);
     expect(exact.accuracy).toBeGreaterThan(reversed.accuracy);
     expect(exact.chronologyRatio).toBeGreaterThan(reversed.chronologyRatio);
+  });
+
+  it("keeps geopolitics mode limited to historical, political, and geopolitical events", () => {
+    for (let seed = 1; seed <= 40; seed += 1) {
+      const mission = buildTimelineMission(seed, "geopolitics", "master");
+      mission.rounds.forEach((round) => {
+        round.events.forEach((event) => {
+          expect(isEventValidForGeopoliticsMode(event)).toBe(true);
+        });
+      });
+    }
   });
 
   it("summarizes mission stats and rank", () => {
