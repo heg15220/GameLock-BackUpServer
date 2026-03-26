@@ -20434,6 +20434,8 @@ button.brisca-card.playable:disabled {
   border: 0;
   display: block;
   background: #050915;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .arcade-neon-rush-loading {

@@ -21,6 +21,7 @@ import arcadeBubbleStormImage from "../assets/games/arcade-bubble-storm.svg";
 import arcadeIceStrikeProImage from "../assets/games/arcade-ice-strike-pro.svg";
 import arcadeNeonCryptImage from "../assets/games/arcade-neon-crypt.svg";
 import arcadeNeonRushImage from "../assets/games/arcade-neon-rush.svg";
+import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-showdown.svg";
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
@@ -321,6 +322,55 @@ export const games = [
     viability_en: "High: decoupled 2D Canvas engine with FSM AI and BFS pathfinding.",
     visualStyle_en: "Dark neon maze with clear route, pellet and ghost-state readability.",
     techFocus_en: "Modular engine/world/entities/ai/state architecture + decoupled React HUD.",
+  },
+
+  {
+    id: "arcade-stick-brawl-showdown",
+    image: arcadeStickBrawlShowdownImage,
+    sessionTime: "3-8 min",
+
+    title: "Stick Brawl Showdown",
+    category: "Arcade",
+    tagline: "Fighting arcade 1v1 con IA adaptativa, fisicas refinadas y escenarios dinamicos de alta calidad.",
+    description:
+      "Combate stickman competitivo creado para la seccion Arcade: incluye motor fisico con momentum, knockback progresivo, guard break, regeneracion de vida condicionada y una IA que lee patrones del jugador para ajustar su estrategia en tiempo real.",
+    objective_es: "Gana el mejor de tres rounds reduciendo la vida rival a cero o llegando con ventaja al final del tiempo.",
+    howToPlay_es:
+      "A/D o flechas para moverte, W o arriba para saltar, S o abajo para bloquear. G/espacio jab, H/enter cross, J patada, K roundhouse, F proyectil y B super (requiere barra llena). P pausa, R reinicia round.",
+    highlights: [
+      "5 escenarios detallados con atmosfera propia: Neon Rooftop, Obsidian Forge, Aurora Icefield, Storm Temple y Sunset Dunes.",
+      "Fisica de combate mejorada: aceleracion, friccion, hitstun, knockback escalado y empuje entre cuerpos.",
+      "Sistema tactico de vida y defensa: chip damage, guard break y regeneracion parcial de vida fuera de intercambio.",
+      "IA con razonamiento dinamico por distancia, agresividad rival, patron de entradas y contexto de ronda.",
+      "Super burst + proyectiles para control de espacio y cierre de rounds.",
+      "Bridge QA con `render_game_to_text` y `advanceTime` para validacion automatizada.",
+    ],
+    difficulty: "Alta",
+    multiplayer: "Solo vs IA",
+    viability: "Alta: runtime Canvas determinista integrado en React con estado serializable y telemetria clara.",
+    visualStyle: "Neo-arcade cinematografico con capas parallax, clima dinamico, glow competitivo y feedback de impacto.",
+    techFocus: "State machine de lucha, IA adaptativa basada en patron, control de recursos (vida/guardia/super) y pipeline Canvas 2D.",
+
+    category_en: "Arcade",
+    tagline_en: "1v1 arcade fighter with adaptive AI, refined physics, and high-detail dynamic stages.",
+    description_en:
+      "Competitive stickman combat built for the Arcade category, featuring momentum-driven physics, progressive knockback, guard break, conditional health regeneration, and AI that reads player patterns to adapt strategy in real time.",
+    objective_en: "Win a best-of-three set by KO or by holding the health lead when the timer expires.",
+    howToPlay_en:
+      "A/D or arrows to move, W/up to jump, S/down to block. G/space jab, H/enter cross, J kick, K roundhouse, F projectile, and B super (full meter required). P pauses and R restarts the round.",
+    highlights_en: [
+      "5 handcrafted arenas with distinct atmosphere: Neon Rooftop, Obsidian Forge, Aurora Icefield, Storm Temple, and Sunset Dunes.",
+      "Upgraded combat physics: acceleration, friction, hitstun, scaled knockback, and body push resolution.",
+      "Tactical sustain model with chip damage, guard break, and conditional out-of-combat health regeneration.",
+      "Dynamic AI reasoning based on spacing, opponent aggression, input patterns, and round context.",
+      "Super burst and projectile layers for space control and round closing.",
+      "QA bridge with `render_game_to_text` and `advanceTime` hooks for deterministic testing.",
+    ],
+    difficulty_en: "High",
+    multiplayer_en: "Solo vs AI",
+    viability_en: "High: deterministic Canvas runtime embedded in React with serializable state and clean telemetry.",
+    visualStyle_en: "Cinematic neo-arcade direction with parallax layers, dynamic weather, competitive glow, and strong hit feedback.",
+    techFocus_en: "Fighting state machine, pattern-aware adaptive AI, resource economy (health/guard/super), and a 2D Canvas render pipeline.",
   },
 
   {

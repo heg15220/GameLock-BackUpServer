@@ -34,6 +34,7 @@ const PinballWizardGame  = lazy(() => import("../games/arcade/pinball-wizard"));
 const BubbleStormGame        = lazy(() => import("../games/arcade/bubble-storm"));
 const BasketballCourtGame    = lazy(() => import("../games/arcade/basketball-court"));
 const IceStrikeProGame       = lazy(() => import("../games/arcade/ice-strike-pro"));
+const StickBrawlShowdownGame = lazy(() => import("../games/arcade/stick-brawl-showdown"));
 const KnowledgeSudokuGame = () => <KnowledgeArcadeGame variant="sudoku" />;
 const KnowledgeAhorcadoGame = () => <KnowledgeArcadeGame variant="ahorcado" />;
 const KnowledgePacienciaGame = () => <KnowledgeArcadeGame variant="paciencia" />;
@@ -93,6 +94,7 @@ const GAME_COMPONENTS = {
   "arcade-pinball-wizard":  PinballWizardGame,
   "arcade-bubble-storm":       BubbleStormGame,
   "arcade-ice-strike-pro":     IceStrikeProGame,
+  "arcade-stick-brawl-showdown": StickBrawlShowdownGame,
   "sports-basketball-court":   BasketballCourtGame,
   "arcade-buscaminas-classic": MinesweeperGame,
   "racing-race2dpro": RaceGame2DPro,
@@ -143,6 +145,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-pinball-wizard": "Z o flecha izquierda para flipper izquierdo, X o flecha derecha para el derecho. Mantén Espacio para cargar el plunger y suéltalo para lanzar. R reinicia.",
     "arcade-bubble-storm": "Mueve el ratón para apuntar y haz clic para disparar burbujas. Tab o S cambia la burbuja siguiente. Forma grupos de 3+ del mismo color para hacerlos explotar. R reinicia.",
     "arcade-ice-strike-pro": "←→/AD apuntan, W sube potencia, Q giro interior, E giro exterior, Espacio lanza. S barre durante el vuelo. R reinicia, Esc menú.",
+    "arcade-stick-brawl-showdown": "Fighter arcade avanzado: A/D o flechas mover, W/arriba saltar, S/abajo bloquear, G/espacio jab, H/enter cross, J/K patadas, F proyectil, B super, P pausa y R reinicia.",
     "sports-basketball-court": "Baloncesto 6 posiciones: arriba/abajo ajustan arco, izq/der desviacion lateral, W/S potencia, Space/Enter lanza. P pausa, R nueva ronda y F pantalla completa.",
     "arcade-pacman-maze-protocol": "WASD o flechas para mover, Enter/Espacio para empezar, P/Esc para pausa, R reinicia, M sonido y G debug.",
     "arcade-buscaminas-classic": "Click izq abre, click der o pulsacion larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA, R reinicia. En competitivo puntuan celdas + tiempo.",
@@ -192,6 +195,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-pinball-wizard": "Z or left arrow for left flipper, X or right arrow for right flipper. Hold Space to charge the plunger and release to launch. R restarts.",
     "arcade-bubble-storm": "Move the mouse to aim and click to shoot bubbles. Tab or S swaps the next bubble. Match 3+ same-colour bubbles to pop them. R restarts.",
     "arcade-ice-strike-pro": "←→/AD aim, W raise power, Q in-turn, E out-turn, Space deliver. S sweeps mid-flight. R restart, Esc menu.",
+    "arcade-stick-brawl-showdown": "Advanced arcade fighter: A/D or arrows move, W/up jump, S/down block, G/space jab, H/enter cross, J/K kicks, F projectile, B super, P pause, R restart.",
     "sports-basketball-court": "Basketball 6 spots: up/down tune arc, left/right lateral aim, W/S power, Space/Enter shoots. P pauses, R starts a new round, and F toggles fullscreen.",
     "arcade-pacman-maze-protocol": "Use arrows or WASD to move, Enter/Space to start, P/Esc to pause, R restart, M sound and G debug.",
     "arcade-buscaminas-classic": "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells + time.",
@@ -253,4 +257,3 @@ function GamePlayground({ game }) {
 }
 
 export default GamePlayground;
-

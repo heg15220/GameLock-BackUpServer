@@ -1,0 +1,88 @@
+<svg width="800" height="450" viewBox="0 0 800 450" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="450" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1024"/>
+      <stop offset="0.56" stop-color="#1C2A48"/>
+      <stop offset="1" stop-color="#3B2A55"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="300" x2="0" y2="450" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2D3554"/>
+      <stop offset="1" stop-color="#0E1323"/>
+    </linearGradient>
+    <linearGradient id="leftGlow" x1="187" y1="0" x2="187" y2="273" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="rightGlow" x1="613" y1="0" x2="613" y2="273" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDA4AF"/>
+      <stop offset="1" stop-color="#F43F5E"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <circle cx="640" cy="86" r="52" fill="#D1FAE5" fill-opacity="0.2"/>
+  <circle cx="640" cy="86" r="37" fill="#F0FDFA" fill-opacity="0.32"/>
+
+  <g opacity="0.45">
+    <rect x="48" y="176" width="40" height="132" fill="#0B1226"/>
+    <rect x="102" y="152" width="28" height="156" fill="#0B1226"/>
+    <rect x="138" y="194" width="24" height="114" fill="#0B1226"/>
+    <rect x="196" y="162" width="34" height="146" fill="#0B1226"/>
+    <rect x="246" y="136" width="30" height="172" fill="#0B1226"/>
+    <rect x="286" y="176" width="28" height="132" fill="#0B1226"/>
+    <rect x="544" y="150" width="30" height="158" fill="#0B1226"/>
+    <rect x="586" y="118" width="40" height="190" fill="#0B1226"/>
+    <rect x="640" y="168" width="28" height="140" fill="#0B1226"/>
+    <rect x="680" y="146" width="28" height="162" fill="#0B1226"/>
+    <rect x="722" y="188" width="24" height="120" fill="#0B1226"/>
+  </g>
+
+  <rect y="296" width="800" height="154" fill="url(#floor)"/>
+  <path d="M0 294H800" stroke="#22D3EE" stroke-opacity="0.75" stroke-width="4"/>
+
+  <g opacity="0.35">
+    <path d="M24 300L52 450" stroke="#67E8F9"/>
+    <path d="M88 300L116 450" stroke="#67E8F9"/>
+    <path d="M152 300L180 450" stroke="#67E8F9"/>
+    <path d="M216 300L244 450" stroke="#67E8F9"/>
+    <path d="M280 300L308 450" stroke="#67E8F9"/>
+    <path d="M344 300L372 450" stroke="#67E8F9"/>
+    <path d="M408 300L436 450" stroke="#67E8F9"/>
+    <path d="M472 300L500 450" stroke="#67E8F9"/>
+    <path d="M536 300L564 450" stroke="#67E8F9"/>
+    <path d="M600 300L628 450" stroke="#67E8F9"/>
+    <path d="M664 300L692 450" stroke="#67E8F9"/>
+    <path d="M728 300L756 450" stroke="#67E8F9"/>
+  </g>
+
+  <g>
+    <ellipse cx="190" cy="326" rx="36" ry="10" fill="#020617" fill-opacity="0.42"/>
+    <ellipse cx="610" cy="326" rx="36" ry="10" fill="#020617" fill-opacity="0.42"/>
+  </g>
+
+  <g stroke-linecap="round">
+    <line x1="184" y1="318" x2="176" y2="282" stroke="url(#leftGlow)" stroke-width="7"/>
+    <line x1="197" y1="318" x2="203" y2="282" stroke="url(#leftGlow)" stroke-width="7"/>
+    <line x1="190" y1="282" x2="190" y2="236" stroke="url(#leftGlow)" stroke-width="8"/>
+    <line x1="190" y1="244" x2="166" y2="258" stroke="url(#leftGlow)" stroke-width="6"/>
+    <line x1="190" y1="244" x2="224" y2="228" stroke="url(#leftGlow)" stroke-width="6"/>
+    <circle cx="190" cy="218" r="14" fill="#DBF4FF"/>
+  </g>
+
+  <g stroke-linecap="round">
+    <line x1="606" y1="318" x2="598" y2="282" stroke="url(#rightGlow)" stroke-width="7"/>
+    <line x1="619" y1="318" x2="625" y2="282" stroke="url(#rightGlow)" stroke-width="7"/>
+    <line x1="612" y1="282" x2="612" y2="236" stroke="url(#rightGlow)" stroke-width="8"/>
+    <line x1="612" y1="244" x2="586" y2="230" stroke="url(#rightGlow)" stroke-width="6"/>
+    <line x1="612" y1="244" x2="646" y2="258" stroke="url(#rightGlow)" stroke-width="6"/>
+    <circle cx="612" cy="218" r="14" fill="#FFE4EA"/>
+  </g>
+
+  <path d="M380 242C404 218 440 218 464 242" stroke="#EDE9FE" stroke-opacity="0.78" stroke-width="8" stroke-linecap="round"/>
+  <path d="M380 262C404 286 440 286 464 262" stroke="#FDE68A" stroke-opacity="0.78" stroke-width="8" stroke-linecap="round"/>
+
+  <rect x="22" y="22" width="300" height="42" rx="8" fill="#020617" fill-opacity="0.68" stroke="#22D3EE" stroke-opacity="0.7"/>
+  <text x="36" y="50" fill="#E2E8F0" font-family="Verdana, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="1.2">
+    STICK BRAWL SHOWDOWN
+  </text>
+</svg>

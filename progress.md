@@ -3378,3 +3378,11 @@ pm run build sigue bloqueada en sandbox por spawn EPERM de esbuild; intento de e
 - Validación técnica:
   - chequeo estructural de script: `META.length = 100`, niveles nuevos con portal/longitud válidos.
   - `npm run build` OK (ejecución elevada por limitación sandbox `spawn EPERM`).
+
+## 2026-03-26 - Nuevo Arcade Fighting (Stick Brawl Showdown)
+- Implementado nuevo juego arcade rcade-stick-brawl-showdown en src/games/arcade/stick-brawl-showdown/index.jsx con motor Canvas en React.
+- Mejoras de combate: momentum/knockback escalado, guard break, chip damage, regeneracion condicionada de vida, super meter y proyectiles.
+- IA mejorada con razonamiento dinamico por distancia, patron del jugador, ventaja de vida, ventana de regen y contexto de ronda.
+- Anadidos 5 escenarios detallados con atmosferas y climatologia diferenciadas.
+- Integrado en catalogo/plataforma: src/data/games.js, src/components/GamePlayground.jsx, src/games/registry.jsx, y nuevo asset src/assets/games/arcade-stick-brawl-showdown.svg.
+- Pendiente: build + validacion Playwright con inspeccion de capturas/estado.

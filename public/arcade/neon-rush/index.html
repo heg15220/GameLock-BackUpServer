@@ -51,6 +51,7 @@ body{background:#050008;font-family:'Orbitron',sans-serif;overflow:hidden;height
 #sl{position:absolute;top:56px;left:0;width:100%;height:450px;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);
   z-index:10;border-radius:0 0 8px 8px;}
+#gc,#pc{image-rendering:crisp-edges;}
 #gw,#gc,#pc,#sl,.ov,.btn{touch-action:none;}
 #ad{position:absolute;top:67px;left:15px;font-size:9px;color:rgba(255,255,255,.22);letter-spacing:2px;}
 /* OVERLAYS */
@@ -707,6 +708,26 @@ const ctx=canvas.getContext('2d');
 const pCanvas=document.getElementById('pc');
 const pCtx=pCanvas.getContext('2d');
 
+let dpr=1;
+function applyHiDpiCanvas(targetCanvas,targetCtx,w,h){
+  targetCanvas.style.width=`${w}px`;
+  targetCanvas.style.height=`${h}px`;
+  const pw=Math.max(1,Math.round(w*dpr));
+  const ph=Math.max(1,Math.round(h*dpr));
+  if(targetCanvas.width!==pw||targetCanvas.height!==ph){
+    targetCanvas.width=pw;
+    targetCanvas.height=ph;
+  }
+  targetCtx.setTransform(dpr,0,0,dpr,0,0);
+}
+function refreshRenderResolution(){
+  dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+  applyHiDpiCanvas(canvas,ctx,W,H);
+  applyHiDpiCanvas(pCanvas,pCtx,W,H);
+}
+refreshRenderResolution();
+window.addEventListener('resize',refreshRenderResolution);
+
 let state='ls',curLv=0,lvObjs=[],bgR=[],score=0,best=0;
 let attempt=1,gTime=0,camX=0,parts=[];
 let levelLength=LL;
@@ -967,64 +988,64 @@ function drawBg(){
 }
 
 function drawSp(obj){
-  const sx=obj.x-camX;
+  const sx=Math.round(obj.x-camX),sy=Math.round(obj.y);
   ctx.save();ctx.shadowColor=env.gl;ctx.shadowBlur=7;ctx.fillStyle=env.sc;
-  ctx.beginPath();ctx.moveTo(sx,obj.y+obj.h);ctx.lineTo(sx+obj.w/2,obj.y);ctx.lineTo(sx+obj.w,obj.y+obj.h);
+  ctx.beginPath();ctx.moveTo(sx,sy+obj.h);ctx.lineTo(sx+obj.w/2,sy);ctx.lineTo(sx+obj.w,sy+obj.h);
   ctx.closePath();ctx.fill();ctx.restore();
 }
 function drawSpI(obj){
-  const sx=obj.x-camX;
+  const sx=Math.round(obj.x-camX),sy=Math.round(obj.y);
   ctx.save();ctx.shadowColor=env.gl;ctx.shadowBlur=7;ctx.fillStyle=env.si;
-  ctx.beginPath();ctx.moveTo(sx,obj.y);ctx.lineTo(sx+obj.w/2,obj.y+obj.h);ctx.lineTo(sx+obj.w,obj.y);
+  ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+obj.w/2,sy+obj.h);ctx.lineTo(sx+obj.w,sy);
   ctx.closePath();ctx.fill();ctx.restore();
 }
 function drawBl(obj){
-  const sx=obj.x-camX;
-  ctx.save();ctx.fillStyle=env.bf;ctx.fillRect(sx,obj.y,obj.w,obj.h);
+  const sx=Math.round(obj.x-camX),sy=Math.round(obj.y);
+  ctx.save();ctx.fillStyle=env.bf;ctx.fillRect(sx,sy,obj.w,obj.h);
   ctx.strokeStyle=env.bb+'44';ctx.lineWidth=1;
-  for(let gx=0;gx<=obj.w;gx+=T){ctx.beginPath();ctx.moveTo(sx+gx,obj.y);ctx.lineTo(sx+gx,obj.y+obj.h);ctx.stroke();}
-  for(let gy=0;gy<=obj.h;gy+=T){ctx.beginPath();ctx.moveTo(sx,obj.y+gy);ctx.lineTo(sx+obj.w,obj.y+gy);ctx.stroke();}
+  for(let gx=0;gx<=obj.w;gx+=T){ctx.beginPath();ctx.moveTo(sx+gx,sy);ctx.lineTo(sx+gx,sy+obj.h);ctx.stroke();}
+  for(let gy=0;gy<=obj.h;gy+=T){ctx.beginPath();ctx.moveTo(sx,sy+gy);ctx.lineTo(sx+obj.w,sy+gy);ctx.stroke();}
   ctx.shadowColor=env.bb;ctx.shadowBlur=9;ctx.strokeStyle=env.bb;ctx.lineWidth=2;
-  ctx.strokeRect(sx,obj.y,obj.w,obj.h);ctx.restore();
+  ctx.strokeRect(sx,sy,obj.w,obj.h);ctx.restore();
 }
 function drawJP(obj){
-  const sx=obj.x-camX,pulse=.7+.3*Math.sin(gTime*.12);
+  const sx=Math.round(obj.x-camX),sy=Math.round(obj.y),pulse=.7+.3*Math.sin(gTime*.12);
   ctx.save();ctx.shadowColor='#ffee00';ctx.shadowBlur=14*pulse;
-  ctx.fillStyle=`rgba(255,238,0,${pulse})`;ctx.fillRect(sx,obj.y,obj.w,obj.h);
+  ctx.fillStyle=`rgba(255,238,0,${pulse})`;ctx.fillRect(sx,sy,obj.w,obj.h);
   ctx.fillStyle='#000';ctx.beginPath();
-  ctx.moveTo(sx+obj.w/2,obj.y+4);ctx.lineTo(sx+obj.w/2+8,obj.y+obj.h-3);ctx.lineTo(sx+obj.w/2-8,obj.y+obj.h-3);
+  ctx.moveTo(sx+obj.w/2,sy+4);ctx.lineTo(sx+obj.w/2+8,sy+obj.h-3);ctx.lineTo(sx+obj.w/2-8,sy+obj.h-3);
   ctx.closePath();ctx.fill();ctx.restore();
 }
 function drawOrb(obj){
-  const sx=obj.x-camX,pulse=.8+.2*Math.sin(gTime*.08);
+  const sx=Math.round(obj.x-camX),sy=Math.round(obj.y),pulse=.8+.2*Math.sin(gTime*.08);
   ctx.save();ctx.shadowColor='#ffee00';ctx.shadowBlur=20*pulse;
   ctx.strokeStyle='#ffee00';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(sx,obj.y,obj.r*1.6,0,Math.PI*2);ctx.stroke();
-  const g=ctx.createRadialGradient(sx,obj.y,0,sx,obj.y,obj.r);
+  ctx.beginPath();ctx.arc(sx,sy,obj.r*1.6,0,Math.PI*2);ctx.stroke();
+  const g=ctx.createRadialGradient(sx,sy,0,sx,sy,obj.r);
   g.addColorStop(0,'#fff');g.addColorStop(.5,'#ffee00');g.addColorStop(1,'rgba(255,238,0,.1)');
-  ctx.fillStyle=g;ctx.beginPath();ctx.arc(sx,obj.y,obj.r,0,Math.PI*2);ctx.fill();ctx.restore();
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(sx,sy,obj.r,0,Math.PI*2);ctx.fill();ctx.restore();
 }
 function drawPortal(obj){
-  const sx=obj.x-camX,t=gTime*.05;
+  const sx=Math.round(obj.x-camX),sy=Math.round(obj.y),t=gTime*.05;
   ctx.save();ctx.shadowColor=env.gl;ctx.shadowBlur=22;
-  ctx.strokeStyle=env.gl;ctx.lineWidth=3;ctx.strokeRect(sx,obj.y,obj.w,obj.h);
-  const g=ctx.createLinearGradient(sx,obj.y,sx+obj.w,obj.y+obj.h);
+  ctx.strokeStyle=env.gl;ctx.lineWidth=3;ctx.strokeRect(sx,sy,obj.w,obj.h);
+  const g=ctx.createLinearGradient(sx,sy,sx+obj.w,sy+obj.h);
   g.addColorStop(0,`rgba(0,245,255,${.07+.06*Math.sin(t)})`);
   g.addColorStop(.5,`rgba(191,0,255,${.13+.07*Math.cos(t)})`);
   g.addColorStop(1,`rgba(0,245,255,${.07+.06*Math.sin(t+1)})`);
-  ctx.fillStyle=g;ctx.fillRect(sx,obj.y,obj.w,obj.h);
+  ctx.fillStyle=g;ctx.fillRect(sx,sy,obj.w,obj.h);
   ctx.fillStyle='#fff';ctx.font='700 9px Orbitron';ctx.textAlign='center';
-  ctx.fillText('FINISH',sx+obj.w/2,obj.y+obj.h/2+4);ctx.restore();
+  ctx.fillText('FINISH',sx+obj.w/2,sy+obj.h/2+4);ctx.restore();
 }
 function drawPlayer(){
   if(state==='dead'||state==='ls')return;
   for(let i=0;i<player.trail.length;i++){
     const t=player.trail[i],a=(i/player.trail.length)*.32,s=player.w*(.5+.5*(i/player.trail.length))*.5;
-    const sx=t.x-camX+player.w/2,sy=t.y+player.h/2;
+    const sx=Math.round(t.x-camX+player.w/2),sy=Math.round(t.y+player.h/2);
     ctx.save();ctx.globalAlpha=a;ctx.translate(sx,sy);ctx.rotate(t.rot*Math.PI/180);
     ctx.fillStyle=env.pc;ctx.fillRect(-s,-s,s*2,s*2);ctx.restore();
   }
-  const cx=player.x-camX+player.w/2,cy=player.y+player.h/2;
+  const cx=Math.round(player.x-camX+player.w/2),cy=Math.round(player.y+player.h/2);
   ctx.save();ctx.translate(cx,cy);ctx.rotate(player.rotation*Math.PI/180);
   ctx.shadowColor=env.pc;ctx.shadowBlur=17;ctx.fillStyle=env.pc;
   ctx.fillRect(-player.w/2,-player.h/2,player.w,player.h);
@@ -1038,7 +1059,9 @@ function drawP2(){
   pCtx.clearRect(0,0,W,H);
   for(const p of parts){
     pCtx.save();pCtx.globalAlpha=p.life;pCtx.shadowColor=p.col;pCtx.shadowBlur=8;
-    pCtx.fillStyle=p.col;pCtx.fillRect(p.x-camX-p.sz/2,p.y-p.sz/2,p.sz,p.sz);pCtx.restore();
+    pCtx.fillStyle=p.col;
+    pCtx.fillRect(Math.round(p.x-camX-p.sz/2),Math.round(p.y-p.sz/2),p.sz,p.sz);
+    pCtx.restore();
   }
 }
 function drawObjs(){
