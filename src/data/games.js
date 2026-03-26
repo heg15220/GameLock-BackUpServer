@@ -20,6 +20,7 @@ import arcadePinballWizardImage from "../assets/games/arcade-pinball-wizard.svg"
 import arcadeBubbleStormImage from "../assets/games/arcade-bubble-storm.svg";
 import arcadeIceStrikeProImage from "../assets/games/arcade-ice-strike-pro.svg";
 import arcadeNeonCryptImage from "../assets/games/arcade-neon-crypt.svg";
+import arcadeNeonRushImage from "../assets/games/arcade-neon-rush.svg";
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
@@ -1021,6 +1022,61 @@ export const games = [
     viability_en: "High: pure Canvas 2D, steering + circular collision physics, no external dependencies.",
     visualStyle_en: "Neon gothic aesthetic: dark grid floor with texture dots, stone pillars with edge glow, distinct enemy shapes (circle, diamond, square, star) with neon aura.",
     techFocus_en: "Steering behavior with dynamic separation + circular collisions + angular hitbox arc + procedural particle system + projectiles with ellipse trail.",
+  },
+
+    {
+    id: "arcade-neon-rush",
+    image: arcadeNeonRushImage,
+    sessionTime: "2-8 min",
+
+    title: "Neon Rush",
+    category: "Arcade",
+    tagline: "Runner de precision con 100 niveles, entornos variados y salto de baja latencia + salto aereo de apoyo.",
+    description:
+      "Integracion completa del juego Neon Rush con 100 niveles de dificultad progresiva. El jugador avanza de forma continua y debe reaccionar con saltos precisos para evitar pinchos, techos, bloques y secuencias combinadas. Se reforzo la jugabilidad para reducir frustracion: jump buffer, coyote time, hitboxes mas justas, salto aereo de apoyo y asistencia dinamica tras varios intentos.",
+    objective_es:
+      "Completa cada nivel llegando al portal final sin chocar contra obstaculos. Mejora tu mejor tiempo y supera niveles cada vez mas exigentes.",
+    howToPlay_es:
+      "Pulsa Espacio, flecha arriba, click o tap para saltar. En movil y tablet puedes tocar cualquier zona del juego para activar el salto, y volver a tocar en el aire para usar el salto aereo de apoyo (1 por ciclo). Puedes arrancar desde pantalla inicial con la misma entrada. R reintenta cuando caes y Esc vuelve al menu principal.",
+    highlights: [
+      "100 niveles con identidad visual propia (easy/medium/hard/insane) y 80 niveles nuevos de diseno procedural.",
+      "Mecanicas de precision: pinchos de suelo, pinchos de techo, bloques, jump pads y orbes de impulso.",
+      "Respuesta de salto reforzada con jump buffer + coyote time para minimizar delay percibido.",
+      "Salto aereo de apoyo (1 por ciclo) para resolver secuencias densas sin bloqueos injustos.",
+      "Colisiones ajustadas para esquiva justa y menos muertes por bordes ambiguos.",
+      "Asistencia progresiva por intentos (ligera reduccion de velocidad) para evitar bloqueos imposibles.",
+      "HUD de progreso, puntuacion, mejor marca y contador de intentos por nivel.",
+      "Bridge QA activo: `render_game_to_text` y `advanceTime` disponibles para automatizacion.",
+    ],
+    difficulty: "Progresiva",
+    multiplayer: "Solo",
+    viability: "Alta: juego Canvas autocontenido integrado via iframe con estado serializable.",
+    visualStyle: "Neon synthwave con overlays arcades, efectos de particulas y fondos tematicos por nivel.",
+    techFocus: "Runner determinista con ajustes de input-latency, fisica de salto y balance de colisiones para esquiva fiable.",
+
+    category_en: "Arcade",
+    tagline_en: "Precision runner with 100 levels, varied environments, and low-latency jump response + assist air jump.",
+    description_en:
+      "Full Neon Rush integration with 100 progressively harder levels. The player auto-runs and must react with precise jumps to avoid spikes, ceiling traps, blocks, and mixed obstacle patterns. Gameplay was tuned to reduce frustration: jump buffer, coyote time, fairer hitboxes, an assist air jump, and dynamic assist after repeated failures.",
+    objective_en:
+      "Complete each level by reaching the final portal without colliding with obstacles. Improve your best runs and clear increasingly demanding stages.",
+    howToPlay_en:
+      "Press Space, Up Arrow, click, or tap to jump. On mobile/tablet, tapping anywhere in the game area triggers jump, and tapping again mid-air triggers the assist air jump (1 per cycle). The same input starts a run from the intro screen. Press R to retry after a crash and Esc to return to the main menu.",
+    highlights_en: [
+      "100 levels with distinct visual identity across easy/medium/hard/insane tiers, including 80 new procedural stages.",
+      "Precision mechanics: ground spikes, ceiling spikes, solid blocks, jump pads, and boost orbs.",
+      "Snappy jump response via jump-buffer + coyote-time to reduce perceived input delay.",
+      "Assist air jump (1 per cycle) to keep dense obstacle sections dodgeable.",
+      "Collision tuning for fair dodging and fewer ambiguous edge deaths.",
+      "Progressive assist after repeated retries (slight speed reduction) to prevent impossible-feeling stalls.",
+      "HUD with progress, score, best record, and per-level attempt tracking.",
+      "QA bridge enabled: `render_game_to_text` and `advanceTime` are exposed for automation.",
+    ],
+    difficulty_en: "Progressive",
+    multiplayer_en: "Solo",
+    viability_en: "High: self-contained Canvas game integrated via iframe with serializable runtime state.",
+    visualStyle_en: "Neon synthwave direction with arcade overlays, particles, and level-themed backdrops.",
+    techFocus_en: "Deterministic runner with input-latency improvements, jump physics tuning, and dodge-friendly collision balancing.",
   },
 
   {
