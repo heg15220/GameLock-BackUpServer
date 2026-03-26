@@ -17,6 +17,66 @@ const normalizeText = (value) => String(value || "")
   .replace(/[^a-z0-9]+/g, " ")
   .trim();
 
+const MIX_THEME_IDS = new Set([
+  "video-games",
+  "gastronomy",
+  "music",
+  "cinema",
+  "civic-science",
+  "mix-fallback",
+]);
+
+const CIVIC_SCIENCE_TAG_SET = new Set([
+  "science",
+  "technology",
+  "space",
+  "medicine",
+  "programming",
+  "geopolitics",
+  "war",
+  "rights",
+  "economy",
+  "exploration",
+  "politics",
+]);
+
+const extractGeneratedCategoryId = (eventId) => {
+  if (typeof eventId !== "string" || !eventId.startsWith("wd-")) return null;
+  const qMarker = eventId.lastIndexOf("-q");
+  if (qMarker <= 3) return null;
+  return eventId.slice(3, qMarker);
+};
+
+const isEventValidForTheme = (event, themeId) => {
+  const tags = event.tags ?? [];
+  const categoryId = extractGeneratedCategoryId(event.id);
+  if (themeId === "video-games") {
+    return categoryId === "video-game" || tags.includes("gaming");
+  }
+  if (themeId === "gastronomy") {
+    return categoryId === "restaurant" || categoryId === "food-company" || tags.includes("gastronomy");
+  }
+  if (themeId === "music") {
+    return categoryId === "music-album" || categoryId === "song" || tags.includes("music");
+  }
+  if (themeId === "cinema") {
+    return categoryId === "film" || tags.includes("cinema");
+  }
+  if (themeId === "civic-science") {
+    const isolatedCategoryIds = new Set([
+      "video-game",
+      "restaurant",
+      "food-company",
+      "music-album",
+      "song",
+      "film",
+    ]);
+    if (categoryId && isolatedCategoryIds.has(categoryId)) return false;
+    return tags.some((tag) => CIVIC_SCIENCE_TAG_SET.has(tag));
+  }
+  return true;
+};
+
 describe("timelineKnowledgeEngine", () => {
   it("generates deterministic missions for the same seed", () => {
     const missionA = buildTimelineMission(42, "science", "expert");
@@ -48,6 +108,18 @@ describe("timelineKnowledgeEngine", () => {
       expect(mission.rounds.length).toBeGreaterThan(0);
       expect(mission.rounds[0].events.length).toBeGreaterThan(0);
     });
+  });
+
+  it("keeps one thematic family per random mix mission", () => {
+    for (let seed = 1; seed <= 32; seed += 1) {
+      const mission = buildTimelineMission(seed, "mix", "analyst");
+      expect(MIX_THEME_IDS.has(mission.themeGroupId)).toBe(true);
+      mission.rounds.forEach((round) => {
+        round.events.forEach((event) => {
+          expect(isEventValidForTheme(event, mission.themeGroupId)).toBe(true);
+        });
+      });
+    }
   });
 
   it("fills incomplete order using round shuffled order", () => {
@@ -117,11 +189,17 @@ describe("timelineKnowledgeEngine", () => {
 
       expect(titleEs.trim().length).toBeGreaterThan(0);
       expect(titleEn.trim().length).toBeGreaterThan(0);
-      expect(summaryEs.trim().length).toBeGreaterThan(0);
-      expect(summaryEn.trim().length).toBeGreaterThan(0);
-
       expect(normalizeText(titleEs)).not.toBe(normalizeText(titleEn));
-      expect(normalizeText(summaryEs)).not.toBe(normalizeText(summaryEn));
+
+      const generatedEvent = event.id.startsWith("wd-");
+      if (generatedEvent) {
+        expect(summaryEs).toBe("");
+        expect(summaryEn).toBe("");
+      } else {
+        expect(summaryEs.trim().length).toBeGreaterThan(0);
+        expect(summaryEn.trim().length).toBeGreaterThan(0);
+        expect(normalizeText(summaryEs)).not.toBe(normalizeText(summaryEn));
+      }
     });
   });
 });

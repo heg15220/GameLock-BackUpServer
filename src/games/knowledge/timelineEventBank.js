@@ -1,3 +1,5 @@
+import { GENERATED_TIMELINE_EVENTS } from "./timelineEventBank.generated.js";
+
 const E = (id, year, tags, titleEs, titleEn, summaryEs, summaryEn) => ({
   id,
   year,
@@ -6,7 +8,7 @@ const E = (id, year, tags, titleEs, titleEn, summaryEs, summaryEn) => ({
   summary: { es: summaryEs, en: summaryEn },
 });
 
-export const TIMELINE_EVENT_BANK = [
+const BASE_TIMELINE_EVENT_BANK = [
   E("olympic-games-olympia", -776, ["culture", "sports"], "Primeros Juegos Olimpicos en Olimpia", "First Olympic Games in Olympia", "Inicio documentado de una competicion atletica panhelenica.", "Documented beginning of the pan-Hellenic athletic competition."),
   E("assassination-julius-caesar", -44, ["geopolitics"], "Asesinato de Julio Cesar", "Assassination of Julius Caesar", "Crisis politica que acelero el final de la Republica romana.", "Political crisis that accelerated the end of the Roman Republic."),
   E("edict-of-milan", 313, ["rights", "geopolitics"], "Edicto de Milan", "Edict of Milan", "Acuerdo imperial que amplio la tolerancia religiosa en Roma.", "Imperial agreement that expanded religious tolerance in Rome."),
@@ -81,3 +83,7 @@ export const TIMELINE_EVENT_BANK = [
   E("james-webb-first-deep-field", 2022, ["space", "science"], "Primer deep field del telescopio James Webb", "James Webb first deep field image", "Nueva etapa en observacion infrarroja del universo.", "New stage in infrared observation of the universe."),
 ];
 
+export const TIMELINE_EVENT_BANK = [
+  ...BASE_TIMELINE_EVENT_BANK,
+  ...GENERATED_TIMELINE_EVENTS,
+];

@@ -179,6 +179,7 @@ function TimelineKnowledgeGame() {
   const round = getRound(state);
   const eventById = useMemo(() => new Map((round?.events ?? []).map((event) => [event.id, event])), [round]);
   const anchorEvent = round?.anchorId ? eventById.get(round.anchorId) ?? null : null;
+  const anchorSummary = getTimelineEventText(anchorEvent, locale, "summary").trim();
 
   const remainingEvents = useMemo(() => {
     const placed = new Set(state.placedOrderIds);
@@ -620,7 +621,7 @@ function TimelineKnowledgeGame() {
               <h5>{copy.anchorTitle}</h5>
               <strong>{getTimelineEventText(anchorEvent, locale, "title")}</strong>
               <span>{formatTimelineYear(anchorEvent.year, locale)}</span>
-              <p>{getTimelineEventText(anchorEvent, locale, "summary")}</p>
+              {anchorSummary ? <p>{anchorSummary}</p> : null}
             </section>
           ) : null}
 
@@ -670,6 +671,7 @@ function TimelineKnowledgeGame() {
                   const exactVisible = state.phase !== "playing" || state.hintExact[event.id];
                   const range = state.hintRanges[event.id];
                   const relation = state.hintRelation[event.id];
+                  const eventSummary = getTimelineEventText(event, locale, "summary").trim();
                   const yearLabel = exactVisible
                     ? formatTimelineYear(event.year, locale)
                     : range
@@ -686,7 +688,7 @@ function TimelineKnowledgeGame() {
                       >
                         <span className="timeline-event-key">{index + 1}</span>
                         <strong>{getTimelineEventText(event, locale, "title")}</strong>
-                        <p>{getTimelineEventText(event, locale, "summary")}</p>
+                        {eventSummary ? <p>{eventSummary}</p> : null}
                         <span className="timeline-event-year">{yearLabel}</span>
                       </button>
                     </li>

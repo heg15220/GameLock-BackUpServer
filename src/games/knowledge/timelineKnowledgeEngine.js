@@ -28,6 +28,47 @@ export const TIMELINE_MODE_CONFIG = Object.freeze([
   },
 ]);
 
+const MIX_THEME_GROUP_IDS = Object.freeze([
+  "video-games",
+  "gastronomy",
+  "music",
+  "cinema",
+  "civic-science",
+]);
+
+const CIVIC_SCIENCE_TAG_SET = new Set([
+  "science",
+  "technology",
+  "space",
+  "medicine",
+  "programming",
+  "geopolitics",
+  "war",
+  "rights",
+  "economy",
+  "exploration",
+  "politics",
+]);
+
+const MIX_THEME_BY_GENERATED_CATEGORY = Object.freeze({
+  "video-game": "video-games",
+  restaurant: "gastronomy",
+  "food-company": "gastronomy",
+  "music-album": "music",
+  song: "music",
+  film: "cinema",
+  "historical-event": "civic-science",
+  election: "civic-science",
+  "military-conflict": "civic-science",
+  war: "civic-science",
+  treaty: "civic-science",
+  "political-party": "civic-science",
+  software: "civic-science",
+  "programming-language": "civic-science",
+  "space-mission": "civic-science",
+  satellite: "civic-science",
+});
+
 export const TIMELINE_DIFFICULTY_CONFIG = Object.freeze([
   {
     id: "analyst",
@@ -97,6 +138,29 @@ export const formatTimelineYear = (year, locale = "es") => {
 
 export const getTimelineEventText = (event, locale, field = "title") =>
   event?.[field]?.[locale] ?? event?.[field]?.en ?? event?.[field]?.es ?? event?.id ?? "";
+
+const extractGeneratedCategoryId = (eventId) => {
+  if (typeof eventId !== "string" || !eventId.startsWith("wd-")) return null;
+  const qMarker = eventId.lastIndexOf("-q");
+  if (qMarker <= 3) return null;
+  return eventId.slice(3, qMarker);
+};
+
+const resolveMixThemeForEvent = (event) => {
+  if (!event) return null;
+  const categoryId = extractGeneratedCategoryId(event.id);
+  if (categoryId && MIX_THEME_BY_GENERATED_CATEGORY[categoryId]) {
+    return MIX_THEME_BY_GENERATED_CATEGORY[categoryId];
+  }
+
+  const tags = event.tags ?? [];
+  if (tags.includes("gaming")) return "video-games";
+  if (tags.includes("gastronomy")) return "gastronomy";
+  if (tags.includes("music")) return "music";
+  if (tags.includes("cinema")) return "cinema";
+  if (tags.some((tag) => CIVIC_SCIENCE_TAG_SET.has(tag))) return "civic-science";
+  return null;
+};
 
 const sampleEvents = (random, pool, count, avoidIds) => {
   const preferred = pool.filter((event) => !avoidIds.has(event.id));
@@ -188,6 +252,40 @@ const buildModePool = (modeId) => {
   return pool.length ? pool : [...TIMELINE_EVENT_BANK].sort(sortEvents);
 };
 
+const buildMixThemePool = (themeId) => {
+  const pool = TIMELINE_EVENT_BANK
+    .filter((event) => resolveMixThemeForEvent(event) === themeId)
+    .sort(sortEvents);
+  return pool;
+};
+
+const resolveMissionPool = (modeId, random) => {
+  const mode = resolveTimelineMode(modeId);
+  if (mode.id !== "mix") {
+    return {
+      pool: buildModePool(mode.id),
+      themeGroupId: mode.id,
+    };
+  }
+
+  const candidates = MIX_THEME_GROUP_IDS
+    .map((themeId) => ({ themeId, pool: buildMixThemePool(themeId) }))
+    .filter(({ pool }) => pool.length > 0);
+
+  if (!candidates.length) {
+    return {
+      pool: [...TIMELINE_EVENT_BANK].sort(sortEvents),
+      themeGroupId: "mix-fallback",
+    };
+  }
+
+  const selected = candidates[Math.floor(random() * candidates.length)];
+  return {
+    pool: selected.pool,
+    themeGroupId: selected.themeId,
+  };
+};
+
 export const buildTimelineMission = (
   matchId,
   modeId = "mix",
@@ -196,12 +294,13 @@ export const buildTimelineMission = (
   const safeMatchId = Math.max(0, Number(matchId) || 0);
   const mode = resolveTimelineMode(modeId);
   const difficulty = resolveTimelineDifficulty(difficultyId);
-  const pool = buildModePool(mode.id);
   const random = createSeededRandom(
     safeMatchId
     + hashValue(mode.id)
     + Math.imul(hashValue(difficulty.id), 3),
   );
+  const missionPool = resolveMissionPool(mode.id, random);
+  const pool = missionPool.pool;
   const rounds = [];
   const usedIds = new Set();
 
@@ -226,6 +325,7 @@ export const buildTimelineMission = (
   return {
     matchId: safeMatchId,
     modeId: mode.id,
+    themeGroupId: missionPool.themeGroupId,
     difficultyId: difficulty.id,
     rounds,
     totalRounds: rounds.length,
@@ -396,4 +496,3 @@ export const summarizeTimelineMission = (mission, history, totalScore) => {
     ratio,
   };
 };
-

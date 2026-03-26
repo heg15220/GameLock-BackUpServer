@@ -1,0 +1,56 @@
+{
+  "source": {
+    "sparql_endpoint": "https://query.wikidata.org/sparql",
+    "wikidata_api_endpoint": "https://www.wikidata.org/w/api.php",
+    "generated_with_user_agent": "plataforma-juegos-saas-timeline/1.0 (local generation)"
+  },
+  "total_generated_events": 10000,
+  "target_requested": 10000,
+  "planned_prefetch_total": 13500,
+  "year_range": {
+    "min": -3800,
+    "max": 2026
+  },
+  "categories_requested": {
+    "historical-event": 1350,
+    "election": 540,
+    "military-conflict": 540,
+    "war": 338,
+    "treaty": 338,
+    "political-party": 405,
+    "video-game": 1755,
+    "software": 878,
+    "programming-language": 338,
+    "film": 1215,
+    "tv-series": 405,
+    "music-album": 945,
+    "song": 945,
+    "sports-event": 1148,
+    "space-mission": 338,
+    "satellite": 338,
+    "restaurant": 338,
+    "food-company": 338,
+    "book": 1013
+  },
+  "categories_final": {
+    "historical-event": 1065,
+    "war": 314,
+    "military-conflict": 217,
+    "restaurant": 279,
+    "song": 764,
+    "book": 693,
+    "treaty": 138,
+    "political-party": 364,
+    "election": 412,
+    "food-company": 10,
+    "film": 964,
+    "tv-series": 309,
+    "sports-event": 914,
+    "programming-language": 314,
+    "video-game": 1364,
+    "music-album": 764,
+    "software": 714,
+    "satellite": 314,
+    "space-mission": 87
+  }
+}
