@@ -3377,6 +3377,13 @@ body {
     linear-gradient(160deg, #0b2438 0%, #1a3f5a 100%);
 }
 
+.knowledge-arcade-game.knowledge-tangram {
+  background:
+    radial-gradient(circle at 88% -18%, rgba(251, 146, 60, 0.24), transparent 52%),
+    radial-gradient(circle at 12% -20%, rgba(59, 130, 246, 0.2), transparent 48%),
+    linear-gradient(160deg, #10203a 0%, #1b3760 100%);
+}
+
 .knowledge-ui-btn {
   border: 1px solid rgba(148, 163, 184, 0.5);
   border-radius: 10px;
@@ -6887,6 +6894,149 @@ body {
   background: linear-gradient(145deg, rgba(15, 23, 42, 0.62), rgba(30, 41, 59, 0.62));
   color: transparent;
   box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.28);
+}
+
+.tangram-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.36rem;
+  justify-content: flex-end;
+}
+
+.tangram-shell {
+  display: grid;
+  gap: 0.62rem;
+}
+
+.tangram-help {
+  margin: 0;
+  color: #dbeafe;
+  font-size: 0.73rem;
+  line-height: 1.36;
+}
+
+.tangram-tools {
+  border: 1px solid rgba(125, 211, 252, 0.34);
+  border-radius: 11px;
+  background: rgba(15, 23, 42, 0.46);
+  padding: 0.48rem 0.56rem;
+  display: grid;
+  gap: 0.42rem;
+}
+
+.tangram-tools span {
+  color: #dbeafe;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.tangram-tools-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+}
+
+.tangram-board-shell {
+  border: 1px solid rgba(125, 211, 252, 0.42);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 10% 5%, rgba(255, 255, 255, 0.08), transparent 44%),
+    linear-gradient(155deg, rgba(8, 22, 40, 0.86), rgba(12, 36, 62, 0.84));
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.22);
+  overflow: hidden;
+}
+
+.tangram-board {
+  width: 100%;
+  height: auto;
+  display: block;
+  touch-action: none;
+  user-select: none;
+}
+
+.tangram-zone {
+  stroke-width: 2.5;
+}
+
+.tangram-zone-tray {
+  fill: rgba(15, 23, 42, 0.68);
+  stroke: rgba(148, 163, 184, 0.36);
+}
+
+.tangram-zone-target {
+  fill: rgba(15, 23, 42, 0.74);
+  stroke: rgba(125, 211, 252, 0.42);
+}
+
+.tangram-zone-label {
+  fill: #dbeafe;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-family: "Bricolage Grotesque", sans-serif;
+}
+
+.tangram-target-shape {
+  fill: rgba(147, 197, 253, 0.22);
+  stroke: rgba(147, 197, 253, 0.06);
+  stroke-width: 1.2;
+}
+
+.tangram-hint-shape {
+  fill: none;
+  stroke-width: 3;
+  stroke-dasharray: 7 6;
+}
+
+.tangram-hint-shape.type-largeTriangle {
+  stroke: rgba(251, 146, 60, 0.7);
+}
+
+.tangram-hint-shape.type-mediumTriangle {
+  stroke: rgba(74, 222, 128, 0.68);
+}
+
+.tangram-hint-shape.type-smallTriangle {
+  stroke: rgba(56, 189, 248, 0.68);
+}
+
+.tangram-hint-shape.type-square {
+  stroke: rgba(196, 181, 253, 0.72);
+}
+
+.tangram-hint-shape.type-parallelogram {
+  stroke: rgba(248, 113, 113, 0.72);
+}
+
+.tangram-piece {
+  fill: var(--piece-color, #e2e8f0);
+  stroke: rgba(15, 23, 42, 0.82);
+  stroke-width: 2.2;
+  cursor: grab;
+  transition: filter 100ms ease, stroke 100ms ease, opacity 100ms ease;
+}
+
+.tangram-piece:hover {
+  filter: brightness(1.06);
+}
+
+.tangram-piece:active {
+  cursor: grabbing;
+}
+
+.tangram-piece.selected {
+  stroke: rgba(248, 250, 252, 0.95);
+  stroke-width: 3.2;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.28));
+}
+
+.tangram-piece.locked {
+  stroke: rgba(74, 222, 128, 0.9);
+}
+
+.tangram-piece.overlap {
+  stroke: rgba(248, 113, 113, 0.95);
+  filter: drop-shadow(0 0 10px rgba(248, 113, 113, 0.26));
 }
 
 .wordsearch-note {

@@ -49,6 +49,7 @@ const KnowledgeMapasGame = () => <KnowledgeArcadeGame variant="mapas" />;
 const KnowledgeMapasCaminoCortoGame = () => <KnowledgeArcadeGame variant="mapas-camino-corto" />;
 const KnowledgeAdivinaPaisGame = () => <KnowledgeArcadeGame variant="adivina-pais" />;
 const KnowledgeRefranesGame = () => <KnowledgeArcadeGame variant="refranes" />;
+const KnowledgeTangramGame = () => <KnowledgeArcadeGame variant="tangram" />;
 
 const GAME_COMPONENTS = {
   "adventure-echoes": AdventureGame,
@@ -71,6 +72,7 @@ const GAME_COMPONENTS = {
   "knowledge-mapas-atlas": KnowledgeMapasGame,
   "knowledge-mapas-camino-corto": KnowledgeMapasCaminoCortoGame,
   "knowledge-adivina-pais-silueta": KnowledgeAdivinaPaisGame,
+  "knowledge-tangram-pro": KnowledgeTangramGame,
   "strategy-chess-grandmaster": ChessGame,
   "strategy-damas-clasicas": CheckersGame,
   "strategy-sudoku-tecnicas": StrategySudokuGame,
@@ -123,6 +125,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "knowledge-mapas-atlas": "Elige escala (mundo/continente/pais/ciudades), escribe nombres geograficos y pulsa Enter para validar. R reinicia y N carga mapa aleatorio.",
     "knowledge-mapas-camino-corto": "Modo paises/provincias: elige continente o pais, escribe vecino siguiente, Enter valida, verde ideal, naranja alternativo, R reinicia y N nueva ruta.",
     "knowledge-adivina-pais-silueta": "5 rondas: observa la silueta, escribe el pais y valida con Enter. Recomendados en vivo segun letras, N pasa ronda tras validar y R reinicia partida.",
+    "knowledge-tangram-pro": "Tangram de 7 tans: arrastra piezas, Q/E rota 45 grados, F voltea el paralelogramo, Enter intenta encajar, H muestra guia, R reinicia y N nueva silueta.",
     "strategy-chess-grandmaster": "Clic para mover, promocion al coronar, U deshace, D reclama tablas y F alterna pantalla completa.",
     "strategy-damas-clasicas": "Damas 8x8: clic para mover en diagonal, capturas encadenadas, U deshace, X retiro, R reinicia y F alterna pantalla completa.",
     "strategy-sudoku-tecnicas": "Sudoku 9x9: flechas para mover, 1-9 o QWE/ASD/UIO para escribir, Backspace borra, P aplica pista y R partida aleatoria.",
@@ -173,6 +176,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "knowledge-mapas-atlas": "Choose scope (world/continent/country/cities), type geographic names and press Enter to validate. R restarts and N loads random map.",
     "knowledge-mapas-camino-corto": "Countries/provinces mode: choose continent or country, type next neighbor, Enter checks, green ideal, orange alternative, R restart, N new route.",
     "knowledge-adivina-pais-silueta": "5 rounds: inspect the silhouette, type the country and press Enter. Live recommendations update by letters, N advances after checking and R restarts.",
+    "knowledge-tangram-pro": "7-tan tangram: drag pieces, Q/E rotates 45 degrees, F flips the parallelogram, Enter snaps, H toggles guide, R restarts, and N loads another silhouette.",
     "strategy-chess-grandmaster": "Click pieces to move, choose promotion on last rank, U undo, D claim draw, and F toggles fullscreen.",
     "strategy-damas-clasicas": "8x8 checkers: click to move diagonally, chain captures, U undo, X resign, R restart, and F toggle fullscreen.",
     "strategy-sudoku-tecnicas": "Sudoku 9x9: arrows move, 1-9 or QWE/ASD/UIO types values, Backspace clears, P applies hint, and R starts a random match.",

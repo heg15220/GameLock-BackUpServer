@@ -52,6 +52,7 @@ import knowledgeCalculoMentalImage from "../assets/games/knowledge-calculo-menta
 import knowledgeTablaPeriodicaImage from "../assets/games/knowledge-tabla-periodica.svg";
 import knowledgeMapasImage from "../assets/games/knowledge-mapas.svg";
 import knowledgeAdivinaPaisImage from "../assets/games/knowledge-adivina-pais.svg";
+import knowledgeTangramImage from "../assets/games/knowledge-tangram.svg";
 import knowledgeCronologiaImage from "../assets/games/knowledge-cronologia.svg";
 import knowledgeRefranesImage from "../assets/games/knowledge-refranes.svg";
 import knowledgeWikipediaGachaImage from "../assets/games/knowledge-wikipedia-gacha.svg";
@@ -2170,6 +2171,57 @@ export const games = [
     viability_en: "High: discrete rules, existing datasets, and local text validation.",
     visualStyle_en: "Single-silhouette board with side panel for input, recommendations, and history.",
     techFocus_en: "Incremental country filtering + alias-based validation + dynamic SVG silhouette zoom.",
+  },
+
+  {
+    id: "knowledge-tangram-pro",
+    image: knowledgeTangramImage,
+    sessionTime: "5-12 min",
+
+    title: "Tangram Pro",
+    category: "Conocimiento",
+    tagline: "Puzzle espacial con las 7 tans clasicas y validacion profesional de encaje.",
+    description:
+      "Version de tangram orientada a precision geomtrica: debes reconstruir la silueta objetivo usando exactamente las 7 piezas tradicionales (2 triangulos grandes, 1 mediano, 2 pequenos, 1 cuadrado y 1 paralelogramo), sin solapes y con control total de rotacion/volteo.",
+    objective_es:
+      "Completa cada silueta encajando todas las piezas en su posicion correcta sin superponer geometria.",
+    howToPlay_es:
+      "Arrastra piezas desde la zona de bandeja al objetivo. Q/E rotan 45 grados, F voltea el paralelogramo, Enter intenta encajar la seleccion y H activa o desactiva guia visual. R reinicia la misma partida y N carga otra silueta.",
+    highlights: [
+      "Modelo fiel de las 7 tans con proporciones geometricas consistentes.",
+      "Regla de validacion estricta: sin solapes y con todas las piezas encajadas.",
+      "Sistema de snap por tolerancia espacial y orientacion por tipo de pieza.",
+      "Soporte completo de rotacion por pasos de 45 grados y volteo de paralelogramo.",
+      "Telemetria jugable: movimientos, tiempo, solapes activos y ayudas usadas.",
+      "Bridge QA serializable con estado de piezas, slots objetivo y progreso.",
+    ],
+    difficulty: "Media-Alta",
+    multiplayer: "Solo",
+    viability: "Alta: motor geometrico local, sin dependencias externas y estado compacto.",
+    visualStyle: "Tablero dual bandeja/objetivo con silueta translucida y piezas cromaticas de alto contraste.",
+    techFocus: "Geometria de poligonos convexos + SAT para solapes + snapping por orientacion.",
+
+    category_en: "Knowledge",
+    tagline_en: "Spatial tangram puzzle with all 7 tans and strict silhouette validation.",
+    description_en:
+      "Tangram mode focused on geometric precision: rebuild the target silhouette using all 7 classic tans (2 large triangles, 1 medium, 2 small, 1 square, 1 parallelogram), with no overlaps and full rotation/flip control.",
+    objective_en:
+      "Complete each silhouette by locking every piece in its correct position without overlapping geometry.",
+    howToPlay_en:
+      "Drag pieces from the tray to the target. Q/E rotates 45 degrees, F flips the parallelogram, Enter snaps the selected piece, and H toggles the guide layer. R restarts the same match and N loads another silhouette.",
+    highlights_en: [
+      "Faithful 7-tan model with consistent geometric proportions.",
+      "Strict completion rule: no overlaps and all pieces locked.",
+      "Tolerance-based snap system with orientation matching per piece type.",
+      "Full 45-degree rotation flow plus dedicated parallelogram flip.",
+      "Playable telemetry: moves, timer, active overlaps, and hint usage.",
+      "Serializable QA bridge exposing piece states, target slots, and progress.",
+    ],
+    difficulty_en: "Medium-High",
+    multiplayer_en: "Solo",
+    viability_en: "High: fully local geometry engine, no external dependencies, compact state.",
+    visualStyle_en: "Dual tray/target board with translucent silhouette and high-contrast chromatic pieces.",
+    techFocus_en: "Convex polygon geometry + SAT overlap detection + orientation-aware snapping.",
   },
 
   {

@@ -79,6 +79,7 @@ const KnowledgeMapasCaminoCortoGame = () => <KnowledgeArcadeGame variant="mapas-
 const KnowledgeAdivinaPaisGame = () => <KnowledgeArcadeGame variant="adivina-pais" />;
 const KnowledgeRefranesGame = () => <KnowledgeArcadeGame variant="refranes" />;
 const KnowledgeCronologiaGame = () => <KnowledgeArcadeGame variant="cronologia" />;
+const KnowledgeTangramGame = () => <KnowledgeArcadeGame variant="tangram" />;
 const ArcadeSnakeClassicGame = () => <RetroClassicsGame variant="snake-classic" />;
 const ArcadeBreakout1986Game = () => <RetroClassicsGame variant="breakout-1986" />;
 const ArcadeSpaceInvadersGame = () => <RetroClassicsGame variant="space-invaders" />;
@@ -116,6 +117,7 @@ export const GAME_REGISTRY = {
   "knowledge-mapas-atlas":       KnowledgeMapasGame,
   "knowledge-mapas-camino-corto": KnowledgeMapasCaminoCortoGame,
   "knowledge-adivina-pais-silueta": KnowledgeAdivinaPaisGame,
+  "knowledge-tangram-pro": KnowledgeTangramGame,
   "knowledge-cronologia-maestra": KnowledgeCronologiaGame,
   "strategy-chess-grandmaster":  ChessGame,
   "strategy-damas-clasicas":     CheckersGame,
@@ -192,6 +194,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "knowledge-mapas-atlas":       "Elige escala (mundo/continente/pais/ciudades), escribe nombres geograficos y valida con Enter. R reinicia el mapa y N carga uno aleatorio.",
     "knowledge-mapas-camino-corto": "Modo paises/provincias: selecciona continente o pais, escribe vecino, Enter valida, verde ideal, naranja alternativa, R reinicia y N nueva ruta.",
     "knowledge-adivina-pais-silueta": "5 rondas: identifica la silueta escribiendo el pais y valida con Enter. Recomendados en vivo por letras; N avanza ronda ya validada y R reinicia.",
+    "knowledge-tangram-pro": "Tangram de 7 tans: arrastra piezas, Q/E rota 45 grados, F voltea el paralelogramo, Enter intenta encajar, H alterna guia, R reinicia y N nueva silueta.",
     "knowledge-cronologia-maestra": "Ordena eventos historicos por fecha en cada ronda. 1-9 coloca cartas, Backspace quita la ultima, Enter valida, H/J/K piden pistas, N siguiente ronda y R nueva mision.",
     "strategy-chess-grandmaster":  "Clic para mover, U deshace, D reclama tablas, F pantalla completa.",
     "strategy-damas-clasicas":     "Damas 8x8: clic para mover en diagonal, capturas encadenadas, U deshace, X retiro, R reinicia y F pantalla completa.",
@@ -261,6 +264,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "knowledge-mapas-atlas":       "Choose scope (world/continent/country/cities), type geographic names and submit with Enter. R restarts and N loads a random map.",
     "knowledge-mapas-camino-corto": "Countries/provinces mode: pick continent or country, type next neighbor, Enter checks, green ideal, orange alternative, R restart, N new route.",
     "knowledge-adivina-pais-silueta": "5 rounds: identify each silhouette by typing the country and pressing Enter. Live recommendations update by letters; N advances checked rounds and R restarts.",
+    "knowledge-tangram-pro": "7-tan tangram: drag pieces, Q/E rotates 45 degrees, F flips the parallelogram, Enter snaps, H toggles the guide, R restarts, and N loads another silhouette.",
     "knowledge-cronologia-maestra": "Sort historical events by date in each round. 1-9 places cards, Backspace removes last, Enter validates, H/J/K trigger hints, N advances rounds, and R starts a new mission.",
     "strategy-chess-grandmaster":  "Click to move, U undo, D claim draw, F fullscreen.",
     "strategy-damas-clasicas":     "8x8 checkers: click to move diagonally, chain captures, U undo, X resign, R restart and F fullscreen.",

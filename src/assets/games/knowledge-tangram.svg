@@ -1,0 +1,41 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="140" y1="70" x2="1140" y2="660" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="target" x1="560" y1="118" x2="892" y2="578" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E3A8A"/>
+      <stop offset="1" stop-color="#0B1120"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+
+  <rect x="134" y="112" width="432" height="496" rx="28" fill="#0B1229" stroke="#1E293B" stroke-width="6"/>
+  <rect x="714" y="112" width="432" height="496" rx="28" fill="url(#target)" stroke="#60A5FA" stroke-width="6"/>
+
+  <text x="154" y="165" font-family="Outfit, sans-serif" font-size="34" font-weight="700" fill="#E2E8F0">Piezas</text>
+  <text x="736" y="165" font-family="Outfit, sans-serif" font-size="34" font-weight="700" fill="#DBEAFE">Silueta</text>
+
+  <polygon points="204,226 344,226 204,366" fill="#F97316"/>
+  <polygon points="204,386 344,386 204,526" fill="#FB923C"/>
+  <polygon points="378,258 478,258 378,358" fill="#22C55E"/>
+  <polygon points="378,402 448,402 378,472" fill="#06B6D4"/>
+  <polygon points="464,402 534,402 464,472" fill="#3B82F6"/>
+  <polygon points="426,496 496,496 496,566 426,566" fill="#A855F7"/>
+  <polygon points="342,482 442,482 492,532 392,532" fill="#EF4444"/>
+
+  <g fill="#93C5FD" fill-opacity="0.26">
+    <polygon points="780,394 900,274 1020,394"/>
+    <polygon points="780,394 900,514 1020,394"/>
+    <polygon points="820,294 900,214 980,294"/>
+    <polygon points="820,494 900,414 980,494"/>
+    <polygon points="820,314 900,314 900,394"/>
+    <polygon points="900,314 980,314 940,354 860,354"/>
+    <polygon points="860,394 940,394 980,434 900,434"/>
+  </g>
+
+  <text x="640" y="84" text-anchor="middle" font-family="Outfit, sans-serif" font-size="58" font-weight="700" fill="#E0F2FE">TANGRAM PRO</text>
+  <text x="640" y="676" text-anchor="middle" font-family="Outfit, sans-serif" font-size="28" font-weight="600" fill="#BFDBFE">Conocimiento - Tangram 7 Tans</text>
+</svg>

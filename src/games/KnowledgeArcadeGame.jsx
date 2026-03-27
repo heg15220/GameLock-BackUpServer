@@ -15,6 +15,7 @@ import MapsShortestPathKnowledgeGame from "./knowledge/MapsShortestPathKnowledge
 import GuessCountryKnowledgeGame from "./knowledge/GuessCountryKnowledgeGame";
 import ProverbsKnowledgeGame from "./knowledge/ProverbsKnowledgeGame";
 import TimelineKnowledgeGame from "./knowledge/TimelineKnowledgeGame";
+import TangramKnowledgeGame from "./knowledge/TangramKnowledgeGame";
 
 function KnowledgeArcadeGame({ variant }) {
   if (variant === "sudoku") {
@@ -64,6 +65,9 @@ function KnowledgeArcadeGame({ variant }) {
   }
   if (variant === "cronologia") {
     return <TimelineKnowledgeGame />;
+  }
+  if (variant === "tangram") {
+    return <TangramKnowledgeGame />;
   }
   return <SudokuKnowledgeGame />;
 }
