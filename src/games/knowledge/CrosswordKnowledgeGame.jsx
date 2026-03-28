@@ -773,7 +773,7 @@ function CrosswordKnowledgeGame() {
                         }));
                       }}
                     >
-                      {!blocked ? <span className="crossword-number">{cellNumber ?? ""}</span> : null}
+                      {!blocked && cellNumber !== null ? <span className="crossword-number">{cellNumber}</span> : null}
                       {!blocked ? <span className="crossword-letter">{cell}</span> : null}
                     </button>
                   );

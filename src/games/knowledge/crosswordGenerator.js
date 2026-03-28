@@ -801,7 +801,31 @@ export const inBounds = (solution, row, col) =>
 
 export const isBlocked = (solution, row, col) => solution[row][col] === "#";
 
-export const buildCellNumbers = (solution) => {
+export const buildCellNumbers = (solution, clueStarts = []) => {
+  const numberedStarts = new Map();
+
+  if (Array.isArray(clueStarts) && clueStarts.length > 0) {
+    clueStarts.forEach((entry) => {
+      const start = entry?.start || entry;
+      const row = Number(start?.row);
+      const col = Number(start?.col);
+      if (!Number.isInteger(row) || !Number.isInteger(col)) return;
+      if (!inBounds(solution, row, col) || isBlocked(solution, row, col)) return;
+      numberedStarts.set(keyForCell(row, col), { row, col });
+    });
+
+    const sortedStarts = [...numberedStarts.values()].sort((left, right) => {
+      if (left.row !== right.row) return left.row - right.row;
+      return left.col - right.col;
+    });
+
+    const map = {};
+    sortedStarts.forEach((start, index) => {
+      map[keyForCell(start.row, start.col)] = index + 1;
+    });
+    return map;
+  }
+
   let number = 1;
   const map = {};
   for (let row = 0; row < solution.length; row += 1) {
@@ -1044,7 +1068,10 @@ export const createCrosswordMatch = (matchId, locale, copy, options = {}) => {
     (preferCache ? buildMatchSkeletonFromCache(matchId, locale) : null)
     || buildMatchSkeleton(matchId, locale)
   );
-  const cellNumbers = buildCellNumbers(skeleton.solution);
+  const cellNumbers = buildCellNumbers(
+    skeleton.solution,
+    [...skeleton.acrossMatches, ...skeleton.downMatches]
+  );
   const clues = buildWordEntries({
     solution: skeleton.solution,
     cellNumbers,
