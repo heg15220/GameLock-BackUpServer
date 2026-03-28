@@ -13,6 +13,10 @@ npm run backend:wikipedia-gacha
 ## Caché wiki
 npm run generate:wikipedia-gacha-catalog -- --target 1000000 --sleep-ms 400
 
+#Comandos de regeneración crucigrama:    
+1. npm run generate:crossword-repo-bank
+2. 2. npm run generate:crossword-match-cache
+
 ## Que incluye
 
 - Catalogo de juegos por tematica en formato tarjetas (imagen + titulo).
