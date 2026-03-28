@@ -3497,3 +3497,10 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Capturas visuales adicionales del rediseño:
   - Menu/config: `output/arcade-territory-war-hud-refresh/tw-root-menu-config.png`.
   - HUD en batalla: `output/arcade-territory-war-hud-refresh/tw-root-hud.png`.
+## 2026-03-28 - Stick Brawl: fix cruce por salto (no devolver al mismo lado)
+- Causa del bug: el separador de cuerpos (`push-apart`) se reactivaba al descender y recolocaba al luchador en su lado previo.
+- Solucion aplicada en `src/games/arcade/stick-brawl-showdown/fighting_game.html`:
+  - nuevo estado `crossGrace` por luchador,
+  - al detectar solape con salto activo se abre una ventana de gracia de cruce,
+  - mientras esa ventana existe, `push-apart` no fuerza la separacion.
+- Resultado esperado: al saltar por encima del rival se mantiene el cambio de lado al aterrizar.
