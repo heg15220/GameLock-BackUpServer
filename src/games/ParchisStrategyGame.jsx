@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import useGameRuntimeBridge from "../utils/useGameRuntimeBridge";
 import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
 import LudoBoard from "./parchis/LudoBoard";
-import { PARCHIS_BOARD_MODEL, getOwnerColor } from "./parchis/boardModel";
+import { PARCHIS_BOARD_MODEL } from "./parchis/boardModel";
 
 const TRACK_LENGTH = 68;
 const FINAL_LANE_STEPS = 8;
@@ -14,18 +14,25 @@ const HUMAN_PLAYER_ID = "human";
 const DICE_ROLL_DURATION_MS = 980;
 const DICE_ROLL_PULSE_MS = 110;
 const AI_THINK_JITTER_MS = 260;
+const PLAYER_COLOR_ORDER = ["red", "blue", "yellow", "green"];
+
+const START_INDEX_BY_COLOR = {
+  red: 0,
+  blue: 17,
+  yellow: 34,
+  green: 51
+};
+
+const SHORT_BY_COLOR = {
+  red: "R",
+  blue: "B",
+  yellow: "Y",
+  green: "G"
+};
 
 const SAFE_TRACK_INDEXES = new Set([0, 5, 12, 17, 22, 29, 34, 39, 46, 51, 56, 63]);
 
-const PLAYERS = [
-  { id: HUMAN_PLAYER_ID, short: "R", color: "red", startIndex: 0 },
-  { id: "ai-blue", short: "B", color: "blue", startIndex: 17 },
-  { id: "ai-yellow", short: "Y", color: "yellow", startIndex: 34 },
-  { id: "ai-green", short: "G", color: "green", startIndex: 51 }
-];
-
-const TURN_ORDER = PLAYERS.map((player) => player.id);
-const PLAYER_BY_ID = Object.fromEntries(PLAYERS.map((player) => [player.id, player]));
+const TURN_ORDER = [HUMAN_PLAYER_ID, "ai-blue", "ai-yellow", "ai-green"];
 const NEXT_PLAYER_BY_ID = Object.fromEntries(
   TURN_ORDER.map((playerId, index) => [playerId, TURN_ORDER[(index + 1) % TURN_ORDER.length]])
 );
@@ -33,6 +40,34 @@ const AI_PLAYER_IDS = TURN_ORDER.filter((playerId) => playerId !== HUMAN_PLAYER_
 const isAiPlayer = (playerId) => AI_PLAYER_IDS.includes(playerId);
 const getOpponentIds = (ownerId) => TURN_ORDER.filter((playerId) => playerId !== ownerId);
 const getNextTurnId = (ownerId) => NEXT_PLAYER_BY_ID[ownerId] || TURN_ORDER[0];
+const normalizeHumanColor = (color) => (PLAYER_COLOR_ORDER.includes(color) ? color : "red");
+const getOwnerColor = (ownerId) => PLAYER_BY_ID[ownerId]?.color || "red";
+const createPlayerSetup = (humanColor = "red") => {
+  const selected = normalizeHumanColor(humanColor);
+  const remainingColors = PLAYER_COLOR_ORDER.filter((color) => color !== selected);
+  const colorsById = {
+    [HUMAN_PLAYER_ID]: selected,
+    "ai-blue": remainingColors[0],
+    "ai-yellow": remainingColors[1],
+    "ai-green": remainingColors[2]
+  };
+  return TURN_ORDER.map((id) => {
+    const color = colorsById[id] || "red";
+    return {
+      id,
+      short: SHORT_BY_COLOR[color] || "?",
+      color,
+      startIndex: START_INDEX_BY_COLOR[color] ?? 0
+    };
+  });
+};
+let PLAYERS = createPlayerSetup("red");
+let PLAYER_BY_ID = Object.fromEntries(PLAYERS.map((player) => [player.id, player]));
+const applyPlayerSetup = (humanColor = "red") => {
+  PLAYERS = createPlayerSetup(humanColor);
+  PLAYER_BY_ID = Object.fromEntries(PLAYERS.map((player) => [player.id, player]));
+  return PLAYERS;
+};
 const createLastRollByOwner = () => Object.fromEntries(TURN_ORDER.map((playerId) => [playerId, [null, null]]));
 
 const AI_LEVELS = {
@@ -77,10 +112,16 @@ const AI_LEVELS = {
 const PARCHIS_COPY = {
   es: {
     players: {
-      human: "Tu (Rojo)",
-      "ai-blue": "IA Azul",
-      "ai-yellow": "IA Amarilla",
-      "ai-green": "IA Verde"
+      human: "Tu",
+      "ai-blue": "IA A",
+      "ai-yellow": "IA B",
+      "ai-green": "IA C"
+    },
+    colors: {
+      red: "Rojo",
+      blue: "Azul",
+      yellow: "Amarillo",
+      green: "Verde"
     },
     aiLevels: {
       easy: "Facil",
@@ -88,7 +129,7 @@ const PARCHIS_COPY = {
       hard: "Dificil"
     },
     rulesPrompt: `PARCHIS LUDOTEKA (ADAPTACION EN ESTA IMPLEMENTACION)
-- Modalidad activa: Individual a 4 (tu color rojo contra 3 IAs: azul, amarilla y verde).
+- Modalidad activa: Individual a 4 (tu color es seleccionable antes de iniciar).
 - Salida inicial: las 4 fichas comienzan en casa (circulos de color).
 - Objetivo: completar el recorrido con las 4 fichas antes que cualquier rival.
 
@@ -118,14 +159,15 @@ IA POR DIFICULTAD
 
 FUERA DE ALCANCE EN ESTE COMPONENTE
 - Modalidades por parejas, 1 contra 1 con dos colores, parchis de 6 fichas y tablero 3 contra 3 de 6 colores.
-- Preferencia de color antes de entrar a partida, preseleccion de ficha antes del turno y vista previa del dado (opciones de lobby/UX externo).`,
+- Vista previa del dado y lobbies avanzados externos.`,
     ui: {
       ready: "Partida lista. Pulsa Iniciar partida.",
       startMatch: "Iniciar partida",
       restartMatch: "Reiniciar partida",
       gameTitle: "Parchis Ludoteka Arena",
-      gameSubtitle: "Implementacion individual a 4 (Tu + 3 IAs) con reglas clave de Ludoteka y 3 niveles de IA.",
+      gameSubtitle: "Implementacion individual a 4 (Tu + 3 IAs), con eleccion de color y reglas clave de Ludoteka.",
       aiDifficulty: "Dificultad IA",
+      playerColor: "Color de tus fichas",
       controls:
         "Controles: S/Enter inicia, R/Enter/Space tira dado, 1..9 para jugada, Enter confirma la seleccion, X continuar sin jugada y N reiniciar.",
       statusRolling: "Tirada en curso",
@@ -208,10 +250,16 @@ FUERA DE ALCANCE EN ESTE COMPONENTE
   },
   en: {
     players: {
-      human: "You (Red)",
-      "ai-blue": "Blue AI",
-      "ai-yellow": "Yellow AI",
-      "ai-green": "Green AI"
+      human: "You",
+      "ai-blue": "AI A",
+      "ai-yellow": "AI B",
+      "ai-green": "AI C"
+    },
+    colors: {
+      red: "Red",
+      blue: "Blue",
+      yellow: "Yellow",
+      green: "Green"
     },
     aiLevels: {
       easy: "Easy",
@@ -219,7 +267,7 @@ FUERA DE ALCANCE EN ESTE COMPONENTE
       hard: "Hard"
     },
     rulesPrompt: `PARCHIS LUDOTEKA (IMPLEMENTED VARIANT)
-- Active mode: 4-player solo (you as red vs 3 AIs: blue, yellow, green).
+- Active mode: 4-player solo (your color is selectable before match start).
 - Initial setup: all 4 tokens start at home.
 - Objective: complete the route with all 4 tokens before any rival.
 
@@ -249,14 +297,15 @@ AI DIFFICULTY
 
 OUT OF SCOPE
 - Team modes, 1v1 with two colors, 6-token parchis, and 3v3 six-color boards.
-- Lobby features like preferred color selection, preselected token, or pre-roll previews.`,
+- Advanced lobby features and pre-roll previews.`,
     ui: {
       ready: "Match ready. Press Start match.",
       startMatch: "Start match",
       restartMatch: "Restart match",
       gameTitle: "Parchis Ludoteka Arena",
-      gameSubtitle: "4-player solo implementation (You + 3 AIs) with key Ludoteka-inspired rules and 3 AI levels.",
+      gameSubtitle: "4-player solo implementation (You + 3 AIs), with color selection and key Ludoteka-inspired rules.",
       aiDifficulty: "AI difficulty",
+      playerColor: "Your token color",
       controls:
         "Controls: S/Enter starts, R/Enter/Space rolls, 1..9 picks move, Enter confirms selection, X continues without move, N restarts.",
       statusRolling: "Rolling",
@@ -353,7 +402,13 @@ const rollDie = () => Math.floor(Math.random() * 6) + 1;
 const appendLog = (logs, line) => [line, ...logs].slice(0, MAX_LOG_LINES);
 
 const pieceCode = (piece) => `${PLAYER_BY_ID[piece.owner]?.short || "?"}${piece.slot}`;
-const playerLabel = (playerId, locale = "es") => getCopy(locale).players[playerId] || playerId;
+const playerLabel = (playerId, locale = "es") => {
+  const copy = getCopy(locale);
+  const base = copy.players[playerId] || playerId;
+  const color = PLAYER_BY_ID[playerId]?.color;
+  const colorLabel = copy.colors?.[color];
+  return colorLabel ? `${base} (${colorLabel})` : base;
+};
 const aiLevelLabel = (difficultyId, locale = "es") => getCopy(locale).aiLevels[difficultyId] || difficultyId;
 const isSafeTrackIndex = (index) => SAFE_TRACK_INDEXES.has(index);
 
@@ -441,11 +496,14 @@ const resolveRollSetup = (state, ownerId, die, auxDie) => {
 
 const clonePieces = (pieces) => pieces.map((piece) => ({ ...piece }));
 
-const createInitialState = (difficultyId = "medium", locale = "es") => {
-  const copy = getCopy(locale);
+const createInitialState = (difficultyId = "medium", locale = "es", humanColor = "red") => {
+  const normalizedLocale = normalizeLocale(locale);
+  const normalizedColor = normalizeHumanColor(humanColor);
+  const players = applyPlayerSetup(normalizedColor);
+  const copy = getCopy(normalizedLocale);
   const pieces = [];
   let stamp = 0;
-  for (const player of PLAYERS) {
+  for (const player of players) {
     for (let slot = 1; slot <= PIECES_PER_PLAYER; slot += 1) {
       const startsOnTrack = slot <= INITIAL_TRACK_PIECES;
       pieces.push({
@@ -460,7 +518,8 @@ const createInitialState = (difficultyId = "medium", locale = "es") => {
   }
 
   return {
-    locale: normalizeLocale(locale),
+    locale: normalizedLocale,
+    humanColor: normalizedColor,
     phase: "await-start",
     turn: HUMAN_PLAYER_ID,
     turnCount: 1,
@@ -1403,7 +1462,29 @@ function ParchisStrategyGame() {
   }, [resetDiceAnimation, stopAiThinking, stopAutoMove]);
 
   const restartMatch = useCallback(() => {
-    setState((previous) => createInitialState(previous.difficultyId, previous.locale || locale));
+    setState((previous) => createInitialState(
+      previous.difficultyId,
+      previous.locale || locale,
+      previous.humanColor || "red"
+    ));
+    setSelectedPieceId(null);
+    stopAiThinking();
+    stopAutoMove();
+    resetDiceAnimation();
+    setDiceUi({
+      rolling: false,
+      activeOwner: null,
+      faces: [1, 1],
+      lastByOwner: createLastRollByOwner()
+    });
+  }, [locale, resetDiceAnimation, stopAiThinking, stopAutoMove]);
+
+  const changeHumanColor = useCallback((nextColor) => {
+    if (!PLAYER_COLOR_ORDER.includes(nextColor)) return;
+    setState((previous) => {
+      if (previous.phase !== "await-start") return previous;
+      return createInitialState(previous.difficultyId, previous.locale || locale, nextColor);
+    });
     setSelectedPieceId(null);
     stopAiThinking();
     stopAutoMove();
@@ -1945,6 +2026,20 @@ function ParchisStrategyGame() {
       </div>
 
       <div className="parchis-config">
+        <label htmlFor="parchis-human-color">
+          {copy.ui.playerColor}
+          <select
+            id="parchis-human-color"
+            value={state.humanColor || "red"}
+            onChange={(event) => changeHumanColor(event.target.value)}
+            disabled={state.phase !== "await-start"}
+          >
+            {PLAYER_COLOR_ORDER.map((color) => (
+              <option key={color} value={color}>{copy.colors[color] || color}</option>
+            ))}
+          </select>
+        </label>
+
         <label htmlFor="parchis-ai-level">
           {copy.ui.aiDifficulty}
           <select
@@ -1970,6 +2065,7 @@ function ParchisStrategyGame() {
         <span>{copy.ui.move}: {currentSteps ?? "--"}</span>
         <span>{copy.ui.sixStreak}: {state.sixStreak}</span>
         <span>{copy.ui.aiLevel}: {aiLevelLabel(currentDifficulty.id, state.locale)}</span>
+        <span>{copy.ui.playerColor}: {copy.colors[state.humanColor || "red"] || (state.humanColor || "red")}</span>
         {state.pendingBonus != null ? <span>{copy.ui.pendingBonus}: +{state.pendingBonus}</span> : null}
         {aiThinking ? <span>{copy.ui.aiThinking}</span> : null}
         {diceUi.rolling ? <span>{copy.ui.rollingFor}: {playerLabel(diceUi.activeOwner || "", state.locale)}</span> : null}

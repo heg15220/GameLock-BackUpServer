@@ -217,20 +217,29 @@ const PLAYER_TOKEN_BY_ID = {
 const COPY = {
   es: {
     title: "Mansion Triple Enigma",
-    subtitle:
-      "Juego detectivesco independiente: deduce sospechoso, arma y sala antes que tres IAs con farol adaptativo.",
+    subtitle: "Modo detectivesco guiado: deduce sospechoso, arma y sala antes que las IAs.",
     restart: "Reiniciar caso",
     controls:
-      "Turno humano: elige sala conectada, sospechoso y arma para lanzar sospecha. Puedes abrir acusacion final cuando creas tener la solucion.",
+      "Flujo recomendado por turno: mover en el tablero -> elegir sospechoso -> elegir arma -> lanzar sospecha.",
     instructions: [
-      "Objetivo: descubrir culpable, arma y sala antes que las IAs.",
-      "En tu turno te mueves, planteas sospecha y observas quien puede refutar.",
-      "Acusar demasiado pronto te elimina de la partida.",
+      "Pulsa una sala conectada del tablero (azul). En esquinas puedes usar pasadizos secretos.",
+      "Elige sospechoso y arma en la mesa del detective.",
+      "Lanza la sospecha para ver si alguien puede refutar y ensenarte una carta en privado.",
+      "Abre acusacion final solo cuando tengas una hipotesis muy solida.",
     ],
+    optionsTitle: "Que hace cada pestana",
+    options: [
+      "Jugar: acciones del turno y acusacion final.",
+      "Libreta: tus cartas, estados de sospecha y recomendacion de solucion.",
+      "Pistas IA: fiabilidad, pistas publicas y bitacora de eventos.",
+    ],
+    tutorialTitle: "Tutorial rapido",
+    tutorialShow: "Mostrar tutorial",
+    tutorialHide: "Ocultar tutorial",
     deskTitle: "Mesa del detective",
     tabPlay: "Jugar",
     tabNotebook: "Libreta",
-    tabIntel: "Intel",
+    tabIntel: "Pistas IA",
     turn: "Turno",
     hand: "Cartas",
     statusOut: "Fuera por acusacion fallida",
@@ -242,14 +251,15 @@ const COPY = {
     aiActionLine: (name, suspect, weapon, room) =>
       `${name} ejecuta su sospecha: ${suspect} con ${weapon} en ${room}.`,
     boardTitle: "Mansion",
-    boardHint: "Cada turno te mueves a una sala conectada (incluye pasadizos secretos en las esquinas).",
+    boardHint: "Haz clic en una sala resaltada para moverte. Las esquinas tienen pasadizos secretos.",
     boardLegendLegal: "Conectada",
     boardLegendSelected: "Elegida",
     boardLegendSecret: "Pasadizo",
     yourTurn: "Tu turno",
-    stepMove: "Paso 1 · Mover a sala",
-    stepSuspect: "Paso 2 · Elegir sospechoso",
-    stepWeapon: "Paso 3 · Elegir arma",
+    stepMove: "Paso 1 - Mover a sala",
+    stepSuspect: "Paso 2 - Elegir sospechoso",
+    stepWeapon: "Paso 3 - Elegir arma",
+    moveHint: "El movimiento se selecciona en el tablero. Puedes quedarte en la sala actual si te conviene.",
     moveTo: "Mover a",
     suspect: "Sospechoso",
     weapon: "Arma",
@@ -285,7 +295,9 @@ const COPY = {
     winner: "Ganador",
     noWinner: "Sin ganador",
     hiddenCase: "Solucion del caso",
-    actionHint: "N nueva partida | Enter confirmar sospecha | A abrir/cerrar acusacion",
+    showPlayDetails: "Mostrar detalle avanzado",
+    hidePlayDetails: "Ocultar detalle avanzado",
+    actionHint: "Atajos: 1 jugar | 2 libreta | 3 pistas IA | Enter confirmar | A acusacion | N nueva partida",
     aiTurnLabel: "Turno IA",
     aiHistoryTitle: "Historial de jugadas IA",
     aiHistoryEmpty: "Aun no hay jugadas de IA registradas.",
@@ -311,20 +323,29 @@ const COPY = {
   },
   en: {
     title: "Mansion Triple Enigma",
-    subtitle:
-      "Independent detective mode: deduce suspect, weapon, and room before three AIs with adaptive bluff logic.",
+    subtitle: "Guided detective mode: deduce suspect, weapon, and room before the AIs.",
     restart: "Restart case",
     controls:
-      "Human turn: pick a connected room, suspect, and weapon to launch a suggestion. Open a final accusation once you trust your deduction.",
+      "Recommended turn flow: move on the board -> pick suspect -> pick weapon -> submit suggestion.",
     instructions: [
-      "Goal: identify suspect, weapon, and room before the AIs.",
-      "On your turn, move, suggest, and watch who can refute.",
-      "A premature accusation eliminates you from winning.",
+      "Click a connected board room (blue highlight). Corner rooms can use secret passages.",
+      "Pick suspect and weapon from the detective desk.",
+      "Submit the suggestion and watch who can refute it with a private card reveal.",
+      "Open final accusation only when your hypothesis is very strong.",
     ],
+    optionsTitle: "What each tab does",
+    options: [
+      "Play: turn actions and final accusation.",
+      "Notebook: your cards, suspicion states, and recommended solution.",
+      "AI Intel: reliability scores, public hints, and event log.",
+    ],
+    tutorialTitle: "Quick tutorial",
+    tutorialShow: "Show tutorial",
+    tutorialHide: "Hide tutorial",
     deskTitle: "Detective desk",
     tabPlay: "Play",
     tabNotebook: "Notebook",
-    tabIntel: "Intel",
+    tabIntel: "AI Intel",
     turn: "Turn",
     hand: "Cards",
     statusOut: "Out after failed accusation",
@@ -336,14 +357,15 @@ const COPY = {
     aiActionLine: (name, suspect, weapon, room) =>
       `${name} executes a suggestion: ${suspect} with ${weapon} in ${room}.`,
     boardTitle: "Mansion",
-    boardHint: "Each turn you move to a connected room (corner rooms include secret passages).",
+    boardHint: "Click a highlighted room to move. Corner rooms include secret passages.",
     boardLegendLegal: "Connected",
     boardLegendSelected: "Selected",
     boardLegendSecret: "Secret path",
     yourTurn: "Your turn",
-    stepMove: "Step 1 · Move to room",
-    stepSuspect: "Step 2 · Pick suspect",
-    stepWeapon: "Step 3 · Pick weapon",
+    stepMove: "Step 1 - Move to room",
+    stepSuspect: "Step 2 - Pick suspect",
+    stepWeapon: "Step 3 - Pick weapon",
+    moveHint: "Movement is selected directly on the board. Staying in your current room is allowed.",
     moveTo: "Move to",
     suspect: "Suspect",
     weapon: "Weapon",
@@ -379,7 +401,9 @@ const COPY = {
     winner: "Winner",
     noWinner: "No winner",
     hiddenCase: "Case solution",
-    actionHint: "N new game | Enter submit suggestion | A toggle accusation",
+    showPlayDetails: "Show advanced detail",
+    hidePlayDetails: "Hide advanced detail",
+    actionHint: "Shortcuts: 1 play | 2 notebook | 3 AI intel | Enter confirm | A accusation | N new game",
     aiTurnLabel: "AI turn",
     aiHistoryTitle: "AI move history",
     aiHistoryEmpty: "No AI moves have been logged yet.",
@@ -1337,6 +1361,8 @@ function StrategyMansionTripleEnigmaGame() {
   const copy = copyFor(locale);
   const [state, setState] = useState(() => createInitialState(locale));
   const [deskTab, setDeskTab] = useState("play");
+  const [showTutorial, setShowTutorial] = useState(true);
+  const [showPlayDetails, setShowPlayDetails] = useState(false);
 
   useEffect(() => {
     if (!state.auto || state.mode !== "playing") return undefined;
@@ -1349,6 +1375,8 @@ function StrategyMansionTripleEnigmaGame() {
   const restart = useCallback(() => {
     setState(createInitialState(locale));
     setDeskTab("play");
+    setShowTutorial(true);
+    setShowPlayDetails(false);
   }, [locale]);
 
   const submitHumanSuggestion = useCallback(() => {
@@ -1672,14 +1700,36 @@ function StrategyMansionTripleEnigmaGame() {
 
         <aside className="mansion-desk">
           <div className="mansion-desk-head">
-            <div>
+            <div className="mansion-desk-intro">
               <h5>{copy.deskTitle}</h5>
-              <p>{copy.controls}</p>
-              <ul className="mansion-instructions">
-                {copy.instructions.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
+              <div className="mansion-tutorial-box">
+                <div className="mansion-tutorial-head">
+                  <h6>{copy.tutorialTitle}</h6>
+                  <button
+                    type="button"
+                    className="mansion-inline-toggle"
+                    onClick={() => setShowTutorial((current) => !current)}
+                  >
+                    {showTutorial ? copy.tutorialHide : copy.tutorialShow}
+                  </button>
+                </div>
+                {showTutorial ? (
+                  <>
+                    <p>{copy.controls}</p>
+                    <ol className="mansion-instructions">
+                      {copy.instructions.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ol>
+                    <h6>{copy.optionsTitle}</h6>
+                    <ul className="mansion-options-list">
+                      {copy.options.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
+              </div>
             </div>
             <div className="mansion-tab-row" role="tablist" aria-label={copy.deskTitle}>
               <button
@@ -1746,22 +1796,10 @@ function StrategyMansionTripleEnigmaGame() {
                 <>
                   <section className="mansion-step">
                     <h6>{copy.stepMove}</h6>
-                    <div className="mansion-choice-strip">
-                      {controlRooms.map((roomId) => {
-                        const room = entityById("room", roomId);
-                        return (
-                          <button
-                            key={roomId}
-                            type="button"
-                            className={state.controls.moveRoomId === roomId ? "is-picked" : ""}
-                            onClick={() => updateControls({ moveRoomId: roomId })}
-                          >
-                            <img src={ROOM_ASSET_BY_ID[roomId]} alt="" aria-hidden="true" />
-                            <span>{labelByLocale(room, state.locale)}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <p className="mansion-step-hint">{copy.moveHint}</p>
+                    <p className="mansion-step-picked">
+                      {copy.room}: <strong>{labelByLocale(selectedMoveRoom, state.locale)}</strong>
+                    </p>
                   </section>
 
                   <section className="mansion-step">
@@ -1882,42 +1920,56 @@ function StrategyMansionTripleEnigmaGame() {
                 <p className="mansion-standby">{copy.aiQueue}</p>
               )}
 
-              <section className="mansion-reveal-box">
-                <h6>{copy.revealCard}</h6>
-                {state.lastReveal?.cardId ? (
-                  <div className="mansion-reveal-content">
-                    {revealVisual?.src ? (
-                      <img src={revealVisual.src} alt="" aria-hidden="true" />
-                    ) : (
-                      <span
-                        className="mansion-reveal-badge"
-                        style={{ backgroundColor: revealVisual?.swatch || "#475569" }}
-                      >
-                        {revealVisual?.code || "?"}
-                      </span>
-                    )}
-                    <strong>{cardLabel(state.locale, state.lastReveal.cardId)}</strong>
-                  </div>
-                ) : (
-                  <p>{copy.noRevealShort}</p>
-                )}
-              </section>
+              <div className="mansion-panel-controls">
+                <button
+                  type="button"
+                  className="mansion-inline-toggle"
+                  onClick={() => setShowPlayDetails((current) => !current)}
+                >
+                  {showPlayDetails ? copy.hidePlayDetails : copy.showPlayDetails}
+                </button>
+              </div>
 
-              <section className="mansion-ai-last-action">
-                <h6>{copy.aiHistoryTitle}</h6>
-                <div className="mansion-ai-history-list">
-                  {aiActionHistoryLines.length ? (
-                    aiActionHistoryLines.map((entry) => (
-                      <article key={entry.id} className="mansion-ai-history-item">
-                        <small>T{entry.turnNumber}</small>
-                        <p>{entry.text}</p>
-                      </article>
-                    ))
-                  ) : (
-                    <p className="mansion-ai-history-empty">{copy.aiHistoryEmpty}</p>
-                  )}
-                </div>
-              </section>
+              {showPlayDetails ? (
+                <>
+                  <section className="mansion-reveal-box">
+                    <h6>{copy.revealCard}</h6>
+                    {state.lastReveal?.cardId ? (
+                      <div className="mansion-reveal-content">
+                        {revealVisual?.src ? (
+                          <img src={revealVisual.src} alt="" aria-hidden="true" />
+                        ) : (
+                          <span
+                            className="mansion-reveal-badge"
+                            style={{ backgroundColor: revealVisual?.swatch || "#475569" }}
+                          >
+                            {revealVisual?.code || "?"}
+                          </span>
+                        )}
+                        <strong>{cardLabel(state.locale, state.lastReveal.cardId)}</strong>
+                      </div>
+                    ) : (
+                      <p>{copy.noRevealShort}</p>
+                    )}
+                  </section>
+
+                  <section className="mansion-ai-last-action">
+                    <h6>{copy.aiHistoryTitle}</h6>
+                    <div className="mansion-ai-history-list">
+                      {aiActionHistoryLines.length ? (
+                        aiActionHistoryLines.map((entry) => (
+                          <article key={entry.id} className="mansion-ai-history-item">
+                            <small>T{entry.turnNumber}</small>
+                            <p>{entry.text}</p>
+                          </article>
+                        ))
+                      ) : (
+                        <p className="mansion-ai-history-empty">{copy.aiHistoryEmpty}</p>
+                      )}
+                    </div>
+                  </section>
+                </>
+              ) : null}
 
               <p className="mansion-key-help">{copy.actionHint}</p>
             </div>

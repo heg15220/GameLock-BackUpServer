@@ -7101,24 +7101,41 @@ body {
 }
 
 .wordsearch-cell.anchor {
-  border-color: rgba(250, 204, 21, 0.88);
-  box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.34);
+  border-color: rgba(250, 204, 21, 1);
+  background: linear-gradient(165deg, rgba(255, 251, 235, 0.99), rgba(254, 243, 199, 0.96));
+  box-shadow:
+    0 0 0 2px rgba(250, 204, 21, 0.48),
+    inset 0 0 0 1px rgba(217, 119, 6, 0.34),
+    0 10px 16px rgba(180, 83, 9, 0.22);
+  transform: translateY(-1px) scale(1.03);
 }
 
 .wordsearch-cell.preview {
-  border-color: rgba(125, 211, 252, 0.86);
-  background: linear-gradient(165deg, rgba(224, 242, 254, 0.98), rgba(191, 219, 254, 0.92));
+  border-color: rgba(14, 165, 233, 0.98);
+  background: linear-gradient(165deg, rgba(224, 242, 254, 1), rgba(147, 197, 253, 0.98));
+  color: #082f49;
+  box-shadow:
+    0 0 0 2px rgba(56, 189, 248, 0.54),
+    inset 0 0 0 1px rgba(2, 132, 199, 0.32),
+    0 12px 18px rgba(14, 116, 144, 0.24);
+  transform: translateY(-1px) scale(1.03);
 }
 
 .wordsearch-cell.cursor {
-  outline: 2px solid rgba(251, 191, 36, 0.92);
-  outline-offset: -1px;
+  outline: 3px solid rgba(251, 191, 36, 0.96);
+  outline-offset: -2px;
+  box-shadow:
+    0 0 0 2px rgba(15, 23, 42, 0.22),
+    0 0 14px rgba(251, 191, 36, 0.46);
 }
 
 .wordsearch-cell.found {
-  border-color: rgba(74, 222, 128, 0.84);
-  background: linear-gradient(165deg, rgba(220, 252, 231, 0.98), rgba(187, 247, 208, 0.9));
-  color: #14532d;
+  border-color: rgba(34, 197, 94, 0.96);
+  background: linear-gradient(165deg, rgba(220, 252, 231, 1), rgba(134, 239, 172, 0.98));
+  color: #064e3b;
+  box-shadow:
+    0 0 0 2px rgba(74, 222, 128, 0.42),
+    inset 0 0 0 1px rgba(5, 150, 105, 0.3);
 }
 
 .wordsearch-words-shell {
@@ -19309,6 +19326,11 @@ button.brisca-card.playable:disabled {
 
 .mansion-desk-head {
   display: grid;
+  gap: 0.38rem;
+}
+
+.mansion-desk-intro {
+  display: grid;
   gap: 0.3rem;
 }
 
@@ -19318,27 +19340,102 @@ button.brisca-card.playable:disabled {
   font-size: 0.84rem;
 }
 
-.mansion-desk-head p {
-  margin: 0.1rem 0 0;
+.mansion-tutorial-box {
+  border: 1px solid rgba(251, 191, 36, 0.26);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.4);
+  padding: 0.36rem 0.42rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.mansion-tutorial-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.34rem;
+}
+
+.mansion-tutorial-head h6 {
+  margin: 0;
+  color: #fef3c7;
+  font-size: 0.7rem;
+}
+
+.mansion-tutorial-box p {
+  margin: 0;
   color: #cbd5e1;
   font-size: 0.63rem;
-  line-height: 1.28;
+  line-height: 1.34;
+}
+
+.mansion-inline-toggle {
+  border: 1px solid rgba(148, 163, 184, 0.44);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #e2e8f0;
+  font-family: inherit;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  padding: 0.14rem 0.5rem;
+  cursor: pointer;
+  transition: filter 120ms ease, transform 120ms ease;
+}
+
+.mansion-inline-toggle:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
 .mansion-instructions {
-  margin: 0.24rem 0 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.24rem;
+  counter-reset: mansion-flow;
+}
+
+.mansion-instructions li {
+  counter-increment: mansion-flow;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.34rem;
+  color: #e2e8f0;
+  font-size: 0.61rem;
+  line-height: 1.32;
+}
+
+.mansion-instructions li::before {
+  content: counter(mansion-flow);
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.56);
+  color: #fef3c7;
+  font-size: 0.58rem;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+}
+
+.mansion-options-list {
+  margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
   gap: 0.2rem;
 }
 
-.mansion-instructions li {
-  border-left: 2px solid rgba(251, 191, 36, 0.52);
+.mansion-options-list li {
+  border-left: 2px solid rgba(56, 189, 248, 0.42);
   padding-left: 0.34rem;
-  color: #e2e8f0;
-  font-size: 0.6rem;
-  line-height: 1.26;
+  color: #dbeafe;
+  font-size: 0.59rem;
+  line-height: 1.3;
 }
 
 .mansion-tab-row {
@@ -19487,6 +19584,28 @@ button.brisca-card.playable:disabled {
   font-size: 0.72rem;
 }
 
+.mansion-step-hint {
+  margin: 0.28rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.63rem;
+  line-height: 1.3;
+}
+
+.mansion-step-picked {
+  margin: 0.28rem 0 0;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.46);
+  color: #cbd5e1;
+  font-size: 0.64rem;
+  line-height: 1.3;
+  padding: 0.26rem 0.34rem;
+}
+
+.mansion-step-picked strong {
+  color: #f8fafc;
+}
+
 .mansion-choice-strip {
   margin-top: 0.32rem;
   display: grid;
@@ -19580,6 +19699,11 @@ button.brisca-card.playable:disabled {
   display: flex;
   flex-wrap: wrap;
   gap: 0.34rem;
+}
+
+.mansion-panel-controls {
+  display: flex;
+  justify-content: flex-start;
 }
 
 .mansion-current-picks {

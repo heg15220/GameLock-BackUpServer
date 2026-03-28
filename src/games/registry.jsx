@@ -200,9 +200,9 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "strategy-damas-clasicas":     "Damas 8x8: clic para mover en diagonal, capturas encadenadas, U deshace, X retiro, R reinicia y F pantalla completa.",
     "strategy-sudoku-tecnicas":    "Sudoku 9x9: flechas para mover, 1-9 o QWE/ASD/UIO para escribir, Backspace borra, P aplica pista y R partida aleatoria.",
     "strategy-poker-holdem-no-bet": "Poker clasico 5 cartas con apuestas: ciegas, bote y acciones de pasar/igualar/subir/all-in/retirarse. Enter resolver accion principal, U subir, A all-in, F retirarse, 1-5 seleccionar descarte, D descartar, S servirse, N siguiente mano, R reiniciar.",
-    "strategy-parchis-ludoteka":  "S/Enter inicia partida, R/Enter/Space tira dado, 1..9 elige jugada, Enter primera jugada, X continua sin jugada y N nueva partida.",
+    "strategy-parchis-ludoteka":  "Antes de iniciar puedes elegir color de fichas. S/Enter inicia partida, R/Enter/Space tira dado, 1..9 elige jugada, Enter primera jugada, X continua sin jugada y N nueva partida.",
     "strategy-baraja-ia-arena":   "Modo baraja con Brisca/Tute, Mus y Escoba: cambia modalidad arriba. Mus permite 2/4/6 jugadores IA+tu. Escoba usa baraja espanola si el navegador es* y baraja inglesa adaptada en otros idiomas. Marca cartas de mesa y juega para sumar 15. Brisca usa click/1-3; Mus usa M/X + 1-4; Escoba usa click + 1-3. N siguiente mano, R reinicio.",
-    "strategy-mansion-triple-enigma": "Deduccion de misterio: elige sala conectada, sospechoso y arma para sospechar. A abre/cierra acusacion final, Enter confirma y N reinicia caso.",
+    "strategy-mansion-triple-enigma": "Deduccion de misterio con tutorial guiado: mueve en tablero, elige sospechoso y arma, y lanza sospecha. A abre/cierra acusacion final, 1/2/3 cambian pestana, Enter confirma y N reinicia caso.",
     "rpg-emberfall":               "WASD/flechas para explorar. Atacar, habilidad, defender, enfocar, invocar (U) y poción.",
     "platformer-sky-runner":       "A/D o flechas para moverse, W/arriba/espacio para saltar, F accion, con springs, viento y checkpoints.",
     "fighter-neon-dojo":           "A/D moverse, W saltar, J jab, K heavy, L guardia, U/B especial.",
@@ -270,9 +270,9 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "strategy-damas-clasicas":     "8x8 checkers: click to move diagonally, chain captures, U undo, X resign, R restart and F fullscreen.",
     "strategy-sudoku-tecnicas":    "Sudoku 9x9: arrows move, 1-9 or QWE/ASD/UIO types values, Backspace clears, P applies hint, and R starts a random match.",
     "strategy-poker-holdem-no-bet": "Classic 5-card draw with betting: blinds, real pot and check/call/raise/all-in/fold decisions. Enter resolves main action, U raise, A all-in, F fold, 1-5 select discard, D discard, S stand pat, N next hand, R restart.",
-    "strategy-parchis-ludoteka":  "S/Enter starts the match, R/Enter/Space rolls the die, 1..9 picks a move, Enter first move, X continues without move, and N starts a new match.",
+    "strategy-parchis-ludoteka":  "Pick your token color before starting. S/Enter starts the match, R/Enter/Space rolls the die, 1..9 picks a move, Enter first move, X continues without move, and N starts a new match.",
     "strategy-baraja-ia-arena":   "Card-table mode with Brisca/Tute, Mus, and Escoba: switch mode at the top. Mus supports 2/4/6 players. Escoba uses the Spanish deck when browser locale starts with es, and adapted English deck otherwise. Mark table cards and play to sum 15. Brisca uses click/1-3; Mus uses M/X + 1-4; Escoba uses click + 1-3. N next hand, R restart.",
-    "strategy-mansion-triple-enigma": "Mystery deduction mode: pick a connected room, suspect, and weapon for each suggestion. A toggles final accusation, Enter confirms, and N restarts the case.",
+    "strategy-mansion-triple-enigma": "Mystery deduction with guided tutorial: move on the board, pick suspect and weapon, and submit suggestions. A toggles accusation, 1/2/3 switch tabs, Enter confirms, and N restarts.",
     "rpg-emberfall":               "WASD/arrows to explore. Attack, skill, defend, focus, summon (U) and potion.",
     "platformer-sky-runner":       "A/D or arrows to move, W/up/space to jump, F action, with springs, wind and checkpoints.",
     "fighter-neon-dojo":           "A/D move, W jump, J jab, K heavy, L guard, U/B special.",
@@ -313,7 +313,5 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "racing-sunset-slipstream":    "Left/right steers, up accelerates, down cools the pace, Space activates focus, and R restarts.",
   },
 };
-
-
 
 

@@ -82,16 +82,19 @@ export const PROJECTILE_SETTINGS = {
 };
 
 export const CAMERA_SETTINGS = {
-  followLerp: 0.2,
-  followLerpY: 0.16,
+  followLerp: 0.22,
+  followLerpY: 0.18,
+  airborneFollowLerpY: 0.26,
   leadPixels: 36,
-  verticalLeadPixels: 62,
-  upwardLookAheadMax: 156,
-  upwardVelocityLookAheadFactor: 0.16,
-  topSafeZoneRatio: 0.44,
-  bottomSafeZoneRatio: 0.79,
-  hudReservePixels: 122,
-  verticalCatchupLerp: 0.48
+  verticalLeadPixels: 52,
+  upwardLookAheadMax: 132,
+  upwardVelocityLookAheadFactor: 0.2,
+  downwardLookAheadMax: 86,
+  downwardVelocityLookAheadFactor: 0.11,
+  topSafeZoneRatio: 0.36,
+  bottomSafeZoneRatio: 0.74,
+  hudReservePixels: 74,
+  verticalCatchupLerp: 0.34
 };
 
 export const SCORE_VALUES = {

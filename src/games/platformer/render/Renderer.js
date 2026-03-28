@@ -1536,131 +1536,107 @@ export default class Renderer {
     const windLabel = state.activeWind?.label || "Calm";
     const checkpointLabel = state.activeCheckpointId ? state.activeCheckpointId.toUpperCase() : "SPAWN";
     const difficulty = Math.max(1, Math.min(5, Number(state.level?.difficulty) || 1));
+    const timeVal = Math.max(0, Math.ceil(state.timeLeft));
+    const timeFlash = timeUrgent && Math.floor(timeSeconds * 4) % 2 === 0;
 
-    drawPanel(ctx, 8, 6, VIEWPORT_WIDTH - 16, 76, palette.hudBg, palette.hudBorder, 4);
+    drawPanel(ctx, 8, 6, VIEWPORT_WIDTH - 16, 44, palette.hudBg, palette.hudBorder, 4);
     ctx.fillStyle = palette.hudAccentBar || "rgba(120,200,255,0.12)";
     ctx.fillRect(11, 9, VIEWPORT_WIDTH - 22, 2);
-    ctx.fillRect(11, 80, VIEWPORT_WIDTH - 22, 1);
+    ctx.fillRect(11, 48, VIEWPORT_WIDTH - 22, 1);
 
-    drawText(ctx, `${state.score}`, 24, 27, {
+    drawText(ctx, `${state.score}`, 22, 23, {
       font: "bold 14px monospace",
       color: accent,
       shadowColor: accent,
       shadowBlur: 4
     });
-    drawText(ctx, "SCORE", 24, 37, {
-      font: "10px monospace",
+    drawText(ctx, "SCORE", 22, 33, {
+      font: "9px monospace",
       color: palette.textDim
     });
 
-    drawHearts(ctx, Math.max(0, state.lives), 124, 16, palette);
-    drawText(ctx, "LIVES", 124, 37, {
-      font: "10px monospace",
+    drawHearts(ctx, Math.max(0, state.lives), 108, 14, palette);
+    drawText(ctx, "LIVES", 108, 33, {
+      font: "9px monospace",
       color: palette.textDim
     });
 
-    drawText(ctx, `${state.levelIndex + 1}/${state.levelCount}`, 248, 26, {
-      font: "bold 13px monospace",
-      color: palette.text,
-      align: "center"
-    });
-    drawText(ctx, "ROUTE", 248, 37, {
-      font: "10px monospace",
-      color: palette.textDim,
-      align: "center"
-    });
-
-    drawText(ctx, `${state.coinsCollected}/${state.coinsTotal}`, 332, 24, {
+    drawText(ctx, `${state.coinsCollected}/${state.coinsTotal}`, 332, 19, {
       font: "bold 12px monospace",
       color: "#ffe060"
     });
-    drawText(ctx, "COINS", 332, 35, {
-      font: "10px monospace",
+    drawText(ctx, "COINS", 332, 29, {
+      font: "9px monospace",
       color: palette.textDim
     });
     ctx.fillStyle = "rgba(255,255,255,0.10)";
-    ctx.fillRect(332, 41, 124, 6);
+    ctx.fillRect(332, 33, 74, 5);
     ctx.fillStyle = "#ffe040";
-    ctx.fillRect(332, 41, round(124 * clamp(coinProgress, 0, 1)), 6);
+    ctx.fillRect(332, 33, round(74 * clamp(coinProgress, 0, 1)), 5);
     ctx.fillStyle = "rgba(255,255,255,0.4)";
-    ctx.fillRect(332, 41, round(124 * clamp(coinProgress, 0, 1) * 0.5), 2);
+    ctx.fillRect(332, 33, round(74 * clamp(coinProgress, 0, 1) * 0.5), 2);
 
-    const timeVal = Math.max(0, Math.ceil(state.timeLeft));
-    const timeFlash = timeUrgent && Math.floor(timeSeconds * 4) % 2 === 0;
-    drawText(ctx, `${timeVal}s`, 482, 24, {
+    drawText(ctx, `${timeVal}s`, 420, 19, {
       font: "bold 12px monospace",
       color: timeFlash ? "#ffffff" : timeColor,
       shadowColor: timeUrgent ? timeColor : null,
       shadowBlur: timeUrgent ? 6 : 0
     });
-    drawText(ctx, "TIME", 482, 35, {
-      font: "10px monospace",
+    drawText(ctx, "TIME", 420, 29, {
+      font: "9px monospace",
       color: palette.textDim
     });
     ctx.fillStyle = "rgba(255,255,255,0.10)";
-    ctx.fillRect(482, 41, 126, 6);
+    ctx.fillRect(420, 33, 74, 5);
     ctx.fillStyle = timeColor;
-    ctx.fillRect(482, 41, round(126 * clamp(timeProgress, 0, 1)), 6);
+    ctx.fillRect(420, 33, round(74 * clamp(timeProgress, 0, 1)), 5);
 
-    drawText(ctx, powerLabel, VIEWPORT_WIDTH - 14, 24, {
-      font: "bold 11px monospace",
+    drawText(ctx, `ROUTE ${state.levelIndex + 1}/${state.levelCount}  ${stageShort}`, 162, 19, {
+      font: "bold 10px monospace",
+      color: "rgba(220,240,255,0.9)"
+    });
+    drawText(ctx, `${biomeShort}  CP ${checkpointLabel}`, 162, 31, {
+      font: "9px monospace",
+      color: state.activeCheckpointId ? "#9ff0d6" : palette.textDim
+    });
+
+    drawText(ctx, `WIND ${windLabel.toUpperCase()}`, VIEWPORT_WIDTH - 14, 19, {
+      font: "9px monospace",
+      color: state.activeWind ? "#aeeeff" : palette.textDim,
+      align: "right"
+    });
+    drawText(ctx, `POWER ${powerLabel}`, VIEWPORT_WIDTH - 14, 31, {
+      font: "bold 9px monospace",
       color: powerColor,
       align: "right"
     });
-    drawText(ctx, "POWER", VIEWPORT_WIDTH - 14, 35, {
-      font: "10px monospace",
-      color: palette.textDim,
-      align: "right"
-    });
-
-    drawText(ctx, `${stageShort}  ::  ${biomeShort}`, 18, 55, {
-      font: "11px monospace",
-      color: "rgba(220,240,255,0.88)"
-    });
-
-    drawText(ctx, `WIND ${windLabel.toUpperCase()}`, 18, 72, {
-      font: "10px monospace",
-      color: state.activeWind ? "#aeeeff" : palette.textDim
-    });
-    drawText(ctx, `CHECKPOINT ${checkpointLabel}`, 222, 72, {
-      font: "10px monospace",
-      color: state.activeCheckpointId ? "#9ff0d6" : palette.textDim
-    });
-    drawText(ctx, `HAZARDS ${Array.isArray(state.level?.hazardZones) ? state.level.hazardZones.length : 0}`, 410, 72, {
-      font: "10px monospace",
-      color: (state.level?.hazardZones?.length || 0) > 0 ? "#ffba86" : palette.textDim
-    });
-    drawText(ctx, "DIFF", 570, 72, {
-      font: "10px monospace",
-      color: palette.textDim
-    });
     for (let index = 0; index < 5; index += 1) {
       ctx.fillStyle = index < difficulty ? accent : "rgba(255,255,255,0.12)";
-      ctx.fillRect(602 + index * 10, 65, 6, 9);
+      ctx.fillRect(VIEWPORT_WIDTH - 74 + index * 10, 38, 6, 5);
     }
 
     if (state.activeBoss) {
       const bossRatio = state.activeBoss.maxHealth > 0
         ? clamp(state.activeBoss.health / state.activeBoss.maxHealth, 0, 1)
         : 0;
-      const bossBarX = 160;
-      const bossBarW = VIEWPORT_WIDTH - 320;
-      drawPanel(ctx, bossBarX - 6, 68, bossBarW + 12, 22, "rgba(28, 6, 8, 0.80)", "rgba(255, 110, 110, 0.50)", 3);
+      const bossBarX = 134;
+      const bossBarW = VIEWPORT_WIDTH - 268;
+      drawPanel(ctx, bossBarX - 5, 52, bossBarW + 10, 16, "rgba(28, 6, 8, 0.74)", "rgba(255, 110, 110, 0.50)", 2);
       const bossVariant = (state.activeBoss.variant || "juggernaut").toUpperCase();
-      const bossLabel = `BOSS: ${state.activeBoss.name.toUpperCase()}  ${bossVariant}  ${state.activeBoss.health}/${state.activeBoss.maxHealth}`;
-      drawText(ctx, bossLabel, VIEWPORT_WIDTH * 0.5, 82, {
+      const bossLabel = `BOSS ${state.activeBoss.name.toUpperCase()} ${bossVariant} ${state.activeBoss.health}/${state.activeBoss.maxHealth}`;
+      drawText(ctx, bossLabel, VIEWPORT_WIDTH * 0.5, 63, {
         align: "center",
-        font: "bold 11px monospace",
+        font: "bold 9px monospace",
         color: "#ffc8c8"
       });
       ctx.fillStyle = "rgba(255,255,255,0.12)";
-      ctx.fillRect(bossBarX, 72, bossBarW, 5);
+      ctx.fillRect(bossBarX, 56, bossBarW, 4);
       const bossFill = round(bossBarW * bossRatio);
       if (bossFill > 0) {
         ctx.fillStyle = `hsl(${Math.round(bossRatio * 30)},100%,48%)`;
-        ctx.fillRect(bossBarX, 72, bossFill, 5);
+        ctx.fillRect(bossBarX, 56, bossFill, 4);
         ctx.fillStyle = "rgba(255,255,255,0.35)";
-        ctx.fillRect(bossBarX, 72, round(bossFill * 0.55), 2);
+        ctx.fillRect(bossBarX, 56, round(bossFill * 0.55), 1);
       }
     }
   }

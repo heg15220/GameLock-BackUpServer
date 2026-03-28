@@ -1078,43 +1078,47 @@ export default class PlatformerEngine {
     this.state.camera.x = clamp(this.state.camera.x, 0, maxCameraX);
 
     const upwardVelocity = Math.max(0, -(this.state.player.vy || 0));
+    const downwardVelocity = Math.max(0, this.state.player.vy || 0);
     const upwardLookAhead = Math.min(
       CAMERA_SETTINGS.upwardLookAheadMax ?? 0,
       upwardVelocity * (CAMERA_SETTINGS.upwardVelocityLookAheadFactor ?? 0)
     );
+    const downwardLookAhead = Math.min(
+      CAMERA_SETTINGS.downwardLookAheadMax ?? 0,
+      downwardVelocity * (CAMERA_SETTINGS.downwardVelocityLookAheadFactor ?? 0)
+    );
     let targetY = this.state.player.y + this.state.player.h * 0.5
       - VIEWPORT_HEIGHT * 0.5
-      - (CAMERA_SETTINGS.verticalLeadPixels + upwardLookAhead);
+      - CAMERA_SETTINGS.verticalLeadPixels
+      - upwardLookAhead
+      + downwardLookAhead;
 
     const hudReservePixels = CAMERA_SETTINGS.hudReservePixels ?? 0;
     const topSafeZone = Math.max(
       VIEWPORT_HEIGHT * (CAMERA_SETTINGS.topSafeZoneRatio ?? 0.28),
-      hudReservePixels + 24
+      hudReservePixels + 14
     );
     const bottomSafeZone = VIEWPORT_HEIGHT * (CAMERA_SETTINGS.bottomSafeZoneRatio ?? 0.74);
-    const hardHudSafeLine = hudReservePixels + 16;
     let playerTopInView = this.state.player.y - this.state.camera.y;
     let playerBottomInView = this.state.player.y + this.state.player.h - this.state.camera.y;
 
-    if (playerTopInView < hardHudSafeLine) {
-      const snappedY = clamp(this.state.player.y - hardHudSafeLine, 0, maxCameraY);
-      this.state.camera.y = Math.min(this.state.camera.y, snappedY);
-      playerTopInView = this.state.player.y - this.state.camera.y;
-      playerBottomInView = this.state.player.y + this.state.player.h - this.state.camera.y;
-    }
-
     if (playerTopInView < topSafeZone) {
-      targetY = Math.min(targetY, this.state.player.y - topSafeZone);
+      const overshoot = topSafeZone - playerTopInView;
+      targetY = Math.min(targetY, this.state.camera.y - overshoot);
     }
     if (playerBottomInView > bottomSafeZone) {
-      targetY = Math.max(targetY, this.state.player.y + this.state.player.h - bottomSafeZone);
+      const overshoot = playerBottomInView - bottomSafeZone;
+      targetY = Math.max(targetY, this.state.camera.y + overshoot);
     }
 
     const clampedY = clamp(targetY, 0, maxCameraY);
-    const shouldCatchUpFast = playerTopInView < topSafeZone || upwardVelocity > 130;
-    const followLerpY = shouldCatchUpFast
-      ? Math.max(CAMERA_SETTINGS.followLerpY, CAMERA_SETTINGS.verticalCatchupLerp ?? CAMERA_SETTINGS.followLerpY)
-      : CAMERA_SETTINGS.followLerpY;
+    let followLerpY = this.state.player.onGround
+      ? CAMERA_SETTINGS.followLerpY
+      : Math.max(CAMERA_SETTINGS.followLerpY, CAMERA_SETTINGS.airborneFollowLerpY ?? CAMERA_SETTINGS.followLerpY);
+    if (upwardVelocity > 140 || downwardVelocity > 220 || playerTopInView < topSafeZone) {
+      followLerpY = Math.max(followLerpY, CAMERA_SETTINGS.verticalCatchupLerp ?? followLerpY);
+    }
+
     this.state.camera.y += (clampedY - this.state.camera.y) * followLerpY;
     this.state.camera.y = clamp(this.state.camera.y, 0, maxCameraY);
   }
