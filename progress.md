@@ -3504,3 +3504,15 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
   - al detectar solape con salto activo se abre una ventana de gracia de cruce,
   - mientras esa ventana existe, `push-apart` no fuerza la separacion.
 - Resultado esperado: al saltar por encima del rival se mantiene el cambio de lado al aterrizar.
+## 2026-03-28 - Crucigrama 15x15 fijo + mejora de distribucion H/V
+- `crosswordGenerator.js` actualizado para incrustar siempre la rejilla en un tablero fijo `15x15` (`CROSSWORD_BOARD_ROWS/COLS`).
+- El generador prioriza una construccion tipo matriz de palabras con equilibrio entre horizontales y verticales, evitando en primera instancia que ambas direcciones repitan el mismo conjunto de palabras.
+- Anadido fallback robusto para asegurar que siempre se genera partida valida aunque no se encuentre una matriz diversa en la primera pasada.
+- Eliminado sufijo artificial de deduplicacion en pistas (`(contexto Dn-x)` / `(context n-x)`), que estaba produciendo pistas percibidas como rotas.
+- `CrosswordKnowledgeGame.jsx` ajustado para copy de tablero fijo 15x15, titulos de pistas limpios y tamano de celda adaptado a tablero grande.
+- `styles.css` adaptado para que el `15x15` sea usable en movil con tamano de celda responsive en lugar de valor fijo.
+- `crosswordGenerator.test.js` actualizado para validar tablero fijo `15x15` y condiciones de calidad de pistas compatibles con el nuevo generador.
+- Validaciones locales ejecutadas:
+  - `node --check src/games/knowledge/crosswordGenerator.js`
+  - `node --check src/games/knowledge/crosswordGenerator.test.js`
+  - `npx esbuild src/games/knowledge/CrosswordKnowledgeGame.jsx ...`

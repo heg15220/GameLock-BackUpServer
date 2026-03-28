@@ -9,6 +9,8 @@
     "backend:penalty-shootout": "node server/penalty-shootout/index.mjs",
     "backend:wikipedia-gacha": "node server/wikipedia-gacha/index.mjs",
     "generate:wikipedia-gacha-catalog": "node scripts/generate-wikipedia-gacha-catalog.mjs",
+    "generate:crossword-repo-bank": "node scripts/build_crossword_repo_style_bank.mjs",
+    "generate:crossword-match-cache": "node scripts/build_crossword_match_cache.mjs",
     "migrate:wikipedia-gacha-store": "node scripts/migrate-store-to-sqlite.mjs",
     "build": "vite build",
     "preview": "vite preview",

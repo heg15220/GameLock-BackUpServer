@@ -7218,6 +7218,10 @@ body {
   outline: 2px solid #f97316;
 }
 
+.crossword-cell.start-cell {
+  box-shadow: inset 0 0 0 2px rgba(251, 146, 60, 0.3);
+}
+
 .crossword-cell.feedback-correct {
   border-color: rgba(16, 185, 129, 0.78);
   box-shadow:
@@ -7244,10 +7248,17 @@ body {
 
 .crossword-number {
   position: absolute;
-  left: 3px;
-  top: 2px;
-  font-size: 0.5rem;
+  left: 4px;
+  top: 3px;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  padding: 0 3px;
+  font-size: 0.56rem;
   line-height: 1;
+  background: rgba(251, 146, 60, 0.2);
   color: rgba(124, 45, 18, 0.82);
   font-weight: 800;
 }
@@ -7264,7 +7275,7 @@ body {
 
 .crossword-toolbar {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.4rem;
   width: 100%;
 }
@@ -8588,22 +8599,25 @@ body {
 
 @media (max-width: 640px) {
   .crossword-grid {
-    grid-template-columns: repeat(var(--crossword-cols, 5), 28px);
-    grid-auto-rows: 28px;
+    --crossword-mobile-cell-size: clamp(21px, calc((100vw - 64px) / var(--crossword-cols, 15)), 30px);
+    grid-template-columns: repeat(var(--crossword-cols, 5), var(--crossword-mobile-cell-size));
+    grid-auto-rows: var(--crossword-mobile-cell-size);
   }
 
   .crossword-cell {
-    width: 28px;
-    height: 28px;
+    width: var(--crossword-mobile-cell-size);
+    height: var(--crossword-mobile-cell-size);
     border-radius: 6px;
   }
 
   .crossword-number {
+    min-width: 11px;
+    height: 11px;
     font-size: 0.44rem;
   }
 
   .crossword-letter {
-    font-size: 0.74rem;
+    font-size: clamp(0.6rem, 2.8vw, 0.8rem);
   }
 }
 

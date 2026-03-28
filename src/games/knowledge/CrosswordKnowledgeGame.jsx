@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
-  KNOWLEDGE_ARCADE_MATCH_COUNT,
-  getRandomKnowledgeMatchId,
-  getRandomKnowledgeMatchIdExcept,
   resolveKnowledgeArcadeLocale
 } from "./knowledgeArcadeUtils";
 import {
+  CROSSWORD_MATCH_COUNT,
   buildWordMaps,
   createCrosswordMatch,
   createEntries,
   evaluateWordFeedback,
   findFirstCell,
+  getRandomCrosswordMatchId,
+  getRandomCrosswordMatchIdExcept,
   getWordKeysForCell,
   isBlocked,
   isComplete,
@@ -230,29 +230,11 @@ const buildEnglishDefinitionClue = ({ word, anchor, type }) => {
 };
 
 const rewriteCrosswordClue = (meta, locale) => {
-  const rawClue = meta?.clue || "";
   const fallback = locale === "es"
     ? "Definicion breve del termino."
     : "Short definition of the term.";
-  const posHint = detectPosHint(rawClue, locale);
-  const anchor = extractAnchor(rawClue);
-  const anchorType = inferAnchorType(anchor, locale);
-  const type = resolveDefinitionType(posHint, anchorType);
-
-  const rewritten = locale === "es"
-    ? buildSpanishDefinitionClue({
-      word: normalizeAscii(meta?.word || ""),
-      anchor,
-      type
-    })
-    : buildEnglishDefinitionClue({
-      word: normalizeAscii(meta?.word || ""),
-      anchor,
-      type
-    });
-
-  const withoutPrefix = String(rewritten || "").replace(/^(pista|clue)\s*:\s*/i, "").trim();
-  return ensureSentence(withoutPrefix, fallback);
+  const fromBank = String(meta?.clue || "").trim();
+  return fromBank || fallback;
 };
 
 const formatClueStart = (start, locale) => {
@@ -267,21 +249,27 @@ const formatClueStart = (start, locale) => {
 const COPY_BY_LOCALE = {
   es: {
     title: "Crucigrama Dinamico",
-    subtitle: "Rellena la rejilla usando pistas horizontales y verticales. El tamano cambia en cada partida.",
+    subtitle: "Rellena la rejilla 15x15 usando pistas horizontales y verticales.",
     restart: "Partida aleatoria",
     match: "Partida",
     board: "Tablero",
     moves: "Movimientos",
     status: "Estado",
     statusWon: "Resuelto",
+    statusRevealed: "Revelado",
     statusPlaying: "En curso",
     clearCell: "Borrar celda",
     check: "Comprobar",
+    reveal: "Revelar",
     clues: "Pistas",
+    acrossClues: "Horizontales",
+    downClues: "Verticales",
+    wordsSummary: (acrossCount, downCount) => `H: ${acrossCount} | V: ${downCount}`,
     startMessage: "Rellena la rejilla con las pistas.",
     pendingCells: "Aun quedan celdas por completar.",
     wrongLetters: "Hay letras incorrectas.",
     solved: "Crucigrama completado.",
+    revealed: "Has revelado el tablero completo.",
     letterSaved: (letter) => `Letra ${letter} registrada.`,
     cleared: "Celda limpiada.",
     backspace: "Retroceso aplicado.",
@@ -299,26 +287,32 @@ const COPY_BY_LOCALE = {
         : "Completa todas las palabras seleccionadas antes de comprobar.",
     acrossHint: (meta) => rewriteCrosswordClue(meta, "es"),
     downHint: (meta) => rewriteCrosswordClue(meta, "es"),
-    acrossClue: (_id, text, start) => `Pista ${formatClueStart(start, "es")}: ${text}`,
-    downClue: (_id, text, start) => `Pista ${formatClueStart(start, "es")}: ${text}`
+    acrossClue: (id, text, start) => `#${id} ${formatClueStart(start, "es")}: ${text}`,
+    downClue: (id, text, start) => `#${id} ${formatClueStart(start, "es")}: ${text}`
   },
   en: {
     title: "Dynamic Crossword",
-    subtitle: "Fill the grid using across and down clues. Board size changes every match.",
+    subtitle: "Fill the fixed 15x15 grid using across and down clues.",
     restart: "Random match",
     match: "Match",
     board: "Board",
     moves: "Moves",
     status: "Status",
     statusWon: "Solved",
+    statusRevealed: "Revealed",
     statusPlaying: "In progress",
     clearCell: "Clear cell",
     check: "Check",
+    reveal: "Reveal",
     clues: "Clues",
+    acrossClues: "Across",
+    downClues: "Down",
+    wordsSummary: (acrossCount, downCount) => `A: ${acrossCount} | D: ${downCount}`,
     startMessage: "Fill the grid with the clues.",
     pendingCells: "There are still empty cells.",
     wrongLetters: "There are incorrect letters.",
     solved: "Crossword solved.",
+    revealed: "You revealed the full board.",
     letterSaved: (letter) => `Letter ${letter} saved.`,
     cleared: "Cell cleared.",
     backspace: "Backspace applied.",
@@ -336,8 +330,8 @@ const COPY_BY_LOCALE = {
         : "Complete all selected words before checking.",
     acrossHint: (meta) => rewriteCrosswordClue(meta, "en"),
     downHint: (meta) => rewriteCrosswordClue(meta, "en"),
-    acrossClue: (_id, text, start) => `Clue ${formatClueStart(start, "en")}: ${text}`,
-    downClue: (_id, text, start) => `Clue ${formatClueStart(start, "en")}: ${text}`
+    acrossClue: (id, text, start) => `#${id} ${formatClueStart(start, "en")}: ${text}`,
+    downClue: (id, text, start) => `#${id} ${formatClueStart(start, "en")}: ${text}`
   }
 };
 
@@ -391,7 +385,7 @@ function CrosswordKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
   const [state, setState] = useState(() =>
-    createInitialState(getRandomKnowledgeMatchId(), locale, copy)
+    createInitialState(getRandomCrosswordMatchId(), locale, copy)
   );
 
   const selectedWordKeys = useMemo(() => (
@@ -405,32 +399,40 @@ function CrosswordKnowledgeGame() {
     )
   ), [state.activeDirection, state.cellWordMap, state.selected.col, state.selected.row]);
 
-  const visibleClues = useMemo(() => (
-    [...(state.clues.across || []), ...(state.clues.down || [])]
-      .slice()
-      .sort((left, right) => {
-        if (left.id !== right.id) return left.id - right.id;
-        return left.key.localeCompare(right.key);
-      })
-  ), [state.clues.across, state.clues.down]);
+  const acrossClues = useMemo(() => (
+    [...(state.clues.across || [])]
+      .sort((left, right) => left.id - right.id || left.key.localeCompare(right.key))
+  ), [state.clues.across]);
+
+  const downClues = useMemo(() => (
+    [...(state.clues.down || [])]
+      .sort((left, right) => left.id - right.id || left.key.localeCompare(right.key))
+  ), [state.clues.down]);
 
   const cellSize = useMemo(() => {
     const maxSide = Math.max(state.grid.rows, state.grid.cols);
-    if (maxSide <= 5) return 40;
-    if (maxSide === 6) return 36;
-    if (maxSide === 7) return 33;
-    return 30;
+    if (maxSide >= 15) return 34;
+    if (maxSide >= 12) return 36;
+    if (maxSide <= 5) return 56;
+    if (maxSide <= 6) return 52;
+    if (maxSide <= 8) return 46;
+    if (maxSide <= 10) return 40;
+    return 36;
   }, [state.grid.cols, state.grid.rows]);
 
   const restart = useCallback(() => {
     setState((previous) =>
-      createInitialState(getRandomKnowledgeMatchIdExcept(previous.matchId), locale, copy)
+      createInitialState(
+        getRandomCrosswordMatchIdExcept(previous.matchId),
+        locale,
+        copy
+      )
     );
   }, [copy, locale]);
 
   const writeLetter = useCallback((letter) => {
     setState((previous) => {
-      if (previous.status === "won") return previous;
+      if (previous.status !== "playing") return previous;
       const safeLetter = normalizeLetter(letter);
       if (!/^[A-Z]$/.test(safeLetter)) return previous;
 
@@ -504,7 +506,7 @@ function CrosswordKnowledgeGame() {
 
   const clearCell = useCallback(() => {
     setState((previous) => {
-      if (previous.status === "won") return previous;
+      if (previous.status !== "playing") return previous;
       const { row, col } = previous.selected;
       if (isBlocked(previous.solution, row, col)) return previous;
 
@@ -547,6 +549,7 @@ function CrosswordKnowledgeGame() {
 
   const checkNow = useCallback(() => {
     setState((previous) => {
+      if (previous.status !== "playing") return previous;
       const complete = isComplete(previous.entries);
       const selectedKeys = resolveDirectionalWordKeys(
         previous.cellWordMap,
@@ -585,6 +588,32 @@ function CrosswordKnowledgeGame() {
         ...previous,
         status: solved ? "won" : "playing",
         message,
+        wordFeedback: feedback.wordFeedback,
+        cellFeedback: feedback.cellFeedback,
+        feedbackToken: 1 - previous.feedbackToken
+      };
+    });
+  }, [copy]);
+
+  const revealSolution = useCallback(() => {
+    setState((previous) => {
+      if (previous.status !== "playing") return previous;
+
+      const revealedEntries = previous.solution.map((row) =>
+        row.map((cell) => (cell === "#" ? "#" : cell))
+      );
+      const feedback = evaluateWordFeedback({
+        entries: revealedEntries,
+        solution: previous.solution,
+        wordByKey: previous.wordByKey,
+        targetWordKeys: allWordKeys(previous)
+      });
+
+      return {
+        ...previous,
+        entries: revealedEntries,
+        status: "revealed",
+        message: copy.revealed,
         wordFeedback: feedback.wordFeedback,
         cellFeedback: feedback.cellFeedback,
         feedbackToken: 1 - previous.feedbackToken
@@ -657,7 +686,7 @@ function CrosswordKnowledgeGame() {
     locale,
     match: {
       current: snapshot.matchId + 1,
-      total: KNOWLEDGE_ARCADE_MATCH_COUNT
+      total: CROSSWORD_MATCH_COUNT
     },
     status: snapshot.status,
     activeDirection: snapshot.activeDirection,
@@ -676,6 +705,12 @@ function CrosswordKnowledgeGame() {
   const advanceTime = useCallback(() => undefined, []);
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
 
+  const statusLabel = state.status === "won"
+    ? copy.statusWon
+    : state.status === "revealed"
+      ? copy.statusRevealed
+      : copy.statusPlaying;
+
   return (
     <div className="mini-game knowledge-game knowledge-arcade-game knowledge-crucigrama">
       <div className="mini-head">
@@ -683,15 +718,18 @@ function CrosswordKnowledgeGame() {
           <h4>{copy.title}</h4>
           <p>{copy.subtitle}</p>
         </div>
-        <button type="button" onClick={restart}>{copy.restart}</button>
+        <div className="crossword-head-actions">
+          <button type="button" onClick={restart}>{copy.restart}</button>
+        </div>
       </div>
 
       <section className="knowledge-mode-shell">
         <div className="knowledge-status-row">
-          <span>{copy.match}: {state.matchId + 1}/{KNOWLEDGE_ARCADE_MATCH_COUNT}</span>
+          <span>{copy.match}: {state.matchId + 1}/{CROSSWORD_MATCH_COUNT}</span>
           <span>{copy.board}: {state.grid.rows}x{state.grid.cols} ({state.grid.openCells})</span>
+          <span>{copy.wordsSummary(acrossClues.length, downClues.length)}</span>
           <span>{copy.moves}: {state.moves}</span>
-          <span>{copy.status}: {state.status === "won" ? copy.statusWon : copy.statusPlaying}</span>
+          <span>{copy.status}: {statusLabel}</span>
         </div>
 
         <div className="crossword-layout">
@@ -709,6 +747,7 @@ function CrosswordKnowledgeGame() {
                   const selected = state.selected.row === rowIndex && state.selected.col === colIndex;
                   const cellId = keyForCell(rowIndex, colIndex);
                   const cellNumber = state.cellNumbers[cellId] ?? null;
+                  const startsWord = cellNumber !== null;
                   const feedback = state.cellFeedback[cellId] ?? null;
                   const feedbackClass = feedback ? `feedback-${feedback}` : "";
                   const tokenClass = feedback ? `feedback-token-${state.feedbackToken}` : "";
@@ -720,6 +759,7 @@ function CrosswordKnowledgeGame() {
                       className={[
                         "crossword-cell",
                         blocked ? "blocked" : "",
+                        startsWord ? "start-cell" : "",
                         selected ? "selected" : "",
                         feedbackClass,
                         tokenClass
@@ -744,14 +784,36 @@ function CrosswordKnowledgeGame() {
             <div className="crossword-toolbar">
               <button type="button" onClick={clearCell}>{copy.clearCell}</button>
               <button type="button" onClick={checkNow}>{copy.check}</button>
+              <button type="button" onClick={revealSolution}>{copy.reveal}</button>
             </div>
           </div>
 
           <div className="crossword-clues">
             <article>
-              <h5>{copy.clues}</h5>
+              <h5>{copy.clues} | {copy.acrossClues}</h5>
               <ul>
-                {visibleClues.map((clue) => {
+                {acrossClues.map((clue) => {
+                  const feedback = state.wordFeedback[clue.key] ?? null;
+                  const isActive = selectedWordKeys.has(clue.key);
+                  return (
+                    <li
+                      key={clue.key}
+                      className={[
+                        isActive ? "active-word" : "",
+                        feedback ? `feedback-${feedback}` : "",
+                        feedback ? `feedback-token-${state.feedbackToken}` : ""
+                      ].filter(Boolean).join(" ")}
+                    >
+                      {clue.text}
+                    </li>
+                  );
+                })}
+              </ul>
+            </article>
+            <article>
+              <h5>{copy.clues} | {copy.downClues}</h5>
+              <ul>
+                {downClues.map((clue) => {
                   const feedback = state.wordFeedback[clue.key] ?? null;
                   const isActive = selectedWordKeys.has(clue.key);
                   return (
