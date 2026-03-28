@@ -3424,3 +3424,48 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Ajuste adicional (2026-03-28): fix robusto del contador de sobres diarios tras abrir pack.
   - `index.jsx` (`handleOpenPack`): coercion numerica explicita de `packsRemaining/pityCounter/totalPackOpens` y actualizacion directa de `dashboard.profile` + `dashboard.packStatus` incluso cuando la respuesta llega sin `packStatus` completo.
   - Objetivo: que `Sobres diarios: X / Y` se refresque inmediatamente al abrir un sobre nuevo.
+- 2026-03-28 Neon Rush: avatar del jugador actualizado de cubo a triangulo en `public/arcade/neon-rush/index.html` (funcion `drawPlayer`).
+  - Estela cambiada a triangulos.
+  - Cuerpo principal cambiado a poligono triangular con trazo y detalle interior.
+  - Fisica y hitbox se mantienen para no introducir regresiones de jugabilidad.
+- 2026-03-28 Neon Rush: mejora de jugabilidad visual cambiando avatar a octagono redondeado (ni cubo ni triangulo).
+  - Archivo: `public/arcade/neon-rush/index.html`.
+  - Nueva helper `drawRoundedOctagonPath(...)`.
+  - `drawPlayer()` actualizado para renderizar estela y cuerpo principal con octagono redondeado, manteniendo fisica/hitbox y colisiones existentes.
+- 2026-03-28 Neon Rush portada actualizada (`src/assets/games/arcade-neon-rush.svg`) para reflejar el nuevo avatar octagonal:
+  - reemplazo del personaje tipo cubo por un octagono redondeado con estela.
+  - subtitulo de portada actualizado a "PRECISION RUNNER - LOW-LATENCY OCTA RIDER".
+## 2026-03-28 - Ice Strike Pro freeze + UX transitions + menu layout
+- Corregido bloqueo de ronda en light: si lyingStone desaparecia (OOB/elim) y phase seguia en light, la partida podia quedarse congelada. Se anadio _advanceDeliveryFlowIfReady() y se llama tanto con piedra activa como sin ella para forzar avance al siguiente tiro/end cuando todo esta en reposo.
+- Mejorado feedback de fin de ronda:
+  - Ahora se puede continuar manualmente con Space/Enter/click durante endResult.
+  - HUD y banner muestran mensaje de transicion y countdown con accion recomendada.
+- Mejorado marcador para percepcion sincrona de puntuacion: scorePulse al sumar puntos en _finishEnd, con pulso visual inmediato en HUD.
+- Ajustado menu principal de dificultad para evitar solapes de texto: copy mas compacto, espaciado superior y jerarquia tipografica revisada.
+- Verificacion tecnica: bundle de src/games/arcade/ice-strike-pro/index.jsx con esbuild OK.
+
+## 2026-03-28 - Basketball Court Pro (modo 21) fixes + IA upgrade
+- Corregido flujo de rebote tras fallo en tiro libre:
+  - `playerFT` fallado ahora transiciona a `aiBounceSetup` (antes `aiFTSetup`).
+  - `aiFT` fallado ahora transiciona a `playerBounceSetup` (antes `playerFTSetup`).
+- Corregido problema de tiro adaptado en rebotes muy cercanos al aro:
+  - En `computeLaunch`, eliminado fallback de velocidad extrema (`22`) para casos de denominador pequeno/negativo; ahora se usa denominador seguro y velocidad acotada.
+  - `computeBouncePos` ahora genera `idealPower/idealArc` realmente adaptados a distancias cortas y marca `fromBounce`.
+  - AÃ±adido `getPowerRangeForPos(pos)` para permitir minima potencia mas baja solo en tiros de rebote cercanos.
+  - Aplicado ese rango dinamico en input jugador, setup de rebote, IA y paneles de gauges.
+- Mejora drastica de rendimiento de IA en modo 21:
+  - IA ahora calcula tiros con busqueda por simulacion fisica (`findSmartAimForPos`) en 3 pasadas (coarse + refinamientos), en vez de usar solo ruido aleatorio alrededor de valores ideales.
+  - Ajustada seleccion de posicion de tiro IA para priorizar zonas de alta conversion segun puntos restantes hacia 21.
+  - Mantenido un ruido pequeno dependiente de presion de marcador para evitar precision robotica total.
+- Verificacion tecnica:
+  - Bundle sintactico OK con `npx esbuild src/games/arcade/basketball-court/index.jsx --bundle --format=esm --platform=browser --external:react --external:react-dom --log-level=error --outfile=tmp/basketball-court-check.js`.
+  - Varias corridas Playwright quedaron interrumpidas por cancelacion manual, pendiente validacion visual completa en runtime.
+- 2026-03-28 Ajuste adicional IA modo 21 solicitado por usuario:
+  - Ritmo IA ralentizado para mejorar UX: `G21_AI_AIM` incrementado y delays de setup en `aiBounceSetup`/`aiFTSetup` ampliados.
+  - `aiFTAim` ya no acelera artificialmente respecto al aim normal.
+  - IA humanizada: `g21computeAIAim` ahora aplica probabilidad contextual de error (segun distancia, marcador, necesidad de puntos y presion), con patrones de fallo realistas (largo/corto/desviado) para evitar comportamiento perfecto.
+  - Se mantiene solver fisico como base, pero con variabilidad controlada para que siga siendo competitiva sin resultar imposible.
+  - Verificacion sintactica OK con esbuild sobre `src/games/arcade/basketball-court/index.jsx`.
+- 2026-03-28 Ajuste marcador pabellón en modo 21 (Basketball Court Pro):
+  - En `drawGym`, el panel del fondo ahora muestra etiquetas y puntuaciones del duelo `JUG/IA` (`YOU/AI`) usando `g21.playerScore` y `g21.aiScore` cuando la pantalla es `play21` o `summary21`.
+  - En modo clasico se mantiene `HOME/AWAY` con el comportamiento previo.

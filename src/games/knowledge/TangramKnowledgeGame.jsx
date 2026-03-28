@@ -122,6 +122,56 @@ const PIECE_LABEL_BY_TYPE = {
 const pointToString = (polygon) =>
   polygon.map((point) => `${point[0].toFixed(2)},${point[1].toFixed(2)}`).join(" ");
 
+const TANGRAM_BOARD_MARGIN = 18;
+
+const getPolygonBounds = (polygon) => {
+  let minX = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+  for (const [x, y] of polygon) {
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+  return { minX, maxX, minY, maxY };
+};
+
+const confinePieceToBoard = (
+  piece,
+  boardConfig = TANGRAM_BOARD_CONFIG,
+  margin = TANGRAM_BOARD_MARGIN
+) => {
+  const polygon = getTangramPolygonForPiece(piece, boardConfig.scale);
+  const bounds = getPolygonBounds(polygon);
+  const minBoundX = margin;
+  const maxBoundX = boardConfig.width - margin;
+  const minBoundY = margin;
+  const maxBoundY = boardConfig.height - margin;
+
+  let shiftX = 0;
+  if (bounds.minX < minBoundX) {
+    shiftX = minBoundX - bounds.minX;
+  } else if (bounds.maxX > maxBoundX) {
+    shiftX = maxBoundX - bounds.maxX;
+  }
+
+  let shiftY = 0;
+  if (bounds.minY < minBoundY) {
+    shiftY = minBoundY - bounds.minY;
+  } else if (bounds.maxY > maxBoundY) {
+    shiftY = maxBoundY - bounds.maxY;
+  }
+
+  if (!shiftX && !shiftY) return piece;
+  return {
+    ...piece,
+    x: piece.x + shiftX,
+    y: piece.y + shiftY
+  };
+};
+
 const getSvgPoint = (svg, event) => {
   if (!svg) return null;
   const matrix = svg.getScreenCTM();
@@ -143,7 +193,9 @@ const collectOverlappingPieceIds = (pairs) => {
 
 const createTangramState = (matchId, locale, copy) => {
   const challenge = buildTangramChallenge(matchId, locale);
-  const pieces = buildInitialTangramPieces(matchId, TANGRAM_BOARD_CONFIG);
+  const pieces = buildInitialTangramPieces(matchId, TANGRAM_BOARD_CONFIG).map((piece) =>
+    confinePieceToBoard(piece, TANGRAM_BOARD_CONFIG)
+  );
   return {
     matchId,
     challenge,
@@ -184,11 +236,11 @@ function TangramKnowledgeGame() {
       if (pieceIndex < 0) return previous;
 
       const piece = previous.pieces[pieceIndex];
-      const mutatedPiece = {
+      const mutatedPiece = confinePieceToBoard({
         ...mutation(piece),
         locked: false,
         targetSlotId: null
-      };
+      }, TANGRAM_BOARD_CONFIG);
       const nextPieces = [...previous.pieces];
       nextPieces[pieceIndex] = mutatedPiece;
       const overlaps = computeTangramOverlapPairs(nextPieces, TANGRAM_BOARD_CONFIG.scale);
@@ -369,10 +421,20 @@ function TangramKnowledgeGame() {
         const pieceIndex = previous.pieces.findIndex((piece) => piece.id === drag.pieceId);
         if (pieceIndex < 0) return previous;
         const nextPieces = [...previous.pieces];
+        const currentPiece = nextPieces[pieceIndex];
+        const confinedPiece = confinePieceToBoard(
+          {
+            ...currentPiece,
+            x: point.x + drag.offsetX,
+            y: point.y + drag.offsetY,
+            locked: false,
+            targetSlotId: null
+          },
+          TANGRAM_BOARD_CONFIG
+        );
         nextPieces[pieceIndex] = {
-          ...nextPieces[pieceIndex],
-          x: point.x + drag.offsetX,
-          y: point.y + drag.offsetY,
+          ...currentPiece,
+          ...confinedPiece,
           locked: false,
           targetSlotId: null
         };

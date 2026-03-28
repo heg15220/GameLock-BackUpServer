@@ -97,8 +97,11 @@ const G21_BUST     = 11;
 const G21_FG_PTS   = 2;
 const G21_FT_PTS   = 1;
 const G21_STOR_KEY = "basketball_21_best_v1";
-const G21_AI_THINK = 1.5;
-const G21_AI_AIM   = 1.2;
+const G21_AI_THINK = 2.1;
+const G21_AI_AIM   = 1.9;
+const G21_AI_BOUNCE_SETUP_DELAY = 0.95;
+const G21_AI_FT_SETUP_DELAY = 1.1;
+const G21_AI_FT_AIM_MULT = 1.0;
 
 // ─── UI copy ──────────────────────────────────────────────────────────────────
 const UI = {
@@ -286,10 +289,15 @@ function computeLaunch(pos, arcDeg, power, latDeg) {
   const dH = RIM_HEIGHT - RELEASE_HEIGHT;          // ~0.77 m
   const tanA = Math.tan(arcRad), cosA = Math.cos(arcRad);
   const denom = Dh * tanA - dH;
-  // Ideal speed: ball reaches basket plane at exactly RIM_HEIGHT
-  const vIdeal = denom > 0.05
-    ? Math.sqrt(GRAVITY * Dh * Dh / (2 * cosA * cosA * denom))
-    : 22;
+  // Ideal speed: ball reaches basket plane at exactly RIM_HEIGHT.
+  // Near-rim bounce shots can make `denom` tiny/negative; clamp it so close shots
+  // stay controllable instead of jumping to an excessive fallback speed.
+  const safeDenom = Math.max(0.12, denom);
+  const vIdeal = clamp(
+    Math.sqrt((GRAVITY * Dh * Dh) / (2 * cosA * cosA * safeDenom)),
+    3.8,
+    16.5
+  );
   const speed = vIdeal * (power / pos.idealPower);
   // Forward direction (player → basket, XZ plane)
   const fwX = -pos.x / Dh, fwZ = -pos.z / Dh;
@@ -369,10 +377,19 @@ function checkCollisions(ball, prev) {
 function computeBouncePos(ball) {
   const x = clamp(ball.x, -8, 8);
   const z = clamp(ball.z, 0.5, 9.5);
-  const d = Math.max(1.5, Math.sqrt(x * x + z * z));
-  const idealArc   = clamp(58 - d * 1.8, 44, 58);
-  const idealPower = clamp(0.60 + d * 0.04, 0.60, 0.94);
-  return { x, z, idealArc, idealPower };
+  const d = Math.max(0.55, Math.sqrt(x * x + z * z));
+  const idealArc   = clamp(60 - d * 2.1, 45, 62);
+  const idealPower = clamp(0.32 + d * 0.085, 0.28, 0.94);
+  return { x, z, idealArc, idealPower, fromBounce: true };
+}
+
+function getPowerRangeForPos(pos) {
+  if (!pos || !pos.fromBounce) {
+    return { minPower: MIN_POWER, maxPower: MAX_POWER };
+  }
+  const d = Math.sqrt(pos.x * pos.x + pos.z * pos.z);
+  const minPower = clamp(0.22 + d * 0.065, 0.24, MIN_POWER);
+  return { minPower, maxPower: MAX_POWER };
 }
 
 // Trajectory preview (low-rate simulation)
@@ -390,6 +407,102 @@ function previewTrajectory(pos, arcDeg, power, latDeg) {
     if (i > 70 && b.z < -1) break;
   }
   return pts;
+}
+
+function collectSamples(center, span, step, lo, hi) {
+  const out = [];
+  for (let v = center - span; v <= center + span + 1e-6; v += step) {
+    const c = clamp(v, lo, hi);
+    if (out.length === 0 || Math.abs(out[out.length - 1] - c) > 1e-5) {
+      out.push(c);
+    }
+  }
+  return out;
+}
+
+function simulateShotForAim(pos, arcDeg, power, latDeg) {
+  const vel = computeLaunch(pos, arcDeg, power, latDeg);
+  const ball = { x: pos.x, y: RELEASE_HEIGHT, z: pos.z, ...vel };
+  const dt = 1 / 120;
+  let minRimGap = Number.POSITIVE_INFINITY;
+  let minRimPlaneGap = Number.POSITIVE_INFINITY;
+  let flightSteps = 0;
+
+  for (let i = 0; i < 260; i++) {
+    const prev = { ...ball };
+    stepBall(ball, dt);
+    flightSteps = i;
+
+    const radial = Math.sqrt(ball.x * ball.x + ball.z * ball.z);
+    const centerGap = Math.hypot(radial, ball.y - RIM_HEIGHT);
+    minRimGap = Math.min(minRimGap, centerGap);
+
+    if (Math.abs(ball.y - RIM_HEIGHT) <= 0.22) {
+      const bore = RIM_RADIUS - BALL_RADIUS * 0.45;
+      minRimPlaneGap = Math.min(minRimPlaneGap, Math.abs(radial - bore));
+    }
+
+    const col = checkCollisions(ball, prev);
+    if (!col) {
+      continue;
+    }
+    if (col.type === "basket") {
+      return { made: true, terminal: "basket", minRimGap, minRimPlaneGap, flightSteps };
+    }
+    if (col.type === "ground" || col.type === "miss") {
+      return { made: false, terminal: col.type, minRimGap, minRimPlaneGap, flightSteps };
+    }
+  }
+
+  return { made: false, terminal: "timeout", minRimGap, minRimPlaneGap, flightSteps };
+}
+
+function scoreAimSimulation(sim) {
+  if (sim.made) {
+    return 10_000 - sim.flightSteps * 3;
+  }
+  const rimPenalty = sim.minRimGap * 190;
+  const planePenalty = Number.isFinite(sim.minRimPlaneGap) ? sim.minRimPlaneGap * 260 : 320;
+  const terminalPenalty = sim.terminal === "miss" ? 130 : sim.terminal === "timeout" ? 180 : 70;
+  return -(rimPenalty + planePenalty + terminalPenalty);
+}
+
+function findSmartAimForPos(pos) {
+  const { minPower, maxPower } = getPowerRangeForPos(pos);
+  const baseArc = clamp(pos.idealArc, MIN_ARC, MAX_ARC);
+  const basePower = clamp(pos.idealPower, minPower, maxPower);
+  let best = { arc: baseArc, power: basePower, lat: 0, score: Number.NEGATIVE_INFINITY, made: false };
+
+  const evaluate = (arc, power, lat) => {
+    const sim = simulateShotForAim(pos, arc, power, lat);
+    const score = scoreAimSimulation(sim);
+    if (score > best.score) {
+      best = { arc, power, lat, score, made: sim.made };
+    }
+  };
+
+  evaluate(baseArc, basePower, 0);
+
+  const passes = [
+    { arcSpan: 8, powerSpan: 0.18, latSpan: 12, arcStep: 2, powerStep: 0.03, latStep: 2 },
+    { arcSpan: 3, powerSpan: 0.06, latSpan: 4, arcStep: 1, powerStep: 0.015, latStep: 1 },
+    { arcSpan: 1.5, powerSpan: 0.025, latSpan: 1.5, arcStep: 0.5, powerStep: 0.008, latStep: 0.5 },
+  ];
+
+  for (const pass of passes) {
+    const arcs = collectSamples(best.arc, pass.arcSpan, pass.arcStep, MIN_ARC, MAX_ARC);
+    const powers = collectSamples(best.power, pass.powerSpan, pass.powerStep, minPower, maxPower);
+    const lats = collectSamples(best.lat, pass.latSpan, pass.latStep, -MAX_LATERAL, MAX_LATERAL);
+    for (const arc of arcs) {
+      for (const power of powers) {
+        for (const lat of lats) {
+          evaluate(arc, power, lat);
+        }
+      }
+    }
+  }
+
+  return best;
 }
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
@@ -1054,6 +1167,16 @@ class BasketballRuntime {
       const sbTL = p3(-2.8, 5.8, -1.92, cam, vW, vH);
       const sbBR = p3( 2.8, 4.1, -1.92, cam, vW, vH);
       if (sbTL && sbBR) {
+        const isMode21 = (this.screen === "play21" || this.screen === "summary21") && !!this.g21;
+        const leftLabel = isMode21
+          ? (this.locale === "es" ? "JUG" : "YOU")
+          : "HOME";
+        const rightLabel = isMode21
+          ? (this.locale === "es" ? "IA" : "AI")
+          : "AWAY";
+        const leftScore = isMode21 ? (this.g21.playerScore ?? 0) : this.roundPts;
+        const rightScore = isMode21 ? (this.g21.aiScore ?? 0) : 0;
+
         const sbW = Math.abs(sbBR.x - sbTL.x), sbH = Math.abs(sbBR.y - sbTL.y);
         const sbX = Math.min(sbTL.x, sbBR.x), sbY = Math.min(sbTL.y, sbBR.y);
         ctx.fillStyle = C.scoreBoard; ctx.fillRect(sbX, sbY, sbW, sbH);
@@ -1063,13 +1186,13 @@ class BasketballRuntime {
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
           const fs = Math.max(7, sbH * 0.38);
           ctx.fillStyle = "#ff6020"; ctx.font = `bold ${fs}px monospace`;
-          ctx.fillText("HOME", sbX + sbW * 0.25, sbY + sbH * 0.30);
-          ctx.fillText("AWAY", sbX + sbW * 0.75, sbY + sbH * 0.30);
+          ctx.fillText(leftLabel, sbX + sbW * 0.25, sbY + sbH * 0.30);
+          ctx.fillText(rightLabel, sbX + sbW * 0.75, sbY + sbH * 0.30);
           ctx.strokeStyle = "rgba(255,100,20,0.28)"; ctx.lineWidth = 0.5;
           ctx.beginPath(); ctx.moveTo(sbX + sbW * 0.5, sbY + 2); ctx.lineTo(sbX + sbW * 0.5, sbY + sbH - 2); ctx.stroke();
           ctx.fillStyle = "#ffcc00"; ctx.font = `bold ${Math.max(10, sbH * 0.54)}px monospace`;
-          ctx.fillText(String(this.roundPts).padStart(2, "0"), sbX + sbW * 0.25, sbY + sbH * 0.70);
-          ctx.fillText("00", sbX + sbW * 0.75, sbY + sbH * 0.70);
+          ctx.fillText(String(leftScore).padStart(2, "0"), sbX + sbW * 0.25, sbY + sbH * 0.70);
+          ctx.fillText(String(rightScore).padStart(2, "0"), sbX + sbW * 0.75, sbY + sbH * 0.70);
           ctx.textBaseline = "alphabetic";
         }
       }
@@ -1787,14 +1910,21 @@ class BasketballRuntime {
   g21applyAimKeys(dt) {
     const k = this.keys, g = this.g21;
     if (g.phase !== "playerAim" && g.phase !== "playerFT" && g.phase !== "playerBounceAim") return;
+    const pos =
+      g.phase === "playerFT"
+        ? G21_FT_POS
+        : g.phase === "playerBounceAim"
+          ? g.bouncePos
+          : G21_POSITIONS[g.posIdx];
+    const { minPower, maxPower } = getPowerRangeForPos(pos);
     const ARC = 20 * dt, LAT = 18 * dt, POW = 0.25 * dt;
     let dirty = false;
     if (k["ArrowUp"]    || k["KeyI"]) { g.aim.arc   = clamp(g.aim.arc   + ARC, MIN_ARC,      MAX_ARC);     dirty = true; }
     if (k["ArrowDown"]  || k["KeyK"]) { g.aim.arc   = clamp(g.aim.arc   - ARC, MIN_ARC,      MAX_ARC);     dirty = true; }
     if (k["ArrowLeft"]  || k["KeyJ"]) { g.aim.lat   = clamp(g.aim.lat   - LAT, -MAX_LATERAL, MAX_LATERAL); dirty = true; }
     if (k["ArrowRight"] || k["KeyL"]) { g.aim.lat   = clamp(g.aim.lat   + LAT, -MAX_LATERAL, MAX_LATERAL); dirty = true; }
-    if (k["KeyW"] || k["Equal"])      { g.aim.power = clamp(g.aim.power + POW, MIN_POWER,    MAX_POWER);   dirty = true; }
-    if (k["KeyS"] || k["Minus"])      { g.aim.power = clamp(g.aim.power - POW, MIN_POWER,    MAX_POWER);   dirty = true; }
+    if (k["KeyW"] || k["Equal"])      { g.aim.power = clamp(g.aim.power + POW, minPower, maxPower); dirty = true; }
+    if (k["KeyS"] || k["Minus"])      { g.aim.power = clamp(g.aim.power - POW, minPower, maxPower); dirty = true; }
     if (dirty) g.previewDirty = true;
   }
 
@@ -1863,8 +1993,8 @@ class BasketballRuntime {
         g.ftStreak++;
         g.phase = "playerFTSetup";
       } else {
-        // Miss on FT → AI goes to the free-throw line
-        g.phase = "aiFTSetup"; g.resultTimer = 0;
+        // Miss on FT → AI shoots from the first bounce position
+        g.phase = "aiBounceSetup"; g.resultTimer = 0;
         g.ball = null; g.trail = [];
       }
     // AI field-goal attempt
@@ -1886,8 +2016,8 @@ class BasketballRuntime {
         g.aiFtStreak++;
         g.phase = "aiFTSetup";
       } else {
-        // Miss on FT → Player goes to the free-throw line
-        g.phase = "playerFTSetup"; g.resultTimer = 0;
+        // Miss on FT → Player shoots from the first bounce position
+        g.phase = "playerBounceSetup"; g.resultTimer = 0;
         g.ball = null; g.trail = [];
       }
     }
@@ -1896,29 +2026,70 @@ class BasketballRuntime {
   g21chooseAIPos() {
     const g = this.g21;
     const need = G21_TARGET - g.aiScore;
-    let candidates;
-    if (need <= 3)       candidates = [0, 1, 2, 3];
-    else if (need > 12)  candidates = [2, 3, 4, 5, 6];
-    else                 candidates = [0, 1, 2, 3, 4, 5, 6];
-    const weights = candidates.map(i => {
-      const d = Math.sqrt(G21_POSITIONS[i].x ** 2 + G21_POSITIONS[i].z ** 2);
-      return Math.max(0.1, 9 - d);
-    });
-    const total = weights.reduce((a, b) => a + b, 0);
-    let r = Math.random() * total;
-    let chosen = candidates[0];
-    for (let i = 0; i < candidates.length; i++) { r -= weights[i]; if (r <= 0) { chosen = candidates[i]; break; } }
-    return chosen;
+    if (need <= 1) {
+      return 1; // keep setup aligned with free-throw geometry before FT chains
+    }
+    if (need <= 3) {
+      return Math.random() < 0.65 ? 1 : 0;
+    }
+    if (need <= 7) {
+      return [0, 1, 2, 3][Math.floor(Math.random() * 4)];
+    }
+    if (need <= 12) {
+      return [1, 2, 3, 4, 5][Math.floor(Math.random() * 5)];
+    }
+    return [2, 3, 4, 5, 6][Math.floor(Math.random() * 5)];
   }
 
   g21computeAIAim(pos) {
-    const errArc = (Math.random() - 0.5) * 4.5;
-    const errPow = (Math.random() - 0.5) * 0.10;
-    const errLat = (Math.random() - 0.5) * 8;
+    const best = findSmartAimForPos(pos);
+    const { minPower, maxPower } = getPowerRangeForPos(pos);
+    const g = this.g21;
+    const aiScore = g?.aiScore ?? 0;
+    const playerScore = g?.playerScore ?? 0;
+    const scoreGap = playerScore - aiScore;
+    const lead = aiScore - playerScore;
+    const need = G21_TARGET - aiScore;
+
+    // Humanized consistency profile so the AI is strong but not perfect.
+    let missChance = pos === G21_FT_POS ? 0.19 : pos?.fromBounce ? 0.29 : 0.24;
+    if (lead >= 6) missChance += 0.11;
+    if (scoreGap >= 5) missChance -= 0.07;
+    if (need <= 3) missChance -= 0.05;
+    if (playerScore >= 18) missChance -= 0.04;
+    missChance = clamp(missChance, 0.12, 0.45);
+
+    let arcTarget = best.arc;
+    let powerTarget = best.power;
+    let latTarget = best.lat;
+
+    if (Math.random() < missChance) {
+      const severity = Math.random() < 0.35 ? 1.0 : 0.68;
+      const mode = Math.floor(Math.random() * 4); // long / short / push-right / pull-left
+      if (mode === 0) {
+        powerTarget += (0.045 + Math.random() * 0.085) * severity;
+        arcTarget += (Math.random() - 0.5) * 2.1;
+      } else if (mode === 1) {
+        powerTarget -= (0.045 + Math.random() * 0.08) * severity;
+        arcTarget += (1.2 + Math.random() * 2.8) * severity;
+      } else if (mode === 2) {
+        latTarget += (3.3 + Math.random() * 6.8) * severity;
+        arcTarget += (Math.random() - 0.5) * 1.8;
+      } else {
+        latTarget -= (3.3 + Math.random() * 6.8) * severity;
+        arcTarget += (Math.random() - 0.5) * 1.8;
+      }
+    }
+
+    const pressureScale = scoreGap >= 6 ? 0.48 : scoreGap >= 3 ? 0.58 : 0.74;
+    const baseNoise = pos?.fromBounce ? 0.9 : 1.08;
+    const arcNoise = (Math.random() - 0.5) * 1.3 * baseNoise * pressureScale;
+    const powerNoise = (Math.random() - 0.5) * 0.026 * baseNoise * pressureScale;
+    const latNoise = (Math.random() - 0.5) * 1.7 * baseNoise * pressureScale;
     return {
-      arc:   clamp(pos.idealArc   + errArc, MIN_ARC,   MAX_ARC),
-      power: clamp(pos.idealPower + errPow, MIN_POWER, MAX_POWER),
-      lat:   clamp(errLat, -MAX_LATERAL, MAX_LATERAL),
+      arc:   clamp(arcTarget + arcNoise, MIN_ARC, MAX_ARC),
+      power: clamp(powerTarget + powerNoise, minPower, maxPower),
+      lat:   clamp(latTarget + latNoise, -MAX_LATERAL, MAX_LATERAL),
     };
   }
 
@@ -1962,9 +2133,10 @@ class BasketballRuntime {
       g.resultTimer += dt;
       if (g.resultTimer > 0.7) {
         const bp = g.bouncePos;
+        const { minPower, maxPower } = getPowerRangeForPos(bp);
         g.aim = {
           arc:   clamp(bp.idealArc   + (Math.random() - 0.5) * 5, MIN_ARC, MAX_ARC),
-          power: clamp(bp.idealPower + (Math.random() - 0.5) * 0.08, MIN_POWER, MAX_POWER),
+          power: clamp(bp.idealPower + (Math.random() - 0.5) * 0.08, minPower, maxPower),
           lat:   (Math.random() - 0.5) * 8,
         };
         g.ball = null; g.trail = [];
@@ -1985,7 +2157,7 @@ class BasketballRuntime {
     // ── AI bounce-position setup ──
     if (g.phase === "aiBounceSetup") {
       g.resultTimer += dt;
-      if (g.resultTimer > 0.6) {
+      if (g.resultTimer > G21_AI_BOUNCE_SETUP_DELAY) {
         g.aiTargetAim = this.g21computeAIAim(g.bouncePos);
         g.aiCurrentAim = { arc: 50, power: 0.75, lat: 0 };
         g.aiAimTimer = 0;
@@ -2051,7 +2223,7 @@ class BasketballRuntime {
 
     if (g.phase === "aiFTSetup") {
       g.resultTimer += dt;
-      if (g.resultTimer > 0.8) {
+      if (g.resultTimer > G21_AI_FT_SETUP_DELAY) {
         g.aiTargetAim = this.g21computeAIAim(G21_FT_POS);
         g.aiCurrentAim = { arc: 50, power: 0.75, lat: 0 };
         g.aiAimTimer = 0;
@@ -2063,7 +2235,7 @@ class BasketballRuntime {
 
     if (g.phase === "aiFTAim") {
       g.aiAimTimer += dt;
-      const t = clamp(g.aiAimTimer / (G21_AI_AIM * 0.7), 0, 1);
+      const t = clamp(g.aiAimTimer / (G21_AI_AIM * G21_AI_FT_AIM_MULT), 0, 1);
       const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
       const tgt = g.aiTargetAim;
       g.aiCurrentAim.arc   = 50   + (tgt.arc   - 50)   * e;
@@ -2323,6 +2495,7 @@ class BasketballRuntime {
         const pos = g.phase === "aiFTAim" ? G21_FT_POS
                   : g.phase === "aiBounceAim" ? g.bouncePos
                   : G21_POSITIONS[g.aiPosIdx];
+        const { minPower: aiMinPower } = getPowerRangeForPos(pos);
         const lbl = g.phase === "aiFTAim"    ? (this.locale === "es" ? "Tiro Libre" : "Free Throw")
                   : g.phase === "aiBounceAim" ? (this.locale === "es" ? "Posición de rebote" : "Bounce spot")
                   : (this.locale === "es" ? G21_POSITIONS[g.aiPosIdx].labelEs : G21_POSITIONS[g.aiPosIdx].labelEn);
@@ -2330,7 +2503,7 @@ class BasketballRuntime {
         ctx.fillText(lbl, cx, phaseY + 18);
         const a = g.aiCurrentAim;
         this.gauge21(ctx, px + 10, phaseY + 32, panW - 20, 18, "Arc",   a.arc,   MIN_ARC,   MAX_ARC,   pos.idealArc,   "°");
-        this.gauge21(ctx, px + 10, phaseY + 60, panW - 20, 18, "Power", a.power, MIN_POWER, MAX_POWER, pos.idealPower, "");
+        this.gauge21(ctx, px + 10, phaseY + 60, panW - 20, 18, "Power", a.power, aiMinPower, MAX_POWER, pos.idealPower, "");
         this.gauge21(ctx, px + 10, phaseY + 88, panW - 20, 18, "Lat",   a.lat,   -MAX_LATERAL, MAX_LATERAL, 0, "°");
       }
     } else if (isPlayerTurn) {
@@ -2348,12 +2521,13 @@ class BasketballRuntime {
         const pos = g.phase === "playerFT"         ? G21_FT_POS
                   : g.phase === "playerBounceAim"  ? g.bouncePos
                   : G21_POSITIONS[g.posIdx];
+        const { minPower: playerMinPower } = getPowerRangeForPos(pos);
         if (g.phase === "playerBounceAim") {
           ctx.fillStyle = "#ff8800"; ctx.font = "bold 11px Arial, sans-serif";
           ctx.fillText(this.locale === "es" ? "Posición de rebote" : "Bounce spot", cx, phaseY + 18);
         }
         this.gauge21(ctx, px + 10, phaseY + (g.phase === "playerBounceAim" ? 32 : 10), panW - 20, 18, "Arc",   g.aim.arc,   MIN_ARC,   MAX_ARC,   pos.idealArc,   "°");
-        this.gauge21(ctx, px + 10, phaseY + (g.phase === "playerBounceAim" ? 60 : 38), panW - 20, 18, "Power", g.aim.power, MIN_POWER, MAX_POWER, pos.idealPower, "");
+        this.gauge21(ctx, px + 10, phaseY + (g.phase === "playerBounceAim" ? 60 : 38), panW - 20, 18, "Power", g.aim.power, playerMinPower, MAX_POWER, pos.idealPower, "");
         this.gauge21(ctx, px + 10, phaseY + (g.phase === "playerBounceAim" ? 88 : 66), panW - 20, 18, "Lat",   g.aim.lat,   -MAX_LATERAL, MAX_LATERAL, 0, "°");
         ctx.fillStyle = "#405870"; ctx.font = "10px Arial, sans-serif"; ctx.textAlign = "center";
         wrapText(ctx, g.phase === "playerFT" ? ui.ftHint : ui.shootHint, cx, phaseY + (g.phase === "playerBounceAim" ? 118 : 96), panW - 16, 13);

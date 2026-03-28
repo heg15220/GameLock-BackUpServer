@@ -1,7 +1,7 @@
 export const UI_COPY = {
   es: {
     title: "Golf Tour 2D Pro",
-    subtitle: "Mini golf side-view con 100 niveles, biomas variados y obstaculos dinamicos.",
+    subtitle: "Mini golf side-view con 200 niveles, biomas variados y obstaculos dinamicos.",
     modeTags: {
       menu: "Campana Arcade",
       playing: "En juego",
@@ -63,7 +63,7 @@ export const UI_COPY = {
     },
     overlays: {
       menuDescription:
-        "Campana profesional con 100 trazados laterales. Cada mapa usa siluetas de suelo con capas visuales, pendientes, hoyo tipo tubo y bandera como en mini golf clasico.",
+        "Campana profesional con 200 trazados laterales. Cada mapa usa siluetas de suelo con capas visuales, pendientes, hoyo tipo tubo y bandera como en mini golf clasico.",
       continueHint: "Continua desde el ultimo nivel desbloqueado o abre la seleccion completa.",
       pausedHint: "Ajusta angulo y potencia antes de relanzar.",
       completeHint: "El control de golpes y la gestion de obstaculos determinan estrellas y calidad.",
@@ -85,7 +85,7 @@ export const UI_COPY = {
   },
   en: {
     title: "Golf Tour 2D Pro",
-    subtitle: "Side-view mini golf with 100 levels, diverse biomes, and dynamic obstacles.",
+    subtitle: "Side-view mini golf with 200 levels, diverse biomes, and dynamic obstacles.",
     modeTags: {
       menu: "Arcade Campaign",
       playing: "Live",
@@ -147,7 +147,7 @@ export const UI_COPY = {
     },
     overlays: {
       menuDescription:
-        "Professional campaign with 100 lateral layouts. Every map uses layered ground silhouettes, slope geometry, and a tube-style cup + flag target inspired by classic mini golf scenes.",
+        "Professional campaign with 200 lateral layouts. Every map uses layered ground silhouettes, slope geometry, and a tube-style cup + flag target inspired by classic mini golf scenes.",
       continueHint: "Continue from the latest unlocked level or open full level select.",
       pausedHint: "Tune angle and power before relaunching.",
       completeHint: "Stroke control and obstacle handling determine stars and execution quality.",

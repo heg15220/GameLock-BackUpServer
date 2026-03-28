@@ -1037,22 +1037,53 @@ function drawPortal(obj){
   ctx.fillStyle='#fff';ctx.font='700 9px Orbitron';ctx.textAlign='center';
   ctx.fillText('FINISH',sx+obj.w/2,sy+obj.h/2+4);ctx.restore();
 }
+function drawRoundedOctagonPath(targetCtx,radius,chamfer=.38){
+  const r=Math.max(1,radius);
+  const c=Math.max(0.2,Math.min(0.48,chamfer))*r;
+  targetCtx.beginPath();
+  targetCtx.moveTo(-c,-r);
+  targetCtx.lineTo(c,-r);
+  targetCtx.quadraticCurveTo(r,-r,r,-c);
+  targetCtx.lineTo(r,c);
+  targetCtx.quadraticCurveTo(r,r,c,r);
+  targetCtx.lineTo(-c,r);
+  targetCtx.quadraticCurveTo(-r,r,-r,c);
+  targetCtx.lineTo(-r,-c);
+  targetCtx.quadraticCurveTo(-r,-r,-c,-r);
+  targetCtx.closePath();
+}
 function drawPlayer(){
   if(state==='dead'||state==='ls')return;
   for(let i=0;i<player.trail.length;i++){
     const t=player.trail[i],a=(i/player.trail.length)*.32,s=player.w*(.5+.5*(i/player.trail.length))*.5;
     const sx=Math.round(t.x-camX+player.w/2),sy=Math.round(t.y+player.h/2);
     ctx.save();ctx.globalAlpha=a;ctx.translate(sx,sy);ctx.rotate(t.rot*Math.PI/180);
-    ctx.fillStyle=env.pc;ctx.fillRect(-s,-s,s*2,s*2);ctx.restore();
+    ctx.fillStyle=env.pc;
+    drawRoundedOctagonPath(ctx,s,.34);
+    ctx.fill();
+    ctx.restore();
   }
   const cx=Math.round(player.x-camX+player.w/2),cy=Math.round(player.y+player.h/2);
+  const bodyRadius=Math.min(player.w,player.h)/2;
   ctx.save();ctx.translate(cx,cy);ctx.rotate(player.rotation*Math.PI/180);
   ctx.shadowColor=env.pc;ctx.shadowBlur=17;ctx.fillStyle=env.pc;
-  ctx.fillRect(-player.w/2,-player.h/2,player.w,player.h);
+  drawRoundedOctagonPath(ctx,bodyRadius,.36);
+  ctx.fill();
   ctx.shadowBlur=0;ctx.strokeStyle='#fff';ctx.lineWidth=2;
-  ctx.strokeRect(-player.w/2,-player.h/2,player.w,player.h);
-  ctx.fillStyle='rgba(0,0,0,.7)';
-  ctx.fillRect(-11,-8,7,7);ctx.fillRect(4,-8,7,7);ctx.fillRect(-8,5,16,4);
+  ctx.stroke();
+  ctx.strokeStyle='rgba(0,0,0,.55)';
+  ctx.lineWidth=1.6;
+  drawRoundedOctagonPath(ctx,Math.max(6,bodyRadius*.58),.34);
+  ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,.62)';
+  drawRoundedOctagonPath(ctx,Math.max(5,bodyRadius*.42),.34);
+  ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.22)';
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(-bodyRadius*.35,-bodyRadius*.12);
+  ctx.lineTo(bodyRadius*.35,-bodyRadius*.12);
+  ctx.stroke();
   ctx.restore();
 }
 function drawP2(){

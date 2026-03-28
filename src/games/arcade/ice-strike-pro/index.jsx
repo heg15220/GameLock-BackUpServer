@@ -29,8 +29,15 @@ const RB = 9;    // button
 const STONE_R      = 15;   // px
 const BASE_FRICTION = 60;  // px/s²  (modulated by ice condition)
 const CURL_K       = 0.056;// lateral drift per unit fwd-speed per second
-const SWEEP_MULT   = 0.70; // friction multiplier while sweeping
+const SWEEP_MULT   = 0.70; // minimum friction multiplier while sweeping
 const COR          = 0.91; // coefficient of restitution stone-stone
+const BOARD_BOUNCE_X = 0.42;
+const BOARD_BOUNCE_Y = 0.36;
+const SHOT_CLOCK_SECONDS = 18;
+const SWEEP_HEAT_GAIN = 0.42;
+const SWEEP_HEAT_COOL = 0.24;
+const FONT_DISPLAY = "\"Rajdhani\", \"Trebuchet MS\", \"Segoe UI\", sans-serif";
+const FONT_BODY = "\"Exo 2\", \"Trebuchet MS\", \"Segoe UI\", sans-serif";
 
 // ── Game rules ────────────────────────────────────────────────────────────────
 const ENDS           = 6;
@@ -125,6 +132,27 @@ const SCRATCHES = (() => {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function dist(a, b)       { return Math.hypot(a.x - b.x, a.y - b.y); }
 function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+function wrapDeg(v) {
+  let n = (Number(v) || 0) % 360;
+  if (n > 180) n -= 360;
+  if (n < -180) n += 360;
+  return n;
+}
+function angleDiffDeg(a, b) {
+  return Math.abs(wrapDeg(a - b));
+}
+function makeStoneGrain() {
+  const grain = [];
+  for (let i = 0; i < 8; i++) {
+    grain.push({
+      a: Math.random() * Math.PI * 2,
+      d: 0.28 + Math.random() * 0.58,
+      r: 1 + Math.random() * 1.1,
+      o: 0.18 + Math.random() * 0.18,
+    });
+  }
+  return grain;
+}
 
 function rr(ctx, x, y, w, h, r) {
   if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
@@ -137,19 +165,22 @@ function rr(ctx, x, y, w, h, r) {
 }
 
 // ── Physics: advance one stone one sub-step ────────────────────────────────────
-function stepStone(s, dt, sweeping, frMult, curlMult) {
+function stepStone(s, dt, sweepIntensity, frMult, curlMult) {
   const spd = Math.hypot(s.vx, s.vy);
   if (spd < 0.5) { s.vx = 0; s.vy = 0; return; }
 
-  const friction = BASE_FRICTION * frMult * (sweeping ? SWEEP_MULT : 1.0);
+  const sweepFactor = clamp(Number(sweepIntensity) || 0, 0, 1);
+  const frictionMult = 1 - (1 - SWEEP_MULT) * sweepFactor;
+  const friction = BASE_FRICTION * frMult * frictionMult;
   const ratio    = Math.max(0, spd - friction * dt) / spd;
   s.vx *= ratio;
   s.vy *= ratio;
 
   // Curl: lateral force proportional to forward speed
   const fwd = -s.vy;  // positive = moving toward house
-  if (fwd > 8 && !sweeping) {
-    s.vx += s.rotation * CURL_K * curlMult * fwd * dt;
+  if (fwd > 8) {
+    const curlDamp = 1 - 0.25 * sweepFactor;
+    s.vx += s.rotation * CURL_K * curlMult * curlDamp * fwd * dt;
   }
 
   s.x += s.vx * dt;
@@ -217,34 +248,52 @@ function computeScore(stones) {
 }
 
 // ── AI planner ────────────────────────────────────────────────────────────────
-function planAIShot(stones, difficulty, frMult, curlMult) {
+function planAIShot(stones, difficulty, frMult, curlMult, context = {}) {
   const hc      = { x: HOUSE_X, y: HOUSE_Y };
   const all     = stones.filter(s => dist(s, hc) < RH + STONE_R);
   const pIn     = all.filter(s => s.team === "player").sort((a, b) => dist(a, hc) - dist(b, hc));
   const aIn     = all.filter(s => s.team === "ai").sort((a, b) => dist(a, hc) - dist(b, hc));
+  const guards = stones
+    .filter((s) =>
+      s.y > HOUSE_Y + RH + STONE_R * 0.5 &&
+      s.y < HOG_Y - STONE_R * 0.5 &&
+      s.x > SH_L + STONE_R &&
+      s.x < SH_R - STONE_R
+    )
+    .sort((a, b) => Math.abs(a.x - SH_MID) - Math.abs(b.x - SH_MID));
+  const earlyEnd = (context.delivIdx ?? 0) < 4;
 
-  let target, powerBias;
+  let target, powerBias, planName;
 
   const pLeading = pIn.length > 0 && (aIn.length === 0 || dist(pIn[0], hc) < dist(aIn[0], hc));
-  const canTakeout = difficulty !== "easy";
+  const canTakeout = difficulty !== "easy" && !earlyEnd;
 
   if (canTakeout && pLeading) {
     target    = { x: pIn[0].x, y: pIn[0].y };
     powerBias = difficulty === "hard" ? 0.84 : 0.80;
+    planName = "takeout";
+  } else if (guards.length > 0 && canTakeout && Math.random() > 0.45) {
+    const guard = guards[0];
+    target    = { x: guard.x, y: guard.y - 2 };
+    powerBias = difficulty === "hard" ? 0.74 : 0.69;
+    planName = "clear-guard";
   } else if (aIn.length === 0) {
     // First draw: aim straight at button
     const sp = difficulty === "easy" ? 36 : difficulty === "hard" ? 10 : 22;
     target = { x: HOUSE_X + (Math.random() - 0.5) * sp, y: HOUSE_Y + (Math.random() - 0.5) * sp };
     powerBias = 0.47;
+    planName = "draw";
   } else if (aIn.length < 2) {
     const sp = difficulty === "easy" ? 30 : difficulty === "hard" ? 12 : 22;
     target = { x: HOUSE_X + (Math.random() - 0.5) * sp, y: HOUSE_Y + (Math.random() - 0.5) * sp };
     powerBias = 0.47;
+    planName = "draw";
   } else {
     // Guard
     const sp = difficulty === "easy" ? 44 : difficulty === "hard" ? 16 : 30;
     target = { x: HOUSE_X + (Math.random() - 0.5) * sp, y: HOUSE_Y + RH * 0.72 };
     powerBias = 0.43;
+    planName = "guard";
   }
 
   const rotation = target.x <= HACK_X ? 1 : -1;
@@ -255,10 +304,22 @@ function planAIShot(stones, difficulty, frMult, curlMult) {
   const aimX  = target.x - drift;
   const angle = Math.atan2(dy, aimX - HACK_X);
 
-  const eS = difficulty === "easy" ? 2.8 : difficulty === "hard" ? 0.30 : 1.0;
+  const eS = difficulty === "easy" ? 2.6 : difficulty === "hard" ? 0.26 : 0.9;
   const errA = (Math.random() - 0.5) * 0.07 * eS;
   const errP = (Math.random() - 0.5) * 0.10 * eS;
-  return { vx: Math.cos(angle + errA) * spd * (1 + errP), vy: Math.sin(angle + errA) * spd * (1 + errP), rotation };
+  return {
+    vx: Math.cos(angle + errA) * spd * (1 + errP),
+    vy: Math.sin(angle + errA) * spd * (1 + errP),
+    rotation,
+    planName,
+    target,
+    sweepProfile: {
+      enabled: difficulty !== "easy",
+      startY: HOG_Y - 34 - Math.random() * 34,
+      minSpeed: 95 + Math.random() * 40,
+      chance: difficulty === "hard" ? 0.9 : 0.68
+    }
+  };
 }
 
 // ── Runtime ───────────────────────────────────────────────────────────────────
@@ -279,6 +340,8 @@ class IceStrikeRuntime {
     this.scores    = { player: 0, ai: 0 };
     this.endLog    = [];
     this.lastResult = null;
+    this.endTransitionMessage = "";
+    this.scorePulse  = { player: 0, ai: 0 };
     this.endTimer  = 0;
 
     // Stones & effects
@@ -299,12 +362,19 @@ class IceStrikeRuntime {
 
     // Sweep
     this.sweeping = false;
+    this.sweepHeat = 0;
+    this._effectiveSweep = false;
 
     // Mouse drag power
     this._dragActive = false;
     this._dragMoved  = false;
     this._dragStartY = 0;
     this._dragStartPower = 0.5;
+
+    // Flow + feedback
+    this.shotClock = SHOT_CLOCK_SECONDS;
+    this.lastRelease = null;
+    this.aiLastPlan = null;
 
     // Input
     this.keys  = {};
@@ -377,6 +447,7 @@ class IceStrikeRuntime {
     if (this.screen === "gameOver" && (code === "Enter" || code === "Space" || code === "KeyR")) { this.screen = "menu"; return; }
     if (this.screen !== "play") return;
     if (code === "KeyR") { this._startGame(); return; }
+    if (this.phase === "endResult" && (code === "Space" || code === "Enter" || code === "KeyN")) { this._nextEnd(); return; }
 
     if (this.phase === "playerAim") {
       if (code === "KeyQ") { this.aim.rotation = -1; return; }
@@ -444,6 +515,7 @@ class IceStrikeRuntime {
     }
     if (this.screen === "gameOver") { this.screen = "menu"; return; }
     if (this.screen !== "play") return;
+    if (this.phase === "endResult") { this._nextEnd(); return; }
     if (this.phase === "playerAim" && mx < ICE_W) {
       if (this._dragMoved) { this._dragMoved = false; return; }
       const adx = mx - HACK_X, ady = my - HACK_Y;
@@ -457,12 +529,18 @@ class IceStrikeRuntime {
 
   // ── Game control ──────────────────────────────────────────────────────────
   _setStrategy(name) {
-    this.strategy = name;
-    const strat   = STRATEGIES[name];
+    // Tactical opening: avoid pure takeouts in the opening phase of each end.
+    if (name === "takeout" && this.delivIdx < 4) {
+      this.strategy = "guard";
+    } else {
+      this.strategy = name;
+    }
+    const strategyName = this.strategy;
+    const strat   = STRATEGIES[strategyName];
     // Auto-set power bias for strategy
     this.aim.power = strat.powerBias;
     // Auto-aim angle toward strategy target
-    const target = this._strategyTarget(name);
+    const target = this._strategyTarget(strategyName);
     if (target) {
       const dx = target.x - HACK_X, dy = target.y - HACK_Y;
       const ang = Math.atan2(dy, dx) * 180 / Math.PI;
@@ -509,26 +587,49 @@ class IceStrikeRuntime {
     this.scores      = { player: 0, ai: 0 };
     this.endLog      = [];
     this.lastResult  = null;
+    this.endTransitionMessage = "";
     this.hammer      = "player";
+    this.scorePulse  = { player: 0, ai: 0 };
     this.sweeping    = false;
+    this.sweepHeat   = 0;
+    this._effectiveSweep = false;
     this.particles   = [];
     this._dragActive = false;
     this._dragMoved  = false;
     this.aim         = { angle: -100, power: 0.50, rotation: 1 };
     this.strategy    = "draw";
+    this.lastRelease = null;
+    this.aiLastPlan  = null;
     this.screen      = "play";
     this.phase       = this._currentTeam === "player" ? "playerAim" : "aiTurn";
+    this.shotClock   = this.phase === "playerAim" ? SHOT_CLOCK_SECONDS : 0;
     this.aiTimer     = this.phase === "aiTurn" ? 1.4 : 0;
   }
 
   _deliver() {
     if (this.phase !== "playerAim") return;
-    const rad = this.aim.angle * Math.PI / 180;
-    const spd = 200 + this.aim.power * 280;
+    const target = this._strategyTarget(this.strategy) ?? { x: HOUSE_X, y: HOUSE_Y };
+    const strategyBias = STRATEGIES[this.strategy]?.powerBias ?? 0.5;
+    const baseAngle = this.aim.angle;
+    const desiredAngle = Math.atan2(target.y - HACK_Y, target.x - HACK_X) * 180 / Math.PI;
+    const angleError = angleDiffDeg(baseAngle, desiredAngle);
+    const powerError = Math.abs(this.aim.power - strategyBias);
+    const releaseQuality = clamp(1 - angleError / 30 - powerError * 1.35, 0, 1);
+    const releaseJitter = (1 - releaseQuality);
+    const releaseAngle = baseAngle + (Math.random() - 0.5) * releaseJitter * 8.5;
+    const powerMod = 1 + (Math.random() - 0.5) * releaseJitter * 0.20;
+    const qualityBoost = 0.92 + releaseQuality * 0.16;
+    const releaseLabel = releaseQuality > 0.86 ? "Perfect release"
+      : releaseQuality > 0.62 ? "Good release"
+      : releaseQuality > 0.40 ? "Late release"
+      : "Loose release";
+
+    const spd = (200 + this.aim.power * 280) * qualityBoost * powerMod;
+    const relRad = releaseAngle * Math.PI / 180;
     const s   = {
       x: HACK_X, y: HACK_Y,
-      vx: Math.cos(rad) * spd,
-      vy: Math.sin(rad) * spd,
+      vx: Math.cos(relRad) * spd,
+      vy: Math.sin(relRad) * spd,
       rotation: this.aim.rotation,
       team: "player",
       id:   `p${this.delivIdx}`,
@@ -536,15 +637,34 @@ class IceStrikeRuntime {
       crossed_hog: false,
       trail: [],
       spinAngle: 0,
+      releaseQuality,
+      grain: makeStoneGrain(),
+    };
+    this.lastRelease = {
+      quality: releaseQuality,
+      label: releaseLabel,
+      angleError,
+      powerError,
+      target,
+      strategy: this.strategy,
+      at: this.time
     };
     this.stones.push(s);
     this.flyingStone = s;
     this.phase       = "flight";
     this.sweeping    = false;
+    this.sweepHeat   = 0;
+    this._effectiveSweep = false;
+    this.shotClock   = 0;
+    this.aiLastPlan  = null;
   }
 
   _aiDeliver() {
-    const shot = planAIShot(this.stones, this.difficulty, this._frMult, this._curlMult);
+    const shot = planAIShot(this.stones, this.difficulty, this._frMult, this._curlMult, {
+      delivIdx: this.delivIdx,
+      end: this.end,
+      hammer: this.hammer
+    });
     const s    = {
       x: HACK_X, y: HACK_Y,
       vx: shot.vx, vy: shot.vy,
@@ -555,27 +675,47 @@ class IceStrikeRuntime {
       crossed_hog: false,
       trail: [],
       spinAngle: 0,
+      aiSweepProfile: shot.sweepProfile,
+      aiSweepCommit: Boolean(shot.sweepProfile?.enabled && Math.random() < (shot.sweepProfile?.chance ?? 0)),
+      grain: makeStoneGrain(),
     };
     this.stones.push(s);
     this.flyingStone = s;
     this.phase       = "flight";
     this.sweeping    = false;
+    this.sweepHeat   = 0;
+    this._effectiveSweep = false;
+    this.aiLastPlan  = shot.planName ?? "draw";
+    this.shotClock   = 0;
     this.aiTimer     = 0;
   }
 
   _finishEnd() {
     const result = computeScore(this.stones);
     this.lastResult = result;
-    if (result.team === "player") this.scores.player += result.pts;
-    else if (result.team === "ai") this.scores.ai    += result.pts;
+    if (result.team === "player") {
+      this.scores.player += result.pts;
+      this.scorePulse.player = 1;
+    } else if (result.team === "ai") {
+      this.scores.ai += result.pts;
+      this.scorePulse.ai = 1;
+    }
     this.endLog.push({
       player: result.team === "player" ? result.pts : 0,
       ai:     result.team === "ai"     ? result.pts : 0,
     });
     if (result.team === "player") this.hammer = "ai";
     else if (result.team === "ai") this.hammer = "player";
+    const isFinalEnd = this.end >= ENDS;
+    if (result.team === "player") {
+      this.endTransitionMessage = isFinalEnd ? `You score ${result.pts}. Final end complete.` : `You score ${result.pts}. Next end loading.`;
+    } else if (result.team === "ai") {
+      this.endTransitionMessage = isFinalEnd ? `CPU scores ${result.pts}. Final end complete.` : `CPU scores ${result.pts}. Next end loading.`;
+    } else {
+      this.endTransitionMessage = isFinalEnd ? "Blank end. Match complete." : "Blank end. Next end loading.";
+    }
     this.phase    = "endResult";
-    this.endTimer = 3.5;
+    this.endTimer = 3.8;
   }
 
   _nextEnd() {
@@ -587,12 +727,47 @@ class IceStrikeRuntime {
     this.stones      = [];
     this.flyingStone = null;
     this.lastResult  = null;
+    this.endTransitionMessage = "";
+    this.scorePulse  = { player: 0, ai: 0 };
     this.sweeping    = false;
+    this.sweepHeat   = 0;
+    this._effectiveSweep = false;
     this.particles   = [];
     this.aim         = { angle: -100, power: 0.50, rotation: 1 };
     this.strategy    = "draw";
+    this.lastRelease = null;
+    this.aiLastPlan  = null;
     this.phase       = this._currentTeam === "player" ? "playerAim" : "aiTurn";
+    this.shotClock   = this.phase === "playerAim" ? SHOT_CLOCK_SECONDS : 0;
     this.aiTimer     = this.phase === "aiTurn" ? 1.4 : 0;
+  }
+
+  _advanceDeliveryFlowIfReady() {
+    const anyMoving = this.stones.some((s) => Math.hypot(s.vx, s.vy) > 0.5);
+    if (anyMoving || this.flyingStone !== null) return false;
+
+    this.delivIdx++;
+    this.sweeping = false;
+    this.sweepHeat = 0;
+    this._effectiveSweep = false;
+
+    if (this.delivIdx >= SHOTS_PER_TEAM * 2) {
+      this._finishEnd();
+      return true;
+    }
+
+    const team = this._currentTeam;
+    if (team === "player") {
+      this.phase    = "playerAim";
+      this.aim      = { angle: -100, power: 0.50, rotation: 1 };
+      this.strategy = "draw";
+      this.shotClock = SHOT_CLOCK_SECONDS;
+    } else {
+      this.phase    = "aiTurn";
+      this.aiTimer  = 0.9 + Math.random() * 0.7;
+      this.shotClock = 0;
+    }
+    return true;
   }
 
   // ── Update ─────────────────────────────────────────────────────────────────
@@ -603,6 +778,82 @@ class IceStrikeRuntime {
     this._update(dt);
     this._render();
     this._raf = requestAnimationFrame(this._frame);
+  }
+
+  snapshot() {
+    const flying = this.flyingStone;
+    const preview = computeScore(this.stones);
+    return {
+      screen: this.screen,
+      phase: this.phase,
+      coordinates: {
+        origin: "top-left",
+        x_positive: "right",
+        y_positive: "down",
+      },
+      end: this.end,
+      ends: ENDS,
+      shot: this.delivIdx + 1,
+      shotsPerEnd: SHOTS_PER_TEAM * 2,
+      hammer: this.hammer,
+      scores: { ...this.scores },
+      shotClock: Number(this.shotClock.toFixed(2)),
+      sweepHeat: Number(this.sweepHeat.toFixed(3)),
+      effectiveSweep: this._effectiveSweep,
+      currentTeam: this._currentTeam,
+      ice: {
+        id: this.iceCondKey,
+        label: this._iceCond.label,
+        friction: this._frMult,
+        curl: this._curlMult,
+      },
+      aim: this.phase === "playerAim"
+        ? {
+            angle: Number(this.aim.angle.toFixed(2)),
+            power: Number(this.aim.power.toFixed(3)),
+            rotation: this.aim.rotation,
+            strategy: this.strategy,
+          }
+        : null,
+      flyingStone: flying
+        ? {
+            team: flying.team,
+            x: Number(flying.x.toFixed(2)),
+            y: Number(flying.y.toFixed(2)),
+            vx: Number(flying.vx.toFixed(2)),
+            vy: Number(flying.vy.toFixed(2)),
+            speed: Number(Math.hypot(flying.vx, flying.vy).toFixed(2)),
+          }
+        : null,
+      stones: this.stones.slice(0, 16).map((s) => ({
+        team: s.team,
+        x: Number(s.x.toFixed(1)),
+        y: Number(s.y.toFixed(1)),
+        moving: Math.hypot(s.vx, s.vy) > 0.5,
+      })),
+      preview: {
+        team: preview.team,
+        pts: preview.pts,
+      },
+      aiPlan: this.aiLastPlan,
+      lastRelease: this.lastRelease
+        ? {
+            label: this.lastRelease.label,
+            quality: Number(this.lastRelease.quality.toFixed(3)),
+            strategy: this.lastRelease.strategy,
+            secondsAgo: Number((this.time - this.lastRelease.at).toFixed(2)),
+          }
+        : null,
+    };
+  }
+
+  advance(ms) {
+    const totalMs = Math.max(0, Number(ms) || 0);
+    if (totalMs <= 0) return;
+    const steps = Math.max(1, Math.round(totalMs / (1000 / 60)));
+    const dt = (totalMs / 1000) / steps;
+    for (let i = 0; i < steps; i++) this._update(dt);
+    this._render();
   }
 
   _update(dt) {
@@ -616,6 +867,8 @@ class IceStrikeRuntime {
       p.life -= dt;
       if (p.life <= 0) this.particles.splice(i, 1);
     }
+    this.scorePulse.player = Math.max(0, this.scorePulse.player - dt * 1.65);
+    this.scorePulse.ai = Math.max(0, this.scorePulse.ai - dt * 1.65);
 
     if (this.screen !== "play") return;
 
@@ -626,6 +879,8 @@ class IceStrikeRuntime {
       if (this.keys["ArrowRight"] || this.keys["KeyD"]) this.aim.angle = clamp(this.aim.angle + ANG, -168, -12);
       if (this.keys["ArrowUp"]    || this.keys["KeyW"]) this.aim.power = clamp(this.aim.power + POW, 0, 1);
       if (this.keys["ArrowDown"])                       this.aim.power = clamp(this.aim.power - POW, 0, 1);
+      this.shotClock = Math.max(0, this.shotClock - dt);
+      if (this.shotClock <= 0) this._deliver();
     }
 
     if (this.phase === "endResult") {
@@ -642,19 +897,76 @@ class IceStrikeRuntime {
 
     if (this.phase !== "flight") return;
 
+    const flying = this.flyingStone;
+    if (!flying) {
+      this._advanceDeliveryFlowIfReady();
+      return;
+    }
+    const fSpd = Math.hypot(flying.vx, flying.vy);
+    const aiProfile = flying.aiSweepProfile;
+    const aiSweep =
+      flying.team === "ai" &&
+      Boolean(flying.aiSweepCommit) &&
+      aiProfile?.enabled &&
+      flying.y <= (aiProfile.startY ?? HOG_Y) &&
+      fSpd >= (aiProfile.minSpeed ?? 96);
+    const wantsSweep = flying.team === "player" ? this.sweeping : aiSweep;
+    const effectiveSweepWindow = wantsSweep && fSpd > 42 && flying.y > BACK_Y + STONE_R * 0.7;
+
+    if (effectiveSweepWindow) {
+      const gainMul = flying.team === "player" ? 1 : 0.86;
+      this.sweepHeat = clamp(this.sweepHeat + SWEEP_HEAT_GAIN * gainMul * dt, 0, 1);
+    } else {
+      this.sweepHeat = clamp(this.sweepHeat - SWEEP_HEAT_COOL * dt, 0, 1);
+    }
+    const sweepIntensity = this.sweepHeat > 0.05 ? this.sweepHeat : 0;
+    this._effectiveSweep = sweepIntensity > 0.12;
+
     // Sub-step physics
     const SUBS = 4;
     for (let sub = 0; sub < SUBS; sub++) {
-      const sdt    = dt / SUBS;
-      const flying = this.flyingStone;
+      const sdt = dt / SUBS;
 
       for (const s of this.stones) {
         if (s.vx === 0 && s.vy === 0) continue;
-        const isSweeping = this.sweeping && s === flying;
-        stepStone(s, sdt, isSweeping, this._frMult, this._curlMult);
+        const isFlying = s === flying;
+        const stoneSweep = isFlying ? sweepIntensity : 0;
+        stepStone(s, sdt, stoneSweep, this._frMult, this._curlMult);
         if (!s.crossed_hog && s.y < HOG_Y) s.crossed_hog = true;
 
-        // Spin animation
+        // Board rebounds: side rails + back board.
+        let bounced = false;
+        if (s.x < SH_L + STONE_R) {
+          s.x = SH_L + STONE_R;
+          if (s.vx < 0) { s.vx = -s.vx * BOARD_BOUNCE_X; s.vy *= 0.985; bounced = true; }
+        } else if (s.x > SH_R - STONE_R) {
+          s.x = SH_R - STONE_R;
+          if (s.vx > 0) { s.vx = -s.vx * BOARD_BOUNCE_X; s.vy *= 0.985; bounced = true; }
+        }
+
+        if (s.y < BACK_Y + STONE_R) {
+          s.y = BACK_Y + STONE_R;
+          if (s.vy < 0) { s.vy = -s.vy * BOARD_BOUNCE_Y; s.vx *= 0.97; bounced = true; }
+        }
+
+        if (bounced && this.particles && Math.hypot(s.vx, s.vy) > 24) {
+          const sparks = 3 + Math.floor(Math.random() * 3);
+          for (let k = 0; k < sparks; k++) {
+            const ang = (Math.random() - 0.5) * Math.PI;
+            const spd = 24 + Math.random() * 46;
+            this.particles.push({
+              x: s.x + (Math.random() - 0.5) * 6,
+              y: s.y + STONE_R * 0.7,
+              vx: Math.cos(ang) * spd,
+              vy: Math.abs(Math.sin(ang)) * spd * 0.55,
+              life: 0.24 + Math.random() * 0.12,
+              maxLife: 0.36,
+              col: "rgba(200,228,255,0.9)",
+              r: 1 + Math.random() * 1.3,
+            });
+          }
+        }
+
         const spd = Math.hypot(s.vx, s.vy);
         s.spinAngle = (s.spinAngle || 0) + s.rotation * spd * sdt * 0.04;
       }
@@ -662,14 +974,19 @@ class IceStrikeRuntime {
     }
 
     // Sweep particles
-    if (this.sweeping && this.flyingStone) {
+    if (this._effectiveSweep && this.flyingStone) {
       const f = this.flyingStone;
-      if (Math.hypot(f.vx, f.vy) > 20) {
+      if (Math.hypot(f.vx, f.vy) > 24) {
         for (let k = 0; k < 3; k++) {
           this.particles.push({
-            x: f.x + (Math.random() - 0.5) * 24, y: f.y + STONE_R + Math.random() * 10,
-            vx: (Math.random() - 0.5) * 30, vy: -10 - Math.random() * 14,
-            life: 0.40, maxLife: 0.40, col: CLR.sweepIce, r: 1.8,
+            x: f.x + (Math.random() - 0.5) * 22,
+            y: f.y + STONE_R + Math.random() * 9,
+            vx: (Math.random() - 0.5) * 28,
+            vy: -6 - Math.random() * 15,
+            life: 0.34,
+            maxLife: 0.34,
+            col: CLR.sweepIce,
+            r: 1.6,
           });
         }
       }
@@ -684,42 +1001,38 @@ class IceStrikeRuntime {
 
     // OOB / hog rule
     for (let i = this.stones.length - 1; i >= 0; i--) {
-      const s   = this.stones[i];
+      const s = this.stones[i];
       const spd = Math.hypot(s.vx, s.vy);
-      if (spd > 0) {
-        if (s.x < SH_L - STONE_R * 3 || s.x > SH_R + STONE_R * 3 || s.y < BACK_Y - 30) {
+      if (spd > 0.2) {
+        const hardOob =
+          s.x < SH_L - STONE_R * 5 ||
+          s.x > SH_R + STONE_R * 5 ||
+          s.y < BACK_Y - STONE_R * 5 ||
+          s.y > HACK_Y + STONE_R * 3;
+        if (hardOob) {
           if (s === this.flyingStone) this.flyingStone = null;
           this.stones.splice(i, 1);
         }
         continue;
       }
-      const oob = s.x < SH_L + STONE_R || s.x > SH_R - STONE_R
-               || s.y < BACK_Y           || s.y > HACK_Y + 30
-               || !s.crossed_hog;
+
+      const oob =
+        s.x < SH_L + STONE_R ||
+        s.x > SH_R - STONE_R ||
+        s.y < BACK_Y ||
+        s.y > HACK_Y + 26 ||
+        !s.crossed_hog;
       if (oob) {
         if (s === this.flyingStone) this.flyingStone = null;
         this.stones.splice(i, 1);
       }
     }
 
-    // Check all at rest
-    const anyMoving = this.stones.some(s => Math.hypot(s.vx, s.vy) > 0.5);
-    if (!anyMoving && this.flyingStone === null) {
-      this.delivIdx++;
-      if (this.delivIdx >= SHOTS_PER_TEAM * 2) {
-        this._finishEnd();
-      } else {
-        const team = this._currentTeam;
-        if (team === "player") {
-          this.phase    = "playerAim";
-          this.aim      = { angle: -100, power: 0.50, rotation: 1 };
-          this.strategy = "draw";
-        } else {
-          this.phase   = "aiTurn";
-          this.aiTimer = 0.9 + Math.random() * 0.7;
-        }
-      }
-    }
+    if (this.flyingStone && !this.stones.includes(this.flyingStone)) this.flyingStone = null;
+    if (this.flyingStone && Math.hypot(this.flyingStone.vx, this.flyingStone.vy) <= 0.5) this.flyingStone = null;
+
+    // Check all at rest and move flow to next delivery/end.
+    this._advanceDeliveryFlowIfReady();
   }
 
   // ── Rendering ──────────────────────────────────────────────────────────────
@@ -1013,15 +1326,16 @@ class IceStrikeRuntime {
       // ── Granite speckle texture ──
       ctx.save();
       ctx.beginPath(); ctx.arc(cx, cy, STONE_R - 1, 0, Math.PI * 2); ctx.clip();
-      for (let k = 0; k < 8; k++) {
-        const ang = (k / 8) * Math.PI * 2 + spin;
-        const rr2 = STONE_R * (0.3 + Math.random() * 0.55);
+      const grain = s.grain || (s.grain = makeStoneGrain());
+      for (const gpt of grain) {
+        const ang = gpt.a + spin;
+        const rr2 = STONE_R * gpt.d;
         const sx2 = cx + Math.cos(ang) * rr2;
         const sy2 = cy + Math.sin(ang) * rr2;
-        ctx.beginPath(); ctx.arc(sx2, sy2, 1.5, 0, Math.PI * 2);
+        ctx.beginPath(); ctx.arc(sx2, sy2, gpt.r, 0, Math.PI * 2);
         ctx.fillStyle = team === "player"
-          ? "rgba(120,20,20,0.35)"
-          : "rgba(100,80,0,0.35)";
+          ? `rgba(120,20,20,${gpt.o})`
+          : `rgba(100,80,0,${gpt.o})`;
         ctx.fill();
       }
       ctx.restore();
@@ -1068,14 +1382,14 @@ class IceStrikeRuntime {
       // ── Delivery number ──
       ctx.textAlign = "center";
       ctx.fillStyle = "rgba(255,255,255,0.90)";
-      ctx.font = `bold ${STONE_R < 13 ? 7 : 8}px Arial`;
+      ctx.font = `700 ${STONE_R < 13 ? 7 : 8}px ${FONT_DISPLAY}`;
       ctx.fillText(s.delivNum, cx, cy + 3);
 
       // ── Distance to button (only in-house stones at rest) ──
       const hd = dist(s, hc);
       if (!isFlying && hd < RH + STONE_R) {
         ctx.fillStyle = "rgba(255,255,255,0.70)";
-        ctx.font = "6px Arial";
+        ctx.font = `600 6px ${FONT_BODY}`;
         ctx.fillText(Math.round(hd), cx, cy + STONE_R + 10);
       }
 
@@ -1089,7 +1403,7 @@ class IceStrikeRuntime {
     }
 
     // ── Broom sweep effect ──
-    if (this.sweeping && this.flyingStone) {
+    if (this._effectiveSweep && this.flyingStone) {
       const f   = this.flyingStone;
       const spd = Math.hypot(f.vx, f.vy);
       if (spd > 20) {
@@ -1120,242 +1434,373 @@ class IceStrikeRuntime {
   }
 
   _drawHUD(ctx) {
-    const px = ICE_W + 4, pw = W - px - 4, cx2 = px + pw / 2;
-
-    // Panel background
-    const pbg = ctx.createLinearGradient(px, 0, W, 0);
-    pbg.addColorStop(0, CLR.panelBg);
-    pbg.addColorStop(1, "#060a14");
-    ctx.fillStyle = pbg; ctx.fillRect(px, 0, pw, H);
-    ctx.strokeStyle = CLR.panelBdr; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke();
-
-    ctx.textAlign = "center";
-
-    // ── Title ──
-    ctx.fillStyle = CLR.accent; ctx.font = "bold 15px Arial";
-    ctx.fillText("❄  ICE STRIKE PRO", cx2, 26);
-
-    // End counter
-    ctx.fillStyle = "rgba(100,155,215,0.55)"; ctx.font = "10px Arial";
-    ctx.fillText(`End  ${this.end}  /  ${ENDS}`, cx2, 42);
-
-    // Difficulty badge
-    const diffCol = this.difficulty === "easy" ? "#50d870" : this.difficulty === "hard" ? "#ff5050" : "#f0c020";
-    ctx.fillStyle = diffCol; ctx.font = "bold 8px Arial";
-    ctx.fillText(this.difficulty.toUpperCase(), cx2, 53);
-
-    // ── Scoreboard ──
-    const sbY = 60, sbH = 80, sbW = pw - 20;
-    ctx.fillStyle = "rgba(0,0,0,0.45)";
-    ctx.beginPath(); rr(ctx, px + 10, sbY, sbW, sbH, 8); ctx.fill();
-
-    const halfW   = sbW / 2 - 5;
-    const ledBlink = Math.sin(this.time * 5.5) > 0;
-    const pActive  = this.phase === "playerAim" || (this.phase === "flight" && this.flyingStone?.team === "player");
-    const aActive  = this.phase === "aiTurn"    || (this.phase === "flight" && this.flyingStone?.team === "ai");
-
-    const drawSide = (label, score, col, ox, active) => {
-      const scx = px + 10 + ox + halfW / 2;
-      ctx.textAlign = "center";
-      ctx.fillStyle = active ? col : "rgba(100,130,160,0.55)";
-      ctx.font = "bold 11px Arial";
-      ctx.fillText(label, scx, sbY + 20);
-      if (active) {
-        ctx.beginPath(); ctx.arc(scx + 24, sbY + 15, 4, 0, Math.PI * 2);
-        ctx.fillStyle = ledBlink ? "#44ff88" : "#103020"; ctx.fill();
-        ctx.strokeStyle = "rgba(60,255,120,0.55)"; ctx.lineWidth = 0.8;
-        ctx.beginPath(); ctx.arc(scx + 24, sbY + 15, 4, 0, Math.PI * 2); ctx.stroke();
-      }
-      const sCol = score >= 8 ? "#ff4444" : score >= 5 ? "#ffaa22" : active ? "#40e878" : "#1e4060";
-      ctx.fillStyle = sCol;
-      ctx.font = `bold ${Math.min(40, halfW * 0.78)}px Arial`;
-      ctx.fillText(score, scx, sbY + 62);
-    };
-    drawSide("🔴 YOU", this.scores.player, CLR.playerCol, 0,          pActive);
-    drawSide("🟡 CPU", this.scores.ai,     CLR.aiCol,     halfW + 10, aActive);
-    ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(px + 10 + halfW + 5, sbY + 8);
-    ctx.lineTo(px + 10 + halfW + 5, sbY + sbH - 8);
-    ctx.stroke();
-    ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.font = "9px Arial";
-    ctx.fillText("vs", px + 10 + halfW + 5, sbY + 44);
-
-    // ── Hammer indicator ──
-    const hamY = sbY + sbH + 8;
-    ctx.textAlign = "center"; ctx.fillStyle = "rgba(255,220,80,0.70)"; ctx.font = "bold 8px Arial";
-    const hamLabel = this.hammer === "player" ? "🔨 YOU have hammer" : "🔨 CPU has hammer";
-    ctx.fillText(hamLabel, cx2, hamY + 8);
-
-    // ── Delivery progress ──
-    const delY  = hamY + 22;
-    const total = SHOTS_PER_TEAM * 2;
-    ctx.fillStyle = "rgba(80,125,180,0.55)"; ctx.font = "9px Arial"; ctx.textAlign = "center";
-    ctx.fillText(`Shot  ${this.delivIdx + 1}  /  ${total}`, cx2, delY);
-    const dotW = (pw - 32) / total;
-    for (let i = 0; i < total; i++) {
-      const team    = this.hammer === "player" ? (i % 2 === 0 ? "ai" : "player") : (i % 2 === 0 ? "player" : "ai");
-      const col     = team === "player" ? CLR.playerCol : CLR.aiCol;
-      const thrown  = i < this.delivIdx;
-      const current = i === this.delivIdx;
-      const dotX    = px + 16 + i * dotW + dotW / 2;
-      const dotY    = delY + 13;
-      ctx.beginPath(); ctx.arc(dotX, dotY, current ? 6 : 4.5, 0, Math.PI * 2);
-      ctx.fillStyle = thrown ? "rgba(40,60,95,0.55)" : current ? col : col + "88";
-      ctx.fill();
-      if (current) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.2; ctx.stroke(); }
-    }
-
-    // ── Live score preview ──
+    const px = ICE_W + 4;
+    const pw = W - px - 4;
+    const cx2 = px + pw / 2;
+    const totalShots = SHOTS_PER_TEAM * 2;
+    const shotNum = clamp(this.delivIdx + 1, 1, totalShots);
+    const isPlayerTurn = this.phase === "playerAim" || (this.phase === "flight" && this.flyingStone?.team === "player");
+    const isAiTurn = this.phase === "aiTurn" || (this.phase === "flight" && this.flyingStone?.team === "ai");
     const scoring = computeScore(this.stones);
-    const pvY     = delY + 36;
-    ctx.textAlign = "center";
-    if (scoring.team) {
-      const col = scoring.team === "player" ? CLR.playerCol : CLR.aiCol;
-      ctx.fillStyle = col; ctx.font = "bold 12px Arial";
-      ctx.fillText(`${scoring.team === "player" ? "YOU" : "CPU"}  +${scoring.pts} pts`, cx2, pvY);
-      ctx.fillStyle = "rgba(80,120,160,0.50)"; ctx.font = "8px Arial";
-      ctx.fillText("leading this end", cx2, pvY + 13);
-    } else if (this.stones.length > 0) {
-      ctx.fillStyle = "rgba(90,125,165,0.50)"; ctx.font = "9px Arial";
-      ctx.fillText("no stones in house", cx2, pvY + 4);
+    const cond = this._iceCond;
+
+    const panelBg = ctx.createLinearGradient(px, 0, px, H);
+    panelBg.addColorStop(0, "#060f1f");
+    panelBg.addColorStop(0.45, "#050b16");
+    panelBg.addColorStop(1, "#04070f");
+    ctx.fillStyle = panelBg;
+    ctx.fillRect(px, 0, pw, H);
+    ctx.strokeStyle = "rgba(70,124,206,0.34)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px, 0);
+    ctx.lineTo(px, H);
+    ctx.stroke();
+
+    for (let gy = 0; gy < H; gy += 26) {
+      ctx.strokeStyle = `rgba(98,148,214,${gy % 52 === 0 ? 0.07 : 0.03})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(px + 2, gy + 0.5);
+      ctx.lineTo(px + pw - 2, gy + 0.5);
+      ctx.stroke();
     }
 
-    // ── Ice condition badge ──
-    const icY = pvY + 26;
-    const cond = this._iceCond;
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
-    ctx.beginPath(); rr(ctx, px + 12, icY, pw - 24, 22, 5); ctx.fill();
-    ctx.fillStyle = cond.color; ctx.font = "bold 9px Arial"; ctx.textAlign = "left";
-    ctx.fillText("❄ " + cond.label, px + 20, icY + 15);
-    ctx.fillStyle = "rgba(130,170,210,0.50)"; ctx.font = "8px Arial"; ctx.textAlign = "right";
-    const condDesc = cond.frictionMult < 1 ? "faster, less curl" : cond.frictionMult > 1 ? "slower, more curl" : "normal";
-    ctx.fillText(condDesc, px + pw - 16, icY + 15);
-
-    // ── Power + rotation (player aim only) ──
-    if (this.phase === "playerAim") {
-      const gY  = icY + 30;
-      const gW  = pw - 28;
-
-      // Power label & value
-      ctx.textAlign = "left"; ctx.fillStyle = "rgba(80,130,185,0.65)"; ctx.font = "9px Arial";
-      ctx.fillText("POWER", px + 14, gY - 1);
-      ctx.textAlign = "right"; ctx.fillStyle = CLR.accent; ctx.font = "bold 9px Arial";
-      ctx.fillText(`${Math.round(this.aim.power * 100)}%`, px + pw - 14, gY - 1);
-
-      // Power bar background
-      ctx.fillStyle = "#0e1928"; ctx.fillRect(px + 14, gY + 2, gW, 14);
-      // Zone marker (draw weight zone)
-      ctx.fillStyle = "rgba(255,255,255,0.08)";
-      ctx.fillRect(px + 14 + gW * 0.35, gY + 2, gW * 0.30, 14);
-      ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = 1;
+    const drawCard = (x, y, w, h, accent = "rgba(92,148,230,0.24)") => {
+      const bg = ctx.createLinearGradient(x, y, x, y + h);
+      bg.addColorStop(0, "rgba(8,18,34,0.94)");
+      bg.addColorStop(1, "rgba(4,10,20,0.82)");
+      ctx.fillStyle = bg;
       ctx.beginPath();
-      ctx.moveTo(px + 14 + gW * 0.35, gY + 2); ctx.lineTo(px + 14 + gW * 0.35, gY + 16);
-      ctx.moveTo(px + 14 + gW * 0.65, gY + 2); ctx.lineTo(px + 14 + gW * 0.65, gY + 16);
+      rr(ctx, x, y, w, h, 10);
+      ctx.fill();
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      rr(ctx, x, y, w, h, 10);
       ctx.stroke();
-      // Power fill
-      const p2 = this.aim.power;
-      const pCol = p2 < 0.34 ? "#ff5050" : p2 < 0.65 ? "#50d870" : "#50a8ff";
-      ctx.fillStyle = pCol;
-      ctx.fillRect(px + 14, gY + 2, gW * p2, 14);
-      ctx.fillStyle = "rgba(180,220,255,0.40)"; ctx.font = "7px Arial"; ctx.textAlign = "center";
-      ctx.fillText("draw zone", px + 14 + gW * 0.50, gY + 26);
+    };
 
-      // Strategy selector
-      const sY = gY + 34;
-      ctx.textAlign = "center"; ctx.fillStyle = "rgba(90,130,185,0.65)"; ctx.font = "bold 9px Arial";
-      ctx.fillText("SHOT STRATEGY", cx2, sY);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#8fc5ff";
+    ctx.font = `700 17px ${FONT_DISPLAY}`;
+    ctx.fillText("ICE STRIKE PRO", cx2, 25);
+    ctx.fillStyle = "rgba(148,190,238,0.72)";
+    ctx.font = `600 10px ${FONT_BODY}`;
+    ctx.fillText(`END ${this.end}/${ENDS}  �  ${this.difficulty.toUpperCase()}  �  ${this.hammer === "player" ? "YOU HAMMER" : "CPU HAMMER"}`, cx2, 40);
 
-      const stratKeys = Object.keys(STRATEGIES);
-      const sBW = (pw - 24) / stratKeys.length - 4;
-      stratKeys.forEach((k, idx) => {
-        const strat = STRATEGIES[k];
-        const sx2   = px + 12 + idx * (sBW + 4);
-        const active = this.strategy === k;
-        ctx.fillStyle  = active ? strat.color + "cc" : "rgba(15,25,45,0.80)";
-        ctx.beginPath(); rr(ctx, sx2, sY + 6, sBW, 26, 5); ctx.fill();
-        ctx.strokeStyle = active ? strat.color : "rgba(60,90,140,0.40)";
-        ctx.lineWidth   = active ? 1.8 : 1; ctx.stroke();
-        ctx.textAlign = "center";
-        ctx.fillStyle = active ? "#fff" : "rgba(130,165,210,0.60)";
-        ctx.font = `bold ${active ? 8 : 7}px Arial`;
-        ctx.fillText(strat.label, sx2 + sBW / 2, sY + 14);
-        ctx.fillStyle = "rgba(180,210,245,0.45)"; ctx.font = "7px Arial";
-        ctx.fillText(strat.key, sx2 + sBW / 2, sY + 24);
-      });
+    const cardX = px + 10;
+    const cardW = pw - 20;
+    let y = 50;
 
-      // Rotation buttons
-      const rotY = sY + 38;
-      const qCol = this.aim.rotation < 0 ? "rgba(255,120,80,0.90)" : "rgba(50,70,115,0.55)";
-      const eCol = this.aim.rotation > 0 ? "rgba(80,195,255,0.90)" : "rgba(50,70,115,0.55)";
-      const rbW  = (pw - 36) / 2 - 4;
-      ctx.fillStyle = qCol; ctx.beginPath();
-      rr(ctx, px + 14, rotY, rbW, 26, 5); ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.80)"; ctx.font = "9px Arial"; ctx.textAlign = "center";
-      ctx.fillText("Q  ← CURL LEFT", px + 14 + rbW / 2, rotY + 17);
+    drawCard(cardX, y, cardW, 98, "rgba(88,148,230,0.34)");
+    const half = cardW / 2;
+    ctx.fillStyle = isPlayerTurn ? "rgba(154,44,44,0.28)" : "rgba(80,26,26,0.2)";
+    ctx.beginPath();
+    rr(ctx, cardX + 8, y + 8, half - 12, 56, 8);
+    ctx.fill();
+    ctx.fillStyle = isAiTurn ? "rgba(176,142,18,0.28)" : "rgba(74,58,12,0.2)";
+    ctx.beginPath();
+    rr(ctx, cardX + half + 4, y + 8, half - 12, 56, 8);
+    ctx.fill();
 
-      ctx.fillStyle = eCol; ctx.beginPath();
-      rr(ctx, px + 14 + rbW + 8, rotY, rbW, 26, 5); ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.80)"; ctx.font = "9px Arial";
-      ctx.fillText("E  CURL RIGHT →", px + 14 + rbW + 8 + rbW / 2, rotY + 17);
+    ctx.textAlign = "center";
+    ctx.fillStyle = isPlayerTurn ? "#ff8b8b" : "rgba(214,134,134,0.66)";
+    ctx.font = `700 11px ${FONT_DISPLAY}`;
+    ctx.fillText("YOU", cardX + half * 0.5, y + 23);
+    ctx.fillStyle = isAiTurn ? "#ffe68c" : "rgba(210,194,132,0.62)";
+    ctx.fillText("CPU", cardX + half * 1.5, y + 23);
+    const pPulse = this.scorePulse.player;
+    const aPulse = this.scorePulse.ai;
+    ctx.font = `700 36px ${FONT_DISPLAY}`;
+    ctx.save();
+    ctx.translate(cardX + half * 0.5, y + 56);
+    const ps = 1 + pPulse * 0.12;
+    ctx.scale(ps, ps);
+    ctx.fillStyle = pPulse > 0 ? "#ffffff" : "#ffdfe0";
+    ctx.fillText(this.scores.player, 0, 0);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(cardX + half * 1.5, y + 56);
+    const as = 1 + aPulse * 0.12;
+    ctx.scale(as, as);
+    ctx.fillStyle = aPulse > 0 ? "#fffef2" : "#fff0b8";
+    ctx.fillText(this.scores.ai, 0, 0);
+    ctx.restore();
 
-      // Phase hint
-      const phY = rotY + 36;
-      ctx.fillStyle = "rgba(110,160,215,0.70)"; ctx.font = "8px Arial"; ctx.textAlign = "center";
-      ctx.fillText("1. Aim — mouse or ← →", cx2, phY);
-      ctx.fillText("2. Power — drag ↕ or ↑ ↓", cx2, phY + 13);
-      ctx.fillText("3. Strategy — keys 1/2/3/4", cx2, phY + 26);
-      ctx.fillStyle = "#ffaa80"; ctx.font = "bold 10px Arial";
-      ctx.fillText("SPACE or click to throw", cx2, phY + 43);
+    ctx.strokeStyle = "rgba(158,190,234,0.22)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cardX + half, y + 12);
+    ctx.lineTo(cardX + half, y + 62);
+    ctx.stroke();
 
-    } else if (this.phase === "aiTurn") {
-      const d = ".".repeat(1 + (Math.floor(this.time * 2.5) % 3));
-      const phY = icY + 34;
-      ctx.fillStyle = "rgba(240,190,40,0.85)"; ctx.font = "bold 10px Arial"; ctx.textAlign = "center";
-      ctx.fillText(`CPU is planning${d}`, cx2, phY);
-    } else if (this.phase === "flight") {
-      const phY = icY + 34;
-      ctx.fillStyle = this.sweeping ? "#70d8ff" : "rgba(130,190,235,0.75)";
-      ctx.font = "bold 10px Arial"; ctx.textAlign = "center";
-      ctx.fillText(this.sweeping ? "SWEEPING — extending range!" : "Hold  S  or  ↓  to sweep", cx2, phY);
-      if (!this.sweeping) {
-        ctx.fillStyle = "rgba(90,135,185,0.50)"; ctx.font = "8px Arial";
-        ctx.fillText("(reduces friction, extends range)", cx2, phY + 14);
+    ctx.fillStyle = "rgba(156,198,244,0.7)";
+    ctx.font = `600 9px ${FONT_BODY}`;
+    ctx.fillText(`SHOT ${shotNum}/${totalShots}`, cx2, y + 78);
+    const progL = cardX + 24;
+    const progR = cardX + cardW - 24;
+    for (let i = 0; i < totalShots; i++) {
+      const team = this.hammer === "player" ? (i % 2 === 0 ? "ai" : "player") : (i % 2 === 0 ? "player" : "ai");
+      const col = team === "player" ? "rgba(236,86,90,0.95)" : "rgba(245,206,80,0.95)";
+      const t = totalShots <= 1 ? 0.5 : i / (totalShots - 1);
+      const dx = progL + (progR - progL) * t;
+      const done = i < this.delivIdx;
+      const current = i === this.delivIdx;
+      ctx.beginPath();
+      ctx.arc(dx, y + 90, current ? 5.6 : 3.8, 0, Math.PI * 2);
+      ctx.fillStyle = done ? "rgba(58,82,116,0.52)" : col;
+      ctx.fill();
+      if (current) {
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
       }
     }
+    y += 108;
 
-    // ── End history ──
-    if (this.endLog.length > 0) {
-      const histRows = this.endLog.length;
-      const histH    = histRows * 15 + 24;
-      const histY    = H - 46 - histH;
-      ctx.fillStyle  = "rgba(0,0,0,0.35)";
-      ctx.beginPath(); rr(ctx, px + 10, histY, pw - 20, histH, 6); ctx.fill();
-      ctx.fillStyle = "rgba(85,135,200,0.65)"; ctx.font = "bold 8px Arial"; ctx.textAlign = "center";
-      ctx.fillText("END SCORES", cx2, histY + 12);
-      this.endLog.forEach((e, i) => {
-        const ry = histY + 22 + i * 15;
-        ctx.fillStyle = "rgba(110,150,200,0.55)"; ctx.font = "8px Arial"; ctx.textAlign = "left";
-        ctx.fillText(`E${i + 1}`, px + 18, ry);
-        ctx.fillStyle = e.player > 0 ? CLR.playerCol : "rgba(90,120,155,0.50)"; ctx.textAlign = "center";
-        ctx.fillText(e.player, px + 50, ry);
-        ctx.fillStyle = "rgba(140,170,205,0.35)"; ctx.fillText("—", cx2, ry);
-        ctx.fillStyle = e.ai > 0 ? CLR.aiCol : "rgba(90,120,155,0.50)";
-        ctx.fillText(e.ai, px + pw - 48, ry);
+    drawCard(cardX, y, cardW, 84, "rgba(72,196,244,0.32)");
+    const clockX = cardX + 42;
+    const clockY = y + 42;
+    const clockR = 22;
+    const clockRatio = this.phase === "playerAim" ? clamp(this.shotClock / SHOT_CLOCK_SECONDS, 0, 1) : 1;
+    ctx.strokeStyle = "rgba(86,120,168,0.44)";
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(clockX, clockY, clockR, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = clockRatio > 0.5 ? "#60d0ff" : clockRatio > 0.22 ? "#ffd972" : "#ff7e70";
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(clockX, clockY, clockR, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * clockRatio);
+    ctx.stroke();
+    ctx.fillStyle = "#d8eeff";
+    ctx.font = `700 12px ${FONT_DISPLAY}`;
+    const clockText = this.phase === "playerAim"
+      ? `${Math.ceil(this.shotClock)}s`
+      : this.phase === "aiTurn"
+        ? "AI"
+        : this.phase === "flight"
+          ? "RUN"
+          : "--";
+    ctx.fillText(clockText, clockX, clockY + 4);
+    ctx.fillStyle = "rgba(144,188,236,0.74)";
+    ctx.font = `600 9px ${FONT_BODY}`;
+    ctx.fillText("SHOT CLOCK", clockX, y + 72);
+
+    const barX = cardX + 80;
+    const barY = y + 36;
+    const barW = cardW - 98;
+    ctx.fillStyle = "rgba(10,20,36,0.9)";
+    ctx.beginPath();
+    rr(ctx, barX, barY, barW, 12, 6);
+    ctx.fill();
+    const sweepGrad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+    sweepGrad.addColorStop(0, "#3db6ff");
+    sweepGrad.addColorStop(1, "#9befff");
+    ctx.fillStyle = sweepGrad;
+    ctx.beginPath();
+    rr(ctx, barX, barY, barW * this.sweepHeat, 12, 6);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(138,194,236,0.4)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    rr(ctx, barX, barY, barW, 12, 6);
+    ctx.stroke();
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(168,208,246,0.82)";
+    ctx.font = `600 10px ${FONT_BODY}`;
+    ctx.fillText("SWEEP HEAT", barX, y + 26);
+    ctx.textAlign = "right";
+    ctx.fillStyle = this._effectiveSweep ? "#a8efff" : "rgba(156,198,236,0.72)";
+    ctx.fillText(this._effectiveSweep ? "ACTIVE" : this.phase === "flight" ? "READY" : "IDLE", barX + barW, y + 26);
+    const spdNow = this.flyingStone ? Math.round(Math.hypot(this.flyingStone.vx, this.flyingStone.vy)) : 0;
+    ctx.fillStyle = "rgba(126,176,224,0.72)";
+    ctx.font = `600 9px ${FONT_BODY}`;
+    ctx.fillText(`ICE: ${cond.label}  �  SPEED ${spdNow}`, barX + barW, y + 58);
+    y += 94;
+
+    drawCard(cardX, y, cardW, 72, "rgba(120,146,224,0.32)");
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(156,204,244,0.72)";
+    ctx.font = `600 9px ${FONT_BODY}`;
+    ctx.fillText("END PRESSURE", cardX + 14, y + 16);
+    if (scoring.team) {
+      const leadColor = scoring.team === "player" ? "#ff8a8a" : "#ffe08a";
+      const leadName = scoring.team === "player" ? "YOU" : "CPU";
+      ctx.fillStyle = leadColor;
+      ctx.font = `700 20px ${FONT_DISPLAY}`;
+      ctx.fillText(`${leadName} +${scoring.pts}`, cardX + 14, y + 41);
+      ctx.fillStyle = "rgba(156,196,236,0.72)";
+      ctx.font = `600 10px ${FONT_BODY}`;
+      ctx.fillText("currently counting in the house", cardX + 14, y + 58);
+    } else {
+      ctx.fillStyle = "rgba(164,198,236,0.78)";
+      ctx.font = `700 15px ${FONT_DISPLAY}`;
+      ctx.fillText(this.stones.length > 0 ? "NO STONE IS SCORING" : "SHEET CLEAR", cardX + 14, y + 44);
+    }
+    ctx.textAlign = "right";
+    ctx.fillStyle = cond.color;
+    ctx.font = `700 10px ${FONT_BODY}`;
+    ctx.fillText(cond.label.toUpperCase(), cardX + cardW - 14, y + 18);
+    y += 82;
+
+    const footerY = H - 48;
+    const histRows = Math.min(this.endLog.length, ENDS);
+    const histH = histRows > 0 ? 26 + histRows * 15 : 0;
+    const histY = footerY - 10 - histH;
+    const phaseTop = y;
+    const phaseH = Math.max(72, (histRows > 0 ? histY : footerY) - phaseTop - 10);
+
+    drawCard(cardX, phaseTop, cardW, phaseH, "rgba(98,170,236,0.29)");
+    if (this.phase === "playerAim") {
+      ctx.textAlign = "left";
+      ctx.fillStyle = "rgba(176,214,248,0.84)";
+      ctx.font = `700 11px ${FONT_DISPLAY}`;
+      ctx.fillText("DELIVERY SETUP", cardX + 14, phaseTop + 18);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "rgba(124,188,246,0.9)";
+      ctx.font = `700 11px ${FONT_DISPLAY}`;
+      ctx.fillText(`${Math.round(this.aim.power * 100)}% POWER`, cardX + cardW - 14, phaseTop + 18);
+
+      const pbx = cardX + 14;
+      const pby = phaseTop + 26;
+      const pbw = cardW - 28;
+      ctx.fillStyle = "rgba(8,18,34,0.9)";
+      ctx.beginPath();
+      rr(ctx, pbx, pby, pbw, 12, 6);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.1)";
+      ctx.fillRect(pbx + pbw * 0.34, pby, pbw * 0.32, 12);
+      const powerColor = this.aim.power < 0.34 ? "#ff6f67" : this.aim.power < 0.66 ? "#58dc86" : "#59b3ff";
+      ctx.fillStyle = powerColor;
+      ctx.beginPath();
+      rr(ctx, pbx, pby, pbw * this.aim.power, 12, 6);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(132,184,236,0.42)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      rr(ctx, pbx, pby, pbw, 12, 6);
+      ctx.stroke();
+
+      const chips = Object.keys(STRATEGIES);
+      const chipW = (cardW - 32) / 4;
+      chips.forEach((k, i) => {
+        const sx = cardX + 14 + chipW * i;
+        const sy = phaseTop + 46;
+        const active = this.strategy === k;
+        const strat = STRATEGIES[k];
+        ctx.fillStyle = active ? strat.color + "d9" : "rgba(20,34,54,0.92)";
+        ctx.beginPath();
+        rr(ctx, sx, sy, chipW - 4, 28, 7);
+        ctx.fill();
+        ctx.strokeStyle = active ? strat.color : "rgba(92,132,186,0.34)";
+        ctx.lineWidth = active ? 1.6 : 1;
+        ctx.beginPath();
+        rr(ctx, sx, sy, chipW - 4, 28, 7);
+        ctx.stroke();
+        ctx.textAlign = "center";
+        ctx.fillStyle = active ? "#fff" : "rgba(170,204,240,0.8)";
+        ctx.font = `700 9px ${FONT_DISPLAY}`;
+        ctx.fillText(strat.label.toUpperCase(), sx + (chipW - 4) / 2, sy + 12);
+        ctx.fillStyle = active ? "rgba(255,255,255,0.92)" : "rgba(138,174,214,0.72)";
+        ctx.font = `600 8px ${FONT_BODY}`;
+        ctx.fillText(strat.key, sx + (chipW - 4) / 2, sy + 22);
+      });
+
+      const rel = this.lastRelease;
+      if (rel && this.time - rel.at < 12) {
+        const qColor = rel.quality > 0.86 ? "#84ffd0" : rel.quality > 0.62 ? "#9ed4ff" : rel.quality > 0.4 ? "#ffd07a" : "#ff9b8e";
+        ctx.textAlign = "left";
+        ctx.fillStyle = qColor;
+        ctx.font = `700 10px ${FONT_DISPLAY}`;
+        ctx.fillText(`LAST: ${rel.label.toUpperCase()} (${Math.round(rel.quality * 100)}%)`, cardX + 14, phaseTop + phaseH - 11);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "rgba(140,188,236,0.72)";
+        ctx.font = `600 8px ${FONT_BODY}`;
+        ctx.fillText("Space/Click throw  |  Q/E curl  |  S sweep in flight", cardX + cardW - 14, phaseTop + phaseH - 11);
+      } else {
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(142,192,238,0.75)";
+        ctx.font = `600 9px ${FONT_BODY}`;
+        ctx.fillText("Space/Click throw  �  Q/E curl  �  1/2/3/4 strategy", cx2, phaseTop + phaseH - 11);
+      }
+    } else if (this.phase === "aiTurn") {
+      const dots = ".".repeat(1 + (Math.floor(this.time * 2.8) % 3));
+      const planLabels = {
+        draw: "DRAW TO BUTTON",
+        guard: "CENTER GUARD",
+        takeout: "TAKEOUT",
+        "clear-guard": "CLEAR GUARD",
+      };
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255,228,136,0.94)";
+      ctx.font = `700 17px ${FONT_DISPLAY}`;
+      ctx.fillText(`CPU THINKING${dots}`, cx2, phaseTop + 30);
+      ctx.fillStyle = "rgba(180,214,244,0.76)";
+      ctx.font = `600 10px ${FONT_BODY}`;
+      const label = planLabels[this.aiLastPlan] || "READING THE HOUSE";
+      ctx.fillText(label, cx2, phaseTop + 49);
+      ctx.fillText("watch lane and prepare your counter", cx2, phaseTop + 66);
+    } else if (this.phase === "flight") {
+      const flyingTeam = this.flyingStone?.team === "player" ? "YOU" : "CPU";
+      const sweepLabel = this._effectiveSweep ? "SWEEP ACTIVE" : "SWEEP READY";
+      ctx.textAlign = "center";
+      ctx.fillStyle = this._effectiveSweep ? "#95efff" : "rgba(170,206,246,0.84)";
+      ctx.font = `700 16px ${FONT_DISPLAY}`;
+      ctx.fillText(`${flyingTeam} IN FLIGHT`, cx2, phaseTop + 29);
+      ctx.fillText(sweepLabel, cx2, phaseTop + 50);
+      ctx.fillStyle = "rgba(152,198,244,0.78)";
+      ctx.font = `600 10px ${FONT_BODY}`;
+      if (this.flyingStone?.team === "player") {
+        ctx.fillText("Hold S or ArrowDown near hog line to carry further", cx2, phaseTop + 69);
+      } else {
+        ctx.fillText("CPU sweep timing adapts to line and speed", cx2, phaseTop + 69);
+      }
+    } else if (this.phase === "endResult") {
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(186,222,248,0.92)";
+      ctx.font = `700 16px ${FONT_DISPLAY}`;
+      ctx.fillText("END COMPLETE", cx2, phaseTop + 30);
+      ctx.fillStyle = "rgba(144,190,236,0.76)";
+      ctx.font = `600 10px ${FONT_BODY}`;
+      ctx.fillText(this.endTransitionMessage || "round finished", cx2, phaseTop + 50);
+      const nextAction = this.end >= ENDS ? "Final result incoming" : "Space/Enter/click to continue now";
+      ctx.fillText(`${nextAction}  �  auto in ${Math.ceil(Math.max(0, this.endTimer))}s`, cx2, phaseTop + 67);
+    }
+
+    if (histRows > 0) {
+      drawCard(cardX, histY, cardW, histH, "rgba(114,150,220,0.26)");
+      ctx.textAlign = "left";
+      ctx.fillStyle = "rgba(162,206,246,0.8)";
+      ctx.font = `700 9px ${FONT_DISPLAY}`;
+      ctx.fillText("END LOG", cardX + 14, histY + 15);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(252,164,164,0.86)";
+      ctx.fillText("YOU", cardX + cardW * 0.44, histY + 15);
+      ctx.fillStyle = "rgba(252,228,144,0.88)";
+      ctx.fillText("CPU", cardX + cardW * 0.72, histY + 15);
+      this.endLog.forEach((entry, i) => {
+        const ry = histY + 30 + i * 15;
+        ctx.textAlign = "left";
+        ctx.fillStyle = "rgba(138,184,232,0.72)";
+        ctx.font = `600 8px ${FONT_BODY}`;
+        ctx.fillText(`E${i + 1}`, cardX + 14, ry);
+        ctx.textAlign = "center";
+        ctx.fillStyle = entry.player > 0 ? "#ff9ea0" : "rgba(112,150,190,0.55)";
+        ctx.fillText(entry.player, cardX + cardW * 0.44, ry);
+        ctx.fillStyle = entry.ai > 0 ? "#ffe28d" : "rgba(112,150,190,0.55)";
+        ctx.fillText(entry.ai, cardX + cardW * 0.72, ry);
       });
     }
 
-    // ── Controls footer ──
-    const fY = H - 42;
-    ctx.fillStyle = "rgba(50,80,125,0.42)";
-    ctx.beginPath(); rr(ctx, px + 10, fY, pw - 20, 36, 5); ctx.fill();
-    ctx.fillStyle = "rgba(90,130,185,0.60)"; ctx.font = "8px Arial"; ctx.textAlign = "center";
-    ctx.fillText("AIM: mouse/←→  POWER: drag/↑↓  CURL: Q/E", cx2, fY + 11);
-    ctx.fillText("STRATEGY: 1-4  THROW: Space  SWEEP: S", cx2, fY + 22);
-    ctx.fillText("R restart  ·  ESC menu", cx2, fY + 33);
+    drawCard(cardX, footerY, cardW, 38, "rgba(86,136,212,0.24)");
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(144,196,244,0.78)";
+    ctx.font = `600 8px ${FONT_BODY}`;
+    ctx.fillText("AIM mouse or arrows  |  POWER drag or up/down  |  R restart  |  ESC menu", cx2, footerY + 15);
+    ctx.fillText("COLLIDE, SWEEP, AND MANAGE HAMMER FOR END CONTROL", cx2, footerY + 29);
   }
-
   _drawEndBanner(ctx) {
     const res = this.lastResult;
     ctx.fillStyle = "rgba(4,10,22,0.62)";
@@ -1367,18 +1812,23 @@ class IceStrikeRuntime {
     if (res && res.team) {
       const col  = res.team === "player" ? "#ff8080" : "#f0c020";
       const name = res.team === "player" ? "YOU SCORE" : "CPU SCORES";
-      ctx.fillStyle = col; ctx.font = "bold 28px Arial";
+      ctx.fillStyle = col; ctx.font = `700 28px ${FONT_DISPLAY}`;
       ctx.fillText(`${name}  ${res.pts}!`, mX, mY - 12);
     } else {
-      ctx.fillStyle = "#88a8cc"; ctx.font = "bold 24px Arial";
+      ctx.fillStyle = "#88a8cc"; ctx.font = `700 24px ${FONT_DISPLAY}`;
       ctx.fillText("BLANK END", mX, mY - 12);
     }
-    ctx.fillStyle = "rgba(155,195,240,0.65)"; ctx.font = "11px Arial";
-    ctx.fillText(`Next end in ${Math.ceil(Math.max(0, this.endTimer))}s…`, mX, mY + 16);
+    const isFinalEnd = this.end >= ENDS;
+    ctx.fillStyle = "rgba(155,195,240,0.65)"; ctx.font = `600 11px ${FONT_BODY}`;
+    if (isFinalEnd) {
+      ctx.fillText(`Final end complete. Scoreboard in ${Math.ceil(Math.max(0, this.endTimer))}s...`, mX, mY + 16);
+    } else {
+      ctx.fillText(`Next end in ${Math.ceil(Math.max(0, this.endTimer))}s (Space/Enter/click to continue)`, mX, mY + 16);
+    }
 
     // Ice condition for next end
     const nextCond = ICE_CONDITIONS[this.iceCondKey];
-    ctx.fillStyle = nextCond.color; ctx.font = "9px Arial";
+    ctx.fillStyle = nextCond.color; ctx.font = `600 9px ${FONT_BODY}`;
     ctx.fillText(`Next: ${nextCond.label} ice`, mX, mY + 34);
   }
 
@@ -1402,24 +1852,22 @@ class IceStrikeRuntime {
     });
 
     ctx.textAlign = "center";
-    ctx.fillStyle = "#b0d8ff"; ctx.font = "bold 42px Arial";
-    ctx.fillText("❄  ICE STRIKE PRO", W / 2, H / 2 - 96);
-    ctx.fillStyle = "rgba(110,165,220,0.65)"; ctx.font = "13px Arial";
-    ctx.fillText("Professional curling simulator · Physics-accurate stone delivery", W / 2, H / 2 - 62);
+    ctx.fillStyle = "#b0d8ff"; ctx.font = `700 40px ${FONT_DISPLAY}`;
+    ctx.fillText("ICE STRIKE PRO", W / 2, H / 2 - 108);
+    ctx.fillStyle = "rgba(110,165,220,0.72)"; ctx.font = `600 13px ${FONT_BODY}`;
+    ctx.fillText("Professional curling simulator � precision stone control", W / 2, H / 2 - 78);
 
     const feats = [
-      "Real curl physics — stone rotation bends the trajectory based on speed",
-      "3 ice conditions per end — Fast, Pebbled, Slow — change friction & curl",
-      "4 shot strategies — Draw / Guard / Takeout / Raise — with auto-aim assist",
-      "Sweep mechanic — hold S mid-flight to reduce friction and extend range",
-      `${ENDS} ends · ${SHOTS_PER_TEAM} stones per team · Elastic collisions between stones`,
+      "Real curl + rebound physics with dynamic ice conditions.",
+      "Choose strategy each delivery: Draw, Guard, Takeout, Raise.",
+      "Sweep timing and release quality decide the final line.",
     ];
-    ctx.font = "11px Arial"; ctx.fillStyle = "rgba(130,175,220,0.62)";
-    feats.forEach((f, i) => ctx.fillText(f, W / 2, H / 2 - 26 + i * 19));
+    ctx.font = `600 10px ${FONT_BODY}`; ctx.fillStyle = "rgba(130,175,220,0.72)";
+    feats.forEach((f, i) => ctx.fillText(f, W / 2, H / 2 - 46 + i * 14));
 
     // Difficulty label
-    ctx.fillStyle = "rgba(130,175,225,0.68)"; ctx.font = "bold 11px Arial";
-    ctx.fillText("DIFFICULTY", W / 2, H / 2 + 2);
+    ctx.fillStyle = "rgba(130,175,225,0.78)"; ctx.font = `700 11px ${FONT_DISPLAY}`;
+    ctx.fillText("SELECT DIFFICULTY", W / 2, H / 2 - 2);
 
     // Difficulty buttons
     const diffs = [
@@ -1438,7 +1886,7 @@ class IceStrikeRuntime {
       ctx.strokeStyle = active ? bdr : "rgba(70,105,160,0.38)"; ctx.lineWidth = active ? 2 : 1;
       ctx.beginPath(); rr(ctx, bx, by, bW, bH, 7); ctx.stroke();
       ctx.fillStyle = active ? "#fff" : "rgba(130,165,210,0.60)";
-      ctx.font = `bold ${active ? 12 : 11}px Arial`;
+      ctx.font = `700 ${active ? 12 : 11}px ${FONT_DISPLAY}`;
       ctx.fillText(label, bx + bW / 2, by + 22);
     });
 
@@ -1447,7 +1895,7 @@ class IceStrikeRuntime {
     ctx.beginPath(); rr(ctx, W / 2 - 120, H / 2 + 54, 240, 50, 12); ctx.fill();
     ctx.strokeStyle = "rgba(80,165,255,0.55)"; ctx.lineWidth = 1.5;
     ctx.beginPath(); rr(ctx, W / 2 - 120, H / 2 + 54, 240, 50, 12); ctx.stroke();
-    ctx.fillStyle = "#fff"; ctx.font = "bold 18px Arial";
+    ctx.fillStyle = "#fff"; ctx.font = `700 18px ${FONT_DISPLAY}`;
     ctx.fillText("START GAME  ( Enter )", W / 2, H / 2 + 86);
 
     ctx.restore();
@@ -1505,7 +1953,26 @@ export default function IceStrikeProGame() {
     const rt = new IceStrikeRuntime(canvas);
     rtRef.current = rt;
     rt.start();
-    return () => { rt.destroy(); rtRef.current = null; };
+
+    const renderGameToText = () => {
+      const active = rtRef.current;
+      return JSON.stringify(active ? active.snapshot() : { screen: "unmounted" });
+    };
+    const advanceTime = (ms = 1000 / 60) => {
+      const active = rtRef.current;
+      if (!active) return;
+      active.advance(ms);
+    };
+
+    window.render_game_to_text = renderGameToText;
+    window.advanceTime = advanceTime;
+
+    return () => {
+      if (window.render_game_to_text === renderGameToText) delete window.render_game_to_text;
+      if (window.advanceTime === advanceTime) delete window.advanceTime;
+      rt.destroy();
+      rtRef.current = null;
+    };
   }, []);
 
   return (
@@ -1520,3 +1987,4 @@ export default function IceStrikeProGame() {
     </div>
   );
 }
+

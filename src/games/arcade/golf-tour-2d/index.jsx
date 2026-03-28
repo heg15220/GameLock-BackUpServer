@@ -3,7 +3,7 @@ import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
 import { UI_COPY, localize } from "./copy";
 import GolfTourRuntime from "./runtime";
-import { STAGE_HEIGHT, STAGE_WIDTH } from "./levels";
+import { LEVEL_COUNT, STAGE_HEIGHT, STAGE_WIDTH } from "./levels";
 
 const DEFAULT_SNAPSHOT = {
   mode: "menu",
@@ -13,7 +13,7 @@ const DEFAULT_SNAPSHOT = {
   level: {
     id: "",
     index: 1,
-    total: 100,
+    total: LEVEL_COUNT,
     worldIndex: 1,
     worldLevel: 1,
     worldName: "",

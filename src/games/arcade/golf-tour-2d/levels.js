@@ -902,14 +902,442 @@ function buildMobileExpansionLevel(extraIndex) {
   };
 }
 
+const PRO_TOUR_EXPANSION_START_LEVEL = MOBILE_EXPANSION_START_LEVEL + MOBILE_EXPANSION_COUNT;
+const PRO_TOUR_EXPANSION_COUNT = 100;
+const PRO_TOUR_CHAPTER_SIZE = 10;
+
+const PRO_TOUR_CHAPTERS = [
+  {
+    id: "qualifier-links",
+    name: { es: "Qualifier Links", en: "Qualifier Links" },
+    subtitle: {
+      es: "Inicio tecnico con calles amplias, viento moderado y hazards legibles.",
+      en: "Technical opening with wider lanes, moderate wind, and readable hazards.",
+    },
+    themeCycle: [0, 5],
+    windScale: 0.9,
+    hazardType: "water",
+    distanceBoost: -24,
+    obstacleBias: 0,
+  },
+  {
+    id: "sunset-corners",
+    name: { es: "Sunset Corners", en: "Sunset Corners" },
+    subtitle: {
+      es: "Dunas y desfiladeros con rebotes en angulo y control de ritmo.",
+      en: "Dunes and canyon corners with angular rebounds and rhythm control.",
+    },
+    themeCycle: [1, 3],
+    windScale: 1.02,
+    hazardType: "sludge",
+    distanceBoost: 10,
+    obstacleBias: 1,
+  },
+  {
+    id: "polar-bounce",
+    name: { es: "Polar Bounce", en: "Polar Bounce" },
+    subtitle: {
+      es: "Superficies frias y rutas de precision con menor tolerancia de cup.",
+      en: "Cold surfaces and precision routes with tighter cup tolerance.",
+    },
+    themeCycle: [2, 0],
+    windScale: 1.08,
+    hazardType: "water",
+    distanceBoost: 18,
+    obstacleBias: 1,
+  },
+  {
+    id: "neon-pressure",
+    name: { es: "Neon Pressure", en: "Neon Pressure" },
+    subtitle: {
+      es: "Entorno urbano nocturno con muros tecnicos y corrientes inestables.",
+      en: "Urban night environment with technical walls and unstable currents.",
+    },
+    themeCycle: [4, 5],
+    windScale: 1.14,
+    hazardType: "acid",
+    distanceBoost: 36,
+    obstacleBias: 2,
+  },
+  {
+    id: "rift-velocity",
+    name: { es: "Rift Velocity", en: "Rift Velocity" },
+    subtitle: {
+      es: "Serie volcanica de riesgo alto con penalizacion por lectura tardia.",
+      en: "Volcanic high-risk run with strong punishment for late reads.",
+    },
+    themeCycle: [3, 1],
+    windScale: 1.2,
+    hazardType: "lava",
+    distanceBoost: 52,
+    obstacleBias: 2,
+  },
+  {
+    id: "storm-breakers",
+    name: { es: "Storm Breakers", en: "Storm Breakers" },
+    subtitle: {
+      es: "Rafagas fuertes, ventanas cortas y control de potencia quirurgico.",
+      en: "Heavy gusts, short windows, and surgical power control.",
+    },
+    themeCycle: [5, 2],
+    windScale: 1.27,
+    hazardType: "void",
+    distanceBoost: 66,
+    obstacleBias: 3,
+  },
+  {
+    id: "master-lowlands",
+    name: { es: "Master Lowlands", en: "Master Lowlands" },
+    subtitle: {
+      es: "Master class de slopes enlazados, muros dobles y calles rotas.",
+      en: "Master-class linked slopes, double walls, and broken fairways.",
+    },
+    themeCycle: [0, 1, 4],
+    windScale: 1.18,
+    hazardType: "sludge",
+    distanceBoost: 72,
+    obstacleBias: 3,
+  },
+  {
+    id: "void-operator",
+    name: { es: "Void Operator", en: "Void Operator" },
+    subtitle: {
+      es: "Trayectorias extensas con pits oscuros y movilidad de alto castigo.",
+      en: "Long trajectories with dark pits and punishing moving obstacles.",
+    },
+    themeCycle: [5, 3, 2],
+    windScale: 1.3,
+    hazardType: "void",
+    distanceBoost: 84,
+    obstacleBias: 4,
+  },
+  {
+    id: "fusion-finals",
+    name: { es: "Fusion Finals", en: "Fusion Finals" },
+    subtitle: {
+      es: "Combinaciones mixtas de biomas con rutas alternativas y precision extrema.",
+      en: "Mixed-biome combinations with alternate routes and extreme precision.",
+    },
+    themeCycle: [4, 2, 0, 3],
+    windScale: 1.34,
+    hazardType: "acid",
+    distanceBoost: 98,
+    obstacleBias: 4,
+  },
+  {
+    id: "world-tour-finale",
+    name: { es: "World Tour Finale", en: "World Tour Finale" },
+    subtitle: {
+      es: "Cierre del tour con trazados largos, hazards densos y lectura tactica total.",
+      en: "Tour finale with long layouts, dense hazards, and full tactical reads.",
+    },
+    themeCycle: [0, 1, 2, 3, 4, 5],
+    windScale: 1.38,
+    hazardType: "void",
+    distanceBoost: 114,
+    obstacleBias: 5,
+  },
+];
+
+function proTourBandForLevel(levelNumber) {
+  const relative = levelNumber - PRO_TOUR_EXPANSION_START_LEVEL + 1;
+  if (relative <= 20) {
+    return "rookie";
+  }
+  if (relative <= 45) {
+    return "pro";
+  }
+  if (relative <= 75) {
+    return "elite";
+  }
+  return "master";
+}
+
+function trimObstaclesForProTourBand(obstacles, band) {
+  const limits = {
+    rookie: { surface: 3, hazard: 1, bumper: 2, moving: 1, wall: 1, wind: 2 },
+    pro: { surface: 4, hazard: 2, bumper: 3, moving: 2, wall: 2, wind: 2 },
+    elite: { surface: 5, hazard: 3, bumper: 4, moving: 3, wall: 3, wind: 3 },
+    master: { surface: 6, hazard: 4, bumper: 5, moving: 4, wall: 4, wind: 4 },
+  }[band];
+
+  return {
+    surfacePatches: obstacles.surfacePatches.slice(0, limits.surface),
+    hazardPits: obstacles.hazardPits.slice(0, limits.hazard),
+    bumpers: obstacles.bumpers.slice(0, limits.bumper),
+    movingBumpers: obstacles.movingBumpers.slice(0, limits.moving),
+    walls: obstacles.walls.slice(0, limits.wall),
+    windZones: obstacles.windZones.slice(0, limits.wind),
+  };
+}
+
+function pickTemplateForProTourBand(random, band, chapterIndex, chapterStep) {
+  const pools = {
+    rookie: [3, 4, 5, 6],
+    pro: [5, 6, 7, 8],
+    elite: [7, 8, 9, 10],
+    master: [9, 10, 11],
+  };
+  const pool = pools[band] ?? pools.pro;
+  const jitter = Math.floor(random() * pool.length);
+  const cursor = (chapterIndex * 3 + chapterStep + jitter) % pool.length;
+  return pool[cursor];
+}
+
+function ensureProTourMasterDensity(obstacles, terrain, tee, hole, random, hazardType) {
+  const laneStart = Math.min(tee.x, hole.x) + 70;
+  const laneEnd = Math.max(tee.x, hole.x) - 70;
+  const hazardPreset = HAZARD_PRESETS[hazardType] ?? HAZARD_PRESETS.void;
+
+  const hazardUsed = obstacles.hazardPits.map((pit) => ({ start: pit.x1, end: pit.x2 }));
+  while (obstacles.hazardPits.length < 3) {
+    const width = range(random, 86, 132);
+    const slot = pickSegment(random, hazardUsed, laneStart + 12, laneEnd - 12, width, 54);
+    if (!slot) {
+      break;
+    }
+    obstacles.hazardPits.push({
+      id: `tour-master-hazard-${obstacles.hazardPits.length}`,
+      x1: slot.x1,
+      x2: slot.x2,
+      top: minTerrainYBetween(terrain, slot.x1, slot.x2) + 9,
+      type: hazardType,
+      tint: hazardPreset.tint,
+      edge: hazardPreset.edge,
+      penalty: 1,
+    });
+  }
+
+  const wallUsed = obstacles.walls.map((wall) => ({ start: wall.x - 8, end: wall.x + wall.width + 8 }));
+  while (obstacles.walls.length < 3) {
+    const width = range(random, 14, 20);
+    const slot = pickSegment(random, wallUsed, laneStart + 18, laneEnd - 18, width, 82);
+    if (!slot) {
+      break;
+    }
+    const x = slot.x1;
+    obstacles.walls.push({
+      id: `tour-master-wall-${obstacles.walls.length}`,
+      x,
+      width,
+      top: getTerrainY(terrain, x + width * 0.5) - range(random, 96, 166),
+      height: range(random, 96, 166),
+      bounce: range(random, 0.34, 0.56),
+      tint: "#5c6f8b",
+    });
+  }
+
+  const moverUsed = obstacles.movingBumpers.map((mover) => ({ start: mover.baseX - 46, end: mover.baseX + 46 }));
+  while (obstacles.movingBumpers.length < 3) {
+    const slot = pickSegment(random, moverUsed, laneStart + 28, laneEnd - 28, 28, 92);
+    if (!slot) {
+      break;
+    }
+    const baseX = (slot.x1 + slot.x2) * 0.5;
+    obstacles.movingBumpers.push({
+      id: `tour-master-moving-${obstacles.movingBumpers.length}`,
+      baseX,
+      baseY: getTerrainY(terrain, baseX) - range(random, 48, 86),
+      axis: random() > 0.5 ? "x" : "y",
+      range: range(random, 44, 86),
+      speed: range(random, 1.15, 1.58),
+      phase: range(random, 0, Math.PI * 2),
+      radius: range(random, 13, 18),
+      restitution: range(random, 0.9, 1.1),
+      tint: "#79d8ff",
+      moving: true,
+    });
+  }
+
+  const windUsed = obstacles.windZones.map((zone) => ({ start: zone.x, end: zone.x + zone.width }));
+  while (obstacles.windZones.length < 3) {
+    const width = range(random, 104, 174);
+    const slot = pickSegment(random, windUsed, laneStart + 14, laneEnd - 14, width, 32);
+    if (!slot) {
+      break;
+    }
+    const center = slot.x1 + width * 0.5;
+    const terrainY = getTerrainY(terrain, center);
+    const height = range(random, 150, 238);
+    obstacles.windZones.push({
+      id: `tour-master-wind-${obstacles.windZones.length}`,
+      x: slot.x1,
+      y: terrainY - height,
+      width,
+      height,
+      force: (random() > 0.5 ? 1 : -1) * range(random, 120, 248),
+      lift: -range(random, 12, 78),
+      oscAmp: range(random, 44, 128),
+      oscFreq: range(random, 0.56, 1.34),
+      phase: range(random, 0, Math.PI * 2),
+    });
+  }
+}
+
+function buildProTourExpansionLevel(extraIndex) {
+  const levelNumber = PRO_TOUR_EXPANSION_START_LEVEL + extraIndex;
+  const chapterIndex = Math.floor(extraIndex / PRO_TOUR_CHAPTER_SIZE);
+  const chapterStep = extraIndex % PRO_TOUR_CHAPTER_SIZE;
+  const chapter = PRO_TOUR_CHAPTERS[chapterIndex];
+  const difficultyBand = proTourBandForLevel(levelNumber);
+
+  const themePointer = (chapterStep + chapterIndex) % chapter.themeCycle.length;
+  const themeIndex = chapter.themeCycle[themePointer];
+  const environment = ENVIRONMENT_THEMES[themeIndex];
+
+  const seed = 140_000 + levelNumber * 2_173 + chapterIndex * 389 + chapterStep * 41;
+  const random = seededRandom(seed);
+  const templateIndex = pickTemplateForProTourBand(random, difficultyBand, chapterIndex, chapterStep);
+  const layout = buildTerrain(themeIndex, templateIndex, seed);
+
+  const teeX = clamp(96 + chapterIndex * 5 + chapterStep * 1.8 + range(random, -18, 20), 78, 228);
+  const [distanceMin, distanceMax] = {
+    rookie: [470, 610],
+    pro: [570, 700],
+    elite: [650, 790],
+    master: [730, 840],
+  }[difficultyBand];
+  const targetDistance = range(random, distanceMin + chapter.distanceBoost, distanceMax + chapter.distanceBoost);
+  const holeX = clamp(teeX + targetDistance, 620, 924);
+  layout.tee.x = teeX;
+  layout.tee.y = getTerrainY(layout.terrain, teeX);
+  layout.hole.x = holeX;
+  layout.hole.y = getTerrainY(layout.terrain, holeX);
+
+  const cupPreset = {
+    rookie: { width: 32, rim: 17, depth: 118 },
+    pro: { width: 29, rim: 16, depth: 122 },
+    elite: { width: 26, rim: 15, depth: 126 },
+    master: { width: 23, rim: 14, depth: 132 },
+  }[difficultyBand];
+  layout.hole.cupWidth = cupPreset.width;
+  layout.hole.rimRadius = cupPreset.rim;
+  layout.hole.cupDepth = cupPreset.depth;
+
+  const coinCount = {
+    rookie: 2,
+    pro: 3,
+    elite: 3 + (chapterStep % 2),
+    master: 4 + (chapterStep % 2),
+  }[difficultyBand];
+  layout.coins = Array.from({ length: coinCount }, (_, coinIndex) => {
+    const t = (coinIndex + 1) / (coinCount + 1);
+    const x = clamp(layout.tee.x + (layout.hole.x - layout.tee.x) * t + range(random, -28, 30), 84, STAGE_WIDTH - 64);
+    const yLift = {
+      rookie: range(random, 52, 82),
+      pro: range(random, 56, 90),
+      elite: range(random, 62, 96),
+      master: range(random, 66, 104),
+    }[difficultyBand];
+    return { x, y: getTerrainY(layout.terrain, x) - yLift, radius: 12 };
+  });
+
+  const obstacleTemplate = clamp(templateIndex + chapter.obstacleBias, 4, TEMPLATE_COUNT - 1);
+  let obstacles = buildObstacles(layout, environment, obstacleTemplate, seed + 503);
+  obstacles = trimObstaclesForProTourBand(obstacles, difficultyBand);
+
+  if (difficultyBand === "master") {
+    addMasterFailsafes(obstacles, layout.terrain, layout.tee, layout.hole, random);
+    ensureProTourMasterDensity(obstacles, layout.terrain, layout.tee, layout.hole, random, chapter.hazardType);
+  }
+
+  const hazardPreset = HAZARD_PRESETS[chapter.hazardType] ?? HAZARD_PRESETS[environment.hazardType] ?? HAZARD_PRESETS.water;
+  obstacles.hazardPits = obstacles.hazardPits.map((pit) => ({
+    ...pit,
+    type: chapter.hazardType,
+    tint: hazardPreset.tint,
+    edge: hazardPreset.edge,
+  }));
+
+  const bandScale = { rookie: 0.78, pro: 1, elite: 1.18, master: 1.34 }[difficultyBand];
+  const windScale = bandScale * chapter.windScale;
+  obstacles.windZones = obstacles.windZones.map((zone) => ({
+    ...zone,
+    force: zone.force * windScale,
+    lift: zone.lift * windScale,
+    oscAmp: zone.oscAmp * (0.82 + chapter.windScale * 0.24),
+    width: Math.max(76, zone.width - (difficultyBand === "master" ? 12 : 0)),
+  }));
+  obstacles.movingBumpers = obstacles.movingBumpers.map((mover) => ({
+    ...mover,
+    speed: mover.speed * (0.88 + bandScale * 0.28),
+    range: mover.range * (difficultyBand === "master" ? 1.24 : difficultyBand === "elite" ? 1.14 : 1.04),
+    restitution: clamp(mover.restitution + (difficultyBand === "master" ? 0.06 : difficultyBand === "elite" ? 0.03 : 0), 0.72, 1.2),
+  }));
+  obstacles.walls = obstacles.walls.map((wall, index) => ({
+    ...wall,
+    height: clamp(wall.height + (difficultyBand === "master" ? 18 : difficultyBand === "elite" ? 10 : 0), 72, 184),
+    bounce: clamp(wall.bounce + (index % 2 === 0 ? 0.03 : 0), 0.24, 0.62),
+  }));
+
+  obstacles = retagObstacleIds(obstacles, `pro-tour-${levelNumber}`);
+
+  const situationTags = [
+    ...buildSituationTags(environment, obstacles),
+    "extended-tour",
+    "pro-tour-expansion",
+    `chapter-${chapter.id}`,
+    `band-${difficultyBand}`,
+  ];
+
+  const obstacleWeight =
+    obstacles.hazardPits.length * 0.5 +
+    obstacles.movingBumpers.length * 0.72 +
+    obstacles.walls.length * 0.55 +
+    obstacles.windZones.length * 0.36 +
+    obstacles.bumpers.length * 0.22;
+  const basePar = { rookie: 3, pro: 3, elite: 4, master: 5 }[difficultyBand];
+  const par = clamp(Math.round(basePar + obstacleWeight * 0.33), 2, 6);
+  const baseTime = { rookie: 70_000, pro: 64_000, elite: 59_000, master: 54_000 }[difficultyBand];
+  const timeLimitMs = clamp(
+    Math.round(baseTime + (PRO_TOUR_CHAPTERS.length - chapterIndex) * 850 + obstacleWeight * 2_450),
+    48_000,
+    118_000
+  );
+
+  return {
+    id: `pro-tour-${String(levelNumber).padStart(3, "0")}`,
+    index: BASE_GOLF_LEVELS.length + MOBILE_EXPANSION_COUNT + extraIndex,
+    worldIndex: 11 + chapterIndex,
+    worldLevel: levelNumber,
+    worldName: chapter.name,
+    worldSubtitle: chapter.subtitle,
+    environmentId: environment.id,
+    environment,
+    name: {
+      es: `${chapter.name.es} - Nivel ${levelNumber}`,
+      en: `${chapter.name.en} - Level ${levelNumber}`,
+    },
+    terrain: layout.terrain,
+    tee: layout.tee,
+    hole: layout.hole,
+    coins: layout.coins,
+    obstacles,
+    situationTags,
+    par,
+    timeLimitMs,
+    windBase: layout.windBase * windScale + chapterIndex * 3.1 + (difficultyBand === "master" ? 6 : 0),
+    difficultyBand,
+    scenery: buildScenery(environment, random, environment.atmosphere),
+    starTargets: {
+      three: par,
+      two: par + 1,
+      one: par + 2,
+    },
+  };
+}
+
 const BASE_GOLF_LEVELS = ENVIRONMENT_THEMES.flatMap((_, themeIndex) =>
   Array.from({ length: TEMPLATE_COUNT }, (_, templateIndex) => buildLevel(themeIndex, templateIndex))
 );
 const MOBILE_EXPANSION_LEVELS = Array.from({ length: MOBILE_EXPANSION_COUNT }, (_, index) =>
   buildMobileExpansionLevel(index)
 );
+const PRO_TOUR_EXPANSION_LEVELS = Array.from({ length: PRO_TOUR_EXPANSION_COUNT }, (_, index) =>
+  buildProTourExpansionLevel(index)
+);
 
-export const GOLF_LEVELS = [...BASE_GOLF_LEVELS, ...MOBILE_EXPANSION_LEVELS];
+export const GOLF_LEVELS = [...BASE_GOLF_LEVELS, ...MOBILE_EXPANSION_LEVELS, ...PRO_TOUR_EXPANSION_LEVELS];
 
 export const LEVEL_COUNT = GOLF_LEVELS.length;
 
