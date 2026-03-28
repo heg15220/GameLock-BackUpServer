@@ -3386,3 +3386,41 @@ pm run build sigue bloqueada en sandbox por spawn EPERM de esbuild; intento de e
 - Anadidos 5 escenarios detallados con atmosferas y climatologia diferenciadas.
 - Integrado en catalogo/plataforma: src/data/games.js, src/components/GamePlayground.jsx, src/games/registry.jsx, y nuevo asset src/assets/games/arcade-stick-brawl-showdown.svg.
 - Pendiente: build + validacion Playwright con inspeccion de capturas/estado.
+
+## 2026-03-28 - Wikipedia Gacha UI simplification + mission reward utility
+- Reestructurada la Home para flujo simple: sobre centrado, bloque de misiones debajo y bloque de reglas/soporte (export/import) al final.
+- Reducida saturacion visual en Home: eliminado bloque superior de mando y acceso redundante en menu superior.
+- Rediseñado el bloque Sobres diarios para lectura prioritaria del estado actual (10/10, etc.).
+- En Cartas, añadido CTA destacado Volver al Gacha justo debajo del mazo y por encima del resto de acciones.
+- En Cartas, click directo sobre carta (vista de mazo) abre detalle de carta para inspeccion inmediata.
+- En Misiones, añadido historial de recompensas reclamadas (ledger) con totales por tipo y trazabilidad temporal.
+- Backend: session/me ahora incluye ecentRewardEvents serializados para reflejar utilidad real de recompensas de misiones.
+- Verificacion tecnica: 
+ode --check server/wikipedia-gacha/service.mjs y compilacion sintactica de index.jsx con esbuild (bundle local con assets externos marcados).
+- Pendiente: build completo 
+pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sandbox).
+- Ajuste adicional UX Home/Packs: Toca para abrir integrado dentro del sobre, sobre desplazado hacia la cabecera, y rediseño frontal de cartas con estilo editorial propio (header angulado, marco mixto, art panel distintivo, texto y stats refinados).
+- Ajuste solicitado: eliminado tag "Wikipedia backend" del reverso de detalle y corregido copy de pity a "tiradas hasta garantia SR+" para reflejar logica real.
+- Diseñado y conectado sobre especial en Home (`is-special`) activado por `nextPackGuaranteedSrPlus`, con banner + sobre dorado diferenciado + CTA contextual.
+- Cambio de regla pity/sobre especial: ahora se desbloquea por cadencia (cada 10 sobres abiertos) y no depende de fallar SR+; al consumir el sobre especial el contador se reinicia.
+
+## 2026-03-28 - Wikipedia Gacha fix contador sobre especial (open -> volver a gacha)
+- Problema detectado: el contador podia quedarse desactualizado tras abrir sobre porque `refreshAll()` dependia de `Promise.all` (4 endpoints) y, si fallaba uno secundario, no se actualizaba `packStatus` aunque `openPack` ya se hubiera procesado.
+- Frontend (`src/games/knowledge/wikipedia-gacha/index.jsx`):
+  - `refreshAll()` cambiado a `Promise.allSettled`.
+  - `session/me` pasa a ser obligatorio; `collection/missions/trophies` se aplican solo si llegan OK (no bloquean el refresco del contador).
+  - En `handleOpenPack`, actualizacion optimista inmediata de `dashboard.profile` + `dashboard.packStatus` usando la respuesta de `openPack` (`packsRemaining`, `pityCounter`, `packStatus`, `totalPackOpens`).
+  - Se actualiza tambien `dashboardStampMs` en esa actualizacion optimista para evitar lectura vieja al volver rapido al Home.
+- Backend (`server/wikipedia-gacha/service.mjs`):
+  - `openPack` ahora devuelve tambien `packStatus` y `totalPackOpens` en la respuesta.
+  - Se blinda `pityCounter` con normalizacion numerica en `ensureProfile`, `serializeProfile`, `serializePackStatus` y en el calculo de `openPack` para evitar estados no numericos/atascados.
+  - Se mantiene regla de negocio pedida: cada 10 sobres abiertos se habilita sobre especial; al consumirlo, el contador reinicia.
+- Verificacion tecnica:
+  - `node --check server/wikipedia-gacha/service.mjs` OK.
+  - Bundle de `index.jsx` con esbuild OK (`tmp/wg-index-check.js`).
+- Ajuste adicional (2026-03-28): fix de detalle de carta superpuesto al menu superior.
+  - `styles.css`: `wg-modal-backdrop` pasa a `z-index: 120` para quedar por encima de `wg-top-nav` (z-index 50), evitando solape visual con tabs de Gacha/Coleccion/Cartas.
+  - Se mantiene modal scrollable y con altura maxima para evitar recorte superior.
+- Ajuste adicional (2026-03-28): fix robusto del contador de sobres diarios tras abrir pack.
+  - `index.jsx` (`handleOpenPack`): coercion numerica explicita de `packsRemaining/pityCounter/totalPackOpens` y actualizacion directa de `dashboard.profile` + `dashboard.packStatus` incluso cuando la respuesta llega sin `packStatus` completo.
+  - Objetivo: que `Sobres diarios: X / Y` se refresque inmediatamente al abrir un sobre nuevo.

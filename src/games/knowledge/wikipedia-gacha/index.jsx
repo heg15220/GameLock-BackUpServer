@@ -149,6 +149,42 @@ function formatDateTime(value, locale) {
   }
 }
 
+function normalizeRewardType(value) {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (normalized === "pack") return "packs";
+  if (normalized === "gem") return "gems";
+  if (normalized === "shard") return "shards";
+  if (normalized === "packs" || normalized === "gems" || normalized === "shards") {
+    return normalized;
+  }
+  return "reward";
+}
+
+function getRewardTypeLabel(rewardType, es) {
+  const normalized = normalizeRewardType(rewardType);
+  if (normalized === "packs") return es ? "sobres" : "packs";
+  if (normalized === "gems") return es ? "gemas" : "gems";
+  if (normalized === "shards") return "shards";
+  return es ? "recompensa" : "reward";
+}
+
+function getRewardSourceLabel(rewardSource, es) {
+  if (rewardSource === "mission_claim") {
+    return es ? "Mision" : "Mission";
+  }
+  if (rewardSource === "duplicate_cards") {
+    return es ? "Duplicados" : "Duplicates";
+  }
+  return es ? "Sistema" : "System";
+}
+
+function buildClaimMessage(mission, es, fallbackMessage) {
+  if (!mission) return fallbackMessage;
+  return es
+    ? `Recompensa reclamada: +${mission.rewardAmount} ${getRewardTypeLabel(mission.rewardType, true)}.`
+    : `Reward claimed: +${mission.rewardAmount} ${getRewardTypeLabel(mission.rewardType, false)}.`;
+}
+
 function FavoriteIcon({ active }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -458,7 +494,6 @@ function DetailFlipCard({
   flipHint,
   flipBackHint,
   detailDescriptionTitle,
-  sourceLabel,
 }) {
   const rarity = getRarity(card);
   const title = getTitle(card);
@@ -495,7 +530,6 @@ function DetailFlipCard({
         <header className="wg-detail-back-head">
           <RarityBadge rarity={rarity} />
           <span className="wg-chip">{card.topicGroup ?? archiveLabel}</span>
-          <span className="wg-detail-back-source">{sourceLabel}</span>
         </header>
         <h4>{title}</h4>
         <h5>{detailDescriptionTitle}</h5>
@@ -683,8 +717,9 @@ export default function WikipediaGachaGame() {
     missionsTab: es ? "Misiones" : "Missions",
     trophiesTab: es ? "Trofeos" : "Trophies",
     packsReady: es ? "Sobres cargados" : "Packs full",
+    specialPackReady: es ? "Sobre especial listo" : "Special pack ready",
+    specialPackHint: es ? "Se activa cada 10 sobres y garantiza al menos 1 carta SR+." : "It unlocks every 10 packs and guarantees at least 1 SR+ card.",
     tapToOpen: es ? "▲ TOCA PARA ABRIR ▲" : "▲ TAP TO OPEN ▲",
-    pullsUntilGold: es ? "tiradas hasta Sobre Oro" : "pulls until Gold Pack",
     quickRules: es ? "Reglas rapidas" : "Quick rules",
     support: es ? "Soporte" : "Support",
     missionRewardNote: es ? "Recompensa: +2 sobres por mision completada" : "Reward: +2 packs per completed mission",
@@ -701,7 +736,19 @@ export default function WikipediaGachaGame() {
     detailFlipHint: es ? "Haz click en la carta para ver mas descripcion." : "Click the card to read more description.",
     detailFlipBackHint: es ? "Haz click para volver al frente." : "Click to flip back to the front.",
     detailDescriptionTitle: es ? "Descripcion extendida" : "Extended description",
-    detailSourceLabel: es ? "Wikipedia backend" : "Wikipedia backend",
+    pullsUntilGold: es ? "sobres hasta sobre especial" : "packs until special pack",
+    rewardVaultTitle: es ? "Boveda de recompensas" : "Reward vault",
+    rewardVaultSubtitle: es ? "Las recompensas de misiones quedan registradas y disponibles para usar al instante." : "Mission rewards are logged and become instantly usable.",
+    rewardVaultHint: es ? "Ultimas recompensas de misiones" : "Latest mission rewards",
+    noMissionRewards: es ? "Todavia no has reclamado recompensas de mision hoy." : "You have not claimed mission rewards yet today.",
+    rewardHistoryTitle: es ? "Historial de recompensas" : "Reward history",
+    rewardHistorySubtitle: es ? "Todo lo reclamado y su utilidad directa." : "Everything claimed and its immediate utility.",
+    claimedAt: es ? "Reclamada" : "Claimed",
+    rewardSource: es ? "Origen" : "Source",
+    useRewardsNow: es ? "Usar recompensas" : "Use rewards now",
+    reviewMissions: es ? "Ver misiones" : "Review missions",
+    unknownMission: es ? "Mision diaria" : "Daily mission",
+    totalMissionRewards: es ? "Total reclamado hoy" : "Total claimed today",
   };
 
   const [activeTab, setActiveTab] = useState("home");
@@ -861,20 +908,39 @@ export default function WikipediaGachaGame() {
 
   const refreshAll = async (message = "") => {
     if (!tokenRef.current) return null;
+    const sessionToken = tokenRef.current;
     setBusy(true);
     setErrorMessage("");
     try {
-      const [dashboardData, collectionData, missionsData, trophiesData] = await Promise.all([
-        fetchWikipediaGachaSession(tokenRef.current),
-        fetchWikipediaGachaCollection(tokenRef.current, toCollectionParams(collectionFilters)),
-        fetchWikipediaGachaMissions(tokenRef.current),
-        fetchWikipediaGachaTrophies(tokenRef.current),
+      const [dashboardResult, collectionResult, missionsResult, trophiesResult] = await Promise.allSettled([
+        fetchWikipediaGachaSession(sessionToken),
+        fetchWikipediaGachaCollection(sessionToken, toCollectionParams(collectionFilters)),
+        fetchWikipediaGachaMissions(sessionToken),
+        fetchWikipediaGachaTrophies(sessionToken),
       ]);
+
+      if (dashboardResult.status !== "fulfilled") {
+        throw dashboardResult.reason;
+      }
+
+      const dashboardData = dashboardResult.value;
+      const collectionData = collectionResult.status === "fulfilled" ? collectionResult.value : null;
+      const missionsData = missionsResult.status === "fulfilled" ? missionsResult.value : null;
+      const trophiesData = trophiesResult.status === "fulfilled" ? trophiesResult.value : null;
+
       setDashboard(dashboardData);
       setDashboardStampMs(nowRef.current);
-      setCollection(collectionData);
-      setMissions(missionsData);
-      setTrophies(trophiesData);
+      if (collectionData) setCollection(collectionData);
+      if (missionsData) setMissions(missionsData);
+      if (trophiesData) setTrophies(trophiesData);
+
+      if (collectionResult.status !== "fulfilled" || missionsResult.status !== "fulfilled" || trophiesResult.status !== "fulfilled") {
+        const partialErrors = [collectionResult, missionsResult, trophiesResult]
+          .filter((result) => result.status !== "fulfilled")
+          .map((result) => result.reason);
+        console.warn("[wikipedia-gacha] partial refresh failed", partialErrors);
+      }
+
       if (message) setStatusMessage(message);
       return { dashboardData, collectionData, missionsData, trophiesData };
     } catch (error) {
@@ -982,6 +1048,45 @@ export default function WikipediaGachaGame() {
       );
       const result = await openWikipediaGachaPack(tokenRef.current);
       setPackResult({ ...result, startedAtMs: nowRef.current + 120 });
+      setDashboard((current) => {
+        if (!current) return current;
+        const parsedPityCounter = Number(result.pityCounter);
+        const parsedPacksRemaining = Number(result.packStatus?.packsAvailable ?? result.packsRemaining);
+        const parsedTotalPackOpens = Number(result.totalPackOpens);
+        const hasPityCounter = Number.isFinite(parsedPityCounter);
+        const hasPacksRemaining = Number.isFinite(parsedPacksRemaining);
+        const hasTotalPackOpens = Number.isFinite(parsedTotalPackOpens);
+        const nextPityCounter = hasPityCounter
+          ? Math.max(0, Math.min(PACK_PITY_TARGET, Math.floor(parsedPityCounter)))
+          : current.packStatus?.pityCounter ?? 0;
+        const nextPackStatus = getDisplayPackStatus(
+          result.packStatus
+            ? result.packStatus
+            : {
+                ...(current.packStatus ?? {}),
+                packsAvailable: hasPacksRemaining
+                  ? Math.max(0, parsedPacksRemaining)
+                  : current.packStatus?.packsAvailable,
+                pityCounter: nextPityCounter,
+                nextPackGuaranteedSrPlus: nextPityCounter >= PACK_PITY_TARGET,
+              }
+        );
+        return {
+          ...current,
+          profile: {
+            ...(current.profile ?? {}),
+            packsAvailable: hasPacksRemaining
+              ? Math.max(0, parsedPacksRemaining)
+              : current.profile?.packsAvailable,
+            pityCounter: nextPityCounter,
+            totalPackOpens: hasTotalPackOpens
+              ? Math.max(0, Math.floor(parsedTotalPackOpens))
+              : current.profile?.totalPackOpens,
+          },
+          packStatus: nextPackStatus,
+        };
+      });
+      setDashboardStampMs(nowRef.current);
       setActiveTab("packs");
       showTopRarityFx(result.cards ?? []);
 
@@ -1137,8 +1242,8 @@ export default function WikipediaGachaGame() {
     if (!tokenRef.current) return;
     setBusy(true);
     try {
-      await claimWikipediaGachaMission(tokenRef.current, missionId);
-      await refreshAll(text.claimOk);
+      const claimResult = await claimWikipediaGachaMission(tokenRef.current, missionId);
+      await refreshAll(buildClaimMessage(claimResult?.mission, es, text.claimOk));
     } catch (error) {
       setErrorMessage(getErrorMessage(error, es));
     } finally {
@@ -1207,12 +1312,32 @@ export default function WikipediaGachaGame() {
 
   const packStatus = livePackStatus ?? getDisplayPackStatus(dashboard?.packStatus ?? null);
   const pityPullsRemaining = packStatus ? Math.max(0, PACK_PITY_TARGET - (packStatus.pityCounter ?? 0)) : PACK_PITY_TARGET;
+  const specialPackReady = Boolean(packStatus?.nextPackGuaranteedSrPlus);
   const packFillPercent = getPackFillPercent(packStatus);
   const packRegenPercent = getPackRegenPercent(packStatus);
   const collectionSummary = collection.summary ?? dashboard?.collectionSummary ?? { uniqueCards: 0, totalCopies: 0, favorites: 0, rarityBreakdown: {} };
   const missionSummary = missions.summary ?? dashboard?.missionSummary ?? { total: 0, completed: 0, claimable: 0 };
   const trophySummary = trophies.summary ?? dashboard?.trophySummary ?? { total: 0, unlocked: 0, points: 0 };
   const historyEntries = dashboard?.recentPackHistory ?? [];
+  const recentRewardEvents = dashboard?.recentRewardEvents ?? [];
+  const missionRewardHistory = useMemo(
+    () => recentRewardEvents.filter((entry) => entry.rewardSource === "mission_claim"),
+    [recentRewardEvents]
+  );
+  const missionRewardTotals = useMemo(
+    () =>
+      missionRewardHistory.reduce(
+        (accumulator, rewardEntry) => {
+          const rewardType = normalizeRewardType(rewardEntry.rewardType);
+          if (rewardType === "packs" || rewardType === "gems" || rewardType === "shards") {
+            accumulator[rewardType] += Number(rewardEntry.rewardAmount) || 0;
+          }
+          return accumulator;
+        },
+        { packs: 0, gems: 0, shards: 0 }
+      ),
+    [missionRewardHistory]
+  );
   const packSlots = Array.from({ length: Math.max(currentPackCards.length || 0, 5) }, (_, index) => currentPackCards[index] ?? null);
   const packMetaSource = packResult ?? historyEntries[0] ?? null;
   const collectionTotalPages = Math.max(1, Math.ceil(collection.total / (collection.pageSize || 1)));
@@ -1279,6 +1404,17 @@ export default function WikipediaGachaGame() {
         completed: missionSummary.completed ?? 0,
         claimable: missionSummary.claimable ?? 0,
       },
+      missionRewards: {
+        totalLogged: missionRewardHistory.length,
+        totalsByType: missionRewardTotals,
+        latest: missionRewardHistory.length
+          ? {
+              rewardType: normalizeRewardType(missionRewardHistory[0].rewardType),
+              rewardAmount: missionRewardHistory[0].rewardAmount ?? 0,
+              missionTitle: missionRewardHistory[0].missionTitle ?? null,
+            }
+          : null,
+      },
       trophies: {
         total: trophySummary.total ?? 0,
         unlocked: trophySummary.unlocked ?? 0,
@@ -1322,9 +1458,6 @@ export default function WikipediaGachaGame() {
         </div>
 
         <div className="wg-top-tools">
-          <button type="button" className="wg-top-icon" aria-label={text.trophiesTab} onClick={() => setActiveTab("trophies")}>
-            🏆
-          </button>
           <button type="button" className="wg-top-icon wg-top-icon-info" aria-label={text.sync} onClick={() => void refreshAll(text.syncOk)}>
             ?
           </button>
@@ -1355,12 +1488,6 @@ export default function WikipediaGachaGame() {
       </div>
 
       <main className="wg-main-content">
-        <p className="wg-controls">
-          {es
-            ? "Atajos QA: 1-5 cambia pestana, Espacio/Enter gira carta (o abre sobre si no hay cartas), Flechas mueven el mazo en vista final, R sincroniza y Esc cierra detalle."
-            : "QA shortcuts: 1-5 switch tabs, Space/Enter flips card (or opens a pack when empty), arrows move the deck in final view, R syncs, and Esc closes details."}
-        </p>
-
         {errorMessage ? <div className="wg-banner is-error">{errorMessage}</div> : null}
         {statusMessage ? <div className="wg-banner is-ok">{statusMessage}</div> : null}
 
@@ -1381,11 +1508,17 @@ export default function WikipediaGachaGame() {
               <p className="wg-pack-progress">
                 {pityPullsRemaining <= 0 ? text.guaranteed : `${pityPullsRemaining} ${text.pullsUntilGold}`}
               </p>
+              {specialPackReady ? (
+                <div className="wg-special-pack-banner">
+                  <strong>{text.specialPackReady}</strong>
+                  <p>{text.specialPackHint}</p>
+                </div>
+              ) : null}
 
               <button
                 type="button"
                 id="gacha-pack-container"
-                className={`wg-pack-hero${packHeroAnimState !== "idle" ? " is-opening" : ""}${packHeroAnimState === "burst" ? " is-burst" : ""}`}
+                className={`wg-pack-hero${packHeroAnimState !== "idle" ? " is-opening" : ""}${packHeroAnimState === "burst" ? " is-burst" : ""}${specialPackReady ? " is-special" : ""}`}
                 onClick={handleOpenPackFromHero}
                 disabled={busy || packHeroAnimState !== "idle" || (packStatus?.packsAvailable ?? 0) <= 0}
               >
@@ -1402,25 +1535,33 @@ export default function WikipediaGachaGame() {
                     <img className="wg-pack-logo-w" src="/wikipedia-logo-w.png" alt="Wikipedia W logo" />
                   </div>
                 </div>
-                <span className="wg-pack-call-action">{packHeroAnimState === "idle" ? text.tapToOpen : text.opening}</span>
+                <span className="wg-pack-call-action">
+                  {packHeroAnimState === "idle"
+                    ? specialPackReady
+                      ? text.specialPackReady
+                      : text.tapToOpen
+                    : text.opening}
+                </span>
               </button>
             </div>
 
-            <div className="wg-home-mission-card">
-              <h3>{text.missionsTab}</h3>
-              <div className="wg-home-mission-list">
-                {missions.missions.length ? (
-                  missions.missions.slice(0, 5).map((mission) => (
-                    <article key={mission.id} className="wg-home-mission-row">
-                      <span>{mission.title}</span>
-                      <span>{mission.progressValue}/{mission.targetValue}</span>
-                    </article>
-                  ))
-                ) : (
-                  <p className="wg-empty">{es ? "No hay misiones activas." : "No active missions."}</p>
-                )}
+            <div className="wg-home-intel-grid">
+              <div className="wg-home-mission-card">
+                <h3>{text.missionsTab}</h3>
+                <div className="wg-home-mission-list">
+                  {missions.missions.length ? (
+                    missions.missions.slice(0, 5).map((mission) => (
+                      <article key={mission.id} className="wg-home-mission-row">
+                        <span>{mission.title}</span>
+                        <span>{mission.progressValue}/{mission.targetValue}</span>
+                      </article>
+                    ))
+                  ) : (
+                    <p className="wg-empty">{es ? "No hay misiones activas." : "No active missions."}</p>
+                  )}
+                </div>
+                <p className="wg-mission-reward-note">{text.missionRewardNote}</p>
               </div>
-              <p className="wg-mission-reward-note">{text.missionRewardNote}</p>
             </div>
           </section>
         ) : null}
@@ -1484,7 +1625,10 @@ export default function WikipediaGachaGame() {
                                   formatNumber={formatNumber}
                                   onOpen={(articleId) => void handleSelectArticle(articleId)}
                                   onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
-                                  onCardActivate={isActive ? () => handleShiftPackDeck(1) : undefined}
+                                  onCardActivate={() => {
+                                    const articleId = card.articleId ?? card.id;
+                                    if (articleId) void handleSelectArticle(articleId);
+                                  }}
                                 />
                               </div>
                             );
@@ -1568,12 +1712,13 @@ export default function WikipediaGachaGame() {
             </div>
 
             <div className="wg-stack-footer">
+              <div className="wg-back-gacha-wrap">
+                <button type="button" className="wg-back-gacha-btn" onClick={() => setActiveTab("home")}>
+                  {text.backToGacha}
+                </button>
+              </div>
+
               <div className="wg-pack-actions-row">
-                {currentPackCards.length ? (
-                  <button type="button" className="wg-secondary-btn" onClick={() => setActiveTab("home")}>
-                    {text.backToGacha}
-                  </button>
-                ) : null}
                 <button type="button" className="wg-primary-btn" onClick={() => void handleOpenPack()}>
                   {busy ? text.opening : text.openPack}
                 </button>
@@ -1725,6 +1870,52 @@ export default function WikipediaGachaGame() {
                 <SummaryTile label={text.progress} value={`${formatNumber(missionSummary.completed)} / ${formatNumber(missionSummary.total)}`} accent="#48a2ff" />
               </div>
 
+              <article className="wg-mission-ledger-panel">
+                <div className="wg-section-head">
+                  <div>
+                    <h3>{text.rewardHistoryTitle}</h3>
+                    <p>{text.rewardHistorySubtitle}</p>
+                  </div>
+                  <span className="wg-pill-muted">{text.totalMissionRewards}: {formatNumber(missionRewardHistory.length)}</span>
+                </div>
+
+                <div className="wg-mission-ledger-grid">
+                  <article>
+                    <span>{text.dailyPacks}</span>
+                    <strong>+{formatNumber(missionRewardTotals.packs)}</strong>
+                  </article>
+                  <article>
+                    <span>{text.gems}</span>
+                    <strong>+{formatNumber(missionRewardTotals.gems)}</strong>
+                  </article>
+                  <article>
+                    <span>{text.shards}</span>
+                    <strong>+{formatNumber(missionRewardTotals.shards)}</strong>
+                  </article>
+                </div>
+
+                {missionRewardHistory.length ? (
+                  <div className="wg-reward-log-shell is-missions">
+                    {missionRewardHistory.slice(0, 8).map((rewardEntry) => {
+                      const rewardType = normalizeRewardType(rewardEntry.rewardType);
+                      return (
+                        <article key={rewardEntry.id} className={`wg-reward-log-row is-${rewardType}`}>
+                          <div>
+                            <strong>+{formatNumber(rewardEntry.rewardAmount)} {getRewardTypeLabel(rewardType, es)}</strong>
+                            <p>{rewardEntry.missionTitle ?? text.unknownMission}</p>
+                          </div>
+                          <small>
+                            {text.rewardSource}: {getRewardSourceLabel(rewardEntry.rewardSource, es)} · {text.claimedAt}: {formatDateTime(rewardEntry.createdAt, locale)}
+                          </small>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="wg-empty">{text.noMissionRewards}</p>
+                )}
+              </article>
+
               {missions.missions.length ? (
                 <div className="wg-mission-grid">
                   {missions.missions.map((mission) => (
@@ -1758,7 +1949,7 @@ export default function WikipediaGachaGame() {
               </div>
             </section>
           ) : null}
-        {!loading ? (
+        {!loading && activeTab === "home" ? (
           <section className="wg-support-grid">
             <article className="wg-panel">
               <div className="wg-section-head">
@@ -1789,13 +1980,13 @@ export default function WikipediaGachaGame() {
                 {(es
                   ? [
                       "Cada pack contiene 5 cartas.",
-                      "Tras 10 aperturas sin SR+, el siguiente pack garantiza SR+.",
+                      "Cada 10 sobres abiertos, el siguiente es un sobre especial con garantia SR+.",
                       "Los sobres regeneran 1 por minuto hasta el tope.",
                       "Los duplicados entregan shards y el progreso queda ligado al navegador.",
                     ]
                   : [
                       "Each pack contains 5 cards.",
-                      "After 10 openings without SR+, the next pack guarantees SR+.",
+                      "Every 10 opened packs, the next one becomes a special pack with SR+ guarantee.",
                       "Packs regenerate once per minute until the cap.",
                       "Duplicates grant shards and progress stays bound to the browser.",
                     ]).map((rule) => <li key={rule}>{rule}</li>)}
@@ -1863,7 +2054,6 @@ export default function WikipediaGachaGame() {
                     flipHint={text.detailFlipHint}
                     flipBackHint={text.detailFlipBackHint}
                     detailDescriptionTitle={text.detailDescriptionTitle}
-                    sourceLabel={text.detailSourceLabel}
                   />
                 </div>
               </div>

@@ -91,6 +91,10 @@ function ensureProfile(state, browserToken) {
     error.code = "invalid_browser_token";
     throw error;
   }
+  const parsedPityCounter = Number(profile.pityCounter);
+  profile.pityCounter = Number.isFinite(parsedPityCounter)
+    ? Math.max(0, Math.min(PITY_THRESHOLD, Math.floor(parsedPityCounter)))
+    : 0;
   return profile;
 }
 
@@ -169,6 +173,9 @@ function getTodaysStats(state, profileId, now) {
 }
 
 function serializeProfile(profile) {
+  const pityCounter = Number.isFinite(Number(profile.pityCounter))
+    ? Math.max(0, Math.min(PITY_THRESHOLD, Math.floor(Number(profile.pityCounter))))
+    : 0;
   return {
     displayName: profile.displayName,
     packsAvailable: profile.packsAvailable,
@@ -177,7 +184,7 @@ function serializeProfile(profile) {
     shards: profile.shards,
     trophiesPoints: profile.trophiesPoints,
     totalPackOpens: profile.totalPackOpens,
-    pityCounter: profile.pityCounter,
+    pityCounter,
     createdAt: profile.createdAt,
     updatedAt: profile.updatedAt,
     lastSeenAt: profile.lastSeenAt,
@@ -185,11 +192,14 @@ function serializeProfile(profile) {
 }
 
 function serializePackStatus(profile, now) {
+  const pityCounter = Number.isFinite(Number(profile.pityCounter))
+    ? Math.max(0, Math.min(PITY_THRESHOLD, Math.floor(Number(profile.pityCounter))))
+    : 0;
   return {
     packsAvailable: profile.packsAvailable,
     maxPacks: profile.maxPacks,
-    pityCounter: profile.pityCounter,
-    nextPackGuaranteedSrPlus: profile.pityCounter >= PITY_THRESHOLD,
+    pityCounter,
+    nextPackGuaranteedSrPlus: pityCounter >= PITY_THRESHOLD,
     secondsUntilNextPack: getSecondsUntilNextPack(profile, now),
     lastPackRegenAt: profile.lastPackRegenAt,
   };
@@ -354,6 +364,36 @@ function serializeMissionEntry(entry) {
     completed: entry.completed,
     claimed: entry.claimed,
     resetDate: entry.resetDate,
+  };
+}
+
+function parseRewardMetadata(metadataJson) {
+  if (!metadataJson) return {};
+  if (typeof metadataJson === "object") return metadataJson;
+  if (typeof metadataJson === "string") {
+    try {
+      return JSON.parse(metadataJson);
+    } catch (_error) {
+      return {};
+    }
+  }
+  return {};
+}
+
+function serializeRewardEvent(entry) {
+  const metadata = parseRewardMetadata(entry.metadataJson);
+  const missionId = Number(metadata.missionId);
+  const mission = Number.isFinite(missionId) ? MISSION_BY_ID.get(missionId) : null;
+  return {
+    id: entry.id,
+    rewardSource: entry.rewardSource,
+    rewardType: entry.rewardType,
+    rewardAmount: entry.rewardAmount,
+    createdAt: entry.createdAt,
+    missionId: mission?.id ?? null,
+    missionTitle: mission?.title ?? null,
+    missionCode: metadata.missionCode ?? mission?.code ?? null,
+    packOpeningId: metadata.packOpeningId ?? null,
   };
 }
 
@@ -672,6 +712,14 @@ async function buildDashboard(state, profile, now, articleCatalog) {
       "recent"
     ).slice(0, 8)
   );
+  const recentRewardEvents = state.rewardEvents
+    .filter((entry) => entry.browserProfileId === profile.id)
+    .sort(
+      (left, right) =>
+        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+    )
+    .slice(0, 14)
+    .map(serializeRewardEvent);
 
   return {
     browserToken: profile.browserToken,
@@ -694,6 +742,7 @@ async function buildDashboard(state, profile, now, articleCatalog) {
       .slice(0, 4)
       .map(serializePackHistoryEntry),
     recentCollection,
+    recentRewardEvents,
   };
 }
 
@@ -916,9 +965,17 @@ export function createWikipediaGachaService({
       if (wasAtCap) {
         profile.lastPackRegenAt = isoDate(now);
       }
-      profile.pityCounter = packResult.containsSrOrHigher
+      const safePityCounter = Number.isFinite(Number(profile.pityCounter))
+        ? Math.max(
+            0,
+            Math.min(PITY_THRESHOLD, Math.floor(Number(profile.pityCounter)))
+          )
+        : 0;
+      // Special pack cadence: every 10 opened packs, regardless of rarity results.
+      // Once consumed, the counter restarts.
+      profile.pityCounter = packResult.guaranteedSrPlus
         ? 0
-        : Math.min(PITY_THRESHOLD, profile.pityCounter + 1);
+        : Math.min(PITY_THRESHOLD, safePityCounter + 1);
 
       const todaysStats = getTodaysStats(draft, profile.id, now);
       todaysStats.packsOpened += 1;
@@ -961,11 +1018,14 @@ export function createWikipediaGachaService({
         articleCatalog.getTopicGroupForArticleId,
         articleCatalog.getRarityForArticleId
       );
+      const nextPackStatus = serializePackStatus(profile, now);
       draft.__lastOpenPackResponse = {
         packOpeningId: opening.id,
         guaranteedSrPlus: packResult.guaranteedSrPlus,
         packsRemaining: profile.packsAvailable,
         pityCounter: profile.pityCounter,
+        totalPackOpens: profile.totalPackOpens,
+        packStatus: nextPackStatus,
         shardsEarned: packResult.totalShards,
         newCardsCount: packResult.newCardsCount,
         cards: openingCards,
