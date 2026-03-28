@@ -33,12 +33,12 @@ const TERRAIN_PROFILE = {
 };
 
 const TEAM = {
-  red:  { color: "#dc2626", dark: "#7f1d1d", light: "#fca5a5", cpu: false, label: "Kings" },
-  blue: { color: "#1d4ed8", dark: "#1e3a8a", light: "#93c5fd", cpu: true,  label: "CPU"   },
+  red:  { color: "#dc2626", dark: "#7f1d1d", light: "#fca5a5", cpu: false, label: "Escuadron Atlas" },
+  blue: { color: "#1d4ed8", dark: "#1e3a8a", light: "#93c5fd", cpu: true,  label: "Legion Sigma" },
 };
 const NAMES = {
-  red:  ["Carl","Ozzy","Dfox","Mila","Rook","Nora"],
-  blue: ["Bob","Joe","Vex","Iris","Zed","Luna"],
+  red:  ["Axel","Noa","Drake","Vela","Kiro","Maya"],
+  blue: ["Nyx","Orion","Khan","Iris","Zero","Lyra"],
 };
 
 const MAPS = [
@@ -1758,29 +1758,52 @@ function drawMapDecorations(ctx,map){
 
 // ── The classic bottom HUD bar matching the original Territory War style ──
 function drawHUD(ctx,state){
-  // Top info bar - dark panel
-  ctx.fillStyle="rgba(10,20,40,0.82)";
+  const grad=ctx.createLinearGradient(0,0,0,36);
+  grad.addColorStop(0,"rgba(8,14,28,0.92)");
+  grad.addColorStop(1,"rgba(3,8,20,0.86)");
+  ctx.fillStyle=grad;
   ctx.fillRect(0,0,WIDTH,36);
-  ctx.fillStyle="rgba(255,255,255,0.07)";ctx.fillRect(0,35,WIDTH,1);
+  ctx.fillStyle="rgba(148,163,184,0.28)";
+  ctx.fillRect(0,35,WIDTH,1);
 
-  // Team labels
-  ctx.font="bold 15px Arial, sans-serif";ctx.textBaseline="middle";
-  ctx.fillStyle=TEAM.red.color;ctx.textAlign="left";ctx.fillText("Kings",14,18);
-  ctx.fillStyle=TEAM.blue.color;ctx.textAlign="right";ctx.fillText("CPU",WIDTH-14,18);
+  const chipPad=10;
+  const drawChip=(x,width,color)=>{
+    ctx.fillStyle="rgba(15,23,42,0.82)";
+    ctx.fillRect(x,6,width,24);
+    ctx.strokeStyle=color;
+    ctx.lineWidth=1;
+    ctx.strokeRect(x+0.5,6.5,width-1,23);
+  };
+  drawChip(8,188,TEAM.red.color);
+  drawChip(WIDTH-196,188,TEAM.blue.color);
 
-  // Center: turn and wind
-  ctx.fillStyle="#e8eaf0";ctx.textAlign="center";ctx.font="13px 'Courier New', monospace";
-  const windStr=`${state.wind<0?"◀":"▶"} ${Math.abs(Math.round(state.wind))} Wind`;
-  ctx.fillText(`Turn ${state.turn.number}  |  ${windStr}`,WIDTH*0.5,18);
+  ctx.font="bold 12px Orbitron, sans-serif";
+  ctx.textBaseline="middle";
+  ctx.textAlign="left";
+  ctx.fillStyle=TEAM.red.color;
+  ctx.fillText(TEAM.red.label,chipPad+12,18);
+  ctx.textAlign="right";
+  ctx.fillStyle=TEAM.blue.color;
+  ctx.fillText(TEAM.blue.label,WIDTH-chipPad-12,18);
 
-  // Timer
+  ctx.fillStyle="#e2e8f0";
+  ctx.textAlign="center";
+  ctx.font="700 13px Rajdhani, sans-serif";
+  const windStr=`${state.wind<0?"<":">"} ${Math.abs(Math.round(state.wind))} WIND`;
+  ctx.fillText(`TURN ${state.turn.number}   |   ${windStr}`,WIDTH*0.5,18);
+
   const tr=state.turn.remainingMs/TURN_MS;
   const timerColor=tr>0.4?"#22c55e":tr>0.15?"#f59e0b":"#ef4444";
   const secs=Math.ceil(state.turn.remainingMs/1000);
-  ctx.strokeStyle=timerColor;ctx.lineWidth=3;
-  ctx.beginPath();ctx.arc(WIDTH-60,18,13,-Math.PI/2,-Math.PI/2+tr*Math.PI*2);ctx.stroke();
-  ctx.fillStyle=timerColor;ctx.font="bold 10px monospace";ctx.textAlign="center";
-  ctx.fillText(secs,WIDTH-60,18);
+  ctx.strokeStyle=timerColor;
+  ctx.lineWidth=2.5;
+  ctx.beginPath();
+  ctx.arc(WIDTH-60,18,12,-Math.PI/2,-Math.PI/2+tr*Math.PI*2);
+  ctx.stroke();
+  ctx.fillStyle=timerColor;
+  ctx.font="bold 9px Orbitron, sans-serif";
+  ctx.textAlign="center";
+  ctx.fillText(String(secs),WIDTH-60,18);
 }
 
 // The bottom HUD panel with direction, angle, power in the TW style
@@ -1853,239 +1876,547 @@ function snapshotOf(state){
 
 // ─── CSS — faithful to the original Territory War flash game UI ───────────────
 const CSS=`
-  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;700&display=swap');
 
   *{box-sizing:border-box;margin:0;padding:0;}
 
   .tw-root{
-    background:#1a1a2e;
-    color:#e0e0e0;
-    font-family:'VT323',monospace;
+    --tw-bg-1:#050a18;
+    --tw-bg-2:#0f1729;
+    --tw-panel:rgba(5,10,24,0.84);
+    --tw-border:rgba(148,163,184,0.34);
+    --tw-text:#e5eefc;
+    --tw-muted:#9cb0cf;
+    background:
+      radial-gradient(circle at 10% 2%, rgba(239,68,68,0.18), transparent 40%),
+      radial-gradient(circle at 92% 4%, rgba(56,189,248,0.2), transparent 44%),
+      linear-gradient(165deg,var(--tw-bg-1),var(--tw-bg-2));
+    color:var(--tw-text);
+    font-family:"Rajdhani",sans-serif;
     min-height:100vh;
-    display:flex;flex-direction:column;align-items:center;
-    padding:10px;gap:8px;
-    background-image:
-      radial-gradient(ellipse at 20% 10%,rgba(40,60,120,0.4) 0%,transparent 60%),
-      radial-gradient(ellipse at 80% 90%,rgba(80,20,20,0.3) 0%,transparent 60%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:12px;
+    gap:10px;
   }
 
   .tw-top-bar{
-    width:100%;max-width:980px;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-    background:rgba(0,0,0,0.55);
-    border:2px solid rgba(255,255,255,0.15);
-    border-bottom:2px solid rgba(255,255,255,0.08);
-    border-radius:4px;padding:8px 14px;
+    width:100%;
+    max-width:980px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    padding:10px 12px;
+    border:1px solid var(--tw-border);
+    border-radius:14px;
+    background:
+      linear-gradient(152deg, rgba(15,23,42,0.9), rgba(11,17,32,0.9)),
+      radial-gradient(circle at 10% 10%, rgba(239,68,68,0.14), transparent 35%),
+      radial-gradient(circle at 90% 80%, rgba(59,130,246,0.18), transparent 42%);
+    box-shadow:0 20px 36px rgba(2,6,23,0.52);
   }
 
-  .tw-title-block{display:flex;flex-direction:column;gap:2px;}
+  .tw-title-block{display:grid;gap:2px;}
 
   .tw-title{
-    font-family:'Press Start 2P',monospace;
-    font-size:15px;
-    color:#fff;
-    text-shadow:2px 2px 0 #dc2626,-2px -2px 0 #1d4ed8,0 0 20px rgba(255,255,255,0.2);
-    letter-spacing:1px;
-  }
-
-  .tw-subtitle{font-size:13px;color:#8090a8;}
-
-  .tw-actions{display:flex;gap:6px;flex-wrap:wrap;}
-
-  /* Classic TW button style - grey gradient with inset border */
-  .tw-btn{
-    font-family:'VT323',monospace;
-    font-size:16px;letter-spacing:0.5px;
-    padding:5px 14px;
-    background:linear-gradient(to bottom,#d4d4d4,#a8a8a8);
-    border:2px solid #888;
-    border-radius:2px;
-    color:#111;cursor:pointer;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.6),1px 2px 3px rgba(0,0,0,0.5);
-    transition:all 0.1s;
+    font-family:"Orbitron",sans-serif;
+    font-size:18px;
+    font-weight:800;
+    letter-spacing:0.08em;
     text-transform:uppercase;
+    color:#f9fbff;
+    text-shadow:0 0 14px rgba(56,189,248,0.34);
   }
-  .tw-btn:hover{background:linear-gradient(to bottom,#e8e8e8,#c0c0c0);}
-  .tw-btn:active{box-shadow:inset 1px 2px 4px rgba(0,0,0,0.4);transform:translateY(1px);}
-  .tw-btn.red-btn{background:linear-gradient(to bottom,#ff6666,#cc1111);border-color:#880000;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.8);}
-  .tw-btn.red-btn:hover{background:linear-gradient(to bottom,#ff8888,#ee2222);}
-  .tw-btn.blue-btn{background:linear-gradient(to bottom,#4466ff,#1133cc);border-color:#001188;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.8);}
+
+  .tw-subtitle{
+    font-size:14px;
+    color:var(--tw-muted);
+    letter-spacing:0.02em;
+  }
+
+  .tw-toolbar-right{
+    display:grid;
+    gap:8px;
+    justify-items:end;
+  }
 
   .tw-config{
-    display:flex;gap:16px;align-items:center;flex-wrap:wrap;
-    font-size:16px;color:#aabbd0;
-  }
-  .tw-config label{display:flex;align-items:center;gap:8px;}
-  .tw-config select{
-    font-family:'VT323',monospace;font-size:16px;
-    background:#0a1020;color:#dde8f0;
-    border:2px solid rgba(255,255,255,0.2);
-    border-radius:2px;padding:3px 8px;cursor:pointer;
+    display:grid;
+    grid-template-columns:repeat(2, minmax(180px, 1fr));
+    gap:8px;
+    padding:8px;
+    border:1px solid rgba(148,163,184,0.32);
+    border-radius:12px;
+    background:rgba(15,23,42,0.72);
   }
 
-  .tw-stage-wrap{position:relative;width:100%;max-width:980px;}
+  .tw-config label{
+    display:grid;
+    gap:3px;
+    color:#dbeafe;
+  }
+
+  .tw-config label span{
+    font-family:"Orbitron",sans-serif;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#93c5fd;
+  }
+
+  .tw-config select{
+    height:34px;
+    padding:0 10px;
+    border:1px solid rgba(147,197,253,0.5);
+    border-radius:10px;
+    background:rgba(2,6,23,0.75);
+    color:#f8fafc;
+    font-family:"Rajdhani",sans-serif;
+    font-size:16px;
+    font-weight:700;
+  }
+
+  .tw-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .tw-btn{
+    min-height:34px;
+    padding:0 13px;
+    border:1px solid rgba(148,163,184,0.36);
+    border-radius:10px;
+    background:linear-gradient(145deg, rgba(15,23,42,0.96), rgba(30,41,59,0.88));
+    color:#e2e8f0;
+    font-family:"Orbitron",sans-serif;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    cursor:pointer;
+    transition:transform 0.14s ease, border-color 0.14s ease, filter 0.14s ease;
+    text-transform:uppercase;
+  }
+
+  .tw-btn:hover{
+    transform:translateY(-1px);
+    border-color:rgba(125,211,252,0.8);
+    filter:brightness(1.08);
+  }
+
+  .tw-btn:active{transform:translateY(0);}
+
+  .tw-btn.red-btn{
+    background:linear-gradient(145deg, rgba(220,38,38,0.92), rgba(185,28,28,0.96));
+    border-color:rgba(254,202,202,0.56);
+    color:#fff;
+  }
+
+  .tw-btn.blue-btn{
+    background:linear-gradient(145deg, rgba(37,99,235,0.92), rgba(30,64,175,0.98));
+    border-color:rgba(191,219,254,0.6);
+    color:#fff;
+  }
+
+  .tw-stage-wrap{
+    position:relative;
+    width:100%;
+    max-width:980px;
+    border:1px solid rgba(148,163,184,0.34);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 24px 42px rgba(2,6,23,0.58);
+  }
 
   .tw-canvas{
-    display:block;width:100%;height:auto;
-    border:3px solid #445;
-    border-top-color:#667;border-left-color:#667;
-    border-bottom-color:#223;border-right-color:#223;
+    display:block;
+    width:100%;
+    height:auto;
+    background:#020617;
     image-rendering:pixelated;
   }
 
-  /* Overlay: classic game panel popup */
   .tw-overlay{
-    position:absolute;inset:0;
-    display:flex;align-items:center;justify-content:center;
-    background:rgba(0,0,0,0.60);backdrop-filter:blur(2px);
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(2,6,23,0.72);
+    backdrop-filter:blur(4px);
   }
 
   .tw-overlay-card{
-    background:linear-gradient(160deg,#1c2840,#111827);
-    border:3px solid #4466aa;
-    border-top-color:#88aadd;border-left-color:#6688bb;
-    border-radius:4px;padding:28px 36px;text-align:center;max-width:400px;width:90%;
-    box-shadow:0 8px 40px rgba(0,0,80,0.6),inset 0 1px 0 rgba(255,255,255,0.1);
+    width:min(420px, 90%);
+    border:1px solid rgba(125,211,252,0.42);
+    border-radius:16px;
+    padding:22px 24px;
+    background:linear-gradient(155deg, rgba(15,23,42,0.95), rgba(2,6,23,0.94));
+    box-shadow:0 20px 40px rgba(2,6,23,0.6);
+    text-align:center;
   }
 
   .tw-overlay-card h2{
-    font-family:'Press Start 2P',monospace;font-size:16px;
-    color:#fff;text-shadow:2px 2px 0 #1d4ed8;margin-bottom:12px;
+    font-family:"Orbitron",sans-serif;
+    font-size:18px;
+    letter-spacing:0.08em;
+    margin-bottom:10px;
+    text-transform:uppercase;
   }
-  .tw-overlay-card p{font-size:16px;color:#8899bb;margin-bottom:18px;line-height:1.5;}
-  .tw-overlay-card .tw-btn{width:100%;font-size:17px;padding:9px;}
+
+  .tw-overlay-card p{
+    color:#b6c5dd;
+    font-size:17px;
+    margin-bottom:14px;
+    line-height:1.4;
+  }
+
+  .tw-overlay-card .tw-btn{
+    width:100%;
+    min-height:38px;
+    font-size:13px;
+  }
 
   .tw-winner-name{
-    font-family:'Press Start 2P',monospace;font-size:20px;
-    margin:12px 0 18px;
-    text-shadow:2px 2px 0 rgba(0,0,0,0.6);
+    font-family:"Orbitron",sans-serif;
+    font-size:18px;
+    margin:8px 0 16px;
+    letter-spacing:0.05em;
   }
 
-  /* ── The main bottom HUD — classic TW style ── */
   .tw-hud{
-    width:100%;max-width:980px;
-    background:linear-gradient(to bottom,#3a3a3a,#282828);
-    border:2px solid #555;border-top:3px solid #777;
-    border-radius:3px;
-    display:flex;gap:0;overflow:hidden;
+    width:100%;
+    max-width:980px;
+    display:grid;
+    grid-template-columns:minmax(128px,148px) minmax(0,1fr) minmax(150px,176px) minmax(88px,104px) minmax(155px,188px);
+    gap:0;
+    border:1px solid var(--tw-border);
+    border-radius:14px;
+    overflow:hidden;
+    background:linear-gradient(165deg, rgba(15,23,42,0.96), rgba(2,6,23,0.95));
+    box-shadow:0 18px 30px rgba(2,6,23,0.52);
   }
 
-  /* Player portrait section (left side - like the original) */
   .tw-hud-portrait{
-    background:linear-gradient(to bottom,#2a1a1a,#1a0a0a);
-    border-right:2px solid #555;
-    padding:8px;min-width:110px;
-    display:flex;flex-direction:column;align-items:center;gap:4px;
+    background:linear-gradient(170deg, rgba(30,41,59,0.88), rgba(15,23,42,0.96));
+    border-right:1px solid rgba(148,163,184,0.28);
+    padding:9px 8px;
+    display:grid;
+    justify-items:center;
+    gap:4px;
   }
+
   .tw-portrait-label{
-    font-size:11px;color:#cc4444;letter-spacing:1px;text-transform:uppercase;
+    font-family:"Orbitron",sans-serif;
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#a5b4fc;
   }
+
   .tw-portrait-face{
-    width:52px;height:52px;border-radius:3px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:28px;
+    width:54px;
+    height:54px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:inset 0 0 18px rgba(15,23,42,0.8);
   }
-  .tw-portrait-name{font-size:15px;color:#ffcccc;}
-  .tw-portrait-hp{font-size:13px;color:#88cc88;}
 
-  /* Controls section — arrow buttons like the original */
+  .tw-portrait-name{
+    font-family:"Orbitron",sans-serif;
+    font-size:12px;
+    letter-spacing:0.03em;
+    color:#f8fafc;
+    text-align:center;
+  }
+
+  .tw-portrait-hp{
+    font-size:15px;
+    font-weight:700;
+  }
+
   .tw-hud-controls{
-    flex:1;display:flex;align-items:center;justify-content:center;gap:20px;padding:10px 16px;
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+      "move jump angle"
+      "throw throw throw";
+    gap:8px 10px;
+    align-content:center;
+    padding:9px 10px;
+    border-right:1px solid rgba(148,163,184,0.2);
+  }
+
+  .tw-ctrl-group{
+    display:grid;
+    justify-items:center;
+    gap:4px;
+  }
+
+  .tw-ctrl-label{
+    font-family:"Orbitron",sans-serif;
+    font-size:9px;
+    color:#93c5fd;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+
+  .tw-ctrl-row{
+    display:flex;
+    gap:4px;
+  }
+
+  .tw-ctrl-group-move{grid-area:move;}
+  .tw-ctrl-group-jump{grid-area:jump;}
+  .tw-ctrl-group-angle{grid-area:angle;}
+  .tw-ctrl-group-throw{grid-area:throw;}
+
+  .tw-ctrl-group-throw .tw-ctrl-row{
+    justify-content:center;
     flex-wrap:wrap;
+    row-gap:4px;
   }
 
-  .tw-ctrl-group{display:flex;flex-direction:column;align-items:center;gap:4px;}
-  .tw-ctrl-label{font-size:13px;color:#aaaaaa;letter-spacing:1px;}
-  .tw-ctrl-row{display:flex;gap:4px;}
-
-  /* Classic arrow button style */
   .tw-arr-btn{
-    width:36px;height:36px;
-    background:linear-gradient(to bottom,#c8c8c8,#888888);
-    border:2px solid #666;border-radius:3px;
-    color:#111;font-size:18px;font-family:'VT323',monospace;
-    cursor:pointer;display:flex;align-items:center;justify-content:center;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.5),1px 2px 4px rgba(0,0,0,0.6);
-    transition:all 0.08s;user-select:none;
+    min-width:36px;
+    height:34px;
+    padding:0 9px;
+    border:1px solid rgba(148,163,184,0.5);
+    border-radius:10px;
+    background:linear-gradient(150deg, rgba(30,41,59,0.94), rgba(15,23,42,0.92));
+    color:#e2e8f0;
+    font-size:16px;
+    font-family:"Orbitron",sans-serif;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.12s ease, filter 0.12s ease, border-color 0.12s ease;
+    user-select:none;
   }
-  .tw-arr-btn:hover{background:linear-gradient(to bottom,#ddd,#aaa);}
-  .tw-arr-btn:active{transform:translateY(1px);box-shadow:inset 1px 2px 4px rgba(0,0,0,0.5);}
-  .tw-arr-btn.wide{width:70px;}
+
+  .tw-arr-btn:hover{
+    border-color:rgba(125,211,252,0.86);
+    filter:brightness(1.08);
+    transform:translateY(-1px);
+  }
+
+  .tw-arr-btn:active{transform:translateY(0);}
+
+  .tw-arr-btn.wide{min-width:78px;}
+
+  .tw-ctrl-group-throw .tw-arr-btn.wide{min-width:96px;}
+
   .tw-arr-btn.red-act{
-    background:linear-gradient(to bottom,#ff9999,#cc2222);
-    border-color:#880000;color:#fff;font-size:14px;
-    text-shadow:0 1px 2px rgba(0,0,0,0.7);
+    background:linear-gradient(145deg, rgba(239,68,68,0.95), rgba(185,28,28,0.97));
+    border-color:rgba(254,202,202,0.72);
+    color:#fff;
+    font-size:12px;
+    letter-spacing:0.04em;
   }
+
   .tw-arr-btn.cancel-btn{
-    background:linear-gradient(to bottom,#d0d0d0,#909090);
-    width:52px;font-size:15px;
+    min-width:62px;
+    font-size:11px;
   }
 
-  /* Power bar section */
   .tw-hud-power{
-    background:linear-gradient(to bottom,#1a1a1a,#111111);
-    border-left:2px solid #555;
-    padding:8px 14px;min-width:130px;
-    display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;
+    border-right:1px solid rgba(148,163,184,0.24);
+    padding:9px 10px;
+    display:grid;
+    align-content:center;
+    justify-items:center;
+    gap:4px;
+    background:linear-gradient(170deg, rgba(15,23,42,0.86), rgba(2,6,23,0.94));
   }
-  .tw-power-label{font-size:14px;color:#aaaaaa;letter-spacing:2px;text-transform:uppercase;}
+
+  .tw-power-label{
+    font-family:"Orbitron",sans-serif;
+    font-size:10px;
+    color:#93c5fd;
+    letter-spacing:0.09em;
+    text-transform:uppercase;
+  }
+
   .tw-power-bar-outer{
-    width:100%;height:26px;
-    background:#0a0a0a;border:2px solid #555;border-radius:2px;
-    overflow:hidden;position:relative;
+    width:100%;
+    height:24px;
+    border:1px solid rgba(148,163,184,0.45);
+    border-radius:8px;
+    overflow:hidden;
+    background:rgba(2,6,23,0.82);
   }
+
   .tw-power-fill{
-    height:100%;transition:width 0.04s;
-    background:linear-gradient(to right,#228822,#66cc22,#ffcc00,#ff6600,#ff2200);
-    background-size:200% 100%;
+    height:100%;
+    transition:width 0.04s;
+    background:linear-gradient(92deg, #22c55e 0%, #84cc16 26%, #facc15 52%, #f97316 74%, #ef4444 100%);
   }
-  .tw-power-pct{font-size:16px;color:#dddddd;}
 
-  /* Turn timer */
+  .tw-power-pct{
+    font-family:"Orbitron",sans-serif;
+    font-size:14px;
+    color:#f8fafc;
+  }
+
   .tw-hud-timer{
-    background:linear-gradient(to bottom,#1a1a2a,#111118);
-    border-left:2px solid #555;
-    padding:8px 12px;min-width:80px;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    border-right:1px solid rgba(148,163,184,0.24);
+    display:grid;
+    align-content:center;
+    justify-items:center;
+    gap:2px;
+    padding:9px 8px;
+    background:linear-gradient(170deg, rgba(30,41,59,0.84), rgba(15,23,42,0.96));
   }
-  .tw-timer-label{font-size:12px;color:#8888aa;letter-spacing:1px;}
+
+  .tw-timer-label{
+    font-family:"Orbitron",sans-serif;
+    font-size:9px;
+    letter-spacing:0.08em;
+    color:#a5b4fc;
+    text-transform:uppercase;
+  }
+
   .tw-timer-value{
-    font-family:'Press Start 2P',monospace;font-size:22px;
-    font-weight:bold;
+    font-family:"Orbitron",sans-serif;
+    font-size:20px;
+    font-weight:800;
+    line-height:1;
   }
 
-  /* Options/map info on right */
   .tw-hud-options{
-    background:linear-gradient(to bottom,#1a1a1a,#0e0e0e);
-    border-left:2px solid #444;
-    padding:8px 12px;min-width:120px;
-    display:flex;flex-direction:column;gap:4px;
+    padding:9px 10px;
+    display:grid;
+    align-content:center;
+    gap:4px;
+    background:linear-gradient(170deg, rgba(15,23,42,0.88), rgba(2,6,23,0.95));
   }
-  .tw-opts-label{font-size:11px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
-  .tw-opts-row{font-size:13px;color:#8899aa;display:flex;justify-content:space-between;}
-  .tw-opts-row strong{color:#ccd8e8;}
 
-  /* Info panels row */
-  .tw-info-row{
-    width:100%;max-width:980px;
-    display:flex;gap:8px;flex-wrap:wrap;
+  .tw-opts-label{
+    font-family:"Orbitron",sans-serif;
+    font-size:9px;
+    letter-spacing:0.08em;
+    color:#93c5fd;
+    text-transform:uppercase;
+    margin-bottom:2px;
   }
+
+  .tw-opts-row{
+    font-size:14px;
+    color:#a5b4d3;
+    display:flex;
+    justify-content:space-between;
+    gap:6px;
+  }
+
+  .tw-opts-row strong{
+    color:#e2e8f0;
+    font-weight:700;
+  }
+
   .tw-info-panel{
-    background:rgba(10,15,30,0.85);
-    border:1px solid rgba(80,100,140,0.4);
-    border-radius:3px;padding:8px 12px;flex:1;min-width:140px;
+    background:linear-gradient(165deg, rgba(15,23,42,0.85), rgba(2,6,23,0.92));
+    border:1px solid rgba(148,163,184,0.3);
+    border-radius:12px;
+    padding:10px 12px;
+    flex:1;
+    min-width:180px;
   }
-  .tw-info-title{font-size:11px;color:#556;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
-  .tw-info-stat{display:flex;justify-content:space-between;font-size:14px;color:#8899aa;margin-bottom:3px;}
-  .tw-info-stat strong{color:#dde8f8;}
-  .tw-team-hp-bar{height:7px;background:#111;border-radius:2px;margin:4px 0;}
 
-  /* Touch controls */
-  .tw-touch-controls{
-    width:100%;max-width:980px;display:flex;justify-content:space-between;gap:10px;
+  .tw-info-title{
+    display:block;
+    font-family:"Orbitron",sans-serif;
+    font-size:10px;
+    color:#93c5fd;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    margin-bottom:6px;
   }
-  .tw-touch-group{display:flex;gap:5px;}
-  .tw-touch-group .tw-arr-btn{padding:10px 16px;width:auto;height:auto;font-size:20px;}
+
+  .tw-info-stat{
+    display:flex;
+    justify-content:space-between;
+    font-size:15px;
+    color:#cbd5e1;
+    margin-bottom:4px;
+  }
+
+  .tw-info-stat strong{font-family:"Orbitron",sans-serif;}
+
+  .tw-touch-controls{
+    width:100%;
+    max-width:980px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+  }
+
+  .tw-touch-group{display:flex;gap:6px;flex-wrap:wrap;}
+
+  .tw-touch-group .tw-arr-btn{
+    min-width:56px;
+    height:42px;
+    padding:0 14px;
+    font-size:14px;
+  }
+
+  @media (max-width:980px){
+    .tw-top-bar{align-items:stretch;}
+    .tw-toolbar-right{width:100%;justify-items:start;}
+    .tw-config{width:100%;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));}
+    .tw-actions{justify-content:flex-start;}
+    .tw-hud{
+      grid-template-columns:minmax(120px,140px) 1fr minmax(120px,145px);
+      grid-template-areas:
+        "portrait controls controls"
+        "power timer options";
+    }
+    .tw-hud-portrait{grid-area:portrait;}
+    .tw-hud-controls{
+      grid-area:controls;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-areas:
+        "move jump"
+        "angle angle"
+        "throw throw";
+    }
+    .tw-hud-power{grid-area:power;}
+    .tw-hud-timer{grid-area:timer;}
+    .tw-hud-options{grid-area:options;}
+  }
+
+  @media (max-width:720px){
+    .tw-root{padding:10px;gap:8px;}
+    .tw-title{font-size:16px;}
+    .tw-subtitle{font-size:13px;}
+    .tw-actions{width:100%;}
+    .tw-btn{flex:1;}
+    .tw-hud{
+      grid-template-columns:1fr;
+      grid-template-areas:none;
+    }
+    .tw-hud-portrait,.tw-hud-controls,.tw-hud-power,.tw-hud-timer,.tw-hud-options{
+      border-right:none;
+      border-top:1px solid rgba(148,163,184,0.18);
+    }
+    .tw-hud-portrait{border-top:none;}
+    .tw-hud-controls{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-areas:
+        "move jump"
+        "angle angle"
+        "throw throw";
+    }
+    .tw-touch-controls{flex-direction:column;}
+    .tw-touch-group{justify-content:center;}
+  }
 `;
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -2198,17 +2529,17 @@ export default function TerritoryWar(){
         <div className="tw-top-bar">
           <div className="tw-title-block">
             <div className="tw-title">Territory War</div>
-            <div className="tw-subtitle">Stick Arena — Turn-based grenade combat</div>
+            <div className="tw-subtitle">Tactical stick duel with revamped command HUD</div>
           </div>
-          <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+          <div className="tw-toolbar-right">
             {sn.mode==="menu"&&(
               <div className="tw-config">
-                <label><span>Map:</span>
+                <label><span>Battlefield</span>
                   <select value={sn.mapId} onChange={e=>setMap(e.target.value)}>
                     {MAPS.map(m=><option key={m.id} value={m.id}>{m.name}{m.water?" 🌊":""}</option>)}
                   </select>
                 </label>
-                <label><span>Size:</span>
+                <label><span>Squad size</span>
                   <select value={sn.teamSize} onChange={e=>setTeamSize(e.target.value)}>
                     {[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}v{n}</option>)}
                   </select>
@@ -2266,7 +2597,7 @@ export default function TerritoryWar(){
               <div className="tw-overlay-card">
                 <h2>Battle Over!</h2>
                 <div className="tw-winner-name" style={{color:sn.winner==="red"?"#ff4444":sn.winner==="blue"?"#4488ff":"#888"}}>
-                  {sn.winner==="draw"?"It's a Draw!":sn.winner==="red"?"Kings Win!":"CPU Wins!"}
+                  {sn.winner==="draw"?"Stalemate!":sn.winner==="red"?`${TEAM.red.label} win!`:`${TEAM.blue.label} win!`}
                 </div>
                 <button className="tw-btn red-btn" onClick={restart}>↺ Play Again</button>
               </div>
@@ -2280,7 +2611,7 @@ export default function TerritoryWar(){
 
             {/* Portrait / Active unit */}
             <div className="tw-hud-portrait">
-              <div className="tw-portrait-label">{sn.turn.team==="red"?"Player":"CPU"}</div>
+              <div className="tw-portrait-label">{TEAM[sn.turn.team].cpu?"IA":"Usuario"}</div>
               {/* SVG stickman portrait */}
               <div className="tw-portrait-face" style={{background:sn.turn.team==="red"?"#2a0808":"#08082a",border:`2px solid ${TEAM[sn.turn.team].color}`}}>
                 <svg width="44" height="52" viewBox="0 0 44 52">
@@ -2302,7 +2633,7 @@ export default function TerritoryWar(){
             {/* Direction + Angle + Throw controls */}
             <div className="tw-hud-controls">
               {/* Direction */}
-              <div className="tw-ctrl-group">
+              <div className="tw-ctrl-group tw-ctrl-group-move">
                 <div className="tw-ctrl-label">Direction</div>
                 <div className="tw-ctrl-row">
                   <button className="tw-arr-btn" {...holdProps("left")}>◀</button>
@@ -2310,12 +2641,12 @@ export default function TerritoryWar(){
                 </div>
               </div>
               {/* Jump */}
-              <div className="tw-ctrl-group">
+              <div className="tw-ctrl-group tw-ctrl-group-jump">
                 <div className="tw-ctrl-label">Jump</div>
                 <button className="tw-arr-btn wide" {...tapProps("jump")}>▲ Jump</button>
               </div>
               {/* Angle */}
-              <div className="tw-ctrl-group">
+              <div className="tw-ctrl-group tw-ctrl-group-angle">
                 <div className="tw-ctrl-label">Angle</div>
                 <div className="tw-ctrl-row">
                   <button className="tw-arr-btn" {...holdProps("aimUp")}>▲</button>
@@ -2324,7 +2655,7 @@ export default function TerritoryWar(){
                 <div style={{fontSize:13,color:"#aaa",textAlign:"center"}}>{Math.round(sn.turn.aimDeg)}°</div>
               </div>
               {/* Throw + Cancel */}
-              <div className="tw-ctrl-group">
+              <div className="tw-ctrl-group tw-ctrl-group-throw">
                 <div className="tw-ctrl-label">Throw (hold)</div>
                 <div className="tw-ctrl-row">
                   <button className="tw-arr-btn wide red-act" {...holdProps("fire")}>
@@ -2373,8 +2704,8 @@ export default function TerritoryWar(){
             {/* Options / stats */}
             <div className="tw-hud-options">
               <div className="tw-opts-label">Options</div>
-              <div className="tw-opts-row"><span>Kings alive</span><strong style={{color:"#cc4444"}}>{sn.teams.red.alive}/{sn.teams.red.total}</strong></div>
-              <div className="tw-opts-row"><span>CPU alive</span><strong style={{color:"#4466ee"}}>{sn.teams.blue.alive}/{sn.teams.blue.total}</strong></div>
+              <div className="tw-opts-row"><span>{TEAM.red.label}</span><strong style={{color:"#cc4444"}}>{sn.teams.red.alive}/{sn.teams.red.total}</strong></div>
+              <div className="tw-opts-row"><span>{TEAM.blue.label}</span><strong style={{color:"#4466ee"}}>{sn.teams.blue.alive}/{sn.teams.blue.total}</strong></div>
               <div className="tw-opts-row"><span>Map</span><strong>{sn.mapId}</strong></div>
               <div className="tw-opts-row"><span>Weapon</span><strong>{sn.turn.usingCannon?"Cannon":"Grenade"}</strong></div>
               <div style={{marginTop:6,display:"flex",flexDirection:"column",gap:3}}>
@@ -2388,7 +2719,7 @@ export default function TerritoryWar(){
         {sn.mode!=="menu"&&(
           <div style={{width:"100%",maxWidth:980,display:"flex",gap:8,flexWrap:"wrap"}}>
             <div className="tw-info-panel" style={{fontSize:13,color:"#667788",lineHeight:1.8}}>
-              <span className="tw-info-title">Keyboard Controls</span>
+              <span className="tw-info-title">Control Guide</span>
               <span style={{color:"#eee"}}>A/D</span> Move &nbsp;·&nbsp; <span style={{color:"#eee"}}>W</span> Jump &nbsp;·&nbsp;
               <span style={{color:"#eee"}}>Q/E</span> Aim &nbsp;·&nbsp; <span style={{color:"#eee"}}>Space</span> Charge &amp; Throw &nbsp;·&nbsp;
               <span style={{color:"#eee"}}>C</span> Cannon &nbsp;·&nbsp; <span style={{color:"#eee"}}>X</span> Cancel &nbsp;·&nbsp; <span style={{color:"#eee"}}>P</span> Pause &nbsp;·&nbsp;
@@ -2396,7 +2727,7 @@ export default function TerritoryWar(){
             </div>
             {/* Unit roster */}
             <div className="tw-info-panel">
-              <div className="tw-info-title">Kings</div>
+              <div className="tw-info-title">{TEAM.red.label}</div>
               {sn.units.filter(u=>u.team==="red").map(u=>(
                 <div key={u.id} className="tw-info-stat" style={{opacity:u.alive?1:0.3}}>
                   <span>{u.name}</span>
@@ -2407,7 +2738,7 @@ export default function TerritoryWar(){
               ))}
             </div>
             <div className="tw-info-panel">
-              <div className="tw-info-title">CPU</div>
+              <div className="tw-info-title">{TEAM.blue.label}</div>
               {sn.units.filter(u=>u.team==="blue").map(u=>(
                 <div key={u.id} className="tw-info-stat" style={{opacity:u.alive?1:0.3}}>
                   <span>{u.name}</span>
