@@ -1,0 +1,14 @@
+<svg width="80" height="28" viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="destroyerHull" x1="14" y1="7" x2="64" y2="22" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D4ED8"/>
+      <stop offset="1" stop-color="#1E3A8A"/>
+    </linearGradient>
+  </defs>
+  <path d="M12 18L18 9H58L68 13L62 21H20L12 18Z" fill="url(#destroyerHull)" stroke="#93C5FD" stroke-width="1.5"/>
+  <rect x="26" y="10" width="16" height="4.2" rx="2.1" fill="#172554"/>
+  <rect x="40" y="8" width="8" height="3" rx="1.5" fill="#60A5FA"/>
+  <rect x="44" y="6" width="10" height="1.6" rx="0.8" fill="#DBEAFE"/>
+  <circle cx="27" cy="20" r="1.25" fill="#FACC15"/>
+  <circle cx="35" cy="20" r="1.25" fill="#E2E8F0"/>
+</svg>

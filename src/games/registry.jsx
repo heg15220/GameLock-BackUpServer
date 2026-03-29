@@ -34,6 +34,7 @@ import ChessGame from "./ChessGame";
 import CheckersGame from "./CheckersGame";
 import DominoStrategyGame from "./DominoStrategyGame";
 import StrategySudokuGame from "./StrategySudokuGame";
+import StrategyBattleshipGame from "./StrategyBattleshipGame";
 import PokerTexasHoldemGame from "./PokerTexasHoldemGame";
 import ParchisStrategyGame from "./ParchisStrategyGame";
 import StrategyBarajaModesGame from "./StrategyBarajaModesGame";
@@ -122,6 +123,7 @@ export const GAME_REGISTRY = {
   "strategy-chess-grandmaster":  ChessGame,
   "strategy-damas-clasicas":     CheckersGame,
   "strategy-sudoku-tecnicas":    StrategySudokuGame,
+  "strategy-hundir-flota-pro":   StrategyBattleshipGame,
   "strategy-poker-holdem-no-bet": PokerTexasHoldemGame,
   "strategy-parchis-ludoteka":   ParchisStrategyGame,
   "strategy-baraja-ia-arena":    StrategyBarajaModesGame,
@@ -199,6 +201,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "strategy-chess-grandmaster":  "Clic para mover, U deshace, D reclama tablas, F pantalla completa.",
     "strategy-damas-clasicas":     "Damas 8x8: clic para mover en diagonal, capturas encadenadas, U deshace, X retiro, R reinicia y F pantalla completa.",
     "strategy-sudoku-tecnicas":    "Sudoku 9x9: flechas para mover, 1-9 o QWE/ASD/UIO para escribir, Backspace borra, P aplica pista y R partida aleatoria.",
+    "strategy-hundir-flota-pro":   "Hundir la Flota Classic Card: 12 coordenadas (5 naves + 7 fallos) y mano de 5 cartas de batalla. Clic en carta y luego objetivo; en poderes elige entre los dos efectos cuando aplique.",
     "strategy-poker-holdem-no-bet": "Poker clasico 5 cartas con apuestas: ciegas, bote y acciones de pasar/igualar/subir/all-in/retirarse. Enter resolver accion principal, U subir, A all-in, F retirarse, 1-5 seleccionar descarte, D descartar, S servirse, N siguiente mano, R reiniciar.",
     "strategy-parchis-ludoteka":  "Antes de iniciar puedes elegir color de fichas. S/Enter inicia partida, R/Enter/Space tira dado, 1..9 elige jugada, Enter primera jugada, X continua sin jugada y N nueva partida.",
     "strategy-baraja-ia-arena":   "Modo baraja con Brisca/Tute, Mus y Escoba: cambia modalidad arriba. Mus permite 2/4/6 jugadores IA+tu. Escoba usa baraja espanola si el navegador es* y baraja inglesa adaptada en otros idiomas. Marca cartas de mesa y juega para sumar 15. Brisca usa click/1-3; Mus usa M/X + 1-4; Escoba usa click + 1-3. N siguiente mano, R reinicio.",
@@ -269,6 +272,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "strategy-chess-grandmaster":  "Click to move, U undo, D claim draw, F fullscreen.",
     "strategy-damas-clasicas":     "8x8 checkers: click to move diagonally, chain captures, U undo, X resign, R restart and F fullscreen.",
     "strategy-sudoku-tecnicas":    "Sudoku 9x9: arrows move, 1-9 or QWE/ASD/UIO types values, Backspace clears, P applies hint, and R starts a random match.",
+    "strategy-hundir-flota-pro":   "Battleship Classic Card: 12 coordinates (5 ships + 7 misses) and a 5-card battle hand. Click a hand card then a target; choose between dual effects on power cards when available.",
     "strategy-poker-holdem-no-bet": "Classic 5-card draw with betting: blinds, real pot and check/call/raise/all-in/fold decisions. Enter resolves main action, U raise, A all-in, F fold, 1-5 select discard, D discard, S stand pat, N next hand, R restart.",
     "strategy-parchis-ludoteka":  "Pick your token color before starting. S/Enter starts the match, R/Enter/Space rolls the die, 1..9 picks a move, Enter first move, X continues without move, and N starts a new match.",
     "strategy-baraja-ia-arena":   "Card-table mode with Brisca/Tute, Mus, and Escoba: switch mode at the top. Mus supports 2/4/6 players. Escoba uses the Spanish deck when browser locale starts with es, and adapted English deck otherwise. Mark table cards and play to sum 15. Brisca uses click/1-3; Mus uses M/X + 1-4; Escoba uses click + 1-3. N next hand, R restart.",
@@ -313,5 +317,3 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "racing-sunset-slipstream":    "Left/right steers, up accelerates, down cools the pace, Space activates focus, and R restarts.",
   },
 };
-
-

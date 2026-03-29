@@ -1,0 +1,15 @@
+<svg width="80" height="28" viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="battleHull" x1="12" y1="7" x2="66" y2="23" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#475569"/>
+      <stop offset="1" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <path d="M10 18L16 9H64L70 14L63 22H18L10 18Z" fill="url(#battleHull)" stroke="#94A3B8" stroke-width="1.5"/>
+  <rect x="24" y="10" width="22" height="4.5" rx="2.25" fill="#0F172A"/>
+  <rect x="42" y="8" width="10" height="3" rx="1.5" fill="#64748B"/>
+  <rect x="47" y="5.8" width="13" height="1.8" rx="0.9" fill="#CBD5E1"/>
+  <circle cx="26" cy="20" r="1.35" fill="#F97316"/>
+  <circle cx="35" cy="20" r="1.35" fill="#38BDF8"/>
+  <circle cx="44" cy="20" r="1.35" fill="#F43F5E"/>
+</svg>

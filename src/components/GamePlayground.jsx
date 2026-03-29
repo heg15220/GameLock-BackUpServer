@@ -12,6 +12,7 @@ import ChessGame from "../games/ChessGame";
 import CheckersGame from "../games/CheckersGame";
 import DominoStrategyGame from "../games/DominoStrategyGame";
 import StrategySudokuGame from "../games/StrategySudokuGame";
+import StrategyBattleshipGame from "../games/StrategyBattleshipGame";
 import PokerTexasHoldemGame from "../games/PokerTexasHoldemGame";
 import ParchisStrategyGame from "../games/ParchisStrategyGame";
 import StrategyMansionTripleEnigmaGame from "../games/StrategyMansionTripleEnigmaGame";
@@ -76,6 +77,7 @@ const GAME_COMPONENTS = {
   "strategy-chess-grandmaster": ChessGame,
   "strategy-damas-clasicas": CheckersGame,
   "strategy-sudoku-tecnicas": StrategySudokuGame,
+  "strategy-hundir-flota-pro": StrategyBattleshipGame,
   "strategy-poker-holdem-no-bet": PokerTexasHoldemGame,
   "strategy-parchis-ludoteka": ParchisStrategyGame,
   "strategy-mansion-triple-enigma": StrategyMansionTripleEnigmaGame,
@@ -129,6 +131,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "strategy-chess-grandmaster": "Clic para mover, promocion al coronar, U deshace, D reclama tablas y F alterna pantalla completa.",
     "strategy-damas-clasicas": "Damas 8x8: clic para mover en diagonal, capturas encadenadas, U deshace, X retiro, R reinicia y F alterna pantalla completa.",
     "strategy-sudoku-tecnicas": "Sudoku 9x9: flechas para mover, 1-9 o QWE/ASD/UIO para escribir, Backspace borra, P aplica pista y R partida aleatoria.",
+    "strategy-hundir-flota-pro": "Hundir la Flota Classic Card: juega una carta de batalla por turno y recarga mano a 5. Clic en carta de mano y despues en objetivo; algunas cartas de poder te dejan elegir efecto.",
     "strategy-poker-holdem-no-bet": "Poker clasico 5 cartas con apuestas reales: ciegas, bote y acciones call/raise/fold/all-in. Enter accion principal, U subir, A all-in, F retirarse, 1-5 seleccionar descarte, D descartar, S servirse, N siguiente mano y R reiniciar.",
     "strategy-parchis-ludoteka": "Antes de iniciar puedes elegir color de fichas. S/Enter inicia partida, R/Enter/Space tira dado, 1..9 elige jugada, Enter primera jugada, X continua sin jugada y N nueva partida.",
     "strategy-mansion-triple-enigma": "Deduccion tipo misterio con tutorial guiado: mueve en tablero, elige sospechoso y arma, y lanza sospecha. A abre/cierra acusacion final, 1/2/3 cambian pestana, Enter confirma y N reinicia caso.",
@@ -180,6 +183,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "strategy-chess-grandmaster": "Click pieces to move, choose promotion on last rank, U undo, D claim draw, and F toggles fullscreen.",
     "strategy-damas-clasicas": "8x8 checkers: click to move diagonally, chain captures, U undo, X resign, R restart, and F toggle fullscreen.",
     "strategy-sudoku-tecnicas": "Sudoku 9x9: arrows move, 1-9 or QWE/ASD/UIO types values, Backspace clears, P applies hint, and R starts a random match.",
+    "strategy-hundir-flota-pro": "Battleship Classic Card: play one battle card per turn and refill to 5. Click a hand card, then target card; some power cards let you choose between two effects.",
     "strategy-poker-holdem-no-bet": "Classic 5-card draw with real betting: blinds, pot play, and check/call/raise/fold/all-in decisions. Enter main action, U raise, A all-in, F fold, 1-5 select discard, D discard, S stand pat, N next hand, and R restart.",
     "strategy-parchis-ludoteka": "Pick your token color before starting. S/Enter starts the match, R/Enter/Space rolls the die, 1..9 picks a move, Enter takes the first move, X continues without move, and N starts a new match.",
     "strategy-mansion-triple-enigma": "Mystery deduction with guided tutorial: move on the board, pick suspect and weapon, then submit a suggestion. A toggles accusation, 1/2/3 switch tabs, Enter confirms, and N restarts the case.",

@@ -58,6 +58,7 @@ import knowledgeRefranesImage from "../assets/games/knowledge-refranes.svg";
 import knowledgeWikipediaGachaImage from "../assets/games/knowledge-wikipedia-gacha.svg";
 import chessGrandmasterArenaImage from "../assets/games/chess-grandmaster-arena.svg";
 import strategySudokuTecnicasImage from "../assets/games/strategy-sudoku-tecnicas.svg";
+import strategyHundirFlotaProImage from "../assets/games/strategy-hundir-flota-pro.svg";
 import strategyDamasProfesionalImage from "../assets/games/strategy-damas-professional.svg";
 import strategyPokerNoBetImage from "../assets/games/strategy-poker-no-bet.svg";
 import strategyParchisLudotekaImage from "../assets/games/strategy-parchis-ludoteka.svg";
@@ -2318,6 +2319,57 @@ export const games = [
     viability_en: "High: discrete rules, compact state and strong seed-based replayability.",
     visualStyle_en: "Dark tactical panel with high-readability 9x9 board and strategy focus.",
     techFocus_en: "Uniqueness-aware generation, constraint validation and technique-based hint engine.",
+  },
+
+  {
+    id: "strategy-hundir-flota-pro",
+    image: strategyHundirFlotaProImage,
+    sessionTime: "15-30 min",
+
+    title: "Hundir la Flota Pro",
+    category: "Estrategia",
+    tagline: "Edicion Classic Card 4x3 con coordenadas ocultas, clavijas y poderes tacticos.",
+    description:
+      "Adaptacion profesional de Hundir la Flota Classic Card basada en el reglamento del PDF oficial. Cada jugador organiza 12 cartas de coordenadas (5 naves y 7 fallos) en una cuadrilla 4x3 boca abajo y gestiona una mano de 5 cartas de batalla para revelar, danar y hundir la flota rival antes de perder la propia.",
+    objective_es:
+      "Hundir las 5 naves enemigas usando cartas de clavija y poderes antes de que el rival hunda las tuyas.",
+    howToPlay_es:
+      "En cada turno juega 1 carta de batalla y luego recarga mano hasta 5. Clavija Blanca revela una coordenada enemiga; Clavija Roja dana naves reveladas o puede explorar una oculta. Las cartas de poder aplican escudo, descartar blancas/jugar dos o reparar/robar tres segun elijas.",
+    highlights: [
+      "Preparacion fiel al PDF: 12 cartas de coordenadas (5 naves + 7 fallos) en cuadrilla 4x3.",
+      "Mazo de batalla de 26 cartas con clavijas blancas/rojas y cartas de poder.",
+      "Resolucion de dano por clavijas acumuladas, escudos absorbentes y naves hundidas.",
+      "Cartas de poder con decisiones tacticas: descartar para ciclar mano, jugar dos, reparar o robar tres.",
+      "Modo versus IA o local 2 jugadores con handoff oculto entre turnos.",
+      "Bridge QA con render_game_to_text y avance temporal determinista para pruebas Playwright."
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo vs IA / 2 jugadores local",
+    viability: "Alta: reglas discretas por turnos, estado serializable y UX clara para tablero dual.",
+    visualStyle: "Mesa de combate naval por cartas con cuadrillas compactas, telemetria clara y feedback animado.",
+    techFocus: "Motor de cartas ocultas/reveladas, acumulacion de clavijas por nave y resolucion de poderes con elecciones.",
+
+    category_en: "Strategy",
+    tagline_en: "Classic Card 4x3 edition with hidden coordinates, pegs, and tactical power cards.",
+    description_en:
+      "Professional Battleship Classic Card implementation aligned with the official PDF rulebook. Each player arranges 12 coordinate cards (5 ships and 7 misses) in a hidden 4x3 grid and manages a 5-card battle hand to reveal, damage, and sink the enemy fleet.",
+    objective_en:
+      "Sink all 5 enemy ships with peg and power cards before your own fleet is destroyed.",
+    howToPlay_en:
+      "Each turn, play 1 battle card and refill your hand to 5. White Peg reveals an enemy coordinate card; Red Peg damages revealed ships or can probe hidden cards. Power cards let you shield, discard whites/play two, or repair/draw three based on your choice.",
+    highlights_en: [
+      "PDF-faithful setup: 12 coordinate cards (5 ships + 7 misses) in a hidden 4x3 grid.",
+      "26-card battle deck with white/red pegs and power effects.",
+      "Peg-based damage accumulation, shield absorption, and proper ship sinking flow.",
+      "Dual-effect power decisions: discard to cycle, play two, repair, or draw three.",
+      "AI mode plus local 2-player hidden handoff flow.",
+      "QA bridge with render_game_to_text and deterministic time stepping for Playwright."
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo vs AI / Local 2-player",
+    viability_en: "High: turn-based discrete rules, serializable state, and clear dual-board UX.",
+    visualStyle_en: "Card-table naval duel with compact grids, clear telemetry, and animated impact feedback.",
+    techFocus_en: "Hidden/revealed card-state engine, peg damage accumulation, and choice-driven power resolution.",
   },
 
   {

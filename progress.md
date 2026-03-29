@@ -3516,3 +3516,52 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
   - `node --check src/games/knowledge/crosswordGenerator.js`
   - `node --check src/games/knowledge/crosswordGenerator.test.js`
   - `npx esbuild src/games/knowledge/CrosswordKnowledgeGame.jsx ...`
+
+## 2026-03-29 - Hundir la Flota Classic Card (limpieza + alineacion con PDF)
+- Analizado el PDF `E79711750_INST_CLASSIC_CARD_Battleship_FAR.pdf` por extraccion de streams comprimidos (texto interno de reglas en espanol) para reconstruir reglas jugables del modo Classic Card.
+- Reescrito y limpiado `src/games/StrategyBattleshipGame.jsx` para eliminar residuos del enfoque 10x10 y ajustar reglas al formato de cartas:
+  - cuadrilla 4x3 de coordenadas (5 naves + 7 fallos),
+  - mazo de 26 cartas de batalla,
+  - objetivo por hundimiento de 5 naves,
+  - rojo solo valido sobre naves no hundidas o cartas ocultas (ya no sobre fallos revelados),
+  - flujo de poderes con eleccion explicita para el jugador:
+    - `Descarta o juega dos`,
+    - `Repara o roba tres`.
+- Corregido bug de regla: al usar opcion `Reparar`, ahora se concede la jugada adicional del mismo turno (segun reglamento).
+- Corregido bug de privacidad local 2P: en fase `handoff` ya no se muestra el tablero/mano del siguiente jugador.
+- Mejorado estado de fin de partida: mensaje de victoria contextual al hundir la flota rival.
+- IA actualizada para nuevos poderes y decisiones (descartar blancas vs jugar dos; reparar vs robar tres).
+- Limpieza visual/CSS en `src/styles.css`:
+  - eliminado bloque obsoleto del viejo layout 10x10/colocacion,
+  - nuevos estilos para seleccion de descartes y botones de eleccion de poder.
+- Limpieza de metadatos y hints del catalogo/playground:
+  - `src/data/games.js`
+  - `src/components/GamePlayground.jsx`
+  - `src/games/registry.jsx`
+  - ya no hay referencias al flujo 10x10 clasico de colocacion con teclas O/R/Enter.
+- Validacion tecnica local:
+  - `StrategyBattleshipGame.jsx` compila con esbuild (check sintactico OK).
+  - checks de `GamePlayground`/`registry` con esbuild requieren loaders extras de archivos no relacionados (html/css asset raw); no se detectaron errores en las lineas modificadas.
+- Pendiente recomendado: corrida completa `npm run build` y pasada Playwright del juego de strategy-hundir-flota-pro cuando se permitan ejecuciones fuera de limitacion EPERM del sandbox.
+
+## 2026-03-29 - Hundir la Flota: reglas PDF, assets y UX de accion
+- Reglas del motor alineadas con Classic Card Battleship E7971: Submarino (solo dano blanco), Acorazado (+1 rojo), Destructor (blancas hacen dano), Portaaviones (recarga a 7), Patrullero (repara 1 al inicio de turno).
+- Corregido poder `Discard or play two` para descartar una o mas blancas (sin limite de 2).
+- Integrados nuevos assets SVG de los 5 barcos (`carrier`, `battleship`, `destroyer`, `submarine`, `patrol`) y render en tablero + panel de flotas.
+- Mejoras de UX: guia de turno, carta activa visible, objetivos validos resaltados y panel de estado de flotas/poderes.
+- Animaciones de resultado aplicadas por usuario/IA (`reveal`, `hit`, `sunk`, `shield`, `repair`, `block`) con clases FX en casillas.
+- IA ralentizada: delay base aumentado y ejecucion a una accion por ciclo, con mensajes explicitos de intencion (`aiAction*`).
+- `render_game_to_text` ampliado con `powerState`, `reloadTarget` y `lastAction` para trazabilidad de pruebas.
+- Pendiente: validacion `npm run build` / Playwright bloqueada por `spawn EPERM` en sandbox; se intento escalado pero fue abortado por el usuario.
+- 2026-03-29 (seguimiento): añadida ventana lateral por ronda en Hundir la Flota con resumen Usuario/IA, registrada en `roundHistory` y sincronizada con acciones reales del turno (incluye skips).
+## 2026-03-29 - Hundir la Flota: tutorial largo superior (sin panel de rondas)
+- Eliminada la ventana lateral por rondas y toda su lógica asociada en `src/games/StrategyBattleshipGame.jsx`:
+  - borrado `roundHistory` del estado,
+  - eliminados helpers de construcción de historial de ronda,
+  - retiradas referencias en `finishAction`, skip-turn automático y payload QA.
+- Añadido bloque de tutorial extenso encima del componente jugable con copy largo ES/EN:
+  - `tutorialTitle`, `tutorialParagraphs`,
+  - playbook de decisiones (`tutorialGoodTitle`/`tutorialBadTitle` + listas buenas/malas jugadas).
+- Actualizado JSX para renderizar tutorial y mantener el resto del flujo de juego intacto.
+- `src/styles.css` limpiado de estilos obsoletos del sidebar y añadido estilo dedicado del tutorial (`.battleship-long-tutorial`, `.battleship-tutorial-playbook`) con responsive.
+- Verificación técnica: `npx esbuild src/games/StrategyBattleshipGame.jsx --bundle ... --loader:.svg=dataurl` OK.

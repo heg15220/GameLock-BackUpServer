@@ -1,0 +1,17 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="radarBg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(128 128) rotate(90) scale(128)">
+      <stop stop-color="#0EA5E9" stop-opacity="0.36"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0.94"/>
+    </radialGradient>
+  </defs>
+  <circle cx="128" cy="128" r="124" fill="url(#radarBg)" stroke="#7DD3FC" stroke-opacity="0.45" stroke-width="4"/>
+  <circle cx="128" cy="128" r="92" stroke="#7DD3FC" stroke-opacity="0.44" stroke-width="2"/>
+  <circle cx="128" cy="128" r="60" stroke="#7DD3FC" stroke-opacity="0.42" stroke-width="2"/>
+  <circle cx="128" cy="128" r="28" stroke="#7DD3FC" stroke-opacity="0.4" stroke-width="2"/>
+  <line x1="128" y1="14" x2="128" y2="242" stroke="#7DD3FC" stroke-opacity="0.42" stroke-width="2"/>
+  <line x1="14" y1="128" x2="242" y2="128" stroke="#7DD3FC" stroke-opacity="0.42" stroke-width="2"/>
+  <path d="M128 128L204 72" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="182" cy="88" r="7" fill="#EF4444"/>
+  <circle cx="182" cy="88" r="15" stroke="#EF4444" stroke-opacity="0.48" stroke-width="3"/>
+</svg>

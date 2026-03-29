@@ -1,0 +1,10 @@
+[
+  {
+    "type": "console.error",
+    "text": "ReferenceError: resolvePlayerLabel is not defined\n    at uB (http://127.0.0.1:4173/assets/index-8209975b.js:6425:64865)\n    at Lg (http://127.0.0.1:4173/assets/index-8209975b.js:30:17017)\n    at mO (http://127.0.0.1:4173/assets/index-8209975b.js:32:44055)\n    at dO (http://127.0.0.1:4173/assets/index-8209975b.js:32:39787)\n    at r8 (http://127.0.0.1:4173/assets/index-8209975b.js:32:39715)\n    at Uu (http://127.0.0.1:4173/assets/index-8209975b.js:32:39568)\n    at yp (http://127.0.0.1:4173/assets/index-8209975b.js:32:35933)\n    at rO (http://127.0.0.1:4173/assets/index-8209975b.js:32:34882)\n    at g (http://127.0.0.1:4173/assets/index-8209975b.js:17:1535)\n    at MessagePort.S (http://127.0.0.1:4173/assets/index-8209975b.js:17:1894)"
+  },
+  {
+    "type": "pageerror",
+    "text": "ReferenceError: resolvePlayerLabel is not defined"
+  }
+]

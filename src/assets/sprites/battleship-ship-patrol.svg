@@ -1,0 +1,13 @@
+<svg width="80" height="28" viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="patrolHull" x1="18" y1="9" x2="58" y2="21" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#4C1D95"/>
+    </linearGradient>
+  </defs>
+  <path d="M16 18L22 10H52L60 14L54 21H24L16 18Z" fill="url(#patrolHull)" stroke="#C4B5FD" stroke-width="1.5"/>
+  <rect x="31" y="11" width="11" height="3.5" rx="1.75" fill="#312E81"/>
+  <rect x="40" y="9" width="7" height="2.2" rx="1.1" fill="#DDD6FE"/>
+  <circle cx="28" cy="19" r="1.15" fill="#FDE68A"/>
+  <circle cx="36" cy="19" r="1.15" fill="#A78BFA"/>
+</svg>

@@ -1,0 +1,66 @@
+<svg width="960" height="640" viewBox="0 0 960 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="960" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B2A54"/>
+      <stop offset="1" stop-color="#0E4E87"/>
+    </linearGradient>
+    <linearGradient id="card" x1="220" y1="120" x2="740" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C1E3E" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#163C6B" stop-opacity="0.96"/>
+    </linearGradient>
+    <linearGradient id="ship" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#8DB4FF"/>
+      <stop offset="1" stop-color="#5B89D6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="960" height="640" fill="url(#bg)"/>
+  <circle cx="760" cy="150" r="170" fill="#1B6AC6" fill-opacity="0.22"/>
+  <circle cx="180" cy="560" r="180" fill="#103F83" fill-opacity="0.25"/>
+
+  <rect x="200" y="92" width="560" height="456" rx="26" fill="url(#card)" stroke="#75A8F7" stroke-opacity="0.35" stroke-width="3"/>
+
+  <g stroke="#7CB6FF" stroke-opacity="0.28" stroke-width="1">
+    <line x1="250" y1="170" x2="710" y2="170"/>
+    <line x1="250" y1="214" x2="710" y2="214"/>
+    <line x1="250" y1="258" x2="710" y2="258"/>
+    <line x1="250" y1="302" x2="710" y2="302"/>
+    <line x1="250" y1="346" x2="710" y2="346"/>
+    <line x1="250" y1="390" x2="710" y2="390"/>
+    <line x1="250" y1="434" x2="710" y2="434"/>
+    <line x1="250" y1="478" x2="710" y2="478"/>
+    <line x1="250" y1="522" x2="710" y2="522"/>
+
+    <line x1="250" y1="170" x2="250" y2="522"/>
+    <line x1="296" y1="170" x2="296" y2="522"/>
+    <line x1="342" y1="170" x2="342" y2="522"/>
+    <line x1="388" y1="170" x2="388" y2="522"/>
+    <line x1="434" y1="170" x2="434" y2="522"/>
+    <line x1="480" y1="170" x2="480" y2="522"/>
+    <line x1="526" y1="170" x2="526" y2="522"/>
+    <line x1="572" y1="170" x2="572" y2="522"/>
+    <line x1="618" y1="170" x2="618" y2="522"/>
+    <line x1="664" y1="170" x2="664" y2="522"/>
+    <line x1="710" y1="170" x2="710" y2="522"/>
+  </g>
+
+  <g>
+    <rect x="296" y="258" width="184" height="36" rx="10" fill="url(#ship)" opacity="0.95"/>
+    <rect x="480" y="302" width="138" height="36" rx="10" fill="url(#ship)" opacity="0.88"/>
+    <rect x="342" y="390" width="92" height="36" rx="10" fill="url(#ship)" opacity="0.88"/>
+  </g>
+
+  <g>
+    <circle cx="572" cy="214" r="14" fill="#EF4444"/>
+    <circle cx="572" cy="214" r="25" stroke="#EF4444" stroke-opacity="0.45" stroke-width="4"/>
+
+    <circle cx="664" cy="302" r="14" fill="#F8FAFC"/>
+    <circle cx="664" cy="302" r="25" stroke="#F8FAFC" stroke-opacity="0.44" stroke-width="4"/>
+
+    <circle cx="388" cy="478" r="14" fill="#EF4444"/>
+    <circle cx="388" cy="478" r="25" stroke="#EF4444" stroke-opacity="0.45" stroke-width="4"/>
+  </g>
+
+  <text x="480" y="134" fill="#EAF2FF" text-anchor="middle" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="42" font-weight="700" letter-spacing="1.5">HUNDIR LA FLOTA</text>
+  <text x="480" y="574" fill="#C8DBFF" text-anchor="middle" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="28" font-weight="600" letter-spacing="2">STRATEGY PROTOCOL</text>
+</svg>

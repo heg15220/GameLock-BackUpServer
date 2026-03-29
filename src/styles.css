@@ -20748,3 +20748,762 @@ button.brisca-card.playable:disabled {
     border-radius: 10px;
   }
 }
+
+.battleship-game {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.battleship-game::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.16), transparent 48%),
+    radial-gradient(circle at 82% 68%, rgba(30, 64, 175, 0.2), transparent 54%);
+  pointer-events: none;
+  animation: battleshipBackdropDrift 12s ease-in-out infinite;
+}
+
+.battleship-game > * {
+  position: relative;
+  z-index: 1;
+}
+
+.battleship-head-actions,
+.battleship-mode-selector,
+.battleship-phase-pills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.battleship-toolbar {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.58rem 0.68rem;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 12px;
+  background: linear-gradient(140deg, rgba(15, 23, 42, 0.72), rgba(30, 58, 138, 0.54));
+}
+
+.battleship-mode-selector > span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #bfdbfe;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.battleship-mode-selector button {
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  background: rgba(15, 23, 42, 0.76);
+  color: #dbeafe;
+  border-radius: 999px;
+  padding: 0.34rem 0.72rem;
+  font-size: 0.75rem;
+}
+
+.battleship-mode-selector button.active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(14, 116, 144, 0.9));
+  color: #f8fafc;
+}
+
+.battleship-phase-pills span {
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  border-radius: 999px;
+  padding: 0.22rem 0.64rem;
+  font-size: 0.7rem;
+  color: #e0f2fe;
+  background: rgba(8, 47, 73, 0.36);
+}
+
+.battleship-turn-guide {
+  border: 1px solid rgba(125, 211, 252, 0.34);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(8, 47, 73, 0.5), rgba(15, 23, 42, 0.66));
+  padding: 0.56rem 0.68rem;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.battleship-turn-guide h5,
+.battleship-turn-guide p {
+  margin: 0;
+  color: #e0f2fe;
+}
+
+.battleship-turn-guide h5 {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.battleship-turn-guide p {
+  font-size: 0.7rem;
+  line-height: 1.32;
+}
+
+.battleship-selected-card strong {
+  color: #fef08a;
+}
+
+.battleship-target-hint {
+  color: #bae6fd;
+  font-size: 0.66rem;
+}
+
+.battleship-rules-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 0.6rem;
+}
+
+.battleship-rules-panel article {
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.62);
+  padding: 0.56rem 0.64rem;
+  color: #dbeafe;
+  animation: battleshipPanelFade 0.38s ease;
+}
+
+.battleship-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.battleship-panel-head img {
+  width: 1.45rem;
+  height: 1.45rem;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(14, 116, 144, 0.45));
+}
+
+.battleship-rules-panel h5 {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f0f9ff;
+}
+
+.battleship-rules-panel p {
+  margin: 0.42rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.battleship-rules-panel ul {
+  margin: 0.42rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.24rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.battleship-long-tutorial {
+  border: 1px solid rgba(148, 163, 184, 0.38);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(8, 47, 73, 0.48), rgba(2, 6, 23, 0.58));
+  padding: 0.68rem;
+  display: grid;
+  gap: 0.54rem;
+}
+
+.battleship-long-tutorial h5 {
+  margin: 0;
+  color: #f0f9ff;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.battleship-long-tutorial-body {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.battleship-long-tutorial-body p {
+  margin: 0;
+  color: #dbeafe;
+  font-size: 0.68rem;
+  line-height: 1.42;
+}
+
+.battleship-tutorial-playbook {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.54rem;
+}
+
+.battleship-tutorial-playbook article {
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.52);
+  padding: 0.44rem 0.52rem;
+  display: grid;
+  gap: 0.34rem;
+}
+
+.battleship-tutorial-playbook h6 {
+  margin: 0;
+  color: #e0f2fe;
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.battleship-tutorial-playbook ul {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.26rem;
+}
+
+.battleship-tutorial-playbook li {
+  color: #bfdbfe;
+  font-size: 0.63rem;
+  line-height: 1.34;
+}
+
+.battleship-battle-shell {
+  display: grid;
+  gap: 0.62rem;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(8, 47, 73, 0.4), rgba(2, 6, 23, 0.46));
+  padding: 0.62rem;
+}
+
+.battleship-battle-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.62rem;
+}
+
+.battleship-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+
+.battleship-card-tile {
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 10px;
+  min-height: 96px;
+  padding: 0.34rem;
+  display: grid;
+  align-content: space-between;
+  gap: 0.26rem;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.85), rgba(30, 58, 138, 0.58));
+  color: #dbeafe;
+  font-size: 0.66rem;
+}
+
+.battleship-card-tile .coord-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #bae6fd;
+}
+
+.battleship-card-ship {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.battleship-card-ship img {
+  width: 48px;
+  height: 18px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(2, 6, 23, 0.45));
+}
+
+.battleship-card-meter {
+  width: 100%;
+  height: 0.36rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.62);
+  overflow: hidden;
+}
+
+.battleship-card-meter > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #facc15 65%, #ef4444);
+}
+
+.battleship-card-tile small {
+  font-size: 0.58rem;
+  color: #bfdbfe;
+}
+
+.battleship-card-tile.ship {
+  border-color: rgba(147, 197, 253, 0.62);
+}
+
+.battleship-card-tile.miss {
+  border-color: rgba(148, 163, 184, 0.42);
+}
+
+.battleship-card-tile.hidden {
+  background: linear-gradient(145deg, rgba(2, 6, 23, 0.92), rgba(15, 23, 42, 0.9));
+}
+
+.battleship-card-tile.revealed {
+  background: linear-gradient(145deg, rgba(8, 47, 73, 0.68), rgba(30, 64, 175, 0.5));
+}
+
+.battleship-card-tile.sunk {
+  border-color: rgba(248, 113, 113, 0.56);
+  background: linear-gradient(145deg, rgba(127, 29, 29, 0.78), rgba(185, 28, 28, 0.76));
+}
+
+.battleship-card-tile.selectable {
+  box-shadow: inset 0 0 0 2px rgba(251, 191, 36, 0.82);
+  animation: battleshipTargetPulse 0.9s ease-in-out infinite;
+}
+
+.battleship-card-tile.fx-reveal {
+  animation: battleshipRevealFx 520ms ease;
+}
+
+.battleship-card-tile.fx-hit {
+  animation: battleshipHitFx 620ms ease;
+}
+
+.battleship-card-tile.fx-sunk {
+  animation: battleshipSunkFx 760ms ease;
+}
+
+.battleship-card-tile.fx-shield {
+  animation: battleshipShieldFx 560ms ease;
+}
+
+.battleship-card-tile.fx-repair {
+  animation: battleshipRepairFx 560ms ease;
+}
+
+.battleship-card-tile.fx-block {
+  animation: battleshipBlockFx 620ms ease;
+}
+
+.battleship-card-tile em {
+  font-style: normal;
+  font-size: 0.62rem;
+  color: #fde68a;
+}
+
+.battleship-board-wrap {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.battleship-board-wrap h5 {
+  margin: 0;
+  color: #e0f2fe;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.battleship-ai-wait,
+.battleship-current-turn {
+  margin: 0;
+  font-size: 0.69rem;
+  color: #bfdbfe;
+}
+
+.battleship-fleet-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.62rem;
+}
+
+.battleship-fleet-columns article {
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 10px;
+  background: rgba(2, 6, 23, 0.38);
+  padding: 0.48rem;
+  display: grid;
+  gap: 0.34rem;
+}
+
+.battleship-fleet-columns h5,
+.battleship-fleet-columns p {
+  margin: 0;
+  color: #dbeafe;
+  font-size: 0.72rem;
+}
+
+.battleship-fleet-status {
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.48);
+  padding: 0.58rem;
+  display: grid;
+  gap: 0.46rem;
+}
+
+.battleship-fleet-status h5,
+.battleship-fleet-status h6 {
+  margin: 0;
+  color: #f0f9ff;
+}
+
+.battleship-fleet-status h5 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.battleship-fleet-status h6 {
+  font-size: 0.7rem;
+  color: #bae6fd;
+}
+
+.battleship-fleet-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.58rem;
+}
+
+.battleship-fleet-status article {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.54);
+  padding: 0.42rem;
+  display: grid;
+  gap: 0.32rem;
+}
+
+.battleship-fleet-status ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.32rem;
+}
+
+.battleship-fleet-status li {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: start;
+  gap: 0.32rem;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 8px;
+  padding: 0.28rem;
+  background: rgba(30, 41, 59, 0.45);
+}
+
+.battleship-fleet-status li img {
+  width: 46px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.battleship-fleet-status li div {
+  display: grid;
+  gap: 0.16rem;
+}
+
+.battleship-fleet-status li strong,
+.battleship-fleet-status li span,
+.battleship-fleet-status li small {
+  line-height: 1.22;
+}
+
+.battleship-fleet-status li strong {
+  font-size: 0.67rem;
+  color: #e0f2fe;
+}
+
+.battleship-fleet-status li span {
+  font-size: 0.62rem;
+  color: #bfdbfe;
+}
+
+.battleship-fleet-status li small {
+  font-size: 0.58rem;
+  color: #93c5fd;
+}
+
+.battleship-hand-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.42rem;
+}
+
+.battleship-hand-card {
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  border-radius: 10px;
+  padding: 0.44rem;
+  display: grid;
+  gap: 0.2rem;
+  text-align: left;
+  color: #f8fafc;
+  background: linear-gradient(145deg, rgba(2, 6, 23, 0.86), rgba(14, 116, 144, 0.55));
+}
+
+.battleship-hand-card strong {
+  font-size: 0.7rem;
+}
+
+.battleship-hand-card small {
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  color: #bfdbfe;
+}
+
+.battleship-hand-card.white {
+  border-color: rgba(241, 245, 249, 0.7);
+}
+
+.battleship-hand-card.red {
+  border-color: rgba(248, 113, 113, 0.66);
+}
+
+.battleship-hand-card.power-shield {
+  border-color: rgba(251, 191, 36, 0.64);
+}
+
+.battleship-hand-card.power-discard_or_play_two {
+  border-color: rgba(192, 132, 252, 0.68);
+}
+
+.battleship-hand-card.power-repair_or_draw_three {
+  border-color: rgba(45, 212, 191, 0.66);
+}
+
+.battleship-hand-card.selected {
+  box-shadow: inset 0 0 0 2px rgba(251, 191, 36, 0.9);
+}
+
+.battleship-choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.44rem;
+}
+
+.battleship-choice-row button {
+  border: 1px solid rgba(125, 211, 252, 0.48);
+  border-radius: 999px;
+  padding: 0.3rem 0.74rem;
+  background: rgba(8, 47, 73, 0.62);
+  color: #e0f2fe;
+  font-size: 0.68rem;
+}
+
+.battleship-cancel {
+  justify-self: start;
+  border: 1px solid rgba(248, 113, 113, 0.56);
+  border-radius: 999px;
+  padding: 0.28rem 0.78rem;
+  background: rgba(127, 29, 29, 0.62);
+  color: #fee2e2;
+  font-size: 0.68rem;
+}
+
+.battleship-handoff-shell {
+  border: 1px solid rgba(125, 211, 252, 0.4);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(14, 116, 144, 0.42), rgba(15, 23, 42, 0.52));
+  padding: 0.78rem;
+  display: grid;
+  gap: 0.52rem;
+  text-align: center;
+}
+
+.battleship-handoff-shell h5,
+.battleship-handoff-shell p {
+  margin: 0;
+  color: #f0f9ff;
+}
+
+.battleship-controls {
+  margin: 0;
+  color: #bfdbfe;
+  font-size: 0.69rem;
+  line-height: 1.32;
+}
+
+.battleship-message {
+  border: 1px solid rgba(125, 211, 252, 0.38);
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(8, 47, 73, 0.6), rgba(15, 23, 42, 0.65));
+  color: #e0f2fe;
+}
+
+.battleship-log {
+  max-height: 168px;
+  overflow: auto;
+}
+
+@keyframes battleshipBackdropDrift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, -1.5%, 0) scale(1.04);
+  }
+}
+
+@keyframes battleshipPanelFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes battleshipTargetPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes battleshipRevealFx {
+  0% {
+    filter: brightness(0.9) saturate(0.7);
+    transform: scale(0.98);
+  }
+  55% {
+    filter: brightness(1.2) saturate(1.2);
+    transform: scale(1.02);
+  }
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes battleshipHitFx {
+  0% {
+    box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.2), 0 0 0 rgba(239, 68, 68, 0);
+    transform: scale(1);
+  }
+  35% {
+    box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.85), 0 0 0.9rem rgba(239, 68, 68, 0.45);
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.2), 0 0 0 rgba(239, 68, 68, 0);
+    transform: scale(1);
+  }
+}
+
+@keyframes battleshipSunkFx {
+  0% {
+    transform: scale(1);
+    filter: saturate(1);
+  }
+  35% {
+    transform: scale(1.05);
+    filter: saturate(1.5) contrast(1.12);
+  }
+  100% {
+    transform: scale(1);
+    filter: saturate(1);
+  }
+}
+
+@keyframes battleshipShieldFx {
+  0% {
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.25), 0 0 0 rgba(56, 189, 248, 0);
+  }
+  45% {
+    box-shadow: inset 0 0 0 2px rgba(56, 189, 248, 0.9), 0 0 0.95rem rgba(56, 189, 248, 0.45);
+  }
+  100% {
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.25), 0 0 0 rgba(56, 189, 248, 0);
+  }
+}
+
+@keyframes battleshipRepairFx {
+  0% {
+    box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.28), 0 0 0 rgba(34, 197, 94, 0);
+  }
+  50% {
+    box-shadow: inset 0 0 0 2px rgba(34, 197, 94, 0.88), 0 0 0.9rem rgba(74, 222, 128, 0.4);
+  }
+  100% {
+    box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.28), 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes battleshipBlockFx {
+  0% {
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.25), 0 0 0 rgba(148, 163, 184, 0);
+  }
+  45% {
+    box-shadow: inset 0 0 0 2px rgba(226, 232, 240, 0.92), 0 0 0.85rem rgba(148, 163, 184, 0.48);
+  }
+  100% {
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.25), 0 0 0 rgba(148, 163, 184, 0);
+  }
+}
+
+@media (max-width: 1120px) {
+  .battleship-battle-layout,
+  .battleship-fleet-columns,
+  .battleship-rules-panel,
+  .battleship-fleet-status-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .battleship-tutorial-playbook {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .battleship-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .battleship-phase-pills span {
+    font-size: 0.66rem;
+  }
+
+  .battleship-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .battleship-card-tile {
+    min-height: 86px;
+  }
+
+  .battleship-hand-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .battleship-card-ship {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .battleship-card-ship img {
+    width: 40px;
+  }
+
+  .battleship-fleet-status li {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .battleship-fleet-status li img {
+    width: 40px;
+  }
+}
