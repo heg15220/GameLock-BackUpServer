@@ -81,6 +81,7 @@ const KnowledgeAdivinaPaisGame = () => <KnowledgeArcadeGame variant="adivina-pai
 const KnowledgeRefranesGame = () => <KnowledgeArcadeGame variant="refranes" />;
 const KnowledgeCronologiaGame = () => <KnowledgeArcadeGame variant="cronologia" />;
 const KnowledgeTangramGame = () => <KnowledgeArcadeGame variant="tangram" />;
+const KnowledgeIQMastersGame = () => <KnowledgeArcadeGame variant="iq-masters" />;
 const ArcadeSnakeClassicGame = () => <RetroClassicsGame variant="snake-classic" />;
 const ArcadeBreakout1986Game = () => <RetroClassicsGame variant="breakout-1986" />;
 const ArcadeSpaceInvadersGame = () => <RetroClassicsGame variant="space-invaders" />;
@@ -102,6 +103,7 @@ export const GAME_REGISTRY = {
   "racing-neon-lanes":           RacingGame,
   "knowledge-quiz-nexus":        KnowledgeGame,
   "knowledge-logic-vault":       KnowledgeGame,
+  "knowledge-iq-masters-protocol": KnowledgeIQMastersGame,
   "knowledge-refranes-clasicos": KnowledgeRefranesGame,
   "knowledge-wikipedia-gacha":   WikipediaGachaGame,
   "knowledge-sudoku-sprint":     KnowledgeSudokuGame,
@@ -180,6 +182,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "racing-neon-lanes":           "Izq/der cambia carril, arriba/abajo velocidad, espacio turbo, I item.",
     "knowledge-quiz-nexus":        "Selecciona respuesta por botón y avanza al bloquear la pregunta.",
     "knowledge-logic-vault":       "Selecciona respuesta por botón y avanza al bloquear la pregunta.",
+    "knowledge-iq-masters-protocol": "Figura single-line: click/tap en nodos o arrastre para trazar. R reinicia, Z deshace, H pista y N siguiente nivel al completar.",
     "knowledge-refranes-clasicos": "5 rondas: lee el inicio del refran, escribe la continuacion y valida con Enter. N pasa a la siguiente ronda ya revisada y R reinicia.",
     "knowledge-wikipedia-gacha":   "Gacha de articulos: 1 Home, 2 Packs, 3 Collection, 4 Missions, 5 Trophies. Espacio/Enter abre sobre en Open Pack, R sincroniza y Esc cierra detalle.",
     "knowledge-sudoku-sprint":     "Flechas para navegar, 1-4 / A/S/D/F para rellenar, Backspace borra, R partida aleatoria.",
@@ -251,6 +254,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "racing-neon-lanes":           "Left/right changes lane, up/down speed, space turbo, I item.",
     "knowledge-quiz-nexus":        "Select an answer button and advance after locking the question.",
     "knowledge-logic-vault":       "Select an answer button and advance after locking the question.",
+    "knowledge-iq-masters-protocol": "Single-line figure puzzle: click/tap nodes or drag to trace. R resets, Z undoes, H hint, N next level after clear.",
     "knowledge-refranes-clasicos": "5 rounds: read the proverb opening, type the continuation, and press Enter to check. N advances reviewed rounds and R restarts.",
     "knowledge-wikipedia-gacha":   "Article gacha: 1 Home, 2 Packs, 3 Collection, 4 Missions, 5 Trophies. Space/Enter opens a pack in Open Pack, R syncs, Esc closes details.",
     "knowledge-sudoku-sprint":     "Arrows to navigate, 1-4 / A/S/D/F to fill, Backspace clears, R random match.",

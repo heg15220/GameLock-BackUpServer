@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="iq-bg" x1="32" y1="36" x2="482" y2="492" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#041225"/>
+      <stop offset="1" stop-color="#0B2F4A"/>
+    </linearGradient>
+    <linearGradient id="iq-accent" x1="94" y1="110" x2="426" y2="422" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#34D399"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="38" fill="url(#iq-bg)"/>
+  <rect x="38" y="38" width="436" height="436" rx="30" stroke="#7DD3FC" stroke-opacity="0.35" stroke-width="2"/>
+
+  <path d="M96 366C96 308.562 142.562 262 200 262H312C369.438 262 416 308.562 416 366V388H96V366Z" fill="#0F172A" fill-opacity="0.85"/>
+  <circle cx="256" cy="188" r="92" fill="#0F172A" stroke="url(#iq-accent)" stroke-width="8"/>
+  <circle cx="256" cy="188" r="60" fill="#0A2740"/>
+  <path d="M220 176H234V228H220V176ZM278 176H292V228H278V176ZM234 214H278V228H234V214Z" fill="#93C5FD"/>
+  <path d="M176 142H336V158H176V142ZM176 110H336V126H176V110Z" fill="#22D3EE" fill-opacity="0.8"/>
+
+  <path d="M124 356H154V388H124V356ZM176 334H206V388H176V334ZM228 314H258V388H228V314ZM280 338H310V388H280V338ZM332 300H362V388H332V300ZM384 326H414V388H384V326Z" fill="url(#iq-accent)"/>
+
+  <path d="M96 422H416" stroke="#7DD3FC" stroke-width="6" stroke-linecap="round" stroke-opacity="0.6"/>
+  <path d="M112 84C140 58 180 44 224 44H288C332 44 372 58 400 84" stroke="#22D3EE" stroke-width="6" stroke-linecap="round" stroke-opacity="0.45"/>
+
+  <text x="256" y="452" fill="#E2E8F0" font-family="Arial, sans-serif" font-size="34" text-anchor="middle" letter-spacing="4">IQ PROTOCOL</text>
+</svg>

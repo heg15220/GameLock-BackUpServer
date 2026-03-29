@@ -16,6 +16,7 @@ import GuessCountryKnowledgeGame from "./knowledge/GuessCountryKnowledgeGame";
 import ProverbsKnowledgeGame from "./knowledge/ProverbsKnowledgeGame";
 import TimelineKnowledgeGame from "./knowledge/TimelineKnowledgeGame";
 import TangramKnowledgeGame from "./knowledge/TangramKnowledgeGame";
+import IQMastersKnowledgeGame from "./knowledge/IQMastersKnowledgeGame";
 
 function KnowledgeArcadeGame({ variant }) {
   if (variant === "sudoku") {
@@ -68,6 +69,9 @@ function KnowledgeArcadeGame({ variant }) {
   }
   if (variant === "tangram") {
     return <TangramKnowledgeGame />;
+  }
+  if (variant === "iq-masters") {
+    return <IQMastersKnowledgeGame />;
   }
   return <SudokuKnowledgeGame />;
 }

@@ -49,6 +49,7 @@ import knowledgeSopaLetrasImage from "../assets/games/knowledge-sopa-letras.svg"
 import knowledgeWordleImage from "../assets/games/knowledge-wordle.svg";
 import knowledgeAnagramasImage from "../assets/games/knowledge-anagramas.svg";
 import knowledgeCalculoMentalImage from "../assets/games/knowledge-calculo-mental.svg";
+import knowledgeIqMastersImage from "../assets/games/knowledge-iq-masters.svg";
 import knowledgeTablaPeriodicaImage from "../assets/games/knowledge-tabla-periodica.svg";
 import knowledgeMapasImage from "../assets/games/knowledge-mapas.svg";
 import knowledgeAdivinaPaisImage from "../assets/games/knowledge-adivina-pais.svg";
@@ -1447,6 +1448,57 @@ export const games = [
     viability_en: "High: large local bank with browser-language i18n.",
     visualStyle_en: "Premium quiz panel with neon identity and fast feedback readability.",
     techFocus_en: "Topic-balanced selection, es/en i18n and streak-based scoring.",
+  },
+
+  {
+    id: "knowledge-iq-masters-protocol",
+    image: knowledgeIqMastersImage,
+    sessionTime: "5-10 min",
+
+    title: "IQ Masters Figure Line",
+    category: "Conocimiento",
+    tagline: "Puzzle single-line profesional: traza figuras usando cada segmento una sola vez.",
+    description:
+      "Juego de figuras tipo single-line inspirado en retos de agilidad mental. Conecta nodos adyacentes para recorrer todos los segmentos sin repetir ninguno. Incluye progresion por niveles, tiempos objetivo, pista contextual y estilo visual cuidado.",
+    objective_es:
+      "Completa cada figura recorriendo todos sus segmentos una sola vez, con el menor tiempo y errores posibles.",
+    howToPlay_es:
+      "Click/tap en nodos para iniciar la ruta y seguir por nodos conectados; tambien puedes arrastrar. R reinicia, Z deshace, H muestra pista y N avanza al siguiente nivel completado. El progreso queda guardado en local.",
+    highlights: [
+      "6 figuras desbloqueables con aumento de complejidad y trazados de tipo Euler.",
+      "Control por click/touch y arrastre continuo para ritmo de juego movil y desktop.",
+      "Pista contextual de siguiente arista valida sin resolverte toda la figura.",
+      "Cronometro, contador de errores, mejores tiempos por nivel y desbloqueo progresivo.",
+      "Animacion y feedback visual orientados a claridad y respuesta rapida.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo",
+    viability: "Alta: motor determinista de grafo, estado compacto y persistencia local.",
+    visualStyle: "Tablero neon premium con trazos brillantes, nodos reactivos y HUD minimalista.",
+    techFocus:
+      "Validacion de aristas sobre grafo, runtime reactivo por nodos, soporte pointer events y bridge QA render_game_to_text.",
+
+    category_en: "Knowledge",
+    tagline_en: "Professional single-line puzzle: trace figures while using each edge exactly once.",
+    description_en:
+      "Single-line figure tracing inspired by premium brain-puzzle apps. Connect adjacent nodes and clear every edge exactly once. Includes progressive levels, contextual hints, and polished visual feedback.",
+    objective_en:
+      "Clear every figure by traversing each edge exactly once with low time and minimal mistakes.",
+    howToPlay_en:
+      "Click/tap nodes to start and continue the route across connected nodes; dragging is also supported. R resets, Z undoes, H requests a hint, and N advances after a clear. Progress is stored locally.",
+    highlights_en: [
+      "6 unlockable figures with rising complexity and Euler-style routes.",
+      "Click/touch tracing with continuous drag for desktop and mobile flow.",
+      "Contextual hinting for the next valid edge without auto-solving the board.",
+      "Timer, mistake counter, per-level best times, and local unlock progression.",
+      "Animation and visual feedback tuned for clarity and response speed.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo",
+    viability_en: "High: deterministic graph engine, compact state, and local persistence.",
+    visualStyle_en: "Premium neon board with glowing strokes, reactive nodes, and a clean HUD.",
+    techFocus_en:
+      "Edge validation over a graph model, reactive node runtime, pointer event support, and render_game_to_text QA bridge.",
   },
 
   {
