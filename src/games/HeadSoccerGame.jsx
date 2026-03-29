@@ -31,16 +31,73 @@ const PHYSICS = {
 const MATCH_OPTIONS = [45, 60, 90];
 const TOURNAMENT_MATCH_OPTIONS = [45, 60, 75, 90];
 
+function resolveSoccerLocale(localeCandidate) {
+  const probe =
+    typeof localeCandidate === "string" && localeCandidate.trim()
+      ? localeCandidate
+      : typeof navigator !== "undefined"
+        ? navigator.language
+        : "en";
+  return String(probe).toLowerCase().startsWith("es") ? "es" : "en";
+}
+
+function getRoundDisplayLabel(round, localeCandidate) {
+  const locale = resolveSoccerLocale(localeCandidate);
+  return locale === "es" ? round.labelEs : round.labelEn;
+}
+
+function getSingleMatchLabel(localeCandidate) {
+  return resolveSoccerLocale(localeCandidate) === "es" ? "Partido unico" : "Single match";
+}
+
+function getTournamentModeLabel(localeCandidate) {
+  return resolveSoccerLocale(localeCandidate) === "es" ? "Torneo" : "Tournament";
+}
+
+function getTournamentPathText(localeCandidate) {
+  return resolveSoccerLocale(localeCandidate) === "es"
+    ? "octavos, cuartos, semifinal y final"
+    : "Round of 16, quarterfinals, semifinals, and final";
+}
+
 const GAME_MODE_OPTIONS = [
   { id: "single", label: "Single match" },
   { id: "tournament", label: "Tournament" },
 ];
 
 const TOURNAMENT_ROUNDS = [
-  { id: "round16", label: "Octavos de final", matchCount: 8, difficultyId: "rookie", duration: 45 },
-  { id: "quarterfinal", label: "Cuartos de final", matchCount: 4, difficultyId: "pro", duration: 60 },
-  { id: "semifinal", label: "Semifinal", matchCount: 2, difficultyId: "elite", duration: 75 },
-  { id: "final", label: "Final", matchCount: 1, difficultyId: "elite", duration: 90 },
+  {
+    id: "round16",
+    labelEs: "Octavos de final",
+    labelEn: "Round of 16",
+    matchCount: 8,
+    difficultyId: "rookie",
+    duration: 45,
+  },
+  {
+    id: "quarterfinal",
+    labelEs: "Cuartos de final",
+    labelEn: "Quarterfinals",
+    matchCount: 4,
+    difficultyId: "pro",
+    duration: 60,
+  },
+  {
+    id: "semifinal",
+    labelEs: "Semifinal",
+    labelEn: "Semifinals",
+    matchCount: 2,
+    difficultyId: "elite",
+    duration: 75,
+  },
+  {
+    id: "final",
+    labelEs: "Final",
+    labelEn: "Final",
+    matchCount: 1,
+    difficultyId: "elite",
+    duration: 90,
+  },
 ];
 
 const DIFFICULTIES = {
@@ -304,7 +361,8 @@ function createTournamentMatch(matchId) {
   };
 }
 
-function createEmptyTournament(playerCharacterId = DEFAULT_SINGLE_PLAYER_ID) {
+function createEmptyTournament(playerCharacterId = DEFAULT_SINGLE_PLAYER_ID, localeCandidate = "en") {
+  const locale = resolveSoccerLocale(localeCandidate);
   return {
     active: false,
     status: "idle",
@@ -312,7 +370,11 @@ function createEmptyTournament(playerCharacterId = DEFAULT_SINGLE_PLAYER_ID) {
     currentRoundIndex: 0,
     currentMatchIndex: -1,
     rounds: TOURNAMENT_ROUNDS.map((round) => ({
-      ...round,
+      id: round.id,
+      label: getRoundDisplayLabel(round, locale),
+      matchCount: round.matchCount,
+      difficultyId: round.difficultyId,
+      duration: round.duration,
       matches: Array.from({ length: round.matchCount }, (_, index) => createTournamentMatch(`${round.id}-${index + 1}`)),
     })),
     summary: null,
@@ -356,8 +418,9 @@ function resolveSimulatedMatch(match, random = Math.random) {
   applyMatchResult(match, scoreline.homeScore, scoreline.awayScore, winnerId, true);
 }
 
-function buildTournament(playerCharacterId, seed = Date.now()) {
-  const tournament = createEmptyTournament(playerCharacterId);
+function buildTournament(playerCharacterId, seed = Date.now(), localeCandidate = "en") {
+  const locale = resolveSoccerLocale(localeCandidate);
+  const tournament = createEmptyTournament(playerCharacterId, locale);
   const random = createRandom(seed >>> 0);
 
   const remaining = TOURNAMENT_CHARACTERS
@@ -378,8 +441,11 @@ function buildTournament(playerCharacterId, seed = Date.now()) {
   tournament.currentRoundIndex = 0;
   tournament.currentMatchIndex = firstRound.matches.findIndex((match) => match.containsPlayer);
   tournament.summary = {
-    title: "Tournament seeded",
-    text: "Octavos listos. Empieza tu primer cruce.",
+    title: locale === "es" ? "Cuadro listo" : "Bracket seeded",
+    text:
+      locale === "es"
+        ? `${firstRound.label} listos. Empieza tu primer cruce.`
+        : `${firstRound.label} ready. Start your first tie.`,
     accent: "#38bdf8",
   };
 
@@ -1000,9 +1066,10 @@ function createPlayer(side, profileId) {
   };
 }
 
-function createInitialState() {
+function createInitialState(localeCandidate = "en") {
+  const locale = resolveSoccerLocale(localeCandidate);
   const selectedId = DEFAULT_SINGLE_PLAYER_ID;
-  const initialTournament = createEmptyTournament(selectedId);
+  const initialTournament = createEmptyTournament(selectedId, locale);
 
   return {
     phase: "intro",
@@ -1019,7 +1086,7 @@ function createInitialState() {
     message: "Press Kick Off to start the match.",
     logs: ["Head Soccer Pro loaded."],
     matchMeta: {
-      roundLabel: "Single match",
+      roundLabel: getSingleMatchLabel(locale),
       playerName: getProfileById(selectedId).name,
       cpuName: getProfileById(DEFAULT_SINGLE_CPU_ID).name,
     },
@@ -1153,7 +1220,7 @@ function startMatch(state, settings, options = {}) {
   state.ai.rethinkIn = 0;
   state.ai.releaseDelay = 0;
   state.result = { title: "", subtitle: "", accent: "#f8fafc" };
-  state.matchMeta.roundLabel = options.roundLabel || "Single match";
+  state.matchMeta.roundLabel = options.roundLabel || getSingleMatchLabel(settings.locale);
   state.message = options.message || "Kick off. Jump and attack with headers to create space.";
 
   resetKickoff(state);
@@ -1164,6 +1231,7 @@ function startMatch(state, settings, options = {}) {
 }
 
 function setupIntroFromSettings(state, settings) {
+  const locale = resolveSoccerLocale(settings.locale);
   const mode = settings.mode === "tournament" ? "tournament" : "single";
   const selectedCharacter = getProfileById(settings.tournamentCharacterId, DEFAULT_SINGLE_PLAYER_ID);
   const defaultCpu = TOURNAMENT_CHARACTERS.find((entry) => entry.id !== selectedCharacter.id) || getProfileById(DEFAULT_SINGLE_CPU_ID);
@@ -1181,32 +1249,48 @@ function setupIntroFromSettings(state, settings) {
   state.scores.right = 0;
   state.result = { title: "", subtitle: "", accent: "#f8fafc" };
   state.gameMode = mode;
-  state.tournament = createEmptyTournament(selectedCharacter.id);
+  state.tournament = createEmptyTournament(selectedCharacter.id, locale);
 
   setPlayersForMatch(state, selectedCharacter.id, defaultCpu.id);
-  state.matchMeta.roundLabel = mode === "tournament" ? "Tournament" : "Single match";
+  state.matchMeta.roundLabel = mode === "tournament" ? getTournamentModeLabel(locale) : getSingleMatchLabel(locale);
   state.timer = introDuration;
   state.matchDuration = introDuration;
   state.message = mode === "tournament"
-    ? "Choose your fighter and press Kick Off to start the tournament."
-    : "Press Kick Off to start a single match.";
-  state.logs = [mode === "tournament" ? "Tournament mode ready." : "Single match mode ready."];
+    ? locale === "es"
+      ? "Elige tu jugador y pulsa Kick Off para empezar el torneo."
+      : "Choose your fighter and press Kick Off to start the tournament."
+    : locale === "es"
+      ? "Pulsa Kick Off para iniciar un partido unico."
+      : "Press Kick Off to start a single match.";
+  state.logs = [
+    mode === "tournament"
+      ? locale === "es"
+        ? "Modo torneo listo."
+        : "Tournament mode ready."
+      : locale === "es"
+        ? "Modo partido unico listo."
+        : "Single match mode ready.",
+  ];
 
   resetKickoff(state);
 }
 
 function startSingleMatch(state, settings) {
+  const locale = resolveSoccerLocale(settings.locale);
   const selectedCharacter = getProfileById(settings.tournamentCharacterId, DEFAULT_SINGLE_PLAYER_ID);
   const cpuPool = TOURNAMENT_CHARACTERS.filter((entry) => entry.id !== selectedCharacter.id);
   const cpu = cpuPool[Math.floor(Math.random() * cpuPool.length)] || getProfileById(DEFAULT_SINGLE_CPU_ID);
 
   state.gameMode = "single";
-  state.tournament = createEmptyTournament(selectedCharacter.id);
+  state.tournament = createEmptyTournament(selectedCharacter.id, locale);
   startMatch(state, settings, {
     leftProfileId: selectedCharacter.id,
     rightProfileId: cpu.id,
-    roundLabel: "Single match",
-    message: "Kick off. Jump and attack with headers to create space.",
+    roundLabel: getSingleMatchLabel(locale),
+    message:
+      locale === "es"
+        ? "Saque inicial. Salta y ataca con cabezazos para ganar espacio."
+        : "Kick off. Jump and attack with headers to create space.",
   });
 }
 
@@ -1245,7 +1329,7 @@ function startCurrentTournamentMatch(state, settings) {
 
 function startTournament(state, settings) {
   const selectedCharacter = getProfileById(settings.tournamentCharacterId, DEFAULT_SINGLE_PLAYER_ID);
-  const tournament = buildTournament(selectedCharacter.id);
+  const tournament = buildTournament(selectedCharacter.id, Date.now(), settings.locale);
   const random = createRandom((Date.now() * 17) >>> 0);
   const firstRound = tournament.rounds[0];
 
@@ -1868,7 +1952,8 @@ export default function HeadSoccerGame() {
   const ctxRef = useRef(null);
   const crowdLayerRef = useRef(null);
 
-  const stateRef = useRef(createInitialState());
+  const uiLocale = useMemo(() => resolveSoccerLocale(), []);
+  const stateRef = useRef(createInitialState(uiLocale));
   const controlsRef = useRef(createControlState());
 
   const frameRef = useRef(0);
@@ -1876,6 +1961,7 @@ export default function HeadSoccerGame() {
   const accumulatorRef = useRef(0);
 
   const [settings, setSettings] = useState({
+    locale: uiLocale,
     mode: "single",
     difficultyId: "pro",
     duration: 60,
@@ -1911,7 +1997,7 @@ export default function HeadSoccerGame() {
     setupIntroFromSettings(currentState, settingsRef.current);
     draw(performance.now());
     syncSnapshot();
-  }, [settings.mode, settings.tournamentCharacterId, draw, syncSnapshot]);
+  }, [settings.locale, settings.mode, settings.tournamentCharacterId, draw, syncSnapshot]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -2078,6 +2164,7 @@ export default function HeadSoccerGame() {
       ? "Play Next Round"
       : "Start New Tournament"
     : "Rematch";
+  const tournamentPathText = useMemo(() => getTournamentPathText(settings.locale), [settings.locale]);
 
   const controlsHint = useMemo(
     () => "A/D or arrows move, W or up jumps, Space charges a low kick, and aerial headers are stronger. Enter starts, R restarts, P pauses.",
@@ -2089,7 +2176,11 @@ export default function HeadSoccerGame() {
       <div className="mini-head">
         <div>
           <h4>Head Soccer Pro</h4>
-          <p>Choose single match or tournament mode, build your run through octavos-cuarto-semi-final and fight for the trophy.</p>
+          <p>
+            {settings.locale === "es"
+              ? `Elige partido unico o torneo, avanza por ${tournamentPathText} y lucha por el trofeo.`
+              : `Choose single match or tournament mode, build your run through ${tournamentPathText}, and fight for the trophy.`}
+          </p>
         </div>
         <div className="head-soccer-pro-actions">
           <button type="button" onClick={() => queueAction("start")}>
@@ -2176,7 +2267,9 @@ export default function HeadSoccerGame() {
                   <h5>{isTournamentMode ? "Tournament Mode" : "Single Match"}</h5>
                   <p>
                     {isTournamentMode
-                      ? "Choose one of 8 fighters and clear octavos, cuartos, semifinal and final to lift the trophy."
+                      ? settings.locale === "es"
+                        ? `Elige 1 de 8 jugadores y supera ${tournamentPathText} para levantar el trofeo.`
+                        : `Choose one of 8 fighters and clear ${tournamentPathText} to lift the trophy.`
                       : "Classic 1v1 arcade football. Use jumps and headers as your main attacking weapon."}
                   </p>
                   <button type="button" onClick={() => queueAction("start")}>Kick Off</button>
