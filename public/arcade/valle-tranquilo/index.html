@@ -2870,9 +2870,12 @@ function openMine(){
 function talkNPC(id){
   const npc=NPCS.find(n=>n.id===id);
   guideMark('talked',1);
-  const rel=G.npcRel[id]||0;
+  const relBefore=G.npcRel[id]||0;
   const line=npc.say[rn(0,npc.say.length-1)];
-  if(!G.giftedToday[id])G.npcRel[id]=Math.min(100,rel+5);
+  if(!G.giftedToday[id])G.npcRel[id]=Math.min(100,relBefore+5);
+  const relNow=G.npcRel[id]||relBefore;
+  const heartCount=Math.floor(relNow/25);
+  const hearts='&#10084;'.repeat(heartCount)+'&#9825;'.repeat(4-heartCount);
   sxp('social',5);
   const gbtns=npc.lk.map(k=>{
     const has=(G.inv[k]||0)>0;
@@ -2881,7 +2884,7 @@ function talkNPC(id){
   openM(`${npc.av} ${npc.n}`,npc.r,
     `<div class="db"><div class="dn">${npc.n.toUpperCase()}</div><div style="color:#e8d0a0">"${line}"</div></div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">${gbtns}</div>
-    <div style="font-family:'VT323';font-size:14px;color:#706050;margin-top:8px">Amistad: ${rel}% ${'â™¥'.repeat(Math.floor(rel/25))}${'â™¡'.repeat(4-Math.floor(rel/25))}</div>`);
+    <div style="font-family:'VT323';font-size:14px;color:#706050;margin-top:8px">${localizeText('Amistad:')} ${relNow}% ${hearts}</div>`);
   reAll();
 }
 

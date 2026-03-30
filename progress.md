@@ -3622,3 +3622,9 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
   - Nuevo helper `itemIcon(k)` para mostrar icono correcto tambien en semillas (`seeds_*`) y fallback estable.
   - Inventario y tienda pasan a usar `itemIcon(...)`, junto con botones de regalo NPC.
   - Verificacion: parse JS OK (`new Function(script)`).
+## 2026-03-30 - Valle Tranquilo fix texto amistad en dialogo NPC
+- Corregido formato del texto de amistad al hablar con vecinos en `public/arcade/valle-tranquilo/index.html` (`talkNPC`).
+- Eliminados caracteres corruptos en corazones (`♥/♡`) y reemplazados por entidades HTML estables (`&#10084;` / `&#9825;`).
+- El modal ahora muestra la amistad actualizada tras la conversacion (`relNow`) en lugar del valor previo.
+- Etiqueta de amistad en el modal localizable via `localizeText('Amistad:')` para ES/EN.
+- Validacion tecnica: parse JS del script embebido OK (`new Function(script)`).
