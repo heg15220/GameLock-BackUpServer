@@ -250,7 +250,11 @@ const I18N={
     kbFooter2:'Q/R/Tab/Rueda=Herramienta · Shift=Sprint · X=Herramienta local · Clic der=Ruta',
     close:'[ CERRAR ]',
     welcome1:'¡Bienvenido a Valle Tranquilo!',welcome2:'Labra ⛏️, planta 🌱 y cosecha 🧺.',welcome3:'Habla con los vecinos del pueblo.',
-    welcomeNotify:'🌅 ¡Bienvenido! Tu nueva vida comienza.',tipHoe:'💡 Consejo: ⛏️ para labrar la tierra verde.'
+    welcomeNotify:'🌅 ¡Bienvenido! Tu nueva vida comienza.',tipHoe:'💡 Consejo: ⛏️ para labrar la tierra verde.',
+    neighborFallback:'vecino',approachNeighbor:'Te acercas a {name}...',
+    friendshipLabel:'Amistad:',npcGift:'Regalar',
+    logWaterCare:'Riegas con cuidado.',giftLog:'Regalas a {name}. +20 amistad.',giftHappy:'¡{name} está feliz!',
+    questDone:'¡Encargo "{title}" listo! +🪙{gold}',questDoneNotify:'✅ ¡Encargo! +🪙{gold}'
   },
   en:{
     hudDay:'Day',hudLevel:'Lv.',controlsChip:'⌨ ? = Controls',helpBtn:'⌨ ?',
@@ -280,7 +284,11 @@ const I18N={
     kbFooter2:'Q/R/Tab/Wheel=Tool · Shift=Sprint · X=Local tool · Right click=Path',
     close:'[ CLOSE ]',
     welcome1:'Welcome to Quiet Valley!',welcome2:'Till ⛏️, plant 🌱 and harvest 🧺.',welcome3:'Talk with the town neighbors.',
-    welcomeNotify:'🌅 Welcome! Your new life begins.',tipHoe:'💡 Tip: use ⛏️ to till green ground.'
+    welcomeNotify:'🌅 Welcome! Your new life begins.',tipHoe:'💡 Tip: use ⛏️ to till green ground.',
+    neighborFallback:'neighbor',approachNeighbor:'Approaching {name}...',
+    friendshipLabel:'Friendship:',npcGift:'Gift',
+    logWaterCare:'You water carefully.',giftLog:'You gift {name}. +20 friendship.',giftHappy:'{name} is happy!',
+    questDone:'Quest "{title}" complete! +🪙{gold}',questDoneNotify:'✅ Quest complete! +🪙{gold}'
   }
 };
 function tr(key,vars={}){
@@ -339,18 +347,47 @@ const CROPS={
 };
 const CROP_NAME_EN={turnip:'Turnip',potato:'Potato',blueberry:'Blueberry',pumpkin:'Pumpkin',cauliflower:'Cauliflower',wheat:'Wheat',garlic:'Garlic',yam:'Yam'};
 const NPCS=[
-  {id:'elena',n:'Elena', r:'Pescadora', av:'\u{1F469}\u200D\u{1F9B0}',lk:['fish_trout','fish_carp'], say:['El lago guarda secretos.','La pesca fue buena hoy.','Probaste la sopa de carpa?']},
-  {id:'marco',n:'Marco', r:'Carpintero',av:'\u{1F468}\u200D\u{1F527}',lk:['wood','wheat'],            say:['La madera tiene memoria.','Me falta material.','Buen trabajo en tu granja.']},
-  {id:'luna', n:'Luna',  r:'Botanica',  av:'\u{1F469}\u200D\u{1F33E}',lk:['blueberry','cauliflower'], say:['Hay hierbas sin catalogar.','La coliflor crecio magnifica.','El arandano solo florece en verano.']},
-  {id:'felix',n:'Felix', r:'Cocinero',  av:'\u{1F468}\u200D\u{1F373}',lk:['pumpkin','garlic'],        say:['Necesito ingredientes especiales.','La cocina es paciencia y amor.','Calabaza perfecta tiene buen precio.']},
-  {id:'nora', n:'Nora',  r:'Herbolaria',av:'\u{1F469}\u200D\u2695\uFE0F',  lk:['garlic','potato'],   say:['Este valle tiene magia.','Planta cerca del agua.','Descansa un poco.']},
+  {id:'elena',nEs:'Elena',nEn:'Evelyn',rEs:'Pescadora',rEn:'Fisher',av:'\u{1F469}\u200D\u{1F9B0}',lk:['fish_trout','fish_carp'],
+    sayEs:['El lago guarda secretos.','La pesca fue buena hoy.','Probaste la sopa de carpa?'],
+    sayEn:['The lake keeps secrets.','Fishing was good today.','Have you tried carp soup?']},
+  {id:'marco',nEs:'Marco',nEn:'Mark',rEs:'Carpintero',rEn:'Carpenter',av:'\u{1F468}\u200D\u{1F527}',lk:['wood','wheat'],
+    sayEs:['La madera tiene memoria.','Me falta material.','Buen trabajo en tu granja.'],
+    sayEn:['Wood remembers every cut.','I am short on supplies.','Nice work on your farm.']},
+  {id:'luna',nEs:'Luna',nEn:'Willow',rEs:'Botanica',rEn:'Botanist',av:'\u{1F469}\u200D\u{1F33E}',lk:['blueberry','cauliflower'],
+    sayEs:['Hay hierbas sin catalogar.','La coliflor crecio magnifica.','El arandano solo florece en verano.'],
+    sayEn:['Some herbs are still unknown.','That cauliflower grew beautifully.','Blueberries only bloom in summer.']},
+  {id:'felix',nEs:'Felix',nEn:'Rowan',rEs:'Cocinero',rEn:'Cook',av:'\u{1F468}\u200D\u{1F373}',lk:['pumpkin','garlic'],
+    sayEs:['Necesito ingredientes especiales.','La cocina es paciencia y amor.','Calabaza perfecta tiene buen precio.'],
+    sayEn:['I need special ingredients.','Cooking takes patience and care.','Perfect pumpkins sell very well.']},
+  {id:'nora',nEs:'Nora',nEn:'Iris',rEs:'Herbolaria',rEn:'Herbalist',av:'\u{1F469}\u200D\u2695\uFE0F',lk:['garlic','potato'],
+    sayEs:['Este valle tiene magia.','Planta cerca del agua.','Descansa un poco.'],
+    sayEn:['This valley has magic in it.','Plant close to water.','Take a short rest.']},
 ];
+function npcById(id){return NPCS.find(n=>n.id===id)||null;}
+function npcName(npcOrId){
+  const npc=typeof npcOrId==='string'?npcById(npcOrId):npcOrId;
+  if(!npc) return tr('neighborFallback');
+  return LANG==='es'?(npc.nEs||npc.n||npc.id):(npc.nEn||npc.nEs||npc.n||npc.id);
+}
+function npcRole(npcOrId){
+  const npc=typeof npcOrId==='string'?npcById(npcOrId):npcOrId;
+  if(!npc) return tr('neighborFallback');
+  return LANG==='es'?(npc.rEs||npc.r||''):(npc.rEn||npc.rEs||npc.r||'');
+}
+function npcLine(npc){
+  if(!npc) return '...';
+  const lines=LANG==='es'?(npc.sayEs||npc.say||[]):(npc.sayEn||npc.sayEs||npc.say||[]);
+  if(!lines.length) return '...';
+  return lines[rn(0,lines.length-1)];
+}
+function questTitle(q){return LANG==='es'?(q.tEs||q.t):(q.tEn||q.tEs||q.t);}
+function questNpcName(q){return npcName(q.npcId||q.npc||'');}
 const QUESTS=[
-  {id:'q1',npc:'Marco',t:'Entregar 3 maderas',    ic:'🪓',r:200,req:{wood:3},          done:false},
-  {id:'q2',npc:'Elena',t:'Pescar 2 truchas',       ic:'🎣',r:180,req:{fish_trout:2},    done:false},
-  {id:'q3',npc:'Felix',t:'Cosechar 1 calabaza',    ic:'🎃',r:400,req:{pumpkin:1},       done:false},
-  {id:'q4',npc:'Luna', t:'Cosechar 3 arandanos',   ic:'🫐',r:320,req:{blueberry:3},     done:false},
-  {id:'q5',npc:'Nora', t:'Comprar semillas de ajo',ic:'🧄',r:100,req:{ajo_s:1},         done:false},
+  {id:'q1',npcId:'marco',tEs:'Entregar 3 maderas',tEn:'Deliver 3 wood',ic:'🪓',r:200,req:{wood:3},done:false},
+  {id:'q2',npcId:'elena',tEs:'Pescar 2 truchas',tEn:'Catch 2 trout',ic:'🎣',r:180,req:{fish_trout:2},done:false},
+  {id:'q3',npcId:'felix',tEs:'Cosechar 1 calabaza',tEn:'Harvest 1 pumpkin',ic:'🎃',r:400,req:{pumpkin:1},done:false},
+  {id:'q4',npcId:'luna',tEs:'Cosechar 3 arandanos',tEn:'Harvest 3 blueberries',ic:'🫐',r:320,req:{blueberry:3},done:false},
+  {id:'q5',npcId:'nora',tEs:'Comprar semillas de ajo',tEn:'Buy garlic seeds',ic:'🧄',r:100,req:{ajo_s:1},done:false},
 ];
 const UPGRADES=[
   {id:'irig',ic:'💧',n:'Riego Automatico',p:500, d:'Riega cultivos cada dia'},
@@ -2112,7 +2149,7 @@ function queueTalkWithNpc(npcId){
   queuedActionIdx=null;
   queuedInteractNpcId=npcId;
   lastAutoStepAt=0;
-  showKbHint(`Te acercas a ${NPCS.find(n=>n.id===npcId)?.n||'NPC'}...`);
+  showKbHint(tr('approachNeighbor',{name:npcName(npcId)}));
   updateContextHint();
   return true;
 }
@@ -2135,7 +2172,7 @@ function updateContextHint(){
   }
   const near=nearestNpc(2);
   if(!inMine()&&near&&near.dist<=1){
-    const name=NPCS.find(n=>n.id===near.id)?.n||'vecino';
+    const name=npcName(near.id)||tr('neighborFallback');
     el.textContent=tr('hintTalk',{zone,name});
     return;
   }
@@ -2639,7 +2676,7 @@ function handleCell(idx){
       else notify('Solo puedes labrar hierba.','info'); break;
     case 'water':
       if(inMine()){notify('Aqui no se riega. Explora y mina materiales raros.','info');break;}
-      if(cell.t==='S'||cell.crop){if(sp(3)){cell.wet=true;guideMark('watered',1);lg('Riegas con cuidado.');sxp('farming',3);tick(3);reAll();}}
+      if(cell.t==='S'||cell.crop){if(sp(3)){cell.wet=true;guideMark('watered',1);lg(tr('logWaterCare'));sxp('farming',3);tick(3);reAll();}}
       else if(cell.t==='W'||cell.t==='D') notify('ðŸŽ£ Usa pescar para el agua.','info');
       else notify('Nada que regar aquÃ­.','info'); break;
     case 'plant':
@@ -2868,10 +2905,11 @@ function openMine(){
 
 // â”€â”€â”€ NPC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function talkNPC(id){
-  const npc=NPCS.find(n=>n.id===id);
+  const npc=npcById(id);
+  if(!npc) return;
   guideMark('talked',1);
   const relBefore=G.npcRel[id]||0;
-  const line=npc.say[rn(0,npc.say.length-1)];
+  const line=npcLine(npc);
   if(!G.giftedToday[id])G.npcRel[id]=Math.min(100,relBefore+5);
   const relNow=G.npcRel[id]||relBefore;
   const heartCount=Math.floor(relNow/25);
@@ -2879,12 +2917,13 @@ function talkNPC(id){
   sxp('social',5);
   const gbtns=npc.lk.map(k=>{
     const has=(G.inv[k]||0)>0;
-    return `<button style="padding:5px 11px;background:rgba(180,40,40,.12);border:2px solid #c03030;box-shadow:2px 2px 0 #000;color:#f06060;font-family:'VT323';font-size:14px;cursor:pointer;${!has?'opacity:.35;':''}" onclick="giftNPC('${id}','${k}')" ${!has?'disabled':''}>${itemIcon(k)} ${IS_ES?'Regalar':'Gift'}</button>`;
+    return `<button style="padding:5px 11px;background:rgba(180,40,40,.12);border:2px solid #c03030;box-shadow:2px 2px 0 #000;color:#f06060;font-family:'VT323';font-size:14px;cursor:pointer;${!has?'opacity:.35;':''}" onclick="giftNPC('${id}','${k}')" ${!has?'disabled':''}>${itemIcon(k)} ${tr('npcGift')}</button>`;
   }).join('');
-  openM(`${npc.av} ${npc.n}`,npc.r,
-    `<div class="db"><div class="dn">${npc.n.toUpperCase()}</div><div style="color:#e8d0a0">"${line}"</div></div>
+  const name=npcName(npc);
+  openM(`${npc.av} ${name}`,npcRole(npc),
+    `<div class="db"><div class="dn">${name.toUpperCase()}</div><div style="color:#e8d0a0">"${line}"</div></div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">${gbtns}</div>
-    <div style="font-family:'VT323';font-size:14px;color:#706050;margin-top:8px">${localizeText('Amistad:')} ${relNow}% ${hearts}</div>`);
+    <div style="font-family:'VT323';font-size:14px;color:#706050;margin-top:8px">${tr('friendshipLabel')} ${relNow}% ${hearts}</div>`);
   reAll();
 }
 
@@ -2893,8 +2932,10 @@ function giftNPC(npcId,k){
   if(G.giftedToday[npcId]){notify('Ya regalaste hoy.','info');return;}
   G.inv[k]--;G.npcRel[npcId]=Math.min(100,(G.npcRel[npcId]||0)+20);
   G.giftedToday[npcId]=true;sxp('social',15);
-  const npc=NPCS.find(n=>n.id===npcId);
-  lg(`Regalas a ${npc.n}. +20 amistad.`);notify(`${npc.av} Â¡${npc.n} estÃ¡ feliz!`,'good');
+  const npc=npcById(npcId);
+  const name=npcName(npcId);
+  lg(tr('giftLog',{name}));
+  notify(`${npc?.av||''} ${tr('giftHappy',{name})}`,'good');
   closeM();reAll();
 }
 
@@ -2903,7 +2944,9 @@ function tryQ(qId){
   const ok=Object.entries(q.req).every(([k,v])=>(G.qProg[k]||0)>=v);
   if(!ok){notify(`Faltan: ${Object.entries(q.req).map(([k,v])=>`${v} ${k}`).join(', ')}`,'info');return;}
   q.done=true;G.gold+=q.r;sxp('social',20);
-  lg(`Â¡Encargo "${q.t}" listo! +ðŸª™${q.r}`);notify(`âœ… Â¡Encargo! +ðŸª™${q.r}`,'ev');reAll();
+  lg(tr('questDone',{title:questTitle(q),gold:q.r}));
+  notify(tr('questDoneNotify',{gold:q.r}),'ev');
+  reAll();
 }
 
 function openSeedPicker(){
@@ -3030,7 +3073,7 @@ function reAll(){
       const h2=Math.floor(rel/25);
       const hearts='&#10084;'.repeat(h2)+'&#9825;'.repeat(4-h2);
       const d=document.createElement('div');d.className='nc';
-      d.innerHTML=`<div class="nav">${npc.av}</div><div class="ni"><div class="nn">${npc.n}</div><div class="nr">${npc.r}</div>${hearts}<div class="rt"><div class="rf" style="width:${rel}%"></div></div></div>`;
+      d.innerHTML=`<div class="nav">${npc.av}</div><div class="ni"><div class="nn">${npcName(npc)}</div><div class="nr">${npcRole(npc)}</div>${hearts}<div class="rt"><div class="rf" style="width:${rel}%"></div></div></div>`;
       d.onclick=()=>talkNPC(npc.id);nl.appendChild(d);
     });
   }
@@ -3059,7 +3102,7 @@ function reAll(){
   } else {
     QUESTS.filter(q=>!q.done).forEach(q=>{
       const d=document.createElement('div');d.className='qi';
-      d.innerHTML=`<div class="qt">${q.ic} ${q.t}</div><div class="qm">${q.npc} - ${IS_ES?'Oro':'Gold'} ${q.r}</div>`;
+      d.innerHTML=`<div class="qt">${q.ic} ${questTitle(q)}</div><div class="qm">${questNpcName(q)} - ${IS_ES?'Oro':'Gold'} ${q.r}</div>`;
       d.onclick=()=>tryQ(q.id);ql.appendChild(d);
     });
   }

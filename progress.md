@@ -3628,3 +3628,11 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - El modal ahora muestra la amistad actualizada tras la conversacion (`relNow`) en lugar del valor previo.
 - Etiqueta de amistad en el modal localizable via `localizeText('Amistad:')` para ES/EN.
 - Validacion tecnica: parse JS del script embebido OK (`new Function(script)`).
+## 2026-03-30 - Valle Tranquilo i18n vecinos + estados (ES/EN)
+- Internacionalizados los vecinos con datos bilingues por NPC (`nEs/nEn`, `rEs/rEn`, `sayEs/sayEn`) en `public/arcade/valle-tranquilo/index.html`.
+- Los nombres de vecinos en ingles ahora son distintos a los de espanol (ej.: Elena->Evelyn, Marco->Mark, Luna->Willow, Felix->Rowan, Nora->Iris).
+- Aniadidos helpers `npcById`, `npcName`, `npcRole`, `npcLine`, `questTitle`, `questNpcName` para render consistente por idioma.
+- UI de vecinos actualizada: lista lateral, modal de conversacion, hint contextual y auto-ruta hacia NPC usan el idioma activo.
+- Mensajes de gameplay internacionalizados con `tr(...)`, incluyendo estado de riego (`logWaterCare`) y mensajes de regalo/encargo (`giftLog`, `giftHappy`, `questDone`, `questDoneNotify`).
+- Quests de vecinos migradas a `npcId` + `tEs/tEn` para mostrar nombre y texto correcto segun idioma.
+- Validacion tecnica: parse JS embebido OK (`new Function(script)`).
