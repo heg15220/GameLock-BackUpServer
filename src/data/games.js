@@ -21,6 +21,7 @@ import arcadeBubbleStormImage from "../assets/games/arcade-bubble-storm.svg";
 import arcadeIceStrikeProImage from "../assets/games/arcade-ice-strike-pro.svg";
 import arcadeNeonCryptImage from "../assets/games/arcade-neon-crypt.svg";
 import arcadeNeonRushImage from "../assets/games/arcade-neon-rush.svg";
+import arcadeKitchenRush2DImage from "../assets/games/arcade-kitchen-rush-2d.svg";
 import arcadeValleTranquiloImage from "../assets/games/arcade-valle-tranquilo.svg";
 import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-showdown.svg";
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
@@ -3289,6 +3290,55 @@ export const games = [
     viability_en: "High: deterministic lane runner architecture.",
     visualStyle_en: "Synthwave highway with modern lighting language.",
     techFocus_en: "Lane traffic manager, collision model, distance pacing.",
+  },
+  {
+    id: "arcade-kitchen-rush-2d",
+    image: arcadeKitchenRush2DImage,
+    sessionTime: "6-12 min",
+    title: "Kitchen Rush 2D",
+    category: "Arcade",
+    tagline: "Cocina 2D con flujo completo: ingredientes con estados, estaciones activas, cortes, coccion y entregas cronometradas.",
+    description:
+      "Juego de cocina con sistema jugable real: cada ingrediente tiene estado propio, se transforma por acciones (cortar, hervir, freir, hornear), y el plato final se valida por receta, precision y tiempo de entrega.",
+    objective_es:
+      "Completa el maximo de pedidos antes de que termine el turno combinando corte, coccion, emplatado y entrega en el punto correcto.",
+    howToPlay_es:
+      "WASD/flechas mueven al chef. E interactua con estaciones. Espacio corta en la tabla. T enciende/apaga olla, sarten y horno. Enter entrega platos. 1-6 seleccionan ingrediente en nevera. P pausa, R reinicia y F pantalla completa.",
+    highlights: [
+      "Ingredientes con estados progresivos (whole/sliced/diced/cooked/overcooked/burned).",
+      "Estaciones especializadas con temperatura propia: tabla, olla, sarten, horno, emplatado y pase.",
+      "Pedidos activos con temporizadores y validacion por receta real.",
+      "Sistema de combo y calidad de entrega: perfect/good/late con penalizacion por errores.",
+      "Particulas de corte, vapor, chisporroteo y humo para feedback tactil visual.",
+      "Arquitectura por capas (data/entities/systems/render/runtime) para escalar recetas e ingredientes.",
+    ],
+    difficulty: "Media-Alta",
+    multiplayer: "Solo",
+    viability: "Alta: runtime determinista en Canvas 2D con estado serializable y puente QA (render_game_to_text + advanceTime).",
+    visualStyle: "Direccion art warm-kitchen en 2D cenital con overlays de calor, sombras suaves y tickets activos.",
+    techFocus: "Modelo de transformaciones, estaciones con termica, pipeline de recetas y bucle de pedidos en tiempo real.",
+
+    category_en: "Arcade",
+    tagline_en: "Full-loop 2D kitchen game with stateful ingredients, active stations, slicing, cooking, and timed service.",
+    description_en:
+      "A complete cooking gameplay system where each ingredient has its own state, transforms through actions (cut, boil, fry, bake), and final dishes are validated by recipe correctness, timing, and quality.",
+    objective_en:
+      "Complete as many orders as possible before the shift ends by combining prep, heat control, plating, and on-time delivery.",
+    howToPlay_en:
+      "WASD/arrows move the chef. E interacts with stations. Space cuts on board. T toggles pot/pan/oven heat. Enter serves dishes. Keys 1-6 pick fridge ingredients. P pauses, R restarts, F fullscreen.",
+    highlights_en: [
+      "Progressive ingredient states (whole/sliced/diced/cooked/overcooked/burned).",
+      "Specialized stations with their own heat behavior: board, pot, pan, oven, plating, and service pass.",
+      "Active ticket queue with countdown timers and strict recipe validation.",
+      "Delivery quality and combo loop: perfect/good/late plus error penalties.",
+      "Cutting particles, steam, fry sparks, and smoke feedback for tactile readability.",
+      "Layered architecture (data/entities/systems/render/runtime) to scale recipes and ingredient sets.",
+    ],
+    difficulty_en: "Medium-High",
+    multiplayer_en: "Solo",
+    viability_en: "High: deterministic Canvas 2D runtime with serializable state and QA bridge hooks (render_game_to_text + advanceTime).",
+    visualStyle_en: "Warm top-down kitchen art direction with heat overlays, soft shadows, and active ticket UI.",
+    techFocus_en: "Transformation model, thermal station logic, recipe pipeline, and real-time order loop.",
   },
   {
     id: "arcade-valle-tranquilo",

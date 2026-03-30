@@ -62,6 +62,7 @@ const StickBrawlShowdownGame = lazy(() => import("./arcade/stick-brawl-showdown"
 const NeonCryptGame          = lazy(() => import("./arcade/neon-crypt"));
 const NeonRushGame           = lazy(() => import("./arcade/neon-rush"));
 const ValleTranquiloGame     = lazy(() => import("./arcade/valle-tranquilo"));
+const KitchenRush2DGame      = lazy(() => import("./arcade/kitchen-rush-2d"));
 const WikipediaGachaGame = lazy(() => import("./knowledge/wikipedia-gacha"));
 const RetroClassicsGame = lazy(() => import("./arcade/retro-classics"));
 
@@ -151,6 +152,7 @@ export const GAME_REGISTRY = {
   "arcade-stick-brawl-showdown": StickBrawlShowdownGame,
   "arcade-neon-crypt":           NeonCryptGame,
   "arcade-neon-rush":            NeonRushGame,
+  "arcade-kitchen-rush-2d":      KitchenRush2DGame,
   "arcade-valle-tranquilo":      ValleTranquiloGame,
   "sports-basketball-court":     BasketballCourtGame,
   "arcade-pong-neon-arena":      PongGame,
@@ -229,6 +231,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-ice-strike-pro":       "←→/AD apuntan, W sube potencia, Q giro interior, E giro exterior, Espacio lanza. S barre durante el vuelo. R reinicia, Esc menú.",
     "arcade-neon-crypt":           "WASD/flechas mover, ratón apuntar, Click/Espacio atacar con espada, Shift/E esquivar (invencible), recoge orbes verdes para recuperar vida. R reinicia, Esc menú.",
     "arcade-neon-rush":            "Runner de precision de 100 niveles: Espacio/arriba/click/tap salta con respuesta inmediata (jump buffer + coyote time). Incluye 1 salto aereo de apoyo por ciclo para evitar bloqueos injustos. En movil/tablet, toca cualquier zona del juego para saltar. Esquiva pinchos y techo, usa jump pads/orbes y llega al portal final. R reintenta, Esc menu.",
+    "arcade-kitchen-rush-2d":      "Cocina 2D por estaciones: WASD/flechas mover, E interactuar, Espacio cortar en tabla, T encender/apagar olla/sarten/horno, Enter entregar en zona de servicio y 1-6 seleccionar ingrediente de nevera. P pausa, R reinicia y F pantalla completa.",
     "arcade-valle-tranquilo":      "Sandbox de granja pixel-art: WASD/flechas mueven, 1-9 cambian herramienta, Espacio usa herramienta, E habla con NPC, B tienda, Z dormir y M mina. Click tambien interactua por casilla.",
     "arcade-stick-brawl-showdown": "Fighter arcade avanzado: A/D o flechas mover, W/arriba saltar, S/abajo bloquear, G/espacio jab, H/enter cross, J/K patadas, F proyectil, B super, P pausa y R reinicia.",
     "sports-basketball-court":     "Baloncesto 6 posiciones: arriba/abajo ajustan arco, izq/der la desviación lateral y W/S la potencia. Space o Enter lanza. P pausa, R nueva ronda y F pantalla completa.",
@@ -302,6 +305,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-ice-strike-pro":       "←→/AD aim, W raise power, Q in-turn, E out-turn, Space deliver. S sweeps mid-flight. R restart, Esc menu.",
     "arcade-neon-crypt":           "WASD/arrows move, mouse aim, Click/Space sword attack, Shift/E dash (brief invincibility). Collect green orbs to restore HP. R restart, Esc menu.",
     "arcade-neon-rush":            "100-level precision runner: Space/up/click/tap jumps with immediate response (jump-buffer + coyote-time). Includes one assist air jump per cycle to prevent unfair deadlocks. On mobile/tablet, tap anywhere in the game area to jump. Dodge spikes and ceiling traps, use jump pads/orbs, and reach each final portal. R retries, Esc menu.",
+    "arcade-kitchen-rush-2d":      "2D station-based cooking: WASD/arrows move, E interact, Space cuts on board, T toggles pot/pan/oven heat, Enter serves at the pass, and keys 1-6 select fridge ingredients. P pauses, R restarts, F fullscreen.",
     "arcade-valle-tranquilo":      "Pixel-art farming sandbox: WASD/arrows move, 1-9 swaps tools, Space uses the current tool, E talks to villagers, B opens the shop, Z sleeps, and M enters the mine. Mouse click also interacts per tile.",
     "arcade-stick-brawl-showdown": "Advanced arcade fighter: A/D or arrows move, W/up jump, S/down block, G/space jab, H/enter cross, J/K kicks, F projectile, B super, P pause, R restart.",
     "sports-basketball-court":     "Basketball 6 positions: up/down tune arc, left/right lateral aim, W/S power. Space or Enter shoots. P pauses, R starts a new round, and F toggles fullscreen.",

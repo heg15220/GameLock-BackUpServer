@@ -1,0 +1,444 @@
+.kitchen-rush-game {
+  border-color: rgba(217, 119, 6, 0.3);
+  background:
+    radial-gradient(circle at 10% -10%, rgba(59, 130, 246, 0.2), transparent 34%),
+    radial-gradient(circle at 90% -20%, rgba(251, 191, 36, 0.24), transparent 38%),
+    linear-gradient(165deg, #fff7ed 0%, #ffedd5 52%, #fffbeb 100%);
+}
+
+.kitchen-rush-head {
+  align-items: flex-start;
+}
+
+.kitchen-rush-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.kitchen-rush-actions button {
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: 10px;
+  padding: 0.45rem 0.72rem;
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  color: #fff7ed;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kitchen-rush-layout {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(250px, 295px) minmax(0, 1fr);
+  gap: 0.78rem;
+}
+
+.kitchen-rush-panel {
+  border: 1px solid rgba(120, 53, 15, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.75);
+  padding: 0.72rem;
+  display: grid;
+  gap: 0.68rem;
+  max-height: 640px;
+  overflow: auto;
+}
+
+.kitchen-rush-panel h5 {
+  margin: 0 0 0.3rem;
+  color: #7c2d12;
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kitchen-rush-panel p {
+  margin: 0;
+  color: #78350f;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.kitchen-rush-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.48rem;
+}
+
+.kitchen-rush-stats article {
+  border: 1px solid rgba(217, 119, 6, 0.24);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 0.44rem 0.5rem;
+}
+
+.kitchen-rush-stats span {
+  display: block;
+  font-size: 0.68rem;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kitchen-rush-stats strong {
+  font-size: 1rem;
+  color: #111827;
+  font-family: "Bricolage Grotesque", sans-serif;
+}
+
+.kitchen-rush-ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.38rem;
+}
+
+.kitchen-rush-ingredient-grid button {
+  border: 1px solid rgba(180, 83, 9, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #7c2d12;
+  padding: 0.38rem 0.42rem;
+  display: grid;
+  gap: 0.14rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kitchen-rush-ingredient-grid button span {
+  font-size: 0.64rem;
+  opacity: 0.7;
+}
+
+.kitchen-rush-ingredient-grid button strong {
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.kitchen-rush-ingredient-grid button.active {
+  border-color: rgba(37, 99, 235, 0.55);
+  background: linear-gradient(140deg, rgba(219, 234, 254, 0.98), rgba(239, 246, 255, 0.92));
+}
+
+.kitchen-rush-order-list {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.kitchen-rush-order-list article {
+  border: 1px solid rgba(14, 116, 144, 0.25);
+  border-radius: 10px;
+  background: rgba(239, 246, 255, 0.85);
+  padding: 0.42rem 0.48rem;
+}
+
+.kitchen-rush-order-list header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.42rem;
+  margin-bottom: 0.2rem;
+}
+
+.kitchen-rush-order-list strong {
+  font-size: 0.79rem;
+  color: #0f172a;
+}
+
+.kitchen-rush-order-list span {
+  font-size: 0.72rem;
+  color: #be123c;
+  font-weight: 700;
+}
+
+.kitchen-rush-guide-list {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.kitchen-rush-guide-card {
+  border: 1px solid rgba(30, 64, 175, 0.25);
+  border-radius: 10px;
+  background: rgba(239, 246, 255, 0.84);
+  padding: 0.44rem 0.5rem;
+}
+
+.kitchen-rush-guide-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.42rem;
+  margin-bottom: 0.28rem;
+}
+
+.kitchen-rush-guide-card header strong {
+  font-size: 0.78rem;
+  color: #1e3a8a;
+}
+
+.kitchen-rush-guide-card header span {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.kitchen-rush-guide-steps {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.34rem;
+}
+
+.kitchen-rush-guide-steps li {
+  list-style: none;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 0.34rem 0.38rem;
+}
+
+.kitchen-rush-guide-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-bottom: 0.16rem;
+}
+
+.kitchen-rush-guide-row strong {
+  font-size: 0.74rem;
+  color: #0f172a;
+}
+
+.kitchen-rush-guide-row em {
+  font-size: 0.66rem;
+  font-style: normal;
+  font-weight: 700;
+  color: #1e40af;
+  background: rgba(191, 219, 254, 0.62);
+  padding: 0.08rem 0.32rem;
+  border-radius: 999px;
+}
+
+.kitchen-rush-guide-steps li p {
+  margin: 0;
+  font-size: 0.66rem;
+  line-height: 1.26;
+  color: #334155;
+}
+
+.kitchen-rush-guide-flow-title {
+  margin-top: 0.34rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.kitchen-rush-guide-flow {
+  margin-top: 0.12rem;
+  font-size: 0.66rem;
+  line-height: 1.28;
+  color: #1e3a8a;
+}
+
+.kitchen-rush-guide-note {
+  margin-top: 0.34rem;
+  font-size: 0.67rem;
+  line-height: 1.3;
+  color: #3730a3;
+}
+
+.kitchen-rush-empty {
+  border: 1px dashed rgba(148, 163, 184, 0.62);
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.85);
+  padding: 0.55rem;
+}
+
+.kitchen-rush-station-list {
+  display: grid;
+  gap: 0.34rem;
+}
+
+.kitchen-rush-station-list article {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 0.38rem 0.45rem;
+}
+
+.kitchen-rush-station-list article.near {
+  border-color: rgba(37, 99, 235, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.25);
+}
+
+.kitchen-rush-station-list strong {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.76rem;
+  color: #111827;
+}
+
+.kitchen-rush-station-list p {
+  font-size: 0.67rem;
+  color: #475569;
+}
+
+.kitchen-rush-temp-controls {
+  margin: 0.18rem 0 0.14rem;
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.kitchen-rush-temp-controls button {
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid rgba(37, 99, 235, 0.42);
+  border-radius: 7px;
+  background: linear-gradient(165deg, rgba(219, 234, 254, 0.96), rgba(191, 219, 254, 0.92));
+  color: #1e3a8a;
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.kitchen-rush-temp-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.24rem;
+  margin: 0.08rem 0 0.14rem;
+}
+
+.kitchen-rush-temp-presets button {
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 8px;
+  padding: 0.12rem 0.34rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #334155;
+  font-size: 0.64rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kitchen-rush-temp-presets button.active {
+  border-color: rgba(37, 99, 235, 0.62);
+  background: rgba(219, 234, 254, 0.96);
+  color: #1e40af;
+}
+
+.kitchen-rush-tutorial ol {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.36rem;
+}
+
+.kitchen-rush-tutorial li {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  gap: 0.38rem;
+  align-items: start;
+  padding: 0.34rem 0.38rem;
+  border: 1px solid rgba(147, 51, 234, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.kitchen-rush-tutorial li span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  font-size: 0.67rem;
+  font-weight: 700;
+  color: #4c1d95;
+  background: rgba(196, 181, 253, 0.62);
+}
+
+.kitchen-rush-tutorial li p {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.3;
+  color: #312e81;
+}
+
+.kitchen-rush-stage-wrap {
+  min-width: 0;
+  display: grid;
+  gap: 0.62rem;
+}
+
+.kitchen-rush-canvas-shell {
+  border: 1px solid rgba(120, 53, 15, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.15);
+}
+
+.kitchen-rush-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 960 / 560;
+}
+
+.kitchen-rush-touch {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.52rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.kitchen-rush-touch h6 {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #7c2d12;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kitchen-rush-touch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.36rem;
+}
+
+.kitchen-rush-touch-grid button {
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 10px;
+  min-height: 2.1rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.94));
+  color: #334155;
+  font-size: 0.71rem;
+  font-weight: 700;
+}
+
+@media (max-width: 1020px) {
+  .kitchen-rush-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kitchen-rush-panel {
+    max-height: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .kitchen-rush-touch-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kitchen-rush-ingredient-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .kitchen-rush-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

@@ -3636,3 +3636,21 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Mensajes de gameplay internacionalizados con `tr(...)`, incluyendo estado de riego (`logWaterCare`) y mensajes de regalo/encargo (`giftLog`, `giftHappy`, `questDone`, `questDoneNotify`).
 - Quests de vecinos migradas a `npcId` + `tEs/tEn` para mostrar nombre y texto correcto segun idioma.
 - Validacion tecnica: parse JS embebido OK (`new Function(script)`).
+
+## 2026-03-30 - Nuevo juego arcade-kitchen-rush-2d (en progreso)
+- Creado modulo nuevo `src/games/arcade/kitchen-rush-2d/` con separacion por capas:
+  - `data/`: ingredientes, transformaciones y recetas.
+  - `entities/`: `Ingredient` y jerarquia de estaciones (`CookingStation`, `PotStation`, `PanStation`, `OvenStation`, `CuttingBoardStation`).
+  - `systems/`: corte, coccion termica, pedidos, validacion de receta y particulas.
+  - `render/`: renderer Canvas por capas (cocina, estaciones, ingredientes, chef, tickets, HUD, overlays).
+  - `runtime`: game loop fijo, input teclado/tactil, interacciones, scoring/combo, pedidos activos, bridge QA.
+  - `index.jsx` + `styles.css`: shell React, paneles de control, canvas responsive y botones tactiles.
+- Integracion de plataforma:
+  - Nuevo registro lazy en `src/games/registry.jsx` con id `arcade-kitchen-rush-2d`.
+  - Nuevos control hints en ES y EN para el id.
+  - Nueva miniatura `src/assets/games/arcade-kitchen-rush-2d.svg`.
+  - Nueva ficha completa en catalogo `src/data/games.js`.
+- Pendiente inmediato:
+  - Compilar (`npm run build`).
+  - Ejecutar bucle Playwright (`web_game_playwright_client.mjs`) con acciones de control del nuevo juego.
+  - Revisar estado/screenshot/errores y ajustar si aparece algun bug.
