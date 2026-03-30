@@ -1,0 +1,3213 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Valle Tranquilo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;image-rendering:pixelated}
+body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'VT323',monospace;color:#f0e0c0}
+#app{display:grid;grid-template-rows:46px 1fr 112px;grid-template-columns:188px 1fr 188px;height:100vh;width:100vw}
+
+/* â”€â”€ HUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+#hud{grid-column:1/-1;background:#12080200;border-bottom:3px solid #6a3c10;box-shadow:0 2px 0 #c08030,inset 0 1px 0 rgba(255,200,80,.08);display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:relative;z-index:20;backdrop-filter:blur(2px)}
+#hud::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(60,30,5,.95),rgba(30,15,3,.98));z-index:-1}
+.hud-g{display:flex;align-items:center;gap:8px}
+#title{font-family:'Press Start 2P';font-size:9px;color:#f0c030;text-shadow:2px 2px 0 #7a3800,-1px -1px 0 rgba(255,220,100,.2);letter-spacing:1px}
+.chip{background:rgba(255,255,255,.05);border:2px solid #5a3010;box-shadow:1px 1px 0 #c08030;border-radius:1px;padding:2px 8px;font-family:'VT323';font-size:16px;white-space:nowrap}
+.chip .v{color:#f0c030}
+#stag{font-family:'Press Start 2P';font-size:6px;padding:3px 7px;border:2px solid;border-radius:1px}
+body.spring #stag{color:#70e870;border-color:#70e870;background:rgba(60,160,60,.18)}
+body.summer #stag{color:#f8d030;border-color:#f8d030;background:rgba(200,150,0,.18)}
+body.autumn #stag{color:#f08020;border-color:#f08020;background:rgba(180,80,0,.18)}
+body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,.18)}
+#ebar{width:68px;height:10px;background:#0a0a0a;border:2px solid #5a3010;box-shadow:1px 1px 0 #c08030;position:relative;overflow:hidden}
+#efill{height:100%;background:linear-gradient(90deg,#30b830,#70f050);transition:width .3s}
+#efill::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(255,255,255,.12) 5px,rgba(255,255,255,.12) 6px)}
+
+/* â”€â”€ PANELS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+#pl,#pr{padding:9px 8px;display:flex;flex-direction:column;gap:5px;overflow-y:auto;overflow-x:hidden;position:relative;z-index:15}
+#pl{background:linear-gradient(180deg,rgba(18,8,2,.97),rgba(24,12,4,.97));border-right:3px solid #6a3c10;box-shadow:2px 0 0 #c08030}
+#pr{background:linear-gradient(180deg,rgba(18,8,2,.97),rgba(24,12,4,.97));border-left:3px solid #6a3c10;box-shadow:-2px 0 0 #c08030}
+#pl::before,#pr::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.12) 2px,rgba(0,0,0,.13) 3px);pointer-events:none}
+.ph{font-family:'Press Start 2P';font-size:6px;color:#c08030;letter-spacing:1px;padding:4px 0 5px;border-bottom:2px solid #3a2008;text-shadow:1px 1px 0 #5a2800;margin-bottom:2px}
+.tb{width:100%;padding:5px 6px;background:rgba(255,255,255,.04);border:2px solid #4a2c0c;box-shadow:2px 2px 0 #000,inset 0 1px 0 rgba(255,200,80,.04);color:#e8d0a8;font-family:'VT323';font-size:15px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px;border-radius:1px}
+.tb:hover{background:rgba(255,200,80,.07);border-color:#8a5820}
+.tb.on{background:rgba(240,190,40,.12);border-color:#f0c030;box-shadow:2px 2px 0 #000,0 0 6px rgba(240,190,40,.25);color:#f0c030}
+.tb .cost{margin-left:auto;font-size:12px;color:#806040}
+.ti{font-size:13px;width:17px;text-align:center}
+.sk{display:flex;align-items:center;gap:4px}
+.skl{font-family:'VT323';font-size:12px;width:50px;color:#806040}
+.skt{flex:1;height:5px;background:#080808;border:1px solid #3a2008;overflow:hidden}
+.skf{height:100%;transition:width .5s}
+.skv{font-family:'VT323';font-size:12px;width:20px;text-align:right;color:#f0c030}
+.nc{background:rgba(255,255,255,.03);border:2px solid #4a2c0c;box-shadow:2px 2px 0 #000;padding:6px 7px;cursor:pointer;border-radius:1px;display:flex;align-items:center;gap:6px}
+.nc:hover{border-color:#8a5820;background:rgba(255,200,80,.05)}
+.nav{width:26px;height:26px;background:#080808;border:2px solid #3a2008;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ni{flex:1;overflow:hidden}
+.nn{font-family:'VT323';font-size:14px;line-height:1}
+.nr{font-family:'VT323';font-size:11px;color:#706050}
+.rt{width:100%;height:3px;background:#080808;margin-top:2px}
+.rf{height:100%;background:linear-gradient(90deg,#e03030,#f06060);transition:width .5s}
+.qi{background:rgba(255,255,255,.03);border:2px solid #4a2c0c;box-shadow:2px 2px 0 #000;padding:6px 7px;cursor:pointer;border-radius:1px}
+.qi:hover{border-color:#f0c030}
+.qt{font-family:'VT323';font-size:14px}
+.qm{font-family:'VT323';font-size:11px;color:#706050}
+
+/* â”€â”€ VIEWPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+#vp{grid-column:2;grid-row:2;position:relative;overflow:hidden;background:#000}
+#sc,#gc,#fc{position:absolute;inset:0}
+#sc{z-index:0}
+#gc{z-index:2}
+#fc{z-index:3;pointer-events:none}
+#ctool{position:absolute;bottom:8px;right:8px;z-index:5;background:rgba(18,8,2,.9);border:2px solid #6a3c10;box-shadow:2px 2px 0 #000;padding:3px 9px;font-family:'VT323';font-size:14px;pointer-events:none}
+#ctxhint{position:absolute;left:8px;bottom:28px;z-index:6;background:rgba(14,7,2,.86);border:1px solid #4a2c0c;padding:2px 8px;font-family:'VT323';font-size:12px;color:#d8bb84;pointer-events:none;max-width:min(56vw,520px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#guide-window{position:absolute;top:8px;left:8px;z-index:8;min-width:220px;max-width:min(42vw,360px);background:rgba(14,7,2,.9);border:2px solid #8a5a20;box-shadow:2px 2px 0 #000;padding:6px 8px;color:#e8d0a8;display:flex;flex-direction:column;gap:4px}
+#guide-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#guide-title{font-family:'Press Start 2P';font-size:7px;color:#f0c030;letter-spacing:.6px}
+#guide-step{font-family:'VT323';font-size:12px;color:#d2b174}
+#guide-main{font-family:'VT323';font-size:15px;line-height:1.2;color:#f3deba}
+#guide-sub{font-family:'VT323';font-size:12px;color:#b58a54}
+#guide-progress{height:4px;background:#0a0a0a;border:1px solid #3a2008;overflow:hidden}
+#guide-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#f0a030,#f0d060);transition:width .35s}
+#guide-actions{display:flex;gap:6px}
+.guide-btn{padding:2px 7px;background:rgba(255,255,255,.03);border:1px solid #4a2c0c;color:#e6c996;font-family:'VT323';font-size:12px;cursor:pointer}
+.guide-btn:hover{border-color:#f0c030;color:#f0d69a}
+#guide-window.done #guide-title{color:#70d070}
+#guide-window.done #guide-progress-fill{background:linear-gradient(90deg,#40b050,#8be080)}
+
+/* â”€â”€ BOTTOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+#bot{grid-column:1/-1;background:linear-gradient(180deg,rgba(18,8,2,.98),rgba(10,5,2,.99));border-top:3px solid #6a3c10;box-shadow:0 -2px 0 #c08030;display:flex;align-items:stretch}
+#invw{flex:1;display:flex;align-items:center;gap:3px;padding:7px 10px;border-right:2px solid #3a2008;flex-wrap:wrap}
+.is{width:46px;height:46px;background:rgba(255,255,255,.03);border:2px solid #4a2c0c;box-shadow:2px 2px 0 #000,inset 0 1px 0 rgba(255,200,80,.03);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:18px;border-radius:1px}
+.is:hover{border-color:#f0c030;background:rgba(240,190,40,.08)}
+.is.e{opacity:.25;cursor:default}
+.is.e:hover{border-color:#4a2c0c;background:rgba(255,255,255,.03)}
+.iq{position:absolute;bottom:1px;right:3px;font-family:'VT323';font-size:12px;color:#f0c030;line-height:1}
+.il{font-family:'VT323';font-size:9px;color:#706050;line-height:1;margin-top:1px}
+#logb{width:190px;padding:7px 10px;border-right:2px solid #3a2008;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;overflow:hidden}
+.ll{font-family:'VT323';font-size:13px;line-height:1.3;color:#806040}
+.ll.f{color:#b0d870}
+#actb{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 10px}
+.ab{padding:5px 13px;background:rgba(255,255,255,.03);border:2px solid #4a2c0c;box-shadow:2px 2px 0 #000;color:#e8d0a8;font-family:'VT323';font-size:15px;cursor:pointer;border-radius:1px;white-space:nowrap}
+.ab:hover{border-color:#8a5820;background:rgba(255,200,80,.07)}
+.ab:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #000}
+.ab.g{border-color:#c09020;color:#f0c030}
+.ab.b{border-color:#5080c0;color:#90b8f0}
+
+/* â”€â”€ MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+#mb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
+#mb.on{opacity:1;pointer-events:all}
+#mx{background:rgba(14,7,2,.98);border:3px solid #6a3c10;box-shadow:4px 4px 0 #000,6px 6px 0 #c08030,inset 0 0 0 1px rgba(255,200,80,.04);padding:20px 22px;min-width:330px;max-width:490px;max-height:78vh;overflow-y:auto;transform:scale(.93);transition:transform .15s;position:relative}
+#mx::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.01) 3px,rgba(255,255,255,.01) 4px);pointer-events:none}
+#mb.on #mx{transform:scale(1)}
+#mt{font-family:'Press Start 2P';font-size:9px;color:#f0c030;text-shadow:2px 2px 0 #502000;margin-bottom:3px}
+#ms{font-family:'VT323';font-size:14px;color:#706050;margin-bottom:13px}
+#md{display:flex;flex-direction:column;gap:6px}
+.sr{background:rgba(255,255,255,.03);border:2px solid #4a2c0c;box-shadow:2px 2px 0 #000;padding:8px 10px;display:flex;align-items:center;gap:10px;cursor:pointer;border-radius:1px}
+.sr:hover{border-color:#f0c030}
+.si{font-size:19px}
+.sn{font-family:'VT323';font-size:15px}
+.sd{font-family:'VT323';font-size:12px;color:#706050}
+.sp{margin-left:auto;font-family:'VT323';font-size:15px;color:#f0c030;white-space:nowrap}
+.mh{font-family:'Press Start 2P';font-size:6px;color:#c08030;padding:7px 0 4px;border-bottom:1px solid #3a2008;margin-bottom:4px}
+.mcb{margin-top:13px;width:100%;padding:7px;background:rgba(255,255,255,.03);border:2px solid #4a2c0c;box-shadow:2px 2px 0 #000;color:#e8d0a8;font-family:'VT323';font-size:16px;cursor:pointer}
+.mcb:hover{border-color:#8a5820}
+.db{background:#100800;border:2px solid #c08030;box-shadow:3px 3px 0 #000;padding:12px 14px;font-family:'VT323';font-size:16px;line-height:1.6}
+.dn{font-family:'Press Start 2P';font-size:7px;color:#f0c030;margin-bottom:7px}
+
+/* â”€â”€ SLEEP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+#ss{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0);pointer-events:none;transition:background 1.3s;display:flex;align-items:center;justify-content:center}
+#ss.on{background:#000;pointer-events:all}
+#st{font-family:'Press Start 2P';font-size:11px;color:#f0c030;opacity:0;transition:opacity .8s;text-align:center;line-height:2.3;text-shadow:2px 2px 0 #502000}
+#ss.on #st{opacity:1}
+
+/* â”€â”€ NOTIFS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+#ns{position:fixed;top:54px;right:11px;z-index:50;display:flex;flex-direction:column;gap:4px}
+.np{background:rgba(14,7,2,.96);border:2px solid #4a2c0c;box-shadow:3px 3px 0 #000;padding:6px 11px;font-family:'VT323';font-size:15px;max-width:230px;animation:pin .2s,pout .4s 2.6s forwards}
+.np.good{border-color:#50a830;color:#90e060}
+.np.info{border-color:#3060a0;color:#80a8e0}
+.np.ev{border-color:#f0c030;color:#f0c030}
+@keyframes pin{from{transform:translateX(110%) scale(.8);opacity:0}to{transform:none;opacity:1}}
+@keyframes pout{to{transform:translateX(110%);opacity:0}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#080404}::-webkit-scrollbar-thumb{background:#4a2c0c}
+</style>
+</head>
+<body class="spring day">
+<div id="app">
+  <div id="hud">
+    <div class="hud-g">
+      <span id="title">VALLE TRANQUILO</span>
+      <span id="stag">PRIMAVERA</span>
+      <span class="chip"><span id="hday-icon">📅</span> <span id="hday-label">Día</span> <span class="v" id="hday">1</span></span>
+      <span class="chip"><span id="htime-icon">🕐</span> <span class="v" id="htime">07:00</span></span>
+    </div>
+    <div class="hud-g">
+      <span id="energy-icon" style="font-size:11px">⚡</span>
+      <div id="ebar"><div id="efill" style="width:100%"></div></div>
+      <span class="v" id="henrg" style="font-family:'VT323';font-size:15px">100</span>
+    </div>
+    <div class="hud-g">
+      <span class="chip"><span id="hgold-icon">🪙</span> <span class="v" id="hgold">150</span></span>
+      <span class="chip"><span id="hflv-icon">🌾</span> <span id="hflv-label">Lv.</span><span class="v" id="hflv">1</span></span>
+      <button id="kb-help-btn" onclick="toggleKbOverlay()" style="background:rgba(255,255,255,.05);border:2px solid #5a3010;box-shadow:1px 1px 0 #c08030;border-radius:1px;padding:2px 8px;font-family:'VT323';font-size:14px;color:#c08030;cursor:pointer;white-space:nowrap">⌨ ?</button>
+    </div>
+  </div>
+  <div id="pl">
+    <div class="ph">â”€â”€ HERRAMIENTAS â”€â”€</div>
+    <button class="tb on" id="tb-water"   onclick="T('water')">  <span class="ti">🚿</span>Regar   <span class="cost">-3⚡</span></button>
+    <button class="tb"    id="tb-hoe"     onclick="T('hoe')">    <span class="ti">⛏️</span>Labrar  <span class="cost">-4⚡</span></button>
+    <button class="tb"    id="tb-plant"   onclick="T('plant')">  <span class="ti">🌱</span>Plantar <span class="cost">-2⚡</span></button>
+    <button class="tb"    id="tb-harvest" onclick="T('harvest')"><span class="ti">🧺</span>Cosechar<span class="cost">-2⚡</span></button>
+    <button class="tb"    id="tb-axe"     onclick="T('axe')">    <span class="ti">🪓</span>Talar   <span class="cost">-6⚡</span></button>
+    <button class="tb"    id="tb-pickaxe" onclick="T('pickaxe')"><span class="ti">⚒️</span>Picar   <span class="cost">-6⚡</span></button>
+    <button class="tb"    id="tb-fish"    onclick="T('fish')">   <span class="ti">🎣</span>Pescar  <span class="cost">-5⚡</span></button>
+    <button class="tb"    id="tb-path"    onclick="T('path')">   <span class="ti">🪨</span>Camino  <span class="cost">-1⚡</span></button>
+    <button class="tb"    id="tb-fence"   onclick="T('fence')">  <span class="ti">🪵</span>Valla   <span class="cost">-1⚡</span></button>
+    <div class="ph" style="margin-top:6px">â”€â”€ HABILIDADES â”€â”€</div>
+    <div id="skw"></div>
+    <div class="ph" style="margin-top:6px">â”€â”€ CLIMA â”€â”€</div>
+    <div id="wbox" style="font-family:'VT323';font-size:13px;color:#706050;line-height:1.6"></div>
+  </div>
+  <div id="vp">
+    <canvas id="sc"></canvas>
+    <canvas id="gc"></canvas>
+    <canvas id="fc"></canvas>
+    <div id="guide-window">
+      <div id="guide-h">
+        <span id="guide-title">GUÍA DE PARTIDA</span>
+        <span id="guide-step">1/8</span>
+      </div>
+      <div id="guide-main">Muévete con WASD o clic derecho.</div>
+      <div id="guide-sub">Objetivo sugerido para avanzar.</div>
+      <div id="guide-progress"><div id="guide-progress-fill"></div></div>
+      <div id="guide-actions">
+        <button class="guide-btn" id="guide-open" onclick="openGuideModal()">Ver plan</button>
+        <button class="guide-btn" id="guide-next" onclick="guideSkipStep()">Saltar paso</button>
+      </div>
+    </div>
+    <div id="ctool">🚿 Regar</div>
+    <div id="ctxhint">Espacio o clic izquierdo: usar herramienta. Clic derecho: mover.</div>
+    <div id="kb-help-chip" style="position:absolute;bottom:8px;left:8px;background:rgba(14,7,2,.8);border:1px solid #4a2c0c;padding:2px 8px;font-family:VT323,monospace;font-size:12px;color:#806040;pointer-events:none">⌨ ? = Controles</div>
+  </div>
+  <div id="pr">
+    <div class="ph">â”€â”€ VECINOS â”€â”€</div>
+    <div id="npcl"></div>
+    <div class="ph" style="margin-top:7px">â”€â”€ ENCARGOS â”€â”€</div>
+    <div id="qsl"></div>
+    <div class="ph" style="margin-top:7px">â”€â”€ EVENTOS â”€â”€</div>
+    <div id="evb" style="font-family:'VT323';font-size:13px;color:#706050;line-height:1.7"></div>
+  </div>
+  <div id="bot">
+    <div id="invw"></div>
+    <div id="logb"><div class="ph">DIARIO</div><div id="logl"></div></div>
+    <div id="actb">
+      <button class="ab g" onclick="openShop()">🏪 Tienda</button>
+      <button class="ab b" onclick="doSleep()">🌙 Dormir</button>
+      <button class="ab" id="mine-btn" onclick="openMine()">⛏️ Mina</button>
+    </div>
+  </div>
+</div>
+<div id="mb" onclick="closeBD(event)"><div id="mx"><div id="mt"></div><div id="ms"></div><div id="md"></div><button class="mcb" onclick="closeM()">[ CERRAR ]</button></div></div>
+<div id="ss"><div id="st"></div></div>
+<div id="ns"></div>
+
+<script>
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  DATA
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+const SEASONS=['spring','summer','autumn','winter'];
+const SN={spring:'Primavera',summer:'Verano',autumn:'OtoÃ±o',winter:'Invierno'};
+const SN_EN={spring:'Spring',summer:'Summer',autumn:'Autumn',winter:'Winter'};
+const IS_ES=(navigator.language||'es').toLowerCase().startsWith('es');
+const LANG=IS_ES?'es':'en';
+const I18N={
+  es:{
+    hudDay:'Dia',hudLevel:'Lv.',controlsChip:'⌨ ? = Controles',helpBtn:'⌨ ?',
+    panelTools:'-- HERRAMIENTAS --',panelSkills:'-- HABILIDADES --',panelWeather:'-- CLIMA --',
+    panelNeighbors:'-- VECINOS --',panelQuests:'-- ENCARGOS --',panelEvents:'-- EVENTOS --',panelDiary:'DIARIO',
+    shop:'Tienda',sleep:'Dormir',mine:'Mina',exitMine:'Salir Mina',
+    mineActive:'Mina activa',rareVisible:'Vetas raras visibles: {n}',mineTip:'Usa pico en rocas brillantes y sal con E/M en la salida.',
+    mineGoalDone:'completado',mineGoalProgress:'en progreso',
+    weatherMine:'Subsuelo: aire denso, roca humeda y polvo mineral.',
+    eventMine:'Zona especial de mineria\\nVetas raras restantes: {n}\\nE o M para salir por la puerta de la mina.',
+    weatherSunny:'Soleado',weatherCloudy:'Nublado',weatherRainy:'Lluvia',weatherStormy:'Tormenta',weatherSnowy:'Nieve',
+    eventSpring:'Flores (dia 15)\\nFeria (dia 28)',eventSummer:'Solsticio (14)\\nFestival de pesca (20)',eventAutumn:'Cosecha (10)\\nFiesta (24)',eventWinter:'Mercado (7)\\nRegalos (25)',
+    tipMoveTool:'Espacio o clic izquierdo: usar herramienta. Clic derecho: mover.',
+    ctoolWater:'🚿 Regar',ctoolHoe:'⛏️ Labrar',ctoolPlant:'🌱 Plantar {crop}',ctoolHarvest:'🧺 Cosechar',
+    ctoolAxe:'🪓 Talar',ctoolPickaxe:'⚒️ Picar',ctoolFish:'🎣 Pescar',ctoolPath:'🪨 Camino',ctoolFence:'🪵 Valla',
+    toolWater:'Regar',toolHoe:'Labrar',toolPlant:'Plantar',toolHarvest:'Cosechar',toolAxe:'Talar',toolPickaxe:'Picar',toolFish:'Pescar',toolPath:'Camino',toolFence:'Valla',
+    inRoute:'{zone} · {mode} en ruta: {steps} pasos (WASD cancela)',modeTalk:'Hablar',modeAction:'Accion',
+    hintEnterMine:'{zone} · Pulsa E o M para entrar a la Mina Abisal.',
+    hintExitMine:'{zone} · Pulsa E o M para salir de la mina al valle.',
+    hintTalk:'{zone} · E/Enter para hablar con {name}. Espacio para usar herramienta.',
+    hintTool:'{zone} · Herramienta: {tool}. Objetivo {col},{row} ({dist}).',
+    distReach:'alcance',distFar:'fuera',
+    noNpcNear:'Acercate a un vecino (E).',
+    kbTitle:'⌨ CONTROLES DE TECLADO',kbMove:'Mover al jugador',kbUse:'Usar herramienta aqui',kbTalk:'Hablar con NPC cercano',kbTool:'Cambiar herramienta',
+    kbShop:'Abrir Tienda',kbSleep:'Dormir / Siguiente dia',kbMine:'Entrar a la Mina',kbClose:'Cerrar menu',kbHelp:'Mostrar esta ayuda',
+    kbFooter1:'1=Regar  2=Labrar  3=Plantar  4=Cosechar  5=Talar  6=Picar  7=Pescar  8=Camino  9=Valla',
+    kbFooter2:'Q/R/Tab/Rueda=Herramienta · Shift=Sprint · X=Herramienta local · Clic der=Ruta',
+    close:'[ CERRAR ]',
+    welcome1:'¡Bienvenido a Valle Tranquilo!',welcome2:'Labra ⛏️, planta 🌱 y cosecha 🧺.',welcome3:'Habla con los vecinos del pueblo.',
+    welcomeNotify:'🌅 ¡Bienvenido! Tu nueva vida comienza.',tipHoe:'💡 Consejo: ⛏️ para labrar la tierra verde.'
+  },
+  en:{
+    hudDay:'Day',hudLevel:'Lv.',controlsChip:'⌨ ? = Controls',helpBtn:'⌨ ?',
+    panelTools:'-- TOOLS --',panelSkills:'-- SKILLS --',panelWeather:'-- WEATHER --',
+    panelNeighbors:'-- NEIGHBORS --',panelQuests:'-- QUESTS --',panelEvents:'-- EVENTS --',panelDiary:'JOURNAL',
+    shop:'Shop',sleep:'Sleep',mine:'Mine',exitMine:'Exit Mine',
+    mineActive:'Mine active',rareVisible:'Rare veins visible: {n}',mineTip:'Use pickaxe on glowing rocks and exit with E/M at the gate.',
+    mineGoalDone:'complete',mineGoalProgress:'in progress',
+    weatherMine:'Underground: dense air, wet stone and mineral dust.',
+    eventMine:'Special mining zone\\nRare veins remaining: {n}\\nPress E or M to leave through the mine gate.',
+    weatherSunny:'Sunny',weatherCloudy:'Cloudy',weatherRainy:'Rainy',weatherStormy:'Storm',weatherSnowy:'Snow',
+    eventSpring:'Flowers (day 15)\\nFair (day 28)',eventSummer:'Solstice (14)\\nFishing festival (20)',eventAutumn:'Harvest (10)\\nFeast (24)',eventWinter:'Market (7)\\nGifts (25)',
+    tipMoveTool:'Space or left click: use tool. Right click: move.',
+    ctoolWater:'🚿 Water',ctoolHoe:'⛏️ Till',ctoolPlant:'🌱 Plant {crop}',ctoolHarvest:'🧺 Harvest',
+    ctoolAxe:'🪓 Chop',ctoolPickaxe:'⚒️ Mine',ctoolFish:'🎣 Fish',ctoolPath:'🪨 Path',ctoolFence:'🪵 Fence',
+    toolWater:'Water',toolHoe:'Till',toolPlant:'Plant',toolHarvest:'Harvest',toolAxe:'Chop',toolPickaxe:'Mine',toolFish:'Fish',toolPath:'Path',toolFence:'Fence',
+    inRoute:'{zone} · {mode} route: {steps} steps (WASD cancels)',modeTalk:'Talk',modeAction:'Action',
+    hintEnterMine:'{zone} · Press E or M to enter the Abyss Mine.',
+    hintExitMine:'{zone} · Press E or M to leave the mine and return.',
+    hintTalk:'{zone} · E/Enter to talk with {name}. Space to use tool.',
+    hintTool:'{zone} · Tool: {tool}. Target {col},{row} ({dist}).',
+    distReach:'in range',distFar:'far',
+    noNpcNear:'Move closer to a neighbor (E).',
+    kbTitle:'⌨ KEYBOARD CONTROLS',kbMove:'Move player',kbUse:'Use tool here',kbTalk:'Talk to nearby NPC',kbTool:'Switch tool',
+    kbShop:'Open Shop',kbSleep:'Sleep / Next day',kbMine:'Enter Mine',kbClose:'Close menu',kbHelp:'Show this help',
+    kbFooter1:'1=Water  2=Till  3=Plant  4=Harvest  5=Chop  6=Mine  7=Fish  8=Path  9=Fence',
+    kbFooter2:'Q/R/Tab/Wheel=Tool · Shift=Sprint · X=Local tool · Right click=Path',
+    close:'[ CLOSE ]',
+    welcome1:'Welcome to Quiet Valley!',welcome2:'Till ⛏️, plant 🌱 and harvest 🧺.',welcome3:'Talk with the town neighbors.',
+    welcomeNotify:'🌅 Welcome! Your new life begins.',tipHoe:'💡 Tip: use ⛏️ to till green ground.'
+  }
+};
+function tr(key,vars={}){
+  const dict=I18N[LANG]||I18N.es;
+  let txt=(dict[key]??I18N.es[key]??key);
+  Object.entries(vars).forEach(([k,v])=>{txt=txt.replaceAll(`{${k}}`,String(v));});
+  return txt;
+}
+function seasonName(season){return LANG==='es'?(SN[season]||season):(SN_EN[season]||season);}
+const EN_TEXT_REPLACEMENTS=[
+  ['Tienda del Valle','Valley Shop'],['Compra · Vende · Mejora','Buy · Sell · Upgrade'],['Sin artículos para vender.','No items to sell.'],
+  ['Sin articulos para vender.','No items to sell.'],['SEMILLAS','SEEDS'],['MEJORAS','UPGRADES'],['VENDER','SELL'],
+  ['SELECCIONAR CULTIVO','SELECT CROP'],['¿Qué plantar?','What to plant?'],['Semillas:','Seeds:'],
+  ['Fuera de temporada.','Out of season.'],['Fuera de temp.','Out of season'],['Oro insuficiente.','Not enough gold.'],
+  ['No tienes eso.','You do not have that.'],['Ya regalaste hoy.','You already gave a gift today.'],
+  ['Acercate a un vecino (E).','Move closer to a neighbor (E).'],['No hay camino hasta ese punto.','No path to that point.'],
+  ['No puedes llegar a ese vecino desde aqui.','You cannot reach that neighbor from here.'],
+  ['Agua bloquea el paso. Usa clic derecho para rodear.','Water blocks the way. Use right click to route around.'],
+  ['Sin energÃ­a. Â¡Duerme!','No energy. Sleep!'],['Sin energía. ¡Duerme!','No energy. Sleep!'],
+  ['En la mina usa el pico para extraer vetas.','Use the pickaxe in the mine to extract veins.'],
+  ['Solo puedes labrar hierba.','You can only till grass.'],['Labras la tierra.','You till the soil.'],
+  ['Aqui no se riega. Explora y mina materiales raros.','You cannot water here. Explore and mine rare materials.'],
+  ['Nada que regar aquÃ­.','Nothing to water here.'],['Nada que regar aquí.','Nothing to water here.'],
+  ['Las semillas solo se plantan en la superficie.','Seeds can only be planted on the surface.'],
+  ['No hay cultivos en la mina. Busca vetas brillantes.','No crops in the mine. Look for glowing veins.'],
+  ['No estÃ¡ listo todavÃ­a.','Not ready yet.'],['No está listo todavía.','Not ready yet.'],
+  ['No hay arboles talables en esta caverna.','No chop-ready trees in this cave.'],
+  ['No hay Ã¡rbol aquÃ­.','No tree here.'],['No hay árbol aquí.','No tree here.'],
+  ['Prueba en rocas o vetas raras de la mina.','Try rocks or rare veins in the mine.'],
+  ['No puedes pescar en esta zona subterranea.','You cannot fish in this underground zone.'],
+  ['En mina no puedes colocar caminos.','You cannot place paths in the mine.'],
+  ['En mina no puedes colocar vallas.','You cannot place fences in the mine.'],
+  ['Golpeas una veta rara...','You hit a rare vein...'],['La veta resiste. Sigue picando.','The vein resists. Keep mining.'],
+  ['No está listo todavía.','Not ready yet.'],['Nada que cosechar.','Nothing to harvest.'],['No hay roca.','No rock here.'],
+  ['Necesitas agua para pescar.','You need water to fish.'],['No hay árbol aquí.','No tree here.'],
+  ['Amistad:','Friendship:'],['Regalar','Gift'],['Encargo','Quest'],
+  ['Entras a la mina','You enter the mine'],['Regresas desde la mina.','You return from the mine.'],
+  ['Vuelves al valle abierto.','Back to the open valley.']
+];
+function localizeText(txt){
+  if(IS_ES||typeof txt!=='string') return txt;
+  let out=txt;
+  EN_TEXT_REPLACEMENTS.forEach(([es,en])=>{out=out.split(es).join(en);});
+  return out;
+}
+function localizeHtml(html){return localizeText(html);}
+const CROPS={
+  turnip:     {n:'Nabo',      ic:'\u{1F7E1}',d:4, b:20, s:60,  ss:['spring','autumn']},
+  potato:     {n:'Patata',    ic:'\u{1F954}',d:6, b:35, s:100, ss:['spring','summer']},
+  blueberry:  {n:'Arandano',  ic:'\u{1FAD0}',d:10,b:80, s:280, ss:['summer']},
+  pumpkin:    {n:'Calabaza',  ic:'\u{1F383}',d:12,b:100,s:350, ss:['autumn']},
+  cauliflower:{n:'Coliflor',  ic:'\u{1F966}',d:8, b:60, s:190, ss:['spring']},
+  wheat:      {n:'Trigo',     ic:'\u{1F33E}',d:5, b:15, s:55,  ss:['summer','autumn']},
+  garlic:     {n:'Ajo',       ic:'\u{1F9C4}',d:7, b:40, s:130, ss:['spring','winter']},
+  yam:        {n:'Name',      ic:'\u{1F360}',d:9, b:70, s:220, ss:['autumn']},
+};
+const CROP_NAME_EN={turnip:'Turnip',potato:'Potato',blueberry:'Blueberry',pumpkin:'Pumpkin',cauliflower:'Cauliflower',wheat:'Wheat',garlic:'Garlic',yam:'Yam'};
+const NPCS=[
+  {id:'elena',n:'Elena', r:'Pescadora', av:'\u{1F469}\u200D\u{1F9B0}',lk:['fish_trout','fish_carp'], say:['El lago guarda secretos.','La pesca fue buena hoy.','Probaste la sopa de carpa?']},
+  {id:'marco',n:'Marco', r:'Carpintero',av:'\u{1F468}\u200D\u{1F527}',lk:['wood','wheat'],            say:['La madera tiene memoria.','Me falta material.','Buen trabajo en tu granja.']},
+  {id:'luna', n:'Luna',  r:'Botanica',  av:'\u{1F469}\u200D\u{1F33E}',lk:['blueberry','cauliflower'], say:['Hay hierbas sin catalogar.','La coliflor crecio magnifica.','El arandano solo florece en verano.']},
+  {id:'felix',n:'Felix', r:'Cocinero',  av:'\u{1F468}\u200D\u{1F373}',lk:['pumpkin','garlic'],        say:['Necesito ingredientes especiales.','La cocina es paciencia y amor.','Calabaza perfecta tiene buen precio.']},
+  {id:'nora', n:'Nora',  r:'Herbolaria',av:'\u{1F469}\u200D\u2695\uFE0F',  lk:['garlic','potato'],   say:['Este valle tiene magia.','Planta cerca del agua.','Descansa un poco.']},
+];
+const QUESTS=[
+  {id:'q1',npc:'Marco',t:'Entregar 3 maderas',    ic:'🪓',r:200,req:{wood:3},          done:false},
+  {id:'q2',npc:'Elena',t:'Pescar 2 truchas',       ic:'🎣',r:180,req:{fish_trout:2},    done:false},
+  {id:'q3',npc:'Felix',t:'Cosechar 1 calabaza',    ic:'🎃',r:400,req:{pumpkin:1},       done:false},
+  {id:'q4',npc:'Luna', t:'Cosechar 3 arandanos',   ic:'🫐',r:320,req:{blueberry:3},     done:false},
+  {id:'q5',npc:'Nora', t:'Comprar semillas de ajo',ic:'🧄',r:100,req:{ajo_s:1},         done:false},
+];
+const UPGRADES=[
+  {id:'irig',ic:'💧',n:'Riego Automatico',p:500, d:'Riega cultivos cada dia'},
+  {id:'coop',ic:'🐔',n:'Gallinero',        p:800, d:'3 gallinas -> 🥚 diarios'},
+  {id:'ghs', ic:'🌿',n:'Invernadero',      p:1500,d:'Cultiva en cualquier estacion'},
+  {id:'well',ic:'🪣',n:'Pozo',             p:400, d:'Mejora velocidad de riego'},
+  {id:'shed',ic:'🏚️',n:'Cobertizo',        p:600, d:'Mas espacio de inventario'},
+];
+const FISH=[
+  {k:'fish_carp',  n:'Carpa',        ic:'🐟',v:40, df:1},
+  {k:'fish_trout', n:'Trucha',       ic:'🐠',v:90, df:2},
+  {k:'fish_salmon',n:'Salmon',       ic:'🐡',v:150,df:3},
+  {k:'fish_pike',  n:'Lucioperch',   ic:'🦈',v:300,df:4},
+  {k:'fish_star',  n:'Pulpo Estelar',ic:'🐙',v:600,df:5},
+];
+const ICONS={wood:'\u{1FAB5}',stone:'\u{1FAA8}',coal:'\u{2B1B}',gem:'\u{1F48E}',egg:'\u{1F95A}',
+  fish_carp:'\u{1F41F}',fish_trout:'\u{1F420}',fish_salmon:'\u{1F421}',fish_pike:'\u{1F988}',fish_star:'\u{1F419}',
+  turnip:'\u{1F7E1}',potato:'\u{1F954}',blueberry:'\u{1FAD0}',pumpkin:'\u{1F383}',cauliflower:'\u{1F966}',wheat:'\u{1F33E}',garlic:'\u{1F9C4}',yam:'\u{1F360}'};
+const NAMES={wood:'Madera',stone:'Piedra',coal:'Carbon',gem:'Gema',egg:'Huevo',
+  fish_carp:'Carpa',fish_trout:'Trucha',fish_salmon:'Salmon',fish_pike:'Lucioperch',fish_star:'Pulpo estelar',
+  turnip:'Nabo',potato:'Patata',blueberry:'Arandano',pumpkin:'Calabaza',cauliflower:'Coliflor',wheat:'Trigo',garlic:'Ajo',yam:'Name'};
+const NAMES_EN={wood:'Wood',stone:'Stone',coal:'Coal',gem:'Gem',egg:'Egg',
+  fish_carp:'Carp',fish_trout:'Trout',fish_salmon:'Salmon',fish_pike:'Pike',fish_star:'Star Octopus',
+  turnip:'Turnip',potato:'Potato',blueberry:'Blueberry',pumpkin:'Pumpkin',cauliflower:'Cauliflower',wheat:'Wheat',garlic:'Garlic',yam:'Yam'};
+function sellP(k){if(CROPS[k])return CROPS[k].s;const fp={fish_carp:40,fish_trout:90,fish_salmon:150,fish_pike:300,fish_star:600};if(fp[k])return fp[k];return{wood:15,stone:10,coal:40,gem:200,egg:25}[k]||10;}
+Object.assign(ICONS,{
+  mythril_ore:'\u{1F529}',
+  void_crystal:'\u{1F52E}',
+  ancient_geode:'\u{1FAA8}',
+  luminous_moss:'\u{1F33F}'
+});
+Object.assign(NAMES,{
+  mythril_ore:'Mineral de Mythril',
+  void_crystal:'Cristal del Vacio',
+  ancient_geode:'Geoda Antigua',
+  luminous_moss:'Musgo Luminoso'
+});
+Object.assign(NAMES_EN,{
+  mythril_ore:'Mythril Ore',
+  void_crystal:'Void Crystal',
+  ancient_geode:'Ancient Geode',
+  luminous_moss:'Luminous Moss'
+});
+const EXTRA_SELL_PRICES={mythril_ore:280,void_crystal:460,ancient_geode:320,luminous_moss:150};
+const _baseSellP=sellP;
+sellP=function(k){return EXTRA_SELL_PRICES[k]??_baseSellP(k);};
+function itemName(k){
+  const base=LANG==='es'?NAMES:NAMES_EN;
+  return base[k]||NAMES[k]||NAMES_EN[k]||k.replace('seeds_','');
+}
+function itemIcon(k){
+  if(ICONS[k]) return ICONS[k];
+  if(k.startsWith('seeds_')){
+    const crop=k.slice(6);
+    return ICONS[crop]||'\u{1F331}';
+  }
+  return '\u{1F4E6}';
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  GAME STATE
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+const G={gold:150,energy:100,maxE:100,day:1,sIdx:0,sDay:1,hr:7,mn:0,weather:'sunny',
+  tool:'water',selCrop:'turnip',grid:[],inv:{},npcRel:{elena:0,marco:0,luna:0,felix:0,nora:0},
+  giftedToday:{},skXP:{farming:0,fishing:0,mining:0,foraging:0,social:0},
+  farmLv:1,farmXP:0,bought:{},qProg:{},log:[],mineD:0,chickens:0,autoIrr:false,frame:0};
+const GUIDE_STEPS=[
+  {id:'move',mainEs:'Muevete por el valle',mainEn:'Move around the valley',subEs:'Usa WASD o clic derecho para caminar 8 casillas.',subEn:'Use WASD or right click to walk 8 tiles.'},
+  {id:'till',mainEs:'Labrar tierra',mainEn:'Till the soil',subEs:'Selecciona Labrar y prepara 1 casilla verde.',subEn:'Select Till and prepare 1 grass tile.'},
+  {id:'plant',mainEs:'Plantar semilla',mainEn:'Plant a seed',subEs:'Planta 1 cultivo en tierra labrada.',subEn:'Plant 1 crop on tilled soil.'},
+  {id:'water',mainEs:'Regar cultivo',mainEn:'Water crop',subEs:'Riega una casilla con cultivo para acelerar su crecimiento.',subEn:'Water one crop tile to speed up growth.'},
+  {id:'talk',mainEs:'Hablar con un vecino',mainEn:'Talk to a neighbor',subEs:'Pulsa E cerca de un NPC para interactuar.',subEn:'Press E near an NPC to interact.'},
+  {id:'mine_enter',mainEs:'Entrar a la mina',mainEn:'Enter the mine',subEs:'Acercate a la puerta de mina o pulsa M.',subEn:'Walk to the mine gate or press M.'},
+  {id:'mine_break',mainEs:'Minar recursos',mainEn:'Mine resources',subEs:'Usa el pico y rompe 2 rocas/vetas en la mina.',subEn:'Use pickaxe and break 2 rocks/veins in the mine.'},
+  {id:'sell',mainEs:'Vender item',mainEn:'Sell an item',subEs:'Vende 1 objeto desde inventario o tienda.',subEn:'Sell 1 item from inventory or shop.'}
+];
+const GUIDE={
+  step:0,
+  stats:{moved:0,tilled:0,planted:0,watered:0,talked:0,mineEntries:0,mineBreaks:0,sold:0},
+  lastAnnounced:-1
+};
+function guideCurrent(){return GUIDE_STEPS[Math.min(GUIDE.step,GUIDE_STEPS.length-1)]||null;}
+function guideDone(){
+  const s=GUIDE.stats;
+  switch(guideCurrent()?.id){
+    case 'move': return s.moved>=8;
+    case 'till': return s.tilled>=1;
+    case 'plant': return s.planted>=1;
+    case 'water': return s.watered>=1;
+    case 'talk': return s.talked>=1;
+    case 'mine_enter': return s.mineEntries>=1;
+    case 'mine_break': return s.mineBreaks>=2;
+    case 'sell': return s.sold>=1;
+    default: return false;
+  }
+}
+function guideProgressText(stepId){
+  const s=GUIDE.stats;
+  const show=(a,b)=>`${a}/${b}`;
+  switch(stepId){
+    case 'move': return show(Math.min(s.moved,8),8);
+    case 'till': return show(Math.min(s.tilled,1),1);
+    case 'plant': return show(Math.min(s.planted,1),1);
+    case 'water': return show(Math.min(s.watered,1),1);
+    case 'talk': return show(Math.min(s.talked,1),1);
+    case 'mine_enter': return show(Math.min(s.mineEntries,1),1);
+    case 'mine_break': return show(Math.min(s.mineBreaks,2),2);
+    case 'sell': return show(Math.min(s.sold,1),1);
+    default: return '';
+  }
+}
+function guideStepRatio(stepId){
+  const s=GUIDE.stats;
+  const ratio=(a,b)=>Math.max(0,Math.min(1,a/b));
+  switch(stepId){
+    case 'move': return ratio(s.moved,8);
+    case 'till': return ratio(s.tilled,1);
+    case 'plant': return ratio(s.planted,1);
+    case 'water': return ratio(s.watered,1);
+    case 'talk': return ratio(s.talked,1);
+    case 'mine_enter': return ratio(s.mineEntries,1);
+    case 'mine_break': return ratio(s.mineBreaks,2);
+    case 'sell': return ratio(s.sold,1);
+    default: return 1;
+  }
+}
+function guideAdvance(){
+  let changed=false;
+  while(GUIDE.step<GUIDE_STEPS.length&&guideDone()){
+    GUIDE.step++;
+    changed=true;
+  }
+  if(changed){
+    const cur=guideCurrent();
+    if(cur&&GUIDE.lastAnnounced!==GUIDE.step){
+      GUIDE.lastAnnounced=GUIDE.step;
+      notify(IS_ES?`🧭 Nuevo objetivo: ${cur.mainEs}`:`🧭 New objective: ${cur.mainEn}`,'ev');
+    }
+  }
+}
+function guideMark(key,amount=1){
+  GUIDE.stats[key]=(GUIDE.stats[key]||0)+amount;
+  guideAdvance();
+  guideRender();
+}
+function guideSkipStep(){
+  if(GUIDE.step<GUIDE_STEPS.length) GUIDE.step++;
+  guideAdvance();
+  reAll();
+}
+function guideRender(){
+  const box=document.getElementById('guide-window');
+  if(!box) return;
+  const cur=guideCurrent();
+  const completed=GUIDE.step>=GUIDE_STEPS.length;
+  box.classList.toggle('done',completed);
+  const title=document.getElementById('guide-title');
+  const step=document.getElementById('guide-step');
+  const main=document.getElementById('guide-main');
+  const sub=document.getElementById('guide-sub');
+  const fill=document.getElementById('guide-progress-fill');
+  const openBtn=document.getElementById('guide-open');
+  const nextBtn=document.getElementById('guide-next');
+  if(completed){
+    if(title) title.textContent=IS_ES?'GUIA COMPLETA':'GUIDE COMPLETE';
+    if(step) step.textContent=`${GUIDE_STEPS.length}/${GUIDE_STEPS.length}`;
+    if(main) main.textContent=IS_ES?'Ya dominas el ciclo basico. Explora libremente.':'You now master the core loop. Explore freely.';
+    if(sub) sub.textContent=IS_ES?'Sigue con encargos, mina y mejoras.':'Continue with quests, mine and upgrades.';
+    if(fill) fill.style.width='100%';
+    if(nextBtn) nextBtn.style.display='none';
+  } else if(cur){
+    const ratio=guideStepRatio(cur.id);
+    if(title) title.textContent=IS_ES?'GUIA DE PARTIDA':'GAME GUIDE';
+    if(step) step.textContent=`${GUIDE.step+1}/${GUIDE_STEPS.length} · ${guideProgressText(cur.id)}`;
+    if(main) main.textContent=IS_ES?cur.mainEs:cur.mainEn;
+    if(sub) sub.textContent=IS_ES?cur.subEs:cur.subEn;
+    if(fill) fill.style.width=`${Math.round(ratio*100)}%`;
+    if(nextBtn){nextBtn.style.display='inline-block';nextBtn.textContent=IS_ES?'Saltar paso':'Skip step';}
+  }
+  if(openBtn) openBtn.textContent=IS_ES?'Ver plan':'View plan';
+}
+function openGuideModal(){
+  let body='<div style="display:flex;flex-direction:column;gap:6px">';
+  GUIDE_STEPS.forEach((st,i)=>{
+    const done=i<GUIDE.step;
+    const current=i===GUIDE.step&&GUIDE.step<GUIDE_STEPS.length;
+    const t=IS_ES?st.mainEs:st.mainEn;
+    const d=IS_ES?st.subEs:st.subEn;
+    const status=done?(IS_ES?'Completado':'Completed'):current?(IS_ES?'Actual':'Current'):(IS_ES?'Pendiente':'Pending');
+    const prog=guideProgressText(st.id);
+    body+=`<div class="qi" style="${current?'border-color:#f0c030;':''}">
+      <div class="qt">${done?'✅':current?'🧭':'▫️'} ${i+1}. ${t}</div>
+      <div class="qm">${d}</div>
+      <div class="qm" style="color:${done?'#70d070':current?'#f0c030':'#806040'}">${status}${prog?` · ${prog}`:''}</div>
+    </div>`;
+  });
+  body+='</div>';
+  openM(IS_ES?'🧭 PLAN DE GUIA':'🧭 GUIDE PLAN',IS_ES?'Pasos recomendados para avanzar sin perderte.':'Recommended steps so players always know what to do.',body);
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  MAP  (20 cols Ã— 14 rows for a rich world)
+//  G=grass  T=tree  W=water  D=deep-water  R=rock  H=house
+//  P=stone-path  F=fence  S=soil  f=flower  M=mountain
+//  b=barn  w=wild  u=well  L=lamp
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+let GW=20,GH=14;
+let ACTIVE_MAP_ID='farm';
+let ACTIVE_MAP=null;
+let MAP_STORE={};
+let LAST_FARM_POS={col:26,row:29};
+
+function mapCell(t,i){return{t,crop:null,gp:0,wet:false,idx:i,ao:Math.random()*Math.PI*2};}
+function hash2(x,y,seed=1337){
+  let h=(x*374761393+y*668265263+seed*69069)>>>0;
+  h=(h^(h>>>13))*1274126177;h>>>=0;
+  return (h%10000)/10000;
+}
+function blankMap(w,h,t='G'){return Array(w*h).fill(t);}
+function setMapTile(map,w,h,col,row,t){
+  if(col<0||row<0||col>=w||row>=h) return;
+  map[row*w+col]=t;
+}
+function fillRectMap(map,w,h,x,y,rw,rh,t){
+  for(let row=y;row<y+rh;row++) for(let col=x;col<x+rw;col++) setMapTile(map,w,h,col,row,t);
+}
+function fillEllipseMap(map,w,h,cx,cy,rx,ry,t){
+  for(let row=cy-ry;row<=cy+ry;row++){
+    for(let col=cx-rx;col<=cx+rx;col++){
+      const nx=(col-cx)/rx,ny=(row-cy)/ry;
+      if(nx*nx+ny*ny<=1) setMapTile(map,w,h,col,row,t);
+    }
+  }
+}
+function drawPathLine(map,w,h,x1,y1,x2,y2,t='P',thick=1){
+  let x=x1,y=y1;
+  const dx=Math.abs(x2-x1),sx=x1<x2?1:-1;
+  const dy=-Math.abs(y2-y1),sy=y1<y2?1:-1;
+  let err=dx+dy;
+  while(true){
+    for(let oy=-thick;oy<=thick;oy++) for(let ox=-thick;ox<=thick;ox++) setMapTile(map,w,h,x+ox,y+oy,t);
+    if(x===x2&&y===y2) break;
+    const e2=2*err;
+    if(e2>=dy){err+=dy;x+=sx;}
+    if(e2<=dx){err+=dx;y+=sy;}
+  }
+}
+function makeFarmMap(){
+  const w=96,h=60,map=blankMap(w,h,'G');
+  for(let col=0;col<w;col++){setMapTile(map,w,h,col,0,'M');setMapTile(map,w,h,col,1,'M');setMapTile(map,w,h,col,h-1,'M');setMapTile(map,w,h,col,h-2,'M');}
+  for(let row=0;row<h;row++){setMapTile(map,w,h,0,row,'M');setMapTile(map,w,h,1,row,'M');setMapTile(map,w,h,w-1,row,'M');setMapTile(map,w,h,w-2,row,'M');}
+
+  for(let row=2;row<h-2;row++){
+    for(let col=2;col<w-2;col++){
+      const n=hash2(col,row,11);
+      if(row<20&&n<0.58) setMapTile(map,w,h,col,row,'T');
+      else if(row>44&&n<0.42) setMapTile(map,w,h,col,row,'T');
+      else if(col<18&&n<0.6) setMapTile(map,w,h,col,row,'T');
+      else if(col>70&&row<30&&n<0.48) setMapTile(map,w,h,col,row,'T');
+      else if(col>64&&row>34&&n<0.38) setMapTile(map,w,h,col,row,'T');
+      else if(n>0.966) setMapTile(map,w,h,col,row,'R');
+      else if(n>0.83&&n<0.87) setMapTile(map,w,h,col,row,'f');
+      else if(n>0.73&&n<0.76) setMapTile(map,w,h,col,row,'w');
+    }
+  }
+
+  fillEllipseMap(map,w,h,14,30,11,9,'W');
+  fillEllipseMap(map,w,h,14,30,6,5,'D');
+  fillEllipseMap(map,w,h,72,44,13,8,'W');
+  fillEllipseMap(map,w,h,72,44,7,4,'D');
+  fillEllipseMap(map,w,h,80,18,9,6,'W');
+  fillEllipseMap(map,w,h,80,18,4,3,'D');
+  for(let row=4;row<h-4;row++){
+    const cx=Math.floor(58+Math.sin(row*0.2)*3.2);
+    setMapTile(map,w,h,cx,row,'W');
+    setMapTile(map,w,h,cx+1,row,'D');
+    setMapTile(map,w,h,cx+2,row,'W');
+  }
+
+  drawPathLine(map,w,h,4,30,90,30,'P',1);
+  drawPathLine(map,w,h,22,10,22,56,'P',1);
+  drawPathLine(map,w,h,22,30,58,16,'P',1);
+  drawPathLine(map,w,h,58,16,84,12,'P',1);
+  drawPathLine(map,w,h,22,30,74,44,'P',1);
+  drawPathLine(map,w,h,74,44,90,52,'P',1);
+  drawPathLine(map,w,h,22,30,8,12,'P',1);
+
+  fillRectMap(map,w,h,20,22,16,17,'G');
+  for(let col=20;col<=35;col++){setMapTile(map,w,h,col,22,'F');setMapTile(map,w,h,col,38,'F');}
+  for(let row=22;row<=38;row++){setMapTile(map,w,h,20,row,'F');setMapTile(map,w,h,35,row,'F');}
+  fillRectMap(map,w,h,23,24,2,2,'H');
+  fillRectMap(map,w,h,30,24,2,2,'b');
+  fillRectMap(map,w,h,23,30,10,6,'S');
+  fillRectMap(map,w,h,25,24,5,2,'P');
+  fillRectMap(map,w,h,25,26,2,13,'P');
+  setMapTile(map,w,h,27,33,'u');
+  setMapTile(map,w,h,25,28,'L');
+  setMapTile(map,w,h,32,28,'L');
+  setMapTile(map,w,h,27,37,'L');
+
+  fillRectMap(map,w,h,66,40,5,4,'G');
+  fillRectMap(map,w,h,67,41,2,2,'H');
+  setMapTile(map,w,h,70,43,'L');
+
+  fillRectMap(map,w,h,8,9,6,5,'G');
+  fillRectMap(map,w,h,9,10,2,2,'b');
+  setMapTile(map,w,h,12,12,'L');
+
+  const gate={col:84,row:12};
+  fillRectMap(map,w,h,82,10,6,5,'M');
+  fillRectMap(map,w,h,83,11,4,3,'P');
+  setMapTile(map,w,h,gate.col,gate.row,'L');
+
+  return {
+    id:'farm',
+    name:'Valle Abierto',
+    w,h,
+    raw:map,
+    spawn:{col:27,row:33},
+    mineGate:gate,
+    zones:[
+      {name:'Granja Central',x1:18,y1:20,x2:38,y2:40},
+      {name:'Bosque Norte',x1:2,y1:2,x2:94,y2:20},
+      {name:'Lago Claro',x1:2,y1:21,x2:30,y2:40},
+      {name:'Ribera Este',x1:56,y1:6,x2:94,y2:32},
+      {name:'Humedales Sur',x1:56,y1:33,x2:94,y2:58},
+      {name:'Praderas del Oeste',x1:2,y1:21,x2:17,y2:58}
+    ],
+    npcs:{
+      elena:{col:16,row:31,color:'#d080c0'},
+      marco:{col:24,row:27,color:'#6080d0'},
+      luna:{col:34,row:36,color:'#60b860'},
+      felix:{col:31,row:26,color:'#d09040'},
+      nora:{col:22,row:40,color:'#c08080'},
+    }
+  };
+}
+function makeMineMap(){
+  const w=64,h=42,map=blankMap(w,h,'S');
+  for(let col=0;col<w;col++){setMapTile(map,w,h,col,0,'M');setMapTile(map,w,h,col,h-1,'M');}
+  for(let row=0;row<h;row++){setMapTile(map,w,h,0,row,'M');setMapTile(map,w,h,w-1,row,'M');}
+  for(let row=1;row<h-1;row++){
+    for(let col=1;col<w-1;col++){
+      const n=hash2(col,row,71);
+      if(n<0.14) setMapTile(map,w,h,col,row,'M');
+      else if(n<0.38) setMapTile(map,w,h,col,row,'R');
+    }
+  }
+  fillRectMap(map,w,h,2,30,20,10,'S');
+  fillRectMap(map,w,h,18,24,22,12,'S');
+  fillRectMap(map,w,h,36,18,24,15,'S');
+  fillRectMap(map,w,h,10,10,20,10,'S');
+  fillRectMap(map,w,h,30,7,26,9,'S');
+  drawPathLine(map,w,h,6,34,22,30,'P',1);
+  drawPathLine(map,w,h,22,30,42,24,'P',1);
+  drawPathLine(map,w,h,20,14,42,11,'P',1);
+  drawPathLine(map,w,h,42,24,55,28,'P',1);
+  fillEllipseMap(map,w,h,16,13,6,4,'D');
+  fillEllipseMap(map,w,h,45,27,7,5,'D');
+  fillEllipseMap(map,w,h,36,12,5,3,'W');
+  setMapTile(map,w,h,10,30,'L');
+  setMapTile(map,w,h,24,24,'L');
+  setMapTile(map,w,h,40,18,'L');
+  setMapTile(map,w,h,53,30,'L');
+
+  const rareNodes={};
+  const addNode=(col,row,type,hp=2)=>{
+    if(col<1||row<1||col>=w-1||row>=h-1) return;
+    const idx=row*w+col;
+    if(map[idx]==='D'||map[idx]==='W') return;
+    map[idx]='R';
+    rareNodes[idx]={type,hp,maxHp:hp};
+  };
+  [[17,30,'mythril_ore'],[23,28,'mythril_ore'],[31,25,'ancient_geode'],
+   [40,24,'void_crystal'],[48,23,'void_crystal'],[19,13,'luminous_moss',1],
+   [35,10,'luminous_moss',1],[52,29,'ancient_geode'],[57,26,'void_crystal']].forEach(([c,r,t,hp])=>addNode(c,r,t,hp||2));
+  for(let row=2;row<h-2;row++){
+    for(let col=2;col<w-2;col++){
+      const n=hash2(col,row,191);
+      if(n>0.993) addNode(col,row,'void_crystal',2);
+      else if(n>0.985) addNode(col,row,'mythril_ore',2);
+      else if(n>0.978) addNode(col,row,'ancient_geode',2);
+      else if(n>0.972) addNode(col,row,'luminous_moss',1);
+    }
+  }
+
+  return{
+    id:'mine',
+    name:'Mina Abisal',
+    w,h,
+    raw:map,
+    spawn:{col:7,row:34},
+    exit:{col:6,row:34},
+    npcs:{},
+    rareNodes
+  };
+}
+function buildCellsFromRaw(raw){return raw.map((t,i)=>mapCell(t,i));}
+function cloneNpcWorld(src){
+  const out={};
+  Object.entries(src||{}).forEach(([id,v])=>out[id]={...v});
+  return out;
+}
+function setupMaps(){
+  const farm=makeFarmMap();
+  const mine=makeMineMap();
+  farm.cells=buildCellsFromRaw(farm.raw);
+  mine.cells=buildCellsFromRaw(mine.raw);
+  MAP_STORE={farm,mine};
+}
+function localizeMapName(name){
+  if(IS_ES) return name;
+  const M={'Valle Abierto':'Open Valley','Mina Abisal':'Abyss Mine'};
+  return M[name]||name;
+}
+function localizeZoneName(name){
+  if(IS_ES) return name;
+  const Z={
+    'Granja Central':'Central Farm',
+    'Bosque Norte':'North Forest',
+    'Lago Claro':'Clear Lake',
+    'Ribera Este':'East Riverside',
+    'Humedales Sur':'South Wetlands',
+    'Praderas del Oeste':'West Meadows'
+  };
+  return Z[name]||name;
+}
+function mapName(){return localizeMapName(MAP_STORE[ACTIVE_MAP_ID]?.name||'Valley');}
+function inMine(){return ACTIVE_MAP_ID==='mine';}
+function zoneNameAt(col=pPos.col,row=pPos.row){
+  const zones=MAP_STORE[ACTIVE_MAP_ID]?.zones||[];
+  const z=zones.find(v=>col>=v.x1&&col<=v.x2&&row>=v.y1&&row<=v.y2);
+  return localizeZoneName(z?.name||mapName());
+}
+function setActiveMap(id,opt={}){
+  const mp=MAP_STORE[id];
+  if(!mp) return;
+  ACTIVE_MAP_ID=id;
+  ACTIVE_MAP=mp;
+  GW=mp.w;GH=mp.h;
+  G.grid=mp.cells;
+  if(typeof NPC_WORLD!=='undefined') NPC_WORLD=cloneNpcWorld(mp.npcs);
+  const spawn=opt.spawn||mp.spawn;
+  pPos={col:spawn.col,row:spawn.row};
+  pAnim={fromCol:spawn.col,fromRow:spawn.row,toCol:spawn.col,toRow:spawn.row,start:performance.now(),dur:100,active:false};
+  pFacing={dc:1,dr:0};pDir=1;
+  hovIdx=-1;
+  if(typeof clearAutoMove==='function') clearAutoMove();
+  mapFade=.85;
+  mapLabelAlpha=1;
+  if(typeof scrollToPlayer==='function') scrollToPlayer(true);
+}
+function initGrid(){
+  setupMaps();
+  setActiveMap('farm');
+}
+function mineNodeAt(idx){
+  if(!inMine()) return null;
+  return MAP_STORE.mine?.rareNodes?.[idx]||null;
+}
+function drawMineNodeOverlay(col,row,node,t){
+  if(!node) return;
+  const x=ox+col*TW,y=oy+row*TH;
+  const pulse=.7+.3*Math.sin(t*2.5+(col+row)*.3);
+  const core=node.type==='void_crystal'?'#a86bff':node.type==='mythril_ore'?'#9ab3d6':node.type==='ancient_geode'?'#d06f37':'#6edb79';
+  const lit=node.type==='void_crystal'?'#d0b0ff':node.type==='mythril_ore'?'#d8e6ff':node.type==='ancient_geode'?'#f0b070':'#c8ffc8';
+  gCtx.fillStyle='rgba(0,0,0,0.3)';
+  gCtx.fillRect(x+17,y+35,20,5);
+  gCtx.fillStyle=core;
+  gCtx.fillRect(x+22,y+20,12,13);
+  gCtx.fillRect(x+18,y+26,7,8);
+  gCtx.fillRect(x+31,y+25,8,8);
+  gCtx.fillStyle=lit;
+  gCtx.fillRect(x+24,y+22,5,4);
+  gCtx.fillRect(x+33,y+27,3,3);
+  gCtx.fillStyle=`rgba(255,255,180,${0.34*pulse})`;
+  gCtx.fillRect(x+26,y+18,2,2);
+  if(node.hp>1){
+    gCtx.fillStyle='rgba(255,220,170,.7)';
+    gCtx.fillRect(x+24,y+36,8,2);
+  }
+}
+function drawMineExitMarker(t){
+  if(!inMine()) return;
+  const ex=MAP_STORE.mine?.exit;
+  if(!ex) return;
+  const x=ox+ex.col*TW,y=oy+ex.row*TH;
+  const gl=.55+.45*Math.sin(t*2.2);
+  gCtx.fillStyle='#6f4f2c';
+  gCtx.fillRect(x+20,y+18,16,24);
+  gCtx.fillStyle='#9f7442';
+  gCtx.fillRect(x+22,y+20,12,20);
+  gCtx.fillStyle=`rgba(255,220,120,${0.35*gl})`;
+  gCtx.fillRect(x+24,y+22,8,8);
+}
+function drawMineGateMarker(t){
+  if(inMine()) return;
+  const gate=MAP_STORE.farm?.mineGate;
+  if(!gate) return;
+  const x=ox+gate.col*TW,y=oy+gate.row*TH;
+  const gl=.5+.5*Math.sin(t*2.4);
+  gCtx.fillStyle='#3e2b18';
+  gCtx.fillRect(x+17,y+12,22,30);
+  gCtx.fillStyle='#5b3d20';
+  gCtx.fillRect(x+19,y+14,18,26);
+  gCtx.fillStyle=`rgba(255,210,120,${0.26*gl})`;
+  gCtx.fillRect(x+22,y+17,12,12);
+}
+function nearMineExit(maxDist=1){
+  if(!inMine()) return false;
+  const ex=MAP_STORE.mine?.exit;
+  if(!ex) return false;
+  return Math.abs(ex.col-pPos.col)+Math.abs(ex.row-pPos.row)<=maxDist;
+}
+function nearMineGate(maxDist=1){
+  if(inMine()) return false;
+  const gate=MAP_STORE.farm?.mineGate;
+  if(!gate) return false;
+  return Math.abs(gate.col-pPos.col)+Math.abs(gate.row-pPos.row)<=maxDist;
+}
+function mineRespawnNodes(extra=5){
+  const mine=MAP_STORE.mine;
+  if(!mine) return;
+  const types=['mythril_ore','ancient_geode','luminous_moss','void_crystal'];
+  for(let i=0;i<extra;i++){
+    const col=rn(3,mine.w-4),row=rn(3,mine.h-4);
+    const idx=row*mine.w+col;
+    const cell=mine.cells[idx];
+    if(!cell||cell.t==='D'||cell.t==='W'||mine.rareNodes[idx]) continue;
+    const type=types[rn(0,types.length-1)];
+    mine.rareNodes[idx]={type,hp:type==='luminous_moss'?1:2,maxHp:type==='luminous_moss'?1:2};
+    if(cell.t!=='R') cell.t='R';
+  }
+}
+function mineHitNode(idx){
+  const node=mineNodeAt(idx);
+  if(!node) return false;
+  node.hp--;
+  if(node.hp>0){
+    notify('La veta resiste. Sigue picando.','info');
+    lg('Golpeas una veta rara...');
+    return true;
+  }
+  const q=rn(1,node.type==='luminous_moss'?3:2);
+  addInv(node.type,q);
+  sxp('mining',34);
+  fxp(12);
+  guideMark('mineBreaks',1);
+  notify(`+${q} ${ICONS[node.type]} ${NAMES[node.type]}`,'good');
+  lg(`Extraes ${NAMES[node.type]} x${q}.`);
+  delete MAP_STORE.mine.rareNodes[idx];
+  return true;
+}
+function leaveMine(){
+  const target=LAST_FARM_POS||MAP_STORE.farm.spawn;
+  setActiveMap('farm',{spawn:target});
+  notify(IS_ES?'Vuelves al valle abierto.':'Back to the open valley.','info');
+  lg(IS_ES?'Regresas desde la mina.':'You return from the mine.');
+  reAll();
+  scrollToPlayer();
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  CANVAS SETUP
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+const TW=56, TH=56;      // tile footprint â€” bigger = sharper detail
+const ISO_Y=26;          // how much the "top face" is squished (oblique factor)
+const WALL_H=22;         // visible front face height of blocks
+let vp,cw,ch,sCtx,gCtx,fCtx,ox,oy,targetOx,targetOy,mapFade=0,mapLabelAlpha=0;
+let hovIdx=-1;
+
+function resize(){
+  vp=document.getElementById('vp');
+  cw=vp.clientWidth; ch=vp.clientHeight;
+  const dpr=window.devicePixelRatio||1;
+  ['sc','gc','fc'].forEach(id=>{
+    const c=document.getElementById(id);
+    c.width=Math.round(cw*dpr);c.height=Math.round(ch*dpr);
+    c.style.width=cw+'px';c.style.height=ch+'px';
+  });
+  sCtx=document.getElementById('sc').getContext('2d');
+  gCtx=document.getElementById('gc').getContext('2d');
+  fCtx=document.getElementById('fc').getContext('2d');
+  // Scale for HiDPI
+  const dpr2=window.devicePixelRatio||1;
+  [sCtx,gCtx,fCtx].forEach(ctx=>ctx.scale(dpr2,dpr2));
+  // Crisp pixel rendering â€” disable all antialiasing
+  [sCtx,gCtx,fCtx].forEach(ctx=>{
+    ctx.imageSmoothingEnabled=false;
+    ctx.mozImageSmoothingEnabled=false;
+    ctx.webkitImageSmoothingEnabled=false;
+    ctx.msImageSmoothingEnabled=false;
+  });
+  // center the grid
+  ox=Math.floor((cw-GW*TW)/2);
+  oy=Math.floor((ch-GH*TH)/2);
+  targetOx=ox;
+  targetOy=oy;
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  COLOR PALETTES  (top / front / shadow / highlight)
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+const PAL={
+  G:  {top:'#4a9838',top2:'#3d8230',top3:'#5db040',sh:'#2d6820',hi:'#72c050',fr:'#2a7020',frD:'#1a5010'},
+  w:  {top:'#2e6e22',top2:'#265c1c',top3:'#388228',sh:'#1a4a12',hi:'#48922e',fr:'#1a5010',frD:'#102c08'},
+  S:  {top:'#7a4c28',top2:'#6a3c1e',top3:'#8a5c32',sh:'#4a2c14',hi:'#9a6c40',fr:'#5a3018',frD:'#3a1c0a'},
+  Sw: {top:'#3c2010',top2:'#301808',top3:'#4c2818',sh:'#200c04',hi:'#5a3020',fr:'#2a1408',frD:'#180808'},
+  W:  {top:'#3088c0',top2:'#2878b0',top3:'#40a0d8',sh:'#185890',hi:'#60b8e8',fr:'#1858a0',frD:'#0a3870'},
+  D:  {top:'#1860a8',top2:'#104e90',top3:'#2070b8',sh:'#0c3878',hi:'#3888c8',fr:'#0c3870',frD:'#082858'},
+  P:  {top:'#9e826a',top2:'#887060',top3:'#b0907a',sh:'#604a38',hi:'#c8a888',fr:'#685040',frD:'#403028'},
+  F:  {top:'#8a5428',top2:'#7a4820',top3:'#9a5e2e',sh:'#5a3010',hi:'#b06c38',fr:'#683a18',frD:'#401808'},
+  T:  {top:'#306028',top2:'#285220',top3:'#407030',sh:'#1c3e18',hi:'#509840',fr:'#1e4818',frD:'#102a0c'},
+  Ta: {top:'#b86020',top2:'#a05018',top3:'#c87030',sh:'#803010',hi:'#e09040',fr:'#8a3810',frD:'#502008'},
+  Tw: {top:'#607080',top2:'#506070',top3:'#708090',sh:'#404e58',hi:'#90a8b8',fr:'#485868',frD:'#303c48'},
+  R:  {top:'#787878',top2:'#686868',top3:'#888888',sh:'#484848',hi:'#a8a8a8',fr:'#585858',frD:'#383838'},
+  M:  {top:'#808598',top2:'#707080',top3:'#9098a8',sh:'#505058',hi:'#a8aeb8',fr:'#606070',frD:'#404048'},
+  H:  {top:'#905830',top2:'#7a4820',top3:'#a06838',sh:'#582c10',hi:'#b87848',fr:'#783a18',frD:'#4a2008'},
+  b:  {top:'#a82020',top2:'#901818',top3:'#b82828',sh:'#601010',hi:'#c84040',fr:'#7a1010',frD:'#480808'},
+  f:  {top:'#4a9838',top2:'#3d8230',top3:'#5db040',sh:'#2d6820',hi:'#72c050',fr:'#2a7020',frD:'#1a5010'},
+  u:  {top:'#707070',top2:'#606060',top3:'#808080',sh:'#484848',hi:'#a0a0a0',fr:'#585858',frD:'#383838'},
+  L:  {top:'#7a6040',top2:'#6a5030',top3:'#8a7050',sh:'#504030',hi:'#a08060',fr:'#604828',frD:'#403018'},
+};
+function getPal(t,cell){
+  if(t==='S'&&cell.wet) return PAL.Sw;
+  if(t==='T'){const s=SEASONS[G.sIdx];return s==='autumn'?PAL.Ta:s==='winter'?PAL.Tw:PAL.T;}
+  return PAL[t]||PAL.G;
+}
+
+function inBounds(col,row){ return col>=0&&col<GW&&row>=0&&row<GH; }
+function tileType(col,row){ return inBounds(col,row)?G.grid[row*GW+col]?.t:null; }
+function isType(col,row,...types){ return types.includes(tileType(col,row)); }
+function tileSeed(col,row){
+  let v=((col+1)*374761393+(row+1)*668265263)>>>0;
+  v=(v^(v>>>13))>>>0;
+  v=(v*1274126177)>>>0;
+  return v>>>0;
+}
+
+// â”€â”€â”€ OBLIQUE TILE (top face + front face) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function drawObliqueTile(ctx,col,row,p,h=WALL_H,extraH=0){
+  const x=ox+col*TW, y=oy+row*TH;
+  const seed=tileSeed(col,row);
+
+  // Top-down base closer to Stardew-like perspective
+  ctx.fillStyle=p.top2;
+  ctx.fillRect(x,y,TW,TH);
+  ctx.fillStyle=p.top;
+  ctx.fillRect(x+1,y+1,TW-2,TH-2);
+
+  // Horizontal pixel bands to avoid a flat look
+  ctx.fillStyle=p.top3||p.top;
+  for(let by=3;by<TH-3;by+=6){
+    const w=TW-4-(((seed+by*13)&1)?1:0);
+    ctx.fillRect(x+2,y+by,w,2);
+  }
+
+  // Fine texture + highlights
+  ctx.fillStyle=p.sh;
+  for(let i=0;i<18;i++){
+    const tx=x+2+((seed+i*37)%(TW-4));
+    const ty=y+2+(((seed>>>8)+i*23)%(TH-4));
+    ctx.fillRect(tx,ty,2,2);
+  }
+  ctx.fillStyle=p.hi;
+  for(let i=0;i<10;i++){
+    const tx=x+2+(((seed>>>5)+i*19)%(TW-6));
+    const ty=y+2+(((seed>>>11)+i*29)%Math.max(8,Math.floor(TH/2)));
+    ctx.fillRect(tx,ty,2,1);
+  }
+
+  // Tile contour
+  ctx.fillStyle='rgba(255,255,255,0.12)';
+  ctx.fillRect(x,y,TW-1,1);
+  ctx.fillRect(x,y,1,TH-1);
+  ctx.fillStyle='rgba(0,0,0,0.18)';
+  ctx.fillRect(x,y+TH-2,TW,2);
+  ctx.fillRect(x+TW-2,y,2,TH);
+}
+
+// â”€â”€â”€ DITHERING HELPER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function dither(ctx,x,y,w,h,c1,c2,density=3){
+  ctx.fillStyle=c2;
+  for(let dy=0;dy<h;dy+=density){
+    for(let dx=((dy/density)%2===0?0:density/2);dx<w;dx+=density){
+      ctx.fillRect(x+Math.round(dx),y+dy,2,2);
+    }
+  }
+}
+
+// flat tile variant (for paths, water etc â€” no front face)
+function drawFlatTile(ctx,col,row,p,h=ISO_Y){
+  const x=ox+col*TW, y=oy+row*TH;
+  const hh=Math.max(1,Math.round(h));
+  const seed=tileSeed(col,row);
+  ctx.fillStyle=p.top2;
+  ctx.fillRect(x,y,TW,hh);
+  ctx.fillStyle=p.top;
+  ctx.fillRect(x+1,y+1,TW-2,hh-2);
+  ctx.fillStyle=p.sh;
+  for(let i=0;i<12;i++){
+    const tx=x+1+((seed+i*17)%(TW-2));
+    const ty=y+1+(((seed>>>7)+i*13)%Math.max(2,hh-2));
+    ctx.fillRect(tx,ty,1,1);
+  }
+  ctx.fillStyle='rgba(255,255,255,0.09)';
+  ctx.fillRect(x,y,TW-1,1);
+  ctx.fillRect(x,y,1,hh-1);
+  ctx.fillStyle='rgba(0,0,0,0.16)';
+  ctx.fillRect(x,y+hh-1,TW,1);
+  ctx.fillRect(x+TW-1,y,1,hh);
+}
+
+// â”€â”€â”€ CAST SHADOW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function drawShadow(ctx,col,row,w,h,opacity=0.35){
+  ctx.fillStyle=`rgba(0,0,0,${opacity})`;
+  ctx.beginPath();
+  ctx.ellipse(ox+col*TW+TW/2,oy+row*TH+TH-6,w/2,h/2,0,0,Math.PI*2);
+  ctx.fill();
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  SKY RENDERING
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+let clouds=[];
+function initClouds(){
+  clouds=[];
+  for(let i=0;i<8;i++) clouds.push({x:Math.random()*cw,y:15+Math.random()*70,w:50+Math.random()*90,spd:0.1+Math.random()*0.2,seed:Math.floor(Math.random()*10)});
+}
+let stars2=[];
+function initStars2(){
+  stars2=[];
+  for(let i=0;i<140;i++) stars2.push({x:Math.random()*cw,y:Math.random()*ch*.55,r:1+Math.random()*2,ph:Math.random()*Math.PI*2});
+}
+
+function drawSky(t){
+  if(inMine()){
+    const g=sCtx.createLinearGradient(0,0,0,ch);
+    g.addColorStop(0,'#120c18');
+    g.addColorStop(1,'#050308');
+    sCtx.fillStyle=g;
+    sCtx.fillRect(0,0,cw,ch);
+    sCtx.fillStyle='rgba(120,80,180,0.08)';
+    for(let i=0;i<24;i++){
+      const x=(i*173)%Math.max(1,cw),y=(i*97)%Math.max(1,ch);
+      sCtx.fillRect(x,y,2,2);
+    }
+    return;
+  }
+  const tod=TOD();
+  const sn=SEASONS[G.sIdx];
+  const SKY={
+    morning:{t:'#ff8038',b:'#ffc870'},
+    day:    {t:'#2880c8',b:'#90c8f0'},
+    evening:{t:'#c02818',b:'#e88030'},
+    night:  {t:'#060618',b:'#141438'},
+  };
+  const STINT={spring:{t:'rgba(80,200,80,.18)',b:'rgba(160,230,100,.15)'},summer:{t:'rgba(20,120,200,.1)',b:'rgba(180,230,80,.1)'},
+    autumn:{t:'rgba(200,80,10,.22)',b:'rgba(240,160,30,.18)'},winter:{t:'rgba(60,80,140,.18)',b:'rgba(160,180,230,.15)'}};
+  const sk=SKY[tod], st=STINT[sn];
+  const g=sCtx.createLinearGradient(0,0,0,ch);
+  g.addColorStop(0,blendCSS(sk.t,st.t,.3));
+  g.addColorStop(1,blendCSS(sk.b,st.b,.3));
+  sCtx.fillStyle=g;
+  sCtx.fillRect(0,0,cw,ch);
+
+  // Stars
+  if(tod==='night'||tod==='evening'){
+    const a=tod==='night'?1:.35;
+    stars2.forEach(s=>{
+      const tw=.5+.5*Math.sin(t*1.8+s.ph);
+      sCtx.globalAlpha=a*(.3+.7*tw);
+      sCtx.fillStyle='#fff';
+      sCtx.fillRect(s.x-s.r/2,s.y-s.r/2,s.r,s.r);
+    });
+    sCtx.globalAlpha=1;
+    if(tod==='night'){drawMoon(t);}
+  }
+  if(tod==='morning'||tod==='day'){drawSun2(tod);}
+
+  // Clouds
+  const dark=G.weather==='stormy'||G.weather==='rainy';
+  sCtx.globalAlpha=dark?.85:.5;
+  clouds.forEach(c=>{
+    c.x=(c.x+c.spd)%(cw+200);
+    drawPixelCloud(c.x-100,c.y,c.w,dark);
+  });
+  sCtx.globalAlpha=1;
+
+  // Ambient color overlay per season/time
+  const AMBIENT={morning:'rgba(255,180,80,.06)',day:'rgba(220,240,255,.04)',evening:'rgba(255,120,30,.12)',night:'rgba(20,10,40,.25)'};
+  sCtx.fillStyle=AMBIENT[tod];
+  sCtx.fillRect(0,0,cw,ch);
+}
+
+function drawPixelCloud(x,y,w,dark){
+  const col=dark?'rgba(100,90,90,1)':'rgba(248,248,248,1)';
+  sCtx.fillStyle=col;
+  const pw=8;
+  const shape=[[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[1,1],[2,1],[3,1],[4,1],[5,1],[2,0],[3,0],[4,0],[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3]];
+  const scale=Math.round(w/56);
+  shape.forEach(([bx,by])=>sCtx.fillRect(Math.round(x+bx*pw*scale),Math.round(y+by*pw*scale),pw*scale,pw*scale));
+}
+
+function drawMoon(t){
+  const mx=cw*.75,my=ch*.12;
+  const mg=sCtx.createRadialGradient(mx,my,8,mx,my,50);
+  mg.addColorStop(0,'rgba(255,250,220,.3)'); mg.addColorStop(1,'rgba(255,250,220,0)');
+  sCtx.fillStyle=mg; sCtx.beginPath(); sCtx.arc(mx,my,50,0,Math.PI*2); sCtx.fill();
+  sCtx.fillStyle='#f0e8c0';
+  fillPxCircle(sCtx,mx,my,14);
+  sCtx.fillStyle='rgba(0,0,0,.18)';
+  sCtx.fillRect(mx+3,my-4,5,5); sCtx.fillRect(mx-7,my+2,4,4);
+}
+
+function drawSun2(tod){
+  const sx=tod==='morning'?cw*.12:cw*.74,sy=tod==='morning'?ch*.38:ch*.11;
+  const col=tod==='morning'?'#ffb020':'#ffe040';
+  const sg=sCtx.createRadialGradient(sx,sy,0,sx,sy,80);
+  sg.addColorStop(0,'rgba(255,210,60,.4)'); sg.addColorStop(1,'rgba(255,210,60,0)');
+  sCtx.fillStyle=sg; sCtx.beginPath(); sCtx.arc(sx,sy,80,0,Math.PI*2); sCtx.fill();
+  sCtx.fillStyle=col; fillPxCircle(sCtx,sx,sy,16);
+  sCtx.fillStyle='rgba(255,255,200,.5)'; fillPxCircle(sCtx,sx-4,sy-4,6);
+}
+
+function fillPxCircle(ctx,cx,cy,r){
+  for(let y=-r;y<=r;y++) for(let x=-r;x<=r;x++) if(x*x+y*y<=r*r) ctx.fillRect(Math.round(cx+x),Math.round(cy+y),1,1);
+}
+
+// â”€â”€â”€ PATH STONES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function drawPathStones(col,row){
+  const x=ox+col*TW, y=oy+row*TH;
+  const seed=tileSeed(col,row);
+
+  // Dirt under-cobble base
+  gCtx.fillStyle='#7e6344';
+  gCtx.fillRect(x+1,y+1,TW-2,TH-2);
+
+  const stones=[
+    [4,6,15,11],[20,5,14,10],[35,7,14,11],
+    [6,20,13,10],[22,19,13,10],[37,21,12,10],
+    [4,33,15,11],[20,33,14,10],[35,34,14,11],
+  ];
+  stones.forEach(([sx,sy,sw,sh],i)=>{
+    const offX=((seed>>>((i%8)+2))%3)-1;
+    const offY=((seed>>>((i%7)+5))%3)-1;
+    gCtx.fillStyle='rgba(0,0,0,.2)';
+    gCtx.fillRect(x+sx+offX+1,y+sy+offY+1,sw,sh);
+    gCtx.fillStyle='#9f8567';
+    gCtx.fillRect(x+sx+offX,y+sy+offY,sw,sh);
+    gCtx.fillStyle='#c1a481';
+    gCtx.fillRect(x+sx+offX+1,y+sy+offY+1,Math.max(3,Math.floor(sw*.55)),Math.max(2,Math.floor(sh*.35)));
+    gCtx.fillStyle='#6f5840';
+    gCtx.fillRect(x+sx+offX,y+sy+offY+sh-1,sw,1);
+    gCtx.fillRect(x+sx+offX+sw-1,y+sy+offY,1,sh);
+  });
+
+  // Dirt edge if path is not connected
+  if(!isType(col,row-1,'P')){ gCtx.fillStyle='rgba(88,60,34,0.45)'; gCtx.fillRect(x,y,TW,3); }
+  if(!isType(col,row+1,'P')){ gCtx.fillStyle='rgba(88,60,34,0.45)'; gCtx.fillRect(x,y+TH-3,TW,3); }
+  if(!isType(col-1,row,'P')){ gCtx.fillStyle='rgba(88,60,34,0.4)'; gCtx.fillRect(x,y,3,TH); }
+  if(!isType(col+1,row,'P')){ gCtx.fillStyle='rgba(88,60,34,0.4)'; gCtx.fillRect(x+TW-3,y,3,TH); }
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  TILE + DECORATION DRAWING
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+function drawTile(col,row,cell,hov,t){
+  const tp=cell.t;
+  const p=getPal(tp,cell);
+  const x=ox+col*TW, y=oy+row*TH;
+
+  if(tp==='W'||tp==='D'){
+    drawFlatTile(gCtx,col,row,p,TH);
+    const ao=cell.ao;
+    if(tp==='D'){
+      gCtx.fillStyle='rgba(6,30,90,0.38)';
+      gCtx.fillRect(x+3,y+3,TW-6,TH-6);
+    }
+    const wave=G.frame*.04;
+    for(let i=0;i<4;i++){
+      const rx=x+6+i*12+Math.sin(wave+ao+i)*2.5;
+      const ry=y+9+i*10+Math.cos(wave*.8+ao+i*1.3)*2.2;
+      gCtx.fillStyle='rgba(140,220,255,0.16)';
+      gCtx.fillRect(Math.round(rx),Math.round(ry),8,2);
+      gCtx.fillStyle='rgba(80,170,230,0.22)';
+      gCtx.fillRect(Math.round(rx)+2,Math.round(ry)+3,5,2);
+    }
+
+    const n={u:isType(col,row-1,'W','D'),d:isType(col,row+1,'W','D'),l:isType(col-1,row,'W','D'),r:isType(col+1,row,'W','D')};
+    if(!n.u){
+      gCtx.fillStyle='rgba(194,146,76,0.7)';
+      gCtx.fillRect(x,y,TW,5);
+      gCtx.fillStyle='rgba(230,220,180,0.32)';
+      gCtx.fillRect(x+2,y+1,TW-4,2);
+    }
+    if(!n.d){
+      gCtx.fillStyle='rgba(194,146,76,0.68)';
+      gCtx.fillRect(x,y+TH-5,TW,5);
+      gCtx.fillStyle='rgba(230,220,180,0.26)';
+      gCtx.fillRect(x+2,y+TH-3,TW-4,1);
+    }
+    if(!n.l){
+      gCtx.fillStyle='rgba(194,146,76,0.55)';
+      gCtx.fillRect(x,y,5,TH);
+      gCtx.fillStyle='rgba(225,216,178,0.24)';
+      gCtx.fillRect(x+1,y+2,2,TH-4);
+    }
+    if(!n.r){
+      gCtx.fillStyle='rgba(194,146,76,0.55)';
+      gCtx.fillRect(x+TW-5,y,5,TH);
+      gCtx.fillStyle='rgba(225,216,178,0.2)';
+      gCtx.fillRect(x+TW-3,y+2,1,TH-4);
+    }
+
+    if((col+row)%4===0 && (!n.u||!n.d||!n.l||!n.r)){
+      const rx=x+8+Math.sin(t*.6+ao)*2, ry=y+TH-16;
+      gCtx.fillStyle='#2b7f30';
+      gCtx.fillRect(rx,ry,2,8);
+      gCtx.fillRect(rx+4,ry-2,2,10);
+      gCtx.fillRect(rx+8,ry,2,8);
+    }
+    if((col+row)%5===0){
+      const lx=x+8+Math.sin(t*.4+ao)*2,ly=y+13;
+      gCtx.fillStyle='#256f22';gCtx.fillRect(lx,ly,14,8);
+      gCtx.fillStyle='#2f842a';gCtx.fillRect(lx+1,ly+1,11,5);
+      gCtx.fillStyle='#f25b8a';gCtx.fillRect(lx+5,ly-2,4,4);
+      gCtx.fillStyle='rgba(220,245,255,0.35)';gCtx.fillRect(lx+2,ly+2,3,2);
+    }
+    if((col*3+row*2)%7===0){
+      const bx=x+26,by=y+28;
+      gCtx.fillStyle='#216d22';gCtx.fillRect(bx,by,11,6);
+    }
+    return;
+  }
+  if(tp==='P'){
+    drawFlatTile(gCtx,col,row,p,TH);
+    drawPathStones(col,row);
+    return;
+  }
+  if(tp==='G'||tp==='w'||tp==='f'){
+    drawObliqueTile(gCtx,col,row,p,TH);
+    if(tp==='f') drawFlower(col,row,t);
+    else{
+      drawGrassBlades(col,row,t);
+      if(tp==='w'){
+        gCtx.fillStyle='#2f6b24';
+        gCtx.fillRect(x+14,y+26,10,12);
+        gCtx.fillRect(x+27,y+23,13,14);
+        gCtx.fillStyle='#4d8d3b';
+        gCtx.fillRect(x+16,y+24,7,7);
+        gCtx.fillRect(x+30,y+21,8,8);
+      }
+    }
+    return;
+  }
+
+  if(tp==='T'){ drawTree(col,row,t); return; }
+  if(tp==='R'){ drawRock(col,row); return; }
+  if(tp==='H'){ drawHouse(col,row,t); return; }
+  if(tp==='b'){ drawBarn(col,row,t); return; }
+  if(tp==='M'){ drawMountain(col,row); return; }
+  if(tp==='F'){ drawFence(col,row); return; }
+  if(tp==='u'){ drawWell(col,row); return; }
+  if(tp==='L'){ drawLamp(col,row,t); return; }
+  if(tp==='S'){
+    drawObliqueTile(gCtx,col,row,p,TH);
+    const fur1=cell.wet?'rgba(25,16,8,0.5)':'rgba(52,26,12,0.42)';
+    const fur2=cell.wet?'rgba(70,42,18,0.35)':'rgba(112,64,30,0.28)';
+    for(let fy=8;fy<TH-6;fy+=8){
+      gCtx.fillStyle=fur1;
+      gCtx.fillRect(x+4,y+fy,TW-8,2);
+      gCtx.fillStyle=fur2;
+      gCtx.fillRect(x+6,y+fy+2,TW-12,1);
+    }
+    if(!cell.crop){
+      const seed=tileSeed(col,row);
+      gCtx.fillStyle=cell.wet?'rgba(120,170,220,0.18)':'rgba(150,110,70,0.24)';
+      for(let i=0;i<8;i++){
+        const dx=x+6+((seed+i*13)%(TW-12));
+        const dy=y+7+(((seed>>>6)+i*17)%(TH-14));
+        gCtx.fillRect(dx,dy,2,2);
+      }
+    }
+    if(cell.crop) drawCropSprite(col,row,cell,t);
+    return;
+  }
+  drawObliqueTile(gCtx,col,row,p,TH);
+}
+
+function drawGrassBlades(col,row,t){
+  const x=ox+col*TW, y=oy+row*TH;
+  const sn=SEASONS[G.sIdx];
+  const seed=tileSeed(col,row);
+  if(sn==='winter'){
+    gCtx.fillStyle='rgba(215,235,255,0.68)';
+    [[4,16,14,7],[21,24,18,6],[38,12,11,7],[12,34,13,6]].forEach(([sx,sy,sw,sh],i)=>{
+      if(((seed>>>i)&1)===1) gCtx.fillRect(x+sx,y+sy,sw,sh);
+    });
+    gCtx.fillStyle='rgba(170,205,236,0.5)';
+    gCtx.fillRect(x+3,y+TH-9,TW-6,3);
+    return;
+  }
+  const GC_SPRING=['#3b9b33','#53b63f','#479f35','#5fc149'];
+  const GC_SUMMER=['#4ea82f','#6ac243','#58b13a','#75cd4f'];
+  const GC_AUTUMN=['#6b8c34','#819846','#778736','#9b7130'];
+  const palette=sn==='summer'?GC_SUMMER:sn==='autumn'?GC_AUTUMN:GC_SPRING;
+
+  gCtx.fillStyle=palette[(seed+1)%palette.length];
+  gCtx.fillRect(x+3,y+TH-10,TW-6,4);
+
+  const blades=[[5,16],[10,10],[15,17],[21,9],[27,15],[33,9],[39,16],[44,12],[8,25],[18,23],[28,22],[38,25],[14,6],[30,6]];
+  blades.forEach(([bx,by],i)=>{
+    const sw=Math.sin(t*.9+(col*3+row*2+i)*.5)*1.2;
+    const gc=palette[(seed+i)%palette.length];
+    gCtx.fillStyle=gc;
+    gCtx.fillRect(x+bx+sw,y+by,2,7);
+    gCtx.fillStyle=palette[(seed+i+2)%palette.length];
+    gCtx.fillRect(x+bx+1+sw,y+by+4,1,4);
+    gCtx.fillStyle='rgba(210,255,170,0.26)';
+    gCtx.fillRect(x+bx+sw,y+by,2,1);
+  });
+
+  // tiny white wild flowers in spring/summer
+  if(sn!=='autumn'&&((seed>>>4)&3)===0){
+    gCtx.fillStyle='#f6f4df';
+    gCtx.fillRect(x+12,y+28,2,2);
+    gCtx.fillRect(x+14,y+30,2,2);
+    gCtx.fillRect(x+10,y+30,2,2);
+    gCtx.fillStyle='#e8cf66';
+    gCtx.fillRect(x+12,y+30,2,2);
+  }
+
+  if(sn==='autumn'){
+    gCtx.fillStyle='#c86020';
+    [[6,24],[24,18],[40,26],[14,30],[31,34]].forEach(([lx,ly],i)=>{
+      if((seed+i)%3!==0) return;
+      gCtx.fillRect(x+lx,y+ly,4,3);
+      gCtx.fillStyle='#e09232';
+      gCtx.fillRect(x+lx+1,y+ly,2,1);
+      gCtx.fillStyle='#c86020';
+    });
+  }
+}
+
+function drawFlower(col,row,t){
+  const x=ox+col*TW, y=oy+row*TH;
+  const sn=SEASONS[G.sIdx];
+  if(sn==='winter') return;
+  const sw=Math.sin(t*.8+col+row)*.6;
+  const fc=sn==='spring'?'#ef69b5':sn==='summer'?'#f0d951':'#f08d3a';
+  const fc2=sn==='spring'?'#ffd3ea':sn==='summer'?'#fff0a0':'#ffd0a0';
+  const clusters=[[14,20],[24,14],[33,22],[20,30]];
+  gCtx.fillStyle='#318226';
+  clusters.forEach(([cx,cy],i)=>{
+    const sway=Math.sin(t*.9+i+col*.2)*0.8;
+    gCtx.fillRect(x+cx+sway,y+cy,2,8);
+  });
+  clusters.forEach(([cx,cy],i)=>{
+    const sway=Math.sin(t*.9+i+col*.2)*0.8;
+    gCtx.fillStyle=fc;
+    gCtx.fillRect(x+cx-2+sway,y+cy-4,6,6);
+    gCtx.fillStyle=fc2;
+    gCtx.fillRect(x+cx-1+sway,y+cy-3,4,3);
+    gCtx.fillStyle='#f5dc58';
+    gCtx.fillRect(x+cx+sway,y+cy-2,2,2);
+  });
+}
+
+function drawTree(col,row,t){
+  const x=ox+col*TW, y=oy+row*TH;
+  const sn=SEASONS[G.sIdx];
+  const autumn=sn==='autumn', winter=sn==='winter';
+  const leafDark=autumn?'#7b3f15':winter?'#4f6275':'#1f6d22';
+  const leafMid =autumn?'#b16026':winter?'#708aa0':'#2f9130';
+  const leafLit =autumn?'#d88b3a':winter?'#9cb7cc':'#54be49';
+  const trunkDark='#5f3514', trunkMid='#875124', trunkLit='#a66b30';
+
+  gCtx.fillStyle='rgba(0,0,0,0.26)';
+  gCtx.beginPath(); gCtx.ellipse(x+TW/2+2,y+TH-7,14,6,0,0,Math.PI*2); gCtx.fill();
+
+  gCtx.fillStyle=trunkDark;
+  gCtx.fillRect(x+23,y+26,10,TH-24);
+  gCtx.fillStyle=trunkMid;
+  gCtx.fillRect(x+24,y+27,8,TH-26);
+  gCtx.fillStyle=trunkLit;
+  gCtx.fillRect(x+25,y+29,4,8);
+  gCtx.fillStyle='rgba(0,0,0,0.25)';
+  gCtx.fillRect(x+31,y+28,1,TH-28);
+  gCtx.fillStyle='#4a2a10';
+  gCtx.fillRect(x+20,y+TH-6,4,6);
+  gCtx.fillRect(x+31,y+TH-6,4,6);
+
+  const clumps=[
+    [8,-6,16,14],[20,-10,17,14],[32,-6,16,14],
+    [4,4,18,15],[18,2,20,16],[34,4,17,15],
+    [9,14,16,13],[24,14,17,13]
+  ];
+  gCtx.fillStyle=leafDark;
+  clumps.forEach(([cx,cy,cw,ch])=>gCtx.fillRect(x+cx,y+cy,cw,ch));
+  gCtx.fillStyle=leafMid;
+  clumps.forEach(([cx,cy,cw,ch],i)=>gCtx.fillRect(x+cx+1,y+cy+1,cw-3,ch-3-(i%2)));
+  gCtx.fillStyle=leafLit;
+  clumps.forEach(([cx,cy,cw,ch],i)=>{
+    if(i%2===0) gCtx.fillRect(x+cx+3,y+cy+2,Math.max(6,cw-9),Math.max(4,ch-8));
+  });
+
+  gCtx.fillStyle='rgba(0,0,0,0.12)';
+  const seed=tileSeed(col,row);
+  for(let i=0;i<14;i++){
+    const px=x+6+((seed+i*11)%44);
+    const py=y-8+((seed+i*17)%32);
+    gCtx.fillRect(px,py,2,2);
+  }
+
+  if(sn==='spring'){
+    gCtx.fillStyle='#f06eb8';
+    [[9,20],[16,9],[26,13],[36,10],[42,22],[21,25],[31,27]].forEach(([bx,by])=>gCtx.fillRect(x+bx,y+by,3,3));
+    gCtx.fillStyle='#ffd4ea';
+    [[10,20],[27,13],[37,10]].forEach(([bx,by])=>gCtx.fillRect(x+bx,y+by,2,2));
+  }
+  if(sn==='summer'){
+    gCtx.fillStyle='#cf3131';
+    [[11,20],[22,12],[32,16],[39,22],[18,26]].forEach(([bx,by])=>gCtx.fillRect(x+bx,y+by,3,3));
+  }
+  if(winter){
+    gCtx.fillStyle='rgba(226,240,255,0.78)';
+    gCtx.fillRect(x+9,y-4,35,5);
+    gCtx.fillRect(x+6,y+6,41,4);
+    gCtx.fillRect(x+9,y+16,35,4);
+  }
+}
+
+function drawRock(col,row){
+  const x=ox+col*TW, y=oy+row*TH;
+  const seed=tileSeed(col,row)%3;
+  gCtx.fillStyle='rgba(0,0,0,0.28)';
+  gCtx.beginPath(); gCtx.ellipse(x+TW/2+1,y+TH-7,15,5,0,0,Math.PI*2); gCtx.fill();
+
+  gCtx.fillStyle='#676a6f';
+  gCtx.fillRect(x+10,y+13,35,31);
+  gCtx.fillStyle='#7a7f86';
+  gCtx.fillRect(x+8,y+10,37,26);
+  gCtx.fillStyle='#9ba2ab';
+  gCtx.fillRect(x+12,y+8,27,16);
+  gCtx.fillStyle='rgba(255,255,255,0.2)';
+  gCtx.fillRect(x+14,y+10,9,4);
+  gCtx.fillRect(x+25,y+13,6,3);
+  gCtx.fillStyle='#4f5359';
+  gCtx.fillRect(x+9,y+30,35,5);
+  gCtx.fillRect(x+39,y+14,4,19);
+  gCtx.fillRect(x+13,y+18,2,14);
+  gCtx.fillRect(x+30,y+20,2,12);
+
+  if(seed===0){ gCtx.fillStyle='#c7b178'; gCtx.fillRect(x+19,y+22,3,3); gCtx.fillRect(x+31,y+18,2,2); }
+  if(seed===1){ gCtx.fillStyle='#83a2bf'; gCtx.fillRect(x+16,y+20,3,2); gCtx.fillRect(x+28,y+24,2,2); }
+  if(seed===2){ gCtx.fillStyle='#ad7f7f'; gCtx.fillRect(x+22,y+17,3,2); gCtx.fillRect(x+34,y+23,2,2); }
+}
+
+function drawHouse(col,row,t){
+  const x=ox+col*TW, y=oy+row*TH;
+  const sn=SEASONS[G.sIdx];
+  const tod=TOD();
+  const left=isType(col-1,row,'H');
+  const up=isType(col,row-1,'H');
+  const partX=left?1:0;
+  const partY=up?1:0;
+
+  if(partY===1){
+    gCtx.fillStyle='rgba(0,0,0,0.22)';
+    gCtx.beginPath(); gCtx.ellipse(x+TW/2+1,y+TH-7,15,5,0,0,Math.PI*2); gCtx.fill();
+  }
+
+  if(partY===0){
+    gCtx.fillStyle='#6f2f14';
+    gCtx.fillRect(x-1,y+8,TW+2,14);
+    gCtx.fillStyle='#8a3a19';
+    gCtx.fillRect(x,y+5,TW,12);
+    gCtx.fillStyle='#a54a21';
+    gCtx.fillRect(x+1,y+2,TW-2,9);
+    gCtx.fillStyle='rgba(0,0,0,0.16)';
+    for(let ry=4;ry<18;ry+=5) gCtx.fillRect(x+1,y+ry,TW-2,1);
+    gCtx.fillStyle='rgba(255,180,110,0.18)';
+    gCtx.fillRect(x+4,y+3,14,3);
+    if(partX===0){
+      gCtx.fillStyle='#5b2b10';
+      gCtx.fillRect(x+34,y-6,9,14);
+      gCtx.fillStyle='#7a3a16';
+      gCtx.fillRect(x+35,y-8,8,4);
+      for(let si=0;si<3;si++){
+        const sx=x+37+Math.sin(G.frame*.02+si)*2;
+        const sy=y-12-si*6+Math.sin(G.frame*.015+si*.5);
+        gCtx.fillStyle=`rgba(170,160,150,${0.26-si*.07})`;
+        gCtx.fillRect(Math.round(sx),Math.round(sy),4+si*2,4+si*2);
+      }
+    }
+    if(sn==='winter'){
+      gCtx.fillStyle='rgba(225,241,255,0.8)';
+      gCtx.fillRect(x,y+2,TW,4);
+    }
+    return;
+  }
+
+  // Wall (bottom row)
+  gCtx.fillStyle='#b8814d';
+  gCtx.fillRect(x+1,y+2,TW-2,TH-10);
+  gCtx.fillStyle='#cd9664';
+  gCtx.fillRect(x+3,y+4,TW-18,TH-14);
+  gCtx.fillStyle='#8f6138';
+  gCtx.fillRect(x+TW-13,y+2,11,TH-10);
+  gCtx.fillStyle='rgba(0,0,0,0.08)';
+  for(let wy=7;wy<TH-12;wy+=6) gCtx.fillRect(x+1,y+wy,TW-2,1);
+
+  gCtx.fillStyle='#616265';
+  gCtx.fillRect(x+1,y+TH-9,TW-2,8);
+  gCtx.fillStyle='#8a8c90';
+  gCtx.fillRect(x+3,y+TH-9,TW-6,4);
+
+  // Window / door by quadrant
+  if(partX===0){
+    gCtx.fillStyle='#3b1b0b';
+    gCtx.fillRect(x+9,y+14,18,15);
+    gCtx.fillStyle=tod==='night'||tod==='evening'?'#f7c66a':'#2c66bc';
+    gCtx.fillRect(x+10,y+15,16,13);
+    gCtx.fillStyle='#d0a05f';
+    gCtx.fillRect(x+10,y+21,16,2);
+    gCtx.fillRect(x+17,y+15,2,13);
+    if(sn==='spring'){
+      gCtx.fillStyle='#6a4221';
+      gCtx.fillRect(x+9,y+29,18,4);
+      gCtx.fillStyle='#f06ba8';
+      gCtx.fillRect(x+11,y+27,3,3); gCtx.fillRect(x+16,y+26,3,3); gCtx.fillRect(x+21,y+27,3,3);
+    }
+  } else {
+    gCtx.fillStyle='#4a220f';
+    gCtx.fillRect(x+13,y+10,16,TH-12);
+    gCtx.fillStyle='#6a3419';
+    gCtx.fillRect(x+14,y+11,14,TH-14);
+    gCtx.fillStyle='rgba(0,0,0,0.14)';
+    gCtx.fillRect(x+16,y+13,10,7);
+    gCtx.fillRect(x+16,y+23,10,6);
+    gCtx.fillStyle='#efc448';
+    gCtx.fillRect(x+23,y+23,2,2);
+  }
+
+  if(sn==='winter'){
+    gCtx.fillStyle='rgba(220,238,255,0.64)';
+    gCtx.fillRect(x+2,y+2,TW-4,3);
+  }
+}
+
+
+function drawBarn(col,row,t){
+  const x=ox+col*TW, y=oy+row*TH;
+  const left=isType(col-1,row,'b');
+  const up=isType(col,row-1,'b');
+  const partX=left?1:0;
+  const partY=up?1:0;
+
+  if(partY===1){
+    gCtx.fillStyle='rgba(0,0,0,.22)';
+    gCtx.beginPath(); gCtx.ellipse(x+TW/2,y+TH-7,15,5,0,0,Math.PI*2); gCtx.fill();
+  }
+
+  if(partY===0){
+    gCtx.fillStyle='#5f1111';
+    gCtx.fillRect(x-1,y+7,TW+2,16);
+    gCtx.fillStyle='#7f1818';
+    gCtx.fillRect(x,y+4,TW,13);
+    gCtx.fillStyle='#a52525';
+    gCtx.fillRect(x+1,y+2,TW-2,10);
+    gCtx.fillStyle='rgba(255,180,180,0.16)';
+    for(let i=0;i<4;i++) gCtx.fillRect(x+5+i*12,y+4,9,2);
+    gCtx.fillStyle='rgba(0,0,0,0.18)';
+    for(let ry=7;ry<20;ry+=5) gCtx.fillRect(x+1,y+ry,TW-2,1);
+    return;
+  }
+
+  gCtx.fillStyle='#8f2121';
+  gCtx.fillRect(x+1,y+2,TW-2,TH-10);
+  gCtx.fillStyle='#be2e2e';
+  gCtx.fillRect(x+3,y+4,TW-6,TH-14);
+  gCtx.fillStyle='rgba(0,0,0,0.12)';
+  for(let wy=7;wy<TH-12;wy+=6) gCtx.fillRect(x+1,y+wy,TW-2,1);
+  gCtx.fillStyle='#6b6b6d';
+  gCtx.fillRect(x+1,y+TH-9,TW-2,8);
+  gCtx.fillStyle='#87898d';
+  gCtx.fillRect(x+3,y+TH-9,TW-6,4);
+
+  if(partX===0){
+    // hay stack
+    gCtx.fillStyle='#c7943a';
+    gCtx.fillRect(x+7,y+20,16,12);
+    gCtx.fillStyle='#ddb15a';
+    gCtx.fillRect(x+8,y+21,14,9);
+    gCtx.fillStyle='#ad7b2f';
+    gCtx.fillRect(x+8,y+25,14,2);
+    gCtx.fillRect(x+13,y+21,2,9);
+  } else {
+    // barn door
+    gCtx.fillStyle='#5f2b17';
+    gCtx.fillRect(x+12,y+12,18,TH-14);
+    gCtx.fillStyle='#7f3c22';
+    gCtx.fillRect(x+13,y+13,16,TH-16);
+    gCtx.fillStyle='#c89b58';
+    gCtx.fillRect(x+20,y+13,2,TH-16);
+    gCtx.fillRect(x+13,y+20,16,2);
+    gCtx.fillStyle='#e6cc86';
+    gCtx.fillRect(x+23,y+22,2,2);
+  }
+
+  if(G.bought.coop && partX===0){
+    gCtx.fillStyle='#f8f0e0';
+    gCtx.fillRect(x+8,y+36,6,4);
+    gCtx.fillRect(x+6,y+33,4,4);
+    gCtx.fillStyle='#e83020';
+    gCtx.fillRect(x+6,y+32,3,2);
+  }
+}
+
+function drawFence(col,row){
+  const x=ox+col*TW, y=oy+row*TH;
+  drawObliqueTile(gCtx,col,row,PAL.G,TH);
+
+  const nL=isType(col-1,row,'F'), nR=isType(col+1,row,'F');
+  const nU=isType(col,row-1,'F'), nD=isType(col,row+1,'F');
+
+  const post='#7a4a24', postHi='#a56a38', rail='#8f5b2d', railHi='#ba7a3f';
+  gCtx.fillStyle=post;
+  gCtx.fillRect(x+24,y+8,8,34);
+  gCtx.fillStyle=postHi;
+  gCtx.fillRect(x+25,y+10,5,30);
+  gCtx.fillStyle='#6a3a1d';
+  gCtx.fillRect(x+24,y+8,8,3);
+
+  const drawH=()=>{
+    gCtx.fillStyle=rail; gCtx.fillRect(x+4,y+16,TW-8,5);
+    gCtx.fillStyle=railHi; gCtx.fillRect(x+5,y+17,TW-10,2);
+    gCtx.fillStyle=rail; gCtx.fillRect(x+4,y+28,TW-8,5);
+    gCtx.fillStyle=railHi; gCtx.fillRect(x+5,y+29,TW-10,2);
+  };
+  const drawV=()=>{
+    gCtx.fillStyle=rail; gCtx.fillRect(x+16,y+5,5,TH-10);
+    gCtx.fillStyle=railHi; gCtx.fillRect(x+17,y+6,2,TH-12);
+    gCtx.fillStyle=rail; gCtx.fillRect(x+35,y+5,5,TH-10);
+    gCtx.fillStyle=railHi; gCtx.fillRect(x+36,y+6,2,TH-12);
+  };
+
+  if(nL||nR||(!nU&&!nD)) drawH();
+  if(nU||nD) drawV();
+
+  if(!nL){ gCtx.fillStyle=post; gCtx.fillRect(x+4,y+9,6,33); gCtx.fillStyle=postHi; gCtx.fillRect(x+5,y+11,3,29); }
+  if(!nR){ gCtx.fillStyle=post; gCtx.fillRect(x+46,y+9,6,33); gCtx.fillStyle=postHi; gCtx.fillRect(x+47,y+11,3,29); }
+  if(!nU){ gCtx.fillStyle=post; gCtx.fillRect(x+24,y+4,8,8); gCtx.fillStyle=postHi; gCtx.fillRect(x+25,y+5,5,5); }
+}
+
+function drawMountain(col,row){
+  const x=ox+col*TW, y=oy+row*TH;
+  const top=isType(col,row-1,'M');
+  const left=isType(col-1,row,'M');
+  const right=isType(col+1,row,'M');
+
+  gCtx.fillStyle='#5f6472';
+  gCtx.fillRect(x+1,y+8,TW-2,TH-2);
+  gCtx.fillStyle='#727987';
+  gCtx.fillRect(x+2,y+6,TW-4,TH-6);
+  gCtx.fillStyle='#8b92a1';
+  gCtx.fillRect(x+4,y+4,TW-8,17);
+  gCtx.fillStyle='#4a5060';
+  gCtx.fillRect(x+3,y+23,TW-6,10);
+  gCtx.fillRect(x+8,y+16,2,18);
+  gCtx.fillRect(x+26,y+18,2,16);
+  gCtx.fillRect(x+38,y+14,2,20);
+
+  if(!top){
+    gCtx.fillStyle='rgba(232,242,255,0.88)';
+    gCtx.fillRect(x+9,y+4,TW-18,8);
+    gCtx.fillRect(x+13,y+2,TW-26,5);
+  }
+  if(!left){ gCtx.fillStyle='rgba(0,0,0,0.16)'; gCtx.fillRect(x+1,y+8,3,TH-3); }
+  if(!right){ gCtx.fillStyle='rgba(255,255,255,0.07)'; gCtx.fillRect(x+TW-4,y+7,2,TH-4); }
+}
+
+function drawWell(col,row){
+  const x=ox+col*TW, y=oy+row*TH;
+  drawObliqueTile(gCtx,col,row,PAL.G,TH);
+  gCtx.fillStyle='rgba(0,0,0,0.22)';
+  gCtx.beginPath(); gCtx.ellipse(x+TW/2+1,y+TH-8,12,4,0,0,Math.PI*2); gCtx.fill();
+
+  gCtx.fillStyle='#6e6f73';
+  gCtx.fillRect(x+11,y+20,34,23);
+  gCtx.fillStyle='#8b8d92';
+  gCtx.fillRect(x+12,y+18,32,17);
+  gCtx.fillStyle='#adb0b6';
+  gCtx.fillRect(x+14,y+16,28,7);
+
+  gCtx.fillStyle='#7c5126';
+  gCtx.fillRect(x+13,y+6,4,18);
+  gCtx.fillRect(x+39,y+6,4,18);
+  gCtx.fillStyle='#9b6834';
+  gCtx.fillRect(x+13,y+6,30,4);
+
+  gCtx.fillStyle='#16629a';
+  gCtx.fillRect(x+18,y+20,20,6);
+  gCtx.fillStyle='rgba(200,240,255,0.3)';
+  gCtx.fillRect(x+20,y+21,8,2);
+
+  gCtx.fillStyle='#d7ae69';
+  gCtx.fillRect(x+27,y+10,2,9);
+  gCtx.fillStyle='#6f6f72';
+  gCtx.fillRect(x+24,y+16,8,8);
+}
+
+function drawLamp(col,row,t){
+  const x=ox+col*TW, y=oy+row*TH;
+  const tod=TOD();
+  drawObliqueTile(gCtx,col,row,PAL.P,TH);
+  gCtx.fillStyle='#6a604f';
+  gCtx.fillRect(x+22,y+16,5,TH-16);
+  gCtx.fillStyle='#7f7562';
+  gCtx.fillRect(x+21,y+15,7,3);
+  gCtx.fillStyle='#4f463a';
+  gCtx.fillRect(x+16,y+7,17,9);
+  gCtx.fillStyle='#6d6453';
+  gCtx.fillRect(x+17,y+6,15,6);
+
+  if(tod==='night'||tod==='evening'){
+    const gl=.6+.4*Math.sin(t*2.5+col);
+    gCtx.fillStyle=`rgba(255,200,60,${gl})`;
+    gCtx.fillRect(x+19,y+8,11,5);
+    const gg=gCtx.createRadialGradient(x+22,y+10,0,x+22,y+10,30);
+    gg.addColorStop(0,`rgba(255,200,60,${.3*gl})`); gg.addColorStop(1,'rgba(255,200,60,0)');
+    gCtx.fillStyle=gg; gCtx.beginPath(); gCtx.arc(x+22,y+10,30,0,Math.PI*2); gCtx.fill();
+  } else {
+    gCtx.fillStyle='rgba(255,240,200,.3)';
+    gCtx.fillRect(x+19,y+8,11,5);
+  }
+}
+
+// â”€â”€â”€ CROP SPRITE (pseudo-3D) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function drawCropSprite(col,row,cell,t){
+  const x=ox+col*TW, y=oy+row*TH;
+  const cr=CROPS[cell.crop];
+  const prog=cell.gp/cr.d;
+  const sway=Math.sin(t*1.1+cell.ao)*1.8;
+  const sn=SEASONS[G.sIdx];
+
+  // Crop colors
+  const CC={
+    turnip:{s:'#60a030',m:'#80c040',f:'#f0e020',fr:'#e0c810'},
+    potato:{s:'#70a838',m:'#90c848',f:'#d09030',fr:'#b87020'},
+    blueberry:{s:'#4080a0',m:'#5098b8',f:'#5040b0',fr:'#6850c0'},
+    pumpkin:{s:'#508028',m:'#70a038',f:'#e06010',fr:'#f07020'},
+    cauliflower:{s:'#60a840',m:'#80c060',f:'#e0f0e0',fr:'#d0e8d0'},
+    wheat:{s:'#70a030',m:'#90b840',f:'#d0a820',fr:'#c09010'},
+    garlic:{s:'#80a048',m:'#a0c060',f:'#f0f0e8',fr:'#e0e0d0'},
+    yam:{s:'#508830',m:'#70a848',f:'#d06030',fr:'#b84020'},
+  };
+  const cc=CC[cell.crop]||CC.turnip;
+
+  if(prog<.25){
+    // Tiny sprout
+    gCtx.fillStyle='#30780c';
+    gCtx.fillRect(x+19+sway,y+26,3,10);
+    gCtx.fillStyle=cc.s;
+    gCtx.fillRect(x+16+sway,y+22,5,6);
+    gCtx.fillRect(x+21+sway,y+24,5,6);
+  } else if(prog<.6){
+    // Young plant with shadow
+    gCtx.fillStyle='rgba(0,0,0,.15)';
+    gCtx.beginPath(); gCtx.ellipse(x+TW/2,y+ISO_Y+6,TW*.28,4,0,0,Math.PI*2); gCtx.fill();
+    // stem
+    gCtx.fillStyle='#3a7818';
+    gCtx.fillRect(x+20+sway,y+20,4,18);
+    // leaves
+    gCtx.fillStyle=cc.s;
+    gCtx.fillRect(x+12+sway,y+16,10,8);
+    gCtx.fillRect(x+24+sway,y+18,10,8);
+    gCtx.fillStyle=cc.m;
+    gCtx.fillRect(x+14+sway,y+14,10,8);
+    gCtx.fillRect(x+22+sway,y+16,10,8);
+    gCtx.fillRect(x+17+sway,y+10,10,10);
+  } else {
+    // Mature
+    gCtx.fillStyle='rgba(0,0,0,.2)';
+    gCtx.beginPath(); gCtx.ellipse(x+TW/2,y+ISO_Y+8,TW*.38,6,0,0,Math.PI*2); gCtx.fill();
+    // main stem
+    gCtx.fillStyle='#2e6210';
+    gCtx.fillRect(x+19+sway*.5,y+16,6,24);
+    // big leaves
+    gCtx.fillStyle=cc.s;
+    gCtx.fillRect(x+8+sway,y+12,12,10); gCtx.fillRect(x+26+sway,y+14,12,10);
+    gCtx.fillStyle=cc.m;
+    gCtx.fillRect(x+10+sway,y+10,12,10); gCtx.fillRect(x+24+sway,y+12,12,10);
+    gCtx.fillRect(x+15+sway,y+4,14,12);
+    // leaf highlight
+    gCtx.fillStyle='rgba(255,255,255,.1)';
+    gCtx.fillRect(x+16+sway,y+5,6,5);
+    if(prog>=1){
+      // Fruit/veggie
+      gCtx.fillStyle=cc.fr;
+      gCtx.fillRect(x+12+sway,y+26,10,10); gCtx.fillRect(x+26+sway,y+28,10,10);
+      gCtx.fillStyle=cc.f;
+      gCtx.fillRect(x+13+sway,y+27,8,8); gCtx.fillRect(x+27+sway,y+29,8,8);
+      // sparkle
+      const gl=.4+.4*Math.sin(t*4+cell.ao);
+      gCtx.fillStyle=`rgba(255,255,100,${gl})`;
+      gCtx.fillRect(x+TW-8,y+1,6,6);
+      gCtx.fillStyle=`rgba(255,255,200,${gl*.7})`;
+      gCtx.fillRect(x+TW-12,y+5,4,4);
+      gCtx.fillRect(x+TW-6,y+7,4,4);
+    } else {
+      gCtx.fillStyle=cc.fr;
+      gCtx.fillRect(x+17+sway,y+28,8,8);
+      gCtx.fillStyle=cc.f;
+      gCtx.fillRect(x+18+sway,y+29,6,6);
+    }
+  }
+  // Wet indicator
+  if(cell.wet){
+    gCtx.fillStyle='rgba(80,160,255,.35)';
+    gCtx.fillRect(x+2,y+ISO_Y,TW-4,TH-ISO_Y);
+    gCtx.fillStyle='rgba(100,180,255,.5)';
+    gCtx.fillRect(x+6,y+ISO_Y+4,4,3); gCtx.fillRect(x+20,y+ISO_Y+8,4,3); gCtx.fillRect(x+32,y+ISO_Y+4,4,3);
+  }
+  // Growth progress bar
+  const bw=TW-8;
+  gCtx.fillStyle='rgba(0,0,0,.5)';
+  gCtx.fillRect(x+4,y+TH-6,bw,4);
+  gCtx.fillStyle=prog>=1?'#40e840':'#80d020';
+  gCtx.fillRect(x+4,y+TH-6,Math.round(bw*prog),4);
+}
+
+// â”€â”€â”€ HOVER OVERLAY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function drawHoverOverlay(col,row){
+  const x=ox+col*TW, y=oy+row*TH;
+  gCtx.globalAlpha=.18;
+  gCtx.fillStyle='#ffffff';
+  gCtx.fillRect(x,y,TW,TH);
+  gCtx.globalAlpha=1;
+  gCtx.strokeStyle='rgba(240,192,60,.8)';
+  gCtx.lineWidth=2;
+  gCtx.strokeRect(x+1,y+1,TW-2,TH-2);
+}
+
+// â”€â”€â”€ PLAYER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const TOOL_ORDER=['water','hoe','plant','harvest','axe','pickaxe','fish','path','fence'];
+const WALKABLE_TILES=new Set(['G','S','P','f','w','u']);
+let pPos={col:5,row:7},pDir=1,pFacing={dc:1,dr:0},walkStep=0,lastPosCol=5,lastPosRow=7;
+let pAnim={fromCol:5,fromRow:7,toCol:5,toRow:7,start:0,dur:120,active:false};
+let autoPath=[],queuedActionIdx=null,queuedInteractNpcId=null,lastAutoStepAt=0;
+// Footstep dust particles
+let footDust=[];
+function spawnFootDust(x,y){
+  for(let i=0;i<3;i++) footDust.push({x:x+Math.random()*8-4,y:y,life:8,vx:(Math.random()-.5)*.5,vy:-Math.random()*.3});
+}
+function drawFootDust(){
+  footDust=footDust.filter(p=>p.life>0);
+  footDust.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.life--;
+    gCtx.globalAlpha=p.life/10;
+    gCtx.fillStyle='#c0a880';
+    gCtx.fillRect(Math.round(p.x),Math.round(p.y),2,2);
+  });
+  gCtx.globalAlpha=1;
+}
+function tileIndex(col,row){return row*GW+col;}
+function idxToTile(idx){return {col:idx%GW,row:Math.floor(idx/GW)};}
+function normKey(key){return key&&key.length===1?key.toLowerCase():key;}
+function moveRepeatMs(){return KEYS.Shift?85:125;}
+function isNpcTile(col,row){
+  return Object.values(NPC_WORLD).some(npc=>npc.col===col&&npc.row===row);
+}
+function isWalkable(col,row,opt={}){
+  if(!inBounds(col,row)) return false;
+  // Modo mundo abierto: ninguna decoracion bloquea el paso.
+  return true;
+}
+function isWithinActionRange(col,row){
+  return Math.abs(col-pPos.col)+Math.abs(row-pPos.row)<=1;
+}
+function orientToward(col,row){
+  const dc=col-pPos.col,dr=row-pPos.row;
+  if(Math.abs(dc)>=Math.abs(dr)&&dc!==0){
+    pFacing={dc:Math.sign(dc),dr:0};
+    pDir=Math.sign(dc);
+  } else if(dr!==0){
+    pFacing={dc:0,dr:Math.sign(dr)};
+  }
+}
+function getFacingTarget(){
+  const col=pPos.col+pFacing.dc,row=pPos.row+pFacing.dr;
+  if(inBounds(col,row)) return {col,row};
+  return {col:pPos.col,row:pPos.row};
+}
+function clearAutoMove(clearIntent=true){
+  autoPath.length=0;
+  if(clearIntent){
+    queuedActionIdx=null;
+    queuedInteractNpcId=null;
+  }
+}
+function movePlayerTo(col,row,opt={}){
+  if(col===pPos.col&&row===pPos.row) return;
+  const fromX=ox+pPos.col*TW+TW/2;
+  const fromY=oy+pPos.row*TH+TH-8;
+  spawnFootDust(fromX,fromY);
+  lastPosCol=pPos.col;lastPosRow=pPos.row;
+  walkStep=(walkStep+1)%8;
+  pAnim={fromCol:pPos.col,fromRow:pPos.row,toCol:col,toRow:row,start:performance.now(),dur:Math.max(70,Math.round(moveRepeatMs()*.9)),active:true};
+  pPos={col,row};
+  guideMark('moved',1);
+  scrollToPlayer();
+  if(!opt.silent) updateContextHint();
+}
+function findPath(startCol,startRow,targetCol,targetRow,opt={}){
+  const startIdx=tileIndex(startCol,startRow),targetIdx=tileIndex(targetCol,targetRow);
+  if(startIdx===targetIdx) return [];
+  const q=[startIdx];
+  const prev=new Int32Array(GW*GH).fill(-1);
+  prev[startIdx]=startIdx;
+  const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+  while(q.length){
+    const cur=q.shift();
+    const cc=cur%GW,cr=Math.floor(cur/GW);
+    for(const [dc,dr] of dirs){
+      const nc=cc+dc,nr=cr+dr;
+      if(!inBounds(nc,nr)) continue;
+      const ni=tileIndex(nc,nr);
+      if(prev[ni]!==-1) continue;
+      if(!isWalkable(nc,nr,opt)) continue;
+      prev[ni]=cur;
+      if(ni===targetIdx){
+        const path=[];
+        let p=ni;
+        while(p!==startIdx){
+          path.push(idxToTile(p));
+          p=prev[p];
+        }
+        path.reverse();
+        return path;
+      }
+      q.push(ni);
+    }
+  }
+  return null;
+}
+function nearestReachableTile(targetCol,targetRow,maxRadius=5){
+  const candidates=[];
+  for(let r=0;r<=maxRadius;r++){
+    for(let dr=-r;dr<=r;dr++){
+      for(let dc=-r;dc<=r;dc++){
+        if(Math.abs(dc)+Math.abs(dr)!==r) continue;
+        const col=targetCol+dc,row=targetRow+dr;
+        if(!isWalkable(col,row)) continue;
+        const score=r*100+Math.abs(col-pPos.col)+Math.abs(row-pPos.row);
+        candidates.push({col,row,score});
+      }
+    }
+  }
+  candidates.sort((a,b)=>a.score-b.score);
+  for(const c of candidates){
+    const path=findPath(pPos.col,pPos.row,c.col,c.row);
+    if(path) return {destination:{col:c.col,row:c.row},path};
+  }
+  return null;
+}
+function queueMoveTo(col,row,opt={}){
+  const useAction=opt.actionIdx??null;
+  const ignoreNpc=opt.ignoreNpc===true;
+  const directWalkable=isWalkable(col,row,{ignoreNpc});
+  const directPath=directWalkable?findPath(pPos.col,pPos.row,col,row,{ignoreNpc}):null;
+  let route=directPath?{destination:{col,row},path:directPath}:null;
+  if(!route) route=nearestReachableTile(col,row,6);
+  if(!route){
+    notify('No hay camino hasta ese punto.','info');
+    return false;
+  }
+  autoPath=route.path.slice();
+  queuedActionIdx=useAction;
+  queuedInteractNpcId=opt.npcId||null;
+  lastAutoStepAt=0;
+  if(!autoPath.length) resolveQueuedIntent();
+  updateContextHint();
+  return true;
+}
+function resolveQueuedIntent(){
+  if(queuedInteractNpcId){
+    const npcId=queuedInteractNpcId;
+    queuedInteractNpcId=null;
+    talkNPC(npcId);
+  }
+  if(queuedActionIdx!=null){
+    const idx=queuedActionIdx;
+    queuedActionIdx=null;
+    const {col,row}=idxToTile(idx);
+    if(isWithinActionRange(col,row)){
+      orientToward(col,row);
+      handleCell(idx);
+    } else {
+      notify('No estas lo bastante cerca para usar herramienta.','info');
+    }
+  }
+  updateContextHint();
+}
+function updateAutoMove(now=performance.now(),forceStep=false){
+  if(!autoPath.length){
+    if(queuedActionIdx!=null||queuedInteractNpcId) resolveQueuedIntent();
+    return;
+  }
+  const stepMs=moveRepeatMs();
+  if(!forceStep&&now-lastAutoStepAt<stepMs) return;
+  lastAutoStepAt=now;
+  const step=autoPath.shift();
+  if(step){
+    const dc=Math.sign(step.col-pPos.col),dr=Math.sign(step.row-pPos.row);
+    if(dc||dr) pFacing={dc,dr};
+    if(dc!==0) pDir=dc;
+    movePlayerTo(step.col,step.row,{silent:true});
+  }
+  if(!autoPath.length) resolveQueuedIntent();
+}
+function drawActionTarget(){
+  const target=queuedActionIdx!=null?idxToTile(queuedActionIdx):getFacingTarget();
+  if(!target||!inBounds(target.col,target.row)) return;
+  const x=ox+target.col*TW,y=oy+target.row*TH;
+  const inRange=isWithinActionRange(target.col,target.row);
+  gCtx.strokeStyle=queuedActionIdx!=null?'rgba(120,220,255,.95)':inRange?'rgba(240,192,60,.9)':'rgba(220,130,90,.9)';
+  gCtx.lineWidth=2;
+  gCtx.strokeRect(x+5,y+5,TW-10,TH-10);
+}
+function cycleTool(dir=1){
+  const idx=TOOL_ORDER.indexOf(G.tool);
+  const next=(idx<0?0:(idx+dir+TOOL_ORDER.length)%TOOL_ORDER.length);
+  T(TOOL_ORDER[next]);
+  showKbHint(document.getElementById('ctool').textContent);
+}
+function nearestNpc(maxDist=6){
+  let best=null,min=maxDist+1;
+  Object.entries(NPC_WORLD).forEach(([id,pos])=>{
+    const dist=Math.abs(pos.col-pPos.col)+Math.abs(pos.row-pPos.row);
+    if(dist<min){min=dist;best={id,dist,col:pos.col,row:pos.row};}
+  });
+  return best&&best.dist<=maxDist?best:null;
+}
+function queueTalkWithNpc(npcId){
+  const npc=NPC_WORLD[npcId];
+  if(!npc) return false;
+  const spots=[{col:npc.col+1,row:npc.row},{col:npc.col-1,row:npc.row},{col:npc.col,row:npc.row+1},{col:npc.col,row:npc.row-1}]
+    .filter(s=>isWalkable(s.col,s.row));
+  let best=null;
+  spots.forEach(s=>{
+    const path=findPath(pPos.col,pPos.row,s.col,s.row);
+    if(!path) return;
+    if(!best||path.length<best.path.length) best={spot:s,path};
+  });
+  if(!best) return false;
+  autoPath=best.path.slice();
+  queuedActionIdx=null;
+  queuedInteractNpcId=npcId;
+  lastAutoStepAt=0;
+  showKbHint(`Te acercas a ${NPCS.find(n=>n.id===npcId)?.n||'NPC'}...`);
+  updateContextHint();
+  return true;
+}
+function updateContextHint(){
+  const el=document.getElementById('ctxhint');
+  if(!el) return;
+  const zone=zoneNameAt();
+  if(autoPath.length){
+    const mode=queuedInteractNpcId?tr('modeTalk'):tr('modeAction');
+    el.textContent=tr('inRoute',{zone,mode,steps:autoPath.length});
+    return;
+  }
+  if(nearMineGate(1)){
+    el.textContent=tr('hintEnterMine',{zone});
+    return;
+  }
+  if(inMine()&&nearMineExit(1)){
+    el.textContent=tr('hintExitMine',{zone});
+    return;
+  }
+  const near=nearestNpc(2);
+  if(!inMine()&&near&&near.dist<=1){
+    const name=NPCS.find(n=>n.id===near.id)?.n||'vecino';
+    el.textContent=tr('hintTalk',{zone,name});
+    return;
+  }
+  const tgt=getFacingTarget();
+  const dist=isWithinActionRange(tgt.col,tgt.row)?tr('distReach'):tr('distFar');
+  el.textContent=tr('hintTool',{zone,tool:toolName(G.tool),col:tgt.col,row:tgt.row,dist});
+}
+function handlePrimaryClick(col,row){
+  clearAutoMove();
+  const idx=tileIndex(col,row);
+  orientToward(col,row);
+  if(isWithinActionRange(col,row)){
+    handleCell(idx);
+    updateContextHint();
+    return;
+  }
+  if(queueMoveTo(col,row,{actionIdx:idx})){
+    showKbHint('En camino para usar herramienta...');
+  }
+}
+function handleSecondaryClick(col,row){
+  clearAutoMove();
+  orientToward(col,row);
+  queueMoveTo(col,row);
+}
+function useToolOnCurrent(){
+  clearAutoMove();
+  handleCell(tileIndex(pPos.col,pPos.row));
+  updateContextHint();
+}
+function toggleFullscreen(){
+  const target=document.documentElement;
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+  else target.requestFullscreen?.().catch(()=>{});
+}
+
+function getPlayerRenderPos(now=performance.now()){
+  if(!pAnim.active) return {col:pPos.col,row:pPos.row};
+  const p=Math.min(1,(now-pAnim.start)/Math.max(1,pAnim.dur));
+  const e=1-Math.pow(1-p,3);
+  const col=pAnim.fromCol+(pAnim.toCol-pAnim.fromCol)*e;
+  const row=pAnim.fromRow+(pAnim.toRow-pAnim.fromRow)*e;
+  if(p>=1) pAnim.active=false;
+  return {col,row};
+}
+function updateCamera(){
+  if(!Number.isFinite(targetOx)||!Number.isFinite(targetOy)){targetOx=ox;targetOy=oy;}
+  ox+= (targetOx-ox)*0.2;
+  oy+= (targetOy-oy)*0.2;
+  ox=Math.round(ox);
+  oy=Math.round(oy);
+}
+function drawPlayer(t,renderPos=null){
+  const rp=renderPos||getPlayerRenderPos();
+  const x=ox+rp.col*TW+(TW-16)/2;
+  const y=oy+rp.row*TH;
+  const bob=Math.sin(t*2.5)*1.2;
+  const by=y+16+bob;
+
+  gCtx.fillStyle='rgba(0,0,0,0.34)';
+  gCtx.beginPath(); gCtx.ellipse(x+8,by+28,10,4,0,0,Math.PI*2); gCtx.fill();
+
+  // Boots + legs
+  gCtx.fillStyle='#272017'; gCtx.fillRect(x+1,by+24,6,5); gCtx.fillRect(x+9,by+24,6,5);
+  gCtx.fillStyle='#31579e'; gCtx.fillRect(x+2,by+16,5,10); gCtx.fillRect(x+9,by+16,5,10);
+
+  // Body
+  gCtx.fillStyle='#496fb7'; gCtx.fillRect(x+1,by+5,14,13);
+  gCtx.fillStyle='#d04a2f'; gCtx.fillRect(x+3,by+5,10,7);
+  gCtx.fillStyle='#5f8acc'; gCtx.fillRect(x+4,by+6,8,6);
+  gCtx.fillStyle='#f0c44e'; gCtx.fillRect(x+6,by+17,4,2);
+
+  // Arms
+  const armSwing=Math.sin(t*4)*2;
+  gCtx.fillStyle='#d04a2f';
+  gCtx.fillRect(x-2+Math.round(armSwing*pDir),by+6,4,8);
+  gCtx.fillRect(x+14-Math.round(armSwing*pDir),by+6,4,8);
+  gCtx.fillStyle='#c88958';
+  gCtx.fillRect(x-2+pDir,by+13,4,4);
+  gCtx.fillRect(x+14-pDir,by+13,4,4);
+
+  // Head
+  gCtx.fillStyle='#cb8857'; gCtx.fillRect(x+2,by-8,12,12);
+  gCtx.fillStyle='#4a2717'; gCtx.fillRect(x+2,by-8,12,5);
+  gCtx.fillRect(x+2,by-4,2,3); gCtx.fillRect(x+12,by-4,2,3);
+  gCtx.fillStyle='#1b120a'; gCtx.fillRect(x+4,by-2,2,2); gCtx.fillRect(x+10,by-2,2,2);
+  gCtx.fillStyle='rgba(255,255,255,.45)'; gCtx.fillRect(x+4,by-2,1,1); gCtx.fillRect(x+10,by-2,1,1);
+
+  // Hat
+  gCtx.fillStyle='#8f6738'; gCtx.fillRect(x+1,by-10,14,3);
+  gCtx.fillStyle='#a57a43'; gCtx.fillRect(x+3,by-14,10,5);
+  gCtx.fillStyle='#d0a144'; gCtx.fillRect(x+3,by-8,10,2);
+
+  drawToolSprite(x,by,t);
+}
+
+function drawToolSprite(x,y,t){
+  const TCOLORS={water:'#4090d0',hoe:'#9a6a3a',plant:'#4ea43a',harvest:'#c86d2f',axe:'#9a9a9a',pickaxe:'#7f868d',fish:'#c69a43',path:'#8d8d8d',fence:'#9a6a3a'};
+  const c=TCOLORS[G.tool]||'#9a6a3a';
+  gCtx.fillStyle='#5a3b21';
+  gCtx.fillRect(x+16,y+8,2,14);
+  gCtx.fillStyle=c;
+  gCtx.fillRect(x+15,y+6,4,4);
+  gCtx.fillStyle='rgba(255,255,255,.2)';
+  gCtx.fillRect(x+15,y+6,2,2);
+}
+
+
+// â”€â”€â”€ NPC WORLD SPRITES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let NPC_WORLD=cloneNpcWorld(MAP_STORE.farm?.npcs||{
+  elena:{col:14,row:25,color:'#d080c0'},
+  marco:{col:24,row:21,color:'#6080d0'},
+  luna: {col:33,row:28,color:'#60b860'},
+  felix:{col:31,row:22,color:'#d09040'},
+  nora: {col:22,row:33,color:'#c08080'},
+});
+
+function drawNPCs(t){
+  Object.entries(NPC_WORLD).forEach(([id,npc])=>{
+    const x=ox+npc.col*TW+(TW-14)/2;
+    const y=oy+npc.row*TH;
+    const bob=Math.sin(t*1.8+(npc.col+npc.row)*.5)*1;
+    const B=bob;
+    // shadow
+    gCtx.fillStyle='rgba(0,0,0,0.28)';
+    gCtx.beginPath(); gCtx.ellipse(x+7,y+ISO_Y+11,6,3,0,0,Math.PI*2); gCtx.fill();
+    // boots
+    gCtx.fillStyle='#201808';
+    gCtx.fillRect(x+1,y+ISO_Y+20+B,5,4);
+    gCtx.fillRect(x+8,y+ISO_Y+20+B,5,4);
+    // legs
+    gCtx.fillStyle=npc.color+'99';
+    gCtx.fillRect(x+2,y+ISO_Y+13+B,4,9);
+    gCtx.fillRect(x+8,y+ISO_Y+13+B,4,9);
+    // body
+    gCtx.fillStyle=npc.color;
+    gCtx.fillRect(x+1,y+ISO_Y+2+B,12,13);
+    // highlight
+    gCtx.fillStyle='rgba(255,255,255,0.15)';
+    gCtx.fillRect(x+2,y+ISO_Y+3+B,5,5);
+    // head
+    gCtx.fillStyle='#c88050';
+    gCtx.fillRect(x+2,y+ISO_Y-10+B,10,11);
+    // hair (different per NPC)
+    const hairColors={elena:'#d0d0d0',marco:'#603010',luna:'#308030',felix:'#d08020',nora:'#808080'};
+    gCtx.fillStyle=hairColors[id]||'#503010';
+    gCtx.fillRect(x+2,y+ISO_Y-10+B,10,4);
+    // eyes
+    gCtx.fillStyle='#201008';
+    gCtx.fillRect(x+4,y+ISO_Y-4+B,2,2);
+    gCtx.fillRect(x+8,y+ISO_Y-4+B,2,2);
+    // NPC name tag (small, floating)
+    const rel=G.npcRel[id]||0;
+    if(rel>30){
+      gCtx.fillStyle='rgba(240,192,64,0.9)';
+      gCtx.fillRect(x-2,y+ISO_Y-18+B,16,8);
+      gCtx.fillStyle='#201008';
+      // tiny heart
+      gCtx.fillStyle='#e04040';
+      gCtx.fillRect(x+4,y+ISO_Y-16+B,3,4);
+      gCtx.fillRect(x+8,y+ISO_Y-16+B,3,4);
+      gCtx.fillRect(x+3,y+ISO_Y-15+B,9,3);
+      gCtx.fillRect(x+5,y+ISO_Y-12+B,5,2);
+    }
+  });
+}
+
+function drawNPCs_row(col,row,id,t){
+  if(!id) return;
+  const npc=NPC_WORLD[id];
+  if(!npc) return;
+  const x=ox+col*TW+(TW-14)/2;
+  const y=oy+row*TH;
+  const bob=Math.sin(t*1.8+(col+row)*.5)*1;
+  const by=y+16+bob;
+  gCtx.fillStyle='rgba(0,0,0,0.3)';
+  gCtx.beginPath(); gCtx.ellipse(x+7,by+27,7,3,0,0,Math.PI*2); gCtx.fill();
+  gCtx.fillStyle='#22190e';
+  gCtx.fillRect(x+1,by+23,5,4);
+  gCtx.fillRect(x+8,by+23,5,4);
+  gCtx.fillStyle=npc.color+'99';
+  gCtx.fillRect(x+2,by+16,4,9);
+  gCtx.fillRect(x+8,by+16,4,9);
+  gCtx.fillStyle=npc.color;
+  gCtx.fillRect(x+1,by+5,12,12);
+  gCtx.fillStyle='rgba(255,255,255,0.16)';
+  gCtx.fillRect(x+2,by+6,4,4);
+  gCtx.fillStyle='#c88050';
+  gCtx.fillRect(x+2,by-7,10,11);
+  const hairC={elena:'#d0d0d0',marco:'#603010',luna:'#308030',felix:'#d08020',nora:'#808080'};
+  gCtx.fillStyle=hairC[id]||'#503010';
+  gCtx.fillRect(x+2,by-7,10,4);
+  gCtx.fillStyle='#201008';
+  gCtx.fillRect(x+4,by-1,2,2);
+  gCtx.fillRect(x+8,by-1,2,2);
+  // Chat bubble if high relationship
+  const rel=G.npcRel[id]||0;
+  if(rel>50&&G.frame%120<40){
+    gCtx.fillStyle='rgba(255,255,255,0.92)';
+    gCtx.fillRect(x+10,by-19,12,10);
+    gCtx.fillStyle='rgba(255,255,255,0.92)';
+    gCtx.fillRect(x+13,by-11,4,4);
+    gCtx.fillStyle='#e04040';
+    gCtx.fillRect(x+12,by-17,3,3);
+    gCtx.fillRect(x+16,by-17,3,3);
+    gCtx.fillRect(x+11,by-16,10,3);
+    gCtx.fillRect(x+13,by-13,6,3);
+  }
+}
+
+// â”€â”€â”€ WEATHER FX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let wxParts=[];
+function initWxParts(){
+  wxParts=[];
+  if(G.weather==='rainy'||G.weather==='stormy'){
+    for(let i=0;i<100;i++) wxParts.push({x:Math.random()*cw,y:Math.random()*ch,spd:7+Math.random()*5,dx:-.5+Math.random()*.2});
+  } else if(G.weather==='snowy'){
+    for(let i=0;i<60;i++) wxParts.push({x:Math.random()*cw,y:Math.random()*ch,spd:.7+Math.random()*1.2,r:2+Math.random()*3,ph:Math.random()*Math.PI*2});
+  }
+}
+
+function drawWeather(t){
+  if(inMine()){
+    fCtx.fillStyle='rgba(90,45,130,.08)';
+    fCtx.fillRect(0,0,cw,ch);
+    return;
+  }
+  if(G.weather==='rainy'||G.weather==='stormy'){
+    fCtx.strokeStyle='rgba(140,190,255,.45)';
+    fCtx.lineWidth=1;
+    wxParts.forEach(p=>{
+      p.y+=p.spd; p.x+=p.dx;
+      if(p.y>ch){p.y=-10;p.x=Math.random()*cw;}
+      fCtx.beginPath(); fCtx.moveTo(p.x,p.y); fCtx.lineTo(p.x+p.dx*3,p.y+p.spd*1.5); fCtx.stroke();
+    });
+    if(G.weather==='stormy'&&G.frame%180===0){
+      fCtx.fillStyle='rgba(200,220,255,.12)';
+      fCtx.fillRect(0,0,cw,ch);
+    }
+  } else if(G.weather==='snowy'){
+    fCtx.fillStyle='rgba(215,232,255,.7)';
+    wxParts.forEach(p=>{
+      p.y+=p.spd; p.x+=Math.sin(t+p.ph)*.4;
+      if(p.y>ch){p.y=-10;p.x=Math.random()*cw;}
+      fCtx.fillRect(p.x,p.y,p.r,p.r);
+    });
+  }
+  // Season ambient tint over the world
+  const TINTS={
+    autumn:{d:'rgba(200,100,20,.05)',n:'rgba(200,80,10,.1)'},
+    winter:{d:'rgba(180,210,240,.06)',n:'rgba(100,130,200,.12)'},
+    summer:{d:'rgba(255,200,40,.03)',n:'rgba(20,40,80,.05)'},
+    spring:{d:'rgba(100,200,80,.02)',n:'rgba(20,40,80,.04)'},
+  };
+  const sn=SEASONS[G.sIdx],tod=TOD();
+  const tc=TINTS[sn]?.[tod==='night'||tod==='evening'?'n':'d'];
+  if(tc){fCtx.fillStyle=tc;fCtx.fillRect(0,0,cw,ch);}
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  MAIN DRAW LOOP
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+function draw(){
+  updateAutoMove(performance.now());
+  updateCamera();
+  const t=G.frame*.04;
+  sCtx.clearRect(0,0,cw,ch);
+  gCtx.clearRect(0,0,cw,ch);
+  fCtx.clearRect(0,0,cw,ch);
+
+  drawSky(t);
+  const playerRenderPos=getPlayerRenderPos();
+  const playerRow=Math.max(0,Math.min(GH-1,Math.round(playerRenderPos.row)));
+
+  // Draw tiles back-to-front (painter's algorithm for depth)
+  for(let row=0;row<GH;row++){
+    for(let col=0;col<GW;col++){
+      const i=row*GW+col;
+      const cell=G.grid[i];
+      drawTile(col,row,cell,i===hovIdx,t);
+      if(inMine()) drawMineNodeOverlay(col,row,mineNodeAt(i),t);
+    }
+    // Draw NPCs in correct row
+    if(!inMine()) Object.values(NPC_WORLD).forEach(npc=>{if(npc.row===row) drawNPCs_row(npc.col,npc.row,Object.keys(NPC_WORLD).find(k=>NPC_WORLD[k]===npc),t);});
+    // Draw player in correct row depth
+    if(row===playerRow){ drawPlayer(t,playerRenderPos); drawFootDust(); }
+  }
+  if(inMine()) drawMineExitMarker(t);
+  else drawMineGateMarker(t);
+
+  // Ambient occlusion â€” darken edges between raised tiles and neighbors
+  // (lightweight: just draw subtle shadow where tall tiles meet grass)
+
+  // Hover last (on top)
+  if(hovIdx>=0){
+    const col=hovIdx%GW,row=Math.floor(hovIdx/GW);
+    drawHoverOverlay(col,row);
+  }
+  drawActionTarget();
+
+  fCtx.clearRect(0,0,cw,ch);
+  drawWeather(t);
+  if(mapFade>0){
+    fCtx.fillStyle=`rgba(0,0,0,${mapFade})`;
+    fCtx.fillRect(0,0,cw,ch);
+    mapFade=Math.max(0,mapFade-0.08);
+  }
+  if(mapLabelAlpha>0){
+    fCtx.fillStyle=`rgba(240,200,90,${mapLabelAlpha})`;
+    fCtx.font="16px 'Press Start 2P'";
+    fCtx.textAlign='center';
+    fCtx.fillText(mapName().toUpperCase(),cw/2,44);
+    mapLabelAlpha=Math.max(0,mapLabelAlpha-0.014);
+  }
+  G.frame++;
+  requestAnimationFrame(draw);
+}
+
+// â”€â”€â”€ MOUSE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function setupMouse(){
+  const gc2=document.getElementById('gc');
+  const pickTile=e=>{
+    const r=gc2.getBoundingClientRect();
+    const mx=e.clientX-r.left-ox, my=e.clientY-r.top-oy;
+    const col=Math.floor(mx/TW), row=Math.floor(my/TH);
+    return inBounds(col,row)?{col,row}:null;
+  };
+  gc2.addEventListener('mousemove',e=>{
+    const tile=pickTile(e);
+    hovIdx=tile?tileIndex(tile.col,tile.row):-1;
+    updateContextHint();
+  });
+  gc2.addEventListener('mouseleave',()=>{hovIdx=-1;updateContextHint();});
+  gc2.addEventListener('wheel',e=>{
+    if(document.getElementById('mb').classList.contains('on')) return;
+    e.preventDefault();
+    cycleTool(e.deltaY>0?1:-1);
+    updateContextHint();
+  },{passive:false});
+  gc2.addEventListener('contextmenu',e=>{
+    if(document.getElementById('mb').classList.contains('on')) return;
+    e.preventDefault();
+    const tile=pickTile(e);
+    if(!tile) return;
+    handleSecondaryClick(tile.col,tile.row);
+  });
+  gc2.addEventListener('click',e=>{
+    if(document.getElementById('mb').classList.contains('on')) return;
+    if(e.button!==0) return;
+    const tile=pickTile(e);
+    if(!tile) return;
+    handlePrimaryClick(tile.col,tile.row);
+  });
+}
+
+
+// â”€â”€â”€ KEYBOARD CONTROLS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const TOOL_KEYS={'1':'water','2':'hoe','3':'plant','4':'harvest','5':'axe','6':'pickaxe','7':'fish','8':'path','9':'fence'};
+const KEYS={};
+let kbMoveTimer=null;
+const MOVE_KEYS=['w','a','s','d','ArrowUp','ArrowLeft','ArrowDown','ArrowRight'];
+
+function heldMoveKey(){
+  return MOVE_KEYS.find(k=>KEYS[k]);
+}
+function refreshMoveRepeat(){
+  if(kbMoveTimer){clearInterval(kbMoveTimer);kbMoveTimer=null;}
+  if(!heldMoveKey()) return;
+  kbMoveTimer=setInterval(()=>{
+    const k=heldMoveKey();
+    if(!k) return;
+    handleMoveKey(k);
+  },moveRepeatMs());
+}
+
+function setupKeyboard(){
+  document.addEventListener('keydown',e=>{
+    const key=normKey(e.key);
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Tab'].includes(e.key)) e.preventDefault();
+    if(key==='Escape'){closeM();return;}
+    if(document.getElementById('mb').classList.contains('on')) return;
+    KEYS[key]=true;
+    if(TOOL_KEYS[key]){T(TOOL_KEYS[key]);showKbHint(document.getElementById('ctool').textContent);updateContextHint();return;}
+    if(key==='q'){cycleTool(-1);return;}
+    if(key==='r'||key==='Tab'){cycleTool(1);return;}
+    if(key==='f'){toggleFullscreen();return;}
+    if(key==='b'){openShop();return;}
+    if(key==='z'){doSleep();return;}
+    if(key==='m'){openMine();return;}
+    if(key==='e'||key==='Enter'){tryInteract();return;}
+    if(key==='x'){useToolOnCurrent();return;}
+    if(e.key===' '){useToolOnFacing();return;}
+    const moved=handleMoveKey(key);
+    if(moved) refreshMoveRepeat();
+  });
+  document.addEventListener('keyup',e=>{
+    const key=normKey(e.key);
+    delete KEYS[key];
+    refreshMoveRepeat();
+  });
+}
+
+function handleMoveKey(key){
+  const moves={'w':[0,-1],'ArrowUp':[0,-1],'s':[0,1],'ArrowDown':[0,1],'a':[-1,0],'ArrowLeft':[-1,0],'d':[1,0],'ArrowRight':[1,0]};
+  const mv=moves[key];
+  if(!mv) return false;
+  clearAutoMove();
+  const [dc,dr]=mv;
+  pFacing={dc,dr};
+  if(dc!==0) pDir=dc>0?1:-1;
+  const nc=pPos.col+dc,nr=pPos.row+dr;
+  if(isWalkable(nc,nr)){
+    movePlayerTo(nc,nr);
+  } else if(inBounds(nc,nr)){
+    const cell=G.grid[tileIndex(nc,nr)];
+    if(cell?.t==='W'||cell?.t==='D') showKbHint('Agua bloquea el paso. Usa clic derecho para rodear.');
+  }
+  updateContextHint();
+  return true;
+}
+
+function useToolOnFacing(){
+  clearAutoMove();
+  const target=getFacingTarget();
+  orientToward(target.col,target.row);
+  handleCell(tileIndex(target.col,target.row));
+  updateContextHint();
+}
+
+function tryInteract(){
+  if(inMine()&&nearMineExit(1)){leaveMine();return;}
+  if(!inMine()&&nearMineGate(1)){openMine();return;}
+  const near=nearestNpc(7);
+  if(!near){notify(tr('noNpcNear'),'info');return;}
+  if(near.dist<=1){talkNPC(near.id);return;}
+  if(!queueTalkWithNpc(near.id)){
+    notify('No puedes llegar a ese vecino desde aqui.','info');
+  }
+}
+
+function scrollToPlayer(immediate=false){
+  const vp=document.getElementById('vp');
+  const vpW=vp.clientWidth,vpH=vp.clientHeight;
+  const tox=Math.round(vpW/2-pPos.col*TW-TW/2);
+  const toy=Math.round(vpH/2-pPos.row*TH-TH/2);
+  const nx=Math.max(Math.min(tox,20),vpW-GW*TW-20);
+  const ny=Math.max(Math.min(toy,20),vpH-GH*TH-20);
+  targetOx=nx;targetOy=ny;
+  if(immediate||!Number.isFinite(ox)||!Number.isFinite(oy)){ox=nx;oy=ny;}
+}
+
+let kbHintTimer=null;
+function showKbHint(msg){
+  let el=document.getElementById('kb-hint');
+  if(!el){
+    el=document.createElement('div');el.id='kb-hint';
+    el.style.cssText='position:absolute;bottom:44px;left:50%;transform:translateX(-50%);background:rgba(14,7,2,.92);border:2px solid #c08030;box-shadow:2px 2px 0 #000;padding:4px 14px;font-family:VT323,monospace;font-size:15px;color:#f0c030;pointer-events:none;z-index:10;white-space:nowrap;transition:opacity .3s';
+    document.getElementById('vp').appendChild(el);
+  }
+  el.textContent=localizeText(msg);el.style.opacity='1';
+  if(kbHintTimer) clearTimeout(kbHintTimer);
+  kbHintTimer=setTimeout(()=>{el.style.opacity='0';},1800);
+}
+
+function toggleKbOverlay(){
+  let ov=document.getElementById('kb-overlay');
+  if(ov){ov.remove();return;}
+  ov=document.createElement('div');ov.id='kb-overlay';
+  ov.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(14,7,2,.97);border:3px solid #6a3c10;box-shadow:4px 4px 0 #000,6px 6px 0 #c08030;padding:22px 28px;z-index:300;font-family:VT323,monospace;font-size:15px;min-width:370px;';
+  ov.innerHTML=`<div style="font-family:'Press Start 2P';font-size:9px;color:#f0c030;margin-bottom:14px;text-shadow:2px 2px 0 #502000">${tr('kbTitle')}</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 20px;color:#e0c8a0;align-items:center">
+      <span style="background:#2a1808;border:1px solid #6a3c10;padding:1px 8px;font-size:13px">↑↓←→ / WASD</span><span style="color:#f0c030">${tr('kbMove')}</span>
+      <span style="background:#2a1808;border:1px solid #6a3c10;padding:1px 8px;font-size:13px">SPACE</span><span style="color:#f0c030">${tr('kbUse')}</span>
+      <span style="background:#2a1808;border:1px solid #6a3c10;padding:1px 8px;font-size:13px">E</span><span style="color:#f0c030">${tr('kbTalk')}</span>
+      <span style="background:#2a1808;border:1px solid #6a3c10;padding:1px 8px;font-size:13px">1 - 9</span><span style="color:#f0c030">${tr('kbTool')}</span>
+      <span style="background:#2a1808;border:1px solid #6a3c10;padding:1px 8px;font-size:13px">B</span><span style="color:#f0c030">${tr('kbShop')}</span>
+      <span style="background:#2a1808;border:1px solid #6a3c10;padding:1px 8px;font-size:13px">Z</span><span style="color:#f0c030">${tr('kbSleep')}</span>
+      <span style="background:#2a1808;border:1px solid #6a3c10;padding:1px 8px;font-size:13px">M</span><span style="color:#f0c030">${tr('kbMine')}</span>
+      <span style="background:#2a1808;border:1px solid #6a3c10;padding:1px 8px;font-size:13px">ESC</span><span style="color:#f0c030">${tr('kbClose')}</span>
+      <span style="background:#2a1808;border:1px solid #6a3c10;padding:1px 8px;font-size:13px">?</span><span style="color:#f0c030">${tr('kbHelp')}</span>
+    </div>
+    <div style="margin-top:10px;color:#706050;font-size:12px;border-top:1px solid #3a2008;padding-top:8px">${tr('kbFooter1')}</div>
+    <div style="margin-top:4px;color:#8a7050;font-size:12px">${tr('kbFooter2')}</div>
+    <button onclick="toggleKbOverlay()" style="margin-top:12px;width:100%;padding:7px;background:rgba(255,255,255,.04);border:2px solid #4a2c0c;box-shadow:2px 2px 0 #000;color:#e8d0a8;font-family:VT323;font-size:15px;cursor:pointer">${tr('close')}</button>`;
+  document.body.appendChild(ov);
+}
+document.addEventListener('keydown',e=>{
+  if((e.key==='?'||e.key==='/')&&!document.getElementById('mb').classList.contains('on')) toggleKbOverlay();
+});
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  GAME LOGIC
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+function handleCell(idx){
+  const cell=G.grid[idx];
+  if(G.energy<=0){notify('Sin energÃ­a. Â¡Duerme!','info');return;}
+  switch(G.tool){
+    case 'hoe':
+      if(inMine()){notify('En la mina usa el pico para extraer vetas.','info');break;}
+      if('GwfF'.includes(cell.t)){if(sp(4)){cell.t='S';guideMark('tilled',1);lg('Labras la tierra.');sxp('farming',5);tick(5);reAll();}}
+      else notify('Solo puedes labrar hierba.','info'); break;
+    case 'water':
+      if(inMine()){notify('Aqui no se riega. Explora y mina materiales raros.','info');break;}
+      if(cell.t==='S'||cell.crop){if(sp(3)){cell.wet=true;guideMark('watered',1);lg('Riegas con cuidado.');sxp('farming',3);tick(3);reAll();}}
+      else if(cell.t==='W'||cell.t==='D') notify('ðŸŽ£ Usa pescar para el agua.','info');
+      else notify('Nada que regar aquÃ­.','info'); break;
+    case 'plant':
+      if(inMine()){notify('Las semillas solo se plantan en la superficie.','info');break;}
+      if(cell.t==='S'&&!cell.crop){
+        const sk='seeds_'+G.selCrop;
+        if(!G.inv[sk]||G.inv[sk]<=0){openSeedPicker();return;}
+        const cr=CROPS[G.selCrop],sn=SEASONS[G.sIdx];
+        const cropName=LANG==='es'?cr.n:(CROP_NAME_EN[G.selCrop]||cr.n);
+        if(!G.bought.ghs&&!cr.ss.includes(sn)){notify(IS_ES?`${cropName} no crece en ${seasonName(sn)}.`:`${cropName} does not grow in ${seasonName(sn)}.`,'info');return;}
+        if(sp(2)){cell.crop=G.selCrop;cell.gp=0;G.inv[sk]--;guideMark('planted',1);lg(IS_ES?`Plantas ${cropName}.`:`You plant ${cropName}.`);sxp('farming',8);tick(4);reAll();}
+      } else if(!cell.crop) notify('Primero labra (â›ï¸).','info'); break;
+    case 'harvest':
+      if(inMine()){notify('No hay cultivos en la mina. Busca vetas brillantes.','info');break;}
+      if(cell.crop){const cr=CROPS[cell.crop];
+        if(cell.gp>=cr.d){if(sp(2)){addInv(cell.crop,1);addQP(cell.crop,1);lg(`Â¡Cosechas ${cr.n}! ${cr.ic}`);sxp('farming',15);fxp(10);cell.crop=null;cell.t='S';cell.wet=false;cell.gp=0;tick(3);reAll();notify(`+1 ${cr.ic} ${cr.n}`,'good');}}
+        else notify('No estÃ¡ listo todavÃ­a.','info');}
+      else notify('Nada que cosechar.','info'); break;
+    case 'axe':
+      if(inMine()){notify('No hay arboles talables en esta caverna.','info');break;}
+      if(cell.t==='T'){if(sp(6)){const n=rn(1,3);addInv('wood',n);cell.t='G';lg(`Talas Ã¡rbol. +${n}ðŸªµ`);sxp('foraging',12);addQP('wood',n);tick(8);reAll();notify(`+${n}ðŸªµ Madera`,'good');}}
+      else notify('No hay Ã¡rbol aquÃ­.','info'); break;
+    case 'pickaxe':
+      if(inMine()){
+        if(!sp(5)) break;
+        if(mineHitNode(idx)){tick(8);reAll();break;}
+        if('RMSPF'.includes(cell.t)){
+          const n=rn(1,3);
+          addInv('stone',n);
+          if(Math.random()<.45) addInv('coal',1);
+          if(Math.random()<.07) addInv('gem',1);
+          if(cell.t==='R'&&Math.random()<.55) cell.t='S';
+          G.mineD++;
+          sxp('mining',16);
+          tick(8);
+          guideMark('mineBreaks',1);
+          lg('Golpeas la roca de la cueva. +' + n + ' piedra.');
+          notify('+' + n + ' piedra','good');
+          reAll();
+        } else notify('Prueba en rocas o vetas raras de la mina.','info');
+        break;
+      }
+      if(cell.t==='R'||cell.t==='M'){if(sp(6)){const n=rn(1,2);addInv('stone',n);if(Math.random()<.2)addInv('coal',1);if(cell.t!=='M')cell.t='G';lg('Rompes roca. +' + n);sxp('mining',12);tick(8);reAll();notify('+' + n + ' piedra','good');}}
+      else notify('No hay roca.','info'); break;
+    case 'fish':
+      if(inMine()){notify('No puedes pescar en esta zona subterranea.','info');break;}
+      if(cell.t==='W'||cell.t==='D') doFish();
+      else notify('Necesitas agua para pescar.','info'); break;
+    case 'path':
+      if(inMine()){notify('En mina no puedes colocar caminos.','info');break;}
+      if('Gwf'.includes(cell.t)){if(sp(1)){cell.t='P';lg('Colocas un camino de piedra.');tick(2);reAll();}} break;
+    case 'fence':
+      if(inMine()){notify('En mina no puedes colocar vallas.','info');break;}
+      if('Gwf'.includes(cell.t)){if(sp(1)){cell.t='F';lg('Colocas una valla de madera.');tick(2);reAll();}} break;
+  }
+}
+
+function doFish(){
+  if(!sp(5))return;tick(15);
+  const lv=Math.floor((G.skXP.fishing||0)/100)+1;
+  const pool=FISH.filter(f=>f.df<=Math.min(lv+2,5));
+  const r=Math.random();
+  const caught=r<.55?pool[0]:r<.83?pool[Math.min(1,pool.length-1)]:pool[rn(0,pool.length-1)];
+  addInv(caught.k,1);sxp('fishing',20);
+  lg(`Â¡Pescas ${caught.n}! ${caught.ic}`);notify(`+1 ${caught.ic} ${caught.n}`,'good');
+  if(caught.k==='fish_trout')addQP('fish_trout',1);
+  reAll();
+}
+
+function sp(n){if(G.energy<n){notify('EnergÃ­a insuficiente.','info');return false;}G.energy=Math.max(0,G.energy-n);return true;}
+function tick(m){G.mn+=m;while(G.mn>=60){G.mn-=60;G.hr++;}if(G.hr>=24)doSleep();}
+function addInv(k,n){G.inv[k]=(G.inv[k]||0)+n;}
+function addQP(k,n){G.qProg[k]=(G.qProg[k]||0)+n;}
+function rn(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function sxp(s,x){G.skXP[s]=(G.skXP[s]||0)+x;const lv=Math.floor(G.skXP[s]/100)+1;if(lv>Math.floor((G.skXP[s]-x)/100)+1)notify(`Â¡${s} â†’ Lv${lv}!`,'ev');}
+function fxp(x){G.farmXP+=x;const lv=Math.floor(G.farmXP/200)+1;if(lv>G.farmLv){G.farmLv=lv;notify(`ðŸŒŸ Â¡Granja Nivel ${lv}!`,'ev');}}
+function TOD(){if(G.hr>=5&&G.hr<9)return'morning';if(G.hr>=9&&G.hr<18)return'day';if(G.hr>=18&&G.hr<21)return'evening';return'night';}
+function blendCSS(c1,c2,a){const h1=parseInt(c1.replace('rgba','').replace('rgb','').replace('(','').split(',')[0]),h2=parseInt(c2.replace('rgba','').replace('rgb','').replace('(','').split(',')[0]);return c1;} // simplified â€” actual use below
+
+function blendColor(c1,c2,a){
+  const p1=parseInt(c1.slice(1),16),p2=parseInt(c2.slice(1),16);
+  const r=Math.round(((p1>>16)*(1-a)+(p2>>16)*a));
+  const g=Math.round((((p1>>8)&255)*(1-a)+((p2>>8)&255)*a));
+  const b=Math.round(((p1&255)*(1-a)+(p2&255)*a));
+  return `rgb(${r},${g},${b})`;
+}
+function blendCSS(c1, tint, a) {
+  try{
+    const h=parseInt(c1.slice(1),16);
+    const r=(h>>16), g=(h>>8)&255, b=h&255;
+    // tint is like "rgba(80,200,80,.18)"
+    const m=tint.match(/[\d.]+/g);
+    if(!m||m.length<3) return c1;
+    const tr=parseInt(m[0]),tg=parseInt(m[1]),tb=parseInt(m[2]),ta=parseFloat(m[3]||'.2');
+    return `rgb(${Math.round(r*(1-ta)+tr*ta)},${Math.round(g*(1-ta)+tg*ta)},${Math.round(b*(1-ta)+tb*ta)})`;
+  }catch{return c1;}
+}
+
+// â”€â”€â”€ SLEEP / NEW DAY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function doSleep(){
+  clearAutoMove();
+  const s=document.getElementById('ss'),t2=document.getElementById('st');
+  s.classList.add('on');
+  t2.innerHTML=IS_ES
+    ? '✨ Descansando...<br><span style="font-size:8px;color:#c0a050">El valle duerme contigo</span>'
+    : '✨ Sleeping...<br><span style="font-size:8px;color:#c0a050">The valley rests with you</span>';
+  setTimeout(()=>newDay(),1800);
+  setTimeout(()=>{
+    t2.innerHTML=IS_ES
+      ? `🌅 Dia ${G.day}<br><span style="font-size:8px">${seasonName(SEASONS[G.sIdx])} · Dia ${G.sDay}/${SDAY}</span>`
+      : `🌅 Day ${G.day}<br><span style="font-size:8px">${seasonName(SEASONS[G.sIdx])} · Day ${G.sDay}/${SDAY}</span>`;
+    setTimeout(()=>s.classList.remove('on'),1200);
+  },2500);
+}
+const SDAY=28;
+function newDay(){
+  G.day++;G.sDay++;G.hr=7;G.mn=0;G.energy=G.maxE;G.giftedToday={};
+  if(G.sDay>SDAY){
+    G.sDay=1;G.sIdx=(G.sIdx+1)%4;
+    const sn=SEASONS[G.sIdx];
+    notify(IS_ES?`🍃 Nueva estacion: ${seasonName(sn)}`:`🍃 New season: ${seasonName(sn)}`,'ev');
+    G.grid.forEach(c=>{if(c.crop&&!G.bought.ghs&&!CROPS[c.crop].ss.includes(sn)){c.crop=null;c.t='S';c.gp=0;c.wet=false;}});
+  }
+  const WA=['sunny','sunny','sunny','cloudy','cloudy','rainy','rainy','stormy'];
+  if(SEASONS[G.sIdx]==='winter')WA.push('snowy','snowy','snowy');
+  G.weather=WA[rn(0,WA.length-1)];
+  initWxParts();
+  G.grid.forEach(c=>{if(c.crop){const gr=(c.wet||G.weather==='rainy'||G.autoIrr)?1:.5;c.gp=Math.min((c.gp||0)+gr,CROPS[c.crop].d);c.wet=false;}});
+  if(G.weather==='rainy') G.grid.forEach(c=>{if(c.t==='S'||c.crop)c.wet=true;});
+  if(G.bought.irig) G.grid.forEach(c=>{if(c.crop)c.wet=true;});
+  if(G.bought.coop&&G.chickens>0){addInv('egg',G.chickens);lg(`Gallinas: +${G.chickens}ðŸ¥š`);}
+  chkEvent();
+  lg(IS_ES?`Dia ${G.day}. ${seasonName(SEASONS[G.sIdx])}.`:`Day ${G.day}. ${seasonName(SEASONS[G.sIdx])}.`);
+  reAll();
+}
+function chkEvent(){
+  const EV={spring:{15:'Festival de Flores ðŸŒ¸',28:'Feria de Primavera ðŸ£'},summer:{14:'Solsticio ðŸŽ†',20:'Fest. Pesca ðŸŒŠ'},autumn:{10:'Cosecha ðŸŽƒ',24:'Fiesta Noche ðŸ‚'},winter:{7:'Mercado â›„',25:'Regalos ðŸŽ'}};
+  const nm=EV[SEASONS[G.sIdx]]?.[G.sDay];
+  if(nm){G.gold+=50;notify(`ðŸŽ‰ Â¡Hoy: ${nm}! +50ðŸª™`,'ev');lg(`Â¡${nm}! +50ðŸª™`);}
+}
+
+// â”€â”€â”€ TOOL SELECT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function T(t){
+  G.tool=t;
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tb-'+t)?.classList.add('on');
+  document.getElementById('ctool').textContent=currentToolChip(t);
+  updateContextHint();
+}
+
+// â”€â”€â”€ SHOP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function openShop(){
+  const sn=SEASONS[G.sIdx];
+  let h=`<div style="font-family:'VT323';font-size:15px;margin-bottom:8px">🪙 ${IS_ES?'Tienes':'You have'}: ${G.gold} ${IS_ES?'monedas':'coins'}</div>`;
+  h+=`<div class="mh">🌱 ${IS_ES?'SEMILLAS':'SEEDS'}</div>`;
+  Object.entries(CROPS).forEach(([k,v])=>{
+    const av=G.bought.ghs||v.ss.includes(sn),ca=G.gold>=v.b;
+    const cropName=LANG==='es'?v.n:(CROP_NAME_EN[k]||v.n);
+    const seasonList=v.ss.map(s=>seasonName(s)).join('/');
+    h+=`<div class="sr ${!av?'':''}${ca?'':''}" onclick="${av?`bySeed('${k}',${v.b})`:''}">
+      <span class="si">${v.ic}</span><div><div class="sn">${cropName}</div><div class="sd">${v.d}d · ${!av?(IS_ES?'⚠️ Fuera de temp.':'⚠️ Out of season'):seasonList}</div></div>
+      <span class="sp" style="${!ca?'color:#c04040':''}">🪙${v.b}</span></div>`;
+  });
+  h+=`<div class="mh">🛠️ ${IS_ES?'MEJORAS':'UPGRADES'}</div>`;
+  UPGRADES.forEach(u=>{
+    const dn=G.bought[u.id],ca=G.gold>=u.p;
+    h+=`<div class="sr" onclick="${dn?'':  `byUpg('${u.id}',${u.p})`}">
+      <span class="si">${u.ic}</span><div><div class="sn">${u.n}</div><div class="sd">${u.d}</div></div>
+      <span class="sp" style="${dn?'color:#50c030':!ca?'color:#c04040':''}">${dn?(IS_ES?'✅ Listo':'✅ Ready'):'🪙'+u.p}</span></div>`;
+  });
+  h+=`<div class="mh">💰 ${IS_ES?'VENDER':'SELL'}</div>`;
+  const sv=Object.entries(G.inv).filter(([k,q])=>q>0&&!k.startsWith('seeds_'));
+  if(!sv.length)h+=`<div style="font-family:'VT323';font-size:13px;color:#706050;padding:5px">${IS_ES?'Sin articulos para vender.':'No items to sell.'}</div>`;
+  sv.forEach(([k,q])=>{
+    const p=sellP(k);
+    h+=`<div class="sr" onclick="slOne('${k}')"><span class="si">${itemIcon(k)}</span><div><div class="sn">${itemName(k)} ×${q}</div></div><span class="sp">🪙${p}/${IS_ES?'u':'ea'}</span></div>`;
+  });
+  openM(IS_ES?'🏪 TIENDA DEL VALLE':'🏪 VALLEY SHOP',IS_ES?'Compra · Vende · Mejora':'Buy · Sell · Upgrade',h);
+}
+
+function bySeed(k,p){
+  const sn=SEASONS[G.sIdx];
+  if(!G.bought.ghs&&!CROPS[k].ss.includes(sn)){notify(IS_ES?'Fuera de temporada.':'Out of season.','info');return;}
+  if(G.gold<p){notify(IS_ES?'Oro insuficiente.':'Not enough gold.','info');return;}
+  G.gold-=p;addInv('seeds_'+k,5);G.selCrop=k;T('plant');
+  const cropName=LANG==='es'?CROPS[k].n:(CROP_NAME_EN[k]||CROPS[k].n);
+  lg(IS_ES?`Compras semillas de ${cropName} x5.`:`You buy ${cropName} seeds x5.`);
+  notify(IS_ES?`+5 semillas ${CROPS[k].ic}`:`+5 seeds ${CROPS[k].ic}`,'good');
+  if(k==='garlic')addQP('ajo_s',1);
+  closeM();reAll();
+}
+
+function byUpg(id,p){
+  if(G.bought[id])return;
+  if(G.gold<p){notify(IS_ES?'Oro insuficiente.':'Not enough gold.','info');return;}
+  G.gold-=p;G.bought[id]=true;
+  const u=UPGRADES.find(x=>x.id===id);
+  if(id==='irig')G.autoIrr=true;
+  if(id==='coop'){G.chickens=3;lg(IS_ES?'3 gallinas en el gallinero!':'3 chickens in the coop!');}
+  lg(IS_ES?`Compras: ${u.n}`:`Purchased: ${u.n}`);notify(`✅ ${u.n}!`,'ev');closeM();reAll();
+}
+
+function slOne(k){
+  if(!G.inv[k]||G.inv[k]<=0)return;
+  const p=sellP(k);G.gold+=p;G.inv[k]--;
+  guideMark('sold',1);
+  lg(IS_ES?`Vendes ${itemIcon(k)} -> +🪙${p}`:`Sold ${itemIcon(k)} -> +🪙${p}`);
+  notify(`+🪙${p}`,'good');
+  closeM();reAll();
+}
+
+// â”€â”€â”€ MINE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function openMine(){
+  if(inMine()){leaveMine();return;}
+  if(!sp(6)) return;
+  tick(18);
+  LAST_FARM_POS={...pPos};
+  setActiveMap('mine');
+  guideMark('mineEntries',1);
+  mineRespawnNodes(8);
+  notify(IS_ES?'Desciendes a la Mina Abisal. Busca vetas raras.':'You descend into the Abyss Mine. Find rare veins.','ev');
+  lg(IS_ES?'Entras a la mina: mythril, geodas y cristales del vacio.':'You enter the mine: mythril, geodes and void crystals.');
+  reAll();
+  scrollToPlayer();
+}
+
+// â”€â”€â”€ NPC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function talkNPC(id){
+  const npc=NPCS.find(n=>n.id===id);
+  guideMark('talked',1);
+  const rel=G.npcRel[id]||0;
+  const line=npc.say[rn(0,npc.say.length-1)];
+  if(!G.giftedToday[id])G.npcRel[id]=Math.min(100,rel+5);
+  sxp('social',5);
+  const gbtns=npc.lk.map(k=>{
+    const has=(G.inv[k]||0)>0;
+    return `<button style="padding:5px 11px;background:rgba(180,40,40,.12);border:2px solid #c03030;box-shadow:2px 2px 0 #000;color:#f06060;font-family:'VT323';font-size:14px;cursor:pointer;${!has?'opacity:.35;':''}" onclick="giftNPC('${id}','${k}')" ${!has?'disabled':''}>${itemIcon(k)} ${IS_ES?'Regalar':'Gift'}</button>`;
+  }).join('');
+  openM(`${npc.av} ${npc.n}`,npc.r,
+    `<div class="db"><div class="dn">${npc.n.toUpperCase()}</div><div style="color:#e8d0a0">"${line}"</div></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">${gbtns}</div>
+    <div style="font-family:'VT323';font-size:14px;color:#706050;margin-top:8px">Amistad: ${rel}% ${'â™¥'.repeat(Math.floor(rel/25))}${'â™¡'.repeat(4-Math.floor(rel/25))}</div>`);
+  reAll();
+}
+
+function giftNPC(npcId,k){
+  if((G.inv[k]||0)<=0){notify('No tienes eso.','info');return;}
+  if(G.giftedToday[npcId]){notify('Ya regalaste hoy.','info');return;}
+  G.inv[k]--;G.npcRel[npcId]=Math.min(100,(G.npcRel[npcId]||0)+20);
+  G.giftedToday[npcId]=true;sxp('social',15);
+  const npc=NPCS.find(n=>n.id===npcId);
+  lg(`Regalas a ${npc.n}. +20 amistad.`);notify(`${npc.av} Â¡${npc.n} estÃ¡ feliz!`,'good');
+  closeM();reAll();
+}
+
+function tryQ(qId){
+  const q=QUESTS.find(x=>x.id===qId);if(!q||q.done)return;
+  const ok=Object.entries(q.req).every(([k,v])=>(G.qProg[k]||0)>=v);
+  if(!ok){notify(`Faltan: ${Object.entries(q.req).map(([k,v])=>`${v} ${k}`).join(', ')}`,'info');return;}
+  q.done=true;G.gold+=q.r;sxp('social',20);
+  lg(`Â¡Encargo "${q.t}" listo! +ðŸª™${q.r}`);notify(`âœ… Â¡Encargo! +ðŸª™${q.r}`,'ev');reAll();
+}
+
+function openSeedPicker(){
+  const sn=SEASONS[G.sIdx];
+  let h='';
+  Object.entries(CROPS).forEach(([k,v])=>{
+    const has=G.inv['seeds_'+k]||0;
+    const av=G.bought.ghs||v.ss.includes(sn);
+    const cropName=LANG==='es'?v.n:(CROP_NAME_EN[k]||v.n);
+    h+=`<div class="sr" onclick="G.selCrop='${k}';T('plant');closeM();" style="${!av?'opacity:.4':''}">
+      <span class="si">${v.ic}</span><div><div class="sn">${cropName}</div><div class="sd">${IS_ES?'Semillas':'Seeds'}: ${has}</div></div></div>`;
+  });
+  openM(IS_ES?'🌱 SELECCIONAR CULTIVO':'🌱 SELECT CROP',IS_ES?'¿Que plantar?':'What to plant?',h);
+}
+
+// â”€â”€â”€ UI RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function toolName(t){
+  const k={water:'toolWater',hoe:'toolHoe',plant:'toolPlant',harvest:'toolHarvest',axe:'toolAxe',pickaxe:'toolPickaxe',fish:'toolFish',path:'toolPath',fence:'toolFence'}[t];
+  return tr(k||t);
+}
+function currentToolChip(t=G.tool){
+  const crop=LANG==='es'?(CROPS[G.selCrop]?.n||'cultivo'):(CROP_NAME_EN[G.selCrop]||G.selCrop||'crop');
+  const labels={
+    water:tr('ctoolWater'),
+    hoe:tr('ctoolHoe'),
+    plant:tr('ctoolPlant',{crop}),
+    harvest:tr('ctoolHarvest'),
+    axe:tr('ctoolAxe'),
+    pickaxe:tr('ctoolPickaxe'),
+    fish:tr('ctoolFish'),
+    path:tr('ctoolPath'),
+    fence:tr('ctoolFence'),
+  };
+  return labels[t]||t;
+}
+function setToolButton(id,icon,label,cost){
+  const b=document.getElementById(id);
+  if(!b) return;
+  b.innerHTML=`<span class="ti">${icon}</span>${label}<span class="cost">${cost}</span>`;
+}
+function applyLocaleUI(){
+  const plH=document.querySelectorAll('#pl .ph');
+  if(plH[0]) plH[0].textContent=tr('panelTools');
+  if(plH[1]) plH[1].textContent=tr('panelSkills');
+  if(plH[2]) plH[2].textContent=tr('panelWeather');
+  const prH=document.querySelectorAll('#pr .ph');
+  if(prH[0]) prH[0].textContent=tr('panelNeighbors');
+  if(prH[1]) prH[1].textContent=tr('panelQuests');
+  if(prH[2]) prH[2].textContent=tr('panelEvents');
+  const lgH=document.querySelector('#logb .ph');
+  if(lgH) lgH.textContent=tr('panelDiary');
+
+  setToolButton('tb-water','🚿',tr('toolWater'),' -3⚡');
+  setToolButton('tb-hoe','⛏️',tr('toolHoe'),' -4⚡');
+  setToolButton('tb-plant','🌱',tr('toolPlant'),' -2⚡');
+  setToolButton('tb-harvest','🧺',tr('toolHarvest'),' -2⚡');
+  setToolButton('tb-axe','🪓',tr('toolAxe'),' -6⚡');
+  setToolButton('tb-pickaxe','⚒️',tr('toolPickaxe'),' -6⚡');
+  setToolButton('tb-fish','🎣',tr('toolFish'),' -5⚡');
+  setToolButton('tb-path','🪨',tr('toolPath'),' -1⚡');
+  setToolButton('tb-fence','🪵',tr('toolFence'),' -1⚡');
+
+  const shopBtn=document.querySelector('#actb .ab.g');
+  if(shopBtn) shopBtn.textContent=`🏪 ${tr('shop')}`;
+  const sleepBtn=document.querySelector('#actb .ab.b');
+  if(sleepBtn) sleepBtn.textContent=`🌙 ${tr('sleep')}`;
+  const mineBtn=document.getElementById('mine-btn');
+  if(mineBtn) mineBtn.textContent=inMine()?`↩ ${tr('exitMine')}`:`⛏️ ${tr('mine')}`;
+
+  const hdayLabel=document.getElementById('hday-label');
+  if(hdayLabel) hdayLabel.textContent=tr('hudDay');
+  const hflvLabel=document.getElementById('hflv-label');
+  if(hflvLabel) hflvLabel.textContent=tr('hudLevel');
+  const kbb=document.getElementById('kb-help-btn');
+  if(kbb) kbb.textContent=tr('helpBtn');
+  const kbc=document.getElementById('kb-help-chip');
+  if(kbc) kbc.textContent=tr('controlsChip');
+  const ctool=document.getElementById('ctool');
+  if(ctool) ctool.textContent=currentToolChip();
+  const ctx=document.getElementById('ctxhint');
+  if(ctx&&!autoPath.length) ctx.textContent=tr('tipMoveTool');
+}
+function lg(msg){
+  G.log.unshift(localizeText(msg));if(G.log.length>4)G.log.pop();
+  const el=document.getElementById('logl');el.innerHTML='';
+  G.log.forEach((m,i)=>{const d=document.createElement('div');d.className='ll'+(i===0?' f':'');d.textContent=m;el.appendChild(d);});
+}
+function reAll(){
+  // HUD
+  document.getElementById('hday').textContent=G.day;
+  document.getElementById('hgold').textContent=G.gold;
+  document.getElementById('hflv').textContent=G.farmLv;
+  document.getElementById('henrg').textContent=G.energy;
+  document.getElementById('efill').style.width=(G.energy/G.maxE*100)+'%';
+  document.getElementById('stag').textContent=seasonName(SEASONS[G.sIdx]).toUpperCase();
+  const h=String(G.hr).padStart(2,'0'),m=String(G.mn).padStart(2,'0');
+  document.getElementById('htime').textContent=`${h}:${m}`;
+  document.body.className=SEASONS[G.sIdx]+' '+TOD();
+  document.getElementById('title').textContent=mapName().toUpperCase();
+  // Inventory
+  const iw=document.getElementById('invw');
+  const SLOTS=12;
+  const items=Object.entries(G.inv).filter(([,q])=>q>0);
+  iw.innerHTML='';
+  let shown=0;
+  items.forEach(([k,q])=>{
+    if(shown>=SLOTS)return;
+    const s=document.createElement('div');s.className='is';
+    s.innerHTML=`${itemIcon(k)}<span class="iq">${q}</span><span class="il">${itemName(k)}</span>`;
+    s.title=`${itemName(k)} Ã—${q} (${IS_ES?'clic=vender':'click=sell'})`;
+    s.onclick=()=>{G.gold+=sellP(k);G.inv[k]--;guideMark('sold',1);lg(IS_ES?`Vendes ${itemIcon(k)} +🪙${sellP(k)}`:`Sold ${itemIcon(k)} +🪙${sellP(k)}`);reAll();};
+    iw.appendChild(s);shown++;
+  });
+  for(let i=shown;i<SLOTS;i++){const s=document.createElement('div');s.className='is e';s.innerHTML='Â·';iw.appendChild(s);}
+  // NPCs
+  const nl=document.getElementById('npcl');nl.innerHTML='';
+  if(inMine()){
+    const leftNodes=Object.keys(MAP_STORE.mine?.rareNodes||{}).length;
+    nl.innerHTML=`<div class="qi"><div class="qt">${tr('mineActive')}</div><div class="qm">${tr('rareVisible',{n:leftNodes})}</div></div>
+      <div class="qi"><div class="qt">${IS_ES?'Consejo':'Tip'}</div><div class="qm">${tr('mineTip')}</div></div>`;
+  } else {
+    NPCS.forEach(npc=>{
+      const rel=G.npcRel[npc.id]||0;
+      const h2=Math.floor(rel/25);
+      const hearts='&#10084;'.repeat(h2)+'&#9825;'.repeat(4-h2);
+      const d=document.createElement('div');d.className='nc';
+      d.innerHTML=`<div class="nav">${npc.av}</div><div class="ni"><div class="nn">${npc.n}</div><div class="nr">${npc.r}</div>${hearts}<div class="rt"><div class="rf" style="width:${rel}%"></div></div></div>`;
+      d.onclick=()=>talkNPC(npc.id);nl.appendChild(d);
+    });
+  }
+  // Quests
+  const ql=document.getElementById('qsl');ql.innerHTML='';
+  if(inMine()){
+    const mineGoalName={
+      mythril_ore:IS_ES?'Mythril':'Mythril',
+      void_crystal:IS_ES?'Cristal del vacio':'Void crystal',
+      ancient_geode:IS_ES?'Geoda antigua':'Ancient geode',
+      luminous_moss:IS_ES?'Musgo luminoso':'Luminous moss'
+    };
+    const goals=[
+      {k:'mythril_ore',need:3},
+      {k:'void_crystal',need:2},
+      {k:'ancient_geode',need:2},
+      {k:'luminous_moss',need:4},
+    ];
+    goals.forEach(g=>{
+      const have=G.inv[g.k]||0;
+      const done=have>=g.need;
+      const d=document.createElement('div');d.className='qi';
+      d.innerHTML=`<div class="qt">${ICONS[g.k]||''} ${mineGoalName[g.k]}</div><div class="qm">${have}/${g.need} ${done?tr('mineGoalDone'):tr('mineGoalProgress')}</div>`;
+      ql.appendChild(d);
+    });
+  } else {
+    QUESTS.filter(q=>!q.done).forEach(q=>{
+      const d=document.createElement('div');d.className='qi';
+      d.innerHTML=`<div class="qt">${q.ic} ${q.t}</div><div class="qm">${q.npc} - ${IS_ES?'Oro':'Gold'} ${q.r}</div>`;
+      d.onclick=()=>tryQ(q.id);ql.appendChild(d);
+    });
+  }
+  // Skills
+  const SKDATA=[{k:'farming',l:IS_ES?'Granja':'Farming',c:'#60c040'},{k:'fishing',l:IS_ES?'Pesca':'Fishing',c:'#40a8e0'},{k:'mining',l:IS_ES?'Mineria':'Mining',c:'#c09060'},{k:'foraging',l:IS_ES?'Recol.':'Forage',c:'#80c040'},{k:'social',l:IS_ES?'Social':'Social',c:'#f08080'}];
+  const sw=document.getElementById('skw');sw.innerHTML='';
+  SKDATA.forEach(s=>{
+    const xp=G.skXP[s.k]||0,lv=Math.floor(xp/100)+1,pct=xp%100;
+    sw.innerHTML+=`<div class="sk"><span class="skl">${s.l}</span><div class="skt"><div class="skf" style="width:${pct}%;background:${s.c}"></div></div><span class="skv">L${lv}</span></div>`;
+  });
+  // Weather
+  const WX={sunny:tr('weatherSunny'),cloudy:tr('weatherCloudy'),rainy:tr('weatherRainy'),stormy:tr('weatherStormy'),snowy:tr('weatherSnowy')};
+  const wbox=document.getElementById('wbox');
+  const evb=document.getElementById('evb');
+  if(inMine()){
+    wbox.textContent=tr('weatherMine');
+    const leftNodes=Object.keys(MAP_STORE.mine?.rareNodes||{}).length;
+    evb.textContent=tr('eventMine',{n:leftNodes});
+  } else {
+    wbox.textContent=WX[G.weather]||tr('weatherSunny');
+    const EV2={spring:tr('eventSpring'),summer:tr('eventSummer'),autumn:tr('eventAutumn'),winter:tr('eventWinter')};
+    evb.textContent=EV2[SEASONS[G.sIdx]]||'';
+  }
+  guideAdvance();
+  guideRender();
+  applyLocaleUI();
+  updateContextHint();
+}
+
+// â”€â”€â”€ MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function openM(title,sub,body){
+  clearAutoMove();
+  document.getElementById('mt').textContent=localizeText(title);
+  document.getElementById('ms').textContent=localizeText(sub);
+  document.getElementById('md').innerHTML=localizeHtml(body);
+  document.getElementById('mb').classList.add('on');
+}
+function closeM(){document.getElementById('mb').classList.remove('on');updateContextHint();}
+function closeBD(e){if(e.target===document.getElementById('mb'))closeM();}
+
+// â”€â”€â”€ NOTIFY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function notify(msg,type='info'){
+  const c=document.getElementById('ns');
+  const el=document.createElement('div');
+  el.className='np '+type; el.textContent=localizeText(msg);
+  c.appendChild(el);
+  setTimeout(()=>el.remove(),3200);
+}
+
+// â”€â”€â”€ CLOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function stepClockMinutes(mins=1){
+  for(let i=0;i<mins;i++){
+    G.mn++;
+    if(G.mn>=60){G.mn=0;G.hr++;}
+    if(G.hr>=24){G.hr=23;G.mn=59;break;}
+  }
+}
+setInterval(()=>{
+  if(document.getElementById('ss').classList.contains('on'))return;
+  stepClockMinutes(1);
+  document.getElementById('htime').textContent=`${String(G.hr).padStart(2,'0')}:${String(G.mn).padStart(2,'0')}`;
+  document.body.className=SEASONS[G.sIdx]+' '+TOD();
+  updateContextHint();
+},2500);
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  INIT
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+function init(){
+  initGrid();
+  resize();
+  setupMouse();
+  initClouds();
+  initStars2();
+  initWxParts();
+  addInv('seeds_turnip',8);addInv('seeds_potato',5);addInv('wood',3);addInv('stone',2);
+  T('water');
+  setupKeyboard();
+  scrollToPlayer();
+  updateContextHint();
+  lg(tr('welcome1'));
+  lg(tr('welcome2'));
+  lg(tr('welcome3'));
+  notify(tr('welcomeNotify'),'ev');
+  setTimeout(()=>notify(tr('tipHoe'),'info'),1700);
+  reAll();
+  requestAnimationFrame(draw);
+}
+
+function renderGameToText(){
+  const target=queuedActionIdx!=null?idxToTile(queuedActionIdx):getFacingTarget();
+  const mineNodes=inMine()?Object.keys(MAP_STORE.mine?.rareNodes||{}).length:null;
+  const gc=guideCurrent();
+  const payload={
+    mode:'arcade',
+    variant:'valle-tranquilo',
+    language:LANG,
+    coordinates:'origin at top-left, x right, y down',
+    map:{
+      id:ACTIVE_MAP_ID,
+      name:mapName(),
+      zone:zoneNameAt(),
+      size:{cols:GW,rows:GH},
+      nearMineGate:nearMineGate(1),
+      nearMineExit:nearMineExit(1),
+      mineRareNodes:mineNodes
+    },
+    player:{col:pPos.col,row:pPos.row,dir:pDir,facing:pFacing},
+    time:{day:G.day,season:SEASONS[G.sIdx],hour:G.hr,minute:G.mn,weather:G.weather},
+    economy:{gold:G.gold,energy:G.energy,farmLevel:G.farmLv},
+    resources:{
+      stone:G.inv.stone||0,
+      mythril:G.inv.mythril_ore||0,
+      voidCrystal:G.inv.void_crystal||0,
+      geode:G.inv.ancient_geode||0,
+      moss:G.inv.luminous_moss||0
+    },
+    tool:G.tool,
+    guide:{
+      step:GUIDE.step+1,
+      total:GUIDE_STEPS.length,
+      completed:GUIDE.step>=GUIDE_STEPS.length,
+      current:gc?(IS_ES?gc.mainEs:gc.mainEn):null,
+      progress:gc?guideProgressText(gc.id):null
+    },
+    movement:{
+      autoPathSteps:autoPath.length,
+      queuedAction:queuedActionIdx!=null?idxToTile(queuedActionIdx):null,
+      queuedTalkNpc:queuedInteractNpcId||null
+    },
+    target,
+    hovered:hovIdx>=0?{col:hovIdx%GW,row:Math.floor(hovIdx/GW)}:null,
+  };
+  return JSON.stringify(payload);
+}
+window.render_game_to_text=renderGameToText;
+window.advanceTime=(ms=0)=>{
+  const mins=Math.max(1,Math.round(ms/2500));
+  stepClockMinutes(mins);
+  for(let i=0;i<mins;i++) updateAutoMove(performance.now()+i*moveRepeatMs(),true);
+  document.getElementById('htime').textContent=`${String(G.hr).padStart(2,'0')}:${String(G.mn).padStart(2,'0')}`;
+  document.body.className=SEASONS[G.sIdx]+' '+TOD();
+  updateContextHint();
+  return renderGameToText();
+};
+window.addEventListener('resize',()=>{resize();initClouds();initStars2();scrollToPlayer();updateContextHint();});
+init();
+</script>
+</body>
+</html>
+
+
+
+

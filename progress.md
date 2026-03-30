@@ -3573,3 +3573,52 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Ajustadas rutas de inicio (`setupIntroFromSettings`, `startSingleMatch`, `startTournament`) para propagar locale al torneo y a `roundLabel`.
 - Mensajes/overlay con referencia a fases (`octavos/cuartos/...`) ahora se renderizan segun locale con texto equivalente en ingles.
 - Check tecnico: `npx esbuild src/games/HeadSoccerGame.jsx ... --outfile=tmp/headsoccer-i18n-check.js` OK.
+## 2026-03-30 - Valle Tranquilo (mecanicas + controles)
+- Mejorado el runtime de `public/arcade/valle-tranquilo/index.html` con foco en jugabilidad y UX de control.
+- Navegacion:
+  - se introdujo pathfinding BFS para click-to-move y auto-ruta de acciones,
+  - se elimino el teletransporte por click,
+  - se anadio cancelacion de auto-ruta al usar movimiento manual.
+- Colisiones y movimiento:
+  - ahora el jugador respeta tiles bloqueantes (agua, arboles, rocas, vallas, montanas, edificios y NPCs),
+  - sprint con `Shift` para movimiento mas rapido,
+  - orientacion/facing consistente para acciones y resaltado de objetivo.
+- Controles:
+  - teclado: `Q/R/Tab` para ciclar herramienta, `X` para usar herramienta en tile actual, `Enter` para interactuar, `F` fullscreen,
+  - raton: rueda para cambiar herramienta, clic izquierdo para usar herramienta (con auto-ruta si no hay alcance), clic derecho para mover por ruta.
+- Interaccion gameplay:
+  - `E/Enter` ahora puede auto-acercar al NPC mas cercano y abrir dialogo al llegar,
+  - nuevo indicador visual de objetivo de accion y pista contextual dinamica (`#ctxhint`).
+- QA bridge:
+  - `render_game_to_text` ampliado con `facing`, `movement.autoPathSteps`, cola de accion/dialogo y objetivo actual,
+  - `advanceTime(ms)` pasa a avanzar reloj + auto-ruta de forma determinista en lugar de devolver solo estado.
+- Validacion:
+  - parseo JS del script embebido verificado (`new Function(script)` -> `PARSE_OK`).
+
+## 2026-03-30 - Valle Tranquilo (open world + gameplay quality + i18n)
+- Archivo actualizado: `public/arcade/valle-tranquilo/index.html`.
+- Mundo abierto ampliado y multi-zona:
+  - mapa de superficie aumentado a `96x60` con zonas (`Granja Central`, `Bosque Norte`, `Lago Claro`, `Ribera Este`, `Humedales Sur`, `Praderas del Oeste`), lagos extra y rutas largas.
+  - mapa de mina ampliado a `64x42` con salas conectadas, nodos raros y salida dedicada.
+- Jugabilidad y control:
+  - paso libre total en mapa (sin bloqueo por vallas/caminos/terreno decorativo).
+  - entrada/salida de mina tambien por interaccion (`E`) cerca de puerta/salida.
+  - animacion de movimiento del jugador interpolada (mas fluida) + camara con seguimiento suave.
+  - transicion visual entre mapas con fade y rotulo de zona.
+- UX/HUD:
+  - iconografia HUD normalizada (dia/hora/energia/oro/nivel) y botones de accion renovados.
+  - paneles y herramientas relocalizados por idioma en runtime.
+- Localizacion ES/EN:
+  - deteccion automatica por `navigator.language` (`es` por defecto, `en` si no empieza por `es`).
+  - textos de HUD, paneles, ayudas de controles, contexto, tienda/mina y varios mensajes de gameplay en ES/EN.
+  - `openM`, `notify`, `lg` aplican localizacion de texto para mejorar cobertura en ingles.
+- Telemetria QA:
+  - `render_game_to_text` ampliado con `language`, metadatos de mapa/zona y estado de nodos raros de mina.
+- Validacion tecnica:
+  - parseo JS del `<script>` validado con `node` (`new Function(script)`): OK.
+  - intento Playwright para smoke test interrumpido por el usuario; pendiente ejecutar pasada completa cuando se autorice.
+- 2026-03-30 (fix icons vecinos/inventario):
+  - Sustituidos iconos mojibake de `NPCS` e `ICONS` por Unicode seguro (`\u{...}`) en `public/arcade/valle-tranquilo/index.html`.
+  - Nuevo helper `itemIcon(k)` para mostrar icono correcto tambien en semillas (`seeds_*`) y fallback estable.
+  - Inventario y tienda pasan a usar `itemIcon(...)`, junto con botones de regalo NPC.
+  - Verificacion: parse JS OK (`new Function(script)`).

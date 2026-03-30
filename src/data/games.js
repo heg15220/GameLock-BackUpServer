@@ -21,6 +21,7 @@ import arcadeBubbleStormImage from "../assets/games/arcade-bubble-storm.svg";
 import arcadeIceStrikeProImage from "../assets/games/arcade-ice-strike-pro.svg";
 import arcadeNeonCryptImage from "../assets/games/arcade-neon-crypt.svg";
 import arcadeNeonRushImage from "../assets/games/arcade-neon-rush.svg";
+import arcadeValleTranquiloImage from "../assets/games/arcade-valle-tranquilo.svg";
 import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-showdown.svg";
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
@@ -3288,6 +3289,55 @@ export const games = [
     viability_en: "High: deterministic lane runner architecture.",
     visualStyle_en: "Synthwave highway with modern lighting language.",
     techFocus_en: "Lane traffic manager, collision model, distance pacing.",
+  },
+  {
+    id: "arcade-valle-tranquilo",
+    image: arcadeValleTranquiloImage,
+    sessionTime: "8-20 min",
+    title: "Valle Tranquilo",
+    category: "Arcade",
+    tagline: "Life-sim de granja pixel-art con cultivos, pesca, vecinos, tienda y ciclo estacional.",
+    description:
+      "Simulador cozy de granja en vista top-down inspirado en el ritmo de juegos tipo Stardew. Gestiona energia, tiempo y recursos mientras labras, plantas, cosechas, pescas, hablas con NPC y mejoras tu granja dia a dia.",
+    objective_es:
+      "Haz crecer tu granja y tu economia: cultiva por temporadas, mejora herramientas y completa encargos para subir de nivel.",
+    howToPlay_es:
+      "WASD/flechas para moverte. 1-9 cambia herramienta. Espacio usa la herramienta activa. E habla con vecinos. B abre tienda, Z duerme y M entra a la mina.",
+    highlights: [
+      "Entorno pixel-art de granja con agua, caminos, bosques, clima y ciclo dia/noche.",
+      "Sistema de agricultura completo: labrar, plantar, regar, progreso y cosecha.",
+      "Tienda con compra/venta, mejoras de granja y seleccion de semillas.",
+      "NPCs con relacion de amistad, regalos y encargos de progreso.",
+      "Ciclo estacional con eventos, clima variable y contenido por estacion.",
+      "Inventario, energia, niveles de habilidad y crecimiento de granja.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo",
+    viability: "Alta: bucle de simulacion en cliente con estado serializable y canvas optimizado.",
+    visualStyle: "Pixel-art rural calido, inspirado en granjas cozy con vegetacion densa y lectura clara.",
+    techFocus: "Render 2D tile-based, simulacion temporal, economia ligera y sistemas de progresion acoplados.",
+
+    category_en: "Arcade",
+    tagline_en: "Pixel-art farming life-sim with crops, fishing, villagers, shop, and seasonal flow.",
+    description_en:
+      "A cozy top-down farming simulator inspired by Stardew-like pacing. Manage energy, time, and resources while tilling, planting, harvesting, fishing, meeting villagers, and upgrading your farm day by day.",
+    objective_en:
+      "Grow your farm and economy: follow seasonal crops, unlock upgrades, and complete quests to level up.",
+    howToPlay_en:
+      "Move with WASD/arrows. Press 1-9 to switch tools. Space uses the active tool. E talks to villagers. B opens the shop, Z sleeps, and M enters the mine.",
+    highlights_en: [
+      "Pixel-art farm environment with water, paths, forests, weather, and day/night cycle.",
+      "Complete farming loop: till, plant, water, growth progression, and harvest.",
+      "Shop with buy/sell flow, farm upgrades, and seasonal seed picking.",
+      "Villagers with relationship progress, gifts, and quest objectives.",
+      "Season cycle with events, dynamic weather, and season-specific content.",
+      "Inventory, stamina, skill levels, and long-term farm progression.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo",
+    viability_en: "High: client-side simulation loop with serializable state and optimized canvas render.",
+    visualStyle_en: "Warm rural pixel-art inspired by cozy farm worlds with dense vegetation.",
+    techFocus_en: "2D tile-based rendering, time simulation, lightweight economy, and layered progression systems.",
   },
 
   {
