@@ -10,7 +10,7 @@ const CARDINAL_DIRECTIONS = [
   { row: 0, col: 1 }
 ];
 
-const collectReachableTiles = (tileMap, startTile) => {
+const collectReachableTiles = (tileMap, startTile, entityType = "pacman") => {
   const queue = [startTile];
   const visited = new Set([`${startTile.row},${startTile.col}`]);
 
@@ -23,7 +23,7 @@ const collectReachableTiles = (tileMap, startTile) => {
       const nextCol = tileMap.wrapColumn(nextRow, current.col + direction.col);
       const key = `${nextRow},${nextCol}`;
       if (visited.has(key)) continue;
-      if (!tileMap.isWalkable(nextRow, nextCol, { entityType: "pacman" })) continue;
+      if (!tileMap.isWalkable(nextRow, nextCol, { entityType })) continue;
 
       visited.add(key);
       queue.push({ row: nextRow, col: nextCol });
@@ -56,6 +56,31 @@ describe("LevelManager", () => {
       const inaccessiblePellets = findInaccessiblePellets(tileMap, reachable);
 
       expect(inaccessiblePellets, `inaccessible pellets in level ${level}`).toEqual([]);
+    }
+  });
+
+  it("keeps ghost spawn/home network connected to avoid dead-end locks", () => {
+    const manager = new LevelManager({ tileSize: 20 });
+    const maxLevel = new GameState().maxLevel;
+
+    for (let level = 1; level <= maxLevel; level += 1) {
+      const { tileMap, homeTile, ghostSpawns } = manager.createLevel(level);
+      const reachableGhostTiles = collectReachableTiles(tileMap, homeTile, "ghost");
+
+      Object.values(ghostSpawns).forEach((spawn) => {
+        expect(reachableGhostTiles.has(`${spawn.row},${spawn.col}`), `ghost spawn disconnected at level ${level}`).toBe(true);
+      });
+
+      tileMap.forEachTile((_, row, col) => {
+        if (!tileMap.isWalkable(row, col, { entityType: "ghost" })) return;
+        const exits = CARDINAL_DIRECTIONS.filter((direction) => {
+          const nextRow = row + direction.row;
+          if (nextRow < 0 || nextRow >= tileMap.rows) return false;
+          const nextCol = tileMap.wrapColumn(nextRow, col + direction.col);
+          return tileMap.isWalkable(nextRow, nextCol, { entityType: "ghost" });
+        });
+        expect(exits.length, `ghost dead-end tile at level ${level} (${row},${col})`).toBeGreaterThan(0);
+      });
     }
   });
 });

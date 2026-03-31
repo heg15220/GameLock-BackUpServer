@@ -1,4 +1,4 @@
-import { distanceBetweenEntities, moveEntityOnGrid } from "../world/Collision";
+import { canMoveFromTile, distanceBetweenEntities, moveEntityOnGrid } from "../world/Collision";
 import { findPathDistance } from "../ai/Pathfinding";
 import { oppositeDirection } from "../world/directions";
 
@@ -169,6 +169,16 @@ export default class GhostBase {
       blinky,
       rng = Math.random
     } = context;
+    const selectDirection = () => {
+      this.chooseDirection({
+        tileMap,
+        navigationGraph,
+        levelConfig,
+        pacman,
+        blinky,
+        rng
+      });
+    };
 
     const desiredMode = this.isEaten() ? "eaten" : globalMode;
     if (modeChanged && !this.isEaten()) {
@@ -178,7 +188,12 @@ export default class GhostBase {
       this.setMode(desiredMode);
     }
 
-    const centerTolerance = tileMap.tileSize * 0.2;
+    const movementSpeed = this.resolveSpeed(levelConfig);
+    const frameDistance = movementSpeed * deltaSeconds;
+    const centerTolerance = Math.max(
+      0.75,
+      Math.min(tileMap.tileSize * 0.08, frameDistance * 0.9)
+    );
     if (tileMap.isNearTileCenter(this.x, this.y, centerTolerance)) {
       tileMap.alignToTileCenter(this);
 
@@ -191,23 +206,37 @@ export default class GhostBase {
         this.allowReverseNextTurn = true;
       }
 
-      this.chooseDirection({
-        tileMap,
-        navigationGraph,
-        levelConfig,
-        pacman,
-        blinky,
-        rng
-      });
+      selectDirection();
     }
 
-    moveEntityOnGrid({
+    const currentTile = tileMap.worldToClampedTile(this.x, this.y);
+    if (this.direction && !canMoveFromTile(tileMap, currentTile.row, currentTile.col, this.direction, "ghost")) {
+      // Rare safety net: if a level update leaves the ghost facing a blocked lane, repick immediately.
+      this.allowReverseNextTurn = true;
+      tileMap.alignToTileCenter(this);
+      selectDirection();
+    }
+
+    let movedDistance = moveEntityOnGrid({
       tileMap,
       entity: this,
       direction: this.direction,
-      distance: this.resolveSpeed(levelConfig) * deltaSeconds,
+      distance: frameDistance,
       entityType: "ghost"
     });
+
+    if (movedDistance <= 0) {
+      tileMap.alignToTileCenter(this);
+      this.allowReverseNextTurn = true;
+      selectDirection();
+      movedDistance = moveEntityOnGrid({
+        tileMap,
+        entity: this,
+        direction: this.direction,
+        distance: frameDistance,
+        entityType: "ghost"
+      });
+    }
 
     const tile = tileMap.worldToClampedTile(this.x, this.y);
     this.row = tile.row;

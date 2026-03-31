@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { KNOWLEDGE_ARCADE_MATCH_COUNT } from "./knowledgeArcadeUtils";
+import { getKnowledgeWordSet } from "./knowledgeWordLexicon";
 import {
   WORD_SEARCH_DIRECTIONS,
   WORD_SEARCH_META,
@@ -34,10 +35,14 @@ const assertWordPlacement = (match, placement) => {
 };
 
 describe("wordSearchGenerator", () => {
-  it("mantiene 10.000 partidas y banco bilingue grande", () => {
+  it("mantiene 10.000 partidas y banco bilingue de 10k por idioma", () => {
     expect(KNOWLEDGE_ARCADE_MATCH_COUNT).toBe(10000);
-    expect(WORD_SEARCH_META.bankCounts.es).toBeGreaterThan(100);
-    expect(WORD_SEARCH_META.bankCounts.en).toBeGreaterThan(100);
+    expect(WORD_SEARCH_META.requiredWordsPerLocale).toBe(10000);
+    expect(WORD_SEARCH_META.bankCounts.es).toBe(10000);
+    expect(WORD_SEARCH_META.bankCounts.en).toBe(10000);
+    expect(WORD_SEARCH_META.uniqueBankCounts.es).toBe(10000);
+    expect(WORD_SEARCH_META.uniqueBankCounts.en).toBe(10000);
+    expect(WORD_SEARCH_META.overlapCount).toBe(0);
     expect(WORD_SEARCH_META.boardSize).toBeGreaterThanOrEqual(20);
     expect(WORD_SEARCH_META.wordsPerMatch).toBeGreaterThanOrEqual(12);
   });
@@ -55,6 +60,7 @@ describe("wordSearchGenerator", () => {
     ["es", "en"].forEach((locale) => {
       const seenPuzzleKeys = new Set();
       let minWordsObserved = Infinity;
+      const lexiconSet = getKnowledgeWordSet(locale);
 
       for (let matchId = 0; matchId < KNOWLEDGE_ARCADE_MATCH_COUNT; matchId += 1) {
         const match = createWordSearchMatch(matchId, locale);
@@ -66,7 +72,10 @@ describe("wordSearchGenerator", () => {
         expect(match.words.length).toBeGreaterThanOrEqual(WORD_SEARCH_META.minWordsPerMatch);
         expect(match.words.length).toBeLessThanOrEqual(WORD_SEARCH_META.wordsPerMatch);
 
-        match.words.forEach((placement) => assertWordPlacement(match, placement));
+        match.words.forEach((placement) => {
+          assertWordPlacement(match, placement);
+          expect(lexiconSet.has(placement.word)).toBe(true);
+        });
       }
 
       expect(seenPuzzleKeys.size).toBe(KNOWLEDGE_ARCADE_MATCH_COUNT);

@@ -17,6 +17,7 @@ describe("knowledgeWordLexicon", () => {
     expect(KNOWLEDGE_ARCADE_MATCH_COUNT).toBe(10000);
     expect(KNOWLEDGE_WORD_LEXICON_META.counts.es).toBe(10000);
     expect(KNOWLEDGE_WORD_LEXICON_META.counts.en).toBe(10000);
+    expect(KNOWLEDGE_WORD_LEXICON_META.overlapCount).toBe(0);
 
     ["es", "en"].forEach((locale) => {
       const lexicon = getKnowledgeWordLexicon(locale);
@@ -28,6 +29,14 @@ describe("knowledgeWordLexicon", () => {
         expect(entry.clue.length).toBeGreaterThan(0);
       });
     });
+  });
+
+  it("mantiene bancos es/en sin palabras repetidas entre idiomas", () => {
+    const setEs = getKnowledgeWordSet("es");
+    const setEn = getKnowledgeWordSet("en");
+    const overlap = [...setEs].reduce((count, word) => count + (setEn.has(word) ? 1 : 0), 0);
+
+    expect(overlap).toBe(0);
   });
 
   it("resuelve entrada por matchId de forma determinista", () => {

@@ -6,83 +6,9 @@ import {
   getRandomKnowledgeMatchIdExcept,
   resolveKnowledgeArcadeLocale
 } from "./knowledgeArcadeUtils";
+import { getHangmanEntry } from "./hangmanWordBank";
 
 const MAX_ERRORS = 6;
-
-const HANGMAN_ENTRIES = {
-  es: {
-    words: [
-      { word: "ATOMO", clue: "Unidad minima de un elemento quimico." },
-      { word: "CELULA", clue: "Base estructural de los seres vivos." },
-      { word: "VOLCAN", clue: "Montana que expulsa lava y gases." },
-      { word: "PIRAMIDE", clue: "Monumento de base ancha y lados triangulares." },
-      { word: "BRUJULA", clue: "Instrumento para orientarse con el norte magnetico." },
-      { word: "PLANETA", clue: "Cuerpo celeste que orbita una estrella." },
-      { word: "GALAXIA", clue: "Conjunto enorme de estrellas y polvo cosmico." },
-      { word: "ALGEBRA", clue: "Rama matematica que usa simbolos y ecuaciones." },
-      { word: "VECTOR", clue: "Magnitud con direccion y sentido." },
-      { word: "TEOREMA", clue: "Proposicion matematica demostrada." },
-      { word: "CODIGO", clue: "Conjunto de instrucciones para un programa." },
-      { word: "DATOS", clue: "Informacion procesable por un sistema." },
-      { word: "ROBOT", clue: "Maquina programable que ejecuta tareas." },
-      { word: "MEMORIA", clue: "Componente donde se almacenan datos temporalmente." },
-      { word: "LOGICA", clue: "Disciplina que estudia razonamientos validos." },
-      { word: "SILOGISMO", clue: "Argumento deductivo con dos premisas y una conclusion." },
-      { word: "NOVELA", clue: "Obra narrativa extensa de ficcion." },
-      { word: "POEMA", clue: "Composicion literaria en verso." },
-      { word: "MUSEO", clue: "Lugar donde se exhiben colecciones artisticas o historicas." },
-      { word: "PINTOR", clue: "Artista que crea obras con pintura." },
-      { word: "BALON", clue: "Objeto esferico usado en varios deportes." },
-      { word: "AJEDREZ", clue: "Juego de estrategia con tablero y piezas." },
-      { word: "TENIS", clue: "Deporte de raqueta sobre pista." },
-      { word: "VACUNA", clue: "Preparacion que estimula defensas del organismo." },
-      { word: "PULSO", clue: "Latido arterial perceptible." },
-      { word: "IDIOMA", clue: "Sistema de comunicacion propio de una comunidad." },
-      { word: "VERBO", clue: "Palabra que expresa accion o estado." },
-      { word: "FRASE", clue: "Conjunto breve de palabras con sentido." },
-      { word: "MAPA", clue: "Representacion grafica de un territorio." },
-      { word: "RELOJ", clue: "Instrumento para medir el tiempo." },
-      { word: "ENERGIA", clue: "Capacidad para realizar trabajo." },
-      { word: "NEURONA", clue: "Celula especializada del sistema nervioso." }
-    ]
-  },
-  en: {
-    words: [
-      { word: "ATOM", clue: "Smallest unit of a chemical element." },
-      { word: "CELL", clue: "Basic structural unit of living beings." },
-      { word: "VOLCANO", clue: "Mountain that erupts lava and gases." },
-      { word: "PYRAMID", clue: "Monument with triangular faces." },
-      { word: "COMPASS", clue: "Tool used to find cardinal directions." },
-      { word: "PLANET", clue: "Celestial body that orbits a star." },
-      { word: "GALAXY", clue: "Huge system of stars, gas and dust." },
-      { word: "ALGEBRA", clue: "Math branch that works with symbols and equations." },
-      { word: "VECTOR", clue: "Quantity with magnitude and direction." },
-      { word: "THEOREM", clue: "Statement proven by logical deduction." },
-      { word: "CODE", clue: "Instructions written for software." },
-      { word: "DATA", clue: "Information that can be processed." },
-      { word: "ROBOT", clue: "Programmable machine that performs tasks." },
-      { word: "MEMORY", clue: "Computer component that stores information." },
-      { word: "LOGIC", clue: "Discipline that studies valid reasoning." },
-      { word: "SYLLOGISM", clue: "Deductive argument with premises and conclusion." },
-      { word: "NOVEL", clue: "Long fictional narrative in prose." },
-      { word: "POEM", clue: "Literary composition written in verse." },
-      { word: "MUSEUM", clue: "Place where art or historical collections are displayed." },
-      { word: "PAINTER", clue: "Artist who creates works with paint." },
-      { word: "BALL", clue: "Round object used in many sports." },
-      { word: "CHESS", clue: "Strategy board game with pieces." },
-      { word: "TENNIS", clue: "Racket sport played on a court." },
-      { word: "VACCINE", clue: "Preparation that helps the immune system respond." },
-      { word: "PULSE", clue: "Rhythmic beat felt in an artery." },
-      { word: "LANGUAGE", clue: "Structured system used for communication." },
-      { word: "VERB", clue: "Word class that expresses action or state." },
-      { word: "PHRASE", clue: "Short group of words with meaning." },
-      { word: "MAP", clue: "Graphic representation of an area." },
-      { word: "CLOCK", clue: "Device used to measure time." },
-      { word: "ENERGY", clue: "Capacity to perform work." },
-      { word: "NEURON", clue: "Specialized nerve cell." }
-    ]
-  }
-};
 
 const COPY_BY_LOCALE = {
   es: {
@@ -132,9 +58,8 @@ const COPY_BY_LOCALE = {
 const normalizeLetter = (value) => value.trim().toUpperCase().slice(0, 1);
 
 const createGeneratedWord = (matchId, locale) => {
-  const config = HANGMAN_ENTRIES[locale] ?? HANGMAN_ENTRIES.en;
-  const safeId = Math.abs(Number(matchId) || 0);
-  return config.words[safeId % config.words.length];
+  const safeId = Math.abs(Number(matchId) || 0) % KNOWLEDGE_ARCADE_MATCH_COUNT;
+  return getHangmanEntry(safeId, locale);
 };
 
 const createInitialState = (matchId, locale, copy) => {

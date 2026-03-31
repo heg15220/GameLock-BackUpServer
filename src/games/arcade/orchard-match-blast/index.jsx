@@ -96,7 +96,7 @@ const COPY = {
     targetPresetHint: "Elige la meta antes de iniciar la run. Cada nivel sube +1:00.",
     modeMenu: "Pulsa Iniciar run para comenzar.",
     modePlay: "Combina, encadena cascadas y controla el ritmo.",
-    modeWon: "Objetivos completados. Victoria.",
+    modeWon: "Meta de puntos completada. Victoria.",
     modeLost: "Run terminada. Reintenta.",
     score: "Puntos",
     best: "Record",
@@ -122,7 +122,7 @@ const COPY = {
     bloomNeed: "Carga Bloom al 100% para usarla.",
     noHint: "Sin jugadas disponibles. Usa mezclar.",
     reshuffle: "Tablero mezclado: no quedaban jugadas.",
-    won: "Score, cosecha y especiales completados.",
+    won: "Meta de puntos alcanzada antes de tiempo. Run completada.",
     lost: "No completaste todos los objetivos.",
     moveBonus: "mov extra",
     controls:
@@ -142,7 +142,7 @@ const COPY = {
     targetPresetHint: "Pick the score goal before starting a run. Each level adds +1:00.",
     modeMenu: "Press Start run to begin.",
     modePlay: "Match, chain cascades, and control your tempo.",
-    modeWon: "Objectives complete. Victory.",
+    modeWon: "Score goal completed. Victory.",
     modeLost: "Run ended. Retry.",
     score: "Score",
     best: "Best",
@@ -168,7 +168,7 @@ const COPY = {
     bloomNeed: "Fill Bloom Charge to 100% before using it.",
     noHint: "No moves available. Use shuffle.",
     reshuffle: "Board reshuffled: no moves left.",
-    won: "Score, harvest, and specials completed.",
+    won: "Score goal reached before time. Run complete.",
     lost: "Not all objectives were completed.",
     moveBonus: "extra move",
     controls:
@@ -800,21 +800,18 @@ function OrchardMatchBlastGame() {
     });
   }, []);
 
-  const isObjectivesDone = useCallback(
-    (state) =>
-      state.score >= state.targetScore &&
-      state.harvest >= state.targetHarvest &&
-      state.specialsTriggered >= state.targetSpecials,
+  const isScoreGoalDone = useCallback(
+    (state) => state.score >= state.targetScore,
     []
   );
 
   const finalizeState = useCallback(
     (state) => {
-      if (isObjectivesDone(state)) return { ...state, mode: "won", message: copy.won };
+      if (isScoreGoalDone(state)) return { ...state, mode: "won", message: copy.won };
       if (state.moves <= 0) return { ...state, mode: "lost", message: copy.lost };
       return state;
     },
-    [copy.lost, copy.won, isObjectivesDone]
+    [copy.lost, copy.won, isScoreGoalDone]
   );
 
   const stepMove = useCallback(
@@ -1187,7 +1184,7 @@ function OrchardMatchBlastGame() {
         return { ...prev, timeMs, hintTimerMs, flashTimerMs, flowTimerMs, flowChain, fx };
       }
 
-      if (isObjectivesDone(prev)) {
+      if (isScoreGoalDone(prev)) {
         return {
           ...prev,
           mode: "won",
@@ -1212,7 +1209,7 @@ function OrchardMatchBlastGame() {
         message: copy.lost,
       };
     },
-    [copy.lost, copy.won, isObjectivesDone]
+    [copy.lost, copy.won, isScoreGoalDone]
   );
 
   useEffect(() => {

@@ -7946,6 +7946,29 @@ body {
   gap: 0.38rem;
 }
 
+.pacman-game--sky-runner .sky-runner-dx-shell {
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+}
+
+.pacman-game--sky-runner .sky-runner-dx-stage-wrap {
+  gap: 0.68rem;
+}
+
+.pacman-game--sky-runner .pacman-stage-shell {
+  margin-top: 0;
+  width: min(100%, 520px);
+  justify-self: center;
+}
+
+.pacman-game--sky-runner .pacman-touch-controls {
+  margin-top: 0;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.pacman-game--sky-runner .pacman-overlay-card {
+  width: min(88%, 340px);
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    Pong Neon Arena
    ══════════════════════════════════════════════════════════════════════════ */

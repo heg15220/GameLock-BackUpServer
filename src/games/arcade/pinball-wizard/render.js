@@ -291,11 +291,11 @@ function _drawFlipper(ctx, pivot, angle, active) {
 
   const glowColor = active ? '#66ccff' : '#3366aa';
   ctx.shadowColor = glowColor;
-  ctx.shadowBlur  = active ? 16 : 8;
+  ctx.shadowBlur  = active ? 18 : 9;
 
   // Body (thick capsule approximation using stroke)
   ctx.strokeStyle = active ? '#aaddff' : C.flipperEdge;
-  ctx.lineWidth   = 10;
+  ctx.lineWidth   = 12;
   ctx.lineCap     = 'round';
   ctx.beginPath();
   ctx.moveTo(pivot.x, pivot.y);
@@ -304,7 +304,7 @@ function _drawFlipper(ctx, pivot, angle, active) {
 
   // Inner highlight
   ctx.strokeStyle = active ? 'rgba(255,255,255,0.4)' : 'rgba(180,210,255,0.2)';
-  ctx.lineWidth   = 4;
+  ctx.lineWidth   = 5;
   ctx.beginPath();
   ctx.moveTo(pivot.x, pivot.y);
   ctx.lineTo(tipX, tipY);

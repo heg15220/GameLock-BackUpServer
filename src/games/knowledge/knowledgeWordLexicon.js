@@ -9,11 +9,6 @@ export const KNOWLEDGE_WORD_TARGET_COUNT = 10000;
 export const KNOWLEDGE_WORD_MIN_LENGTH = 5;
 export const KNOWLEDGE_WORD_MAX_LENGTH = 10;
 
-const FALLBACK_CLUE_BY_LOCALE = {
-  es: "Palabra de conocimiento general.",
-  en: "General knowledge word."
-};
-
 const LOCALE_FALLBACK = "en";
 const FEEDBACK_PRIORITY = {
   absent: 0,
@@ -31,13 +26,7 @@ const normalizeWord = (value) => (
     .toUpperCase()
 );
 
-const normalizeClue = (value, locale) => {
-  const cleaned = String(value || "").trim();
-  if (cleaned) {
-    return cleaned;
-  }
-  return FALLBACK_CLUE_BY_LOCALE[normalizeLocale(locale)] || FALLBACK_CLUE_BY_LOCALE.en;
-};
+const normalizeClue = (value) => String(value || "").trim();
 
 const compareLexiconEntries = (left, right) => {
   if (left.length !== right.length) {
@@ -46,7 +35,7 @@ const compareLexiconEntries = (left, right) => {
   return left.word.localeCompare(right.word);
 };
 
-const buildLocaleLexicon = (locale) => {
+const buildLocaleLexicon = (locale, { forbiddenWords = null } = {}) => {
   const safeLocale = normalizeLocale(locale);
   const buckets = CROSSWORD_TERM_BANK[safeLocale] || {};
   const byWord = new Map();
@@ -62,11 +51,18 @@ const buildLocaleLexicon = (locale) => {
       if (!/^[A-Z]{5,10}$/.test(word)) {
         return;
       }
+      if (forbiddenWords?.has(word)) {
+        return;
+      }
+      const clue = normalizeClue(entry?.clue);
+      if (!clue) {
+        return;
+      }
       if (!byWord.has(word)) {
         byWord.set(word, {
           word,
           length: word.length,
-          clue: normalizeClue(entry?.clue, safeLocale)
+          clue
         });
       }
     });
@@ -95,12 +91,20 @@ const buildIndexByLength = (entries) => {
 
 const createLexicon = () => {
   const es = buildLocaleLexicon("es");
-  const en = buildLocaleLexicon("en");
+  const esWordSet = new Set(es.map((entry) => entry.word));
+  const en = buildLocaleLexicon("en", { forbiddenWords: esWordSet });
+  const overlapCount = en.reduce(
+    (count, entry) => (esWordSet.has(entry.word) ? count + 1 : count),
+    0
+  );
 
   if (KNOWLEDGE_ARCADE_MATCH_COUNT !== KNOWLEDGE_WORD_TARGET_COUNT) {
     throw new Error(
       `Knowledge match count (${KNOWLEDGE_ARCADE_MATCH_COUNT}) must equal lexicon target (${KNOWLEDGE_WORD_TARGET_COUNT}).`
     );
+  }
+  if (overlapCount > 0) {
+    throw new Error(`Knowledge lexicon overlap must be 0 and received ${overlapCount}.`);
   }
 
   return Object.freeze({
@@ -121,11 +125,17 @@ const WORD_SET_BY_LENGTH = Object.freeze({
   en: buildIndexByLength(KNOWLEDGE_WORD_LEXICON.en)
 });
 
+const CROSS_LOCALE_OVERLAP_COUNT = [...WORD_SET_BY_LOCALE.es].reduce(
+  (count, word) => count + (WORD_SET_BY_LOCALE.en.has(word) ? 1 : 0),
+  0
+);
+
 export const KNOWLEDGE_WORD_LEXICON_META = Object.freeze({
   counts: Object.freeze({
     es: KNOWLEDGE_WORD_LEXICON.es.length,
     en: KNOWLEDGE_WORD_LEXICON.en.length
   }),
+  overlapCount: CROSS_LOCALE_OVERLAP_COUNT,
   minLength: KNOWLEDGE_WORD_MIN_LENGTH,
   maxLength: KNOWLEDGE_WORD_MAX_LENGTH,
   source: "crosswordTermBank",

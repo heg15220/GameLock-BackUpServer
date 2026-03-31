@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../utils/useGameRuntimeBridge";
 import PacmanRuntime from "../game/PacmanRuntime";
-import PacmanHUD from "../ui/PacmanHUD";
 import PacmanMenu from "../ui/PacmanMenu";
 import PacmanPauseOverlay from "../ui/PacmanPauseOverlay";
 import PacmanEndOverlay from "../ui/PacmanEndOverlay";
@@ -103,6 +102,8 @@ function PacmanGame() {
   const showMenu = snapshot.mode === "menu";
   const showPause = snapshot.mode === "paused";
   const showEnd = snapshot.mode === "gameover" || snapshot.mode === "win";
+  const canPause = !showMenu && !showEnd;
+  const startLabel = showMenu || showEnd ? "Start Run" : (showPause ? "Resume" : "Start");
 
   const statusMessage = useMemo(() => {
     if (snapshot.mode === "levelTransition") {
@@ -115,80 +116,176 @@ function PacmanGame() {
   }, [snapshot.level, snapshot.message, snapshot.mode]);
 
   return (
-    <div className="mini-game pacman-game">
-      <div className="mini-head">
+    <div className="mini-game pacman-game pacman-game--sky-runner sky-runner-dx-game">
+      <div className="mini-head sky-runner-dx-head">
         <div>
+          <p className="sky-runner-dx-world">Maze Route</p>
           <h4>Pac-Man Maze Protocol</h4>
           <p>Arcade chase con FSM de fantasmas, pellets, power mode, vidas y progresion por nivel.</p>
         </div>
+        <div className="sky-runner-dx-actions">
+          <button type="button" onClick={startGame}>
+            {startLabel}
+          </button>
+          <button type="button" onClick={togglePause} disabled={!canPause}>
+            {showPause ? "Resume" : "Pause"}
+          </button>
+          <button type="button" onClick={restartGame}>
+            Restart
+          </button>
+          <button type="button" onClick={toggleSound}>
+            {snapshot.soundEnabled ? "Sound On" : "Sound Off"}
+          </button>
+        </div>
       </div>
 
-      <PacmanHUD
-        snapshot={snapshot}
-        onPause={togglePause}
-        onRestart={restartGame}
-        onToggleSound={toggleSound}
-        onToggleDebug={toggleDebug}
-      />
+      <div className="sky-runner-dx-shell">
+        <div className="sky-runner-dx-side">
+          <section className="sky-runner-dx-panel sky-runner-dx-panel-primary">
+            <div className="sky-runner-dx-stat-grid compact">
+              <div>
+                <span>Score</span>
+                <strong>{snapshot.score}</strong>
+              </div>
+              <div>
+                <span>High</span>
+                <strong>{snapshot.highScore}</strong>
+              </div>
+              <div>
+                <span>Lives</span>
+                <strong>{snapshot.lives}</strong>
+              </div>
+              <div>
+                <span>Level</span>
+                <strong>{snapshot.level}/{snapshot.maxLevel}</strong>
+              </div>
+              <div>
+                <span>Pellets</span>
+                <strong>{snapshot.pelletsRemaining}</strong>
+              </div>
+              <div>
+                <span>Phase</span>
+                <strong>{snapshot.phaseMode}</strong>
+              </div>
+              <div>
+                <span>FPS</span>
+                <strong>{Math.round(snapshot.fps)}</strong>
+              </div>
+              <div>
+                <span>Frame</span>
+                <strong>{snapshot.frameTime.toFixed(1)} ms</strong>
+              </div>
+            </div>
+          </section>
 
-      <div className="pacman-stage-shell">
-        <canvas
-          ref={canvasRef}
-          className="pacman-canvas"
-          aria-label="Pac-Man game canvas"
-        />
+          <section className="sky-runner-dx-panel sky-runner-dx-panel-settings">
+            <div className="sky-runner-dx-settings-head">
+              <strong>Pac-Man Controls</strong>
+              <p>WASD/flechas mueven, Enter/Espacio inicia, P/Esc pausa, R reinicia.</p>
+            </div>
+            <ul className="sky-runner-dx-hints">
+              <li>Frightened restante: {snapshot.frightenedRemaining.toFixed(1)}s.</li>
+              <li>Modo runtime: {snapshot.mode}.</li>
+              <li>Debug: {snapshot.debug ? "enabled" : "disabled"}.</li>
+            </ul>
+            <div className="sky-runner-dx-toggle-grid">
+              <button type="button" onClick={toggleDebug}>
+                {snapshot.debug ? "Debug On" : "Debug Off"}
+              </button>
+              <button type="button" onClick={toggleSound}>
+                {snapshot.soundEnabled ? "Sound On" : "Sound Off"}
+              </button>
+              <button type="button" onClick={restartGame}>
+                Restart Run
+              </button>
+              <button type="button" onClick={togglePause} disabled={!canPause}>
+                {showPause ? "Resume" : "Pause"}
+              </button>
+            </div>
+          </section>
+        </div>
 
-        {showMenu ? <PacmanMenu onStart={startGame} onToggleSound={toggleSound} soundEnabled={snapshot.soundEnabled} /> : null}
-        {showPause ? <PacmanPauseOverlay onResume={togglePause} onRestart={restartGame} /> : null}
-        {showEnd ? <PacmanEndOverlay mode={snapshot.mode} score={snapshot.score} highScore={snapshot.highScore} onRestart={restartGame} /> : null}
-      </div>
+        <div className="sky-runner-dx-stage-wrap pacman-stage-wrap--sky">
+          <div className="sky-runner-dx-stage-head">
+            <div>
+              <strong>Maze {snapshot.level}</strong>
+              <p>{statusMessage}</p>
+            </div>
+            <div className="sky-runner-dx-stage-chips">
+              <span>Status {snapshot.mode}</span>
+              <span>Ghosts {snapshot.ghosts.length}</span>
+              <span>Lives {snapshot.lives}</span>
+            </div>
+          </div>
 
-      <div className="pacman-touch-controls" role="group" aria-label="Pac-Man touch controls">
-        <button
-          type="button"
-          onMouseDown={() => setVirtualDirection("up")}
-          onMouseUp={clearVirtualDirection}
-          onMouseLeave={clearVirtualDirection}
-          onTouchStart={() => setVirtualDirection("up")}
-          onTouchEnd={clearVirtualDirection}
-          onTouchCancel={clearVirtualDirection}
-        >
-          Up
-        </button>
-        <button
-          type="button"
-          onMouseDown={() => setVirtualDirection("left")}
-          onMouseUp={clearVirtualDirection}
-          onMouseLeave={clearVirtualDirection}
-          onTouchStart={() => setVirtualDirection("left")}
-          onTouchEnd={clearVirtualDirection}
-          onTouchCancel={clearVirtualDirection}
-        >
-          Left
-        </button>
-        <button
-          type="button"
-          onMouseDown={() => setVirtualDirection("down")}
-          onMouseUp={clearVirtualDirection}
-          onMouseLeave={clearVirtualDirection}
-          onTouchStart={() => setVirtualDirection("down")}
-          onTouchEnd={clearVirtualDirection}
-          onTouchCancel={clearVirtualDirection}
-        >
-          Down
-        </button>
-        <button
-          type="button"
-          onMouseDown={() => setVirtualDirection("right")}
-          onMouseUp={clearVirtualDirection}
-          onMouseLeave={clearVirtualDirection}
-          onTouchStart={() => setVirtualDirection("right")}
-          onTouchEnd={clearVirtualDirection}
-          onTouchCancel={clearVirtualDirection}
-        >
-          Right
-        </button>
-        <button type="button" onClick={togglePause}>Pause</button>
+          <div className="sky-runner-dx-canvas-shell pacman-stage-shell">
+            <canvas
+              ref={canvasRef}
+              className="sky-runner-dx-canvas pacman-canvas"
+              aria-label="Pac-Man game canvas"
+            />
+
+            {showMenu ? <PacmanMenu onStart={startGame} onToggleSound={toggleSound} soundEnabled={snapshot.soundEnabled} /> : null}
+            {showPause ? <PacmanPauseOverlay onResume={togglePause} onRestart={restartGame} /> : null}
+            {showEnd ? <PacmanEndOverlay mode={snapshot.mode} score={snapshot.score} highScore={snapshot.highScore} onRestart={restartGame} /> : null}
+          </div>
+
+          <div className="sky-runner-dx-stage-footer">
+            <p>{statusMessage}</p>
+            <p className="sky-runner-dx-callout">
+              Pac-Man ({snapshot.pacman?.row ?? "-"}, {snapshot.pacman?.col ?? "-"}) | Pellets {snapshot.pelletsRemaining}
+            </p>
+          </div>
+
+          <div className="sky-runner-dx-touch-controls pacman-touch-controls" role="group" aria-label="Pac-Man touch controls">
+            <button
+              type="button"
+              onMouseDown={() => setVirtualDirection("up")}
+              onMouseUp={clearVirtualDirection}
+              onMouseLeave={clearVirtualDirection}
+              onTouchStart={() => setVirtualDirection("up")}
+              onTouchEnd={clearVirtualDirection}
+              onTouchCancel={clearVirtualDirection}
+            >
+              Up
+            </button>
+            <button
+              type="button"
+              onMouseDown={() => setVirtualDirection("left")}
+              onMouseUp={clearVirtualDirection}
+              onMouseLeave={clearVirtualDirection}
+              onTouchStart={() => setVirtualDirection("left")}
+              onTouchEnd={clearVirtualDirection}
+              onTouchCancel={clearVirtualDirection}
+            >
+              Left
+            </button>
+            <button
+              type="button"
+              onMouseDown={() => setVirtualDirection("down")}
+              onMouseUp={clearVirtualDirection}
+              onMouseLeave={clearVirtualDirection}
+              onTouchStart={() => setVirtualDirection("down")}
+              onTouchEnd={clearVirtualDirection}
+              onTouchCancel={clearVirtualDirection}
+            >
+              Down
+            </button>
+            <button
+              type="button"
+              onMouseDown={() => setVirtualDirection("right")}
+              onMouseUp={clearVirtualDirection}
+              onMouseLeave={clearVirtualDirection}
+              onTouchStart={() => setVirtualDirection("right")}
+              onTouchEnd={clearVirtualDirection}
+              onTouchCancel={clearVirtualDirection}
+            >
+              Right
+            </button>
+            <button type="button" onClick={togglePause} disabled={!canPause}>Pause</button>
+            <button type="button" onClick={startGame}>{startLabel}</button>
+          </div>
+        </div>
       </div>
 
       <p className="game-message">{statusMessage}</p>

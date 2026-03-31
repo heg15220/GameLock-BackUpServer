@@ -4,6 +4,10 @@ import {
   encodeMatchWord,
   shuffleWithRandom
 } from "./knowledgeArcadeUtils";
+import {
+  KNOWLEDGE_WORD_LEXICON_META,
+  getKnowledgeWordLexicon
+} from "./knowledgeWordLexicon";
 
 export const WORD_SEARCH_BOARD_SIZE = 20;
 export const WORD_SEARCH_WORD_TARGET = 14;
@@ -11,6 +15,8 @@ export const WORD_SEARCH_MIN_WORDS = 11;
 
 const WORD_ID_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const FILL_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE = 10000;
+const WORD_SEARCH_CANDIDATE_POOL_SIZE = 320;
 
 const WORD_BANK_BY_LOCALE = {
   es: [
@@ -280,6 +286,54 @@ const WORD_BANK_BY_LOCALE = {
     "MONSOON"
   ]
 };
+
+const countOverlap = (leftWords, rightWords) => {
+  const left = leftWords instanceof Set ? leftWords : new Set(leftWords);
+  const right = rightWords instanceof Set ? rightWords : new Set(rightWords);
+  return [...left].reduce((count, word) => count + (right.has(word) ? 1 : 0), 0);
+};
+
+const createWordSearchWordBank = () => {
+  const esWords = getKnowledgeWordLexicon("es").map((entry) => entry.word);
+  const enWords = getKnowledgeWordLexicon("en").map((entry) => entry.word);
+
+  const esUniqueCount = new Set(esWords).size;
+  const enUniqueCount = new Set(enWords).size;
+  const overlapCount = countOverlap(esWords, enWords);
+  const esCount = esWords.length;
+  const enCount = enWords.length;
+
+  if (
+    esCount !== WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE ||
+    enCount !== WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE
+  ) {
+    throw new Error(
+      `Word Search requires ${WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE} words per locale. Received es=${esCount}, en=${enCount}.`
+    );
+  }
+  if (esUniqueCount !== esCount || enUniqueCount !== enCount) {
+    throw new Error(
+      `Word Search requires unique locale banks. Received unique counts es=${esUniqueCount}, en=${enUniqueCount}.`
+    );
+  }
+  if (overlapCount !== 0 || KNOWLEDGE_WORD_LEXICON_META.overlapCount !== 0) {
+    throw new Error(`Word Search requires disjoint locale banks and received overlap=${overlapCount}.`);
+  }
+
+  return Object.freeze({
+    es: Object.freeze(esWords),
+    en: Object.freeze(enWords),
+    overlapCount,
+    uniqueCounts: Object.freeze({
+      es: esUniqueCount,
+      en: enUniqueCount
+    })
+  });
+};
+
+const WORD_SEARCH_WORD_BANK = createWordSearchWordBank();
+WORD_BANK_BY_LOCALE.es = WORD_SEARCH_WORD_BANK.es;
+WORD_BANK_BY_LOCALE.en = WORD_SEARCH_WORD_BANK.en;
 
 export const WORD_SEARCH_DIRECTIONS = [
   {
@@ -582,11 +636,57 @@ const placeRequiredDirections = ({
   });
 };
 
+const greatestCommonDivisor = (left, right) => {
+  let a = Math.abs(Number(left) || 0);
+  let b = Math.abs(Number(right) || 0);
+  while (b !== 0) {
+    const remainder = a % b;
+    a = b;
+    b = remainder;
+  }
+  return a || 1;
+};
+
+const resolveCoprimeStep = (length, random) => {
+  if (length <= 1) return 1;
+
+  let step = randomInt(random, 1, length - 1);
+  for (let attempt = 0; attempt < length; attempt += 1) {
+    if (greatestCommonDivisor(step, length) === 1) {
+      return step;
+    }
+    step = (step + 1) % length;
+    if (step === 0) {
+      step = 1;
+    }
+  }
+
+  return 1;
+};
+
 const buildWordCandidates = (localeKey, random, size) => {
   const base = WORD_BANK_BY_LOCALE[localeKey] ?? WORD_BANK_BY_LOCALE.en;
-  return shuffleWithRandom(base, random).filter(
-    (word) => word.length >= 4 && word.length <= size
+  if (!base.length) {
+    return [];
+  }
+
+  const maxCandidates = Math.min(
+    base.length,
+    Math.max(WORD_SEARCH_CANDIDATE_POOL_SIZE, WORD_SEARCH_WORD_TARGET * 10)
   );
+  const startIndex = randomInt(random, 0, base.length - 1);
+  const step = resolveCoprimeStep(base.length, random);
+
+  const candidates = [];
+  let cursor = startIndex;
+  for (let seen = 0; seen < base.length && candidates.length < maxCandidates; seen += 1) {
+    const word = base[cursor];
+    if (word.length >= 4 && word.length <= size) {
+      candidates.push(word);
+    }
+    cursor = (cursor + step) % base.length;
+  }
+  return candidates;
 };
 
 const createPuzzleKey = (matchId, localeKey) => {
@@ -665,10 +765,13 @@ export const WORD_SEARCH_META = {
   boardSize: WORD_SEARCH_BOARD_SIZE,
   wordsPerMatch: WORD_SEARCH_WORD_TARGET,
   minWordsPerMatch: WORD_SEARCH_MIN_WORDS,
+  requiredWordsPerLocale: WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE,
   bankCounts: {
     es: WORD_BANK_BY_LOCALE.es.length,
     en: WORD_BANK_BY_LOCALE.en.length
-  }
+  },
+  uniqueBankCounts: WORD_SEARCH_WORD_BANK.uniqueCounts,
+  overlapCount: WORD_SEARCH_WORD_BANK.overlapCount
 };
 
 export const createWordSearchMatch = (matchId, locale) => {

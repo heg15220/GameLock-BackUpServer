@@ -16,7 +16,7 @@ const BALL_R     = 10;
 const GRAVITY    = 1300;    // px/s²
 const AIR_DRAG   = 0.9996;  // per-frame multiplier (approx at 60fps)
 const WALL_BOUNCE    = 0.60;
-const FLIP_BOUNCE    = 0.72;
+const FLIP_BOUNCE    = 0.80;
 const BUMPER_EJECT   = 380;  // fixed bumper ejection speed (px/s) — no compounding
 const BUMPER_MIN_ADD = 80;   // minimum boost added on top of incoming speed
 const SLING_BOOST    = 130;  // kick added after slingshot reflection
@@ -32,6 +32,18 @@ export const FLIP_Y   = 646;
 export const L_PIV    = { x: 108, y: FLIP_Y };
 export const R_PIV    = { x: 272, y: FLIP_Y };
 export const FLIP_LEN = 70;
+const FLIP_CONTACT_PAD = 14;
+const FLIP_ACTIVE_REACH_BONUS = 3;
+const FLIP_SURFACE_TRANSFER = 1.2;
+const FLIP_ACTIVE_NORMAL_BOOST = 90;
+const FLIP_TRAP_WALL_L = 86;
+const FLIP_TRAP_WALL_R = 304;
+const FLIP_TRAP_SPEED_MAX = 85;
+const FLIP_TRAP_HOLD_TIME = 0.22;
+const FLIP_TRAP_NUDGE_X = 8;
+const FLIP_TRAP_NUDGE_Y = 6;
+const FLIP_TRAP_PUSH_X = 180;
+const FLIP_TRAP_PUSH_Y = 300;
 const FL_REST  =  28 * Math.PI / 180;          // rest  (tip lower-right)
 const FL_ACT   = -26 * Math.PI / 180;          // active (tip upper-right)
 const FR_REST  = (180 - 28) * Math.PI / 180;   // 152° (tip lower-left)
@@ -40,7 +52,7 @@ const FR_ACT   = (180 + 26) * Math.PI / 180;   // 206° (tip upper-left)
 // the swing (not just after it's done). At 60 fps a swing of ~54° = 0.94 rad
 // completes in  0.94 / FLIP_SPD  seconds.  π*5 ≈ 15.7 rad/s → ~4 frames,
 // giving the ball several sub-steps of contact with the moving surface.
-const FLIP_SPD = Math.PI * 5;                  // rad/s
+const FLIP_SPD = Math.PI * 5.7;                // rad/s
 
 // Plunger
 const PLUNGER_Y    = 638;
@@ -171,6 +183,7 @@ export default class PinballRuntime {
     this.msgTimer       = 0;
     this.comboBumper    = 0;  // consecutive bumper hits for bonus
     this.targetResetT   = 0;
+    this.flipperTrapT   = 0;
 
     this.leftFlipper  = { angle: FL_REST, omega: 0, active: false };
     this.rightFlipper = { angle: FR_REST, omega: 0, active: false };
@@ -201,6 +214,7 @@ export default class PinballRuntime {
     this.phase         = 'launching';
     this.plungerCharge = 0;
     this._touchPlunge  = false;
+    this.flipperTrapT  = 0;
   }
 
   // ── storage ───────────────────────────────────────────────────────────────
@@ -289,6 +303,7 @@ export default class PinballRuntime {
       this._integrateBall(subDt);
       this._resolveAll();
     }
+    this._resolveFlipperWallTrap(dt);
     this._checkDrain();
     this._checkTargetReset(dt);
     this._checkRollovers();
@@ -465,6 +480,45 @@ export default class PinballRuntime {
 
   // ─ Flipper ───────────────────────────────────────────────────────────────
 
+  _distanceToFlipper(pivot, angle) {
+    const tipX = pivot.x + Math.cos(angle) * FLIP_LEN;
+    const tipY = pivot.y + Math.sin(angle) * FLIP_LEN;
+    const cp = closestPtOnSeg(this.ball.x, this.ball.y, pivot.x, pivot.y, tipX, tipY);
+    return Math.hypot(this.ball.x - cp.x, this.ball.y - cp.y);
+  }
+
+  _resolveFlipperWallTrap(dt) {
+    const b = this.ball;
+    const speed = Math.hypot(b.vx, b.vy);
+    const inFlipperBand = b.y >= FLIP_Y - 54 && b.y <= H - BALL_R - 2;
+    const nearLeftTrapWall = b.x <= FLIP_TRAP_WALL_L + BALL_R + 7;
+    const nearRightTrapWall = b.x >= FLIP_TRAP_WALL_R - BALL_R - 7;
+    const nearLeftFlipper = this._distanceToFlipper(L_PIV, this.leftFlipper.angle) <= BALL_R + FLIP_CONTACT_PAD + 8;
+    const nearRightFlipper = this._distanceToFlipper(R_PIV, this.rightFlipper.angle) <= BALL_R + FLIP_CONTACT_PAD + 8;
+
+    const isTrapped = speed <= FLIP_TRAP_SPEED_MAX
+      && inFlipperBand
+      && ((nearLeftTrapWall && nearLeftFlipper) || (nearRightTrapWall && nearRightFlipper));
+
+    if (!isTrapped) {
+      this.flipperTrapT = 0;
+      return;
+    }
+
+    this.flipperTrapT += dt;
+    if (this.flipperTrapT < FLIP_TRAP_HOLD_TIME) return;
+
+    const pushRight = nearLeftTrapWall && !nearRightTrapWall;
+    const dirX = pushRight ? 1 : -1;
+    b.x = clamp(b.x + dirX * FLIP_TRAP_NUDGE_X, LEFT + BALL_R + 1, LANE_R - BALL_R - 1);
+    b.y = Math.max(TOP + BALL_R + 1, b.y - FLIP_TRAP_NUDGE_Y);
+    b.vx = dirX * Math.max(Math.abs(b.vx), FLIP_TRAP_PUSH_X);
+    b.vy = Math.min(b.vy, -FLIP_TRAP_PUSH_Y);
+
+    this.flipperTrapT = 0;
+    this._spawnParticles(b.x, b.y, '#99ccff', 6);
+  }
+
   _resolveFlipper(flipper, pivot) {
     const tipX = pivot.x + Math.cos(flipper.angle) * FLIP_LEN;
     const tipY = pivot.y + Math.sin(flipper.angle) * FLIP_LEN;
@@ -472,7 +526,7 @@ export default class PinballRuntime {
     const dx   = this.ball.x - cp.x;
     const dy   = this.ball.y - cp.y;
     const dist = Math.hypot(dx, dy);
-    const thr  = BALL_R + 10; // flipper capsule radius — wider for reliable contact
+    const thr  = BALL_R + FLIP_CONTACT_PAD + (flipper.active ? FLIP_ACTIVE_REACH_BONUS : 0);
     if (dist >= thr || dist < 1e-7) return;
 
     const nx  = dx / dist, ny = dy / dist;
@@ -482,8 +536,9 @@ export default class PinballRuntime {
     // Surface velocity due to flipper rotation:
     // In screen-coords (y↓), clockwise ω > 0 → v = ω*(-ry, rx) at arm (rx,ry)
     const rx  = cp.x - pivot.x, ry = cp.y - pivot.y;
-    const svx = -flipper.omega * ry;
-    const svy =  flipper.omega * rx;
+    const swingOmega = flipper.omega * FLIP_SURFACE_TRANSFER;
+    const svx = -swingOmega * ry;
+    const svy =  swingOmega * rx;
 
     // Relative velocity of ball w.r.t. flipper surface
     const rvx  = this.ball.vx - svx;
@@ -494,6 +549,10 @@ export default class PinballRuntime {
       const e = FLIP_BOUNCE;
       this.ball.vx -= (1 + e) * rdot * nx;
       this.ball.vy -= (1 + e) * rdot * ny;
+      if (flipper.active) {
+        this.ball.vx += nx * FLIP_ACTIVE_NORMAL_BOOST;
+        this.ball.vy += ny * FLIP_ACTIVE_NORMAL_BOOST;
+      }
       // Hard cap so rapid flips can't accidentally exceed safe speed
       const spd = Math.hypot(this.ball.vx, this.ball.vy);
       if (spd > MAX_BALL_SPD) {

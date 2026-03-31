@@ -3654,3 +3654,8 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
   - Compilar (`npm run build`).
   - Ejecutar bucle Playwright (`web_game_playwright_client.mjs`) con acciones de control del nuevo juego.
   - Revisar estado/screenshot/errores y ajustar si aparece algun bug.
+## 2026-03-31 - Orchard Match: cierre anticipado por meta de puntos
+- Ajustado `src/games/arcade/orchard-match-blast/index.jsx` para terminar inmediatamente la partida con `mode: "won"` cuando `score >= targetScore`, sin esperar al agotado del cronometro.
+- Actualizada la condicion de victoria en `finalizeState` y en el flujo del temporizador (`advanceState`).
+- Actualizados mensajes ES/EN para informar explicitamente al usuario que la meta de puntos se alcanzo antes de tiempo.
+- Validacion: `npm run build` sigue fallando en sandbox con `vite:esbuild spawn EPERM` (sin validacion de build completa en este entorno).
