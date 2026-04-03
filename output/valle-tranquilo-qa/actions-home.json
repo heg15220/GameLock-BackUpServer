@@ -1,0 +1,196 @@
+{
+    "steps":  [
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "a"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "a"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "a"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  8,
+                      "buttons":  [
+                                      "e"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "a"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "a"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "a"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "w"
+                                  ]
+                  },
+                  {
+                      "frames":  8,
+                      "buttons":  [
+                                      "e"
+                                  ]
+                  },
+                  {
+                      "frames":  4,
+                      "buttons":  [
+                                      "escape"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "d"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "d"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "d"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "s"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "s"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "s"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "s"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "s"
+                                  ]
+                  },
+                  {
+                      "frames":  1,
+                      "buttons":  [
+                                      "s"
+                                  ]
+                  },
+                  {
+                      "frames":  8,
+                      "buttons":  [
+                                      "e"
+                                  ]
+                  }
+              ]
+}

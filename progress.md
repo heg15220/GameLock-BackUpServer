@@ -3100,7 +3100,8 @@ Pendiente sugerido:
   - césped convertido en banda de suelo casi plana (sin vista cenital), con líneas horizontales de corte;
   - porterías reconstruidas con profundidad lateral (poste cercano, poste trasero y red de costado).
 - Distancia de juego ampliada para dificultar goles rápidos:
-  - límites del campo movidos a left: 36 y ight: 864;
+  - límites del campo movidos a left: 36 y 
+ight: 864;
   - posiciones de saque inicial separadas (200 vs 700).
 - Mecánicas orientadas a cabezazo:
   - cabezazo reforzado (más radio útil, más impulso frontal/vertical, bonus en salto);
@@ -3113,7 +3114,8 @@ Pendiente sugerido:
 pm run build en sandbox sigue bloqueado por spawn EPERM (esbuild);
   - intento de build fuera de sandbox interrumpido por usuario en esta sesión, pendiente revalidación completa.
 ## 2026-03-20 - Head Soccer Pro: rebote exagerado con amortiguación por botes
-- Se añadió ounceChain al estado de la pelota (createInitialState y esetKickoff).
+- Se añadió ounceChain al estado de la pelota (createInitialState y 
+esetKickoff).
 - Física del suelo en updateBallPhysics cambiada para lograr botes iniciales muy altos y descenso progresivo:
   - multiplicador por bote: exaggeration = max(0.62, 1.55 - chain * 0.17);
   - velocidad vertical de salida: y = -clamp(max(4.2, incoming * bounce) * exaggeration, 4.2, 24);
@@ -3130,12 +3132,15 @@ pm run build en sandbox sigue bloqueado por spawn EPERM (esbuild);
 - Techo de juego ajustado para permitir botes altos reales:
   - reemplazo del límite superior antiguo (292) por FIELD.ceilingY = 94.
 ## 2026-03-20 - Head Soccer Pro: secuencia de gol con balón dentro
-- egisterGoal ya no hace esetKickoff inmediato.
+- 
+egisterGoal ya no hace 
+esetKickoff inmediato.
 - Al marcar:
   - la pelota se coloca dentro de la portería correcta (insideGoalX/insideGoalY),
   - se congela su velocidad (x/vy = 0) para que la animación de gol se vea con el balón dentro de la red.
 - El siguiente saque se inicia al terminar goalDelay en stepGame:
-  - ahora esetKickoff(state) se ejecuta al salir de phase === "goal", y no en el instante del gol.
+  - ahora 
+esetKickoff(state) se ejecuta al salir de phase === "goal", y no en el instante del gol.
 ## 2026-03-20 - Poker IA experta: odds/outs (Math4all)
 - Archivo: src/games/PokerTexasHoldemGame.jsx.
 - Integrado cálculo explícito para nivel expert basado en el artículo de odds y outs:
@@ -3150,7 +3155,8 @@ pm run build en sandbox sigue bloqueado por spawn EPERM (esbuild);
   - pot odds vs probabilidad de completar proyecto;
   - comparación en formato ratio (odds del proyecto vs pot odds ratio);
   - semibluffs/calls/folds más estrictos cuando las odds no compensan.
-- Niveles ookie y 	actical se mantienen sin cambios de comportamiento principal.
+- Niveles 
+ookie y 	actical se mantienen sin cambios de comportamiento principal.
 ## 2026-03-20 - IA experta Brisca/Escoba: adaptación odds/outs (inspirada en Math4all)
 - Archivo actualizado: src/games/StrategyBriscaDeckGame.jsx.
 - Brisca (solo dificultad expert):
@@ -3394,7 +3400,8 @@ pm run build sigue bloqueada en sandbox por spawn EPERM de esbuild; intento de e
 - En Cartas, añadido CTA destacado Volver al Gacha justo debajo del mazo y por encima del resto de acciones.
 - En Cartas, click directo sobre carta (vista de mazo) abre detalle de carta para inspeccion inmediata.
 - En Misiones, añadido historial de recompensas reclamadas (ledger) con totales por tipo y trazabilidad temporal.
-- Backend: session/me ahora incluye ecentRewardEvents serializados para reflejar utilidad real de recompensas de misiones.
+- Backend: session/me ahora incluye 
+ecentRewardEvents serializados para reflejar utilidad real de recompensas de misiones.
 - Verificacion tecnica: 
 ode --check server/wikipedia-gacha/service.mjs y compilacion sintactica de index.jsx con esbuild (bundle local con assets externos marcados).
 - Pendiente: build completo 
@@ -3659,3 +3666,34 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Actualizada la condicion de victoria en `finalizeState` y en el flujo del temporizador (`advanceState`).
 - Actualizados mensajes ES/EN para informar explicitamente al usuario que la meta de puntos se alcanzo antes de tiempo.
 - Validacion: `npm run build` sigue fallando en sandbox con `vite:esbuild spawn EPERM` (sin validacion de build completa en este entorno).
+
+## 2026-04-03 - Valle Tranquilo (casas, interiores, crafting, horno, huerto y colisiones)\n- Extendido public/arcade/valle-tranquilo/index.html con interiores visitables para la casa del jugador y varias casas de vecinos.\n- Anadidos almacenes por categorias, mesa de crafteo, horno domestico y recetas de mejora con materiales + monedas.\n- Anadida parcela de huerto con arboles frutales plantables, crecimiento por dias y cosecha persistente.\n- Colisiones corregidas: agua, vallas, arboles, edificios y muebles bloquean el paso; ya no se camina por lago ni por copas/troncos.\n- Mina ampliada con cobre, hierro, marmol, diamante, mythril y cristal del vacio, con rareza ligada a profundidad.\n- Pendiente inmediato: build + pasada Playwright completa del juego para corregir defects visuales o de interaccion si aparecen.\n
+
+## 2026-04-03 - Valle Tranquilo (guardado compacto + intro)
+- public/arcade/valle-tranquilo/index.html ampliado con guardado local ultra-compacto y export/import por codigo.
+- Estrategia tecnica: snapshot delta con claves cortas, inventarios indexados y solo casillas modificadas respecto al mapa base; no se guarda el mapa entero.
+- Flujo nuevo antes de jugar: modal bloqueante de bienvenida con texto explicativo largo (265 palabras validadas), boton de comienzo, continuar guardado local e importar codigo.
+- UI nueva de guardado en partida: boton ?? Guardar, exportacion de codigo portable e importacion sobre la partida actual.
+- QA ejecutada:
+  - parseo del <script>: PARSE_OK.
+  - Playwright skill/client: output/valle-tranquilo-save-intro/state-2.json confirma save.started=true, localExists=true.
+  - Capturas completas revisadas: page-intro.png, page-started.png, page-save-modal.png.
+  - Metricas verificadas por navegador: autosave local 136 B, codigo exportado 186 caracteres.
+  - Flujo export/import validado: misma posicion del jugador antes y despues de recargar/importar.
+- Nota QA: el cliente de la skill sigue capturando el canvas de fondo por la arquitectura multicapa, por eso se añadieron capturas full-page adicionales para validar la UI real.
+- Ajuste extra de layout responsive en Valle Tranquilo:
+  - HUD, paneles laterales, inventario, guia y botones ahora escalan con --ui-scale calculado en `resize()`.
+  - En pantallas bajas la botonera inferior pasa a rejilla 2x2 para evitar recortes verticales.
+  - El modal inicial usa intro-copy scrollable para mantener visibles los botones de comienzo/importacion incluso en 1280x720.
+- QA visual adicional:
+  - output/valle-tranquilo-layout-fit/intro-1280x720-v2.png revisada: intro completa con botones visibles.
+  - output/valle-tranquilo-layout-fit/started-1280x720.png revisada: HUD y barras sin clipping.
+  - output/valle-tranquilo-layout-fit/started-1100x700-v2.png revisada: layout jugable completo en viewport estrecho.
+
+- Ajuste puntual solicitado en Valle Tranquilo:
+  - solo se aumento la escala visual del inventario inferior con --inventory-scale: 1.18.
+  - se agrandaron slot, icono, cantidad, etiqueta y padding de la barra de recursos sin tocar HUD, paneles laterales ni botonera.
+- QA puntual:
+  - parseo JS OK (PARSE_OK).
+  - captura revisada: output/valle-tranquilo-inventory-bigger/started-1280x720.png.
+  - medicion navegador en 1280x720: slot ~43.42x43.42 px, la barra sigue entrando completa en pantalla.

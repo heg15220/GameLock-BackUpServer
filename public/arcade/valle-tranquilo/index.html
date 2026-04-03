@@ -5,6 +5,7 @@
 <title>Valle Tranquilo</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+:root{--ui-scale:1;--inventory-scale:1.18}
 *{box-sizing:border-box;margin:0;padding:0;image-rendering:pixelated}
 body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'VT323',monospace;color:#f0e0c0}
 #app{display:grid;grid-template-rows:46px 1fr 112px;grid-template-columns:188px 1fr 188px;height:100vh;width:100vw}
@@ -131,6 +132,134 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 @keyframes pin{from{transform:translateX(110%) scale(.8);opacity:0}to{transform:none;opacity:1}}
 @keyframes pout{to{transform:translateX(110%);opacity:0}}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#080404}::-webkit-scrollbar-thumb{background:#4a2c0c}
+
+/* —— RESPONSIVE FIT —— */
+#app{
+  grid-template-rows:calc(46px * var(--ui-scale)) minmax(0,1fr) calc(112px * var(--ui-scale));
+  grid-template-columns:calc(188px * var(--ui-scale)) minmax(0,1fr) calc(188px * var(--ui-scale));
+  min-width:0;min-height:0;height:100dvh;
+}
+#hud,#pl,#pr,#vp,#bot,#invw,#logb,#actb{min-width:0;min-height:0}
+#hud{padding:0 calc(12px * var(--ui-scale));gap:calc(8px * var(--ui-scale))}
+.hud-g{gap:calc(8px * var(--ui-scale));min-width:0}
+#title{font-size:calc(9px * var(--ui-scale));white-space:nowrap}
+.chip{padding:calc(2px * var(--ui-scale)) calc(8px * var(--ui-scale));font-size:calc(16px * var(--ui-scale))}
+#stag{font-size:calc(6px * var(--ui-scale));padding:calc(3px * var(--ui-scale)) calc(7px * var(--ui-scale))}
+#ebar{width:calc(68px * var(--ui-scale));height:calc(10px * var(--ui-scale))}
+#pl,#pr{padding:calc(9px * var(--ui-scale)) calc(8px * var(--ui-scale));gap:calc(5px * var(--ui-scale))}
+.ph{font-size:calc(6px * var(--ui-scale));padding:calc(4px * var(--ui-scale)) 0 calc(5px * var(--ui-scale))}
+.tb{padding:calc(5px * var(--ui-scale)) calc(6px * var(--ui-scale));font-size:calc(15px * var(--ui-scale));gap:calc(6px * var(--ui-scale))}
+.tb .cost{font-size:calc(12px * var(--ui-scale))}
+.ti{font-size:calc(13px * var(--ui-scale));width:calc(17px * var(--ui-scale))}
+.skl{width:calc(50px * var(--ui-scale));font-size:calc(12px * var(--ui-scale))}
+.skt{height:calc(5px * var(--ui-scale))}
+.skv{width:calc(20px * var(--ui-scale));font-size:calc(12px * var(--ui-scale))}
+.nc{padding:calc(6px * var(--ui-scale)) calc(7px * var(--ui-scale));gap:calc(6px * var(--ui-scale))}
+.nav{width:calc(26px * var(--ui-scale));height:calc(26px * var(--ui-scale));font-size:calc(15px * var(--ui-scale))}
+.nn,.qt{font-size:calc(14px * var(--ui-scale))}
+.nr,.qm{font-size:calc(11px * var(--ui-scale))}
+#guide-window{
+  top:calc(8px * var(--ui-scale));
+  left:calc(8px * var(--ui-scale));
+  min-width:calc(220px * var(--ui-scale));
+  max-width:min(35vw,calc(360px * var(--ui-scale)));
+  padding:calc(6px * var(--ui-scale)) calc(8px * var(--ui-scale));
+  gap:calc(4px * var(--ui-scale));
+}
+#guide-title{font-size:calc(7px * var(--ui-scale))}
+#guide-step{font-size:calc(12px * var(--ui-scale))}
+#guide-main{font-size:calc(15px * var(--ui-scale))}
+#guide-sub,.guide-btn{font-size:calc(12px * var(--ui-scale))}
+#guide-actions{gap:calc(6px * var(--ui-scale))}
+#ctool{
+  bottom:calc(8px * var(--ui-scale));
+  right:calc(8px * var(--ui-scale));
+  padding:calc(3px * var(--ui-scale)) calc(9px * var(--ui-scale));
+  font-size:calc(14px * var(--ui-scale));
+}
+#ctxhint{
+  left:calc(8px * var(--ui-scale));
+  bottom:calc(28px * var(--ui-scale));
+  padding:calc(2px * var(--ui-scale)) calc(8px * var(--ui-scale));
+  font-size:calc(12px * var(--ui-scale));
+  max-width:min(44vw,calc(520px * var(--ui-scale)));
+}
+#kb-help-btn{
+  padding:calc(2px * var(--ui-scale)) calc(8px * var(--ui-scale)) !important;
+  font-size:calc(14px * var(--ui-scale)) !important;
+}
+#kb-help-chip{
+  bottom:calc(8px * var(--ui-scale)) !important;
+  left:calc(8px * var(--ui-scale)) !important;
+  padding:calc(2px * var(--ui-scale)) calc(8px * var(--ui-scale)) !important;
+  font-size:calc(12px * var(--ui-scale)) !important;
+}
+#bot{min-height:calc(112px * var(--ui-scale))}
+#invw{
+  gap:calc(3px * var(--ui-scale) * var(--inventory-scale));
+  padding:calc(7px * var(--ui-scale) * var(--inventory-scale)) calc(10px * var(--ui-scale) * var(--inventory-scale));
+  align-content:center;
+}
+.is{
+  width:calc(46px * var(--ui-scale) * var(--inventory-scale));
+  height:calc(46px * var(--ui-scale) * var(--inventory-scale));
+  font-size:calc(18px * var(--ui-scale) * var(--inventory-scale));
+}
+.iq{
+  bottom:calc(1px * var(--ui-scale) * var(--inventory-scale));
+  right:calc(3px * var(--ui-scale) * var(--inventory-scale));
+  font-size:calc(12px * var(--ui-scale) * var(--inventory-scale));
+}
+.il{
+  font-size:calc(9px * var(--ui-scale) * var(--inventory-scale));
+  margin-top:calc(1px * var(--ui-scale) * var(--inventory-scale));
+}
+#logb{
+  width:calc(190px * var(--ui-scale));
+  padding:calc(7px * var(--ui-scale)) calc(10px * var(--ui-scale));
+  gap:calc(2px * var(--ui-scale));
+}
+.ll{font-size:calc(13px * var(--ui-scale))}
+#actb{
+  gap:calc(4px * var(--ui-scale));
+  padding:calc(7px * var(--ui-scale)) calc(10px * var(--ui-scale));
+  flex-shrink:0;
+}
+.ab{padding:calc(5px * var(--ui-scale)) calc(13px * var(--ui-scale));font-size:calc(15px * var(--ui-scale))}
+#mt{font-size:calc(9px * var(--ui-scale))}
+#ms{font-size:calc(14px * var(--ui-scale))}
+.si{font-size:calc(19px * var(--ui-scale))}
+.sn,.sp{font-size:calc(15px * var(--ui-scale))}
+.sd{font-size:calc(12px * var(--ui-scale))}
+.mh{font-size:calc(6px * var(--ui-scale));padding:calc(7px * var(--ui-scale)) 0 calc(4px * var(--ui-scale))}
+.mcb{padding:calc(7px * var(--ui-scale));font-size:calc(16px * var(--ui-scale))}
+.db{padding:calc(12px * var(--ui-scale)) calc(14px * var(--ui-scale));font-size:calc(16px * var(--ui-scale))}
+.dn{font-size:calc(7px * var(--ui-scale));margin-bottom:calc(7px * var(--ui-scale))}
+.intro-copy{
+  font-family:'VT323';
+  font-size:calc(15px * var(--ui-scale));
+  line-height:1.58;
+  color:#e6d0aa;
+  max-height:min(42vh,calc(420px * var(--ui-scale)));
+  overflow:auto;
+  padding-right:calc(4px * var(--ui-scale));
+}
+.intro-actions{display:flex;gap:calc(8px * var(--ui-scale));flex-wrap:wrap}
+.intro-actions .mcb{margin-top:0;flex:1 1 calc(50% - calc(8px * var(--ui-scale)))}
+#ns{top:calc(54px * var(--ui-scale));right:calc(11px * var(--ui-scale));gap:calc(4px * var(--ui-scale))}
+.np{padding:calc(6px * var(--ui-scale)) calc(11px * var(--ui-scale));font-size:calc(15px * var(--ui-scale));max-width:calc(230px * var(--ui-scale))}
+
+@media (max-width:1280px),(max-height:760px){
+  #guide-window{min-width:calc(188px * var(--ui-scale));max-width:min(32vw,calc(300px * var(--ui-scale)))}
+  #ctxhint{max-width:min(38vw,calc(380px * var(--ui-scale)))}
+  .intro-copy{max-height:min(36vh,calc(300px * var(--ui-scale)));line-height:1.45}
+}
+@media (max-height:760px){
+  #actb{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:calc(220px * var(--ui-scale));align-content:center}
+  #logb{width:calc(160px * var(--ui-scale))}
+  .ab{text-align:center;padding-left:calc(8px * var(--ui-scale));padding-right:calc(8px * var(--ui-scale))}
+  .intro-actions .mcb{flex:1 1 100%}
+}
 </style>
 </head>
 <body class="spring day">
@@ -205,10 +334,11 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
       <button class="ab g" onclick="openShop()">🏪 Tienda</button>
       <button class="ab b" onclick="doSleep()">🌙 Dormir</button>
       <button class="ab" id="mine-btn" onclick="openMine()">⛏️ Mina</button>
+      <button class="ab" id="save-btn" onclick="openSaveManager()">💾 Guardar</button>
     </div>
   </div>
 </div>
-<div id="mb" onclick="closeBD(event)"><div id="mx"><div id="mt"></div><div id="ms"></div><div id="md"></div><button class="mcb" onclick="closeM()">[ CERRAR ]</button></div></div>
+<div id="mb" onclick="closeBD(event)"><div id="mx"><div id="mt"></div><div id="ms"></div><div id="md"></div><button class="mcb" id="m-close" onclick="closeM()">[ CERRAR ]</button></div></div>
 <div id="ss"><div id="st"></div></div>
 <div id="ns"></div>
 
@@ -446,14 +576,266 @@ function itemIcon(k){
   }
   return '\u{1F4E6}';
 }
+const FRUITS={
+  apple:{n:'Manzana',nEn:'Apple',ic:'\u{1F34E}',sell:75},
+  pear:{n:'Pera',nEn:'Pear',ic:'\u{1F350}',sell:82},
+  orange:{n:'Naranja',nEn:'Orange',ic:'\u{1F34A}',sell:88},
+};
+const SAPLINGS={
+  apple:{n:'Manzano',nEn:'Apple Tree',ic:'\u{1F34E}',seedKey:'sapling_apple',fruit:'apple',grow:4},
+  pear:{n:'Peral',nEn:'Pear Tree',ic:'\u{1F350}',seedKey:'sapling_pear',fruit:'pear',grow:5},
+  orange:{n:'Naranjo',nEn:'Orange Tree',ic:'\u{1F34A}',seedKey:'sapling_orange',fruit:'orange',grow:6},
+};
+Object.assign(ICONS,{
+  copper_ore:'\u{1F7E7}',
+  iron_ore:'\u{26D3}',
+  marble:'\u{25FB}',
+  diamond:'\u{1F537}',
+  copper_ingot:'\u{1F7E0}',
+  iron_ingot:'\u{2B1C}',
+  steel_ingot:'\u{1F529}',
+  reinforced_frame:'\u{1F9F1}',
+  polished_marble:'\u{25FD}',
+  star_alloy:'\u{2728}',
+  apple:'\u{1F34E}',
+  pear:'\u{1F350}',
+  orange:'\u{1F34A}',
+  sapling_apple:'\u{1F331}',
+  sapling_pear:'\u{1F332}',
+  sapling_orange:'\u{1F333}'
+});
+Object.assign(NAMES,{
+  copper_ore:'Mineral de cobre',
+  iron_ore:'Mineral de hierro',
+  marble:'Marmol',
+  diamond:'Diamante',
+  copper_ingot:'Lingote de cobre',
+  iron_ingot:'Lingote de hierro',
+  steel_ingot:'Lingote de acero',
+  reinforced_frame:'Marco reforzado',
+  polished_marble:'Marmol pulido',
+  star_alloy:'Aleacion estelar',
+  apple:'Manzana',
+  pear:'Pera',
+  orange:'Naranja',
+  sapling_apple:'Planton de manzano',
+  sapling_pear:'Planton de peral',
+  sapling_orange:'Planton de naranjo'
+});
+Object.assign(NAMES_EN,{
+  copper_ore:'Copper Ore',
+  iron_ore:'Iron Ore',
+  marble:'Marble',
+  diamond:'Diamond',
+  copper_ingot:'Copper Ingot',
+  iron_ingot:'Iron Ingot',
+  steel_ingot:'Steel Ingot',
+  reinforced_frame:'Reinforced Frame',
+  polished_marble:'Polished Marble',
+  star_alloy:'Star Alloy',
+  apple:'Apple',
+  pear:'Pear',
+  orange:'Orange',
+  sapling_apple:'Apple Sapling',
+  sapling_pear:'Pear Sapling',
+  sapling_orange:'Orange Sapling'
+});
+Object.assign(EXTRA_SELL_PRICES,{
+  copper_ore:45,
+  iron_ore:70,
+  marble:52,
+  diamond:240,
+  copper_ingot:95,
+  iron_ingot:120,
+  steel_ingot:180,
+  reinforced_frame:210,
+  polished_marble:105,
+  star_alloy:420,
+  apple:FRUITS.apple.sell,
+  pear:FRUITS.pear.sell,
+  orange:FRUITS.orange.sell
+});
+const STORAGE_DEFS={
+  woodChest:{
+    titleEs:'Arcon de carpinteria',
+    titleEn:'Carpentry Chest',
+    items:['wood','sapling_apple','sapling_pear','sapling_orange']
+  },
+  oreChest:{
+    titleEs:'Almacen mineral',
+    titleEn:'Ore Storage',
+    items:['stone','coal','gem','copper_ore','iron_ore','marble','diamond','mythril_ore','void_crystal','ancient_geode','luminous_moss','copper_ingot','iron_ingot','steel_ingot','polished_marble','star_alloy']
+  },
+  pantry:{
+    titleEs:'Despensa de casa',
+    titleEn:'Home Pantry',
+    items:['turnip','potato','blueberry','pumpkin','cauliflower','wheat','garlic','yam','egg','fish_carp','fish_trout','fish_salmon','fish_pike','fish_star','apple','pear','orange']
+  }
+};
+const CRAFT_RECIPES=[
+  {
+    id:'polished_marble',
+    icon:'\u{25FD}',
+    nameEs:'Marmol pulido',
+    nameEn:'Polished Marble',
+    out:{polished_marble:2},
+    cost:{marble:3,stone:1},
+    descEs:'Refina piedra de mina para ampliaciones de casa.',
+    descEn:'Refines quarry stone for home expansions.'
+  },
+  {
+    id:'reinforced_frame',
+    icon:'\u{1F6E0}\uFE0F',
+    nameEs:'Marco reforzado',
+    nameEn:'Reinforced Frame',
+    out:{reinforced_frame:1},
+    cost:{wood:4,iron_ingot:2},
+    descEs:'Base robusta para mejoras de vivienda y estaciones.',
+    descEn:'Strong frame for housing and station upgrades.'
+  },
+  {
+    id:'star_alloy',
+    icon:'\u{2728}',
+    nameEs:'Aleacion estelar',
+    nameEn:'Star Alloy',
+    out:{star_alloy:1},
+    cost:{steel_ingot:2,diamond:1,void_crystal:1},
+    descEs:'Material raro de tier alta inspirado en combinaciones de mesa 3x3.',
+    descEn:'High-tier rare material inspired by 3x3 table combinations.'
+  },
+  {
+    id:'tool_upgrade',
+    icon:'\u{2692}\uFE0F',
+    nameEs:'Mejora de herramientas',
+    nameEn:'Tool Upgrade',
+    cost:{coins:280,steel_ingot:3,wood:4},
+    effect:'toolTier',
+    descEs:'Reduce gasto de energia y mejora rendimientos.',
+    descEn:'Cuts energy costs and improves yields.'
+  },
+  {
+    id:'house_wing',
+    icon:'\u{1F3E0}',
+    nameEs:'Ampliacion de casa',
+    nameEn:'House Wing',
+    cost:{coins:420,reinforced_frame:2,polished_marble:3},
+    effect:'houseWing',
+    descEs:'Aumenta el espacio util y el inventario visible.',
+    descEn:'Expands usable space and visible inventory.'
+  },
+  {
+    id:'orchard_lot',
+    icon:'\u{1F333}',
+    nameEs:'Terreno del huerto',
+    nameEn:'Orchard Lot',
+    cost:{coins:320,wood:8,copper_ingot:4},
+    effect:'orchardLot',
+    descEs:'Desbloquea la parcela para arboles frutales.',
+    descEn:'Unlocks the orchard lot for fruit trees.'
+  }
+];
+const FURNACE_RECIPES=[
+  {
+    id:'copper_ingot',
+    icon:'\u{1F7E0}',
+    nameEs:'Fundir cobre',
+    nameEn:'Smelt Copper',
+    out:{copper_ingot:1},
+    cost:{copper_ore:1,coal:1},
+    descEs:'Convierte mineral y combustible en lingote.',
+    descEn:'Converts ore and fuel into an ingot.'
+  },
+  {
+    id:'iron_ingot',
+    icon:'\u{2B1C}',
+    nameEs:'Fundir hierro',
+    nameEn:'Smelt Iron',
+    out:{iron_ingot:1},
+    cost:{iron_ore:1,coal:1},
+    descEs:'Refina el hierro para crafteo avanzado.',
+    descEn:'Refines iron for advanced crafting.'
+  },
+  {
+    id:'steel_ingot',
+    icon:'\u{1F529}',
+    nameEs:'Forjar acero',
+    nameEn:'Forge Steel',
+    out:{steel_ingot:1},
+    cost:{iron_ingot:1,coal:1},
+    descEs:'Ejemplo pedido: carbono + hierro -> acero.',
+    descEn:'Requested example: carbon + iron -> steel.'
+  }
+];
+const MINE_NODE_TYPES={
+  copper_ore:{hp:1,yMin:6,yield:[1,3],xp:16},
+  marble:{hp:1,yMin:8,yield:[1,2],xp:17},
+  iron_ore:{hp:2,yMin:12,yield:[1,2],xp:22},
+  luminous_moss:{hp:1,yMin:10,yield:[2,4],xp:20},
+  ancient_geode:{hp:2,yMin:18,yield:[1,2],xp:26},
+  mythril_ore:{hp:2,yMin:22,yield:[1,2],xp:34},
+  diamond:{hp:2,yMin:28,yield:[1,1],xp:38},
+  void_crystal:{hp:2,yMin:30,yield:[1,2],xp:40}
+};
+const SAVE_STORAGE_KEY='valle_tranquilo_save_v1';
+const SAVE_EXPORT_PREFIX='VT1.';
+const SAVE_ITEM_KEYS=[
+  'wood','stone','coal','gem','egg',
+  'fish_carp','fish_trout','fish_salmon','fish_pike','fish_star',
+  ...Object.keys(CROPS),
+  ...Object.keys(CROPS).map(k=>`seeds_${k}`),
+  'mythril_ore','void_crystal','ancient_geode','luminous_moss',
+  'copper_ore','iron_ore','marble','diamond',
+  'copper_ingot','iron_ingot','steel_ingot','reinforced_frame','polished_marble','star_alloy',
+  ...Object.keys(FRUITS),
+  ...Object.values(SAPLINGS).map(v=>v.seedKey)
+];
+const SAVE_MAP_KEYS=['farm','mine','player_home','marco_house','elena_house','luna_house','felix_house'];
+const SAVE_TILE_KEYS=['G','S','P','f','w','u','T','R','H','b','F','M','W','D','L','A','Q','I','X','C','K','O','B'];
+const SAVE_SELECTION_KEYS=[...Object.keys(CROPS),...Object.keys(SAPLINGS)];
+const SAVE_TOOL_KEYS=['water','hoe','plant','harvest','axe','pickaxe','fish','path','fence'];
+const SAVE_UPGRADE_KEYS=[...new Set([...UPGRADES.map(u=>u.id),'houseWing','orchardLot'])];
+const SAVE_SKILL_KEYS=['farming','fishing','mining','foraging','social'];
+const SAVE_NPC_KEYS=NPCS.map(n=>n.id);
+const SAVE_STORAGE_KEYS=['woodChest','oreChest','pantry'];
+const SAVE_QPROG_KEYS=['wood','fish_trout','pumpkin','blueberry','ajo_s'];
+const SAVE_WEATHER_KEYS=['sunny','cloudy','rainy','stormy','snowy'];
+const SAVE_FACING_KEYS=['1,0','-1,0','0,1','0,-1'];
+const SAVE_GUIDE_KEYS=['moved','tilled','planted','watered','talked','mineEntries','mineBreaks','sold'];
+const SAVE_MINE_NODE_KEYS=Object.keys(MINE_NODE_TYPES);
+function inventoryCount(k){
+  return G.inv[k]||0;
+}
+function countIngredients(cost={}){
+  return Object.entries(cost).every(([k,v])=>k==='coins'?G.gold>=v:inventoryCount(k)>=v);
+}
+function spendIngredients(cost={}){
+  if(!countIngredients(cost)) return false;
+  Object.entries(cost).forEach(([k,v])=>{
+    if(k==='coins') G.gold-=v;
+    else G.inv[k]=Math.max(0,(G.inv[k]||0)-v);
+  });
+  return true;
+}
+function addBundle(out={}){
+  Object.entries(out).forEach(([k,v])=>addInv(k,v));
+}
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  GAME STATE
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+const DEFAULT_RELATIONS={elena:0,marco:0,luna:0,felix:0,nora:0};
+const DEFAULT_SKILLS={farming:0,fishing:0,mining:0,foraging:0,social:0};
+const DEFAULT_STORAGE=()=>({woodChest:{},oreChest:{},pantry:{}});
+const DEFAULT_GUIDE_STATS=()=>({moved:0,tilled:0,planted:0,watered:0,talked:0,mineEntries:0,mineBreaks:0,sold:0});
 const G={gold:150,energy:100,maxE:100,day:1,sIdx:0,sDay:1,hr:7,mn:0,weather:'sunny',
-  tool:'water',selCrop:'turnip',grid:[],inv:{},npcRel:{elena:0,marco:0,luna:0,felix:0,nora:0},
-  giftedToday:{},skXP:{farming:0,fishing:0,mining:0,foraging:0,social:0},
-  farmLv:1,farmXP:0,bought:{},qProg:{},log:[],mineD:0,chickens:0,autoIrr:false,frame:0};
+  tool:'water',selCrop:'turnip',grid:[],inv:{},npcRel:{...DEFAULT_RELATIONS},
+  giftedToday:{},skXP:{...DEFAULT_SKILLS},
+  farmLv:1,farmXP:0,bought:{},qProg:{},log:[],mineD:0,chickens:0,autoIrr:false,frame:0,
+  storage:DEFAULT_STORAGE(),toolTier:1};
+let GAME_STARTED=false;
+let MODAL_LOCKED=false;
+let SAVE_TIMER=null;
+let SAVE_SUSPENDED=false;
 const GUIDE_STEPS=[
   {id:'move',mainEs:'Muevete por el valle',mainEn:'Move around the valley',subEs:'Usa WASD o clic derecho para caminar 8 casillas.',subEn:'Use WASD or right click to walk 8 tiles.'},
   {id:'till',mainEs:'Labrar tierra',mainEn:'Till the soil',subEs:'Selecciona Labrar y prepara 1 casilla verde.',subEn:'Select Till and prepare 1 grass tile.'},
@@ -466,7 +848,7 @@ const GUIDE_STEPS=[
 ];
 const GUIDE={
   step:0,
-  stats:{moved:0,tilled:0,planted:0,watered:0,talked:0,mineEntries:0,mineBreaks:0,sold:0},
+  stats:DEFAULT_GUIDE_STATS(),
   lastAnnounced:-1
 };
 function guideCurrent(){return GUIDE_STEPS[Math.min(GUIDE.step,GUIDE_STEPS.length-1)]||null;}
@@ -599,8 +981,9 @@ let ACTIVE_MAP_ID='farm';
 let ACTIVE_MAP=null;
 let MAP_STORE={};
 let LAST_FARM_POS={col:26,row:29};
+let LAST_INTERIOR_RETURN=null;
 
-function mapCell(t,i){return{t,crop:null,gp:0,wet:false,idx:i,ao:Math.random()*Math.PI*2};}
+function mapCell(t,i){return{t,crop:null,gp:0,wet:false,treeCrop:null,tgp:0,fruitReady:false,idx:i,ao:Math.random()*Math.PI*2};}
 function hash2(x,y,seed=1337){
   let h=(x*374761393+y*668265263+seed*69069)>>>0;
   h=(h^(h>>>13))*1274126177;h>>>=0;
@@ -634,6 +1017,55 @@ function drawPathLine(map,w,h,x1,y1,x2,y2,t='P',thick=1){
     if(e2>=dy){err+=dy;x+=sx;}
     if(e2<=dx){err+=dx;y+=sy;}
   }
+}
+function layoutFromRows(rows){return rows.join('').split('');}
+function makeSimpleInterior(id,name,rows,spawn){
+  return{
+    id,
+    name,
+    type:'interior',
+    w:rows[0].length,
+    h:rows.length,
+    raw:layoutFromRows(rows),
+    spawn,
+    exit:{col:spawn.col,row:spawn.row},
+    npcs:{},
+    zones:[],
+    stations:[]
+  };
+}
+function makePlayerHomeMap(){
+  const rows=[
+    'QQQQQQQQQQQQQQQ',
+    'QIIICIIKIIIOIIQ',
+    'QIIIIIIIIIIIIIQ',
+    'QIIBIIIIIIIIIIQ',
+    'QIIIIIIIIIIIIIQ',
+    'QIICIIIIICIIIIQ',
+    'QIIIIIIIIIIIIIQ',
+    'QIIIIIIIXIIIIIQ',
+    'QIIIIIIIIIIIIIQ',
+    'QQQQQQQQQQQQQQQ'
+  ];
+  return{
+    id:'player_home',
+    name:'Casa del Valle',
+    type:'interior',
+    w:rows[0].length,
+    h:rows.length,
+    raw:layoutFromRows(rows),
+    spawn:{col:7,row:7},
+    exit:{col:7,row:7},
+    npcs:{},
+    zones:[],
+    stations:[
+      {col:4,row:1,type:'storage',storageKey:'woodChest'},
+      {col:3,row:5,type:'storage',storageKey:'oreChest'},
+      {col:9,row:5,type:'storage',storageKey:'pantry'},
+      {col:7,row:1,type:'craft'},
+      {col:11,row:1,type:'furnace'}
+    ]
+  };
 }
 function makeFarmMap(){
   const w=96,h=60,map=blankMap(w,h,'G');
@@ -696,6 +1128,16 @@ function makeFarmMap(){
   fillRectMap(map,w,h,9,10,2,2,'b');
   setMapTile(map,w,h,12,12,'L');
 
+  fillRectMap(map,w,h,42,33,12,14,'G');
+  for(let col=42;col<=53;col++){setMapTile(map,w,h,col,33,'F');setMapTile(map,w,h,col,46,'F');}
+  for(let row=33;row<=46;row++){setMapTile(map,w,h,42,row,'F');setMapTile(map,w,h,53,row,'F');}
+  fillRectMap(map,w,h,44,35,2,2,'H');
+  fillRectMap(map,w,h,45,40,6,4,'A');
+  drawPathLine(map,w,h,35,30,45,36,'P',1);
+  drawPathLine(map,w,h,45,36,48,43,'P',1);
+  setMapTile(map,w,h,48,34,'L');
+  setMapTile(map,w,h,50,44,'L');
+
   const gate={col:84,row:12};
   fillRectMap(map,w,h,82,10,6,5,'M');
   fillRectMap(map,w,h,83,11,4,3,'P');
@@ -704,10 +1146,18 @@ function makeFarmMap(){
   return {
     id:'farm',
     name:'Valle Abierto',
+    type:'outdoor',
     w,h,
     raw:map,
     spawn:{col:27,row:33},
     mineGate:gate,
+    portals:[
+      {id:'player_home',labelEs:'Tu casa',labelEn:'Your House',door:{col:24,row:25},approach:{col:24,row:26},targetMap:'player_home'},
+      {id:'marco_house',labelEs:'Taller de Marco',labelEn:'Mark Workshop',door:{col:31,row:25},approach:{col:31,row:26},targetMap:'marco_house'},
+      {id:'elena_house',labelEs:'Casa de Elena',labelEn:'Evelyn Cottage',door:{col:68,row:42},approach:{col:68,row:43},targetMap:'elena_house'},
+      {id:'luna_house',labelEs:'Cabana de Luna',labelEn:'Willow Cabin',door:{col:10,row:11},approach:{col:10,row:12},targetMap:'luna_house'},
+      {id:'felix_house',labelEs:'Casa de Felix',labelEn:'Rowan Kitchen Home',door:{col:45,row:36},approach:{col:45,row:37},targetMap:'felix_house'}
+    ],
     zones:[
       {name:'Granja Central',x1:18,y1:20,x2:38,y2:40},
       {name:'Bosque Norte',x1:2,y1:2,x2:94,y2:20},
@@ -754,29 +1204,34 @@ function makeMineMap(){
   setMapTile(map,w,h,53,30,'L');
 
   const rareNodes={};
-  const addNode=(col,row,type,hp=2)=>{
+  const addNode=(col,row,type,hp=(MINE_NODE_TYPES[type]?.hp||2))=>{
     if(col<1||row<1||col>=w-1||row>=h-1) return;
     const idx=row*w+col;
     if(map[idx]==='D'||map[idx]==='W') return;
     map[idx]='R';
     rareNodes[idx]={type,hp,maxHp:hp};
   };
-  [[17,30,'mythril_ore'],[23,28,'mythril_ore'],[31,25,'ancient_geode'],
-   [40,24,'void_crystal'],[48,23,'void_crystal'],[19,13,'luminous_moss',1],
-   [35,10,'luminous_moss',1],[52,29,'ancient_geode'],[57,26,'void_crystal']].forEach(([c,r,t,hp])=>addNode(c,r,t,hp||2));
+  [[17,30,'iron_ore'],[23,28,'mythril_ore'],[31,25,'ancient_geode'],
+   [40,24,'void_crystal'],[48,23,'diamond'],[19,13,'luminous_moss',1],
+   [35,10,'copper_ore',1],[52,29,'marble',1],[57,26,'diamond']].forEach(([c,r,t,hp])=>addNode(c,r,t,hp||2));
   for(let row=2;row<h-2;row++){
     for(let col=2;col<w-2;col++){
       const n=hash2(col,row,191);
-      if(n>0.993) addNode(col,row,'void_crystal',2);
-      else if(n>0.985) addNode(col,row,'mythril_ore',2);
-      else if(n>0.978) addNode(col,row,'ancient_geode',2);
-      else if(n>0.972) addNode(col,row,'luminous_moss',1);
+      if(n>0.995&&row>30) addNode(col,row,'void_crystal',2);
+      else if(n>0.99&&row>26) addNode(col,row,'diamond',2);
+      else if(n>0.985&&row>22) addNode(col,row,'mythril_ore',2);
+      else if(n>0.978&&row>18) addNode(col,row,'ancient_geode',2);
+      else if(n>0.972&&row>10) addNode(col,row,'iron_ore',2);
+      else if(n>0.965&&row>8) addNode(col,row,'marble',1);
+      else if(n>0.958&&row>6) addNode(col,row,'copper_ore',1);
+      else if(n>0.952&&row>9) addNode(col,row,'luminous_moss',1);
     }
   }
 
   return{
     id:'mine',
     name:'Mina Abisal',
+    type:'mine',
     w,h,
     raw:map,
     spawn:{col:7,row:34},
@@ -791,16 +1246,69 @@ function cloneNpcWorld(src){
   Object.entries(src||{}).forEach(([id,v])=>out[id]={...v});
   return out;
 }
-function setupMaps(){
+function createMapStore(){
   const farm=makeFarmMap();
   const mine=makeMineMap();
+  const playerHome=makePlayerHomeMap();
+  const marcoHouse=makeSimpleInterior('marco_house','Taller de Marco',[
+    'QQQQQQQQQQQQQ',
+    'QIIICIIIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QIIIIOBIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QIIIKIIIIIIIQ',
+    'QIIIIIXIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QQQQQQQQQQQQQ'
+  ],{col:6,row:6});
+  const elenaHouse=makeSimpleInterior('elena_house','Casa de Elena',[
+    'QQQQQQQQQQQQQ',
+    'QIIIIIIIIIIIQ',
+    'QIIIBIIIIIIIQ',
+    'QIIIIICIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QIIIIIOIIIIIQ',
+    'QIIIIIXIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QQQQQQQQQQQQQ'
+  ],{col:6,row:6});
+  const lunaHouse=makeSimpleInterior('luna_house','Cabana de Luna',[
+    'QQQQQQQQQQQQQ',
+    'QIIIIIIIIIIIQ',
+    'QIIICIIIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QIIIIBIIIIIIQ',
+    'QIIIIKIIIIIIQ',
+    'QIIIIIXIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QQQQQQQQQQQQQ'
+  ],{col:6,row:6});
+  const felixHouse=makeSimpleInterior('felix_house','Casa de Felix',[
+    'QQQQQQQQQQQQQ',
+    'QIIIIIIIIIIIQ',
+    'QIIIIOIIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QIIICBIIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QIIIIIXIIIIIQ',
+    'QIIIIIIIIIIIQ',
+    'QQQQQQQQQQQQQ'
+  ],{col:6,row:6});
   farm.cells=buildCellsFromRaw(farm.raw);
   mine.cells=buildCellsFromRaw(mine.raw);
-  MAP_STORE={farm,mine};
+  playerHome.cells=buildCellsFromRaw(playerHome.raw);
+  marcoHouse.cells=buildCellsFromRaw(marcoHouse.raw);
+  elenaHouse.cells=buildCellsFromRaw(elenaHouse.raw);
+  lunaHouse.cells=buildCellsFromRaw(lunaHouse.raw);
+  felixHouse.cells=buildCellsFromRaw(felixHouse.raw);
+  return {farm,mine,player_home:playerHome,marco_house:marcoHouse,elena_house:elenaHouse,luna_house:lunaHouse,felix_house:felixHouse};
+}
+function setupMaps(){
+  MAP_STORE=createMapStore();
 }
 function localizeMapName(name){
   if(IS_ES) return name;
-  const M={'Valle Abierto':'Open Valley','Mina Abisal':'Abyss Mine'};
+  const M={'Valle Abierto':'Open Valley','Mina Abisal':'Abyss Mine','Casa del Valle':'Valley House','Taller de Marco':'Mark Workshop','Casa de Elena':'Evelyn Cottage','Cabana de Luna':'Willow Cabin','Casa de Felix':'Rowan Home'};
   return M[name]||name;
 }
 function localizeZoneName(name){
@@ -817,6 +1325,7 @@ function localizeZoneName(name){
 }
 function mapName(){return localizeMapName(MAP_STORE[ACTIVE_MAP_ID]?.name||'Valley');}
 function inMine(){return ACTIVE_MAP_ID==='mine';}
+function inInterior(){return ACTIVE_MAP?.type==='interior';}
 function zoneNameAt(col=pPos.col,row=pPos.row){
   const zones=MAP_STORE[ACTIVE_MAP_ID]?.zones||[];
   const z=zones.find(v=>col>=v.x1&&col<=v.x2&&row>=v.y1&&row<=v.y2);
@@ -844,6 +1353,67 @@ function initGrid(){
   setupMaps();
   setActiveMap('farm');
 }
+function resetQuestState(){
+  QUESTS.forEach(q=>q.done=false);
+}
+function resetGuideState(){
+  GUIDE.step=0;
+  GUIDE.stats=DEFAULT_GUIDE_STATS();
+  GUIDE.lastAnnounced=-1;
+}
+function applyStarterInventory(){
+  addInv('seeds_turnip',8);
+  addInv('seeds_potato',5);
+  addInv('wood',3);
+  addInv('stone',2);
+}
+function resetGameState(opt={}){
+  const preserveStarted=GAME_STARTED;
+  SAVE_SUSPENDED=true;
+  G.gold=150;
+  G.energy=100;
+  G.maxE=100;
+  G.day=1;
+  G.sIdx=0;
+  G.sDay=1;
+  G.hr=7;
+  G.mn=0;
+  G.weather='sunny';
+  G.tool='water';
+  G.selCrop='turnip';
+  G.grid=[];
+  G.inv={};
+  G.npcRel={...DEFAULT_RELATIONS};
+  G.giftedToday={};
+  G.skXP={...DEFAULT_SKILLS};
+  G.farmLv=1;
+  G.farmXP=0;
+  G.bought={};
+  G.qProg={};
+  G.log=[];
+  G.mineD=0;
+  G.chickens=0;
+  G.autoIrr=false;
+  G.frame=0;
+  G.storage=DEFAULT_STORAGE();
+  G.toolTier=1;
+  LAST_FARM_POS={col:26,row:29};
+  LAST_INTERIOR_RETURN=null;
+  fishingFx=null;
+  footDust=[];
+  clearAutoMove();
+  resetGuideState();
+  resetQuestState();
+  initGrid();
+  if(opt.withStarter!==false) applyStarterInventory();
+  T('water');
+  if(!opt.skipUi){
+    reAll();
+    scrollToPlayer(true);
+  }
+  GAME_STARTED=preserveStarted&&opt.keepSession!==false;
+  SAVE_SUSPENDED=false;
+}
 function mineNodeAt(idx){
   if(!inMine()) return null;
   return MAP_STORE.mine?.rareNodes?.[idx]||null;
@@ -852,8 +1422,22 @@ function drawMineNodeOverlay(col,row,node,t){
   if(!node) return;
   const x=ox+col*TW,y=oy+row*TH;
   const pulse=.7+.3*Math.sin(t*2.5+(col+row)*.3);
-  const core=node.type==='void_crystal'?'#a86bff':node.type==='mythril_ore'?'#9ab3d6':node.type==='ancient_geode'?'#d06f37':'#6edb79';
-  const lit=node.type==='void_crystal'?'#d0b0ff':node.type==='mythril_ore'?'#d8e6ff':node.type==='ancient_geode'?'#f0b070':'#c8ffc8';
+  const core=node.type==='void_crystal'?'#a86bff'
+    :node.type==='mythril_ore'?'#9ab3d6'
+    :node.type==='ancient_geode'?'#d06f37'
+    :node.type==='diamond'?'#5bc8ff'
+    :node.type==='iron_ore'?'#9ea6b2'
+    :node.type==='marble'?'#e6e2da'
+    :node.type==='copper_ore'?'#c7772b'
+    :'#6edb79';
+  const lit=node.type==='void_crystal'?'#d0b0ff'
+    :node.type==='mythril_ore'?'#d8e6ff'
+    :node.type==='ancient_geode'?'#f0b070'
+    :node.type==='diamond'?'#baf0ff'
+    :node.type==='iron_ore'?'#d7dde7'
+    :node.type==='marble'?'#f7f4ef'
+    :node.type==='copper_ore'?'#f0b27b'
+    :'#c8ffc8';
   gCtx.fillStyle='rgba(0,0,0,0.3)';
   gCtx.fillRect(x+17,y+35,20,5);
   gCtx.fillStyle=core;
@@ -884,7 +1468,7 @@ function drawMineExitMarker(t){
   gCtx.fillRect(x+24,y+22,8,8);
 }
 function drawMineGateMarker(t){
-  if(inMine()) return;
+  if(inMine()||inInterior()) return;
   const gate=MAP_STORE.farm?.mineGate;
   if(!gate) return;
   const x=ox+gate.col*TW,y=oy+gate.row*TH;
@@ -911,14 +1495,16 @@ function nearMineGate(maxDist=1){
 function mineRespawnNodes(extra=5){
   const mine=MAP_STORE.mine;
   if(!mine) return;
-  const types=['mythril_ore','ancient_geode','luminous_moss','void_crystal'];
   for(let i=0;i<extra;i++){
     const col=rn(3,mine.w-4),row=rn(3,mine.h-4);
     const idx=row*mine.w+col;
     const cell=mine.cells[idx];
     if(!cell||cell.t==='D'||cell.t==='W'||mine.rareNodes[idx]) continue;
-    const type=types[rn(0,types.length-1)];
-    mine.rareNodes[idx]={type,hp:type==='luminous_moss'?1:2,maxHp:type==='luminous_moss'?1:2};
+    const pool=Object.entries(MINE_NODE_TYPES).filter(([,def])=>row>=def.yMin).map(([type])=>type);
+    if(!pool.length) continue;
+    const type=pool[rn(0,pool.length-1)];
+    const hp=MINE_NODE_TYPES[type]?.hp||2;
+    mine.rareNodes[idx]={type,hp,maxHp:hp};
     if(cell.t!=='R') cell.t='R';
   }
 }
@@ -931,13 +1517,14 @@ function mineHitNode(idx){
     lg('Golpeas una veta rara...');
     return true;
   }
-  const q=rn(1,node.type==='luminous_moss'?3:2);
+  const cfg=MINE_NODE_TYPES[node.type]||{yield:[1,2],xp:22};
+  const q=rn(cfg.yield[0],cfg.yield[1]);
   addInv(node.type,q);
-  sxp('mining',34);
+  sxp('mining',cfg.xp);
   fxp(12);
   guideMark('mineBreaks',1);
-  notify(`+${q} ${ICONS[node.type]} ${NAMES[node.type]}`,'good');
-  lg(`Extraes ${NAMES[node.type]} x${q}.`);
+  notify(`+${q} ${itemIcon(node.type)} ${itemName(node.type)}`,'good');
+  lg(`${IS_ES?'Extraes':'You mine'} ${itemName(node.type)} x${q}.`);
   delete MAP_STORE.mine.rareNodes[idx];
   return true;
 }
@@ -946,6 +1533,28 @@ function leaveMine(){
   setActiveMap('farm',{spawn:target});
   notify(IS_ES?'Vuelves al valle abierto.':'Back to the open valley.','info');
   lg(IS_ES?'Regresas desde la mina.':'You return from the mine.');
+  reAll();
+  scrollToPlayer();
+}
+function activePortal(){
+  if(ACTIVE_MAP_ID!=='farm') return null;
+  const portals=MAP_STORE.farm?.portals||[];
+  return portals.find(portal=>Math.abs(portal.door.col-pPos.col)+Math.abs(portal.door.row-pPos.row)<=1)||null;
+}
+function enterPortal(portal){
+  if(!portal) return;
+  LAST_INTERIOR_RETURN={mapId:'farm',spawn:{...portal.approach}};
+  setActiveMap(portal.targetMap);
+  notify(IS_ES?`Entras en ${portal.labelEs}.`:`You enter ${portal.labelEn}.`,'info');
+  lg(IS_ES?`Accedes a ${portal.labelEs}.`:`You step into ${portal.labelEn}.`);
+  reAll();
+  scrollToPlayer();
+}
+function leaveInterior(){
+  const target=LAST_INTERIOR_RETURN||{mapId:'farm',spawn:LAST_FARM_POS||MAP_STORE.farm.spawn};
+  setActiveMap(target.mapId,{spawn:target.spawn});
+  notify(IS_ES?'Sales de la casa.':'You step back outside.','info');
+  lg(IS_ES?'Vuelves al exterior del valle.':'You return to the valley outside.');
   reAll();
   scrollToPlayer();
 }
@@ -960,6 +1569,8 @@ let vp,cw,ch,sCtx,gCtx,fCtx,ox,oy,targetOx,targetOy,mapFade=0,mapLabelAlpha=0;
 let hovIdx=-1;
 
 function resize(){
+  const uiScale=Math.max(.76,Math.min(1,window.innerWidth/1440,window.innerHeight/900));
+  document.documentElement.style.setProperty('--ui-scale',uiScale.toFixed(3));
   vp=document.getElementById('vp');
   cw=vp.clientWidth; ch=vp.clientHeight;
   const dpr=window.devicePixelRatio||1;
@@ -995,6 +1606,7 @@ const PAL={
   G:  {top:'#4a9838',top2:'#3d8230',top3:'#5db040',sh:'#2d6820',hi:'#72c050',fr:'#2a7020',frD:'#1a5010'},
   w:  {top:'#2e6e22',top2:'#265c1c',top3:'#388228',sh:'#1a4a12',hi:'#48922e',fr:'#1a5010',frD:'#102c08'},
   S:  {top:'#7a4c28',top2:'#6a3c1e',top3:'#8a5c32',sh:'#4a2c14',hi:'#9a6c40',fr:'#5a3018',frD:'#3a1c0a'},
+  A:  {top:'#8f6436',top2:'#7d5429',top3:'#a2713c',sh:'#4f2f15',hi:'#b8884e',fr:'#6a3d18',frD:'#3e210a'},
   Sw: {top:'#3c2010',top2:'#301808',top3:'#4c2818',sh:'#200c04',hi:'#5a3020',fr:'#2a1408',frD:'#180808'},
   W:  {top:'#3088c0',top2:'#2878b0',top3:'#40a0d8',sh:'#185890',hi:'#60b8e8',fr:'#1858a0',frD:'#0a3870'},
   D:  {top:'#1860a8',top2:'#104e90',top3:'#2070b8',sh:'#0c3878',hi:'#3888c8',fr:'#0c3870',frD:'#082858'},
@@ -1010,6 +1622,13 @@ const PAL={
   f:  {top:'#4a9838',top2:'#3d8230',top3:'#5db040',sh:'#2d6820',hi:'#72c050',fr:'#2a7020',frD:'#1a5010'},
   u:  {top:'#707070',top2:'#606060',top3:'#808080',sh:'#484848',hi:'#a0a0a0',fr:'#585858',frD:'#383838'},
   L:  {top:'#7a6040',top2:'#6a5030',top3:'#8a7050',sh:'#504030',hi:'#a08060',fr:'#604828',frD:'#403018'},
+  I:  {top:'#8a653e',top2:'#785430',top3:'#9a774a',sh:'#4d321b',hi:'#c89a5f',fr:'#5a381e',frD:'#311c0d'},
+  Q:  {top:'#8c5a33',top2:'#754523',top3:'#a66f43',sh:'#533017',hi:'#c48a57',fr:'#6b3e20',frD:'#442312'},
+  X:  {top:'#a97a3f',top2:'#8f6231',top3:'#bb8e52',sh:'#5b3919',hi:'#d7af73',fr:'#704624',frD:'#4d2c14'},
+  C:  {top:'#8a653e',top2:'#785430',top3:'#9a774a',sh:'#4d321b',hi:'#c89a5f',fr:'#5a381e',frD:'#311c0d'},
+  K:  {top:'#8a653e',top2:'#785430',top3:'#9a774a',sh:'#4d321b',hi:'#c89a5f',fr:'#5a381e',frD:'#311c0d'},
+  O:  {top:'#8a653e',top2:'#785430',top3:'#9a774a',sh:'#4d321b',hi:'#c89a5f',fr:'#5a381e',frD:'#311c0d'},
+  B:  {top:'#8a653e',top2:'#785430',top3:'#9a774a',sh:'#4d321b',hi:'#c89a5f',fr:'#5a381e',frD:'#311c0d'},
 };
 function getPal(t,cell){
   if(t==='S'&&cell.wet) return PAL.Sw;
@@ -1124,6 +1743,19 @@ function initStars2(){
 }
 
 function drawSky(t){
+  if(inInterior()){
+    const g=sCtx.createLinearGradient(0,0,0,ch);
+    g.addColorStop(0,'#5b3a20');
+    g.addColorStop(1,'#231309');
+    sCtx.fillStyle=g;
+    sCtx.fillRect(0,0,cw,ch);
+    sCtx.fillStyle='rgba(255,220,170,0.06)';
+    for(let i=0;i<28;i++){
+      const y=Math.round((i+1)*(ch/30));
+      sCtx.fillRect(0,y,cw,2);
+    }
+    return;
+  }
   if(inMine()){
     const g=sCtx.createLinearGradient(0,0,0,ch);
     g.addColorStop(0,'#120c18');
@@ -1259,6 +1891,17 @@ function drawTile(col,row,cell,hov,t){
   const tp=cell.t;
   const p=getPal(tp,cell);
   const x=ox+col*TW, y=oy+row*TH;
+
+  if(tp==='Q'){ drawInteriorWall(col,row); return; }
+  if(tp==='I'||tp==='X'||tp==='C'||tp==='K'||tp==='O'||tp==='B'){
+    drawInteriorFloor(col,row,tp);
+    if(tp!=='I'&&tp!=='X') drawInteriorFurniture(col,row,tp,t);
+    return;
+  }
+  if(tp==='A'){
+    drawOrchardPlot(col,row,cell,t);
+    return;
+  }
 
   if(tp==='W'||tp==='D'){
     drawFlatTile(gCtx,col,row,p,TH);
@@ -1826,6 +2469,112 @@ function drawLamp(col,row,t){
     gCtx.fillRect(x+19,y+8,11,5);
   }
 }
+function drawInteriorFloor(col,row,tp){
+  const x=ox+col*TW, y=oy+row*TH;
+  gCtx.fillStyle='#7f5a34';
+  gCtx.fillRect(x,y,TW,TH);
+  gCtx.fillStyle='#9a6d42';
+  for(let i=0;i<5;i++) gCtx.fillRect(x+2+i*11,y+2,8,TH-4);
+  gCtx.fillStyle='rgba(255,255,255,0.08)';
+  for(let i=0;i<5;i++) gCtx.fillRect(x+3+i*11,y+4,2,TH-8);
+  gCtx.fillStyle='rgba(0,0,0,0.15)';
+  for(let i=0;i<5;i++) gCtx.fillRect(x+10+i*11,y+2,1,TH-4);
+  if(tp==='X'){
+    gCtx.fillStyle='#b88447';
+    gCtx.fillRect(x+10,y+38,36,10);
+    gCtx.fillStyle='#e0b56d';
+    gCtx.fillRect(x+12,y+39,32,6);
+  }
+}
+function drawInteriorWall(col,row){
+  const x=ox+col*TW, y=oy+row*TH;
+  gCtx.fillStyle='#5b3820';
+  gCtx.fillRect(x,y,TW,TH);
+  gCtx.fillStyle='#7a4a29';
+  gCtx.fillRect(x+2,y+2,TW-4,TH-4);
+  gCtx.fillStyle='#9b6437';
+  gCtx.fillRect(x+4,y+4,TW-8,10);
+  gCtx.fillStyle='rgba(0,0,0,0.2)';
+  gCtx.fillRect(x,y+TH-7,TW,7);
+}
+function drawInteriorFurniture(col,row,tp,t){
+  const x=ox+col*TW, y=oy+row*TH;
+  if(tp==='C'){
+    gCtx.fillStyle='#5f3717';
+    gCtx.fillRect(x+10,y+16,36,24);
+    gCtx.fillStyle='#8a5428';
+    gCtx.fillRect(x+12,y+18,32,20);
+    gCtx.fillStyle='#c89b58';
+    gCtx.fillRect(x+12,y+24,32,3);
+    gCtx.fillRect(x+27,y+18,2,20);
+    gCtx.fillStyle='#f0d08a';
+    gCtx.fillRect(x+29,y+27,3,3);
+    return;
+  }
+  if(tp==='K'){
+    gCtx.fillStyle='#563621';
+    gCtx.fillRect(x+10,y+16,36,24);
+    gCtx.fillStyle='#8b5b35';
+    gCtx.fillRect(x+12,y+18,32,20);
+    gCtx.fillStyle='#d9b067';
+    gCtx.fillRect(x+16,y+20,8,6);
+    gCtx.fillRect(x+30,y+20,8,6);
+    gCtx.fillRect(x+23,y+28,8,6);
+    return;
+  }
+  if(tp==='O'){
+    const pulse=.55+.45*Math.sin(t*2.8+col);
+    gCtx.fillStyle='#3d4147';
+    gCtx.fillRect(x+12,y+14,30,28);
+    gCtx.fillStyle='#5b626b';
+    gCtx.fillRect(x+14,y+16,26,24);
+    gCtx.fillStyle='#1d1f23';
+    gCtx.fillRect(x+18,y+22,14,10);
+    gCtx.fillStyle=`rgba(255,150,50,${pulse})`;
+    gCtx.fillRect(x+20,y+24,10,6);
+    return;
+  }
+  if(tp==='B'){
+    gCtx.fillStyle='#6d3c22';
+    gCtx.fillRect(x+8,y+18,40,22);
+    gCtx.fillStyle='#a04646';
+    gCtx.fillRect(x+10,y+20,36,18);
+    gCtx.fillStyle='#f1e6cd';
+    gCtx.fillRect(x+10,y+20,16,10);
+  }
+}
+function drawOrchardPlot(col,row,cell,t){
+  const x=ox+col*TW, y=oy+row*TH;
+  drawObliqueTile(gCtx,col,row,PAL.A,TH);
+  gCtx.fillStyle='rgba(80,48,20,0.35)';
+  for(let i=0;i<4;i++) gCtx.fillRect(x+7,y+10+i*9,TW-14,2);
+  if(cell.treeCrop) drawFruitTreeSprite(col,row,cell,t);
+}
+function drawFruitTreeSprite(col,row,cell,t){
+  const tree=SAPLINGS[cell.treeCrop];
+  if(!tree) return;
+  const x=ox+col*TW, y=oy+row*TH;
+  const progress=Math.min(1,cell.tgp/tree.grow);
+  const sway=Math.sin(t*1.4+cell.ao)*1.5;
+  gCtx.fillStyle='rgba(0,0,0,0.26)';
+  gCtx.beginPath(); gCtx.ellipse(x+TW/2+1,y+TH-7,15,6,0,0,Math.PI*2); gCtx.fill();
+  gCtx.fillStyle='#6d421d';
+  gCtx.fillRect(x+24,y+18,8,22);
+  gCtx.fillStyle='#8d592a';
+  gCtx.fillRect(x+25,y+18,5,20);
+  const canopyW=progress<0.5?18:30;
+  const canopyH=progress<0.5?16:22;
+  gCtx.fillStyle=progress<0.5?'#4a8b2f':'#3e7a29';
+  gCtx.fillRect(x+13+sway,y+4,canopyW,canopyH);
+  gCtx.fillStyle=progress<0.5?'#68aa43':'#59a63d';
+  gCtx.fillRect(x+15+sway,y+6,canopyW-4,canopyH-4);
+  if(progress>=1&&cell.fruitReady){
+    gCtx.fillStyle=tree.ic==='\u{1F34E}'?'#d63e2f':tree.ic==='\u{1F350}'?'#d0c15a':'#f28a2f';
+    [[17,13],[29,11],[21,23],[31,22]].forEach(([dx,dy])=>gCtx.fillRect(x+dx+sway,y+dy,4,4));
+    gCtx.fillStyle='rgba(255,255,200,0.3)';
+    gCtx.fillRect(x+34,y+8,4,4);
+  }
+}
 
 // â”€â”€â”€ CROP SPRITE (pseudo-3D) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function drawCropSprite(col,row,cell,t){
@@ -1935,10 +2684,11 @@ function drawHoverOverlay(col,row){
 
 // â”€â”€â”€ PLAYER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TOOL_ORDER=['water','hoe','plant','harvest','axe','pickaxe','fish','path','fence'];
-const WALKABLE_TILES=new Set(['G','S','P','f','w','u']);
+const WALKABLE_TILES=new Set(['G','S','P','f','w','u','I','X','A']);
 let pPos={col:5,row:7},pDir=1,pFacing={dc:1,dr:0},walkStep=0,lastPosCol=5,lastPosRow=7;
 let pAnim={fromCol:5,fromRow:7,toCol:5,toRow:7,start:0,dur:120,active:false};
-let autoPath=[],queuedActionIdx=null,queuedInteractNpcId=null,lastAutoStepAt=0;
+let autoPath=[],queuedActionIdx=null,queuedInteractNpcId=null,queuedPortalId=null,lastAutoStepAt=0;
+let fishingFx=null;
 // Footstep dust particles
 let footDust=[];
 function spawnFootDust(x,y){
@@ -1963,7 +2713,11 @@ function isNpcTile(col,row){
 }
 function isWalkable(col,row,opt={}){
   if(!inBounds(col,row)) return false;
-  // Modo mundo abierto: ninguna decoracion bloquea el paso.
+  const cell=G.grid[tileIndex(col,row)];
+  if(!cell) return false;
+  if(cell.treeCrop) return false;
+  if(!WALKABLE_TILES.has(cell.t)) return false;
+  if(!opt.ignoreNpc&&!inInterior()&&isNpcTile(col,row)) return false;
   return true;
 }
 function isWithinActionRange(col,row){
@@ -1988,6 +2742,7 @@ function clearAutoMove(clearIntent=true){
   if(clearIntent){
     queuedActionIdx=null;
     queuedInteractNpcId=null;
+    queuedPortalId=null;
   }
 }
 function movePlayerTo(col,row,opt={}){
@@ -2069,12 +2824,21 @@ function queueMoveTo(col,row,opt={}){
   autoPath=route.path.slice();
   queuedActionIdx=useAction;
   queuedInteractNpcId=opt.npcId||null;
+  queuedPortalId=opt.portalId||null;
   lastAutoStepAt=0;
   if(!autoPath.length) resolveQueuedIntent();
   updateContextHint();
   return true;
 }
 function resolveQueuedIntent(){
+  if(queuedPortalId){
+    const portal=(MAP_STORE.farm?.portals||[]).find(v=>v.id===queuedPortalId);
+    queuedPortalId=null;
+    if(portal&&Math.abs(portal.door.col-pPos.col)+Math.abs(portal.door.row-pPos.row)<=1){
+      enterPortal(portal);
+      return;
+    }
+  }
   if(queuedInteractNpcId){
     const npcId=queuedInteractNpcId;
     queuedInteractNpcId=null;
@@ -2133,6 +2897,46 @@ function nearestNpc(maxDist=6){
   });
   return best&&best.dist<=maxDist?best:null;
 }
+function stationAt(col,row){
+  if(!inInterior()) return null;
+  return (ACTIVE_MAP?.stations||[]).find(st=>st.col===col&&st.row===row)||null;
+}
+function nearestStation(maxDist=2){
+  if(!inInterior()) return null;
+  let best=null;
+  (ACTIVE_MAP?.stations||[]).forEach(st=>{
+    const dist=Math.abs(st.col-pPos.col)+Math.abs(st.row-pPos.row);
+    if(dist<=maxDist&&(!best||dist<best.dist)) best={...st,dist};
+  });
+  return best;
+}
+function nearestPortal(maxDist=10){
+  if(ACTIVE_MAP_ID!=='farm') return null;
+  let best=null;
+  (MAP_STORE.farm?.portals||[]).forEach(portal=>{
+    const dist=Math.abs(portal.door.col-pPos.col)+Math.abs(portal.door.row-pPos.row);
+    if(dist<=maxDist&&(!best||dist<best.dist)) best={...portal,dist};
+  });
+  return best;
+}
+function queuePortalTravel(portalId){
+  const portal=(MAP_STORE.farm?.portals||[]).find(v=>v.id===portalId);
+  if(!portal) return false;
+  autoPath.length=0;
+  queuedActionIdx=null;
+  queuedInteractNpcId=null;
+  queuedPortalId=portalId;
+  const path=findPath(pPos.col,pPos.row,portal.approach.col,portal.approach.row);
+  if(!path){
+    queuedPortalId=null;
+    return false;
+  }
+  autoPath=path.slice();
+  lastAutoStepAt=0;
+  showKbHint(IS_ES?`Entrando en ${portal.labelEs}...`:`Heading to ${portal.labelEn}...`);
+  updateContextHint();
+  return true;
+}
 function queueTalkWithNpc(npcId){
   const npc=NPC_WORLD[npcId];
   if(!npc) return false;
@@ -2156,11 +2960,31 @@ function queueTalkWithNpc(npcId){
 function updateContextHint(){
   const el=document.getElementById('ctxhint');
   if(!el) return;
+  if(!GAME_STARTED){
+    el.textContent=IS_ES?'Lee la introduccion y pulsa comenzar para iniciar la partida.':'Read the introduction and press start to begin.';
+    return;
+  }
   const zone=zoneNameAt();
   if(autoPath.length){
-    const mode=queuedInteractNpcId?tr('modeTalk'):tr('modeAction');
+    const mode=queuedInteractNpcId?tr('modeTalk'):queuedPortalId?(IS_ES?'Entrar':'Enter'):tr('modeAction');
     el.textContent=tr('inRoute',{zone,mode,steps:autoPath.length});
     return;
+  }
+  if(inInterior()){
+    const st=nearestStation(1);
+    if(st){
+      const label=st.type==='storage'
+        ? (LANG==='es'?STORAGE_DEFS[st.storageKey].titleEs:STORAGE_DEFS[st.storageKey].titleEn)
+        : st.type==='craft'
+          ? (IS_ES?'Mesa de crafteo':'Crafting Table')
+          : (IS_ES?'Horno':'Furnace');
+      el.textContent=IS_ES?`${zone} · Pulsa E para usar ${label}.`:`${zone} · Press E to use ${label}.`;
+      return;
+    }
+    if(Math.abs(ACTIVE_MAP.exit.col-pPos.col)+Math.abs(ACTIVE_MAP.exit.row-pPos.row)<=1){
+      el.textContent=IS_ES?`${zone} · Pulsa E para salir al valle.`:`${zone} · Press E to step outside.`;
+      return;
+    }
   }
   if(nearMineGate(1)){
     el.textContent=tr('hintEnterMine',{zone});
@@ -2174,6 +2998,11 @@ function updateContextHint(){
   if(!inMine()&&near&&near.dist<=1){
     const name=npcName(near.id)||tr('neighborFallback');
     el.textContent=tr('hintTalk',{zone,name});
+    return;
+  }
+  const portal=activePortal();
+  if(portal){
+    el.textContent=IS_ES?`${zone} · Pulsa E para entrar en ${portal.labelEs}.`:`${zone} · Press E to enter ${portal.labelEn}.`;
     return;
   }
   const tgt=getFacingTarget();
@@ -2278,6 +3107,34 @@ function drawToolSprite(x,y,t){
   gCtx.fillRect(x+15,y+6,4,4);
   gCtx.fillStyle='rgba(255,255,255,.2)';
   gCtx.fillRect(x+15,y+6,2,2);
+}
+function drawFishingFx(){
+  if(!fishingFx) return;
+  const fromX=ox+pPos.col*TW+TW/2;
+  const fromY=oy+pPos.row*TH+18;
+  const toX=ox+fishingFx.col*TW+TW/2;
+  const toY=oy+fishingFx.row*TH+22;
+  const p=Math.max(0,fishingFx.ttl/fishingFx.max);
+  gCtx.strokeStyle='rgba(230,230,210,0.85)';
+  gCtx.lineWidth=2;
+  gCtx.beginPath();
+  gCtx.moveTo(fromX,fromY);
+  gCtx.lineTo(toX,toY);
+  gCtx.stroke();
+  gCtx.fillStyle='#d95050';
+  gCtx.fillRect(toX-3,toY-3,6,6);
+  gCtx.strokeStyle='rgba(120,210,255,0.6)';
+  gCtx.beginPath();
+  gCtx.arc(toX,toY,12-(p*6),0,Math.PI*2);
+  gCtx.stroke();
+  if(fishingFx.caught){
+    gCtx.fillStyle='rgba(255,230,140,0.95)';
+    gCtx.fillRect(toX+8,toY-14,20,12);
+    gCtx.fillStyle='#3a2412';
+    gCtx.fillText(fishingFx.caught,toX+12,toY-4);
+  }
+  fishingFx.ttl--;
+  if(fishingFx.ttl<=0) fishingFx=null;
 }
 
 
@@ -2395,6 +3252,7 @@ function initWxParts(){
 }
 
 function drawWeather(t){
+  if(inInterior()) return;
   if(inMine()){
     fCtx.fillStyle='rgba(90,45,130,.08)';
     fCtx.fillRect(0,0,cw,ch);
@@ -2472,6 +3330,7 @@ function draw(){
     drawHoverOverlay(col,row);
   }
   drawActionTarget();
+  drawFishingFx();
 
   fCtx.clearRect(0,0,cw,ch);
   drawWeather(t);
@@ -2507,20 +3366,20 @@ function setupMouse(){
   });
   gc2.addEventListener('mouseleave',()=>{hovIdx=-1;updateContextHint();});
   gc2.addEventListener('wheel',e=>{
-    if(document.getElementById('mb').classList.contains('on')) return;
+    if(!GAME_STARTED||document.getElementById('mb').classList.contains('on')) return;
     e.preventDefault();
     cycleTool(e.deltaY>0?1:-1);
     updateContextHint();
   },{passive:false});
   gc2.addEventListener('contextmenu',e=>{
-    if(document.getElementById('mb').classList.contains('on')) return;
+    if(!GAME_STARTED||document.getElementById('mb').classList.contains('on')) return;
     e.preventDefault();
     const tile=pickTile(e);
     if(!tile) return;
     handleSecondaryClick(tile.col,tile.row);
   });
   gc2.addEventListener('click',e=>{
-    if(document.getElementById('mb').classList.contains('on')) return;
+    if(!GAME_STARTED||document.getElementById('mb').classList.contains('on')) return;
     if(e.button!==0) return;
     const tile=pickTile(e);
     if(!tile) return;
@@ -2553,6 +3412,7 @@ function setupKeyboard(){
     const key=normKey(e.key);
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Tab'].includes(e.key)) e.preventDefault();
     if(key==='Escape'){closeM();return;}
+    if(!GAME_STARTED&& !document.getElementById('mb').classList.contains('on')) return;
     if(document.getElementById('mb').classList.contains('on')) return;
     KEYS[key]=true;
     if(TOOL_KEYS[key]){T(TOOL_KEYS[key]);showKbHint(document.getElementById('ctool').textContent);updateContextHint();return;}
@@ -2603,8 +3463,25 @@ function useToolOnFacing(){
 }
 
 function tryInteract(){
+  if(inInterior()){
+    const station=nearestStation(1);
+    if(station){
+      if(station.type==='storage') openStorage(station.storageKey);
+      else if(station.type==='craft') openCraftingTable();
+      else if(station.type==='furnace') openHomeFurnace();
+      return;
+    }
+    if(Math.abs(ACTIVE_MAP.exit.col-pPos.col)+Math.abs(ACTIVE_MAP.exit.row-pPos.row)<=1){
+      leaveInterior();
+      return;
+    }
+  }
   if(inMine()&&nearMineExit(1)){leaveMine();return;}
   if(!inMine()&&nearMineGate(1)){openMine();return;}
+  const portal=activePortal();
+  if(portal){enterPortal(portal);return;}
+  const farPortal=nearestPortal(8);
+  if(farPortal&&queuePortalTravel(farPortal.id)) return;
   const near=nearestNpc(7);
   if(!near){notify(tr('noNpcNear'),'info');return;}
   if(near.dist<=1){talkNPC(near.id);return;}
@@ -2660,7 +3537,7 @@ function toggleKbOverlay(){
   document.body.appendChild(ov);
 }
 document.addEventListener('keydown',e=>{
-  if((e.key==='?'||e.key==='/')&&!document.getElementById('mb').classList.contains('on')) toggleKbOverlay();
+  if(GAME_STARTED&&(e.key==='?'||e.key==='/')&&!document.getElementById('mb').classList.contains('on')) toggleKbOverlay();
 });
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -2668,11 +3545,15 @@ document.addEventListener('keydown',e=>{
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function handleCell(idx){
   const cell=G.grid[idx];
+  if(inInterior()){
+    notify(IS_ES?'Dentro de casa usa E sobre cofres, mesa de crafteo u horno.':'Inside the house, use E on chests, the crafting table or the furnace.','info');
+    return;
+  }
   if(G.energy<=0){notify('Sin energÃ­a. Â¡Duerme!','info');return;}
   switch(G.tool){
     case 'hoe':
       if(inMine()){notify('En la mina usa el pico para extraer vetas.','info');break;}
-      if('GwfF'.includes(cell.t)){if(sp(4)){cell.t='S';guideMark('tilled',1);lg('Labras la tierra.');sxp('farming',5);tick(5);reAll();}}
+      if('Gwf'.includes(cell.t)){if(sp(4)){cell.t='S';guideMark('tilled',1);lg('Labras la tierra.');sxp('farming',5);tick(5);reAll();}}
       else notify('Solo puedes labrar hierba.','info'); break;
     case 'water':
       if(inMine()){notify('Aqui no se riega. Explora y mina materiales raros.','info');break;}
@@ -2681,6 +3562,25 @@ function handleCell(idx){
       else notify('Nada que regar aquÃ­.','info'); break;
     case 'plant':
       if(inMine()){notify('Las semillas solo se plantan en la superficie.','info');break;}
+      if(SAPLINGS[G.selCrop]){
+        const sapling=SAPLINGS[G.selCrop];
+        const sk=sapling.seedKey;
+        if(cell.t!=='A'){notify(IS_ES?'Los arboles frutales solo van en la parcela del huerto.':'Fruit trees can only be planted in the orchard lot.','info');break;}
+        if(!G.bought.orchardLot){notify(IS_ES?'Primero fabrica o compra el terreno del huerto.':'First craft or buy the orchard lot.','info');break;}
+        if(cell.treeCrop){notify(IS_ES?'Esa parcela ya tiene un arbol.':'That plot already has a tree.','info');break;}
+        if(!G.inv[sk]||G.inv[sk]<=0){openSeedPicker();return;}
+        if(sp(3)){
+          cell.treeCrop=G.selCrop;
+          cell.tgp=0;
+          cell.fruitReady=false;
+          G.inv[sk]--;
+          lg(IS_ES?`Plantas ${sapling.n}.`:`You plant ${sapling.nEn}.`);
+          sxp('foraging',10);
+          tick(5);
+          reAll();
+        }
+        break;
+      }
       if(cell.t==='S'&&!cell.crop){
         const sk='seeds_'+G.selCrop;
         if(!G.inv[sk]||G.inv[sk]<=0){openSeedPicker();return;}
@@ -2691,20 +3591,51 @@ function handleCell(idx){
       } else if(!cell.crop) notify('Primero labra (â›ï¸).','info'); break;
     case 'harvest':
       if(inMine()){notify('No hay cultivos en la mina. Busca vetas brillantes.','info');break;}
+      if(cell.treeCrop){
+        const sapling=SAPLINGS[cell.treeCrop];
+        if(cell.fruitReady){
+          const qty=rn(2,4)+(G.toolTier>1?1:0);
+          addInv(sapling.fruit,qty);
+          lg(IS_ES?`Recolectas ${qty} ${itemName(sapling.fruit)}.`:`You gather ${qty} ${itemName(sapling.fruit)}.`);
+          notify(`+${qty} ${itemIcon(sapling.fruit)} ${itemName(sapling.fruit)}`,'good');
+          sxp('foraging',18);
+          fxp(12);
+          cell.fruitReady=false;
+          cell.tgp=Math.max(sapling.grow-2,1);
+          tick(4);
+          reAll();
+        } else notify(IS_ES?'Ese arbol aun no tiene fruta lista.':'That tree does not have ripe fruit yet.','info');
+        break;
+      }
       if(cell.crop){const cr=CROPS[cell.crop];
         if(cell.gp>=cr.d){if(sp(2)){addInv(cell.crop,1);addQP(cell.crop,1);lg(`Â¡Cosechas ${cr.n}! ${cr.ic}`);sxp('farming',15);fxp(10);cell.crop=null;cell.t='S';cell.wet=false;cell.gp=0;tick(3);reAll();notify(`+1 ${cr.ic} ${cr.n}`,'good');}}
         else notify('No estÃ¡ listo todavÃ­a.','info');}
       else notify('Nada que cosechar.','info'); break;
     case 'axe':
       if(inMine()){notify('No hay arboles talables en esta caverna.','info');break;}
-      if(cell.t==='T'){if(sp(6)){const n=rn(1,3);addInv('wood',n);cell.t='G';lg(`Talas Ã¡rbol. +${n}ðŸªµ`);sxp('foraging',12);addQP('wood',n);tick(8);reAll();notify(`+${n}ðŸªµ Madera`,'good');}}
+      if(cell.treeCrop){
+        if(sp(6)){
+          const qty=rn(2,4)+(G.toolTier>1?1:0);
+          addInv('wood',qty);
+          lg(IS_ES?`Talas el frutal y recuperas ${qty} de madera.`:`You cut the fruit tree and recover ${qty} wood.`);
+          notify(`+${qty} ${itemIcon('wood')} ${itemName('wood')}`,'good');
+          cell.treeCrop=null;
+          cell.tgp=0;
+          cell.fruitReady=false;
+          sxp('foraging',14);
+          tick(8);
+          reAll();
+        }
+        break;
+      }
+      if(cell.t==='T'){if(sp(6)){const n=rn(1,3)+(G.toolTier>1?1:0);addInv('wood',n);cell.t='G';lg(`Talas Ã¡rbol. +${n}ðŸªµ`);sxp('foraging',12);addQP('wood',n);tick(8);reAll();notify(`+${n}ðŸªµ Madera`,'good');}}
       else notify('No hay Ã¡rbol aquÃ­.','info'); break;
     case 'pickaxe':
       if(inMine()){
         if(!sp(5)) break;
         if(mineHitNode(idx)){tick(8);reAll();break;}
         if('RMSPF'.includes(cell.t)){
-          const n=rn(1,3);
+          const n=rn(1,3)+(G.toolTier>1?1:0);
           addInv('stone',n);
           if(Math.random()<.45) addInv('coal',1);
           if(Math.random()<.07) addInv('gem',1);
@@ -2719,11 +3650,11 @@ function handleCell(idx){
         } else notify('Prueba en rocas o vetas raras de la mina.','info');
         break;
       }
-      if(cell.t==='R'||cell.t==='M'){if(sp(6)){const n=rn(1,2);addInv('stone',n);if(Math.random()<.2)addInv('coal',1);if(cell.t!=='M')cell.t='G';lg('Rompes roca. +' + n);sxp('mining',12);tick(8);reAll();notify('+' + n + ' piedra','good');}}
+      if(cell.t==='R'||cell.t==='M'){if(sp(6)){const n=rn(1,2)+(G.toolTier>1?1:0);addInv('stone',n);if(Math.random()<.2)addInv('coal',1);if(cell.t!=='M')cell.t='G';lg('Rompes roca. +' + n);sxp('mining',12);tick(8);reAll();notify('+' + n + ' piedra','good');}}
       else notify('No hay roca.','info'); break;
     case 'fish':
       if(inMine()){notify('No puedes pescar en esta zona subterranea.','info');break;}
-      if(cell.t==='W'||cell.t==='D') doFish();
+      if(cell.t==='W'||cell.t==='D') doFish(idxToTile(idx));
       else notify('Necesitas agua para pescar.','info'); break;
     case 'path':
       if(inMine()){notify('En mina no puedes colocar caminos.','info');break;}
@@ -2734,19 +3665,25 @@ function handleCell(idx){
   }
 }
 
-function doFish(){
+function doFish(target){
   if(!sp(5))return;tick(15);
   const lv=Math.floor((G.skXP.fishing||0)/100)+1;
   const pool=FISH.filter(f=>f.df<=Math.min(lv+2,5));
   const r=Math.random();
   const caught=r<.55?pool[0]:r<.83?pool[Math.min(1,pool.length-1)]:pool[rn(0,pool.length-1)];
+  fishingFx={col:target?.col??pPos.col,row:target?.row??pPos.row,ttl:42,max:42,caught:caught.ic};
   addInv(caught.k,1);sxp('fishing',20);
   lg(`Â¡Pescas ${caught.n}! ${caught.ic}`);notify(`+1 ${caught.ic} ${caught.n}`,'good');
   if(caught.k==='fish_trout')addQP('fish_trout',1);
   reAll();
 }
 
-function sp(n){if(G.energy<n){notify('EnergÃ­a insuficiente.','info');return false;}G.energy=Math.max(0,G.energy-n);return true;}
+function sp(n){
+  const cost=Math.max(1,n-(G.toolTier>1?1:0));
+  if(G.energy<cost){notify('EnergÃ­a insuficiente.','info');return false;}
+  G.energy=Math.max(0,G.energy-cost);
+  return true;
+}
 function tick(m){G.mn+=m;while(G.mn>=60){G.mn-=60;G.hr++;}if(G.hr>=24)doSleep();}
 function addInv(k,n){G.inv[k]=(G.inv[k]||0)+n;}
 function addQP(k,n){G.qProg[k]=(G.qProg[k]||0)+n;}
@@ -2798,15 +3735,29 @@ function newDay(){
     G.sDay=1;G.sIdx=(G.sIdx+1)%4;
     const sn=SEASONS[G.sIdx];
     notify(IS_ES?`🍃 Nueva estacion: ${seasonName(sn)}`:`🍃 New season: ${seasonName(sn)}`,'ev');
-    G.grid.forEach(c=>{if(c.crop&&!G.bought.ghs&&!CROPS[c.crop].ss.includes(sn)){c.crop=null;c.t='S';c.gp=0;c.wet=false;}});
+    (MAP_STORE.farm?.cells||[]).forEach(c=>{if(c.crop&&!G.bought.ghs&&!CROPS[c.crop].ss.includes(sn)){c.crop=null;c.t='S';c.gp=0;c.wet=false;}});
   }
   const WA=['sunny','sunny','sunny','cloudy','cloudy','rainy','rainy','stormy'];
   if(SEASONS[G.sIdx]==='winter')WA.push('snowy','snowy','snowy');
   G.weather=WA[rn(0,WA.length-1)];
   initWxParts();
-  G.grid.forEach(c=>{if(c.crop){const gr=(c.wet||G.weather==='rainy'||G.autoIrr)?1:.5;c.gp=Math.min((c.gp||0)+gr,CROPS[c.crop].d);c.wet=false;}});
-  if(G.weather==='rainy') G.grid.forEach(c=>{if(c.t==='S'||c.crop)c.wet=true;});
-  if(G.bought.irig) G.grid.forEach(c=>{if(c.crop)c.wet=true;});
+  const farmCells=MAP_STORE.farm?.cells||[];
+  farmCells.forEach(c=>{
+    if(c.crop){
+      const gr=(c.wet||G.weather==='rainy'||G.autoIrr)?1:.5;
+      c.gp=Math.min((c.gp||0)+gr,CROPS[c.crop].d);
+      c.wet=false;
+    }
+    if(c.treeCrop){
+      const tree=SAPLINGS[c.treeCrop];
+      if(tree){
+        c.tgp=Math.min((c.tgp||0)+1,tree.grow);
+        if(c.tgp>=tree.grow) c.fruitReady=true;
+      }
+    }
+  });
+  if(G.weather==='rainy') farmCells.forEach(c=>{if(c.t==='S'||c.crop)c.wet=true;});
+  if(G.bought.irig) farmCells.forEach(c=>{if(c.crop)c.wet=true;});
   if(G.bought.coop&&G.chickens>0){addInv('egg',G.chickens);lg(`Gallinas: +${G.chickens}ðŸ¥š`);}
   chkEvent();
   lg(IS_ES?`Dia ${G.day}. ${seasonName(SEASONS[G.sIdx])}.`:`Day ${G.day}. ${seasonName(SEASONS[G.sIdx])}.`);
@@ -2840,6 +3791,14 @@ function openShop(){
       <span class="si">${v.ic}</span><div><div class="sn">${cropName}</div><div class="sd">${v.d}d · ${!av?(IS_ES?'⚠️ Fuera de temp.':'⚠️ Out of season'):seasonList}</div></div>
       <span class="sp" style="${!ca?'color:#c04040':''}">🪙${v.b}</span></div>`;
   });
+  h+=`<div class="mh">🌳 ${IS_ES?'PLANTONES':'SAPLINGS'}</div>`;
+  Object.entries(SAPLINGS).forEach(([k,v],idx)=>{
+    const price=65+idx*15;
+    const can=G.gold>=price;
+    h+=`<div class="sr" onclick="bySapling('${k}',${price})">
+      <span class="si">${v.ic}</span><div><div class="sn">${LANG==='es'?v.n:v.nEn}</div><div class="sd">${IS_ES?'Parcela de huerto requerida':'Requires orchard lot'}</div></div>
+      <span class="sp" style="${!can?'color:#c04040':''}">🪙${price}</span></div>`;
+  });
   h+=`<div class="mh">🛠️ ${IS_ES?'MEJORAS':'UPGRADES'}</div>`;
   UPGRADES.forEach(u=>{
     const dn=G.bought[u.id],ca=G.gold>=u.p;
@@ -2868,6 +3827,18 @@ function bySeed(k,p){
   if(k==='garlic')addQP('ajo_s',1);
   closeM();reAll();
 }
+function bySapling(k,p){
+  if(G.gold<p){notify(IS_ES?'Oro insuficiente.':'Not enough gold.','info');return;}
+  G.gold-=p;
+  const sapling=SAPLINGS[k];
+  addInv(sapling.seedKey,2);
+  G.selCrop=k;
+  T('plant');
+  lg(IS_ES?`Compras 2 plantones de ${sapling.n}.`:`You buy 2 ${sapling.nEn} saplings.`);
+  notify(IS_ES?`+2 plantones ${sapling.ic}`:`+2 saplings ${sapling.ic}`,'good');
+  closeM();
+  reAll();
+}
 
 function byUpg(id,p){
   if(G.bought[id])return;
@@ -2890,6 +3861,7 @@ function slOne(k){
 
 // â”€â”€â”€ MINE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openMine(){
+  if(inInterior()){notify(IS_ES?'Primero sal de la casa.':'Leave the house first.','info');return;}
   if(inMine()){leaveMine();return;}
   if(!sp(6)) return;
   tick(18);
@@ -2959,7 +3931,529 @@ function openSeedPicker(){
     h+=`<div class="sr" onclick="G.selCrop='${k}';T('plant');closeM();" style="${!av?'opacity:.4':''}">
       <span class="si">${v.ic}</span><div><div class="sn">${cropName}</div><div class="sd">${IS_ES?'Semillas':'Seeds'}: ${has}</div></div></div>`;
   });
+  h+=`<div class="mh">${IS_ES?'ARBOLES FRUTALES':'FRUIT TREES'}</div>`;
+  Object.entries(SAPLINGS).forEach(([k,v])=>{
+    const has=G.inv[v.seedKey]||0;
+    h+=`<div class="sr" onclick="G.selCrop='${k}';T('plant');closeM();">
+      <span class="si">${v.ic}</span><div><div class="sn">${LANG==='es'?v.n:v.nEn}</div><div class="sd">${IS_ES?'Plantones':'Saplings'}: ${has}</div></div></div>`;
+  });
   openM(IS_ES?'🌱 SELECCIONAR CULTIVO':'🌱 SELECT CROP',IS_ES?'¿Que plantar?':'What to plant?',h);
+}
+function storageTitle(storageKey){
+  const cfg=STORAGE_DEFS[storageKey];
+  return LANG==='es'?(cfg?.titleEs||storageKey):(cfg?.titleEn||storageKey);
+}
+function storageItems(storageKey){
+  return STORAGE_DEFS[storageKey]?.items||[];
+}
+function moveToStorage(storageKey,item){
+  if((G.inv[item]||0)<=0) return;
+  const bag=G.storage[storageKey]||(G.storage[storageKey]={});
+  G.inv[item]--;
+  bag[item]=(bag[item]||0)+1;
+  if(G.inv[item]<=0) delete G.inv[item];
+  openStorage(storageKey);
+  reAll();
+}
+function moveFromStorage(storageKey,item){
+  const bag=G.storage[storageKey]||(G.storage[storageKey]={});
+  if((bag[item]||0)<=0) return;
+  bag[item]--;
+  if(bag[item]<=0) delete bag[item];
+  addInv(item,1);
+  openStorage(storageKey);
+  reAll();
+}
+function depositAllToStorage(storageKey){
+  const allowed=new Set(storageItems(storageKey));
+  const bag=G.storage[storageKey]||(G.storage[storageKey]={});
+  let moved=0;
+  Object.entries({...G.inv}).forEach(([item,qty])=>{
+    if(!allowed.has(item)) return;
+    bag[item]=(bag[item]||0)+qty;
+    delete G.inv[item];
+    moved+=qty;
+  });
+  if(!moved) notify(IS_ES?'No tienes items de esa categoria.':'You do not carry items from this category.','info');
+  else{
+    notify(IS_ES?`Guardados ${moved} objetos.`:`Stored ${moved} items.`,'good');
+    openStorage(storageKey);
+    reAll();
+  }
+}
+function openStorage(storageKey){
+  const bag=G.storage[storageKey]||(G.storage[storageKey]={});
+  const items=storageItems(storageKey);
+  let h=`<div style="font-family:'VT323';font-size:15px;color:#c7a977">${IS_ES?'Estilo Minecraft: cofre de almacenamiento por categoria.':'Minecraft-style category storage chest.'}</div>`;
+  h+=`<button class="mcb" style="margin-top:8px" onclick="depositAllToStorage('${storageKey}')">${IS_ES?'[ GUARDAR TODO LO RELEVANTE ]':'[ STORE ALL RELEVANT ITEMS ]'}</button>`;
+  h+=`<div class="mh">${IS_ES?'MOCHILA':'BACKPACK'}</div>`;
+  items.forEach(item=>{
+    const qty=G.inv[item]||0;
+    if(!qty) return;
+    h+=`<div class="sr" onclick="moveToStorage('${storageKey}','${item}')"><span class="si">${itemIcon(item)}</span><div><div class="sn">${itemName(item)}</div><div class="sd">${IS_ES?'Llevar':'Carry'} x${qty}</div></div><span class="sp">${IS_ES?'Guardar 1':'Store 1'}</span></div>`;
+  });
+  h+=`<div class="mh">${IS_ES?'ALMACEN':'STORAGE'}</div>`;
+  Object.entries(bag).forEach(([item,qty])=>{
+    h+=`<div class="sr" onclick="moveFromStorage('${storageKey}','${item}')"><span class="si">${itemIcon(item)}</span><div><div class="sn">${itemName(item)}</div><div class="sd">${IS_ES?'Guardado':'Stored'} x${qty}</div></div><span class="sp">${IS_ES?'Sacar 1':'Take 1'}</span></div>`;
+  });
+  if(!h.includes('class="sr"')) h+=`<div style="font-family:'VT323';font-size:14px;color:#806040;padding:8px 2px">${IS_ES?'Sin contenido util por ahora.':'No useful contents yet.'}</div>`;
+  openM(storageTitle(storageKey),IS_ES?'Almacen domestico':'Home storage',h);
+}
+function recipeCostText(cost){
+  return Object.entries(cost).map(([k,v])=>k==='coins'?`🪙${v}`:`${itemIcon(k)} ${v}`).join(' + ');
+}
+function recipeOutText(out){
+  return Object.entries(out||{}).map(([k,v])=>`${itemIcon(k)} ${itemName(k)} x${v}`).join(', ');
+}
+function craftEffectLocked(recipe){
+  if(recipe.effect==='toolTier') return G.toolTier>=2;
+  if(recipe.effect==='houseWing') return !!G.bought.houseWing;
+  if(recipe.effect==='orchardLot') return !!G.bought.orchardLot;
+  return false;
+}
+function applyCraftEffect(effect){
+  if(effect==='toolTier'){
+    G.toolTier=2;
+    G.maxE+=15;
+    G.energy=G.maxE;
+    notify(IS_ES?'Herramientas mejoradas a acero.':'Steel tools unlocked.','ev');
+    return;
+  }
+  if(effect==='houseWing'){
+    G.bought.houseWing=true;
+    notify(IS_ES?'Ampliacion de casa completada.':'House wing completed.','ev');
+    return;
+  }
+  if(effect==='orchardLot'){
+    G.bought.orchardLot=true;
+    notify(IS_ES?'Parcela de huerto desbloqueada.':'Orchard lot unlocked.','ev');
+  }
+}
+function craftHomeRecipe(id){
+  const recipe=CRAFT_RECIPES.find(r=>r.id===id);
+  if(!recipe) return;
+  if(craftEffectLocked(recipe)){notify(IS_ES?'Ya esta fabricado.':'Already crafted.','info');return;}
+  if(!spendIngredients(recipe.cost)){notify(IS_ES?'Faltan materiales o monedas.':'Missing materials or coins.','info');return;}
+  if(recipe.out) addBundle(recipe.out);
+  if(recipe.effect) applyCraftEffect(recipe.effect);
+  lg(IS_ES?`Craft completo: ${recipe.nameEs}.`:`Craft complete: ${recipe.nameEn}.`);
+  notify(recipe.out?recipeOutText(recipe.out):(IS_ES?'Mejora aplicada.':'Upgrade applied.'),'good');
+  openCraftingTable();
+  reAll();
+}
+function openCraftingTable(){
+  let h=`<div style="font-family:'VT323';font-size:15px;color:#c7a977">${IS_ES?'Inspirado en la mesa de crafteo de 3x3: combina recursos para crear tiers superiores.':'Inspired by the 3x3 crafting table: combine resources into higher tiers.'}</div>`;
+  CRAFT_RECIPES.forEach(recipe=>{
+    const done=craftEffectLocked(recipe);
+    const can=!done&&countIngredients(recipe.cost);
+    h+=`<div class="sr" onclick="${done?'':`craftHomeRecipe('${recipe.id}')`}" style="${done?'opacity:.55;':''}">
+      <span class="si">${recipe.icon}</span>
+      <div><div class="sn">${LANG==='es'?recipe.nameEs:recipe.nameEn}</div><div class="sd">${recipeCostText(recipe.cost)}</div><div class="sd">${LANG==='es'?recipe.descEs:recipe.descEn}</div></div>
+      <span class="sp" style="${done?'color:#60c060':can?'':'color:#c06060'}">${done?(IS_ES?'LISTO':'DONE'):(recipe.out?recipeOutText(recipe.out):(IS_ES?'MEJORA':'UPGRADE'))}</span></div>`;
+  });
+  openM(IS_ES?'🪵 MESA DE CRAFTEO':'🪵 CRAFTING TABLE',IS_ES?'Recetas y mejoras de vivienda':'Recipes and home upgrades',h);
+}
+function smeltHomeRecipe(id){
+  const recipe=FURNACE_RECIPES.find(r=>r.id===id);
+  if(!recipe) return;
+  if(!spendIngredients(recipe.cost)){notify(IS_ES?'Necesitas mas mena o carbon.':'You need more ore or coal.','info');return;}
+  addBundle(recipe.out);
+  lg(IS_ES?`Fundicion completa: ${recipe.nameEs}.`:`Smelting complete: ${recipe.nameEn}.`);
+  notify(recipeOutText(recipe.out),'good');
+  openHomeFurnace();
+  reAll();
+}
+function openHomeFurnace(){
+  let h=`<div style="font-family:'VT323';font-size:15px;color:#c7a977">${IS_ES?'Inspirado en los hornos de Minecraft: funde mena o refina hierro con carbon.':'Inspired by Minecraft furnaces: smelt ore or refine iron with coal.'}</div>`;
+  FURNACE_RECIPES.forEach(recipe=>{
+    const can=countIngredients(recipe.cost);
+    h+=`<div class="sr" onclick="${can?`smeltHomeRecipe('${recipe.id}')`:''}" style="${can?'':'opacity:.5;'}">
+      <span class="si">${recipe.icon}</span>
+      <div><div class="sn">${LANG==='es'?recipe.nameEs:recipe.nameEn}</div><div class="sd">${recipeCostText(recipe.cost)}</div><div class="sd">${LANG==='es'?recipe.descEs:recipe.descEn}</div></div>
+      <span class="sp">${recipeOutText(recipe.out)}</span></div>`;
+  });
+  openM(IS_ES?'🔥 HORNO DOMESTICO':'🔥 HOME FURNACE',IS_ES?'Fundicion y forja':'Smelting and forging',h);
+}
+function visibleInventorySlots(){
+  return 12+(G.bought.shed?4:0)+(G.bought.houseWing?6:0);
+}
+
+function byteLen(str=''){
+  try{return new TextEncoder().encode(String(str)).length;}
+  catch{return String(str).length;}
+}
+function toBase64Url(str=''){
+  const bytes=new TextEncoder().encode(String(str));
+  let bin='';
+  const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk) bin+=String.fromCharCode(...bytes.subarray(i,i+chunk));
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function fromBase64Url(code=''){
+  const norm=String(code).replace(/-/g,'+').replace(/_/g,'/');
+  const pad=norm.length%4?norm+'='.repeat(4-norm.length%4):norm;
+  const bin=atob(pad);
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+function pairEntries(obj={},keys=[]){
+  return keys.map((k,i)=>obj[k]?[i,obj[k]]:null).filter(Boolean);
+}
+function flagIndexes(obj={},keys=[]){
+  return keys.map((k,i)=>obj[k]?i:null).filter(v=>v!=null);
+}
+function applyPairEntries(target,pairs,keys){
+  (pairs||[]).forEach(([idx,val])=>{
+    const key=keys[idx];
+    if(key!=null&&val) target[key]=val;
+  });
+  return target;
+}
+function applyFlagIndexes(target,list,keys){
+  (list||[]).forEach(idx=>{
+    const key=keys[idx];
+    if(key!=null) target[key]=true;
+  });
+  return target;
+}
+function encodeCellDiff(cell,baseCell,idx){
+  const tileId=cell.t!==baseCell.t?SAVE_TILE_KEYS.indexOf(cell.t):-1;
+  const cropId=cell.crop!==baseCell.crop?SAVE_SELECTION_KEYS.indexOf(cell.crop):-1;
+  const gp2=(cell.gp||0)!==(baseCell.gp||0)?Math.round((cell.gp||0)*2):-1;
+  const wet=!!cell.wet!==!!baseCell.wet?(cell.wet?1:0):-1;
+  const treeId=cell.treeCrop!==baseCell.treeCrop?SAVE_SELECTION_KEYS.indexOf(cell.treeCrop):-1;
+  const tgp=(cell.tgp||0)!==(baseCell.tgp||0)?Math.round(cell.tgp||0):-1;
+  const fruit=!!cell.fruitReady!==!!baseCell.fruitReady?(cell.fruitReady?1:0):-1;
+  if(tileId===-1&&cropId===-1&&gp2===-1&&wet===-1&&treeId===-1&&tgp===-1&&fruit===-1) return null;
+  return [idx,tileId,cropId,gp2,wet,treeId,tgp,fruit];
+}
+function packMapDiffs(baseStore){
+  return SAVE_MAP_KEYS.map((mapId,mapIdx)=>{
+    const baseCells=baseStore[mapId]?.cells||[];
+    const curCells=MAP_STORE[mapId]?.cells||[];
+    const diffs=[];
+    for(let i=0;i<Math.min(baseCells.length,curCells.length);i++){
+      const diff=encodeCellDiff(curCells[i],baseCells[i],i);
+      if(diff) diffs.push(diff);
+    }
+    return diffs.length?[mapIdx,diffs]:null;
+  }).filter(Boolean);
+}
+function packMineNodeDiffs(baseStore){
+  const cur=MAP_STORE.mine?.rareNodes||{};
+  const base=baseStore.mine?.rareNodes||{};
+  const all=new Set([...Object.keys(base),...Object.keys(cur)]);
+  const diffs=[];
+  all.forEach(rawIdx=>{
+    const idx=Number(rawIdx);
+    const curNode=cur[idx]||null;
+    const baseNode=base[idx]||null;
+    const same=!!curNode===!!baseNode
+      &&(!curNode||(
+        curNode.type===baseNode.type
+        &&curNode.hp===baseNode.hp
+        &&curNode.maxHp===baseNode.maxHp
+      ));
+    if(same) return;
+    if(!curNode){diffs.push([idx,-1,0,0]);return;}
+    diffs.push([idx,SAVE_MINE_NODE_KEYS.indexOf(curNode.type),curNode.hp||0,curNode.maxHp||curNode.hp||0]);
+  });
+  diffs.sort((a,b)=>a[0]-b[0]);
+  return diffs;
+}
+function buildSavePayload(){
+  const baseStore=createMapStore();
+  const payload={
+    v:1,
+    g:[
+      G.gold,G.energy,G.day,G.sIdx,G.sDay,G.hr,G.mn,
+      SAVE_WEATHER_KEYS.indexOf(G.weather),
+      G.farmXP,G.mineD,
+      SAVE_TOOL_KEYS.indexOf(G.tool),
+      SAVE_SELECTION_KEYS.indexOf(G.selCrop),
+      SAVE_MAP_KEYS.indexOf(ACTIVE_MAP_ID),
+      pPos.col,pPos.row,
+      SAVE_FACING_KEYS.indexOf(`${pFacing.dc},${pFacing.dr}`),
+      pDir,G.toolTier
+    ],
+    h:GUIDE.step,
+    u:SAVE_GUIDE_KEYS.map(k=>GUIDE.stats[k]||0),
+    l:[
+      LAST_FARM_POS?.col??-1,
+      LAST_FARM_POS?.row??-1,
+      LAST_INTERIOR_RETURN?SAVE_MAP_KEYS.indexOf(LAST_INTERIOR_RETURN.mapId):-1,
+      LAST_INTERIOR_RETURN?.spawn?.col??-1,
+      LAST_INTERIOR_RETURN?.spawn?.row??-1
+    ]
+  };
+  const inv=pairEntries(G.inv,SAVE_ITEM_KEYS);
+  const rel=pairEntries(G.npcRel,SAVE_NPC_KEYS);
+  const sk=pairEntries(G.skXP,SAVE_SKILL_KEYS);
+  const qp=pairEntries(G.qProg,SAVE_QPROG_KEYS);
+  const bought=flagIndexes(G.bought,SAVE_UPGRADE_KEYS);
+  const gifted=flagIndexes(G.giftedToday,SAVE_NPC_KEYS);
+  const quests=QUESTS.map((q,i)=>q.done?i:null).filter(v=>v!=null);
+  const storage=SAVE_STORAGE_KEYS.map((storageKey,storageIdx)=>{
+    const entries=pairEntries(G.storage[storageKey]||{},SAVE_ITEM_KEYS);
+    return entries.length?[storageIdx,entries]:null;
+  }).filter(Boolean);
+  const maps=packMapDiffs(baseStore);
+  const nodes=packMineNodeDiffs(baseStore);
+  if(inv.length) payload.i=inv;
+  if(rel.length) payload.r=rel;
+  if(sk.length) payload.x=sk;
+  if(qp.length) payload.q=qp;
+  if(bought.length) payload.b=bought;
+  if(gifted.length) payload.y=gifted;
+  if(quests.length) payload.d=quests;
+  if(storage.length) payload.s=storage;
+  if(maps.length) payload.c=maps;
+  if(nodes.length) payload.n=nodes;
+  return payload;
+}
+function buildSaveBundle(payload=buildSavePayload()){
+  const json=JSON.stringify(payload);
+  return {payload,json,bytes:byteLen(json),code:SAVE_EXPORT_PREFIX+toBase64Url(json)};
+}
+function hasLocalSave(){
+  try{return !!localStorage.getItem(SAVE_STORAGE_KEY);}
+  catch{return false;}
+}
+function getLocalSaveRaw(){
+  try{return localStorage.getItem(SAVE_STORAGE_KEY)||'';}
+  catch{return '';}
+}
+function saveLocalProgress(opt={}){
+  if(SAVE_SUSPENDED) return null;
+  try{
+    const bundle=buildSaveBundle();
+    localStorage.setItem(SAVE_STORAGE_KEY,bundle.json);
+    if(opt.silent!==true) notify(IS_ES?`Partida guardada (${bundle.bytes} B).`:`Game saved (${bundle.bytes} B).`,'good');
+    return bundle;
+  }catch{
+    if(opt.silent!==true) notify(IS_ES?'No se pudo guardar en este navegador.':'This browser could not save the game.','info');
+    return null;
+  }
+}
+function queueAutosave(delay=320){
+  if(SAVE_SUSPENDED||!GAME_STARTED) return;
+  if(SAVE_TIMER) clearTimeout(SAVE_TIMER);
+  SAVE_TIMER=setTimeout(()=>{
+    SAVE_TIMER=null;
+    saveLocalProgress({silent:true});
+  },delay);
+}
+function normalizeSaveCode(code=''){
+  let out=String(code).trim().replace(/\s+/g,'');
+  if(out.startsWith(SAVE_EXPORT_PREFIX)) out=out.slice(SAVE_EXPORT_PREFIX.length);
+  return out;
+}
+function applySavePayload(payload,opt={}){
+  if(!payload||payload.v!==1||!Array.isArray(payload.g)) throw new Error('invalid-save');
+  SAVE_SUSPENDED=true;
+  resetGameState({withStarter:false,skipUi:true,keepSession:false});
+  SAVE_SUSPENDED=true;
+  G.gold=payload.g[0]??150;
+  G.energy=payload.g[1]??100;
+  G.day=payload.g[2]??1;
+  G.sIdx=payload.g[3]??0;
+  G.sDay=payload.g[4]??1;
+  G.hr=payload.g[5]??7;
+  G.mn=payload.g[6]??0;
+  G.weather=SAVE_WEATHER_KEYS[payload.g[7]]||'sunny';
+  G.farmXP=payload.g[8]??0;
+  G.mineD=payload.g[9]??0;
+  G.tool=SAVE_TOOL_KEYS[payload.g[10]]||'water';
+  G.selCrop=SAVE_SELECTION_KEYS[payload.g[11]]||'turnip';
+  G.toolTier=Math.max(1,payload.g[17]??1);
+  G.maxE=100+(G.toolTier>1?15:0);
+  G.energy=Math.min(G.maxE,Math.max(0,G.energy));
+  G.farmLv=Math.max(1,Math.floor(G.farmXP/200)+1);
+  G.inv={};
+  G.npcRel={...DEFAULT_RELATIONS};
+  G.skXP={...DEFAULT_SKILLS};
+  G.qProg={};
+  G.bought={};
+  G.giftedToday={};
+  G.storage=DEFAULT_STORAGE();
+  applyPairEntries(G.inv,payload.i,SAVE_ITEM_KEYS);
+  applyPairEntries(G.npcRel,payload.r,SAVE_NPC_KEYS);
+  applyPairEntries(G.skXP,payload.x,SAVE_SKILL_KEYS);
+  applyPairEntries(G.qProg,payload.q,SAVE_QPROG_KEYS);
+  applyFlagIndexes(G.bought,payload.b,SAVE_UPGRADE_KEYS);
+  applyFlagIndexes(G.giftedToday,payload.y,SAVE_NPC_KEYS);
+  (payload.s||[]).forEach(([storageIdx,entries])=>{
+    const storageKey=SAVE_STORAGE_KEYS[storageIdx];
+    if(!storageKey) return;
+    G.storage[storageKey]={};
+    applyPairEntries(G.storage[storageKey],entries,SAVE_ITEM_KEYS);
+  });
+  resetQuestState();
+  (payload.d||[]).forEach(idx=>{if(QUESTS[idx]) QUESTS[idx].done=true;});
+  resetGuideState();
+  GUIDE.step=Math.max(0,payload.h||0);
+  SAVE_GUIDE_KEYS.forEach((key,idx)=>{GUIDE.stats[key]=payload.u?.[idx]||0;});
+  (payload.c||[]).forEach(([mapIdx,diffs])=>{
+    const mapId=SAVE_MAP_KEYS[mapIdx];
+    const map=MAP_STORE[mapId];
+    if(!map) return;
+    (diffs||[]).forEach(([idx,tileId,cropId,gp2,wet,treeId,tgp,fruit])=>{
+      const cell=map.cells[idx];
+      if(!cell) return;
+      if(tileId!==-1) cell.t=SAVE_TILE_KEYS[tileId]||cell.t;
+      if(cropId!==-1) cell.crop=SAVE_SELECTION_KEYS[cropId]||null;
+      if(gp2!==-1) cell.gp=(gp2||0)/2;
+      if(wet!==-1) cell.wet=!!wet;
+      if(treeId!==-1) cell.treeCrop=SAVE_SELECTION_KEYS[treeId]||null;
+      if(tgp!==-1) cell.tgp=tgp||0;
+      if(fruit!==-1) cell.fruitReady=!!fruit;
+    });
+  });
+  const rare=MAP_STORE.mine?.rareNodes||{};
+  (payload.n||[]).forEach(([idx,typeIdx,hp,maxHp])=>{
+    if(typeIdx===-1){delete rare[idx];return;}
+    rare[idx]={type:SAVE_MINE_NODE_KEYS[typeIdx]||'copper_ore',hp:hp||1,maxHp:maxHp||hp||1};
+    const cell=MAP_STORE.mine?.cells?.[idx];
+    if(cell&&cell.t!=='R') cell.t='R';
+  });
+  G.autoIrr=!!G.bought.irig;
+  G.chickens=G.bought.coop?3:0;
+  LAST_FARM_POS={col:payload.l?.[0]??MAP_STORE.farm.spawn.col,row:payload.l?.[1]??MAP_STORE.farm.spawn.row};
+  LAST_INTERIOR_RETURN=payload.l?.[2]>=0?{
+    mapId:SAVE_MAP_KEYS[payload.l[2]]||'farm',
+    spawn:{col:payload.l?.[3]??MAP_STORE.farm.spawn.col,row:payload.l?.[4]??MAP_STORE.farm.spawn.row}
+  }:null;
+  const mapId=SAVE_MAP_KEYS[payload.g[12]]||'farm';
+  setActiveMap(mapId,{spawn:{col:payload.g[13]??MAP_STORE[mapId].spawn.col,row:payload.g[14]??MAP_STORE[mapId].spawn.row}});
+  const facingRaw=SAVE_FACING_KEYS[payload.g[15]]||'1,0';
+  const [fdc,fdr]=facingRaw.split(',').map(Number);
+  pFacing={dc:fdc||1,dr:Number.isFinite(fdr)?fdr:0};
+  pDir=(payload.g[16]===-1||payload.g[16]===0)?1:payload.g[16];
+  T(G.tool);
+  reAll();
+  scrollToPlayer(true);
+  SAVE_SUSPENDED=false;
+  if(opt.persist!==false) saveLocalProgress({silent:true});
+  return true;
+}
+function loadLocalProgress(opt={}){
+  const raw=getLocalSaveRaw();
+  if(!raw) throw new Error('missing-save');
+  return applySavePayload(JSON.parse(raw),opt);
+}
+function importProgressCode(code,opt={}){
+  const normalized=normalizeSaveCode(code);
+  if(!normalized) throw new Error('empty-code');
+  return applySavePayload(JSON.parse(fromBase64Url(normalized)),opt);
+}
+function beginGameSession(){
+  GAME_STARTED=true;
+  closeM(true);
+  reAll();
+  updateContextHint();
+  queueAutosave(40);
+}
+function showWelcomeSequence(){
+  lg(tr('welcome1'));
+  lg(tr('welcome2'));
+  lg(tr('welcome3'));
+  notify(tr('welcomeNotify'),'ev');
+  setTimeout(()=>notify(tr('tipHoe'),'info'),1700);
+}
+function startFreshGame(){
+  resetGameState({withStarter:true,skipUi:true,keepSession:false});
+  showWelcomeSequence();
+  beginGameSession();
+}
+function continueLocalGame(){
+  try{
+    loadLocalProgress({persist:false});
+    notify(IS_ES?'Partida local recuperada.':'Local game restored.','ev');
+    beginGameSession();
+  }catch{
+    notify(IS_ES?'No se pudo leer la partida local.':'Local save could not be read.','info');
+    openIntroModal();
+  }
+}
+function introNarrativeHtml(){
+  if(IS_ES) return `<p style="margin:0 0 10px">Valle Tranquilo es una simulacion de vida rural, exploracion y progreso constante dentro de un mundo abierto donde cada zona tiene una funcion clara. Empiezas con una parcela sencilla, energia limitada y herramientas basicas, pero el objetivo no es sobrevivir un dia, sino construir una rutina eficiente: preparar tierra, sembrar, regar, cosechar, vender, hablar con vecinos y convertir cada jornada en una mejora real para tu granja y tu casa. Puedes entrar en tu vivienda y en las casas del resto del poblado. Dentro de tu hogar tienes almacenes por categorias al estilo Minecraft, una mesa de crafteo para combinar materiales y desbloquear nuevas rarezas, y un horno para fundir recursos y fabricar lingotes o acero.</p><p style="margin:0 0 10px">El valle esta pensado para que siempre haya algo util que hacer. La mina es profunda y reparte cobre, marmol, hierro, diamante y minerales mas raros segun la dificultad de acceso. El lago permite pescar con animacion y aporta ingresos, misiones y alimentos. Las zonas de cultivo aceptan semillas normales y el huerto permite plantar arboles frutales que maduran con el paso de los dias. Los vecinos te proponen encargos y, al completarlos, recibes monedas para ampliar la casa, mejorar herramientas, desbloquear terreno y acelerar tu progreso. No puedes atravesar agua, vallas ni arboles: el mapa tiene reglas fisicas claras. El guardado del navegador usa un formato muy compacto y puedes exportar un codigo breve para seguir desde otro equipo sin perder avances.</p>`;
+  return `<p style="margin:0 0 10px">Quiet Valley is a rural-life, exploration, and long-term progression game inside an open world where every zone has a purpose. You begin with a small plot, limited energy, and basic tools, but the goal is not to survive a single day. The real goal is to build an efficient loop: till soil, plant, water, harvest, sell, talk to neighbors, and turn each day into a real upgrade for your farm and your house. You can enter your own home and the homes of the village residents. Inside your house you have category-based storage inspired by Minecraft, a crafting table for combining materials into higher rarity resources and permanent upgrades, and a furnace for smelting ores and forging bars or steel.</p><p style="margin:0 0 10px">The valley is designed so there is always productive work to do. The mine becomes richer and harder as you go deeper, with copper, marble, iron, diamonds, and rarer materials gated by reach and scarcity. The lake supports fishing with dedicated feedback and adds food, income, and quest progress. Farming zones are prepared for soil work, while the orchard area lets you plant fruit trees that mature over several days. Villagers provide quality quests that reward coins, which you can reinvest into better tools, more house space, new land, and faster growth. Water, fences, and trees are solid obstacles, so movement follows clear physical rules. Browser saving uses a compact delta snapshot, and you can export a short code to continue from another browser without losing your progress.</p>`;
+}
+function openImportModal(startMode=false){
+  const body=`<div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font-family:'VT323';font-size:15px;color:#d7c39f">${IS_ES?'Pega aqui el codigo exportado desde otro navegador. El sistema decodifica un snapshot compacto y lo aplica sobre una base limpia para mantener el peso minimo.':'Paste here the exported code from another browser. The system decodes a compact snapshot and applies it over a clean base to keep the payload tiny.'}</div>
+    <textarea id="save-import-code" style="width:100%;min-height:120px;background:#140a03;border:2px solid #6a3c10;color:#f0d7a0;font-family:'VT323';font-size:15px;padding:10px;resize:vertical"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="mcb" onclick="runImportFromField('save-import-code',${startMode?'true':'false'})">${IS_ES?(startMode?'[ IMPORTAR Y JUGAR ]':'[ IMPORTAR PARTIDA ]'):(startMode?'[ IMPORT AND PLAY ]':'[ IMPORT SAVE ]')}</button>
+      ${startMode?`<button class="mcb" onclick="openIntroModal()">${IS_ES?'[ VOLVER ]':'[ BACK ]'}</button>`:''}
+    </div>
+  </div>`;
+  openM(IS_ES?'📥 IMPORTAR PROGRESO':'📥 IMPORT PROGRESS',IS_ES?'Codigo de transferencia entre navegadores':'Browser-to-browser transfer code',body,{locked:startMode,hideClose:startMode});
+}
+function runImportFromField(fieldId,startMode=false){
+  const input=document.getElementById(fieldId);
+  if(!input) return;
+  try{
+    importProgressCode(input.value,{persist:true});
+    notify(IS_ES?'Codigo importado correctamente.':'Code imported successfully.','good');
+    if(startMode) beginGameSession();
+    else closeM(true);
+  }catch{
+    notify(IS_ES?'El codigo no es valido o esta dañado.':'The code is invalid or damaged.','info');
+  }
+}
+function copySaveExportCode(){
+  const field=document.getElementById('save-export-code');
+  if(!field) return;
+  const value=field.value;
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(value).then(
+      ()=>notify(IS_ES?'Codigo copiado.':'Code copied.','good'),
+      ()=>notify(IS_ES?'No se pudo copiar automaticamente.':'Automatic copy failed.','info')
+    );
+    return;
+  }
+  field.select();
+  notify(IS_ES?'Seleccion manual lista para copiar.':'Manual selection ready to copy.','info');
+}
+function saveNowFromModal(){
+  const bundle=saveLocalProgress({silent:false});
+  if(bundle) openSaveManager();
+}
+function openSaveManager(){
+  const bundle=saveLocalProgress({silent:true})||buildSaveBundle();
+  const localBytes=byteLen(getLocalSaveRaw());
+  const body=`<div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font-family:'VT323';font-size:15px;color:#d7c39f">${IS_ES?'El guardado local usa un snapshot delta muy compacto: solo guarda inventarios indexados, progreso numerico y las casillas modificadas frente al mapa base. Asi el peso se mantiene minimo incluso con miles de jugadores.':'Local saving uses a very compact delta snapshot: it only stores indexed inventories, numeric progress, and cells changed from the base map. That keeps the footprint tiny even at large player scale.'}</div>
+    <div class="qi"><div class="qt">${IS_ES?'Autosave local':'Local autosave'}</div><div class="qm">${localBytes} B · ${IS_ES?'se actualiza en este navegador':'updated in this browser'}</div></div>
+    <div class="qi"><div class="qt">${IS_ES?'Codigo exportable':'Exportable code'}</div><div class="qm">${bundle.code.length} ${IS_ES?'caracteres':'characters'}</div></div>
+    <div class="mh">${IS_ES?'EXPORTAR':'EXPORT'}</div>
+    <textarea id="save-export-code" readonly style="width:100%;min-height:92px;background:#140a03;border:2px solid #6a3c10;color:#f0d7a0;font-family:'VT323';font-size:15px;padding:10px;resize:vertical">${bundle.code}</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="mcb" onclick="copySaveExportCode()">${IS_ES?'[ COPIAR CODIGO ]':'[ COPY CODE ]'}</button>
+      <button class="mcb" onclick="saveNowFromModal()">${IS_ES?'[ GUARDAR AHORA ]':'[ SAVE NOW ]'}</button>
+    </div>
+    <div class="mh">${IS_ES?'IMPORTAR':'IMPORT'}</div>
+    <textarea id="save-import-code" style="width:100%;min-height:92px;background:#140a03;border:2px solid #6a3c10;color:#f0d7a0;font-family:'VT323';font-size:15px;padding:10px;resize:vertical" placeholder="${IS_ES?'Pega aqui un codigo exportado':'Paste an exported code here'}"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="mcb" onclick="runImportFromField('save-import-code',false)">${IS_ES?'[ IMPORTAR SOBRE ESTA PARTIDA ]':'[ IMPORT OVER THIS SAVE ]'}</button>
+    </div>
+  </div>`;
+  openM(IS_ES?'💾 GUARDADO Y TRANSFERENCIA':'💾 SAVE AND TRANSFER',IS_ES?'Guardado local compacto + codigo portable':'Compact local save + portable code',body);
+}
+function openIntroModal(){
+  const hasSave=hasLocalSave();
+  const body=`<div style="display:flex;flex-direction:column;gap:12px">
+    <div class="intro-copy">${introNarrativeHtml()}</div>
+    <div class="qi"><div class="qt">${IS_ES?'Progreso entre navegadores':'Cross-browser progress'}</div><div class="qm">${IS_ES?'Puedes guardar en local y exportar un codigo compacto desde el menu de guardado.':'You can save locally and export a compact code from the save menu.'}</div></div>
+    <div class="intro-actions">
+      <button class="mcb" id="intro-start-btn" onclick="startFreshGame()">${IS_ES?'[ COMENZAR A JUGAR ]':'[ START PLAYING ]'}</button>
+      ${hasSave?`<button class="mcb" id="intro-continue-btn" onclick="continueLocalGame()">${IS_ES?'[ CONTINUAR GUARDADO LOCAL ]':'[ CONTINUE LOCAL SAVE ]'}</button>`:''}
+      <button class="mcb" id="intro-import-btn" onclick="openImportModal(true)">${IS_ES?'[ IMPORTAR CODIGO ]':'[ IMPORT CODE ]'}</button>
+    </div>
+  </div>`;
+  openM(IS_ES?'🌄 BIENVENIDO A VALLE TRANQUILO':'🌄 WELCOME TO QUIET VALLEY',IS_ES?'Lee la guia antes de iniciar la partida':'Read the guide before starting your game',body,{locked:true,hideClose:true});
 }
 
 // â”€â”€â”€ UI RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -2968,7 +4462,9 @@ function toolName(t){
   return tr(k||t);
 }
 function currentToolChip(t=G.tool){
-  const crop=LANG==='es'?(CROPS[G.selCrop]?.n||'cultivo'):(CROP_NAME_EN[G.selCrop]||G.selCrop||'crop');
+  const crop=SAPLINGS[G.selCrop]
+    ? (LANG==='es'?SAPLINGS[G.selCrop].n:SAPLINGS[G.selCrop].nEn)
+    : (LANG==='es'?(CROPS[G.selCrop]?.n||'cultivo'):(CROP_NAME_EN[G.selCrop]||G.selCrop||'crop'));
   const labels={
     water:tr('ctoolWater'),
     hoe:tr('ctoolHoe'),
@@ -3015,6 +4511,8 @@ function applyLocaleUI(){
   if(sleepBtn) sleepBtn.textContent=`🌙 ${tr('sleep')}`;
   const mineBtn=document.getElementById('mine-btn');
   if(mineBtn) mineBtn.textContent=inMine()?`↩ ${tr('exitMine')}`:`⛏️ ${tr('mine')}`;
+  const saveBtn=document.getElementById('save-btn');
+  if(saveBtn) saveBtn.textContent=`💾 ${IS_ES?'Guardar':'Save'}`;
 
   const hdayLabel=document.getElementById('hday-label');
   if(hdayLabel) hdayLabel.textContent=tr('hudDay');
@@ -3027,7 +4525,9 @@ function applyLocaleUI(){
   const ctool=document.getElementById('ctool');
   if(ctool) ctool.textContent=currentToolChip();
   const ctx=document.getElementById('ctxhint');
-  if(ctx&&!autoPath.length) ctx.textContent=tr('tipMoveTool');
+  if(ctx&&!autoPath.length) ctx.textContent=GAME_STARTED?tr('tipMoveTool'):(IS_ES?'Lee la introduccion y pulsa comenzar para iniciar la partida.':'Read the introduction and press start to begin.');
+  const closeBtn=document.getElementById('m-close');
+  if(closeBtn&&closeBtn.style.display!=='none') closeBtn.textContent=localizeText('[ CERRAR ]');
 }
 function lg(msg){
   G.log.unshift(localizeText(msg));if(G.log.length>4)G.log.pop();
@@ -3048,7 +4548,7 @@ function reAll(){
   document.getElementById('title').textContent=mapName().toUpperCase();
   // Inventory
   const iw=document.getElementById('invw');
-  const SLOTS=12;
+  const SLOTS=visibleInventorySlots();
   const items=Object.entries(G.inv).filter(([,q])=>q>0);
   iw.innerHTML='';
   let shown=0;
@@ -3063,7 +4563,14 @@ function reAll(){
   for(let i=shown;i<SLOTS;i++){const s=document.createElement('div');s.className='is e';s.innerHTML='Â·';iw.appendChild(s);}
   // NPCs
   const nl=document.getElementById('npcl');nl.innerHTML='';
-  if(inMine()){
+  if(inInterior()&&ACTIVE_MAP_ID==='player_home'){
+    nl.innerHTML=`<div class="qi"><div class="qt">📦 ${storageTitle('woodChest')}</div><div class="qm">${Object.keys(G.storage.woodChest||{}).length} ${IS_ES?'tipos guardados':'stored types'}</div></div>
+      <div class="qi"><div class="qt">⛏️ ${storageTitle('oreChest')}</div><div class="qm">${Object.keys(G.storage.oreChest||{}).length} ${IS_ES?'tipos guardados':'stored types'}</div></div>
+      <div class="qi"><div class="qt">🍲 ${storageTitle('pantry')}</div><div class="qm">${Object.keys(G.storage.pantry||{}).length} ${IS_ES?'tipos guardados':'stored types'}</div></div>`;
+  } else if(inInterior()){
+    nl.innerHTML=`<div class="qi"><div class="qt">${mapName()}</div><div class="qm">${IS_ES?'Interior visitable del poblado.':'Enterable villager home.'}</div></div>
+      <div class="qi"><div class="qt">${IS_ES?'Consejo':'Tip'}</div><div class="qm">${IS_ES?'Pulsa E en la alfombra para volver afuera.':'Press E on the mat to go back outside.'}</div></div>`;
+  } else if(inMine()){
     const leftNodes=Object.keys(MAP_STORE.mine?.rareNodes||{}).length;
     nl.innerHTML=`<div class="qi"><div class="qt">${tr('mineActive')}</div><div class="qm">${tr('rareVisible',{n:leftNodes})}</div></div>
       <div class="qi"><div class="qt">${IS_ES?'Consejo':'Tip'}</div><div class="qm">${tr('mineTip')}</div></div>`;
@@ -3079,18 +4586,24 @@ function reAll(){
   }
   // Quests
   const ql=document.getElementById('qsl');ql.innerHTML='';
-  if(inMine()){
+  if(inInterior()&&ACTIVE_MAP_ID==='player_home'){
+    ql.innerHTML=`<div class="qi"><div class="qt">🪵 ${IS_ES?'Mesa de crafteo':'Crafting table'}</div><div class="qm">${IS_ES?'Combina materiales y monedas para mejoras.':'Combine materials and coins for upgrades.'}</div></div>
+      <div class="qi"><div class="qt">🔥 ${IS_ES?'Horno':'Furnace'}</div><div class="qm">${IS_ES?'Fundicion de cobre, hierro y acero.':'Copper, iron and steel smelting.'}</div></div>
+      <div class="qi"><div class="qt">🌳 ${IS_ES?'Huerto':'Orchard'}</div><div class="qm">${G.bought.orchardLot?(IS_ES?'Parcela desbloqueada.':'Lot unlocked.'):(IS_ES?'Desbloquealo en la mesa.':'Unlock it at the table.')}</div></div>`;
+  } else if(inMine()){
     const mineGoalName={
-      mythril_ore:IS_ES?'Mythril':'Mythril',
-      void_crystal:IS_ES?'Cristal del vacio':'Void crystal',
-      ancient_geode:IS_ES?'Geoda antigua':'Ancient geode',
-      luminous_moss:IS_ES?'Musgo luminoso':'Luminous moss'
+      copper_ore:IS_ES?'Cobre':'Copper',
+      iron_ore:IS_ES?'Hierro':'Iron',
+      marble:IS_ES?'Marmol':'Marble',
+      diamond:IS_ES?'Diamante':'Diamond',
+      void_crystal:IS_ES?'Cristal del vacio':'Void crystal'
     };
     const goals=[
-      {k:'mythril_ore',need:3},
+      {k:'copper_ore',need:3},
+      {k:'iron_ore',need:3},
+      {k:'marble',need:2},
+      {k:'diamond',need:1},
       {k:'void_crystal',need:2},
-      {k:'ancient_geode',need:2},
-      {k:'luminous_moss',need:4},
     ];
     goals.forEach(g=>{
       const have=G.inv[g.k]||0;
@@ -3130,17 +4643,29 @@ function reAll(){
   guideRender();
   applyLocaleUI();
   updateContextHint();
+  queueAutosave();
 }
 
 // â”€â”€â”€ MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function openM(title,sub,body){
+function openM(title,sub,body,opt={}){
   clearAutoMove();
+  MODAL_LOCKED=!!opt.locked;
   document.getElementById('mt').textContent=localizeText(title);
   document.getElementById('ms').textContent=localizeText(sub);
   document.getElementById('md').innerHTML=localizeHtml(body);
+  const closeBtn=document.getElementById('m-close');
+  if(closeBtn){
+    closeBtn.style.display=opt.hideClose?'none':'block';
+    closeBtn.textContent=localizeText(opt.closeLabel||'[ CERRAR ]');
+  }
   document.getElementById('mb').classList.add('on');
 }
-function closeM(){document.getElementById('mb').classList.remove('on');updateContextHint();}
+function closeM(force=false){
+  if(MODAL_LOCKED&&!force) return;
+  MODAL_LOCKED=false;
+  document.getElementById('mb').classList.remove('on');
+  updateContextHint();
+}
 function closeBD(e){if(e.target===document.getElementById('mb'))closeM();}
 
 // â”€â”€â”€ NOTIFY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -3161,41 +4686,37 @@ function stepClockMinutes(mins=1){
   }
 }
 setInterval(()=>{
-  if(document.getElementById('ss').classList.contains('on'))return;
+  if(!GAME_STARTED||document.getElementById('ss').classList.contains('on'))return;
   stepClockMinutes(1);
   document.getElementById('htime').textContent=`${String(G.hr).padStart(2,'0')}:${String(G.mn).padStart(2,'0')}`;
   document.body.className=SEASONS[G.sIdx]+' '+TOD();
   updateContextHint();
+  queueAutosave(1200);
 },2500);
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  INIT
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function init(){
-  initGrid();
   resize();
   setupMouse();
   initClouds();
   initStars2();
   initWxParts();
-  addInv('seeds_turnip',8);addInv('seeds_potato',5);addInv('wood',3);addInv('stone',2);
-  T('water');
   setupKeyboard();
-  scrollToPlayer();
+  resetGameState({withStarter:true,skipUi:false,keepSession:false});
+  GAME_STARTED=false;
   updateContextHint();
-  lg(tr('welcome1'));
-  lg(tr('welcome2'));
-  lg(tr('welcome3'));
-  notify(tr('welcomeNotify'),'ev');
-  setTimeout(()=>notify(tr('tipHoe'),'info'),1700);
   reAll();
   requestAnimationFrame(draw);
+  openIntroModal();
 }
 
 function renderGameToText(){
   const target=queuedActionIdx!=null?idxToTile(queuedActionIdx):getFacingTarget();
   const mineNodes=inMine()?Object.keys(MAP_STORE.mine?.rareNodes||{}).length:null;
   const gc=guideCurrent();
+  const station=nearestStation(1);
   const payload={
     mode:'arcade',
     variant:'valle-tranquilo',
@@ -3206,19 +4727,35 @@ function renderGameToText(){
       name:mapName(),
       zone:zoneNameAt(),
       size:{cols:GW,rows:GH},
+      inInterior:inInterior(),
       nearMineGate:nearMineGate(1),
       nearMineExit:nearMineExit(1),
       mineRareNodes:mineNodes
     },
     player:{col:pPos.col,row:pPos.row,dir:pDir,facing:pFacing},
     time:{day:G.day,season:SEASONS[G.sIdx],hour:G.hr,minute:G.mn,weather:G.weather},
-    economy:{gold:G.gold,energy:G.energy,farmLevel:G.farmLv},
+    economy:{gold:G.gold,energy:G.energy,farmLevel:G.farmLv,toolTier:G.toolTier},
     resources:{
       stone:G.inv.stone||0,
+      copperOre:G.inv.copper_ore||0,
+      ironOre:G.inv.iron_ore||0,
+      marble:G.inv.marble||0,
+      diamond:G.inv.diamond||0,
+      steel:G.inv.steel_ingot||0,
       mythril:G.inv.mythril_ore||0,
       voidCrystal:G.inv.void_crystal||0,
       geode:G.inv.ancient_geode||0,
       moss:G.inv.luminous_moss||0
+    },
+    home:{
+      orchardUnlocked:!!G.bought.orchardLot,
+      houseWing:!!G.bought.houseWing,
+      storageTypes:{
+        wood:Object.keys(G.storage.woodChest||{}).length,
+        ore:Object.keys(G.storage.oreChest||{}).length,
+        pantry:Object.keys(G.storage.pantry||{}).length
+      },
+      nearbyStation:station?station.type:null
     },
     tool:G.tool,
     guide:{
@@ -3231,7 +4768,13 @@ function renderGameToText(){
     movement:{
       autoPathSteps:autoPath.length,
       queuedAction:queuedActionIdx!=null?idxToTile(queuedActionIdx):null,
-      queuedTalkNpc:queuedInteractNpcId||null
+      queuedTalkNpc:queuedInteractNpcId||null,
+      queuedPortal:queuedPortalId||null
+    },
+    save:{
+      started:GAME_STARTED,
+      localExists:hasLocalSave(),
+      localBytes:byteLen(getLocalSaveRaw())
     },
     target,
     hovered:hovIdx>=0?{col:hovIdx%GW,row:Math.floor(hovIdx/GW)}:null,
@@ -3240,15 +4783,22 @@ function renderGameToText(){
 }
 window.render_game_to_text=renderGameToText;
 window.advanceTime=(ms=0)=>{
+  if(!GAME_STARTED) return renderGameToText();
   const mins=Math.max(1,Math.round(ms/2500));
   stepClockMinutes(mins);
   for(let i=0;i<mins;i++) updateAutoMove(performance.now()+i*moveRepeatMs(),true);
+  if(fishingFx){
+    fishingFx.ttl=Math.max(0,fishingFx.ttl-mins*4);
+    if(fishingFx.ttl<=0) fishingFx=null;
+  }
   document.getElementById('htime').textContent=`${String(G.hr).padStart(2,'0')}:${String(G.mn).padStart(2,'0')}`;
   document.body.className=SEASONS[G.sIdx]+' '+TOD();
   updateContextHint();
+  queueAutosave(1200);
   return renderGameToText();
 };
 window.addEventListener('resize',()=>{resize();initClouds();initStars2();scrollToPlayer();updateContextHint();});
+window.addEventListener('beforeunload',()=>{if(GAME_STARTED) saveLocalProgress({silent:true});});
 init();
 </script>
 </body>
