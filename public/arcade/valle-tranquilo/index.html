@@ -3054,6 +3054,13 @@ function updateCamera(){
   ox=Math.round(ox);
   oy=Math.round(oy);
 }
+function getVisibleTileBounds(pad=2){
+  const minCol=Math.max(0,Math.floor((-ox)/TW)-pad);
+  const maxCol=Math.min(GW-1,Math.ceil((cw-ox)/TW)+pad);
+  const minRow=Math.max(0,Math.floor((-oy)/TH)-pad);
+  const maxRow=Math.min(GH-1,Math.ceil((ch-oy)/TH)+pad);
+  return {minCol,maxCol,minRow,maxRow};
+}
 function drawPlayer(t,renderPos=null){
   const rp=renderPos||getPlayerRenderPos();
   const x=ox+rp.col*TW+(TW-16)/2;
@@ -3304,17 +3311,27 @@ function draw(){
   drawSky(t);
   const playerRenderPos=getPlayerRenderPos();
   const playerRow=Math.max(0,Math.min(GH-1,Math.round(playerRenderPos.row)));
+  const {minCol,maxCol,minRow,maxRow}=getVisibleTileBounds(2);
+  const npcRows=!inMine()?new Map():null;
+  if(npcRows){
+    Object.entries(NPC_WORLD).forEach(([id,npc])=>{
+      if(npc.row<minRow||npc.row>maxRow) return;
+      let list=npcRows.get(npc.row);
+      if(!list){list=[];npcRows.set(npc.row,list);}
+      list.push({id,npc});
+    });
+  }
 
   // Draw tiles back-to-front (painter's algorithm for depth)
-  for(let row=0;row<GH;row++){
-    for(let col=0;col<GW;col++){
+  for(let row=minRow;row<=maxRow;row++){
+    for(let col=minCol;col<=maxCol;col++){
       const i=row*GW+col;
       const cell=G.grid[i];
       drawTile(col,row,cell,i===hovIdx,t);
       if(inMine()) drawMineNodeOverlay(col,row,mineNodeAt(i),t);
     }
     // Draw NPCs in correct row
-    if(!inMine()) Object.values(NPC_WORLD).forEach(npc=>{if(npc.row===row) drawNPCs_row(npc.col,npc.row,Object.keys(NPC_WORLD).find(k=>NPC_WORLD[k]===npc),t);});
+    if(npcRows?.has(row)) npcRows.get(row).forEach(({id,npc})=>drawNPCs_row(npc.col,npc.row,id,t));
     // Draw player in correct row depth
     if(row===playerRow){ drawPlayer(t,playerRenderPos); drawFootDust(); }
   }
