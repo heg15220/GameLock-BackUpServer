@@ -1,0 +1,30 @@
+<svg width="640" height="360" viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="360" rx="36" fill="#0A1520"/>
+  <rect x="24" y="24" width="592" height="312" rx="28" fill="url(#bg)"/>
+  <path d="M24 176H616V326C616 341.464 603.464 354 588 354H52C36.536 354 24 341.464 24 326V176Z" fill="#4A3521"/>
+  <path d="M24 168H616V190H24V168Z" fill="#66BA5D"/>
+  <circle cx="100" cy="104" r="42" fill="#FFE088" fill-opacity="0.85"/>
+  <path d="M150 168C195 117.333 261.667 92 350 92C438.333 92 510.333 117.333 566 168" stroke="#D7F5C8" stroke-opacity="0.3" stroke-width="20" stroke-linecap="round"/>
+  <path d="M300 168H362V324H300V168Z" fill="#1F1410"/>
+  <path d="M306 168H356V324H306V168Z" fill="#0D0F16"/>
+  <circle cx="331" cy="227" r="16" fill="#FFD46A"/>
+  <circle cx="331" cy="227" r="8" fill="#4A3521"/>
+  <path d="M220 184L270 234" stroke="#FFF4D1" stroke-width="8" stroke-linecap="round"/>
+  <path d="M270 234L280 204" stroke="#C49643" stroke-width="14" stroke-linecap="round"/>
+  <path d="M248 213L272 189" stroke="#7C5632" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="274" cy="118" r="12" fill="#9BEBB8"/>
+  <circle cx="386" cy="138" r="9" fill="#8DE0FF"/>
+  <circle cx="427" cy="216" r="11" fill="#FBAE54"/>
+  <path d="M112 142C135.5 114 166.5 100 205 100" stroke="#FFF1AD" stroke-width="6" stroke-linecap="round" stroke-dasharray="8 10"/>
+  <path d="M207 100L190 93L194 110L207 100Z" fill="#FFF1AD"/>
+  <text x="46" y="64" fill="#FFF6D8" font-family="Georgia, serif" font-size="34" font-weight="700">Dig The Hole</text>
+  <text x="46" y="92" fill="#D7E0EB" font-family="Arial, sans-serif" font-size="16">Treasures, torches, jetpack and clue arrows</text>
+  <defs>
+    <linearGradient id="bg" x1="320" y1="24" x2="320" y2="336" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#86D9AA"/>
+      <stop offset="0.46" stop-color="#EAF9C7"/>
+      <stop offset="0.46" stop-color="#6C5639"/>
+      <stop offset="1" stop-color="#231816"/>
+    </linearGradient>
+  </defs>
+</svg>

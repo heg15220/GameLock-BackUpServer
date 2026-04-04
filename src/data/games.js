@@ -22,6 +22,7 @@ import arcadeIceStrikeProImage from "../assets/games/arcade-ice-strike-pro.svg";
 import arcadeNeonCryptImage from "../assets/games/arcade-neon-crypt.svg";
 import arcadeNeonRushImage from "../assets/games/arcade-neon-rush.svg";
 import arcadeKitchenRush2DImage from "../assets/games/arcade-kitchen-rush-2d.svg";
+import arcadeDigHoleTreasureImage from "../assets/games/arcade-dig-hole-treasure.svg";
 import arcadeValleTranquiloImage from "../assets/games/arcade-valle-tranquilo.svg";
 import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-showdown.svg";
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
@@ -3339,6 +3340,55 @@ export const games = [
     viability_en: "High: deterministic Canvas 2D runtime with serializable state and QA bridge hooks (render_game_to_text + advanceTime).",
     visualStyle_en: "Warm top-down kitchen art direction with heat overlays, soft shadows, and active ticket UI.",
     techFocus_en: "Transformation model, thermal station logic, recipe pipeline, and real-time order loop.",
+  },
+  {
+    id: "arcade-dig-hole-treasure",
+    image: arcadeDigHoleTreasureImage,
+    sessionTime: "8-18 min",
+    title: "Dig The Hole",
+    category: "Arcade",
+    tagline: "Excava un subsuelo continuo, descubre materiales incrustados y recupera el hallazgo final de cada mundo.",
+    description:
+      "Juego 2D de excavacion con monigote sin rostro, terreno visualmente continuo y materiales incrustados que van apareciendo al cavar. Selva y urbanizacion usan tierra uniforme bajo la superficie; el desierto arranca con arena en la capa alta y cercana. Recoges hallazgos, vuelves al puesto, mejoras pala o mochila y avanzas hacia un hallazgo principal enterrado.",
+    objective_es:
+      "Excava hasta exponer el hallazgo principal del mundo, recorre el subsuelo continuo y aseguralo para cerrar la partida.",
+    howToPlay_es:
+      "Click cava cerca del jugador. A/D o flechas mueven, W/arriba/Espacio sube, abajo baja, J/K/L excavan izquierda/abajo/derecha, E/Enter interactua, M abre el puesto, P pausa, R reinicia y F pantalla completa.",
+    highlights: [
+      "Tres mundos con lectura clara del suelo: tierra en selva y patio urbano, arena en desierto junto a la superficie.",
+      "Terreno excavable continuo: el subsuelo deja de verse como bloques y se vacia como una masa uniforme.",
+      "Materiales incrustados en la pared que van asomando al abrir huecos.",
+      "Monigote sin rostro y direccion artistica mas sobria, centrada en la excavacion.",
+      "Puesto de superficie con venta de hallazgos y mejoras de pala o mochila.",
+      "Hallazgo principal enterrado en profundidad con cierre de partida al recuperarlo.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo",
+    viability: "Alta: runtime Canvas determinista con terreno continuo rasterizado, hallazgos por profundidad y bridge QA completo.",
+    visualStyle: "Excavacion 2D de masa continua con tierra o arena uniforme, materiales embebidos y personaje monigote sin cara.",
+    techFocus: "Subsuelo continuo, rasterizacion del terreno por mascara, distribucion de hallazgos por profundidad y loop ligero de mercado.",
+
+    category_en: "Arcade",
+    tagline_en: "Excavate continuous ground, reveal embedded materials, and recover the final buried find in each world.",
+    description_en:
+      "A 2D digging game with a faceless stick-figure miner, continuous-looking terrain, and embedded resources that appear as you carve the wall. Jungle and urban worlds are mostly dirt below the surface, while the desert starts with sand-heavy upper layers. Gather finds, sell them at the surface, upgrade shovel or storage, and reach the main buried relic.",
+    objective_en:
+      "Dig until you expose the world's main buried find, secure it, and end the run.",
+    howToPlay_en:
+      "Click digs near the player. A/D or arrows move, W/up/Space rises, down descends, J/K/L dig left/down/right, E/Enter interacts, M opens the outpost, P pauses, R restarts, and F toggles fullscreen.",
+    highlights_en: [
+      "Three worlds with clear soil identity: dirt in jungle and urban backyard, sand near the desert surface.",
+      "Continuous excavation visuals so the ground no longer reads as visible blocks.",
+      "Embedded materials that gradually show up on the wall as you dig.",
+      "Faceless stick-figure miner and a quieter earthy presentation.",
+      "Surface outpost loop for selling finds and upgrading shovel or backpack.",
+      "Single buried final find per world to close the run.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo",
+    viability_en: "High: deterministic Canvas runtime with continuous-looking terrain rasterization, depth-based finds, and full QA bridge hooks.",
+    visualStyle_en: "2D excavation with continuous dirt or sand, embedded materials, and a faceless stick-figure miner.",
+    techFocus_en: "Continuous subsurface mask, depth-based find placement, and a lightweight sell-and-upgrade loop.",
   },
   {
     id: "arcade-valle-tranquilo",
