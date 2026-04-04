@@ -3731,3 +3731,39 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
   - balancear economia para acelerar compra real del jetpack en QA;
   - automatizar una run completa hasta tienda + compra + uso del jetpack;
   - pulir la animacion final de la camara del tesoro con mas puesta en escena.
+
+## 2026-04-04 - Dig hole: suavizado extra de cavado
+- Ajustada la sensacion de cavado para que deje de resultar agresiva:
+  - radio base de pala reducido en todos los niveles;
+  - golpe de cavado convertido en una mordida mas corta con segunda limpieza pequena en la trayectoria, en vez de un vaciado tan brusco;
+  - menos particulas por golpe.
+- Reducida la ayuda automatica al entrar en nuevos huecos:
+  - menor empuje lateral y vertical al cavar;
+  - reentrada al pozo desde la superficie mas progresiva.
+- Suavizada tambien la animacion de pala:
+  - menor inclinacion del cuerpo;
+  - swing de brazo y pala menos violento;
+  - mango mas corto en la extension maxima.
+- Verificacion local realizada:
+  - `node --check public/arcade/dig-hole-treasure/game.js`
+- Pendiente:
+  - rerun de `npm run build` y Playwright fuera del sandbox para validar jugabilidad y HUD tras este ajuste final.
+
+## 2026-04-04 - Dig hole: puesto, cavado arriba y menus
+- Corregido el flujo de venta/puesto para que el jugador pueda vender y comprar al volver a superficie:
+  - el acceso al puesto queda disponible en superficie;
+  - abrir el puesto recoloca al personaje en el mostrador para evitar estados ambiguos;
+  - el jetpack ahora devuelve directamente al puesto.
+- Anadido cavado hacia arriba con teclado usando `I`, manteniendo click para cavado libre.
+- Actualizados textos de control en el HTML del juego y en los registros React.
+- Redisenadas las pantallas internas (seleccion, tienda, cierre) con una direccion mas de videojuego:
+  - overlays mas inmersivos;
+  - modales con capas, brillo y contraste;
+  - tarjetas de mundos, inventario y mejoras con mas presencia visual.
+- Verificacion local realizada:
+  - `node --check public/arcade/dig-hole-treasure/game.js`
+- Nota:
+  - `node --check` no aplica a `src/games/arcade/dig-hole-treasure/index.jsx` por la extension `.jsx`.
+- Corregido solapamiento entre bloque superior descriptivo y banda de stats del HUD:
+  - la posicion vertical de monedas/profundidad/carga se calcula ahora a partir de la altura real del panel superior;
+  - evita superposiciones cuando el texto del objetivo ocupa mas lineas o cambia el ancho de pantalla.

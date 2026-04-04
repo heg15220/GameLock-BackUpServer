@@ -9,11 +9,12 @@
   const MOVE_ACCEL = 1320;
   const MOVE_FRICTION = 1480;
   const DIG_RANGE = 112;
+  const DIG_SWING_TIME = 0.18;
   const STORAGE_KEY = "dig-hole-html-progress-v4";
 
   const SHOVEL_NAMES = ["Manual", "Hierro", "Acero", "Titanio"];
   const SHOVEL_COSTS = [0, 90, 210, 420];
-  const DIG_RADII = [28, 36, 46, 56];
+  const DIG_RADII = [22, 28, 36, 44];
   const DIG_COOLDOWNS = [0.22, 0.18, 0.14, 0.1];
   const CAPACITY_VALUES = [12, 20, 30, 44];
   const CAPACITY_COSTS = [0, 80, 180, 320];
@@ -26,6 +27,8 @@
   const DARKNESS_FULL_RATIO = 0.7;
   const TORCH_NEAR_DISTANCE = 116;
   const ENTRY_ASSIST_RADIUS = 18;
+  const SURFACE_ENTRY_ALIGN_SPEED = 240;
+  const SURFACE_ENTRY_PULL_SPEED = 176;
 
   // --- Terrain rendering uses a full-resolution offscreen canvas ---
   // Each cell is drawn as a filled rect at CELL×CELL pixels, so the
@@ -55,6 +58,7 @@
     rafId: 0,
     accumulator: 0,
     lastTime: 0,
+    manualStepping: false,
   };
 
   const WORLDS = {
@@ -335,8 +339,33 @@
         }
       }
     }
-    if (removed > 0) run.terrainDirty = true;
+    if (removed > 0) markTerrainDirty(run, minCol, minRow, maxCol, maxRow);
     return removed;
+  }
+
+  function markTerrainDirty(run, minCol, minRow, maxCol, maxRow) {
+    run.terrainDirty = true;
+    if (run.terrainDirtyAll) return;
+    if (![minCol, minRow, maxCol, maxRow].every(Number.isFinite)) {
+      run.terrainDirtyAll = true;
+      run.terrainDirtyBounds = null;
+      return;
+    }
+    const next = {
+      minCol: clamp(Math.floor(minCol), 0, run.gridCols - 1),
+      minRow: clamp(Math.floor(minRow), 0, run.gridRows - 1),
+      maxCol: clamp(Math.floor(maxCol), 0, run.gridCols - 1),
+      maxRow: clamp(Math.floor(maxRow), 0, run.gridRows - 1),
+    };
+    if (next.maxCol < next.minCol || next.maxRow < next.minRow) return;
+    if (!run.terrainDirtyBounds) {
+      run.terrainDirtyBounds = next;
+      return;
+    }
+    run.terrainDirtyBounds.minCol = Math.min(run.terrainDirtyBounds.minCol, next.minCol);
+    run.terrainDirtyBounds.minRow = Math.min(run.terrainDirtyBounds.minRow, next.minRow);
+    run.terrainDirtyBounds.maxCol = Math.max(run.terrainDirtyBounds.maxCol, next.maxCol);
+    run.terrainDirtyBounds.maxRow = Math.max(run.terrainDirtyBounds.maxRow, next.maxRow);
   }
 
   // ─── Terrain texture (HIGH-RESOLUTION) ────────────────────────────────────
@@ -349,15 +378,31 @@
     const tctx = run.terrainCtx;
     const w = run.gridCols * CELL;
     const h = run.gridRows * CELL;
+    const bounds = run.terrainDirtyAll
+      ? { minCol: 0, minRow: 0, maxCol: run.gridCols - 1, maxRow: run.gridRows - 1 }
+      : run.terrainDirtyBounds;
 
-    // Clear to transparent
-    tctx.clearRect(0, 0, w, h);
+    if (!bounds) {
+      run.terrainDirty = false;
+      return;
+    }
+
+    if (run.terrainDirtyAll) {
+      tctx.clearRect(0, 0, w, h);
+    } else {
+      tctx.clearRect(
+        bounds.minCol * CELL,
+        bounds.minRow * CELL,
+        (bounds.maxCol - bounds.minCol + 1) * CELL,
+        (bounds.maxRow - bounds.minRow + 1) * CELL
+      );
+    }
 
     const noise = run.noiseLookup;
 
-    for (let row = 0; row < run.gridRows; row++) {
+    for (let row = bounds.minRow; row <= bounds.maxRow; row++) {
       const depthRatio = row / Math.max(1, run.gridRows - 1);
-      for (let col = 0; col < run.gridCols; col++) {
+      for (let col = bounds.minCol; col <= bounds.maxCol; col++) {
         if (!isCellSolid(run, col, row)) continue;
 
         const n = noise[row * run.gridCols + col];
@@ -388,6 +433,8 @@
     }
 
     run.terrainDirty = false;
+    run.terrainDirtyAll = false;
+    run.terrainDirtyBounds = null;
   }
 
   // ─── Materials & deposits ─────────────────────────────────────────────────
@@ -468,6 +515,8 @@
       terrainCanvas: document.createElement("canvas"),
       terrainCtx: null,
       terrainDirty: true,
+      terrainDirtyAll: true,
+      terrainDirtyBounds: null,
       noiseLookup: null,
       worldWidth,
       worldHeight: SURFACE_Y + gridRows * CELL,
@@ -479,6 +528,7 @@
         w: PLAYER_W, h: PLAYER_H,
         vx: 0, vy: 0, facing: 1,
         digCooldown: 0, digFlash: 0, walkCycle: 0,
+        digAimX: 1, digAimY: 0.18,
       },
       camera: { x: 0, y: 0 },
       outpost: { x: worldWidth * 0.5 + 154, y: SURFACE_Y - 6 },
@@ -558,6 +608,14 @@
     return "Tierra";
   }
 
+  function isNearSurface(run) {
+    return currentDepthMeters(run) < 26;
+  }
+
+  function canAccessOutpost(run) {
+    return isNearSurface(run);
+  }
+
   // ─── Collision ────────────────────────────────────────────────────────────
 
   function isSolidAt(run, x, y) {
@@ -602,14 +660,59 @@
     return { x: run.player.x + run.player.w * 0.5, y: run.player.y + run.player.h * 0.46 };
   }
 
+  function nudgePlayer(run, dx, dy, steps) {
+    const moveX = dx === 0 ? 0 : Math.sign(dx);
+    const moveY = dy === 0 ? 0 : Math.sign(dy);
+    for (let i = 0; i < steps; i++) {
+      let moved = false;
+      if (moveX && canOccupy(run, run.player.x + moveX, run.player.y)) {
+        run.player.x += moveX;
+        moved = true;
+      }
+      if (moveY && canOccupy(run, run.player.x, run.player.y + moveY)) {
+        run.player.y += moveY;
+        moved = true;
+      }
+      if (!moved) break;
+    }
+  }
+
   function assistHoleEntry(run) {
     const center = centerOfPlayer(run);
     const carveY = run.player.y + run.player.h + 10;
-    clearCircle(run, center.x, carveY, ENTRY_ASSIST_RADIUS + run.shovelLevel * 2);
-    for (let step = 0; step < 18; step++) {
-      if (!canOccupy(run, run.player.x, run.player.y + 1)) break;
-      run.player.y += 1;
+    clearCircle(run, center.x, carveY, ENTRY_ASSIST_RADIUS + run.shovelLevel);
+    nudgePlayer(run, 0, 1, 14);
+  }
+
+  function assistLateralEntry(run, direction) {
+    const center = centerOfPlayer(run);
+    const radius = ENTRY_ASSIST_RADIUS + 3 + run.shovelLevel;
+    const carveX = center.x + direction * (run.player.w * 0.65 + 10);
+    const carveY = run.player.y + run.player.h * 0.6;
+    clearCircle(run, carveX, carveY, radius);
+    clearCircle(run, carveX + direction * 8, carveY - 6, Math.max(ENTRY_ASSIST_RADIUS - 3, radius * 0.68));
+    nudgePlayer(run, direction, 0, 9);
+    nudgePlayer(run, 0, 1, 3);
+  }
+
+  function assistSurfaceReentry(run, dt) {
+    const player = run.player;
+    const centerX = player.x + player.w * 0.5;
+    const feetY = player.y + player.h;
+    if (feetY < run.surfaceY - 8 || feetY > run.surfaceY + 52) return false;
+    if (Math.abs(centerX - run.shaftX) > 38) return false;
+
+    clearCircle(run, run.shaftX, run.surfaceY + 18, ENTRY_ASSIST_RADIUS + 10 + run.shovelLevel * 2);
+    const desiredX = run.shaftX - player.w * 0.5;
+    player.x = approach(player.x, desiredX, SURFACE_ENTRY_ALIGN_SPEED * dt);
+    player.x = clamp(player.x, 0, run.worldWidth - player.w);
+    nudgePlayer(run, desiredX - player.x, 0, 6);
+
+    if (canOccupy(run, player.x, player.y + 1)) {
+      movePlayerAxis(run, "y", SURFACE_ENTRY_PULL_SPEED * dt);
+      return true;
     }
+    return false;
   }
 
   // ─── Digging ──────────────────────────────────────────────────────────────
@@ -620,6 +723,7 @@
     if (state.keys.KeyJ) { tx = center.x - 54; ty = center.y + 2; }
     else if (state.keys.KeyL) { tx = center.x + 54; ty = center.y + 2; }
     else if (state.keys.KeyK) { tx = center.x; ty = center.y + 54; }
+    else if (state.keys.KeyI) { tx = center.x; ty = center.y - 54; }
     else if (state.pointer.down && state.pointer.inside) {
       tx = state.pointer.x + run.camera.x;
       ty = state.pointer.y + run.camera.y;
@@ -627,6 +731,9 @@
     if (tx == null || ty == null) { run.digTarget = null; return null; }
     if (ty < run.surfaceY + 6) { run.digTarget = null; return null; }
     if (Math.hypot(tx - center.x, ty - center.y) > DIG_RANGE) { run.digTarget = null; return null; }
+    const aimLen = Math.hypot(tx - center.x, ty - center.y) || 1;
+    run.player.digAimX = (tx - center.x) / aimLen;
+    run.player.digAimY = (ty - center.y) / aimLen;
     run.digTarget = { x: tx, y: ty };
     run.player.facing = tx >= center.x ? 1 : -1;
     return run.digTarget;
@@ -648,16 +755,29 @@
   function digAt(run, target) {
     const radius = DIG_RADII[run.shovelLevel];
     const center = centerOfPlayer(run);
+    const dx = target.x - center.x;
+    const dy = target.y - center.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const aimX = dx / len;
+    const aimY = dy / len;
     let removed = clearCircle(run, target.x, target.y, radius);
-    if (target.y > center.y + 16 && Math.abs(target.x - center.x) < 20) {
-      removed += clearCircle(run, center.x, run.player.y + run.player.h + radius * 0.45, Math.max(ENTRY_ASSIST_RADIUS, radius * 0.56));
+    removed += clearCircle(
+      run,
+      target.x - aimX * (radius * 0.55),
+      target.y - aimY * (radius * 0.35),
+      Math.max(12, radius * 0.58)
+    );
+    if (dy > 18 && Math.abs(dx) < 22) {
+      removed += clearCircle(run, center.x, run.player.y + run.player.h + radius * 0.28, Math.max(ENTRY_ASSIST_RADIUS - 2, radius * 0.42));
       assistHoleEntry(run);
+    } else if (Math.abs(dx) > 22 && Math.abs(dy) < radius * 0.8) {
+      assistLateralEntry(run, Math.sign(dx));
     }
     if (removed <= 0) return;
     run.player.digCooldown = DIG_COOLDOWNS[run.shovelLevel];
-    run.player.digFlash = 0.18;
+    run.player.digFlash = DIG_SWING_TIME;
     run.materialScanCooldown = 0;
-    spawnParticles(run, target.x, target.y, 14, "#d5a473", "#8f653f");
+    spawnParticles(run, target.x, target.y, 10, "#d5a473", "#8f653f");
     updateProgressDepth(run);
     markUiDirty();
   }
@@ -771,6 +891,7 @@
     player.vy = approach(player.vy, targetVY, accel * dt);
     movePlayerAxis(run, "x", player.vx * dt);
     movePlayerAxis(run, "y", player.vy * dt);
+    if (down && currentDepthMeters(run) < 32) assistSurfaceReentry(run, dt);
     player.x = clamp(player.x, 0, run.worldWidth - player.w);
     player.y = clamp(player.y, run.surfaceY - player.h, run.worldHeight - player.h - 4);
     if (Math.abs(player.vx) > 8) player.facing = player.vx >= 0 ? 1 : -1;
@@ -877,17 +998,24 @@
     return currentDepthMeters(run) < 26 && Math.abs(center.x - run.outpost.x) < 92;
   }
 
+  function snapPlayerToOutpost(run) {
+    run.player.x = clamp(run.outpost.x - run.player.w * 0.5, 0, run.worldWidth - run.player.w);
+    run.player.y = run.surfaceY - run.player.h;
+    run.player.vx = 0;
+    run.player.vy = 0;
+    run.camera.x = clamp(run.outpost.x - state.viewportWidth * 0.5, 0, Math.max(0, run.worldWidth - state.viewportWidth));
+    run.camera.y = 0;
+  }
+
   function canClaimTreasure(run) { return run.treasure.promptReady && !run.treasure.claimed; }
 
   function useJetpack() {
     const run = state.run;
     if (!run || state.screen !== "running") return;
     if (!run.jetpackOwned) { setMessage("Necesitas comprar el jetpack en el puesto.", 1.3); return; }
-    run.player.x = run.shaftX - run.player.w * 0.5;
-    run.player.y = run.surfaceY - run.player.h;
-    run.player.vx = 0; run.player.vy = 0; run.camera.y = 0;
+    snapPlayerToOutpost(run);
     spawnParticles(run, run.player.x + run.player.w * 0.5, run.player.y + run.player.h * 0.5, 22, "#ffe291", "#ff9e54");
-    setMessage("Jetpack activado. Regresas al puesto de la superficie.", 1.5);
+    setMessage("Jetpack activado. Regresas directamente al puesto.", 1.5);
     updateGuidance(run); markUiDirty();
   }
 
@@ -939,7 +1067,7 @@
 
   function sellMaterial(materialId, qty) {
     const run = state.run;
-    if (!run || !isAtOutpost(run)) return;
+    if (!run || !canAccessOutpost(run)) return;
     const available = run.inventory[materialId] || 0;
     const amount = clamp(qty, 0, available);
     if (!amount) return;
@@ -954,7 +1082,7 @@
 
   function sellAll() {
     const run = state.run;
-    if (!run || !isAtOutpost(run)) return;
+    if (!run || !canAccessOutpost(run)) return;
     let total = 0;
     for (const e of inventoryEntries(run)) total += e.qty * e.material.value;
     if (!total) { setMessage("No tienes materiales para vender.", 1.2); return; }
@@ -967,7 +1095,7 @@
 
   function buyShovel() {
     const run = state.run;
-    if (!run || !isAtOutpost(run)) return;
+    if (!run || !canAccessOutpost(run)) return;
     const next = run.shovelLevel + 1;
     if (next >= SHOVEL_NAMES.length) return;
     const cost = SHOVEL_COSTS[next];
@@ -978,7 +1106,7 @@
 
   function buyCapacity() {
     const run = state.run;
-    if (!run || !isAtOutpost(run)) return;
+    if (!run || !canAccessOutpost(run)) return;
     const next = run.capacityLevel + 1;
     if (next >= CAPACITY_VALUES.length) return;
     const cost = CAPACITY_COSTS[next];
@@ -990,7 +1118,7 @@
 
   function buyJetpack() {
     const run = state.run;
-    if (!run || !isAtOutpost(run) || run.jetpackOwned) return;
+    if (!run || !canAccessOutpost(run) || run.jetpackOwned) return;
     if (run.bestDepthMeters < JETPACK_DEPTH_REQUIREMENT) {
       setMessage(`Cava al menos ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} para desbloquear el jetpack.`, 1.6); return;
     }
@@ -1002,7 +1130,7 @@
 
   function buyTorchPack() {
     const run = state.run;
-    if (!run || !isAtOutpost(run)) return;
+    if (!run || !canAccessOutpost(run)) return;
     if (run.coins < TORCH_PACK_COST) { setMessage("Necesitas más monedas para comprar linternas.", 1.3); return; }
     run.coins -= TORCH_PACK_COST; run.torches += TORCH_PACK_SIZE;
     setMessage(`Has comprado ${TORCH_PACK_SIZE} linternas.`, 1.2);
@@ -1066,7 +1194,11 @@
   function handleSurfaceAction() {
     const run = state.run;
     if (!run) return;
-    if (isAtOutpost(run)) { openPanel("market"); return; }
+    if (canAccessOutpost(run)) {
+      snapPlayerToOutpost(run);
+      openPanel("market");
+      return;
+    }
     if (run.jetpackOwned) { useJetpack(); return; }
     setMessage("Solo el jetpack te permite volver al puesto desde el interior del hoyo.", 1.5);
   }
@@ -1076,7 +1208,11 @@
     if (!run) { if (state.screen === "world_select") startRun(state.selectedWorldId); return; }
     if (state.screen === "market" || state.screen === "inventory") { closePanel(); return; }
     if (state.screen === "ending") { restartRun(); return; }
-    if (isAtOutpost(run)) { openPanel("market"); return; }
+    if (canAccessOutpost(run)) {
+      snapPlayerToOutpost(run);
+      openPanel("market");
+      return;
+    }
     if (canClaimTreasure(run)) claimTreasure();
   }
 
@@ -1346,9 +1482,21 @@
     const ctx = state.ctx;
     const player = run.player;
     const x = player.x - run.camera.x, y = player.y - run.camera.y;
-    const bodyLean = player.vx * 0.008;
-    const legSwing = Math.sin(player.walkCycle) * 5;
-    const armSwing = run.digTarget ? 12 : legSwing * 0.7;
+    const moving = Math.hypot(player.vx, player.vy) > 8;
+    const walkWave = Math.sin(player.walkCycle);
+    const legSwing = walkWave * 5;
+    const digPhase = player.digFlash > 0 ? 1 - clamp(player.digFlash / DIG_SWING_TIME, 0, 1) : 0;
+    const digSwing = player.digFlash > 0 ? Math.sin(digPhase * Math.PI) * 0.72 : 0;
+    const digging = Boolean(run.digTarget) || player.digFlash > 0;
+    const aimX = player.digAimX || player.facing;
+    const aimY = player.digAimY || 0.18;
+    const bodyLean = digging ? aimX * 1.8 : player.vx * 0.008;
+    const torsoY = 10 - (moving ? Math.abs(walkWave) * 0.5 : 0);
+    const hipY = 26 + (moving ? Math.abs(walkWave) * 0.6 : 0);
+    const activeHandX = digging ? clamp(aimX * (9 + digSwing * 4), -16, 16) : 8;
+    const activeHandY = digging ? clamp(15 + aimY * 14 - digSwing * 4.8, 7, 28) : 18 - legSwing * 0.18;
+    const supportHandX = digging ? clamp(aimX * 4 - player.facing * 3, -12, 12) : -8;
+    const supportHandY = digging ? 18 + digSwing * 1.2 : 18 + legSwing * 0.18;
 
     ctx.save();
     ctx.translate(x + player.w * 0.5, y + player.h * 0.18);
@@ -1359,25 +1507,52 @@
     ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 
     // Body
-    ctx.beginPath(); ctx.moveTo(0, 10); ctx.lineTo(bodyLean, 26); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, torsoY); ctx.lineTo(bodyLean, hipY); ctx.stroke();
 
     // Arms
     ctx.beginPath();
-    ctx.moveTo(0, 14); ctx.lineTo(-8, 18 + armSwing * 0.18);
-    ctx.moveTo(0, 14); ctx.lineTo(8, 18 - armSwing * 0.18);
+    ctx.moveTo(-1, 14); ctx.lineTo(supportHandX, supportHandY);
+    ctx.moveTo(1, 14); ctx.lineTo(activeHandX, activeHandY);
     ctx.stroke();
 
     // Legs
     ctx.beginPath();
-    ctx.moveTo(bodyLean, 26); ctx.lineTo(-6, 38 + legSwing * 0.3);
-    ctx.moveTo(bodyLean, 26); ctx.lineTo(6, 38 - legSwing * 0.3);
+    ctx.moveTo(bodyLean, hipY); ctx.lineTo(-6, 38 + legSwing * 0.3);
+    ctx.moveTo(bodyLean, hipY); ctx.lineTo(6, 38 - legSwing * 0.3);
     ctx.stroke();
 
     // Shovel if digging
-    if (run.digTarget) {
-      ctx.strokeStyle = "#5a4737"; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(8, 18 - armSwing * 0.18); ctx.lineTo(18 * player.facing, 26); ctx.stroke();
-      ctx.fillStyle = "#9e7b55"; ctx.fillRect(18 * player.facing - 4, 23, 8 * player.facing, 8);
+    if (digging) {
+      const handleAngle = Math.atan2(aimY, aimX);
+      const handleStartX = activeHandX;
+      const handleStartY = activeHandY;
+      const handleLength = 14 + digSwing * 4;
+      const handleEndX = handleStartX + Math.cos(handleAngle) * handleLength;
+      const handleEndY = handleStartY + Math.sin(handleAngle) * handleLength;
+
+      ctx.strokeStyle = "#5a4737";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(handleStartX, handleStartY);
+      ctx.lineTo(handleEndX, handleEndY);
+      ctx.stroke();
+
+      ctx.save();
+      ctx.translate(handleEndX, handleEndY);
+      ctx.rotate(handleAngle + Math.PI * 0.5);
+      ctx.fillStyle = "#d6b48b";
+      ctx.beginPath();
+      ctx.moveTo(0, -7);
+      ctx.lineTo(7, -1);
+      ctx.lineTo(5, 8);
+      ctx.lineTo(-5, 8);
+      ctx.lineTo(-7, -1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "#6d543d";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
     }
 
     // Jetpack indicator
@@ -1472,7 +1647,18 @@
     drawMaterialBlob(world.materials[Math.min(1, world.materials.length - 1)], w * 0.63, surfaceScreenY + 248, 16, 1);
     drawMaterialBlob(world.materials[world.materials.length - 1], w * 0.52, surfaceScreenY + 350, 18, 1);
     const previewRun = {
-      player: { x: w * 0.5 - PLAYER_W * 0.5, y: surfaceScreenY - PLAYER_H + 6, w: PLAYER_W, h: PLAYER_H, vx: 0, walkCycle: state.showcaseTime * 4, facing: 1 },
+      player: {
+        x: w * 0.5 - PLAYER_W * 0.5,
+        y: surfaceScreenY - PLAYER_H + 6,
+        w: PLAYER_W,
+        h: PLAYER_H,
+        vx: 0,
+        walkCycle: state.showcaseTime * 4,
+        facing: 1,
+        digFlash: DIG_SWING_TIME * (0.45 + 0.45 * Math.sin(state.showcaseTime * 5)),
+        digAimX: 0.78,
+        digAimY: 0.62,
+      },
       camera: { x: 0, y: 0 },
       digTarget: { x: w * 0.5 + 48, y: surfaceScreenY + 74 },
       shovelLevel: 0, jetpackOwned: false,
@@ -1511,13 +1697,14 @@
     const run = state.run;
     if (!run) return;
     const atOutpost = isAtOutpost(run);
+    const outpostAccess = canAccessOutpost(run);
     state.hud.panelEyebrow.textContent = state.screen === "market" ? "Puesto" : "Inventario";
-    state.hud.panelTitle.textContent = atOutpost ? run.world.shopName : "Mochila y mejoras";
-    state.hud.panelLead.textContent = atOutpost
+    state.hud.panelTitle.textContent = outpostAccess ? run.world.shopName : "Mochila y mejoras";
+    state.hud.panelLead.textContent = outpostAccess
       ? "Vende materiales, mejora la pala y prepara el jetpack o las linternas antes de bajar más."
       : "Puedes revisar lo encontrado, pero las ventas y compras siguen dependiendo del puesto de la superficie.";
-    state.hud.panelNotice.textContent = atOutpost
-      ? `Monedas: ${run.coins} | Jetpack: ${run.jetpackOwned ? "✓ operativo" : "pendiente"} | Linternas: ${run.torches}`
+    state.hud.panelNotice.textContent = outpostAccess
+      ? `Monedas: ${run.coins} | Jetpack: ${run.jetpackOwned ? "✓ operativo" : "pendiente"} | Linternas: ${run.torches} | ${atOutpost ? "Mostrador abierto" : "Acceso remoto en superficie"}`
       : `Acciones comerciales bloqueadas. Linternas restantes: ${run.torches}.`;
 
     const items = inventoryEntries(run);
@@ -1530,26 +1717,26 @@
             </header>
             <p>Valor unitario ${e.material.value}. Material incrustado recogido a mano.</p>
             <div class="item-actions">
-              <button type="button" data-action="sell" data-material="${e.id}" data-qty="1" ${atOutpost ? "" : "disabled"}>Vender 1</button>
-              <button type="button" data-action="sell" data-material="${e.id}" data-qty="${e.qty}" ${atOutpost ? "" : "disabled"}>Vender todo</button>
+              <button type="button" data-action="sell" data-material="${e.id}" data-qty="1" ${outpostAccess ? "" : "disabled"}>Vender 1</button>
+              <button type="button" data-action="sell" data-material="${e.id}" data-qty="${e.qty}" ${outpostAccess ? "" : "disabled"}>Vender todo</button>
             </div>
           </article>`).join("")
       : `<article class="item-card"><strong>Sin hallazgos</strong><p>Excava la pared y recoge lo que vaya quedando al descubierto.</p></article>`;
 
     const nextShovel = run.shovelLevel + 1;
     const nextCapacity = run.capacityLevel + 1;
-    const canBuyJetpack = atOutpost && !run.jetpackOwned && run.bestDepthMeters >= JETPACK_DEPTH_REQUIREMENT && run.coins >= JETPACK_COST;
-    const canBuyTorchPack = atOutpost && run.coins >= TORCH_PACK_COST;
+    const canBuyJetpack = outpostAccess && !run.jetpackOwned && run.bestDepthMeters >= JETPACK_DEPTH_REQUIREMENT && run.coins >= JETPACK_COST;
+    const canBuyTorchPack = outpostAccess && run.coins >= TORCH_PACK_COST;
     state.hud.upgradeList.innerHTML = `
       <article class="upgrade-card">
         <header><strong>Herramienta ${SHOVEL_NAMES[run.shovelLevel]}</strong><span class="mini-pill">Nivel ${run.shovelLevel + 1}/${SHOVEL_NAMES.length}</span></header>
         <p>${nextShovel < SHOVEL_NAMES.length ? `Siguiente nivel por ${SHOVEL_COSTS[nextShovel]} monedas.` : "Herramienta al máximo."}</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-shovel" ${atOutpost && nextShovel < SHOVEL_NAMES.length && run.coins >= SHOVEL_COSTS[nextShovel] ? "" : "disabled"}>Mejorar pala</button></div>
+        <div class="upgrade-actions"><button type="button" data-action="buy-shovel" ${outpostAccess && nextShovel < SHOVEL_NAMES.length && run.coins >= SHOVEL_COSTS[nextShovel] ? "" : "disabled"}>Mejorar pala</button></div>
       </article>
       <article class="upgrade-card">
         <header><strong>Mochila</strong><span class="mini-pill">${run.inventoryCount}/${currentCapacity(run)}</span></header>
         <p>${nextCapacity < CAPACITY_VALUES.length ? `Capacidad siguiente: ${CAPACITY_VALUES[nextCapacity]} por ${CAPACITY_COSTS[nextCapacity]} monedas.` : "Capacidad máxima alcanzada."}</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-capacity" ${atOutpost && nextCapacity < CAPACITY_VALUES.length && run.coins >= CAPACITY_COSTS[nextCapacity] ? "" : "disabled"}>Ampliar mochila</button></div>
+        <div class="upgrade-actions"><button type="button" data-action="buy-capacity" ${outpostAccess && nextCapacity < CAPACITY_VALUES.length && run.coins >= CAPACITY_COSTS[nextCapacity] ? "" : "disabled"}>Ampliar mochila</button></div>
       </article>
       <article class="upgrade-card">
         <header><strong>Jetpack</strong><span class="mini-pill">${run.jetpackOwned ? "✓ Operativo" : "Bloqueado"}</span></header>
@@ -1564,7 +1751,7 @@
       <article class="upgrade-card">
         <header><strong>Venta rápida</strong><span class="mini-pill">${items.length} tipos</span></header>
         <p>Convierte todo el inventario actual en monedas desde el puesto.</p>
-        <div class="upgrade-actions"><button type="button" data-action="sell-all" ${atOutpost && items.length ? "" : "disabled"}>Vender todo</button></div>
+        <div class="upgrade-actions"><button type="button" data-action="sell-all" ${outpostAccess && items.length ? "" : "disabled"}>Vender todo</button></div>
       </article>`;
   }
 
@@ -1630,6 +1817,7 @@
 
     renderWorldCards();
     if (state.run) { renderPanel(); renderEnding(); }
+    refreshHudLayout();
   }
 
   // ─── Game loop ────────────────────────────────────────────────────────────
@@ -1643,8 +1831,8 @@
     const run = state.run;
     if (run) {
       if (state.screen === "running") {
-        updatePlayer(run, dt);
         updateDigging(run, dt);
+        updatePlayer(run, dt);
         updateDeposits(run, dt);
         updateParticles(run, dt);
         updateCamera(run);
@@ -1681,6 +1869,12 @@
 
   function loop(timestamp) {
     if (!state.lastTime) state.lastTime = timestamp;
+    if (state.manualStepping) {
+      state.lastTime = timestamp;
+      render();
+      state.rafId = window.requestAnimationFrame(loop);
+      return;
+    }
     const delta = Math.min(0.05, (timestamp - state.lastTime) / 1000);
     state.lastTime = timestamp;
     state.accumulator += delta;
@@ -1701,6 +1895,7 @@
     state.canvas.style.width = `${rect.width}px`;
     state.canvas.style.height = `${rect.height}px`;
     state.ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    refreshHudLayout();
     markUiDirty();
   }
 
@@ -1725,16 +1920,115 @@
     if (event.code === "KeyR") { event.preventDefault(); if (state.screen === "world_select") startRun(state.selectedWorldId); else restartRun(); return; }
     if (event.code === "KeyF") { event.preventDefault(); toggleFullscreen(); return; }
     if (event.code === "Escape" && document.fullscreenElement) { document.exitFullscreen?.(); return; }
-    if (["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Space"].includes(event.code)) event.preventDefault();
+    if (["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Space","KeyI"].includes(event.code)) event.preventDefault();
   }
 
   function onKeyUp(event) { state.keys[event.code] = false; }
+
+  function buildTextPayload() {
+    const run = state.run;
+    if (!run) {
+      return {
+        mode: "arcade-dig-hole-treasure",
+        screen: state.screen,
+        worldId: state.selectedWorldId,
+        worldName: currentWorld().title,
+        coordinates: "x increases to the right; y increases downward; values are world pixels.",
+        message: state.message,
+      };
+    }
+    const nextBreadcrumb = currentBreadcrumbTarget(run);
+    const center = centerOfPlayer(run);
+    const nearbyMaterials = run.deposits
+      .filter(d => !d.collected && d.exposed > 0.14 && Math.hypot(d.x - center.x, d.y - center.y) <= 168)
+      .sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y))
+      .slice(0, 5)
+      .map(d => ({
+        id: d.id,
+        name: run.materialById[d.materialId].name,
+        x: round(d.x, 1),
+        y: round(d.y, 1),
+        exposure: round(d.exposed, 2),
+      }));
+
+    return {
+      mode: "arcade-dig-hole-treasure",
+      screen: state.screen,
+      worldId: run.worldId,
+      worldName: run.world.title,
+      coordinates: "x increases to the right; y increases downward; values are world pixels.",
+      message: state.message,
+      bestDepthMeters: run.bestDepthMeters,
+      coins: run.coins,
+      inventoryCount: run.inventoryCount,
+      collectedTotal: run.collectedTotal,
+      capacity: currentCapacity(run),
+      shovelLevel: run.shovelLevel,
+      jetpackOwned: run.jetpackOwned,
+      torches: run.torches,
+      darkness: round(currentDarkness(run), 2),
+      soilType: currentSoilLabel(run),
+      canUseMarket: canAccessOutpost(run),
+      treasureVisible: run.treasure.exposure > 0.18,
+      treasureReady: canClaimTreasure(run),
+      guidanceArrow: run.guidanceArrow,
+      guidanceSignalActive: run.guidanceSignalActive,
+      inventory: inventoryEntries(run).map(entry => ({
+        id: entry.id,
+        name: entry.material.name,
+        qty: entry.qty,
+        value: entry.material.value,
+        rarity: entry.material.rarity,
+      })),
+      depthMeters: currentDepthMeters(run),
+      player: {
+        x: round(run.player.x, 1),
+        y: round(run.player.y, 1),
+        vx: round(run.player.vx, 1),
+        vy: round(run.player.vy, 1),
+        facing: run.player.facing,
+      },
+      digTarget: run.digTarget ? { x: round(run.digTarget.x, 1), y: round(run.digTarget.y, 1) } : null,
+      nextBreadcrumb: nextBreadcrumb ? {
+        x: round(nextBreadcrumb.x, 1),
+        y: round(nextBreadcrumb.y, 1),
+        depthMeters: depthMetersAtY(run, nextBreadcrumb.y),
+      } : null,
+      placedTorches: run.placedTorches.map(t => ({ x: round(t.x, 1), y: round(t.y, 1) })),
+      nearbyMaterials,
+    };
+  }
+
+  function renderGameToText() {
+    return JSON.stringify(buildTextPayload());
+  }
+
+  function advanceTime(ms) {
+    state.manualStepping = true;
+    state.lastTime = performance.now();
+    const frameMs = FIXED_DT * 1000;
+    const totalMs = Math.max(frameMs, Number.isFinite(ms) ? ms : frameMs);
+    const steps = Math.max(1, Math.round(totalMs / frameMs));
+    for (let i = 0; i < steps; i++) update(FIXED_DT);
+    render();
+    return renderGameToText();
+  }
+
+  function refreshHudLayout() {
+    if (!state.shell || !state.hud.hudTop) return;
+    const shellRect = state.shell.getBoundingClientRect();
+    const hudTopRect = state.hud.hudTop.getBoundingClientRect();
+    const stackTop = Math.max(92, Math.round(hudTopRect.bottom - shellRect.top + 10));
+    state.shell.style.setProperty("--hud-stack-top", `${stackTop}px`);
+    state.shell.style.setProperty("--hud-depth-top", `${Math.max(96, stackTop + 4)}px`);
+  }
 
   function initDom() {
     state.shell = document.getElementById("shell");
     state.canvas = document.getElementById("game");
     state.ctx = state.canvas.getContext("2d");
     state.hud = {
+      hudTop: document.querySelector(".hud-top"),
       worldLabel: document.getElementById("worldLabel"),
       objectiveLabel: document.getElementById("objectiveLabel"),
       coinsValue: document.getElementById("coinsValue"),
@@ -1805,7 +2099,19 @@
     resize();
     syncInterface();
     state.rafId = window.requestAnimationFrame(loop);
-    window.__digHoleApi = { selectWorld, startRun, restartRun, openPanel, closePanel };
+    window.render_game_to_text = renderGameToText;
+    window.advanceTime = advanceTime;
+    window.__digHoleApi = {
+      selectWorld,
+      startRun,
+      restartRun,
+      openPanel,
+      closePanel,
+      interact,
+      useJetpack,
+      placeTorch,
+      renderGameToText,
+    };
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

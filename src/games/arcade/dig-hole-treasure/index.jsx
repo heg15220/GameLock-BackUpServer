@@ -20,6 +20,7 @@ function shouldForward(code) {
     "KeyD",
     "KeyE",
     "KeyF",
+    "KeyI",
     "KeyJ",
     "KeyK",
     "KeyL",
