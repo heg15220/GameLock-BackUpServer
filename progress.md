@@ -3697,3 +3697,37 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
   - parseo JS OK (PARSE_OK).
   - captura revisada: output/valle-tranquilo-inventory-bigger/started-1280x720.png.
   - medicion navegador en 1280x720: slot ~43.42x43.42 px, la barra sigue entrando completa en pantalla.
+
+## 2026-04-04 - Dig hole treasure: hoyo navegable + logica de progresion
+- Revisado `public/arcade/dig-hole-treasure/game.js`, `index.html` y `styles.css` para alinear el minijuego con el documento de producto del juego de cavar hoyo.
+- Ajustada la generacion de materiales por mundo:
+  - anadida `Piedra` como material basico con aparicion posible en cualquier profundidad;
+  - rebalanceadas vetas por profundidad para selva, desierto y patio urbano;
+  - mantenido sesgo de rareza creciente sin eliminar apariciones raras a baja frecuencia.
+- Mejorada la excavacion para que el personaje pueda meterse en el hoyo que esta cavando:
+  - se abre un bolsillo extra al cavar hacia abajo;
+  - el personaje se asienta dentro de la nueva cavidad para evitar bloqueos de colision en el borde.
+- Implementado guiado por flechas intermedias hacia el tesoro:
+  - marcadores fisicos incrustados en la pared;
+  - senal luminosa parpadeante cuando aun no se ha descubierto la siguiente flecha;
+  - serializacion del siguiente objetivo en `render_game_to_text`.
+- Anadida progresion nueva:
+  - compra de jetpack en superficie tras cierta profundidad minima;
+  - accion `T` o boton superior para volver al puesto desde profundidad;
+  - compra y colocacion de linternas con `B`;
+  - oscuridad progresiva en profundidad para hacer relevante la iluminacion.
+- El tramo final ahora se representa como puerta del tesoro, no solo como blob/material brillante, y el cierre de partida describe la entrada en la camara final.
+- HUD/panel actualizados para mostrar estado de jetpack, linternas, nuevo objetivo y controles revisados.
+- Validacion tecnica realizada:
+  - `node --check public/arcade/dig-hole-treasure/game.js`
+  - `npm.cmd run build` con `NODE_OPTIONS=--max-old-space-size=4096`
+  - Playwright local sobre `file:///.../public/arcade/dig-hole-treasure/index.html`
+  - capturas/estado en `output/dig-hole-after`, `output/dig-hole-deep-check` y `output/dig-hole-deep-dark`
+- Observaciones de QA:
+  - sin errores de consola en las pasadas Playwright revisadas;
+  - comprobado descenso continuo, guiado luminoso y tramo oscuro temprano;
+  - no se ha automatizado aun una compra completa de jetpack/linterna ni una run completa hasta la puerta final, aunque la logica y UI quedan conectadas.
+- Siguiente bloque recomendado si se continua:
+  - balancear economia para acelerar compra real del jetpack en QA;
+  - automatizar una run completa hasta tienda + compra + uso del jetpack;
+  - pulir la animacion final de la camara del tesoro con mas puesta en escena.

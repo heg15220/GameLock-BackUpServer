@@ -254,6 +254,16 @@ button.secondary {
   animation: beaconPulse 0.92s ease-in-out infinite;
 }
 
+.beacon-card.signal-active {
+  border-color: rgba(249, 210, 120, 0.5);
+  box-shadow: 0 18px 34px rgba(72, 45, 21, 0.16), 0 0 24px rgba(249, 210, 120, 0.25);
+}
+
+.beacon-card.signal-active .beacon-arrow {
+  background: radial-gradient(circle, rgba(255, 239, 174, 0.98), rgba(238, 151, 77, 0.92));
+  box-shadow: 0 0 26px rgba(255, 214, 117, 0.56);
+}
+
 .message-box {
   left: 50%;
   top: 24px;

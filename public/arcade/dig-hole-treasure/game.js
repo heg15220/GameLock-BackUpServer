@@ -17,6 +17,15 @@
   const DIG_COOLDOWNS = [0.22, 0.18, 0.14, 0.1];
   const CAPACITY_VALUES = [12, 20, 30, 44];
   const CAPACITY_COSTS = [0, 80, 180, 320];
+  const JETPACK_COST = 32;
+  const JETPACK_DEPTH_REQUIREMENT = 120;
+  const TORCH_PACK_COST = 18;
+  const TORCH_PACK_SIZE = 3;
+  const GUIDANCE_MARKER_COUNT = 4;
+  const DARKNESS_START_RATIO = 0.22;
+  const DARKNESS_FULL_RATIO = 0.7;
+  const TORCH_NEAR_DISTANCE = 116;
+  const ENTRY_ASSIST_RADIUS = 18;
 
   const state = {
     canvas: null,
@@ -70,14 +79,15 @@
       ],
       cardFacts: [
         "El subsuelo es tierra continua de selva, sin bloques visibles.",
+        "La piedra puede aparecer a cualquier profundidad como material base.",
         "Las vetas aparecen incrustadas a medida que abres huecos en la pared.",
-        "Arcilla, ambar, jade y esmeraldas se mezclan segun la profundidad.",
       ],
       materials: [
-        { id: "clay", name: "Arcilla", rarity: 1, value: 4, color: "#b4774e", accent: "#ddb089", weights: [46, 24, 8, 2] },
-        { id: "amber", name: "Ambar", rarity: 2, value: 11, color: "#d59232", accent: "#ffd78e", weights: [24, 20, 8, 2] },
-        { id: "jade", name: "Jade", rarity: 3, value: 22, color: "#2a9f63", accent: "#abf0c7", weights: [4, 18, 18, 6] },
-        { id: "emerald", name: "Esmeralda", rarity: 4, value: 40, color: "#0d8b49", accent: "#9ef7bf", weights: [1, 6, 12, 14] },
+        { id: "stone", name: "Piedra", rarity: 1, value: 3, color: "#7d7367", accent: "#cfc5ba", weights: [52, 38, 28, 18] },
+        { id: "clay", name: "Arcilla roja", rarity: 1, value: 6, color: "#b4774e", accent: "#ddb089", weights: [24, 14, 8, 4] },
+        { id: "amber", name: "Ambar", rarity: 2, value: 12, color: "#d59232", accent: "#ffd78e", weights: [8, 12, 8, 3] },
+        { id: "jade", name: "Jade", rarity: 3, value: 24, color: "#2a9f63", accent: "#abf0c7", weights: [2, 8, 16, 8] },
+        { id: "emerald", name: "Esmeralda", rarity: 4, value: 44, color: "#0d8b49", accent: "#9ef7bf", weights: [1, 3, 8, 14] },
       ],
     },
     desert: {
@@ -107,14 +117,16 @@
       ],
       cardFacts: [
         "La capa alta y cercana a la superficie es arena casi completa.",
+        "La piedra sigue apareciendo incluso en las capas profundas.",
         "La arena se compacta en profundidad, pero sigue sin verse cuadriculada.",
-        "Sal, turquesa, cobre y opalo aparecen incrustados en la pared.",
+        "Sal, cobre, turquesa y opalo aparecen incrustados en la pared.",
       ],
       materials: [
-        { id: "salt", name: "Sal", rarity: 1, value: 4, color: "#f1f3ef", accent: "#ffffff", weights: [30, 12, 4, 1] },
-        { id: "copper", name: "Cobre", rarity: 2, value: 10, color: "#b86d37", accent: "#f6c8a5", weights: [24, 18, 8, 2] },
-        { id: "turquoise", name: "Turquesa", rarity: 3, value: 21, color: "#1aaeb4", accent: "#bbfdff", weights: [4, 16, 16, 6] },
-        { id: "sunopal", name: "Opalo solar", rarity: 4, value: 38, color: "#f39f45", accent: "#fff2ac", weights: [1, 6, 12, 13] },
+        { id: "stone", name: "Piedra", rarity: 1, value: 3, color: "#8c816f", accent: "#d7ccb7", weights: [48, 34, 22, 16] },
+        { id: "salt", name: "Sal", rarity: 1, value: 6, color: "#f1f3ef", accent: "#ffffff", weights: [26, 12, 6, 2] },
+        { id: "copper", name: "Cobre", rarity: 2, value: 11, color: "#b86d37", accent: "#f6c8a5", weights: [12, 20, 12, 5] },
+        { id: "turquoise", name: "Turquesa", rarity: 3, value: 23, color: "#1aaeb4", accent: "#bbfdff", weights: [2, 8, 16, 8] },
+        { id: "sunopal", name: "Opalo solar", rarity: 4, value: 42, color: "#f39f45", accent: "#fff2ac", weights: [1, 3, 8, 14] },
       ],
     },
     urban: {
@@ -143,14 +155,15 @@
       ],
       cardFacts: [
         "La urbanizacion se abre sobre una masa de tierra uniforme.",
-        "La tierra se va vaciando a mano y deja restos incrustados visibles.",
-        "Ceramica, cobre, plata y cristal aparecen al avanzar.",
+        "La piedra tambien aparece aqui como material mas frecuente.",
+        "La tierra se va vaciando a mano y deja restos y vetas incrustadas visibles.",
       ],
       materials: [
-        { id: "ceramic", name: "Ceramica", rarity: 1, value: 5, color: "#d3c2b1", accent: "#f3e4d4", weights: [34, 16, 6, 1] },
-        { id: "pipe", name: "Tuberia", rarity: 2, value: 11, color: "#b77542", accent: "#f5c9a1", weights: [22, 18, 8, 2] },
-        { id: "silver", name: "Plata", rarity: 3, value: 22, color: "#bac5d8", accent: "#ffffff", weights: [4, 14, 16, 6] },
-        { id: "crystal", name: "Cristal", rarity: 4, value: 40, color: "#73d9f7", accent: "#ffffff", weights: [1, 6, 12, 14] },
+        { id: "stone", name: "Piedra", rarity: 1, value: 3, color: "#77746e", accent: "#cdcbc4", weights: [50, 34, 24, 18] },
+        { id: "ceramic", name: "Ceramica", rarity: 1, value: 6, color: "#d3c2b1", accent: "#f3e4d4", weights: [24, 14, 8, 3] },
+        { id: "copper", name: "Cobre", rarity: 2, value: 12, color: "#b77542", accent: "#f5c9a1", weights: [12, 18, 12, 5] },
+        { id: "silver", name: "Plata", rarity: 3, value: 24, color: "#bac5d8", accent: "#ffffff", weights: [2, 8, 15, 8] },
+        { id: "crystal", name: "Cristal", rarity: 4, value: 44, color: "#73d9f7", accent: "#ffffff", weights: [1, 3, 8, 14] },
       ],
     },
   };
@@ -378,6 +391,37 @@
     return world.materials[world.materials.length - 1];
   }
 
+  function depthMetersAtY(run, y) {
+    const row = clamp(Math.floor((y - run.surfaceY) / CELL), 0, run.gridRows);
+    return Math.round(row * run.metersPerRow);
+  }
+
+  function createGuidanceMarkers(run) {
+    const markers = [];
+    const startX = run.shaftX;
+    const startY = run.surfaceY + 180;
+    for (let index = 0; index < GUIDANCE_MARKER_COUNT; index += 1) {
+      const t = (index + 1) / (GUIDANCE_MARKER_COUNT + 1);
+      const wobble = (hashUnit(run.seed, 1400 + index, 1700 + index) - 0.5) * (140 + index * 46);
+      const x = clamp(lerp(startX, run.treasure.x, t) + wobble, CELL * 10, run.worldWidth - CELL * 10);
+      const y = lerp(startY, run.treasure.y - 96, t);
+      markers.push({
+        id: `marker-${index}`,
+        x,
+        y,
+        radius: 20,
+        exposure: 0,
+        discovered: false,
+        arrow: "v",
+      });
+    }
+    markers.forEach((marker, index) => {
+      const next = markers[index + 1] || run.treasure;
+      marker.arrow = arrowFromVector(next.x - marker.x, next.y - marker.y);
+    });
+    run.guidanceMarkers = markers;
+  }
+
   function generateDeposits(run) {
     const deposits = [];
     run.materialById = materialMap(run.world);
@@ -410,6 +454,7 @@
       promptReady: false,
       bonusCoins: 180,
     };
+    createGuidanceMarkers(run);
   }
 
   function buildRun(worldId) {
@@ -450,9 +495,14 @@
       coins: 0,
       inventory: Object.create(null),
       inventoryCount: 0,
+      collectedTotal: 0,
       shovelLevel: 0,
       capacityLevel: 0,
+      jetpackOwned: false,
+      torches: 0,
+      placedTorches: [],
       deposits: [],
+      guidanceMarkers: [],
       treasure: null,
       particles: [],
       celebration: [],
@@ -460,6 +510,7 @@
       guidanceArrow: "v",
       guidanceTitle: "Excava hacia abajo",
       guidanceCopy: "La tierra se abre de forma continua y los materiales asoman en la pared.",
+      guidanceSignalActive: false,
       digTarget: null,
       materialScanCooldown: 0,
       inventoryWarningCooldown: 0,
@@ -500,6 +551,18 @@
 
   function currentDepthRatio(run) {
     return clamp(currentDepthMeters(run) / run.world.maxDepthMeters, 0, 1);
+  }
+
+  function currentDarkness(run) {
+    return clamp((currentDepthRatio(run) - DARKNESS_START_RATIO) / (DARKNESS_FULL_RATIO - DARKNESS_START_RATIO), 0, 1);
+  }
+
+  function hasNearbyTorch(run, x, y, radius) {
+    return run.placedTorches.some((torch) => Math.hypot(torch.x - x, torch.y - y) <= radius);
+  }
+
+  function currentBreadcrumbTarget(run) {
+    return run.guidanceMarkers.find((marker) => !marker.discovered) || run.treasure;
   }
 
   function currentSoilLabel(run) {
@@ -560,6 +623,16 @@
     };
   }
 
+  function assistHoleEntry(run) {
+    const center = centerOfPlayer(run);
+    const carveY = run.player.y + run.player.h + 10;
+    clearCircle(run, center.x, carveY, ENTRY_ASSIST_RADIUS + run.shovelLevel * 2);
+    for (let step = 0; step < 18; step += 1) {
+      if (!canOccupy(run, run.player.x, run.player.y + 1)) break;
+      run.player.y += 1;
+    }
+  }
+
   function resolveDigTarget(run) {
     const center = centerOfPlayer(run);
     let targetX = null;
@@ -611,7 +684,12 @@
 
   function digAt(run, target) {
     const radius = DIG_RADII[run.shovelLevel];
-    const removed = clearCircle(run, target.x, target.y, radius);
+    const center = centerOfPlayer(run);
+    let removed = clearCircle(run, target.x, target.y, radius);
+    if (target.y > center.y + 16 && Math.abs(target.x - center.x) < 20) {
+      removed += clearCircle(run, center.x, run.player.y + run.player.h + radius * 0.45, Math.max(ENTRY_ASSIST_RADIUS, radius * 0.56));
+      assistHoleEntry(run);
+    }
     if (removed <= 0) return;
     run.player.digCooldown = DIG_COOLDOWNS[run.shovelLevel];
     run.player.digFlash = 0.18;
@@ -663,6 +741,7 @@
     deposit.collected = true;
     run.inventory[deposit.materialId] = (run.inventory[deposit.materialId] || 0) + 1;
     run.inventoryCount += 1;
+    run.collectedTotal += 1;
     spawnParticles(run, deposit.x, deposit.y, 12, material.accent, material.color);
     setMessage(`${material.name} encontrado.`, 0.9);
     markUiDirty();
@@ -676,6 +755,13 @@
         if (deposit.collected) continue;
         deposit.exposed = depositExposure(run, deposit);
         if (deposit.exposed > 0.06) deposit.discovered = true;
+      }
+      for (const marker of run.guidanceMarkers) {
+        marker.exposure = depositExposure(run, marker);
+        if (!marker.discovered && marker.exposure > 0.18) {
+          marker.discovered = true;
+          setMessage(`Flecha hallada: sigue ${describeDirection(marker.arrow)}.`, 1.2);
+        }
       }
       const center = centerOfPlayer(run);
       run.treasure.exposure = depositExposure(run, run.treasure);
@@ -769,21 +855,68 @@
     return "/";
   }
 
+  function describeDirection(arrow) {
+    if (arrow === ">") return "a la derecha";
+    if (arrow === "<") return "a la izquierda";
+    if (arrow === "^") return "hacia arriba";
+    if (arrow === "v") return "hacia abajo";
+    return "en diagonal";
+  }
+
   function updateGuidance(run) {
     const center = centerOfPlayer(run);
+    const target = currentBreadcrumbTarget(run);
+    const targetDepth = target ? formatDepth(depthMetersAtY(run, target.y)) : "0 m";
+    const torchMissing = currentDarkness(run) > 0.18 && !hasNearbyTorch(run, center.x, center.y, TORCH_NEAR_DISTANCE);
+    run.guidanceSignalActive = false;
+
+    if (canClaimTreasure(run)) {
+      run.guidanceArrow = "o";
+      run.guidanceTitle = "Puerta del tesoro";
+      run.guidanceCopy = "Acercate a la puerta visible y pulsa Enter para entrar en la camara final.";
+      return;
+    }
+
     if (run.inventoryCount >= currentCapacity(run)) {
       run.guidanceArrow = "^";
       run.guidanceTitle = "Mochila llena";
-      run.guidanceCopy = "Vuelve al puesto de la superficie para vender lo recogido.";
+      run.guidanceCopy = run.jetpackOwned
+        ? "Pulsa T para volver al puesto con el jetpack y vender lo recogido."
+        : "Vuelve al puesto de la superficie para vender lo recogido.";
       return;
     }
-    const dx = run.treasure.x - center.x;
-    const dy = run.treasure.y - center.y;
+
+    if (!target) {
+      run.guidanceArrow = "v";
+      run.guidanceTitle = "Excava";
+      run.guidanceCopy = "Abre una ruta limpia y sigue profundizando.";
+      return;
+    }
+
+    const dx = target.x - center.x;
+    const dy = target.y - center.y;
     run.guidanceArrow = arrowFromVector(dx, dy);
-    run.guidanceTitle = run.treasure.exposure > 0.18 ? run.world.treasureName : "Hallazgo principal";
-    run.guidanceCopy = run.treasure.exposure > 0.18
-      ? "El hallazgo final ya asoma entre la tierra."
-      : "Sigue excavando y observa como los materiales quedan incrustados en la pared.";
+
+    if (target === run.treasure) {
+      run.guidanceTitle = run.treasure.exposure > 0.18 ? "Puerta del tesoro" : run.world.treasureName;
+      run.guidanceCopy = run.treasure.exposure > 0.18
+        ? "La puerta final ya asoma entre la tierra. Sigue cavando hasta abrir el acceso."
+        : `Las ultimas flechas apuntan a ${targetDepth}.`;
+      run.guidanceSignalActive = run.treasure.exposure < 0.18;
+      return;
+    }
+
+    if (target.discovered) {
+      run.guidanceTitle = "Flecha encontrada";
+      run.guidanceCopy = `La senal indica ${describeDirection(target.arrow)}. La siguiente referencia queda cerca de ${targetDepth}.`;
+      return;
+    }
+
+    run.guidanceTitle = torchMissing ? "Oscuridad profunda" : "Rastro del tesoro";
+    run.guidanceCopy = torchMissing
+      ? `Pulsa B para colocar una linterna y sigue la senal luminosa hacia ${targetDepth}.`
+      : `Busca la siguiente flecha cerca de ${targetDepth}. Si te desvias, la luz intermitente te recoloca.`;
+    run.guidanceSignalActive = true;
   }
 
   function isAtOutpost(run) {
@@ -793,6 +926,51 @@
 
   function canClaimTreasure(run) {
     return run.treasure.promptReady && !run.treasure.claimed;
+  }
+
+  function useJetpack() {
+    const run = state.run;
+    if (!run || state.screen !== "running") return;
+    if (!run.jetpackOwned) {
+      setMessage("Necesitas comprar el jetpack en el puesto.", 1.3);
+      return;
+    }
+    run.player.x = run.shaftX - run.player.w * 0.5;
+    run.player.y = run.surfaceY - run.player.h;
+    run.player.vx = 0;
+    run.player.vy = 0;
+    run.camera.y = 0;
+    spawnParticles(run, run.player.x + run.player.w * 0.5, run.player.y + run.player.h * 0.5, 22, "#ffe291", "#ff9e54");
+    setMessage("Jetpack activado. Regresas al puesto de la superficie.", 1.5);
+    updateGuidance(run);
+    markUiDirty();
+  }
+
+  function placeTorch() {
+    const run = state.run;
+    if (!run || state.screen !== "running") return;
+    if (currentDarkness(run) < 0.08) {
+      setMessage("Todavia hay luz suficiente aqui.", 1.1);
+      return;
+    }
+    if (run.torches <= 0) {
+      setMessage("No te quedan linternas. Compra mas en el puesto.", 1.3);
+      return;
+    }
+    const center = centerOfPlayer(run);
+    if (hasNearbyTorch(run, center.x, center.y, TORCH_NEAR_DISTANCE)) {
+      setMessage("Ya hay una linterna iluminando esta zona.", 1.2);
+      return;
+    }
+    run.placedTorches.push({
+      x: center.x + run.player.facing * 26,
+      y: center.y,
+    });
+    run.torches -= 1;
+    spawnParticles(run, center.x, center.y, 8, "#ffe8a0", "#ffc45d");
+    setMessage("Linterna colocada en la pared.", 1.1);
+    updateGuidance(run);
+    markUiDirty();
   }
 
   function spawnCelebration(run) {
@@ -891,6 +1069,39 @@
     markUiDirty();
   }
 
+  function buyJetpack() {
+    const run = state.run;
+    if (!run || !isAtOutpost(run) || run.jetpackOwned) return;
+    if (run.bestDepthMeters < JETPACK_DEPTH_REQUIREMENT) {
+      setMessage(`Cava al menos ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} para desbloquear el jetpack.`, 1.6);
+      return;
+    }
+    if (run.coins < JETPACK_COST) {
+      setMessage("Necesitas mas monedas para comprar el jetpack.", 1.3);
+      return;
+    }
+    run.coins -= JETPACK_COST;
+    run.jetpackOwned = true;
+    run.torches += 2;
+    setMessage("Jetpack listo. Incluye dos linternas de pared para zonas oscuras.", 1.8);
+    updateGuidance(run);
+    markUiDirty();
+  }
+
+  function buyTorchPack() {
+    const run = state.run;
+    if (!run || !isAtOutpost(run)) return;
+    if (run.coins < TORCH_PACK_COST) {
+      setMessage("Necesitas mas monedas para comprar linternas.", 1.3);
+      return;
+    }
+    run.coins -= TORCH_PACK_COST;
+    run.torches += TORCH_PACK_SIZE;
+    setMessage(`Has comprado ${TORCH_PACK_SIZE} linternas.`, 1.2);
+    updateGuidance(run);
+    markUiDirty();
+  }
+
   function selectWorld(worldId) {
     state.selectedWorldId = worldId;
     applyWorldTheme(currentWorld());
@@ -958,6 +1169,20 @@
     }
   }
 
+  function handleSurfaceAction() {
+    const run = state.run;
+    if (!run) return;
+    if (isAtOutpost(run)) {
+      openPanel("market");
+      return;
+    }
+    if (run.jetpackOwned) {
+      useJetpack();
+      return;
+    }
+    setMessage("Solo el jetpack te permite volver al puesto desde el interior del hoyo.", 1.5);
+  }
+
   function interact() {
     const run = state.run;
     if (!run) {
@@ -986,6 +1211,8 @@
     if (action === "sell-all") sellAll();
     if (action === "buy-shovel") buyShovel();
     if (action === "buy-capacity") buyCapacity();
+    if (action === "buy-jetpack") buyJetpack();
+    if (action === "buy-torches") buyTorchPack();
     if (action === "sell") {
       sellMaterial(button.getAttribute("data-material"), Number(button.getAttribute("data-qty") || 0));
     }
@@ -1125,7 +1352,6 @@
   }
 
   function drawDeposits(run) {
-    const ctx = state.ctx;
     for (const deposit of run.deposits) {
       if (deposit.collected || (!deposit.discovered && deposit.exposed < 0.05)) continue;
       const screenX = deposit.x - run.camera.x;
@@ -1133,17 +1359,164 @@
       if (screenX < -80 || screenX > state.viewportWidth + 80 || screenY < -80 || screenY > state.viewportHeight + 80) continue;
       drawMaterialBlob(run.materialById[deposit.materialId], screenX, screenY, deposit.radius, deposit.exposed);
     }
-    if (!run.treasure.claimed && run.treasure.exposure > 0.05) {
-      const tx = run.treasure.x - run.camera.x;
-      const ty = run.treasure.y - run.camera.y;
-      drawMaterialBlob({ color: "#d1a24c", accent: "#fff2ba" }, tx, ty, run.treasure.radius, run.treasure.exposure);
+  }
+
+  function drawGuidanceMarkers(run) {
+    const ctx = state.ctx;
+    const activeMarker = currentBreadcrumbTarget(run);
+    for (const marker of run.guidanceMarkers) {
+      const visible = marker.discovered || marker.exposure > 0.08 || marker === activeMarker;
+      if (!visible) continue;
+      const x = marker.x - run.camera.x;
+      const y = marker.y - run.camera.y;
+      if (x < -80 || x > state.viewportWidth + 80 || y < -80 || y > state.viewportHeight + 80) continue;
+      const pulse = marker === activeMarker ? 0.72 + Math.sin(state.showcaseTime * 8) * 0.18 : 0.78;
       ctx.save();
-      ctx.globalAlpha = clamp(run.treasure.exposure * 1.4, 0.18, 1);
-      ctx.strokeStyle = "#fff3c4";
+      ctx.globalAlpha = marker.discovered ? 1 : clamp(marker.exposure * 1.6, 0.18, 0.82);
+      const glow = ctx.createRadialGradient(x, y, 4, x, y, 36);
+      glow.addColorStop(0, `rgba(255, 243, 196, ${pulse})`);
+      glow.addColorStop(1, "rgba(255, 243, 196, 0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, 36, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#fbf1d9";
+      ctx.fillRect(x - 15, y - 15, 30, 30);
+      ctx.strokeStyle = "#6b4d31";
       ctx.lineWidth = 2;
-      ctx.strokeRect(tx - 10, ty - 10, 20, 20);
+      ctx.strokeRect(x - 15, y - 15, 30, 30);
+      ctx.fillStyle = "#2f2014";
+      ctx.font = "700 18px Georgia, serif";
+      ctx.textAlign = "center";
+      ctx.fillText(marker.arrow, x, y + 6);
       ctx.restore();
     }
+  }
+
+  function drawTreasureDoor(run) {
+    if (run.treasure.claimed || run.treasure.exposure <= 0.05) return;
+    const ctx = state.ctx;
+    const x = run.treasure.x - run.camera.x;
+    const y = run.treasure.y - run.camera.y;
+    ctx.save();
+    ctx.globalAlpha = clamp(run.treasure.exposure * 1.5, 0.18, 1);
+    const glow = ctx.createRadialGradient(x, y + 4, 4, x, y + 4, 56);
+    glow.addColorStop(0, "rgba(255, 233, 170, 0.68)");
+    glow.addColorStop(1, "rgba(255, 233, 170, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y + 4, 56, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#5a3921";
+    ctx.fillRect(x - 18, y - 4, 36, 42);
+    ctx.beginPath();
+    ctx.arc(x, y - 4, 18, Math.PI, 0);
+    ctx.fill();
+    ctx.strokeStyle = "#f7d27b";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x - 18, y - 4, 36, 42);
+    ctx.beginPath();
+    ctx.arc(x, y - 4, 18, Math.PI, 0);
+    ctx.stroke();
+    ctx.fillStyle = run.treasure.promptReady ? "#fff5c9" : "#d0a650";
+    ctx.fillRect(x - 2, y + 11, 4, 12);
+    ctx.beginPath();
+    ctx.arc(x + 8, y + 13, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawTorches(run) {
+    const ctx = state.ctx;
+    for (const torch of run.placedTorches) {
+      const x = torch.x - run.camera.x;
+      const y = torch.y - run.camera.y;
+      if (x < -90 || x > state.viewportWidth + 90 || y < -90 || y > state.viewportHeight + 90) continue;
+      const glow = ctx.createRadialGradient(x, y, 2, x, y, 82);
+      glow.addColorStop(0, "rgba(255, 222, 146, 0.65)");
+      glow.addColorStop(1, "rgba(255, 222, 146, 0)");
+      ctx.save();
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(x, y, 82, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#6a4c35";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x, y + 14);
+      ctx.lineTo(x, y - 2);
+      ctx.stroke();
+      ctx.fillStyle = "#ffe291";
+      ctx.beginPath();
+      ctx.ellipse(x, y - 8, 7, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ff974d";
+      ctx.beginPath();
+      ctx.ellipse(x, y - 6, 4, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawLightCutout(ctx, x, y, radius, alpha) {
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    glow.addColorStop(0, `rgba(0, 0, 0, ${alpha})`);
+    glow.addColorStop(0.55, `rgba(0, 0, 0, ${alpha * 0.42})`);
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawDarkness(run) {
+    const darkness = currentDarkness(run);
+    if (darkness <= 0.01) return;
+    const ctx = state.ctx;
+    const center = centerOfPlayer(run);
+    ctx.save();
+    ctx.fillStyle = `rgba(9, 7, 5, ${0.18 + darkness * 0.58})`;
+    ctx.fillRect(0, 0, state.viewportWidth, state.viewportHeight);
+    ctx.globalCompositeOperation = "destination-out";
+    drawLightCutout(ctx, center.x - run.camera.x, center.y - run.camera.y, 132 + (1 - darkness) * 38, 0.96);
+    for (const torch of run.placedTorches) {
+      drawLightCutout(ctx, torch.x - run.camera.x, torch.y - run.camera.y, 92, 0.82);
+    }
+    ctx.restore();
+  }
+
+  function drawGuidanceSignal(run) {
+    const target = currentBreadcrumbTarget(run);
+    if (!run.guidanceSignalActive || !target) return;
+    const ctx = state.ctx;
+    const center = centerOfPlayer(run);
+    const screenX = center.x - run.camera.x;
+    const screenY = center.y - run.camera.y;
+    const dx = target.x - center.x;
+    const dy = target.y - center.y;
+    const distance = Math.max(1, Math.hypot(dx, dy));
+    const nx = dx / distance;
+    const ny = dy / distance;
+    const x = clamp(screenX + nx * 88, 52, state.viewportWidth - 52);
+    const y = clamp(screenY + ny * 88, 72, state.viewportHeight - 72);
+    const pulse = 0.58 + Math.sin(state.showcaseTime * 9) * 0.24;
+    ctx.save();
+    const glow = ctx.createRadialGradient(x, y, 4, x, y, 44);
+    glow.addColorStop(0, `rgba(255, 238, 179, ${pulse})`);
+    glow.addColorStop(1, "rgba(255, 238, 179, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, 44, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#fbf2cb";
+    ctx.beginPath();
+    ctx.arc(x, y, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#3b2816";
+    ctx.font = "700 20px Georgia, serif";
+    ctx.textAlign = "center";
+    ctx.fillText(arrowFromVector(dx, dy), x, y + 7);
+    ctx.restore();
   }
 
   function drawOutpost(run) {
@@ -1270,10 +1643,15 @@
     drawSurfaceWorld(run.world, surfaceScreenY, run.camera.x, false);
     drawTerrain(run);
     drawDeposits(run);
+    drawGuidanceMarkers(run);
+    drawTreasureDoor(run);
+    drawTorches(run);
     drawOutpost(run);
     drawPlayer(run);
     drawDigTarget(run);
     drawParticles(run);
+    drawDarkness(run);
+    drawGuidanceSignal(run);
     if (state.screen === "paused") drawPausedOverlay();
     if (state.screen === "ending") drawCelebration(run);
   }
@@ -1516,6 +1894,207 @@
     return JSON.stringify(payload);
   }
 
+  function renderPanel() {
+    const run = state.run;
+    if (!run) return;
+    const atOutpost = isAtOutpost(run);
+    state.hud.panelEyebrow.textContent = state.screen === "market" ? "Puesto" : "Inventario";
+    state.hud.panelTitle.textContent = atOutpost ? run.world.shopName : "Mochila y mejoras";
+    state.hud.panelLead.textContent = atOutpost
+      ? "Vende materiales, mejora la pala y prepara el jetpack o las linternas antes de bajar mas."
+      : "Puedes revisar lo encontrado, pero las ventas y compras siguen dependiendo del puesto de la superficie.";
+    state.hud.panelNotice.textContent = atOutpost
+      ? `Monedas: ${run.coins} | Jetpack: ${run.jetpackOwned ? "operativo" : "pendiente"} | Linternas: ${run.torches}`
+      : `Acciones comerciales bloqueadas. Linternas restantes: ${run.torches}.`;
+
+    const items = inventoryEntries(run);
+    state.hud.inventoryList.innerHTML = items.length
+      ? items.map((entry) => `
+          <article class="item-card">
+            <header>
+              <div>
+                <strong>${entry.material.name}</strong>
+                <div class="mini-pill">${getRarityLabel(entry.material.rarity)} - x${entry.qty}</div>
+              </div>
+              <strong>${entry.qty * entry.material.value} mon</strong>
+            </header>
+            <p>Valor unitario ${entry.material.value}. Material incrustado recogido a mano.</p>
+            <div class="item-actions">
+              <button type="button" data-action="sell" data-material="${entry.id}" data-qty="1" ${atOutpost ? "" : "disabled"}>Vender 1</button>
+              <button type="button" data-action="sell" data-material="${entry.id}" data-qty="${entry.qty}" ${atOutpost ? "" : "disabled"}>Vender todo</button>
+            </div>
+          </article>
+        `).join("")
+      : `<article class="item-card"><strong>Sin hallazgos</strong><p>Excava la pared y recoge lo que vaya quedando al descubierto.</p></article>`;
+
+    const nextShovel = run.shovelLevel + 1;
+    const nextCapacity = run.capacityLevel + 1;
+    const canBuyJetpack = atOutpost && !run.jetpackOwned && run.bestDepthMeters >= JETPACK_DEPTH_REQUIREMENT && run.coins >= JETPACK_COST;
+    const canBuyTorchPack = atOutpost && run.coins >= TORCH_PACK_COST;
+    state.hud.upgradeList.innerHTML = `
+      <article class="upgrade-card">
+        <header><strong>Herramienta ${SHOVEL_NAMES[run.shovelLevel]}</strong><span class="mini-pill">Nivel ${run.shovelLevel + 1}/${SHOVEL_NAMES.length}</span></header>
+        <p>${nextShovel < SHOVEL_NAMES.length ? `Siguiente nivel por ${SHOVEL_COSTS[nextShovel]} monedas.` : "Herramienta al maximo."}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-shovel" ${atOutpost && nextShovel < SHOVEL_NAMES.length && run.coins >= SHOVEL_COSTS[nextShovel] ? "" : "disabled"}>Mejorar pala</button></div>
+      </article>
+      <article class="upgrade-card">
+        <header><strong>Mochila</strong><span class="mini-pill">${run.inventoryCount}/${currentCapacity(run)}</span></header>
+        <p>${nextCapacity < CAPACITY_VALUES.length ? `Capacidad siguiente: ${CAPACITY_VALUES[nextCapacity]} por ${CAPACITY_COSTS[nextCapacity]} monedas.` : "Capacidad maxima alcanzada."}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-capacity" ${atOutpost && nextCapacity < CAPACITY_VALUES.length && run.coins >= CAPACITY_COSTS[nextCapacity] ? "" : "disabled"}>Ampliar mochila</button></div>
+      </article>
+      <article class="upgrade-card">
+        <header><strong>Jetpack</strong><span class="mini-pill">${run.jetpackOwned ? "Operativo" : "Bloqueado"}</span></header>
+        <p>${run.jetpackOwned ? "Pulsa T o usa el boton superior para volver instantaneamente al puesto desde cualquier profundidad." : `Disponible tras bajar ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} y pagar ${JETPACK_COST} monedas.`}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-jetpack" ${canBuyJetpack ? "" : "disabled"}>${run.jetpackOwned ? "Jetpack listo" : "Comprar jetpack"}</button></div>
+      </article>
+      <article class="upgrade-card">
+        <header><strong>Linternas</strong><span class="mini-pill">${run.torches} disponibles</span></header>
+        <p>Pack de ${TORCH_PACK_SIZE} por ${TORCH_PACK_COST} monedas. Colocalas con B para iluminar zonas oscuras del hoyo.</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-torches" ${canBuyTorchPack ? "" : "disabled"}>Comprar linternas</button></div>
+      </article>
+      <article class="upgrade-card">
+        <header><strong>Venta rapida</strong><span class="mini-pill">${items.length} tipos</span></header>
+        <p>Convierte todo el inventario actual en monedas desde el puesto.</p>
+        <div class="upgrade-actions"><button type="button" data-action="sell-all" ${atOutpost && items.length ? "" : "disabled"}>Vender todo</button></div>
+      </article>
+    `;
+  }
+
+  function renderEnding() {
+    const run = state.run;
+    if (!run) return;
+    state.hud.endingTitle.textContent = `${run.world.treasureName} asegurado`;
+    state.hud.endingLead.textContent = `Atravesaste la puerta final, entraste en la camara del tesoro y cerraste la expedicion de ${run.world.title}.`;
+    state.hud.endingStats.innerHTML = `
+      <article><span>Profundidad maxima</span><strong>${formatDepth(run.bestDepthMeters)}</strong></article>
+      <article><span>Materiales recogidos</span><strong>${run.collectedTotal}</strong></article>
+      <article><span>Monedas finales</span><strong>${run.coins}</strong></article>
+    `;
+  }
+
+  function syncInterface() {
+    const world = state.run ? state.run.world : currentWorld();
+    state.hud.worldLabel.textContent = world.title;
+    state.hud.objectiveLabel.textContent = state.run
+      ? `Excava, sigue las flechas del subsuelo y encuentra la puerta de ${world.treasureName}.`
+      : world.subtitle;
+
+    if (state.run) {
+      const run = state.run;
+      state.hud.coinsValue.textContent = String(run.coins);
+      state.hud.depthValue.textContent = formatDepth(currentDepthMeters(run));
+      state.hud.cargoValue.textContent = `${run.inventoryCount}/${currentCapacity(run)}`;
+      state.hud.shovelValue.textContent = SHOVEL_NAMES[run.shovelLevel];
+      state.hud.groundValue.textContent = currentSoilLabel(run);
+      state.hud.targetValue.textContent = canClaimTreasure(run) ? "Puerta" : (run.treasure.exposure > 0.18 ? "Visible" : "Buscando");
+      state.hud.bestDepthValue.textContent = formatDepth(run.bestDepthMeters);
+      state.hud.depthFill.style.height = `${currentDepthRatio(run) * 100}%`;
+      state.hud.beaconCard.style.display = state.screen === "running" || state.screen === "paused" ? "flex" : "none";
+      state.hud.beaconCard.classList.toggle("signal-active", run.guidanceSignalActive);
+      state.hud.beaconTitle.textContent = run.guidanceTitle;
+      state.hud.beaconCopy.textContent = run.guidanceCopy;
+      state.hud.beaconArrow.textContent = run.guidanceArrow;
+      state.hud.surfaceBtn.textContent = isAtOutpost(run) ? "Puesto" : (run.jetpackOwned ? "Jetpack" : "Puesto");
+      state.hud.inventoryBtn.textContent = `Inventario (${run.inventoryCount})`;
+    } else {
+      const best = state.progress.bestDepthByWorld[state.selectedWorldId] || 0;
+      state.hud.coinsValue.textContent = "0";
+      state.hud.depthValue.textContent = "0 m";
+      state.hud.cargoValue.textContent = `0/${CAPACITY_VALUES[0]}`;
+      state.hud.shovelValue.textContent = SHOVEL_NAMES[0];
+      state.hud.groundValue.textContent = state.selectedWorldId === "desert" ? "Arena" : "Tierra";
+      state.hud.targetValue.textContent = "Pendiente";
+      state.hud.bestDepthValue.textContent = formatDepth(best);
+      state.hud.depthFill.style.height = `${clamp(best / world.maxDepthMeters, 0, 1) * 100}%`;
+      state.hud.beaconCard.style.display = "flex";
+      state.hud.beaconCard.classList.remove("signal-active");
+      state.hud.beaconTitle.textContent = "Terreno continuo";
+      state.hud.beaconCopy.textContent = "La piedra aparece en cualquier profundidad y las flechas intermedias te acercan a la puerta final.";
+      state.hud.beaconArrow.textContent = "v";
+      state.hud.surfaceBtn.textContent = "Puesto";
+      state.hud.inventoryBtn.textContent = "Inventario";
+    }
+
+    state.hud.messageBox.textContent = state.message;
+    state.hud.messageBox.classList.toggle("hidden", !state.message);
+    state.hud.worldSelect.classList.toggle("hidden", state.screen !== "world_select");
+    state.hud.panelOverlay.classList.toggle("hidden", !(state.screen === "market" || state.screen === "inventory"));
+    state.hud.endingOverlay.classList.toggle("hidden", state.screen !== "ending");
+
+    renderWorldCards();
+    if (state.run) {
+      renderPanel();
+      renderEnding();
+    }
+  }
+
+  function renderGameToText() {
+    const run = state.run;
+    const target = run ? currentBreadcrumbTarget(run) : null;
+    const payload = {
+      mode: "arcade-dig-hole-treasure",
+      screen: state.screen,
+      worldId: state.selectedWorldId,
+      worldName: currentWorld().title,
+      coordinates: "x increases to the right; y increases downward; values are world pixels.",
+      message: state.message,
+      bestDepthMeters: run ? run.bestDepthMeters : state.progress.bestDepthByWorld[state.selectedWorldId] || 0,
+      coins: run ? run.coins : 0,
+      inventoryCount: run ? run.inventoryCount : 0,
+      collectedTotal: run ? run.collectedTotal : 0,
+      capacity: run ? currentCapacity(run) : CAPACITY_VALUES[0],
+      shovelLevel: run ? run.shovelLevel : 0,
+      jetpackOwned: run ? run.jetpackOwned : false,
+      torches: run ? run.torches : 0,
+      darkness: run ? round(currentDarkness(run), 2) : 0,
+      soilType: run ? currentSoilLabel(run) : (state.selectedWorldId === "desert" ? "Arena" : "Tierra"),
+      canUseMarket: run ? isAtOutpost(run) : false,
+      treasureVisible: run ? run.treasure.exposure > 0.18 : false,
+      treasureReady: run ? run.treasure.promptReady : false,
+      guidanceArrow: run ? run.guidanceArrow : "v",
+      guidanceSignalActive: run ? run.guidanceSignalActive : false,
+      inventory: run ? inventoryEntries(run).map((entry) => ({
+        id: entry.id,
+        name: entry.material.name,
+        qty: entry.qty,
+        value: entry.material.value,
+        rarity: entry.material.rarity,
+      })) : [],
+    };
+
+    if (run) {
+      payload.depthMeters = currentDepthMeters(run);
+      payload.player = {
+        x: round(run.player.x, 1),
+        y: round(run.player.y, 1),
+        vx: round(run.player.vx, 1),
+        vy: round(run.player.vy, 1),
+      };
+      payload.digTarget = run.digTarget ? { x: round(run.digTarget.x, 1), y: round(run.digTarget.y, 1) } : null;
+      payload.nextBreadcrumb = target ? {
+        x: round(target.x, 1),
+        y: round(target.y, 1),
+        depthMeters: depthMetersAtY(run, target.y),
+      } : null;
+      payload.placedTorches = run.placedTorches.map((torch) => ({
+        x: round(torch.x, 1),
+        y: round(torch.y, 1),
+      }));
+      payload.nearbyMaterials = run.deposits
+        .filter((deposit) => !deposit.collected && deposit.exposed > 0.12)
+        .map((deposit) => ({
+          id: deposit.id,
+          material: run.materialById[deposit.materialId].name,
+          exposure: round(deposit.exposed, 2),
+          x: round(deposit.x, 1),
+          y: round(deposit.y, 1),
+        }))
+        .sort((a, b) => Math.abs(a.y - payload.player.y) - Math.abs(b.y - payload.player.y))
+        .slice(0, 6);
+    }
+    return JSON.stringify(payload);
+  }
+
   function advanceTime(ms) {
     const steps = Math.max(1, Math.round((ms || 0) / (FIXED_DT * 1000)));
     for (let index = 0; index < steps; index += 1) update(FIXED_DT);
@@ -1640,6 +2219,57 @@
     }
   }
 
+  function onKeyDown(event) {
+    if (event.repeat && ["Enter", "KeyE", "KeyM", "KeyP", "KeyR", "KeyF", "KeyT", "KeyB"].includes(event.code)) return;
+    state.keys[event.code] = true;
+    if (event.code === "Digit1") selectWorld("jungle");
+    if (event.code === "Digit2") selectWorld("desert");
+    if (event.code === "Digit3") selectWorld("urban");
+    if (event.code === "Enter" || event.code === "KeyE") {
+      event.preventDefault();
+      interact();
+      return;
+    }
+    if (event.code === "KeyM") {
+      event.preventDefault();
+      if (state.run) handleSurfaceAction();
+      return;
+    }
+    if (event.code === "KeyT") {
+      event.preventDefault();
+      if (state.run) useJetpack();
+      return;
+    }
+    if (event.code === "KeyB") {
+      event.preventDefault();
+      if (state.run) placeTorch();
+      return;
+    }
+    if (event.code === "KeyP") {
+      event.preventDefault();
+      togglePause();
+      return;
+    }
+    if (event.code === "KeyR") {
+      event.preventDefault();
+      if (state.screen === "world_select") startRun(state.selectedWorldId);
+      else restartRun();
+      return;
+    }
+    if (event.code === "KeyF") {
+      event.preventDefault();
+      toggleFullscreen();
+      return;
+    }
+    if (event.code === "Escape" && document.fullscreenElement) {
+      document.exitFullscreen?.();
+      return;
+    }
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) {
+      event.preventDefault();
+    }
+  }
+
   function onKeyUp(event) {
     state.keys[event.code] = false;
   }
@@ -1687,6 +2317,86 @@
       if (state.run) openPanel("market");
     });
     document.getElementById("inventoryBtn").addEventListener("click", () => {
+      if (state.run) openPanel("inventory");
+    });
+    document.getElementById("fullscreenBtn").addEventListener("click", () => toggleFullscreen());
+    state.hud.startButton.addEventListener("click", () => startRun(state.selectedWorldId));
+    state.hud.closePanelBtn.addEventListener("click", () => closePanel());
+    state.hud.restartButton.addEventListener("click", () => restartRun());
+    state.hud.returnWorldsButton.addEventListener("click", () => {
+      state.run = null;
+      state.screen = "world_select";
+      applyWorldTheme(currentWorld());
+      markUiDirty();
+    });
+    state.hud.panelOverlay.addEventListener("click", handlePanelAction);
+
+    state.canvas.addEventListener("pointermove", (event) => updatePointerPosition(event));
+    state.canvas.addEventListener("pointerdown", (event) => {
+      updatePointerPosition(event);
+      state.pointer.down = true;
+      state.canvas.setPointerCapture?.(event.pointerId);
+    });
+    state.canvas.addEventListener("pointerup", (event) => {
+      updatePointerPosition(event);
+      state.pointer.down = false;
+      state.canvas.releasePointerCapture?.(event.pointerId);
+    });
+    state.canvas.addEventListener("pointerleave", () => {
+      state.pointer.down = false;
+      state.pointer.inside = false;
+    });
+
+    window.addEventListener("keydown", onKeyDown, { passive: false });
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("resize", resize);
+  }
+
+  function initDom() {
+    state.shell = document.getElementById("shell");
+    state.canvas = document.getElementById("game");
+    state.ctx = state.canvas.getContext("2d");
+    state.hud = {
+      worldLabel: document.getElementById("worldLabel"),
+      objectiveLabel: document.getElementById("objectiveLabel"),
+      coinsValue: document.getElementById("coinsValue"),
+      depthValue: document.getElementById("depthValue"),
+      cargoValue: document.getElementById("cargoValue"),
+      shovelValue: document.getElementById("shovelValue"),
+      groundValue: document.getElementById("groundValue"),
+      targetValue: document.getElementById("targetValue"),
+      bestDepthValue: document.getElementById("bestDepthValue"),
+      depthFill: document.getElementById("depthFill"),
+      beaconCard: document.getElementById("beaconCard"),
+      beaconTitle: document.getElementById("beaconTitle"),
+      beaconCopy: document.getElementById("beaconCopy"),
+      beaconArrow: document.getElementById("beaconArrow"),
+      messageBox: document.getElementById("messageBox"),
+      worldSelect: document.getElementById("worldSelect"),
+      worldGrid: document.getElementById("worldGrid"),
+      panelOverlay: document.getElementById("panelOverlay"),
+      panelEyebrow: document.getElementById("panelEyebrow"),
+      panelTitle: document.getElementById("panelTitle"),
+      panelLead: document.getElementById("panelLead"),
+      panelNotice: document.getElementById("panelNotice"),
+      inventoryList: document.getElementById("inventoryList"),
+      upgradeList: document.getElementById("upgradeList"),
+      endingOverlay: document.getElementById("endingOverlay"),
+      endingTitle: document.getElementById("endingTitle"),
+      endingLead: document.getElementById("endingLead"),
+      endingStats: document.getElementById("endingStats"),
+      startButton: document.getElementById("startButton"),
+      closePanelBtn: document.getElementById("closePanelBtn"),
+      restartButton: document.getElementById("restartButton"),
+      returnWorldsButton: document.getElementById("returnWorldsButton"),
+      surfaceBtn: document.getElementById("surfaceBtn"),
+      inventoryBtn: document.getElementById("inventoryBtn"),
+    };
+
+    state.hud.surfaceBtn.addEventListener("click", () => {
+      if (state.run) handleSurfaceAction();
+    });
+    state.hud.inventoryBtn.addEventListener("click", () => {
       if (state.run) openPanel("inventory");
     });
     document.getElementById("fullscreenBtn").addEventListener("click", () => toggleFullscreen());
