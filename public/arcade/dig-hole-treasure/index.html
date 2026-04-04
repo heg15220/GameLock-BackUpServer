@@ -43,28 +43,28 @@
 
       <div id="beaconCard" class="beacon-card">
         <div>
-          <span class="eyebrow">Guia</span>
+          <span class="eyebrow">Guía</span>
           <strong id="beaconTitle">Terreno continuo</strong>
           <p id="beaconCopy">El subsuelo se excava como una masa uniforme y los materiales van apareciendo incrustados.</p>
         </div>
-        <div id="beaconArrow" class="beacon-arrow">v</div>
+        <div id="beaconArrow" class="beacon-arrow">↓</div>
       </div>
 
       <div id="messageBox" class="message-box hidden"></div>
 
       <div class="controls-bar">
-        1-3 mundo | Enter inicia o interactua | A/D o flechas moverse | W, arriba o Espacio subir | abajo bajar | J/K/L o clic cavar | M puesto o salida | T jetpack | B linterna | P pausa | R reinicia
+        1-3 mundo | Enter inicia/interactúa | A/D o flechas moverse | W/↑/Espacio subir | ↓ bajar | J/K/L o clic cavar | M puesto | T jetpack | B linterna | P pausa | R reinicia | F pantalla completa
       </div>
     </div>
 
     <section id="worldSelect" class="overlay">
       <div class="modal-card world-modal">
         <p class="eyebrow">Excavaciones</p>
-        <h2>Elige donde cavar</h2>
-        <p class="lead">El terreno ya no se representa por bloques. Cada mundo usa una masa uniforme: piedra y tierra en selva y urbanizacion, arena compacta en el desierto cerca de la superficie, y flechas intermedias que te acercan a la puerta del tesoro.</p>
+        <h2>Elige dónde cavar</h2>
+        <p class="lead">El terreno no se representa por bloques. Cada mundo usa una masa uniforme con materiales únicos y flechas intermedias que te acercan a la puerta del tesoro.</p>
         <div id="worldGrid" class="world-grid"></div>
         <div class="modal-actions">
-          <button id="startButton" type="button">Iniciar excavacion</button>
+          <button id="startButton" type="button">Iniciar excavación</button>
         </div>
       </div>
     </section>
@@ -96,7 +96,7 @@
     <section id="endingOverlay" class="overlay hidden">
       <div class="modal-card ending-modal">
         <p class="eyebrow">Hallazgo asegurado</p>
-        <h2 id="endingTitle">La excavacion termina con exito</h2>
+        <h2 id="endingTitle">La excavación termina con éxito</h2>
         <p class="lead" id="endingLead">Has recuperado el objetivo final tras cavar una masa uniforme de suelo.</p>
         <div id="endingStats" class="ending-stats"></div>
         <div class="modal-actions">
