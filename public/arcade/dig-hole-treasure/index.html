@@ -14,7 +14,7 @@
       <div class="hud-top">
         <div class="brand-card">
           <p class="eyebrow" id="worldLabel">Selva Enterrada</p>
-          <h1>Cavar el Hoyo</h1>
+          <h1 id="gameTitle">Cavar el Hoyo</h1>
           <p id="objectiveLabel">Excava tierra continua, sigue las flechas del subsuelo y encuentra la puerta del tesoro.</p>
         </div>
         <div class="action-row">
@@ -25,17 +25,17 @@
       </div>
 
       <div class="stat-grid">
-        <div class="stat-pill stat-pill-coins"><span>Monedas</span><strong id="coinsValue">0</strong></div>
-        <div class="stat-pill stat-pill-depth"><span>Profundidad</span><strong id="depthValue">0 m</strong></div>
-        <div class="stat-pill stat-pill-cargo"><span>Carga</span><strong id="cargoValue">0/12</strong></div>
-        <div class="stat-pill stat-pill-shovel"><span>Herramienta</span><strong id="shovelValue">Manual</strong></div>
-        <div class="stat-pill stat-pill-ground"><span>Suelo</span><strong id="groundValue">Tierra</strong></div>
-        <div class="stat-pill stat-pill-target"><span>Hallazgo</span><strong id="targetValue">Pendiente</strong></div>
+        <div class="stat-pill stat-pill-coins"><span id="coinsLabel">Monedas</span><strong id="coinsValue">0</strong></div>
+        <div class="stat-pill stat-pill-depth"><span id="depthLabel">Profundidad</span><strong id="depthValue">0 m</strong></div>
+        <div class="stat-pill stat-pill-cargo"><span id="cargoLabel">Carga</span><strong id="cargoValue">0/12</strong></div>
+        <div class="stat-pill stat-pill-shovel"><span id="toolLabel">Herramienta</span><strong id="shovelValue">Manual</strong></div>
+        <div class="stat-pill stat-pill-ground"><span id="groundLabel">Suelo</span><strong id="groundValue">Tierra</strong></div>
+        <div class="stat-pill stat-pill-target"><span id="targetLabel">Hallazgo</span><strong id="targetValue">Pendiente</strong></div>
       </div>
 
       <div class="side-rail">
         <div class="depth-rail">
-          <span>MEJOR</span>
+          <span id="bestLabel">MEJOR</span>
           <div class="depth-track"><div id="depthFill" class="depth-fill"></div></div>
           <strong id="bestDepthValue">0 m</strong>
         </div>
@@ -43,7 +43,7 @@
 
       <div id="beaconCard" class="beacon-card">
         <div>
-          <span class="eyebrow">Guía</span>
+          <span class="eyebrow" id="guideLabel">Guía</span>
           <strong id="beaconTitle">Terreno continuo</strong>
           <p id="beaconCopy">El subsuelo se excava como una masa uniforme y los materiales van apareciendo incrustados.</p>
         </div>
@@ -52,11 +52,11 @@
 
       <div id="messageBox" class="message-box hidden"></div>
 
-      <div class="controls-bar">
+      <div id="controlsHelp" class="controls-bar">
         1-3 cambia mundo | Enter/E interactuar | A/D o flechas mover | W/↑/Espacio subir | ↓ bajar | I/J/K/L o clic cavar | M puesto/venta | T jetpack | B linterna | P pausa | R reinicia | F pantalla completa
       </div>
       <div id="staminaHud" class="stamina-hud">
-        <span>Estamina</span>
+        <span id="staminaLabel">Estamina</span>
         <div class="stamina-track">
           <div id="staminaFill" class="stamina-fill"></div>
         </div>
@@ -66,9 +66,9 @@
 
     <section id="worldSelect" class="overlay">
       <div class="modal-card world-modal">
-        <p class="eyebrow">Excavaciones</p>
-        <h2>Elige dónde cavar</h2>
-        <p class="lead">El terreno no se representa por bloques. Cada mundo usa una masa uniforme con materiales únicos y flechas intermedias que te acercan a la puerta del tesoro.</p>
+        <p id="worldSelectEyebrow" class="eyebrow">Excavaciones</p>
+        <h2 id="worldSelectTitle">Elige dónde cavar</h2>
+        <p id="worldSelectLead" class="lead">El terreno no se representa por bloques. Cada mundo usa una masa uniforme con materiales únicos y flechas intermedias que te acercan a la puerta del tesoro.</p>
         <div id="worldGrid" class="world-grid"></div>
         <div class="modal-actions">
           <button id="startButton" type="button">Iniciar excavación</button>
@@ -89,11 +89,11 @@
         <div class="panel-notice" id="panelNotice"></div>
         <div class="panel-grid">
           <section>
-            <h3>🎒 Inventario</h3>
+            <h3 id="inventoryHeading">🎒 Inventario</h3>
             <div id="inventoryList" class="inventory-list"></div>
           </section>
           <section>
-            <h3>⚙ Mejoras</h3>
+            <h3 id="upgradesHeading">⚙ Mejoras</h3>
             <div id="upgradeList" class="upgrade-list"></div>
           </section>
         </div>
@@ -102,7 +102,7 @@
 
     <section id="treasureRoomOverlay" class="overlay hidden">
       <div class="modal-card treasure-room-modal">
-        <p class="eyebrow">Camara final</p>
+        <p id="treasureRoomEyebrow" class="eyebrow">Camara final</p>
         <h2 id="treasureRoomTitle">Sala del cofre</h2>
         <p class="lead" id="treasureRoomLead">La puerta esta abierta. Solo queda abrir el cofre.</p>
         <div class="treasure-room-scene" aria-hidden="true">
@@ -118,7 +118,7 @@
 
     <section id="endingOverlay" class="overlay hidden">
       <div class="modal-card ending-modal">
-        <p class="eyebrow">Hallazgo asegurado</p>
+        <p id="endingEyebrow" class="eyebrow">Hallazgo asegurado</p>
         <h2 id="endingTitle">La excavación termina con éxito</h2>
         <p class="lead" id="endingLead">Has recuperado el objetivo final tras cavar una masa uniforme de suelo.</p>
         <div id="endingStats" class="ending-stats"></div>

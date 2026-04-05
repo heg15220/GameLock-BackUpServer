@@ -11,8 +11,12 @@
   const DIG_RANGE = 112;
   const DIG_SWING_TIME = 0.18;
   const STORAGE_KEY = "dig-hole-html-progress-v4";
+  const LANG_OVERRIDE = new URLSearchParams(window.location.search).get("lang");
+  const USER_LANGUAGE = String(LANG_OVERRIDE || (navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase();
+  const IS_ES = USER_LANGUAGE.startsWith("es");
+  const t = (esText, enText) => (IS_ES ? esText : enText);
 
-  const SHOVEL_NAMES = ["Manual", "Hierro", "Acero", "Titanio"];
+  const SHOVEL_NAMES = ["Manual", t("Hierro", "Iron"), t("Acero", "Steel"), t("Titanio", "Titanium")];
   const SHOVEL_COSTS = [0, 105, 245, 500];
   const DIG_RADII = [22, 28, 36, 44];
   const DIG_COOLDOWNS = [0.22, 0.18, 0.14, 0.1];
@@ -188,6 +192,65 @@
     },
   };
 
+  function localizeWorldCatalog() {
+    if (IS_ES) return;
+    const setMaterialName = (world, id, name) => {
+      const material = world.materials.find((m) => m.id === id);
+      if (material) material.name = name;
+    };
+
+    const jungle = WORLDS.jungle;
+    jungle.title = "Buried Jungle";
+    jungle.subtitle = "Continuous damp soil, soft roots, and green minerals embedded in the wall.";
+    jungle.treasureName = "Heart of the Jungle";
+    jungle.shopName = "Jungle Outpost";
+    jungle.cardFacts = [
+      "The underground is continuous jungle soil, with no visible blocks.",
+      "Stone can appear at any depth as a base material.",
+      "Veins appear embedded as you open passages in the wall.",
+    ];
+    setMaterialName(jungle, "stone", "Stone");
+    setMaterialName(jungle, "clay", "Red Clay");
+    setMaterialName(jungle, "amber", "Amber");
+    setMaterialName(jungle, "jade", "Jade");
+    setMaterialName(jungle, "emerald", "Emerald");
+
+    const desert = WORLDS.desert;
+    desert.title = "Sunken Desert";
+    desert.subtitle = "Sand near the surface, with mineral veins trapped in compact dunes.";
+    desert.treasureName = "Sun Crown";
+    desert.shopName = "Oasis Outpost";
+    desert.cardFacts = [
+      "The upper layer near the surface is almost pure sand.",
+      "Stone still appears even in deeper layers.",
+      "Sand compacts with depth but keeps the smooth look.",
+      "Salt, copper, turquoise and sun opal are embedded in the wall.",
+    ];
+    setMaterialName(desert, "stone", "Stone");
+    setMaterialName(desert, "salt", "Salt");
+    setMaterialName(desert, "copper", "Copper");
+    setMaterialName(desert, "turquoise", "Turquoise");
+    setMaterialName(desert, "sunopal", "Sun Opal");
+
+    const urban = WORLDS.urban;
+    urban.title = "Urban Yard";
+    urban.subtitle = "Below the neighborhood there is loose soil with mixed remains and minerals.";
+    urban.treasureName = "Neighborhood Capsule";
+    urban.shopName = "Yard Outpost";
+    urban.cardFacts = [
+      "The neighborhood opens on top of a continuous soil mass.",
+      "Stone also appears here as the most common material.",
+      "Manual digging reveals embedded remains and mineral veins.",
+    ];
+    setMaterialName(urban, "stone", "Stone");
+    setMaterialName(urban, "ceramic", "Ceramic");
+    setMaterialName(urban, "copper", "Copper");
+    setMaterialName(urban, "silver", "Silver");
+    setMaterialName(urban, "crystal", "Crystal");
+  }
+
+  localizeWorldCatalog();
+
   // ─── Persistence ──────────────────────────────────────────────────────────
 
   function loadProgress() {
@@ -265,7 +328,9 @@
   }
 
   function getRarityLabel(r) {
-    return ["Común", "Común", "Poco común", "Raro", "Muy raro"][r] || "Común";
+    return IS_ES
+      ? (["Comun", "Comun", "Poco comun", "Raro", "Muy raro"][r] || "Comun")
+      : (["Common", "Common", "Uncommon", "Rare", "Very rare"][r] || "Common");
   }
 
   const MATERIAL_ICONS = Object.freeze({
@@ -305,6 +370,67 @@
     r.setProperty("--accent-strong", world.theme.accentStrong);
     r.setProperty("--panel-wood", world.theme.outpost);
     r.setProperty("--panel-trim", world.theme.outpostTrim);
+  }
+
+  function localizeStaticDom() {
+    const setText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    document.documentElement.lang = IS_ES ? "es" : "en";
+    document.title = t("Cavar el Hoyo", "Dig the Hole");
+    const gameCanvas = document.getElementById("game");
+    if (gameCanvas) {
+      gameCanvas.setAttribute("aria-label", t("Juego de cavar el hoyo", "Dig the hole game"));
+    }
+
+    setText("gameTitle", t("Cavar el Hoyo", "Dig the Hole"));
+    setText("surfaceBtn", t("Puesto", "Outpost"));
+    setText("inventoryBtn", t("Inventario", "Inventory"));
+    setText("startButton", t("Iniciar excavacion", "Start excavation"));
+    setText("coinsLabel", t("Monedas", "Coins"));
+    setText("depthLabel", t("Profundidad", "Depth"));
+    setText("cargoLabel", t("Carga", "Load"));
+    setText("toolLabel", t("Herramienta", "Tool"));
+    setText("groundLabel", t("Suelo", "Ground"));
+    setText("targetLabel", t("Hallazgo", "Discovery"));
+    setText("bestLabel", t("MEJOR", "BEST"));
+    setText("guideLabel", t("Guia", "Guide"));
+    setText("staminaLabel", t("Estamina", "Stamina"));
+    setText("worldSelectEyebrow", t("Excavaciones", "Excavations"));
+    setText("worldSelectTitle", t("Elige donde cavar", "Choose where to dig"));
+    setText(
+      "worldSelectLead",
+      t(
+        "El terreno no se representa por bloques. Cada mundo usa una masa uniforme con materiales unicos y flechas intermedias que te acercan a la puerta del tesoro.",
+        "The terrain is not block-based. Each world uses a continuous mass with unique materials and intermediate arrows guiding you to the treasure door."
+      )
+    );
+    setText("closePanelBtn", t("Volver", "Back"));
+    setText("panelEyebrow", t("Puesto", "Outpost"));
+    setText("panelTitle", t("Puesto de superficie", "Surface outpost"));
+    setText("panelLead", t("Vende hallazgos y mejora la pala o la mochila.", "Sell discoveries and upgrade shovel or backpack."));
+    setText("inventoryHeading", t("🎒 Inventario", "🎒 Inventory"));
+    setText("upgradesHeading", t("⚙ Mejoras", "⚙ Upgrades"));
+    setText("treasureRoomEyebrow", t("Camara final", "Final chamber"));
+    setText("treasureRoomTitle", t("Sala del cofre", "Chest room"));
+    setText("treasureRoomLead", t("La puerta esta abierta. Solo queda abrir el cofre.", "The door is open. Only the chest remains."));
+    setText("treasureRoomHint", t("Pulsa Enter/E o el boton para abrir el cofre.", "Press Enter/E or the button to open the chest."));
+    setText("openChestButton", t("Abrir cofre", "Open chest"));
+    setText("endingEyebrow", t("Hallazgo asegurado", "Discovery secured"));
+    setText("endingTitle", t("La excavacion termina con exito", "The excavation ends successfully"));
+    setText("endingLead", t("Has recuperado el objetivo final tras cavar una masa uniforme de suelo.", "You recovered the final objective after digging through continuous terrain."));
+    setText("fullscreenBtn", t("Pantalla completa", "Fullscreen"));
+    setText("restartButton", t("Reintentar mundo", "Retry world"));
+    setText("returnWorldsButton", t("Volver a mundos", "Back to worlds"));
+    setText(
+      "controlsHelp",
+      t(
+        "1-3 cambia mundo | Enter/E interactuar | A/D o flechas mover | W/Arriba/Espacio subir | Abajo bajar | I/J/K/L o clic cavar | M puesto/venta | T jetpack | B linterna | P pausa | R reinicia | F pantalla completa",
+        "1-3 switch world | Enter/E interact | A/D or arrows move | W/Up/Space climb | Down descend | I/J/K/L or click dig | M outpost/sell | T jetpack | B torch | P pause | R restart | F fullscreen"
+      )
+    );
   }
 
   // ─── Soil color ───────────────────────────────────────────────────────────
@@ -598,8 +724,8 @@
       celebration: [],
       bestDepthMeters: state.progress.bestDepthByWorld[worldId] || 0,
       guidanceArrow: "v",
-      guidanceTitle: "Excava hacia abajo",
-      guidanceCopy: "La tierra se abre de forma continua y los materiales asoman en la pared.",
+      guidanceTitle: t("Excava hacia abajo", "Dig downward"),
+      guidanceCopy: t("La tierra se abre de forma continua y los materiales asoman en la pared.", "The ground opens continuously and materials appear in the wall."),
       guidanceSignalActive: false,
       digTarget: null,
       materialScanCooldown: 0,
@@ -634,7 +760,10 @@
     run.failedReason = reason || "fallo";
     state.screen = "failed";
     clearInputState();
-    setMessage("Te has quedado sin estamina antes de volver al puesto.", 1.8);
+    setMessage(
+      t("Te has quedado sin estamina antes de volver al puesto.", "You ran out of stamina before reaching the outpost."),
+      1.8
+    );
     markUiDirty();
   }
 
@@ -646,14 +775,17 @@
     run.stamina = clamp(run.stamina - amount, 0, max);
     if (run.stamina <= 0 && prev > 0) {
       run.staminaCriticalTimer = STAMINA_CRITICAL_SECONDS;
-      setMessage("Sin estamina. Vuelve al puesto y recarga o perderas la expedicion.", 1.8);
+      setMessage(
+        t("Sin estamina. Vuelve al puesto y recarga o perderas la expedicion.", "No stamina left. Return to the outpost and recharge or lose the run."),
+        1.8
+      );
       markUiDirty();
       return;
     }
     const ratio = run.stamina / Math.max(1, max);
     if (ratio <= STAMINA_LOW_RATIO && run.staminaWarningCooldown <= 0) {
       run.staminaWarningCooldown = STAMINA_WARNING_COOLDOWN;
-      setMessage("Estamina baja. Regresa al puesto para recargar.", 1.4);
+      setMessage(t("Estamina baja. Regresa al puesto para recargar.", "Low stamina. Return to the outpost to recharge."), 1.4);
     }
   }
 
@@ -695,8 +827,8 @@
 
   function currentSoilLabel(run) {
     const d = currentDepthRatio(run);
-    if (run.worldId === "desert" && d < 0.26) return "Arena";
-    return "Tierra";
+    if (run.worldId === "desert" && d < 0.26) return t("Arena", "Sand");
+    return t("Tierra", "Soil");
   }
 
   function isNearSurface(run) {
@@ -904,27 +1036,27 @@
     const staminaRatio = run.stamina / Math.max(1, currentMaxStamina(run));
     if (run.stamina <= 0) {
       run.guidanceArrow = "â†‘";
-      run.guidanceTitle = "Sin estamina";
+      run.guidanceTitle = t("Sin estamina", "No stamina");
       run.guidanceCopy = canAccessOutpost(run)
-        ? "Estas en superficie. Abre el puesto y recarga estamina."
-        : `Llega al puesto o perderas la expedicion (${Math.max(0, run.staminaCriticalTimer).toFixed(1)} s).`;
+        ? t("Estas en superficie. Abre el puesto y recarga estamina.", "You are at the surface. Open the outpost and recharge stamina.")
+        : t(`Llega al puesto o perderas la expedicion (${Math.max(0, run.staminaCriticalTimer).toFixed(1)} s).`, `Reach the outpost or lose the run (${Math.max(0, run.staminaCriticalTimer).toFixed(1)} s).`);
       run.guidanceSignalActive = true;
       return;
     }
 
     if (staminaRatio <= STAMINA_LOW_RATIO) {
       run.guidanceArrow = "â†‘";
-      run.guidanceTitle = "Estamina baja";
+      run.guidanceTitle = t("Estamina baja", "Low stamina");
       run.guidanceCopy = canAccessOutpost(run)
-        ? "Recarga estamina en el puesto antes de seguir cavando."
-        : "Te queda poca estamina. Vuelve al puesto cuanto antes.";
+        ? t("Recarga estamina en el puesto antes de seguir cavando.", "Recharge stamina at the outpost before digging more.")
+        : t("Te queda poca estamina. Vuelve al puesto cuanto antes.", "You have little stamina left. Return to the outpost now.");
       run.guidanceSignalActive = true;
       return;
     }
 
     if (run.inventoryCount >= currentCapacity(run)) {
       if (run.inventoryWarningCooldown <= 0) {
-        setMessage("Mochila llena. Sube al puesto para vender.", 1.4);
+        setMessage(t("Mochila llena. Sube al puesto para vender.", "Backpack full. Return to the outpost to sell."), 1.4);
         run.inventoryWarningCooldown = 1;
       }
       return;
@@ -935,7 +1067,7 @@
     run.inventoryCount++;
     run.collectedTotal++;
     spawnParticles(run, deposit.x, deposit.y, 12, material.accent, material.color);
-    setMessage(`${material.name} encontrado.`, 0.9);
+    setMessage(t(`${material.name} encontrado.`, `${material.name} found.`), 0.9);
     markUiDirty();
   }
 
@@ -952,7 +1084,10 @@
         m.exposure = depositExposure(run, m);
         if (!m.discovered && m.exposure > 0.18) {
           m.discovered = true;
-          setMessage(`Flecha hallada: sigue ${describeDirection(m.arrow)}.`, 1.2);
+          setMessage(
+            t(`Flecha hallada: sigue ${describeDirection(m.arrow)}.`, `Arrow found: follow ${describeDirection(m.arrow)}.`),
+            1.2
+          );
         }
       }
       const center = centerOfPlayer(run);
@@ -1051,11 +1186,11 @@
   }
 
   function describeDirection(arrow) {
-    if (arrow === "→") return "a la derecha";
-    if (arrow === "←") return "a la izquierda";
-    if (arrow === "↑") return "hacia arriba";
-    if (arrow === "↓") return "hacia abajo";
-    return "en diagonal";
+    if (arrow === "→") return t("a la derecha", "to the right");
+    if (arrow === "←") return t("a la izquierda", "to the left");
+    if (arrow === "↑") return t("hacia arriba", "upward");
+    if (arrow === "↓") return t("hacia abajo", "downward");
+    return t("en diagonal", "diagonally");
   }
 
   function updateGuidance(run) {
@@ -1067,24 +1202,24 @@
 
     if (canClaimTreasure(run)) {
       run.guidanceArrow = "o";
-      run.guidanceTitle = "Puerta del tesoro";
-      run.guidanceCopy = "Acércate a la puerta visible y pulsa Enter para entrar en la cámara final.";
+      run.guidanceTitle = t("Puerta del tesoro", "Treasure door");
+      run.guidanceCopy = t("Acércate a la puerta visible y pulsa Enter para entrar en la cámara final.", "Move to the visible door and press Enter to enter the final chamber.");
       return;
     }
 
     if (run.inventoryCount >= currentCapacity(run)) {
       run.guidanceArrow = "↑";
-      run.guidanceTitle = "Mochila llena";
+      run.guidanceTitle = t("Mochila llena", "Backpack full");
       run.guidanceCopy = run.jetpackOwned
-        ? "Pulsa M para abrir el puesto o T para volver al mostrador con el jetpack."
-        : "Pulsa M o Inventario para vender desde aqui. Vuelve al puesto para mejorar equipo.";
+        ? t("Pulsa M para abrir el puesto o T para volver al mostrador con el jetpack.", "Press M to open the outpost or T to return to the counter with the jetpack.")
+        : t("Pulsa M o Inventario para vender desde aqui. Vuelve al puesto para mejorar equipo.", "Press M or Inventory to sell here. Return to the outpost for upgrades.");
       return;
     }
 
     if (!target) {
       run.guidanceArrow = "↓";
-      run.guidanceTitle = "Excava";
-      run.guidanceCopy = "Abre una ruta limpia y sigue profundizando.";
+      run.guidanceTitle = t("Excava", "Dig");
+      run.guidanceCopy = t("Abre una ruta limpia y sigue profundizando.", "Open a clean route and keep digging deeper.");
       return;
     }
 
@@ -1093,24 +1228,27 @@
     run.guidanceArrow = arrowFromVector(dx, dy);
 
     if (target === run.treasure) {
-      run.guidanceTitle = run.treasure.exposure > 0.18 ? "Puerta del tesoro" : run.world.treasureName;
+      run.guidanceTitle = run.treasure.exposure > 0.18 ? t("Puerta del tesoro", "Treasure door") : run.world.treasureName;
       run.guidanceCopy = run.treasure.exposure > 0.18
-        ? "La puerta final ya asoma entre la tierra. Sigue cavando hasta abrir el acceso."
-        : `Las últimas flechas apuntan a ${targetDepth}.`;
+        ? t("La puerta final ya asoma entre la tierra. Sigue cavando hasta abrir el acceso.", "The final door is now visible. Keep digging to open access.")
+        : t(`Las últimas flechas apuntan a ${targetDepth}.`, `The last arrows point toward ${targetDepth}.`);
       run.guidanceSignalActive = run.treasure.exposure < 0.18;
       return;
     }
 
     if (target.discovered) {
-      run.guidanceTitle = "Flecha encontrada";
-      run.guidanceCopy = `La señal indica ${describeDirection(target.arrow)}. La siguiente referencia queda cerca de ${targetDepth}.`;
+      run.guidanceTitle = t("Flecha encontrada", "Arrow found");
+      run.guidanceCopy = t(
+        `La señal indica ${describeDirection(target.arrow)}. La siguiente referencia queda cerca de ${targetDepth}.`,
+        `The signal points ${describeDirection(target.arrow)}. The next marker is near ${targetDepth}.`
+      );
       return;
     }
 
-    run.guidanceTitle = torchMissing ? "Oscuridad profunda" : "Rastro del tesoro";
+    run.guidanceTitle = torchMissing ? t("Oscuridad profunda", "Deep darkness") : t("Rastro del tesoro", "Treasure trail");
     run.guidanceCopy = torchMissing
-      ? `Pulsa B para colocar una linterna y sigue la señal luminosa hacia ${targetDepth}.`
-      : `Busca la siguiente flecha cerca de ${targetDepth}. Si te desvías, la luz intermitente te recoloca.`;
+      ? t(`Pulsa B para colocar una linterna y sigue la señal luminosa hacia ${targetDepth}.`, `Press B to place a torch and follow the light signal toward ${targetDepth}.`)
+      : t(`Busca la siguiente flecha cerca de ${targetDepth}. Si te desvías, la luz intermitente te recoloca.`, `Find the next arrow near ${targetDepth}. If you drift away, the blinking light will redirect you.`);
     run.guidanceSignalActive = true;
   }
 
@@ -1139,7 +1277,7 @@
     if (!run || !canClaimTreasure(run)) return;
     run.treasure.doorOpened = true;
     spawnParticles(run, run.treasure.x, run.treasure.y, 24, "#ffe39e", "#ffaf6e");
-    setMessage("La puerta se abre. Entras en la camara del tesoro.", 1.8);
+    setMessage(t("La puerta se abre. Entras en la camara del tesoro.", "The door opens. You enter the treasure chamber."), 1.8);
     state.screen = "treasure_room";
     clearInputState();
     markUiDirty();
@@ -1148,26 +1286,26 @@
   function useJetpack() {
     const run = state.run;
     if (!run || state.screen !== "running") return;
-    if (!run.jetpackOwned) { setMessage("Necesitas comprar el jetpack en el puesto.", 1.3); return; }
+    if (!run.jetpackOwned) { setMessage(t("Necesitas comprar el jetpack en el puesto.", "You need to buy the jetpack at the outpost."), 1.3); return; }
     snapPlayerToOutpost(run);
     spawnParticles(run, run.player.x + run.player.w * 0.5, run.player.y + run.player.h * 0.5, 22, "#ffe291", "#ff9e54");
-    setMessage("Jetpack activado. Regresas directamente al puesto.", 1.5);
+    setMessage(t("Jetpack activado. Regresas directamente al puesto.", "Jetpack activated. Returning directly to the outpost."), 1.5);
     updateGuidance(run); markUiDirty();
   }
 
   function placeTorch() {
     const run = state.run;
     if (!run || state.screen !== "running") return;
-    if (currentDarkness(run) < 0.08) { setMessage("Todavía hay luz suficiente aquí.", 1.1); return; }
-    if (run.torches <= 0) { setMessage("No te quedan linternas. Compra más en el puesto.", 1.3); return; }
+    if (currentDarkness(run) < 0.08) { setMessage(t("Todavía hay luz suficiente aquí.", "There is still enough light here."), 1.1); return; }
+    if (run.torches <= 0) { setMessage(t("No te quedan linternas. Compra más en el puesto.", "You have no torches left. Buy more at the outpost."), 1.3); return; }
     const center = centerOfPlayer(run);
     if (hasNearbyTorch(run, center.x, center.y, TORCH_NEAR_DISTANCE)) {
-      setMessage("Ya hay una linterna iluminando esta zona.", 1.2); return;
+      setMessage(t("Ya hay una linterna iluminando esta zona.", "A torch is already lighting this area."), 1.2); return;
     }
     run.placedTorches.push({ x: center.x + run.player.facing * 26, y: center.y });
     run.torches--;
     spawnParticles(run, center.x, center.y, 8, "#ffe8a0", "#ffc45d");
-    setMessage("Linterna colocada en la pared.", 1.1);
+    setMessage(t("Linterna colocada en la pared.", "Torch placed on the wall."), 1.1);
     updateGuidance(run); markUiDirty();
   }
 
@@ -1197,7 +1335,7 @@
     state.progress.bestDepthByWorld[run.worldId] = Math.max(state.progress.bestDepthByWorld[run.worldId] || 0, run.bestDepthMeters);
     saveProgress();
     spawnCelebration(run);
-    setMessage(`Cofre canjeado: ${run.world.treasureName} asegurado.`, 1.9);
+    setMessage(t(`Cofre canjeado: ${run.world.treasureName} asegurado.`, `Chest redeemed: ${run.world.treasureName} secured.`), 1.9);
     state.screen = "ending";
     markUiDirty();
   }
@@ -1213,7 +1351,7 @@
     if (run.inventory[materialId] <= 0) delete run.inventory[materialId];
     run.inventoryCount -= amount;
     run.coins += amount * material.value;
-    setMessage(`${material.name} vendido ×${amount}.`, 1);
+    setMessage(t(`${material.name} vendido ×${amount}.`, `${material.name} sold ×${amount}.`), 1);
     updateGuidance(run); markUiDirty();
   }
 
@@ -1222,11 +1360,11 @@
     if (!run || !canSellMaterials(run)) return;
     let total = 0;
     for (const e of inventoryEntries(run)) total += e.qty * e.material.value;
-    if (!total) { setMessage("No tienes materiales para vender.", 1.2); return; }
+    if (!total) { setMessage(t("No tienes materiales para vender.", "You have no materials to sell."), 1.2); return; }
     run.coins += total;
     run.inventory = Object.create(null);
     run.inventoryCount = 0;
-    setMessage(`Venta completa: ${total} monedas.`, 1.2);
+    setMessage(t(`Venta completa: ${total} monedas.`, `Sale complete: ${total} coins.`), 1.2);
     updateGuidance(run); markUiDirty();
   }
 
@@ -1236,9 +1374,9 @@
     const next = run.shovelLevel + 1;
     if (next >= SHOVEL_NAMES.length) return;
     const cost = SHOVEL_COSTS[next];
-    if (run.coins < cost) { setMessage("Necesitas más monedas para mejorar la herramienta.", 1.3); return; }
+    if (run.coins < cost) { setMessage(t("Necesitas más monedas para mejorar la herramienta.", "You need more coins to upgrade the tool."), 1.3); return; }
     run.coins -= cost; run.shovelLevel = next;
-    setMessage(`Herramienta mejorada a ${SHOVEL_NAMES[next]}.`, 1.4); markUiDirty();
+    setMessage(t(`Herramienta mejorada a ${SHOVEL_NAMES[next]}.`, `Tool upgraded to ${SHOVEL_NAMES[next]}.`), 1.4); markUiDirty();
   }
 
   function buyCapacity() {
@@ -1247,9 +1385,9 @@
     const next = run.capacityLevel + 1;
     if (next >= CAPACITY_VALUES.length) return;
     const cost = CAPACITY_COSTS[next];
-    if (run.coins < cost) { setMessage("Necesitas más monedas para ampliar la mochila.", 1.3); return; }
+    if (run.coins < cost) { setMessage(t("Necesitas más monedas para ampliar la mochila.", "You need more coins to expand the backpack."), 1.3); return; }
     run.coins -= cost; run.capacityLevel = next;
-    setMessage(`Capacidad ampliada a ${CAPACITY_VALUES[next]}.`, 1.4);
+    setMessage(t(`Capacidad ampliada a ${CAPACITY_VALUES[next]}.`, `Capacity expanded to ${CAPACITY_VALUES[next]}.`), 1.4);
     updateGuidance(run); markUiDirty();
   }
 
@@ -1261,7 +1399,7 @@
     run.stamina = max;
     run.staminaCriticalTimer = 0;
     run.failedReason = "";
-    setMessage("Estamina recargada. Puedes seguir excavando.", 1.2);
+    setMessage(t("Estamina recargada. Puedes seguir excavando.", "Stamina recharged. You can keep digging."), 1.2);
     updateGuidance(run); markUiDirty();
   }
 
@@ -1271,12 +1409,12 @@
     const next = run.staminaLevel + 1;
     if (next >= STAMINA_VALUES.length) return;
     const cost = STAMINA_UPGRADE_COSTS[next];
-    if (run.coins < cost) { setMessage("Necesitas mas monedas para mejorar la estamina.", 1.3); return; }
+    if (run.coins < cost) { setMessage(t("Necesitas mas monedas para mejorar la estamina.", "You need more coins to improve stamina."), 1.3); return; }
     run.coins -= cost;
     run.staminaLevel = next;
     run.stamina = currentMaxStamina(run);
     run.staminaCriticalTimer = 0;
-    setMessage(`Estamina mejorada a ${STAMINA_VALUES[next]}.`, 1.4);
+    setMessage(t(`Estamina mejorada a ${STAMINA_VALUES[next]}.`, `Stamina upgraded to ${STAMINA_VALUES[next]}.`), 1.4);
     updateGuidance(run); markUiDirty();
   }
 
@@ -1284,20 +1422,27 @@
     const run = state.run;
     if (!run || !canAccessOutpost(run) || run.jetpackOwned) return;
     if (run.bestDepthMeters < JETPACK_DEPTH_REQUIREMENT) {
-      setMessage(`Cava al menos ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} para desbloquear el jetpack.`, 1.6); return;
+      setMessage(
+        t(
+          `Cava al menos ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} para desbloquear el jetpack.`,
+          `Dig at least ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} to unlock the jetpack.`
+        ),
+        1.6
+      );
+      return;
     }
-    if (run.coins < JETPACK_COST) { setMessage("Necesitas más monedas para comprar el jetpack.", 1.3); return; }
+    if (run.coins < JETPACK_COST) { setMessage(t("Necesitas más monedas para comprar el jetpack.", "You need more coins to buy the jetpack."), 1.3); return; }
     run.coins -= JETPACK_COST; run.jetpackOwned = true; run.torches += 2;
-    setMessage("Jetpack listo. Incluye dos linternas de pared para zonas oscuras.", 1.8);
+    setMessage(t("Jetpack listo. Incluye dos linternas de pared para zonas oscuras.", "Jetpack ready. Includes two wall torches for dark zones."), 1.8);
     updateGuidance(run); markUiDirty();
   }
 
   function buyTorchPack() {
     const run = state.run;
     if (!run || !canAccessOutpost(run)) return;
-    if (run.coins < TORCH_PACK_COST) { setMessage("Necesitas más monedas para comprar linternas.", 1.3); return; }
+    if (run.coins < TORCH_PACK_COST) { setMessage(t("Necesitas más monedas para comprar linternas.", "You need more coins to buy torches."), 1.3); return; }
     run.coins -= TORCH_PACK_COST; run.torches += TORCH_PACK_SIZE;
-    setMessage(`Has comprado ${TORCH_PACK_SIZE} linternas.`, 1.2);
+    setMessage(t(`Has comprado ${TORCH_PACK_SIZE} linternas.`, `You bought ${TORCH_PACK_SIZE} torches.`), 1.2);
     updateGuidance(run); markUiDirty();
   }
 
@@ -1364,14 +1509,14 @@
       return;
     }
     if (run.stamina <= 0) {
-      setMessage("Sin estamina no puedes usar el retorno rapido. Llega al puesto por tus medios.", 1.5);
+      setMessage(t("Sin estamina no puedes usar el retorno rapido. Llega al puesto por tus medios.", "Without stamina you cannot use fast return. Reach the outpost on your own."), 1.5);
       return;
     }
     snapPlayerToOutpost(run);
     if (run.jetpackOwned) {
-      setMessage("Jetpack activado. Regresas directamente al puesto.", 1.4);
+      setMessage(t("Jetpack activado. Regresas directamente al puesto.", "Jetpack activated. Returning directly to the outpost."), 1.4);
     } else {
-      setMessage("Ascensor de servicio activado. Ya puedes vender en el puesto.", 1.6);
+      setMessage(t("Ascensor de servicio activado. Ya puedes vender en el puesto.", "Service lift activated. You can now sell at the outpost."), 1.6);
     }
     updateGuidance(run);
     openPanel("market");
@@ -1732,7 +1877,7 @@
     ctx.fillRect(-18, -36, 36, 26);
     ctx.fillStyle = "#2e241b"; ctx.fillRect(-10, -30, 20, 20);
     ctx.fillStyle = "#f7ebcf"; ctx.font = "700 11px Georgia,serif";
-    ctx.textAlign = "center"; ctx.fillText("Puesto", 0, -88);
+    ctx.textAlign = "center"; ctx.fillText(t("Puesto", "Outpost"), 0, -88);
     ctx.restore();
   }
 
@@ -1861,7 +2006,7 @@
     const ctx = state.ctx;
     ctx.fillStyle = "rgba(24,17,11,0.42)"; ctx.fillRect(0, 0, state.viewportWidth, state.viewportHeight);
     ctx.fillStyle = "#f8f0dc"; ctx.font = "700 42px Georgia,serif";
-    ctx.textAlign = "center"; ctx.fillText("Pausa", state.viewportWidth * 0.5, state.viewportHeight * 0.5);
+    ctx.textAlign = "center"; ctx.fillText(t("Pausa", "Paused"), state.viewportWidth * 0.5, state.viewportHeight * 0.5);
   }
 
   function drawRunningWorld(run) {
@@ -1935,20 +2080,20 @@
       const bestDepth = state.progress.bestDepthByWorld[world.id] || 0;
       return `
         <button type="button" class="world-card${selected ? " selected" : ""}" data-world="${world.id}">
-          <span class="eyebrow">Mundo ${i + 1}</span>
+          <span class="eyebrow">${t("Mundo", "World")} ${i + 1}</span>
           <strong>${world.title}</strong>
           <p>${world.subtitle}</p>
           <ul>${world.cardFacts.map(f => `<li>${f}</li>`).join("")}</ul>
           <div class="world-meta">
-            <span>${formatDepth(bestDepth)} mejor descenso</span>
-            <span>${completed ? "✓ Hallazgo logrado" : "Hallazgo pendiente"}</span>
+            <span>${formatDepth(bestDepth)} ${t("mejor descenso", "best descent")}</span>
+            <span>${completed ? t("✓ Hallazgo logrado", "✓ Discovery completed") : t("Hallazgo pendiente", "Discovery pending")}</span>
           </div>
         </button>`;
     }).join("");
     state.hud.worldGrid.querySelectorAll("[data-world]").forEach(btn => {
       btn.addEventListener("click", () => selectWorld(btn.getAttribute("data-world")));
     });
-    state.hud.startButton.textContent = `Iniciar en ${current.title}`;
+    state.hud.startButton.textContent = t(`Iniciar en ${current.title}`, `Start in ${current.title}`);
   }
 
   function renderPanel() {
@@ -1957,24 +2102,17 @@
     const atOutpost = isAtOutpost(run);
     const outpostAccess = canAccessOutpost(run);
     const sellAccess = canSellMaterials(run);
-    state.hud.panelEyebrow.textContent = state.screen === "market" ? "Puesto" : "Inventario";
-    state.hud.panelTitle.textContent = outpostAccess ? run.world.shopName : "Inventario rápido";
+    state.hud.panelEyebrow.textContent = state.screen === "market" ? t("Puesto", "Outpost") : t("Inventario", "Inventory");
+    state.hud.panelTitle.textContent = outpostAccess ? run.world.shopName : t("Inventario rapido", "Quick inventory");
     state.hud.panelLead.textContent = outpostAccess
-      ? "Vende y mejora con un toque."
-      : "Vende al instante. Para mejorar, vuelve al puesto.";
-    state.hud.panelNotice.innerHTML = `
-      <span class="notice-chip notice-chip-coins">🪙 ${run.coins}</span>
-      <span class="notice-chip">🚀 ${run.jetpackOwned ? "Operativo" : "Sin jetpack"}</span>
-      <span class="notice-chip">🕯 ${run.torches}</span>
-      <span class="notice-chip">${outpostAccess ? (atOutpost ? "✅ Mostrador" : "⬆ Superficie") : "📡 Venta remota"}</span>
-    `;
-
+      ? t("Vende y mejora con un toque.", "Sell and upgrade in one tap.")
+      : t("Vende al instante. Para mejorar, vuelve al puesto.", "Sell instantly. Return to the outpost for upgrades.");
     state.hud.panelNotice.innerHTML = [
-      `<span class="notice-chip notice-chip-coins">Monedas ${run.coins}</span>`,
-      `<span class="notice-chip">Estamina ${Math.ceil(run.stamina)}/${currentMaxStamina(run)}</span>`,
-      `<span class="notice-chip">Jetpack ${run.jetpackOwned ? "Operativo" : "Sin jetpack"}</span>`,
-      `<span class="notice-chip">Linternas ${run.torches}</span>`,
-      `<span class="notice-chip">${outpostAccess ? (atOutpost ? "Mostrador" : "Superficie") : "Venta remota"}</span>`,
+      `<span class="notice-chip notice-chip-coins">${t("Monedas", "Coins")} ${run.coins}</span>`,
+      `<span class="notice-chip">${t("Estamina", "Stamina")} ${Math.ceil(run.stamina)}/${currentMaxStamina(run)}</span>`,
+      `<span class="notice-chip">Jetpack ${run.jetpackOwned ? t("Operativo", "Online") : t("Sin jetpack", "No jetpack")}</span>`,
+      `<span class="notice-chip">${t("Linternas", "Torches")} ${run.torches}</span>`,
+      `<span class="notice-chip">${outpostAccess ? (atOutpost ? t("Mostrador", "Counter") : t("Superficie", "Surface")) : t("Venta remota", "Remote sell")}</span>`,
     ].join("");
     const items = inventoryEntries(run);
     state.hud.inventoryList.innerHTML = items.length
@@ -1992,10 +2130,10 @@
             </header>
             <div class="item-actions">
               <button type="button" data-action="sell" data-material="${e.id}" data-qty="1" ${sellAccess ? "" : "disabled"}>-1</button>
-              <button type="button" data-action="sell" data-material="${e.id}" data-qty="${e.qty}" ${sellAccess ? "" : "disabled"}>Todo</button>
+              <button type="button" data-action="sell" data-material="${e.id}" data-qty="${e.qty}" ${sellAccess ? "" : "disabled"}>${t("Todo", "All")}</button>
             </div>
           </article>`).join("")
-      : `<article class="item-card item-card-compact item-empty"><strong>🧺 Vacío</strong></article>`;
+      : `<article class="item-card item-card-compact item-empty"><strong>🧺 ${t("Vacio", "Empty")}</strong></article>`;
 
     const nextShovel = run.shovelLevel + 1;
     const nextCapacity = run.capacityLevel + 1;
@@ -2007,37 +2145,37 @@
     const canBuyTorchPack = outpostAccess && run.coins >= TORCH_PACK_COST;
     state.hud.upgradeList.innerHTML = `
       <article class="upgrade-card upgrade-card-compact">
-        <header><strong>⛏ Pala ${SHOVEL_NAMES[run.shovelLevel]}</strong><span class="mini-pill">Nv ${run.shovelLevel + 1}/${SHOVEL_NAMES.length}</span></header>
-        <p>${nextShovel < SHOVEL_NAMES.length ? `Coste: 🪙 ${SHOVEL_COSTS[nextShovel]}` : "MAX"}</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-shovel" ${outpostAccess && nextShovel < SHOVEL_NAMES.length && run.coins >= SHOVEL_COSTS[nextShovel] ? "" : "disabled"}>Mejorar</button></div>
+        <header><strong>⛏ ${t("Pala", "Shovel")} ${SHOVEL_NAMES[run.shovelLevel]}</strong><span class="mini-pill">${t("Nv", "Lv")} ${run.shovelLevel + 1}/${SHOVEL_NAMES.length}</span></header>
+        <p>${nextShovel < SHOVEL_NAMES.length ? `${t("Coste", "Cost")}: 🪙 ${SHOVEL_COSTS[nextShovel]}` : "MAX"}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-shovel" ${outpostAccess && nextShovel < SHOVEL_NAMES.length && run.coins >= SHOVEL_COSTS[nextShovel] ? "" : "disabled"}>${t("Mejorar", "Upgrade")}</button></div>
       </article>
       <article class="upgrade-card upgrade-card-compact">
-        <header><strong>🎒 Mochila</strong><span class="mini-pill">${run.inventoryCount}/${currentCapacity(run)}</span></header>
-        <p>${nextCapacity < CAPACITY_VALUES.length ? `Coste: 🪙 ${CAPACITY_COSTS[nextCapacity]} · Sig: ${CAPACITY_VALUES[nextCapacity]}` : "MAX"}</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-capacity" ${outpostAccess && nextCapacity < CAPACITY_VALUES.length && run.coins >= CAPACITY_COSTS[nextCapacity] ? "" : "disabled"}>Ampliar</button></div>
+        <header><strong>🎒 ${t("Mochila", "Backpack")}</strong><span class="mini-pill">${run.inventoryCount}/${currentCapacity(run)}</span></header>
+        <p>${nextCapacity < CAPACITY_VALUES.length ? `${t("Coste", "Cost")}: 🪙 ${CAPACITY_COSTS[nextCapacity]} · ${t("Sig", "Next")}: ${CAPACITY_VALUES[nextCapacity]}` : "MAX"}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-capacity" ${outpostAccess && nextCapacity < CAPACITY_VALUES.length && run.coins >= CAPACITY_COSTS[nextCapacity] ? "" : "disabled"}>${t("Ampliar", "Expand")}</button></div>
       </article>
       <article class="upgrade-card upgrade-card-compact">
-        <header><strong>🚀 Jetpack</strong><span class="mini-pill">${run.jetpackOwned ? "Listo" : "Off"}</span></header>
-        <p>${run.jetpackOwned ? "Usa T para volver" : `Req: ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} · 🪙 ${JETPACK_COST}`}</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-jetpack" ${canBuyJetpack ? "" : "disabled"}>${run.jetpackOwned ? "OK" : "Comprar"}</button></div>
+        <header><strong>🚀 Jetpack</strong><span class="mini-pill">${run.jetpackOwned ? t("Listo", "Ready") : "Off"}</span></header>
+        <p>${run.jetpackOwned ? t("Usa T para volver", "Use T to return") : `Req: ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} · 🪙 ${JETPACK_COST}`}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-jetpack" ${canBuyJetpack ? "" : "disabled"}>${run.jetpackOwned ? "OK" : t("Comprar", "Buy")}</button></div>
       </article>
       <article class="upgrade-card upgrade-card-compact">
-        <header><strong>🕯 Linternas</strong><span class="mini-pill">${run.torches}</span></header>
+        <header><strong>🕯 ${t("Linternas", "Torches")}</strong><span class="mini-pill">${run.torches}</span></header>
         <p>Pack ${TORCH_PACK_SIZE} · 🪙 ${TORCH_PACK_COST}</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-torches" ${canBuyTorchPack ? "" : "disabled"}>Comprar</button></div>
+        <div class="upgrade-actions"><button type="button" data-action="buy-torches" ${canBuyTorchPack ? "" : "disabled"}>${t("Comprar", "Buy")}</button></div>
       </article>
       <article class="upgrade-card upgrade-card-compact">
-        <header><strong>💱 Venta rápida</strong><span class="mini-pill">${items.length}</span></header>
-        <p>Todo el inventario en 1 clic.</p>
-        <div class="upgrade-actions"><button type="button" data-action="sell-all" ${sellAccess && items.length ? "" : "disabled"}>Vender todo</button></div>
+        <header><strong>💱 ${t("Venta rapida", "Quick sell")}</strong><span class="mini-pill">${items.length}</span></header>
+        <p>${t("Todo el inventario en 1 clic.", "Sell the full inventory in one click.")}</p>
+        <div class="upgrade-actions"><button type="button" data-action="sell-all" ${sellAccess && items.length ? "" : "disabled"}>${t("Vender todo", "Sell all")}</button></div>
       </article>`;
     state.hud.upgradeList.insertAdjacentHTML("afterbegin", `
       <article class="upgrade-card upgrade-card-compact">
-        <header><strong>Estamina</strong><span class="mini-pill">${Math.ceil(run.stamina)}/${maxStamina}</span></header>
-        <p>${nextStamina < STAMINA_VALUES.length ? `Mejora: ${STAMINA_UPGRADE_COSTS[nextStamina]} monedas · Sig: ${STAMINA_VALUES[nextStamina]}` : "MAX"}</p>
+        <header><strong>${t("Estamina", "Stamina")}</strong><span class="mini-pill">${Math.ceil(run.stamina)}/${maxStamina}</span></header>
+        <p>${nextStamina < STAMINA_VALUES.length ? `${t("Mejora", "Upgrade")}: ${STAMINA_UPGRADE_COSTS[nextStamina]} ${t("monedas", "coins")} · ${t("Sig", "Next")}: ${STAMINA_VALUES[nextStamina]}` : "MAX"}</p>
         <div class="upgrade-actions">
-          <button type="button" data-action="refill-stamina" ${canRefillStamina ? "" : "disabled"}>Recargar</button>
-          <button type="button" data-action="buy-stamina" ${canBuyStamina ? "" : "disabled"}>Mejorar</button>
+          <button type="button" data-action="refill-stamina" ${canRefillStamina ? "" : "disabled"}>${t("Recargar", "Recharge")}</button>
+          <button type="button" data-action="buy-stamina" ${canBuyStamina ? "" : "disabled"}>${t("Mejorar", "Upgrade")}</button>
         </div>
       </article>
     `);
@@ -2046,33 +2184,42 @@
   function renderEnding() {
     const run = state.run;
     if (!run) return;
-    state.hud.endingTitle.textContent = `${run.world.treasureName} asegurado`;
-    state.hud.endingLead.textContent = `Atravesaste la puerta final, entraste en la cámara del tesoro y cerraste la expedición de ${run.world.title}.`;
+    state.hud.endingTitle.textContent = t(`${run.world.treasureName} asegurado`, `${run.world.treasureName} secured`);
+    state.hud.endingLead.textContent = t(
+      `Atravesaste la puerta final, entraste en la cámara del tesoro y cerraste la expedición de ${run.world.title}.`,
+      `You crossed the final door, entered the treasure chamber, and completed the ${run.world.title} expedition.`
+    );
     state.hud.endingStats.innerHTML = `
-      <article><span>Profundidad máxima</span><strong>${formatDepth(run.bestDepthMeters)}</strong></article>
-      <article><span>Materiales recogidos</span><strong>${run.collectedTotal}</strong></article>
-      <article><span>Monedas finales</span><strong>${run.coins}</strong></article>`;
+      <article><span>${t("Profundidad maxima", "Max depth")}</span><strong>${formatDepth(run.bestDepthMeters)}</strong></article>
+      <article><span>${t("Materiales recogidos", "Collected materials")}</span><strong>${run.collectedTotal}</strong></article>
+      <article><span>${t("Monedas finales", "Final coins")}</span><strong>${run.coins}</strong></article>`;
   }
 
   function renderFailed() {
     const run = state.run;
     if (!run) return;
-    state.hud.endingTitle.textContent = "Expedicion fallida";
-    state.hud.endingLead.textContent = "Te quedaste sin estamina antes de volver al puesto. Reintenta con mejor ruta y mejoras.";
+    state.hud.endingTitle.textContent = t("Expedicion fallida", "Expedition failed");
+    state.hud.endingLead.textContent = t(
+      "Te quedaste sin estamina antes de volver al puesto. Reintenta con mejor ruta y mejoras.",
+      "You ran out of stamina before returning to the outpost. Try again with a better route and upgrades."
+    );
     state.hud.endingStats.innerHTML = `
-      <article><span>Profundidad maxima</span><strong>${formatDepth(run.bestDepthMeters)}</strong></article>
-      <article><span>Materiales recogidos</span><strong>${run.collectedTotal}</strong></article>
-      <article><span>Monedas al caer</span><strong>${run.coins}</strong></article>`;
+      <article><span>${t("Profundidad maxima", "Max depth")}</span><strong>${formatDepth(run.bestDepthMeters)}</strong></article>
+      <article><span>${t("Materiales recogidos", "Collected materials")}</span><strong>${run.collectedTotal}</strong></article>
+      <article><span>${t("Monedas al caer", "Coins at failure")}</span><strong>${run.coins}</strong></article>`;
   }
 
   function renderTreasureRoom() {
     const run = state.run;
     if (!run) return;
-    state.hud.treasureRoomTitle.textContent = `Camara de ${run.world.treasureName}`;
-    state.hud.treasureRoomLead.textContent = "La puerta se ha abierto. Abre el cofre para completar la expedicion.";
-    state.hud.treasureRoomHint.textContent = `Pulsa Enter/E o el boton para abrir el cofre (+${run.treasure.bonusCoins} monedas).`;
+    state.hud.treasureRoomTitle.textContent = t(`Camara de ${run.world.treasureName}`, `Chamber of ${run.world.treasureName}`);
+    state.hud.treasureRoomLead.textContent = t("La puerta se ha abierto. Abre el cofre para completar la expedicion.", "The door is open. Open the chest to complete the expedition.");
+    state.hud.treasureRoomHint.textContent = t(
+      `Pulsa Enter/E o el boton para abrir el cofre (+${run.treasure.bonusCoins} monedas).`,
+      `Press Enter/E or the button to open the chest (+${run.treasure.bonusCoins} coins).`
+    );
     state.hud.openChestButton.disabled = run.treasure.claimed;
-    state.hud.openChestButton.textContent = run.treasure.claimed ? "Cofre abierto" : "Abrir cofre";
+    state.hud.openChestButton.textContent = run.treasure.claimed ? t("Cofre abierto", "Chest opened") : t("Abrir cofre", "Open chest");
   }
 
   function syncInterface() {
@@ -2080,8 +2227,8 @@
     state.hud.worldLabel.textContent = world.title;
     state.hud.objectiveLabel.textContent = state.run
       ? (state.screen === "treasure_room"
-        ? "Abre el cofre en la camara para cerrar la partida con exito."
-        : `Excava, sigue las flechas del subsuelo y encuentra la puerta de ${world.treasureName}.`)
+        ? t("Abre el cofre en la camara para cerrar la partida con exito.", "Open the chest in the chamber to finish the run successfully.")
+        : t(`Excava, sigue las flechas del subsuelo y encuentra la puerta de ${world.treasureName}.`, `Dig, follow the underground arrows, and find the door to ${world.treasureName}.`))
       : world.subtitle;
 
     if (state.run) {
@@ -2094,8 +2241,8 @@
       state.hud.shovelValue.textContent = SHOVEL_NAMES[run.shovelLevel];
       state.hud.groundValue.textContent = currentSoilLabel(run);
       state.hud.targetValue.textContent = state.screen === "treasure_room"
-        ? "Cofre"
-        : (canClaimTreasure(run) ? "¡Puerta!" : (run.treasure.exposure > 0.18 ? "Visible" : "Buscando"));
+        ? t("Cofre", "Chest")
+        : (canClaimTreasure(run) ? t("Puerta!", "Door!") : (run.treasure.exposure > 0.18 ? t("Visible", "Visible") : t("Buscando", "Searching")));
       state.hud.bestDepthValue.textContent = formatDepth(run.bestDepthMeters);
       state.hud.depthFill.style.height = `${currentDepthRatio(run) * 100}%`;
       state.hud.beaconCard.style.display = state.screen === "running" || state.screen === "paused" ? "flex" : "none";
@@ -2103,8 +2250,8 @@
       state.hud.beaconTitle.textContent = run.guidanceTitle;
       state.hud.beaconCopy.textContent = run.guidanceCopy;
       state.hud.beaconArrow.textContent = run.guidanceArrow;
-      state.hud.surfaceBtn.textContent = isAtOutpost(run) ? "Puesto" : (run.jetpackOwned ? "Jetpack ↑" : "Puesto");
-      state.hud.inventoryBtn.textContent = `Inventario (${run.inventoryCount})`;
+      state.hud.surfaceBtn.textContent = isAtOutpost(run) ? t("Puesto", "Outpost") : (run.jetpackOwned ? "Jetpack ↑" : t("Puesto", "Outpost"));
+      state.hud.inventoryBtn.textContent = t(`Inventario (${run.inventoryCount})`, `Inventory (${run.inventoryCount})`);
       state.hud.staminaHud.classList.remove("hidden");
       state.hud.staminaFill.style.width = `${Math.round(staminaRatio * 100)}%`;
       state.hud.staminaFill.classList.toggle("low", staminaRatio <= STAMINA_LOW_RATIO);
@@ -2119,17 +2266,17 @@
       state.hud.depthValue.textContent = "0 m";
       state.hud.cargoValue.textContent = `0/${CAPACITY_VALUES[0]}`;
       state.hud.shovelValue.textContent = SHOVEL_NAMES[0];
-      state.hud.groundValue.textContent = state.selectedWorldId === "desert" ? "Arena" : "Tierra";
-      state.hud.targetValue.textContent = "Pendiente";
+      state.hud.groundValue.textContent = state.selectedWorldId === "desert" ? t("Arena", "Sand") : t("Tierra", "Soil");
+      state.hud.targetValue.textContent = t("Pendiente", "Pending");
       state.hud.bestDepthValue.textContent = formatDepth(best);
       state.hud.depthFill.style.height = `${clamp(best / world.maxDepthMeters, 0, 1) * 100}%`;
       state.hud.beaconCard.style.display = "flex";
       state.hud.beaconCard.classList.remove("signal-active");
-      state.hud.beaconTitle.textContent = "Terreno continuo";
-      state.hud.beaconCopy.textContent = "La piedra aparece en cualquier profundidad y las flechas intermedias te acercan a la puerta final.";
+      state.hud.beaconTitle.textContent = t("Terreno continuo", "Continuous terrain");
+      state.hud.beaconCopy.textContent = t("La piedra aparece en cualquier profundidad y las flechas intermedias te acercan a la puerta final.", "Stone appears at any depth and intermediate arrows guide you to the final door.");
       state.hud.beaconArrow.textContent = "↓";
-      state.hud.surfaceBtn.textContent = "Puesto";
-      state.hud.inventoryBtn.textContent = "Inventario";
+      state.hud.surfaceBtn.textContent = t("Puesto", "Outpost");
+      state.hud.inventoryBtn.textContent = t("Inventario", "Inventory");
       state.hud.staminaFill.style.width = "100%";
       state.hud.staminaFill.classList.remove("low");
       state.hud.staminaValue.textContent = `${STAMINA_VALUES[0]}/${STAMINA_VALUES[0]}`;
@@ -2277,7 +2424,10 @@
         screen: state.screen,
         worldId: state.selectedWorldId,
         worldName: currentWorld().title,
-        coordinates: "x increases to the right; y increases downward; values are world pixels.",
+        coordinates: t(
+          "x aumenta hacia la derecha; y aumenta hacia abajo; los valores son pixeles del mundo.",
+          "x increases to the right; y increases downward; values are world pixels."
+        ),
         message: state.message,
       };
     }
@@ -2300,7 +2450,10 @@
       screen: state.screen,
       worldId: run.worldId,
       worldName: run.world.title,
-      coordinates: "x increases to the right; y increases downward; values are world pixels.",
+      coordinates: t(
+        "x aumenta hacia la derecha; y aumenta hacia abajo; los valores son pixeles del mundo.",
+        "x increases to the right; y increases downward; values are world pixels."
+      ),
       message: state.message,
       bestDepthMeters: run.bestDepthMeters,
       coins: run.coins,
@@ -2460,6 +2613,7 @@
 
   function boot() {
     initDom();
+    localizeStaticDom();
     applyWorldTheme(currentWorld());
     resize();
     syncInterface();
