@@ -259,6 +259,57 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
   backdrop-filter: blur(10px);
 }
 
+.stamina-hud {
+  position: absolute;
+  left: 50%;
+  bottom: 66px;
+  transform: translateX(-50%);
+  width: min(360px, calc(100vw - 40px));
+  padding: 0.44rem 0.66rem;
+  border-radius: 12px;
+  border: 1px solid var(--hud-border-soft);
+  background: linear-gradient(180deg, rgba(7,12,16,0.9), rgba(10,15,20,0.76));
+  color: var(--hud-text);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.stamina-hud span {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(224, 236, 231, 0.78);
+}
+
+.stamina-track {
+  height: 9px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(141, 230, 196, 0.24);
+  background: rgba(66, 95, 86, 0.35);
+}
+
+.stamina-fill {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8de9c4 0%, #f4d07c 68%, #e59a66 100%);
+  transition: width 120ms linear, filter 120ms ease;
+}
+
+.stamina-fill.low {
+  filter: saturate(1.15) brightness(1.05);
+  background: linear-gradient(90deg, #f0ba6f 0%, #f09657 56%, #d5624a 100%);
+}
+
+.stamina-hud strong {
+  font-size: 0.78rem;
+  color: #f0f6f3;
+}
+
 .overlay {
   position: absolute; inset: 0;
   display: grid; place-items: center; padding: 24px;
@@ -317,6 +368,7 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
 
 .world-modal,
 .panel-modal,
+.treasure-room-modal,
 .ending-modal {
   background:
     radial-gradient(circle at top left, rgba(158,226,183,0.12), transparent 26%),
@@ -497,6 +549,61 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
 .ending-stats span { display: block; font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(247,231,200,0.7); }
 .ending-stats strong { display: block; margin-top: 0.35rem; font-size: 1.1rem; color: #fff3db; }
 
+.treasure-room-modal {
+  width: min(760px, calc(100vw - 48px));
+}
+
+.treasure-room-scene {
+  margin-top: 1rem;
+  min-height: 180px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 219, 141, 0.22);
+  background:
+    radial-gradient(circle at 50% 75%, rgba(255, 208, 126, 0.15), transparent 42%),
+    linear-gradient(180deg, rgba(30, 21, 15, 0.96), rgba(16, 12, 9, 0.96));
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.treasure-room-door {
+  width: 88px;
+  height: 112px;
+  border-radius: 44px 44px 10px 10px;
+  background: linear-gradient(180deg, #5b3b25, #332114);
+  border: 3px solid rgba(246, 206, 126, 0.82);
+  box-shadow: 0 0 22px rgba(246, 206, 126, 0.2);
+}
+
+.treasure-room-chest {
+  width: 92px;
+  height: 62px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #7b4f2c, #4b2f1d);
+  border: 3px solid rgba(249, 210, 132, 0.9);
+  position: absolute;
+  bottom: 18px;
+  box-shadow: 0 0 24px rgba(249, 210, 132, 0.22);
+}
+
+.treasure-room-chest::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 12px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 223, 157, 0.5);
+}
+
+.treasure-room-hint {
+  margin-top: 0.8rem;
+  color: rgba(246, 232, 210, 0.86);
+  font-size: 0.85rem;
+}
+
 .empty-state,
 .item-card strong:only-child {
   color: #fff3db;
@@ -529,6 +636,7 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
     max-width: calc(100vw - 20px);
   }
   .controls-bar { width: calc(100vw - 20px); font-size: 0.64rem; line-height: 1.36; }
+  .stamina-hud { width: calc(100vw - 20px); bottom: 102px; }
   .action-row { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .action-row button { width: 100%; }
   .beacon-card { left: 10px; right: 10px; bottom: 56px; }

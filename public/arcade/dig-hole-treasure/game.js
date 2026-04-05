@@ -13,16 +13,27 @@
   const STORAGE_KEY = "dig-hole-html-progress-v4";
 
   const SHOVEL_NAMES = ["Manual", "Hierro", "Acero", "Titanio"];
-  const SHOVEL_COSTS = [0, 90, 210, 420];
+  const SHOVEL_COSTS = [0, 105, 245, 500];
   const DIG_RADII = [22, 28, 36, 44];
   const DIG_COOLDOWNS = [0.22, 0.18, 0.14, 0.1];
   const CAPACITY_VALUES = [12, 20, 30, 44];
-  const CAPACITY_COSTS = [0, 80, 180, 320];
-  const JETPACK_COST = 32;
+  const CAPACITY_COSTS = [0, 95, 210, 380];
+  const STAMINA_VALUES = [100, 150, 220, 300];
+  const STAMINA_UPGRADE_COSTS = [0, 130, 290, 560];
+  const STAMINA_DIG_COSTS = [1.2, 1.5, 1.9, 2.3];
+  const STAMINA_MOVE_DRAIN_BASE = 0.26;
+  const STAMINA_MOVE_DRAIN_DEPTH = 0.34;
+  const STAMINA_LOW_RATIO = 0.24;
+  const STAMINA_WARNING_COOLDOWN = 8;
+  const STAMINA_CRITICAL_SECONDS = 16;
+  const JETPACK_COST = 40;
   const JETPACK_DEPTH_REQUIREMENT = 120;
-  const TORCH_PACK_COST = 18;
-  const TORCH_PACK_SIZE = 3;
+  const TORCH_PACK_COST = 20;
+  const TORCH_PACK_SIZE = 4;
+  const DEPTH_BALANCE_BASE_METERS = 3200;
   const GUIDANCE_MARKER_COUNT = 4;
+  const TREASURE_MIN_DEPTH_RATIO = 0.86;
+  const TREASURE_MAX_DEPTH_RATIO = 0.95;
   const DARKNESS_START_RATIO = 0.22;
   const DARKNESS_FULL_RATIO = 0.7;
   const TORCH_NEAR_DISTANCE = 116;
@@ -68,7 +79,7 @@
       subtitle: "Tierra húmeda continua, raíces suaves y minerales verdes incrustados.",
       treasureName: "Corazón de la Selva",
       shopName: "Puesto de la Selva",
-      maxDepthMeters: 3200,
+      maxDepthMeters: 9600,
       depositCount: 130,
       theme: {
         skyTop: "#7bc89f",
@@ -105,7 +116,7 @@
       subtitle: "Arena en la superficie y cerca de ella, con vetas minerales atrapadas en la duna compacta.",
       treasureName: "Corona del Sol",
       shopName: "Puesto del Oasis",
-      maxDepthMeters: 3000,
+      maxDepthMeters: 9200,
       depositCount: 124,
       theme: {
         skyTop: "#ffd290",
@@ -144,7 +155,7 @@
       subtitle: "Bajo la urbanización solo hay tierra removida, con restos y minerales mezclados en la pared.",
       treasureName: "Cápsula del Barrio",
       shopName: "Puesto del Patio",
-      maxDepthMeters: 3100,
+      maxDepthMeters: 9400,
       depositCount: 128,
       theme: {
         skyTop: "#a7d4ff",
@@ -214,6 +225,10 @@
     let h = 2166136261;
     for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
     return h >>> 0;
+  }
+
+  function createRunSeed(worldId) {
+    return hashString(`${worldId}:${Date.now()}:${Math.random()}`);
   }
 
   function hashUnit(seed, x, y) {
@@ -494,7 +509,9 @@
     run.materialById = materialMap(run.world);
     const rowsUsable = run.gridRows - 12;
     const deposits = [];
-    for (let i = 0; i < run.world.depositCount; i++) {
+    const depthScale = Math.max(1, run.world.maxDepthMeters / DEPTH_BALANCE_BASE_METERS);
+    const depositTarget = Math.max(run.world.depositCount, Math.round(run.world.depositCount * depthScale));
+    for (let i = 0; i < depositTarget; i++) {
       const depthRatio = hashUnit(run.seed, 111 + i, 813 + i);
       const row = 8 + Math.floor(depthRatio * rowsUsable);
       const x = CELL * (8 + Math.floor(hashUnit(run.seed, 391 + i, 277 + i) * (run.gridCols - 16)));
@@ -508,20 +525,28 @@
     }
     run.deposits = deposits;
 
-    const treasureRow = Math.floor(run.gridRows * 0.84);
+    const treasureDepthRatio = TREASURE_MIN_DEPTH_RATIO +
+      hashUnit(run.seed, 911, 1733) * (TREASURE_MAX_DEPTH_RATIO - TREASURE_MIN_DEPTH_RATIO);
+    const treasureRow = clamp(Math.floor(run.gridRows * treasureDepthRatio), 14, run.gridRows - 10);
     run.treasure = {
       x: CELL * (18 + Math.floor(hashUnit(run.seed, 99, 14) * (run.gridCols - 36))),
       y: run.surfaceY + treasureRow * CELL,
-      radius: 28, exposure: 0, claimed: false, promptReady: false, bonusCoins: 180,
+      radius: 28,
+      exposure: 0,
+      claimed: false,
+      promptReady: false,
+      bonusCoins: Math.round(180 * Math.sqrt(depthScale)),
+      doorOpened: false,
+      chestOpened: false,
     };
     createGuidanceMarkers(run);
   }
 
   // ─── Run builder ──────────────────────────────────────────────────────────
 
-  function buildRun(worldId) {
+  function buildRun(worldId, seedOverride) {
     const world = worldById(worldId);
-    const seed = hashString(`${worldId}:continuous-earth-run`);
+    const seed = Number.isFinite(seedOverride) ? seedOverride : createRunSeed(worldId);
     const gridRows = Math.ceil(world.maxDepthMeters / 18) + 18;
     const metersPerRow = world.maxDepthMeters / Math.max(1, gridRows - 12);
     const worldWidth = GRID_COLS * CELL;
@@ -558,6 +583,11 @@
       collectedTotal: 0,
       shovelLevel: 0,
       capacityLevel: 0,
+      staminaLevel: 0,
+      stamina: STAMINA_VALUES[0],
+      staminaCriticalTimer: 0,
+      staminaWarningCooldown: 0,
+      failedReason: "",
       jetpackOwned: false,
       torches: 0,
       placedTorches: [],
@@ -596,6 +626,48 @@
   // ─── Inventory / capacity ─────────────────────────────────────────────────
 
   function currentCapacity(run) { return CAPACITY_VALUES[run.capacityLevel]; }
+  function currentMaxStamina(run) { return STAMINA_VALUES[run.staminaLevel]; }
+
+  function failRun(reason) {
+    const run = state.run;
+    if (!run || state.screen === "ending" || state.screen === "failed") return;
+    run.failedReason = reason || "fallo";
+    state.screen = "failed";
+    clearInputState();
+    setMessage("Te has quedado sin estamina antes de volver al puesto.", 1.8);
+    markUiDirty();
+  }
+
+  function consumeStamina(run, amount) {
+    if (!run || state.screen !== "running" || amount <= 0 || run.treasure.claimed) return;
+    const max = currentMaxStamina(run);
+    if (max <= 0 || run.stamina <= 0) return;
+    const prev = run.stamina;
+    run.stamina = clamp(run.stamina - amount, 0, max);
+    if (run.stamina <= 0 && prev > 0) {
+      run.staminaCriticalTimer = STAMINA_CRITICAL_SECONDS;
+      setMessage("Sin estamina. Vuelve al puesto y recarga o perderas la expedicion.", 1.8);
+      markUiDirty();
+      return;
+    }
+    const ratio = run.stamina / Math.max(1, max);
+    if (ratio <= STAMINA_LOW_RATIO && run.staminaWarningCooldown <= 0) {
+      run.staminaWarningCooldown = STAMINA_WARNING_COOLDOWN;
+      setMessage("Estamina baja. Regresa al puesto para recargar.", 1.4);
+    }
+  }
+
+  function updateStamina(run, dt) {
+    if (!run) return;
+    run.staminaWarningCooldown = Math.max(0, run.staminaWarningCooldown - dt);
+    if (run.stamina > 0) return;
+    if (canAccessOutpost(run)) return;
+    run.staminaCriticalTimer = Math.max(0, run.staminaCriticalTimer - dt);
+    if (run.staminaCriticalTimer <= 0) {
+      failRun("stamina");
+    }
+    markUiDirty();
+  }
 
   function inventoryEntries(run) {
     return Object.keys(run.inventory)
@@ -800,6 +872,8 @@
     run.player.digCooldown = DIG_COOLDOWNS[run.shovelLevel];
     run.player.digFlash = DIG_SWING_TIME;
     run.materialScanCooldown = 0;
+    const digLoad = STAMINA_DIG_COSTS[run.shovelLevel] * (0.88 + currentDepthRatio(run) * 0.52);
+    consumeStamina(run, digLoad);
     spawnParticles(run, target.x, target.y, 10, "#d5a473", "#8f653f");
     updateProgressDepth(run);
     markUiDirty();
@@ -827,6 +901,27 @@
   }
 
   function collectDeposit(run, deposit) {
+    const staminaRatio = run.stamina / Math.max(1, currentMaxStamina(run));
+    if (run.stamina <= 0) {
+      run.guidanceArrow = "â†‘";
+      run.guidanceTitle = "Sin estamina";
+      run.guidanceCopy = canAccessOutpost(run)
+        ? "Estas en superficie. Abre el puesto y recarga estamina."
+        : `Llega al puesto o perderas la expedicion (${Math.max(0, run.staminaCriticalTimer).toFixed(1)} s).`;
+      run.guidanceSignalActive = true;
+      return;
+    }
+
+    if (staminaRatio <= STAMINA_LOW_RATIO) {
+      run.guidanceArrow = "â†‘";
+      run.guidanceTitle = "Estamina baja";
+      run.guidanceCopy = canAccessOutpost(run)
+        ? "Recarga estamina en el puesto antes de seguir cavando."
+        : "Te queda poca estamina. Vuelve al puesto cuanto antes.";
+      run.guidanceSignalActive = true;
+      return;
+    }
+
     if (run.inventoryCount >= currentCapacity(run)) {
       if (run.inventoryWarningCooldown <= 0) {
         setMessage("Mochila llena. Sube al puesto para vender.", 1.4);
@@ -916,6 +1011,12 @@
     if (down && currentDepthMeters(run) < 32) assistSurfaceReentry(run, dt);
     player.x = clamp(player.x, 0, run.worldWidth - player.w);
     player.y = clamp(player.y, run.surfaceY - player.h, run.worldHeight - player.h - 4);
+    const moveIntensity = clamp(Math.hypot(player.vx, player.vy) / MOVE_SPEED, 0, 1);
+    if (moveIntensity > 0.12) {
+      const depthLoad = STAMINA_MOVE_DRAIN_BASE + currentDepthRatio(run) * STAMINA_MOVE_DRAIN_DEPTH;
+      const carryLoad = 1 + (run.inventoryCount / Math.max(1, currentCapacity(run))) * 0.22;
+      consumeStamina(run, dt * depthLoad * moveIntensity * carryLoad);
+    }
     if (Math.abs(player.vx) > 8) player.facing = player.vx >= 0 ? 1 : -1;
     player.walkCycle += Math.hypot(player.vx, player.vy) * dt * 0.028;
   }
@@ -1029,7 +1130,20 @@
     run.camera.y = 0;
   }
 
-  function canClaimTreasure(run) { return run.treasure.promptReady && !run.treasure.claimed; }
+  function canClaimTreasure(run) {
+    return run.treasure.promptReady && !run.treasure.doorOpened && !run.treasure.claimed;
+  }
+
+  function enterTreasureRoom() {
+    const run = state.run;
+    if (!run || !canClaimTreasure(run)) return;
+    run.treasure.doorOpened = true;
+    spawnParticles(run, run.treasure.x, run.treasure.y, 24, "#ffe39e", "#ffaf6e");
+    setMessage("La puerta se abre. Entras en la camara del tesoro.", 1.8);
+    state.screen = "treasure_room";
+    clearInputState();
+    markUiDirty();
+  }
 
   function useJetpack() {
     const run = state.run;
@@ -1075,14 +1189,15 @@
 
   function claimTreasure() {
     const run = state.run;
-    if (!run || run.treasure.claimed) return;
+    if (!run || !run.treasure.doorOpened || run.treasure.claimed) return;
+    run.treasure.chestOpened = true;
     run.treasure.claimed = true;
     run.coins += run.treasure.bonusCoins;
     state.progress.completedWorlds[run.worldId] = true;
     state.progress.bestDepthByWorld[run.worldId] = Math.max(state.progress.bestDepthByWorld[run.worldId] || 0, run.bestDepthMeters);
     saveProgress();
     spawnCelebration(run);
-    setMessage(`${run.world.treasureName} asegurado.`, 1.8);
+    setMessage(`Cofre canjeado: ${run.world.treasureName} asegurado.`, 1.9);
     state.screen = "ending";
     markUiDirty();
   }
@@ -1138,6 +1253,33 @@
     updateGuidance(run); markUiDirty();
   }
 
+  function refillStamina() {
+    const run = state.run;
+    if (!run || !canAccessOutpost(run)) return;
+    const max = currentMaxStamina(run);
+    if (run.stamina >= max) return;
+    run.stamina = max;
+    run.staminaCriticalTimer = 0;
+    run.failedReason = "";
+    setMessage("Estamina recargada. Puedes seguir excavando.", 1.2);
+    updateGuidance(run); markUiDirty();
+  }
+
+  function buyStaminaUpgrade() {
+    const run = state.run;
+    if (!run || !canAccessOutpost(run)) return;
+    const next = run.staminaLevel + 1;
+    if (next >= STAMINA_VALUES.length) return;
+    const cost = STAMINA_UPGRADE_COSTS[next];
+    if (run.coins < cost) { setMessage("Necesitas mas monedas para mejorar la estamina.", 1.3); return; }
+    run.coins -= cost;
+    run.staminaLevel = next;
+    run.stamina = currentMaxStamina(run);
+    run.staminaCriticalTimer = 0;
+    setMessage(`Estamina mejorada a ${STAMINA_VALUES[next]}.`, 1.4);
+    updateGuidance(run); markUiDirty();
+  }
+
   function buyJetpack() {
     const run = state.run;
     if (!run || !canAccessOutpost(run) || run.jetpackOwned) return;
@@ -1172,7 +1314,7 @@
 
   function startRun(worldId) {
     state.selectedWorldId = worldId || state.selectedWorldId;
-    state.run = buildRun(state.selectedWorldId);
+    state.run = buildRun(state.selectedWorldId, createRunSeed(state.selectedWorldId));
     state.screen = "running";
     state.panelMode = "inventory";
     clearInputState();
@@ -1182,7 +1324,7 @@
 
   function restartRun() {
     if (!state.run) return;
-    state.run = buildRun(state.run.worldId);
+    state.run = buildRun(state.run.worldId, createRunSeed(state.run.worldId));
     state.screen = "running";
     state.panelMode = "inventory";
     clearInputState();
@@ -1221,6 +1363,10 @@
       openPanel("market");
       return;
     }
+    if (run.stamina <= 0) {
+      setMessage("Sin estamina no puedes usar el retorno rapido. Llega al puesto por tus medios.", 1.5);
+      return;
+    }
     snapPlayerToOutpost(run);
     if (run.jetpackOwned) {
       setMessage("Jetpack activado. Regresas directamente al puesto.", 1.4);
@@ -1235,13 +1381,15 @@
     const run = state.run;
     if (!run) { if (state.screen === "world_select") startRun(state.selectedWorldId); return; }
     if (state.screen === "market" || state.screen === "inventory") { closePanel(); return; }
+    if (state.screen === "treasure_room") { claimTreasure(); return; }
+    if (state.screen === "failed") { restartRun(); return; }
     if (state.screen === "ending") { restartRun(); return; }
     if (canAccessOutpost(run)) {
       snapPlayerToOutpost(run);
       openPanel("market");
       return;
     }
-    if (canClaimTreasure(run)) claimTreasure();
+    if (canClaimTreasure(run)) enterTreasureRoom();
   }
 
   function handlePanelAction(event) {
@@ -1251,6 +1399,8 @@
     if (action === "sell-all") sellAll();
     if (action === "buy-shovel") buyShovel();
     if (action === "buy-capacity") buyCapacity();
+    if (action === "buy-stamina") buyStaminaUpgrade();
+    if (action === "refill-stamina") refillStamina();
     if (action === "buy-jetpack") buyJetpack();
     if (action === "buy-torches") buyTorchPack();
     if (action === "sell") sellMaterial(button.getAttribute("data-material"), Number(button.getAttribute("data-qty") || 0));
@@ -1414,6 +1564,28 @@
     const x = run.treasure.x - run.camera.x, y = run.treasure.y - run.camera.y;
     ctx.save();
     ctx.globalAlpha = clamp(run.treasure.exposure * 1.5, 0.18, 1);
+    if (run.treasure.doorOpened) {
+      const openGlow = ctx.createRadialGradient(x, y + 10, 8, x, y + 10, 74);
+      openGlow.addColorStop(0, "rgba(255,231,174,0.44)");
+      openGlow.addColorStop(1, "rgba(255,231,174,0)");
+      ctx.fillStyle = openGlow;
+      ctx.beginPath();
+      ctx.arc(x, y + 10, 74, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#2b1c14";
+      ctx.fillRect(x - 18, y - 4, 36, 42);
+      ctx.beginPath();
+      ctx.arc(x, y - 4, 18, Math.PI, 0);
+      ctx.fill();
+      ctx.strokeStyle = "#f7d27b";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x - 18, y - 4, 36, 42);
+      ctx.beginPath();
+      ctx.arc(x, y - 4, 18, Math.PI, 0);
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
     const glow = ctx.createRadialGradient(x, y + 4, 4, x, y + 4, 56);
     glow.addColorStop(0, "rgba(255,233,170,0.68)"); glow.addColorStop(1, "rgba(255,233,170,0)");
     ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y + 4, 56, 0, Math.PI * 2); ctx.fill();
@@ -1797,6 +1969,13 @@
       <span class="notice-chip">${outpostAccess ? (atOutpost ? "✅ Mostrador" : "⬆ Superficie") : "📡 Venta remota"}</span>
     `;
 
+    state.hud.panelNotice.innerHTML = [
+      `<span class="notice-chip notice-chip-coins">Monedas ${run.coins}</span>`,
+      `<span class="notice-chip">Estamina ${Math.ceil(run.stamina)}/${currentMaxStamina(run)}</span>`,
+      `<span class="notice-chip">Jetpack ${run.jetpackOwned ? "Operativo" : "Sin jetpack"}</span>`,
+      `<span class="notice-chip">Linternas ${run.torches}</span>`,
+      `<span class="notice-chip">${outpostAccess ? (atOutpost ? "Mostrador" : "Superficie") : "Venta remota"}</span>`,
+    ].join("");
     const items = inventoryEntries(run);
     state.hud.inventoryList.innerHTML = items.length
       ? items.map(e => `
@@ -1820,6 +1999,10 @@
 
     const nextShovel = run.shovelLevel + 1;
     const nextCapacity = run.capacityLevel + 1;
+    const nextStamina = run.staminaLevel + 1;
+    const maxStamina = currentMaxStamina(run);
+    const canRefillStamina = outpostAccess && run.stamina < maxStamina;
+    const canBuyStamina = outpostAccess && nextStamina < STAMINA_VALUES.length && run.coins >= STAMINA_UPGRADE_COSTS[nextStamina];
     const canBuyJetpack = outpostAccess && !run.jetpackOwned && run.bestDepthMeters >= JETPACK_DEPTH_REQUIREMENT && run.coins >= JETPACK_COST;
     const canBuyTorchPack = outpostAccess && run.coins >= TORCH_PACK_COST;
     state.hud.upgradeList.innerHTML = `
@@ -1848,6 +2031,16 @@
         <p>Todo el inventario en 1 clic.</p>
         <div class="upgrade-actions"><button type="button" data-action="sell-all" ${sellAccess && items.length ? "" : "disabled"}>Vender todo</button></div>
       </article>`;
+    state.hud.upgradeList.insertAdjacentHTML("afterbegin", `
+      <article class="upgrade-card upgrade-card-compact">
+        <header><strong>Estamina</strong><span class="mini-pill">${Math.ceil(run.stamina)}/${maxStamina}</span></header>
+        <p>${nextStamina < STAMINA_VALUES.length ? `Mejora: ${STAMINA_UPGRADE_COSTS[nextStamina]} monedas · Sig: ${STAMINA_VALUES[nextStamina]}` : "MAX"}</p>
+        <div class="upgrade-actions">
+          <button type="button" data-action="refill-stamina" ${canRefillStamina ? "" : "disabled"}>Recargar</button>
+          <button type="button" data-action="buy-stamina" ${canBuyStamina ? "" : "disabled"}>Mejorar</button>
+        </div>
+      </article>
+    `);
   }
 
   function renderEnding() {
@@ -1861,21 +2054,48 @@
       <article><span>Monedas finales</span><strong>${run.coins}</strong></article>`;
   }
 
+  function renderFailed() {
+    const run = state.run;
+    if (!run) return;
+    state.hud.endingTitle.textContent = "Expedicion fallida";
+    state.hud.endingLead.textContent = "Te quedaste sin estamina antes de volver al puesto. Reintenta con mejor ruta y mejoras.";
+    state.hud.endingStats.innerHTML = `
+      <article><span>Profundidad maxima</span><strong>${formatDepth(run.bestDepthMeters)}</strong></article>
+      <article><span>Materiales recogidos</span><strong>${run.collectedTotal}</strong></article>
+      <article><span>Monedas al caer</span><strong>${run.coins}</strong></article>`;
+  }
+
+  function renderTreasureRoom() {
+    const run = state.run;
+    if (!run) return;
+    state.hud.treasureRoomTitle.textContent = `Camara de ${run.world.treasureName}`;
+    state.hud.treasureRoomLead.textContent = "La puerta se ha abierto. Abre el cofre para completar la expedicion.";
+    state.hud.treasureRoomHint.textContent = `Pulsa Enter/E o el boton para abrir el cofre (+${run.treasure.bonusCoins} monedas).`;
+    state.hud.openChestButton.disabled = run.treasure.claimed;
+    state.hud.openChestButton.textContent = run.treasure.claimed ? "Cofre abierto" : "Abrir cofre";
+  }
+
   function syncInterface() {
     const world = state.run ? state.run.world : currentWorld();
     state.hud.worldLabel.textContent = world.title;
     state.hud.objectiveLabel.textContent = state.run
-      ? `Excava, sigue las flechas del subsuelo y encuentra la puerta de ${world.treasureName}.`
+      ? (state.screen === "treasure_room"
+        ? "Abre el cofre en la camara para cerrar la partida con exito."
+        : `Excava, sigue las flechas del subsuelo y encuentra la puerta de ${world.treasureName}.`)
       : world.subtitle;
 
     if (state.run) {
       const run = state.run;
+      const maxStamina = currentMaxStamina(run);
+      const staminaRatio = maxStamina > 0 ? clamp(run.stamina / maxStamina, 0, 1) : 0;
       state.hud.coinsValue.textContent = String(run.coins);
       state.hud.depthValue.textContent = formatDepth(currentDepthMeters(run));
       state.hud.cargoValue.textContent = `${run.inventoryCount}/${currentCapacity(run)}`;
       state.hud.shovelValue.textContent = SHOVEL_NAMES[run.shovelLevel];
       state.hud.groundValue.textContent = currentSoilLabel(run);
-      state.hud.targetValue.textContent = canClaimTreasure(run) ? "¡Puerta!" : (run.treasure.exposure > 0.18 ? "Visible" : "Buscando");
+      state.hud.targetValue.textContent = state.screen === "treasure_room"
+        ? "Cofre"
+        : (canClaimTreasure(run) ? "¡Puerta!" : (run.treasure.exposure > 0.18 ? "Visible" : "Buscando"));
       state.hud.bestDepthValue.textContent = formatDepth(run.bestDepthMeters);
       state.hud.depthFill.style.height = `${currentDepthRatio(run) * 100}%`;
       state.hud.beaconCard.style.display = state.screen === "running" || state.screen === "paused" ? "flex" : "none";
@@ -1885,6 +2105,14 @@
       state.hud.beaconArrow.textContent = run.guidanceArrow;
       state.hud.surfaceBtn.textContent = isAtOutpost(run) ? "Puesto" : (run.jetpackOwned ? "Jetpack ↑" : "Puesto");
       state.hud.inventoryBtn.textContent = `Inventario (${run.inventoryCount})`;
+      state.hud.staminaHud.classList.remove("hidden");
+      state.hud.staminaFill.style.width = `${Math.round(staminaRatio * 100)}%`;
+      state.hud.staminaFill.classList.toggle("low", staminaRatio <= STAMINA_LOW_RATIO);
+      if (run.stamina <= 0 && !canAccessOutpost(run) && state.screen !== "failed") {
+        state.hud.staminaValue.textContent = `0/${maxStamina} · ${Math.max(0, run.staminaCriticalTimer).toFixed(1)}s`;
+      } else {
+        state.hud.staminaValue.textContent = `${Math.ceil(run.stamina)}/${maxStamina}`;
+      }
     } else {
       const best = state.progress.bestDepthByWorld[state.selectedWorldId] || 0;
       state.hud.coinsValue.textContent = "0";
@@ -1902,13 +2130,18 @@
       state.hud.beaconArrow.textContent = "↓";
       state.hud.surfaceBtn.textContent = "Puesto";
       state.hud.inventoryBtn.textContent = "Inventario";
+      state.hud.staminaFill.style.width = "100%";
+      state.hud.staminaFill.classList.remove("low");
+      state.hud.staminaValue.textContent = `${STAMINA_VALUES[0]}/${STAMINA_VALUES[0]}`;
+      state.hud.staminaHud.classList.add("hidden");
     }
 
     state.hud.messageBox.textContent = state.message;
     state.hud.messageBox.classList.toggle("hidden", !state.message);
     state.hud.worldSelect.classList.toggle("hidden", state.screen !== "world_select");
     state.hud.panelOverlay.classList.toggle("hidden", !(state.screen === "market" || state.screen === "inventory"));
-    state.hud.endingOverlay.classList.toggle("hidden", state.screen !== "ending");
+    state.hud.treasureRoomOverlay.classList.toggle("hidden", state.screen !== "treasure_room");
+    state.hud.endingOverlay.classList.toggle("hidden", !(state.screen === "ending" || state.screen === "failed"));
 
     if (state.screen === "world_select" && state.uiDirty) {
       renderWorldCards();
@@ -1919,6 +2152,11 @@
       }
       if (state.screen === "ending") {
         renderEnding();
+      } else if (state.screen === "failed") {
+        renderFailed();
+      }
+      if (state.screen === "treasure_room") {
+        renderTreasureRoom();
       }
     }
     refreshHudLayout();
@@ -1941,13 +2179,15 @@
         updateParticles(run, dt);
         updateCamera(run);
         updateProgressDepth(run);
+        updateStamina(run, dt);
         updateGuidance(run);
-      } else if (state.screen === "paused" || state.screen === "market" || state.screen === "inventory") {
+      } else if (state.screen === "paused" || state.screen === "market" || state.screen === "inventory" || state.screen === "treasure_room") {
         updateDeposits(run, dt);
         updateParticles(run, dt);
         updateCamera(run);
+        updateStamina(run, dt);
         updateGuidance(run);
-      } else if (state.screen === "ending") {
+      } else if (state.screen === "ending" || state.screen === "failed") {
         updateParticles(run, dt);
         if (run.celebration.length > 0) {
           const remaining = [];
@@ -2017,9 +2257,9 @@
     if (event.code === "Digit2") selectWorld("desert");
     if (event.code === "Digit3") selectWorld("urban");
     if (event.code === "Enter" || event.code === "KeyE") { event.preventDefault(); interact(); return; }
-    if (event.code === "KeyM") { event.preventDefault(); if (state.run) handleSurfaceAction(); return; }
-    if (event.code === "KeyT") { event.preventDefault(); if (state.run) useJetpack(); return; }
-    if (event.code === "KeyB") { event.preventDefault(); if (state.run) placeTorch(); return; }
+    if (event.code === "KeyM") { event.preventDefault(); if (state.run && state.screen === "running") handleSurfaceAction(); return; }
+    if (event.code === "KeyT") { event.preventDefault(); if (state.run && state.screen === "running") useJetpack(); return; }
+    if (event.code === "KeyB") { event.preventDefault(); if (state.run && state.screen === "running") placeTorch(); return; }
     if (event.code === "KeyP") { event.preventDefault(); togglePause(); return; }
     if (event.code === "KeyR") { event.preventDefault(); if (state.screen === "world_select") startRun(state.selectedWorldId); else restartRun(); return; }
     if (event.code === "KeyF") { event.preventDefault(); toggleFullscreen(); return; }
@@ -2067,6 +2307,10 @@
       inventoryCount: run.inventoryCount,
       collectedTotal: run.collectedTotal,
       capacity: currentCapacity(run),
+      stamina: round(run.stamina, 1),
+      maxStamina: currentMaxStamina(run),
+      staminaLevel: run.staminaLevel,
+      staminaCriticalTimer: round(run.staminaCriticalTimer, 1),
       shovelLevel: run.shovelLevel,
       jetpackOwned: run.jetpackOwned,
       torches: run.torches,
@@ -2075,6 +2319,8 @@
       canUseMarket: canAccessOutpost(run),
       treasureVisible: run.treasure.exposure > 0.18,
       treasureReady: canClaimTreasure(run),
+      treasureDoorOpened: run.treasure.doorOpened,
+      treasureChestOpened: run.treasure.chestOpened,
       guidanceArrow: run.guidanceArrow,
       guidanceSignalActive: run.guidanceSignalActive,
       inventory: inventoryEntries(run).map(entry => ({
@@ -2148,6 +2394,9 @@
       beaconCopy: document.getElementById("beaconCopy"),
       beaconArrow: document.getElementById("beaconArrow"),
       messageBox: document.getElementById("messageBox"),
+      staminaHud: document.getElementById("staminaHud"),
+      staminaFill: document.getElementById("staminaFill"),
+      staminaValue: document.getElementById("staminaValue"),
       worldSelect: document.getElementById("worldSelect"),
       worldGrid: document.getElementById("worldGrid"),
       panelOverlay: document.getElementById("panelOverlay"),
@@ -2157,6 +2406,11 @@
       panelNotice: document.getElementById("panelNotice"),
       inventoryList: document.getElementById("inventoryList"),
       upgradeList: document.getElementById("upgradeList"),
+      treasureRoomOverlay: document.getElementById("treasureRoomOverlay"),
+      treasureRoomTitle: document.getElementById("treasureRoomTitle"),
+      treasureRoomLead: document.getElementById("treasureRoomLead"),
+      treasureRoomHint: document.getElementById("treasureRoomHint"),
+      openChestButton: document.getElementById("openChestButton"),
       endingOverlay: document.getElementById("endingOverlay"),
       endingTitle: document.getElementById("endingTitle"),
       endingLead: document.getElementById("endingLead"),
@@ -2169,11 +2423,12 @@
       inventoryBtn: document.getElementById("inventoryBtn"),
     };
 
-    state.hud.surfaceBtn.addEventListener("click", () => { if (state.run) handleSurfaceAction(); });
-    state.hud.inventoryBtn.addEventListener("click", () => { if (state.run) openPanel("inventory"); });
+    state.hud.surfaceBtn.addEventListener("click", () => { if (state.run && state.screen === "running") handleSurfaceAction(); });
+    state.hud.inventoryBtn.addEventListener("click", () => { if (state.run && state.screen === "running") openPanel("inventory"); });
     document.getElementById("fullscreenBtn").addEventListener("click", toggleFullscreen);
     state.hud.startButton.addEventListener("click", () => startRun(state.selectedWorldId));
     state.hud.closePanelBtn.addEventListener("click", closePanel);
+    state.hud.openChestButton.addEventListener("click", claimTreasure);
     state.hud.restartButton.addEventListener("click", restartRun);
     state.hud.returnWorldsButton.addEventListener("click", () => {
       state.run = null; state.screen = "world_select";

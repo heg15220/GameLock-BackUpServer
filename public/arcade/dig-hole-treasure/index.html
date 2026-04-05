@@ -55,6 +55,13 @@
       <div class="controls-bar">
         1-3 cambia mundo | Enter/E interactuar | A/D o flechas mover | W/↑/Espacio subir | ↓ bajar | I/J/K/L o clic cavar | M puesto/venta | T jetpack | B linterna | P pausa | R reinicia | F pantalla completa
       </div>
+      <div id="staminaHud" class="stamina-hud">
+        <span>Estamina</span>
+        <div class="stamina-track">
+          <div id="staminaFill" class="stamina-fill"></div>
+        </div>
+        <strong id="staminaValue">100/100</strong>
+      </div>
     </div>
 
     <section id="worldSelect" class="overlay">
@@ -89,6 +96,22 @@
             <h3>⚙ Mejoras</h3>
             <div id="upgradeList" class="upgrade-list"></div>
           </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="treasureRoomOverlay" class="overlay hidden">
+      <div class="modal-card treasure-room-modal">
+        <p class="eyebrow">Camara final</p>
+        <h2 id="treasureRoomTitle">Sala del cofre</h2>
+        <p class="lead" id="treasureRoomLead">La puerta esta abierta. Solo queda abrir el cofre.</p>
+        <div class="treasure-room-scene" aria-hidden="true">
+          <div class="treasure-room-door"></div>
+          <div class="treasure-room-chest"></div>
+        </div>
+        <p id="treasureRoomHint" class="treasure-room-hint">Pulsa Enter/E o el boton para abrir el cofre.</p>
+        <div class="modal-actions">
+          <button id="openChestButton" type="button">Abrir cofre</button>
         </div>
       </div>
     </section>
