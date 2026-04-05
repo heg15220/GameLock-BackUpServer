@@ -1,0 +1,167 @@
+{
+  "state": {
+    "mode": "arcade-dig-hole-treasure",
+    "screen": "running",
+    "worldId": "jungle",
+    "worldName": "Selva Enterrada",
+    "coordinates": "x increases to the right; y increases downward; values are world pixels.",
+    "message": "",
+    "bestDepthMeters": 226,
+    "coins": 0,
+    "inventoryCount": 1,
+    "collectedTotal": 1,
+    "capacity": 12,
+    "shovelLevel": 0,
+    "jetpackOwned": false,
+    "torches": 0,
+    "darkness": 0,
+    "soilType": "Tierra",
+    "canUseMarket": false,
+    "treasureVisible": false,
+    "treasureReady": false,
+    "guidanceArrow": "↓",
+    "guidanceSignalActive": true,
+    "inventory": [
+      {
+        "id": "stone",
+        "name": "Piedra",
+        "qty": 1,
+        "value": 3,
+        "rarity": 1
+      }
+    ],
+    "depthMeters": 157,
+    "player": {
+      "x": 913.4,
+      "y": 306.2,
+      "vx": 0,
+      "vy": 0,
+      "facing": 1
+    },
+    "digTarget": null,
+    "nextBreadcrumb": {
+      "x": 774.5,
+      "y": 804,
+      "depthMeters": 713
+    },
+    "placedTorches": [],
+    "nearbyMaterials": []
+  },
+  "market": {
+    "state": {
+      "mode": "arcade-dig-hole-treasure",
+      "screen": "running",
+      "worldId": "jungle",
+      "worldName": "Selva Enterrada",
+      "coordinates": "x increases to the right; y increases downward; values are world pixels.",
+      "message": "",
+      "bestDepthMeters": 226,
+      "coins": 0,
+      "inventoryCount": 1,
+      "collectedTotal": 1,
+      "capacity": 12,
+      "shovelLevel": 0,
+      "jetpackOwned": false,
+      "torches": 0,
+      "darkness": 0,
+      "soilType": "Tierra",
+      "canUseMarket": false,
+      "treasureVisible": false,
+      "treasureReady": false,
+      "guidanceArrow": "↓",
+      "guidanceSignalActive": true,
+      "inventory": [
+        {
+          "id": "stone",
+          "name": "Piedra",
+          "qty": 1,
+          "value": 3,
+          "rarity": 1
+        }
+      ],
+      "depthMeters": 157,
+      "player": {
+        "x": 913.4,
+        "y": 306.2,
+        "vx": 0,
+        "vy": 0,
+        "facing": 1
+      },
+      "digTarget": null,
+      "nextBreadcrumb": {
+        "x": 774.5,
+        "y": 804,
+        "depthMeters": 713
+      },
+      "placedTorches": [],
+      "nearbyMaterials": []
+    },
+    "screen": "Mochila y mejoras",
+    "notice": "Acciones comerciales bloqueadas. Linternas restantes: 0.",
+    "sellButtons": [
+      {
+        "text": "Vender 1",
+        "disabled": true,
+        "visible": false,
+        "material": "stone",
+        "qty": "1"
+      },
+      {
+        "text": "Vender todo",
+        "disabled": true,
+        "visible": false,
+        "material": "stone",
+        "qty": "1"
+      }
+    ]
+  },
+  "canClick": false,
+  "after": {
+    "mode": "arcade-dig-hole-treasure",
+    "screen": "running",
+    "worldId": "jungle",
+    "worldName": "Selva Enterrada",
+    "coordinates": "x increases to the right; y increases downward; values are world pixels.",
+    "message": "",
+    "bestDepthMeters": 226,
+    "coins": 0,
+    "inventoryCount": 1,
+    "collectedTotal": 1,
+    "capacity": 12,
+    "shovelLevel": 0,
+    "jetpackOwned": false,
+    "torches": 0,
+    "darkness": 0,
+    "soilType": "Tierra",
+    "canUseMarket": false,
+    "treasureVisible": false,
+    "treasureReady": false,
+    "guidanceArrow": "↓",
+    "guidanceSignalActive": true,
+    "inventory": [
+      {
+        "id": "stone",
+        "name": "Piedra",
+        "qty": 1,
+        "value": 3,
+        "rarity": 1
+      }
+    ],
+    "depthMeters": 157,
+    "player": {
+      "x": 913.4,
+      "y": 306.2,
+      "vx": 0,
+      "vy": 0,
+      "facing": 1
+    },
+    "digTarget": null,
+    "nextBreadcrumb": {
+      "x": 774.5,
+      "y": 804,
+      "depthMeters": 713
+    },
+    "placedTorches": [],
+    "nearbyMaterials": []
+  }
+}

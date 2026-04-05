@@ -1,0 +1,14 @@
+{
+  "before": {
+    "coins": 0,
+    "inventoryCount": 0,
+    "screen": "inventory"
+  },
+  "sellDisabled": true,
+  "after": {
+    "coins": 0,
+    "inventoryCount": 0,
+    "screen": "inventory",
+    "message": ""
+  }
+}

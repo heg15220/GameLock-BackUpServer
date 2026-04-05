@@ -1,0 +1,19 @@
+{
+  "before": {
+    "coins": 0,
+    "inventoryCount": 1,
+    "screen": "running",
+    "message": ""
+  },
+  "sellInfo": {
+    "exists": true,
+    "disabled": false,
+    "text": "Vender 1"
+  },
+  "after": {
+    "coins": 3,
+    "inventoryCount": 0,
+    "screen": "inventory",
+    "message": "Piedra vendido ×1."
+  }
+}

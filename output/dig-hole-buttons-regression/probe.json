@@ -1,0 +1,27 @@
+{
+  "startLabelDesert": "Iniciar en Desierto Hundido",
+  "startLabelJungle": "Iniciar en Selva Enterrada",
+  "beforeSale": {
+    "worldId": "jungle",
+    "depthMeters": 209,
+    "coins": 0,
+    "inventoryCount": 1,
+    "canUseMarket": false
+  },
+  "sellButtonInfo": {
+    "text": "Vender 1",
+    "disabled": false
+  },
+  "afterSale": {
+    "screen": "inventory",
+    "coins": 3,
+    "inventoryCount": 0,
+    "message": "Piedra vendido ×1."
+  },
+  "afterMarket": {
+    "screen": "market",
+    "depthMeters": 0,
+    "canUseMarket": true,
+    "message": "Ascensor de servicio activado. Ya puedes vender en el puesto."
+  }
+}

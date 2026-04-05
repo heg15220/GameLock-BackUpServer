@@ -253,6 +253,25 @@
     return ["Común", "Común", "Poco común", "Raro", "Muy raro"][r] || "Común";
   }
 
+  const MATERIAL_ICONS = Object.freeze({
+    stone: "🪨",
+    clay: "🧱",
+    amber: "🟠",
+    jade: "🟢",
+    emerald: "💎",
+    salt: "🧂",
+    copper: "🟤",
+    turquoise: "🔹",
+    sunopal: "🔸",
+    ceramic: "🏺",
+    silver: "⚪",
+    crystal: "🔷",
+  });
+
+  function materialIcon(materialId) {
+    return MATERIAL_ICONS[materialId] || "◆";
+  }
+
   function worldById(id) { return WORLDS[id] || WORLDS.jungle; }
   function currentWorld() { return worldById(state.selectedWorldId); }
 
@@ -616,6 +635,10 @@
     return isNearSurface(run);
   }
 
+  function canSellMaterials(run) {
+    return Boolean(run);
+  }
+
   // ─── Collision ────────────────────────────────────────────────────────────
 
   function isSolidAt(run, x, y) {
@@ -842,7 +865,6 @@
       run.treasure.promptReady = run.treasure.exposure > 0.34 &&
         Math.hypot(center.x - run.treasure.x, center.y - run.treasure.y) < 64;
       run.materialScanCooldown = 0.08;
-      markUiDirty();
     }
     const center = centerOfPlayer(run);
     for (const d of run.deposits) {
@@ -953,8 +975,8 @@
       run.guidanceArrow = "↑";
       run.guidanceTitle = "Mochila llena";
       run.guidanceCopy = run.jetpackOwned
-        ? "Pulsa T para volver al puesto con el jetpack y vender lo recogido."
-        : "Vuelve al puesto de la superficie para vender lo recogido.";
+        ? "Pulsa M para abrir el puesto o T para volver al mostrador con el jetpack."
+        : "Pulsa M o Inventario para vender desde aqui. Vuelve al puesto para mejorar equipo.";
       return;
     }
 
@@ -1067,7 +1089,7 @@
 
   function sellMaterial(materialId, qty) {
     const run = state.run;
-    if (!run || !canAccessOutpost(run)) return;
+    if (!run || !canSellMaterials(run)) return;
     const available = run.inventory[materialId] || 0;
     const amount = clamp(qty, 0, available);
     if (!amount) return;
@@ -1082,7 +1104,7 @@
 
   function sellAll() {
     const run = state.run;
-    if (!run || !canAccessOutpost(run)) return;
+    if (!run || !canSellMaterials(run)) return;
     let total = 0;
     for (const e of inventoryEntries(run)) total += e.qty * e.material.value;
     if (!total) { setMessage("No tienes materiales para vender.", 1.2); return; }
@@ -1199,8 +1221,14 @@
       openPanel("market");
       return;
     }
-    if (run.jetpackOwned) { useJetpack(); return; }
-    setMessage("Solo el jetpack te permite volver al puesto desde el interior del hoyo.", 1.5);
+    snapPlayerToOutpost(run);
+    if (run.jetpackOwned) {
+      setMessage("Jetpack activado. Regresas directamente al puesto.", 1.4);
+    } else {
+      setMessage("Ascensor de servicio activado. Ya puedes vender en el puesto.", 1.6);
+    }
+    updateGuidance(run);
+    openPanel("market");
   }
 
   function interact() {
@@ -1364,18 +1392,18 @@
       if (!visible) continue;
       const x = m.x - run.camera.x, y = m.y - run.camera.y;
       if (x < -80 || x > state.viewportWidth + 80 || y < -80 || y > state.viewportHeight + 80) continue;
-      const pulse = m === activeMarker ? 0.72 + Math.sin(state.showcaseTime * 8) * 0.18 : 0.78;
+      const pulse = m === activeMarker ? 0.12 + Math.sin(state.showcaseTime * 7) * 0.03 : 0.08;
       ctx.save();
-      ctx.globalAlpha = m.discovered ? 1 : clamp(m.exposure * 1.6, 0.18, 0.82);
-      const glow = ctx.createRadialGradient(x, y, 4, x, y, 36);
-      glow.addColorStop(0, `rgba(255,243,196,${pulse})`);
-      glow.addColorStop(1, "rgba(255,243,196,0)");
+      ctx.globalAlpha = m.discovered ? 0.72 : clamp(m.exposure * 0.75, 0.1, 0.34);
+      const glow = ctx.createRadialGradient(x, y, 1, x, y, 10);
+      glow.addColorStop(0, `rgba(255,208,138,${pulse})`);
+      glow.addColorStop(1, "rgba(255,208,138,0)");
       ctx.fillStyle = glow;
-      ctx.beginPath(); ctx.arc(x, y, 36, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#fbf1d9"; ctx.fillRect(x - 15, y - 15, 30, 30);
-      ctx.strokeStyle = "#6b4d31"; ctx.lineWidth = 2; ctx.strokeRect(x - 15, y - 15, 30, 30);
-      ctx.fillStyle = "#2f2014"; ctx.font = "700 18px Georgia,serif";
-      ctx.textAlign = "center"; ctx.fillText(m.arrow, x, y + 6);
+      ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#dfc796"; ctx.fillRect(x - 9, y - 9, 18, 18);
+      ctx.strokeStyle = "#6b4d31"; ctx.lineWidth = 1.15; ctx.strokeRect(x - 9, y - 9, 18, 18);
+      ctx.fillStyle = "#3a291a"; ctx.font = "700 12px Georgia,serif";
+      ctx.textAlign = "center"; ctx.fillText(m.arrow, x, y + 4);
       ctx.restore();
     }
   }
@@ -1405,39 +1433,97 @@
     for (const torch of run.placedTorches) {
       const x = torch.x - run.camera.x, y = torch.y - run.camera.y;
       if (x < -90 || x > state.viewportWidth + 90 || y < -90 || y > state.viewportHeight + 90) continue;
-      const glow = ctx.createRadialGradient(x, y, 2, x, y, 82);
-      glow.addColorStop(0, "rgba(255,222,146,0.65)"); glow.addColorStop(1, "rgba(255,222,146,0)");
+      const glow = ctx.createRadialGradient(x, y, 1, x, y, 14);
+      glow.addColorStop(0, "rgba(255,196,116,0.08)");
+      glow.addColorStop(1, "rgba(255,196,116,0)");
       ctx.save();
-      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, 82, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = "#6a4c35"; ctx.lineWidth = 3;
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#6a4c35"; ctx.lineWidth = 2.6;
       ctx.beginPath(); ctx.moveTo(x, y + 14); ctx.lineTo(x, y - 2); ctx.stroke();
-      ctx.fillStyle = "#ffe291"; ctx.beginPath(); ctx.ellipse(x, y - 8, 7, 10, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#ff974d"; ctx.beginPath(); ctx.ellipse(x, y - 6, 4, 6, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#ffc96f"; ctx.beginPath(); ctx.ellipse(x, y - 8, 4.8, 6.5, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#ff8a42"; ctx.beginPath(); ctx.ellipse(x, y - 6, 2.7, 3.8, 0, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     }
-  }
-
-  function drawLightCutout(ctx, x, y, radius, alpha) {
-    const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
-    glow.addColorStop(0, `rgba(0,0,0,${alpha})`);
-    glow.addColorStop(0.55, `rgba(0,0,0,${(alpha * 0.42).toFixed(2)})`);
-    glow.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = glow;
-    ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
   }
 
   function drawDarkness(run) {
     const darkness = currentDarkness(run);
     if (darkness <= 0.01) return;
+
     const ctx = state.ctx;
+    const vw = state.viewportWidth;
+    const vh = state.viewportHeight;
     const center = centerOfPlayer(run);
-    ctx.save();
-    ctx.fillStyle = `rgba(9,7,5,${0.18 + darkness * 0.58})`;
-    ctx.fillRect(0, 0, state.viewportWidth, state.viewportHeight);
-    ctx.globalCompositeOperation = "destination-out";
-    drawLightCutout(ctx, center.x - run.camera.x, center.y - run.camera.y, 132 + (1 - darkness) * 38, 0.96);
+    const px = center.x - run.camera.x;
+    const py = center.y - run.camera.y;
+
+    // --- Offscreen mask canvas (reuse or create) ---
+    if (!state._darkCanvas || state._darkCanvas.width !== vw || state._darkCanvas.height !== vh) {
+      state._darkCanvas = document.createElement("canvas");
+      state._darkCanvas.width = vw;
+      state._darkCanvas.height = vh;
+      state._darkCtx = state._darkCanvas.getContext("2d");
+    }
+    const dc = state._darkCtx;
+    dc.clearRect(0, 0, vw, vh);
+
+    // Fill with darkness
+    const darkAlpha = 0.32 + darkness * 0.58;
+    dc.fillStyle = `rgba(8,7,6,${darkAlpha.toFixed(2)})`;
+    dc.fillRect(0, 0, vw, vh);
+
+    // Cut out player light — larger radius, strong center punch
+    dc.globalCompositeOperation = "destination-out";
+    const playerRadius = 110 + (1 - darkness) * 80;
+    const playerGlow = dc.createRadialGradient(px, py, 0, px, py, playerRadius);
+    playerGlow.addColorStop(0,    "rgba(255,255,255,1)");
+    playerGlow.addColorStop(0.30, "rgba(255,255,255,0.92)");
+    playerGlow.addColorStop(0.60, "rgba(255,255,255,0.55)");
+    playerGlow.addColorStop(0.85, "rgba(255,255,255,0.18)");
+    playerGlow.addColorStop(1,    "rgba(255,255,255,0)");
+    dc.fillStyle = playerGlow;
+    dc.beginPath(); dc.arc(px, py, playerRadius, 0, Math.PI * 2); dc.fill();
+
+    // Cut out torch light
     for (const torch of run.placedTorches) {
-      drawLightCutout(ctx, torch.x - run.camera.x, torch.y - run.camera.y, 92, 0.82);
+      const tx = torch.x - run.camera.x;
+      const ty = torch.y - run.camera.y;
+      if (tx < -400 || tx > vw + 400 || ty < -400 || ty > vh + 400) continue;
+      // Inner full cutout
+      const innerGlow = dc.createRadialGradient(tx, ty, 0, tx, ty, 260);
+      innerGlow.addColorStop(0,    "rgba(255,255,255,1)");
+      innerGlow.addColorStop(0.45, "rgba(255,255,255,0.95)");
+      innerGlow.addColorStop(0.72, "rgba(255,255,255,0.55)");
+      innerGlow.addColorStop(0.90, "rgba(255,255,255,0.18)");
+      innerGlow.addColorStop(1,    "rgba(255,255,255,0)");
+      dc.fillStyle = innerGlow;
+      dc.beginPath(); dc.arc(tx, ty, 260, 0, Math.PI * 2); dc.fill();
+      // Soft outer halo
+      const outerGlow = dc.createRadialGradient(tx, ty, 0, tx, ty, 420);
+      outerGlow.addColorStop(0,    "rgba(255,255,255,0.55)");
+      outerGlow.addColorStop(0.55, "rgba(255,255,255,0.22)");
+      outerGlow.addColorStop(1,    "rgba(255,255,255,0)");
+      dc.fillStyle = outerGlow;
+      dc.beginPath(); dc.arc(tx, ty, 420, 0, Math.PI * 2); dc.fill();
+    }
+
+    dc.globalCompositeOperation = "source-over";
+
+    // Blit the darkness mask onto the main canvas
+    ctx.save();
+    ctx.drawImage(state._darkCanvas, 0, 0);
+
+    // Warm torch tint on top (source-over, so it adds color inside the lit zones)
+    for (const torch of run.placedTorches) {
+      const tx = torch.x - run.camera.x;
+      const ty = torch.y - run.camera.y;
+      if (tx < -400 || tx > vw + 400 || ty < -400 || ty > vh + 400) continue;
+      const tint = ctx.createRadialGradient(tx, ty, 0, tx, ty, 220);
+      tint.addColorStop(0,    "rgba(255,156,76,0.13)");
+      tint.addColorStop(0.40, "rgba(255,138,62,0.07)");
+      tint.addColorStop(1,    "rgba(255,138,62,0)");
+      ctx.fillStyle = tint;
+      ctx.beginPath(); ctx.arc(tx, ty, 220, 0, Math.PI * 2); ctx.fill();
     }
     ctx.restore();
   }
@@ -1452,13 +1538,13 @@
     const dist = Math.max(1, Math.hypot(dx, dy));
     const x = clamp(sx + (dx / dist) * 88, 52, state.viewportWidth - 52);
     const y = clamp(sy + (dy / dist) * 88, 72, state.viewportHeight - 72);
-    const pulse = 0.58 + Math.sin(state.showcaseTime * 9) * 0.24;
+    const pulse = 0.09 + Math.sin(state.showcaseTime * 8) * 0.03;
     ctx.save();
-    const glow = ctx.createRadialGradient(x, y, 4, x, y, 44);
-    glow.addColorStop(0, `rgba(255,238,179,${pulse})`); glow.addColorStop(1, "rgba(255,238,179,0)");
-    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, 44, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#fbf2cb"; ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#3b2816"; ctx.font = "700 20px Georgia,serif";
+    const glow = ctx.createRadialGradient(x, y, 1, x, y, 14);
+    glow.addColorStop(0, `rgba(255,212,142,${pulse})`); glow.addColorStop(1, "rgba(255,212,142,0)");
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#ddc590"; ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#3b2816"; ctx.font = "700 13px Georgia,serif";
     ctx.textAlign = "center"; ctx.fillText(arrowFromVector(dx, dy), x, y + 7);
     ctx.restore();
   }
@@ -1698,60 +1784,69 @@
     if (!run) return;
     const atOutpost = isAtOutpost(run);
     const outpostAccess = canAccessOutpost(run);
+    const sellAccess = canSellMaterials(run);
     state.hud.panelEyebrow.textContent = state.screen === "market" ? "Puesto" : "Inventario";
-    state.hud.panelTitle.textContent = outpostAccess ? run.world.shopName : "Mochila y mejoras";
+    state.hud.panelTitle.textContent = outpostAccess ? run.world.shopName : "Inventario rápido";
     state.hud.panelLead.textContent = outpostAccess
-      ? "Vende materiales, mejora la pala y prepara el jetpack o las linternas antes de bajar más."
-      : "Puedes revisar lo encontrado, pero las ventas y compras siguen dependiendo del puesto de la superficie.";
-    state.hud.panelNotice.textContent = outpostAccess
-      ? `Monedas: ${run.coins} | Jetpack: ${run.jetpackOwned ? "✓ operativo" : "pendiente"} | Linternas: ${run.torches} | ${atOutpost ? "Mostrador abierto" : "Acceso remoto en superficie"}`
-      : `Acciones comerciales bloqueadas. Linternas restantes: ${run.torches}.`;
+      ? "Vende y mejora con un toque."
+      : "Vende al instante. Para mejorar, vuelve al puesto.";
+    state.hud.panelNotice.innerHTML = `
+      <span class="notice-chip notice-chip-coins">🪙 ${run.coins}</span>
+      <span class="notice-chip">🚀 ${run.jetpackOwned ? "Operativo" : "Sin jetpack"}</span>
+      <span class="notice-chip">🕯 ${run.torches}</span>
+      <span class="notice-chip">${outpostAccess ? (atOutpost ? "✅ Mostrador" : "⬆ Superficie") : "📡 Venta remota"}</span>
+    `;
 
     const items = inventoryEntries(run);
     state.hud.inventoryList.innerHTML = items.length
       ? items.map(e => `
-          <article class="item-card">
-            <header>
-              <div><strong>${e.material.name}</strong><div class="mini-pill">${getRarityLabel(e.material.rarity)} · ×${e.qty}</div></div>
-              <strong>${e.qty * e.material.value} mon</strong>
+          <article class="item-card item-card-compact">
+            <header class="item-row">
+              <div class="item-main">
+                <span class="item-icon">${materialIcon(e.id)}</span>
+                <div>
+                  <strong>${e.material.name}</strong>
+                  <div class="mini-pill">${getRarityLabel(e.material.rarity)} · ×${e.qty}</div>
+                </div>
+              </div>
+              <strong class="item-value">🪙 ${e.material.value}</strong>
             </header>
-            <p>Valor unitario ${e.material.value}. Material incrustado recogido a mano.</p>
             <div class="item-actions">
-              <button type="button" data-action="sell" data-material="${e.id}" data-qty="1" ${outpostAccess ? "" : "disabled"}>Vender 1</button>
-              <button type="button" data-action="sell" data-material="${e.id}" data-qty="${e.qty}" ${outpostAccess ? "" : "disabled"}>Vender todo</button>
+              <button type="button" data-action="sell" data-material="${e.id}" data-qty="1" ${sellAccess ? "" : "disabled"}>-1</button>
+              <button type="button" data-action="sell" data-material="${e.id}" data-qty="${e.qty}" ${sellAccess ? "" : "disabled"}>Todo</button>
             </div>
           </article>`).join("")
-      : `<article class="item-card"><strong>Sin hallazgos</strong><p>Excava la pared y recoge lo que vaya quedando al descubierto.</p></article>`;
+      : `<article class="item-card item-card-compact item-empty"><strong>🧺 Vacío</strong></article>`;
 
     const nextShovel = run.shovelLevel + 1;
     const nextCapacity = run.capacityLevel + 1;
     const canBuyJetpack = outpostAccess && !run.jetpackOwned && run.bestDepthMeters >= JETPACK_DEPTH_REQUIREMENT && run.coins >= JETPACK_COST;
     const canBuyTorchPack = outpostAccess && run.coins >= TORCH_PACK_COST;
     state.hud.upgradeList.innerHTML = `
-      <article class="upgrade-card">
-        <header><strong>Herramienta ${SHOVEL_NAMES[run.shovelLevel]}</strong><span class="mini-pill">Nivel ${run.shovelLevel + 1}/${SHOVEL_NAMES.length}</span></header>
-        <p>${nextShovel < SHOVEL_NAMES.length ? `Siguiente nivel por ${SHOVEL_COSTS[nextShovel]} monedas.` : "Herramienta al máximo."}</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-shovel" ${outpostAccess && nextShovel < SHOVEL_NAMES.length && run.coins >= SHOVEL_COSTS[nextShovel] ? "" : "disabled"}>Mejorar pala</button></div>
+      <article class="upgrade-card upgrade-card-compact">
+        <header><strong>⛏ Pala ${SHOVEL_NAMES[run.shovelLevel]}</strong><span class="mini-pill">Nv ${run.shovelLevel + 1}/${SHOVEL_NAMES.length}</span></header>
+        <p>${nextShovel < SHOVEL_NAMES.length ? `Coste: 🪙 ${SHOVEL_COSTS[nextShovel]}` : "MAX"}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-shovel" ${outpostAccess && nextShovel < SHOVEL_NAMES.length && run.coins >= SHOVEL_COSTS[nextShovel] ? "" : "disabled"}>Mejorar</button></div>
       </article>
-      <article class="upgrade-card">
-        <header><strong>Mochila</strong><span class="mini-pill">${run.inventoryCount}/${currentCapacity(run)}</span></header>
-        <p>${nextCapacity < CAPACITY_VALUES.length ? `Capacidad siguiente: ${CAPACITY_VALUES[nextCapacity]} por ${CAPACITY_COSTS[nextCapacity]} monedas.` : "Capacidad máxima alcanzada."}</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-capacity" ${outpostAccess && nextCapacity < CAPACITY_VALUES.length && run.coins >= CAPACITY_COSTS[nextCapacity] ? "" : "disabled"}>Ampliar mochila</button></div>
+      <article class="upgrade-card upgrade-card-compact">
+        <header><strong>🎒 Mochila</strong><span class="mini-pill">${run.inventoryCount}/${currentCapacity(run)}</span></header>
+        <p>${nextCapacity < CAPACITY_VALUES.length ? `Coste: 🪙 ${CAPACITY_COSTS[nextCapacity]} · Sig: ${CAPACITY_VALUES[nextCapacity]}` : "MAX"}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-capacity" ${outpostAccess && nextCapacity < CAPACITY_VALUES.length && run.coins >= CAPACITY_COSTS[nextCapacity] ? "" : "disabled"}>Ampliar</button></div>
       </article>
-      <article class="upgrade-card">
-        <header><strong>Jetpack</strong><span class="mini-pill">${run.jetpackOwned ? "✓ Operativo" : "Bloqueado"}</span></header>
-        <p>${run.jetpackOwned ? "Pulsa T o usa el botón superior para volver instantáneamente al puesto desde cualquier profundidad." : `Disponible tras bajar ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} y pagar ${JETPACK_COST} monedas.`}</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-jetpack" ${canBuyJetpack ? "" : "disabled"}>${run.jetpackOwned ? "Jetpack listo" : "Comprar jetpack"}</button></div>
+      <article class="upgrade-card upgrade-card-compact">
+        <header><strong>🚀 Jetpack</strong><span class="mini-pill">${run.jetpackOwned ? "Listo" : "Off"}</span></header>
+        <p>${run.jetpackOwned ? "Usa T para volver" : `Req: ${formatDepth(JETPACK_DEPTH_REQUIREMENT)} · 🪙 ${JETPACK_COST}`}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-jetpack" ${canBuyJetpack ? "" : "disabled"}>${run.jetpackOwned ? "OK" : "Comprar"}</button></div>
       </article>
-      <article class="upgrade-card">
-        <header><strong>Linternas</strong><span class="mini-pill">${run.torches} disponibles</span></header>
-        <p>Pack de ${TORCH_PACK_SIZE} por ${TORCH_PACK_COST} monedas. Colócalas con B para iluminar zonas oscuras del hoyo.</p>
-        <div class="upgrade-actions"><button type="button" data-action="buy-torches" ${canBuyTorchPack ? "" : "disabled"}>Comprar linternas</button></div>
+      <article class="upgrade-card upgrade-card-compact">
+        <header><strong>🕯 Linternas</strong><span class="mini-pill">${run.torches}</span></header>
+        <p>Pack ${TORCH_PACK_SIZE} · 🪙 ${TORCH_PACK_COST}</p>
+        <div class="upgrade-actions"><button type="button" data-action="buy-torches" ${canBuyTorchPack ? "" : "disabled"}>Comprar</button></div>
       </article>
-      <article class="upgrade-card">
-        <header><strong>Venta rápida</strong><span class="mini-pill">${items.length} tipos</span></header>
-        <p>Convierte todo el inventario actual en monedas desde el puesto.</p>
-        <div class="upgrade-actions"><button type="button" data-action="sell-all" ${outpostAccess && items.length ? "" : "disabled"}>Vender todo</button></div>
+      <article class="upgrade-card upgrade-card-compact">
+        <header><strong>💱 Venta rápida</strong><span class="mini-pill">${items.length}</span></header>
+        <p>Todo el inventario en 1 clic.</p>
+        <div class="upgrade-actions"><button type="button" data-action="sell-all" ${sellAccess && items.length ? "" : "disabled"}>Vender todo</button></div>
       </article>`;
   }
 
@@ -1815,8 +1910,17 @@
     state.hud.panelOverlay.classList.toggle("hidden", !(state.screen === "market" || state.screen === "inventory"));
     state.hud.endingOverlay.classList.toggle("hidden", state.screen !== "ending");
 
-    renderWorldCards();
-    if (state.run) { renderPanel(); renderEnding(); }
+    if (state.screen === "world_select" && state.uiDirty) {
+      renderWorldCards();
+    }
+    if (state.run && state.uiDirty) {
+      if (state.screen === "market" || state.screen === "inventory") {
+        renderPanel();
+      }
+      if (state.screen === "ending") {
+        renderEnding();
+      }
+    }
     refreshHudLayout();
   }
 
@@ -2079,14 +2183,20 @@
 
     state.canvas.addEventListener("pointermove", updatePointerPosition);
     state.canvas.addEventListener("pointerdown", e => {
-      updatePointerPosition(e); state.pointer.down = true;
-      state.canvas.setPointerCapture?.(e.pointerId);
+      updatePointerPosition(e);
+      state.pointer.down = true;
     });
     state.canvas.addEventListener("pointerup", e => {
-      updatePointerPosition(e); state.pointer.down = false;
-      state.canvas.releasePointerCapture?.(e.pointerId);
+      updatePointerPosition(e);
+      state.pointer.down = false;
+    });
+    state.canvas.addEventListener("pointercancel", () => {
+      state.pointer.down = false;
     });
     state.canvas.addEventListener("pointerleave", () => { state.pointer.down = false; state.pointer.inside = false; });
+    window.addEventListener("pointerup", () => {
+      state.pointer.down = false;
+    });
 
     window.addEventListener("keydown", onKeyDown, { passive: false });
     window.addEventListener("keyup", onKeyUp);
