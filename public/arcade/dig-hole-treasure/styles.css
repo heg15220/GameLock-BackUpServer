@@ -261,7 +261,7 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
 
 .stamina-hud {
   position: absolute;
-  left: 50%;
+  left: calc(50% - 72px);
   bottom: 66px;
   transform: translateX(-50%);
   width: min(360px, calc(100vw - 40px));
@@ -636,7 +636,7 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
     max-width: calc(100vw - 20px);
   }
   .controls-bar { width: calc(100vw - 20px); font-size: 0.64rem; line-height: 1.36; }
-  .stamina-hud { width: calc(100vw - 20px); bottom: 102px; }
+  .stamina-hud { left: calc(50% - 30px); width: calc(100vw - 20px); bottom: 102px; }
   .action-row { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .action-row button { width: 100%; }
   .beacon-card { left: 10px; right: 10px; bottom: 56px; }
