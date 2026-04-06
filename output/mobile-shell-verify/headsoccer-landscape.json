@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "slug": "headsoccer-landscape",
+    "gameId": "sports-head-soccer-arena",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    }
+  },
+  "meta": {
+    "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--has-controls",
+    "buttonCount": 8,
+    "touchCopy": null,
+    "title": "Head Soccer Pro"
+  },
+  "consoleErrors": []
+}

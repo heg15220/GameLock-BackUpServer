@@ -852,6 +852,21 @@ class BasketballRuntime {
     this.render();
   }
 
+  setVirtualKey(code, pressed) {
+    if (!code) {
+      return;
+    }
+    this.keys[code] = Boolean(pressed);
+  }
+
+  pressVirtualKey(code) {
+    if (!code) {
+      return;
+    }
+    this.onKeyDown({ code, preventDefault() {}, repeat: false });
+    this.onKeyUp({ code });
+  }
+
   frame(ts) {
     if (!this.running) return;
     const el = Math.min(0.1, (ts - this.lastFrame) / 1000);
@@ -2573,6 +2588,7 @@ export default function BasketballCourtGame() {
   const rootRef    = useRef(null);
   const rtRef      = useRef(null);
   const [snap, setSnap] = useState(null);
+  const copy = UI[locale] ?? UI.en;
 
   const handleFS = useCallback(() => {
     const el = rootRef.current;
@@ -2593,18 +2609,98 @@ export default function BasketballCourtGame() {
   const advanceHandler  = useCallback((ms) => rtRef.current?.advanceTime(ms), []);
   useGameRuntimeBridge(snap, buildPayload, advanceHandler);
 
+  const bindHoldControl = useCallback(
+    (code) => ({
+      onPointerDown: (event) => {
+        event.preventDefault();
+        rtRef.current?.setVirtualKey(code, true);
+      },
+      onPointerUp: () => rtRef.current?.setVirtualKey(code, false),
+      onPointerLeave: () => rtRef.current?.setVirtualKey(code, false),
+      onPointerCancel: () => rtRef.current?.setVirtualKey(code, false),
+    }),
+    []
+  );
+
+  const pressControl = useCallback((code) => rtRef.current?.pressVirtualKey(code), []);
+  const screen = snap?.screen ?? "menu";
+  const primaryActionLabel =
+    screen === "menu"
+      ? locale === "es" ? "Empezar" : "Start"
+      : screen === "summary" || screen === "summary21"
+        ? locale === "es" ? "Otra ronda" : "Again"
+        : locale === "es" ? "Lanzar" : "Shoot";
+
   return (
-    <div
-      ref={rootRef}
-      style={{
-        width: "100%", height: "100%", display: "flex", position: "relative",
-        background: "#0c1020", fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <canvas
-        ref={canvasRef}
-        style={{ width: "100%", height: "100%", display: "block" }}
-      />
+    <div ref={rootRef} className="mini-game basketball-court-game">
+      <div className="mini-head">
+        <div>
+          <h4>{copy.title}</h4>
+          <p>{copy.subtitle}</p>
+        </div>
+        <div className="basketball-court-actions">
+          {screen === "menu" ? (
+            <>
+              <button type="button" onClick={() => pressControl("Digit1")}>
+                {locale === "es" ? "Clasico" : "Classic"}
+              </button>
+              <button type="button" onClick={() => pressControl("Digit2")}>
+                21
+              </button>
+            </>
+          ) : null}
+          <button type="button" onClick={() => pressControl("KeyR")}>
+            {locale === "es" ? "Reiniciar" : "Restart"}
+          </button>
+          <button type="button" onClick={() => pressControl("KeyF")}>
+            {locale === "es" ? "Pantalla completa" : "Fullscreen"}
+          </button>
+        </div>
+      </div>
+
+      <div className="basketball-court-stage">
+        <canvas
+          ref={canvasRef}
+          className="basketball-court-canvas"
+        />
+      </div>
+
+      <section className="basketball-court-controls" aria-label={locale === "es" ? "Controles tactiles de baloncesto" : "Basketball touch controls"}>
+        <div className="basketball-court-control-grid">
+          <div className="basketball-court-control-group">
+            <span>{copy.arcLabel}</span>
+            <div className="basketball-court-control-row">
+              <button type="button" {...bindHoldControl("ArrowUp")}>+</button>
+              <button type="button" {...bindHoldControl("ArrowDown")}>-</button>
+            </div>
+          </div>
+          <div className="basketball-court-control-group">
+            <span>{copy.latLabel}</span>
+            <div className="basketball-court-control-row">
+              <button type="button" {...bindHoldControl("ArrowLeft")}>L</button>
+              <button type="button" {...bindHoldControl("ArrowRight")}>R</button>
+            </div>
+          </div>
+          <div className="basketball-court-control-group">
+            <span>{copy.powerLabel}</span>
+            <div className="basketball-court-control-row">
+              <button type="button" {...bindHoldControl("KeyW")}>+</button>
+              <button type="button" {...bindHoldControl("KeyS")}>-</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="basketball-court-action-strip">
+          <button type="button" className="basketball-court-primary" onClick={() => pressControl("Enter")}>
+            {primaryActionLabel}
+          </button>
+          <button type="button" onClick={() => pressControl("KeyP")}>
+            {locale === "es" ? "Pausa" : "Pause"}
+          </button>
+        </div>
+
+        <p className="basketball-court-hint">{copy.shootHint}</p>
+      </section>
     </div>
   );
 }

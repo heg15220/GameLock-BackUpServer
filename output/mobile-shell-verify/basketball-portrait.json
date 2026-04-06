@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "slug": "basketball-portrait",
+    "gameId": "sports-basketball-court",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "meta": {
+    "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--has-controls",
+    "buttonCount": 10,
+    "touchCopy": null,
+    "title": "Basketball Court Pro"
+  },
+  "consoleErrors": []
+}

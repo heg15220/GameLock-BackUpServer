@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useMemo } from "react";
+import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import AdventureGame from "../games/AdventureGame";
 import ActionGame from "../games/ActionGame";
 import RacingGame from "../games/RacingGame";
@@ -19,6 +19,7 @@ import StrategyMansionTripleEnigmaGame from "../games/StrategyMansionTripleEnigm
 import RaceGame2DPro from "../games/RaceGame2DPro";
 import SunsetSlipstream from "../games/racing/midnight-traffic";
 import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
+import { MOBILE_SHELL_CATEGORIES, getMobileShellMode, getViewportProfile } from "../utils/mobileShellProfile";
 
 const PlatformerGame = lazy(() => import("../games/PlatformerGame"));
 const FighterGame = lazy(() => import("../games/FighterGame"));
@@ -237,8 +238,26 @@ const UI_COPY_BY_LOCALE = {
 
 function GamePlayground({ game }) {
   const locale = useMemo(resolveBrowserLanguage, []);
+  const [viewport, setViewport] = useState(getViewportProfile);
   const resolvedLocale = locale === "es" ? "es" : "en";
   const copy = UI_COPY_BY_LOCALE[resolvedLocale] ?? UI_COPY_BY_LOCALE.en;
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const syncViewport = () => setViewport(getViewportProfile());
+
+    syncViewport();
+    window.addEventListener("resize", syncViewport);
+    window.addEventListener("orientationchange", syncViewport);
+
+    return () => {
+      window.removeEventListener("resize", syncViewport);
+      window.removeEventListener("orientationchange", syncViewport);
+    };
+  }, []);
 
   if (!game) {
     return null;
@@ -247,9 +266,28 @@ function GamePlayground({ game }) {
   const ActiveGame = GAME_COMPONENTS[game.id];
   const localizedHints = CONTROL_HINTS_BY_LOCALE[resolvedLocale] ?? CONTROL_HINTS_BY_LOCALE.es;
   const controlHint = localizedHints[game.id] ?? CONTROL_HINTS_BY_LOCALE.es[game.id];
+  const categoryKey = String(game.category ?? "");
+  const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(categoryKey);
+  const mobileShellMode = getMobileShellMode(game, viewport);
+  const sectionClassName = [
+    "game-playground",
+    mobileShellEligible && viewport.isMobile ? "playground-mobile-enabled" : "",
+    viewport.isMobile ? "playground-mobile-active" : "",
+    viewport.orientation === "portrait" ? "playground-mobile-portrait" : "playground-mobile-landscape",
+    mobileShellMode === "dual-screen" ? "playground-mobile-dual-screen" : "",
+    mobileShellMode === "mobile-first" ? "playground-mobile-first" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <section className="game-playground">
+    <section
+      className={sectionClassName}
+      data-category={categoryKey.toLowerCase()}
+      data-game-id={game.id}
+      data-mobile-shell={mobileShellMode}
+      data-mobile-orientation={viewport.orientation}
+    >
       <div className="playground-header">
         <h3>{copy.playNow}</h3>
         <p>
@@ -260,9 +298,18 @@ function GamePlayground({ game }) {
       </div>
 
       {ActiveGame ? (
-        <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
-          <ActiveGame />
-        </Suspense>
+        <div className="playground-device-shell">
+          <div className="playground-device-bezel">
+            {mobileShellMode === "dual-screen" && viewport.orientation === "portrait" ? (
+              <div className="playground-device-hinge" aria-hidden="true" />
+            ) : null}
+            <div className="playground-device-content">
+              <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
+                <ActiveGame />
+              </Suspense>
+            </div>
+          </div>
+        </div>
       ) : (
         <p className="unsupported-game">
           {copy.unsupported}

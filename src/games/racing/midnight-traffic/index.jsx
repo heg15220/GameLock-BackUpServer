@@ -369,6 +369,30 @@ function SunsetSlipstream() {
     startRun();
   }, [startRun]);
 
+  const setVirtualKey = useCallback((code, pressed) => {
+    if (!code) {
+      return;
+    }
+    if (pressed) {
+      keysRef.current.add(code);
+    } else {
+      keysRef.current.delete(code);
+    }
+  }, []);
+
+  const bindHoldControl = useCallback(
+    (code) => ({
+      onPointerDown: (event) => {
+        event.preventDefault();
+        setVirtualKey(code, true);
+      },
+      onPointerUp: () => setVirtualKey(code, false),
+      onPointerLeave: () => setVirtualKey(code, false),
+      onPointerCancel: () => setVirtualKey(code, false),
+    }),
+    [setVirtualKey]
+  );
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
@@ -1164,6 +1188,21 @@ function SunsetSlipstream() {
           </div>
         </div>
       )}
+
+      <div className="mtr__touchControls" role="group" aria-label={copy.controls}>
+        <div className="mtr__touchPad">
+          <button type="button" {...bindHoldControl("ArrowLeft")}>{lang === "es" ? "Izq" : "Left"}</button>
+          <button type="button" {...bindHoldControl("ArrowRight")}>{lang === "es" ? "Der" : "Right"}</button>
+        </div>
+        <div className="mtr__touchPad">
+          <button type="button" {...bindHoldControl("ArrowUp")}>{lang === "es" ? "Gas" : "Fast"}</button>
+          <button type="button" {...bindHoldControl("ArrowDown")}>{lang === "es" ? "Freno" : "Brake"}</button>
+        </div>
+        <div className="mtr__touchActions">
+          <button type="button" className="mtr__touchPrimary" {...bindHoldControl("Space")}>{lang === "es" ? "Focus" : "Focus"}</button>
+          <button type="button" onClick={restartRun}>{copy.restart}</button>
+        </div>
+      </div>
     </div>
   );
 }

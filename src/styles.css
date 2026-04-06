@@ -384,6 +384,63 @@ body {
   gap: 0.95rem;
 }
 
+.catalog-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-top: 1.15rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 88%, white 12%);
+}
+
+.catalog-pagination-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.catalog-pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+
+.catalog-pagination-controls span {
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.catalog-pagination-controls button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.catalog-pagination-controls button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: #cfd4c8;
+}
+
+.catalog-pagination-controls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .game-card {
   border-radius: 18px;
   border: 1px solid var(--line);
@@ -22060,5 +22117,442 @@ button.brisca-card.playable:disabled {
 @media (max-width: 680px) {
   .iqm-figure-actions {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.game-playground .playground-device-shell,
+.game-playground .playground-device-bezel,
+.game-playground .playground-device-content {
+  position: relative;
+}
+
+.game-playground .playground-device-content > * {
+  width: 100%;
+}
+
+.head-soccer-pro-stage > .head-soccer-pro-controls {
+  position: relative;
+  inset: auto;
+  margin-top: 0.68rem;
+  justify-content: space-between;
+  gap: 0.7rem;
+  padding: 0.72rem 0.78rem;
+  border-radius: 18px;
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  background:
+    radial-gradient(circle at 14% -24%, rgba(125, 211, 252, 0.2), transparent 44%),
+    linear-gradient(160deg, rgba(8, 30, 56, 0.92), rgba(15, 23, 42, 0.9));
+}
+
+.basketball-court-game {
+  background:
+    radial-gradient(circle at 12% -20%, rgba(251, 191, 36, 0.18), transparent 38%),
+    radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.14), transparent 34%),
+    linear-gradient(165deg, #07111f 0%, #10203a 56%, #0a1425 100%);
+  border-color: rgba(251, 191, 36, 0.22);
+  color: #e2e8f0;
+}
+
+.basketball-court-game .mini-head h4 {
+  color: #fef3c7;
+}
+
+.basketball-court-game .mini-head p {
+  color: #cbd5e1;
+}
+
+.basketball-court-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.basketball-court-actions button,
+.basketball-court-controls button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.78);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.52rem 0.78rem;
+  cursor: pointer;
+}
+
+.basketball-court-actions button:hover,
+.basketball-court-controls button:hover {
+  border-color: rgba(251, 191, 36, 0.42);
+}
+
+.basketball-court-stage {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 24px;
+  overflow: hidden;
+  background: #0c1020;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.basketball-court-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 320px;
+}
+
+.basketball-court-controls {
+  margin-top: 0.72rem;
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 100% -10%, rgba(251, 191, 36, 0.12), transparent 42%),
+    rgba(7, 17, 31, 0.84);
+  padding: 0.78rem;
+}
+
+.basketball-court-control-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.62rem;
+}
+
+.basketball-court-control-group {
+  display: grid;
+  gap: 0.36rem;
+}
+
+.basketball-court-control-group span,
+.basketball-court-hint {
+  color: #cbd5e1;
+  font-size: 0.78rem;
+}
+
+.basketball-court-control-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.basketball-court-control-row button {
+  min-height: 52px;
+  touch-action: none;
+}
+
+.basketball-court-action-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.basketball-court-action-strip button {
+  flex: 1 1 0;
+  min-height: 52px;
+}
+
+.basketball-court-action-strip .basketball-court-primary {
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  color: #111827;
+}
+
+.basketball-court-hint {
+  margin: 0;
+  line-height: 1.45;
+}
+
+@media (max-width: 920px) {
+  .game-playground.playground-mobile-enabled {
+    padding: 0.84rem;
+    border-radius: 24px;
+    border-color: rgba(30, 41, 59, 0.62);
+    background:
+      radial-gradient(circle at 14% -20%, rgba(56, 189, 248, 0.2), transparent 38%),
+      radial-gradient(circle at 100% 130%, rgba(250, 204, 21, 0.18), transparent 44%),
+      linear-gradient(165deg, #0f172a 0%, #132033 52%, #101a29 100%);
+    box-shadow: 0 22px 46px rgba(2, 6, 23, 0.42);
+  }
+
+  .game-playground.playground-mobile-enabled::before {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+  }
+
+  .game-playground.playground-mobile-enabled .playground-header {
+    border-color: rgba(148, 163, 184, 0.16);
+    background: rgba(15, 23, 42, 0.54);
+  }
+
+  .game-playground.playground-mobile-enabled .playground-header h3 {
+    color: #f8fafc;
+  }
+
+  .game-playground.playground-mobile-enabled .playground-header p {
+    color: #cbd5e1;
+  }
+
+  .game-playground.playground-mobile-enabled .playground-header .control-hint {
+    color: #67e8f9;
+  }
+
+  .game-playground.playground-mobile-enabled .playground-device-bezel {
+    border-radius: 30px;
+    padding: 0.54rem;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background:
+      linear-gradient(155deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.92)),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
+    box-shadow:
+      0 18px 36px rgba(2, 6, 23, 0.36),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .game-playground.playground-mobile-enabled .playground-device-content > .mini-game,
+  .game-playground.playground-mobile-enabled .playground-device-content > .r2p,
+  .game-playground.playground-mobile-enabled .playground-device-content > .mtr {
+    width: 100%;
+  }
+
+  .game-playground.playground-mobile-enabled.playground-mobile-landscape .playground-header {
+    margin-bottom: 0.54rem;
+    padding: 0.56rem 0.66rem;
+  }
+
+  .game-playground.playground-mobile-enabled.playground-mobile-landscape .playground-device-bezel {
+    padding: 0.46rem;
+  }
+}
+
+@media (max-width: 920px) and (orientation: portrait) {
+  .game-playground.playground-mobile-enabled .playground-header {
+    padding: 0.58rem 0.68rem;
+  }
+
+  .game-playground.playground-mobile-enabled .playground-header p:not(.control-hint) {
+    font-size: 0.82rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .playground-device-bezel {
+    border-radius: 34px;
+    padding: 0.72rem;
+    background:
+      linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.94)),
+      radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.2), transparent 38%);
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .playground-device-bezel::before {
+    content: "";
+    position: absolute;
+    inset: 0.3rem;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .playground-device-hinge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(46%, 220px);
+    height: 18px;
+    transform: translate(-50%, -50%);
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(226, 232, 240, 0.28), rgba(51, 65, 85, 0.92)),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.94), rgba(148, 163, 184, 0.22), rgba(15, 23, 42, 0.94));
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 8px 18px rgba(2, 6, 23, 0.34);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .playground-device-content {
+    display: grid;
+    gap: 0.86rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .mini-game,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .r2p,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .mtr {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .playground-device-bezel {
+    border-radius: 30px;
+    padding: 0.58rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .mini-game,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .r2p,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .mtr {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .head-soccer-pro-stage,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .head-soccer-pro-sidebar,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .billiards-stage,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .billiards-sidepanel,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .billiards-control-deck,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .bowling-stage,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .bowling-sidepanel,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .bowling-control-deck,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .basketball-court-stage,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .basketball-court-controls,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .mtr,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .r2p {
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 26px;
+    background:
+      radial-gradient(circle at 100% -12%, rgba(56, 189, 248, 0.12), transparent 42%),
+      rgba(8, 15, 28, 0.92);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .head-soccer-pro,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .billiards-game,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .bowling-game {
+    display: grid;
+    gap: 0.84rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .head-soccer-pro-layout,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .billiards-layout,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .bowling-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.84rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .head-soccer-pro-stage,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .head-soccer-pro-sidebar,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .billiards-stage,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .billiards-sidepanel,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .billiards-control-deck,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .bowling-stage,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .bowling-sidepanel,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .bowling-control-deck {
+    padding: 0.78rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .head-soccer-pro-stage > .head-soccer-pro-controls {
+    margin-top: 0.7rem;
+    padding: 0.66rem;
+    border-radius: 18px;
+    border-color: rgba(56, 189, 248, 0.16);
+    background: rgba(7, 17, 31, 0.72);
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .head-soccer-pro-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .r2p {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    min-height: auto;
+    height: auto;
+    padding: 0.78rem;
+    gap: 0.72rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .r2p > canvas {
+    border-radius: 20px;
+    min-height: min(54vw, 320px);
+    background: #09111c;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .r2p__touch {
+    position: static;
+    display: flex;
+    inset: auto;
+    padding: 0;
+    margin-top: auto;
+    pointer-events: auto;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .r2p__keyHint {
+    margin: 0;
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.72);
+    padding: 0.68rem 0.8rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .mtr {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    aspect-ratio: auto;
+    min-height: auto;
+    padding: 0.78rem;
+    gap: 0.72rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .mtr__canvas {
+    border-radius: 20px;
+    min-height: min(54vw, 320px);
+    background: #09111c;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .mtr__touchControls {
+    position: static;
+    inset: auto;
+    display: flex;
+    pointer-events: auto;
+    gap: 0.7rem;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .mtr__touchPad,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .mtr__touchActions {
+    flex: 1 1 0;
+    justify-content: space-between;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="dual-screen"] .mtr__touchControls button {
+    flex: 1 1 0;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .orchard-shell,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .flux-basin-canvas-shell {
+    border-radius: 24px;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .orchard-controls,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .flux-basin-controls-copy,
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .flux-basin-touch-controls {
+    display: none;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .flux-basin-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .flux-basin-side {
+    order: 2;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .flux-basin-stage-wrap {
+    order: 1;
+  }
+
+  .game-playground.playground-mobile-enabled[data-mobile-shell="mobile-first"] .basketball-court-control-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .basketball-court-control-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .basketball-court-action-strip {
+    flex-direction: column;
+  }
+
+  .head-soccer-pro-stage > .head-soccer-pro-controls {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "slug": "orchard-portrait",
+    "gameId": "arcade-orchard-match-blast",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "meta": {
+    "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--mobile-first mobile-game-shell--touch-native",
+    "buttonCount": 0,
+    "touchCopy": "Modo táctil nativoJuega directamente sobre la superficie del juego en vertical. Gira a horizontal para una vista más amplia y pantalla completa.",
+    "title": "Orchard Match Blast"
+  },
+  "consoleErrors": []
+}

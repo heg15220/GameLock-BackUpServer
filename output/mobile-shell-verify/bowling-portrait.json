@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "slug": "bowling-portrait",
+    "gameId": "arcade-bowling-pro-tour",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "meta": {
+    "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--has-controls",
+    "buttonCount": 11,
+    "touchCopy": null,
+    "title": "Bowling Pro Tour"
+  },
+  "consoleErrors": []
+}

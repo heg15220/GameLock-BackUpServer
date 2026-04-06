@@ -1,0 +1,42 @@
+[
+  {
+    "slug": "bowling-portrait",
+    "meta": {
+      "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--has-controls",
+      "buttonCount": 11,
+      "touchCopy": null,
+      "title": "Bowling Pro Tour"
+    },
+    "consoleErrors": []
+  },
+  {
+    "slug": "headsoccer-landscape",
+    "meta": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--has-controls",
+      "buttonCount": 8,
+      "touchCopy": null,
+      "title": "Head Soccer Pro"
+    },
+    "consoleErrors": []
+  },
+  {
+    "slug": "orchard-portrait",
+    "meta": {
+      "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--mobile-first mobile-game-shell--touch-native",
+      "buttonCount": 0,
+      "touchCopy": "Modo táctil nativoJuega directamente sobre la superficie del juego en vertical. Gira a horizontal para una vista más amplia y pantalla completa.",
+      "title": "Orchard Match Blast"
+    },
+    "consoleErrors": []
+  },
+  {
+    "slug": "basketball-portrait",
+    "meta": {
+      "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--has-controls",
+      "buttonCount": 10,
+      "touchCopy": null,
+      "title": "Basketball Court Pro"
+    },
+    "consoleErrors": []
+  }
+]

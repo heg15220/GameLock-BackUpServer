@@ -2250,17 +2250,6 @@ export default function HeadSoccerGame() {
               </div>
             </div>
 
-            <div className="head-soccer-pro-controls">
-              <div className="head-soccer-pro-pad">
-                <button type="button" className="head-soccer-pro-btn dir" {...bindTouchHold("left")}>Left</button>
-                <button type="button" className="head-soccer-pro-btn dir" {...bindTouchHold("right")}>Right</button>
-              </div>
-              <div className="head-soccer-pro-pad actions">
-                <button type="button" className="head-soccer-pro-btn kick" {...bindTouchHold("kick")}>Kick</button>
-                <button type="button" className="head-soccer-pro-btn jump" {...bindTouchHold("jump")}>Jump</button>
-              </div>
-            </div>
-
             {introVisible ? (
               <div className="head-soccer-pro-overlay">
                 <div className="head-soccer-pro-overlay-card">
@@ -2302,6 +2291,17 @@ export default function HeadSoccerGame() {
                 </div>
               </div>
             ) : null}
+          </div>
+
+          <div className="head-soccer-pro-controls">
+            <div className="head-soccer-pro-pad">
+              <button type="button" className="head-soccer-pro-btn dir" {...bindTouchHold("left")}>Left</button>
+              <button type="button" className="head-soccer-pro-btn dir" {...bindTouchHold("right")}>Right</button>
+            </div>
+            <div className="head-soccer-pro-pad actions">
+              <button type="button" className="head-soccer-pro-btn kick" {...bindTouchHold("kick")}>Kick</button>
+              <button type="button" className="head-soccer-pro-btn jump" {...bindTouchHold("jump")}>Jump</button>
+            </div>
           </div>
 
           {isTournamentMode ? (

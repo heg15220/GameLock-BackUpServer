@@ -1,6 +1,10 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { useTranslations, getLocalizedGame } from "../i18n";
 import { getGameComponent, CONTROL_HINTS_BY_LOCALE } from "../games/registry.jsx";
+import { MOBILE_SHELL_CATEGORIES } from "../utils/mobileShellProfile";
+import useMobileGameViewport from "../mobile/useMobileGameViewport";
+import MobileGameShell from "../mobile/MobileGameShell";
+import { getResponsiveMobileShellMode } from "../mobile/mobileGameProfiles";
 
 function GameLaunchModal({ game, onClose }) {
   const { t, locale } = useTranslations();
@@ -9,6 +13,7 @@ function GameLaunchModal({ game, onClose }) {
   const controlHint = CONTROL_HINTS_BY_LOCALE[locale]?.[game.id];
 
   const [infoOpen, setInfoOpen] = useState(false);
+  const viewport = useMobileGameViewport();
 
   // Lock body scroll while the modal is open so the body scrollbar
   // doesn't compete with the overlay's own scrollbar.
@@ -35,9 +40,36 @@ function GameLaunchModal({ game, onClose }) {
     return () => window.removeEventListener("launch-game-close", handleCloseRequest);
   }, [onClose]);
 
+  const mobileShellMode = getResponsiveMobileShellMode(game, viewport);
+  const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(String(game.category ?? ""));
+  const useMobileGameShell = mobileShellEligible && viewport.isMobile;
+  const launchPlaygroundClassName = [
+    "game-playground",
+    "launch-game-playground",
+    useMobileGameShell ? "playground-mobile-enabled" : "",
+    viewport.isMobile ? "playground-mobile-active" : "",
+    viewport.orientation === "portrait" ? "playground-mobile-portrait" : "playground-mobile-landscape",
+    mobileShellMode === "dual-screen" ? "playground-mobile-dual-screen" : "",
+    mobileShellMode === "mobile-first" ? "playground-mobile-first" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const launchOverlayClassName = [
+    "launch-overlay",
+    useMobileGameShell ? "launch-overlay--mobile-shell" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const launchGameAreaClassName = [
+    "launch-game-area",
+    useMobileGameShell ? "launch-game-area--mobile-shell" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div
-      className="launch-overlay"
+      className={launchOverlayClassName}
       role="dialog"
       aria-modal="true"
       aria-label={lg.title}
@@ -63,21 +95,23 @@ function GameLaunchModal({ game, onClose }) {
           <span className="chip">{lg.difficulty}</span>
         </div>
 
-        <button
-          type="button"
-          className={`launch-info-toggle${infoOpen ? " active" : ""}`}
-          onClick={() => setInfoOpen((o) => !o)}
-          aria-expanded={infoOpen}
-        >
-          {infoOpen ? t("hideInfo") : t("showInfo")}
-        </button>
+        {!useMobileGameShell ? (
+          <button
+            type="button"
+            className={`launch-info-toggle${infoOpen ? " active" : ""}`}
+            onClick={() => setInfoOpen((o) => !o)}
+            aria-expanded={infoOpen}
+          >
+            {infoOpen ? t("hideInfo") : t("showInfo")}
+          </button>
+        ) : null}
       </div>
 
       {/* ── Scrollable body: info strip + game area ─────────────────────── */}
       <div className="launch-body">
 
         {/* Info strip (colapsable) */}
-        {infoOpen && (
+        {infoOpen && !useMobileGameShell && (
           <header className="launch-info">
             <p className="launch-tagline">{lg.tagline}</p>
 
@@ -107,20 +141,55 @@ function GameLaunchModal({ game, onClose }) {
         )}
 
         {/* Game area */}
-        <section className="launch-game-area" aria-label={t("playNow")}>
+        <section className={launchGameAreaClassName} aria-label={t("playNow")}>
           {ActiveGame ? (
-            <Suspense
-              fallback={
-                <div className="launch-loading">
-                  <span className="launch-loading-dot" />
-                  <span className="launch-loading-dot" />
-                  <span className="launch-loading-dot" />
-                  <p>{t("loading")}</p>
+            useMobileGameShell ? (
+              <MobileGameShell
+                game={game}
+                viewport={viewport}
+                locale={locale}
+                fallback={
+                  <div className="launch-loading">
+                    <span className="launch-loading-dot" />
+                    <span className="launch-loading-dot" />
+                    <span className="launch-loading-dot" />
+                    <p>{t("loading")}</p>
+                  </div>
+                }
+              >
+                <ActiveGame />
+              </MobileGameShell>
+            ) : (
+              <div
+                className={launchPlaygroundClassName}
+                data-category={String(game.category ?? "").toLowerCase()}
+                data-game-id={game.id}
+                data-mobile-shell={mobileShellMode}
+                data-mobile-orientation={viewport.orientation}
+              >
+                <div className="playground-device-shell">
+                  <div className="playground-device-bezel">
+                    {mobileShellMode === "dual-screen" && viewport.orientation === "portrait" ? (
+                      <div className="playground-device-hinge" aria-hidden="true" />
+                    ) : null}
+                    <div className="playground-device-content">
+                      <Suspense
+                        fallback={
+                          <div className="launch-loading">
+                            <span className="launch-loading-dot" />
+                            <span className="launch-loading-dot" />
+                            <span className="launch-loading-dot" />
+                            <p>{t("loading")}</p>
+                          </div>
+                        }
+                      >
+                        <ActiveGame />
+                      </Suspense>
+                    </div>
+                  </div>
                 </div>
-              }
-            >
-              <ActiveGame />
-            </Suspense>
+              </div>
+            )
           ) : (
             <p className="launch-unsupported">{t("unsupported")}</p>
           )}
