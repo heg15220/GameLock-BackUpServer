@@ -3767,3 +3767,24 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Corregido solapamiento entre bloque superior descriptivo y banda de stats del HUD:
   - la posicion vertical de monedas/profundidad/carga se calcula ahora a partir de la altura real del panel superior;
   - evita superposiciones cuando el texto del objetivo ocupa mas lineas o cambia el ancho de pantalla.
+
+## 2026-04-06 - Shell movil: joystick virtual a la izquierda
+- Actualizado `src/mobile/MobileControlDeck.jsx` para sustituir la cruceta de botones por un joystick virtual en el bloque direccional izquierdo.
+- El joystick ahora:
+  - mantiene diagonales cuando el juego expone varias direcciones;
+  - libera entradas correctamente al perder `pointer capture`;
+  - aplica cambios de direccion en una sola transicion de estado para evitar inputs colgados.
+- Ajustado `src/mobile/mobile-game-shell.css` para fijar la composicion del deck:
+  - joystick pegado a la izquierda;
+  - acciones agrupadas a la derecha;
+  - pesos de columnas refinados en portrait y landscape.
+- Validacion tecnica:
+  - `npm run build` OK (2026-04-06).
+- Pendiente recomendado:
+  - pasada visual juego por juego en movil real para afinar sensibilidad/tamano del joystick en los casos mas rapidos.
+
+## 2026-04-06 - Shell movil: scroll + billar
+- Corregido el bloqueo de scroll vertical en el shell movil: el panel inferior vuelve a delegar el scroll en mobile-game-shell__controls-panel y MobileGameStatusPanel ya no crea un scroll anidado que intercepte el gesto.
+- Ajustada la deteccion de prepartida en src/mobile/mobileStatusFormatter.js para contemplar snapshot.status, con lo que juegos como billar vuelven a mostrar en movil los select y botones previos a la partida.
+- Refinado el aislamiento del stage de billar para apuntar primero a .billiards-canvas-host y preservar mejor la mesa dentro del viewport movil, con reglas CSS especificas para no deformar el canvas en portrait/landscape.
+- Pendiente recomendado: validacion visual manual del juego rcade-billar-pool-club en movil portrait y fullscreen landscape para confirmar el encuadre final de la mesa.

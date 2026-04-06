@@ -222,18 +222,103 @@ export function getMobileControlProfile(game, locale = "es") {
     return resolveRetroProfile(gameId, locale);
   }
 
+  if (gameId === "arcade-territory-war") {
+    return {
+      layout: "split",
+      heading: t(locale, "Turno", "Turn"),
+      hint: t(locale, "Muévete, salta, activa el cañón, ajusta ángulo y mantén el disparo.", "Move, jump, toggle the cannon, tune angle, and hold the shot."),
+      leftPad: [
+        control("left", t(locale, "Izq", "Left"), {
+          inputs: [input("KeyA", "a")],
+        }),
+        control("right", t(locale, "Der", "Right"), {
+          inputs: [input("KeyD", "d")],
+        }),
+      ],
+      rightPad: [
+        control("jump", t(locale, "Salta", "Jump"), {
+          type: "tap",
+          tone: "accent",
+          inputs: [input("KeyW", "w")],
+        }),
+        control("aimUp", t(locale, "Áng+", "Aim+"), {
+          type: "hold",
+          inputs: [input("KeyQ", "q")],
+        }),
+        control("aimDown", t(locale, "Áng-", "Aim-"), {
+          type: "hold",
+          inputs: [input("KeyE", "e")],
+        }),
+        control("throw", t(locale, "Lanza", "Throw"), {
+          type: "hold",
+          tone: "primary",
+          inputs: [input("Space", " ")],
+        }),
+        control("cannon", t(locale, "Cañón", "Cannon"), {
+          type: "tap",
+          tone: "accent",
+          inputs: [input("KeyC", "c")],
+        }),
+        control("cancel", t(locale, "Cancela", "Cancel"), {
+          type: "tap",
+          inputs: [input("KeyX", "x")],
+        }),
+      ],
+      utilities: utilityRow(locale),
+    };
+  }
+
+  if (gameId === "platformer-sky-runner") {
+    return {
+      layout: "split",
+      heading: t(locale, "Runner", "Runner"),
+      hint: t(locale, "Muévete, mantén el salto variable y usa Fuego cuando tengas poder.", "Move, hold variable jump, and use Fire when powered up."),
+      leftPad: [
+        control("left", t(locale, "Izq", "Left"), {
+          inputs: [input("ArrowLeft", "ArrowLeft")],
+        }),
+        control("right", t(locale, "Der", "Right"), {
+          inputs: [input("ArrowRight", "ArrowRight")],
+        }),
+      ],
+      rightPad: [
+        control("jump", t(locale, "Salta", "Jump"), {
+          type: "hold",
+          tone: "accent",
+          inputs: [input("Space", " ")],
+        }),
+        control("fire", t(locale, "Fuego", "Fire"), {
+          type: "tap",
+          tone: "primary",
+          inputs: [input("KeyF", "f")],
+        }),
+      ],
+      utilities: utilityRow(locale, [
+        control("start", "Start", {
+          type: "tap",
+          tone: "utility",
+          inputs: [input("Enter", "Enter")],
+        }),
+      ]),
+    };
+  }
+
   switch (gameId) {
     case "sports-head-soccer-arena":
       return {
         layout: "split",
         heading: t(locale, "Fútbol arcade", "Arcade football"),
-        hint: t(locale, "Corre, salta y remata.", "Move, jump, and shoot."),
+        hint: t(locale, "Corre con joystick, salta y remata con botones.", "Move with the joystick, then jump and shoot with buttons."),
         leftPad: [
           control("left", "◀", { inputs: [input("KeyA", "a")] }),
-          control("jump", t(locale, "Salta", "Jump"), { inputs: [input("KeyW", "w")], tone: "accent" }),
           control("right", "▶", { inputs: [input("KeyD", "d")] }),
         ],
         rightPad: [
+          control("jump", t(locale, "Salta", "Jump"), {
+            type: "hold",
+            tone: "accent",
+            inputs: [input("KeyW", "w")],
+          }),
           control("kick", t(locale, "Disparo", "Kick"), {
             type: "hold",
             tone: "primary",
@@ -250,6 +335,7 @@ export function getMobileControlProfile(game, locale = "es") {
     case "sports-basketball-court":
       return {
         layout: "split",
+        leftPadMode: "buttons",
         heading: t(locale, "Tiro", "Shot"),
         hint: t(locale, "Arco, desvío y potencia en una sola cruceta.", "Arc, lateral aim, and power on one cross-pad."),
         leftPad: directionalPad(locale, {
@@ -274,21 +360,39 @@ export function getMobileControlProfile(game, locale = "es") {
     case "arcade-billar-pool-club":
       return {
         layout: "split",
+        leftPadMode: "buttons",
         heading: t(locale, "Billar", "Pool"),
         hint: t(locale, "La cruceta ajusta ángulo y potencia. El botón principal tira.", "The D-pad adjusts angle and power. Main button shoots."),
-        leftPad: directionalPad(locale, {
-          up: input("KeyW", "w"),
-          left: input("KeyA", "a"),
-          right: input("KeyD", "d"),
-          down: input("KeyS", "s"),
-          upLabel: t(locale, "Pot+", "Pow+"),
-          downLabel: t(locale, "Pot-", "Pow-"),
-        }),
+        leftPad: [
+          control("powerUp", t(locale, "Pot+", "Pow+"), {
+            inputs: [input("KeyW", "w")],
+            tone: "accent",
+          }),
+          control("aimLeft", t(locale, "Aim -", "Aim -"), {
+            inputs: [input("KeyA", "a")],
+          }),
+          control("aimRight", t(locale, "Aim +", "Aim +"), {
+            inputs: [input("KeyD", "d")],
+          }),
+          control("powerDown", t(locale, "Pot-", "Pow-"), {
+            inputs: [input("KeyS", "s")],
+          }),
+        ],
         rightPad: [
           control("shoot", t(locale, "Tiro", "Shoot"), {
             type: "tap",
             tone: "primary",
             inputs: [input("Space", " ")],
+          }),
+          control("nextRack", t(locale, "Siguiente", "Next rack"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyN", "n")],
+          }),
+          control("pushOut", t(locale, "Push Out", "Push Out"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyO", "o")],
           }),
           control("safety", "Safety", {
             type: "tap",

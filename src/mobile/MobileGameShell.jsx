@@ -1,6 +1,8 @@
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import MobileControlDeck from "./MobileControlDeck";
+import MobileBowlingFramesPanel from "./MobileBowlingFramesPanel";
 import MobileGameStatusPanel from "./MobileGameStatusPanel";
+import MobileHeadSoccerTournamentPanel from "./MobileHeadSoccerTournamentPanel";
 import {
   getMobileControlProfile,
   getResponsiveMobileShellMode,
@@ -200,6 +202,19 @@ export default function MobileGameShell({
                     scopeElement={stageViewportNode}
                     snapshot={runtimeSnapshot}
                   />
+                  {game?.id === "sports-head-soccer-arena" ? (
+                    <MobileHeadSoccerTournamentPanel
+                      locale={locale}
+                      scopeElement={stageViewportNode}
+                      snapshot={runtimeSnapshot}
+                    />
+                  ) : null}
+                  {game?.id === "arcade-bowling-pro-tour" ? (
+                    <MobileBowlingFramesPanel
+                      locale={locale}
+                      snapshot={runtimeSnapshot}
+                    />
+                  ) : null}
                   <MobileControlDeck
                     profile={profile}
                     scopeElement={stageViewportNode}

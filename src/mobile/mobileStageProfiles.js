@@ -8,6 +8,7 @@ const DEFAULT_STAGE_SELECTORS = [
   ".penalty-stage",
   ".billiards-stage",
   ".bowling-stage",
+  ".pinball-canvas",
   ".pinball-shell",
   ".cosmic-vanguard-stage",
   ".tw-stage-wrap",
@@ -33,7 +34,10 @@ const GAME_STAGE_SELECTORS = {
     ".golf-tour-canvas-shell",
     ".golf-tour-stage-wrap",
   ],
-  "arcade-billar-pool-club": [".billiards-stage"],
+  "arcade-billar-pool-club": [
+    ".billiards-canvas-host",
+    ".billiards-stage",
+  ],
   "arcade-bowling-pro-tour": [".bowling-stage"],
   "arcade-penalty-neural-keeper": [".penalty-stage"],
   "arcade-cosmic-vanguard": [
@@ -45,7 +49,11 @@ const GAME_STAGE_SELECTORS = {
     ".archery-horizon-canvas-shell",
     ".archery-horizon-stage-wrap",
   ],
-  "arcade-pinball-wizard": [".pinball-shell"],
+  "arcade-pinball-wizard": [".pinball-canvas", ".pinball-shell"],
+  "platformer-sky-runner": [
+    ".sky-runner-dx-canvas-shell",
+    ".sky-runner-dx-stage-wrap",
+  ],
   "arcade-ice-strike-pro": ["canvas"],
   "arcade-pacman-maze-protocol": [
     ".pacman-stage-shell",

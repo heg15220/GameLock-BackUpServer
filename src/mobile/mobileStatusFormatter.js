@@ -81,6 +81,19 @@ export function formatMobileStatus(snapshot, locale = "es") {
   const level = snapshot.level;
   const timeLabel = locale === "en" ? "Time" : "Tiempo";
 
+  if (snapshot.mode === "billiards_pool" && Array.isArray(snapshot.players) && snapshot.players.length) {
+    if (snapshot.players.length >= 2) {
+      addEntry(
+        entries,
+        locale === "en" ? "Match" : "Serie",
+        `${snapshot.players[0]?.racksWon ?? 0} - ${snapshot.players[1]?.racksWon ?? 0}`
+      );
+    }
+    addEntry(entries, locale === "en" ? "Turn" : "Turno", snapshot.currentPlayerName);
+    addEntry(entries, locale === "en" ? "Mode" : "Modo", snapshot.modeLabel);
+    addEntry(entries, locale === "en" ? "Race" : "Objetivo", snapshot.raceTo);
+  }
+
   if (scoreboard && typeof scoreboard === "object") {
     if (Number.isFinite(scoreboard.playerGoals) || Number.isFinite(scoreboard.rivalGoals)) {
       addEntry(entries, locale === "en" ? "Score" : "Marcador", `${scoreboard.playerGoals ?? 0} - ${scoreboard.rivalGoals ?? 0}`);
@@ -134,7 +147,7 @@ export function formatMobileStatus(snapshot, locale = "es") {
 
 export function isPreplayState(snapshot) {
   const probe = String(
-    snapshot?.screen ?? snapshot?.phase ?? snapshot?.mode ?? ""
+    snapshot?.screen ?? snapshot?.phase ?? snapshot?.status ?? snapshot?.mode ?? ""
   ).toLowerCase();
 
   return [

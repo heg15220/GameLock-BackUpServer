@@ -15789,6 +15789,7 @@ button.brisca-card.playable:disabled {
 }
 
 .orchard-shell {
+  position: relative;
   width: 100%;
   margin-top: 0.58rem;
   padding: 0.26rem;
@@ -15809,6 +15810,85 @@ button.brisca-card.playable:disabled {
   touch-action: none;
   user-select: none;
   border-radius: 15px;
+}
+
+.orchard-mobile-stage-hud {
+  position: absolute;
+  top: 0.72rem;
+  left: 0.72rem;
+  right: 0.72rem;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.32rem;
+  pointer-events: none;
+}
+
+.orchard-mobile-stage-hud span {
+  min-width: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  background: rgba(2, 6, 23, 0.72);
+  color: #cbd5e1;
+  padding: 0.28rem 0.52rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+  backdrop-filter: blur(10px);
+}
+
+.orchard-mobile-stage-hud strong {
+  color: #f8fafc;
+}
+
+.orchard-mobile-start-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.18), rgba(2, 6, 23, 0.44));
+}
+
+.orchard-mobile-start-card {
+  width: min(100%, 320px);
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.9rem 0.95rem;
+  border-radius: 18px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  background:
+    radial-gradient(circle at 100% -10%, rgba(74, 222, 128, 0.14), transparent 55%),
+    rgba(2, 6, 23, 0.82);
+  color: #dbeafe;
+  text-align: center;
+  box-shadow: 0 16px 28px rgba(2, 6, 23, 0.34);
+  backdrop-filter: blur(14px);
+}
+
+.orchard-mobile-start-card strong {
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f8fafc;
+}
+
+.orchard-mobile-start-card p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.orchard-mobile-start-card button {
+  border: 1px solid rgba(74, 222, 128, 0.48);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(21, 128, 61, 0.96), rgba(22, 163, 74, 0.96));
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.6rem 0.9rem;
 }
 
 .orchard-shell:fullscreen,
@@ -20794,6 +20874,13 @@ button.brisca-card.playable:disabled {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     0 16px 34px rgba(2, 6, 23, 0.35);
+}
+
+.arcade-neon-rush-stage-fit {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .arcade-neon-rush-frame {

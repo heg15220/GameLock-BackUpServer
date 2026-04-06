@@ -1104,18 +1104,23 @@ export default class PlatformerEngine {
 
     if (playerTopInView < topSafeZone) {
       const overshoot = topSafeZone - playerTopInView;
-      targetY = Math.min(targetY, this.state.camera.y - overshoot);
+      targetY -= overshoot * (CAMERA_SETTINGS.topSafePull ?? 0.65);
     }
     if (playerBottomInView > bottomSafeZone) {
       const overshoot = playerBottomInView - bottomSafeZone;
-      targetY = Math.max(targetY, this.state.camera.y + overshoot);
+      targetY += overshoot * (CAMERA_SETTINGS.bottomSafePull ?? 0.55);
     }
 
     const clampedY = clamp(targetY, 0, maxCameraY);
     let followLerpY = this.state.player.onGround
       ? CAMERA_SETTINGS.followLerpY
       : Math.max(CAMERA_SETTINGS.followLerpY, CAMERA_SETTINGS.airborneFollowLerpY ?? CAMERA_SETTINGS.followLerpY);
-    if (upwardVelocity > 140 || downwardVelocity > 220 || playerTopInView < topSafeZone) {
+    if (
+      upwardVelocity > 180 ||
+      downwardVelocity > 260 ||
+      playerTopInView < topSafeZone * 0.88 ||
+      playerBottomInView > bottomSafeZone * 1.04
+    ) {
       followLerpY = Math.max(followLerpY, CAMERA_SETTINGS.verticalCatchupLerp ?? followLerpY);
     }
 

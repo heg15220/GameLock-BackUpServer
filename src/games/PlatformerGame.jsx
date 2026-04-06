@@ -207,8 +207,10 @@ function PlatformerGame() {
   const routeStages = snapshot.runStages || [];
   const isTouchLayout = deviceProfile === "touch";
   const showTouchControls = isTouchLayout || uiConfig.showTouchControls;
+  const canFireball = snapshot.player.powerLevel > 0 || snapshot.isBossLevel;
+  const actionLabel = canFireball ? "Fire" : "Action";
   const controlsCopy = isTouchLayout
-    ? "Touch controls: hold Left/Right to move, hold Jump for variable jump, tap Action to fire, Start to begin and Restart to reload the sector."
+    ? `Touch controls: hold Left/Right to move, hold Jump for variable jump, tap ${actionLabel} to use the active skill, Start to begin and Restart to reload the sector.`
     : "Keyboard controls: A/D or Arrow keys move, W/Up/Space jumps, F/J/B uses action, Enter starts run and R restarts the current sector.";
   const helpHints = [
     snapshot.activeWind
@@ -418,7 +420,7 @@ function PlatformerGame() {
                 Jump
               </button>
               <button type="button" onClick={onAction}>
-                Action
+                {actionLabel}
               </button>
               <button type="button" onClick={onStart}>
                 Start

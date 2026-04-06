@@ -2429,6 +2429,7 @@ export default function HeadSoccerGame() {
                     <button
                       key={character.id}
                       type="button"
+                      data-character-id={character.id}
                       className={`head-soccer-character-card${selected ? " selected" : ""}`}
                       disabled={setupLocked}
                       onClick={() => {

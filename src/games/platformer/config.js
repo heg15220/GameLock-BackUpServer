@@ -83,8 +83,8 @@ export const PROJECTILE_SETTINGS = {
 
 export const CAMERA_SETTINGS = {
   followLerp: 0.22,
-  followLerpY: 0.18,
-  airborneFollowLerpY: 0.26,
+  followLerpY: 0.2,
+  airborneFollowLerpY: 0.24,
   leadPixels: 36,
   verticalLeadPixels: 52,
   upwardLookAheadMax: 132,
@@ -93,8 +93,10 @@ export const CAMERA_SETTINGS = {
   downwardVelocityLookAheadFactor: 0.11,
   topSafeZoneRatio: 0.36,
   bottomSafeZoneRatio: 0.74,
+  topSafePull: 0.65,
+  bottomSafePull: 0.55,
   hudReservePixels: 74,
-  verticalCatchupLerp: 0.34
+  verticalCatchupLerp: 0.3
 };
 
 export const SCORE_VALUES = {

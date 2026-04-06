@@ -2768,6 +2768,10 @@ function readMobileViewport() {
   return { isMobile: width <= 920, isPortrait: height >= width };
 }
 
+function isInsideMobileGameShell(node) {
+  return Boolean(node?.closest?.(".mobile-game-shell"));
+}
+
 function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated = () => false, locale = resolveLocale() }) {
   const ctx = canvas.getContext("2d");
   const runtime = {
@@ -2852,19 +2856,19 @@ function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated
       this.refresh();
     },
     setMode(modeKey) {
-      if (this.state.phase !== "menu") return;
+      if (!(this.state.phase === "menu" || this.state.phase === "match-over")) return;
       if (!MODE_PRESETS[modeKey]) return;
       const participantCount = isKellyMode(modeKey) ? (this.state.participantCount ?? 2) : 2;
       this.resetToMenu(modeKey, this.state.difficultyKey, participantCount);
     },
     setParticipantCount(participantCount) {
-      if (this.state.phase !== "menu") return;
+      if (!(this.state.phase === "menu" || this.state.phase === "match-over")) return;
       const normalized = clamp(Math.round(Number(participantCount) || 2), 2, 15);
       const nextCount = isKellyMode(this.state.modeKey) ? normalized : 2;
       this.resetToMenu(this.state.modeKey, this.state.difficultyKey, nextCount);
     },
     setDifficulty(difficultyKey) {
-      if (this.state.phase !== "menu") return;
+      if (!(this.state.phase === "menu" || this.state.phase === "match-over")) return;
       if (!DIFFICULTY_PRESETS[difficultyKey]) return;
       const localeKey = this.state.locale ?? locale;
       this.state.difficultyKey = difficultyKey;
@@ -3190,8 +3194,14 @@ function BilliardsClubGame() {
   const [locale] = useState(() => resolveLocale());
   const [snapshot, setSnapshot] = useState(() => createDefaultSnapshot(locale));
   const [mobileViewport, setMobileViewport] = useState(() => readMobileViewport());
+  const [embeddedInMobileShell, setEmbeddedInMobileShell] = useState(false);
   const [preferVerticalTable, setPreferVerticalTable] = useState(true);
-  const useVerticalTable = mobileViewport.isMobile && mobileViewport.isPortrait && preferVerticalTable;
+  const forceHorizontalTable = mobileViewport.isMobile && embeddedInMobileShell;
+  const useVerticalTable =
+    mobileViewport.isMobile &&
+    mobileViewport.isPortrait &&
+    preferVerticalTable &&
+    !forceHorizontalTable;
   const ui = UI_COPY[locale] ?? UI_COPY.en;
 
   useEffect(() => {
@@ -3246,6 +3256,17 @@ function BilliardsClubGame() {
     };
   }, []);
 
+  useEffect(() => {
+    const syncMobileShell = () => {
+      setEmbeddedInMobileShell(isInsideMobileGameShell(shellRef.current));
+    };
+    syncMobileShell();
+    window.addEventListener("resize", syncMobileShell);
+    return () => {
+      window.removeEventListener("resize", syncMobileShell);
+    };
+  }, []);
+
   const startMatch = useCallback(() => runtimeRef.current?.startMatch(), []);
   const restartRack = useCallback(() => runtimeRef.current?.restartRack(), []);
   const nextRack = useCallback(() => runtimeRef.current?.nextRack(), []);
@@ -3283,7 +3304,7 @@ function BilliardsClubGame() {
   const aiThinking = Boolean(snapshot.ai?.thinking);
   const aiPlan = snapshot.ai?.planPreview ?? null;
   const ledClass = (active, baseClass = "") => [baseClass, aiThinking && active ? "led-active" : ""].filter(Boolean).join(" ");
-  const canConfigureBeforeStart = snapshot.status === "menu";
+  const canConfigureBeforeStart = snapshot.status === "menu" || snapshot.status === "match-over";
   const modeObjective = snapshot.variant === "kelly"
     ? `${modeSummary(snapshot.variant, locale)} ${locale === "es" ? `Participantes: ${snapshot.participantCount}.` : `Players: ${snapshot.participantCount}.`}`
     : modeSummary(snapshot.variant, locale);
@@ -3328,7 +3349,7 @@ function BilliardsClubGame() {
           {snapshot.status === "rack-over" ? <button id="billiards-next-rack-btn" type="button" onClick={nextRack}>{ui.nextRack}</button> : null}
           <button type="button" onClick={restartRack}>{ui.restartRack}</button>
           <button type="button" onClick={resetMatch}>{ui.newMatch}</button>
-          {mobileViewport.isMobile && mobileViewport.isPortrait ? (
+          {mobileViewport.isMobile && mobileViewport.isPortrait && !forceHorizontalTable ? (
             <button id="billiards-orientation-btn" type="button" onClick={() => setPreferVerticalTable((previous) => !previous)}>
               {useVerticalTable ? ui.orientationHorizontal : ui.orientationVertical}
             </button>
@@ -3425,7 +3446,7 @@ function BilliardsClubGame() {
                 <>
                   <h5>{ui.matchFinishedTitle}</h5>
                   <p>{snapshot.message}</p>
-                  <button type="button" onClick={resetMatch}>{ui.backToMenu}</button>
+                  <button type="button" onClick={resetMatch}>{ui.newMatch}</button>
                 </>
               ) : null}
             </div>

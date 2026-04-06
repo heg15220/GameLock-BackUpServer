@@ -47,9 +47,46 @@ function buildMenuControls(scopeElement) {
   });
 
   return {
-    buttons: Array.from(buttonMap.values()).slice(0, 6),
+    buttons: Array.from(buttonMap.values()).slice(0, 18),
     selects: Array.from(selectMap.values()).slice(0, 3),
   };
+}
+
+function filterContextButtons(buttons, snapshot) {
+  if (!buttons.length || !snapshot || typeof snapshot !== "object") {
+    return [];
+  }
+
+  const buttonIdMatches = (button, pattern) =>
+    pattern.test(String(button.target?.id ?? button.id ?? ""));
+  const buttonLabelMatches = (button, pattern) =>
+    pattern.test(String(button.label ?? ""));
+
+  if (snapshot.mode === "billiards_pool") {
+    if (snapshot.pendingDecision) {
+      return buttons.filter((button) => buttonIdMatches(button, /^billiards-decision-/));
+    }
+
+    if (snapshot.needsPocketCall) {
+      return buttons.filter((button) => buttonIdMatches(button, /^billiards-pocket-/));
+    }
+
+    if (snapshot.status === "rack-over") {
+      return buttons.filter(
+        (button) =>
+          buttonIdMatches(button, /^billiards-next-rack-btn$/)
+          || buttonLabelMatches(button, /prepare next rack|siguiente rack|replay rack|repetir rack|new match|nuevo match/i)
+      );
+    }
+
+    if (snapshot.status === "match-over") {
+      return buttons.filter(
+        (button) => buttonLabelMatches(button, /back to menu|volver al menu|new match|nuevo match/i)
+      );
+    }
+  }
+
+  return [];
 }
 
 export default function MobileGameStatusPanel({
@@ -62,9 +99,23 @@ export default function MobileGameStatusPanel({
     () => formatMobileStatus(snapshot, locale),
     [locale, snapshot]
   );
+  const contextButtons = useMemo(
+    () => filterContextButtons(menuControls.buttons, snapshot),
+    [menuControls.buttons, snapshot]
+  );
+  const allowPostMatchSetup =
+    snapshot?.mode === "billiards_pool" &&
+    snapshot?.status === "match-over";
+  const visibleMenuButtons = allowPostMatchSetup
+    ? contextButtons
+    : menuControls.buttons;
   const showMenuControls =
-    isPreplayState(snapshot) &&
+    (isPreplayState(snapshot) || allowPostMatchSetup) &&
     (menuControls.buttons.length > 0 || menuControls.selects.length > 0);
+  const showContextButtons =
+    !isPreplayState(snapshot) &&
+    !allowPostMatchSetup &&
+    contextButtons.length > 0;
 
   useEffect(() => {
     if (!scopeElement) {
@@ -133,9 +184,9 @@ export default function MobileGameStatusPanel({
             </div>
           ) : null}
 
-          {menuControls.buttons.length ? (
+          {visibleMenuButtons.length ? (
             <div className="mobile-game-status-panel__buttons">
-              {menuControls.buttons.map((button) => (
+              {visibleMenuButtons.map((button) => (
                 <button
                   key={button.id}
                   type="button"
@@ -150,6 +201,27 @@ export default function MobileGameStatusPanel({
               ))}
             </div>
           ) : null}
+        </div>
+      ) : null}
+
+      {showContextButtons ? (
+        <div className="mobile-game-status-panel__menu">
+          <strong>{locale === "en" ? "Context controls" : "Controles contextuales"}</strong>
+          <div className="mobile-game-status-panel__buttons">
+            {contextButtons.map((button) => (
+              <button
+                key={button.id}
+                type="button"
+                disabled={button.disabled}
+                onClick={() => {
+                  button.target.click();
+                  setMenuControls(buildMenuControls(scopeElement));
+                }}
+              >
+                {button.label}
+              </button>
+            ))}
+          </div>
         </div>
       ) : null}
     </section>

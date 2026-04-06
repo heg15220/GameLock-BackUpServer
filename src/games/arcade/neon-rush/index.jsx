@@ -58,13 +58,15 @@ export default function NeonRushGame() {
           Loading Neon Rush...
         </div>
       ) : null}
-      <iframe
-        ref={frameRef}
-        src="/arcade/neon-rush/index.html"
-        title="Neon Rush"
-        className="arcade-neon-rush-frame"
-        onLoad={() => setIsReady(true)}
-      />
+      <div className="arcade-neon-rush-stage-fit">
+        <iframe
+          ref={frameRef}
+          src="/arcade/neon-rush/index.html"
+          title="Neon Rush"
+          className="arcade-neon-rush-frame"
+          onLoad={() => setIsReady(true)}
+        />
+      </div>
     </div>
   );
 }

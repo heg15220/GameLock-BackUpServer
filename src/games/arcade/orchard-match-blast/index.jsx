@@ -582,10 +582,19 @@ function resolveBloomBlast(board, center, rng) {
 function layoutFromSize(width, height) {
   const w = clamp(safeInt(width, 980), 360, 2400);
   const h = clamp(safeInt(height, 760), 420, 1080);
+  const compactHud = w <= 520;
   const pad = clamp(Math.round(w * 0.02), 8, 24);
   const hudTop = clamp(Math.round(h * 0.015), 4, 12);
-  const hudHeight = clamp(Math.round(h * 0.12), 78, 122);
-  const footerHeight = clamp(Math.round(h * 0.082), 36, 72);
+  const hudHeight = clamp(
+    Math.round(h * (compactHud ? 0.145 : 0.12)),
+    compactHud ? 92 : 78,
+    compactHud ? 144 : 122
+  );
+  const footerHeight = clamp(
+    Math.round(h * (compactHud ? 0.09 : 0.082)),
+    compactHud ? 42 : 36,
+    compactHud ? 82 : 72
+  );
   const availH = h - hudTop - hudHeight - footerHeight - 12;
   const availW = w - pad * 2;
   const tile = clamp(Math.floor(Math.min(availW / COLS, availH / ROWS)), 28, 98);
@@ -603,6 +612,14 @@ const fmtTime = (ms) => {
   const s = String(total % 60).padStart(2, "0");
   return `${m}:${s}`;
 };
+
+function resolveTouchDevice() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  const coarse = window.matchMedia?.("(pointer: coarse)")?.matches;
+  return Boolean(coarse || (navigator.maxTouchPoints ?? 0) > 0);
+}
 
 function roundRectPath(ctx, x, y, w, h, r) {
   const radius = Math.max(0, Math.min(r, w / 2, h / 2));
@@ -708,8 +725,9 @@ function OrchardMatchBlastGame() {
     (value) => numberFormatter.format(Math.max(0, Math.round(Number(value) || 0))),
     [numberFormatter]
   );
-  const [size, setSize] = useState({ width: 980, height: 760 });
-  const layout = useMemo(() => layoutFromSize(size.width, size.height), [size]);
+  const [size, setSize] = useState({ width: 980, height: 760, dpr: 1 });
+  const [isTouchDevice, setIsTouchDevice] = useState(resolveTouchDevice);
+  const layout = useMemo(() => layoutFromSize(size.width, size.height), [size.width, size.height]);
 
   const createInitial = useCallback(() => {
     const board = buildFreshBoard(rngRef.current);
@@ -773,8 +791,11 @@ function OrchardMatchBlastGame() {
       const viewportSpace = Math.max(420, Math.floor(window.innerHeight - rect.top - 14));
       const preferredHeight = Math.floor(width * 0.78);
       const height = clamp(Math.min(Math.max(preferredHeight, 460), viewportSpace), 420, 1080);
+      const dpr = clamp(window.devicePixelRatio || 1, 1, 3);
       setSize((prev) =>
-        prev.width === width && prev.height === height ? prev : { width, height }
+        prev.width === width && prev.height === height && prev.dpr === dpr
+          ? prev
+          : { width, height, dpr }
       );
     };
 
@@ -785,6 +806,19 @@ function OrchardMatchBlastGame() {
     return () => {
       window.removeEventListener("resize", resize);
       observer?.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const media = window.matchMedia?.("(pointer: coarse)");
+    const update = () => setIsTouchDevice(resolveTouchDevice());
+    update();
+    window.addEventListener("resize", update);
+    media?.addEventListener?.("change", update);
+    return () => {
+      window.removeEventListener("resize", update);
+      media?.removeEventListener?.("change", update);
     };
   }, []);
 
@@ -1071,8 +1105,8 @@ function OrchardMatchBlastGame() {
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
-      const x = (event.clientX - rect.left) * (canvas.width / rect.width);
-      const y = (event.clientY - rect.top) * (canvas.height / rect.height);
+      const x = (event.clientX - rect.left) * (layout.w / rect.width);
+      const y = (event.clientY - rect.top) * (layout.h / rect.height);
       const col = Math.floor((x - layout.left) / layout.tile);
       const row = Math.floor((y - layout.top) / layout.tile);
       if (!inBounds(row, col)) return;
@@ -1156,7 +1190,7 @@ function OrchardMatchBlastGame() {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [copy.modePlay, createInitial, fullscreen, showHint, shuffle, startRun, stepMove, triggerBloom]);
+  }, [copy.modePlay, createInitial, fullscreen, layout.h, layout.left, layout.tile, layout.top, layout.w, showHint, shuffle, startRun, stepMove, triggerBloom]);
 
   const advanceState = useCallback(
     (prev, deltaMs, nowMs) => {
@@ -1230,6 +1264,7 @@ function OrchardMatchBlastGame() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    ctx.setTransform(size.dpr, 0, 0, size.dpr, 0, 0);
 
     const now = performance.now();
     const pulse = 0.55 + 0.45 * Math.sin(now / 180);
@@ -1353,11 +1388,13 @@ function OrchardMatchBlastGame() {
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      ctx.font = "700 9px system-ui, -apple-system, Segoe UI, sans-serif";
+      const labelFont = clamp(Math.round(pillH * 0.2), 9, 13);
+      const valueFont = clamp(Math.round(pillH * 0.28), 12, 18);
+      ctx.font = `700 ${labelFont}px system-ui, -apple-system, Segoe UI, sans-serif`;
       ctx.fillStyle = "rgba(191,219,254,0.92)";
       ctx.fillText(pill.label, x + 8, y + 6);
 
-      ctx.font = "800 12px system-ui, -apple-system, Segoe UI, sans-serif";
+      ctx.font = `800 ${valueFont}px system-ui, -apple-system, Segoe UI, sans-serif`;
       ctx.fillStyle = "#f8fafc";
       ctx.fillText(pill.value, x + 8, y + 20);
     });
@@ -1704,7 +1741,7 @@ function OrchardMatchBlastGame() {
         ctx.fillRect(0, 0, layout.w, layout.h);
       }
     }
-  }, [copy, formatScore, game, highScore, layout]);
+  }, [copy, formatScore, game, highScore, layout, size.dpr]);
 
   const payloadBuilder = useCallback(
     (state) => ({
@@ -1785,6 +1822,8 @@ function OrchardMatchBlastGame() {
   );
 
   useGameRuntimeBridge(game, payloadBuilder, advanceTime);
+  const showTouchStartOverlay =
+    isTouchDevice && (game.mode === "menu" || game.mode === "won" || game.mode === "lost");
 
   return (
     <div className="mini-game orchard-match-game">
@@ -1840,14 +1879,38 @@ function OrchardMatchBlastGame() {
       </div>
 
       <div className="orchard-shell phaser-canvas-shell" ref={shellRef}>
+        {isTouchDevice ? (
+          <div className="orchard-mobile-stage-hud" aria-hidden="true">
+            <span>{copy.score}: <strong>{formatScore(game.score)}</strong></span>
+            <span>{copy.time}: <strong>{fmtTime(game.timeMs)}</strong></span>
+            <span>{copy.moves}: <strong>{game.moves}</strong></span>
+            <span>{copy.bloomCharge}: <strong>{Math.round(game.bloomCharge)}%</strong></span>
+          </div>
+        ) : null}
         <canvas
           ref={canvasRef}
           className="orchard-canvas"
-          width={layout.w}
-          height={layout.h}
+          width={Math.round(layout.w * size.dpr)}
+          height={Math.round(layout.h * size.dpr)}
+          style={{ width: `${layout.w}px`, height: `${layout.h}px` }}
           onPointerDown={onPointer}
           aria-label={copy.title}
         />
+        {showTouchStartOverlay ? (
+          <div className="orchard-mobile-start-overlay">
+            <div className="orchard-mobile-start-card">
+              <strong>{game.mode === "menu" ? copy.targetScoreLabel : copy.title}</strong>
+              <p>
+                {game.mode === "menu"
+                  ? `${targetScorePreset.label[locale]} · ${formatScore(targetScorePreset.score)} · ${fmtTime(targetScorePreset.timeMs)}`
+                  : game.message}
+              </p>
+              <button type="button" onClick={startRun}>
+                {game.mode === "menu" ? copy.start : copy.restart}
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="orchard-info-strip">
