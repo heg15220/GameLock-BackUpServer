@@ -1,10 +1,12 @@
-import React, { Suspense, useEffect, useMemo, useRef } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import MobileControlDeck from "./MobileControlDeck";
+import MobileGameStatusPanel from "./MobileGameStatusPanel";
 import {
   getMobileControlProfile,
   getResponsiveMobileShellMode,
 } from "./mobileGameProfiles";
 import { getMobileStageSelectors } from "./mobileStageProfiles";
+import useMobileRuntimeSnapshot from "./useMobileRuntimeSnapshot";
 import "./mobile-game-shell.css";
 
 function clearStageIsolation(viewport) {
@@ -59,12 +61,14 @@ export default function MobileGameShell({
   fallback,
   children,
 }) {
-  const stageViewportRef = useRef(null);
   const shellRef = useRef(null);
+  const [stageViewportNode, setStageViewportNode] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const shellMode = useMemo(
     () => getResponsiveMobileShellMode(game, viewport),
     [game, viewport]
   );
+  const runtimeSnapshot = useMobileRuntimeSnapshot(stageViewportNode);
   const profile = useMemo(
     () => getMobileControlProfile(game, locale),
     [game, locale]
@@ -77,7 +81,7 @@ export default function MobileGameShell({
   );
 
   useEffect(() => {
-    const viewportNode = stageViewportRef.current;
+    const viewportNode = stageViewportNode;
     if (!viewportNode) {
       return undefined;
     }
@@ -94,7 +98,29 @@ export default function MobileGameShell({
       observer.disconnect();
       clearStageIsolation(viewportNode);
     };
-  }, [stageSelectors]);
+  }, [stageSelectors, stageViewportNode]);
+
+  useEffect(() => {
+    const syncFullscreen = () => {
+      const currentShell = shellRef.current;
+      setIsFullscreen(
+        Boolean(
+          currentShell &&
+          (document.fullscreenElement === currentShell
+            || document.webkitFullscreenElement === currentShell)
+        )
+      );
+    };
+
+    syncFullscreen();
+    document.addEventListener("fullscreenchange", syncFullscreen);
+    document.addEventListener("webkitfullscreenchange", syncFullscreen);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", syncFullscreen);
+      document.removeEventListener("webkitfullscreenchange", syncFullscreen);
+    };
+  }, []);
 
   const requestFullscreen = async () => {
     const target = shellRef.current;
@@ -125,6 +151,7 @@ export default function MobileGameShell({
     "mobile-game-shell",
     `mobile-game-shell--${isPortrait ? "portrait" : "landscape"}`,
     `mobile-game-shell--${shellMode}`,
+    isFullscreen ? "mobile-game-shell--fullscreen" : "",
     isDualScreen ? "mobile-game-shell--has-controls" : "mobile-game-shell--touch-native",
   ]
     .filter(Boolean)
@@ -153,7 +180,9 @@ export default function MobileGameShell({
               <div className="mobile-game-shell__screen-glass">
                 <div
                   className="mobile-game-shell__stage-viewport"
-                  ref={stageViewportRef}
+                  ref={(node) => {
+                    setStageViewportNode(node);
+                  }}
                 >
                   <Suspense fallback={fallback}>{children}</Suspense>
                 </div>
@@ -165,15 +194,27 @@ export default function MobileGameShell({
             <section className="mobile-game-shell__controls-shell">
               <div className="mobile-game-shell__hinge" aria-hidden="true" />
               <div className="mobile-game-shell__controls-panel">
-                <MobileControlDeck
-                  profile={profile}
-                  scopeElement={stageViewportRef.current}
-                  onRequestFullscreen={requestFullscreen}
-                />
+                <div className="mobile-game-shell__controls-stack">
+                  <MobileGameStatusPanel
+                    locale={locale}
+                    scopeElement={stageViewportNode}
+                    snapshot={runtimeSnapshot}
+                  />
+                  <MobileControlDeck
+                    profile={profile}
+                    scopeElement={stageViewportNode}
+                    onRequestFullscreen={requestFullscreen}
+                  />
+                </div>
               </div>
             </section>
           ) : (
             <section className="mobile-game-shell__touch-copy">
+              <MobileGameStatusPanel
+                locale={locale}
+                scopeElement={stageViewportNode}
+                snapshot={runtimeSnapshot}
+              />
               <strong>{locale === "en" ? "Touch-native mode" : "Modo táctil nativo"}</strong>
               <p>
                 {locale === "en"

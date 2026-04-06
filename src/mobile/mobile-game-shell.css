@@ -134,6 +134,13 @@
   overflow-y: auto;
 }
 
+.mobile-game-shell__controls-stack {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0.7rem;
+}
+
 .mobile-game-shell__hinge {
   position: absolute;
   top: -0.42rem;
@@ -187,6 +194,7 @@
 
 .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] [data-mobile-stage-target="true"] {
   width: 100%;
+  height: 100%;
   max-width: 100%;
   margin: 0 !important;
 }
@@ -195,13 +203,24 @@
 .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] [data-mobile-stage-target="true"] canvas {
   display: block;
   width: 100% !important;
+  height: 100% !important;
   max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .phaser-canvas-host,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .billiards-canvas-host,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .bowling-canvas-host,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-canvas-host {
+  height: 100%;
 }
 
 .mobile-game-shell__touch-copy {
   display: grid;
-  gap: 0.3rem;
-  align-content: center;
+  gap: 0.5rem;
+  align-content: start;
+  overflow-y: auto;
   color: #43372b;
   background:
     radial-gradient(circle at 18% 18%, rgba(45, 212, 191, 0.12), transparent 28%),
@@ -218,6 +237,82 @@
   margin: 0;
   font-size: 0.82rem;
   line-height: 1.45;
+}
+
+.mobile-game-status-panel {
+  display: grid;
+  gap: 0.55rem;
+  color: #2b241d;
+}
+
+.mobile-game-status-panel__header strong,
+.mobile-game-status-panel__menu strong {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mobile-game-status-panel__header p {
+  margin: 0.28rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: #584b40;
+}
+
+.mobile-game-status-panel__chips {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.mobile-game-status-panel__chip {
+  padding: 0.55rem 0.65rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.mobile-game-status-panel__chip span {
+  display: block;
+  font-size: 0.67rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #78685a;
+}
+
+.mobile-game-status-panel__chip strong {
+  display: block;
+  margin-top: 0.14rem;
+  font-size: 0.92rem;
+}
+
+.mobile-game-status-panel__menu {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.mobile-game-status-panel__buttons,
+.mobile-game-status-panel__selects {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.mobile-game-status-panel__buttons {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-game-status-panel__buttons button,
+.mobile-game-status-panel__selects select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(67, 55, 43, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #3f3428;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.65rem 0.75rem;
 }
 
 .mobile-control-deck {
@@ -338,6 +433,11 @@
   min-height: 48px;
 }
 
+.mobile-game-shell--portrait .mobile-game-status-panel__chips,
+.mobile-game-shell--portrait .mobile-game-status-panel__buttons {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .mobile-game-shell__stage-viewport .game-message,
 .mobile-game-shell__stage-viewport .game-log {
   display: none !important;
@@ -393,6 +493,32 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.mobile-game-shell--fullscreen {
+  min-height: 100dvh;
+}
+
+.mobile-game-shell--fullscreen .mobile-game-shell__hardware {
+  padding: 0.28rem;
+  border-radius: 22px;
+  gap: 0.45rem;
+}
+
+.mobile-game-shell--fullscreen .mobile-game-shell__screen-frame,
+.mobile-game-shell--fullscreen .mobile-game-shell__controls-panel,
+.mobile-game-shell--fullscreen .mobile-game-shell__touch-copy {
+  padding: 0.35rem;
+  border-radius: 22px;
+}
+
+.mobile-game-shell--fullscreen .mobile-game-shell__screen-glass {
+  border-radius: 18px;
+}
+
+.mobile-game-shell--fullscreen.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.6fr);
+  gap: 0.45rem;
+}
+
 @media (max-width: 760px) {
   .mobile-game-shell {
     min-height: calc(100svh - 74px);
@@ -415,5 +541,10 @@
 
   .mobile-control-deck__cluster--actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mobile-game-status-panel__chips,
+  .mobile-game-status-panel__buttons {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
