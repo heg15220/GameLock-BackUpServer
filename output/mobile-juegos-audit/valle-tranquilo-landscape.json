@@ -1,0 +1,18 @@
+{
+  "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--has-controls",
+  "statusText": "Arcade",
+  "statusChips": [],
+  "preButtons": [],
+  "preSelects": [],
+  "stageRect": {
+    "x": 22.109375,
+    "y": 121.96875,
+    "width": 482.078125,
+    "height": 235.03125,
+    "top": 121.96875,
+    "right": 504.1875,
+    "bottom": 357,
+    "left": 22.109375
+  },
+  "iframeCount": 1
+}

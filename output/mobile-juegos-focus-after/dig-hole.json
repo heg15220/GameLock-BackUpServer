@@ -1,0 +1,10 @@
+{
+  "statusText": "World Select",
+  "preButtons": [
+    "Selva Enterrada",
+    "Desierto Hundido",
+    "Patio Urbano",
+    "Iniciar en Selva Enterrada"
+  ],
+  "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--has-controls"
+}

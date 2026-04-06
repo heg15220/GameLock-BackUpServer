@@ -664,7 +664,7 @@ export function getMobileControlProfile(game, locale = "es") {
         }),
         rightPad: [
           control("dig", t(locale, "Excava", "Dig"), {
-            type: "tap",
+            type: "hold",
             tone: "primary",
             inputs: [input("KeyK", "k")],
           }),
@@ -675,6 +675,15 @@ export function getMobileControlProfile(game, locale = "es") {
           control("market", t(locale, "Mercado", "Market"), {
             type: "tap",
             inputs: [input("KeyM", "m")],
+          }),
+          control("torch", t(locale, "Antorcha", "Torch"), {
+            type: "tap",
+            inputs: [input("KeyB", "b")],
+          }),
+          control("jetpack", t(locale, "Jetpack", "Jetpack"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyT", "t")],
           }),
         ],
         utilities: utilityRow(locale),
@@ -737,7 +746,11 @@ export function getMobileControlProfile(game, locale = "es") {
       return {
         layout: "split",
         heading: t(locale, "Granja", "Farm"),
-        hint: t(locale, "Muévete, usa la herramienta y habla/interactúa.", "Move, use a tool, and interact."),
+        hint: t(
+          locale,
+          "Muévete, usa la herramienta activa y abre acciones clave sin depender del HUD interno.",
+          "Move, use the active tool, and trigger key actions without relying on the in-game desktop HUD."
+        ),
         leftPad: directionalPad(locale, {
           up: input("ArrowUp", "ArrowUp"),
           left: input("ArrowLeft", "ArrowLeft"),
@@ -752,14 +765,31 @@ export function getMobileControlProfile(game, locale = "es") {
           }),
           control("talk", t(locale, "Habla", "Talk"), {
             type: "tap",
-            inputs: [input("KeyE", "e")],
+            tone: "accent",
+            inputs: [input("Enter", "Enter")],
           }),
           control("shop", t(locale, "Tienda", "Shop"), {
             type: "tap",
             inputs: [input("KeyB", "b")],
           }),
+          control("toolNext", t(locale, "Herram+", "Tool+"), {
+            type: "tap",
+            inputs: [input("Tab", "Tab")],
+          }),
+          control("toolPrev", t(locale, "Herram-", "Tool-"), {
+            type: "tap",
+            inputs: [input("KeyQ", "q")],
+          }),
+          control("sleep", t(locale, "Dormir", "Sleep"), {
+            type: "tap",
+            inputs: [input("KeyZ", "z")],
+          }),
+          control("mine", t(locale, "Mina", "Mine"), {
+            type: "tap",
+            inputs: [input("KeyM", "m")],
+          }),
         ],
-        utilities: utilityRow(locale),
+        utilities: [fullscreenControl(locale)],
       };
     default:
       return {

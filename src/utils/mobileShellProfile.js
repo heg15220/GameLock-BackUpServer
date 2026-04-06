@@ -1,4 +1,10 @@
-export const MOBILE_SHELL_CATEGORIES = new Set(["Arcade", "Deportes", "Sports"]);
+export const MOBILE_SHELL_CATEGORIES = new Set([
+  "Arcade",
+  "Juegos",
+  "Games",
+  "Deportes",
+  "Sports",
+]);
 
 export const MOBILE_FIRST_GAME_IDS = new Set([
   "arcade-orchard-match-blast",

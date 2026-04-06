@@ -1,0 +1,19 @@
+{
+  "dig": {
+    "leftDirection": false,
+    "digTarget": {
+      "x": 896,
+      "y": 377.3
+    },
+    "player": {
+      "x": 886,
+      "y": 304,
+      "vx": 0,
+      "vy": 0,
+      "facing": 1
+    },
+    "messageVisible": true,
+    "staminaVisible": true,
+    "messageText": "Todavía hay luz suficiente aquí."
+  }
+}

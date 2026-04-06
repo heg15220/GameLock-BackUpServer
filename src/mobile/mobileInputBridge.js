@@ -17,28 +17,40 @@ function deriveKeyFromCode(code) {
   return code;
 }
 
+const TAP_RELEASE_MS = 90;
+
 function collectTargets(scopeElement) {
-  const targets = [];
-  if (typeof window !== "undefined") {
-    targets.push(window);
-  }
-
-  if (!scopeElement) {
-    return targets;
-  }
-
-  const frames = scopeElement.querySelectorAll("iframe");
-  frames.forEach((frame) => {
-    try {
-      if (frame.contentWindow) {
-        targets.push(frame.contentWindow);
+  const frameTargets = [];
+  if (scopeElement) {
+    const frames = scopeElement.querySelectorAll("iframe");
+    frames.forEach((frame) => {
+      try {
+        if (frame.contentWindow) {
+          frameTargets.push(frame.contentWindow);
+        }
+      } catch {
+        // Ignore cross-origin or not-ready frames.
       }
-    } catch {
-      // Ignore cross-origin or not-ready frames.
-    }
-  });
+    });
+  }
 
-  return targets;
+  if (frameTargets.length) {
+    return frameTargets;
+  }
+
+  return typeof window !== "undefined" ? [window] : [];
+}
+
+function createKeyboardEvent(targetWindow, type, input) {
+  const KeyboardEventCtor = targetWindow?.KeyboardEvent ?? KeyboardEvent;
+  return new KeyboardEventCtor(type, {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    code: input.code,
+    key: input.key ?? deriveKeyFromCode(input.code),
+    repeat: false,
+  });
 }
 
 function dispatchKeyboardEvent(targetWindow, type, input) {
@@ -46,22 +58,14 @@ function dispatchKeyboardEvent(targetWindow, type, input) {
     return;
   }
 
-  const init = {
-    bubbles: true,
-    cancelable: true,
-    composed: true,
-    code: input.code,
-    key: input.key ?? deriveKeyFromCode(input.code),
-    repeat: false,
-  };
-
   try {
     targetWindow.focus?.();
   } catch {
     // Best effort only.
   }
 
-  targetWindow.dispatchEvent(new KeyboardEvent(type, init));
+  const dispatchTarget = targetWindow.document ?? targetWindow;
+  dispatchTarget.dispatchEvent?.(createKeyboardEvent(targetWindow, type, input));
 }
 
 export function tapInputs(inputs, scopeElement) {
@@ -69,9 +73,11 @@ export function tapInputs(inputs, scopeElement) {
   targets.forEach((targetWindow) => {
     inputs.forEach((input) => dispatchKeyboardEvent(targetWindow, "keydown", input));
   });
-  targets.forEach((targetWindow) => {
-    inputs.forEach((input) => dispatchKeyboardEvent(targetWindow, "keyup", input));
-  });
+  window.setTimeout(() => {
+    collectTargets(scopeElement).forEach((targetWindow) => {
+      inputs.forEach((input) => dispatchKeyboardEvent(targetWindow, "keyup", input));
+    });
+  }, TAP_RELEASE_MS);
 }
 
 export function holdInputs(inputs, scopeElement, active, nextValue) {

@@ -1,0 +1,33 @@
+{
+  "stageRect": {
+    "x": 22.109375,
+    "y": 121.96875,
+    "width": 482.078125,
+    "height": 235.03125,
+    "top": 121.96875,
+    "right": 504.1875,
+    "bottom": 357,
+    "left": 22.109375
+  },
+  "panelRect": {
+    "x": 531.375,
+    "y": 121.96875,
+    "width": 290.515625,
+    "height": 182.796875,
+    "top": 121.96875,
+    "right": 821.890625,
+    "bottom": 304.765625,
+    "left": 531.375
+  },
+  "statusText": null,
+  "preButtons": [],
+  "controlLabels": [],
+  "frameInfo": {
+    "htmlClass": "mobile-shell-embed mobile-shell-landscape",
+    "bodyClass": "mobile-shell-embed mobile-shell-landscape",
+    "appGrid": null,
+    "botDisplay": null,
+    "leftDisplay": null,
+    "rightDisplay": null
+  }
+}

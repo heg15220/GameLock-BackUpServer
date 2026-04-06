@@ -1,0 +1,51 @@
+{
+  "bodyClass": null,
+  "appRect": null,
+  "modalOpen": true,
+  "visibleButtons": [
+    {
+      "text": "Puesto",
+      "id": "surfaceBtn"
+    },
+    {
+      "text": "Inventario",
+      "id": "inventoryBtn"
+    },
+    {
+      "text": "Pantalla completa",
+      "id": "fullscreenBtn"
+    },
+    {
+      "text": "Mundo 1\n          Selva Enterrada\n          Tierra húmeda continua, raíces suaves y minerales verdes incrustados.\n          El subsuelo es tierra continua de selva, sin bloques visibles.La piedra puede aparecer a cualquier profundidad como material base.Las vetas aparecen incrustadas a medida que abres huecos en la pared.\n          \n            0 m mejor descenso\n            Hallazgo pendiente",
+      "id": null
+    },
+    {
+      "text": "Mundo 2\n          Desierto Hundido\n          Arena en la superficie y cerca de ella, con vetas minerales atrapadas en la duna compacta.\n          La capa alta y cercana a la superficie es arena casi completa.La piedra sigue apareciendo incluso en las capas profundas.La arena se compacta en profundidad, pero sigue sin verse cuadriculada.Sal, cobre, turquesa y ópalo aparecen incrustados en la pared.\n          \n            0 m mejor descenso\n            Hallazgo pendiente",
+      "id": null
+    },
+    {
+      "text": "Mundo 3\n          Patio Urbano\n          Bajo la urbanización solo hay tierra removida, con restos y minerales mezclados en la pared.\n          La urbanización se abre sobre una masa de tierra uniforme.La piedra también aparece aquí como material más frecuente.La tierra se va vaciando a mano y deja restos y vetas incrustadas visibles.\n          \n            0 m mejor descenso\n            Hallazgo pendiente",
+      "id": null
+    },
+    {
+      "text": "Iniciar en Selva Enterrada",
+      "id": "startButton"
+    },
+    {
+      "text": "Volver",
+      "id": "closePanelBtn"
+    },
+    {
+      "text": "Abrir cofre",
+      "id": "openChestButton"
+    },
+    {
+      "text": "Reintentar mundo",
+      "id": "restartButton"
+    },
+    {
+      "text": "Volver a mundos",
+      "id": "returnWorldsButton"
+    }
+  ]
+}

@@ -429,6 +429,18 @@
   gap: 0.45rem;
 }
 
+.mobile-game-status-panel__selects label {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.mobile-game-status-panel__selects label > span {
+  color: #6c5a47;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .mobile-game-status-panel__buttons {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -444,6 +456,40 @@
   font: inherit;
   font-weight: 700;
   padding: 0.65rem 0.75rem;
+}
+
+.mobile-game-status-panel__buttons button.is-selected {
+  background: rgba(102, 187, 106, 0.22);
+  border-color: rgba(68, 131, 73, 0.42);
+}
+
+.mobile-game-status-panel__detail-list {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.mobile-game-status-panel__detail-item {
+  display: grid;
+  gap: 0.14rem;
+  padding: 0.58rem 0.7rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.mobile-game-status-panel__detail-item strong {
+  font-size: 0.84rem;
+  color: #3f3428;
+}
+
+.mobile-game-status-panel__detail-item span {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #6e5f52;
+}
+
+.mobile-game-status-panel__detail-item.is-empty strong {
+  color: #76675b;
 }
 
 .mobile-control-deck {

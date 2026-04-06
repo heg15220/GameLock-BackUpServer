@@ -1,0 +1,92 @@
+{
+  "bodyClass": "spring morning",
+  "appRect": {
+    "x": 0,
+    "y": 0,
+    "width": 341,
+    "height": 367,
+    "top": 0,
+    "right": 341,
+    "bottom": 367,
+    "left": 0
+  },
+  "modalOpen": true,
+  "visibleButtons": [
+    {
+      "text": "⌨ ?",
+      "id": "kb-help-btn"
+    },
+    {
+      "text": "🚿Regar -3⚡",
+      "id": "tb-water"
+    },
+    {
+      "text": "⛏️Labrar -4⚡",
+      "id": "tb-hoe"
+    },
+    {
+      "text": "🌱Plantar -2⚡",
+      "id": "tb-plant"
+    },
+    {
+      "text": "🧺Cosechar -2⚡",
+      "id": "tb-harvest"
+    },
+    {
+      "text": "🪓Talar -6⚡",
+      "id": "tb-axe"
+    },
+    {
+      "text": "⚒️Picar -6⚡",
+      "id": "tb-pickaxe"
+    },
+    {
+      "text": "🎣Pescar -5⚡",
+      "id": "tb-fish"
+    },
+    {
+      "text": "🪨Camino -1⚡",
+      "id": "tb-path"
+    },
+    {
+      "text": "🪵Valla -1⚡",
+      "id": "tb-fence"
+    },
+    {
+      "text": "Ver plan",
+      "id": "guide-open"
+    },
+    {
+      "text": "Saltar paso",
+      "id": "guide-next"
+    },
+    {
+      "text": "🏪 Tienda",
+      "id": null
+    },
+    {
+      "text": "🌙 Dormir",
+      "id": null
+    },
+    {
+      "text": "⛏️ Mina",
+      "id": "mine-btn"
+    },
+    {
+      "text": "💾 Guardar",
+      "id": "save-btn"
+    },
+    {
+      "text": "[ COMENZAR A JUGAR ]",
+      "id": "intro-start-btn"
+    },
+    {
+      "text": "[ IMPORTAR CODIGO ]",
+      "id": "intro-import-btn"
+    },
+    {
+      "text": "[ CERRAR ]",
+      "id": "m-close"
+    }
+  ]
+}

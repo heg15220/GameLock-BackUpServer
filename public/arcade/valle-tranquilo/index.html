@@ -10,7 +10,6 @@
 body{background:#000;overflow:hidden;width:100vw;height:100vh;font-family:'VT323',monospace;color:#f0e0c0}
 #app{display:grid;grid-template-rows:46px 1fr 112px;grid-template-columns:188px 1fr 188px;height:100vh;width:100vw}
 
-/* â”€â”€ HUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #hud{grid-column:1/-1;background:#12080200;border-bottom:3px solid #6a3c10;box-shadow:0 2px 0 #c08030,inset 0 1px 0 rgba(255,200,80,.08);display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:relative;z-index:20;backdrop-filter:blur(2px)}
 #hud::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(60,30,5,.95),rgba(30,15,3,.98));z-index:-1}
 .hud-g{display:flex;align-items:center;gap:8px}
@@ -26,7 +25,6 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 #efill{height:100%;background:linear-gradient(90deg,#30b830,#70f050);transition:width .3s}
 #efill::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(255,255,255,.12) 5px,rgba(255,255,255,.12) 6px)}
 
-/* â”€â”€ PANELS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #pl,#pr{padding:9px 8px;display:flex;flex-direction:column;gap:5px;overflow-y:auto;overflow-x:hidden;position:relative;z-index:15}
 #pl{background:linear-gradient(180deg,rgba(18,8,2,.97),rgba(24,12,4,.97));border-right:3px solid #6a3c10;box-shadow:2px 0 0 #c08030}
 #pr{background:linear-gradient(180deg,rgba(18,8,2,.97),rgba(24,12,4,.97));border-left:3px solid #6a3c10;box-shadow:-2px 0 0 #c08030}
@@ -55,7 +53,6 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 .qt{font-family:'VT323';font-size:14px}
 .qm{font-family:'VT323';font-size:11px;color:#706050}
 
-/* â”€â”€ VIEWPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #vp{grid-column:2;grid-row:2;position:relative;overflow:hidden;background:#000}
 #sc,#gc,#fc{position:absolute;inset:0}
 #sc{z-index:0}
@@ -77,7 +74,6 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 #guide-window.done #guide-title{color:#70d070}
 #guide-window.done #guide-progress-fill{background:linear-gradient(90deg,#40b050,#8be080)}
 
-/* â”€â”€ BOTTOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #bot{grid-column:1/-1;background:linear-gradient(180deg,rgba(18,8,2,.98),rgba(10,5,2,.99));border-top:3px solid #6a3c10;box-shadow:0 -2px 0 #c08030;display:flex;align-items:stretch}
 #invw{flex:1;display:flex;align-items:center;gap:3px;padding:7px 10px;border-right:2px solid #3a2008;flex-wrap:wrap}
 .is{width:46px;height:46px;background:rgba(255,255,255,.03);border:2px solid #4a2c0c;box-shadow:2px 2px 0 #000,inset 0 1px 0 rgba(255,200,80,.03);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:18px;border-radius:1px}
@@ -96,7 +92,6 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 .ab.g{border-color:#c09020;color:#f0c030}
 .ab.b{border-color:#5080c0;color:#90b8f0}
 
-/* â”€â”€ MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #mb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
 #mb.on{opacity:1;pointer-events:all}
 #mx{background:rgba(14,7,2,.98);border:3px solid #6a3c10;box-shadow:4px 4px 0 #000,6px 6px 0 #c08030,inset 0 0 0 1px rgba(255,200,80,.04);padding:20px 22px;min-width:330px;max-width:490px;max-height:78vh;overflow-y:auto;transform:scale(.93);transition:transform .15s;position:relative}
@@ -117,13 +112,11 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 .db{background:#100800;border:2px solid #c08030;box-shadow:3px 3px 0 #000;padding:12px 14px;font-family:'VT323';font-size:16px;line-height:1.6}
 .dn{font-family:'Press Start 2P';font-size:7px;color:#f0c030;margin-bottom:7px}
 
-/* â”€â”€ SLEEP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #ss{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0);pointer-events:none;transition:background 1.3s;display:flex;align-items:center;justify-content:center}
 #ss.on{background:#000;pointer-events:all}
 #st{font-family:'Press Start 2P';font-size:11px;color:#f0c030;opacity:0;transition:opacity .8s;text-align:center;line-height:2.3;text-shadow:2px 2px 0 #502000}
 #ss.on #st{opacity:1}
 
-/* â”€â”€ NOTIFS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #ns{position:fixed;top:54px;right:11px;z-index:50;display:flex;flex-direction:column;gap:4px}
 .np{background:rgba(14,7,2,.96);border:2px solid #4a2c0c;box-shadow:3px 3px 0 #000;padding:6px 11px;font-family:'VT323';font-size:15px;max-width:230px;animation:pin .2s,pout .4s 2.6s forwards}
 .np.good{border-color:#50a830;color:#90e060}
@@ -133,7 +126,6 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 @keyframes pout{to{transform:translateX(110%);opacity:0}}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#080404}::-webkit-scrollbar-thumb{background:#4a2c0c}
 
-/* —— RESPONSIVE FIT —— */
 #app{
   grid-template-rows:calc(46px * var(--ui-scale)) minmax(0,1fr) calc(112px * var(--ui-scale));
   grid-template-columns:calc(188px * var(--ui-scale)) minmax(0,1fr) calc(188px * var(--ui-scale));
@@ -260,6 +252,71 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
   .ab{text-align:center;padding-left:calc(8px * var(--ui-scale));padding-right:calc(8px * var(--ui-scale))}
   .intro-actions .mcb{flex:1 1 100%}
 }
+
+html.mobile-shell-embed body{overflow:hidden;background:#000}
+html.mobile-shell-embed #app{
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:calc(34px * var(--ui-scale)) minmax(0,1fr);
+  height:100%;
+}
+html.mobile-shell-embed #pl,
+html.mobile-shell-embed #pr,
+html.mobile-shell-embed #bot,
+html.mobile-shell-embed #guide-window,
+html.mobile-shell-embed #ctxhint,
+html.mobile-shell-embed #kb-help-chip{display:none!important}
+html.mobile-shell-embed #hud{
+  grid-column:1;
+  padding:0 8px;
+  gap:6px;
+  border-bottom-width:2px;
+}
+html.mobile-shell-embed #title{font-size:7px}
+html.mobile-shell-embed .chip{padding:2px 6px;font-size:12px}
+html.mobile-shell-embed #stag{font-size:5px;padding:2px 6px}
+html.mobile-shell-embed #ebar{width:52px;height:8px}
+html.mobile-shell-embed #vp{grid-column:1;grid-row:2}
+html.mobile-shell-embed #ctool{
+  bottom:6px;
+  right:6px;
+  padding:2px 7px;
+  font-size:11px;
+}
+html.mobile-shell-embed #kb-help-btn{
+  padding:2px 6px!important;
+  font-size:11px!important;
+}
+html.mobile-shell-embed #mb{
+  align-items:flex-start;
+  padding:10px;
+}
+html.mobile-shell-embed #mx{
+  width:min(100%,460px);
+  min-width:0;
+  max-width:100%;
+  max-height:100%;
+  padding:14px;
+}
+html.mobile-shell-embed .intro-copy{
+  max-height:min(42vh,220px);
+  font-size:14px;
+  line-height:1.45;
+}
+html.mobile-shell-embed .intro-actions{
+  gap:8px;
+}
+html.mobile-shell-embed .intro-actions .mcb{
+  flex:1 1 100%;
+}
+html.mobile-shell-embed.mobile-shell-landscape #app{
+  grid-template-rows:30px minmax(0,1fr);
+}
+html.mobile-shell-embed.mobile-shell-landscape #hud{
+  padding:0 6px;
+}
+html.mobile-shell-embed.mobile-shell-landscape .chip{
+  font-size:11px;
+}
 </style>
 </head>
 <body class="spring day">
@@ -343,9 +400,6 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 <div id="ns"></div>
 
 <script>
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  DATA
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const SEASONS=['spring','summer','autumn','winter'];
 const SN={spring:'Primavera',summer:'Verano',autumn:'OtoÃ±o',winter:'Invierno'};
 const SN_EN={spring:'Spring',summer:'Summer',autumn:'Autumn',winter:'Winter'};
@@ -820,9 +874,6 @@ function addBundle(out={}){
   Object.entries(out).forEach(([k,v])=>addInv(k,v));
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  GAME STATE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const DEFAULT_RELATIONS={elena:0,marco:0,luna:0,felix:0,nora:0};
 const DEFAULT_SKILLS={farming:0,fishing:0,mining:0,foraging:0,social:0};
 const DEFAULT_STORAGE=()=>({woodChest:{},oreChest:{},pantry:{}});
@@ -970,12 +1021,6 @@ function openGuideModal(){
   openM(IS_ES?'🧭 PLAN DE GUIA':'🧭 GUIDE PLAN',IS_ES?'Pasos recomendados para avanzar sin perderte.':'Recommended steps so players always know what to do.',body);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  MAP  (20 cols Ã— 14 rows for a rich world)
-//  G=grass  T=tree  W=water  D=deep-water  R=rock  H=house
-//  P=stone-path  F=fence  S=soil  f=flower  M=mountain
-//  b=barn  w=wild  u=well  L=lamp
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let GW=20,GH=14;
 let ACTIVE_MAP_ID='farm';
 let ACTIVE_MAP=null;
@@ -1562,9 +1607,6 @@ function leaveInterior(){
   scrollToPlayer();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  CANVAS SETUP
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const TW=56, TH=56;      // tile footprint â€” bigger = sharper detail
 const ISO_Y=26;          // how much the "top face" is squished (oblique factor)
 const WALL_H=22;         // visible front face height of blocks
@@ -1579,7 +1621,6 @@ function resize(){
   const isFullscreen=!!document.fullscreenElement;
   perfLite=isFullscreen&&cw*ch>=960000;
   const dpr=window.devicePixelRatio||1;
-  // In fullscreen, reduce internal render resolution to avoid stutters on large monitors.
   const maxDpr=isFullscreen?(perfLite?0.78:0.9):1.5;
   renderDpr=Math.max(0.72,Math.min(dpr,maxDpr));
   ['sc','gc','fc'].forEach(id=>{
@@ -1590,16 +1631,13 @@ function resize(){
   sCtx=document.getElementById('sc').getContext('2d');
   gCtx=document.getElementById('gc').getContext('2d');
   fCtx=document.getElementById('fc').getContext('2d');
-  // Scale for HiDPI (with capped DPR) and reset transform to avoid accumulation.
   [sCtx,gCtx,fCtx].forEach(ctx=>{ctx.setTransform(1,0,0,1,0,0);ctx.scale(renderDpr,renderDpr);});
-  // Crisp pixel rendering â€” disable all antialiasing
   [sCtx,gCtx,fCtx].forEach(ctx=>{
     ctx.imageSmoothingEnabled=false;
     ctx.mozImageSmoothingEnabled=false;
     ctx.webkitImageSmoothingEnabled=false;
     ctx.msImageSmoothingEnabled=false;
   });
-  // center the grid
   ox=Math.floor((cw-GW*TW)/2);
   oy=Math.floor((ch-GH*TH)/2);
   targetOx=ox;
@@ -1607,9 +1645,6 @@ function resize(){
   skyCacheFrame=-1;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  COLOR PALETTES  (top / front / shadow / highlight)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const PAL={
   G:  {top:'#4a9838',top2:'#3d8230',top3:'#5db040',sh:'#2d6820',hi:'#72c050',fr:'#2a7020',frD:'#1a5010'},
   w:  {top:'#2e6e22',top2:'#265c1c',top3:'#388228',sh:'#1a4a12',hi:'#48922e',fr:'#1a5010',frD:'#102c08'},
@@ -1654,25 +1689,21 @@ function tileSeed(col,row){
   return v>>>0;
 }
 
-// â”€â”€â”€ OBLIQUE TILE (top face + front face) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function drawObliqueTile(ctx,col,row,p,h=WALL_H,extraH=0){
   const x=ox+col*TW, y=oy+row*TH;
   const seed=tileSeed(col,row);
 
-  // Top-down base closer to Stardew-like perspective
   ctx.fillStyle=p.top2;
   ctx.fillRect(x,y,TW,TH);
   ctx.fillStyle=p.top;
   ctx.fillRect(x+1,y+1,TW-2,TH-2);
 
-  // Horizontal pixel bands to avoid a flat look
   ctx.fillStyle=p.top3||p.top;
   for(let by=3;by<TH-3;by+=6){
     const w=TW-4-(((seed+by*13)&1)?1:0);
     ctx.fillRect(x+2,y+by,w,2);
   }
 
-  // Fine texture + highlights
   ctx.fillStyle=p.sh;
   for(let i=0;i<18;i++){
     const tx=x+2+((seed+i*37)%(TW-4));
@@ -1686,7 +1717,6 @@ function drawObliqueTile(ctx,col,row,p,h=WALL_H,extraH=0){
     ctx.fillRect(tx,ty,2,1);
   }
 
-  // Tile contour
   ctx.fillStyle='rgba(255,255,255,0.12)';
   ctx.fillRect(x,y,TW-1,1);
   ctx.fillRect(x,y,1,TH-1);
@@ -1695,7 +1725,6 @@ function drawObliqueTile(ctx,col,row,p,h=WALL_H,extraH=0){
   ctx.fillRect(x+TW-2,y,2,TH);
 }
 
-// â”€â”€â”€ DITHERING HELPER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function dither(ctx,x,y,w,h,c1,c2,density=3){
   ctx.fillStyle=c2;
   for(let dy=0;dy<h;dy+=density){
@@ -1705,7 +1734,6 @@ function dither(ctx,x,y,w,h,c1,c2,density=3){
   }
 }
 
-// flat tile variant (for paths, water etc â€” no front face)
 function drawFlatTile(ctx,col,row,p,h=ISO_Y){
   const x=ox+col*TW, y=oy+row*TH;
   const hh=Math.max(1,Math.round(h));
@@ -1728,7 +1756,6 @@ function drawFlatTile(ctx,col,row,p,h=ISO_Y){
   ctx.fillRect(x+TW-1,y,1,hh);
 }
 
-// â”€â”€â”€ CAST SHADOW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function drawShadow(ctx,col,row,w,h,opacity=0.35){
   ctx.fillStyle=`rgba(0,0,0,${opacity})`;
   ctx.beginPath();
@@ -1736,9 +1763,6 @@ function drawShadow(ctx,col,row,w,h,opacity=0.35){
   ctx.fill();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  SKY RENDERING
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let clouds=[];
 function initClouds(){
   clouds=[];
@@ -1796,7 +1820,6 @@ function drawSky(t){
   sCtx.fillStyle=g;
   sCtx.fillRect(0,0,cw,ch);
 
-  // Stars
   if(tod==='night'||tod==='evening'){
     const a=tod==='night'?1:.35;
     stars2.forEach((s,i)=>{
@@ -1811,7 +1834,6 @@ function drawSky(t){
   }
   if(tod==='morning'||tod==='day'){drawSun2(tod);}
 
-  // Clouds
   const dark=G.weather==='stormy'||G.weather==='rainy';
   sCtx.globalAlpha=dark?.85:.5;
   clouds.forEach((c,i)=>{
@@ -1821,7 +1843,6 @@ function drawSky(t){
   });
   sCtx.globalAlpha=1;
 
-  // Ambient color overlay per season/time
   const AMBIENT={morning:'rgba(255,180,80,.06)',day:'rgba(220,240,255,.04)',evening:'rgba(255,120,30,.12)',night:'rgba(20,10,40,.25)'};
   sCtx.fillStyle=AMBIENT[tod];
   sCtx.fillRect(0,0,cw,ch);
@@ -1861,12 +1882,10 @@ function fillPxCircle(ctx,cx,cy,r){
   for(let y=-r;y<=r;y++) for(let x=-r;x<=r;x++) if(x*x+y*y<=r*r) ctx.fillRect(Math.round(cx+x),Math.round(cy+y),1,1);
 }
 
-// â”€â”€â”€ PATH STONES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function drawPathStones(col,row){
   const x=ox+col*TW, y=oy+row*TH;
   const seed=tileSeed(col,row);
 
-  // Dirt under-cobble base
   gCtx.fillStyle='#7e6344';
   gCtx.fillRect(x+1,y+1,TW-2,TH-2);
 
@@ -1889,16 +1908,12 @@ function drawPathStones(col,row){
     gCtx.fillRect(x+sx+offX+sw-1,y+sy+offY,1,sh);
   });
 
-  // Dirt edge if path is not connected
   if(!isType(col,row-1,'P')){ gCtx.fillStyle='rgba(88,60,34,0.45)'; gCtx.fillRect(x,y,TW,3); }
   if(!isType(col,row+1,'P')){ gCtx.fillStyle='rgba(88,60,34,0.45)'; gCtx.fillRect(x,y+TH-3,TW,3); }
   if(!isType(col-1,row,'P')){ gCtx.fillStyle='rgba(88,60,34,0.4)'; gCtx.fillRect(x,y,3,TH); }
   if(!isType(col+1,row,'P')){ gCtx.fillStyle='rgba(88,60,34,0.4)'; gCtx.fillRect(x+TW-3,y,3,TH); }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  TILE + DECORATION DRAWING
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function drawTile(col,row,cell,hov,t){
   const tp=cell.t;
   const p=getPal(tp,cell);
@@ -2066,7 +2081,6 @@ function drawGrassBlades(col,row,t){
     gCtx.fillRect(x+bx+sw,y+by,2,1);
   });
 
-  // tiny white wild flowers in spring/summer
   if(sn!=='autumn'&&((seed>>>4)&3)===0){
     gCtx.fillStyle='#f6f4df';
     gCtx.fillRect(x+12,y+28,2,2);
@@ -2246,7 +2260,6 @@ function drawHouse(col,row,t){
     return;
   }
 
-  // Wall (bottom row)
   gCtx.fillStyle='#b8814d';
   gCtx.fillRect(x+1,y+2,TW-2,TH-10);
   gCtx.fillStyle='#cd9664';
@@ -2261,7 +2274,6 @@ function drawHouse(col,row,t){
   gCtx.fillStyle='#8a8c90';
   gCtx.fillRect(x+3,y+TH-9,TW-6,4);
 
-  // Window / door by quadrant
   if(partX===0){
     gCtx.fillStyle='#3b1b0b';
     gCtx.fillRect(x+9,y+14,18,15);
@@ -2333,7 +2345,6 @@ function drawBarn(col,row,t){
   gCtx.fillRect(x+3,y+TH-9,TW-6,4);
 
   if(partX===0){
-    // hay stack
     gCtx.fillStyle='#c7943a';
     gCtx.fillRect(x+7,y+20,16,12);
     gCtx.fillStyle='#ddb15a';
@@ -2342,7 +2353,6 @@ function drawBarn(col,row,t){
     gCtx.fillRect(x+8,y+25,14,2);
     gCtx.fillRect(x+13,y+21,2,9);
   } else {
-    // barn door
     gCtx.fillStyle='#5f2b17';
     gCtx.fillRect(x+12,y+12,18,TH-14);
     gCtx.fillStyle='#7f3c22';
@@ -2588,7 +2598,6 @@ function drawFruitTreeSprite(col,row,cell,t){
   }
 }
 
-// â”€â”€â”€ CROP SPRITE (pseudo-3D) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function drawCropSprite(col,row,cell,t){
   const x=ox+col*TW, y=oy+row*TH;
   const cr=CROPS[cell.crop];
@@ -2596,7 +2605,6 @@ function drawCropSprite(col,row,cell,t){
   const sway=Math.sin(t*1.1+cell.ao)*1.8;
   const sn=SEASONS[G.sIdx];
 
-  // Crop colors
   const CC={
     turnip:{s:'#60a030',m:'#80c040',f:'#f0e020',fr:'#e0c810'},
     potato:{s:'#70a838',m:'#90c848',f:'#d09030',fr:'#b87020'},
@@ -2610,20 +2618,16 @@ function drawCropSprite(col,row,cell,t){
   const cc=CC[cell.crop]||CC.turnip;
 
   if(prog<.25){
-    // Tiny sprout
     gCtx.fillStyle='#30780c';
     gCtx.fillRect(x+19+sway,y+26,3,10);
     gCtx.fillStyle=cc.s;
     gCtx.fillRect(x+16+sway,y+22,5,6);
     gCtx.fillRect(x+21+sway,y+24,5,6);
   } else if(prog<.6){
-    // Young plant with shadow
     gCtx.fillStyle='rgba(0,0,0,.15)';
     gCtx.beginPath(); gCtx.ellipse(x+TW/2,y+ISO_Y+6,TW*.28,4,0,0,Math.PI*2); gCtx.fill();
-    // stem
     gCtx.fillStyle='#3a7818';
     gCtx.fillRect(x+20+sway,y+20,4,18);
-    // leaves
     gCtx.fillStyle=cc.s;
     gCtx.fillRect(x+12+sway,y+16,10,8);
     gCtx.fillRect(x+24+sway,y+18,10,8);
@@ -2632,28 +2636,22 @@ function drawCropSprite(col,row,cell,t){
     gCtx.fillRect(x+22+sway,y+16,10,8);
     gCtx.fillRect(x+17+sway,y+10,10,10);
   } else {
-    // Mature
     gCtx.fillStyle='rgba(0,0,0,.2)';
     gCtx.beginPath(); gCtx.ellipse(x+TW/2,y+ISO_Y+8,TW*.38,6,0,0,Math.PI*2); gCtx.fill();
-    // main stem
     gCtx.fillStyle='#2e6210';
     gCtx.fillRect(x+19+sway*.5,y+16,6,24);
-    // big leaves
     gCtx.fillStyle=cc.s;
     gCtx.fillRect(x+8+sway,y+12,12,10); gCtx.fillRect(x+26+sway,y+14,12,10);
     gCtx.fillStyle=cc.m;
     gCtx.fillRect(x+10+sway,y+10,12,10); gCtx.fillRect(x+24+sway,y+12,12,10);
     gCtx.fillRect(x+15+sway,y+4,14,12);
-    // leaf highlight
     gCtx.fillStyle='rgba(255,255,255,.1)';
     gCtx.fillRect(x+16+sway,y+5,6,5);
     if(prog>=1){
-      // Fruit/veggie
       gCtx.fillStyle=cc.fr;
       gCtx.fillRect(x+12+sway,y+26,10,10); gCtx.fillRect(x+26+sway,y+28,10,10);
       gCtx.fillStyle=cc.f;
       gCtx.fillRect(x+13+sway,y+27,8,8); gCtx.fillRect(x+27+sway,y+29,8,8);
-      // sparkle
       const gl=.4+.4*Math.sin(t*4+cell.ao);
       gCtx.fillStyle=`rgba(255,255,100,${gl})`;
       gCtx.fillRect(x+TW-8,y+1,6,6);
@@ -2667,14 +2665,12 @@ function drawCropSprite(col,row,cell,t){
       gCtx.fillRect(x+18+sway,y+29,6,6);
     }
   }
-  // Wet indicator
   if(cell.wet){
     gCtx.fillStyle='rgba(80,160,255,.35)';
     gCtx.fillRect(x+2,y+ISO_Y,TW-4,TH-ISO_Y);
     gCtx.fillStyle='rgba(100,180,255,.5)';
     gCtx.fillRect(x+6,y+ISO_Y+4,4,3); gCtx.fillRect(x+20,y+ISO_Y+8,4,3); gCtx.fillRect(x+32,y+ISO_Y+4,4,3);
   }
-  // Growth progress bar
   const bw=TW-8;
   gCtx.fillStyle='rgba(0,0,0,.5)';
   gCtx.fillRect(x+4,y+TH-6,bw,4);
@@ -2682,7 +2678,6 @@ function drawCropSprite(col,row,cell,t){
   gCtx.fillRect(x+4,y+TH-6,Math.round(bw*prog),4);
 }
 
-// â”€â”€â”€ HOVER OVERLAY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function drawHoverOverlay(col,row){
   const x=ox+col*TW, y=oy+row*TH;
   gCtx.globalAlpha=.18;
@@ -2694,7 +2689,6 @@ function drawHoverOverlay(col,row){
   gCtx.strokeRect(x+1,y+1,TW-2,TH-2);
 }
 
-// â”€â”€â”€ PLAYER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TOOL_ORDER=['water','hoe','plant','harvest','axe','pickaxe','fish','path','fence'];
 const WALKABLE_TILES=new Set(['G','S','P','f','w','u','I','X','A']);
 let pPos={col:5,row:7},pDir=1,pFacing={dc:1,dr:0},walkStep=0,lastPosCol=5,lastPosRow=7;
@@ -2702,7 +2696,6 @@ let pAnim={fromCol:5,fromRow:7,toCol:5,toRow:7,start:0,dur:120,active:false};
 let autoPath=[],queuedActionIdx=null,queuedInteractNpcId=null,queuedPortalId=null,lastAutoStepAt=0;
 let fishingFx=null;
 let fishingCast=null;
-// Footstep dust particles
 let footDust=[];
 function spawnFootDust(x,y){
   for(let i=0;i<3;i++) footDust.push({x:x+Math.random()*8-4,y:y,life:8,vx:(Math.random()-.5)*.5,vy:-Math.random()*.3});
@@ -3084,17 +3077,14 @@ function drawPlayer(t,renderPos=null){
   gCtx.fillStyle='rgba(0,0,0,0.34)';
   gCtx.beginPath(); gCtx.ellipse(x+8,by+28,10,4,0,0,Math.PI*2); gCtx.fill();
 
-  // Boots + legs
   gCtx.fillStyle='#272017'; gCtx.fillRect(x+1,by+24,6,5); gCtx.fillRect(x+9,by+24,6,5);
   gCtx.fillStyle='#31579e'; gCtx.fillRect(x+2,by+16,5,10); gCtx.fillRect(x+9,by+16,5,10);
 
-  // Body
   gCtx.fillStyle='#496fb7'; gCtx.fillRect(x+1,by+5,14,13);
   gCtx.fillStyle='#d04a2f'; gCtx.fillRect(x+3,by+5,10,7);
   gCtx.fillStyle='#5f8acc'; gCtx.fillRect(x+4,by+6,8,6);
   gCtx.fillStyle='#f0c44e'; gCtx.fillRect(x+6,by+17,4,2);
 
-  // Arms
   const armSwing=Math.sin(t*4)*2;
   gCtx.fillStyle='#d04a2f';
   gCtx.fillRect(x-2+Math.round(armSwing*pDir),by+6,4,8);
@@ -3103,14 +3093,12 @@ function drawPlayer(t,renderPos=null){
   gCtx.fillRect(x-2+pDir,by+13,4,4);
   gCtx.fillRect(x+14-pDir,by+13,4,4);
 
-  // Head
   gCtx.fillStyle='#cb8857'; gCtx.fillRect(x+2,by-8,12,12);
   gCtx.fillStyle='#4a2717'; gCtx.fillRect(x+2,by-8,12,5);
   gCtx.fillRect(x+2,by-4,2,3); gCtx.fillRect(x+12,by-4,2,3);
   gCtx.fillStyle='#1b120a'; gCtx.fillRect(x+4,by-2,2,2); gCtx.fillRect(x+10,by-2,2,2);
   gCtx.fillStyle='rgba(255,255,255,.45)'; gCtx.fillRect(x+4,by-2,1,1); gCtx.fillRect(x+10,by-2,1,1);
 
-  // Hat
   gCtx.fillStyle='#8f6738'; gCtx.fillRect(x+1,by-10,14,3);
   gCtx.fillStyle='#a57a43'; gCtx.fillRect(x+3,by-14,10,5);
   gCtx.fillStyle='#d0a144'; gCtx.fillRect(x+3,by-8,10,2);
@@ -3161,7 +3149,6 @@ function drawFishingFx(){
 }
 
 
-// â”€â”€â”€ NPC WORLD SPRITES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let NPC_WORLD=cloneNpcWorld(MAP_STORE.farm?.npcs||{
   elena:{col:14,row:25,color:'#d080c0'},
   marco:{col:24,row:21,color:'#6080d0'},
@@ -3176,41 +3163,31 @@ function drawNPCs(t){
     const y=oy+npc.row*TH;
     const bob=Math.sin(t*1.8+(npc.col+npc.row)*.5)*1;
     const B=bob;
-    // shadow
     gCtx.fillStyle='rgba(0,0,0,0.28)';
     gCtx.beginPath(); gCtx.ellipse(x+7,y+ISO_Y+11,6,3,0,0,Math.PI*2); gCtx.fill();
-    // boots
     gCtx.fillStyle='#201808';
     gCtx.fillRect(x+1,y+ISO_Y+20+B,5,4);
     gCtx.fillRect(x+8,y+ISO_Y+20+B,5,4);
-    // legs
     gCtx.fillStyle=npc.color+'99';
     gCtx.fillRect(x+2,y+ISO_Y+13+B,4,9);
     gCtx.fillRect(x+8,y+ISO_Y+13+B,4,9);
-    // body
     gCtx.fillStyle=npc.color;
     gCtx.fillRect(x+1,y+ISO_Y+2+B,12,13);
-    // highlight
     gCtx.fillStyle='rgba(255,255,255,0.15)';
     gCtx.fillRect(x+2,y+ISO_Y+3+B,5,5);
-    // head
     gCtx.fillStyle='#c88050';
     gCtx.fillRect(x+2,y+ISO_Y-10+B,10,11);
-    // hair (different per NPC)
     const hairColors={elena:'#d0d0d0',marco:'#603010',luna:'#308030',felix:'#d08020',nora:'#808080'};
     gCtx.fillStyle=hairColors[id]||'#503010';
     gCtx.fillRect(x+2,y+ISO_Y-10+B,10,4);
-    // eyes
     gCtx.fillStyle='#201008';
     gCtx.fillRect(x+4,y+ISO_Y-4+B,2,2);
     gCtx.fillRect(x+8,y+ISO_Y-4+B,2,2);
-    // NPC name tag (small, floating)
     const rel=G.npcRel[id]||0;
     if(rel>30){
       gCtx.fillStyle='rgba(240,192,64,0.9)';
       gCtx.fillRect(x-2,y+ISO_Y-18+B,16,8);
       gCtx.fillStyle='#201008';
-      // tiny heart
       gCtx.fillStyle='#e04040';
       gCtx.fillRect(x+4,y+ISO_Y-16+B,3,4);
       gCtx.fillRect(x+8,y+ISO_Y-16+B,3,4);
@@ -3248,7 +3225,6 @@ function drawNPCs_row(col,row,id,t){
   gCtx.fillStyle='#201008';
   gCtx.fillRect(x+4,by-1,2,2);
   gCtx.fillRect(x+8,by-1,2,2);
-  // Chat bubble if high relationship
   const rel=G.npcRel[id]||0;
   if(rel>50&&G.frame%120<40){
     gCtx.fillStyle='rgba(255,255,255,0.92)';
@@ -3263,7 +3239,6 @@ function drawNPCs_row(col,row,id,t){
   }
 }
 
-// â”€â”€â”€ WEATHER FX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let wxParts=[];
 function initWxParts(){
   wxParts=[];
@@ -3307,7 +3282,6 @@ function drawWeather(t){
       fCtx.fillRect(p.x,p.y,p.r,p.r);
     }
   }
-  // Season ambient tint over the world
   const TINTS={
     autumn:{d:'rgba(200,100,20,.05)',n:'rgba(200,80,10,.1)'},
     winter:{d:'rgba(180,210,240,.06)',n:'rgba(100,130,200,.12)'},
@@ -3319,9 +3293,6 @@ function drawWeather(t){
   if(tc){fCtx.fillStyle=tc;fCtx.fillRect(0,0,cw,ch);}
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  MAIN DRAW LOOP
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function draw(){
   updateAutoMove(performance.now());
   updateCamera();
@@ -3345,7 +3316,6 @@ function draw(){
     });
   }
 
-  // Draw tiles back-to-front (painter's algorithm for depth)
   for(let row=minRow;row<=maxRow;row++){
     for(let col=minCol;col<=maxCol;col++){
       const i=row*GW+col;
@@ -3353,18 +3323,13 @@ function draw(){
       drawTile(col,row,cell,i===hovIdx,t);
       if(inMine()) drawMineNodeOverlay(col,row,mineNodeAt(i),t);
     }
-    // Draw NPCs in correct row
     if(npcRows?.has(row)) npcRows.get(row).forEach(({id,npc})=>drawNPCs_row(npc.col,npc.row,id,t));
-    // Draw player in correct row depth
     if(row===playerRow){ drawPlayer(t,playerRenderPos); drawFootDust(); }
   }
   if(inMine()) drawMineExitMarker(t);
   else drawMineGateMarker(t);
 
-  // Ambient occlusion â€” darken edges between raised tiles and neighbors
-  // (lightweight: just draw subtle shadow where tall tiles meet grass)
 
-  // Hover last (on top)
   if(hovIdx>=0){
     const col=hovIdx%GW,row=Math.floor(hovIdx/GW);
     drawHoverOverlay(col,row);
@@ -3390,7 +3355,6 @@ function draw(){
   requestAnimationFrame(draw);
 }
 
-// â”€â”€â”€ MOUSE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function setupMouse(){
   const gc2=document.getElementById('gc');
   const pickTile=e=>{
@@ -3428,7 +3392,6 @@ function setupMouse(){
 }
 
 
-// â”€â”€â”€ KEYBOARD CONTROLS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TOOL_KEYS={'1':'water','2':'hoe','3':'plant','4':'harvest','5':'axe','6':'pickaxe','7':'fish','8':'path','9':'fence'};
 const KEYS={};
 let kbMoveTimer=null;
@@ -3580,9 +3543,6 @@ document.addEventListener('keydown',e=>{
   if(GAME_STARTED&&(e.key==='?'||e.key==='/')&&!document.getElementById('mb').classList.contains('on')) toggleKbOverlay();
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  GAME LOGIC
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function handleCell(idx){
   const cell=G.grid[idx];
   if(inInterior()){
@@ -3804,7 +3764,6 @@ function blendCSS(c1, tint, a) {
   try{
     const h=parseInt(c1.slice(1),16);
     const r=(h>>16), g=(h>>8)&255, b=h&255;
-    // tint is like "rgba(80,200,80,.18)"
     const m=tint.match(/[\d.]+/g);
     if(!m||m.length<3) return c1;
     const tr=parseInt(m[0]),tg=parseInt(m[1]),tb=parseInt(m[2]),ta=parseFloat(m[3]||'.2');
@@ -3812,7 +3771,6 @@ function blendCSS(c1, tint, a) {
   }catch{return c1;}
 }
 
-// â”€â”€â”€ SLEEP / NEW DAY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function doSleep(){
   clearAutoMove();
   fishingCast=null;
@@ -3871,7 +3829,6 @@ function chkEvent(){
   if(nm){G.gold+=50;notify(`ðŸŽ‰ Â¡Hoy: ${nm}! +50ðŸª™`,'ev');lg(`Â¡${nm}! +50ðŸª™`);}
 }
 
-// â”€â”€â”€ TOOL SELECT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function T(t){
   G.tool=t;
   document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
@@ -3880,7 +3837,6 @@ function T(t){
   updateContextHint();
 }
 
-// â”€â”€â”€ SHOP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openShop(){
   const sn=SEASONS[G.sIdx];
   let h=`<div style="font-family:'VT323';font-size:15px;margin-bottom:8px">🪙 ${IS_ES?'Tienes':'You have'}: ${G.gold} ${IS_ES?'monedas':'coins'}</div>`;
@@ -3961,7 +3917,6 @@ function slOne(k){
   closeM();reAll();
 }
 
-// â”€â”€â”€ MINE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openMine(){
   if(inInterior()){notify(IS_ES?'Primero sal de la casa.':'Leave the house first.','info');return;}
   if(inMine()){leaveMine();return;}
@@ -3977,7 +3932,6 @@ function openMine(){
   scrollToPlayer();
 }
 
-// â”€â”€â”€ NPC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function talkNPC(id){
   const npc=npcById(id);
   if(!npc) return;
@@ -4558,7 +4512,6 @@ function openIntroModal(){
   openM(IS_ES?'🌄 BIENVENIDO A VALLE TRANQUILO':'🌄 WELCOME TO QUIET VALLEY',IS_ES?'Lee la guia antes de iniciar la partida':'Read the guide before starting your game',body,{locked:true,hideClose:true});
 }
 
-// â”€â”€â”€ UI RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function toolName(t){
   const k={water:'toolWater',hoe:'toolHoe',plant:'toolPlant',harvest:'toolHarvest',axe:'toolAxe',pickaxe:'toolPickaxe',fish:'toolFish',path:'toolPath',fence:'toolFence'}[t];
   return tr(k||t);
@@ -4637,7 +4590,6 @@ function lg(msg){
   G.log.forEach((m,i)=>{const d=document.createElement('div');d.className='ll'+(i===0?' f':'');d.textContent=m;el.appendChild(d);});
 }
 function reAll(){
-  // HUD
   document.getElementById('hday').textContent=G.day;
   document.getElementById('hgold').textContent=G.gold;
   document.getElementById('hflv').textContent=G.farmLv;
@@ -4648,7 +4600,6 @@ function reAll(){
   document.getElementById('htime').textContent=`${h}:${m}`;
   document.body.className=SEASONS[G.sIdx]+' '+TOD();
   document.getElementById('title').textContent=mapName().toUpperCase();
-  // Inventory
   const iw=document.getElementById('invw');
   const SLOTS=visibleInventorySlots();
   const items=Object.entries(G.inv).filter(([,q])=>q>0);
@@ -4663,7 +4614,6 @@ function reAll(){
     iw.appendChild(s);shown++;
   });
   for(let i=shown;i<SLOTS;i++){const s=document.createElement('div');s.className='is e';s.innerHTML='Â·';iw.appendChild(s);}
-  // NPCs
   const nl=document.getElementById('npcl');nl.innerHTML='';
   if(inInterior()&&ACTIVE_MAP_ID==='player_home'){
     nl.innerHTML=`<div class="qi"><div class="qt">📦 ${storageTitle('woodChest')}</div><div class="qm">${Object.keys(G.storage.woodChest||{}).length} ${IS_ES?'tipos guardados':'stored types'}</div></div>
@@ -4686,7 +4636,6 @@ function reAll(){
       d.onclick=()=>talkNPC(npc.id);nl.appendChild(d);
     });
   }
-  // Quests
   const ql=document.getElementById('qsl');ql.innerHTML='';
   if(inInterior()&&ACTIVE_MAP_ID==='player_home'){
     ql.innerHTML=`<div class="qi"><div class="qt">🪵 ${IS_ES?'Mesa de crafteo':'Crafting table'}</div><div class="qm">${IS_ES?'Combina materiales y monedas para mejoras.':'Combine materials and coins for upgrades.'}</div></div>
@@ -4721,14 +4670,12 @@ function reAll(){
       d.onclick=()=>tryQ(q.id);ql.appendChild(d);
     });
   }
-  // Skills
   const SKDATA=[{k:'farming',l:IS_ES?'Granja':'Farming',c:'#60c040'},{k:'fishing',l:IS_ES?'Pesca':'Fishing',c:'#40a8e0'},{k:'mining',l:IS_ES?'Mineria':'Mining',c:'#c09060'},{k:'foraging',l:IS_ES?'Recol.':'Forage',c:'#80c040'},{k:'social',l:IS_ES?'Social':'Social',c:'#f08080'}];
   const sw=document.getElementById('skw');sw.innerHTML='';
   SKDATA.forEach(s=>{
     const xp=G.skXP[s.k]||0,lv=Math.floor(xp/100)+1,pct=xp%100;
     sw.innerHTML+=`<div class="sk"><span class="skl">${s.l}</span><div class="skt"><div class="skf" style="width:${pct}%;background:${s.c}"></div></div><span class="skv">L${lv}</span></div>`;
   });
-  // Weather
   const WX={sunny:tr('weatherSunny'),cloudy:tr('weatherCloudy'),rainy:tr('weatherRainy'),stormy:tr('weatherStormy'),snowy:tr('weatherSnowy')};
   const wbox=document.getElementById('wbox');
   const evb=document.getElementById('evb');
@@ -4748,7 +4695,6 @@ function reAll(){
   queueAutosave();
 }
 
-// â”€â”€â”€ MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openM(title,sub,body,opt={}){
   clearAutoMove();
   MODAL_LOCKED=!!opt.locked;
@@ -4770,7 +4716,6 @@ function closeM(force=false){
 }
 function closeBD(e){if(e.target===document.getElementById('mb'))closeM();}
 
-// â”€â”€â”€ NOTIFY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function notify(msg,type='info'){
   const c=document.getElementById('ns');
   const el=document.createElement('div');
@@ -4779,7 +4724,6 @@ function notify(msg,type='info'){
   setTimeout(()=>el.remove(),3200);
 }
 
-// â”€â”€â”€ CLOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function stepClockMinutes(mins=1){
   for(let i=0;i<mins;i++){
     G.mn++;
@@ -4796,9 +4740,6 @@ setInterval(()=>{
   queueAutosave(1200);
 },2500);
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  INIT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function init(){
   resize();
   setupMouse();
@@ -4820,9 +4761,15 @@ function renderGameToText(){
   const nowMins=gameMinuteStamp();
   const gc=guideCurrent();
   const station=nearestStation(1);
+  const modalOpen=document.getElementById('mb').classList.contains('on');
+  const screen=!GAME_STARTED?'intro':(modalOpen?'modal':'running');
   const payload={
     mode:'arcade',
     variant:'valle-tranquilo',
+    screen,
+    statusLabel:!GAME_STARTED
+      ? (IS_ES?'Introduccion':'Introduction')
+      : (modalOpen ? (IS_ES?'Menu abierto':'Menu open') : (IS_ES?'En partida':'In play')),
     language:LANG,
     coordinates:'origin at top-left, x right, y down',
     map:{

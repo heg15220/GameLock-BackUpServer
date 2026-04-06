@@ -1,0 +1,40 @@
+{
+  "billiards": {
+    "before": {
+      "labels": [
+        "Modo de juego",
+        "Modo IA"
+      ],
+      "menu": [
+        "CONTROLES PREVIOS\nModo de juego\nBola 8\nBola 9\nBola 10\nCarambola Libre\nKelly\nModo IA\nRecreativo\nClub\nPro\nEmpezar\nRepetir rack\nNuevo match\nPantalla completa"
+      ],
+      "proxyValue": "eight-ball",
+      "targetValue": "eight-ball",
+      "text": "Objetivo del modo: Mesa abierta, lisas/rayas y cierre cantando la 8."
+    },
+    "after": {
+      "proxyValue": "nine-ball",
+      "targetValue": "nine-ball",
+      "text": "Objetivo del modo: Orden numerico, blanca en mano y regla de tres faltas."
+    }
+  },
+  "bowling": {
+    "before": {
+      "labels": [
+        "IAs en partida",
+        "Dificultad IA"
+      ],
+      "menu": [
+        "CONTROLES PREVIOS\nIAs en partida\n1 IA\n2 IAs\n3 IAs\n4 IAs\nDificultad IA\nPrincipiante\nClub\nPro\nElite\nEmpezar serie\nNueva serie\nPantalla completa"
+      ],
+      "proxyValue": "1",
+      "targetValue": "1",
+      "text": "IAs en partida1 IA2 IAs3 IAs4 IAsDificultad IAPrincipianteClubProElitePar de pistas: Se alterna A/B cada cuadro, como en juego de liga o torneo.Cobertura reglamentaria: 10/5/11Falta: Las faltas se marcan con F en el cuadro."
+    },
+    "after": {
+      "proxyValue": "4",
+      "targetValue": "4",
+      "text": "IAs en partida1 IA2 IAs3 IAs4 IAsDificultad IAPrincipianteClubProElitePar de pistas: Se alterna A/B cada cuadro, como en juego de liga o torneo.Cobertura reglamentaria: 10/5/11Falta: Las faltas se marcan con F en el cuadro."
+    }
+  }
+}

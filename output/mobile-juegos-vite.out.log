@@ -1,0 +1,10 @@
+Port 4173 is in use, trying another one...
+
+  [32m[1mVITE[22m v4.5.14[39m  [2mready in [0m[1m357[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:  [2m21:56:58[22m [36m[1m[vite][22m[39m[2m21:56:58[22m [36m[1m[vite][22m[39m [32mpage reload [3[2m21:57:43[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/mobileGameProfiles.js[22m
+[2m21:58:12[22m [36m[1m[vite][22m[39m[2m21:58:12[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2[2m21:58:25[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m21:58:37[22m [36m[1m[vite][22m[39m[2m21:58:45[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/M[2m21:58:45[22m [36m[1m[vi[2m21:58:55[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/m[2m21:58:55[22m [36m[1m[v[2m22:01:50[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mpublic/arcad[2m22:01:50[22m [36m[1m[vite][2m22:05:46[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/mobileInputBridge.js[22m
+[2m22:06:02[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/M[2m22:06:02[22m [36m[1m[vi[2m22:06:09[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/M[2m22:06:09[22m [36m[1m[vi[2m22:16:44[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/M[2m22:16:44[22m [36m[1m[vi[2m22:17:23[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/M[2m22:17:23[22m [36m[1m[vi[2m22:17:32[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/M[2m22:17:32[22m [36m[1m[vi[2m22:17:39[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/M[2m22:17:39[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m22:17:56[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mpublic/arcade/dig-hole-treasure/game.js[22m
+[2m22:18:12[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/public/arcade/dig-hole-treasure/styles.css?direct[22m

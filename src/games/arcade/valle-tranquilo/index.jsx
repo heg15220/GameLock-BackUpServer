@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { syncEmbeddedFrameLayout } from "../../../utils/syncEmbeddedFrameLayout";
 
 const FALLBACK_PAYLOAD = JSON.stringify({
   mode: "arcade",
@@ -51,6 +52,27 @@ export default function ValleTranquiloGame() {
     };
   }, []);
 
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame || !isReady) {
+      return undefined;
+    }
+
+    const syncLayout = () => {
+      syncEmbeddedFrameLayout(frame, "arcade-valle-tranquilo");
+    };
+
+    syncLayout();
+    const resizeObserver = new ResizeObserver(syncLayout);
+    resizeObserver.observe(frame);
+    window.addEventListener("resize", syncLayout);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", syncLayout);
+    };
+  }, [isReady]);
+
   return (
     <div className="arcade-neon-rush-shell">
       {!isReady ? (
@@ -63,7 +85,11 @@ export default function ValleTranquiloGame() {
         src="/arcade/valle-tranquilo/index.html"
         title="Valle Tranquilo"
         className="arcade-neon-rush-frame"
-        onLoad={() => setIsReady(true)}
+        onLoad={() => {
+          setIsReady(true);
+          syncEmbeddedFrameLayout(frameRef.current, "arcade-valle-tranquilo");
+          frameRef.current?.contentWindow?.focus?.();
+        }}
       />
     </div>
   );

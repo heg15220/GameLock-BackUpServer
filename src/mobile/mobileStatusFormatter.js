@@ -139,6 +139,19 @@ export function formatMobileStatus(snapshot, locale = "es") {
   addEntry(entries, locale === "en" ? "Multiplier" : "Multiplicador", snapshot.multiplier);
   addEntry(entries, locale === "en" ? "Best" : "Mejor", snapshot.bestScore ?? snapshot.hiScore);
 
+  if (snapshot.variant === "valle-tranquilo") {
+    addEntry(entries, locale === "en" ? "Day" : "Dia", snapshot.time?.day);
+    addEntry(entries, locale === "en" ? "Gold" : "Oro", snapshot.economy?.gold);
+    addEntry(entries, locale === "en" ? "Energy" : "Energia", snapshot.economy?.energy);
+    addEntry(entries, locale === "en" ? "Tool" : "Herr.", titleCase(snapshot.tool));
+  }
+
+  if (snapshot.mode === "arcade-dig-hole-treasure") {
+    addEntry(entries, locale === "en" ? "Depth" : "Prof.", snapshot.depthMeters != null ? `${snapshot.depthMeters}m` : null);
+    addEntry(entries, locale === "en" ? "Load" : "Carga", snapshot.inventoryCount != null && snapshot.capacity != null ? `${snapshot.inventoryCount}/${snapshot.capacity}` : null);
+    addEntry(entries, locale === "en" ? "Coins" : "Mon.", snapshot.coins);
+  }
+
   return {
     primaryText: resolvePrimaryText(snapshot),
     entries: entries.slice(0, 6),
@@ -159,5 +172,7 @@ export function isPreplayState(snapshot) {
     "ready",
     "levelselect",
     "level_select",
+    "world_select",
+    "world select",
   ].includes(probe);
 }

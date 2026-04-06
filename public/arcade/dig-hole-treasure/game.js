@@ -944,13 +944,34 @@
 
   // ─── Digging ──────────────────────────────────────────────────────────────
 
+  function resolveDigDirection() {
+    if (state.keys.KeyJ) return "left";
+    if (state.keys.KeyL) return "right";
+    if (state.keys.KeyI) return "up";
+    if (state.keys.KeyK) {
+      const moveLeft = Boolean(state.keys.KeyA || state.keys.ArrowLeft);
+      const moveRight = Boolean(state.keys.KeyD || state.keys.ArrowRight);
+      const moveUp = Boolean(state.keys.KeyW || state.keys.ArrowUp || state.keys.Space);
+      const moveDown = Boolean(state.keys.ArrowDown);
+
+      if (moveLeft && !moveRight) return "left";
+      if (moveRight && !moveLeft) return "right";
+      if (moveUp && !moveDown) return "up";
+      if (moveDown && !moveUp) return "down";
+      return "down";
+    }
+
+    return null;
+  }
+
   function resolveDigTarget(run) {
     const center = centerOfPlayer(run);
     let tx = null, ty = null;
-    if (state.keys.KeyJ) { tx = center.x - 54; ty = center.y + 2; }
-    else if (state.keys.KeyL) { tx = center.x + 54; ty = center.y + 2; }
-    else if (state.keys.KeyK) { tx = center.x; ty = center.y + 54; }
-    else if (state.keys.KeyI) { tx = center.x; ty = center.y - 54; }
+    const digDirection = resolveDigDirection();
+    if (digDirection === "left") { tx = center.x - 54; ty = center.y + 2; }
+    else if (digDirection === "right") { tx = center.x + 54; ty = center.y + 2; }
+    else if (digDirection === "down") { tx = center.x; ty = center.y + 54; }
+    else if (digDirection === "up") { tx = center.x; ty = center.y - 54; }
     else if (state.pointer.down && state.pointer.inside) {
       tx = state.pointer.x + run.camera.x;
       ty = state.pointer.y + run.camera.y;
@@ -1016,7 +1037,7 @@
     run.player.digFlash = Math.max(0, run.player.digFlash - dt);
     const target = resolveDigTarget(run);
     if (!target || run.player.digCooldown > 0) return;
-    if (!state.pointer.down && !state.keys.KeyJ && !state.keys.KeyK && !state.keys.KeyL) return;
+    if (!state.pointer.down && !state.keys.KeyI && !state.keys.KeyJ && !state.keys.KeyK && !state.keys.KeyL) return;
     digAt(run, target);
   }
 

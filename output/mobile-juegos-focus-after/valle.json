@@ -1,0 +1,8 @@
+{
+  "statusText": "Introduccion",
+  "preButtons": [
+    "[ COMENZAR A JUGAR ]",
+    "[ IMPORTAR CODIGO ]"
+  ],
+  "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--has-controls"
+}

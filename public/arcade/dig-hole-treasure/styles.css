@@ -642,3 +642,152 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
   .beacon-card { left: 10px; right: 10px; bottom: 56px; }
   .modal-card { width: calc(100vw - 24px); padding: 1.1rem; }
 }
+
+html.mobile-shell-embed .hud-top {
+  inset: 8px 8px auto 8px;
+}
+
+html.mobile-shell-embed .brand-card {
+  max-width: calc(100% - 16px);
+  padding: 0.58rem 0.7rem;
+  border-radius: 16px;
+}
+
+html.mobile-shell-embed .brand-card h1 {
+  font-size: 1rem;
+}
+
+html.mobile-shell-embed .brand-card p:last-child {
+  margin-top: 0.28rem;
+  font-size: 0.7rem;
+}
+
+html.mobile-shell-embed .action-row,
+html.mobile-shell-embed .controls-bar,
+html.mobile-shell-embed .stat-grid,
+html.mobile-shell-embed .side-rail,
+html.mobile-shell-embed .beacon-card {
+  display: none !important;
+}
+
+html.mobile-shell-embed .message-box,
+html.mobile-shell-embed .stamina-hud {
+  display: grid !important;
+  z-index: 12;
+}
+
+html.mobile-shell-embed .message-box {
+  top: 54px;
+  left: 8px;
+  right: 8px;
+  transform: none;
+  padding: 0.42rem 0.6rem;
+  border-radius: 14px;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  text-align: center;
+  white-space: normal;
+}
+
+html.mobile-shell-embed .stamina-hud {
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  width: calc(100% - 16px);
+  max-width: 360px;
+  padding: 0.34rem 0.56rem;
+  border-radius: 12px;
+  gap: 0.42rem;
+}
+
+html.mobile-shell-embed .stamina-hud span {
+  font-size: 0.58rem;
+}
+
+html.mobile-shell-embed .stamina-hud strong {
+  font-size: 0.7rem;
+}
+
+html.mobile-shell-embed .stamina-track {
+  height: 8px;
+}
+
+html.mobile-shell-embed .overlay {
+  padding: 12px;
+}
+
+html.mobile-shell-embed .modal-card {
+  width: 100%;
+  max-height: 100%;
+  padding: 1rem;
+  border-radius: 22px;
+}
+
+html.mobile-shell-embed .lead {
+  line-height: 1.42;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .world-grid {
+  grid-template-columns: 1fr;
+  gap: 0.58rem;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .world-card,
+html.mobile-shell-embed.mobile-shell-portrait .item-card,
+html.mobile-shell-embed.mobile-shell-portrait .upgrade-card {
+  padding: 0.72rem;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .world-card strong {
+  font-size: 0.94rem;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .world-card p,
+html.mobile-shell-embed.mobile-shell-portrait .world-card ul,
+html.mobile-shell-embed.mobile-shell-portrait .item-card p,
+html.mobile-shell-embed.mobile-shell-portrait .upgrade-card p {
+  font-size: 0.68rem;
+  line-height: 1.34;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .overlay {
+  padding: 8px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .modal-card {
+  padding: 0.82rem;
+  border-radius: 18px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .world-modal .lead,
+html.mobile-shell-embed.mobile-shell-portrait .world-card ul,
+html.mobile-shell-embed.mobile-shell-portrait .world-meta {
+  display: none;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .modal-actions {
+  margin-top: 0.72rem;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .modal-actions button {
+  width: 100%;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .modal-card {
+  width: min(100%, 720px);
+  padding: 0.9rem;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .message-box {
+  top: 42px;
+  left: 6px;
+  right: 6px;
+  font-size: 0.66rem;
+  padding: 0.32rem 0.5rem;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .stamina-hud {
+  bottom: 6px;
+  width: min(320px, calc(100% - 12px));
+  padding: 0.28rem 0.48rem;
+}

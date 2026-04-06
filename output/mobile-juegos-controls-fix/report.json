@@ -1,0 +1,59 @@
+{
+  "dig": {
+    "panelOpen": true,
+    "panelTitle": "Puesto de la Selva"
+  },
+  "valle": {
+    "toolBefore": "water",
+    "toolAfter": "hoe",
+    "modal": {
+      "open": true,
+      "title": "🏪 TIENDA DEL VALLE"
+    },
+    "sections": [
+      {
+        "title": "Controles contextuales",
+        "items": [
+          "Ver plan",
+          "Saltar paso",
+          "🏪 Tienda",
+          "🌙 Dormir",
+          "⛏️ Mina",
+          "💾 Guardar"
+        ]
+      },
+      {
+        "title": "Herramientas",
+        "items": [
+          "🚿Regar",
+          "⛏️Labrar",
+          "🌱Plantar",
+          "🧺Cosechar",
+          "🪓Talar",
+          "⚒️Picar",
+          "🎣Pescar",
+          "🪨Camino",
+          "🪵Valla"
+        ]
+      },
+      {
+        "title": "Inventario",
+        "items": [
+          "Turnipx 8",
+          "Potatox 5",
+          "Maderax 3",
+          "Piedrax 2"
+        ]
+      },
+      {
+        "title": "Misiones",
+        "items": [
+          "🪓 Entregar 3 maderasMarco - Oro 200",
+          "🎣 Pescar 2 truchasElena - Oro 180",
+          "🎃 Cosechar 1 calabazaFelix - Oro 400",
+          "🫐 Cosechar 3 arandanosLuna - Oro 320"
+        ]
+      }
+    ]
+  }
+}

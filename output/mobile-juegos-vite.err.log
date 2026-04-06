@@ -1,0 +1,21 @@
+[33mfiles in the public directory are served at the root path.
+Instead of [36m/public/arcade/valle-tranquilo/[33m, use [36m/arcade/valle-tranquilo/[33m.[39m
+[2m22:08:46[22m [31m[1m[vite][22m[39m [31mInternal server error: Unable to parse HTML; parse5 error code control-character-in-input-stream
+ at C:/Users/hugoe/Downloads/plataforma-juegos-saas/public/arcade/valle-tranquilo/index.html:3591:54
+3660|        if(inMine()){notify('En mina no puedes colocar caminos.','info');break;}
+3661|        if('Gwf'.includes(cell.t)){if(sp(1)){cell.t='P';lg('Colocas un camino de piedra.');tick(2);reAll();}} break;
+3662|      case 'fence':
+   |    ^
+3663|        if(inMine()){notify('En mina no puedes colocar vallas.','info');break;}
+3664|        if('Gwf'.includes(cell.t)){if(sp(1)){cell.t='F';lg('Colocas una valla de madera.');tick(2);reAll();}} break;[39m
+   at C:/Users/hugoe/Downloads/plataforma-juegos-saas/public/arcade/valle-tranquilo/index.html:3591:54
+      at handleParseError (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:37524:11)
+      at Parser.onParseError (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:37450:13)
+      at Preprocessor._err (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-f0c7dae0.js:188:26)
+      at Preprocessor._checkForProblematicCharacters (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-f0c7dae0.js:319:18)
+      at Preprocessor.advance (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-f0c7dae0.js:313:18)
+      at Tokenizer._consume (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-f0c7dae0.js:1196:34)
+      at Tokenizer._runParsingLoop (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-f0c7dae0.js:1147:29)
+      at Tokenizer.write (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-f0c7dae0.js:1174:14)
+      at Function.parse (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-f0c7dae0.js:4856:26)
+      at parse (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-f0c7dae0.js:7927:19)
