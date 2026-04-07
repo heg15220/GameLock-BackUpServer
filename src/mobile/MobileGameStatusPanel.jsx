@@ -5,10 +5,32 @@ function normalizeText(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
+function extractLabelText(label) {
+  if (!label) {
+    return "";
+  }
+
+  const clone = label.cloneNode(true);
+  clone.querySelectorAll("select, option, input, button, textarea").forEach((node) => {
+    node.remove();
+  });
+  return normalizeText(clone.textContent);
+}
+
 function titleCase(value) {
   return normalizeText(value)
     .toLowerCase()
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function isStrategyCategory(gameCategory) {
+  const categoryKey = normalizeText(gameCategory).toLowerCase();
+  return categoryKey === "estrategia" || categoryKey === "strategy";
+}
+
+function isKnowledgeCategory(gameCategory) {
+  const categoryKey = normalizeText(gameCategory).toLowerCase();
+  return categoryKey === "conocimiento" || categoryKey === "knowledge";
 }
 
 function isVisibleControl(element) {
@@ -70,6 +92,11 @@ function extractSelectLabel(select) {
   );
   if (wrapperLabel) {
     return wrapperLabel;
+  }
+
+  const inlineLabel = extractLabelText(select.closest("label"));
+  if (inlineLabel) {
+    return inlineLabel;
   }
 
   return normalizeText(
@@ -146,7 +173,14 @@ function shouldCollectHiddenMenuRoot(root) {
     return false;
   }
 
-  return root.matches(".mini-head") || Boolean(root.querySelector("select"));
+  const className = String(root.className ?? "");
+  const looksLikeActionArea = /(action|actions|toolbar|controls|footer|dock|panel|side|keypad|config|switch|score|stats|post|meta|setup)/i.test(className);
+
+  return (
+    root.matches(".mini-head") ||
+    Boolean(root.querySelector("select")) ||
+    (looksLikeActionArea && Boolean(root.querySelector("button, select")))
+  );
 }
 
 function setNativeSelectValue(select, value) {
@@ -253,6 +287,12 @@ function buildMenuControls(scopeElement) {
     });
   });
 
+  scopeElement.querySelectorAll(".parchis-actions").forEach((root, rootIndex) => {
+    registerEntries(
+      collectControlsFromRoot(root, `visible-stage-${rootIndex}`, "visible-stage", true)
+    );
+  });
+
   return {
     buttons: Array.from(buttonMap.values()).slice(0, 18),
     selects: Array.from(selectMap.values()).slice(0, 3),
@@ -355,11 +395,14 @@ function buildSupplementalSections(scopeElement, snapshot, locale) {
   return sections;
 }
 
-function filterContextButtons(buttons, snapshot) {
+function filterContextButtons(buttons, snapshot, gameCategory) {
   if (!buttons.length || !snapshot || typeof snapshot !== "object") {
     return [];
   }
 
+  const modeKey = String(snapshot.mode ?? "").toLowerCase();
+  const isStrategyFamily = isStrategyCategory(gameCategory);
+  const isKnowledgeFamily = isKnowledgeCategory(gameCategory);
   const actionButtons = buttons.filter((button) => button.group === "actions");
   const buttonIdMatches = (button, pattern) =>
     pattern.test(String(button.target?.id ?? button.id ?? ""));
@@ -394,10 +437,34 @@ function filterContextButtons(buttons, snapshot) {
     }
   }
 
+  if (
+    (
+      modeKey.startsWith("strategy") ||
+      modeKey.startsWith("knowledge") ||
+      isStrategyFamily ||
+      isKnowledgeFamily
+    ) &&
+    buttons.some((button) => button.group === "hidden" || button.group === "visible-stage")
+  ) {
+    return buttons
+      .filter((button) => button.group === "hidden" || button.group === "visible-stage")
+      .filter((button) => !buttonLabelMatches(button, /fullscreen|pantalla completa/i))
+      .slice(0, 10);
+  }
+
   return [];
 }
 
+function isConfigurationButton(button) {
+  const text = normalizeText(
+    `${button?.label || ""} ${button?.target?.id || ""} ${button?.target?.className || ""}`
+  ).toLowerCase();
+
+  return /(new game|nueva partida|restart|reiniciar|rematch|revancha|apply|aplicar|adjust|ajustes|settings|config|setup|score|marcador|stats|estad|rules|reglas)/i.test(text);
+}
+
 export default function MobileGameStatusPanel({
+  gameCategory,
   locale,
   scopeElement,
   snapshot,
@@ -409,23 +476,48 @@ export default function MobileGameStatusPanel({
     [locale, snapshot]
   );
   const contextButtons = useMemo(
-    () => filterContextButtons(menuControls.buttons, snapshot),
-    [menuControls.buttons, snapshot]
+    () => filterContextButtons(menuControls.buttons, snapshot, gameCategory),
+    [gameCategory, menuControls.buttons, snapshot]
   );
+  const derivedPreplayState =
+    isPreplayState(snapshot) ||
+    (isStrategyCategory(gameCategory) && snapshot?.started === false);
+  const strategyOrKnowledgeContextSelects =
+    !derivedPreplayState &&
+    (isStrategyCategory(gameCategory) || isKnowledgeCategory(gameCategory)) &&
+    menuControls.selects.length > 0;
   const allowPostMatchSetup =
     snapshot?.mode === "billiards_pool" &&
     snapshot?.status === "match-over";
-  const preplayButtons = menuControls.buttons.filter((button) => button.group !== "actions");
+  const preplayButtons = menuControls.buttons
+    .filter((button) => button.group !== "actions")
+    .filter((button) => !/fullscreen|pantalla completa/i.test(String(button.label ?? "")));
   const visibleMenuButtons = allowPostMatchSetup
     ? contextButtons
     : preplayButtons;
   const showMenuControls =
-    (isPreplayState(snapshot) || allowPostMatchSetup) &&
+    (derivedPreplayState || allowPostMatchSetup) &&
     (preplayButtons.length > 0 || menuControls.selects.length > 0);
   const showContextButtons =
-    !isPreplayState(snapshot) &&
+    !derivedPreplayState &&
     !allowPostMatchSetup &&
     contextButtons.length > 0;
+  const strategyOrKnowledgeContext = isStrategyCategory(gameCategory) || isKnowledgeCategory(gameCategory);
+  const contextSetupButtons = strategyOrKnowledgeContext
+    ? contextButtons.filter((button) => isConfigurationButton(button))
+    : [];
+  const contextActionButtons = strategyOrKnowledgeContext
+    ? contextButtons.filter((button) => !isConfigurationButton(button))
+    : contextButtons;
+  const showContextSetup =
+    !derivedPreplayState &&
+    !allowPostMatchSetup &&
+    strategyOrKnowledgeContext &&
+    (strategyOrKnowledgeContextSelects || contextSetupButtons.length > 0);
+  const showContextActions =
+    !derivedPreplayState &&
+    !allowPostMatchSetup &&
+    contextActionButtons.length > 0;
 
   useEffect(() => {
     if (!scopeElement) {
@@ -515,13 +607,105 @@ export default function MobileGameStatusPanel({
         </div>
       ) : null}
 
-      {showContextButtons ? (
-        <div className="mobile-game-status-panel__menu">
+      {showContextSetup ? (
+        <div className="mobile-game-status-panel__menu mobile-game-status-panel__menu--setup">
+          <strong>{locale === "en" ? "Match setup" : "Configuracion de partida"}</strong>
+          {strategyOrKnowledgeContextSelects ? (
+            <div className="mobile-game-status-panel__selects">
+              {menuControls.selects.map((field) => (
+                <label key={`setup-${field.id}`}>
+                  {field.label ? <span>{field.label}</span> : null}
+                  <select
+                    value={field.value}
+                    disabled={field.disabled}
+                    onChange={(event) => {
+                      setNativeSelectValue(field.target, event.target.value);
+                      dispatchSelectEvents(field.target);
+                      setMenuControls(buildMenuControls(scopeElement));
+                    }}
+                  >
+                    {field.options.map((option) => (
+                      <option key={`setup-${field.id}-${option.value}`} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          ) : null}
+          {contextSetupButtons.length ? (
+            <div className="mobile-game-status-panel__buttons">
+              {contextSetupButtons.map((button) => (
+                <button
+                  key={`setup-btn-${button.id}`}
+                  type="button"
+                  disabled={button.disabled}
+                  onClick={() => {
+                    button.target.click();
+                    setMenuControls(buildMenuControls(scopeElement));
+                  }}
+                >
+                  {button.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {showContextButtons && !showContextSetup ? (
+        <div className="mobile-game-status-panel__menu mobile-game-status-panel__menu--actions">
           <strong>{locale === "en" ? "Context controls" : "Controles contextuales"}</strong>
+          {strategyOrKnowledgeContextSelects ? (
+            <div className="mobile-game-status-panel__selects">
+              {menuControls.selects.map((field) => (
+                <label key={`context-${field.id}`}>
+                  {field.label ? <span>{field.label}</span> : null}
+                  <select
+                    value={field.value}
+                    disabled={field.disabled}
+                    onChange={(event) => {
+                      setNativeSelectValue(field.target, event.target.value);
+                      dispatchSelectEvents(field.target);
+                      setMenuControls(buildMenuControls(scopeElement));
+                    }}
+                  >
+                    {field.options.map((option) => (
+                      <option key={`context-${field.id}-${option.value}`} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          ) : null}
           <div className="mobile-game-status-panel__buttons">
             {contextButtons.map((button) => (
               <button
                 key={button.id}
+                type="button"
+                disabled={button.disabled}
+                onClick={() => {
+                  button.target.click();
+                  setMenuControls(buildMenuControls(scopeElement));
+                }}
+              >
+                {button.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {showContextActions && (showContextSetup || !showContextButtons) ? (
+        <div className="mobile-game-status-panel__menu mobile-game-status-panel__menu--actions">
+          <strong>{locale === "en" ? "In-match actions" : "Acciones de partida"}</strong>
+          <div className="mobile-game-status-panel__buttons">
+            {contextActionButtons.map((button) => (
+              <button
+                key={`action-${button.id}`}
                 type="button"
                 disabled={button.disabled}
                 onClick={() => {

@@ -1,0 +1,14 @@
+{
+  "shellMode": "mobile-first",
+  "buttons": [
+    "Nueva partida",
+    "Ajustes",
+    "Marcador",
+    "Pasar",
+    "Igualar (2)",
+    "Subir (+4)"
+  ],
+  "selects": [],
+  "stageHeight": 374,
+  "stageScrollHeight": 405
+}

@@ -1,0 +1,32 @@
+{
+  "shellMode": "mobile-first",
+  "shellClasses": [
+    "mobile-game-shell",
+    "mobile-game-shell--landscape",
+    "mobile-game-shell--mobile-first",
+    "mobile-game-shell--theme-strategy",
+    "mobile-game-shell--touch-native"
+  ],
+  "stageScrollHeight": 906,
+  "stageClientHeight": 235,
+  "panelButtons": [
+    "Nueva partida",
+    "Aplicar y reiniciar"
+  ],
+  "panelSelects": [],
+  "visibleNodes": [
+    {
+      "selector": ".strategy-baraja-modes",
+      "width": 800,
+      "height": 906,
+      "text": "ModoBrisca/TuteMusEscobaActivo: Brisca/TuteMesa IA Brisca/TuteTapete tactico con IAs configurables, ritmo pausado y lect"
+    },
+    {
+      "selector": ".brisca-table-shell",
+      "width": 776,
+      "height": 882,
+      "text": "IA 1RivalRivalesPuntos: 0TriunfoMazo34Tu turno: juega carta.IA 1...1-3 o Q/W/E juegan carta. Enter juega primera legal. "
+    }
+  ],
+  "renderState": "{\"mode\":\"strategy-brisca-ai\",\"variant\":\"brisca_duel\",\"locale\":\"es\",\"status\":\"playing\",\"resolvingTrick\":false,\"turnTransitioning\":false,\"drawAnimating\":false,\"round\":1,\"trick\":1,\"current\":\"ai-1\",\"stockCount\":33,\"trumpSuit\":\"copas\",\"players\":[{\"id\":\"human\",\"name\":\"Tu\",\"side\":\"user\",\"isHuman\":true,\"handCount\":3,\"points\":0},{\"id\":\"ai-1\",\"name\":\"IA 1\",\"side\":\"rival\",\"isHuman\":false,\"handCount\":3,\"points\":0}],\"score\":{\"rounds\":{\"user\":0,\"rival\":0},\"sidePoints\":{\"user\":0,\"rival\":0}},\"tableCards\":[],\"hands\":{\"human\":[\"6♦\",\"S♦\",\"5♠\"]},\"teammateHint\":null,\"actions\":{\"playableIndexes\":[],\"canNextRound\":false,\"canRestart\":true},\"message\":\"IA 1...\"}"
+}

@@ -9,6 +9,41 @@ const DIRECT_TOUCH_GAME_IDS = new Set([
   "arcade-neon-rush",
 ]);
 
+const STRATEGY_MOBILE_FIRST_GAME_IDS = new Set([
+  "strategy-chess-grandmaster",
+  "strategy-damas-clasicas",
+  "strategy-sudoku-tecnicas",
+  "strategy-hundir-flota-pro",
+  "strategy-poker-holdem-no-bet",
+  "strategy-parchis-ludoteka",
+  "strategy-baraja-ia-arena",
+  "strategy-mansion-triple-enigma",
+]);
+
+const KNOWLEDGE_MOBILE_FIRST_GAME_IDS = new Set([
+  "knowledge-quiz-nexus",
+  "knowledge-logic-vault",
+  "knowledge-iq-masters-protocol",
+  "knowledge-refranes-clasicos",
+  "knowledge-wikipedia-gacha",
+  "knowledge-sudoku-sprint",
+  "knowledge-domino-chain",
+  "knowledge-ahorcado-flash",
+  "knowledge-paciencia-lite",
+  "knowledge-puzle-deslizante",
+  "knowledge-crucigrama-mini",
+  "knowledge-sopa-letras-mega",
+  "knowledge-wordle-pro",
+  "knowledge-anagramas-pro",
+  "knowledge-calculo-mental-flash10",
+  "knowledge-tabla-periodica-total",
+  "knowledge-mapas-atlas",
+  "knowledge-mapas-camino-corto",
+  "knowledge-adivina-pais-silueta",
+  "knowledge-tangram-pro",
+  "knowledge-cronologia-maestra",
+]);
+
 const t = (locale, es, en) => (locale === "en" ? en : es);
 const input = (code, key) => ({ code, key });
 
@@ -208,7 +243,23 @@ export function getResponsiveMobileShellMode(game, viewport) {
   if (baseMode !== "dual-screen") {
     return baseMode;
   }
-  return DIRECT_TOUCH_GAME_IDS.has(game?.id) ? "mobile-first" : baseMode;
+
+  const gameId = String(game?.id ?? "");
+  const categoryKey = String(game?.category ?? "");
+  const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
+  const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
+
+  if (
+    DIRECT_TOUCH_GAME_IDS.has(gameId) ||
+    STRATEGY_MOBILE_FIRST_GAME_IDS.has(gameId) ||
+    KNOWLEDGE_MOBILE_FIRST_GAME_IDS.has(gameId) ||
+    isKnowledgeCategory ||
+    isStrategyCategory
+  ) {
+    return "mobile-first";
+  }
+
+  return baseMode;
 }
 
 export function getMobileControlProfile(game, locale = "es") {

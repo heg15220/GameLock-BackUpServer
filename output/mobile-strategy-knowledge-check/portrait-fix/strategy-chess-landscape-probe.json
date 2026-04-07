@@ -1,0 +1,17 @@
+{
+  "boardRect": {
+    "width": 258,
+    "height": 258
+  },
+  "stageRect": {
+    "width": 816,
+    "height": 251
+  },
+  "menuButtons": [
+    "Iniciar partida",
+    "Deshacer",
+    "Reiniciar tablero",
+    "Reclamar tablas",
+    "Limpiar seleccion"
+  ]
+}

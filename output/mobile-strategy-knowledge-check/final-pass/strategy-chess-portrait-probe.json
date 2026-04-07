@@ -1,0 +1,46 @@
+{
+  "viewport": {
+    "name": "portrait",
+    "width": 390,
+    "height": 844
+  },
+  "shellMode": "mobile-first",
+  "category": "estrategia",
+  "shellClasses": [
+    "mobile-game-shell",
+    "mobile-game-shell--portrait",
+    "mobile-game-shell--mobile-first",
+    "mobile-game-shell--theme-strategy",
+    "mobile-game-shell--touch-native"
+  ],
+  "hasExpectedTheme": true,
+  "statusPanelPresent": true,
+  "chipTexts": [
+    "TurnoBlancas",
+    "Movs0",
+    "Legales20",
+    "NivelIntermediate",
+    "InicioPendiente"
+  ],
+  "menuButtons": [
+    "Iniciar partida",
+    "Deshacer",
+    "Reiniciar tablero",
+    "Reclamar tablas",
+    "Limpiar seleccion"
+  ],
+  "selectLabels": [
+    "BlancasNegrasAleatorio",
+    "PrincipianteIntermedioAvanzadoExperto"
+  ],
+  "boardRect": {
+    "width": 322,
+    "height": 322
+  },
+  "stageRect": {
+    "width": 343,
+    "height": 78
+  },
+  "bodyScrollHeight": 7774,
+  "viewportHeight": 844
+}

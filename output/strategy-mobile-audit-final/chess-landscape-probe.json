@@ -1,0 +1,16 @@
+{
+  "shellMode": "mobile-first",
+  "buttons": [
+    "Iniciar partida",
+    "Deshacer",
+    "Reiniciar tablero",
+    "Reclamar tablas",
+    "Limpiar seleccion"
+  ],
+  "selects": [
+    "Tu colorBlancasNegrasAleatorio",
+    "Dificultad IAPrincipianteIntermedioAvanzadoExperto"
+  ],
+  "stageHeight": 235,
+  "stageScrollHeight": 235
+}

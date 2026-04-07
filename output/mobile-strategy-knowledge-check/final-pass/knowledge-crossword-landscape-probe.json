@@ -1,0 +1,37 @@
+{
+  "viewport": {
+    "name": "landscape",
+    "width": 844,
+    "height": 390
+  },
+  "shellMode": "mobile-first",
+  "category": "conocimiento",
+  "shellClasses": [
+    "mobile-game-shell",
+    "mobile-game-shell--landscape",
+    "mobile-game-shell--mobile-first",
+    "mobile-game-shell--theme-knowledge",
+    "mobile-game-shell--touch-native"
+  ],
+  "hasExpectedTheme": true,
+  "statusPanelPresent": true,
+  "chipTexts": [
+    "Sesion9463/12000",
+    "Movs0",
+    "Faseplaying"
+  ],
+  "menuButtons": [
+    "Partida aleatoria"
+  ],
+  "selectLabels": [],
+  "boardRect": {
+    "width": 569,
+    "height": 569
+  },
+  "stageRect": {
+    "width": 836,
+    "height": 235
+  },
+  "bodyScrollHeight": 4185,
+  "viewportHeight": 390
+}

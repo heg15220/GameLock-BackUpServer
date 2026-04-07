@@ -11,6 +11,65 @@ import { getMobileStageSelectors } from "./mobileStageProfiles";
 import useMobileRuntimeSnapshot from "./useMobileRuntimeSnapshot";
 import "./mobile-game-shell.css";
 
+function resolveShellTheme(game) {
+  const categoryKey = String(game?.category ?? "");
+  if (categoryKey === "Estrategia" || categoryKey === "Strategy") {
+    return "strategy";
+  }
+  if (categoryKey === "Conocimiento" || categoryKey === "Knowledge") {
+    return "knowledge";
+  }
+  return "default";
+}
+
+function resolveShellCopy(game, locale, shellMode) {
+  const categoryKey = String(game?.category ?? "");
+  const isStrategy = categoryKey === "Estrategia" || categoryKey === "Strategy";
+  const isKnowledge = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
+
+  if (isStrategy) {
+    return {
+      brand: locale === "en" ? "Strategy Board" : "Mesa tactica",
+      dualScreenBrand:
+        shellMode === "dual-screen"
+          ? locale === "en" ? "Strategy Desk" : "Mesa estrategica"
+          : locale === "en" ? "Strategy Board" : "Mesa tactica",
+      touchTitle:
+        locale === "en" ? "Touch-first board" : "Tablero tactil",
+      touchDescription:
+        locale === "en"
+          ? "Strategy games prioritize direct board and card interaction. In portrait, use the lower panel for setup and hidden desktop actions."
+          : "Los juegos de estrategia priorizan la interaccion directa con tablero y cartas. En vertical, usa el panel inferior para configuracion y acciones de escritorio ocultas.",
+    };
+  }
+
+  if (isKnowledge) {
+    return {
+      brand: locale === "en" ? "Knowledge Lab" : "Laboratorio",
+      dualScreenBrand:
+        shellMode === "dual-screen"
+          ? locale === "en" ? "Knowledge Deck" : "Panel de conocimiento"
+          : locale === "en" ? "Knowledge Lab" : "Laboratorio",
+      touchTitle:
+        locale === "en" ? "Reading and answer mode" : "Modo lectura y respuesta",
+      touchDescription:
+        locale === "en"
+          ? "Knowledge games keep prompts, boards, and answer areas inside the main stage. Rotate the device when you need a wider focus area."
+          : "Los juegos de conocimiento mantienen en el escenario principal el enunciado, el tablero y la zona de respuesta. Gira el dispositivo cuando necesites una zona de foco mas amplia.",
+    };
+  }
+
+  return {
+    brand: "Touch Stage",
+    dualScreenBrand: "Arcade DS",
+    touchTitle: locale === "en" ? "Touch-native mode" : "Modo tactil nativo",
+    touchDescription:
+      locale === "en"
+        ? "Play directly on the game surface in portrait. Rotate to landscape for a wider fullscreen stage."
+        : "Juega directamente sobre la superficie del juego en vertical. Gira a horizontal para una vista mas amplia y pantalla completa.",
+  };
+}
+
 function clearStageIsolation(viewport) {
   viewport.removeAttribute("data-mobile-stage-isolated");
   viewport
@@ -74,6 +133,14 @@ export default function MobileGameShell({
   const profile = useMemo(
     () => getMobileControlProfile(game, locale),
     [game, locale]
+  );
+  const shellTheme = useMemo(
+    () => resolveShellTheme(game),
+    [game]
+  );
+  const shellCopy = useMemo(
+    () => resolveShellCopy(game, locale, shellMode),
+    [game, locale, shellMode]
   );
   const isDualScreen = shellMode === "dual-screen";
   const isPortrait = viewport.orientation === "portrait";
@@ -153,6 +220,7 @@ export default function MobileGameShell({
     "mobile-game-shell",
     `mobile-game-shell--${isPortrait ? "portrait" : "landscape"}`,
     `mobile-game-shell--${shellMode}`,
+    `mobile-game-shell--theme-${shellTheme}`,
     isFullscreen ? "mobile-game-shell--fullscreen" : "",
     isDualScreen ? "mobile-game-shell--has-controls" : "mobile-game-shell--touch-native",
   ]
@@ -160,12 +228,18 @@ export default function MobileGameShell({
     .join(" ");
 
   return (
-    <div className={shellClassName} ref={shellRef} data-game-id={game.id}>
+    <div
+      className={shellClassName}
+      ref={shellRef}
+      data-game-id={game.id}
+      data-game-category={String(game?.category ?? "").toLowerCase()}
+      data-shell-mode={shellMode}
+    >
       <div className="mobile-game-shell__hardware">
         <div className="mobile-game-shell__topbar">
           <span className="mobile-game-shell__camera" aria-hidden="true" />
           <span className="mobile-game-shell__brand">
-            {isDualScreen ? "Arcade DS" : "Touch Stage"}
+            {isDualScreen ? shellCopy.dualScreenBrand : shellCopy.brand}
           </span>
           <button
             type="button"
@@ -198,6 +272,7 @@ export default function MobileGameShell({
               <div className="mobile-game-shell__controls-panel">
                 <div className="mobile-game-shell__controls-stack">
                   <MobileGameStatusPanel
+                    gameCategory={game?.category}
                     locale={locale}
                     scopeElement={stageViewportNode}
                     snapshot={runtimeSnapshot}
@@ -226,16 +301,13 @@ export default function MobileGameShell({
           ) : (
             <section className="mobile-game-shell__touch-copy">
               <MobileGameStatusPanel
+                gameCategory={game?.category}
                 locale={locale}
                 scopeElement={stageViewportNode}
                 snapshot={runtimeSnapshot}
               />
-              <strong>{locale === "en" ? "Touch-native mode" : "Modo táctil nativo"}</strong>
-              <p>
-                {locale === "en"
-                  ? "Play directly on the game surface in portrait. Rotate to landscape for a wider fullscreen stage."
-                  : "Juega directamente sobre la superficie del juego en vertical. Gira a horizontal para una vista más amplia y pantalla completa."}
-              </p>
+              <strong>{shellCopy.touchTitle}</strong>
+              <p>{shellCopy.touchDescription}</p>
             </section>
           )}
         </div>

@@ -1,0 +1,14 @@
+{
+  "shellMode": "mobile-first",
+  "buttons": [
+    "Nueva partida",
+    "Aplicar y reiniciar"
+  ],
+  "selects": [
+    "ModoBrisca/TuteMusEscoba",
+    "Tipo de juegoBrisca DueloBrisca EquiposTute Equipos",
+    "Numero de IAs12345"
+  ],
+  "stageHeight": 374,
+  "stageScrollHeight": 966
+}

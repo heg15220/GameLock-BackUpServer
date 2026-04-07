@@ -3875,3 +3875,72 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
   - `web_game_playwright_client.mjs` ejecutado sobre `#game=arcade-bowling-pro-tour` con salida en `output/mobile-panel-bowling-skill-check`;
   - ambos runs generaron `shot-0.png` y `state-0.json` sin `errors-*.json`.
 
+## 2026-04-07 - Shell movil: categorias Estrategia + Conocimiento
+- Extendida la elegibilidad del shell movil a `Estrategia/Strategy` y `Conocimiento/Knowledge` en `src/utils/mobileShellProfile.js`.
+- Decision de producto: ambas categorias pasan a un enfoque `mobile-first`, distinto del dual-screen dominante en `Arcade/Deportes/Juegos`, porque aqui prima el tablero, la lectura, la respuesta y la precision tactil directa.
+- `src/mobile/mobileGameProfiles.js` ahora fuerza `mobile-first` para estas familias y `src/mobile/MobileGameShell.jsx` les da copy/branding propio:
+  - `Estrategia`: mesa tactica / strategy desk.
+  - `Conocimiento`: laboratorio de lectura y respuesta / knowledge lab.
+- `src/mobile/mobileStageProfiles.js` incorpora selectores de stage para layouts clave de estrategia y conocimiento (`chess`, `checkers`, `sudoku`, `battleship`, `poker`, `parchis`, `baraja`, `mansion`, `crossword`, `wordsearch`, `periodic`, `maps`, `timeline`, `tangram`, `proverbs`, etc.).
+- `src/mobile/mobile-game-shell.css` anade reglas para que esos shells ocupen el viewport movil sin arrastrar completo el HUD de escritorio.
+- `src/mobile/MobileGameStatusPanel.jsx` ya recupera tambien botones ocultos de toolbars/paneles/footers al aislar el stage, para que en portrait sigan disponibles acciones relevantes aunque el tablero o la zona de respuesta queden en primer plano.
+- `src/mobile/mobileStatusFormatter.js` amplia las chips moviles con sesion, turno, movimientos, pistas, intentos, progreso de palabras/resolucion, jugadores, mazo y dificultad; ademas trata `idle/config/pregame` como estados previos para mostrar la configuracion inicial cuando aplique.
+- Ajuste posterior tras validacion real:
+  - `src/mobile/MobileGameShell.jsx` pasa `gameCategory` al panel y expone `data-shell-mode`;
+  - `src/mobile/MobileGameStatusPanel.jsx` trata `Estrategia`/`Conocimiento` como familias propias para recuperar controles ocultos aunque el `snapshot.mode` no empiece por `strategy` o `knowledge` (caso `chess_fide_board`);
+  - `src/mobile/mobileStatusFormatter.js` usa `statusText`, normaliza turnos `w/b -> Blancas/Negras`, anade `legalMovesCount`, `difficultyId` y estado inicial pendiente;
+  - `src/mobile/mobile-game-shell.css` reserva mas altura al stage en portrait para `Estrategia` y escala tableros cuadrados en landscape para evitar recortes.
+- Validacion Playwright completada sobre build local:
+  - `output/mobile-strategy-knowledge-check/final-pass` confirma `mobile-first` + tema correcto para `strategy-chess-grandmaster` y `knowledge-crucigrama-mini`;
+  - `strategy-chess` en portrait ya muestra tablero completo mas panel con selects y acciones previas (`Iniciar partida`, `Deshacer`, `Reiniciar tablero`, `Reclamar tablas`, `Limpiar seleccion`);
+  - `knowledge-crucigrama-mini` mantiene tablero legible y boton contextual (`Partida aleatoria`) en portrait y landscape;
+  - capturas finales adicionales del ajuste vertical de ajedrez en `output/mobile-strategy-knowledge-check/portrait-fix`.
+
+## 2026-04-07 - Shell movil: estrategia, segunda pasada en Parchis/Ajedrez/Poker/Baraja
+- Ajustado `src/mobile/MobileGameStatusPanel.jsx` para los juegos de estrategia:
+  - las etiquetas de `select` ahora se extraen tambien desde labels inline (`Tu color`, `Dificultad IA`, etc.), evitando controles anonimos o textos amontonados;
+  - el rastreo de ramas ocultas del stage incluye `config`, `switch`, `score`, `stats`, `post`, `meta` y `setup`, recuperando acciones/configuracion que quedaban fuera del viewport en `Poker` y `Baraja`;
+  - en estrategia/conocimiento el bloque de controles contextuales tambien muestra `selects` ocultos aunque la partida ya este activa.
+- Ajustado `src/mobile/mobileStatusFormatter.js`:
+  - `Parchis` resume `Dados`, `Paso` y turno con nombre visible (`Tu (Rojo)` en lugar de `human`);
+  - la lectura de turno ahora resuelve etiquetas de jugadores cuando el snapshot expone `players`.
+- Ajustado `src/mobile/mobile-game-shell.css` con reglas especificas de estrategia:
+  - `Parchis` en portrait compacta tablero/panel para que se vean dados, boton de tirada y acciones de ficha dentro del shell;
+  - `Ajedrez` en portrait elimina el copy generico que competia con la configuracion, y en landscape dimensiona el tablero por la altura real disponible para evitar texto superpuesto y espacio muerto excesivo;
+  - `Poker` en portrait reduce asientos/cartas y, en landscape, recrea dentro del shell el layout `poker-mobile` perdido al aislar la mesa, para que vuelvan a verse tablero, cartas y acciones;
+  - `Baraja` compacta la mesa y expone `Modo`, `Tipo de juego` y `Numero de IAs` en el panel inferior mientras el tablero queda visible.
+- Validacion dirigida sobre build local con capturas y probes en:
+  - `output/strategy-mobile-audit`
+  - `output/strategy-mobile-audit-final`
+- Resultados verificados:
+  - `parchis-portrait.png`: tablero + dados visibles y selects de configuracion etiquetados;
+  - `chess-portrait.png`: panel inferior sin solaparse con el copy generico;
+  - `poker-portrait.png`: mesa y botones (`Pasar`, `Igualar`, `Subir`) visibles desde movil;
+  - `baraja-portrait.png`: tablero visible con controles contextuales accesibles en el panel.
+- Nota de validacion:
+  - el cliente ESM del skill no pudo ejecutarse en este entorno de Node por incompatibilidad con el flag/modo de modulo;
+  - la comprobacion se hizo con `vite preview` + Playwright custom sobre la build real.
+
+## 2026-04-07 - Shell movil: ajuste del aislamiento en Parchis y Baraja
+- `src/mobile/mobileStageProfiles.js` corrige el target aislado del stage:
+  - `Parchis` pasa a priorizar `.parchis-board-wrap` para dejar tablero arriba y mover tiradas/acciones al panel movil inferior;
+  - `Baraja` pasa a apuntar primero a `.brisca-table-felt` para evitar que el shell herede la altura sobrante del contenedor completo y recorte la mesa.
+- `src/mobile/MobileGameStatusPanel.jsx` separa ya en movil:
+  - `Configuracion de partida`;
+  - `Acciones de partida`;
+  - y las acciones largas se renderizan a una sola columna para que las jugadas de `Parchis` sean legibles al escoger ficha.
+- `src/mobile/mobile-game-shell.css` acompana el cambio:
+  - `Parchis` reserva mas altura al stage y compacta el viewport para que el panel inferior tenga espacio real para las acciones;
+  - `Baraja` reduce padding de mesa, fuerza `min-height: 0` sobre el tapete aislado y reescala asientos, zona central y mano humana para que el tablero entre completo en portrait.
+
+## 2026-04-07 - Capturas reales de launcher movil: fallos pendientes en Baraja y Parchis
+- Capturas hechas con Playwright sobre el launcher movil real abierto desde el catalogo, guardadas en:
+  - `output/strategy-mobile-user-report/baraja-portrait-launcher.png`
+  - `output/strategy-mobile-user-report/parchis-portrait-launcher.png`
+- Hallazgos visuales confirmados:
+  - `Baraja`: en portrait solo se ve la franja superior del tapete; faltan claramente el centro completo, la mano del usuario y parte importante de la mesa jugable.
+  - `Parchis`: el stage aislado sigue mostrando una composicion incorrecta; se ven dados + tarjetas laterales, pero no el tablero de parchis, y las acciones tacticas visibles para el usuario no corresponden al flujo real esperado.
+- Decision para la siguiente pasada:
+  - `Baraja` necesita una vista portrait propia de gameplay dentro de `StrategyBriscaDeckGame`, no solo compresion CSS del layout desktop.
+  - `Parchis` necesita revisar de nuevo el selector de stage aislado y la separacion entre tablero, HUD y acciones para que el tablero sea el contenido principal y las jugadas salgan abajo.
+

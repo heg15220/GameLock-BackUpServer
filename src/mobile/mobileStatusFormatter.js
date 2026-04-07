@@ -12,6 +12,40 @@ function titleCase(value) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function formatTurnValue(value, locale) {
+  const turnKey = String(value ?? "").trim().toLowerCase();
+  if (!turnKey) {
+    return null;
+  }
+
+  if (turnKey === "w" || turnKey === "white") {
+    return locale === "en" ? "White" : "Blancas";
+  }
+
+  if (turnKey === "b" || turnKey === "black") {
+    return locale === "en" ? "Black" : "Negras";
+  }
+
+  return titleCase(value);
+}
+
+function resolveTurnLabel(snapshot, locale) {
+  const turnId = snapshot?.currentPlayerName ?? snapshot?.current ?? snapshot?.turn;
+  if (!turnId) {
+    return null;
+  }
+
+  const playerLabel = Array.isArray(snapshot?.players)
+    ? snapshot.players.find((player) => player?.id === turnId)?.label
+    : null;
+
+  if (playerLabel) {
+    return playerLabel;
+  }
+
+  return formatTurnValue(turnId, locale);
+}
+
 function addEntry(entries, label, value) {
   if (value == null || value === "") {
     return;
@@ -38,6 +72,10 @@ function resolvePrimaryText(snapshot) {
     return snapshot.summary.text
       ? `${snapshot.summary.title} · ${snapshot.summary.text}`
       : snapshot.summary.title;
+  }
+
+  if (snapshot.statusText) {
+    return snapshot.statusText;
   }
 
   if (snapshot.message) {
@@ -119,6 +157,57 @@ export function formatMobileStatus(snapshot, locale = "es") {
   addEntry(entries, timeLabel, snapshot.timerLabel);
   addEntry(entries, timeLabel, snapshot.timer);
 
+  if (snapshot.match && typeof snapshot.match === "object") {
+    addEntry(
+      entries,
+      locale === "en" ? "Match" : "Sesion",
+      snapshot.match.current != null && snapshot.match.total != null
+        ? `${snapshot.match.current}/${snapshot.match.total}`
+        : snapshot.match.current
+    );
+  }
+
+  addEntry(
+    entries,
+    locale === "en" ? "Dice" : "Dados",
+    snapshot.dice != null || snapshot.diceAux != null
+      ? `${snapshot.dice ?? "-"} / ${snapshot.diceAux ?? "-"}`
+      : null
+  );
+  addEntry(entries, locale === "en" ? "Move" : "Paso", snapshot.steps);
+
+  addEntry(
+    entries,
+    locale === "en" ? "Turn" : "Turno",
+    resolveTurnLabel(snapshot, locale)
+  );
+  addEntry(entries, locale === "en" ? "Moves" : "Movs", snapshot.moves);
+  addEntry(entries, locale === "en" ? "Moves" : "Movs", snapshot.moveHistory?.length);
+  addEntry(entries, locale === "en" ? "Legal" : "Legales", snapshot.legalMovesCount);
+  addEntry(entries, locale === "en" ? "Hints" : "Pistas", snapshot.hintsUsed);
+  addEntry(entries, locale === "en" ? "Attempts" : "Intentos", snapshot.attemptsLeft);
+  addEntry(
+    entries,
+    locale === "en" ? "Words" : "Palabras",
+    snapshot.wordsFound != null && snapshot.wordsTotal != null
+      ? `${snapshot.wordsFound}/${snapshot.wordsTotal}`
+      : null
+  );
+  addEntry(
+    entries,
+    locale === "en" ? "Solved" : "Resuelto",
+    snapshot.solvedCount != null && snapshot.remainingCount != null
+      ? `${snapshot.solvedCount}/${snapshot.solvedCount + snapshot.remainingCount}`
+      : null
+  );
+  addEntry(entries, locale === "en" ? "Players" : "Jug.", snapshot.playerCount);
+  addEntry(entries, locale === "en" ? "Deck" : "Mazo", snapshot.stockCount);
+  addEntry(
+    entries,
+    locale === "en" ? "Difficulty" : "Nivel",
+    snapshot.difficulty ? titleCase(snapshot.difficulty) : titleCase(snapshot.difficultyId)
+  );
+
   if (!entries.some((entry) => entry.label === timeLabel)) {
     if (timing?.elapsedMs != null) {
       addEntry(entries, timeLabel, formatMs(timing.elapsedMs));
@@ -133,6 +222,7 @@ export function formatMobileStatus(snapshot, locale = "es") {
   addEntry(entries, locale === "en" ? "Wave" : "Oleada", snapshot.wave);
   addEntry(entries, locale === "en" ? "Round" : "Ronda", snapshot.roundLabel);
   addEntry(entries, locale === "en" ? "Phase" : "Fase", snapshot.status ?? snapshot.playState);
+  addEntry(entries, locale === "en" ? "Start" : "Inicio", snapshot.started === false ? (locale === "en" ? "Pending" : "Pendiente") : null);
   addEntry(entries, locale === "en" ? "Sector" : "Sector", snapshot.sectorName);
   addEntry(entries, locale === "en" ? "World" : "Mundo", level?.worldName);
   addEntry(entries, locale === "en" ? "Lives" : "Vidas", snapshot.ballsLeft);
@@ -169,6 +259,14 @@ export function isPreplayState(snapshot) {
     "booting",
     "starting",
     "setup",
+    "config",
+    "configuration",
+    "idle",
+    "lobby",
+    "not-started",
+    "not_started",
+    "pregame",
+    "pre-game",
     "ready",
     "levelselect",
     "level_select",

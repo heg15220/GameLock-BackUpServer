@@ -4,6 +4,10 @@ export const MOBILE_SHELL_CATEGORIES = new Set([
   "Games",
   "Deportes",
   "Sports",
+  "Conocimiento",
+  "Knowledge",
+  "Estrategia",
+  "Strategy",
 ]);
 
 export const MOBILE_FIRST_GAME_IDS = new Set([

@@ -1,0 +1,13 @@
+{
+  "shellMode": "mobile-first",
+  "buttons": [
+    "Iniciar partida",
+    "Reiniciar partida"
+  ],
+  "selects": [
+    "Color de tus fichasRojoAzulAmarilloVerde",
+    "Dificultad IAFacilMediaDificil"
+  ],
+  "stageHeight": 374,
+  "stageScrollHeight": 702
+}

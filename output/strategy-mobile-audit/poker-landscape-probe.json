@@ -1,0 +1,32 @@
+{
+  "shellMode": "mobile-first",
+  "shellClasses": [
+    "mobile-game-shell",
+    "mobile-game-shell--landscape",
+    "mobile-game-shell--mobile-first",
+    "mobile-game-shell--theme-strategy",
+    "mobile-game-shell--touch-native"
+  ],
+  "stageScrollHeight": 425,
+  "stageClientHeight": 235,
+  "panelButtons": [
+    "Nueva partida",
+    "Aplicar y reiniciar"
+  ],
+  "panelSelects": [],
+  "visibleNodes": [
+    {
+      "selector": ".poker-round-table",
+      "width": 782,
+      "height": 408,
+      "text": "TuActiva6♥A♥A♠9♥2♥118fichasApuesta: 2Acumulado: 2Descarte pendienteIA 1En manoIAIA116Apuesta inicialDescarteApuesta fina"
+    },
+    {
+      "selector": ".poker-actions-panel",
+      "width": 0,
+      "height": 0,
+      "text": "PasarIgualar (2)Subir (+4)All-inRetirarse"
+    }
+  ],
+  "renderState": "{\"mode\":\"strategy-poker-clasico-bet\",\"variant\":\"draw_poker_five_card_with_betting\",\"coordinates\":\"seat_index_clockwise_start_player_0\",\"stateMode\":\"playing\",\"hand\":1,\"phase\":\"pre-bet\",\"dealer\":1,\"turn\":0,\"opponents\":1,\"profile\":\"tactical\",\"startingStack\":120,\"targetChips\":180,\"blindLevel\":\"standard\",\"smallBlind\":2,\"bigBlind\":4,\"pot\":6,\"currentBet\":4,\"toCall\":2,\"aiThinking\":false,\"rulesPrompt\":\"POKER CLASICO 5 CARTAS (CON APUESTAS)\\n- Ciegas pequena/grande al inicio de cada mano.\\n- Ronda de apuesta inicial, descarte, ronda final y showdown.\\n- Acciones: pasar, igualar, subir, all-in, retirarse.\\n- Gana el bote la mejor mano o el ultimo jugador que no se retire.\\n- Meta: alcanzar la meta de fichas o dejar al resto sin stack.\",\"scores\":[{\"seatIndex\":0,\"name\":\"Tu\",\"chips\":118,\"handsWon\":0,\"currentBet\":2,\"totalCommitted\":2,\"busted\":false},{\"seatIndex\":1,\"name\":\"IA 1\",\"chips\":116,\"handsWon\":0,\"currentBet\":4,\"totalCommitted\":4,\"busted\":false}],\"seats\":[{\"reads\":{\"hands\":0,\"vpip\":0,\"aggression\":0,\"foldToRaise\":0,\"showdownWinRate\":0,\"stealRate\":0},\"seatIndex\":0,\"name\":\"Tu\",\"folded\":false,\"busted\":false,\"allIn\":false,\"discarded\":false,\"discardCount\":0,\"currentBet\":2,\"totalCommitted\":2,\"holeVisible\":true,\"hole\":[\"6♥\",\"A♥\",\"A♠\",\"9♥\",\"2♥\"]},{\"reads\":{\"hands\":0,\"vpip\":0,\"aggression\":0,\"foldToRaise\":0,\"showdownWinRate\":0,\"stealRate\":0},\"seatIndex\":1,\"name\":\"IA 1\",\"folded\":false,\"busted\":false,\"allIn\":false,\"discarded\":false,\"discardCount\":0,\"currentBet\":4,\"totalCommitted\":4,\"holeVisible\":false,\"hole\":[\"hidden\",\"hidden\",\"hidden\",\"hidden\",\"hidden\"]}],\"selectedDiscards\":[],\"playerActions\":[\"fold\",\"call\",\"raise\",\"all-in\"],\"lastResult\":null,\"overlay\":null,\"message\":\"Turno para Tu.\"}"
+}

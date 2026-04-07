@@ -628,9 +628,31 @@ function StrategyBriscaDeckGame() {
   const [pVar, setPVar] = useState("brisca_duel");
   const [pAi, setPAi] = useState(1);
   const [pDiff, setPDiff] = useState("medium");
+  const [compactPortraitLayout, setCompactPortraitLayout] = useState(() => (
+    typeof window !== "undefined"
+    && typeof window.matchMedia === "function"
+    && window.matchMedia("(max-width: 760px) and (orientation: portrait)").matches
+  ));
 
   useEffect(() => { setPVar(s.variantId); setPAi(s.aiOpponents); setPDiff(s.difficultyId); }, [s.variantId, s.aiOpponents, s.difficultyId]);
   useEffect(() => { const opts = VARIANTS[pVar]?.aiOptions || [1]; if (!opts.includes(pAi)) setPAi(opts[0]); }, [pAi, pVar]);
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+
+    const media = window.matchMedia("(max-width: 760px) and (orientation: portrait)");
+    const syncLayout = () => setCompactPortraitLayout(media.matches);
+    syncLayout();
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", syncLayout);
+      return () => media.removeEventListener("change", syncLayout);
+    }
+
+    media.addListener(syncLayout);
+    return () => media.removeListener(syncLayout);
+  }, []);
 
   const restart = useCallback(() => setS((prev) => createMatch(locale, { variantId: prev.variantId, aiOpponents: prev.aiOpponents, difficultyId: prev.difficultyId })), [locale]);
   const applyCfg = useCallback(() => setS(createMatch(locale, { variantId: pVar, aiOpponents: clampAi(pVar, pAi), difficultyId: pDiff })), [locale, pAi, pDiff, pVar]);
@@ -674,6 +696,7 @@ function StrategyBriscaDeckGame() {
   const canHuman = s.status === "playing" && !s.resolving && !s.turnTransitioning && s.current === "human";
   const humanHand = s.hands.human || [];
   const legalHuman = useMemo(() => (canHuman ? legalIdx(humanHand, s.table, s.trumpSuit, s.variant) : []), [canHuman, humanHand, s.table, s.trumpSuit, s.variant]);
+  const aiPlayers = useMemo(() => s.players.filter((p) => !p.human), [s.players]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -734,6 +757,38 @@ function StrategyBriscaDeckGame() {
   const advanceTime = useCallback((ms) => setS((prev) => stepTime(prev, t, ms)), [t]);
   useGameRuntimeBridge(s, bridgePayload, advanceTime);
 
+  const renderCompactSeat = useCallback((player) => {
+    const active = s.current === player.id;
+    const isMate = s.variant.team && player.side === "user";
+    const handCount = (s.hands[player.id] || []).length;
+    const wonLast = lastWinnerId === player.id;
+
+    return (
+      <article
+        key={`compact-${player.id}`}
+        className={[
+          "brisca-mobile-seat",
+          player.side === "user" ? "seat-friendly" : "seat-rival",
+          active ? "seat-active" : "",
+          wonLast ? "seat-won-trick" : "",
+        ].filter(Boolean).join(" ")}
+      >
+        <header>
+          <h5>{player.name}</h5>
+          <span className="seat-tag">{isMate ? t.seatMate : t.seatRival}</span>
+        </header>
+        <p className="seat-kpi">{t.points}: {pp[player.id] || 0}</p>
+        {wonLast ? <span className="seat-turn-led" aria-label={`${player.name}: ${t.wonTrick}`}>{t.wonTrick}</span> : null}
+        <div className="seat-hidden-hand" aria-label={`${player.name} ${handCount} ${t.hidden}`}>
+          {Array.from({ length: handCount }).map((_, index) => (
+            <Card key={`${player.id}-compact-${index}`} hidden compact deckId={s.deckId} />
+          ))}
+        </div>
+        {s.hint?.playerId === player.id ? <p className="seat-hint-bubble">{t.hintLabel}: <strong>{s.hint.text}</strong></p> : null}
+      </article>
+    );
+  }, [lastWinnerId, pp, s.current, s.deckId, s.hands, s.hint?.playerId, s.hint?.text, s.variant.team, t]);
+
   return (
     <div className="mini-game strategy-brisca-game brisca-arena">
       <div className="mini-head">
@@ -777,60 +832,111 @@ function StrategyBriscaDeckGame() {
       </div>
 
       <div className="brisca-table-shell">
-        <div className={`brisca-table-felt ai-count-${s.aiOpponents}`}>
-          <div className="brisca-seat-ring">
-            {s.players.filter((p) => !p.human).map((p) => {
-              const active = s.current === p.id;
-              const isMate = s.variant.team && !p.human && p.side === "user";
-              const handCount = (s.hands[p.id] || []).length;
-              const wonLast = lastWinnerId === p.id;
-              return (
-                <article key={p.id} className={["brisca-seat", p.human ? "seat-human" : "seat-ai", p.side === "user" ? "seat-friendly" : "seat-rival", p.seat?.slot ? `seat-slot-${p.seat.slot}` : "", active ? "seat-active" : "", wonLast ? "seat-won-trick" : ""].filter(Boolean).join(" ")} style={{ "--seat-x": `${p.seat.x}%`, "--seat-y": `${p.seat.y}%` }}>
-                  <header><h5>{p.name}</h5><span className="seat-tag">{p.human ? t.seatHuman : isMate ? t.seatMate : t.seatRival}</span></header>
-                  <p className="seat-side">{p.side === "user" ? t.userSide : t.rivalSide}</p>
-                  <p className="seat-kpi">{t.points}: {pp[p.id] || 0}</p>
-                  {wonLast ? <span className="seat-turn-led" aria-label={`${p.name}: ${t.wonTrick}`}>{t.wonTrick}</span> : null}
-                  {!p.human ? <div className="seat-hidden-hand" aria-label={`${p.name} ${handCount} ${t.hidden}`}>{Array.from({ length: handCount }).map((_, i) => <Card key={`${p.id}-h-${i}`} hidden compact deckId={s.deckId} />)}</div> : null}
-                  {s.hint?.playerId === p.id ? <p className="seat-hint-bubble">{t.hintLabel}: <strong>{s.hint.text}</strong></p> : null}
-                </article>
-              );
-            })}
-          </div>
+        <div className={`brisca-table-felt ai-count-${s.aiOpponents} ${compactPortraitLayout ? "is-mobile-stack" : ""}`}>
+          {compactPortraitLayout ? (
+            <>
+              <section className={`brisca-mobile-opponents ai-count-${s.aiOpponents}`}>
+                {aiPlayers.map((player) => renderCompactSeat(player))}
+              </section>
 
-          <section className="brisca-center-zone">
-            <div className="brisca-center-meta">
-              <article className="brisca-pile brisca-pile-trump"><h6>{t.trump}</h6><Card card={s.trumpCard} deckId={s.deckId} compact /></article>
-              <article className="brisca-pile brisca-pile-stock">
-                <h6>{t.stock}</h6>
-                <div className="brisca-stock-stack" aria-label={`${t.stock}: ${s.stock.length + (s.trumpCard ? 1 : 0)}`}>
-                  <div className="brisca-stock-layer layer-back"><Card hidden compact deckId={s.deckId} /></div>
-                  <div className="brisca-stock-layer layer-mid"><Card hidden compact deckId={s.deckId} /></div>
-                  <div className="brisca-stock-layer layer-front"><Card hidden compact deckId={s.deckId} /></div>
-                  <strong>{s.stock.length + (s.trumpCard ? 1 : 0)}</strong>
+              <section className="brisca-mobile-center">
+                <div className="brisca-center-meta">
+                  <article className="brisca-pile brisca-pile-trump"><h6>{t.trump}</h6><Card card={s.trumpCard} deckId={s.deckId} compact /></article>
+                  <article className="brisca-pile brisca-pile-stock">
+                    <h6>{t.stock}</h6>
+                    <div className="brisca-stock-stack" aria-label={`${t.stock}: ${s.stock.length + (s.trumpCard ? 1 : 0)}`}>
+                      <div className="brisca-stock-layer layer-back"><Card hidden compact deckId={s.deckId} /></div>
+                      <div className="brisca-stock-layer layer-mid"><Card hidden compact deckId={s.deckId} /></div>
+                      <div className="brisca-stock-layer layer-front"><Card hidden compact deckId={s.deckId} /></div>
+                      <strong>{s.stock.length + (s.trumpCard ? 1 : 0)}</strong>
+                    </div>
+                  </article>
                 </div>
-              </article>
-            </div>
-            <div className="brisca-center-trick">
-              {s.table.length ? s.table.map((e, i) => (
-                <div key={e.playId} className="brisca-center-card" style={{ "--from-x": `${e.from.x}%`, "--from-y": `${e.from.y}%`, "--card-rot": `${(i - (s.table.length - 1) / 2) * 7}deg` }}>
-                  <Card card={e.card} deckId={s.deckId} />
-                  <small>{s.byId[e.playerId]?.name || e.playerId}</small>
+                <div className="brisca-center-trick">
+                  {s.table.length ? s.table.map((entry, index) => (
+                    <div key={entry.playId} className="brisca-center-card" style={{ "--card-rot": `${(index - (s.table.length - 1) / 2) * 5}deg` }}>
+                      <Card card={entry.card} deckId={s.deckId} compact />
+                      <small>{s.byId[entry.playerId]?.name || entry.playerId}</small>
+                    </div>
+                  )) : <p className="brisca-center-empty">{t.yourTurn}</p>}
                 </div>
-              )) : <p className="brisca-center-empty">{t.yourTurn}</p>}
-            </div>
-            <p className="brisca-message">{s.message}</p>
-            <p className="brisca-help">{t.controls}</p>
-          </section>
+                <p className="brisca-message">{s.message}</p>
+              </section>
 
-          {s.drawAnim ? <div key={s.drawAnim.id} className="brisca-draw-fx"><Card hidden compact deckId={s.deckId} /></div> : null}
+              <section className={["brisca-mobile-human", lastWinnerId === "human" ? "human-won-trick" : ""].join(" ")}>
+                <header><h5>{t.human}</h5><span>{t.points}: {pp.human || 0}</span></header>
+                {lastWinnerId === "human" ? <span className="seat-turn-led human-turn-led" aria-label={t.wonTrick}>{t.wonTrick}</span> : null}
+                <div className="brisca-player-hand">
+                  {humanHand.map((card, index) => (
+                    <Card
+                      key={card.id}
+                      card={card}
+                      deckId={s.deckId}
+                      compact
+                      onPlay={() => playHuman(index)}
+                      disabled={!canHuman || !legalHuman.includes(index)}
+                    />
+                  ))}
+                </div>
+              </section>
+            </>
+          ) : (
+            <>
+              <div className="brisca-seat-ring">
+                {aiPlayers.map((p) => {
+                  const active = s.current === p.id;
+                  const isMate = s.variant.team && !p.human && p.side === "user";
+                  const handCount = (s.hands[p.id] || []).length;
+                  const wonLast = lastWinnerId === p.id;
+                  return (
+                    <article key={p.id} className={["brisca-seat", p.human ? "seat-human" : "seat-ai", p.side === "user" ? "seat-friendly" : "seat-rival", p.seat?.slot ? `seat-slot-${p.seat.slot}` : "", active ? "seat-active" : "", wonLast ? "seat-won-trick" : ""].filter(Boolean).join(" ")} style={{ "--seat-x": `${p.seat.x}%`, "--seat-y": `${p.seat.y}%` }}>
+                      <header><h5>{p.name}</h5><span className="seat-tag">{p.human ? t.seatHuman : isMate ? t.seatMate : t.seatRival}</span></header>
+                      <p className="seat-side">{p.side === "user" ? t.userSide : t.rivalSide}</p>
+                      <p className="seat-kpi">{t.points}: {pp[p.id] || 0}</p>
+                      {wonLast ? <span className="seat-turn-led" aria-label={`${p.name}: ${t.wonTrick}`}>{t.wonTrick}</span> : null}
+                      {!p.human ? <div className="seat-hidden-hand" aria-label={`${p.name} ${handCount} ${t.hidden}`}>{Array.from({ length: handCount }).map((_, i) => <Card key={`${p.id}-h-${i}`} hidden compact deckId={s.deckId} />)}</div> : null}
+                      {s.hint?.playerId === p.id ? <p className="seat-hint-bubble">{t.hintLabel}: <strong>{s.hint.text}</strong></p> : null}
+                    </article>
+                  );
+                })}
+              </div>
 
-          <section className={["brisca-human-zone", lastWinnerId === "human" ? "human-won-trick" : ""].join(" ")}>
-            <header><h5>{t.human}</h5><span>{t.points}: {pp.human || 0}</span></header>
-            {lastWinnerId === "human" ? <span className="seat-turn-led human-turn-led" aria-label={t.wonTrick}>{t.wonTrick}</span> : null}
-            <div className="brisca-player-hand">
-              {humanHand.map((card, i) => <Card key={card.id} card={card} deckId={s.deckId} onPlay={() => playHuman(i)} disabled={!canHuman || !legalHuman.includes(i)} />)}
-            </div>
-          </section>
+              <section className="brisca-center-zone">
+                <div className="brisca-center-meta">
+                  <article className="brisca-pile brisca-pile-trump"><h6>{t.trump}</h6><Card card={s.trumpCard} deckId={s.deckId} compact /></article>
+                  <article className="brisca-pile brisca-pile-stock">
+                    <h6>{t.stock}</h6>
+                    <div className="brisca-stock-stack" aria-label={`${t.stock}: ${s.stock.length + (s.trumpCard ? 1 : 0)}`}>
+                      <div className="brisca-stock-layer layer-back"><Card hidden compact deckId={s.deckId} /></div>
+                      <div className="brisca-stock-layer layer-mid"><Card hidden compact deckId={s.deckId} /></div>
+                      <div className="brisca-stock-layer layer-front"><Card hidden compact deckId={s.deckId} /></div>
+                      <strong>{s.stock.length + (s.trumpCard ? 1 : 0)}</strong>
+                    </div>
+                  </article>
+                </div>
+                <div className="brisca-center-trick">
+                  {s.table.length ? s.table.map((e, i) => (
+                    <div key={e.playId} className="brisca-center-card" style={{ "--from-x": `${e.from.x}%`, "--from-y": `${e.from.y}%`, "--card-rot": `${(i - (s.table.length - 1) / 2) * 7}deg` }}>
+                      <Card card={e.card} deckId={s.deckId} />
+                      <small>{s.byId[e.playerId]?.name || e.playerId}</small>
+                    </div>
+                  )) : <p className="brisca-center-empty">{t.yourTurn}</p>}
+                </div>
+                <p className="brisca-message">{s.message}</p>
+                <p className="brisca-help">{t.controls}</p>
+              </section>
+
+              {s.drawAnim ? <div key={s.drawAnim.id} className="brisca-draw-fx"><Card hidden compact deckId={s.deckId} /></div> : null}
+
+              <section className={["brisca-human-zone", lastWinnerId === "human" ? "human-won-trick" : ""].join(" ")}>
+                <header><h5>{t.human}</h5><span>{t.points}: {pp.human || 0}</span></header>
+                {lastWinnerId === "human" ? <span className="seat-turn-led human-turn-led" aria-label={t.wonTrick}>{t.wonTrick}</span> : null}
+                <div className="brisca-player-hand">
+                  {humanHand.map((card, i) => <Card key={card.id} card={card} deckId={s.deckId} onPlay={() => playHuman(i)} disabled={!canHuman || !legalHuman.includes(i)} />)}
+                </div>
+              </section>
+            </>
+          )}
 
           {s.status === "match-over" ? (
             <div className="brisca-match-modal-wrap" role="dialog" aria-live="polite" aria-label={t.statusMatch}>

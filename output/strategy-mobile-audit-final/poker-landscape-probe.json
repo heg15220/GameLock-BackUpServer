@@ -1,0 +1,18 @@
+{
+  "shellMode": "mobile-first",
+  "buttons": [
+    "Nueva partida",
+    "Aplicar y reiniciar",
+    "Pasar",
+    "Igualar (0)",
+    "Subir (+4)",
+    "All-in"
+  ],
+  "selects": [
+    "Rivales IA12345678",
+    "Perfil IABasicaTacticaExperta",
+    "Stack inicial6080100120140160200240300400"
+  ],
+  "stageHeight": 225,
+  "stageScrollHeight": 225
+}
