@@ -152,11 +152,16 @@
 }
 
 .mobile-game-shell--portrait[data-game-id="strategy-parchis-ludoteka"].mobile-game-shell--touch-native .mobile-game-shell__body {
-  grid-template-rows: minmax(428px, 1.16fr) minmax(0, 0.84fr);
+  grid-template-rows: minmax(396px, 1.04fr) minmax(0, 0.96fr);
 }
 
 .mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"].mobile-game-shell--touch-native .mobile-game-shell__body {
-  grid-template-rows: minmax(418px, 1.12fr) minmax(0, 0.88fr);
+  grid-template-rows: minmax(404px, 0.98fr) minmax(0, 1.02fr);
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"][data-shell-mode="mobile-first"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game.brisca-arena,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"][data-shell-mode="mobile-first"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game.brisca-arena {
+  min-height: 0;
 }
 
 .mobile-game-shell--landscape.mobile-game-shell--touch-native .mobile-game-shell__body {
@@ -165,6 +170,26 @@
 
 .mobile-game-shell--landscape.mobile-game-shell--touch-native .mobile-game-shell__touch-copy {
   display: none;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"].mobile-game-shell--touch-native .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.28fr) minmax(248px, 0.72fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"].mobile-game-shell--touch-native .mobile-game-shell__touch-copy {
+  display: grid;
+  overflow-y: auto;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"].mobile-game-shell--touch-native .mobile-game-shell__touch-copy > strong,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"].mobile-game-shell--touch-native .mobile-game-shell__touch-copy > p {
+  display: none;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"][data-shell-mode="mobile-first"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game.brisca-arena,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"][data-shell-mode="mobile-first"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game.brisca-arena {
+  min-height: 0;
 }
 
 .mobile-game-shell__stage-shell,
@@ -497,6 +522,42 @@
   display: none;
 }
 
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-status-panel {
+  gap: 0.42rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-status-panel__menu,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-status-panel__selects,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-status-panel__buttons {
+  gap: 0.36rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-status-panel__chips {
+  gap: 0.35rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-status-panel__chip {
+  padding: 0.46rem 0.56rem;
+  border-radius: 14px;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-status-panel__buttons button,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-status-panel__selects select {
+  min-height: 40px;
+  padding: 0.56rem 0.66rem;
+  border-radius: 14px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-baraja-modes {
+  height: 100%;
+  padding: 0.16rem;
+  gap: 0.28rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena {
+  gap: 0.42rem;
+}
+
 .mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .mini-head,
 .mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-config,
 .mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .status-row {
@@ -504,16 +565,16 @@
 }
 
 .mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-shell {
-  padding: 0.2rem;
-  align-items: flex-start;
+  padding: 0.08rem;
+  align-items: stretch;
 }
 
 .mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-felt {
   min-height: 0;
-  width: min(100%, 304px);
-  height: auto;
+  width: 100%;
+  height: 100%;
   max-height: 100%;
-  aspect-ratio: 1 / 1.02;
+  aspect-ratio: auto;
 }
 
 .mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-felt.is-mobile-stack {
@@ -521,6 +582,10 @@
   height: 100%;
   aspect-ratio: auto;
   overflow: hidden;
+  gap: 0.08rem;
+  padding: 0.12rem;
+  align-content: stretch;
+  justify-items: stretch;
 }
 
 .mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-seat {
@@ -559,6 +624,1241 @@
 .mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .brisca-player-hand .brisca-card {
   width: 36px;
   min-height: 54px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents {
+  gap: 0.08rem;
+  max-width: min(100%, 248px);
+  justify-self: center;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.ai-count-1 {
+  max-width: 188px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: min(100%, 236px);
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.06rem;
+  max-width: min(100%, 278px);
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-middle {
+  display: grid;
+  grid-template-columns: minmax(40px, 0.26fr) minmax(0, 1fr) minmax(40px, 0.26fr);
+  gap: 0.08rem;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-middle.has-left-no {
+  grid-template-columns: 0 minmax(0, 1fr) minmax(40px, 0.26fr);
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-middle.has-right-no {
+  grid-template-columns: minmax(40px, 0.26fr) minmax(0, 1fr) 0;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-middle.has-left-no.has-right-no {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side {
+  min-width: 0;
+  display: grid;
+  align-items: center;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side:empty {
+  display: none;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat {
+  gap: 0.06rem;
+  padding: 0.12rem 0.16rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat header {
+  gap: 0.12rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat h5,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat .seat-tag,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat .seat-kpi {
+  font-size: 0.46rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat h5 {
+  margin: 0;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat .seat-name-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1rem;
+  padding: 0.08rem 0.26rem;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  background: rgba(12, 74, 110, 0.42);
+  color: #e0f2fe;
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .seat-points-chip {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0.96rem;
+  padding: 0.06rem 0.22rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.34);
+  background: rgba(120, 53, 15, 0.34);
+  color: #fde68a;
+  font-size: 0.46rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .seat-points-chip--human {
+  justify-self: center;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat .seat-hidden-hand .brisca-card.compact {
+  width: 14px;
+  min-height: 21px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human {
+  gap: 0.1rem;
+  padding: 0.14rem;
+  border-radius: 0.48rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-content: stretch;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-meta {
+  gap: 0.18rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-pile h6 {
+  font-size: 0.44rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-pile-trump .brisca-card.compact {
+  width: 31px;
+  min-height: 44px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-stock-stack {
+  width: 40px;
+  height: 52px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-stock-layer {
+  width: 25px;
+  min-height: 36px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-stock-stack strong {
+  font-size: 0.46rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-trick {
+  min-height: 82px;
+  padding: 0.12rem;
+  gap: 0.08rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-card .brisca-card.compact {
+  width: 34px;
+  min-height: 48px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-card small,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-message {
+  font-size: 0.46rem;
+  line-height: 1.15;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-message {
+  max-height: 2.3em;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human {
+  align-content: end;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human header {
+  gap: 0.26rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human h5,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human span {
+  font-size: 0.56rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human .brisca-player-hand {
+  gap: 0.14rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human .brisca-card.compact {
+  width: 46px;
+  min-height: 66px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat {
+  min-height: 100%;
+  align-content: center;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat {
+  padding: 0.1rem 0.08rem;
+  justify-items: center;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat header {
+  justify-content: center;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat .seat-tag {
+  display: none;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat .seat-kpi {
+  text-align: center;
+  line-height: 1.15;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents .brisca-mobile-seat .seat-hidden-hand .brisca-card.compact {
+  width: 16px;
+  min-height: 24px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat .seat-hidden-hand .brisca-card.compact {
+  width: 15px;
+  min-height: 23px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-top,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-upper-left,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-upper-right,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-top header,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-upper-left header,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-upper-right header,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left header,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right header {
+  position: static;
+  inset: auto;
+  transform: none;
+  width: 100%;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left h5,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right h5,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left .seat-tag,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right .seat-tag {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left .seat-hidden-hand,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right .seat-hidden-hand {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.04rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat {
+  padding: 0.08rem 0.1rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat header,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat header {
+  justify-content: center;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat .seat-tag,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat .seat-kpi,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-tag,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-kpi {
+  display: none;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat .seat-hidden-hand .brisca-card.compact {
+  width: 15px;
+  min-height: 22px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat h5 {
+  font-size: 0.42rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-name-badge {
+  padding: 0.06rem 0.16rem;
+  font-size: 0.42rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-points-chip {
+  min-height: 0.84rem;
+  padding: 0.04rem 0.16rem;
+  font-size: 0.38rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-hidden-hand .brisca-card.compact {
+  width: 12px;
+  min-height: 18px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-opponents .brisca-mobile-seat.seat-slot-top {
+  min-width: 108px;
+  max-width: 188px;
+  justify-self: center;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-opponents .brisca-mobile-seat.seat-slot-top header {
+  justify-content: center;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-opponents .brisca-mobile-seat.seat-slot-top .seat-tag,
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-opponents .brisca-mobile-seat.seat-slot-top .seat-kpi {
+  display: none;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-middle {
+  grid-template-columns: minmax(28px, 0.15fr) minmax(0, 1fr) minmax(28px, 0.15fr);
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-side .brisca-mobile-seat {
+  min-width: 44px;
+  padding: 0.08rem 0.04rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-side .brisca-mobile-seat .seat-kpi {
+  display: none;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-center .brisca-center-trick {
+  min-height: 72px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-middle {
+  grid-template-columns: minmax(32px, 0.16fr) minmax(0, 1fr) minmax(32px, 0.16fr);
+  gap: 0.06rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-side .brisca-mobile-seat {
+  min-width: 48px;
+  padding: 0.08rem 0.04rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-side .brisca-mobile-seat .seat-kpi {
+  display: none;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-center {
+  padding: 0.12rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-center .brisca-center-trick {
+  min-height: 76px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-human {
+  padding: 0.14rem 0.18rem 0.18rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-human .brisca-player-hand {
+  gap: 0.16rem;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-human .brisca-card.compact {
+  width: 48px;
+  min-height: 70px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-felt.is-mobile-stack .brisca-draw-fx--mobile {
+  left: 58%;
+  top: 43%;
+  z-index: 8;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-felt.is-mobile-stack .brisca-draw-fx--mobile .brisca-card.compact {
+  width: 56px;
+  min-height: 80px;
+}
+
+.mobile-game-shell--portrait .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-empty {
+  margin: 0;
+  font-size: 0.62rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-center-zone {
+  top: 46%;
+  width: min(248px, 82%);
+  max-height: min(250px, 56%);
+  padding: 0.18rem;
+  gap: 0.18rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-board-score,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-hand-readout,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-round-summary {
+  padding: 0.32rem 0.42rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-board-score h6,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-hand-readout h6,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-round-summary h6 {
+  font-size: 0.64rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-board-score p,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-dealing-message,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-hand-readout p,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-round-summary ul,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-adaptation-note,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-discard-counter,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .brisca-message,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .brisca-help {
+  font-size: 0.62rem;
+  line-height: 1.24;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-center-deck {
+  gap: 0.28rem;
+  padding: 0.14rem 0.28rem;
+  margin-bottom: 0.22rem;
+  font-size: 0.62rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-center-deck .brisca-card.compact,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-deal-fx .brisca-card.compact {
+  width: 32px;
+  min-height: 46px;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-action-group,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-shortcuts {
+  gap: 0.24rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-action-group button,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-shortcuts button,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-info-toggle button,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-discard-grid button {
+  font-size: 0.62rem;
+  padding: 0.24rem 0.34rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-discard-grid {
+  width: min(200px, 88%);
+  gap: 0.22rem;
+  margin-bottom: 0.24rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .brisca-seat h5,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .seat-tag,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .seat-side {
+  font-size: 0.56rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .seat-open-hand .brisca-card.compact,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .seat-hidden-hand .brisca-card.compact {
+  width: 20px;
+  min-height: 30px;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-player-hand .brisca-card {
+  width: 40px;
+  min-height: 58px;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-human-zone {
+  width: min(252px, 86%);
+  padding: 0.24rem 0.28rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-human-zone h5,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-human-zone span {
+  font-size: 0.62rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-center-zone {
+  top: 41%;
+  width: min(224px, 78%);
+  max-height: min(182px, 43%);
+  padding: 0.12rem;
+  gap: 0.12rem;
+  padding-right: 0.18rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-table-cards,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-actions {
+  padding: 0.22rem 0.28rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.14rem 0.28rem;
+  margin-bottom: 0.08rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score h6 {
+  grid-column: 1 / -1;
+  margin: 0 0 0.12rem;
+  font-size: 0.64rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score p,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-map-line,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-actions p,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-mandatory-note,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-help {
+  font-size: 0.58rem;
+  line-height: 1.18;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.2rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .mus-center-deck {
+  gap: 0.22rem;
+  padding: 0.12rem 0.24rem;
+  margin-bottom: 0.14rem;
+  font-size: 0.58rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .mus-center-deck .brisca-card.compact {
+  width: 28px;
+  min-height: 40px;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-map-line {
+  display: none;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-table-cards {
+  gap: 0.1rem;
+  min-height: 40px;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-table-cards .brisca-card.compact {
+  width: 26px;
+  min-height: 38px;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-actions button {
+  font-size: 0.62rem;
+  padding: 0.22rem 0.38rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .brisca-seat h5,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .seat-tag,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .seat-side,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .seat-kpi {
+  font-size: 0.56rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .seat-hidden-hand .brisca-card.compact {
+  width: 18px;
+  min-height: 28px;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-player-hand .brisca-card {
+  width: 38px;
+  min-height: 54px;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-zone {
+  width: min(258px, 88%);
+  padding: 0.24rem 0.28rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-zone h5,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-zone span {
+  font-size: 0.62rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-capture-fx {
+  width: min(248px, 78%);
+  gap: 0.24rem;
+  padding: 0.32rem 0.42rem;
+  font-size: 0.62rem;
+}
+
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-capture-fx-card-wrap .brisca-card.compact,
+.mobile-game-shell--portrait[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-deal-fx-card .brisca-card.compact {
+  width: 36px;
+  min-height: 52px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-baraja-modes {
+  height: 100%;
+  padding: 0.14rem;
+  gap: 0.28rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena {
+  gap: 0.38rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-shell {
+  padding: 0.08rem;
+  align-items: stretch;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-felt {
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: auto;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-felt.is-mobile-stack {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  display: grid;
+  grid-template-rows: minmax(40px, auto) minmax(0, 1fr) minmax(56px, auto);
+  gap: 0.12rem;
+  padding: 0.16rem;
+  overflow: hidden;
+  align-content: stretch;
+  justify-items: stretch;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents {
+  gap: 0.12rem;
+  max-width: min(100%, 260px);
+  justify-self: center;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.ai-count-1 {
+  max-width: 196px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: min(100%, 248px);
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.08rem;
+  max-width: min(100%, 318px);
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-middle {
+  display: grid;
+  grid-template-columns: minmax(58px, 0.28fr) minmax(0, 1fr) minmax(58px, 0.28fr);
+  gap: 0.12rem;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-middle.has-left-no {
+  grid-template-columns: 0 minmax(0, 1fr) minmax(58px, 0.28fr);
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-middle.has-right-no {
+  grid-template-columns: minmax(58px, 0.28fr) minmax(0, 1fr) 0;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-middle.has-left-no.has-right-no {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side {
+  min-width: 0;
+  display: grid;
+  align-items: center;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side:empty {
+  display: none;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat {
+  gap: 0.08rem;
+  padding: 0.14rem 0.16rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat header {
+  gap: 0.14rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat h5,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat .seat-tag,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat .seat-kpi {
+  font-size: 0.48rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat h5 {
+  margin: 0;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat .seat-name-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1rem;
+  padding: 0.08rem 0.28rem;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  background: rgba(12, 74, 110, 0.42);
+  color: #e0f2fe;
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .seat-points-chip {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0.96rem;
+  padding: 0.06rem 0.24rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.34);
+  background: rgba(120, 53, 15, 0.34);
+  color: #fde68a;
+  font-size: 0.46rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .seat-points-chip--human {
+  justify-self: center;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat .seat-hidden-hand .brisca-card.compact {
+  width: 16px;
+  min-height: 24px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human {
+  gap: 0.12rem;
+  padding: 0.18rem;
+  border-radius: 0.52rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-content: stretch;
+  min-width: 0;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-meta {
+  gap: 0.2rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-pile h6 {
+  font-size: 0.46rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-pile-trump .brisca-card.compact {
+  width: 34px;
+  min-height: 48px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-stock-stack {
+  width: 44px;
+  height: 56px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-stock-layer {
+  width: 27px;
+  min-height: 38px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-stock-stack strong {
+  font-size: 0.48rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-trick {
+  min-height: 88px;
+  padding: 0.14rem;
+  gap: 0.08rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-card .brisca-card.compact {
+  width: 36px;
+  min-height: 52px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-card small,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-message {
+  font-size: 0.46rem;
+  line-height: 1.2;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human {
+  width: min(100%, 420px);
+  justify-self: center;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human header {
+  gap: 0.28rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human h5,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human span {
+  font-size: 0.58rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human .brisca-player-hand {
+  gap: 0.16rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-human .brisca-card.compact {
+  width: 46px;
+  min-height: 66px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat {
+  min-height: 100%;
+  padding: 0.12rem 0.08rem;
+  justify-items: center;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat header {
+  justify-content: center;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat .seat-tag {
+  display: none;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-side .brisca-mobile-seat .seat-kpi {
+  text-align: center;
+  line-height: 1.15;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-top,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-upper-left,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-upper-right,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-top header,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-upper-left header,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-upper-right header,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left header,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right header {
+  position: static;
+  inset: auto;
+  transform: none;
+  width: 100%;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left h5,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right h5,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left .seat-tag,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right .seat-tag {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-left .seat-hidden-hand,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-seat.seat-slot-right .seat-hidden-hand {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.04rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat {
+  padding: 0.08rem 0.12rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat header,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat header {
+  justify-content: center;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat .seat-tag,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat .seat-kpi,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-tag,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-kpi {
+  display: none;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-2 .brisca-mobile-seat .seat-hidden-hand .brisca-card.compact {
+  width: 15px;
+  min-height: 22px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat h5 {
+  font-size: 0.42rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-name-badge {
+  padding: 0.06rem 0.16rem;
+  font-size: 0.42rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-points-chip {
+  min-height: 0.84rem;
+  padding: 0.04rem 0.16rem;
+  font-size: 0.38rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-opponents.top-row-count-3 .brisca-mobile-seat .seat-hidden-hand .brisca-card.compact {
+  width: 12px;
+  min-height: 18px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-opponents {
+  max-width: 180px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-opponents .brisca-mobile-seat.seat-slot-top {
+  min-width: 108px;
+  max-width: 160px;
+  justify-self: center;
+  padding: 0.08rem 0.12rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-opponents .brisca-mobile-seat.seat-slot-top header {
+  justify-content: center;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-opponents .brisca-mobile-seat.seat-slot-top .seat-tag,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-opponents .brisca-mobile-seat.seat-slot-top .seat-kpi {
+  display: none;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-middle {
+  grid-template-columns: minmax(24px, 0.12fr) minmax(0, 1fr) minmax(24px, 0.12fr);
+  gap: 0.08rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-side .brisca-mobile-seat {
+  min-width: 52px;
+  padding: 0.08rem 0.04rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-side .brisca-mobile-seat .seat-kpi {
+  display: none;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-center {
+  padding: 0.12rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-center .brisca-message {
+  display: none;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-center .brisca-center-trick {
+  min-height: 64px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-human {
+  width: min(100%, 340px);
+  padding: 0.08rem 0.12rem 0.12rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-human header {
+  display: none;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-3.brisca-table-felt.is-mobile-stack .brisca-mobile-human .brisca-card.compact {
+  width: 42px;
+  min-height: 60px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack {
+  grid-template-rows: minmax(34px, auto) minmax(0, 1fr) minmax(58px, auto);
+  gap: 0.1rem;
+  padding: 0.14rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-middle {
+  grid-template-columns: minmax(44px, 0.18fr) minmax(0, 1fr) minmax(44px, 0.18fr);
+  gap: 0.08rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-side .brisca-mobile-seat {
+  min-width: 60px;
+  padding: 0.08rem 0.04rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-side .brisca-mobile-seat .seat-kpi,
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-center .brisca-message {
+  display: none;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-center {
+  padding: 0.12rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-center .brisca-center-trick {
+  min-height: 72px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-human {
+  width: min(100%, 360px);
+  padding: 0.08rem 0.12rem 0.14rem;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-human header {
+  display: none;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .ai-count-5.brisca-table-felt.is-mobile-stack .brisca-mobile-human .brisca-card.compact {
+  width: 48px;
+  min-height: 70px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-felt.is-mobile-stack .brisca-draw-fx--mobile {
+  left: 57%;
+  top: 40%;
+  z-index: 8;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-table-felt.is-mobile-stack .brisca-draw-fx--mobile .brisca-card.compact {
+  width: 54px;
+  min-height: 78px;
+}
+
+.mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-brisca-game.brisca-arena .brisca-mobile-center .brisca-center-empty {
+  margin: 0;
+  font-size: 0.58rem;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-center-zone {
+  top: 47%;
+  width: min(290px, 62%);
+  max-height: min(220px, 58%);
+  padding: 0.16rem;
+  gap: 0.16rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-board-score,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-hand-readout,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-round-summary {
+  padding: 0.3rem 0.4rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-board-score h6,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-hand-readout h6,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-round-summary h6 {
+  font-size: 0.62rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-board-score p,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-dealing-message,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-hand-readout p,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-round-summary ul,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-adaptation-note,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-discard-counter,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .brisca-message,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .brisca-help {
+  font-size: 0.58rem;
+  line-height: 1.2;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-center-deck,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .mus-center-deck {
+  gap: 0.24rem;
+  padding: 0.12rem 0.24rem;
+  margin-bottom: 0.18rem;
+  font-size: 0.58rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-center-deck .brisca-card.compact,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-deal-fx .brisca-card.compact,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .mus-center-deck .brisca-card.compact {
+  width: 30px;
+  min-height: 44px;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-action-group button,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-shortcuts button,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-info-toggle button,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-discard-grid button,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-actions button {
+  font-size: 0.58rem;
+  padding: 0.2rem 0.32rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-discard-grid {
+  width: min(188px, 82%);
+  gap: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .brisca-seat h5,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .seat-tag,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .seat-side,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .brisca-seat h5,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .seat-tag,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .seat-side,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .seat-kpi {
+  font-size: 0.52rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .seat-open-hand .brisca-card.compact,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .seat-hidden-hand .brisca-card.compact {
+  width: 18px;
+  min-height: 28px;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-player-hand .brisca-card {
+  width: 42px;
+  min-height: 60px;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-human-zone,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-zone {
+  width: min(282px, 88%);
+  padding: 0.2rem 0.24rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-human-zone h5,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-mus-game .mus-human-zone span,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-zone h5,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-zone span {
+  font-size: 0.58rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-center-zone {
+  top: 42%;
+  width: min(242px, 54%);
+  max-height: min(164px, 44%);
+  padding: 0.12rem;
+  gap: 0.12rem;
+  padding-right: 0.18rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-table-cards,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-actions {
+  padding: 0.18rem 0.24rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.12rem 0.24rem;
+  margin-bottom: 0.06rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score h6 {
+  grid-column: 1 / -1;
+  margin: 0 0 0.1rem;
+  font-size: 0.62rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score p,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-map-line,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-human-actions p,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-mandatory-note,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-help {
+  font-size: 0.54rem;
+  line-height: 1.14;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-board-score p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.18rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .mus-center-deck {
+  gap: 0.18rem;
+  padding: 0.1rem 0.2rem;
+  margin-bottom: 0.12rem;
+  font-size: 0.56rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .mus-center-deck .brisca-card.compact {
+  width: 26px;
+  min-height: 38px;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-map-line {
+  display: none;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-table-cards {
+  gap: 0.08rem;
+  min-height: 36px;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-table-cards .brisca-card.compact {
+  width: 24px;
+  min-height: 34px;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .seat-hidden-hand .brisca-card.compact {
+  width: 16px;
+  min-height: 24px;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-player-hand .brisca-card {
+  width: 38px;
+  min-height: 54px;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-capture-fx {
+  width: min(280px, 72%);
+  gap: 0.22rem;
+  padding: 0.28rem 0.38rem;
+  font-size: 0.58rem;
+}
+
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-capture-fx-card-wrap .brisca-card.compact,
+.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .strategy-escoba-game .escoba-deal-fx-card .brisca-card.compact {
+  width: 34px;
+  min-height: 48px;
 }
 
 .mobile-game-shell--landscape .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .chess-board-shell,
@@ -945,6 +2245,56 @@
   gap: 0.45rem;
 }
 
+.mobile-game-status-panel__parchis-dice {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.mobile-game-status-panel__parchis-die {
+  display: grid;
+  place-items: center;
+  gap: 0.16rem;
+  min-height: 78px;
+  padding: 0.52rem;
+  border-radius: 18px;
+  border: 1px solid rgba(67, 55, 43, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(245, 240, 232, 0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.84),
+    0 8px 18px rgba(73, 55, 34, 0.08);
+}
+
+.mobile-game-status-panel__parchis-die span {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7a6958;
+}
+
+.mobile-game-status-panel__parchis-die-svg {
+  width: 52px;
+  height: 52px;
+  display: block;
+}
+
+.mobile-game-status-panel__parchis-die-face {
+  fill: #fffdf8;
+  stroke: rgba(82, 68, 52, 0.2);
+  stroke-width: 1.25px;
+}
+
+.mobile-game-status-panel__parchis-die-pip {
+  fill: #214c7a;
+}
+
+.mobile-game-status-panel__parchis-die-fallback {
+  font-size: 18px;
+  font-weight: 800;
+  fill: #214c7a;
+}
+
 .mobile-game-status-panel__buttons,
 .mobile-game-status-panel__selects {
   display: grid;
@@ -968,6 +2318,10 @@
 }
 
 .mobile-game-status-panel__menu--actions .mobile-game-status-panel__buttons {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mobile-game-status-panel__buttons--parchis-roll {
   grid-template-columns: minmax(0, 1fr);
 }
 

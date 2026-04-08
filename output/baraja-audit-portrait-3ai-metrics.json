@@ -1,0 +1,103 @@
+{
+  "viewport": {
+    "w": 390,
+    "h": 844
+  },
+  "stage": {
+    "x": 23.71875,
+    "y": 123.890625,
+    "w": 342.5625,
+    "h": 388
+  },
+  "touchCopy": {
+    "x": 15.71875,
+    "y": 531.078125,
+    "w": 358.5625,
+    "h": 296.015625
+  },
+  "felt": {
+    "x": 29.53125,
+    "y": 129.703125,
+    "w": 330.9375,
+    "h": 376.375
+  },
+  "middle": {
+    "x": 32.4375,
+    "y": 208.15625,
+    "w": 325.125,
+    "h": 161.140625
+  },
+  "center": {
+    "x": 88.875,
+    "y": 208.15625,
+    "w": 212.234375,
+    "h": 165.578125
+  },
+  "centerTrick": {
+    "x": 92.109375,
+    "y": 278.453125,
+    "w": 205.765625,
+    "h": 82
+  },
+  "human": {
+    "x": 32.4375,
+    "y": 370.5625,
+    "w": 325.125,
+    "h": 132.609375
+  },
+  "playerCards": [
+    {
+      "cls": "brisca-card compact image-card suit-black playable",
+      "x": 129.765625,
+      "y": 436.296875,
+      "w": 42,
+      "h": 63.640625,
+      "text": ""
+    },
+    {
+      "cls": "brisca-card compact image-card suit-red playable",
+      "x": 174,
+      "y": 436.296875,
+      "w": 42,
+      "h": 63.640625,
+      "text": ""
+    },
+    {
+      "cls": "brisca-card compact image-card suit-red playable",
+      "x": 218.234375,
+      "y": 436.296875,
+      "w": 42,
+      "h": 63.640625,
+      "text": ""
+    }
+  ],
+  "centerCards": [],
+  "topSeats": [
+    {
+      "cls": "brisca-mobile-seat seat-slot-top seat-rival",
+      "x": 71,
+      "y": 132.609375,
+      "w": 220,
+      "h": 74.28125,
+      "text": "IA 1RivalPuntos: 0"
+    }
+  ],
+  "sideSeats": [
+    {
+      "cls": "brisca-mobile-seat seat-slot-left seat-rival seat-active",
+      "x": 32.4375,
+      "y": 208.15625,
+      "w": 120,
+      "h": 165.578125,
+      "text": "IA 2RivalPuntos: 0"
+    },
+    {
+      "cls": "brisca-mobile-seat seat-slot-right seat-rival",
+      "x": 302.375,
+      "y": 208.15625,
+      "w": 120,
+      "h": 165.578125,
+      "text": "IA 3RivalPuntos: 0"
+    }
+  ]
+}

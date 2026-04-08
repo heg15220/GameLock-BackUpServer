@@ -1,0 +1,48 @@
+{
+  "center": {
+    "x": 78.703125,
+    "y": 195.078125,
+    "w": 385.734375,
+    "h": 137.28125
+  },
+  "human": {
+    "x": 101.578125,
+    "y": 287.578125,
+    "w": 340,
+    "h": 60.375
+  },
+  "centerEmpty": {
+    "x": 227.625,
+    "y": 293.109375,
+    "w": 87.875,
+    "h": 10.671875
+  },
+  "topSeats": [
+    {
+      "cls": "brisca-mobile-seat seat-slot-top seat-rival seat-active",
+      "x": 217.578125,
+      "y": 131.015625,
+      "w": 108,
+      "h": 62.15625,
+      "text": "IA 1RivalPuntos: 0"
+    }
+  ],
+  "sideSeats": [
+    {
+      "cls": "brisca-mobile-seat seat-slot-left seat-rival",
+      "x": 31.15625,
+      "y": 215.078125,
+      "w": 52,
+      "h": 97.265625,
+      "text": "IA 2RivalPuntos: 0"
+    },
+    {
+      "cls": "brisca-mobile-seat seat-slot-right seat-rival",
+      "x": 465.703125,
+      "y": 215.078125,
+      "w": 52,
+      "h": 97.265625,
+      "text": "IA 3RivalPuntos: 0"
+    }
+  ]
+}

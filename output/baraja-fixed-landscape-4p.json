@@ -1,0 +1,7 @@
+{
+  "seats": [
+    "brisca-mobile-seat seat-slot-top seat-rival",
+    "brisca-mobile-seat seat-slot-left seat-rival",
+    "brisca-mobile-seat seat-slot-right seat-rival seat-active"
+  ]
+}

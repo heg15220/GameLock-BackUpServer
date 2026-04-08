@@ -1,0 +1,58 @@
+[
+  {
+    "i": 0,
+    "disabled": false,
+    "value": "brisca",
+    "cls": "",
+    "parent": "other",
+    "label": "ModoBrisca/TuteMusEscoba"
+  },
+  {
+    "i": 1,
+    "disabled": false,
+    "value": "brisca_duel",
+    "cls": "",
+    "parent": "other",
+    "label": "Tipo de juegoBrisca DueloBrisca EquiposTute Equipos"
+  },
+  {
+    "i": 2,
+    "disabled": false,
+    "value": "1",
+    "cls": "",
+    "parent": "other",
+    "label": "Numero de IAs12345"
+  },
+  {
+    "i": 3,
+    "disabled": false,
+    "value": "medium",
+    "cls": "",
+    "parent": "other",
+    "label": "Dificultad IAFacilMediaDificilExperto"
+  },
+  {
+    "i": 4,
+    "disabled": false,
+    "value": "brisca",
+    "cls": "",
+    "parent": "panel",
+    "label": "ModoBrisca/TuteMusEscoba"
+  },
+  {
+    "i": 5,
+    "disabled": false,
+    "value": "brisca_duel",
+    "cls": "",
+    "parent": "panel",
+    "label": "Tipo de juegoBrisca DueloBrisca EquiposTute Equipos"
+  },
+  {
+    "i": 6,
+    "disabled": false,
+    "value": "1",
+    "cls": "",
+    "parent": "panel",
+    "label": "Numero de IAs12345"
+  }
+]

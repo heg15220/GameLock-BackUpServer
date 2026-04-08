@@ -1,0 +1,38 @@
+
+> plataforma-juegos-saas@0.1.0 dev
+> vite --host 127.0.0.1 --port 4174
+
+
+  [32m[1mVITE[22m v4.5.14[39m  [2mready in [0m[1m456[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4174[22m/[39m
+[2m23:28:26[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:28:38[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:28:55[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:29:07[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:29:13[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:29:18[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:29:35[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:30:53[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m23:30:58[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m23:31:39[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m23:32:58[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:33:44[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m23:42:27[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:42:33[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:42:39[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/mobile/MobileGameStatusPanel.jsx[22m
+[2m23:43:57[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/StrategyBriscaDeckGame.jsx[22m
+[2m23:44:14[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m23:44:32[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m0:02:20[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/StrategyBriscaDeckGame.jsx[22m
+[2m0:05:10[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m0:05:25[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m0:06:09[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m0:06:22[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m0:07:16[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m0:19:02[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m0:20:39[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m0:26:13[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/StrategyBriscaDeckGame.jsx[22m
+[2m0:28:26[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m0:32:52[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/StrategyBriscaDeckGame.jsx[22m
+[2m0:33:48[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m

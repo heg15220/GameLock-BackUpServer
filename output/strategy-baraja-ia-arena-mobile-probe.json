@@ -1,0 +1,11 @@
+{
+  "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--mobile-first mobile-game-shell--theme-strategy mobile-game-shell--touch-native",
+  "target": {
+    "tag": "DIV",
+    "cls": "brisca-table-felt ai-count-1 is-mobile-stack",
+    "text": "IA 1RivalPuntos: 0TriunfoMazo34Tu turno: juega carta.IA 1...TuPuntos: 0"
+  },
+  "hiddenCount": 6,
+  "branchCount": 4,
+  "gameLayoutText": "IA 1RivalPuntos: 0TriunfoMazo34Tu turno: juega carta.IA 1...TuPuntos: 0"
+}

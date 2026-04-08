@@ -1,0 +1,44 @@
+{
+  "selects": [
+    {
+      "i": 0,
+      "value": "brisca",
+      "text": "ModoBrisca/TuteMusEscoba"
+    },
+    {
+      "i": 1,
+      "value": "brisca_duel",
+      "text": "Tipo de juegoBrisca DueloBrisca EquiposTute Equipos"
+    },
+    {
+      "i": 2,
+      "value": "1",
+      "text": "Numero de IAs12345"
+    },
+    {
+      "i": 3,
+      "value": "medium",
+      "text": "Dificultad IAFacilMediaDificilExperto"
+    },
+    {
+      "i": 4,
+      "value": "brisca",
+      "text": "ModoBrisca/TuteMusEscoba"
+    },
+    {
+      "i": 5,
+      "value": "brisca_duel",
+      "text": "Tipo de juegoBrisca DueloBrisca EquiposTute Equipos"
+    },
+    {
+      "i": 6,
+      "value": "1",
+      "text": "Numero de IAs12345"
+    }
+  ],
+  "buttons": [
+    "Nueva partida",
+    "Aplicar y reiniciar"
+  ],
+  "html": "<section class=\"mobile-game-status-panel\"><div class=\"mobile-game-status-panel__header\"><strong>Estado de partida</strong><p>Tu turno: juega carta.</p></div><div class=\"mobile-game-status-panel__chips\"><article class=\"mobile-game-status-panel__chip\"><span>Turno</span><strong>Human</strong></article><article class=\"mobile-game-status-panel__chip\"><span>Mazo</span><strong>33</strong></article><article class=\"mobile-game-status-panel__chip\"><span>Fase</span><strong>playing</strong></article></div><div class=\"mobile-game-status-panel__menu mobile-game-status-panel__menu--setup\"><strong>Configuracion de partida</strong><div class=\"mobile-game-status-panel__selects\"><label><span>Modo</span><select><option value=\"brisca\">Brisca/Tute</option><option value=\"mus\">Mus</option><option value=\"escoba\">Escoba</option></select></label><label><span>Tipo de juego</span><select><option value=\"brisca_duel\">Brisca Duelo</option><option value=\"brisca_teams\">Brisca Equipos</option><option value=\"tute_teams\">Tute Equipos</option></select></label><label><span>Numero de IAs</span><select><option value=\"1\">1</option><option value=\"2\">2</option><option value=\"3\">3</option><option value=\"4\">4</option><option value=\"5\">5</option></select></label></div><div class=\"mobile-game-status-panel__buttons\"><button type=\"button\">Nueva partida</button><button type=\"button\">Aplicar y reiniciar</button></div></div></section><strong>Tablero tactil</strong><p>Los juegos de estrategia priorizan la interaccion directa con"
+}

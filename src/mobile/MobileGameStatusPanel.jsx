@@ -1,8 +1,60 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { formatMobileStatus, isPreplayState } from "./mobileStatusFormatter";
 
 function normalizeText(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+const PARCHIS_DIE_PIPS = {
+  1: [[28, 28]],
+  2: [[14, 14], [42, 42]],
+  3: [[14, 14], [28, 28], [42, 42]],
+  4: [[14, 14], [42, 14], [14, 42], [42, 42]],
+  5: [[14, 14], [42, 14], [28, 28], [14, 42], [42, 42]],
+  6: [[14, 12], [42, 12], [14, 28], [42, 28], [14, 44], [42, 44]],
+};
+
+function ParchisMobileDie({ value }) {
+  const parsed = Number(value);
+  const pips = Number.isFinite(parsed) ? (PARCHIS_DIE_PIPS[parsed] || []) : [];
+  const label = Number.isFinite(parsed) ? String(parsed) : "--";
+
+  return (
+    <svg
+      viewBox="0 0 56 56"
+      className="mobile-game-status-panel__parchis-die-svg"
+      role="img"
+      aria-label={`Dado ${label}`}
+    >
+      <rect
+        x="3"
+        y="3"
+        width="50"
+        height="50"
+        rx="10"
+        ry="10"
+        className="mobile-game-status-panel__parchis-die-face"
+      />
+      {pips.length ? pips.map(([cx, cy], index) => (
+        <circle
+          key={`mobile-die-${label}-pip-${index}`}
+          cx={cx}
+          cy={cy}
+          r="5"
+          className="mobile-game-status-panel__parchis-die-pip"
+        />
+      )) : (
+        <text
+          x="28"
+          y="32"
+          textAnchor="middle"
+          className="mobile-game-status-panel__parchis-die-fallback"
+        >
+          {label}
+        </text>
+      )}
+    </svg>
+  );
 }
 
 function extractLabelText(label) {
@@ -168,6 +220,45 @@ function collectControlsFromRoot(root, rootKey, group, includeHidden = false) {
   };
 }
 
+function buttonSourceWeight(button) {
+  if (button?.group === "visible-stage") {
+    return 4;
+  }
+  if (button?.group === "actions") {
+    return 3;
+  }
+  if (button?.group === "hidden") {
+    return 2;
+  }
+  return 1;
+}
+
+function dedupeButtons(buttons) {
+  const seen = new Map();
+
+  buttons.forEach((button, index) => {
+    const labelKey = normalizeText(button?.label).toLowerCase();
+    if (!labelKey) {
+      return;
+    }
+
+    const candidate = {
+      button,
+      index,
+      score: (button.disabled ? 0 : 10) + buttonSourceWeight(button),
+    };
+    const current = seen.get(labelKey);
+
+    if (!current || candidate.score > current.score) {
+      seen.set(labelKey, candidate);
+    }
+  });
+
+  return Array.from(seen.values())
+    .sort((left, right) => left.index - right.index)
+    .map((entry) => entry.button);
+}
+
 function shouldCollectHiddenMenuRoot(root) {
   if (!root) {
     return false;
@@ -295,7 +386,7 @@ function buildMenuControls(scopeElement) {
 
   return {
     buttons: Array.from(buttonMap.values()).slice(0, 18),
-    selects: Array.from(selectMap.values()).slice(0, 3),
+    selects: Array.from(selectMap.values()),
   };
 }
 
@@ -446,10 +537,12 @@ function filterContextButtons(buttons, snapshot, gameCategory) {
     ) &&
     buttons.some((button) => button.group === "hidden" || button.group === "visible-stage")
   ) {
-    return buttons
-      .filter((button) => button.group === "hidden" || button.group === "visible-stage")
-      .filter((button) => !buttonLabelMatches(button, /fullscreen|pantalla completa/i))
-      .slice(0, 10);
+    return dedupeButtons(
+      buttons
+        .filter((button) => button.group === "hidden" || button.group === "visible-stage")
+        .filter((button) => !button.disabled)
+        .filter((button) => !buttonLabelMatches(button, /fullscreen|pantalla completa/i))
+    ).slice(0, 10);
   }
 
   return [];
@@ -469,6 +562,7 @@ export default function MobileGameStatusPanel({
   scopeElement,
   snapshot,
 }) {
+  const panelRef = useRef(null);
   const [menuControls, setMenuControls] = useState({ buttons: [], selects: [] });
   const [supplementalSections, setSupplementalSections] = useState([]);
   const status = useMemo(
@@ -489,9 +583,12 @@ export default function MobileGameStatusPanel({
   const allowPostMatchSetup =
     snapshot?.mode === "billiards_pool" &&
     snapshot?.status === "match-over";
-  const preplayButtons = menuControls.buttons
-    .filter((button) => button.group !== "actions")
-    .filter((button) => !/fullscreen|pantalla completa/i.test(String(button.label ?? "")));
+  const preplayButtons = dedupeButtons(
+    menuControls.buttons
+      .filter((button) => button.group !== "actions")
+      .filter((button) => !button.disabled)
+      .filter((button) => !/fullscreen|pantalla completa/i.test(String(button.label ?? "")))
+  );
   const visibleMenuButtons = allowPostMatchSetup
     ? contextButtons
     : preplayButtons;
@@ -514,10 +611,54 @@ export default function MobileGameStatusPanel({
     !allowPostMatchSetup &&
     strategyOrKnowledgeContext &&
     (strategyOrKnowledgeContextSelects || contextSetupButtons.length > 0);
+  const isParchis =
+    snapshot?.mode === "strategy-parchis-ludoteka"
+    || snapshot?.variant === "parchis-4p-human-vs-3ai";
+  const parchisDiceFaces = useMemo(() => {
+    const faces = Array.isArray(snapshot?.diceUi?.faces) && snapshot.diceUi.faces.length >= 2
+      ? snapshot.diceUi.faces.slice(0, 2)
+      : [snapshot?.dice, snapshot?.diceAux];
+
+    return faces.map((face) => {
+      const parsed = Number(face);
+      if (Number.isFinite(parsed) && parsed >= 1 && parsed <= 6) {
+        return String(parsed);
+      }
+      return snapshot?.diceUi?.rolling ? "..." : "--";
+    });
+  }, [snapshot]);
+  const parchisPinnedButtons = useMemo(
+    () => (
+      isParchis
+        ? dedupeButtons(
+            contextActionButtons.filter(
+              (button) =>
+                !button.disabled &&
+                /tirar dado|roll dice/i.test(String(button.label ?? ""))
+            )
+          )
+        : []
+    ),
+    [contextActionButtons, isParchis]
+  );
+  const visibleContextActionButtons = useMemo(
+    () => (
+      isParchis
+        ? contextActionButtons.filter(
+            (button) => !parchisPinnedButtons.some((pinned) => pinned.id === button.id)
+          )
+        : contextActionButtons
+    ),
+    [contextActionButtons, isParchis, parchisPinnedButtons]
+  );
   const showContextActions =
     !derivedPreplayState &&
     !allowPostMatchSetup &&
-    contextActionButtons.length > 0;
+    visibleContextActionButtons.length > 0;
+  const showParchisDicePanel =
+    !derivedPreplayState &&
+    isParchis &&
+    (parchisDiceFaces.length > 0 || parchisPinnedButtons.length > 0);
 
   useEffect(() => {
     if (!scopeElement) {
@@ -540,8 +681,21 @@ export default function MobileGameStatusPanel({
     };
   }, [locale, scopeElement, snapshot]);
 
+  useEffect(() => {
+    if (!isParchis || !showParchisDicePanel) {
+      return;
+    }
+
+    const scrollHost = panelRef.current?.closest(".mobile-game-shell__touch-copy");
+    if (!scrollHost || typeof scrollHost.scrollTo !== "function") {
+      return;
+    }
+
+    scrollHost.scrollTo({ top: 0 });
+  }, [isParchis, showParchisDicePanel, snapshot?.phase, snapshot?.started]);
+
   return (
-    <section className="mobile-game-status-panel">
+    <section className="mobile-game-status-panel" ref={panelRef}>
       <div className="mobile-game-status-panel__header">
         <strong>{locale === "en" ? "Match status" : "Estado de partida"}</strong>
         {status.primaryText ? <p>{status.primaryText}</p> : null}
@@ -555,6 +709,37 @@ export default function MobileGameStatusPanel({
               <strong>{entry.value}</strong>
             </article>
           ))}
+        </div>
+      ) : null}
+
+      {showParchisDicePanel ? (
+        <div className="mobile-game-status-panel__menu mobile-game-status-panel__menu--parchis-dice">
+          <strong>{locale === "en" ? "Dice tray" : "Zona de dados"}</strong>
+          <div className="mobile-game-status-panel__parchis-dice">
+            {parchisDiceFaces.map((face, index) => (
+              <article key={`parchis-die-${index}`} className="mobile-game-status-panel__parchis-die">
+                <span>{locale === "en" ? `Die ${index + 1}` : `Dado ${index + 1}`}</span>
+                <ParchisMobileDie value={face} />
+              </article>
+            ))}
+          </div>
+          {parchisPinnedButtons.length ? (
+            <div className="mobile-game-status-panel__buttons mobile-game-status-panel__buttons--parchis-roll">
+              {parchisPinnedButtons.map((button) => (
+                <button
+                  key={`parchis-pinned-${button.id}`}
+                  type="button"
+                  disabled={button.disabled}
+                  onClick={() => {
+                    button.target.click();
+                    setMenuControls(buildMenuControls(scopeElement));
+                  }}
+                >
+                  {button.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -703,7 +888,7 @@ export default function MobileGameStatusPanel({
         <div className="mobile-game-status-panel__menu mobile-game-status-panel__menu--actions">
           <strong>{locale === "en" ? "In-match actions" : "Acciones de partida"}</strong>
           <div className="mobile-game-status-panel__buttons">
-            {contextActionButtons.map((button) => (
+            {visibleContextActionButtons.map((button) => (
               <button
                 key={`action-${button.id}`}
                 type="button"

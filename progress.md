@@ -3944,3 +3944,77 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
   - `Baraja` necesita una vista portrait propia de gameplay dentro de `StrategyBriscaDeckGame`, no solo compresion CSS del layout desktop.
   - `Parchis` necesita revisar de nuevo el selector de stage aislado y la separacion entre tablero, HUD y acciones para que el tablero sea el contenido principal y las jugadas salgan abajo.
 
+## 2026-04-08 - Shell movil: parchis y baraja, tercera pasada
+- `src/mobile/MobileGameStatusPanel.jsx` ajustado para estrategia mobile-first:
+  - deduplicacion de botones recuperados de ramas ocultas;
+  - ya no reaparecen acciones invalidas/deshabilitadas como `Iniciar partida` durante la partida de `Parchis`;
+  - nueva `Zona de dados` especifica para `Parchis`, con dos caras visibles y boton `Tirar dado` fijado arriba del panel cuando entra el turno de tirada;
+  - al pasar de prepartida a partida en `Parchis`, el panel inferior resetea su scroll al inicio para que dados y tirada queden visibles en el primer viewport.
+- `src/mobile/mobile-game-shell.css` refinado:
+  - `Parchis` en portrait cede altura del stage vacio al panel inferior para que la tirada entre sin scroll inicial;
+  - `Baraja` gana mas altura util de stage y una compresion adicional del layout mobile stack (rivales, centro y mano humana) para que la mesa quede mas compacta y centrada en portrait.
+- Validacion Playwright ejecutada sobre `http://127.0.0.1:4174` con viewport movil real:
+  - `output/strategy-parchis-ludoteka-after-start-final-v2.png`: tablero + dados + boton `Tirar dado` visibles en el primer viewport tras iniciar;
+  - `output/strategy-baraja-ia-arena-fresh-viewport.png`: mesa portrait mas compacta, con rival, centro y mano humana visibles dentro del stage.
+- Validacion de build:
+  - `npm.cmd run build` falla por memoria con heap por defecto;
+  - `NODE_OPTIONS=--max-old-space-size=4096 npm.cmd run build` OK.
+
+## 2026-04-08 - Baraja movil: compactacion real en portrait + landscape funcional
+- `src/games/StrategyBriscaDeckGame.jsx` deja de limitar el layout compacto a portrait y ahora activa la version mobile stack en moviles tactiles tanto en vertical como en horizontal.
+- `src/mobile/mobile-game-shell.css` ajustado para `strategy-baraja-ia-arena`:
+  - portrait: el shell cede mas altura al panel inferior, compacta selects/botones y reduce el peso visual de los bloques de IA para ganar tamano de cartas en mesa y mano humana;
+  - gameplay con 4 jugadores: los rivales quedan repartidos en `top + left + right`, manteniendo la referencia de escritorio pero en escala movil;
+  - landscape: se implementa panel lateral real de estado/configuracion y un stage adaptado, en vez de dejar solo una franja recortada del tapete.
+- Validacion visual Playwright:
+  - `output/baraja-fixed-portrait.png`
+  - `output/baraja-fixed-portrait-panel.png`
+  - `output/baraja-fixed-portrait-4p.png`
+  - `output/baraja-fixed-landscape.png`
+  - `output/baraja-fixed-landscape-4p.png`
+  - `output/baraja-fixed-landscape-4p.json` confirma `seat-slot-top`, `seat-slot-left` y `seat-slot-right`.
+- QA adicional con el cliente del skill:
+  - `node web_game_playwright_client.mjs --url http://127.0.0.1:4174/#game=strategy-baraja-ia-arena --actions-file ...`
+  - artefactos en `output/baraja-skill-qa/`.
+- Build final:
+  - `NODE_OPTIONS=--max-old-space-size=4096 npm.cmd run build` OK.
+
+## 2026-04-09 - Baraja movil: quinta pasada de gameplay compacto
+- `src/games/StrategyBriscaDeckGame.jsx` refina el layout compacto:
+  - la fila superior usa ahora buckets explicitos `upper-left / top / upper-right`, evitando que 5 IAs se apilen en una sola columna;
+  - vuelve la animacion de robo (`brisca-draw-fx`) dentro del layout movil compacto;
+  - cada bloque IA muestra etiqueta visible con su nombre (`IA 1`, `IA 2`, etc.) y chip de puntos propio;
+  - la zona humana compacta muestra tambien su chip de puntos aunque el header se oculte en landscape.
+- `src/mobile/mobile-game-shell.css` ajustado para esta pasada:
+  - cartas del centro y mano del jugador aumentadas en portrait y landscape;
+  - filas superiores `top-row-count-2/3` compactadas con nombre y puntos visibles;
+  - ajustes especificos para `ai-count-5` en portrait y landscape;
+  - animacion de robo reposicionada para el tapete movil.
+- Pendiente inmediato:
+  - recompilar fuera de sandbox y sacar capturas nuevas de `Baraja` portrait/landscape, porque `vite` y `build` fueron interrumpidos al pedir elevacion y la preview local accesible sigue pudiendo estar desactualizada.
+
+## 2026-04-09 - Mus y Escoba: pasada de shell movil
+- `src/games/StrategyMusDeckGame.jsx`:
+  - el payload del runtime bridge publica ahora `difficultyId` y `status`, con lo que el shell movil puede resumir el nivel IA tambien en `Mus`.
+- `src/mobile/mobile-game-shell.css`:
+  - nuevas reglas especificas de `strategy-baraja-ia-arena` para los modos `Mus` y `Escoba`, separadas de `Brisca/Tute`;
+  - portrait y landscape reducen textos del centro, paneles de resumen y overlays para evitar bloques sobredimensionados;
+  - la mano humana en `Mus` y `Escoba` se compacta respecto al desktop para que no invada tanto tablero;
+  - `Escoba` ajusta tambien la mesa central, cartas de captura y FX de captura/reparto en movil.
+- Nota:
+  - `Tute` sigue compartiendo el motor/layout de `Brisca/Tute`, asi que sus controles de dificultad ya salen del payload principal de `StrategyBriscaDeckGame`.
+- Pendiente recomendado:
+  - validacion visual con capturas nuevas de `Mus`, `Escoba` y `Tute` sobre build actualizada; la preview local accesible puede no incluir aun los ultimos cambios si no se recompila fuera del sandbox.
+
+## 2026-04-09 - Escoba overlap + config completa en Brisca/Tute
+- `src/mobile/mobile-game-shell.css`:
+  - `Escoba` reduce otra vez el alto util del centro en portrait y landscape;
+  - el marcador interno pasa a una disposicion mas densa por fila, con menos hueco y menos peso vertical;
+  - el mazo central y las cartas del centro bajan de tamano para evitar que el bloque central se monte sobre la zona humana.
+- `src/mobile/MobileGameStatusPanel.jsx`:
+  - el panel movil deja de truncar los `select` detectados, para no ocultar configuraciones legitimas como el nivel de IA.
+- Estado:
+  - `StrategyBriscaDeckGame.jsx` ya publica `difficultyId` al bridge movil, asi que `Brisca/Tute` pueden mostrar y cambiar el nivel IA cuando ese control existe en la vista original.
+- Pendiente:
+  - recompilar y validar visualmente con capturas nuevas, porque la preview local puede seguir sirviendo una build anterior.
+

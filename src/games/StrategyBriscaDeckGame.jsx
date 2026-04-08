@@ -621,6 +621,21 @@ function Card({ card, deckId = "english", hidden = false, compact = false, onPla
   return onPlay ? <button type="button" className={cls} onClick={onPlay} disabled={disabled}>{face}</button> : <div className={cls}>{face}</div>;
 }
 
+function shouldUseCompactMobileLayout() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const width = window.innerWidth || 0;
+  const height = window.innerHeight || 0;
+  const shortestSide = Math.min(width, height);
+  const longestSide = Math.max(width, height);
+  const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
+  const hasTouch = (navigator.maxTouchPoints ?? 0) > 0;
+
+  return (coarsePointer || hasTouch) && shortestSide <= 480 && longestSide <= 920;
+}
+
 function StrategyBriscaDeckGame() {
   const locale = useMemo(localeOf, []);
   const t = useMemo(() => textOf(locale), [locale]);
@@ -628,30 +643,24 @@ function StrategyBriscaDeckGame() {
   const [pVar, setPVar] = useState("brisca_duel");
   const [pAi, setPAi] = useState(1);
   const [pDiff, setPDiff] = useState("medium");
-  const [compactPortraitLayout, setCompactPortraitLayout] = useState(() => (
-    typeof window !== "undefined"
-    && typeof window.matchMedia === "function"
-    && window.matchMedia("(max-width: 760px) and (orientation: portrait)").matches
-  ));
+  const [compactMobileLayout, setCompactMobileLayout] = useState(() => shouldUseCompactMobileLayout());
 
   useEffect(() => { setPVar(s.variantId); setPAi(s.aiOpponents); setPDiff(s.difficultyId); }, [s.variantId, s.aiOpponents, s.difficultyId]);
   useEffect(() => { const opts = VARIANTS[pVar]?.aiOptions || [1]; if (!opts.includes(pAi)) setPAi(opts[0]); }, [pAi, pVar]);
   useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    if (typeof window === "undefined") {
       return undefined;
     }
 
-    const media = window.matchMedia("(max-width: 760px) and (orientation: portrait)");
-    const syncLayout = () => setCompactPortraitLayout(media.matches);
+    const syncLayout = () => setCompactMobileLayout(shouldUseCompactMobileLayout());
     syncLayout();
 
-    if (typeof media.addEventListener === "function") {
-      media.addEventListener("change", syncLayout);
-      return () => media.removeEventListener("change", syncLayout);
-    }
-
-    media.addListener(syncLayout);
-    return () => media.removeListener(syncLayout);
+    window.addEventListener("resize", syncLayout);
+    window.addEventListener("orientationchange", syncLayout);
+    return () => {
+      window.removeEventListener("resize", syncLayout);
+      window.removeEventListener("orientationchange", syncLayout);
+    };
   }, []);
 
   const restart = useCallback(() => setS((prev) => createMatch(locale, { variantId: prev.variantId, aiOpponents: prev.aiOpponents, difficultyId: prev.difficultyId })), [locale]);
@@ -697,6 +706,25 @@ function StrategyBriscaDeckGame() {
   const humanHand = s.hands.human || [];
   const legalHuman = useMemo(() => (canHuman ? legalIdx(humanHand, s.table, s.trumpSuit, s.variant) : []), [canHuman, humanHand, s.table, s.trumpSuit, s.variant]);
   const aiPlayers = useMemo(() => s.players.filter((p) => !p.human), [s.players]);
+  const compactSeatMap = useMemo(() => ({
+    top: aiPlayers.find((player) => player.seat?.slot === "top") || null,
+    upperLeft: aiPlayers.find((player) => player.seat?.slot === "upper-left") || null,
+    upperRight: aiPlayers.find((player) => player.seat?.slot === "upper-right") || null,
+    left: aiPlayers.find((player) => player.seat?.slot === "left") || null,
+    right: aiPlayers.find((player) => player.seat?.slot === "right") || null,
+  }), [aiPlayers]);
+  const compactTopPlayers = useMemo(
+    () => [compactSeatMap.upperLeft, compactSeatMap.top, compactSeatMap.upperRight].filter(Boolean),
+    [compactSeatMap]
+  );
+  const compactLeftPlayer = useMemo(
+    () => compactSeatMap.left,
+    [compactSeatMap]
+  );
+  const compactRightPlayer = useMemo(
+    () => compactSeatMap.right,
+    [compactSeatMap]
+  );
 
   useEffect(() => {
     const onKey = (e) => {
@@ -735,6 +763,7 @@ function StrategyBriscaDeckGame() {
       mode: "strategy-brisca-ai",
       variant: snap.variantId,
       locale: snap.locale,
+      difficultyId: snap.difficultyId,
       status: snap.status,
       resolvingTrick: snap.resolving,
       turnTransitioning: Boolean(snap.turnTransitioning),
@@ -768,16 +797,17 @@ function StrategyBriscaDeckGame() {
         key={`compact-${player.id}`}
         className={[
           "brisca-mobile-seat",
+          player.seat?.slot ? `seat-slot-${player.seat.slot}` : "",
           player.side === "user" ? "seat-friendly" : "seat-rival",
           active ? "seat-active" : "",
           wonLast ? "seat-won-trick" : "",
         ].filter(Boolean).join(" ")}
       >
         <header>
-          <h5>{player.name}</h5>
+          <h5 className="seat-name-badge">{player.name}</h5>
           <span className="seat-tag">{isMate ? t.seatMate : t.seatRival}</span>
         </header>
-        <p className="seat-kpi">{t.points}: {pp[player.id] || 0}</p>
+        <span className="seat-points-chip" aria-label={`${t.points}: ${pp[player.id] || 0}`}>Pts {pp[player.id] || 0}</span>
         {wonLast ? <span className="seat-turn-led" aria-label={`${player.name}: ${t.wonTrick}`}>{t.wonTrick}</span> : null}
         <div className="seat-hidden-hand" aria-label={`${player.name} ${handCount} ${t.hidden}`}>
           {Array.from({ length: handCount }).map((_, index) => (
@@ -832,39 +862,54 @@ function StrategyBriscaDeckGame() {
       </div>
 
       <div className="brisca-table-shell">
-        <div className={`brisca-table-felt ai-count-${s.aiOpponents} ${compactPortraitLayout ? "is-mobile-stack" : ""}`}>
-          {compactPortraitLayout ? (
+        <div className={`brisca-table-felt ai-count-${s.aiOpponents} ${compactMobileLayout ? "is-mobile-stack" : ""}`}>
+          {compactMobileLayout ? (
             <>
-              <section className={`brisca-mobile-opponents ai-count-${s.aiOpponents}`}>
-                {aiPlayers.map((player) => renderCompactSeat(player))}
-              </section>
+              {compactTopPlayers.length ? (
+                <section className={`brisca-mobile-opponents ai-count-${s.aiOpponents} top-row-count-${compactTopPlayers.length}`}>
+                  {compactTopPlayers.map((player) => renderCompactSeat(player))}
+                </section>
+              ) : null}
 
-              <section className="brisca-mobile-center">
-                <div className="brisca-center-meta">
-                  <article className="brisca-pile brisca-pile-trump"><h6>{t.trump}</h6><Card card={s.trumpCard} deckId={s.deckId} compact /></article>
-                  <article className="brisca-pile brisca-pile-stock">
-                    <h6>{t.stock}</h6>
-                    <div className="brisca-stock-stack" aria-label={`${t.stock}: ${s.stock.length + (s.trumpCard ? 1 : 0)}`}>
-                      <div className="brisca-stock-layer layer-back"><Card hidden compact deckId={s.deckId} /></div>
-                      <div className="brisca-stock-layer layer-mid"><Card hidden compact deckId={s.deckId} /></div>
-                      <div className="brisca-stock-layer layer-front"><Card hidden compact deckId={s.deckId} /></div>
-                      <strong>{s.stock.length + (s.trumpCard ? 1 : 0)}</strong>
-                    </div>
-                  </article>
+              <div className={`brisca-mobile-middle has-left-${compactLeftPlayer ? "yes" : "no"} has-right-${compactRightPlayer ? "yes" : "no"}`}>
+                <div className="brisca-mobile-side brisca-mobile-side--left">
+                  {compactLeftPlayer ? renderCompactSeat(compactLeftPlayer) : null}
                 </div>
-                <div className="brisca-center-trick">
-                  {s.table.length ? s.table.map((entry, index) => (
-                    <div key={entry.playId} className="brisca-center-card" style={{ "--card-rot": `${(index - (s.table.length - 1) / 2) * 5}deg` }}>
-                      <Card card={entry.card} deckId={s.deckId} compact />
-                      <small>{s.byId[entry.playerId]?.name || entry.playerId}</small>
-                    </div>
-                  )) : <p className="brisca-center-empty">{t.yourTurn}</p>}
+
+                <section className="brisca-mobile-center">
+                  <div className="brisca-center-meta">
+                    <article className="brisca-pile brisca-pile-trump"><h6>{t.trump}</h6><Card card={s.trumpCard} deckId={s.deckId} compact /></article>
+                    <article className="brisca-pile brisca-pile-stock">
+                      <h6>{t.stock}</h6>
+                      <div className="brisca-stock-stack" aria-label={`${t.stock}: ${s.stock.length + (s.trumpCard ? 1 : 0)}`}>
+                        <div className="brisca-stock-layer layer-back"><Card hidden compact deckId={s.deckId} /></div>
+                        <div className="brisca-stock-layer layer-mid"><Card hidden compact deckId={s.deckId} /></div>
+                        <div className="brisca-stock-layer layer-front"><Card hidden compact deckId={s.deckId} /></div>
+                        <strong>{s.stock.length + (s.trumpCard ? 1 : 0)}</strong>
+                      </div>
+                    </article>
+                  </div>
+                  <div className="brisca-center-trick">
+                    {s.table.length ? s.table.map((entry, index) => (
+                      <div key={entry.playId} className="brisca-center-card" style={{ "--card-rot": `${(index - (s.table.length - 1) / 2) * 5}deg` }}>
+                        <Card card={entry.card} deckId={s.deckId} compact />
+                        <small>{s.byId[entry.playerId]?.name || entry.playerId}</small>
+                      </div>
+                    )) : <p className="brisca-center-empty">{t.yourTurn}</p>}
+                  </div>
+                  <p className="brisca-message">{s.message}</p>
+                </section>
+
+                <div className="brisca-mobile-side brisca-mobile-side--right">
+                  {compactRightPlayer ? renderCompactSeat(compactRightPlayer) : null}
                 </div>
-                <p className="brisca-message">{s.message}</p>
-              </section>
+              </div>
+
+              {s.drawAnim ? <div key={`mobile-${s.drawAnim.id}`} className="brisca-draw-fx brisca-draw-fx--mobile"><Card hidden compact deckId={s.deckId} /></div> : null}
 
               <section className={["brisca-mobile-human", lastWinnerId === "human" ? "human-won-trick" : ""].join(" ")}>
-                <header><h5>{t.human}</h5><span>{t.points}: {pp.human || 0}</span></header>
+                <span className="seat-points-chip seat-points-chip--human" aria-label={`${t.points}: ${pp.human || 0}`}>Pts {pp.human || 0}</span>
+                <header><h5>{t.human}</h5></header>
                 {lastWinnerId === "human" ? <span className="seat-turn-led human-turn-led" aria-label={t.wonTrick}>{t.wonTrick}</span> : null}
                 <div className="brisca-player-hand">
                   {humanHand.map((card, index) => (

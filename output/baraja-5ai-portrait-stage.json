@@ -1,0 +1,72 @@
+{
+  "topSeats": [
+    {
+      "cls": "brisca-mobile-seat seat-slot-top seat-rival",
+      "x": 71,
+      "y": 132.609375,
+      "w": 123.359375,
+      "h": 74.28125,
+      "text": "IA 1RivalPuntos: 0"
+    },
+    {
+      "cls": "brisca-mobile-seat seat-slot-upper-left seat-rival",
+      "x": 195.625,
+      "y": 132.609375,
+      "w": 126,
+      "h": 74.28125,
+      "text": "IA 2RivalPuntos: 0"
+    },
+    {
+      "cls": "brisca-mobile-seat seat-slot-upper-right seat-rival",
+      "x": 71,
+      "y": 208.15625,
+      "w": 126,
+      "h": 74.28125,
+      "text": "IA 3RivalPuntos: 0"
+    }
+  ],
+  "sideSeats": [
+    {
+      "cls": "brisca-mobile-seat seat-slot-left seat-rival",
+      "x": 32.4375,
+      "y": 319.09375,
+      "w": 55.171875,
+      "h": 94.796875,
+      "text": "IA 4RivalPuntos: 0"
+    },
+    {
+      "cls": "brisca-mobile-seat seat-slot-right seat-rival seat-active",
+      "x": 302.375,
+      "y": 319.09375,
+      "w": 55.171875,
+      "h": 94.796875,
+      "text": "IA 5RivalPuntos: 0"
+    }
+  ],
+  "humanCards": [
+    {
+      "cls": "brisca-card compact image-card suit-black playable",
+      "x": 129.765625,
+      "y": 436.296875,
+      "w": 42,
+      "h": 63.640625,
+      "text": ""
+    },
+    {
+      "cls": "brisca-card compact image-card suit-red playable",
+      "x": 174,
+      "y": 436.296875,
+      "w": 42,
+      "h": 63.640625,
+      "text": ""
+    },
+    {
+      "cls": "brisca-card compact image-card suit-red playable",
+      "x": 218.234375,
+      "y": 436.296875,
+      "w": 42,
+      "h": 63.640625,
+      "text": ""
+    }
+  ]
+}
