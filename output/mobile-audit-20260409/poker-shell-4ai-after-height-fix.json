@@ -1,0 +1,124 @@
+{
+  "viewport": {
+    "className": "mobile-game-shell__stage-viewport",
+    "x": 24,
+    "y": 124,
+    "w": 364,
+    "h": 366,
+    "position": "relative",
+    "display": "block",
+    "height": "365.875px",
+    "minHeight": "0px",
+    "overflow": "hidden"
+  },
+  "root": {
+    "className": "mini-game poker-holdem-game poker-ai-count-4 poker-mobile poker-mobile-portrait",
+    "x": 24,
+    "y": 124,
+    "w": 364,
+    "h": 366,
+    "position": "relative",
+    "display": "block",
+    "height": "365.875px",
+    "minHeight": "0px",
+    "overflow": "hidden"
+  },
+  "table": {
+    "className": "poker-table",
+    "x": 24,
+    "y": 124,
+    "w": 364,
+    "h": 366,
+    "position": "relative",
+    "display": "block",
+    "height": "365.875px",
+    "minHeight": "0px",
+    "overflow": "auto"
+  },
+  "round": {
+    "className": "poker-round-table",
+    "x": 30,
+    "y": 130,
+    "w": 352,
+    "h": 354,
+    "position": "relative",
+    "display": "block",
+    "height": "353.656px",
+    "minHeight": "0px",
+    "overflow": "hidden"
+  },
+  "board": {
+    "className": "poker-board-zone",
+    "x": 71,
+    "y": 209,
+    "w": 270,
+    "h": 197,
+    "position": "absolute",
+    "display": "grid",
+    "height": "196.594px",
+    "minHeight": "110px",
+    "overflow": "visible"
+  },
+  "seats": [
+    {
+      "name": "Tu",
+      "x": 116,
+      "y": 374,
+      "w": 180,
+      "h": 126,
+      "position": "absolute",
+      "left": "174.938px",
+      "top": "305.938px",
+      "transform": "matrix(1, 0, 0, 1, -90, -63.0391)",
+      "classes": "poker-table-seat poker-player-seat"
+    },
+    {
+      "name": "IA 1",
+      "x": 36,
+      "y": 194,
+      "w": 87,
+      "h": 58,
+      "position": "absolute",
+      "left": "48.9688px",
+      "top": "91.4219px",
+      "transform": "matrix(1, 0, 0, 1, -43.7344, -28.7656)",
+      "classes": "poker-table-seat poker-ai-seat compact-seat mobile-ai-condensed"
+    },
+    {
+      "name": "IA 2",
+      "x": 113,
+      "y": 158,
+      "w": 87,
+      "h": 58,
+      "position": "absolute",
+      "left": "125.953px",
+      "top": "56.25px",
+      "transform": "matrix(1, 0, 0, 1, -43.7344, -28.7656)",
+      "classes": "poker-table-seat poker-ai-seat compact-seat mobile-ai-condensed"
+    },
+    {
+      "name": "IA 3",
+      "x": 211,
+      "y": 158,
+      "w": 87,
+      "h": 58,
+      "position": "absolute",
+      "left": "223.906px",
+      "top": "56.25px",
+      "transform": "matrix(1, 0, 0, 1, -43.7344, -28.7656)",
+      "classes": "poker-table-seat poker-ai-seat compact-seat mobile-ai-condensed"
+    },
+    {
+      "name": "IA 4",
+      "x": 288,
+      "y": 189,
+      "w": 87,
+      "h": 66,
+      "position": "absolute",
+      "left": "300.891px",
+      "top": "91.4219px",
+      "transform": "matrix(1, 0, 0, 1, -43.7344, -33.0625)",
+      "classes": "poker-table-seat poker-ai-seat compact-seat mobile-ai-condensed"
+    }
+  ]
+}

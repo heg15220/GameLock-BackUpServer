@@ -391,6 +391,33 @@ function buildMenuControls(scopeElement) {
 }
 
 function buildSupplementalSections(scopeElement, snapshot, locale) {
+  if (snapshot?.mode === "chess_fide_board") {
+    const whiteCaptured = Array.isArray(snapshot?.capturedSummary?.white)
+      ? snapshot.capturedSummary.white
+      : [];
+    const blackCaptured = Array.isArray(snapshot?.capturedSummary?.black)
+      ? snapshot.capturedSummary.black
+      : [];
+
+    return [{
+      id: "chess-captures",
+      title: locale === "en" ? "Captured pieces" : "Piezas capturadas",
+      type: "list",
+      items: [
+        {
+          id: "chess-captures-white",
+          label: locale === "en" ? "White" : "Blancas",
+          meta: whiteCaptured.length ? whiteCaptured.join(" ") : "-",
+        },
+        {
+          id: "chess-captures-black",
+          label: locale === "en" ? "Black" : "Negras",
+          meta: blackCaptured.length ? blackCaptured.join(" ") : "-",
+        },
+      ],
+    }];
+  }
+
   if (
     !scopeElement
     || snapshot?.variant !== "valle-tranquilo"

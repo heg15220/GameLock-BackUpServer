@@ -460,6 +460,13 @@ const HUMAN_ID = "human";
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
+const readMobileViewport = () => {
+  if (typeof window === "undefined") return { isMobile: false, isPortrait: false };
+  const width = Math.max(window.innerWidth || 0, document.documentElement?.clientWidth || 0);
+  const height = Math.max(window.innerHeight || 0, document.documentElement?.clientHeight || 0);
+  return { isMobile: width <= 900, isPortrait: height >= width };
+};
+
 const randomItem = (items) => {
   if (!items?.length) return null;
   return items[Math.floor(Math.random() * items.length)] ?? null;
@@ -1359,10 +1366,12 @@ const advanceTimeline = (state, ms) => {
 function StrategyMansionTripleEnigmaGame() {
   const locale = useMemo(() => (resolveBrowserLanguage() === "es" ? "es" : "en"), []);
   const copy = copyFor(locale);
+  const initialViewport = useMemo(() => readMobileViewport(), []);
   const [state, setState] = useState(() => createInitialState(locale));
   const [deskTab, setDeskTab] = useState("play");
-  const [showTutorial, setShowTutorial] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(() => !initialViewport.isMobile);
   const [showPlayDetails, setShowPlayDetails] = useState(false);
+  const [mobileViewport, setMobileViewport] = useState(initialViewport);
 
   useEffect(() => {
     if (!state.auto || state.mode !== "playing") return undefined;
@@ -1373,11 +1382,27 @@ function StrategyMansionTripleEnigmaGame() {
   }, [state.auto, state.mode]);
 
   const restart = useCallback(() => {
+    const viewport = readMobileViewport();
     setState(createInitialState(locale));
     setDeskTab("play");
-    setShowTutorial(true);
+    setShowTutorial(!viewport.isMobile);
     setShowPlayDetails(false);
   }, [locale]);
+
+  useEffect(() => {
+    const updateViewport = () => setMobileViewport(readMobileViewport());
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    window.addEventListener("orientationchange", updateViewport);
+    return () => {
+      window.removeEventListener("resize", updateViewport);
+      window.removeEventListener("orientationchange", updateViewport);
+    };
+  }, []);
+
+  const openDeskTab = useCallback((nextTab) => {
+    setDeskTab(nextTab);
+  }, []);
 
   const submitHumanSuggestion = useCallback(() => {
     setState((previous) => {
@@ -1449,17 +1474,17 @@ function StrategyMansionTripleEnigmaGame() {
       }
       if (key === "1") {
         event.preventDefault();
-        setDeskTab("play");
+        openDeskTab("play");
         return;
       }
       if (key === "2") {
         event.preventDefault();
-        setDeskTab("notebook");
+        openDeskTab("notebook");
         return;
       }
       if (key === "3") {
         event.preventDefault();
-        setDeskTab("intel");
+        openDeskTab("intel");
         return;
       }
       if (key === "enter") {
@@ -1477,6 +1502,7 @@ function StrategyMansionTripleEnigmaGame() {
     state.activePlayerId,
     state.controls.accusationOpen,
     state.mode,
+    openDeskTab,
     submitHumanAccusation,
     submitHumanSuggestion,
     updateControls,
@@ -1564,6 +1590,15 @@ function StrategyMansionTripleEnigmaGame() {
     () => Number(trackerOverallConfidence(state.humanTracker).toFixed(3)),
     [state.humanTracker]
   );
+  const portraitMobile = mobileViewport.isMobile && mobileViewport.isPortrait;
+  const rootClassName = [
+    "mini-game",
+    "strategy-mansion-enigma-game",
+    state.mode === "playing" && state.activePlayerId !== HUMAN_ID ? "is-ai-turn" : "",
+    mobileViewport.isMobile ? "mansion-mobile" : "",
+    portraitMobile ? "mansion-mobile-portrait" : "",
+    mobileViewport.isMobile && !mobileViewport.isPortrait ? "mansion-mobile-landscape" : "",
+  ].filter(Boolean).join(" ");
 
   const controlRooms = useMemo(() => {
     if (!human) return [];
@@ -1617,12 +1652,7 @@ function StrategyMansionTripleEnigmaGame() {
   );
 
   return (
-    <div
-      className={[
-        "mini-game strategy-mansion-enigma-game",
-        state.mode === "playing" && state.activePlayerId !== HUMAN_ID ? "is-ai-turn" : "",
-      ].join(" ")}
-    >
+    <div className={rootClassName}>
       <header className="mansion-hero">
         <div className="mansion-hero-copy">
           <h4>{copy.title}</h4>
@@ -1735,21 +1765,21 @@ function StrategyMansionTripleEnigmaGame() {
               <button
                 type="button"
                 className={deskTab === "play" ? "is-active" : ""}
-                onClick={() => setDeskTab("play")}
+                onClick={() => openDeskTab("play")}
               >
                 {copy.tabPlay}
               </button>
               <button
                 type="button"
                 className={deskTab === "notebook" ? "is-active" : ""}
-                onClick={() => setDeskTab("notebook")}
+                onClick={() => openDeskTab("notebook")}
               >
                 {copy.tabNotebook}
               </button>
               <button
                 type="button"
                 className={deskTab === "intel" ? "is-active" : ""}
-                onClick={() => setDeskTab("intel")}
+                onClick={() => openDeskTab("intel")}
               >
                 {copy.tabIntel}
               </button>

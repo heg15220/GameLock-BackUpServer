@@ -4018,3 +4018,20 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Pendiente:
   - recompilar y validar visualmente con capturas nuevas, porque la preview local puede seguir sirviendo una build anterior.
 
+## 2026-04-09 - Ajustes moviles en poker/parchis/domino/mansion
+- `StrategyMansionTripleEnigmaGame.jsx`: corregido el arranque en movil portrait para que nunca quede vacio; el reinicio vuelve a abrir tablero por defecto y conserva escritorio en desktop/landscape.
+- `DominoStrategyGame.jsx` + `styles.css`: reducidas fichas y densidad del tablero en movil, y anadida una banda de `fichas jugables ahora` junto a la zona de acciones para seleccionar jugadas legales aunque la mano completa quede fuera del primer viewport.
+- `ParchisStrategyGame.jsx` + `styles.css`: mejorada la animacion de tirada con wobble alterno por dado, rebote y parpadeo sutil de cara/puntos durante la tirada.
+- Pendiente de validacion final: `npm run build`; en sandbox sigue chocando con `spawn EPERM` y el ultimo intento con elevacion se interrumpio.
+
+## 2026-04-09 - Ajuste de segunda pasada segun feedback
+- `DominoStrategyGame.jsx`: la banda de fichas jugables se mueve justo debajo del tablero, antes de la mano completa, para que las acciones del turno se vean en el primer bloque interactivo.
+- `PokerTexasHoldemGame.jsx` + `styles.css`: anadida clase por numero de IAs y reordenado el layout portrait para priorizar tablero + rejilla de IAs antes de la mano humana; con 4 IAs se compactan aun mas nombre/estado/cartas.
+- `StrategyMansionTripleEnigmaGame.jsx` + `styles.css`: eliminados los toggles genericos de `mesa/escritorio`; en portrait movil se reutiliza el tablero y panel originales apilados, con una cabecera-resumen propia en vez del patron comun del resto de juegos.
+
+## 2026-04-09 - Ajuste final de estructura movil (feedback directo)
+- `DominoStrategyGame.jsx`: las acciones (`izquierda/derecha/jugar/pasar`) y el resumen de seleccion se colocan inmediatamente bajo el tablero y bajo la tira de fichas jugables para que no queden ocultas por la mano extensa.
+- `StrategyMansionTripleEnigmaGame.jsx`: se elimina tambien el resumen movil custom y queda solo el layout base del juego (tablero + panel original) adaptado por CSS responsive.
+- `styles.css` (poker): en portrait se ajusta tamano/espaciado de cartas ocultas IA y tuning especifico `poker-ai-count-4` para distribuir mejor los mazos en pantalla.
+- Verificacion: `npm run build` en sandbox sigue fallando por `spawn EPERM` de `esbuild` (sin validacion de build local completada en este turno).
+

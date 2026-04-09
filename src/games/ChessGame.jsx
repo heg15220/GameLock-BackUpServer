@@ -558,8 +558,9 @@ function ChessGame() {
     aiThinking,
     selectedSquare,
     pendingPromotion,
+    capturedSummary,
     gameState
-  }), [started, playerColor, difficultyId, aiThinking, selectedSquare, pendingPromotion, gameState]);
+  }), [started, playerColor, difficultyId, aiThinking, selectedSquare, pendingPromotion, capturedSummary, gameState]);
 
   const payloadBuilder = useCallback((snapshot) => {
     const boardPieces = [];
@@ -600,6 +601,10 @@ function ChessGame() {
       legalMoves: snapshot.gameState.legalMoves.map((move) => moveToUci(move)),
       lastMove: snapshot.gameState.lastMove,
       moveHistory: snapshot.gameState.moveHistory.slice(-24).map((move) => move.san),
+      capturedSummary: {
+        white: (snapshot.capturedSummary?.w || []).map((piece) => formatCapturedLabel(piece, WHITE)),
+        black: (snapshot.capturedSummary?.b || []).map((piece) => formatCapturedLabel(piece, BLACK)),
+      },
       boardPieces
     };
   }, []);

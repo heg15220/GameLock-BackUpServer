@@ -1,0 +1,217 @@
+{
+  "title": "Playforge Studio",
+  "bodyClass": "",
+  "hasShell": true,
+  "hasPoker": true,
+  "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--theme-strategy mobile-game-shell--has-controls",
+  "gameRootClass": "poker-table",
+  "buttons": [
+    {
+      "text": "Todas",
+      "className": "active",
+      "aria": null
+    },
+    {
+      "text": "Arcade",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "Juegos",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "Deportes",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "Conocimiento",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "Estrategia",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Comenzar",
+      "className": "enter-btn",
+      "aria": null
+    },
+    {
+      "text": "Anterior",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "Siguiente",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "← Volver al catálogo",
+      "className": "launch-back-btn",
+      "aria": "← Volver al catálogo"
+    },
+    {
+      "text": "Pantalla completa",
+      "className": "mobile-game-shell__fullscreen",
+      "aria": null
+    },
+    {
+      "text": "Nueva partida",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "Ajustes",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "Marcador",
+      "className": "",
+      "aria": null
+    },
+    {
+      "text": "Pasar",
+      "className": "mobile-control-deck__button tone-default",
+      "aria": null
+    },
+    {
+      "text": "Igualar",
+      "className": "mobile-control-deck__button tone-accent",
+      "aria": null
+    },
+    {
+      "text": "Subir",
+      "className": "mobile-control-deck__button tone-primary",
+      "aria": null
+    },
+    {
+      "text": "All-in",
+      "className": "mobile-control-deck__button tone-primary",
+      "aria": null
+    },
+    {
+      "text": "Retirarse",
+      "className": "mobile-control-deck__button tone-default",
+      "aria": null
+    },
+    {
+      "text": "Servirse",
+      "className": "mobile-control-deck__button tone-default",
+      "aria": null
+    },
+    {
+      "text": "Descartar",
+      "className": "mobile-control-deck__button tone-default",
+      "aria": null
+    },
+    {
+      "text": "Accion",
+      "className": "mobile-control-deck__button tone-accent",
+      "aria": null
+    },
+    {
+      "text": "Siguiente",
+      "className": "mobile-control-deck__button tone-utility",
+      "aria": null
+    },
+    {
+      "text": "Pausa",
+      "className": "mobile-control-deck__button tone-utility",
+      "aria": null
+    },
+    {
+      "text": "Reinicio",
+      "className": "mobile-control-deck__button tone-utility",
+      "aria": null
+    },
+    {
+      "text": "Pantalla",
+      "className": "mobile-control-deck__button tone-utility",
+      "aria": null
+    }
+  ],
+  "selects": [],
+  "textSample": "SAAS DE JUEGOS WEB\n\nPlayforge Studio\n\nCatálogo de juegos jugables y técnicamente viables. Cada categoría incorpora dirección artística de referencia para llevar la experiencia a nivel profesional en móvil, tablet y escritorio.\n\nJuegos disponibles\n\n67\n\nTemáticas activas\n\n5\n\nViabilidad técnica\n\n100% Alta\nExplorar juegos\nTodas\nArcade\nJuegos\nDeportes\nConocimiento\nEstrategia\nArcade\n3-6 min\nSky Runner DX\n\nPlataformas 2D arcade con 32 sectores artesanales, biomas avanzados y jefes con variantes.\n\nDificultad: Media-Alta\nSolo\nComenzar\nArcade\n4-9 min\nPac-Man Maze Protocol\n\nArcade de laberinto con persecuciÃ³n, pellets, power mode y FSM de fantasmas.\n\nDificultad: Media-Alta\nSolo\nComenzar\nArcade\n3-8 min\nStick Brawl Showdown\n\nFighting arcade 1v1 con IA adaptativa, fisicas refinadas y escenarios dinamicos de alta calidad.\n\nDificultad: Alta\nSolo vs IA\nComenzar\nArcade\n1-3 min\nFlux Basin\n\nArcade mobile-first de fisica y precision: tira hacia atras, rebota y captura la orbita en una capsula magnetica.\n\nDificultad: Media-Alta\nSolo\nComenzar\nArcade\n4-10 min\nTerritory War: Stick Arena\n\nEstrategia por turnos estilo Territory War con granadas, salto y control de altura.\n\nDificultad: Media-Alta\nSolo vs CPU\nComenzar\nArcade\n3-8 min\nOrchard Match Blast\n\nMatch-3 arcade propio con bloques de color, cascadas y objetivo de puntuacion.\n\nDificultad: Media\nSolo\nComenzar\nDeportes\n5-12 min\nBillar Pool Club\n\nBillar de estilo profesional con Bola 8, Bola 9 y Bola 10, fisica precisa y IA tactica.\n\nDificultad: Media-Alta\nSolo vs IA\nComenzar\nDeportes\n6-14 min\nBowling Pro Tour\n\nBowling 1v1 rehecho con alley de referencia, marcador oficial, split detector e IA por dificultad.\n\nDificultad: Variable (4 niveles IA)\nSolo vs IA\nComenzar\nDeportes\n2-5 min\nPenalty Neural Keeper\n\nTanda de penaltis por equipos con backend Node, rivales configurables y portero IA adaptativo.\n\nDificultad: Media-Alta\nSolo vs IA\nComenzar\nArcade\n4-8 min\nCosmic Vanguard\n\nShooter espacial tactico con wrap-around, pasadas de riesgo/recompensa,"
+}

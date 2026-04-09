@@ -65,6 +65,8 @@ const I18N = {
       newMatch: "Nueva partida",
       nextRound: "Siguiente ronda",
       rematch: "Revancha",
+      mobileBoard: "Mesa",
+      mobileMeta: "Estado",
       mode: "Modo de partida",
       aiDifficulty: "Dificultad IA",
       targetScore: "Puntuacion objetivo",
@@ -94,6 +96,8 @@ const I18N = {
       right: "Derecha",
       playTile: "Jugar ficha",
       passTurn: "Pasar turno",
+      playableNow: "Fichas jugables ahora",
+      noPlayableNow: "Sin jugadas disponibles: usa Pasar turno.",
       selectionPrefix: "Seleccion",
       fitsOn: "Encaja en",
       noneEdge: "ningun extremo",
@@ -193,6 +197,8 @@ const I18N = {
       newMatch: "New match",
       nextRound: "Next round",
       rematch: "Rematch",
+      mobileBoard: "Table",
+      mobileMeta: "Status",
       mode: "Game mode",
       aiDifficulty: "AI difficulty",
       targetScore: "Target score",
@@ -222,6 +228,8 @@ const I18N = {
       right: "Right",
       playTile: "Play tile",
       passTurn: "Pass turn",
+      playableNow: "Playable tiles now",
+      noPlayableNow: "No legal moves available: use Pass turn.",
       selectionPrefix: "Selection",
       fitsOn: "Fits on",
       noneEdge: "no edge",
@@ -1082,7 +1090,6 @@ function DominoStrategyGame() {
   const [viewportHeight, setViewportHeight] = useState(() => (
     typeof window !== "undefined" ? window.innerHeight : 720
   ));
-
   const aiPendingRef = useRef(false);
   const aiDelayRef = useRef(0);
   const frameRef = useRef(0);
@@ -1224,8 +1231,13 @@ function DominoStrategyGame() {
       setViewportWidth(window.innerWidth);
       setViewportHeight(window.innerHeight);
     };
+    onResize();
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -1295,6 +1307,23 @@ function DominoStrategyGame() {
     () => collectLegalMoves(playerHand, state.chain),
     [playerHand, state.chain]
   );
+  const playableTileChoices = useMemo(() => {
+    const choices = [];
+    const seen = new Set();
+    playerLegalMoves.forEach((move) => {
+      const tile = playerHand[move.index];
+      if (!tile || seen.has(tile.id)) return;
+      seen.add(tile.id);
+      choices.push({
+        tile,
+        index: move.index,
+        sides: [...new Set(playerLegalMoves
+          .filter((candidate) => candidate.index === move.index)
+          .map((candidate) => candidate.side))]
+      });
+    });
+    return choices;
+  }, [playerHand, playerLegalMoves]);
   const playableSidesByTileId = useMemo(() => {
     const sideMap = new Map();
     playerHand.forEach((tile) => {
@@ -1305,13 +1334,13 @@ function DominoStrategyGame() {
   }, [playerHand, state.chain]);
   const boardDensity = useMemo(() => {
     if (viewportWidth <= 420) {
-      return { columns: 4, cellWidth: 62, cellHeight: 42 };
+      return { columns: 5, cellWidth: 54, cellHeight: 36 };
     }
     if (viewportWidth <= 620) {
-      return { columns: 5, cellWidth: 70, cellHeight: 48 };
+      return { columns: 6, cellWidth: 60, cellHeight: 40 };
     }
     if (viewportWidth <= 920) {
-      return { columns: 6, cellWidth: 80, cellHeight: 54 };
+      return { columns: 7, cellWidth: 72, cellHeight: 48 };
     }
     return { columns: CHAIN_COLUMNS, cellWidth: CHAIN_CELL_WIDTH, cellHeight: CHAIN_CELL_HEIGHT };
   }, [viewportWidth]);
@@ -1331,6 +1360,14 @@ function DominoStrategyGame() {
   const canAdjustTarget = modeConfig.teamIds.every((teamId) => (state.scores[teamId] ?? 0) === 0) && state.roundNumber === 1;
   const isMobileViewport = viewportWidth <= 860;
   const isPortraitMobile = isMobileViewport && viewportHeight >= viewportWidth;
+  const selectPlayableTile = useCallback((index, preferredSide) => {
+    setState((previous) => ({
+      ...previous,
+      selectedIndex: clampSelectedIndex(index, previous.hands.player.length),
+      selectedSide: preferredSide || previous.selectedSide
+    }));
+  }, []);
+
   const phaseLabel =
     state.phase === "playing"
       ? T.phase.playing
@@ -1435,6 +1472,304 @@ function DominoStrategyGame() {
     </section>
   );
 
+  const mobileKpisBlock = (
+    <div className="domino-mobile-kpis">
+      <article><span>{T.ui.round}</span><strong>{state.roundNumber}</strong></article>
+      <article><span>{T.ui.turn}</span><strong>{state.turn ? SEAT_META[state.turn].name : T.ui.closed}</strong></article>
+      <article><span>{T.ui.chain}</span><strong>{state.chain.length}</strong></article>
+      <article><span>{T.ui.target}</span><strong>{state.targetScore}</strong></article>
+    </div>
+  );
+
+  const configBlock = (
+    <div className="domino-strategy-config">
+      <label htmlFor="domino-game-mode">
+        {T.ui.mode}
+        <select
+          id="domino-game-mode"
+          value={state.modeId}
+          onChange={(event) => {
+            const nextModeId = event.target.value;
+            const nextModeConfig = getModeConfig(nextModeId);
+            setState((previous) => createRoundState({
+              modeId: nextModeConfig.id,
+              scores: buildScoresForMode(nextModeConfig),
+              targetScore: previous.targetScore,
+              difficultyId: previous.difficultyId,
+              roundNumber: 1,
+              starterSeat: null
+            }));
+          }}
+        >
+          {Object.values(GAME_MODES).map((mode) => (
+            <option key={mode.id} value={mode.id}>{mode.label}</option>
+          ))}
+        </select>
+      </label>
+
+      <label htmlFor="domino-ai-level">
+        {T.ui.aiDifficulty}
+        <select
+          id="domino-ai-level"
+          value={state.difficultyId}
+          onChange={(event) => {
+            const value = event.target.value;
+            if (!AI_LEVELS[value]) return;
+            setState((previous) => ({ ...previous, difficultyId: value }));
+          }}
+        >
+          {Object.values(AI_LEVELS).map((level) => (
+            <option key={level.id} value={level.id}>{level.label}</option>
+          ))}
+        </select>
+      </label>
+
+      <label htmlFor="domino-target-score">
+        {T.ui.targetScore}
+        <select
+          id="domino-target-score"
+          value={state.targetScore}
+          disabled={!canAdjustTarget}
+          onChange={(event) => {
+            const nextTarget = Number(event.target.value) || DEFAULT_TARGET_SCORE;
+            setState((previous) => ({ ...previous, targetScore: nextTarget }));
+          }}
+        >
+          {TARGET_SCORE_OPTIONS.map((value) => (
+            <option key={value} value={value}>{value}</option>
+          ))}
+        </select>
+      </label>
+
+      <p className="domino-config-note">
+        {T.ui.controlsNote}
+      </p>
+    </div>
+  );
+
+  const statusRowBlock = (
+    <div className="status-row">
+      <span className={`status-pill ${state.phase === "playing" ? "playing" : "finished"}`}>{phaseLabel}</span>
+      <span>{T.ui.round}: {state.roundNumber}</span>
+      <span>{T.ui.turn}: {state.turn ? SEAT_META[state.turn].name : T.ui.closed}</span>
+      <span>{T.ui.modeTag}: {modeConfig.rulesLabel}</span>
+      <span>{T.ui.difficulty}: {AI_LEVELS[state.difficultyId]?.label || AI_LEVELS.medium.label}</span>
+      <span>{T.ui.passes}: {state.consecutivePasses}/{modeConfig.seats.length}</span>
+      <span>{T.ui.nextStarter}: {SEAT_META[state.nextStarterSeat]?.name}</span>
+    </div>
+  );
+
+  const scoreboardBlock = (
+    <div className="domino-scoreboard domino-team-scoreboard">
+      {modeConfig.teamIds.map((teamId) => (
+        <article
+          key={teamId}
+          className={`domino-scorecard ${teamId === playerTeamId ? "team-us" : "team-rivals"}`}
+        >
+          <p>{modeConfig.teams[teamId]?.label ?? teamId}</p>
+          <strong>{state.scores[teamId] ?? 0}</strong>
+          <span>{T.ui.hand}: {teamPips[teamId] ?? 0}</span>
+        </article>
+      ))}
+      <article className="domino-scorecard team-target">
+        <p>{T.ui.target}</p>
+        <strong>{state.targetScore}</strong>
+        <span>{T.ui.chain}: {state.chain.length}</span>
+      </article>
+    </div>
+  );
+
+  const tableBlock = (
+    <div className="domino-table">
+      <div className="domino-table-head">
+        <span className="domino-variant-chip">{modeConfig.rulesLabel}</span>
+        <span className="domino-table-note">{T.ui.tableNote}</span>
+      </div>
+
+      <div className="domino-edge-readout">
+        <span>{T.ui.leftEdge}: {state.chain[0]?.left ?? "--"}</span>
+        <span>{T.ui.rightEdge}: {state.chain[state.chain.length - 1]?.right ?? "--"}</span>
+        <span>{T.ui.tilesOnTable}: {state.chain.length}/28</span>
+      </div>
+
+      <div className="domino-arena-shell">
+        {modeConfig.seats.includes("partner") ? (
+          <div className="domino-seat-slot slot-top">{renderSeat("partner", "domino-seat-top")}</div>
+        ) : null}
+        {modeConfig.seats.includes("left") ? (
+          <div className="domino-seat-slot slot-left">{renderSeat("left", "domino-seat-left")}</div>
+        ) : null}
+        {modeConfig.seats.includes("right") ? (
+          <div className="domino-seat-slot slot-right">{renderSeat("right", "domino-seat-right")}</div>
+        ) : null}
+        <div className="domino-chain-scroll">
+          <div
+            className="domino-chain domino-chain-stage"
+            role="list"
+            aria-label={T.ui.chainAria}
+            style={{ width: `${chainLayout.width}px`, height: `${chainLayout.height}px` }}
+          >
+            {chainLayout.positions.map((node) => (
+              <span
+                key={`${node.tile.id}-${node.index}`}
+                className={`domino-chain-node ${node.axis === "vertical" ? "axis-vertical" : "axis-horizontal"}`}
+                style={{ left: `${node.leftPx}px`, top: `${node.topPx}px` }}
+              >
+                <span
+                  role="listitem"
+                  className={[
+                    "domino-tile",
+                    node.tile.left === node.tile.right ? "is-double" : "",
+                    node.axis === "vertical" && node.tile.left !== node.tile.right ? "is-vertical" : "",
+                    node.tile.id === state.lastPlayerMoveTileId ? "last-player-tile" : "",
+                    node.tile.id === state.lastPartnerMoveTileId ? "last-partner-tile" : "",
+                    node.index === 0 && state.selectedSide === "left" ? "active-edge" : "",
+                    node.index === state.chain.length - 1 && state.selectedSide === "right" ? "active-edge" : ""
+                  ].filter(Boolean).join(" ")}
+                >
+                  {node.tile.id === state.lastPlayerMoveTileId ? (
+                    <span className="domino-board-badge badge-player">{T.ui.lastPlayerBadge}</span>
+                  ) : null}
+                  {node.tile.id === state.lastPartnerMoveTileId ? (
+                    <span className="domino-board-badge badge-partner">{T.ui.lastPartnerBadge}</span>
+                  ) : null}
+                  <span className="domino-half"><DominoPips value={node.tile.left} /><strong>{node.tile.left}</strong></span>
+                  <span className="domino-divider" />
+                  <span className="domino-half"><DominoPips value={node.tile.right} /><strong>{node.tile.right}</strong></span>
+                </span>
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="domino-seat-slot slot-bottom">{playerSeatChip}</div>
+      </div>
+    </div>
+  );
+
+  const playableStripBlock = (
+    <section className="domino-playable-strip domino-playable-strip-board" aria-label={T.ui.playableNow}>
+      <div className="domino-playable-strip-head">
+        <strong>{T.ui.playableNow}</strong>
+        <span>{playableTileChoices.length ? `${playableTileChoices.length} ${T.ui.tiles}` : T.ui.noneEdge}</span>
+      </div>
+      {playableTileChoices.length ? (
+        <div className="domino-playable-strip-list">
+          {playableTileChoices.map(({ tile, index, sides }) => {
+            const isSelected = index === state.selectedIndex;
+            const sideHint =
+              sides.length >= 2 ? "L/R" : sides[0] === "left" ? "L" : sides[0] === "right" ? "R" : "";
+            return (
+              <button
+                key={`playable-${tile.id}`}
+                type="button"
+                className={[
+                  "domino-hand-tile",
+                  "domino-playable-chip",
+                  tile.a === tile.b ? "is-double" : "",
+                  isSelected ? "selected" : ""
+                ].filter(Boolean).join(" ")}
+                onClick={() => selectPlayableTile(index, sides.includes(state.selectedSide) ? state.selectedSide : sides[0])}
+                disabled={!canPlayerPlay}
+              >
+                {sideHint ? <span className="domino-legal-hint">{sideHint}</span> : null}
+                {isSelected ? <span className="domino-selected-badge">{T.ui.selected}</span> : null}
+                <span className="domino-half"><DominoPips value={tile.a} /><strong>{tile.a}</strong></span>
+                <span className="domino-divider" />
+                <span className="domino-half"><DominoPips value={tile.b} /><strong>{tile.b}</strong></span>
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="domino-playable-empty">{T.ui.noPlayableNow}</p>
+      )}
+    </section>
+  );
+
+  const toolbarBlock = (
+    <div className="domino-toolbar">
+      <span>{T.ui.activeSide}: {sideLabel(state.selectedSide)}</span>
+      <button type="button" onClick={() => setState((previous) => ({ ...previous, selectedSide: "left" }))}>{T.ui.left}</button>
+      <button type="button" onClick={() => setState((previous) => ({ ...previous, selectedSide: "right" }))}>{T.ui.right}</button>
+      <button type="button" onClick={playSelectedTile} disabled={!canPlayerPlay}>{T.ui.playTile}</button>
+      <button type="button" onClick={passTurn} disabled={!canPlayerPass}>{T.ui.passTurn}</button>
+    </div>
+  );
+
+  const selectedSummaryBlock = (
+    <p className="domino-selected">
+      {T.ui.selectionPrefix}: {selectedTile ? formatTile(selectedTile) : "--"}.
+      {" "}
+      {T.ui.fitsOn}:
+      {" "}
+      {selectedPlacements.length
+        ? selectedPlacements.map((placement) => sideLabel(placement.side)).join(" / ")
+        : T.ui.noneEdge}
+      {" "}
+      | {T.ui.yourLastMove}:
+      {" "}
+      {lastPlayerMoveTile
+        ? `${lastPlayerMoveTile.left}|${lastPlayerMoveTile.right} (${sideLabel(state.lastPlayerMoveSide)})`
+        : "--"}
+      {" "}
+      | {T.ui.partnerLastMove}:
+      {" "}
+      {modeConfig.seats.includes("partner")
+        ? (
+          lastPartnerMoveTile
+            ? `${lastPartnerMoveTile.left}|${lastPartnerMoveTile.right} (${sideLabel(state.lastPartnerMoveSide)})`
+            : "--"
+        )
+        : T.ui.notApplicable}
+    </p>
+  );
+
+  const playerHandBlock = (
+    <div className="domino-player-zones">
+      <section className={`domino-zone domino-zone-player ${state.turn === "player" ? "active" : ""}`}>
+        <h5>{SEAT_META.player.name} ({playerHand.length} {T.ui.tiles})</h5>
+        <div className="domino-hand" aria-label={T.ui.playerHandAria}>
+          {playerHand.map((tile, index) => {
+            const isSelected = index === state.selectedIndex;
+            const playableSides = playableSidesByTileId.get(tile.id) || [];
+            const sideHint =
+              playableSides.length >= 2
+                ? "L/R"
+                : playableSides[0] === "left"
+                  ? "L"
+                  : playableSides[0] === "right"
+                    ? "R"
+                    : "";
+            return (
+              <button
+                key={tile.id}
+                type="button"
+                disabled={!canPlayerPlay}
+                aria-pressed={isSelected}
+                className={[
+                  "domino-hand-tile",
+                  tile.a === tile.b ? "is-double" : "",
+                  playableSides.length ? "playable" : "",
+                  isSelected ? "selected" : ""
+                ].filter(Boolean).join(" ")}
+                onClick={() => setState((previous) => ({
+                  ...previous,
+                  selectedIndex: clampSelectedIndex(index, previous.hands.player.length)
+                }))}
+              >
+                {canPlayerPlay && sideHint ? <span className="domino-legal-hint">{sideHint}</span> : null}
+                {isSelected ? <span className="domino-selected-badge">{T.ui.selected}</span> : null}
+                <span className="domino-half"><DominoPips value={tile.a} /><strong>{tile.a}</strong></span>
+                <span className="domino-divider" />
+                <span className="domino-half"><DominoPips value={tile.b} /><strong>{tile.b}</strong></span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+
   return (
     <div className={rootClasses}>
       <div className="mini-head">
@@ -1449,240 +1784,32 @@ function DominoStrategyGame() {
         </div>
       </div>
 
-      <div className="domino-strategy-config">
-        <label htmlFor="domino-game-mode">
-          {T.ui.mode}
-          <select
-            id="domino-game-mode"
-            value={state.modeId}
-            onChange={(event) => {
-              const nextModeId = event.target.value;
-              const nextModeConfig = getModeConfig(nextModeId);
-              setState((previous) => createRoundState({
-                modeId: nextModeConfig.id,
-                scores: buildScoresForMode(nextModeConfig),
-                targetScore: previous.targetScore,
-                difficultyId: previous.difficultyId,
-                roundNumber: 1,
-                starterSeat: null
-              }));
-            }}
-          >
-            {Object.values(GAME_MODES).map((mode) => (
-              <option key={mode.id} value={mode.id}>{mode.label}</option>
-            ))}
-          </select>
-        </label>
-
-        <label htmlFor="domino-ai-level">
-          {T.ui.aiDifficulty}
-          <select
-            id="domino-ai-level"
-            value={state.difficultyId}
-            onChange={(event) => {
-              const value = event.target.value;
-              if (!AI_LEVELS[value]) return;
-              setState((previous) => ({ ...previous, difficultyId: value }));
-            }}
-          >
-            {Object.values(AI_LEVELS).map((level) => (
-              <option key={level.id} value={level.id}>{level.label}</option>
-            ))}
-          </select>
-        </label>
-
-        <label htmlFor="domino-target-score">
-          {T.ui.targetScore}
-          <select
-            id="domino-target-score"
-            value={state.targetScore}
-            disabled={!canAdjustTarget}
-            onChange={(event) => {
-              const nextTarget = Number(event.target.value) || DEFAULT_TARGET_SCORE;
-              setState((previous) => ({ ...previous, targetScore: nextTarget }));
-            }}
-          >
-            {TARGET_SCORE_OPTIONS.map((value) => (
-              <option key={value} value={value}>{value}</option>
-            ))}
-          </select>
-        </label>
-
-        <p className="domino-config-note">
-          {T.ui.controlsNote}
-        </p>
-      </div>
-
-      <div className="status-row">
-        <span className={`status-pill ${state.phase === "playing" ? "playing" : "finished"}`}>{phaseLabel}</span>
-        <span>{T.ui.round}: {state.roundNumber}</span>
-        <span>{T.ui.turn}: {state.turn ? SEAT_META[state.turn].name : T.ui.closed}</span>
-        <span>{T.ui.modeTag}: {modeConfig.rulesLabel}</span>
-        <span>{T.ui.difficulty}: {AI_LEVELS[state.difficultyId]?.label || AI_LEVELS.medium.label}</span>
-        <span>{T.ui.passes}: {state.consecutivePasses}/{modeConfig.seats.length}</span>
-        <span>{T.ui.nextStarter}: {SEAT_META[state.nextStarterSeat]?.name}</span>
-      </div>
-
-      <div className="domino-scoreboard domino-team-scoreboard">
-        {modeConfig.teamIds.map((teamId) => (
-          <article
-            key={teamId}
-            className={`domino-scorecard ${teamId === playerTeamId ? "team-us" : "team-rivals"}`}
-          >
-            <p>{modeConfig.teams[teamId]?.label ?? teamId}</p>
-            <strong>{state.scores[teamId] ?? 0}</strong>
-            <span>{T.ui.hand}: {teamPips[teamId] ?? 0}</span>
-          </article>
-        ))}
-        <article className="domino-scorecard team-target">
-          <p>{T.ui.target}</p>
-          <strong>{state.targetScore}</strong>
-          <span>{T.ui.chain}: {state.chain.length}</span>
-        </article>
-      </div>
-
-      <div className="domino-table">
-        <div className="domino-table-head">
-          <span className="domino-variant-chip">{modeConfig.rulesLabel}</span>
-          <span className="domino-table-note">{T.ui.tableNote}</span>
+      {isPortraitMobile ? (
+        <div className="domino-mobile-dual-layout">
+          <section className="domino-mobile-stage-screen">
+            {tableBlock}
+            {playerHandBlock}
+          </section>
+          <section className="domino-mobile-control-screen">
+            {mobileKpisBlock}
+            {scoreboardBlock}
+            {configBlock}
+            {toolbarBlock}
+            {selectedSummaryBlock}
+          </section>
         </div>
-
-        <div className="domino-edge-readout">
-          <span>{T.ui.leftEdge}: {state.chain[0]?.left ?? "--"}</span>
-          <span>{T.ui.rightEdge}: {state.chain[state.chain.length - 1]?.right ?? "--"}</span>
-          <span>{T.ui.tilesOnTable}: {state.chain.length}/28</span>
-        </div>
-
-        <div className="domino-arena-shell">
-          {modeConfig.seats.includes("partner") ? (
-            <div className="domino-seat-slot slot-top">{renderSeat("partner", "domino-seat-top")}</div>
-          ) : null}
-          {modeConfig.seats.includes("left") ? (
-            <div className="domino-seat-slot slot-left">{renderSeat("left", "domino-seat-left")}</div>
-          ) : null}
-          {modeConfig.seats.includes("right") ? (
-            <div className="domino-seat-slot slot-right">{renderSeat("right", "domino-seat-right")}</div>
-          ) : null}
-          <div className="domino-chain-scroll">
-            <div
-              className="domino-chain domino-chain-stage"
-              role="list"
-              aria-label={T.ui.chainAria}
-              style={{ width: `${chainLayout.width}px`, height: `${chainLayout.height}px` }}
-            >
-              {chainLayout.positions.map((node) => (
-                <span
-                  key={`${node.tile.id}-${node.index}`}
-                  className={`domino-chain-node ${node.axis === "vertical" ? "axis-vertical" : "axis-horizontal"}`}
-                  style={{ left: `${node.leftPx}px`, top: `${node.topPx}px` }}
-                >
-                  <span
-                    role="listitem"
-                    className={[
-                      "domino-tile",
-                      node.tile.left === node.tile.right ? "is-double" : "",
-                      node.axis === "vertical" && node.tile.left !== node.tile.right ? "is-vertical" : "",
-                      node.tile.id === state.lastPlayerMoveTileId ? "last-player-tile" : "",
-                      node.tile.id === state.lastPartnerMoveTileId ? "last-partner-tile" : "",
-                      node.index === 0 && state.selectedSide === "left" ? "active-edge" : "",
-                      node.index === state.chain.length - 1 && state.selectedSide === "right" ? "active-edge" : ""
-                    ].filter(Boolean).join(" ")}
-                  >
-                    {node.tile.id === state.lastPlayerMoveTileId ? (
-                      <span className="domino-board-badge badge-player">{T.ui.lastPlayerBadge}</span>
-                    ) : null}
-                    {node.tile.id === state.lastPartnerMoveTileId ? (
-                      <span className="domino-board-badge badge-partner">{T.ui.lastPartnerBadge}</span>
-                    ) : null}
-                    <span className="domino-half"><DominoPips value={node.tile.left} /><strong>{node.tile.left}</strong></span>
-                    <span className="domino-divider" />
-                    <span className="domino-half"><DominoPips value={node.tile.right} /><strong>{node.tile.right}</strong></span>
-                  </span>
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="domino-seat-slot slot-bottom">{playerSeatChip}</div>
-        </div>
-      </div>
-
-      <div className="domino-player-zones">
-        <section className={`domino-zone domino-zone-player ${state.turn === "player" ? "active" : ""}`}>
-          <h5>{SEAT_META.player.name} ({playerHand.length} {T.ui.tiles})</h5>
-          <div className="domino-hand" aria-label={T.ui.playerHandAria}>
-            {playerHand.map((tile, index) => {
-              const isSelected = index === state.selectedIndex;
-              const playableSides = playableSidesByTileId.get(tile.id) || [];
-              const sideHint =
-                playableSides.length >= 2
-                  ? "L/R"
-                  : playableSides[0] === "left"
-                    ? "L"
-                    : playableSides[0] === "right"
-                      ? "R"
-                      : "";
-              return (
-                <button
-                  key={tile.id}
-                  type="button"
-                  disabled={!canPlayerPlay}
-                  aria-pressed={isSelected}
-                  className={[
-                    "domino-hand-tile",
-                    tile.a === tile.b ? "is-double" : "",
-                    playableSides.length ? "playable" : "",
-                    isSelected ? "selected" : ""
-                  ].filter(Boolean).join(" ")}
-                  onClick={() => setState((previous) => ({
-                    ...previous,
-                    selectedIndex: clampSelectedIndex(index, previous.hands.player.length)
-                  }))}
-                >
-                  {canPlayerPlay && sideHint ? <span className="domino-legal-hint">{sideHint}</span> : null}
-                  {isSelected ? <span className="domino-selected-badge">{T.ui.selected}</span> : null}
-                  <span className="domino-half"><DominoPips value={tile.a} /><strong>{tile.a}</strong></span>
-                  <span className="domino-divider" />
-                  <span className="domino-half"><DominoPips value={tile.b} /><strong>{tile.b}</strong></span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      </div>
-
-      <div className="domino-toolbar">
-        <span>{T.ui.activeSide}: {sideLabel(state.selectedSide)}</span>
-        <button type="button" onClick={() => setState((previous) => ({ ...previous, selectedSide: "left" }))}>{T.ui.left}</button>
-        <button type="button" onClick={() => setState((previous) => ({ ...previous, selectedSide: "right" }))}>{T.ui.right}</button>
-        <button type="button" onClick={playSelectedTile} disabled={!canPlayerPlay}>{T.ui.playTile}</button>
-        <button type="button" onClick={passTurn} disabled={!canPlayerPass}>{T.ui.passTurn}</button>
-      </div>
-
-      <p className="domino-selected">
-        {T.ui.selectionPrefix}: {selectedTile ? formatTile(selectedTile) : "--"}.
-        {" "}
-        {T.ui.fitsOn}:
-        {" "}
-        {selectedPlacements.length
-          ? selectedPlacements.map((placement) => sideLabel(placement.side)).join(" / ")
-          : T.ui.noneEdge}
-        {" "}
-        | {T.ui.yourLastMove}:
-        {" "}
-        {lastPlayerMoveTile
-          ? `${lastPlayerMoveTile.left}|${lastPlayerMoveTile.right} (${sideLabel(state.lastPlayerMoveSide)})`
-          : "--"}
-        {" "}
-        | {T.ui.partnerLastMove}:
-        {" "}
-        {modeConfig.seats.includes("partner")
-          ? (
-            lastPartnerMoveTile
-              ? `${lastPartnerMoveTile.left}|${lastPartnerMoveTile.right} (${sideLabel(state.lastPartnerMoveSide)})`
-              : "--"
-          )
-          : T.ui.notApplicable}
-      </p>
+      ) : (
+        <>
+          {configBlock}
+          {statusRowBlock}
+          {scoreboardBlock}
+          {tableBlock}
+          {playableStripBlock}
+          {toolbarBlock}
+          {selectedSummaryBlock}
+          {playerHandBlock}
+        </>
+      )}
 
       {state.roundResult ? (
         <div className="domino-round-summary">

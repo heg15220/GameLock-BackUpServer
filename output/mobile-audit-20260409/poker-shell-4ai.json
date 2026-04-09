@@ -1,0 +1,46 @@
+{
+  "stageText": "Tu\n\nActiva\n\n7\n♥\n5\n♥\nA\n♠\n9\n♠\n10\n♣\n120\nFICHAS\nApuesta: 0\nAcumulado: 0\nDescarte pendiente\nIA 1\n\nEn mano\n\nIA\nIA\n120\nIA 2\n\nEn mano\n\nIA\nIA\n118\nIA 3\n\nEn mano\n\nIA\nIA\n116\nIA 4\n\nRetirado\n\nIA\nIA\n120\nNo compensa pagar.\nApuesta inicial\nDescarte\nApuesta final\nBote total\n6\nApuesta actual: 4\nCiegas: 2/4\nIA 2\n2\nIA 3\n4\n\nCARTAS DE CIERRE\n\n?\n?\n?\n?\n?",
+  "panelText": "ESTADO DE PARTIDA\n\nTurno para IA 4.\n\nTURNO\n4\nCONFIGURACION DE PARTIDA\nRivales IA\n1\n2\n3\n4\n5\n6\n7\n8\nPerfil IA\nBasica\nTactica\nExperta\nStack inicial\n60\n80\n100\n120\n140\n160\n200\n240\n300\n400\nNivel de ciegas\n1 / 2\n2 / 4\n5 / 10\nMeta de fichas\n140\n160\n180\n200\n230\n250\n290\n340\n380\nNueva partida\nAjustes\nMarcador\nAplicar y reiniciar\nACCIONES DE PARTIDA\nIgualar (4)\nSubir (+4)\nAll-in\nRetirarse",
+  "seats": [
+    {
+      "name": "Tu",
+      "x": 35,
+      "y": 568,
+      "w": 173,
+      "h": 126,
+      "classes": "poker-table-seat poker-player-seat"
+    },
+    {
+      "name": "IA 1",
+      "x": 35,
+      "y": 319,
+      "w": 80,
+      "h": 58,
+      "classes": "poker-table-seat poker-ai-seat compact-seat mobile-ai-condensed"
+    },
+    {
+      "name": "IA 2",
+      "x": 35,
+      "y": 379,
+      "w": 80,
+      "h": 58,
+      "classes": "poker-table-seat poker-ai-seat compact-seat mobile-ai-condensed"
+    },
+    {
+      "name": "IA 3",
+      "x": 35,
+      "y": 439,
+      "w": 80,
+      "h": 58,
+      "classes": "poker-table-seat poker-ai-seat compact-seat mobile-ai-condensed"
+    },
+    {
+      "name": "IA 4",
+      "x": 35,
+      "y": 499,
+      "w": 80,
+      "h": 66,
+      "classes": "poker-table-seat poker-ai-seat compact-seat mobile-ai-condensed"
+    }
+  ]
+}

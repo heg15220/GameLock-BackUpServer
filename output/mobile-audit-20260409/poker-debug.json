@@ -1,0 +1,16 @@
+{
+  "payload": {
+    "html": "← Volver al catálogo\nEstrategia\nPoker Clasico Draw Con Apuestas\n? Instrucciones\nNueva partida\nAjustes\nMarcador\n\nEn movil puedes jugar bien en vertical. Si giras el telefono tendras una mesa mas amplia.\n\nEntendido\nTurno\nTu\nFase\nApuesta inicial\nBote\n6\nIgualar\n2\nTu\n\nActiva\n\n10\n♦\nK\n♦\n6\n♦\n5\n♦\n5\n♣\n118\nFICHAS\nApuesta: 2\nAcumulado: 2\nDescarte pendiente\nIA 1\n\nEn mano\n\nIA\nIA\n116\nApuesta inicial\nDescarte\nApuesta final\nBote total\n6\nApuesta actual: 4\nCiegas: 2/4\nTu\n2\nIA 1\n4\n\nCARTAS DE CIERRE\n\n?\n?\n?\n?\n?\nPasar\nIgualar (2)\nSubir (+4)\nAll-in\nRetirarse\n\nLectura de mano: Pareja de 5. Situacion de apuesta: debes igualar 2 con stack 118. Acciones posibles: retirarse, igualar, subir, all-in.\n\nReglas activas de mesa\n\nTurno para Tu.\n\nHistorial de mano",
+    "hasPoker": true,
+    "hasShell": false,
+    "bodyClasses": "",
+    "playgroundClasses": [
+      "game-playground",
+      "launch-game-playground",
+      "playground-mobile-active",
+      "playground-mobile-portrait",
+      "playground-mobile-first"
+    ]
+  },
+  "logs": []
+}

@@ -1,0 +1,103 @@
+{
+  "panelText": "ESTADO DE PARTIDA\n\nTurno para Tu.\n\nCONFIGURACION DE PARTIDA\nRivales IA\n1\n2\n3\n4\n5\n6\n7\n8\nPerfil IA\nBasica\nTactica\nExperta\nStack inicial\n60\n80\n100\n120\n140\n160\n200\n240\n300\n400\nNivel de ciegas\n1 / 2\n2 / 4\n5 / 10\nMeta de fichas\n140\n160\n180\n200\n230\n250\n290\n340\n380\nNueva partida\nAjustes\nMarcador\nAplicar y reiniciar\nACCIONES DE PARTIDA\nIgualar (2)\nSubir (+4)\nAll-in\nRetirarse",
+  "visibleSelects": [
+    {
+      "id": "poker-opponents",
+      "visible": false,
+      "label": "Rivales IA12345678"
+    },
+    {
+      "id": "poker-profile",
+      "visible": false,
+      "label": "Perfil IABasicaTacticaExperta"
+    },
+    {
+      "id": "poker-stack",
+      "visible": false,
+      "label": "Stack inicial6080100120140160200240300400"
+    },
+    {
+      "id": "poker-blinds",
+      "visible": false,
+      "label": "Nivel de ciegas1 / 22 / 45 / 10"
+    },
+    {
+      "id": "poker-target",
+      "visible": false,
+      "label": "Meta de fichas140160180200230250290340380"
+    },
+    {
+      "id": null,
+      "visible": true,
+      "label": "Rivales IA\n1\n2\n3\n4\n5\n6\n7\n8"
+    },
+    {
+      "id": null,
+      "visible": true,
+      "label": "Perfil IA\nBasica\nTactica\nExperta"
+    },
+    {
+      "id": null,
+      "visible": true,
+      "label": "Stack inicial\n60\n80\n100\n120\n140\n160\n200\n240\n300\n400"
+    },
+    {
+      "id": null,
+      "visible": true,
+      "label": "Nivel de ciegas\n1 / 2\n2 / 4\n5 / 10"
+    },
+    {
+      "id": null,
+      "visible": true,
+      "label": "Meta de fichas\n140\n160\n180\n200\n230\n250\n290\n340\n380"
+    }
+  ],
+  "visibleButtons": [
+    "Todas",
+    "Arcade",
+    "Juegos",
+    "Deportes",
+    "Conocimiento",
+    "Estrategia",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Comenzar",
+    "Anterior",
+    "Siguiente",
+    "← Volver al catálogo",
+    "Pantalla completa",
+    "Nueva partida",
+    "Ajustes",
+    "Marcador",
+    "Aplicar y reiniciar",
+    "Igualar (2)",
+    "Subir (+4)",
+    "All-in",
+    "Retirarse",
+    "Pasar",
+    "Igualar",
+    "Subir",
+    "All-in",
+    "Retirarse",
+    "Servirse",
+    "Descartar",
+    "Accion",
+    "Siguiente",
+    "Pausa",
+    "Reinicio",
+    "Pantalla"
+  ]
+}

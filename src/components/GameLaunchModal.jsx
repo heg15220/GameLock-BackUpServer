@@ -6,6 +6,12 @@ import useMobileGameViewport from "../mobile/useMobileGameViewport";
 import MobileGameShell from "../mobile/MobileGameShell";
 import { getResponsiveMobileShellMode } from "../mobile/mobileGameProfiles";
 
+const NATIVE_MOBILE_GAME_IDS = new Set([
+  "knowledge-domino-chain",
+  "strategy-sudoku-tecnicas",
+  "strategy-mansion-triple-enigma",
+]);
+
 function GameLaunchModal({ game, onClose }) {
   const { t, locale } = useTranslations();
   const lg = getLocalizedGame(game, locale);
@@ -42,7 +48,10 @@ function GameLaunchModal({ game, onClose }) {
 
   const mobileShellMode = getResponsiveMobileShellMode(game, viewport);
   const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(String(game.category ?? ""));
-  const useMobileGameShell = mobileShellEligible && viewport.isMobile;
+  const useMobileGameShell =
+    mobileShellEligible &&
+    viewport.isMobile &&
+    !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? ""));
   const launchPlaygroundClassName = [
     "game-playground",
     "launch-game-playground",

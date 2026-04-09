@@ -202,11 +202,11 @@ FUERA DE ALCANCE EN ESTE COMPONENTE
       youWon: "Ganaste la partida.",
       pressStart: "Pulsa Iniciar partida para comenzar. (Atajo: S o Enter)",
       rollDice: "Tirar dado",
-      selectedPiece: (pieceRef) => `Ficha seleccionada: ${pieceRef}. Pulsa Enter o vuelve a pulsar la ficha para mover.`,
-      selectPieceFirst: "Selecciona una ficha en el tablero para priorizar su jugada.",
-      moveSelected: "Mover ficha seleccionada",
+      selectedPiece: (pieceRef) => `Ficha seleccionada: ${pieceRef}. Elige una accion para previsualizar su destino.`,
+      selectedAction: (actionText) => `Accion preseleccionada: ${actionText}. Pulsa de nuevo la accion, la ficha o Enter para confirmarla.`,
+      selectPieceFirst: "Selecciona una accion de la lista o una ficha del tablero para previsualizar su destino.",
+      moveSelected: "Confirmar accion seleccionada",
       continueNoMove: "Continuar (sin jugada legal)",
-      autoMoveHint: "Auto-movimiento activo: solo hay una jugada legal.",
       aiTurnWait: (player, thinking) => `Turno de ${player}. ${thinking ? "Analizando jugada..." : "Resolviendo..."}`,
       rulesSummary: "Reglas activas de parchis (prompt base)"
     },
@@ -340,11 +340,11 @@ OUT OF SCOPE
       youWon: "You won the match.",
       pressStart: "Press Start match to begin. (Shortcut: S or Enter)",
       rollDice: "Roll dice",
-      selectedPiece: (pieceRef) => `Selected token: ${pieceRef}. Press Enter or click it again to move.`,
-      selectPieceFirst: "Select a token on the board to prioritize its move.",
-      moveSelected: "Move selected token",
+      selectedPiece: (pieceRef) => `Selected token: ${pieceRef}. Choose an action to preview its destination.`,
+      selectedAction: (actionText) => `Action preselected: ${actionText}. Press the action again, the token, or Enter to confirm it.`,
+      selectPieceFirst: "Select an action from the list or a token on the board to preview its destination.",
+      moveSelected: "Confirm selected action",
       continueNoMove: "Continue (no legal move)",
-      autoMoveHint: "Auto-move enabled: only one legal move.",
       aiTurnWait: (player, thinking) => `${player}'s turn. ${thinking ? "Analyzing move..." : "Resolving..."}`,
       rulesSummary: "Active parchis rules (base prompt)"
     },
@@ -1337,7 +1337,7 @@ const DIE_PIPS = {
   6: [[14, 12], [42, 12], [14, 28], [42, 28], [14, 44], [42, 44]]
 };
 
-function SvgDie({ value, rolling, size = 56, idSuffix }) {
+function SvgDie({ value, rolling, size = 56, idSuffix, slotIndex = 0 }) {
   const pips = DIE_PIPS[value] || DIE_PIPS[1];
   const gradientId = `die-grad-${idSuffix}`;
   const shadowId = `die-shadow-${idSuffix}`;
@@ -1347,7 +1347,7 @@ function SvgDie({ value, rolling, size = 56, idSuffix }) {
       width={size}
       height={size}
       viewBox="0 0 56 56"
-      className={`parchis-svg-die${rolling ? " rolling" : ""}`}
+      className={`parchis-svg-die die-slot-${slotIndex}${rolling ? " rolling" : ""}`}
       aria-hidden="true"
     >
       <defs>
@@ -1360,6 +1360,7 @@ function SvgDie({ value, rolling, size = 56, idSuffix }) {
         </filter>
       </defs>
       <rect
+        className="die-face"
         x="3"
         y="3"
         width="50"
@@ -1372,7 +1373,7 @@ function SvgDie({ value, rolling, size = 56, idSuffix }) {
         strokeWidth="1"
       />
       {pips.map(([cx, cy], index) => (
-        <circle key={`${idSuffix}-pip-${index}`} cx={cx} cy={cy} r="5" fill="#1a1a2e" />
+        <circle className="die-pip" key={`${idSuffix}-pip-${index}`} cx={cx} cy={cy} r="5" fill="#1a1a2e" />
       ))}
     </svg>
   );
@@ -1383,6 +1384,7 @@ function ParchisStrategyGame() {
   const [state, setState] = useState(() => createInitialState("medium", locale));
   const [aiThinking, setAiThinking] = useState(false);
   const [selectedPieceId, setSelectedPieceId] = useState(null);
+  const [selectedActionId, setSelectedActionId] = useState(null);
   const [diceUi, setDiceUi] = useState(() => ({
     rolling: false,
     activeOwner: null,
@@ -1443,6 +1445,7 @@ function ParchisStrategyGame() {
   const startMatch = useCallback(() => {
     if (rollPendingRef.current) return;
     setSelectedPieceId(null);
+    setSelectedActionId(null);
     stopAiThinking();
     stopAutoMove();
     resetDiceAnimation();
@@ -1468,6 +1471,7 @@ function ParchisStrategyGame() {
       previous.humanColor || "red"
     ));
     setSelectedPieceId(null);
+    setSelectedActionId(null);
     stopAiThinking();
     stopAutoMove();
     resetDiceAnimation();
@@ -1486,6 +1490,7 @@ function ParchisStrategyGame() {
       return createInitialState(previous.difficultyId, previous.locale || locale, nextColor);
     });
     setSelectedPieceId(null);
+    setSelectedActionId(null);
     stopAiThinking();
     stopAutoMove();
     resetDiceAnimation();
@@ -1501,26 +1506,33 @@ function ParchisStrategyGame() {
     if (state.winner || state.turn !== HUMAN_PLAYER_ID || state.phase !== "await-roll") return;
     if (rollPendingRef.current) return;
     setSelectedPieceId(null);
+    setSelectedActionId(null);
     startDiceRoll(HUMAN_PLAYER_ID);
   }, [startDiceRoll, state.phase, state.turn, state.winner]);
 
   const humanActions = useMemo(() => getLegalActions(state, HUMAN_PLAYER_ID), [state]);
   const orderedHumanActions = useMemo(() => {
-    if (!selectedPieceId) return humanActions;
     const selected = [];
+    const prioritized = [];
     const other = [];
     for (const action of humanActions) {
-      if (action.pieceId === selectedPieceId) selected.push(action);
+      if (selectedActionId && action.id === selectedActionId) selected.push(action);
+      else if (selectedPieceId && action.pieceId === selectedPieceId) prioritized.push(action);
       else other.push(action);
     }
-    return [...selected, ...other];
-  }, [humanActions, selectedPieceId]);
+    return [...selected, ...prioritized, ...other];
+  }, [humanActions, selectedActionId, selectedPieceId]);
   const selectedHumanAction = useMemo(
-    () => (selectedPieceId ? humanActions.find((action) => action.pieceId === selectedPieceId) || null : null),
-    [humanActions, selectedPieceId]
+    () => (selectedActionId ? humanActions.find((action) => action.id === selectedActionId) || null : null),
+    [humanActions, selectedActionId]
   );
-  const defaultHumanAction = selectedHumanAction || orderedHumanActions[0] || null;
   const selectablePieceIds = useMemo(() => new Set(humanActions.map((action) => action.pieceId)), [humanActions]);
+  const preselectHumanAction = useCallback((action) => {
+    if (!action) return;
+    setSelectedPieceId(action.pieceId);
+    setSelectedActionId(action.id);
+    stopAutoMove();
+  }, [stopAutoMove]);
 
   const playHumanAction = useCallback(
     (action) => {
@@ -1531,6 +1543,7 @@ function ParchisStrategyGame() {
         selectablePieceIds.size === 1 &&
         selectablePieceIds.has(action.pieceId);
       setSelectedPieceId(null);
+      setSelectedActionId(null);
       setState((previous) =>
         applyActionAndAdvance(previous, action, HUMAN_PLAYER_ID, { slowMoveTransition: shouldSlowTransition })
       );
@@ -1540,6 +1553,7 @@ function ParchisStrategyGame() {
 
   const resolveHumanNoMoves = useCallback(() => {
     setSelectedPieceId(null);
+    setSelectedActionId(null);
     setState((previous) => resolveNoLegalActions(previous, HUMAN_PLAYER_ID));
   }, []);
 
@@ -1548,14 +1562,13 @@ function ParchisStrategyGame() {
       if (state.winner || state.turn !== HUMAN_PLAYER_ID || state.phase !== "await-action" || diceUi.rolling) return;
       const pieceActions = humanActions.filter((action) => action.pieceId === pieceId);
       if (!pieceActions.length) return;
-      if (selectedPieceId === pieceId) {
-        playHumanAction(pieceActions[0]);
+      if (selectedHumanAction?.pieceId === pieceId) {
+        playHumanAction(selectedHumanAction);
         return;
       }
-      setSelectedPieceId(pieceId);
-      stopAutoMove();
+      preselectHumanAction(pieceActions[0]);
     },
-    [diceUi.rolling, humanActions, playHumanAction, selectedPieceId, state.phase, state.turn, state.winner, stopAutoMove]
+    [diceUi.rolling, humanActions, playHumanAction, preselectHumanAction, selectedHumanAction, state.phase, state.turn, state.winner]
   );
 
   const actionToSquareId = useCallback((action) => {
@@ -1579,32 +1592,30 @@ function ParchisStrategyGame() {
       const candidates = humanActions.filter((action) => actionToSquareId(action) === squareId);
       if (!candidates.length) return;
 
-      const selectedCandidate = selectedPieceId
-        ? candidates.find((action) => action.pieceId === selectedPieceId) || null
+      const selectedCandidate = selectedActionId
+        ? candidates.find((action) => action.id === selectedActionId) || null
         : null;
       if (selectedCandidate) {
         playHumanAction(selectedCandidate);
         return;
       }
 
-      if (candidates.length === 1) {
-        playHumanAction(candidates[0]);
-        return;
-      }
-
-      setSelectedPieceId(candidates[0].pieceId);
-      stopAutoMove();
+      const preferredCandidate = selectedPieceId
+        ? candidates.find((action) => action.pieceId === selectedPieceId) || candidates[0]
+        : candidates[0];
+      preselectHumanAction(preferredCandidate);
     },
     [
       actionToSquareId,
       diceUi.rolling,
       humanActions,
       playHumanAction,
+      preselectHumanAction,
+      selectedActionId,
       selectedPieceId,
       state.phase,
       state.turn,
-      state.winner,
-      stopAutoMove
+      state.winner
     ]
   );
 
@@ -1752,32 +1763,23 @@ function ParchisStrategyGame() {
   ]);
 
   useEffect(() => {
-    if (state.winner || state.turn !== HUMAN_PLAYER_ID || state.phase !== "await-action" || diceUi.rolling) {
-      stopAutoMove();
-      return;
-    }
-
-    const actions = getLegalActions(state, HUMAN_PLAYER_ID);
-    if (actions.length === 1 && !selectedPieceId) {
-      autoMovePendingRef.current = true;
-      autoMoveMsRef.current = 280;
-      autoMoveActionIdRef.current = actions[0].id;
-      return;
-    }
-
     stopAutoMove();
-  }, [diceUi.rolling, selectedPieceId, state, stopAutoMove]);
+  }, [diceUi.rolling, selectedActionId, selectedPieceId, state, stopAutoMove]);
 
   useEffect(() => {
     if (state.winner || state.turn !== HUMAN_PLAYER_ID || state.phase !== "await-action" || diceUi.rolling) {
       if (selectedPieceId) setSelectedPieceId(null);
+      if (selectedActionId) setSelectedActionId(null);
       return;
     }
 
+    if (selectedActionId && !humanActions.some((action) => action.id === selectedActionId)) {
+      setSelectedActionId(null);
+    }
     if (selectedPieceId && !selectablePieceIds.has(selectedPieceId)) {
       setSelectedPieceId(null);
     }
-  }, [diceUi.rolling, selectablePieceIds, selectedPieceId, state.phase, state.turn, state.winner]);
+  }, [diceUi.rolling, humanActions, selectablePieceIds, selectedActionId, selectedPieceId, state.phase, state.turn, state.winner]);
 
   useEffect(() => {
     const animate = (timestamp) => {
@@ -1833,7 +1835,8 @@ function ParchisStrategyGame() {
       if (state.phase === "await-action") {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          if (defaultHumanAction) playHumanAction(defaultHumanAction);
+          if (selectedHumanAction) playHumanAction(selectedHumanAction);
+          else if (orderedHumanActions[0]) preselectHumanAction(orderedHumanActions[0]);
           else resolveHumanNoMoves();
           return;
         }
@@ -1846,9 +1849,11 @@ function ParchisStrategyGame() {
 
         if (/[1-9]/.test(key)) {
           const index = Number(key) - 1;
-          if (orderedHumanActions[index]) {
+          const targetAction = orderedHumanActions[index];
+          if (targetAction) {
             event.preventDefault();
-            playHumanAction(orderedHumanActions[index]);
+            if (selectedActionId === targetAction.id) playHumanAction(targetAction);
+            else preselectHumanAction(targetAction);
           }
         }
       }
@@ -1857,13 +1862,15 @@ function ParchisStrategyGame() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [
-    defaultHumanAction,
     diceUi.rolling,
     orderedHumanActions,
     playHumanAction,
+    preselectHumanAction,
     resolveHumanNoMoves,
     restartMatch,
     rollHuman,
+    selectedActionId,
+    selectedHumanAction,
     startMatch,
     state.phase,
     state.turn,
@@ -1885,16 +1892,21 @@ function ParchisStrategyGame() {
 
   const highlightedSquares = useMemo(() => {
     if (state.turn !== HUMAN_PLAYER_ID || state.phase !== "await-action" || state.winner) return [];
+    const visibleActions = selectedHumanAction
+      ? [selectedHumanAction]
+      : selectedPieceId
+        ? humanActions.filter((action) => action.pieceId === selectedPieceId)
+        : humanActions;
     const seen = new Set();
     const ids = [];
-    for (const action of humanActions) {
+    for (const action of visibleActions) {
       const squareId = actionToSquareId(action);
       if (!squareId || seen.has(squareId)) continue;
       seen.add(squareId);
       ids.push(squareId);
     }
     return ids;
-  }, [actionToSquareId, humanActions, state.phase, state.turn, state.winner]);
+  }, [actionToSquareId, humanActions, selectedHumanAction, selectedPieceId, state.phase, state.turn, state.winner]);
 
   const boardPositions = useMemo(() => {
     const tokens = [];
@@ -2011,6 +2023,13 @@ function ParchisStrategyGame() {
   const currentDifficulty = AI_LEVELS[state.difficultyId] || AI_LEVELS.medium;
   const selectedPiece = selectedPieceId ? pieceById(state, selectedPieceId) : null;
   const selectedPieceRef = selectedPiece ? pieceCode(selectedPiece) : null;
+  const selectedActionText = selectedHumanAction ? describeAction(state, selectedHumanAction) : "";
+  const canRollHuman = state.turn === HUMAN_PLAYER_ID && state.phase === "await-roll" && !diceUi.rolling && !state.winner;
+  const selectionHelpText = selectedHumanAction
+    ? copy.ui.selectedAction(selectedActionText)
+    : selectedPieceRef
+      ? copy.ui.selectedPiece(selectedPieceRef)
+      : copy.ui.selectPieceFirst;
 
   return (
     <div className="mini-game parchis-strategy-game">
@@ -2026,6 +2045,34 @@ function ParchisStrategyGame() {
       </div>
 
       <div className="parchis-config">
+        <div className="parchis-config-roll">
+          <article className="dice-roll-card parchis-config-roll-card">
+            <p>{copy.ui.currentRoll}</p>
+            <div className="dice-pair">
+              {diceUi.faces.map((face, index) => (
+                <SvgDie
+                  key={`die-face-${index}`}
+                  value={face}
+                  rolling={diceUi.rolling}
+                  idSuffix={`${diceUi.activeOwner || "idle"}-${index}`}
+                  slotIndex={index}
+                />
+              ))}
+            </div>
+            <small>
+              {diceUi.rolling
+                ? copy.ui.rollingNow(playerLabel(diceUi.activeOwner || "", state.locale))
+                : copy.ui.rollResolved}
+            </small>
+          </article>
+
+          <div className="parchis-config-roll-actions">
+            <button type="button" className="parchis-roll-inline" onClick={rollHuman} disabled={!canRollHuman}>
+              {copy.ui.rollDice}
+            </button>
+          </div>
+        </div>
+
         <label htmlFor="parchis-human-color">
           {copy.ui.playerColor}
           <select
@@ -2052,6 +2099,18 @@ function ParchisStrategyGame() {
             ))}
           </select>
         </label>
+
+        <article className="dice-history-card parchis-config-history">
+          <p>{copy.ui.latestRolls}</p>
+          {PLAYERS.map((player) => (
+            <div key={`dice-history-${player.id}`} className="dice-history-row">
+              <span>{playerLabel(player.id, state.locale)}</span>
+              <strong>
+                {diceUi.lastByOwner[player.id]?.[0] ?? "--"} / {diceUi.lastByOwner[player.id]?.[1] ?? "--"}
+              </strong>
+            </div>
+          ))}
+        </article>
 
         <p className="parchis-config-note">
           {copy.ui.controls}
@@ -2109,39 +2168,6 @@ function ParchisStrategyGame() {
         </div>
 
         <aside className="parchis-panel">
-          <div className="parchis-dice-panel">
-            <article className="dice-roll-card">
-              <p>{copy.ui.currentRoll}</p>
-              <div className="dice-pair">
-                {diceUi.faces.map((face, index) => (
-                  <SvgDie
-                    key={`die-face-${index}`}
-                    value={face}
-                    rolling={diceUi.rolling}
-                    idSuffix={`${diceUi.activeOwner || "idle"}-${index}`}
-                  />
-                ))}
-              </div>
-              <small>
-                {diceUi.rolling
-                  ? copy.ui.rollingNow(playerLabel(diceUi.activeOwner || "", state.locale))
-                  : copy.ui.rollResolved}
-              </small>
-            </article>
-
-            <article className="dice-history-card">
-              <p>{copy.ui.latestRolls}</p>
-              {PLAYERS.map((player) => (
-                <div key={`dice-history-${player.id}`} className="dice-history-row">
-                  <span>{playerLabel(player.id, state.locale)}</span>
-                  <strong>
-                    {diceUi.lastByOwner[player.id]?.[0] ?? "--"} / {diceUi.lastByOwner[player.id]?.[1] ?? "--"}
-                  </strong>
-                </div>
-              ))}
-            </article>
-          </div>
-
           <div className="parchis-scoreboard">
             {PLAYERS.map((player) => (
               <article key={player.id} className={`parchis-score-card ${player.id === state.turn ? "is-turn" : ""}`}>
@@ -2165,19 +2191,11 @@ function ParchisStrategyGame() {
               <p className="parchis-ai-wait">{copy.ui.pressStart}</p>
             ) : state.turn === HUMAN_PLAYER_ID ? (
               <>
-                {state.phase === "await-roll" ? (
-                  <button type="button" className="primary" onClick={rollHuman} disabled={diceUi.rolling}>{copy.ui.rollDice}</button>
-                ) : null}
-
                 {state.phase === "await-action" ? (
                   <>
                     {orderedHumanActions.length ? (
                       <>
-                        <p className="parchis-selection-note">
-                          {selectedPieceRef
-                            ? copy.ui.selectedPiece(selectedPieceRef)
-                            : copy.ui.selectPieceFirst}
-                        </p>
+                        <p className="parchis-selection-note">{selectionHelpText}</p>
                         {selectedHumanAction ? (
                           <button
                             type="button"
@@ -2193,10 +2211,10 @@ function ParchisStrategyGame() {
                             <button
                               key={action.id}
                               type="button"
-                              className={action.pieceId === selectedPieceId ? "is-focused" : ""}
+                              className={action.id === selectedActionId ? "is-focused" : action.pieceId === selectedPieceId ? "is-piece-focused" : ""}
                               onClick={() => {
-                                setSelectedPieceId(action.pieceId);
-                                playHumanAction(action);
+                                if (selectedActionId === action.id) playHumanAction(action);
+                                else preselectHumanAction(action);
                               }}
                               disabled={diceUi.rolling}
                             >
@@ -2210,9 +2228,6 @@ function ParchisStrategyGame() {
                         {copy.ui.continueNoMove}
                       </button>
                     )}
-                    {orderedHumanActions.length === 1 && !diceUi.rolling && !selectedPieceId ? (
-                      <p className="parchis-auto-note">{copy.ui.autoMoveHint}</p>
-                    ) : null}
                   </>
                 ) : null}
               </>

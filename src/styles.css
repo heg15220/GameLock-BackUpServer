@@ -5516,6 +5516,108 @@ body {
   .strategy-sudoku-cell {
     border-radius: 5px;
   }
+
+  .strategy-sudoku-shell {
+    gap: 0.52rem;
+  }
+
+  .strategy-sudoku-toolbar {
+    gap: 0.4rem;
+  }
+
+  .strategy-sudoku-difficulty {
+    gap: 0.28rem;
+  }
+
+  .strategy-sudoku-difficulty > span {
+    width: 100%;
+    font-size: 0.68rem;
+  }
+
+  .strategy-sudoku-difficulty button {
+    flex: 1 1 calc(33.333% - 0.28rem);
+    min-width: 0;
+    padding: 0.22rem 0.42rem;
+    font-size: 0.7rem;
+  }
+
+  .strategy-sudoku-status-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.24rem;
+  }
+
+  .strategy-sudoku-status-row span {
+    min-width: 0;
+    font-size: 0.64rem;
+    padding: 0.18rem 0.42rem;
+    text-align: center;
+  }
+
+  .strategy-sudoku-board-shell {
+    padding: 0.34rem;
+  }
+
+  .strategy-sudoku-board {
+    width: min(100%, 94vw);
+    gap: 0.08rem;
+    padding: 0.1rem;
+  }
+
+  .strategy-sudoku-cell {
+    font-size: clamp(0.72rem, 4vw, 0.94rem);
+  }
+
+  .strategy-sudoku-cell.block-right {
+    margin-right: 0.1rem;
+  }
+
+  .strategy-sudoku-cell.block-bottom {
+    margin-bottom: 0.1rem;
+  }
+
+  .strategy-sudoku-keypad {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+    border-radius: 12px;
+    border: 1px solid rgba(125, 211, 252, 0.28);
+    background: rgba(15, 23, 42, 0.92);
+    padding: 0.38rem;
+  }
+
+  .strategy-sudoku-keypad button {
+    padding: 0.44rem 0.32rem;
+    font-size: 0.78rem;
+  }
+
+  .strategy-sudoku-techniques {
+    padding: 0.5rem;
+    gap: 0.28rem;
+  }
+
+  .strategy-sudoku-techniques h5 {
+    font-size: 0.78rem;
+  }
+
+  .strategy-sudoku-techniques p,
+  .strategy-sudoku-keyboard-help {
+    font-size: 0.68rem;
+  }
+
+  .strategy-sudoku-technique-list {
+    gap: 0.22rem;
+  }
+
+  .strategy-sudoku-technique-list span {
+    font-size: 0.62rem;
+    padding: 0.14rem 0.42rem;
+  }
+
+  .strategy-sudoku-last-technique {
+    font-size: 0.7rem;
+  }
 }
 
 .domino-edge-readout {
@@ -5754,6 +5856,68 @@ body {
   color: #dcfce7;
   font-size: 0.8rem;
   font-weight: 700;
+}
+
+.domino-playable-strip {
+  margin-top: 0.58rem;
+  border: 1px solid rgba(253, 230, 138, 0.3);
+  border-radius: 12px;
+  padding: 0.46rem;
+  background: linear-gradient(160deg, rgba(61, 35, 17, 0.72), rgba(23, 62, 33, 0.66));
+}
+
+.domino-playable-strip.domino-playable-strip-board {
+  margin-top: 0.48rem;
+}
+
+.domino-playable-strip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  color: #fef3c7;
+}
+
+.domino-playable-strip-head strong {
+  font-size: 0.76rem;
+}
+
+.domino-playable-strip-head span {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #fde68a;
+}
+
+.domino-playable-strip-list {
+  display: flex;
+  gap: 0.36rem;
+  overflow-x: auto;
+  padding-bottom: 0.14rem;
+}
+
+.domino-playable-chip {
+  flex: 0 0 auto;
+  width: 82px;
+  min-width: 82px;
+  min-height: 56px;
+}
+
+.domino-playable-chip.is-double {
+  width: 56px;
+  min-width: 56px;
+  min-height: 82px;
+}
+
+.domino-playable-chip .domino-half {
+  min-height: 56px;
+}
+
+.domino-playable-empty {
+  margin: 0;
+  color: #fde68a;
+  font-size: 0.72rem;
+  line-height: 1.35;
 }
 
 .domino-strategy-game.domino-strategy-pro {
@@ -6212,6 +6376,60 @@ body {
   padding: 0.66rem;
 }
 
+.domino-strategy-pro .domino-mobile-panel-toggles {
+  margin-top: 0.46rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.34rem;
+}
+
+.domino-strategy-pro .domino-mobile-panel-toggles button {
+  min-height: 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.34);
+  background: rgba(52, 25, 11, 0.72);
+  color: #fde68a;
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.domino-strategy-pro .domino-mobile-panel-toggles button.active {
+  border-color: rgba(56, 189, 248, 0.7);
+  background: linear-gradient(145deg, rgba(8, 47, 73, 0.92), rgba(14, 116, 144, 0.82));
+  color: #e0f2fe;
+}
+
+.domino-strategy-pro .domino-mobile-kpis {
+  margin-top: 0.4rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.32rem;
+}
+
+.domino-strategy-pro .domino-mobile-kpis article {
+  border: 1px solid rgba(251, 191, 36, 0.26);
+  border-radius: 10px;
+  background: rgba(52, 25, 11, 0.72);
+  padding: 0.24rem 0.3rem;
+  display: grid;
+  gap: 0.08rem;
+}
+
+.domino-strategy-pro .domino-mobile-kpis span {
+  font-size: 0.56rem;
+  color: #fcd34d;
+}
+
+.domino-strategy-pro .domino-mobile-kpis strong {
+  font-size: 0.72rem;
+  color: #fff7ed;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .domino-strategy-pro.domino-mobile .mini-head {
   display: grid;
   gap: 0.5rem;
@@ -6292,20 +6510,20 @@ body {
 }
 
 .domino-strategy-pro.domino-mobile .domino-chain-scroll {
-  min-height: 32dvh;
-  max-height: 48dvh;
+  min-height: 28dvh;
+  max-height: 40dvh;
   overscroll-behavior: contain;
 }
 
 .domino-strategy-pro.domino-mobile .domino-chain-node .domino-tile {
-  width: 78px;
-  min-width: 78px;
+  width: 66px;
+  min-width: 66px;
 }
 
 .domino-strategy-pro.domino-mobile .domino-chain-node .domino-tile.is-double {
-  width: 40px;
-  min-width: 40px;
-  min-height: 78px;
+  width: 34px;
+  min-width: 34px;
+  min-height: 66px;
 }
 
 .domino-strategy-pro.domino-mobile .domino-chain-node .domino-board-badge {
@@ -6352,20 +6570,34 @@ body {
 
 .domino-strategy-pro.domino-mobile .domino-hand-tile {
   flex: 0 0 auto;
-  width: 96px;
-  min-width: 96px;
-  min-height: 66px;
+  width: 82px;
+  min-width: 82px;
+  min-height: 56px;
   scroll-snap-align: start;
 }
 
 .domino-strategy-pro.domino-mobile .domino-hand-tile.is-double {
-  width: 66px;
-  min-width: 66px;
-  min-height: 96px;
+  width: 56px;
+  min-width: 56px;
+  min-height: 82px;
 }
 
 .domino-strategy-pro.domino-mobile .domino-hand-tile .domino-half {
-  min-height: 66px;
+  min-height: 56px;
+}
+
+.domino-strategy-pro.domino-mobile .domino-playable-strip {
+  margin-top: 0.46rem;
+  padding: 0.4rem;
+}
+
+.domino-strategy-pro.domino-mobile .domino-playable-strip-head strong {
+  font-size: 0.72rem;
+}
+
+.domino-strategy-pro.domino-mobile .domino-playable-strip-head span,
+.domino-strategy-pro.domino-mobile .domino-playable-empty {
+  font-size: 0.64rem;
 }
 
 .domino-strategy-pro.domino-mobile .domino-toolbar {
@@ -6396,43 +6628,100 @@ body {
   line-height: 1.35;
 }
 
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-dual-layout {
+  display: grid;
+  gap: 0.56rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-stage-screen,
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-control-screen {
+  border-radius: 16px;
+  border: 1px solid rgba(253, 230, 138, 0.22);
+  background:
+    linear-gradient(180deg, rgba(53, 24, 10, 0.82), rgba(36, 18, 8, 0.94));
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.24);
+  padding: 0.38rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-stage-screen .domino-table,
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-control-screen .domino-strategy-config {
+  margin-top: 0;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-stage-screen .domino-player-zones {
+  margin-top: 0.32rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-stage-screen .domino-zone-player {
+  margin-top: 0;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-control-screen .domino-mobile-kpis {
+  margin-top: 0;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-control-screen .domino-team-scoreboard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.28rem;
+  margin-top: 0.34rem;
+  overflow: visible;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-control-screen .domino-team-scoreboard .domino-scorecard {
+  min-width: 0;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-control-screen .domino-scorecard.team-target {
+  grid-column: 1 / -1;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-control-screen .domino-strategy-config {
+  margin-top: 0.34rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-control-screen .domino-toolbar {
+  position: static;
+  margin-top: 0.34rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-control-screen .domino-selected {
+  margin-bottom: 0;
+}
+
 .domino-strategy-pro.domino-mobile-portrait .domino-arena-shell {
   grid-template-columns: 1fr;
-  grid-template-rows: auto auto minmax(150px, 1fr) auto auto;
+  grid-template-rows: auto minmax(136px, 1fr) auto auto;
   grid-template-areas:
     "top"
     "chain"
     "left"
-    "right"
-    "bottom";
-  gap: 0.34rem;
+    "right";
+  gap: 0.26rem;
 }
 
 .domino-strategy-pro.mode-pairs.domino-mobile-portrait .domino-arena-shell {
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto minmax(120px, 1fr) auto auto;
+  grid-template-rows: auto minmax(98px, 1fr) auto;
   grid-template-areas:
     "top top"
     "chain chain"
-    "left right"
-    "bottom bottom";
+    "left right";
 }
 
 .domino-strategy-pro.mode-duel.domino-mobile-portrait .domino-arena-shell {
-  grid-template-rows: auto minmax(160px, 1fr) auto;
+  grid-template-rows: minmax(136px, 1fr) auto;
   grid-template-areas:
     "chain"
-    "right"
-    "bottom";
+    "right";
 }
 
 .domino-strategy-pro.mode-triad.domino-mobile-portrait .domino-arena-shell {
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto auto;
   grid-template-areas:
     "chain chain"
-    "left right"
-    "bottom bottom";
+    "left right";
 }
 
 .domino-strategy-pro.domino-mobile-portrait .domino-seat-slot.slot-top .domino-seat,
@@ -6440,13 +6729,61 @@ body {
   width: 100%;
 }
 
+.domino-strategy-pro.domino-mobile-portrait .domino-seat-slot.slot-bottom {
+  display: none;
+}
+
 .domino-strategy-pro.domino-mobile-portrait .domino-seat-slot.slot-left .domino-seat,
 .domino-strategy-pro.domino-mobile-portrait .domino-seat-slot.slot-right .domino-seat {
   min-height: 0;
 }
 
+.domino-strategy-pro.domino-mobile-portrait .domino-table {
+  padding: 0.3rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-table-head {
+  gap: 0.22rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-table-note {
+  display: none;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-edge-readout {
+  gap: 0.18rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-edge-readout span {
+  padding: 0.16rem 0.26rem;
+  font-size: 0.52rem;
+}
+
 .domino-strategy-pro.domino-mobile-portrait .domino-strategy-config {
   grid-template-columns: 1fr;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mobile-kpis {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-seat {
+  padding: 0.24rem 0.28rem;
+  gap: 0.06rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-seat h5 {
+  font-size: 0.62rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-seat .seat-meta,
+.domino-strategy-pro.domino-mobile-portrait .domino-seat .seat-count {
+  font-size: 0.54rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-mini-back {
+  width: 12px;
+  height: 18px;
 }
 
 .domino-strategy-pro.domino-mobile-portrait .domino-strategy-config label {
@@ -6463,8 +6800,19 @@ body {
 }
 
 .domino-strategy-pro.domino-mobile-portrait .domino-chain-scroll {
-  min-height: 24dvh;
-  max-height: 33dvh;
+  min-height: 15dvh;
+  max-height: 18dvh;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-chain-node .domino-tile {
+  width: 56px;
+  min-width: 56px;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-chain-node .domino-tile.is-double {
+  width: 30px;
+  min-width: 30px;
+  min-height: 56px;
 }
 
 .domino-strategy-pro.domino-mobile-portrait .domino-hand {
@@ -6478,24 +6826,70 @@ body {
 .domino-strategy-pro.domino-mobile-portrait .domino-hand-tile {
   width: 100%;
   min-width: 0;
-  min-height: 58px;
+  min-height: 52px;
   scroll-snap-align: none;
 }
 
 .domino-strategy-pro.domino-mobile-portrait .domino-hand-tile.is-double {
   width: 100%;
   min-width: 0;
-  min-height: 78px;
+  min-height: 72px;
 }
 
 .domino-strategy-pro.domino-mobile-portrait .domino-hand-tile .domino-half {
-  min-height: 58px;
+  min-height: 52px;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-playable-strip-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.24rem;
+  overflow: visible;
+  padding-bottom: 0;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-playable-chip {
+  width: 100%;
+  min-width: 0;
+  min-height: 50px;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-playable-chip.is-double {
+  width: 100%;
+  min-width: 0;
+  min-height: 70px;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-playable-chip .domino-half {
+  min-height: 50px;
 }
 
 .domino-strategy-pro.domino-mobile-portrait .domino-selected-badge,
 .domino-strategy-pro.domino-mobile-portrait .domino-legal-hint {
   font-size: 0.5rem;
   padding: 0.06rem 0.26rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-playable-strip {
+  margin-top: 0.3rem;
+  padding: 0.3rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-toolbar {
+  margin-top: 0.3rem;
+  padding: 0.28rem;
+  gap: 0.24rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-toolbar button {
+  min-height: 38px;
+  font-size: 0.72rem;
+}
+
+.domino-strategy-pro.domino-mobile-portrait .domino-selected {
+  margin-top: 0.38rem;
+  font-size: 0.66rem;
+  line-height: 1.28;
 }
 
 .domino-strategy-pro.domino-mobile-landscape .domino-arena-shell {
@@ -11806,6 +12200,42 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.parchis-config-roll {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: stretch;
+}
+
+.parchis-config-roll-card,
+.parchis-config-history {
+  height: 100%;
+}
+
+.parchis-config-roll-actions {
+  display: grid;
+  align-items: center;
+}
+
+.parchis-roll-inline {
+  min-width: 150px;
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: linear-gradient(130deg, #176fb7 0%, #3f9be7 100%);
+  color: #f4f9ff;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.parchis-roll-inline:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .parchis-config label {
   display: grid;
   gap: 0.32rem;
@@ -12218,10 +12648,31 @@ body {
 
 .parchis-svg-die {
   flex: 0 0 auto;
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.16));
+  will-change: transform, filter;
 }
 
 .parchis-svg-die.rolling {
-  animation: die-roll 980ms ease-in-out infinite;
+  animation: die-roll 720ms cubic-bezier(0.23, 1, 0.32, 1) infinite;
+}
+
+.parchis-svg-die.rolling.die-slot-1 {
+  animation-name: die-roll-alt;
+  animation-duration: 760ms;
+}
+
+.parchis-svg-die .die-face,
+.parchis-svg-die .die-pip {
+  transition: filter 160ms ease, opacity 160ms ease;
+}
+
+.parchis-svg-die.rolling .die-face {
+  animation: die-face-flash 250ms ease-in-out infinite alternate;
+}
+
+.parchis-svg-die.rolling .die-pip {
+  animation: die-pip-flicker 180ms steps(2, end) infinite;
 }
 
 .dice-roll-card small {
@@ -12340,6 +12791,11 @@ body {
   background: rgba(231, 245, 255, 0.84);
 }
 
+.parchis-action-list button.is-piece-focused {
+  border-color: rgba(36, 115, 186, 0.4);
+  background: rgba(239, 246, 255, 0.76);
+}
+
 .parchis-action-list button:hover,
 .parchis-actions .ghost:hover,
 .parchis-end-panel button:hover {
@@ -12406,6 +12862,19 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .parchis-config-roll {
+    grid-template-columns: 1fr;
+  }
+
+  .parchis-config-roll-actions {
+    justify-items: stretch;
+  }
+
+  .parchis-roll-inline {
+    width: 100%;
+    min-width: 0;
+  }
+
   .parchis-panel {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
@@ -12421,6 +12890,10 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .parchis-config {
+    grid-template-columns: 1fr;
+  }
+
   .parchis-scoreboard {
     grid-template-columns: 1fr;
   }
@@ -12432,19 +12905,68 @@ body {
 
 @keyframes die-roll {
   0% {
-    transform: rotate(0deg) scale(1);
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.16));
   }
-  25% {
-    transform: rotate(8deg) scale(1.06);
+  18% {
+    transform: translate3d(2px, -5px, 0) rotate(16deg) scale(1.1);
+    filter: drop-shadow(0 10px 16px rgba(15, 23, 42, 0.22));
   }
-  50% {
-    transform: rotate(-8deg) scale(0.95);
+  38% {
+    transform: translate3d(-3px, 2px, 0) rotate(-18deg) scale(0.92);
+    filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.14));
   }
-  75% {
-    transform: rotate(5deg) scale(1.04);
+  62% {
+    transform: translate3d(4px, -2px, 0) rotate(12deg) scale(1.05);
+    filter: drop-shadow(0 9px 14px rgba(15, 23, 42, 0.2));
+  }
+  82% {
+    transform: translate3d(-2px, 1px, 0) rotate(-9deg) scale(0.97);
   }
   100% {
-    transform: rotate(0deg) scale(1);
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.16));
+  }
+}
+
+@keyframes die-roll-alt {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.16));
+  }
+  20% {
+    transform: translate3d(-2px, -4px, 0) rotate(-15deg) scale(1.08);
+    filter: drop-shadow(0 10px 16px rgba(15, 23, 42, 0.22));
+  }
+  42% {
+    transform: translate3d(3px, 2px, 0) rotate(18deg) scale(0.94);
+    filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.14));
+  }
+  68% {
+    transform: translate3d(-4px, -1px, 0) rotate(-11deg) scale(1.04);
+    filter: drop-shadow(0 8px 14px rgba(15, 23, 42, 0.2));
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.16));
+  }
+}
+
+@keyframes die-face-flash {
+  0% {
+    filter: brightness(1) saturate(1);
+  }
+  100% {
+    filter: brightness(1.14) saturate(1.06);
+  }
+}
+
+@keyframes die-pip-flicker {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.78;
   }
 }
 
@@ -19340,6 +19862,59 @@ button.brisca-card.playable:disabled {
   animation: mansion-room-scan 1.8s ease-in-out infinite;
 }
 
+.strategy-mansion-enigma-game .mansion-mobile-panel-toggles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.34rem;
+}
+
+.strategy-mansion-enigma-game .mansion-mobile-panel-toggles button {
+  border: 1px solid rgba(251, 191, 36, 0.42);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.58);
+  color: #fde68a;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}
+
+.strategy-mansion-enigma-game .mansion-mobile-panel-toggles button.active {
+  border-color: rgba(56, 189, 248, 0.76);
+  background: linear-gradient(135deg, rgba(8, 47, 73, 0.92), rgba(14, 116, 144, 0.82));
+  color: #e0f2fe;
+}
+
+.strategy-mansion-enigma-game .mansion-mobile-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.34rem;
+}
+
+.strategy-mansion-enigma-game .mansion-mobile-kpis article {
+  border: 1px solid rgba(251, 191, 36, 0.26);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.24rem 0.28rem;
+  display: grid;
+  gap: 0.08rem;
+}
+
+.strategy-mansion-enigma-game .mansion-mobile-kpis span {
+  font-size: 0.56rem;
+  color: #fde68a;
+}
+
+.strategy-mansion-enigma-game .mansion-mobile-kpis strong {
+  font-size: 0.72rem;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
 .mansion-hero {
   display: flex;
   justify-content: space-between;
@@ -20330,6 +20905,59 @@ button.brisca-card.playable:disabled {
 }
 
 @media (max-width: 760px) {
+  .strategy-mansion-enigma-game.mansion-mobile {
+    padding: 0.62rem;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile .mansion-mobile-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-stage,
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-desk {
+    min-width: 0;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-hero {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-hero-metrics {
+    max-width: 100%;
+    justify-content: flex-start;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-board-grid {
+    grid-template-rows: repeat(3, minmax(78px, 1fr));
+    gap: 0.34rem;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-room-cell {
+    min-height: 82px;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-room-overlay .room-name {
+    font-size: 0.58rem;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-player-strip {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0.34rem;
+    padding-bottom: 0.12rem;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-portrait .mansion-player-chip {
+    min-width: 168px;
+    flex: 0 0 auto;
+  }
+
   .mansion-board-grid {
     grid-template-rows: repeat(3, minmax(86px, 1fr));
   }

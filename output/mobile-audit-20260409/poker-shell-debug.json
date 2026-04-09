@@ -1,0 +1,224 @@
+{
+  "shell": true,
+  "stageText": "Tu\n\nActiva\n\nK\n♦\n3\n♦\nJ\n♠\n3\n♣\nJ\n♣\n118\nFICHAS\nApuesta: 2\nAcumulado: 2\nDescarte pendiente\nIA 1\n\nEn mano\n\nIA\nIA\n116\nApuesta inicial\nDescarte\nApuesta final\nBote total\n6\nApuesta actual: 4\nCiegas: 2/4\nTu\n2\nIA 1\n4\n\nCARTAS DE CIERRE\n\n?\n?\n?\n?\n?",
+  "panelText": "ESTADO DE PARTIDA\n\nTurno para Tu.\n\nCONFIGURACION DE PARTIDA\nNueva partida\nAjustes\nMarcador\nACCIONES DE PARTIDA\nIgualar (2)\nSubir (+4)\nAll-in\nRetirarse",
+  "visibleSelects": [],
+  "buttons": [
+    {
+      "text": "Todas",
+      "visible": true
+    },
+    {
+      "text": "Arcade",
+      "visible": true
+    },
+    {
+      "text": "Juegos",
+      "visible": true
+    },
+    {
+      "text": "Deportes",
+      "visible": true
+    },
+    {
+      "text": "Conocimiento",
+      "visible": true
+    },
+    {
+      "text": "Estrategia",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Comenzar",
+      "visible": true
+    },
+    {
+      "text": "Anterior",
+      "visible": true
+    },
+    {
+      "text": "Siguiente",
+      "visible": true
+    },
+    {
+      "text": "← Volver al catálogo",
+      "visible": true
+    },
+    {
+      "text": "Pantalla completa",
+      "visible": true
+    },
+    {
+      "text": "Nueva partida",
+      "visible": false
+    },
+    {
+      "text": "Ajustes",
+      "visible": false
+    },
+    {
+      "text": "Marcador",
+      "visible": false
+    },
+    {
+      "text": "Entendido",
+      "visible": false
+    },
+    {
+      "text": "Pasar",
+      "visible": false
+    },
+    {
+      "text": "Igualar (2)",
+      "visible": false
+    },
+    {
+      "text": "Subir (+4)",
+      "visible": false
+    },
+    {
+      "text": "All-in",
+      "visible": false
+    },
+    {
+      "text": "Retirarse",
+      "visible": false
+    },
+    {
+      "text": "Nueva partida",
+      "visible": true
+    },
+    {
+      "text": "Ajustes",
+      "visible": true
+    },
+    {
+      "text": "Marcador",
+      "visible": true
+    },
+    {
+      "text": "Igualar (2)",
+      "visible": true
+    },
+    {
+      "text": "Subir (+4)",
+      "visible": true
+    },
+    {
+      "text": "All-in",
+      "visible": true
+    },
+    {
+      "text": "Retirarse",
+      "visible": true
+    },
+    {
+      "text": "Pasar",
+      "visible": true
+    },
+    {
+      "text": "Igualar",
+      "visible": true
+    },
+    {
+      "text": "Subir",
+      "visible": true
+    },
+    {
+      "text": "All-in",
+      "visible": true
+    },
+    {
+      "text": "Retirarse",
+      "visible": true
+    },
+    {
+      "text": "Servirse",
+      "visible": true
+    },
+    {
+      "text": "Descartar",
+      "visible": true
+    },
+    {
+      "text": "Accion",
+      "visible": true
+    },
+    {
+      "text": "Siguiente",
+      "visible": true
+    },
+    {
+      "text": "Pausa",
+      "visible": true
+    },
+    {
+      "text": "Reinicio",
+      "visible": true
+    },
+    {
+      "text": "Pantalla",
+      "visible": true
+    }
+  ]
+}
