@@ -1,0 +1,15 @@
+{
+  "before": {
+    "shellGameId": "knowledge-quiz-nexus",
+    "startButtonText": "Iniciar ronda",
+    "startPanelVisible": true
+  },
+  "after": {
+    "timerText": [
+      "40s",
+      "0% precision"
+    ],
+    "feedback": "Ronda iniciada. Mantiene la racha para puntuar mas.",
+    "startPanelVisible": false
+  }
+}

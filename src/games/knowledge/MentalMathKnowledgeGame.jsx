@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
   createSeededRandom,
@@ -186,6 +187,7 @@ const applyElapsedTime = (snapshot, elapsedMs, copy) => {
 function MentalMathKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
+  const viewport = useMobileGameViewport();
   const [state, setState] = useState(() =>
     createInitialState(getRandomKnowledgeMatchId(), copy)
   );
@@ -286,11 +288,14 @@ function MentalMathKnowledgeGame() {
   }, [copy, state.status]);
 
   useEffect(() => {
+    if (viewport.isMobile) {
+      return;
+    }
     if (state.status === "playing" && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
     }
-  }, [state.roundIndex, state.status]);
+  }, [state.roundIndex, state.status, viewport.isMobile]);
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -359,7 +364,16 @@ function MentalMathKnowledgeGame() {
   const recentHistory = state.history.slice(-5).reverse();
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-calculo-mental">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-calculo-mental",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -374,7 +388,13 @@ function MentalMathKnowledgeGame() {
         </button>
       </div>
 
-      <section className="knowledge-mode-shell mental-math-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          "mental-math-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="knowledge-status-row">
           <span>{copy.timer}: {formatTimeLeft(state.timeLeftMs)}</span>
           <span>{copy.rounds}: {Math.min(state.roundIndex + 1, TOTAL_ROUNDS)}/{TOTAL_ROUNDS}</span>

@@ -19,6 +19,9 @@ export const MOBILE_FIRST_GAME_IDS = new Set([
 export function getViewportProfile() {
   if (typeof window === "undefined") {
     return {
+      width: 0,
+      height: 0,
+      shortestSide: 0,
       isMobile: false,
       orientation: "landscape",
     };
@@ -31,6 +34,9 @@ export function getViewportProfile() {
   const shortestSide = Math.min(width, height);
 
   return {
+    width,
+    height,
+    shortestSide,
     isMobile: width <= 920 || ((coarsePointer || hasTouch) && shortestSide <= 1024),
     orientation: height >= width ? "portrait" : "landscape",
   };

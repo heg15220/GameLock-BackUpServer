@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
   createSeededRandom,
@@ -233,6 +234,7 @@ const createInitialState = (copy, matchId = getRandomKnowledgeMatchId()) => {
 function GuessCountryKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
+  const viewport = useMobileGameViewport();
   const [state, setState] = useState(() => createInitialState(copy));
   const inputRef = useRef(null);
   const shapeRef = useRef(null);
@@ -331,11 +333,12 @@ function GuessCountryKnowledgeGame() {
   }, [copy, locale]);
 
   useEffect(() => {
+    if (viewport.isMobile) return;
     if (!inputRef.current) return;
     if (state.revealCurrent || state.status === "finished") return;
     inputRef.current.focus();
     inputRef.current.select();
-  }, [state.roundIndex, state.revealCurrent, state.status]);
+  }, [state.roundIndex, state.revealCurrent, state.status, viewport.isMobile]);
 
   useEffect(() => {
     if (!state.revealCurrent || state.status === "finished") return undefined;
@@ -436,7 +439,16 @@ function GuessCountryKnowledgeGame() {
 
   if (!state.rounds.length) {
     return (
-      <div className="mini-game knowledge-game knowledge-arcade-game knowledge-adivina-pais">
+      <div
+        className={[
+          "mini-game",
+          "knowledge-game",
+          "knowledge-arcade-game",
+          "knowledge-adivina-pais",
+          viewport.isMobile ? "is-mobile" : "",
+          viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="mini-head">
           <div>
             <h4>{copy.title}</h4>
@@ -456,7 +468,16 @@ function GuessCountryKnowledgeGame() {
   }
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-adivina-pais">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-adivina-pais",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -482,7 +503,13 @@ function GuessCountryKnowledgeGame() {
         </div>
       </div>
 
-      <section className="knowledge-mode-shell guess-country-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          "guess-country-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="knowledge-status-row guess-country-status">
           <span>{copy.round}: {Math.min(state.roundIndex + 1, state.rounds.length)}/{state.rounds.length}</span>
           <span>{copy.score}: {state.hits}</span>

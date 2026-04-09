@@ -9,7 +9,7 @@ import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
 import useGameRuntimeBridge from "../utils/useGameRuntimeBridge";
 
 const QUESTIONS_PER_ROUND = 12;
-const QUESTION_TIME = 18;
+const QUESTION_TIME = 40;
 const ANSWER_LABELS = ["A", "B", "C", "D"];
 const MAX_PER_TOPIC = 3;
 
@@ -20,6 +20,8 @@ const COPY_BY_LOCALE = {
     questionsLabel: "preguntas",
     startRound: "Iniciar ronda",
     restartRound: "Reiniciar ronda",
+    startPrompt: "La partida aun no ha comenzado.",
+    startHint: "Pulsa el boton para iniciar el quiz y activar el temporizador.",
     feedbackIdle: "Inicia la ronda para comenzar.",
     feedbackStarted: "Ronda iniciada. Mantiene la racha para puntuar mas.",
     feedbackNext: "Siguiente pregunta.",
@@ -54,6 +56,8 @@ const COPY_BY_LOCALE = {
     questionsLabel: "questions",
     startRound: "Start round",
     restartRound: "Restart round",
+    startPrompt: "The match has not started yet.",
+    startHint: "Press the button to begin the quiz and activate the timer.",
     feedbackIdle: "Start the round to begin.",
     feedbackStarted: "Round started. Keep your streak to score more points.",
     feedbackNext: "Next question.",
@@ -423,6 +427,20 @@ function KnowledgeGame() {
         </section>
       ) : (
         <section className="knowledge-shell">
+          {state.status === "idle" ? (
+            <div className="knowledge-start-panel">
+              <p className="knowledge-start-title">{copy.startPrompt}</p>
+              <p className="knowledge-start-hint">{copy.startHint}</p>
+              <button
+                type="button"
+                className="next-btn knowledge-start-btn"
+                onClick={startRound}
+              >
+                {copy.startRound}
+              </button>
+            </div>
+          ) : null}
+
           <div className="quiz-progress">
             <span>
               {copy.questionLabel} {state.currentIndex + 1}/{state.questions.length}

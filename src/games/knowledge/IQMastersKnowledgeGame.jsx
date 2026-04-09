@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
@@ -601,6 +602,7 @@ const pickHintEdge = (level, runtime) => {
 function IQMastersKnowledgeGame() {
   const locale = useMemo(() => (resolveKnowledgeArcadeLocale() === "es" ? "es" : "en"), []);
   const copy = useMemo(() => COPY[locale] ?? COPY.en, [locale]);
+  const viewport = useMobileGameViewport();
   const svgRef = useRef(null);
   const [matchId] = useState(() => getRandomKnowledgeMatchId());
   const [state, setState] = useState(() => ({
@@ -952,9 +954,15 @@ function IQMastersKnowledgeGame() {
 
   return (
     <div
-      className={`mini-game knowledge-game knowledge-arcade-game knowledge-iq-masters${
-        state.profile.reduceMotion ? " iqm-reduced-motion" : ""
-      }`}
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-iq-masters",
+        state.profile.reduceMotion ? "iqm-reduced-motion" : "",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
     >
       <div className="mini-head iqm-head">
         <div>
@@ -971,7 +979,14 @@ function IQMastersKnowledgeGame() {
         </div>
       </div>
 
-      <section className="knowledge-mode-shell iqm-shell iqm-figures-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          "iqm-shell",
+          "iqm-figures-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="iqm-status-row">
           <span>{copy.level}: {state.levelIndex + 1}/{LEVELS.length} - {levelTitle}</span>
           <span>{copy.progress}: {progressCount}/{totalEdges}</span>

@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   resolveKnowledgeArcadeLocale
@@ -348,6 +349,21 @@ const resolveDirectionalWordKeys = (cellWordMap, row, col, direction) => {
   return [];
 };
 
+const resolveCellDirection = (cellWordMap, row, col, activeDirection, shouldToggle = false) => {
+  const wordKeys = getWordKeysForCell(cellWordMap, row, col);
+  const hasAcross = filterWordKeysByDirection(wordKeys, "across").length > 0;
+  const hasDown = filterWordKeysByDirection(wordKeys, "down").length > 0;
+
+  if (shouldToggle && hasAcross && hasDown) {
+    return activeDirection === "down" ? "across" : "down";
+  }
+  if (activeDirection === "down" && hasDown) return "down";
+  if (activeDirection === "across" && hasAcross) return "across";
+  if (hasAcross) return "across";
+  if (hasDown) return "down";
+  return activeDirection;
+};
+
 const resolveNextSelection = (solution, selected, direction, step) => {
   if (direction === "down") {
     return moveSelection(solution, selected, step, 0);
@@ -384,6 +400,8 @@ const allWordKeys = (snapshot) => Object.keys(snapshot.wordByKey);
 function CrosswordKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
+  const viewport = useMobileGameViewport();
+  const mobileInputRef = useRef(null);
   const [state, setState] = useState(() =>
     createInitialState(getRandomCrosswordMatchId(), locale, copy)
   );
@@ -411,6 +429,16 @@ function CrosswordKnowledgeGame() {
 
   const cellSize = useMemo(() => {
     const maxSide = Math.max(state.grid.rows, state.grid.cols);
+    if (viewport.isMobile) {
+      const viewportWidth = Math.max(280, viewport.width || 360);
+      const boardWidth = Math.max(228, viewportWidth - 88);
+      const dynamicCell = Math.floor((boardWidth - Math.max(0, (maxSide - 1) * 3)) / maxSide);
+      if (maxSide <= 5) return Math.min(42, Math.max(34, dynamicCell));
+      if (maxSide <= 8) return Math.min(34, Math.max(28, dynamicCell));
+      if (maxSide <= 10) return Math.min(30, Math.max(24, dynamicCell));
+      if (maxSide <= 12) return Math.min(27, Math.max(22, dynamicCell));
+      return Math.min(25, Math.max(20, dynamicCell));
+    }
     if (maxSide >= 15) return 34;
     if (maxSide >= 12) return 36;
     if (maxSide <= 5) return 56;
@@ -418,7 +446,7 @@ function CrosswordKnowledgeGame() {
     if (maxSide <= 8) return 46;
     if (maxSide <= 10) return 40;
     return 36;
-  }, [state.grid.cols, state.grid.rows]);
+  }, [state.grid.cols, state.grid.rows, viewport.isMobile, viewport.width]);
 
   const restart = useCallback(() => {
     setState((previous) =>
@@ -621,6 +649,82 @@ function CrosswordKnowledgeGame() {
     });
   }, [copy]);
 
+  const focusMobileKeyboard = useCallback(() => {
+    if (!viewport.isMobile) return;
+    const input = mobileInputRef.current;
+    if (!input) return;
+    input.value = "";
+    try {
+      input.focus({ preventScroll: true });
+    } catch {
+      input.focus();
+    }
+  }, [viewport.isMobile]);
+
+  const selectCell = useCallback((row, col) => {
+    setState((previous) => {
+      if (isBlocked(previous.solution, row, col)) return previous;
+      const shouldToggle =
+        previous.selected.row === row &&
+        previous.selected.col === col;
+      return {
+        ...previous,
+        selected: { row, col },
+        activeDirection: resolveCellDirection(
+          previous.cellWordMap,
+          row,
+          col,
+          previous.activeDirection,
+          shouldToggle
+        )
+      };
+    });
+    focusMobileKeyboard();
+  }, [focusMobileKeyboard]);
+
+  const selectClue = useCallback((clue, direction) => {
+    if (!clue?.start) return;
+    setState((previous) => ({
+      ...previous,
+      selected: {
+        row: clue.start.row,
+        col: clue.start.col
+      },
+      activeDirection: direction
+    }));
+    focusMobileKeyboard();
+  }, [focusMobileKeyboard]);
+
+  const handleClueKeyDown = useCallback((event, clue, direction) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+    event.preventDefault();
+    selectClue(clue, direction);
+  }, [selectClue]);
+
+  const handleMobileInputChange = useCallback((event) => {
+    const nextLetter = String(event.target.value ?? "").slice(-1);
+    if (/^[a-z]$/i.test(nextLetter)) {
+      writeLetter(nextLetter);
+    }
+    event.target.value = "";
+  }, [writeLetter]);
+
+  const handleMobileInputKeyDown = useCallback((event) => {
+    if (event.key === "Backspace" || event.key === "Delete") {
+      event.preventDefault();
+      clearCell();
+      event.currentTarget.value = "";
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      checkNow();
+      event.currentTarget.value = "";
+    }
+  }, [checkNow, clearCell]);
+
   useEffect(() => {
     const onKeyDown = (event) => {
       const key = event.key;
@@ -712,7 +816,16 @@ function CrosswordKnowledgeGame() {
       : copy.statusPlaying;
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-crucigrama">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-crucigrama",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -723,7 +836,26 @@ function CrosswordKnowledgeGame() {
         </div>
       </div>
 
-      <section className="knowledge-mode-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
+        <input
+          ref={mobileInputRef}
+          className="crossword-mobile-input"
+          type="text"
+          inputMode="text"
+          autoCapitalize="characters"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck="false"
+          aria-label={copy.title}
+          onChange={handleMobileInputChange}
+          onKeyDown={handleMobileInputKeyDown}
+        />
+
         <div className="knowledge-status-row">
           <span>{copy.match}: {state.matchId + 1}/{CROSSWORD_MATCH_COUNT}</span>
           <span>{copy.board}: {state.grid.rows}x{state.grid.cols} ({state.grid.openCells})</span>
@@ -765,13 +897,7 @@ function CrosswordKnowledgeGame() {
                         tokenClass
                       ].filter(Boolean).join(" ")}
                       disabled={blocked}
-                      onClick={() => {
-                        if (blocked) return;
-                        setState((previous) => ({
-                          ...previous,
-                          selected: { row: rowIndex, col: colIndex }
-                        }));
-                      }}
+                      onClick={() => selectCell(rowIndex, colIndex)}
                     >
                       {!blocked && cellNumber !== null ? <span className="crossword-number">{cellNumber}</span> : null}
                       {!blocked ? <span className="crossword-letter">{cell}</span> : null}
@@ -803,6 +929,11 @@ function CrosswordKnowledgeGame() {
                         feedback ? `feedback-${feedback}` : "",
                         feedback ? `feedback-token-${state.feedbackToken}` : ""
                       ].filter(Boolean).join(" ")}
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={isActive}
+                      onClick={() => selectClue(clue, "across")}
+                      onKeyDown={(event) => handleClueKeyDown(event, clue, "across")}
                     >
                       {clue.text}
                     </li>
@@ -824,6 +955,11 @@ function CrosswordKnowledgeGame() {
                         feedback ? `feedback-${feedback}` : "",
                         feedback ? `feedback-token-${state.feedbackToken}` : ""
                       ].filter(Boolean).join(" ")}
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={isActive}
+                      onClick={() => selectClue(clue, "down")}
+                      onKeyDown={(event) => handleClueKeyDown(event, clue, "down")}
                     >
                       {clue.text}
                     </li>

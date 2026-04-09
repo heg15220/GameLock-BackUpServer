@@ -4035,3 +4035,44 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - `styles.css` (poker): en portrait se ajusta tamano/espaciado de cartas ocultas IA y tuning especifico `poker-ai-count-4` para distribuir mejor los mazos en pantalla.
 - Verificacion: `npm run build` en sandbox sigue fallando por `spawn EPERM` de `esbuild` (sin validacion de build local completada en este turno).
 
+
+## 2026-04-09 - Wikipedia Gacha mobile-first nativo
+- GameLaunchModal.jsx ahora excluye knowledge-wikipedia-gacha del shell movil generico para usar una integracion propia dentro del juego.
+- src/games/knowledge/wikipedia-gacha/index.jsx incorpora cabecera operativa movil, navegacion inferior fija, modal adaptado y densidad reducida segun viewport movil.
+- src/games/knowledge/wikipedia-gacha/styles.css refuerza foco en el sobre/apertura: hero mas dominante, textos secundarios mas pequenos y tarjetas de misiones/filtros/soporte mas compactas.
+- Verificacion pendiente: vite build sigue requiriendo ejecucion fuera del sandbox por spawn EPERM en esbuild.
+
+
+- Ajuste adicional: los KPIs de sobres/gemas/pity salen de la cabecera movil y pasan a un panel secundario bajo el hero del sobre para reforzar el foco visual en la apertura.
+
+
+## 2026-04-09 - Móvil nativo conocimiento (bloque 1)
+- Sacados del shell móvil genérico y pasados a móvil nativo: knowledge-crucigrama-mini, knowledge-sopa-letras-mega, knowledge-tabla-periodica-total, knowledge-mapas-atlas, knowledge-mapas-camino-corto y knowledge-cronologia-maestra.
+- Cada juego ahora detecta viewport móvil propio con useMobileGameViewport para aplicar layout y densidad específicas por juego.
+- Crucigrama: tablero primero, pistas debajo y celdas/acciones compactadas.
+- Sopa de letras: tablero principal arriba y lista de palabras compacta debajo.
+- Mapas / camino corto: mapa arriba, filtros y entrada compactados, paneles secundarios debajo.
+- Tabla periódica: tabla como foco superior y panel de entrada comprimido.
+- Cronología: track primero, cartas pendientes en carrusel horizontal y acciones/KPIs reducidos.
+- Pendiente siguiente bloque: IQ Masters, Refranes, Adivina país, Tangram y revisión de los juegos más simples para rematar móvil nativo del resto de Conocimiento.
+- Build aún sin validar: se intenta dentro del sandbox; si vuelve el spawn EPERM habrá que ejecutarlo escalado.
+- Ajuste posterior sobre feedback de UX: menos altura perdida en launch-game-area, KPIs en rail horizontal y tamaño de tablero calculado con el ancho real del viewport en Crucigrama y Sopa de Letras para evitar recortes del gameplay.
+
+## 2026-04-09 - Ajustes responsive categoria conocimiento en movil
+- Corregido el overflow horizontal del crucigrama en pantallas estrechas haciendo la rejilla fluida y reduciendo el padding superior del shell movil.
+- Anadido input oculto enfocable en `CrosswordKnowledgeGame` para que tocar una casilla en movil active el teclado nativo y permita escribir letras/borrar/comprobar.
+- Corregido el recorte de la sopa de letras en movil forzando el tablero a usar columnas fluidas (`minmax(0, 1fr)`) en lugar de celdas fijas dentro del ancho real del modal.
+- Desactivado el `focus()` automatico en movil para `GuessCountryKnowledgeGame`, `MapsKnowledgeGame`, `MapsShortestPathKnowledgeGame`, `MentalMathKnowledgeGame`, `PeriodicTableKnowledgeGame` y `ProverbsKnowledgeGame` para evitar saltos de scroll y pantallas cortadas al abrir el gameplay.
+- Endurecido el layout movil del modal/gameplay: menos padding en la tarjeta de conocimiento, menos margen superior y `knowledge-status-row` adaptable en anchuras <= 360 px.
+- Verificado visualmente con Playwright en 320x568 y 390x844 para crucigrama, sopa de letras, tabla periodica, mapas y cronologia. El build completo no quedo verificado: un intento fallo por memoria de Node y el segundo fue interrumpido.
+
+[2026-04-09 19:48] Mobile knowledge gameplay pass: crossword now focuses hidden mobile input on cell tap; wordsearch/crossword/maps/periodic/timeline validated at 320x568 with no horizontal overflow; added mobile wrappers for guess-country, mental-math and proverbs to inherit gameplay-shell fixes.
+
+[2026-04-09 20:08] Mobile knowledge shell pass: added viewport-driven mobile wrappers to anagrams/hangman/sudoku/puzzle/wordle/tangram/IQ masters; expanded portrait MobileGameShell stage rows for affected knowledge mobile-first games; Playwright recheck at 320x568 confirms no horizontal overflow and more stage height for wordle/iqm/tangram/refranes.
+## 2026-04-09 - Quiz conocimiento (inicio + timer)
+- src/games/KnowledgeGame.jsx: temporizador por pregunta aumentado de 18s a 40s.
+- src/games/KnowledgeGame.jsx: anadido CTA de inicio dentro de .knowledge-shell para que el quiz pueda arrancarse tambien en gameplay movil aislado, donde mini-head no siempre queda visible.
+- src/styles.css: nuevo bloque visual knowledge-start-panel para el estado idle del quiz.
+- Validacion Playwright movil (320x568) en output/quiz-start-check:
+  - antes de iniciar aparece .knowledge-shell .knowledge-start-btn con texto Iniciar ronda;
+  - tras pulsarlo desaparece el panel inicial y el contador muestra 40s.

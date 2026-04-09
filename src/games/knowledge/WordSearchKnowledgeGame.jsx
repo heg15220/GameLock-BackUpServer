@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
@@ -120,6 +121,7 @@ const createInitialState = (matchId, locale, copy) => {
 function WordSearchKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
+  const viewport = useMobileGameViewport();
   const initialMatchId = useMemo(
     () => resolveMatchIdFromHash() ?? getRandomKnowledgeMatchId(),
     []
@@ -130,6 +132,13 @@ function WordSearchKnowledgeGame() {
   const [state, setState] = useState(() =>
     createInitialState(initialMatchId, locale, copy)
   );
+  const wordsearchCellSize = useMemo(() => {
+    if (!viewport.isMobile) return 28;
+    const viewportWidth = Math.max(280, viewport.width || 360);
+    const boardWidth = Math.max(230, viewportWidth - 86);
+    const dynamicCell = Math.floor((boardWidth - Math.max(0, (state.boardSize - 1) * 2)) / state.boardSize);
+    return Math.min(26, Math.max(16, dynamicCell));
+  }, [state.boardSize, viewport.isMobile, viewport.width]);
 
   const restart = useCallback(() => {
     selectingRef.current = false;
@@ -461,7 +470,16 @@ function WordSearchKnowledgeGame() {
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-sopa-letras">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-sopa-letras",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -470,7 +488,12 @@ function WordSearchKnowledgeGame() {
         <button type="button" onClick={restart}>{copy.restart}</button>
       </div>
 
-      <section className="knowledge-mode-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="knowledge-status-row">
           <span>{copy.match}: {state.matchId + 1}/{KNOWLEDGE_ARCADE_MATCH_COUNT}</span>
           <span>{copy.board}: {state.boardSize}x{state.boardSize}</span>
@@ -486,7 +509,10 @@ function WordSearchKnowledgeGame() {
               ref={boardRef}
               className="wordsearch-board"
               role="grid"
-              style={{ "--wordsearch-size": state.boardSize }}
+              style={{
+                "--wordsearch-size": state.boardSize,
+                "--wordsearch-cell-size": `${wordsearchCellSize}px`
+              }}
               onPointerMove={(event) => {
                 if (!selectingRef.current) return;
                 updateSelectionFromPointer(event);

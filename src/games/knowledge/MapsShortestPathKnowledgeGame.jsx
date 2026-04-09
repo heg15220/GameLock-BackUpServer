@@ -1,5 +1,6 @@
 ﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
   createSeededRandom,
@@ -533,6 +534,7 @@ const metricsFromRoute = (route, challenge, graph) => {
 function MapsShortestPathKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY[locale] ?? COPY.en, [locale]);
+  const viewport = useMobileGameViewport();
   const inputRef = useRef(null);
 
   const createState = useCallback(({
@@ -798,6 +800,7 @@ function MapsShortestPathKnowledgeGame() {
   }, [copy, locale]);
 
   useEffect(() => {
+    if (viewport.isMobile) return;
     if (!inputRef.current) return;
     inputRef.current.focus();
     inputRef.current.select();
@@ -808,7 +811,8 @@ function MapsShortestPathKnowledgeGame() {
     state.challenge.startId,
     state.challenge.destinationId,
     state.route.length,
-    state.status
+    state.status,
+    viewport.isMobile
   ]);
 
   useEffect(() => {
@@ -911,14 +915,32 @@ function MapsShortestPathKnowledgeGame() {
 
   if (!hasPlayableData) {
     return (
-      <div className="mini-game knowledge-game knowledge-arcade-game knowledge-mapas-camino-corto">
+      <div
+        className={[
+          "mini-game",
+          "knowledge-game",
+          "knowledge-arcade-game",
+          "knowledge-mapas-camino-corto",
+          viewport.isMobile ? "is-mobile" : "",
+          viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+        ].filter(Boolean).join(" ")}
+      >
         <p className="unsupported-game">Map shortest path game is unavailable.</p>
       </div>
     );
   }
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-mapas-camino-corto">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-mapas-camino-corto",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -942,7 +964,13 @@ function MapsShortestPathKnowledgeGame() {
         </div>
       </div>
 
-      <section className="knowledge-mode-shell maps-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          "maps-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="knowledge-status-row">
           <span>{copy.mode}: {state.scopeMode === "provinces" ? copy.modeProvinces : copy.modeCountries}</span>
           <span>{copy.map}: {mapLabel}</span>

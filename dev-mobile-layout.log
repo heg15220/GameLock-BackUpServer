@@ -1,0 +1,33 @@
+
+> plataforma-juegos-saas@0.1.0 dev
+> vite --host 127.0.0.1 --port 4174
+
+
+  [32m[1mVITE[22m v4.5.14[39m  [2mready in [0m[1m424[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4174[22m/[39m
+[2m19:40:07[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/CrosswordKnowledgeGame.jsx[22m
+[2m19:40:27[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m19:41:06[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m19:45:39[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/GuessCountryKnowledgeGame.jsx[22m
+[2m19:45:39[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/MentalMathKnowledgeGame.jsx[22m
+[2m19:45:39[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/ProverbsKnowledgeGame.jsx[22m
+[2m19:45:39[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m20:05:34[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/AnagramsKnowledgeGame.jsx[22m
+[2m20:05:34[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/HangmanKnowledgeGame.jsx[22m
+[2m20:05:34[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/SudokuKnowledgeGame.jsx[22m
+[2m20:05:34[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/PuzzleKnowledgeGame.jsx[22m
+[2m20:05:34[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/WordleKnowledgeGame.jsx[22m
+[2m20:05:34[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/TangramKnowledgeGame.jsx[22m
+[2m20:05:34[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/IQMastersKnowledgeGame.jsx[22m
+[2m20:07:08[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m20:12:57[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m20:17:15[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m20:30:10[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m
+[2m20:30:10[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m20:38:28[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/KnowledgeGame.jsx[22m
+[2m20:38:37[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m20:42:57[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/knowledge/CrosswordKnowledgeGame.jsx[22m
+[2m20:43:02[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m20:48:03[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m21:02:30[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/mobile/mobile-game-shell.css[22m

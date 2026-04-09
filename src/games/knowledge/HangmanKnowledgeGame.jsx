@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
@@ -79,6 +80,7 @@ const createInitialState = (matchId, locale, copy) => {
 function HangmanKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
+  const viewport = useMobileGameViewport();
   const [state, setState] = useState(() =>
     createInitialState(getRandomKnowledgeMatchId(), locale, copy)
   );
@@ -201,7 +203,16 @@ function HangmanKnowledgeGame() {
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-ahorcado">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-ahorcado",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -210,7 +221,12 @@ function HangmanKnowledgeGame() {
         <button type="button" onClick={restart}>{copy.restart}</button>
       </div>
 
-      <section className="knowledge-mode-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="knowledge-status-row">
           <span>{copy.match}: {state.matchId + 1}/{KNOWLEDGE_ARCADE_MATCH_COUNT}</span>
           <span>{copy.attempts}: {state.attemptsLeft}</span>

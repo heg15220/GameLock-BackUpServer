@@ -2298,11 +2298,28 @@ body {
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
   .launch-topbar {
+    flex-wrap: wrap;
+    align-items: flex-start;
     gap: 0.5rem;
     padding: 0.5rem 0.85rem;
   }
 
   .launch-topbar-badges { display: none; }
+
+  .launch-topbar-meta {
+    order: 3;
+    width: 100%;
+  }
+
+  .launch-topbar-title {
+    white-space: normal;
+    font-size: 0.88rem;
+    line-height: 1.25;
+  }
+
+  .launch-info-toggle {
+    margin-left: auto;
+  }
 
   .launch-facts { gap: 0.25rem 1.2rem; }
 }
@@ -3135,6 +3152,38 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.3);
 }
 
+.knowledge-start-panel {
+  display: grid;
+  gap: 0.48rem;
+  margin-bottom: 0.7rem;
+  padding: 0.72rem 0.78rem;
+  border-radius: 12px;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  background:
+    linear-gradient(145deg, rgba(14, 116, 144, 0.18), rgba(15, 23, 42, 0.28));
+}
+
+.knowledge-start-title,
+.knowledge-start-hint {
+  margin: 0;
+}
+
+.knowledge-start-title {
+  color: #f0f9ff;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.knowledge-start-hint {
+  color: #bfdbfe;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.knowledge-game .knowledge-start-btn {
+  margin-top: 0;
+}
+
 .knowledge-chips {
   margin-top: 0.5rem;
   display: flex;
@@ -3726,6 +3775,10 @@ body {
   list-style: none;
   display: grid;
   gap: 0.28rem;
+  max-height: 230px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .anagram-guess-list li {
@@ -4449,7 +4502,9 @@ body {
   display: grid;
   gap: 0.22rem;
   max-height: 230px;
-  overflow: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .guess-country-suggestions li,
@@ -4679,7 +4734,9 @@ body {
   display: grid;
   gap: 0.24rem;
   max-height: 270px;
-  overflow: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .proverb-history li {
@@ -4867,6 +4924,10 @@ body {
   list-style: none;
   display: grid;
   gap: 0.26rem;
+  max-height: 230px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .mental-math-history li {
@@ -7790,7 +7851,13 @@ body {
 .crossword-clues li {
   border-radius: 8px;
   padding: 0.14rem 0.22rem;
+  cursor: pointer;
   transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.crossword-clues li:focus-visible {
+  outline: 2px solid rgba(255, 237, 213, 0.9);
+  outline-offset: 1px;
 }
 
 .crossword-clues li.active-word {
@@ -21654,6 +21721,893 @@ button.brisca-card.playable:disabled {
 
   .timeline-actions-dock {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 920px) {
+  .launch-game-area {
+    padding: 0.72rem 0.2rem 1rem;
+  }
+
+  .launch-game-area .knowledge-arcade-game.is-mobile {
+    width: min(100%, calc(100vw - 0.75rem));
+    max-width: 100%;
+    padding: 0.24rem 0.28rem 0.36rem;
+  }
+
+  .knowledge-arcade-game.is-mobile .mini-head {
+    gap: 0.56rem;
+    align-items: stretch;
+  }
+
+  .knowledge-arcade-game.is-mobile .mini-head h4 {
+    font-size: 0.9rem;
+  }
+
+  .knowledge-arcade-game.is-mobile .mini-head p {
+    margin-top: 0.18rem;
+    font-size: 0.72rem;
+    line-height: 1.34;
+  }
+
+  .knowledge-arcade-game.is-mobile .knowledge-mobile-shell {
+    margin-top: 0.4rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+    padding: 0.52rem;
+    gap: 0.42rem;
+  }
+
+  .knowledge-arcade-game.is-mobile .knowledge-mode-shell,
+  .knowledge-arcade-game.is-mobile .crossword-layout,
+  .knowledge-arcade-game.is-mobile .crossword-board-panel,
+  .knowledge-arcade-game.is-mobile .wordsearch-shell,
+  .knowledge-arcade-game.is-mobile .wordsearch-board-shell,
+  .knowledge-arcade-game.is-mobile .wordsearch-words-shell,
+  .knowledge-arcade-game.is-mobile .wordle-grid,
+  .knowledge-arcade-game.is-mobile .wordle-toolbar,
+  .knowledge-arcade-game.is-mobile .wordle-keyboard,
+  .knowledge-arcade-game.is-mobile .wordle-legend,
+  .knowledge-arcade-game.is-mobile .anagram-tiles,
+  .knowledge-arcade-game.is-mobile .anagram-guess-list,
+  .knowledge-arcade-game.is-mobile .hangman-stage,
+  .knowledge-arcade-game.is-mobile .hangman-gallows,
+  .knowledge-arcade-game.is-mobile .hangman-fails,
+  .knowledge-arcade-game.is-mobile .hangman-keyboard,
+  .knowledge-arcade-game.is-mobile .sudoku-board-shell,
+  .knowledge-arcade-game.is-mobile .sudoku-board,
+  .knowledge-arcade-game.is-mobile .puzzle-grid,
+  .knowledge-arcade-game.is-mobile .periodic-layout,
+  .knowledge-arcade-game.is-mobile .maps-layout,
+  .knowledge-arcade-game.is-mobile .timeline-shell,
+  .knowledge-arcade-game.is-mobile .guess-country-layout,
+  .knowledge-arcade-game.is-mobile .guess-country-side,
+  .knowledge-arcade-game.is-mobile .proverb-layout,
+  .knowledge-arcade-game.is-mobile .proverb-side,
+  .knowledge-arcade-game.is-mobile .mental-math-shell,
+  .knowledge-arcade-game.is-mobile .mental-math-input-shell,
+  .knowledge-arcade-game.is-mobile .mental-math-history,
+  .knowledge-arcade-game.is-mobile .tangram-shell,
+  .knowledge-arcade-game.is-mobile .tangram-tools,
+  .knowledge-arcade-game.is-mobile .tangram-board-shell,
+  .knowledge-arcade-game.is-mobile .iqm-figures-shell,
+  .knowledge-arcade-game.is-mobile .iqm-figure-layout,
+  .knowledge-arcade-game.is-mobile .iqm-figure-board,
+  .knowledge-arcade-game.is-mobile .iqm-figure-sidebar,
+  .knowledge-arcade-game.is-mobile .iqm-level-strip,
+  .knowledge-arcade-game.is-mobile .iqm-shell {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .knowledge-arcade-game.is-mobile .knowledge-status-row {
+    flex-wrap: nowrap;
+    gap: 0.28rem;
+    overflow-x: auto;
+    padding-bottom: 0.08rem;
+    scrollbar-width: none;
+  }
+
+  .knowledge-arcade-game.is-mobile .knowledge-status-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .knowledge-arcade-game.is-mobile .knowledge-status-row span {
+    flex: 0 0 auto;
+    font-size: 0.63rem;
+    padding: 0.18rem 0.46rem;
+  }
+
+  .knowledge-arcade-game.is-mobile .knowledge-ui-btn,
+  .knowledge-arcade-game.is-mobile .mini-head button,
+  .knowledge-arcade-game.is-mobile .crossword-toolbar button {
+    font-size: 0.68rem;
+    padding: 0.38rem 0.5rem;
+  }
+
+  .knowledge-arcade-game.is-mobile .game-message {
+    margin-top: 0.56rem;
+    font-size: 0.71rem;
+    line-height: 1.34;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-head-actions {
+    width: 100%;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .knowledge-mobile-shell {
+    padding: 0.38rem 0.3rem 0.46rem;
+    gap: 0.36rem;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-head-actions button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.44rem;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-board-panel {
+    width: 100%;
+    min-width: 0;
+    justify-items: center;
+    gap: 0.3rem;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-grid {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: repeat(var(--crossword-cols, 5), minmax(0, 1fr));
+    grid-auto-rows: auto;
+    overflow: visible;
+    padding: 0.18rem;
+    gap: 0.1rem;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-cell {
+    width: auto;
+    height: auto;
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-letter {
+    font-size: clamp(0.54rem, 2.9vw, 0.84rem);
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-number {
+    left: 2px;
+    top: 2px;
+    min-width: 11px;
+    height: 11px;
+    padding: 0 2px;
+    font-size: clamp(0.34rem, 1.5vw, 0.48rem);
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-mobile-input {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-toolbar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.28rem;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-clues {
+    gap: 0.48rem;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-clues article {
+    padding: 0.54rem 0.58rem;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-clues h5 {
+    font-size: 0.76rem;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-clues ul {
+    margin-top: 0.4rem;
+    gap: 0.28rem;
+    padding-left: 1.04rem;
+  }
+
+  .knowledge-arcade-game.knowledge-crucigrama.is-mobile .crossword-clues li {
+    font-size: 0.68rem;
+    line-height: 1.36;
+    padding: 0.18rem 0.24rem;
+  }
+
+  .knowledge-arcade-game.knowledge-sopa-letras.is-mobile .wordsearch-note {
+    margin-top: 0;
+    font-size: 0.68rem;
+    line-height: 1.32;
+  }
+
+  .knowledge-arcade-game.knowledge-sopa-letras.is-mobile .wordsearch-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.46rem;
+  }
+
+  .knowledge-arcade-game.knowledge-sopa-letras.is-mobile .wordsearch-board-shell {
+    padding: 0.34rem;
+    border-radius: 14px;
+  }
+
+  .knowledge-arcade-game.knowledge-sopa-letras.is-mobile .wordsearch-board {
+    width: 100%;
+    grid-template-columns: repeat(var(--wordsearch-size, 20), minmax(0, 1fr));
+    grid-auto-rows: auto;
+    gap: 2px;
+  }
+
+  .knowledge-arcade-game.knowledge-sopa-letras.is-mobile .wordsearch-cell {
+    width: auto;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 5px;
+    font-size: clamp(0.42rem, 2vw, 0.64rem);
+  }
+
+  .knowledge-arcade-game.knowledge-sopa-letras.is-mobile .wordsearch-words-shell {
+    padding: 0.46rem;
+  }
+
+  .knowledge-arcade-game.knowledge-sopa-letras.is-mobile .wordsearch-words-shell h5 {
+    font-size: 0.72rem;
+  }
+
+  .knowledge-arcade-game.knowledge-sopa-letras.is-mobile .wordsearch-words {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.26rem;
+  }
+
+  .knowledge-arcade-game.knowledge-sopa-letras.is-mobile .wordsearch-word {
+    font-size: 0.62rem;
+    padding: 0.22rem 0.4rem;
+  }
+
+  .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-grid {
+    margin-top: 0.46rem;
+    gap: 0.16rem;
+  }
+
+  .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-cell {
+    font-size: clamp(0.68rem, 3.2vw, 0.9rem);
+  }
+
+  .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-toolbar,
+  .knowledge-arcade-game.knowledge-anagramas.is-mobile .anagram-guess-list {
+    margin-top: 0.48rem;
+    padding: 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-keyboard {
+    margin-top: 0.48rem;
+    gap: 0.2rem;
+  }
+
+  .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-keyboard-row {
+    gap: 0.16rem;
+  }
+
+  .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-key {
+    font-size: 0.58rem;
+    padding: 0.26rem 0.04rem;
+  }
+
+  .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-legend {
+    margin-top: 0.48rem;
+    gap: 0.26rem 0.46rem;
+  }
+
+  .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-legend li {
+    font-size: 0.63rem;
+  }
+
+  .knowledge-arcade-game.knowledge-anagramas.is-mobile .anagram-head-actions,
+  .knowledge-arcade-game.knowledge-tangram.is-mobile .tangram-head-actions,
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-head-actions {
+    width: 100%;
+  }
+
+  .knowledge-arcade-game.knowledge-anagramas.is-mobile .anagram-head-actions button,
+  .knowledge-arcade-game.knowledge-tangram.is-mobile .tangram-head-actions button,
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-head-actions button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .knowledge-arcade-game.knowledge-anagramas.is-mobile .anagram-tiles {
+    margin-top: 0.48rem;
+    gap: 0.22rem;
+    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+  }
+
+  .knowledge-arcade-game.knowledge-anagramas.is-mobile .anagram-tile {
+    font-size: clamp(0.72rem, 3.1vw, 0.88rem);
+  }
+
+  .knowledge-arcade-game.knowledge-anagramas.is-mobile .anagram-guess-list li {
+    flex-wrap: wrap;
+    font-size: 0.66rem;
+    gap: 0.22rem;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-stage {
+    margin-top: 0.46rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-gallows {
+    min-height: 142px;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-fails {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 0.36rem;
+    gap: 0.2rem;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-fails li {
+    font-size: 0.66rem;
+    padding: 0.18rem 0.06rem;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-word {
+    margin-top: 0.48rem;
+    gap: 0.22rem;
+    font-size: 0.88rem;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-word span {
+    min-width: 20px;
+    padding: 0.2rem 0.1rem;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-clue {
+    font-size: 0.7rem;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-keyboard {
+    margin-top: 0.48rem;
+    gap: 0.2rem;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-keyboard button {
+    font-size: 0.62rem;
+    padding: 0.28rem 0;
+  }
+
+  .knowledge-arcade-game.knowledge-sudoku.is-mobile .sudoku-board-shell,
+  .knowledge-arcade-game.knowledge-puzle.is-mobile .puzzle-grid {
+    width: min(100%, 246px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .knowledge-arcade-game.knowledge-sudoku.is-mobile .sudoku-cell,
+  .knowledge-arcade-game.knowledge-puzle.is-mobile .puzzle-tile {
+    font-size: clamp(0.88rem, 4.4vw, 1.02rem);
+  }
+
+  .knowledge-arcade-game.knowledge-sudoku.is-mobile .quick-actions.compact-grid {
+    margin-top: 0.48rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.26rem;
+  }
+
+  .knowledge-arcade-game.knowledge-puzle.is-mobile .puzzle-grid {
+    margin-top: 0.48rem;
+    gap: 0.28rem;
+    padding: 0.36rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tangram.is-mobile .tangram-tools {
+    padding: 0.42rem;
+    gap: 0.32rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tangram.is-mobile .tangram-tools span {
+    font-size: 0.64rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tangram.is-mobile .tangram-tools-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.26rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tangram.is-mobile .tangram-board-shell {
+    border-radius: 12px;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-status-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.28rem;
+    overflow-x: auto;
+    padding-bottom: 0.08rem;
+    scrollbar-width: none;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-status-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-status-row span {
+    flex: 0 0 auto;
+    font-size: 0.6rem;
+    padding: 0.18rem 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-figure-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.44rem;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-figure-board {
+    padding: 0.36rem;
+    border-radius: 14px;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-figure-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.28rem;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-level-strip {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(150px, 1fr);
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: none;
+    padding-bottom: 0.12rem;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-level-chip {
+    min-height: 48px;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-level-chip strong {
+    font-size: 0.66rem;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-controls {
+    font-size: 0.64rem;
+    line-height: 1.32;
+  }
+
+  .knowledge-arcade-game.knowledge-adivina-pais.is-mobile .guess-country-head-actions,
+  .knowledge-arcade-game.knowledge-refranes.is-mobile .proverb-head-actions {
+    width: 100%;
+  }
+
+  .knowledge-arcade-game.knowledge-adivina-pais.is-mobile .guess-country-head-actions button,
+  .knowledge-arcade-game.knowledge-refranes.is-mobile .proverb-head-actions button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .knowledge-arcade-game.knowledge-adivina-pais.is-mobile .guess-country-board {
+    min-height: 220px;
+  }
+
+  .knowledge-arcade-game.knowledge-adivina-pais.is-mobile .guess-country-history ul,
+  .knowledge-arcade-game.knowledge-refranes.is-mobile .proverb-history ul,
+  .knowledge-arcade-game.knowledge-calculo-mental.is-mobile .mental-math-history ul,
+  .knowledge-arcade-game.knowledge-anagramas.is-mobile .anagram-guess-list ul {
+    max-height: min(30svh, 180px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .knowledge-arcade-game.knowledge-adivina-pais.is-mobile .guess-country-suggestions ul {
+    max-height: min(24svh, 140px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .knowledge-arcade-game.knowledge-refranes.is-mobile .proverb-prompt {
+    font-size: 0.92rem;
+  }
+
+  .knowledge-arcade-game.knowledge-calculo-mental.is-mobile .mental-math-expression {
+    font-size: clamp(1rem, 5vw, 1.34rem);
+  }
+
+  .knowledge-arcade-game.knowledge-calculo-mental.is-mobile .mental-math-history li {
+    grid-template-columns: 32px minmax(0, 1fr) 34px 34px 34px;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-head-actions,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-head-actions {
+    width: 100%;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-head-actions button,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-head-actions button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-toolbar,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.32rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-toolbar label,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-toolbar label {
+    min-width: 0;
+    font-size: 0.64rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-toolbar select,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-toolbar select {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.38rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-help,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-help {
+    font-size: 0.67rem;
+    line-height: 1.32;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-shortest-legend,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-shortest-legend {
+    gap: 0.24rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-shortest-legend .legend-item,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-shortest-legend .legend-item {
+    font-size: 0.56rem;
+    padding: 0.16rem 0.38rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-layout,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.46rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-board,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-board {
+    min-height: 220px;
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-board-caption,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-board-caption {
+    font-size: 0.62rem;
+    line-height: 1.28;
+    max-width: 80%;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-node-label,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-node-label {
+    max-width: 64px;
+    font-size: 0.48rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-side,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-side {
+    gap: 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-input-shell,
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-target-panel,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-input-shell,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-target-panel {
+    padding: 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-input-shell label,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-input-shell label {
+    font-size: 0.64rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-input-shell input,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-input-shell input {
+    font-size: 0.76rem;
+    padding: 0.38rem 0.46rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-target-panel h5,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-target-panel h5 {
+    font-size: 0.71rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-target-panel p,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-target-panel p {
+    font-size: 0.63rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-target-list,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-target-list {
+    max-height: 180px;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-target-list li,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-target-list li {
+    grid-template-columns: 26px minmax(0, 1fr) 52px;
+    gap: 0.24rem;
+    padding: 0.2rem 0.28rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-target-list .target-index,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-target-list .target-index {
+    font-size: 0.56rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-target-list .target-name,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-target-list .target-name {
+    font-size: 0.62rem;
+  }
+
+  .knowledge-arcade-game.knowledge-mapas.is-mobile .maps-target-list .target-kind,
+  .knowledge-arcade-game.knowledge-mapas-camino-corto.is-mobile .maps-target-list .target-kind {
+    font-size: 0.54rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-help {
+    font-size: 0.66rem;
+    line-height: 1.3;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.44rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-board-shell {
+    padding: 0.34rem;
+    border-radius: 14px;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-grid {
+    grid-template-columns: repeat(18, minmax(0, 22px));
+    grid-auto-rows: 24px;
+    gap: 0.12rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-atomic {
+    font-size: 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-value {
+    font-size: 0.54rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-placeholder {
+    font-size: 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-entry-panel {
+    padding: 0.44rem;
+    gap: 0.26rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-entry-panel h5 {
+    font-size: 0.72rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-entry-panel p,
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-entry-panel label {
+    font-size: 0.64rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-entry-panel input {
+    font-size: 0.76rem;
+    padding: 0.36rem 0.44rem;
+  }
+
+  .knowledge-arcade-game.knowledge-tabla-periodica.is-mobile .periodic-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.26rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-head-actions {
+    width: 100%;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-head-actions .knowledge-ui-btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-shell {
+    gap: 0.52rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-command-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.38rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.28rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-kpi-card {
+    min-height: 52px;
+    padding: 0.32rem 0.36rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-kpi-card span {
+    font-size: 0.54rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-kpi-card strong {
+    font-size: 0.76rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-clock-card {
+    padding: 0.38rem 0.44rem;
+    gap: 0.18rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-clock-card span,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-clock-card strong {
+    font-size: 0.72rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-config-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.34rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-pill-track {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.08rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-pill-button {
+    white-space: nowrap;
+    font-size: 0.62rem;
+    padding: 0.24rem 0.48rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-shortcut-hint {
+    font-size: 0.62rem;
+    padding: 0.28rem 0.36rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-board {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "track"
+      "pool"
+      "anchor";
+    gap: 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-track-panel,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-pool-panel,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-anchor-card,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-review-panel,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-summary-panel,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-log-panel {
+    padding: 0.44rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-panel-head h5,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-review-panel h5,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-summary-panel h5,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-log-panel h5 {
+    font-size: 0.72rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-track-slots {
+    gap: 0.26rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-slot-card {
+    min-height: 50px;
+    padding: 0.34rem 0.4rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-slot-card strong,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-event-card strong {
+    font-size: 0.67rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-event-card {
+    min-width: 68vw;
+    padding: 0.38rem 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-pool ul {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(68vw, 1fr);
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: none;
+    padding-bottom: 0.12rem;
+    padding-right: 0;
+    scroll-snap-type: x proximity;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-pool li,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-pool .timeline-event-card {
+    scroll-snap-align: start;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-event-card p {
+    font-size: 0.61rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-event-key,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-event-year,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-slot-card span {
+    font-size: 0.58rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-actions-dock {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.3rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-actions-dock .knowledge-ui-btn {
+    min-height: 36px;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-review-grid,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-feedback-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.42rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-review-grid li strong,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-summary-panel li,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-log-panel li {
+    font-size: 0.63rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .knowledge-arcade-game.is-mobile .knowledge-status-row {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .knowledge-arcade-game.is-mobile .knowledge-status-row span {
+    flex: 1 1 calc(50% - 0.2rem);
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-status-row {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .knowledge-arcade-game.knowledge-iq-masters.is-mobile .iqm-status-row span {
+    flex: 1 1 calc(50% - 0.2rem);
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
   }
 }
 

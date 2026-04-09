@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
@@ -214,6 +215,7 @@ const createTangramState = (matchId, locale, copy) => {
 function TangramKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY[locale] ?? COPY.en, [locale]);
+  const viewport = useMobileGameViewport();
   const pieceLabels = useMemo(
     () => PIECE_LABEL_BY_TYPE[locale] ?? PIECE_LABEL_BY_TYPE.en,
     [locale]
@@ -609,7 +611,16 @@ function TangramKnowledgeGame() {
   const lockedCount = state.pieces.filter((piece) => piece.locked).length;
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-tangram">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-tangram",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -633,7 +644,13 @@ function TangramKnowledgeGame() {
         </div>
       </div>
 
-      <section className="knowledge-mode-shell tangram-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          "tangram-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="knowledge-status-row">
           <span>{copy.match}: {state.matchId + 1}/{KNOWLEDGE_ARCADE_MATCH_COUNT}</span>
           <span>{copy.challenge}: {state.challenge.label}</span>

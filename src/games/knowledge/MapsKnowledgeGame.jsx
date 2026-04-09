@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
@@ -168,6 +169,7 @@ const createInitialState = ({
 function MapsKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
+  const viewport = useMobileGameViewport();
   const [state, setState] = useState(() => createInitialState({ copy }));
   const inputRef = useRef(null);
 
@@ -426,11 +428,22 @@ function MapsKnowledgeGame() {
   }, [copy, locale]);
 
   useEffect(() => {
+    if (viewport.isMobile) {
+      return;
+    }
     if (inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
     }
-  }, [state.scopeMode, state.continentId, state.countryId, state.cityId, state.revealedIds.length, state.status]);
+  }, [
+    state.scopeMode,
+    state.continentId,
+    state.countryId,
+    state.cityId,
+    state.revealedIds.length,
+    state.status,
+    viewport.isMobile
+  ]);
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -516,7 +529,16 @@ function MapsKnowledgeGame() {
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-mapas">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-mapas",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -540,7 +562,13 @@ function MapsKnowledgeGame() {
         </div>
       </div>
 
-      <section className="knowledge-mode-shell maps-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          "maps-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="knowledge-status-row">
           <span>{copy.scope}: {scopeLabel}</span>
           <span>{copy.map}: {mapTitle}</span>

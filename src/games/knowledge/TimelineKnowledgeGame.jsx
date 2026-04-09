@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
@@ -175,6 +176,7 @@ const createInitialState = (copy, options = {}) => {
 function TimelineKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY[locale] ?? COPY.en, [locale]);
+  const viewport = useMobileGameViewport();
   const [state, setState] = useState(() => createInitialState(copy));
   const round = getRound(state);
   const eventById = useMemo(() => new Map((round?.events ?? []).map((event) => [event.id, event])), [round]);
@@ -526,7 +528,16 @@ function TimelineKnowledgeGame() {
   const timerRatio = clamp01(state.roundClock / Math.max(1, state.mission.secondsPerRound));
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-cronologia">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-cronologia",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head timeline-hero">
         <div className="timeline-hero-copy">
           <h4>{copy.title}</h4>
@@ -544,7 +555,13 @@ function TimelineKnowledgeGame() {
         </div>
       </div>
 
-      <section className="knowledge-mode-shell timeline-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          "timeline-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="timeline-command-strip">
           <div className="timeline-kpi-grid">
             <article className="timeline-kpi-card">

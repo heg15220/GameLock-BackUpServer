@@ -4151,3 +4151,433 @@
     width: 100%;
   }
 }
+
+.wg-shell.is-mobile {
+  min-height: 100svh;
+  padding: 0 0 calc(94px + env(safe-area-inset-bottom, 0px));
+  border-radius: 0;
+  box-shadow: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.wg-shell.is-mobile::before,
+.wg-shell.is-mobile::after {
+  opacity: 0.45;
+}
+
+.wg-shell.is-mobile .wg-top-nav {
+  display: none;
+}
+
+.wg-mobile-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: grid;
+  gap: 0;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 12px 10px;
+  background:
+    linear-gradient(180deg, rgba(4, 11, 20, 0.96), rgba(4, 11, 20, 0.88)),
+    radial-gradient(circle at 12% 0, rgba(123, 200, 255, 0.14), transparent 38%);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(123, 200, 255, 0.14);
+}
+
+.wg-mobile-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wg-mobile-brand h2 {
+  margin: 0;
+  font-family: "DM Serif Display", "Times New Roman", serif;
+  font-size: clamp(1.5rem, 7vw, 2rem);
+}
+
+.wg-mobile-brand p {
+  margin: 4px 0 0;
+  color: #a9bdd8;
+  font-size: 0.76rem;
+  line-height: 1.28;
+}
+
+.wg-mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wg-shell.is-mobile .wg-mobile-header .wg-lang-toggle,
+.wg-shell.is-mobile .wg-mobile-header .wg-top-icon-info {
+  position: static;
+  width: 38px;
+  height: 38px;
+}
+
+.wg-mobile-status-rail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wg-mobile-economy-panel {
+  padding: 10px;
+}
+
+.wg-mobile-status-rail article {
+  padding: 10px 11px;
+  border-radius: 14px;
+  border: 1px solid rgba(123, 200, 255, 0.18);
+  background:
+    linear-gradient(145deg, rgba(10, 18, 29, 0.92), rgba(6, 12, 21, 0.92)),
+    radial-gradient(circle at 100% 0, rgba(246, 198, 111, 0.12), transparent 46%);
+  box-shadow: 0 12px 18px rgba(0, 0, 0, 0.18);
+}
+
+.wg-mobile-status-rail span {
+  display: block;
+  color: #a8bddb;
+  font-size: 0.67rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.wg-mobile-status-rail strong {
+  display: block;
+  margin-top: 4px;
+  color: #f6f9ff;
+  font-size: 1rem;
+  font-family: "DM Serif Display", "Times New Roman", serif;
+}
+
+.wg-shell.is-mobile .wg-main-content {
+  width: 100%;
+  padding: 10px 12px;
+  gap: 10px;
+}
+
+.wg-shell.is-mobile .wg-home-stage,
+.wg-shell.is-mobile .wg-support-grid,
+.wg-shell.is-mobile .wg-stack-panel,
+.wg-shell.is-mobile .wg-panel,
+.wg-shell.is-mobile .wg-stack-footer {
+  width: 100%;
+  min-width: 0;
+}
+
+.wg-shell.is-mobile .wg-home-stage {
+  min-height: 0;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.wg-shell.is-mobile .wg-home-center,
+.wg-shell.is-mobile .wg-home-intel-grid,
+.wg-shell.is-mobile .wg-support-grid {
+  width: 100%;
+}
+
+.wg-shell.is-mobile .wg-home-center {
+  min-height: min(78svh, 640px);
+  padding: 12px 12px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(123, 200, 255, 0.22);
+  background: var(--wg-surface);
+  justify-content: center;
+}
+
+.wg-shell.is-mobile .wg-pack-hero {
+  width: min(100%, 330px);
+  height: min(62svh, 500px);
+}
+
+.wg-shell.is-mobile .wg-pack-call-action {
+  bottom: 12px;
+  width: calc(100% - 44px);
+  font-size: 0.72rem;
+  padding: 7px 10px;
+}
+
+.wg-shell.is-mobile .wg-summary-grid,
+.wg-shell.is-mobile .wg-home-reward-kpis,
+.wg-shell.is-mobile .wg-mission-ledger-grid,
+.wg-shell.is-mobile .wg-trophy-grid,
+.wg-shell.is-mobile .wg-mission-grid,
+.wg-shell.is-mobile .wg-support-grid {
+  grid-template-columns: 1fr;
+}
+
+.wg-shell.is-mobile .wg-summary-grid.is-collection {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wg-shell.is-mobile .wg-home-intel-grid {
+  display: none;
+}
+
+.wg-shell.is-mobile .wg-pack-status-pill {
+  gap: 2px;
+  padding: 10px 18px;
+}
+
+.wg-shell.is-mobile .wg-pack-status-pill span {
+  font-size: 0.62rem;
+}
+
+.wg-shell.is-mobile .wg-pack-status-pill strong {
+  font-size: clamp(1.15rem, 5vw, 1.55rem);
+}
+
+.wg-shell.is-mobile .wg-pack-subline,
+.wg-shell.is-mobile .wg-pack-progress,
+.wg-shell.is-mobile .wg-special-pack-banner p,
+.wg-shell.is-mobile .wg-section-head p,
+.wg-shell.is-mobile .wg-card-copy p,
+.wg-shell.is-mobile .wg-showcase-body p,
+.wg-shell.is-mobile .wg-mission-card p,
+.wg-shell.is-mobile .wg-trophy-copy p,
+.wg-shell.is-mobile .wg-footer-note,
+.wg-shell.is-mobile .wg-footer-subnote {
+  font-size: 0.76rem;
+  line-height: 1.25;
+}
+
+.wg-shell.is-mobile .wg-special-pack-banner {
+  padding: 7px 10px;
+}
+
+.wg-shell.is-mobile .wg-special-pack-banner strong,
+.wg-shell.is-mobile .wg-section-head h3,
+.wg-shell.is-mobile .wg-article-stats h4 {
+  font-size: 0.98rem;
+}
+
+.wg-shell.is-mobile .wg-panel,
+.wg-shell.is-mobile .wg-mobile-compact-panel,
+.wg-shell.is-mobile .wg-stack-footer,
+.wg-shell.is-mobile .wg-filter-shell,
+.wg-shell.is-mobile .wg-mission-card,
+.wg-shell.is-mobile .wg-trophy-card {
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.wg-shell.is-mobile .wg-rarity-summary-grid {
+  grid-template-columns: repeat(4, minmax(0, min-content));
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.wg-shell.is-mobile .wg-filter-shell {
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.wg-shell.is-mobile .wg-filter-grid,
+.wg-shell.is-mobile .wg-toggle-row {
+  grid-template-columns: 1fr;
+}
+
+.wg-shell.is-mobile .wg-filter-grid input,
+.wg-shell.is-mobile .wg-filter-grid select,
+.wg-shell.is-mobile .wg-recovery-box input {
+  min-height: 40px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+}
+
+.wg-shell.is-mobile .wg-sort-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.wg-shell.is-mobile .wg-sort-row button {
+  white-space: nowrap;
+  min-height: 38px;
+  padding: 8px 10px;
+  font-size: 0.76rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.wg-shell.is-mobile .wg-stack-shell {
+  width: min(100%, 352px);
+  margin: 0 auto;
+}
+
+.wg-shell.is-mobile .wg-stack-footer {
+  padding: 12px;
+}
+
+.wg-shell.is-mobile .wg-pack-actions-row {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.wg-shell.is-mobile .wg-primary-btn,
+.wg-shell.is-mobile .wg-secondary-btn,
+.wg-shell.is-mobile .wg-check {
+  min-height: 40px;
+  font-size: 0.82rem;
+  padding: 9px 12px;
+}
+
+.wg-shell.is-mobile .wg-mission-card p {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wg-shell.is-mobile .wg-back-gacha-wrap {
+  display: none;
+}
+
+.wg-shell.is-mobile .wg-stack-slots {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scroll-snap-type: x proximity;
+}
+
+.wg-shell.is-mobile .wg-stack-slot {
+  min-width: 210px;
+  scroll-snap-align: start;
+}
+
+.wg-shell.is-mobile .wg-recovery-box {
+  grid-template-columns: 1fr;
+}
+
+.wg-shell.is-mobile .wg-footer {
+  width: calc(100% - 24px);
+  margin: 0 auto;
+  padding-bottom: 8px;
+}
+
+.wg-mobile-home-utility {
+  display: grid;
+  gap: 10px;
+}
+
+.wg-mobile-rule-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.wg-mobile-rule-pills span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(123, 200, 255, 0.22);
+  background: rgba(8, 16, 28, 0.62);
+  color: #d2e1f6;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.wg-mobile-tabbar {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(123, 200, 255, 0.2);
+  background:
+    linear-gradient(180deg, rgba(8, 15, 28, 0.96), rgba(6, 11, 21, 0.98)),
+    radial-gradient(circle at 20% 0, rgba(246, 198, 111, 0.12), transparent 42%);
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.36);
+  backdrop-filter: blur(18px);
+}
+
+.wg-mobile-tab-btn {
+  min-height: 58px;
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: #aac0dd;
+  font: inherit;
+}
+
+.wg-mobile-tab-btn span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.wg-mobile-tab-btn small {
+  color: #ffe3a8;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.wg-mobile-tab-btn.is-active {
+  border-color: rgba(246, 198, 111, 0.56);
+  background:
+    linear-gradient(180deg, rgba(246, 198, 111, 0.18), rgba(123, 200, 255, 0.1)),
+    rgba(8, 14, 24, 0.72);
+  color: #fff6dd;
+}
+
+.wg-modal-backdrop.is-mobile {
+  align-items: stretch;
+  padding: 0;
+}
+
+.wg-modal.is-mobile {
+  width: 100%;
+  max-width: none;
+  min-height: 100svh;
+  border-radius: 0;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 14px calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+.wg-modal.is-mobile .wg-modal-grid {
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.wg-modal.is-mobile .wg-modal-stack-preview .wg-stack-card,
+.wg-modal.is-mobile .wg-detail-flip {
+  width: min(100%, 280px);
+}
+
+.wg-shell.is-mobile.is-mobile-landscape .wg-mobile-status-rail {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wg-shell.is-mobile.is-mobile-landscape .wg-main-content {
+  padding-inline: 16px;
+}
+
+.wg-shell.is-mobile.is-mobile-landscape .wg-home-center {
+  min-height: 0;
+}
+
+.wg-shell.is-mobile.is-mobile-landscape .wg-pack-hero {
+  height: min(72svh, 430px);
+}
+
+.wg-shell.is-mobile.is-mobile-landscape .wg-collection-grid,
+.wg-shell.is-mobile.is-mobile-landscape .wg-trophy-grid,
+.wg-shell.is-mobile.is-mobile-landscape .wg-mission-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}

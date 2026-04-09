@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import {
   PROVERB_BANK_META,
   createProverbRounds,
@@ -108,6 +109,7 @@ function createInitialState(locale, copy, sessionId = getRandomProverbSessionId(
 function ProverbsKnowledgeGame() {
   const locale = useMemo(resolveProverbLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
+  const viewport = useMobileGameViewport();
   const [state, setState] = useState(() => createInitialState(locale, copy));
   const inputRef = useRef(null);
 
@@ -217,12 +219,15 @@ function ProverbsKnowledgeGame() {
   }, [copy]);
 
   useEffect(() => {
+    if (viewport.isMobile) {
+      return;
+    }
     if (!inputRef.current || state.revealCurrent || state.status === "finished") {
       return;
     }
     inputRef.current.focus();
     inputRef.current.select();
-  }, [state.roundIndex, state.revealCurrent, state.status]);
+  }, [state.roundIndex, state.revealCurrent, state.status, viewport.isMobile]);
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -301,7 +306,16 @@ function ProverbsKnowledgeGame() {
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-refranes">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-refranes",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -329,7 +343,13 @@ function ProverbsKnowledgeGame() {
         </div>
       </div>
 
-      <section className="knowledge-mode-shell proverb-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          "proverb-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="knowledge-status-row proverb-status">
           <span>{copy.round}: {Math.min(state.roundIndex + 1, state.rounds.length)}/{state.rounds.length}</span>
           <span>{copy.score}: {state.hits}</span>

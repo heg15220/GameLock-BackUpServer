@@ -1,0 +1,62 @@
+[
+  {
+    "id": "knowledge-wordle-pro",
+    "stageHeight": 422,
+    "bodyHeight": 438,
+    "touchCopyDisplay": "none",
+    "touchCopyHeight": 0,
+    "gameplayHeight": 589,
+    "docClientWidth": 320,
+    "docScrollWidth": 320,
+    "shellHeight": 494,
+    "history": null
+  },
+  {
+    "id": "knowledge-refranes-clasicos",
+    "stageHeight": 419,
+    "bodyHeight": 435,
+    "touchCopyDisplay": "none",
+    "touchCopyHeight": 0,
+    "gameplayHeight": 593,
+    "docClientWidth": 320,
+    "docScrollWidth": 320,
+    "shellHeight": 494,
+    "history": null
+  },
+  {
+    "id": "knowledge-anagramas-pro",
+    "stageHeight": 419,
+    "bodyHeight": 435,
+    "touchCopyDisplay": "none",
+    "touchCopyHeight": 0,
+    "gameplayHeight": 593,
+    "docClientWidth": 320,
+    "docScrollWidth": 320,
+    "shellHeight": 494,
+    "history": null
+  },
+  {
+    "id": "knowledge-calculo-mental-flash10",
+    "stageHeight": 419,
+    "bodyHeight": 435,
+    "touchCopyDisplay": "none",
+    "touchCopyHeight": 0,
+    "gameplayHeight": 593,
+    "docClientWidth": 320,
+    "docScrollWidth": 320,
+    "shellHeight": 494,
+    "history": null
+  },
+  {
+    "id": "knowledge-adivina-pais-silueta",
+    "stageHeight": 419,
+    "bodyHeight": 435,
+    "touchCopyDisplay": "none",
+    "touchCopyHeight": 0,
+    "gameplayHeight": 593,
+    "docClientWidth": 320,
+    "docScrollWidth": 320,
+    "shellHeight": 494,
+    "history": null
+  }
+]

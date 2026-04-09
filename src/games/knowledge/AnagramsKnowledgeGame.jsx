@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   getRandomKnowledgeMatchId,
@@ -146,6 +147,7 @@ const createInitialState = (matchId, locale, copy) => {
 function AnagramsKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
+  const viewport = useMobileGameViewport();
   const [state, setState] = useState(() =>
     createInitialState(resolveMatchIdFromLocation() ?? getRandomKnowledgeMatchId(), locale, copy)
   );
@@ -337,7 +339,16 @@ function AnagramsKnowledgeGame() {
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
 
   return (
-    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-anagramas">
+    <div
+      className={[
+        "mini-game",
+        "knowledge-game",
+        "knowledge-arcade-game",
+        "knowledge-anagramas",
+        viewport.isMobile ? "is-mobile" : "",
+        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+      ].filter(Boolean).join(" ")}
+    >
       <div className="mini-head">
         <div>
           <h4>{copy.title}</h4>
@@ -362,7 +373,12 @@ function AnagramsKnowledgeGame() {
         </div>
       </div>
 
-      <section className="knowledge-mode-shell">
+      <section
+        className={[
+          "knowledge-mode-shell",
+          viewport.isMobile ? "knowledge-mobile-shell" : ""
+        ].filter(Boolean).join(" ")}
+      >
         <div className="knowledge-status-row">
           <span>{copy.match}: {state.matchId + 1}/{KNOWLEDGE_WORD_TARGET_COUNT}</span>
           <span>{copy.length}: {state.wordLength}</span>

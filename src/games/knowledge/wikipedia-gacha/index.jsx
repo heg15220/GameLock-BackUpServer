@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import useMobileGameViewport from "../../../mobile/useMobileGameViewport";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
 import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
 import {
@@ -650,8 +651,25 @@ function TrophyCard({ trophy, pointsLabel, unlockedLabel, lockedLabel }) {
   );
 }
 
+function MobileNavButton({ label, badge, active, onClick }) {
+  return (
+    <button
+      type="button"
+      className={`wg-mobile-tab-btn${active ? " is-active" : ""}`}
+      aria-pressed={active}
+      onClick={onClick}
+    >
+      <span>{label}</span>
+      {badge ? <small>{badge}</small> : null}
+    </button>
+  );
+}
+
 export default function WikipediaGachaGame() {
   const browserLocale = useMemo(resolveBrowserLanguage, []);
+  const viewport = useMobileGameViewport();
+  const isMobileViewport = viewport.isMobile;
+  const isPortraitViewport = viewport.orientation === "portrait";
   const [locale, setLocale] = useState(browserLocale);
   const es = locale === "es";
   const formatNumber = useMemo(() => {
@@ -786,6 +804,7 @@ export default function WikipediaGachaGame() {
   const fanShiftTimeoutRef = useRef(null);
   const missionFeedTimeoutsRef = useRef([]);
   const rareDropTimeoutRef = useRef(null);
+  const shellScrollRef = useRef(null);
 
   useEffect(() => {
     tokenRef.current = browserToken;
@@ -845,6 +864,20 @@ export default function WikipediaGachaGame() {
     const intervalId = window.setInterval(() => setNowMs((current) => current + 200), 200);
     return () => window.clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    const targetPageSize = isMobileViewport ? 8 : 12;
+    setCollectionFilters((current) => (
+      current.pageSize === targetPageSize
+        ? current
+        : { ...current, pageSize: targetPageSize, page: 1 }
+    ));
+  }, [isMobileViewport]);
+
+  useEffect(() => {
+    if (!isMobileViewport) return;
+    shellScrollRef.current?.scrollTo?.({ top: 0, behavior: "auto" });
+  }, [activeTab, isMobileViewport]);
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -1432,8 +1465,97 @@ export default function WikipediaGachaGame() {
     (ms) => setNowMs((current) => current + ms)
   );
 
+  const shellClassName = [
+    "wg-shell",
+    "antialiased",
+    isMobileViewport ? "is-mobile" : "",
+    isMobileViewport && isPortraitViewport ? "is-mobile-portrait" : "",
+    isMobileViewport && !isPortraitViewport ? "is-mobile-landscape" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const mobileTabMeta = {
+    home: { badge: packStatus?.packsAvailable ? `${packStatus.packsAvailable}` : null },
+    collection: { badge: collectionSummary.uniqueCards ? `${collectionSummary.uniqueCards}` : null },
+    packs: { badge: currentPackCards.length ? `${currentPackCards.length}` : null },
+    missions: { badge: missionSummary.claimable ? `${missionSummary.claimable}` : null },
+    trophies: { badge: trophySummary.unlocked ? `${trophySummary.unlocked}` : null },
+  };
+
+  const articleModal = selectedArticle ? (
+    <div className={`wg-modal-backdrop${isMobileViewport ? " is-mobile" : ""}`} role="presentation" onClick={() => setSelectedArticle(null)}>
+      <article className={`wg-modal${isMobileViewport ? " is-mobile" : ""}`} onClick={(event) => event.stopPropagation()}>
+        <div className="wg-section-head">
+          <div>
+            <h3>{getTitle(selectedArticle)}</h3>
+            <p>{selectedArticle.topicGroup ?? text.archive}</p>
+          </div>
+          <button type="button" className="wg-secondary-btn" onClick={() => setSelectedArticle(null)}>{text.close}</button>
+        </div>
+        <div className="wg-modal-grid">
+          <div className="wg-modal-card-shell">
+            <div className="wg-modal-stack-preview">
+              <DetailFlipCard
+                card={selectedArticle}
+                archiveLabel={text.archive}
+                formatNumber={formatNumber}
+                isFlipped={detailCardFlipped}
+                onFlip={() => setDetailCardFlipped((current) => !current)}
+                flipHint={text.detailFlipHint}
+                flipBackHint={text.detailFlipBackHint}
+                detailDescriptionTitle={text.detailDescriptionTitle}
+              />
+            </div>
+          </div>
+          <div className="wg-article-stats">
+            <h4>{es ? "Estadisticas de la carta" : "Card stats"}</h4>
+            <p><span>ATK</span><strong>{formatNumber(selectedArticle.atk)}</strong></p>
+            <p><span>DEF</span><strong>{formatNumber(getDef(selectedArticle))}</strong></p>
+            <p><span>Q-Score</span><strong>{selectedArticle.qualityScore}</strong></p>
+            <p><span>{text.copies}</span><strong>{selectedArticle.copies ?? 0}</strong></p>
+            <div className="wg-category-block">
+              <span>{text.categories}</span>
+              <div className="wg-category-list">
+                {(selectedArticle.categories ?? []).length ? (selectedArticle.categories ?? []).map((category) => <span key={category}>{category}</span>) : <span>{text.noCategories}</span>}
+              </div>
+            </div>
+            <button type="button" className="wg-primary-btn" onClick={() => void handleOpenSource({ articleId: selectedArticle.articleId ?? selectedArticle.id, sourceUrl: selectedArticle.sourceUrl })} disabled={!selectedArticle.sourceUrl}>
+              {selectedArticle.sourceUrl ? (es ? "Ver en Wikipedia" : "View on Wikipedia") : text.noSource}
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  ) : null;
+
   return (
-    <section className="wg-shell antialiased">
+    <section className={shellClassName} ref={shellScrollRef}>
+      {isMobileViewport ? (
+        <header className="wg-mobile-header">
+          <div className="wg-mobile-header-top">
+            <div className="wg-mobile-brand">
+              <span className="wg-kicker">{text.archive}</span>
+              <h2>Wikipedia Gacha</h2>
+              <p>{es ? "Cliente móvil nativo del archivo y colección." : "Native mobile archive and collection client."}</p>
+            </div>
+            <div className="wg-mobile-header-actions">
+              <button
+                type="button"
+                className="wg-top-icon wg-lang-toggle"
+                aria-label={es ? "Switch to English" : "Cambiar a Espanol"}
+                onClick={() => setLocale((current) => (current === "es" ? "en" : "es"))}
+              >
+                {es ? "EN" : "ES"}
+              </button>
+              <button type="button" className="wg-top-icon wg-top-icon-info" aria-label={text.sync} onClick={() => void refreshAll(text.syncOk)}>
+                ?
+              </button>
+            </div>
+          </div>
+        </header>
+      ) : null}
+
       <nav className="wg-top-nav">
         <button
           type="button"
@@ -1950,67 +2072,156 @@ export default function WikipediaGachaGame() {
             </section>
           ) : null}
         {!loading && activeTab === "home" ? (
-          <section className="wg-support-grid">
-            <article className="wg-panel">
-              <div className="wg-section-head">
-                <h3>{text.quickRules}</h3>
-                {packStatus?.nextPackGuaranteedSrPlus ? <span className="wg-pill-accent">{text.guaranteed}</span> : null}
-              </div>
-              <div className="wg-rule-meters">
-                <article className="wg-rule-meter-card">
-                  <div className="wg-meter-head">
-                    <span>{es ? "Recarga" : "Refill"}</span>
-                    <strong>{packRegenPercent}%</strong>
-                  </div>
-                  <div className="wg-progress-bar is-refill">
-                    <span style={{ width: `${packRegenPercent}%` }} />
-                  </div>
-                </article>
-                <article className="wg-rule-meter-card">
-                  <div className="wg-meter-head">
+          isMobileViewport ? (
+            <section className="wg-mobile-home-utility">
+              <article className="wg-panel wg-mobile-compact-panel wg-mobile-economy-panel">
+                <div className="wg-mobile-status-rail">
+                  <article>
+                    <span>{text.dailyPacks}</span>
+                    <strong>{packStatus?.packsAvailable ?? "--"} / {packStatus?.maxPacks ?? "--"}</strong>
+                  </article>
+                  <article>
+                    <span>{text.nextPack}</span>
+                    <strong>{packStatus?.packsAvailable >= packStatus?.maxPacks ? text.packFull : formatCountdown(packStatus?.secondsUntilNextPack ?? 0)}</strong>
+                  </article>
+                  <article>
                     <span>Pity</span>
                     <strong>{packStatus?.pityCounter ?? 0} / {PACK_PITY_TARGET}</strong>
-                  </div>
-                  <div className="wg-progress-bar is-pity">
-                    <span style={{ width: `${Math.round(((packStatus?.pityCounter ?? 0) / PACK_PITY_TARGET) * 100)}%` }} />
-                  </div>
-                </article>
-              </div>
-              <ul className="wg-rule-list">
-                {(es
-                  ? [
-                      "Cada pack contiene 5 cartas.",
-                      "Cada 10 sobres abiertos, el siguiente es un sobre especial con garantia SR+.",
-                      "Los sobres regeneran 1 por minuto hasta el tope.",
-                      "Los duplicados entregan shards y el progreso queda ligado al navegador.",
-                    ]
-                  : [
-                      "Each pack contains 5 cards.",
-                      "Every 10 opened packs, the next one becomes a special pack with SR+ guarantee.",
-                      "Packs regenerate once per minute until the cap.",
-                      "Duplicates grant shards and progress stays bound to the browser.",
-                    ]).map((rule) => <li key={rule}>{rule}</li>)}
-              </ul>
-            </article>
-
-            <article className="wg-panel">
-              <div className="wg-section-head">
-                <div>
-                  <h3>{text.support}</h3>
-                  <p>{es ? "Exporta o importa un codigo para mover tu progreso." : "Export or import a code to move your progress."}</p>
+                  </article>
+                  <article>
+                    <span>{text.gems}</span>
+                    <strong>{formatNumber(dashboard?.profile?.gems ?? 0)}</strong>
+                  </article>
                 </div>
-                <span className="wg-pill-muted">{browserToken ? browserToken.slice(-8) : "--"}</span>
-              </div>
-              <div className="wg-recovery-box">
-                <button type="button" className="wg-secondary-btn" onClick={() => void handleExportRecovery()}>{text.exportCode}</button>
-                {recoveryCode ? <code>{recoveryCode}</code> : null}
-                <input type="text" value={recoveryImport} placeholder="WKVLT-XXXX-XXXX-XXXX" onChange={(event) => setRecoveryImport(event.target.value.toUpperCase())} />
-                <button type="button" className="wg-primary-btn" onClick={() => void handleImportRecovery()}>{text.importCode}</button>
-              </div>
-            </article>
-          </section>
+              </article>
+
+              <article className="wg-panel wg-mobile-compact-panel">
+                <div className="wg-section-head">
+                  <h3>{text.quickRules}</h3>
+                  {packStatus?.nextPackGuaranteedSrPlus ? <span className="wg-pill-accent">{text.guaranteed}</span> : null}
+                </div>
+                <div className="wg-rule-meters">
+                  <article className="wg-rule-meter-card">
+                    <div className="wg-meter-head">
+                      <span>{es ? "Recarga" : "Refill"}</span>
+                      <strong>{packRegenPercent}%</strong>
+                    </div>
+                    <div className="wg-progress-bar is-refill">
+                      <span style={{ width: `${packRegenPercent}%` }} />
+                    </div>
+                  </article>
+                  <article className="wg-rule-meter-card">
+                    <div className="wg-meter-head">
+                      <span>Pity</span>
+                      <strong>{packStatus?.pityCounter ?? 0} / {PACK_PITY_TARGET}</strong>
+                    </div>
+                    <div className="wg-progress-bar is-pity">
+                      <span style={{ width: `${Math.round(((packStatus?.pityCounter ?? 0) / PACK_PITY_TARGET) * 100)}%` }} />
+                    </div>
+                  </article>
+                </div>
+                <div className="wg-mobile-rule-pills">
+                  {(es
+                    ? ["5 cartas", "SR+ cada 10", "1 sobre/min", "Dupes -> shards"]
+                    : ["5 cards", "SR+ every 10", "1 pack/min", "Dupes -> shards"]).map((rule) => (
+                    <span key={rule}>{rule}</span>
+                  ))}
+                </div>
+              </article>
+
+              <article className="wg-panel wg-mobile-compact-panel">
+                <div className="wg-section-head">
+                  <div>
+                    <h3>{text.support}</h3>
+                    <p>{es ? "Respaldo rápido del progreso." : "Quick progress backup."}</p>
+                  </div>
+                  <span className="wg-pill-muted">{browserToken ? browserToken.slice(-8) : "--"}</span>
+                </div>
+                <div className="wg-recovery-box">
+                  <button type="button" className="wg-secondary-btn" onClick={() => void handleExportRecovery()}>{text.exportCode}</button>
+                  {recoveryCode ? <code>{recoveryCode}</code> : null}
+                  <input type="text" value={recoveryImport} placeholder="WKVLT-XXXX-XXXX-XXXX" onChange={(event) => setRecoveryImport(event.target.value.toUpperCase())} />
+                  <button type="button" className="wg-primary-btn" onClick={() => void handleImportRecovery()}>{text.importCode}</button>
+                </div>
+              </article>
+            </section>
+          ) : (
+            <section className="wg-support-grid">
+              <article className="wg-panel">
+                <div className="wg-section-head">
+                  <h3>{text.quickRules}</h3>
+                  {packStatus?.nextPackGuaranteedSrPlus ? <span className="wg-pill-accent">{text.guaranteed}</span> : null}
+                </div>
+                <div className="wg-rule-meters">
+                  <article className="wg-rule-meter-card">
+                    <div className="wg-meter-head">
+                      <span>{es ? "Recarga" : "Refill"}</span>
+                      <strong>{packRegenPercent}%</strong>
+                    </div>
+                    <div className="wg-progress-bar is-refill">
+                      <span style={{ width: `${packRegenPercent}%` }} />
+                    </div>
+                  </article>
+                  <article className="wg-rule-meter-card">
+                    <div className="wg-meter-head">
+                      <span>Pity</span>
+                      <strong>{packStatus?.pityCounter ?? 0} / {PACK_PITY_TARGET}</strong>
+                    </div>
+                    <div className="wg-progress-bar is-pity">
+                      <span style={{ width: `${Math.round(((packStatus?.pityCounter ?? 0) / PACK_PITY_TARGET) * 100)}%` }} />
+                    </div>
+                  </article>
+                </div>
+                <ul className="wg-rule-list">
+                  {(es
+                    ? [
+                        "Cada pack contiene 5 cartas.",
+                        "Cada 10 sobres abiertos, el siguiente es un sobre especial con garantia SR+.",
+                        "Los sobres regeneran 1 por minuto hasta el tope.",
+                        "Los duplicados entregan shards y el progreso queda ligado al navegador.",
+                      ]
+                    : [
+                        "Each pack contains 5 cards.",
+                        "Every 10 opened packs, the next one becomes a special pack with SR+ guarantee.",
+                        "Packs regenerate once per minute until the cap.",
+                        "Duplicates grant shards and progress stays bound to the browser.",
+                      ]).map((rule) => <li key={rule}>{rule}</li>)}
+                </ul>
+              </article>
+
+              <article className="wg-panel">
+                <div className="wg-section-head">
+                  <div>
+                    <h3>{text.support}</h3>
+                    <p>{es ? "Exporta o importa un codigo para mover tu progreso." : "Export or import a code to move your progress."}</p>
+                  </div>
+                  <span className="wg-pill-muted">{browserToken ? browserToken.slice(-8) : "--"}</span>
+                </div>
+                <div className="wg-recovery-box">
+                  <button type="button" className="wg-secondary-btn" onClick={() => void handleExportRecovery()}>{text.exportCode}</button>
+                  {recoveryCode ? <code>{recoveryCode}</code> : null}
+                  <input type="text" value={recoveryImport} placeholder="WKVLT-XXXX-XXXX-XXXX" onChange={(event) => setRecoveryImport(event.target.value.toUpperCase())} />
+                  <button type="button" className="wg-primary-btn" onClick={() => void handleImportRecovery()}>{text.importCode}</button>
+                </div>
+              </article>
+            </section>
+          )
         ) : null}
       </main>
+
+      {isMobileViewport ? (
+        <nav className="wg-mobile-tabbar" aria-label={es ? "Secciones del archivo" : "Archive sections"}>
+          {navTabs.map((tab) => (
+            <MobileNavButton
+              key={tab.id}
+              label={tab.label}
+              badge={mobileTabMeta[tab.id]?.badge}
+              active={activeTab === tab.id}
+              onClick={() => setActiveTab(tab.id)}
+            />
+          ))}
+        </nav>
+      ) : null}
 
       <footer className="wg-footer">
         <p className="wg-footer-note">
@@ -2032,51 +2243,7 @@ export default function WikipediaGachaGame() {
         </div>
       </footer>
 
-      {selectedArticle ? (
-        <div className="wg-modal-backdrop" role="presentation" onClick={() => setSelectedArticle(null)}>
-          <article className="wg-modal" onClick={(event) => event.stopPropagation()}>
-            <div className="wg-section-head">
-              <div>
-                <h3>{getTitle(selectedArticle)}</h3>
-                <p>{selectedArticle.topicGroup ?? text.archive}</p>
-              </div>
-              <button type="button" className="wg-secondary-btn" onClick={() => setSelectedArticle(null)}>{text.close}</button>
-            </div>
-            <div className="wg-modal-grid">
-              <div className="wg-modal-card-shell">
-                <div className="wg-modal-stack-preview">
-                  <DetailFlipCard
-                    card={selectedArticle}
-                    archiveLabel={text.archive}
-                    formatNumber={formatNumber}
-                    isFlipped={detailCardFlipped}
-                    onFlip={() => setDetailCardFlipped((current) => !current)}
-                    flipHint={text.detailFlipHint}
-                    flipBackHint={text.detailFlipBackHint}
-                    detailDescriptionTitle={text.detailDescriptionTitle}
-                  />
-                </div>
-              </div>
-              <div className="wg-article-stats">
-                <h4>{es ? "Estadisticas de la carta" : "Card stats"}</h4>
-                <p><span>ATK</span><strong>{formatNumber(selectedArticle.atk)}</strong></p>
-                <p><span>DEF</span><strong>{formatNumber(getDef(selectedArticle))}</strong></p>
-                <p><span>Q-Score</span><strong>{selectedArticle.qualityScore}</strong></p>
-                <p><span>{text.copies}</span><strong>{selectedArticle.copies ?? 0}</strong></p>
-                <div className="wg-category-block">
-                  <span>{text.categories}</span>
-                  <div className="wg-category-list">
-                    {(selectedArticle.categories ?? []).length ? (selectedArticle.categories ?? []).map((category) => <span key={category}>{category}</span>) : <span>{text.noCategories}</span>}
-                  </div>
-                </div>
-                <button type="button" className="wg-primary-btn" onClick={() => void handleOpenSource({ articleId: selectedArticle.articleId ?? selectedArticle.id, sourceUrl: selectedArticle.sourceUrl })} disabled={!selectedArticle.sourceUrl}>
-                  {selectedArticle.sourceUrl ? (es ? "Ver en Wikipedia" : "View on Wikipedia") : text.noSource}
-                </button>
-              </div>
-            </div>
-          </article>
-        </div>
-      ) : null}
+      {articleModal}
     </section>
   );
 }
