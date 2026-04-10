@@ -7,6 +7,10 @@ import MobileGameShell from "../mobile/MobileGameShell";
 import { getResponsiveMobileShellMode } from "../mobile/mobileGameProfiles";
 import { NATIVE_MOBILE_GAME_IDS } from "../mobile/nativeMobileGameIds";
 
+const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
+  "strategy-poker-holdem-no-bet",
+]);
+
 function GameLaunchModal({ game, onClose }) {
   const { t, locale } = useTranslations();
   const lg = getLocalizedGame(game, locale);
@@ -43,10 +47,14 @@ function GameLaunchModal({ game, onClose }) {
 
   const mobileShellMode = getResponsiveMobileShellMode(game, viewport);
   const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(String(game.category ?? ""));
+  const forceDesktopTabletLayout =
+    viewport.formFactor === "tablet" &&
+    TABLET_DESKTOP_LAYOUT_GAME_IDS.has(String(game.id ?? ""));
   const useMobileGameShell =
     mobileShellEligible &&
     viewport.isMobile &&
-    !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? ""));
+    !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? "")) &&
+    !forceDesktopTabletLayout;
   const viewportFormFactor = viewport.formFactor ?? "desktop";
   const launchPlaygroundClassName = [
     "game-playground",

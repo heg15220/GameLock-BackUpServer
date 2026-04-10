@@ -280,7 +280,8 @@ const readMobileViewport = () => {
   if (typeof window === "undefined") return { isMobile: false, isPortrait: false };
   const width = Math.max(window.innerWidth || 0, document.documentElement?.clientWidth || 0);
   const height = Math.max(window.innerHeight || 0, document.documentElement?.clientHeight || 0);
-  return { isMobile: width <= 920, isPortrait: height >= width };
+  const shortestSide = Math.min(width, height);
+  return { isMobile: shortestSide <= 600, isPortrait: height >= width };
 };
 const localizePlayerName = (name, locale) => {
   if (locale === "es") return name;

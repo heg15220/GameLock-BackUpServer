@@ -243,6 +243,10 @@ const UI_COPY_BY_LOCALE = {
   }
 };
 
+const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
+  "strategy-poker-holdem-no-bet",
+]);
+
 function GamePlayground({ game }) {
   const locale = useMemo(resolveBrowserLanguage, []);
   const [viewport, setViewport] = useState(getViewportProfile);
@@ -277,10 +281,14 @@ function GamePlayground({ game }) {
   const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(categoryKey);
   const mobileShellMode = getResponsiveMobileShellMode(game, viewport);
   const viewportFormFactor = viewport.formFactor ?? "desktop";
+  const forceDesktopTabletLayout =
+    viewportFormFactor === "tablet" &&
+    TABLET_DESKTOP_LAYOUT_GAME_IDS.has(String(game.id ?? ""));
   const useMobileGameShell =
     mobileShellEligible &&
     viewport.isMobile &&
-    !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? ""));
+    !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? "")) &&
+    !forceDesktopTabletLayout;
   const sectionClassName = [
     "game-playground",
     useMobileGameShell ? "playground-mobile-enabled" : "",
