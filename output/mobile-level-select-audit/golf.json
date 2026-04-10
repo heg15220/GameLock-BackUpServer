@@ -1,0 +1,27 @@
+{
+  "shell": {
+    "x": 18.90625,
+    "y": 119.40625,
+    "w": 352.1875,
+    "h": 0
+  },
+  "overlay": {
+    "x": 19.90625,
+    "y": 134.796875,
+    "w": 350.1875,
+    "h": 196.96875
+  },
+  "card": {
+    "x": 39.1875,
+    "y": 147.59375,
+    "w": 311.609375,
+    "h": 272.515625
+  },
+  "grid": null,
+  "head": null,
+  "gridScrollHeight": null,
+  "gridClientHeight": null,
+  "cardScrollHeight": 271,
+  "cardClientHeight": 271,
+  "bodyClass": ""
+}

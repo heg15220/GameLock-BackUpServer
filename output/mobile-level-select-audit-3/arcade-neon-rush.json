@@ -1,0 +1,92 @@
+{
+  "shell": {
+    "x": 18.90625,
+    "y": 119.40625,
+    "w": 352.1875,
+    "h": 299.453125,
+    "scrollHeight": 299,
+    "clientHeight": 299
+  },
+  "iframe": {
+    "x": 19.90625,
+    "y": 120.40625,
+    "w": 350.1875,
+    "h": 297.453125,
+    "scrollHeight": 297,
+    "clientHeight": 297
+  },
+  "state": {
+    "mode": "arcade",
+    "variant": "neon-rush",
+    "coordinates": "x advances to the right; y increases downward.",
+    "phase": "ls",
+    "level": {
+      "index": 0,
+      "number": 1,
+      "name": "STARFALL",
+      "difficulty": "easy",
+      "length": 4400
+    },
+    "player": {
+      "x": 120,
+      "y": 330,
+      "vy": 0,
+      "onGround": true,
+      "jumpBuffer": 0,
+      "coyoteFrames": 0,
+      "airJumpsUsed": 0,
+      "airJumpsLeft": 1
+    },
+    "score": 0,
+    "best": 0,
+    "attempt": 1,
+    "assistScale": 1,
+    "progressPct": 3,
+    "timerFrames": 0,
+    "upcoming": []
+  },
+  "inner": {
+    "select": {
+      "x": 0,
+      "y": 0,
+      "w": 350,
+      "h": 297,
+      "scrollHeight": 3007,
+      "clientHeight": 297
+    },
+    "grid": {
+      "x": 12,
+      "y": 78,
+      "w": 326,
+      "h": 2917,
+      "scrollHeight": 2917,
+      "clientHeight": 2917
+    },
+    "heading": {
+      "x": 67.359375,
+      "y": 14,
+      "w": 215.28125,
+      "h": 32,
+      "scrollHeight": 32,
+      "clientHeight": 32
+    },
+    "sub": {
+      "x": 114.796875,
+      "y": 50,
+      "w": 120.390625,
+      "h": 16,
+      "scrollHeight": 16,
+      "clientHeight": 16
+    },
+    "body": {
+      "scrollHeight": 297,
+      "clientHeight": 297,
+      "className": "mobile-shell-embed mobile-shell-landscape"
+    },
+    "html": {
+      "className": "mobile-shell-embed mobile-shell-landscape",
+      "widthVar": "350px",
+      "heightVar": "297px"
+    }
+  }
+}

@@ -238,7 +238,14 @@ function FluxBasinGame() {
   const readyMessage = isTouchLayout ? ui.messages.readyTouch : ui.messages.ready;
 
   return (
-    <div className={`mini-game flux-basin-game flux-basin-game--${activeDeviceProfile}`}>
+    <div
+      className={[
+        "mini-game",
+        "flux-basin-game",
+        `flux-basin-game--${activeDeviceProfile}`,
+        `flux-basin-mode-${snapshot.mode}`,
+      ].join(" ")}
+    >
       <div className="mini-head flux-basin-head">
         <div>
           <p className="flux-basin-world">{ui.worldLabel}</p>

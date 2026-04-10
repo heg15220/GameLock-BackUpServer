@@ -1,0 +1,36 @@
+{
+  "shell": {
+    "x": 18.90625,
+    "y": 119.40625,
+    "w": 352.1875,
+    "h": 299.453125
+  },
+  "shellVars": {
+    "width": "",
+    "height": ""
+  },
+  "wrap": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0
+  },
+  "select": {
+    "x": 0,
+    "y": 0,
+    "w": 350,
+    "h": 297
+  },
+  "grid": {
+    "x": 14,
+    "y": 95,
+    "w": 322,
+    "h": 2917
+  },
+  "gridScrollHeight": 2917,
+  "gridClientHeight": 2917,
+  "bodyScrollHeight": 297,
+  "bodyClientHeight": 297,
+  "htmlClass": "",
+  "bodyClass": ""
+}

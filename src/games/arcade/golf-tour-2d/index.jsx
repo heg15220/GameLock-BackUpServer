@@ -218,7 +218,14 @@ function GolfTour2DGame() {
   const modeTag = ui.modeTags[snapshot.mode] ?? ui.modeTags.menu;
   const isTouchLayout = snapshot.deviceProfile === "touch" || deviceProfile === "touch";
   return (
-    <div className={`mini-game golf-tour-game ${isTouchLayout ? "golf-tour-touch" : "golf-tour-desktop"}`}>
+    <div
+      className={[
+        "mini-game",
+        "golf-tour-game",
+        isTouchLayout ? "golf-tour-touch" : "golf-tour-desktop",
+        `golf-tour-mode-${snapshot.mode}`,
+      ].join(" ")}
+    >
       <div className="mini-head golf-tour-head">
         <div>
           <p className="golf-tour-tag">{modeTag}</p>

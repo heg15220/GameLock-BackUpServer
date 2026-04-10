@@ -1879,14 +1879,6 @@ function OrchardMatchBlastGame() {
       </div>
 
       <div className="orchard-shell phaser-canvas-shell" ref={shellRef}>
-        {isTouchDevice ? (
-          <div className="orchard-mobile-stage-hud" aria-hidden="true">
-            <span>{copy.score}: <strong>{formatScore(game.score)}</strong></span>
-            <span>{copy.time}: <strong>{fmtTime(game.timeMs)}</strong></span>
-            <span>{copy.moves}: <strong>{game.moves}</strong></span>
-            <span>{copy.bloomCharge}: <strong>{Math.round(game.bloomCharge)}%</strong></span>
-          </div>
-        ) : null}
         <canvas
           ref={canvasRef}
           className="orchard-canvas"

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { syncEmbeddedFrameLayout } from "../../../utils/syncEmbeddedFrameLayout";
 
 const FALLBACK_PAYLOAD = JSON.stringify({
   mode: "arcade",
@@ -51,6 +52,27 @@ export default function NeonRushGame() {
     };
   }, []);
 
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame || !isReady) {
+      return undefined;
+    }
+
+    const syncLayout = () => {
+      syncEmbeddedFrameLayout(frame, "arcade-neon-rush");
+    };
+
+    syncLayout();
+    const resizeObserver = new ResizeObserver(syncLayout);
+    resizeObserver.observe(frame);
+    window.addEventListener("resize", syncLayout);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", syncLayout);
+    };
+  }, [isReady]);
+
   return (
     <div className="arcade-neon-rush-shell">
       {!isReady ? (
@@ -64,7 +86,11 @@ export default function NeonRushGame() {
           src="/arcade/neon-rush/index.html"
           title="Neon Rush"
           className="arcade-neon-rush-frame"
-          onLoad={() => setIsReady(true)}
+          onLoad={() => {
+            setIsReady(true);
+            syncEmbeddedFrameLayout(frameRef.current, "arcade-neon-rush");
+            frameRef.current?.contentWindow?.focus?.();
+          }}
         />
       </div>
     </div>

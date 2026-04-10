@@ -1,0 +1,59 @@
+{
+  "mode": "levelSelect",
+  "shell": {
+    "x": 18.90625,
+    "y": 119.40625,
+    "w": 352.1875,
+    "h": 0,
+    "scrollHeight": 211,
+    "clientHeight": 0
+  },
+  "overlay": {
+    "x": 34.015625,
+    "y": 134.515625,
+    "w": 321.96875,
+    "h": 181.09375,
+    "scrollHeight": 181,
+    "clientHeight": 181
+  },
+  "card": {
+    "x": 50.015625,
+    "y": 150.515625,
+    "w": 289.96875,
+    "h": 149.09375,
+    "scrollHeight": 147,
+    "clientHeight": 147
+  },
+  "head": {
+    "x": 65.40625,
+    "y": 165.90625,
+    "w": 259.1875,
+    "h": 70.859375,
+    "scrollHeight": 71,
+    "clientHeight": 71
+  },
+  "grid": {
+    "x": 65.40625,
+    "y": 247.640625,
+    "w": 259.1875,
+    "h": 36.578125,
+    "scrollHeight": 4529,
+    "clientHeight": 37
+  },
+  "stageWrap": {
+    "x": 18.90625,
+    "y": 119.40625,
+    "w": 352.1875,
+    "h": 211.3125,
+    "scrollHeight": 209,
+    "clientHeight": 209
+  },
+  "canvasShell": {
+    "x": 33.015625,
+    "y": 133.515625,
+    "w": 323.96875,
+    "h": 183.09375,
+    "scrollHeight": 181,
+    "clientHeight": 181
+  }
+}

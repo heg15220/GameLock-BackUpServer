@@ -2209,6 +2209,93 @@
   max-height: 100% !important;
 }
 
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game.golf-tour-mode-levelSelect .golf-tour-canvas-shell,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-canvas-shell {
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game.golf-tour-mode-levelSelect .golf-tour-overlay,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-overlay {
+  place-items: stretch;
+  align-content: stretch;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game.golf-tour-mode-levelSelect .golf-tour-overlay-card,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-overlay-card {
+  width: 100%;
+  max-height: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game.golf-tour-mode-levelSelect .golf-tour-overlay-card {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game.golf-tour-mode-levelSelect .golf-tour-level-grid,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-level-grid {
+  max-height: none;
+  min-height: 0;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game.golf-tour-mode-levelSelect .golf-tour-level-grid {
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-overlay-card {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.4rem;
+  padding: 0.7rem;
+  border-radius: 18px;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-overlay-title {
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-level-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.32rem;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-overlay {
+  padding: 0.5rem;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-overlay-title h5 {
+  font-size: 1rem;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-overlay-eyebrow {
+  font-size: 0.62rem;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-overlay-title button {
+  font-size: 0.72rem;
+  padding: 0.46rem 0.62rem;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-level-button {
+  min-height: 62px;
+  padding: 0.42rem 0.46rem;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-level-button strong {
+  font-size: 0.88rem;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-level-button span {
+  font-size: 0.66rem;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game.flux-basin-mode-levelSelect .flux-basin-level-button em {
+  font-size: 0.72rem;
+}
+
 .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pinball-shell {
   width: 100%;
   height: 100%;
