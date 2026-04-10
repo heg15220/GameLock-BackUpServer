@@ -321,6 +321,13 @@
   min-height: 100%;
 }
 
+.mobile-game-shell__controls-primary,
+.mobile-game-shell__controls-secondary {
+  display: grid;
+  gap: 0.7rem;
+  min-height: 0;
+}
+
 .mobile-game-shell__hinge {
   position: absolute;
   top: -0.42rem;
@@ -3100,6 +3107,22 @@
   display: none !important;
 }
 
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .r2p__touch,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .mtr__touchControls,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .sky-runner-dx-touch-controls,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .pacman-touch-controls,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .pong-touch-controls,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .flux-basin-touch-controls,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .golf-tour-touch-controls,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .tw-touch-controls,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .pinball-touch-controls,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .basketball-court-controls,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .bowling-control-deck,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .billiards-control-deck,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__stage-viewport .head-soccer-pro-controls {
+  display: none !important;
+}
+
 .mobile-game-shell__stage-viewport .mini-game,
 .mobile-game-shell__stage-viewport .cosmic-vanguard-game,
 .mobile-game-shell__stage-viewport .bubble-game,
@@ -3333,6 +3356,376 @@
   grid-template-columns: minmax(0, 1.28fr) minmax(320px, 0.72fr);
 }
 
+.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(320px, 1fr) auto;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__hardware {
+  gap: 0.58rem;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-panel {
+  overflow: visible;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-stack {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.08fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 0.82rem;
+  min-height: 0;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-primary {
+  position: sticky;
+  top: 0;
+  align-self: start;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-secondary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__controls-secondary,
+.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-bowling-pro-tour"] .mobile-game-shell__controls-secondary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Tablet landscape: per-game arcade and sports layouts */
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.42fr) minmax(372px, 0.58fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-basketball-court"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.58fr) minmax(318px, 0.5fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-race2dpro"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.52fr) minmax(332px, 0.56fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.48fr) minmax(324px, 0.52fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-billar-pool-club"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.62fr) minmax(356px, 0.56fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bowling-pro-tour"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.56fr) minmax(332px, 0.52fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.46fr) minmax(344px, 0.54fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.42fr) minmax(360px, 0.58fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-territory-war"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.38fr) minmax(364px, 0.62fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-archery-horizon"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.44fr) minmax(352px, 0.56fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pacman-maze-protocol"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-ice-strike-pro"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-crypt"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-kitchen-rush-2d"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.5fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.46fr) minmax(336px, 0.54fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pinball-wizard"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.08fr) minmax(388px, 0.78fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-snake-classic"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-breakout-1986"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-space-invaders"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-tetris-blockfall"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-frogger-crossing"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-bomber-grid"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-galaga-quantum"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-qbert-prism"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-lunar-lander-orbit"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-centipede-circuit"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-river-raid-neon"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-tron-lightcycles"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-road-fighter-synth"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.58fr) minmax(300px, 0.46fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.46fr) minmax(338px, 0.54fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.52fr) minmax(330px, 0.48fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.54fr) minmax(324px, 0.46fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.28fr) minmax(376px, 0.72fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.62fr) minmax(300px, 0.38fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.32fr) minmax(360px, 0.68fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-control-deck__clusters,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-control-deck__clusters,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-orchard-match-blast"] .mobile-control-deck__clusters,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-control-deck__clusters,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-control-deck__clusters,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-control-deck__clusters {
+  grid-template-columns: minmax(176px, 0.76fr) minmax(0, 1.24fr);
+  min-height: 190px;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-control-deck__meta p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-control-deck__meta p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-orchard-match-blast"] .mobile-control-deck__meta p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-control-deck__meta p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-control-deck__meta p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-control-deck__meta p {
+  max-width: 34ch;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-control-deck__cluster--actions,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-control-deck__cluster--actions,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-control-deck__cluster--actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-control-deck__utilities,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-control-deck__utilities,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-control-deck__utilities {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__touch-copy {
+  gap: 0.72rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-game-shell__touch-copy > strong,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-game-shell__touch-copy > p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__touch-copy > strong,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__touch-copy > p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__touch-copy > strong,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__touch-copy > p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-game-shell__touch-copy > strong,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-game-shell__touch-copy > p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__touch-copy > strong,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__touch-copy > p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__touch-copy > strong,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__touch-copy > p {
+  display: none;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-stage {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0.42rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-canvas-shell {
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-basketball-court"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .basketball-court-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bowling-pro-tour"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .bowling-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pacman-maze-protocol"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pacman-stage-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pong-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-snake-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-breakout-1986"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-space-invaders"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-tetris-blockfall"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-frogger-crossing"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-bomber-grid"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-galaga-quantum"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-qbert-prism"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-lunar-lander-orbit"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-centipede-circuit"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-river-raid-neon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-tron-lightcycles"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-road-fighter-synth"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.35rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-basketball-court"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .basketball-court-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bowling-pro-tour"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .bowling-canvas-host,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-canvas-host,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pacman-maze-protocol"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .sky-runner-dx-canvas-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .phaser-canvas-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-snake-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-breakout-1986"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-space-invaders"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-tetris-blockfall"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-frogger-crossing"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-bomber-grid"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-galaga-quantum"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-qbert-prism"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-lunar-lander-orbit"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-centipede-circuit"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-river-raid-neon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-tron-lightcycles"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-road-fighter-synth"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas {
+  width: 100% !important;
+  max-width: min(100%, 940px) !important;
+  height: auto !important;
+  max-height: 100% !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-billar-pool-club"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .billiards-canvas-host {
+  max-width: min(100%, 940px);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-stage-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 182px;
+  gap: 0.62rem;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  padding: 0.35rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-stage {
+  border-radius: 22px;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-touch-panel {
+  display: grid;
+  align-content: end;
+  min-height: 0;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-canvas-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-canvas-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-canvas-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .orchard-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-kitchen-rush-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .kitchen-rush-canvas-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .fighter-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame {
+  max-width: min(100%, 960px);
+  margin-inline: auto !important;
+  border-radius: 22px;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay-card,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-overlay-card,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-overlay-card {
+  max-width: min(100%, 760px);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-level-grid,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-level-grid,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-level-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pinball-wizard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pinball-shell {
+  justify-content: center;
+  padding-inline: 0.45rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pinball-wizard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pinball-canvas {
+  max-width: min(100%, 430px) !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .bubble-game {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-bubble-storm"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .bubble-canvas {
+  width: min(100%, 620px) !important;
+  height: auto !important;
+  max-height: 100% !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-board-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.42rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-board {
+  width: min(100%, 560px);
+  max-width: 100%;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-territory-war"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .tw-stage-wrap {
+  width: 100%;
+  height: 100%;
+  padding: 0.4rem;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-ice-strike-pro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-crypt"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] canvas {
+  max-width: min(100%, 960px) !important;
+  margin-inline: auto;
+}
+
 .mobile-game-shell--fullscreen {
   min-height: 100dvh;
 }
@@ -3357,6 +3750,29 @@
 .mobile-game-shell--fullscreen.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__body {
   grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.6fr);
   gap: 0.45rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body,
+.mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(320px, 1fr) auto;
+}
+
+.mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-stage {
+  gap: 0;
+}
+
+.mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-controls,
+.mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-tournament-board,
+.mobile-game-shell--tablet-landscape-stack[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__touch,
+.mobile-game-shell--tablet-landscape-stack[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__keyHint,
+.mobile-game-shell--tablet-landscape-stack[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__touchControls,
+.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-touch-panel {
+  display: none !important;
+}
+
+.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-stage-panel {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 @media (max-width: 760px) {

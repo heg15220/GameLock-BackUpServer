@@ -4087,3 +4087,14 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Pendiente inmediato: validar build y capturas portrait/landscape con juegos representativos del catalogo para detectar overrides especificos que aun necesiten ajuste.
 - Validacion 2026-04-10: build OK con `NODE_OPTIONS=--max-old-space-size=4096` y auditoria visual en `output/tablet-shell-audit/` para Bowling, Reactor Toss, Refranes y Baraja IA en tablet portrait (820x1180) y landscape (1180x820).
 - Resultado de QA: todos los escenarios entran con `formFactor: tablet`, sin errores de consola, y con grids distintos por orientacion (`rows` en portrait, `columns` en landscape) tanto en shells `dual-screen` como `mobile-first`.
+
+## 2026-04-10 - Tablet horizontal desde cero para Arcade/Juegos/Deportes
+- Shell horizontal de tablet consolidado como layout principal para Arcade, Juegos y Deportes con escenario a la izquierda y rail lateral de estado/configuracion/controles a la derecha.
+- src/mobile/mobileGameProfiles.js ahora fuerza deck lateral tambien en tablet landscape para los arcade touch-first y anade perfiles especificos de control para Reactor Toss, Golf Tour, Orchard Match Blast, Bubble Storm, Neon Rush, Buscaminas, Race2DPro y Sunset Slipstream.
+- src/mobile/mobileStageProfiles.js incorpora acing-race2dpro y acing-sunset-slipstream para aislar correctamente el escenario dentro del shell tablet.
+- src/mobile/mobile-game-shell.css suma reglas landscape por juego para Arcade/Juegos/Deportes, tamanos del rail lateral y limpieza de controles tactiles internos duplicados cuando el shell externo ya muestra joystick + botones.
+- src/games/arcade/bubble-storm/index.jsx y untime.js reciben soporte real de apuntado por teclado continuo para que el joystick lateral de tablet tenga efecto autentico.
+- public/arcade/neon-rush/index.html acepta reinicio por R para integrarlo con el bloque lateral de acciones.
+- Validacion: 
+pm run build OK fuera del sandbox con NODE_OPTIONS=--max-old-space-size=4096.
+- QA parcial ejecutada sobre build local en output/tablet-landscape-controls/ para Head Soccer, Basketball, Reactor Toss, Bubble Storm y Dig The Hole. El cliente Playwright capta sobre todo el area del juego; queda pendiente una pasada de captura full-shell si se quiere documentacion visual exhaustiva de toda la carcasa tablet.

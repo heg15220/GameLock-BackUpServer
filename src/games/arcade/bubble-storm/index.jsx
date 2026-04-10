@@ -19,7 +19,11 @@ export default function BubbleStormGame() {
       if (e.code === 'Space' || e.code === 'Tab') e.preventDefault();
       rt.handleKey(true, e.key);
     };
+    const onKeyUp = (e) => {
+      rt.handleKey(false, e.key);
+    };
     window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
 
     rt.start();
     rtRef.current = rt;
@@ -27,6 +31,7 @@ export default function BubbleStormGame() {
     return () => {
       rt.destroy();
       window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
       rtRef.current = null;
     };
   }, []);

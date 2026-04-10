@@ -21,6 +21,9 @@ const MIN_ANGLE   = 12 * Math.PI / 180; // prevent near-horizontal shots
 const PUSH_SHOTS  = 8;               // shots before a new top row is pushed in
 const PUSH_SPEED  = 95;              // px/s push animation
 const MATCH_MIN   = 3;               // bubbles needed to pop
+const KEY_AIM_SPEED = 2.3;
+const KEY_VERTICAL_PULL = 4.6;
+const KEY_VERTICAL_SPREAD = 1.8;
 
 export const COLORS = [
   '#ff4466',  // 0  red
@@ -95,14 +98,34 @@ export default class BubbleRuntime {
   }
 
   handleKey(down, key) {
+    const keyName = String(key || '');
+    const normalized = keyName.toLowerCase();
+
+    if (normalized === 'arrowleft' || normalized === 'a') {
+      this.keyAim.left = down;
+      return;
+    }
+    if (normalized === 'arrowright' || normalized === 'd') {
+      this.keyAim.right = down;
+      return;
+    }
+    if (normalized === 'arrowup' || normalized === 'w') {
+      this.keyAim.up = down;
+      return;
+    }
+    if (normalized === 'arrowdown') {
+      this.keyAim.down = down;
+      return;
+    }
+
     if (!down) return;
-    if (key === ' ' || key === 'Enter') {
+    if (keyName === ' ' || keyName === 'Enter') {
       if (this.phase === 'menu')    { this._startGame(); return; }
       if (this.phase === 'gameover'){ this._init();      return; }
       if (this.phase === 'playing') { this.shoot();      return; }
     }
-    if ((key === 'r' || key === 'R') && this.phase !== 'menu') { this._init(); this._startGame(); }
-    if (key === 'Tab' || key === 's' || key === 'S') { this.swap(); }
+    if (normalized === 'r' && this.phase !== 'menu') { this._init(); this._startGame(); }
+    if (keyName === 'Tab' || normalized === 's') { this.swap(); }
   }
 
   advanceTime(ms) { this._tick(ms / 1000); }
@@ -160,6 +183,7 @@ export default class BubbleRuntime {
     this.currentColor = Math.floor(this._rand() * COLORS.length);
     this.nextColor    = Math.floor(this._rand() * COLORS.length);
     this.grid         = this._buildGrid(INIT_ROWS);
+    this.keyAim       = { up: false, down: false, left: false, right: false };
   }
 
   _startGame() {
@@ -177,6 +201,7 @@ export default class BubbleRuntime {
     this.currentColor = Math.floor(this._rand() * COLORS.length);
     this.nextColor    = Math.floor(this._rand() * COLORS.length);
     this.grid         = this._buildGrid(INIT_ROWS);
+    this.keyAim       = { up: false, down: false, left: false, right: false };
     this.phase        = 'playing';
   }
 
@@ -267,6 +292,7 @@ export default class BubbleRuntime {
 
     this._updateParticles(dt);
     this._updateFalling(dt);
+    this._updateAimFromKeys(dt);
 
     if (this.phase !== 'playing') return;
 
@@ -283,6 +309,24 @@ export default class BubbleRuntime {
     if (this.bullet && !this.isPushing) this._tickBullet(dt);
 
     if (this.onSnapshot) this.onSnapshot(this._snapshot());
+  }
+
+  _updateAimFromKeys(dt) {
+    if (!this.keyAim) return;
+
+    const horizontal = (this.keyAim.right ? 1 : 0) - (this.keyAim.left ? 1 : 0);
+    let nextAngle = this.aimAngle + horizontal * dt * KEY_AIM_SPEED;
+
+    if (this.keyAim.up) {
+      nextAngle += (-Math.PI / 2 - nextAngle) * Math.min(1, dt * KEY_VERTICAL_PULL);
+    }
+
+    if (this.keyAim.down) {
+      const spreadDirection = nextAngle <= -Math.PI / 2 ? -1 : 1;
+      nextAngle += spreadDirection * dt * KEY_VERTICAL_SPREAD;
+    }
+
+    this.aimAngle = Math.max(-Math.PI + MIN_ANGLE, Math.min(-MIN_ANGLE, nextAngle));
   }
 
   // ── push ─────────────────────────────────────────────────────────────────

@@ -11,6 +11,14 @@ import { getMobileStageSelectors } from "./mobileStageProfiles";
 import useMobileRuntimeSnapshot from "./useMobileRuntimeSnapshot";
 import "./mobile-game-shell.css";
 
+const TABLET_LANDSCAPE_STACK_CATEGORIES = new Set([
+  "arcade",
+  "juegos",
+  "games",
+  "deportes",
+  "sports",
+]);
+
 function resolveShellTheme(game) {
   const categoryKey = String(game?.category ?? "");
   if (categoryKey === "Estrategia" || categoryKey === "Strategy") {
@@ -145,6 +153,11 @@ export default function MobileGameShell({
   const isDualScreen = shellMode === "dual-screen";
   const isPortrait = viewport.orientation === "portrait";
   const viewportFormFactor = viewport.formFactor ?? "desktop";
+  const isTabletLandscapeStack =
+    isDualScreen &&
+    viewportFormFactor === "tablet" &&
+    !isPortrait &&
+    TABLET_LANDSCAPE_STACK_CATEGORIES.has(String(game?.category ?? "").toLowerCase());
   const stageSelectors = useMemo(
     () => getMobileStageSelectors(game?.id),
     [game?.id]
@@ -223,11 +236,44 @@ export default function MobileGameShell({
     `mobile-game-shell--${shellMode}`,
     `mobile-game-shell--device-${viewportFormFactor}`,
     `mobile-game-shell--theme-${shellTheme}`,
+    isTabletLandscapeStack ? "mobile-game-shell--tablet-landscape-stack" : "",
     isFullscreen ? "mobile-game-shell--fullscreen" : "",
     isDualScreen ? "mobile-game-shell--has-controls" : "mobile-game-shell--touch-native",
   ]
     .filter(Boolean)
     .join(" ");
+
+  const controlDeckNode = (
+    <MobileControlDeck
+      profile={profile}
+      scopeElement={stageViewportNode}
+      onRequestFullscreen={requestFullscreen}
+    />
+  );
+
+  const statusPanelsNode = (
+    <>
+      <MobileGameStatusPanel
+        gameCategory={game?.category}
+        locale={locale}
+        scopeElement={stageViewportNode}
+        snapshot={runtimeSnapshot}
+      />
+      {game?.id === "sports-head-soccer-arena" ? (
+        <MobileHeadSoccerTournamentPanel
+          locale={locale}
+          scopeElement={stageViewportNode}
+          snapshot={runtimeSnapshot}
+        />
+      ) : null}
+      {game?.id === "arcade-bowling-pro-tour" ? (
+        <MobileBowlingFramesPanel
+          locale={locale}
+          snapshot={runtimeSnapshot}
+        />
+      ) : null}
+    </>
+  );
 
   return (
     <div
@@ -274,30 +320,25 @@ export default function MobileGameShell({
               <div className="mobile-game-shell__hinge" aria-hidden="true" />
               <div className="mobile-game-shell__controls-panel">
                 <div className="mobile-game-shell__controls-stack">
-                  <MobileGameStatusPanel
-                    gameCategory={game?.category}
-                    locale={locale}
-                    scopeElement={stageViewportNode}
-                    snapshot={runtimeSnapshot}
-                  />
-                  {game?.id === "sports-head-soccer-arena" ? (
-                    <MobileHeadSoccerTournamentPanel
-                      locale={locale}
-                      scopeElement={stageViewportNode}
-                      snapshot={runtimeSnapshot}
-                    />
-                  ) : null}
-                  {game?.id === "arcade-bowling-pro-tour" ? (
-                    <MobileBowlingFramesPanel
-                      locale={locale}
-                      snapshot={runtimeSnapshot}
-                    />
-                  ) : null}
-                  <MobileControlDeck
-                    profile={profile}
-                    scopeElement={stageViewportNode}
-                    onRequestFullscreen={requestFullscreen}
-                  />
+                  {isTabletLandscapeStack ? (
+                    <>
+                      <div className="mobile-game-shell__controls-primary">
+                        {controlDeckNode}
+                      </div>
+                      <div className="mobile-game-shell__controls-secondary">
+                        {statusPanelsNode}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="mobile-game-shell__controls-secondary">
+                        {statusPanelsNode}
+                      </div>
+                      <div className="mobile-game-shell__controls-primary">
+                        {controlDeckNode}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </section>

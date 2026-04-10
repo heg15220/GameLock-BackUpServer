@@ -54,6 +54,8 @@ const GAME_STAGE_SELECTORS = {
     ".sky-runner-dx-canvas-shell",
     ".sky-runner-dx-stage-wrap",
   ],
+  "racing-race2dpro": [".r2p"],
+  "racing-sunset-slipstream": [".mtr", ".mtr__canvas"],
   "arcade-ice-strike-pro": ["canvas"],
   "arcade-pacman-maze-protocol": [
     ".pacman-stage-shell",

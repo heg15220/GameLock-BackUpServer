@@ -9,6 +9,15 @@ const DIRECT_TOUCH_GAME_IDS = new Set([
   "arcade-neon-rush",
 ]);
 
+const TABLET_LANDSCAPE_CONTROL_DECK_GAME_IDS = new Set([
+  "arcade-orchard-match-blast",
+  "arcade-reactor-toss",
+  "arcade-golf-tour-2d",
+  "arcade-buscaminas-classic",
+  "arcade-bubble-storm",
+  "arcade-neon-rush",
+]);
+
 const STRATEGY_MOBILE_FIRST_GAME_IDS = new Set([
   "strategy-chess-grandmaster",
   "strategy-damas-clasicas",
@@ -46,6 +55,10 @@ const KNOWLEDGE_MOBILE_FIRST_GAME_IDS = new Set([
 
 const t = (locale, es, en) => (locale === "en" ? en : es);
 const input = (code, key) => ({ code, key });
+
+function isTabletLandscapeViewport(viewport) {
+  return viewport?.formFactor === "tablet" && viewport?.orientation === "landscape";
+}
 
 function control(id, label, options = {}) {
   return {
@@ -248,6 +261,13 @@ export function getResponsiveMobileShellMode(game, viewport) {
   const categoryKey = String(game?.category ?? "");
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
+  const enableTabletLandscapeDeck =
+    isTabletLandscapeViewport(viewport) &&
+    TABLET_LANDSCAPE_CONTROL_DECK_GAME_IDS.has(gameId);
+
+  if (enableTabletLandscapeDeck) {
+    return "dual-screen";
+  }
 
   if (
     DIRECT_TOUCH_GAME_IDS.has(gameId) ||
@@ -264,10 +284,6 @@ export function getResponsiveMobileShellMode(game, viewport) {
 
 export function getMobileControlProfile(game, locale = "es") {
   const gameId = String(game?.id ?? "");
-
-  if (DIRECT_TOUCH_GAME_IDS.has(gameId)) {
-    return null;
-  }
 
   if (gameId.startsWith("arcade-retro-")) {
     return resolveRetroProfile(gameId, locale);
@@ -351,6 +367,72 @@ export function getMobileControlProfile(game, locale = "es") {
           inputs: [input("Enter", "Enter")],
         }),
       ]),
+    };
+  }
+
+  if (gameId === "racing-race2dpro") {
+    return {
+      layout: "split",
+      heading: t(locale, "Race 2D", "Race 2D"),
+      hint: t(
+        locale,
+        "Joystick completo para dirigir, acelerar y frenar; botones para focus y reinicio rapido.",
+        "Use the full joystick for steering, throttle, and brake, with side buttons for focus and quick restart."
+      ),
+      leftPad: directionalPad(locale, {
+        up: input("ArrowUp", "ArrowUp"),
+        left: input("ArrowLeft", "ArrowLeft"),
+        right: input("ArrowRight", "ArrowRight"),
+        down: input("ArrowDown", "ArrowDown"),
+        upLabel: t(locale, "Gas", "Gas"),
+        downLabel: t(locale, "Freno", "Brake"),
+      }),
+      rightPad: [
+        control("focus", "Focus", {
+          type: "hold",
+          tone: "primary",
+          inputs: [input("Space", " ")],
+        }),
+        control("start", "Start", {
+          type: "tap",
+          tone: "accent",
+          inputs: [input("Enter", "Enter")],
+        }),
+      ],
+      utilities: utilityRow(locale),
+    };
+  }
+
+  if (gameId === "racing-sunset-slipstream") {
+    return {
+      layout: "split",
+      heading: t(locale, "Slipstream", "Slipstream"),
+      hint: t(
+        locale,
+        "Joystick para carril y ritmo; focus y reinicio quedan en el bloque de acciones.",
+        "Use the joystick for lane control and pace, with focus and restart on the action side."
+      ),
+      leftPad: directionalPad(locale, {
+        up: input("ArrowUp", "ArrowUp"),
+        left: input("ArrowLeft", "ArrowLeft"),
+        right: input("ArrowRight", "ArrowRight"),
+        down: input("ArrowDown", "ArrowDown"),
+        upLabel: t(locale, "Gas", "Gas"),
+        downLabel: t(locale, "Cool", "Cool"),
+      }),
+      rightPad: [
+        control("focus", "Focus", {
+          type: "hold",
+          tone: "primary",
+          inputs: [input("Space", " ")],
+        }),
+        control("start", "Start", {
+          type: "tap",
+          tone: "accent",
+          inputs: [input("Enter", "Enter")],
+        }),
+      ],
+      utilities: utilityRow(locale),
     };
   }
 
@@ -615,6 +697,228 @@ export function getMobileControlProfile(game, locale = "es") {
           }),
         ],
         utilities: utilityRow(locale),
+      };
+    case "arcade-reactor-toss":
+      return {
+        layout: "split",
+        heading: t(locale, "Orbita", "Orbit"),
+        hint: t(
+          locale,
+          "El joystick ajusta direccion y potencia; los botones lanzan y abren acciones rapidas.",
+          "Use the joystick to tune direction and power; action buttons launch and open quick actions."
+        ),
+        leftPad: directionalPad(locale, {
+          up: input("KeyW", "w"),
+          left: input("KeyA", "a"),
+          right: input("KeyD", "d"),
+          down: input("KeyS", "s"),
+          upLabel: t(locale, "Pot+", "Pow+"),
+          downLabel: t(locale, "Pot-", "Pow-"),
+        }),
+        rightPad: [
+          control("launch", t(locale, "Lanza", "Launch"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Space", " ")],
+          }),
+          control("levels", t(locale, "Niveles", "Levels"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyL", "l")],
+          }),
+          control("audio", t(locale, "Audio", "Audio"), {
+            type: "tap",
+            inputs: [input("KeyM", "m")],
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
+    case "arcade-golf-tour-2d":
+      return {
+        layout: "split",
+        heading: t(locale, "Green", "Green"),
+        hint: t(
+          locale,
+          "Apunta con el joystick y usa los botones para lanzar o abrir el selector de hoyos.",
+          "Aim with the joystick and use the action buttons to shoot or open the hole selector."
+        ),
+        leftPad: directionalPad(locale, {
+          up: input("KeyW", "w"),
+          left: input("KeyA", "a"),
+          right: input("KeyD", "d"),
+          down: input("KeyS", "s"),
+          upLabel: t(locale, "Pot+", "Pow+"),
+          downLabel: t(locale, "Pot-", "Pow-"),
+        }),
+        rightPad: [
+          control("shoot", t(locale, "Golpe", "Shoot"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Space", " ")],
+          }),
+          control("levels", t(locale, "Hoyos", "Levels"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyL", "l")],
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
+    case "arcade-orchard-match-blast":
+      return {
+        layout: "split",
+        heading: t(locale, "Huerto", "Orchard"),
+        hint: t(
+          locale,
+          "Mueve el cursor con joystick y usa los botones para seleccionar, Bloom y ayudas.",
+          "Move the cursor with the joystick and use action buttons for select, Bloom, and assists."
+        ),
+        leftPad: directionalPad(locale, {
+          up: input("ArrowUp", "ArrowUp"),
+          left: input("ArrowLeft", "ArrowLeft"),
+          right: input("ArrowRight", "ArrowRight"),
+          down: input("ArrowDown", "ArrowDown"),
+        }),
+        rightPad: [
+          control("select", t(locale, "Selecciona", "Select"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+          }),
+          control("bloom", "Bloom", {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyB", "b")],
+          }),
+          control("hint", t(locale, "Pista", "Hint"), {
+            type: "tap",
+            inputs: [input("KeyH", "h")],
+          }),
+          control("shuffle", t(locale, "Mezcla", "Shuffle"), {
+            type: "tap",
+            inputs: [input("KeyS", "s")],
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
+    case "arcade-bubble-storm":
+      return {
+        layout: "split",
+        heading: t(locale, "Burbuja", "Bubble"),
+        hint: t(
+          locale,
+          "El joystick corrige el angulo del canon y los botones disparan o cambian la siguiente burbuja.",
+          "The joystick fine-tunes the cannon angle, while the action buttons shoot or swap the next bubble."
+        ),
+        leftPad: directionalPad(locale, {
+          up: input("ArrowUp", "ArrowUp"),
+          left: input("ArrowLeft", "ArrowLeft"),
+          right: input("ArrowRight", "ArrowRight"),
+          down: input("ArrowDown", "ArrowDown"),
+          upLabel: t(locale, "Arriba", "Up"),
+          downLabel: t(locale, "Abajo", "Down"),
+        }),
+        rightPad: [
+          control("shoot", t(locale, "Dispara", "Shoot"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Space", " ")],
+          }),
+          control("swap", t(locale, "Cambia", "Swap"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("Tab", "Tab")],
+          }),
+          control("start", "Start", {
+            type: "tap",
+            inputs: [input("Enter", "Enter")],
+          }),
+        ],
+        utilities: [
+          control("restart", t(locale, "Reinicio", "Restart"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyR", "r")],
+          }),
+          fullscreenControl(locale),
+        ],
+      };
+    case "arcade-neon-rush":
+      return {
+        layout: "split",
+        heading: t(locale, "Runner", "Runner"),
+        hint: t(
+          locale,
+          "Cualquier direccion del joystick activa el salto rapido; a la derecha quedan salto y reinicio.",
+          "Any joystick direction triggers the quick jump, with jump and retry buttons on the right."
+        ),
+        leftPad: directionalPad(locale, {
+          up: input("ArrowUp", "ArrowUp"),
+          left: input("ArrowUp", "ArrowUp"),
+          right: input("ArrowUp", "ArrowUp"),
+          down: input("ArrowUp", "ArrowUp"),
+          upLabel: t(locale, "Salto", "Jump"),
+          leftLabel: t(locale, "Salto", "Jump"),
+          rightLabel: t(locale, "Salto", "Jump"),
+          downLabel: t(locale, "Salto", "Jump"),
+        }),
+        rightPad: [
+          control("jump", t(locale, "Salta", "Jump"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Space", " ")],
+          }),
+          control("restart", t(locale, "Reintenta", "Retry"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyR", "r")],
+          }),
+        ],
+        utilities: [fullscreenControl(locale)],
+      };
+    case "arcade-buscaminas-classic":
+      return {
+        layout: "split",
+        heading: t(locale, "Mina", "Mine"),
+        hint: t(
+          locale,
+          "Mueve el cursor con joystick y usa los botones para abrir, marcar o pedir ayuda.",
+          "Move the cursor with the joystick, then use action buttons to reveal, flag, or request help."
+        ),
+        leftPad: directionalPad(locale, {
+          up: input("ArrowUp", "ArrowUp"),
+          left: input("ArrowLeft", "ArrowLeft"),
+          right: input("ArrowRight", "ArrowRight"),
+          down: input("ArrowDown", "ArrowDown"),
+        }),
+        rightPad: [
+          control("reveal", t(locale, "Abrir", "Reveal"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+          }),
+          control("flag", t(locale, "Bandera", "Flag"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyF", "f")],
+          }),
+          control("hint", t(locale, "Pista IA", "AI hint"), {
+            type: "tap",
+            inputs: [input("KeyH", "h")],
+          }),
+          control("ai", t(locale, "Jugada IA", "AI move"), {
+            type: "tap",
+            inputs: [input("KeyA", "a")],
+          }),
+        ],
+        utilities: [
+          control("restart", t(locale, "Reinicio", "Restart"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyR", "r")],
+          }),
+          fullscreenControl(locale),
+        ],
       };
     case "arcade-ice-strike-pro":
       return {

@@ -839,7 +839,17 @@ function onIn(){
     jumpBuffer=JUMP_BUFFER_FRAMES;
   }
 }
-document.addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();onIn();}});
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'||e.code==='ArrowUp'){
+    e.preventDefault();
+    onIn();
+    return;
+  }
+  if(e.code==='KeyR'&&(state==='playing'||state==='dead')){
+    e.preventDefault();
+    restartGame();
+  }
+});
 function bindJumpTap(el){
   if(!el)return;
   const onPress=(e)=>{
