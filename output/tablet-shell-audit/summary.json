@@ -1,0 +1,170 @@
+[
+  {
+    "label": "bowling-portrait",
+    "probe": {
+      "shellClassName": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--has-controls",
+      "formFactor": "tablet",
+      "shellMode": "dual-screen",
+      "gridTemplateColumns": "759.781px",
+      "gridTemplateRows": "607.734px 387.703px",
+      "stageSize": {
+        "width": 760,
+        "height": 608
+      },
+      "sideSize": {
+        "width": 760,
+        "height": 388
+      },
+      "touchCopyVisible": false,
+      "controlsVisible": true
+    },
+    "consoleErrorsCount": 0
+  },
+  {
+    "label": "bowling-landscape",
+    "probe": {
+      "shellClassName": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--has-controls",
+      "formFactor": "tablet",
+      "shellMode": "dual-screen",
+      "gridTemplateColumns": "764.594px 340px",
+      "gridTemplateRows": "650.625px",
+      "stageSize": {
+        "width": 765,
+        "height": 651
+      },
+      "sideSize": {
+        "width": 340,
+        "height": 651
+      },
+      "touchCopyVisible": false,
+      "controlsVisible": true
+    },
+    "consoleErrorsCount": 0
+  },
+  {
+    "label": "reactor-portrait",
+    "probe": {
+      "shellClassName": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--touch-native",
+      "formFactor": "tablet",
+      "shellMode": "mobile-first",
+      "gridTemplateColumns": "759.781px",
+      "gridTemplateRows": "632.391px 363.031px",
+      "stageSize": {
+        "width": 760,
+        "height": 632
+      },
+      "sideSize": {
+        "width": 760,
+        "height": 363
+      },
+      "touchCopyVisible": true,
+      "controlsVisible": false
+    },
+    "consoleErrorsCount": 0
+  },
+  {
+    "label": "reactor-landscape",
+    "probe": {
+      "shellClassName": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--touch-native",
+      "formFactor": "tablet",
+      "shellMode": "mobile-first",
+      "gridTemplateColumns": "762.156px 342.438px",
+      "gridTemplateRows": "650.625px",
+      "stageSize": {
+        "width": 762,
+        "height": 651
+      },
+      "sideSize": {
+        "width": 342,
+        "height": 651
+      },
+      "touchCopyVisible": true,
+      "controlsVisible": false
+    },
+    "consoleErrorsCount": 0
+  },
+  {
+    "label": "refranes-portrait",
+    "probe": {
+      "shellClassName": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-knowledge mobile-game-shell--touch-native",
+      "formFactor": "tablet",
+      "shellMode": "mobile-first",
+      "gridTemplateColumns": "759.781px",
+      "gridTemplateRows": "622.5px 347.172px",
+      "stageSize": {
+        "width": 760,
+        "height": 623
+      },
+      "sideSize": {
+        "width": 760,
+        "height": 347
+      },
+      "touchCopyVisible": true,
+      "controlsVisible": false
+    },
+    "consoleErrorsCount": 0
+  },
+  {
+    "label": "refranes-landscape",
+    "probe": {
+      "shellClassName": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-knowledge mobile-game-shell--touch-native",
+      "formFactor": "tablet",
+      "shellMode": "mobile-first",
+      "gridTemplateColumns": "762.156px 342.438px",
+      "gridTemplateRows": "624.859px",
+      "stageSize": {
+        "width": 762,
+        "height": 625
+      },
+      "sideSize": {
+        "width": 342,
+        "height": 625
+      },
+      "touchCopyVisible": true,
+      "controlsVisible": false
+    },
+    "consoleErrorsCount": 0
+  },
+  {
+    "label": "baraja-portrait",
+    "probe": {
+      "shellClassName": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-strategy mobile-game-shell--touch-native",
+      "formFactor": "tablet",
+      "shellMode": "mobile-first",
+      "gridTemplateColumns": "759.781px",
+      "gridTemplateRows": "616.016px 353.656px",
+      "stageSize": {
+        "width": 760,
+        "height": 616
+      },
+      "sideSize": {
+        "width": 760,
+        "height": 354
+      },
+      "touchCopyVisible": true,
+      "controlsVisible": false
+    },
+    "consoleErrorsCount": 0
+  },
+  {
+    "label": "baraja-landscape",
+    "probe": {
+      "shellClassName": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-strategy mobile-game-shell--touch-native",
+      "formFactor": "tablet",
+      "shellMode": "mobile-first",
+      "gridTemplateColumns": "706.938px 397.656px",
+      "gridTemplateRows": "624.859px",
+      "stageSize": {
+        "width": 707,
+        "height": 625
+      },
+      "sideSize": {
+        "width": 398,
+        "height": 625
+      },
+      "touchCopyVisible": true,
+      "controlsVisible": false
+    },
+    "consoleErrorsCount": 0
+  }
+]

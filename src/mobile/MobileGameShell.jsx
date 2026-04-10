@@ -144,6 +144,7 @@ export default function MobileGameShell({
   );
   const isDualScreen = shellMode === "dual-screen";
   const isPortrait = viewport.orientation === "portrait";
+  const viewportFormFactor = viewport.formFactor ?? "desktop";
   const stageSelectors = useMemo(
     () => getMobileStageSelectors(game?.id),
     [game?.id]
@@ -220,6 +221,7 @@ export default function MobileGameShell({
     "mobile-game-shell",
     `mobile-game-shell--${isPortrait ? "portrait" : "landscape"}`,
     `mobile-game-shell--${shellMode}`,
+    `mobile-game-shell--device-${viewportFormFactor}`,
     `mobile-game-shell--theme-${shellTheme}`,
     isFullscreen ? "mobile-game-shell--fullscreen" : "",
     isDualScreen ? "mobile-game-shell--has-controls" : "mobile-game-shell--touch-native",
@@ -234,6 +236,7 @@ export default function MobileGameShell({
       data-game-id={game.id}
       data-game-category={String(game?.category ?? "").toLowerCase()}
       data-shell-mode={shellMode}
+      data-device-form-factor={viewportFormFactor}
     >
       <div className="mobile-game-shell__hardware">
         <div className="mobile-game-shell__topbar">

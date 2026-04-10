@@ -1,0 +1,27 @@
+{
+  "gameId": "arcade-reactor-toss",
+  "viewport": {
+    "width": 820,
+    "height": 1180
+  },
+  "label": "reactor-portrait",
+  "url": "http://127.0.0.1:4173/#game=arcade-reactor-toss",
+  "probe": {
+    "shellClassName": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--touch-native",
+    "formFactor": "tablet",
+    "shellMode": "mobile-first",
+    "gridTemplateColumns": "759.781px",
+    "gridTemplateRows": "632.391px 363.031px",
+    "stageSize": {
+      "width": 760,
+      "height": 632
+    },
+    "sideSize": {
+      "width": 760,
+      "height": 363
+    },
+    "touchCopyVisible": true,
+    "controlsVisible": false
+  },
+  "consoleErrors": []
+}

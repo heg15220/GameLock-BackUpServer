@@ -1,0 +1,27 @@
+{
+  "gameId": "arcade-bowling-pro-tour",
+  "viewport": {
+    "width": 820,
+    "height": 1180
+  },
+  "label": "bowling-portrait",
+  "url": "http://127.0.0.1:4173/#game=arcade-bowling-pro-tour",
+  "probe": {
+    "shellClassName": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--has-controls",
+    "formFactor": "tablet",
+    "shellMode": "dual-screen",
+    "gridTemplateColumns": "759.781px",
+    "gridTemplateRows": "607.734px 387.703px",
+    "stageSize": {
+      "width": 760,
+      "height": 608
+    },
+    "sideSize": {
+      "width": 760,
+      "height": 388
+    },
+    "touchCopyVisible": false,
+    "controlsVisible": true
+  },
+  "consoleErrors": []
+}

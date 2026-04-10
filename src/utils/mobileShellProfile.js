@@ -22,7 +22,12 @@ export function getViewportProfile() {
       width: 0,
       height: 0,
       shortestSide: 0,
+      longestSide: 0,
       isMobile: false,
+      isPhone: false,
+      isTablet: false,
+      formFactor: "desktop",
+      isTouch: false,
       orientation: "landscape",
     };
   }
@@ -32,12 +37,22 @@ export function getViewportProfile() {
   const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
   const hasTouch = (navigator.maxTouchPoints ?? 0) > 0;
   const shortestSide = Math.min(width, height);
+  const longestSide = Math.max(width, height);
+  const isTouch = coarsePointer || hasTouch;
+  const isPhone = shortestSide <= 540;
+  const isTablet = !isPhone && shortestSide <= 1024 && longestSide <= 1400;
+  const isMobile = isPhone || isTablet;
 
   return {
     width,
     height,
     shortestSide,
-    isMobile: width <= 920 || ((coarsePointer || hasTouch) && shortestSide <= 1024),
+    longestSide,
+    isMobile,
+    isPhone,
+    isTablet,
+    formFactor: isPhone ? "phone" : isTablet ? "tablet" : "desktop",
+    isTouch,
     orientation: height >= width ? "portrait" : "landscape",
   };
 }

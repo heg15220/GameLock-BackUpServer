@@ -273,10 +273,12 @@ function GamePlayground({ game }) {
   const categoryKey = String(game.category ?? "");
   const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(categoryKey);
   const mobileShellMode = getMobileShellMode(game, viewport);
+  const viewportFormFactor = viewport.formFactor ?? "desktop";
   const sectionClassName = [
     "game-playground",
     mobileShellEligible && viewport.isMobile ? "playground-mobile-enabled" : "",
     viewport.isMobile ? "playground-mobile-active" : "",
+    `playground-device-${viewportFormFactor}`,
     viewport.orientation === "portrait" ? "playground-mobile-portrait" : "playground-mobile-landscape",
     mobileShellMode === "dual-screen" ? "playground-mobile-dual-screen" : "",
     mobileShellMode === "mobile-first" ? "playground-mobile-first" : "",
@@ -291,6 +293,7 @@ function GamePlayground({ game }) {
       data-game-id={game.id}
       data-mobile-shell={mobileShellMode}
       data-mobile-orientation={viewport.orientation}
+      data-device-form-factor={viewportFormFactor}
     >
       <div className="playground-header">
         <h3>{copy.playNow}</h3>

@@ -30,10 +30,26 @@
 .mobile-game-shell {
   --mobile-shell-screen: #0b1221;
   --mobile-shell-shadow: rgba(15, 23, 42, 0.28);
+  --mobile-shell-max-width: 100%;
+  --mobile-shell-min-height: calc(100svh - 88px);
+  --mobile-shell-hardware-gap: 0.7rem;
+  --mobile-shell-hardware-padding: 0.5rem;
+  --mobile-shell-hardware-radius: 32px;
+  --mobile-shell-body-gap: 0.7rem;
+  --mobile-shell-topbar-gap: 0.7rem;
+  --mobile-shell-topbar-padding: 0.05rem 0.2rem 0;
+  --mobile-shell-brand-size: 0.78rem;
+  --mobile-shell-panel-padding: 0.5rem;
+  --mobile-shell-panel-radius: 28px;
+  --mobile-shell-glass-radius: 22px;
+  --mobile-shell-fullscreen-font-size: 0.72rem;
+  --mobile-shell-fullscreen-padding: 0.45rem 0.8rem;
   width: 100%;
-  min-height: calc(100svh - 88px);
+  max-width: var(--mobile-shell-max-width);
+  min-height: var(--mobile-shell-min-height);
   display: flex;
   align-items: stretch;
+  margin-inline: auto;
 }
 
 .mobile-game-shell--theme-strategy {
@@ -72,9 +88,9 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  padding: 0.5rem;
-  border-radius: 32px;
+  gap: var(--mobile-shell-hardware-gap);
+  padding: var(--mobile-shell-hardware-padding);
+  border-radius: var(--mobile-shell-hardware-radius);
   background:
     radial-gradient(circle at 14% 8%, rgba(255, 255, 255, 0.68), transparent 16%),
     linear-gradient(155deg, #f5eedf 0%, #ddd4c2 55%, #cbc1af 100%);
@@ -87,8 +103,8 @@
 .mobile-game-shell__topbar {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.05rem 0.2rem 0;
+  gap: var(--mobile-shell-topbar-gap);
+  padding: var(--mobile-shell-topbar-padding);
   color: #43372b;
 }
 
@@ -105,7 +121,7 @@
 
 .mobile-game-shell__brand {
   flex: 1;
-  font-size: 0.78rem;
+  font-size: var(--mobile-shell-brand-size);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -117,16 +133,16 @@
   background: rgba(255, 255, 255, 0.7);
   color: #43372b;
   font: inherit;
-  font-size: 0.72rem;
+  font-size: var(--mobile-shell-fullscreen-font-size);
   font-weight: 700;
-  padding: 0.45rem 0.8rem;
+  padding: var(--mobile-shell-fullscreen-padding);
 }
 
 .mobile-game-shell__body {
   flex: 1;
   min-height: 0;
   display: grid;
-  gap: 0.7rem;
+  gap: var(--mobile-shell-body-gap);
 }
 
 .mobile-game-shell--portrait.mobile-game-shell--has-controls .mobile-game-shell__body {
@@ -274,11 +290,11 @@
 .mobile-game-shell__controls-panel,
 .mobile-game-shell__touch-copy {
   height: 100%;
-  border-radius: 28px;
+  border-radius: var(--mobile-shell-panel-radius);
   background:
     linear-gradient(180deg, rgba(60, 52, 42, 0.24), rgba(125, 111, 92, 0.1)),
     #d8cfbe;
-  padding: 0.5rem;
+  padding: var(--mobile-shell-panel-padding);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.62),
     inset 0 -1px 0 rgba(102, 86, 68, 0.12);
@@ -320,7 +336,7 @@
 
 .mobile-game-shell__screen-glass {
   height: 100%;
-  border-radius: 22px;
+  border-radius: var(--mobile-shell-glass-radius);
   overflow: hidden;
   background:
     radial-gradient(circle at 50% 0%, rgba(120, 255, 223, 0.08), transparent 24%),
@@ -3164,6 +3180,157 @@
 
 .mobile-game-shell--landscape .mobile-control-deck__joystick {
   width: min(144px, 100%);
+}
+
+.launch-overlay--mobile-shell.launch-overlay--device-tablet {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(251, 191, 36, 0.16), transparent 26%),
+    radial-gradient(circle at 88% 6%, rgba(45, 212, 191, 0.14), transparent 22%),
+    linear-gradient(180deg, #f5f1e7 0%, #e8edf2 100%);
+}
+
+.launch-overlay--mobile-shell.launch-overlay--device-tablet .launch-topbar {
+  padding: 0.72rem 1.05rem;
+  gap: 0.82rem;
+}
+
+.launch-game-area--mobile-shell.launch-game-area--device-tablet {
+  padding: 0.9rem 1rem 1.1rem;
+  align-items: center;
+}
+
+.launch-game-area--mobile-shell.launch-game-area--device-tablet > * {
+  max-width: min(100%, 1180px);
+  margin-inline: auto;
+}
+
+.mobile-game-shell--device-tablet {
+  --mobile-shell-max-width: min(100%, 1180px);
+  --mobile-shell-min-height: calc(100svh - 112px);
+  --mobile-shell-hardware-gap: 0.95rem;
+  --mobile-shell-hardware-padding: 0.82rem;
+  --mobile-shell-hardware-radius: 40px;
+  --mobile-shell-body-gap: 0.95rem;
+  --mobile-shell-topbar-gap: 0.9rem;
+  --mobile-shell-topbar-padding: 0.18rem 0.34rem 0.08rem;
+  --mobile-shell-brand-size: 0.86rem;
+  --mobile-shell-panel-padding: 0.72rem;
+  --mobile-shell-panel-radius: 32px;
+  --mobile-shell-glass-radius: 26px;
+  --mobile-shell-fullscreen-font-size: 0.8rem;
+  --mobile-shell-fullscreen-padding: 0.55rem 0.95rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-game-shell__camera {
+  width: 12px;
+  height: 12px;
+}
+
+.mobile-game-shell--device-tablet .mobile-game-shell__controls-stack {
+  gap: 0.9rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-game-status-panel {
+  gap: 0.56rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-game-status-panel__header strong,
+.mobile-game-shell--device-tablet .mobile-game-status-panel__menu strong {
+  font-size: 0.82rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-game-status-panel__header p,
+.mobile-game-shell--device-tablet .mobile-game-status-panel__detail-item span {
+  font-size: 0.78rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-game-status-panel__chip,
+.mobile-game-shell--device-tablet .mobile-game-status-panel__detail-item {
+  padding: 0.68rem 0.78rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-game-status-panel__buttons button,
+.mobile-game-shell--device-tablet .mobile-game-status-panel__selects select {
+  min-height: 50px;
+  border-radius: 18px;
+}
+
+.mobile-game-shell--device-tablet .mobile-control-deck {
+  grid-template-rows: auto minmax(176px, 1fr) auto;
+  gap: 0.95rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-control-deck__meta strong {
+  font-size: 0.92rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-control-deck__meta p {
+  font-size: 0.84rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-control-deck__clusters {
+  grid-template-columns: minmax(168px, 0.8fr) minmax(0, 1.2fr);
+  min-height: 176px;
+}
+
+.mobile-game-shell--device-tablet .mobile-control-deck__cluster,
+.mobile-game-shell--device-tablet .mobile-control-deck__utilities,
+.mobile-game-shell--device-tablet .mobile-control-deck__zones {
+  gap: 0.72rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-control-deck__joystick-wrap {
+  min-height: 176px;
+}
+
+.mobile-game-shell--device-tablet .mobile-control-deck__joystick {
+  width: min(180px, 100%);
+}
+
+.mobile-game-shell--device-tablet .mobile-control-deck__button {
+  min-height: 62px;
+  border-radius: 22px;
+  font-size: 0.92rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--portrait.mobile-game-shell--has-controls .mobile-game-shell__body {
+  grid-template-rows: minmax(0, 1.16fr) minmax(300px, 0.74fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--portrait.mobile-game-shell--touch-native .mobile-game-shell__body {
+  grid-template-rows: minmax(0, 1.08fr) minmax(220px, 0.62fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--portrait.mobile-game-shell--touch-native .mobile-game-shell__touch-copy {
+  display: grid;
+  overflow-y: auto;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__body {
+  grid-template-rows: minmax(0, 1.04fr) minmax(200px, 0.58fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__touch-copy > strong,
+.mobile-game-shell--device-tablet.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__touch-copy > p {
+  display: block;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.52fr) minmax(340px, 0.62fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.38fr) minmax(280px, 0.62fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native .mobile-game-shell__touch-copy {
+  display: grid;
+  overflow-y: auto;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"].mobile-game-shell--touch-native .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1.28fr) minmax(320px, 0.72fr);
 }
 
 .mobile-game-shell--fullscreen {

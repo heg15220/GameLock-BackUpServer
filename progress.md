@@ -4076,3 +4076,14 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Validacion Playwright movil (320x568) en output/quiz-start-check:
   - antes de iniciar aparece .knowledge-shell .knowledge-start-btn con texto Iniciar ronda;
   - tras pulsarlo desaparece el panel inicial y el contador muestra 40s.
+
+## 2026-04-10 - Shell tablet portrait + landscape (en curso)
+- Separado el perfil responsive compartido en `phone/tablet/desktop` dentro de `src/utils/mobileShellProfile.js`, manteniendo `isMobile` para que tablet siga entrando en el shell responsive.
+- Propagado `formFactor` a `GameLaunchModal`, `GamePlayground` y `MobileGameShell` mediante clases y datasets para que la capa visual pueda distinguir tablet sin tocar cada juego.
+- Empezado el rediseño del shell compartido en `src/mobile/mobile-game-shell.css`:
+  - tablet vertical con mas altura util para escenario y panel inferior visible tambien en modos `mobile-first`;
+  - tablet horizontal con escenario dominante y panel lateral estable incluso para juegos touch-first;
+  - densidad visual revisada (padding, radios, topbar, botones, joystick y paneles de estado) para evitar la sensacion de UI de telefono escalada.
+- Pendiente inmediato: validar build y capturas portrait/landscape con juegos representativos del catalogo para detectar overrides especificos que aun necesiten ajuste.
+- Validacion 2026-04-10: build OK con `NODE_OPTIONS=--max-old-space-size=4096` y auditoria visual en `output/tablet-shell-audit/` para Bowling, Reactor Toss, Refranes y Baraja IA en tablet portrait (820x1180) y landscape (1180x820).
+- Resultado de QA: todos los escenarios entran con `formFactor: tablet`, sin errores de consola, y con grids distintos por orientacion (`rows` en portrait, `columns` en landscape) tanto en shells `dual-screen` como `mobile-first`.

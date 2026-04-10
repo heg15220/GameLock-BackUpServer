@@ -1,0 +1,27 @@
+{
+  "gameId": "knowledge-refranes-clasicos",
+  "viewport": {
+    "width": 1180,
+    "height": 820
+  },
+  "label": "refranes-landscape",
+  "url": "http://127.0.0.1:4173/#game=knowledge-refranes-clasicos",
+  "probe": {
+    "shellClassName": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-knowledge mobile-game-shell--touch-native",
+    "formFactor": "tablet",
+    "shellMode": "mobile-first",
+    "gridTemplateColumns": "762.156px 342.438px",
+    "gridTemplateRows": "624.859px",
+    "stageSize": {
+      "width": 762,
+      "height": 625
+    },
+    "sideSize": {
+      "width": 342,
+      "height": 625
+    },
+    "touchCopyVisible": true,
+    "controlsVisible": false
+  },
+  "consoleErrors": []
+}

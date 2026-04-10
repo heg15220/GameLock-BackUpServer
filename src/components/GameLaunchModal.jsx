@@ -59,11 +59,13 @@ function GameLaunchModal({ game, onClose }) {
     mobileShellEligible &&
     viewport.isMobile &&
     !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? ""));
+  const viewportFormFactor = viewport.formFactor ?? "desktop";
   const launchPlaygroundClassName = [
     "game-playground",
     "launch-game-playground",
     useMobileGameShell ? "playground-mobile-enabled" : "",
     viewport.isMobile ? "playground-mobile-active" : "",
+    `playground-device-${viewportFormFactor}`,
     viewport.orientation === "portrait" ? "playground-mobile-portrait" : "playground-mobile-landscape",
     mobileShellMode === "dual-screen" ? "playground-mobile-dual-screen" : "",
     mobileShellMode === "mobile-first" ? "playground-mobile-first" : "",
@@ -73,12 +75,14 @@ function GameLaunchModal({ game, onClose }) {
   const launchOverlayClassName = [
     "launch-overlay",
     useMobileGameShell ? "launch-overlay--mobile-shell" : "",
+    useMobileGameShell ? `launch-overlay--device-${viewportFormFactor}` : "",
   ]
     .filter(Boolean)
     .join(" ");
   const launchGameAreaClassName = [
     "launch-game-area",
     useMobileGameShell ? "launch-game-area--mobile-shell" : "",
+    useMobileGameShell ? `launch-game-area--device-${viewportFormFactor}` : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -182,6 +186,7 @@ function GameLaunchModal({ game, onClose }) {
                 data-game-id={game.id}
                 data-mobile-shell={mobileShellMode}
                 data-mobile-orientation={viewport.orientation}
+                data-device-form-factor={viewportFormFactor}
               >
                 <div className="playground-device-shell">
                   <div className="playground-device-bezel">
