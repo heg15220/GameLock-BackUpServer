@@ -1,0 +1,135 @@
+[
+  {
+    "id": "arcade-orchard-match-blast",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--touch-native",
+      "controlDeckVisible": false,
+      "touchCopyVisible": false,
+      "tabletTitles": [],
+      "viewport": {
+        "width": 1097,
+        "height": 628,
+        "top": 149,
+        "left": 42
+      },
+      "orchardShell": {
+        "width": 1097,
+        "height": 660,
+        "top": 149,
+        "left": 42
+      },
+      "orchardCanvas": {
+        "width": 1089,
+        "height": 652,
+        "top": 153,
+        "left": 46
+      },
+      "fluxGame": null,
+      "fluxShell": null,
+      "fluxCanvas": null,
+      "basketballStage": null,
+      "basketballCanvas": null
+    },
+    "screenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-followup-check\\arcade-orchard-match-blast.png"
+  },
+  {
+    "id": "arcade-reactor-toss",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--touch-native",
+      "controlDeckVisible": false,
+      "touchCopyVisible": false,
+      "tabletTitles": [],
+      "viewport": {
+        "width": 1097,
+        "height": 620,
+        "top": 149,
+        "left": 42
+      },
+      "orchardShell": null,
+      "orchardCanvas": null,
+      "fluxGame": {
+        "width": 1097,
+        "height": 620,
+        "top": 149,
+        "left": 42
+      },
+      "fluxShell": {
+        "width": 1089,
+        "height": 613,
+        "top": 153,
+        "left": 46
+      },
+      "fluxCanvas": {
+        "width": 1087,
+        "height": 611,
+        "top": 154,
+        "left": 47
+      },
+      "basketballStage": null,
+      "basketballCanvas": null
+    },
+    "screenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-followup-check\\arcade-reactor-toss.png"
+  },
+  {
+    "id": "sports-basketball-court",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+      "controlDeckVisible": true,
+      "touchCopyVisible": false,
+      "tabletTitles": [
+        "Estado y ajustes de partida",
+        "Joystick y botones de accion"
+      ],
+      "viewport": {
+        "width": 1097,
+        "height": 469,
+        "top": 143,
+        "left": 42
+      },
+      "orchardShell": null,
+      "orchardCanvas": null,
+      "fluxGame": null,
+      "fluxShell": null,
+      "fluxCanvas": null,
+      "basketballStage": {
+        "width": 1097,
+        "height": 622,
+        "top": 143,
+        "left": 42
+      },
+      "basketballCanvas": {
+        "width": 1086,
+        "height": 611,
+        "top": 149,
+        "left": 47
+      }
+    },
+    "screenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-followup-check\\sports-basketball-court.png"
+  },
+  {
+    "id": "sports-head-soccer-arena",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+      "controlDeckVisible": true,
+      "touchCopyVisible": false,
+      "tabletTitles": [
+        "Estado y ajustes de partida",
+        "Joystick y botones de accion"
+      ],
+      "viewport": {
+        "width": 1097,
+        "height": 469,
+        "top": 143,
+        "left": 42
+      },
+      "orchardShell": null,
+      "orchardCanvas": null,
+      "fluxGame": null,
+      "fluxShell": null,
+      "fluxCanvas": null,
+      "basketballStage": null,
+      "basketballCanvas": null
+    },
+    "screenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-followup-check\\sports-head-soccer-arena.png"
+  }
+]

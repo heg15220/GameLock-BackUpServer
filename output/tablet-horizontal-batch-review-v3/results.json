@@ -1,0 +1,88 @@
+[
+  {
+    "id": "arcade-golf-tour-2d",
+    "metrics": {
+      "viewport": {
+        "width": 1097,
+        "height": 469,
+        "top": 143,
+        "left": 42
+      },
+      "nodes": {
+        ".golf-tour-game": {
+          "width": 1097,
+          "height": 469,
+          "top": 143,
+          "left": 42
+        },
+        ".golf-tour-shell": {
+          "width": 1097,
+          "height": 469,
+          "top": 143,
+          "left": 42
+        },
+        ".golf-tour-stage-wrap": {
+          "width": 1097,
+          "height": 469,
+          "top": 143,
+          "left": 42
+        },
+        ".golf-tour-canvas-shell": {
+          "width": 832,
+          "height": 469,
+          "top": 143,
+          "left": 174
+        },
+        ".golf-tour-canvas": {
+          "width": 830,
+          "height": 467,
+          "top": 144,
+          "left": 175
+        }
+      }
+    }
+  },
+  {
+    "id": "arcade-archery-horizon",
+    "metrics": {
+      "viewport": {
+        "width": 1097,
+        "height": 469,
+        "top": 143,
+        "left": 42
+      },
+      "nodes": {
+        ".archery-horizon-game": {
+          "width": 1097,
+          "height": 469,
+          "top": 143,
+          "left": 42
+        },
+        ".archery-horizon-shell": {
+          "width": 1097,
+          "height": 469,
+          "top": 143,
+          "left": 42
+        },
+        ".archery-horizon-stage-wrap": {
+          "width": 1097,
+          "height": 469,
+          "top": 143,
+          "left": 42
+        },
+        ".archery-horizon-canvas-shell": {
+          "width": 1097,
+          "height": 469,
+          "top": 143,
+          "left": 42
+        },
+        ".archery-horizon-canvas": {
+          "width": 1095,
+          "height": 467,
+          "top": 144,
+          "left": 43
+        }
+      }
+    }
+  }
+]

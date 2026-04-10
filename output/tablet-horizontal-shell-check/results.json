@@ -1,0 +1,74 @@
+[
+  {
+    "id": "arcade-cosmic-vanguard",
+    "slug": "arcade",
+    "screenshotPath": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-horizontal-shell-check\\arcade.png",
+    "shellClassName": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+    "bodyChildren": [
+      "mobile-game-shell__stage-shell",
+      "mobile-game-shell__controls-shell"
+    ],
+    "controlsChildren": [
+      "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--controls",
+      "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--status"
+    ],
+    "sections": [
+      {
+        "className": "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--controls",
+        "title": "Joystick y botones de accion"
+      },
+      {
+        "className": "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--status",
+        "title": "Estado y ajustes de partida"
+      }
+    ]
+  },
+  {
+    "id": "platformer-sky-runner",
+    "slug": "juegos",
+    "screenshotPath": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-horizontal-shell-check\\juegos.png",
+    "shellClassName": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+    "bodyChildren": [
+      "mobile-game-shell__stage-shell",
+      "mobile-game-shell__controls-shell"
+    ],
+    "controlsChildren": [
+      "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--controls",
+      "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--status"
+    ],
+    "sections": [
+      {
+        "className": "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--controls",
+        "title": "Joystick y botones de accion"
+      },
+      {
+        "className": "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--status",
+        "title": "Estado y ajustes de partida"
+      }
+    ]
+  },
+  {
+    "id": "sports-head-soccer-arena",
+    "slug": "deportes",
+    "screenshotPath": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-horizontal-shell-check\\deportes.png",
+    "shellClassName": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+    "bodyChildren": [
+      "mobile-game-shell__stage-shell",
+      "mobile-game-shell__controls-shell"
+    ],
+    "controlsChildren": [
+      "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--controls",
+      "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--status"
+    ],
+    "sections": [
+      {
+        "className": "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--controls",
+        "title": "Joystick y botones de accion"
+      },
+      {
+        "className": "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--status",
+        "title": "Estado y ajustes de partida"
+      }
+    ]
+  }
+]

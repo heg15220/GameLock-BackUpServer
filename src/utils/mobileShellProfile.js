@@ -16,6 +16,12 @@ export const MOBILE_FIRST_GAME_IDS = new Set([
   "arcade-golf-tour-2d",
 ]);
 
+const PHONE_MAX_SHORTEST_SIDE = 540;
+const TABLET_MAX_SHORTEST_SIDE = 1100;
+const TABLET_MAX_LONGEST_SIDE = 1600;
+const LARGE_TOUCH_TABLET_MAX_SHORTEST_SIDE = 1280;
+const LARGE_TOUCH_TABLET_MAX_LONGEST_SIDE = 1800;
+
 export function getViewportProfile() {
   if (typeof window === "undefined") {
     return {
@@ -39,8 +45,14 @@ export function getViewportProfile() {
   const shortestSide = Math.min(width, height);
   const longestSide = Math.max(width, height);
   const isTouch = coarsePointer || hasTouch;
-  const isPhone = shortestSide <= 540;
-  const isTablet = !isPhone && shortestSide <= 1024 && longestSide <= 1400;
+  const isPhone = shortestSide <= PHONE_MAX_SHORTEST_SIDE;
+  const fitsDefaultTabletRange =
+    shortestSide <= TABLET_MAX_SHORTEST_SIDE && longestSide <= TABLET_MAX_LONGEST_SIDE;
+  const fitsLargeTouchTabletRange =
+    isTouch &&
+    shortestSide <= LARGE_TOUCH_TABLET_MAX_SHORTEST_SIDE &&
+    longestSide <= LARGE_TOUCH_TABLET_MAX_LONGEST_SIDE;
+  const isTablet = !isPhone && (fitsDefaultTabletRange || fitsLargeTouchTabletRange);
   const isMobile = isPhone || isTablet;
 
   return {

@@ -5,19 +5,7 @@ import { MOBILE_SHELL_CATEGORIES } from "../utils/mobileShellProfile";
 import useMobileGameViewport from "../mobile/useMobileGameViewport";
 import MobileGameShell from "../mobile/MobileGameShell";
 import { getResponsiveMobileShellMode } from "../mobile/mobileGameProfiles";
-
-const NATIVE_MOBILE_GAME_IDS = new Set([
-  "knowledge-domino-chain",
-  "knowledge-crucigrama-mini",
-  "knowledge-sopa-letras-mega",
-  "knowledge-tabla-periodica-total",
-  "knowledge-mapas-atlas",
-  "knowledge-mapas-camino-corto",
-  "knowledge-cronologia-maestra",
-  "knowledge-wikipedia-gacha",
-  "strategy-sudoku-tecnicas",
-  "strategy-mansion-triple-enigma",
-]);
+import { NATIVE_MOBILE_GAME_IDS } from "../mobile/nativeMobileGameIds";
 
 function GameLaunchModal({ game, onClose }) {
   const { t, locale } = useTranslations();

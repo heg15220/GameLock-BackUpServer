@@ -1,0 +1,53 @@
+[
+  {
+    "id": "arcade-cosmic-vanguard",
+    "sections": [
+      {
+        "title": "Joystick y botones de accion",
+        "top": 478,
+        "left": 42,
+        "width": 1097
+      },
+      {
+        "title": "Estado y ajustes de partida",
+        "top": 962,
+        "left": 42,
+        "width": 1097
+      }
+    ]
+  },
+  {
+    "id": "platformer-sky-runner",
+    "sections": [
+      {
+        "title": "Joystick y botones de accion",
+        "top": 478,
+        "left": 42,
+        "width": 1097
+      },
+      {
+        "title": "Estado y ajustes de partida",
+        "top": 962,
+        "left": 42,
+        "width": 1097
+      }
+    ]
+  },
+  {
+    "id": "sports-head-soccer-arena",
+    "sections": [
+      {
+        "title": "Joystick y botones de accion",
+        "top": 478,
+        "left": 42,
+        "width": 1097
+      },
+      {
+        "title": "Estado y ajustes de partida",
+        "top": 962,
+        "left": 42,
+        "width": 1097
+      }
+    ]
+  }
+]

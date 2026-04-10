@@ -71,14 +71,6 @@ function control(id, label, options = {}) {
   };
 }
 
-function fullscreenControl(locale) {
-  return control(
-    "fullscreen",
-    t(locale, "Pantalla", "Fullscreen"),
-    { type: "tap", tone: "utility", action: "fullscreen" }
-  );
-}
-
 function utilityRow(locale, extra = []) {
   return [
     ...extra,
@@ -92,7 +84,6 @@ function utilityRow(locale, extra = []) {
       tone: "utility",
       inputs: [input("KeyR", "r")],
     }),
-    fullscreenControl(locale),
   ];
 }
 
@@ -252,15 +243,15 @@ function resolveRetroProfile(gameId, locale) {
 }
 
 export function getResponsiveMobileShellMode(game, viewport) {
-  const baseMode = getMobileShellMode(game, viewport);
-  if (baseMode !== "dual-screen") {
-    return baseMode;
-  }
-
   const gameId = String(game?.id ?? "");
   const categoryKey = String(game?.category ?? "");
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
+
+  if (DIRECT_TOUCH_GAME_IDS.has(gameId)) {
+    return "mobile-first";
+  }
+
   const enableTabletLandscapeDeck =
     isTabletLandscapeViewport(viewport) &&
     TABLET_LANDSCAPE_CONTROL_DECK_GAME_IDS.has(gameId);
@@ -269,8 +260,12 @@ export function getResponsiveMobileShellMode(game, viewport) {
     return "dual-screen";
   }
 
+  const baseMode = getMobileShellMode(game, viewport);
+  if (baseMode !== "dual-screen") {
+    return baseMode;
+  }
+
   if (
-    DIRECT_TOUCH_GAME_IDS.has(gameId) ||
     STRATEGY_MOBILE_FIRST_GAME_IDS.has(gameId) ||
     KNOWLEDGE_MOBILE_FIRST_GAME_IDS.has(gameId) ||
     isKnowledgeCategory ||
@@ -536,7 +531,7 @@ export function getMobileControlProfile(game, locale = "es") {
             inputs: [input("KeyP", "p")],
           }),
         ],
-        utilities: [fullscreenControl(locale)],
+        utilities: [],
       };
     case "arcade-bowling-pro-tour":
       return {
@@ -840,7 +835,6 @@ export function getMobileControlProfile(game, locale = "es") {
             tone: "utility",
             inputs: [input("KeyR", "r")],
           }),
-          fullscreenControl(locale),
         ],
       };
     case "arcade-neon-rush":
@@ -874,7 +868,7 @@ export function getMobileControlProfile(game, locale = "es") {
             inputs: [input("KeyR", "r")],
           }),
         ],
-        utilities: [fullscreenControl(locale)],
+        utilities: [],
       };
     case "arcade-buscaminas-classic":
       return {
@@ -917,7 +911,6 @@ export function getMobileControlProfile(game, locale = "es") {
             tone: "utility",
             inputs: [input("KeyR", "r")],
           }),
-          fullscreenControl(locale),
         ],
       };
     case "arcade-ice-strike-pro":
@@ -1144,7 +1137,7 @@ export function getMobileControlProfile(game, locale = "es") {
             inputs: [input("KeyM", "m")],
           }),
         ],
-        utilities: [fullscreenControl(locale)],
+        utilities: [],
       };
     default:
       return {

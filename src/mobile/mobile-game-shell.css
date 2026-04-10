@@ -328,6 +328,58 @@
   min-height: 0;
 }
 
+.mobile-game-shell__tablet-section {
+  display: grid;
+  gap: 0.72rem;
+  padding: 0.82rem 0.88rem;
+  border-radius: 22px;
+  border: 1px solid rgba(67, 55, 43, 0.12);
+  background:
+    radial-gradient(circle at 100% -14%, rgba(255, 255, 255, 0.3), transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(232, 224, 208, 0.82));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.mobile-game-shell__tablet-section--controls {
+  background:
+    radial-gradient(circle at 100% -18%, rgba(125, 211, 252, 0.28), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(221, 233, 246, 0.92));
+}
+
+.mobile-game-shell__tablet-section--status {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(250, 204, 21, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(236, 228, 214, 0.9));
+}
+
+.mobile-game-shell__tablet-section-header {
+  display: grid;
+  gap: 0.16rem;
+}
+
+.mobile-game-shell__tablet-section-header span {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(67, 55, 43, 0.72);
+}
+
+.mobile-game-shell__tablet-section-header strong {
+  font-size: 0.98rem;
+  line-height: 1.1;
+  color: #2c241b;
+}
+
+.mobile-game-shell__tablet-section-header p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.36;
+  color: rgba(67, 55, 43, 0.82);
+}
+
 .mobile-game-shell__hinge {
   position: absolute;
   top: -0.42rem;
@@ -3352,13 +3404,41 @@
   overflow-y: auto;
 }
 
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-bubble-storm"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-neon-rush"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-bubble-storm"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-neon-rush"] .mobile-game-shell__touch-copy {
+  display: none;
+}
+
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"].mobile-game-shell--touch-native .mobile-game-shell__body {
   grid-template-columns: minmax(0, 1.28fr) minmax(320px, 0.72fr);
 }
 
 .mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(320px, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) clamp(216px, 30svh, 292px);
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell {
+  min-height: clamp(432px, 60svh, 640px);
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-shell {
+  min-height: clamp(216px, 30svh, 292px);
+  max-height: clamp(216px, 30svh, 292px);
 }
 
 .mobile-game-shell--tablet-landscape-stack .mobile-game-shell__hardware {
@@ -3366,7 +3446,9 @@
 }
 
 .mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-panel {
-  overflow: visible;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
 }
 
 .mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-stack {
@@ -3547,6 +3629,136 @@
   display: none;
 }
 
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-shell {
+  min-height: clamp(468px, 68svh, 700px);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__stage-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-shell {
+  min-height: clamp(468px, 68svh, 700px);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] > .orchard-match-game[data-mobile-stage-branch="true"] {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .orchard-shell {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin-top: 0;
+  padding: 0.18rem;
+  overflow: hidden;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .orchard-canvas {
+  width: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  aspect-ratio: auto;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+  overflow: hidden;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-stage-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-stage-wrap {
+  padding: 0.18rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-canvas-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0 !important;
+  max-height: 100%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain;
+  aspect-ratio: auto;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-head,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-panel,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-stage-head,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-stage-foot {
+  display: none !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-stage-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-canvas-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0 !important;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain;
+  aspect-ratio: auto;
+}
+
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-stage {
   width: 100%;
   height: 100%;
@@ -3606,10 +3818,30 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-river-raid-neon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-tron-lightcycles"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-retro-road-fighter-synth"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .retro-arcade-canvas {
-  width: 100% !important;
-  max-width: min(100%, 940px) !important;
-  height: auto !important;
+  width: auto !important;
+  max-width: 100% !important;
+  height: 100% !important;
   max-height: 100% !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-basketball-court"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .basketball-court-stage {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  padding: 0.28rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-basketball-court"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] > .basketball-court-game[data-mobile-stage-branch="true"] {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="sports-basketball-court"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .basketball-court-canvas {
+  min-height: 0 !important;
+  aspect-ratio: auto;
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-billar-pool-club"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .billiards-canvas-host {
@@ -3661,8 +3893,13 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame {
-  max-width: min(100%, 960px);
-  margin-inline: auto !important;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-width: none;
+  max-height: 100%;
+  margin-inline: 0 !important;
   border-radius: 22px;
 }
 
@@ -3755,11 +3992,226 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body,
 .mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(320px, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) clamp(216px, 30svh, 292px);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell,
+.mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell {
+  min-height: clamp(432px, 60svh, 640px);
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-shell {
+  min-height: clamp(216px, 30svh, 292px);
+  max-height: clamp(216px, 30svh, 292px);
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-panel {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.78rem;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-primary,
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-secondary {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.58rem;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-primary {
+  position: static;
+  align-self: stretch;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-control-deck {
+  gap: 0.72rem;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-control-deck__meta {
+  display: none;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-control-deck__clusters {
+  min-height: 152px;
+  grid-template-columns: minmax(172px, 0.92fr) minmax(0, 1.08fr);
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-control-deck__cluster--actions {
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-control-deck__utilities {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel {
+  gap: 0.52rem;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel__chips,
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel__buttons,
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel__selects {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel__header strong,
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel__menu strong {
+  font-size: 0.76rem;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel__header p,
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel__detail-item span {
+  font-size: 0.72rem;
+}
+
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel__buttons button,
+.mobile-game-shell--tablet-landscape-stack .mobile-game-status-panel__selects select {
+  min-height: 44px;
 }
 
 .mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-stage {
   gap: 0;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-game {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-head,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-panel,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-stage-head,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-stage-foot,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-head,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-panel,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-stage-head {
+  display: none !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-stage-wrap,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-stage-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-canvas-shell,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-canvas-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0 !important;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-canvas,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain;
+  aspect-ratio: auto;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="platformer-sky-runner"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .sky-runner-dx-stage-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  padding: 0;
+  gap: 0;
+  grid-template-rows: minmax(0, 1fr);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="platformer-sky-runner"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .sky-runner-dx-stage-head,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="platformer-sky-runner"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .sky-runner-dx-route-strip,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="platformer-sky-runner"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .sky-runner-dx-mechanics-band,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="platformer-sky-runner"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .sky-runner-dx-stage-footer {
+  display: none !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="platformer-sky-runner"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .sky-runner-dx-canvas-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0 !important;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  margin: auto;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="platformer-sky-runner"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .sky-runner-dx-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-layout {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-stage,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-canvas-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-canvas-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: auto !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-canvas-shell canvas {
+  width: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
 }
 
 .mobile-game-shell--tablet-landscape-stack[data-game-id="sports-head-soccer-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .head-soccer-pro-controls,
@@ -3771,8 +4223,72 @@
   display: none !important;
 }
 
-.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-stage-panel {
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-shell {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin-top: 0;
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-stage-panel {
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  align-items: stretch;
+  padding: 0.18rem;
+  gap: 0.24rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-stage {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .cosmic-vanguard-canvas {
+  width: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-territory-war"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .tw-stage-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-territory-war"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .tw-canvas {
+  width: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-pinball-wizard"] .mobile-game-shell__body,
+.mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-pinball-wizard"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) clamp(178px, 24svh, 224px);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-pinball-wizard"] .mobile-game-shell__controls-shell,
+.mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack[data-game-id="arcade-pinball-wizard"] .mobile-game-shell__controls-shell {
+  min-height: clamp(178px, 24svh, 224px);
+  max-height: clamp(178px, 24svh, 224px);
 }
 
 @media (max-width: 760px) {

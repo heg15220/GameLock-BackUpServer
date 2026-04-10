@@ -19,7 +19,10 @@ import StrategyMansionTripleEnigmaGame from "../games/StrategyMansionTripleEnigm
 import RaceGame2DPro from "../games/RaceGame2DPro";
 import SunsetSlipstream from "../games/racing/midnight-traffic";
 import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
-import { MOBILE_SHELL_CATEGORIES, getMobileShellMode, getViewportProfile } from "../utils/mobileShellProfile";
+import { MOBILE_SHELL_CATEGORIES, getViewportProfile } from "../utils/mobileShellProfile";
+import MobileGameShell from "../mobile/MobileGameShell";
+import { getResponsiveMobileShellMode } from "../mobile/mobileGameProfiles";
+import { NATIVE_MOBILE_GAME_IDS } from "../mobile/nativeMobileGameIds";
 
 const PlatformerGame = lazy(() => import("../games/PlatformerGame"));
 const FighterGame = lazy(() => import("../games/FighterGame"));
@@ -272,11 +275,15 @@ function GamePlayground({ game }) {
   const controlHint = localizedHints[game.id] ?? CONTROL_HINTS_BY_LOCALE.es[game.id];
   const categoryKey = String(game.category ?? "");
   const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(categoryKey);
-  const mobileShellMode = getMobileShellMode(game, viewport);
+  const mobileShellMode = getResponsiveMobileShellMode(game, viewport);
   const viewportFormFactor = viewport.formFactor ?? "desktop";
+  const useMobileGameShell =
+    mobileShellEligible &&
+    viewport.isMobile &&
+    !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? ""));
   const sectionClassName = [
     "game-playground",
-    mobileShellEligible && viewport.isMobile ? "playground-mobile-enabled" : "",
+    useMobileGameShell ? "playground-mobile-enabled" : "",
     viewport.isMobile ? "playground-mobile-active" : "",
     `playground-device-${viewportFormFactor}`,
     viewport.orientation === "portrait" ? "playground-mobile-portrait" : "playground-mobile-landscape",
@@ -305,18 +312,29 @@ function GamePlayground({ game }) {
       </div>
 
       {ActiveGame ? (
-        <div className="playground-device-shell">
-          <div className="playground-device-bezel">
-            {mobileShellMode === "dual-screen" && viewport.orientation === "portrait" ? (
-              <div className="playground-device-hinge" aria-hidden="true" />
-            ) : null}
-            <div className="playground-device-content">
-              <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
-                <ActiveGame />
-              </Suspense>
+        useMobileGameShell ? (
+          <MobileGameShell
+            game={game}
+            viewport={viewport}
+            locale={resolvedLocale}
+            fallback={<p className="unsupported-game">{copy.loading}</p>}
+          >
+            <ActiveGame />
+          </MobileGameShell>
+        ) : (
+          <div className="playground-device-shell">
+            <div className="playground-device-bezel">
+              {mobileShellMode === "dual-screen" && viewport.orientation === "portrait" ? (
+                <div className="playground-device-hinge" aria-hidden="true" />
+              ) : null}
+              <div className="playground-device-content">
+                <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
+                  <ActiveGame />
+                </Suspense>
+              </div>
             </div>
           </div>
-        </div>
+        )
       ) : (
         <p className="unsupported-game">
           {copy.unsupported}

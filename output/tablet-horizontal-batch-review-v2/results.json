@@ -1,0 +1,192 @@
+[
+  {
+    "id": "arcade-golf-tour-2d",
+    "url": "http://127.0.0.1:4173/#game=arcade-golf-tour-2d",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+      "viewport": {
+        "width": 1097,
+        "height": 469,
+        "top": 143,
+        "left": 42
+      },
+      "controlsOrder": [
+        "Joystick y botones de accion",
+        "Estado y ajustes de partida"
+      ],
+      "fullscreenButtons": [],
+      "nodes": {
+        ".golf-tour-shell": {
+          "width": 1097,
+          "height": 618,
+          "top": 143,
+          "left": 42
+        },
+        ".golf-tour-stage-wrap": {
+          "width": 1097,
+          "height": 618,
+          "top": 143,
+          "left": 42
+        },
+        ".golf-tour-canvas-shell": {
+          "width": 1097,
+          "height": 618,
+          "top": 143,
+          "left": 42
+        },
+        ".golf-tour-canvas": {
+          "width": 1095,
+          "height": 616,
+          "top": 144,
+          "left": 43
+        }
+      }
+    }
+  },
+  {
+    "id": "arcade-territory-war",
+    "url": "http://127.0.0.1:4173/#game=arcade-territory-war",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+      "viewport": {
+        "width": 1097,
+        "height": 469,
+        "top": 143,
+        "left": 42
+      },
+      "controlsOrder": [
+        "Joystick y botones de accion",
+        "Estado y ajustes de partida"
+      ],
+      "fullscreenButtons": [],
+      "nodes": {
+        ".tw-stage-wrap": {
+          "width": 1073,
+          "height": 522,
+          "top": 155,
+          "left": 54
+        },
+        ".tw-canvas": {
+          "width": 960,
+          "height": 520,
+          "top": 156,
+          "left": 110
+        }
+      }
+    }
+  },
+  {
+    "id": "arcade-archery-horizon",
+    "url": "http://127.0.0.1:4173/#game=arcade-archery-horizon",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+      "viewport": {
+        "width": 1097,
+        "height": 469,
+        "top": 143,
+        "left": 42
+      },
+      "controlsOrder": [
+        "Joystick y botones de accion",
+        "Estado y ajustes de partida"
+      ],
+      "fullscreenButtons": [],
+      "nodes": {
+        ".archery-horizon-shell": {
+          "width": 1097,
+          "height": 618,
+          "top": 143,
+          "left": 42
+        },
+        ".archery-horizon-stage-wrap": {
+          "width": 1097,
+          "height": 618,
+          "top": 143,
+          "left": 42
+        },
+        ".archery-horizon-canvas-shell": {
+          "width": 1097,
+          "height": 618,
+          "top": 143,
+          "left": 42
+        },
+        ".archery-horizon-canvas": {
+          "width": 1095,
+          "height": 616,
+          "top": 144,
+          "left": 43
+        }
+      }
+    }
+  },
+  {
+    "id": "arcade-pinball-wizard",
+    "url": "http://127.0.0.1:4173/#game=arcade-pinball-wizard",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+      "viewport": {
+        "width": 1097,
+        "height": 469,
+        "top": 143,
+        "left": 42
+      },
+      "controlsOrder": [
+        "Joystick y botones de accion",
+        "Estado y ajustes de partida"
+      ],
+      "fullscreenButtons": [],
+      "nodes": {
+        ".pinball-shell": {
+          "width": 1097,
+          "height": 469,
+          "top": 143,
+          "left": 42
+        },
+        ".pinball-canvas": {
+          "width": 261,
+          "height": 469,
+          "top": 143,
+          "left": 460
+        }
+      }
+    }
+  },
+  {
+    "id": "arcade-valle-tranquilo",
+    "url": "http://127.0.0.1:4173/#game=arcade-valle-tranquilo",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+      "viewport": {
+        "width": 1097,
+        "height": 469,
+        "top": 143,
+        "left": 42
+      },
+      "controlsOrder": [
+        "Estado y ajustes de partida",
+        "Joystick y botones de accion"
+      ],
+      "fullscreenButtons": [],
+      "nodes": {
+        ".arcade-neon-rush-shell": {
+          "width": 1097,
+          "height": 469,
+          "top": 143,
+          "left": 42
+        },
+        ".arcade-neon-rush-frame": {
+          "width": 1095,
+          "height": 467,
+          "top": 144,
+          "left": 43
+        },
+        "iframe": {
+          "width": 1095,
+          "height": 467,
+          "top": 144,
+          "left": 43
+        }
+      }
+    }
+  }
+]

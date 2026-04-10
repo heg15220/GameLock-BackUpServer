@@ -78,6 +78,23 @@ function resolveShellCopy(game, locale, shellMode) {
   };
 }
 
+function resolveTabletLandscapePanelCopy(locale) {
+  return {
+    controlsEyebrow: locale === "en" ? "Play deck" : "Zona de juego",
+    controlsTitle: locale === "en" ? "Joystick and action buttons" : "Joystick y botones de accion",
+    controlsDescription:
+      locale === "en"
+        ? "Keep the match on the upper stage and use the lower deck for direct play controls."
+        : "Mantiene el gameplay en la parte superior y concentra debajo los controles tactiles de juego.",
+    statusEyebrow: locale === "en" ? "Match setup" : "Configuracion",
+    statusTitle: locale === "en" ? "State and game settings" : "Estado y ajustes de partida",
+    statusDescription:
+      locale === "en"
+        ? "Quick setup, score, and contextual actions stay grouped in the lower management panel."
+        : "Reune marcador, opciones previas y acciones contextuales en un panel inferior de gestion.",
+  };
+}
+
 function clearStageIsolation(viewport) {
   viewport.removeAttribute("data-mobile-stage-isolated");
   viewport
@@ -149,6 +166,10 @@ export default function MobileGameShell({
   const shellCopy = useMemo(
     () => resolveShellCopy(game, locale, shellMode),
     [game, locale, shellMode]
+  );
+  const tabletPanelCopy = useMemo(
+    () => resolveTabletLandscapePanelCopy(locale),
+    [locale]
   );
   const isDualScreen = shellMode === "dual-screen";
   const isPortrait = viewport.orientation === "portrait";
@@ -250,6 +271,10 @@ export default function MobileGameShell({
       onRequestFullscreen={requestFullscreen}
     />
   );
+  const categoryKey = String(game?.category ?? "").toLowerCase();
+  const isSportsCategory = categoryKey === "deportes" || categoryKey === "sports";
+  const isStatusFirstStack =
+    game?.id === "arcade-valle-tranquilo" || isSportsCategory;
 
   const statusPanelsNode = (
     <>
@@ -273,6 +298,32 @@ export default function MobileGameShell({
         />
       ) : null}
     </>
+  );
+
+  const tabletControlsSectionNode = (
+    <section className="mobile-game-shell__tablet-section mobile-game-shell__tablet-section--controls">
+      <header className="mobile-game-shell__tablet-section-header">
+        <span>{tabletPanelCopy.controlsEyebrow}</span>
+        <strong>{tabletPanelCopy.controlsTitle}</strong>
+        <p>{tabletPanelCopy.controlsDescription}</p>
+      </header>
+      <div className="mobile-game-shell__controls-primary">
+        {controlDeckNode}
+      </div>
+    </section>
+  );
+
+  const tabletStatusSectionNode = (
+    <section className="mobile-game-shell__tablet-section mobile-game-shell__tablet-section--status">
+      <header className="mobile-game-shell__tablet-section-header">
+        <span>{tabletPanelCopy.statusEyebrow}</span>
+        <strong>{tabletPanelCopy.statusTitle}</strong>
+        <p>{tabletPanelCopy.statusDescription}</p>
+      </header>
+      <div className="mobile-game-shell__controls-secondary">
+        {statusPanelsNode}
+      </div>
+    </section>
   );
 
   return (
@@ -322,12 +373,8 @@ export default function MobileGameShell({
                 <div className="mobile-game-shell__controls-stack">
                   {isTabletLandscapeStack ? (
                     <>
-                      <div className="mobile-game-shell__controls-primary">
-                        {controlDeckNode}
-                      </div>
-                      <div className="mobile-game-shell__controls-secondary">
-                        {statusPanelsNode}
-                      </div>
+                      {isStatusFirstStack ? tabletStatusSectionNode : tabletControlsSectionNode}
+                      {isStatusFirstStack ? tabletControlsSectionNode : tabletStatusSectionNode}
                     </>
                   ) : (
                     <>

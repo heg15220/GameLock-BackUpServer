@@ -1,0 +1,78 @@
+[
+  {
+    "id": "arcade-golf-tour-2d",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--touch-native",
+      "touchCopyVisible": true,
+      "controlDeckVisible": false,
+      "fullscreenButtonsInLowerPanel": [],
+      "viewport": {
+        "width": 1097,
+        "height": 618,
+        "top": 149,
+        "left": 42
+      },
+      "nodes": {
+        ".golf-tour-game": {
+          "width": 1097,
+          "height": 618,
+          "top": 149,
+          "left": 42
+        },
+        ".golf-tour-shell": {
+          "width": 1097,
+          "height": 618,
+          "top": 149,
+          "left": 42
+        },
+        ".golf-tour-canvas-shell": {
+          "width": 1097,
+          "height": 618,
+          "top": 149,
+          "left": 42
+        },
+        ".golf-tour-canvas": {
+          "width": 1095,
+          "height": 616,
+          "top": 150,
+          "left": 43
+        }
+      }
+    }
+  },
+  {
+    "id": "arcade-orchard-match-blast",
+    "metrics": {
+      "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--touch-native",
+      "touchCopyVisible": true,
+      "controlDeckVisible": false,
+      "fullscreenButtonsInLowerPanel": [],
+      "viewport": {
+        "width": 1097,
+        "height": 628,
+        "top": 149,
+        "left": 42
+      },
+      "nodes": {
+        ".orchard-shell": {
+          "width": 1097,
+          "height": 661,
+          "top": 149,
+          "left": 42
+        },
+        ".phaser-canvas-shell": {
+          "width": 1097,
+          "height": 661,
+          "top": 149,
+          "left": 42
+        },
+        "canvas": {
+          "width": 1086,
+          "height": 650,
+          "top": 154,
+          "left": 47
+        }
+      }
+    }
+  }
+]

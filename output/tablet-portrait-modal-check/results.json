@@ -1,0 +1,26 @@
+[
+  {
+    "id": "arcade-cosmic-vanguard",
+    "slug": "arcade-portrait",
+    "screenshotPath": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-portrait-modal-check\\arcade-portrait.png",
+    "shellClassName": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--has-controls",
+    "hasShell": true,
+    "isPortrait": true
+  },
+  {
+    "id": "platformer-sky-runner",
+    "slug": "juegos-portrait",
+    "screenshotPath": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-portrait-modal-check\\juegos-portrait.png",
+    "shellClassName": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--has-controls",
+    "hasShell": true,
+    "isPortrait": true
+  },
+  {
+    "id": "sports-head-soccer-arena",
+    "slug": "deportes-portrait",
+    "screenshotPath": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\tablet-portrait-modal-check\\deportes-portrait.png",
+    "shellClassName": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--has-controls",
+    "hasShell": true,
+    "isPortrait": true
+  }
+]

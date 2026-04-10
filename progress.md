@@ -4098,3 +4098,20 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 - Validacion: 
 pm run build OK fuera del sandbox con NODE_OPTIONS=--max-old-space-size=4096.
 - QA parcial ejecutada sobre build local en output/tablet-landscape-controls/ para Head Soccer, Basketball, Reactor Toss, Bubble Storm y Dig The Hole. El cliente Playwright capta sobre todo el area del juego; queda pendiente una pasada de captura full-shell si se quiere documentacion visual exhaustiva de toda la carcasa tablet.
+## 2026-04-10 - Tablet horizontal arcade/juegos/deportes
+- Extendido `MobileGameShell` para la variante `tablet landscape stack` en categorias arcade, juegos/games y deportes/sports.
+- Nueva composicion inferior en dos bloques: primero controles de juego (joystick + acciones) y despues estado/configuracion de partida.
+- Pendiente: build, comprobacion visual en tablet horizontal y ajuste fino si algun juego representativo desborda.
+- Build verificado con `NODE_OPTIONS=--max-old-space-size=4096 npm run build` tras superar limite de memoria por defecto.
+- Validacion visual tablet horizontal completada con Playwright en `arcade-cosmic-vanguard`, `platformer-sky-runner` y `sports-head-soccer-arena`.
+- Confirmado por DOM y captura: `stage` arriba, bloque inferior con `Joystick y botones de accion` primero y `Estado y ajustes de partida` despues.
+## 2026-04-10 - Correccion tablet vertical en ficha embebida
+- Detectado que el shell tablet estaba activo en `GameLaunchModal`, pero no en `GamePlayground` dentro de la ficha del juego.
+- Se unifica el uso de `MobileGameShell` para mobile/tablet tambien en la vista embebida y se comparte `NATIVE_MOBILE_GAME_IDS` entre ambas rutas.
+- Pendiente: validar portrait tablet en la ficha embebida con captura real.
+- Corregido override tardio en `src/mobile/mobile-game-shell.css` que volvia a poner dos columnas laterales en tablet horizontal.
+- Nuevo comportamiento validado: en tablet horizontal para Arcade/Juegos/Deportes el bloque inferior ocupa todo el ancho y se apila como `controles` primero y `estado/configuracion` despues.
+- Verificado con Playwright en `arcade-cosmic-vanguard`, `platformer-sky-runner` y `sports-head-soccer-arena`.
+- Ajustada la deteccion de viewport en `src/utils/mobileShellProfile.js`.
+- Antes: `tablet` solo si `shortestSide <= 1024` y `longestSide <= 1400`.
+- Ahora: rango base `<= 1100 / <= 1600` y rango ampliado para tablets tactiles grandes `<= 1280 / <= 1800`.
