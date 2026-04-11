@@ -1137,7 +1137,23 @@ export function getMobileControlProfile(game, locale = "es") {
             inputs: [input("KeyM", "m")],
           }),
         ],
-        utilities: [],
+        utilities: [
+          control("eat", t(locale, "Comer", "Eat"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyH", "h")],
+          }),
+          control("torch", t(locale, "Ant.", "Torch"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyT", "t")],
+          }),
+          control("help", t(locale, "Ayuda", "Help"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("Slash", "/")],
+          }),
+        ],
       };
     default:
       return {

@@ -644,7 +644,7 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
 }
 
 html.mobile-shell-embed .hud-top {
-  inset: 8px 8px auto 8px;
+  display: none !important;
 }
 
 html.mobile-shell-embed .brand-card {
@@ -670,10 +670,19 @@ html.mobile-shell-embed .beacon-card {
   display: none !important;
 }
 
-html.mobile-shell-embed .message-box,
-html.mobile-shell-embed .stamina-hud {
+html.mobile-shell-embed .message-box:not(.hidden) {
+  display: block !important;
+  z-index: 12;
+}
+
+html.mobile-shell-embed .stamina-hud:not(.hidden) {
   display: grid !important;
   z-index: 12;
+}
+
+html.mobile-shell-embed .message-box.hidden,
+html.mobile-shell-embed .stamina-hud.hidden {
+  display: none !important;
 }
 
 html.mobile-shell-embed .message-box {

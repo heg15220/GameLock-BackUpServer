@@ -4132,3 +4132,13 @@ pm run build OK fuera del sandbox con NODE_OPTIONS=--max-old-space-size=4096.
 - QA runtime con Playwright/Chromium fuera de sandbox:
 - se verifico arranque, antorcha equipable, pesca activable/cancelable, obra inmobiliaria que progresa a `built`, y regeneracion de mina (`beforeNodes: 258 -> afterNodes: 274` en la prueba automatizada).
 - Limitacion actual de plataforma: `npm run build` del repo completo sigue cayendo por memoria (`Reached heap limit`) fuera de sandbox; no se detecto error sintactico en el runtime de Valle Tranquilo.
+
+## 2026-04-11 - Valle Tranquilo: camera smoothing in open valley
+- Report under review: movement in `Valle Tranquilo` felt choppy, especially in the open valley.
+- Fixed cause in `public/arcade/valle-tranquilo/index.html`: camera was following logical tile position (`pPos`) instead of interpolated render position (`pAnim`), creating visible jumps even when the sprite tween was active.
+- Applied change: added a shared camera target helper and updated `draw()` to drive camera follow from `getPlayerRenderPos()` each frame; `scrollToPlayer()` remains for immediate recentering on teleports, resize, and map changes.
+- Validation: Playwright run against `file:///.../public/arcade/valle-tranquilo/index.html` with captures/state in `output/valle-tranquilo-stutter-check-after/`; no console errors.
+
+[2026-04-11] Valle Tranquilo: arreglada la entrada al ayuntamiento. Los portales ahora consideran proximidad a door o approach, y travelToLandmark cola portalId para entrar automaticamente al llegar. Validado con Chromium: el mapa cambia a town_hall sin errores de consola.
+[2026-04-11] Valle Tranquilo: anadidos Clara dentro del ayuntamiento, boton visible de salida para interiores y acceso directo a licencias desde Clara o el boton del ayuntamiento cuando estas dentro. Validado con Chromium: entrar, abrir licencias y salir al valle sin errores.
+[2026-04-11] Valle Tranquilo: el mostrador de licencias ahora deja claro que cada permiso se compra solo con monedas; ya no muestra materiales de obra en ese modal. Dig Hole Treasure: ocultada la barra superior en mobile/tablet embebido y la estamina vuelve a respetar el estado hidden, de modo que no aparece en world_select. Validado con Chromium sin errores.

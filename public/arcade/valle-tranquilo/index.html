@@ -98,6 +98,7 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 .ab.b{border-color:#5080c0;color:#90b8f0}
 #townhall-btn{border-color:#9a7530;color:#f0d38a}
 #home-btn{border-color:#5d86c0;color:#b9d3ff}
+#exit-interior-btn{border-color:#8d6a30;color:#f2d28a}
 #save-btn{grid-column:1/-1}
 
 #mb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
@@ -332,6 +333,68 @@ html.mobile-shell-embed.mobile-shell-landscape #hud{
 html.mobile-shell-embed.mobile-shell-landscape .chip{
   font-size:11px;
 }
+html.mobile-shell-embed.mobile-shell-portrait #app{
+  grid-template-rows:minmax(54px,auto) minmax(0,1fr);
+}
+html.mobile-shell-embed.mobile-shell-portrait #hud{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-areas:
+    'meta meta'
+    'vitals actions';
+  align-items:center;
+  gap:4px 6px;
+  padding:4px 6px;
+}
+html.mobile-shell-embed.mobile-shell-portrait #hud .hud-g{
+  min-width:0;
+}
+html.mobile-shell-embed.mobile-shell-portrait #hud .hud-g:nth-child(1){
+  grid-area:meta;
+  gap:4px;
+  flex-wrap:wrap;
+}
+html.mobile-shell-embed.mobile-shell-portrait #hud .hud-g:nth-child(2){
+  grid-area:vitals;
+  gap:4px;
+}
+html.mobile-shell-embed.mobile-shell-portrait #hud .hud-g:nth-child(3){
+  grid-area:actions;
+  gap:4px;
+  justify-content:flex-end;
+}
+html.mobile-shell-embed.mobile-shell-portrait #title{
+  display:none;
+}
+html.mobile-shell-embed.mobile-shell-portrait #stag{
+  font-size:4px;
+  padding:2px 5px;
+}
+html.mobile-shell-embed.mobile-shell-portrait .chip{
+  padding:1px 5px;
+  font-size:10px;
+}
+html.mobile-shell-embed.mobile-shell-portrait #hday-label,
+html.mobile-shell-embed.mobile-shell-portrait #hflv-label{
+  display:none;
+}
+html.mobile-shell-embed.mobile-shell-portrait #hbar,
+html.mobile-shell-embed.mobile-shell-portrait #ebar{
+  width:44px;
+  height:7px;
+}
+html.mobile-shell-embed.mobile-shell-portrait #hhlth,
+html.mobile-shell-embed.mobile-shell-portrait #henrg{
+  font-size:11px!important;
+}
+html.mobile-shell-embed.mobile-shell-portrait #health-icon,
+html.mobile-shell-embed.mobile-shell-portrait #energy-icon{
+  font-size:9px!important;
+}
+html.mobile-shell-embed.mobile-shell-portrait #kb-help-btn{
+  padding:1px 5px!important;
+  font-size:10px!important;
+}
 </style>
 </head>
 <body class="spring day">
@@ -413,6 +476,7 @@ html.mobile-shell-embed.mobile-shell-landscape .chip{
       <button class="ab" id="mine-btn" onclick="openMine()">⛏️ Mina</button>
       <button class="ab" id="townhall-btn" onclick="travelToLandmark('town_hall')">🏛️ Ayuntamiento</button>
       <button class="ab" id="home-btn" onclick="travelToLandmark('player_home')">🏠 Casa jugador</button>
+      <button class="ab" id="exit-interior-btn" onclick="leaveInterior()" hidden>↩ Salir</button>
       <button class="ab" id="save-btn" onclick="openSaveManager()">💾 Guardar</button>
     </div>
   </div>
@@ -1521,7 +1585,9 @@ function makeTownHallMap(){
     raw:layoutFromRows(rows),
     spawn:{col:8,row:7},
     exit:{col:8,row:7},
-    npcs:{},
+    npcs:{
+      clara:{col:10,row:4,color:'#d0a060'}
+    },
     zones:[],
     stations:[
       {col:8,row:3,type:'permit'}
@@ -2048,10 +2114,18 @@ function leaveMine(){
   reAll();
   scrollToPlayer();
 }
+function portalInteractionDistance(portal,pos=pPos){
+  if(!portal||!pos) return Infinity;
+  const doorDist=Math.abs(portal.door.col-pos.col)+Math.abs(portal.door.row-pos.row);
+  const approachDist=portal.approach
+    ? Math.abs(portal.approach.col-pos.col)+Math.abs(portal.approach.row-pos.row)
+    : Infinity;
+  return Math.min(doorDist,approachDist);
+}
 function activePortal(){
   if(ACTIVE_MAP_ID!=='farm') return null;
   const portals=MAP_STORE.farm?.portals||[];
-  return portals.find(portal=>Math.abs(portal.door.col-pPos.col)+Math.abs(portal.door.row-pPos.row)<=1)||null;
+  return portals.find(portal=>portalInteractionDistance(portal)<=1)||null;
 }
 function enterPortal(portal){
   if(!portal) return;
@@ -2115,11 +2189,12 @@ function projectProgressText(plot){
 }
 function openTownHallDesk(){
   let h=`<div style="font-family:'VT323';font-size:15px;color:#d7c39f">${IS_ES?'Gestion de solares, permisos y nuevas viviendas del valle.':'Management of plots, permits, and new valley housing.'}</div>`;
+  h+=`<div class="qi"><div class="qt">🪙 ${IS_ES?'Licencias oficiales':'Official permits'}</div><div class="qm">${IS_ES?'Cada licencia se compra solo con monedas en el ayuntamiento. Los materiales de obra se piden despues, cuando contratas a los obreros del solar.':'Each permit is bought only with coins at town hall. Building materials are requested later, when you hire builders for the plot.'}</div></div>`;
   PROPERTY_PLOTS.forEach(plot=>{
     const prop=propertyState(plot.id);
     const canPermit=prop.state==='locked'&&G.gold>=plot.permitCost;
     h+=`<div class="sr" onclick="${canPermit?`buyPropertyPermit('${plot.id}')`:''}" style="${prop.state!=='locked'?'opacity:.82;':''}">
-      <span class="si">🏡</span><div><div class="sn">${LANG==='es'?plot.nameEs:plot.nameEn}</div><div class="sd">${projectProgressText(plot)}</div><div class="sd">${recipeCostText(plot.buildCost)}</div></div>
+      <span class="si">🏡</span><div><div class="sn">${LANG==='es'?plot.nameEs:plot.nameEn}</div><div class="sd">${projectProgressText(plot)}</div><div class="sd">${prop.state==='locked'?(IS_ES?'Licencia: pago unico solo en monedas.':'Permit: one-time coin payment only.'):(IS_ES?'La obra se gestiona aparte desde el solar.':'Construction is managed separately from the plot.')}</div></div>
       <span class="sp">${prop.state==='locked'?`🪙${plot.permitCost}`:(IS_ES?prop.state.toUpperCase():prop.state.toUpperCase())}</span></div>`;
   });
   openM(IS_ES?'🏛️ AYUNTAMIENTO':'🏛️ TOWN HALL',IS_ES?'Permisos de compra y seguimiento de obras':'Purchase permits and building progress',h);
@@ -3552,7 +3627,7 @@ function resolveQueuedIntent(){
   if(queuedPortalId){
     const portal=(MAP_STORE.farm?.portals||[]).find(v=>v.id===queuedPortalId);
     queuedPortalId=null;
-    if(portal&&Math.abs(portal.door.col-pPos.col)+Math.abs(portal.door.row-pPos.row)<=1){
+    if(portal&&portalInteractionDistance(portal)<=1){
       enterPortal(portal);
       return;
     }
@@ -3577,7 +3652,7 @@ function resolveQueuedIntent(){
 }
 function updateAutoMove(now=performance.now(),forceStep=false){
   if(!autoPath.length){
-    if(queuedActionIdx!=null||queuedInteractNpcId) resolveQueuedIntent();
+    if(queuedActionIdx!=null||queuedInteractNpcId||queuedPortalId) resolveQueuedIntent();
     return;
   }
   const stepMs=moveRepeatMs();
@@ -3670,11 +3745,11 @@ function travelToLandmark(portalId){
   if(inInterior()) leaveInterior();
   if(ACTIVE_MAP_ID!=='farm') setActiveMap('farm',{spawn:LAST_FARM_POS||MAP_STORE.farm.spawn});
   const target=portal.approach||portal.door;
-  if(Math.abs(target.col-pPos.col)+Math.abs(target.row-pPos.row)<=1){
-    notify(IS_ES?`Ya estas junto a ${landmarkPortalLabel(portal)}.`:`You are already next to ${landmarkPortalLabel(portal)}.`,'info');
+  if(portalInteractionDistance(portal)<=1){
+    enterPortal(portal);
     return true;
   }
-  const ok=queueMoveTo(target.col,target.row,{ignoreNpc:true});
+  const ok=queueMoveTo(target.col,target.row,{ignoreNpc:true,portalId:portal.id});
   if(ok){
     showKbHint(IS_ES?`Ruta marcada hacia ${landmarkPortalLabel(portal)}.`:`Route set to ${landmarkPortalLabel(portal)}.`);
     notify(IS_ES?`Vas hacia ${landmarkPortalLabel(portal)}.`:`Heading to ${landmarkPortalLabel(portal)}.`,'info');
@@ -3799,7 +3874,29 @@ function getPlayerRenderPos(now=performance.now()){
   if(p>=1) pAnim.active=false;
   return {col,row};
 }
-function updateCamera(){
+function getCameraTargetForPos(col,row){
+  const vp=document.getElementById('vp');
+  const vpW=vp.clientWidth,vpH=vp.clientHeight;
+  const tox=vpW/2-col*TW-TW/2;
+  const toy=vpH/2-row*TH-TH/2;
+  return {
+    x:Math.max(Math.min(tox,20),vpW-GW*TW-20),
+    y:Math.max(Math.min(toy,20),vpH-GH*TH-20),
+  };
+}
+function syncCameraTarget(playerPos,immediate=false){
+  const pos=playerPos||pPos;
+  const next=getCameraTargetForPos(pos.col,pos.row);
+  targetOx=next.x;
+  targetOy=next.y;
+  if(immediate||!Number.isFinite(ox)||!Number.isFinite(oy)){
+    ox=next.x;
+    oy=next.y;
+    return;
+  }
+}
+function updateCamera(playerPos=null){
+  if(playerPos) syncCameraTarget(playerPos);
   if(!Number.isFinite(targetOx)||!Number.isFinite(targetOy)){targetOx=ox;targetOy=oy;}
   ox+= (targetOx-ox)*0.2;
   oy+= (targetOy-oy)*0.2;
@@ -3978,7 +4075,7 @@ function drawNPCs_row(col,row,id,t){
   gCtx.fillRect(x+2,by+6,4,4);
   gCtx.fillStyle='#c88050';
   gCtx.fillRect(x+2,by-7,10,11);
-  const hairC={elena:'#d0d0d0',marco:'#603010',luna:'#308030',felix:'#d08020',nora:'#808080'};
+  const hairC={elena:'#d0d0d0',marco:'#603010',luna:'#308030',felix:'#d08020',nora:'#808080',clara:'#b07040'};
   gCtx.fillStyle=hairC[id]||'#503010';
   gCtx.fillRect(x+2,by-7,10,4);
   gCtx.fillStyle='#201008';
@@ -4141,7 +4238,8 @@ function drawDarknessMask(t,playerRenderPos){
 function draw(){
   updateAutoMove(performance.now());
   updateNpcWorld();
-  updateCamera();
+  const playerRenderPos=getPlayerRenderPos();
+  updateCamera(playerRenderPos);
   const t=G.frame*.04;
   if(!perfLite||skyCacheFrame<0||G.frame-skyCacheFrame>=2){
     sCtx.clearRect(0,0,cw,ch);
@@ -4149,7 +4247,6 @@ function draw(){
     skyCacheFrame=G.frame;
   }
   gCtx.clearRect(0,0,cw,ch);
-  const playerRenderPos=getPlayerRenderPos();
   const playerRow=Math.max(0,Math.min(GH-1,Math.round(playerRenderPos.row)));
   const {minCol,maxCol,minRow,maxRow}=getVisibleTileBounds(document.fullscreenElement?0:2);
   const npcRows=!inMine()?new Map():null;
@@ -4349,14 +4446,7 @@ function tryInteract(){
 }
 
 function scrollToPlayer(immediate=false){
-  const vp=document.getElementById('vp');
-  const vpW=vp.clientWidth,vpH=vp.clientHeight;
-  const tox=Math.round(vpW/2-pPos.col*TW-TW/2);
-  const toy=Math.round(vpH/2-pPos.row*TH-TH/2);
-  const nx=Math.max(Math.min(tox,20),vpW-GW*TW-20);
-  const ny=Math.max(Math.min(toy,20),vpH-GH*TH-20);
-  targetOx=nx;targetOy=ny;
-  if(immediate||!Number.isFinite(ox)||!Number.isFinite(oy)){ox=nx;oy=ny;}
+  syncCameraTarget(pPos,immediate);
 }
 
 let kbHintTimer=null;
@@ -4834,6 +4924,9 @@ function talkNPC(id){
   const questBtn=offered
     ? `<button class="mcb" style="margin-top:0" onclick="acceptNpcQuest('${offered.id}')">${IS_ES?'[ ACEPTAR ENCARGO ]':'[ ACCEPT QUEST ]'} ${questTitle(offered)}</button>`
     : '';
+  const serviceBtn=id==='clara'
+    ? `<button class="mcb" style="margin-top:8px" onclick="openTownHallDesk()">${IS_ES?'[ GESTIONAR LICENCIAS ]':'[ MANAGE PERMITS ]'}</button>`
+    : '';
   const name=npcName(npc);
   openM(`${npc.av} ${name}`,npcRole(npc),
     `<div class="db"><div class="dn">${name.toUpperCase()}</div><div style="color:#e8d0a0">"${line}"</div></div>
@@ -4841,6 +4934,7 @@ function talkNPC(id){
     <div class="qi"><div class="qt">${IS_ES?'Necesidad actual':'Current need'}</div><div class="qm">${currentNpcNeedText(npc)}</div></div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">${gbtns}</div>
     <div style="font-family:'VT323';font-size:14px;color:#706050;margin-top:8px">${tr('friendshipLabel')} ${relNow}% ${hearts}</div>
+    ${serviceBtn}
     ${questBtn}`);
   reAll();
 }
@@ -5502,9 +5596,22 @@ function applyLocaleUI(){
   const mineBtn=document.getElementById('mine-btn');
   if(mineBtn) mineBtn.textContent=inMine()?`↩ ${tr('exitMine')}`:`⛏️ ${tr('mine')}`;
   const townHallBtn=document.getElementById('townhall-btn');
-  if(townHallBtn) townHallBtn.textContent=IS_ES?'🏛️ Ayuntamiento':'🏛️ Town Hall';
+  if(townHallBtn){
+    const inTownHall=ACTIVE_MAP_ID==='town_hall';
+    townHallBtn.textContent=inTownHall
+      ? (IS_ES?'📋 Licencias':'📋 Permits')
+      : (IS_ES?'🏛️ Ayuntamiento':'🏛️ Town Hall');
+    townHallBtn.onclick=()=>inTownHall?openTownHallDesk():travelToLandmark('town_hall');
+  }
   const homeBtn=document.getElementById('home-btn');
   if(homeBtn) homeBtn.textContent=IS_ES?'🏠 Casa jugador':'🏠 Player House';
+  const exitInteriorBtn=document.getElementById('exit-interior-btn');
+  if(exitInteriorBtn){
+    const canExitInterior=inInterior();
+    exitInteriorBtn.hidden=!canExitInterior;
+    exitInteriorBtn.style.display=canExitInterior?'':'none';
+    exitInteriorBtn.textContent=IS_ES?'↩ Salir':'↩ Exit';
+  }
   const saveBtn=document.getElementById('save-btn');
   if(saveBtn) saveBtn.textContent=`💾 ${IS_ES?'Guardar':'Save'}`;
 
@@ -5566,8 +5673,12 @@ function reAll(){
       <div class="qi"><div class="qt">⛏️ ${storageTitle('oreChest')}</div><div class="qm">${Object.keys(G.storage.oreChest||{}).length} ${IS_ES?'tipos guardados':'stored types'}</div></div>
       <div class="qi"><div class="qt">🍲 ${storageTitle('pantry')}</div><div class="qm">${Object.keys(G.storage.pantry||{}).length} ${IS_ES?'tipos guardados':'stored types'}</div></div>`;
   } else if(inInterior()){
-    nl.innerHTML=`<div class="qi"><div class="qt">${mapName()}</div><div class="qm">${IS_ES?'Interior visitable del poblado.':'Enterable villager home.'}</div></div>
-      <div class="qi"><div class="qt">${IS_ES?'Consejo':'Tip'}</div><div class="qm">${IS_ES?'Pulsa E en la alfombra para volver afuera.':'Press E on the mat to go back outside.'}</div></div>`;
+    nl.innerHTML=ACTIVE_MAP_ID==='town_hall'
+      ? `<div class="qi"><div class="qt">👩‍💼 ${npcName('clara')}</div><div class="qm">${IS_ES?'Secretaria y gestora de licencias del valle.':'Town clerk managing permits and plots.'}</div></div>
+        <div class="qi"><div class="qt">📋 ${IS_ES?'Licencias':'Permits'}</div><div class="qm">${IS_ES?'Habla con Clara o usa el boton de licencias para comprar solares y revisar obras.':'Talk to Clara or use the permits button to buy plots and review projects.'}</div></div>
+        <div class="qi"><div class="qt">${IS_ES?'Salida':'Exit'}</div><div class="qm">${IS_ES?'Pulsa E en la alfombra o usa el boton salir para volver al valle.':'Press E on the mat or use the exit button to return outside.'}</div></div>`
+      : `<div class="qi"><div class="qt">${mapName()}</div><div class="qm">${IS_ES?'Interior visitable del poblado.':'Enterable villager home.'}</div></div>
+        <div class="qi"><div class="qt">${IS_ES?'Consejo':'Tip'}</div><div class="qm">${IS_ES?'Pulsa E en la alfombra o usa el boton salir para volver afuera.':'Press E on the mat or use the exit button to go back outside.'}</div></div>`;
   } else if(inMine()){
     const leftNodes=Object.keys(MAP_STORE.mine?.rareNodes||{}).length;
     nl.innerHTML=`<div class="qi"><div class="qt">${tr('mineActive')}</div><div class="qm">${tr('rareVisible',{n:leftNodes})}</div></div>

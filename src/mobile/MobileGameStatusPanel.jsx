@@ -353,6 +353,31 @@ function buildMenuControls(scopeElement) {
       );
     });
 
+    const visibleStandaloneButtons = [...doc.querySelectorAll("button")].filter((button) => {
+      if (
+        button.closest(
+          "#mb.on, .overlay:not(.hidden), #panelOverlay:not(.hidden), #worldSelect:not(.hidden), #endingOverlay:not(.hidden), #treasureRoomOverlay:not(.hidden), #actb, .action-row, #guide-actions"
+        )
+      ) {
+        return false;
+      }
+
+      return isVisibleControl(button);
+    });
+
+    visibleStandaloneButtons.forEach((button, buttonIndex) => {
+      registerEntries({
+        buttons: [{
+          id: button.id || `iframe-${frameIndex}-visible-button-${buttonIndex}`,
+          label: extractControlLabel(button),
+          disabled: Boolean(button.disabled),
+          target: button,
+          group: "visible-stage",
+        }],
+        selects: [],
+      });
+    });
+
     const visibleStandaloneSelects = [...doc.querySelectorAll("select")].filter((select) => {
       if (select.closest("#mb.on, .overlay:not(.hidden), #panelOverlay:not(.hidden), #worldSelect:not(.hidden)")) {
         return;
@@ -528,7 +553,23 @@ function filterContextButtons(buttons, snapshot, gameCategory) {
     pattern.test(String(button.label ?? ""));
 
   if (snapshot.mode === "arcade-dig-hole-treasure" || snapshot.variant === "valle-tranquilo") {
-    return actionButtons.slice(0, 6);
+    return dedupeButtons(
+      [
+        ...actionButtons,
+        ...buttons.filter((button) => button.group === "visible-stage"),
+      ]
+        .filter((button) => !buttonLabelMatches(button, /fullscreen|pantalla completa/i))
+        .filter((button) => {
+          if (snapshot.variant !== "valle-tranquilo") {
+            return true;
+          }
+
+          return (
+            buttonSourceWeight(button) >= 3
+            || buttonIdMatches(button, /fish-cancel|kb-help/i)
+          );
+        })
+    ).slice(0, snapshot.variant === "valle-tranquilo" ? 10 : 8);
   }
 
   if (snapshot.mode === "billiards_pool") {
