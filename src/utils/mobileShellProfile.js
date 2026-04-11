@@ -41,10 +41,11 @@ export function getViewportProfile() {
   const width = window.innerWidth || 0;
   const height = window.innerHeight || 0;
   const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
+  const finePointer = window.matchMedia?.("(pointer: fine)")?.matches ?? false;
   const hasTouch = (navigator.maxTouchPoints ?? 0) > 0;
   const shortestSide = Math.min(width, height);
   const longestSide = Math.max(width, height);
-  const isTouch = coarsePointer || hasTouch;
+  const isTouch = coarsePointer || (hasTouch && !finePointer);
   const isPhone = shortestSide <= PHONE_MAX_SHORTEST_SIDE;
   const fitsDefaultTabletRange =
     shortestSide <= TABLET_MAX_SHORTEST_SIDE && longestSide <= TABLET_MAX_LONGEST_SIDE;
@@ -52,7 +53,10 @@ export function getViewportProfile() {
     isTouch &&
     shortestSide <= LARGE_TOUCH_TABLET_MAX_SHORTEST_SIDE &&
     longestSide <= LARGE_TOUCH_TABLET_MAX_LONGEST_SIDE;
-  const isTablet = !isPhone && (fitsDefaultTabletRange || fitsLargeTouchTabletRange);
+  const isTablet =
+    !isPhone &&
+    isTouch &&
+    (fitsDefaultTabletRange || fitsLargeTouchTabletRange);
   const isMobile = isPhone || isTablet;
 
   return {

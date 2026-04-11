@@ -4115,3 +4115,20 @@ pm run build OK fuera del sandbox con NODE_OPTIONS=--max-old-space-size=4096.
 - Ajustada la deteccion de viewport en `src/utils/mobileShellProfile.js`.
 - Antes: `tablet` solo si `shortestSide <= 1024` y `longestSide <= 1400`.
 - Ahora: rango base `<= 1100 / <= 1600` y rango ampliado para tablets tactiles grandes `<= 1280 / <= 1800`.
+
+## 2026-04-11 - Valle Tranquilo expansion sistemica
+- Juego ampliado en `public/arcade/valle-tranquilo/index.html` con:
+- mapa del valle mucho mas grande (144x92) y redisenado por distritos: plaza mayor, ayuntamiento, barrio artesano, aldea del lago, terrazas del sur y huertos del este;
+- mina mucho mas grande (96x64), con catalogo mineral ampliado y regeneracion periodica de zonas excavadas cada pocos dias;
+- nueva barra de vida separada de energia + sistema de comida / comer + pan y recetas cocinadas que recuperan vida;
+- supervivencia nocturna: antorcha equipable, oscuridad en mina/noches y farolas funcionales en poblados;
+- boton visible para cancelar pesca en curso;
+- cultivos ampliados (maiz, tomate, lechuga, zanahoria, cebolla, pimiento, col, fresa, uva, etc.), olivo y mas cadena de recetas/crafteo/horno;
+- mas NPCs con historias, necesidades y rutinas horarias; misiones recomendadas + misiones que se activan hablando con NPCs concretos;
+- ayuntamiento + permisos de suelo + sistema de solares/obra/progreso diario/venta o uso de casas terminadas.
+- Persistencia extendida: guardado/import-export ahora conserva vida, antorcha, ano, progreso inmobiliario y activacion de encargos.
+- Validacion:
+- `node --check valle-tranquilo-script-check.js` OK tras extraer el bloque JS del HTML.
+- QA runtime con Playwright/Chromium fuera de sandbox:
+- se verifico arranque, antorcha equipable, pesca activable/cancelable, obra inmobiliaria que progresa a `built`, y regeneracion de mina (`beforeNodes: 258 -> afterNodes: 274` en la prueba automatizada).
+- Limitacion actual de plataforma: `npm run build` del repo completo sigue cayendo por memoria (`Reached heap limit`) fuera de sandbox; no se detecto error sintactico en el runtime de Valle Tranquilo.

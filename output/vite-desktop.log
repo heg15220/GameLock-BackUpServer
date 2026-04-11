@@ -1,0 +1,17 @@
+
+> plataforma-juegos-saas@0.1.0 dev
+> vite --host 127.0.0.1 --port 4174
+
+
+  [32m[1mVITE[22m v4.5.14[39m  [2mready in [0m[1m434[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4174[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh[22m[2m to show help[22m
+[2m12:45:14[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/utils/mobileShellProfile.js[22m
+[2m12:50:24[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m12:57:34[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mpublic/arcade/valle-tranquilo/index.html[22m
+[2m12:57:41[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mpublic/arcade/valle-tranquilo/index.html[22m
+[2m12:57:51[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mpublic/arcade/valle-tranquilo/index.html[22m
+[2m12:58:01[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mpublic/arcade/valle-tranquilo/index.html[22m
+[2m12:58:05[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mpublic/arcade/valle-tranquilo/index.html[22m
+[2m12:58:11[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mpublic/arcade/valle-tranquilo/index.html[22m
