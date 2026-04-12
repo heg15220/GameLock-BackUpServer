@@ -18,6 +18,11 @@ const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
   "strategy-poker-holdem-no-bet",
 ]);
 
+const PORTRAIT_APP_BOTTOM_AD_GAME_IDS = new Set([
+  "knowledge-crucigrama-mini",
+  "knowledge-sopa-letras-mega",
+]);
+
 function readInitialAdPreviewEnabled() {
   if (typeof window === "undefined") {
     return DEFAULT_AD_PREVIEW_ENABLED;
@@ -79,23 +84,31 @@ function GameLaunchModal({ game, onClose }) {
   const forceDesktopTabletLayout =
     viewport.formFactor === "tablet" &&
     TABLET_DESKTOP_LAYOUT_GAME_IDS.has(String(game.id ?? ""));
+  const gameId = String(game.id ?? "");
   const useMobileGameShell =
     mobileShellEligible &&
     viewport.isMobile &&
-    !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? "")) &&
+    !NATIVE_MOBILE_GAME_IDS.has(gameId) &&
     !forceDesktopTabletLayout;
   const viewportFormFactor = viewport.formFactor ?? "desktop";
   const categoryKey = String(game.category ?? "");
+  const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
+  const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
+  const showPortraitKnowledgeBottomAd =
+    isKnowledgeCategory &&
+    viewport.orientation === "portrait" &&
+    (useMobileGameShell || PORTRAIT_APP_BOTTOM_AD_GAME_IDS.has(gameId));
   const showMobileSystemBottomAd =
     adPreviewEnabled &&
-    useMobileGameShell &&
     viewportFormFactor !== "desktop" &&
-    (
-      categoryKey === "Estrategia" ||
-      categoryKey === "Strategy" ||
-      categoryKey === "Conocimiento" ||
-      categoryKey === "Knowledge"
-    );
+    ((isStrategyCategory && useMobileGameShell) || showPortraitKnowledgeBottomAd);
+  const showShellManagedSystemBottomAd =
+    showMobileSystemBottomAd &&
+    isStrategyCategory &&
+    useMobileGameShell;
+  const showExternalMobileSystemBottomAd =
+    showMobileSystemBottomAd &&
+    !showShellManagedSystemBottomAd;
   const showDesktopAdRails = adPreviewEnabled && viewportFormFactor === "desktop";
   const desktopAdColumns = {
     left: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "left"),
@@ -117,8 +130,8 @@ function GameLaunchModal({ game, onClose }) {
   const launchOverlayClassName = [
     "launch-overlay",
     useMobileGameShell ? "launch-overlay--mobile-shell" : "",
-    useMobileGameShell ? `launch-overlay--device-${viewportFormFactor}` : "",
-    showMobileSystemBottomAd ? "launch-overlay--with-system-bottom-ad" : "",
+    viewport.isMobile ? `launch-overlay--device-${viewportFormFactor}` : "",
+    showExternalMobileSystemBottomAd ? "launch-overlay--with-system-bottom-ad" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -268,7 +281,7 @@ function GameLaunchModal({ game, onClose }) {
                   <div
                     className={launchPlaygroundClassName}
                     data-category={String(game.category ?? "").toLowerCase()}
-                    data-game-id={game.id}
+                    data-game-id={gameId}
                     data-mobile-shell={mobileShellMode}
                     data-mobile-orientation={viewport.orientation}
                     data-device-form-factor={viewportFormFactor}
@@ -318,7 +331,7 @@ function GameLaunchModal({ game, onClose }) {
 
       </div>
 
-      {showMobileSystemBottomAd ? (
+      {showExternalMobileSystemBottomAd ? (
         <div className="launch-system-bottom-ad-wrap">
           <AdPreviewCard
             slot={MOBILE_APP_BOTTOM_AD_SLOT}

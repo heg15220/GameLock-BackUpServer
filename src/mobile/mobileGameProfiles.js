@@ -1105,6 +1105,16 @@ export function getMobileControlProfile(game, locale = "es") {
           right: input("ArrowRight", "ArrowRight"),
           down: input("ArrowDown", "ArrowDown"),
         }),
+        leftSupportPad: [
+          control("toolPrev", t(locale, "Herram-", "Tool-"), {
+            type: "tap",
+            inputs: [input("KeyQ", "q")],
+          }),
+          control("toolNext", t(locale, "Herram+", "Tool+"), {
+            type: "tap",
+            inputs: [input("Tab", "Tab")],
+          }),
+        ],
         rightPad: [
           control("tool", t(locale, "Usa", "Use"), {
             type: "tap",
@@ -1120,14 +1130,6 @@ export function getMobileControlProfile(game, locale = "es") {
             type: "tap",
             inputs: [input("KeyB", "b")],
           }),
-          control("toolNext", t(locale, "Herram+", "Tool+"), {
-            type: "tap",
-            inputs: [input("Tab", "Tab")],
-          }),
-          control("toolPrev", t(locale, "Herram-", "Tool-"), {
-            type: "tap",
-            inputs: [input("KeyQ", "q")],
-          }),
           control("sleep", t(locale, "Dormir", "Sleep"), {
             type: "tap",
             inputs: [input("KeyZ", "z")],
@@ -1136,24 +1138,21 @@ export function getMobileControlProfile(game, locale = "es") {
             type: "tap",
             inputs: [input("KeyM", "m")],
           }),
-        ],
-        utilities: [
           control("eat", t(locale, "Comer", "Eat"), {
             type: "tap",
-            tone: "utility",
+            tone: "accent",
             inputs: [input("KeyH", "h")],
           }),
           control("torch", t(locale, "Ant.", "Torch"), {
             type: "tap",
-            tone: "utility",
             inputs: [input("KeyT", "t")],
           }),
           control("help", t(locale, "Ayuda", "Help"), {
             type: "tap",
-            tone: "utility",
             inputs: [input("Slash", "/")],
           }),
         ],
+        utilities: [],
       };
     default:
       return {

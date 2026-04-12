@@ -1,6 +1,8 @@
-﻿import React, { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import AdPreviewCard from "./components/AdPreviewCard";
 import GameGrid from "./components/GameGrid";
 import GameLaunchModal from "./components/GameLaunchModal";
+import { DESKTOP_AD_SLOTS } from "./config/adPreview";
 import { games } from "./data/games";
 import { useTranslations, localizeCategory } from "./i18n";
 
@@ -40,7 +42,9 @@ function App() {
   }, []);
 
   const filteredGames = useMemo(() => {
-    if (activeCategory === ALL_KEY) return games;
+    if (activeCategory === ALL_KEY) {
+      return games;
+    }
     return games.filter((g) => g.category === activeCategory);
   }, [activeCategory]);
 
@@ -54,6 +58,14 @@ function App() {
   const launchedGame = useMemo(
     () => games.find((g) => g.id === launchedGameId) ?? null,
     [launchedGameId]
+  );
+
+  const desktopAdColumns = useMemo(
+    () => ({
+      left: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "left"),
+      right: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "right"),
+    }),
+    []
   );
 
   const launchGame = (gameId) => {
@@ -84,86 +96,110 @@ function App() {
 
   return (
     <>
-      <div className="app-shell">
-        <div className="background-orb orb-a" aria-hidden="true" />
-        <div className="background-orb orb-b" aria-hidden="true" />
+      <div className="app-desktop-layout">
+        <aside className="app-desktop-ads app-desktop-ads--left" aria-label="Desktop ads left">
+          {desktopAdColumns.left.map((slot) => (
+            <AdPreviewCard
+              key={slot.id}
+              slot={slot}
+              locale={locale}
+              className="app-desktop-ads__card"
+            />
+          ))}
+        </aside>
 
-        <header className="hero">
-          <p className="pill">{t("pill")}</p>
-          <h1>{t("heroTitle")}</h1>
-          <p className="hero-copy">{t("heroCopy")}</p>
+        <div className="app-shell">
+          <div className="background-orb orb-a" aria-hidden="true" />
+          <div className="background-orb orb-b" aria-hidden="true" />
 
-          <div className="stats">
-            <article>
-              <p>{t("statsGames")}</p>
-              <strong>{games.length}</strong>
-            </article>
-            <article>
-              <p>{t("statsThemes")}</p>
-              <strong>{categoryKeys.length}</strong>
-            </article>
-            <article>
-              <p>{t("statsViability")}</p>
-              <strong>{t("statsViabilityValue")}</strong>
-            </article>
-          </div>
-        </header>
+          <header className="hero">
+            <p className="pill">{t("pill")}</p>
+            <h1>{t("heroTitle")}</h1>
+            <p className="hero-copy">{t("heroCopy")}</p>
 
-        <section className="catalog-toolbar">
-          <h2>{t("exploreTitle")}</h2>
-          <div className="filter-group">
-            <button
-              key={ALL_KEY}
-              type="button"
-              className={activeCategory === ALL_KEY ? "active" : ""}
-              onClick={() => selectCategory(ALL_KEY)}
-            >
-              {t("allCategories")}
-            </button>
+            <div className="stats">
+              <article>
+                <p>{t("statsGames")}</p>
+                <strong>{games.length}</strong>
+              </article>
+              <article>
+                <p>{t("statsThemes")}</p>
+                <strong>{categoryKeys.length}</strong>
+              </article>
+              <article>
+                <p>{t("statsViability")}</p>
+                <strong>{t("statsViabilityValue")}</strong>
+              </article>
+            </div>
+          </header>
 
-            {categoryKeys.map((key) => (
+          <section className="catalog-toolbar">
+            <h2>{t("exploreTitle")}</h2>
+            <div className="filter-group">
               <button
-                key={key}
+                key={ALL_KEY}
                 type="button"
-                className={activeCategory === key ? "active" : ""}
-                onClick={() => selectCategory(key)}
+                className={activeCategory === ALL_KEY ? "active" : ""}
+                onClick={() => selectCategory(ALL_KEY)}
               >
-                {localizeCategory(key, locale)}
+                {t("allCategories")}
               </button>
-            ))}
-          </div>
-        </section>
 
-        <main>
-          <GameGrid games={paginatedGames} onLaunchGame={launchGame} locale={locale} />
-
-          {filteredGames.length > PAGE_SIZE && (
-            <nav className="catalog-pagination" aria-label={pageIndicator}>
-              <p className="catalog-pagination-summary">{paginationSummary}</p>
-              <div className="catalog-pagination-controls">
+              {categoryKeys.map((key) => (
                 <button
+                  key={key}
                   type="button"
-                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  disabled={currentPage === 1}
+                  className={activeCategory === key ? "active" : ""}
+                  onClick={() => selectCategory(key)}
                 >
-                  {locale === "en" ? "Previous" : "Anterior"}
+                  {localizeCategory(key, locale)}
                 </button>
-                <span>{pageIndicator}</span>
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  {locale === "en" ? "Next" : "Siguiente"}
-                </button>
-              </div>
-            </nav>
-          )}
-        </main>
+              ))}
+            </div>
+          </section>
 
-        <footer className="footer-note">
-          <p>{t("footerNote")}</p>
-        </footer>
+          <main>
+            <GameGrid games={paginatedGames} onLaunchGame={launchGame} locale={locale} />
+
+            {filteredGames.length > PAGE_SIZE && (
+              <nav className="catalog-pagination" aria-label={pageIndicator}>
+                <p className="catalog-pagination-summary">{paginationSummary}</p>
+                <div className="catalog-pagination-controls">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    {locale === "en" ? "Previous" : "Anterior"}
+                  </button>
+                  <span>{pageIndicator}</span>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    {locale === "en" ? "Next" : "Siguiente"}
+                  </button>
+                </div>
+              </nav>
+            )}
+          </main>
+
+          <footer className="footer-note">
+            <p>{t("footerNote")}</p>
+          </footer>
+        </div>
+
+        <aside className="app-desktop-ads app-desktop-ads--right" aria-label="Desktop ads right">
+          {desktopAdColumns.right.map((slot) => (
+            <AdPreviewCard
+              key={slot.id}
+              slot={slot}
+              locale={locale}
+              className="app-desktop-ads__card"
+            />
+          ))}
+        </aside>
       </div>
 
       {launchedGame && <GameLaunchModal game={launchedGame} onClose={closeModal} />}

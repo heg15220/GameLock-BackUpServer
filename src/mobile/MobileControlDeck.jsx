@@ -373,6 +373,36 @@ export default function MobileControlDeck({
   }
 
   const preferLeftJoystick = profile.leftPadMode !== "buttons";
+  const leftPadNode = renderCluster({
+    buttons: profile.leftPad,
+    variant: "mobile-control-deck__cluster--pad",
+    preferJoystick: preferLeftJoystick,
+    isButtonActive,
+    scopeElement,
+    onRequestFullscreen,
+    onHoldStateChange: updateHoldState,
+    onDirectionChange: updateDirectionalState,
+    setTappedId,
+  });
+  const leftSupportNode = profile.leftSupportPad?.length
+    ? renderCluster({
+        buttons: profile.leftSupportPad,
+        variant: "mobile-control-deck__cluster--left-support",
+        preferJoystick: false,
+        isButtonActive,
+        scopeElement,
+        onRequestFullscreen,
+        onHoldStateChange: updateHoldState,
+        onDirectionChange: updateDirectionalState,
+        setTappedId,
+      })
+    : null;
+  const leftColumnNode = leftSupportNode ? (
+    <div className="mobile-control-deck__left-stack">
+      {leftPadNode}
+      {leftSupportNode}
+    </div>
+  ) : leftPadNode;
 
   return (
     <div className={`mobile-control-deck layout-${profile.layout}`}>
@@ -397,17 +427,7 @@ export default function MobileControlDeck({
         </div>
       ) : (
         <div className="mobile-control-deck__clusters">
-          {renderCluster({
-            buttons: profile.leftPad,
-            variant: "mobile-control-deck__cluster--pad",
-            preferJoystick: preferLeftJoystick,
-            isButtonActive,
-            scopeElement,
-            onRequestFullscreen,
-            onHoldStateChange: updateHoldState,
-            onDirectionChange: updateDirectionalState,
-            setTappedId,
-          })}
+          {leftColumnNode}
 
           {renderCluster({
             buttons: profile.rightPad,

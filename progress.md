@@ -4183,3 +4183,12 @@ eon-rush para no usar ResizeObserver.observe() sobre nodos del iframe con el obs
 
 - Igualado GamePlayground con GameLaunchModal para conocimiento/estrategia en movil/tablet: ahora tambien calcula showMobileSystemBottomAd, pasa showSystemBottomAd a MobileGameShell y renderiza MOBILE_APP_BOTTOM_AD_SLOT como banner inferior del sistema.
 
+
+## 2026-04-12 - Ajustes de viñetas responsive
+- Arcade DS tablet horizontal: se retiró la reducción del gameplay causada por laterales del shell y se reubicó la lógica hacia side placements del overlay para preservar el área útil.
+- Estrategia móvil fullscreen: la viñeta inferior del sistema pasa a modo inline dentro del flujo desplazable del panel para no superponerse al contenido.
+- Crucigrama y sopa de letras en vertical: se habilitó explícitamente la viñeta inferior de app también para juegos nativos mobile, tanto en gameplay como en modal, reservando espacio real para ella.
+- Conocimiento tablet horizontal: las viñetas laterales del sistema se mantienen en el shell; la viñeta inferior de conocimiento se limita a vertical para evitar duplicidad.
+
+- 2026-04-12: neon rush ajustado con overlay lateral compacto en móvil horizontal y mayor aprovechamiento del iframe en tablet horizontal; categoria Juegos (Dig The Hole, Valle Tranquilo) pasa a viñeta compacta de app dentro del panel, sin overlay sobre gameplay.
+

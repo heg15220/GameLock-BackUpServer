@@ -60,6 +60,7 @@ function getStageThresholds(formFactor) {
       gap: 10,
       minWidth: 74,
       maxWidth: 128,
+      landscapeSideMaxWidth: 196,
       verticalRatio: 1.18,
       horizontalRatio: 1.52,
       preferredBottomMinHeight: 42,
@@ -72,6 +73,7 @@ function getStageThresholds(formFactor) {
     gap: 8,
     minWidth: 52,
     maxWidth: 88,
+    landscapeSideMaxWidth: 104,
     verticalRatio: 1.12,
     horizontalRatio: 1.4,
     preferredBottomMinHeight: 34,
@@ -210,7 +212,11 @@ function buildLandscapeSidePlacements(strips, thresholds) {
       return;
     }
 
-    const slotWidth = clamp(innerWidth, thresholds.minWidth, thresholds.maxWidth);
+    const slotWidth = clamp(
+      innerWidth,
+      thresholds.minWidth,
+      thresholds.landscapeSideMaxWidth ?? thresholds.maxWidth
+    );
     const slotHeight = innerHeight;
     const x = kind === "left"
       ? strip.x + strip.width - slotWidth - thresholds.padding
@@ -228,7 +234,55 @@ function buildLandscapeSidePlacements(strips, thresholds) {
   return placements;
 }
 
-function computePlacements(viewportRect, targetRect, formFactor, gameId) {
+function buildCompactLandscapeSidePlacements(strips, thresholds) {
+  const placements = [];
+
+  ["left", "right"].forEach((kind) => {
+    const strip = strips.find((entry) => entry.kind === kind);
+    if (!strip) {
+      return;
+    }
+
+    const innerWidth = strip.width - thresholds.padding * 2;
+    const innerHeight = strip.height - thresholds.padding * 2;
+    if (innerWidth < thresholds.minWidth || innerHeight < thresholds.minWidth * 1.2) {
+      return;
+    }
+
+    const slotWidth = clamp(
+      innerWidth,
+      thresholds.minWidth,
+      Math.min(thresholds.maxWidth, 86)
+    );
+    const slotHeight = clamp(
+      innerHeight * 0.58,
+      thresholds.minWidth * 1.55,
+      Math.min(innerHeight, 188)
+    );
+    const x = kind === "left"
+      ? strip.x + strip.width - slotWidth - thresholds.padding
+      : strip.x + thresholds.padding;
+    const y = strip.y + Math.max(thresholds.padding, (strip.height - slotHeight) / 2);
+
+    placements.push({
+      id: `${kind}-compact-primary`,
+      x,
+      y,
+      width: slotWidth,
+      height: slotHeight,
+    });
+  });
+
+  return placements;
+}
+
+function computePlacements(
+  viewportRect,
+  targetRect,
+  formFactor,
+  gameId,
+  preferLandscapeSidePlacements = false
+) {
   if (!viewportRect || !targetRect) {
     return [];
   }
@@ -247,7 +301,14 @@ function computePlacements(viewportRect, targetRect, formFactor, gameId) {
     { kind: "bottom", x: 0, y: targetRect.bottom - viewportRect.top, width: viewportRect.width, height: bottom },
   ];
 
-  if (gameId === "arcade-neon-rush" && isLandscape) {
+  if (gameId === "arcade-neon-rush" && formFactor !== "tablet" && isLandscape) {
+    const compactSidePlacements = buildCompactLandscapeSidePlacements(strips, thresholds);
+    if (compactSidePlacements.length > 0) {
+      return compactSidePlacements.slice(0, 2);
+    }
+  }
+
+  if ((preferLandscapeSidePlacements || gameId === "arcade-neon-rush") && isLandscape) {
     const sidePlacements = buildLandscapeSidePlacements(strips, thresholds);
     if (sidePlacements.length > 0) {
       return sidePlacements.slice(0, 2);
@@ -323,6 +384,7 @@ export default function MobileStageAdOverlay({
   formFactor,
   gameId,
   stageSelectors,
+  preferLandscapeSidePlacements = false,
 }) {
   const [placements, setPlacements] = useState([]);
   const slotPool = useMemo(() => MOBILE_STAGE_AD_SLOTS, []);
@@ -353,7 +415,13 @@ export default function MobileStageAdOverlay({
 
       const viewportRect = rectToPlainObject(viewportNode.getBoundingClientRect());
       const targetRect = getGlobalRect(targetNode);
-      const nextPlacements = computePlacements(viewportRect, targetRect, formFactor, gameId);
+      const nextPlacements = computePlacements(
+        viewportRect,
+        targetRect,
+        formFactor,
+        gameId,
+        preferLandscapeSidePlacements
+      );
       setPlacements(nextPlacements);
     };
 
@@ -426,7 +494,14 @@ export default function MobileStageAdOverlay({
       window.removeEventListener("resize", queueMeasure);
       window.removeEventListener("orientationchange", queueMeasure);
     };
-  }, [enabled, viewportNode, formFactor, gameId, stageSelectors]);
+  }, [
+    enabled,
+    viewportNode,
+    formFactor,
+    gameId,
+    stageSelectors,
+    preferLandscapeSidePlacements,
+  ]);
 
   if (!enabled || placements.length === 0) {
     return null;
@@ -443,7 +518,14 @@ export default function MobileStageAdOverlay({
           key={placement.id}
           slot={slotPool[index % slotPool.length]}
           locale={locale}
-          className="mobile-stage-ad-overlay__card"
+          className={[
+            "mobile-stage-ad-overlay__card",
+            placement.width <= 88 && placement.height <= 220
+              ? "mobile-stage-ad-overlay__card--compact-side"
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           style={{
             left: `${placement.x}px`,
             top: `${placement.y}px`,

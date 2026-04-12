@@ -4,7 +4,11 @@ import MobileControlDeck from "./MobileControlDeck";
 import MobileBowlingFramesPanel from "./MobileBowlingFramesPanel";
 import MobileGameStatusPanel from "./MobileGameStatusPanel";
 import MobileHeadSoccerTournamentPanel from "./MobileHeadSoccerTournamentPanel";
-import { MOBILE_APP_BOTTOM_AD_SLOT } from "../config/adPreview";
+import {
+  MOBILE_APP_COMPACT_AD_SLOT,
+  MOBILE_APP_BOTTOM_AD_SLOT,
+  TABLET_APP_SIDE_AD_SLOTS,
+} from "../config/adPreview";
 import {
   getMobileControlProfile,
   getResponsiveMobileShellMode,
@@ -191,12 +195,40 @@ export default function MobileGameShell({
   const isTouchStage = shellMode === "mobile-first" && shellTheme === "default";
   const isPortrait = viewport.orientation === "portrait";
   const viewportFormFactor = viewport.formFactor ?? "desktop";
+  const categoryKey = String(game?.category ?? "").toLowerCase();
+  const isStrategyTheme = shellTheme === "strategy";
+  const isKnowledgeTheme = shellTheme === "knowledge";
+  const isGamesCategory = categoryKey === "juegos" || categoryKey === "games";
   const derivedShowSystemBottomAd =
     showAdPreview &&
     viewportFormFactor !== "desktop" &&
-    (shellTheme === "strategy" || shellTheme === "knowledge");
+    (isStrategyTheme || (isKnowledgeTheme && isPortrait));
   const showSystemBottomAd = showSystemBottomAdOverride ?? derivedShowSystemBottomAd;
-  const showStageAdOverlay = showAdPreview && (isDualScreen || isTouchStage);
+  const showTabletStageSideAds =
+    showAdPreview &&
+    viewportFormFactor === "tablet" &&
+    !isPortrait &&
+    isKnowledgeTheme;
+  const showTouchPanelBottomAd =
+    showSystemBottomAd &&
+    viewportFormFactor === "phone" &&
+    isStrategyTheme &&
+    !isDualScreen;
+  const useInlineSystemBottomAd =
+    showSystemBottomAd &&
+    !showTouchPanelBottomAd &&
+    viewportFormFactor === "phone" &&
+    isStrategyTheme;
+  const showCompactGamesAppAd =
+    showAdPreview &&
+    viewportFormFactor !== "desktop" &&
+    isGamesCategory;
+  const showTouchIntroCopy = !isStrategyTheme;
+  const showStageAdOverlay =
+    showAdPreview &&
+    !showCompactGamesAppAd &&
+    !showTabletStageSideAds &&
+    (isDualScreen || isTouchStage);
   const isTabletLandscapeStack =
     isDualScreen &&
     viewportFormFactor === "tablet" &&
@@ -286,6 +318,10 @@ export default function MobileGameShell({
     `mobile-game-shell--device-${viewportFormFactor}`,
     `mobile-game-shell--theme-${shellTheme}`,
     showSystemBottomAd ? "mobile-game-shell--with-system-bottom-ad" : "",
+    showTabletStageSideAds ? "mobile-game-shell--tablet-stage-side-ads" : "",
+    showTouchPanelBottomAd ? "mobile-game-shell--touch-panel-bottom-ad" : "",
+    useInlineSystemBottomAd ? "mobile-game-shell--system-bottom-ad-inline" : "",
+    showCompactGamesAppAd ? "mobile-game-shell--with-compact-games-ad" : "",
     isTabletLandscapeStack ? "mobile-game-shell--tablet-landscape-stack" : "",
     isFullscreen ? "mobile-game-shell--fullscreen" : "",
     isDualScreen ? "mobile-game-shell--has-controls" : "mobile-game-shell--touch-native",
@@ -300,10 +336,19 @@ export default function MobileGameShell({
       onRequestFullscreen={requestFullscreen}
     />
   );
-  const categoryKey = String(game?.category ?? "").toLowerCase();
   const isSportsCategory = categoryKey === "deportes" || categoryKey === "sports";
   const isStatusFirstStack =
-    game?.id === "arcade-valle-tranquilo" || isSportsCategory;
+    game?.id === "arcade-valle-tranquilo" ||
+    game?.id === "arcade-dig-hole-treasure" ||
+    isSportsCategory;
+  const compactGamesAdNode =
+    showCompactGamesAppAd ? (
+      <AdPreviewCard
+        slot={MOBILE_APP_COMPACT_AD_SLOT}
+        locale={locale}
+        className="mobile-game-shell__compact-app-ad"
+      />
+    ) : null;
 
   const statusPanelsNode = (
     <>
@@ -356,9 +401,51 @@ export default function MobileGameShell({
   );
 
   const fullscreenSystemAdSpacerNode =
-    showSystemBottomAd && isFullscreen ? (
+    showSystemBottomAd && isFullscreen && !useInlineSystemBottomAd ? (
       <div className="mobile-game-shell__system-bottom-spacer" aria-hidden="true" />
     ) : null;
+  const inlineSystemBottomAdNode =
+    useInlineSystemBottomAd ? (
+      <AdPreviewCard
+        slot={MOBILE_APP_BOTTOM_AD_SLOT}
+        locale={locale}
+        className="mobile-game-shell__system-bottom-ad mobile-game-shell__system-bottom-ad--inline"
+      />
+    ) : null;
+  const touchPanelBottomAdNode =
+    showTouchPanelBottomAd ? (
+      <AdPreviewCard
+        slot={MOBILE_APP_BOTTOM_AD_SLOT}
+        locale={locale}
+        className="mobile-game-shell__system-bottom-ad mobile-game-shell__system-bottom-ad--inline mobile-game-shell__system-bottom-ad--touch-panel"
+      />
+    ) : null;
+  const stageFrameNode = (
+    <div className="mobile-game-shell__screen-frame">
+      <div className="mobile-game-shell__screen-glass">
+        <div
+          className="mobile-game-shell__stage-viewport"
+          ref={handleStageViewportRef}
+        >
+          <Suspense fallback={fallback}>{children}</Suspense>
+          <MobileStageAdOverlay
+            viewportNode={stageViewportNode}
+            enabled={showStageAdOverlay}
+            locale={locale}
+            formFactor={viewportFormFactor}
+            gameId={game?.id}
+            stageSelectors={stageSelectors}
+            preferLandscapeSidePlacements={
+              viewportFormFactor === "tablet" &&
+              !isPortrait &&
+              shellTheme === "default" &&
+              isDualScreen
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -386,24 +473,27 @@ export default function MobileGameShell({
 
         <div className="mobile-game-shell__body">
           <section className="mobile-game-shell__stage-shell">
-            <div className="mobile-game-shell__screen-frame">
-              <div className="mobile-game-shell__screen-glass">
-                <div
-                  className="mobile-game-shell__stage-viewport"
-                  ref={handleStageViewportRef}
-                >
-                  <Suspense fallback={fallback}>{children}</Suspense>
-                  <MobileStageAdOverlay
-                    viewportNode={stageViewportNode}
-                    enabled={showStageAdOverlay}
+            {showTabletStageSideAds ? (
+              <div className="mobile-game-shell__stage-shell-grid">
+                <div className="mobile-game-shell__stage-side-ad-wrap mobile-game-shell__stage-side-ad-wrap--left">
+                  <AdPreviewCard
+                    slot={TABLET_APP_SIDE_AD_SLOTS[0]}
                     locale={locale}
-                    formFactor={viewportFormFactor}
-                    gameId={game?.id}
-                    stageSelectors={stageSelectors}
+                    className="mobile-game-shell__stage-side-ad"
+                  />
+                </div>
+                {stageFrameNode}
+                <div className="mobile-game-shell__stage-side-ad-wrap mobile-game-shell__stage-side-ad-wrap--right">
+                  <AdPreviewCard
+                    slot={TABLET_APP_SIDE_AD_SLOTS[1]}
+                    locale={locale}
+                    className="mobile-game-shell__stage-side-ad"
                   />
                 </div>
               </div>
-            </div>
+            ) : (
+              stageFrameNode
+            )}
           </section>
 
           {isDualScreen ? (
@@ -426,26 +516,37 @@ export default function MobileGameShell({
                       </div>
                     </>
                   )}
+                  {compactGamesAdNode}
+                  {inlineSystemBottomAdNode}
                   {fullscreenSystemAdSpacerNode}
                 </div>
               </div>
             </section>
           ) : (
             <section className="mobile-game-shell__touch-copy">
-              <MobileGameStatusPanel
-                gameCategory={game?.category}
-                locale={locale}
-                scopeElement={stageViewportNode}
-                snapshot={runtimeSnapshot}
-              />
-              <strong>{shellCopy.touchTitle}</strong>
-              <p>{shellCopy.touchDescription}</p>
+              <div className="mobile-game-shell__touch-panel-content">
+                <MobileGameStatusPanel
+                  gameCategory={game?.category}
+                  locale={locale}
+                  scopeElement={stageViewportNode}
+                  snapshot={runtimeSnapshot}
+                  bottomContent={touchPanelBottomAdNode}
+                />
+                {showTouchIntroCopy ? (
+                  <>
+                    <strong>{shellCopy.touchTitle}</strong>
+                    <p>{shellCopy.touchDescription}</p>
+                  </>
+                ) : null}
+                {compactGamesAdNode}
+              </div>
+              {inlineSystemBottomAdNode}
               {fullscreenSystemAdSpacerNode}
             </section>
           )}
         </div>
       </div>
-      {showSystemBottomAd && isFullscreen ? (
+      {showSystemBottomAd && isFullscreen && !useInlineSystemBottomAd ? (
         <div className="mobile-game-shell__system-bottom-ad-wrap">
           <AdPreviewCard
             slot={MOBILE_APP_BOTTOM_AD_SLOT}

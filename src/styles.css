@@ -204,6 +204,19 @@ body {
   margin: 0 auto;
 }
 
+.app-desktop-layout {
+  width: min(1640px, 100%);
+  margin: 0 auto;
+}
+
+.app-desktop-ads {
+  display: none;
+}
+
+.app-desktop-ads__card {
+  min-height: 280px;
+}
+
 .background-orb {
   position: absolute;
   border-radius: 999px;
@@ -227,6 +240,33 @@ body {
   background: #ffcb6b;
   bottom: 120px;
   left: -70px;
+}
+
+@media (min-width: 1380px) {
+  .app-desktop-layout {
+    display: grid;
+    grid-template-columns: clamp(170px, 14vw, 220px) minmax(0, 1fr) clamp(170px, 14vw, 220px);
+    gap: 1rem;
+    align-items: start;
+    padding-inline: 1rem;
+  }
+
+  .app-desktop-ads {
+    display: grid;
+    gap: 1rem;
+    position: sticky;
+    top: 1rem;
+    grid-template-rows: repeat(2, minmax(0, 50svh));
+  }
+
+  .app-shell {
+    width: 100%;
+  }
+
+  .app-desktop-ads__card {
+    min-height: 50svh;
+    height: 50svh;
+  }
 }
 
 .hero {
@@ -654,6 +694,7 @@ body {
 }
 
 .game-playground {
+  --playground-mobile-system-ad-space: 108px;
   position: relative;
   margin-top: 1rem;
   padding: 0.95rem 0.95rem 1.08rem;
@@ -675,7 +716,7 @@ body {
   --playground-mobile-system-ad-space: 126px;
 }
 
-.game-playground.playground-mobile-enabled.game-playground--with-system-bottom-ad {
+.game-playground.game-playground--with-system-bottom-ad {
   padding-bottom: calc(
     1.08rem + var(--playground-mobile-system-ad-space) + env(safe-area-inset-bottom, 0px)
   );
@@ -1999,6 +2040,7 @@ body {
  * content, and locking body scroll would break scrolling inside this overlay.
  */
 .launch-overlay {
+  --launch-mobile-system-ad-space: 108px;
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -2011,15 +2053,11 @@ body {
   overflow: hidden;
 }
 
-.launch-overlay--mobile-shell {
-  --launch-mobile-system-ad-space: 108px;
-}
-
-.launch-overlay--mobile-shell.launch-overlay--device-tablet {
+.launch-overlay.launch-overlay--device-tablet {
   --launch-mobile-system-ad-space: 126px;
 }
 
-.launch-overlay--mobile-shell.launch-overlay--with-system-bottom-ad .launch-body {
+.launch-overlay.launch-overlay--with-system-bottom-ad .launch-body {
   padding-bottom: calc(
     var(--launch-mobile-system-ad-space) + 0.8rem + env(safe-area-inset-bottom, 0px)
   );

@@ -258,6 +258,11 @@ const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
   "strategy-poker-holdem-no-bet",
 ]);
 
+const PORTRAIT_APP_BOTTOM_AD_GAME_IDS = new Set([
+  "knowledge-crucigrama-mini",
+  "knowledge-sopa-letras-mega",
+]);
+
 function readInitialAdPreviewEnabled() {
   if (typeof window === "undefined") {
     return DEFAULT_AD_PREVIEW_ENABLED;
@@ -324,27 +329,35 @@ function GamePlayground({ game }) {
   const forceDesktopTabletLayout =
     viewportFormFactor === "tablet" &&
     TABLET_DESKTOP_LAYOUT_GAME_IDS.has(String(game.id ?? ""));
+  const gameId = String(game.id ?? "");
   const useMobileGameShell =
     mobileShellEligible &&
     viewport.isMobile &&
-    !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? "")) &&
+    !NATIVE_MOBILE_GAME_IDS.has(gameId) &&
     !forceDesktopTabletLayout;
   const showDesktopAdRails = adPreviewEnabled && viewportFormFactor === "desktop";
+  const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
+  const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
+  const showPortraitKnowledgeBottomAd =
+    isKnowledgeCategory &&
+    viewport.orientation === "portrait" &&
+    (useMobileGameShell || PORTRAIT_APP_BOTTOM_AD_GAME_IDS.has(gameId));
   const showMobileSystemBottomAd =
     adPreviewEnabled &&
-    useMobileGameShell &&
     viewportFormFactor !== "desktop" &&
-    (
-      categoryKey === "Estrategia" ||
-      categoryKey === "Strategy" ||
-      categoryKey === "Conocimiento" ||
-      categoryKey === "Knowledge"
-    );
+    ((isStrategyCategory && useMobileGameShell) || showPortraitKnowledgeBottomAd);
+  const showShellManagedSystemBottomAd =
+    showMobileSystemBottomAd &&
+    isStrategyCategory &&
+    useMobileGameShell;
+  const showExternalMobileSystemBottomAd =
+    showMobileSystemBottomAd &&
+    !showShellManagedSystemBottomAd;
   const sectionClassName = [
     "game-playground",
     adPreviewEnabled ? "game-playground--ad-preview" : "game-playground--ad-preview-off",
     useMobileGameShell ? "playground-mobile-enabled" : "",
-    showMobileSystemBottomAd ? "game-playground--with-system-bottom-ad" : "",
+    showExternalMobileSystemBottomAd ? "game-playground--with-system-bottom-ad" : "",
     viewport.isMobile ? "playground-mobile-active" : "",
     `playground-device-${viewportFormFactor}`,
     viewport.orientation === "portrait" ? "playground-mobile-portrait" : "playground-mobile-landscape",
@@ -358,7 +371,7 @@ function GamePlayground({ game }) {
     <section
       className={sectionClassName}
       data-category={categoryKey.toLowerCase()}
-      data-game-id={game.id}
+      data-game-id={gameId}
       data-mobile-shell={mobileShellMode}
       data-mobile-orientation={viewport.orientation}
       data-device-form-factor={viewportFormFactor}
@@ -453,7 +466,7 @@ function GamePlayground({ game }) {
         ) : null}
       </div>
 
-      {showMobileSystemBottomAd ? (
+      {showExternalMobileSystemBottomAd ? (
         <div className="playground-system-bottom-ad-wrap">
           <AdPreviewCard
             slot={MOBILE_APP_BOTTOM_AD_SLOT}

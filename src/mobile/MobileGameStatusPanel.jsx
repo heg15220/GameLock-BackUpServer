@@ -629,6 +629,7 @@ export default function MobileGameStatusPanel({
   locale,
   scopeElement,
   snapshot,
+  bottomContent = null,
 }) {
   const panelRef = useRef(null);
   const [menuControls, setMenuControls] = useState({ buttons: [], selects: [] });
@@ -1010,6 +1011,12 @@ export default function MobileGameStatusPanel({
           )}
         </div>
       ))}
+
+      {bottomContent ? (
+        <div className="mobile-game-status-panel__bottom-slot">
+          {bottomContent}
+        </div>
+      ) : null}
     </section>
   );
 }

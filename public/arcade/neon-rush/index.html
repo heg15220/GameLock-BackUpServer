@@ -54,6 +54,27 @@ body{background:#050008;font-family:'Orbitron',sans-serif;overflow:hidden;height
 .mobile-shell-landscape #levelSelect h1{font-size:26px;letter-spacing:4px;}
 .mobile-shell-landscape #levelSelect .sub{margin-bottom:12px;}
 .mobile-shell-landscape #levelGrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.mobile-shell-embed{
+  --nr-shell-w:min(
+    var(--mobile-shell-width, 100vw),
+    calc((var(--mobile-shell-height, 100vh) - 12px) * 900 / 512)
+  );
+}
+.mobile-shell-landscape body{
+  padding:6px;
+  min-height:var(--mobile-shell-height,100vh);
+  height:var(--mobile-shell-height,100vh);
+}
+.mobile-shell-landscape #gw{
+  width:var(--nr-shell-w);
+}
+.mobile-shell-landscape #hud{
+  padding:6px 12px;
+}
+.mobile-shell-landscape #ad{
+  top:calc(var(--nr-stage-top) + 8px);
+  left:12px;
+}
 /* GAME */
 #gw{position:relative;width:var(--nr-shell-w);display:none;}
 #hud{display:flex;justify-content:space-between;align-items:center;padding:7px 16px;min-height:var(--nr-hud-h);

@@ -70,6 +70,16 @@
   scroll-padding-bottom: calc(var(--mobile-shell-system-ad-space) + 0.8rem);
 }
 
+.mobile-game-shell--system-bottom-ad-inline.mobile-game-shell--with-system-bottom-ad .mobile-game-shell__controls-panel,
+.mobile-game-shell--system-bottom-ad-inline.mobile-game-shell--with-system-bottom-ad .mobile-game-shell__touch-copy {
+  padding-bottom: var(--mobile-shell-panel-padding);
+  scroll-padding-bottom: 0.8rem;
+}
+
+.mobile-game-shell--system-bottom-ad-inline .mobile-game-shell__touch-copy {
+  align-content: start;
+}
+
 .mobile-game-shell--theme-strategy {
   --mobile-shell-screen: #0f172a;
   --mobile-shell-shadow: rgba(15, 23, 42, 0.34);
@@ -304,6 +314,47 @@
   position: relative;
 }
 
+.mobile-game-shell__stage-shell-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: clamp(118px, 13vw, 188px) minmax(0, 1fr) clamp(118px, 13vw, 188px);
+  gap: clamp(0.55rem, 1vw, 0.95rem);
+  align-items: stretch;
+}
+
+.mobile-game-shell__stage-side-ad-wrap {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+
+.mobile-game-shell__stage-side-ad {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  padding: 0.92rem 0.82rem;
+  border-radius: 24px;
+}
+
+.mobile-game-shell__stage-side-ad .ad-preview-card__eyebrow {
+  font-size: 0.56rem;
+}
+
+.mobile-game-shell__stage-side-ad .ad-preview-card__title {
+  font-size: 0.88rem;
+}
+
+.mobile-game-shell__stage-side-ad .ad-preview-card__description {
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.mobile-game-shell__stage-side-ad .ad-preview-card__meta,
+.mobile-game-shell__stage-side-ad .ad-preview-card__footer {
+  font-size: 0.62rem;
+}
+
 .mobile-game-shell__screen-frame,
 .mobile-game-shell__controls-panel,
 .mobile-game-shell__touch-copy {
@@ -335,6 +386,13 @@
   width: 100%;
   min-height: 86px;
   pointer-events: auto;
+}
+
+.mobile-game-shell__system-bottom-ad--inline {
+  position: relative;
+  min-height: 86px;
+  margin-top: 0.08rem;
+  align-self: start;
 }
 
 .mobile-game-shell__system-bottom-ad .ad-preview-card__description {
@@ -555,6 +613,55 @@
 
 .mobile-stage-ad-overlay__card .ad-preview-card__meta,
 .mobile-stage-ad-overlay__card .ad-preview-card__footer {
+  font-size: 0.54rem;
+}
+
+.mobile-stage-ad-overlay__card--compact-side {
+  padding: 0.46rem 0.42rem;
+  border-radius: 16px;
+}
+
+.mobile-stage-ad-overlay__card--compact-side .ad-preview-card__eyebrow {
+  font-size: 0.42rem;
+}
+
+.mobile-stage-ad-overlay__card--compact-side .ad-preview-card__title {
+  font-size: 0.62rem;
+}
+
+.mobile-stage-ad-overlay__card--compact-side .ad-preview-card__description {
+  font-size: 0.54rem;
+  line-height: 1.2;
+}
+
+.mobile-stage-ad-overlay__card--compact-side .ad-preview-card__meta,
+.mobile-stage-ad-overlay__card--compact-side .ad-preview-card__footer {
+  font-size: 0.48rem;
+}
+
+.mobile-game-shell__compact-app-ad {
+  width: 100%;
+  min-height: 72px;
+  padding: 0.62rem 0.68rem;
+  border-radius: 18px;
+  align-self: start;
+}
+
+.mobile-game-shell__compact-app-ad .ad-preview-card__eyebrow {
+  font-size: 0.48rem;
+}
+
+.mobile-game-shell__compact-app-ad .ad-preview-card__title {
+  font-size: 0.76rem;
+}
+
+.mobile-game-shell__compact-app-ad .ad-preview-card__description {
+  font-size: 0.62rem;
+  line-height: 1.3;
+}
+
+.mobile-game-shell__compact-app-ad .ad-preview-card__meta,
+.mobile-game-shell__compact-app-ad .ad-preview-card__footer {
   font-size: 0.54rem;
 }
 
@@ -2954,6 +3061,13 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(237, 231, 219, 0.9));
 }
 
+.mobile-game-shell__touch-panel-content {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  min-height: 0;
+}
+
 .mobile-game-shell__touch-copy strong {
   font-size: 0.82rem;
   letter-spacing: 0.04em;
@@ -3152,6 +3266,12 @@
 
 .mobile-game-status-panel__detail-item.is-empty strong {
   color: #76675b;
+}
+
+.mobile-game-status-panel__bottom-slot {
+  display: grid;
+  gap: 0.22rem;
+  align-content: start;
 }
 
 .mobile-control-deck {
@@ -3405,6 +3525,13 @@
   min-height: 156px;
 }
 
+.mobile-control-deck__left-stack {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  min-width: 0;
+}
+
 .mobile-control-deck__cluster {
   display: grid;
   gap: 0.62rem;
@@ -3417,6 +3544,11 @@
 .mobile-control-deck__cluster--actions {
   grid-template-columns: minmax(0, 1fr);
   justify-self: stretch;
+  align-content: start;
+}
+
+.mobile-control-deck__cluster--left-support {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-content: start;
 }
 
@@ -3823,6 +3955,11 @@
   border-radius: 18px;
 }
 
+.mobile-game-shell--device-tablet .mobile-game-shell__compact-app-ad {
+  min-height: 84px;
+  padding: 0.72rem 0.78rem;
+}
+
 .mobile-game-shell--device-tablet[data-game-id="arcade-valle-tranquilo"] .mobile-game-status-panel__menu--actions .mobile-game-status-panel__buttons {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -4025,6 +4162,33 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__body {
   grid-template-columns: minmax(0, 1.46fr) minmax(336px, 0.54fr);
+}
+
+.mobile-game-shell--with-compact-games-ad .mobile-game-shell__controls-stack {
+  align-content: start;
+}
+
+.mobile-game-shell--with-compact-games-ad .mobile-game-shell__controls-panel,
+.mobile-game-shell--with-compact-games-ad .mobile-game-shell__touch-copy {
+  scroll-padding-bottom: 1rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] {
+  --mobile-shell-hardware-padding: 0.38rem;
+  --mobile-shell-body-gap: 0.42rem;
+  --mobile-shell-panel-padding: 0.34rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__topbar {
+  padding-top: 0;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__stage-shell {
+  min-height: clamp(500px, 74svh, 760px);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__screen-frame {
+  padding: 0.22rem;
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pinball-wizard"] .mobile-game-shell__body {
@@ -4485,6 +4649,12 @@
   scroll-padding-bottom: calc(var(--mobile-shell-system-ad-space) + 0.8rem);
 }
 
+.mobile-game-shell--fullscreen.mobile-game-shell--system-bottom-ad-inline.mobile-game-shell--with-system-bottom-ad .mobile-game-shell__controls-panel,
+.mobile-game-shell--fullscreen.mobile-game-shell--system-bottom-ad-inline.mobile-game-shell--with-system-bottom-ad .mobile-game-shell__touch-copy {
+  padding: 0.35rem;
+  scroll-padding-bottom: 0.8rem;
+}
+
 .mobile-game-shell--fullscreen .mobile-game-shell__screen-glass {
   border-radius: 18px;
 }
@@ -4503,6 +4673,37 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell,
 .mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell {
   min-height: clamp(432px, 60svh, 640px);
+}
+
+.mobile-game-shell--tablet-stage-side-ads .mobile-game-shell__stage-shell {
+  min-height: clamp(360px, 54svh, 620px);
+}
+
+.mobile-game-shell--tablet-stage-side-ads .mobile-game-shell__screen-frame {
+  min-width: 0;
+}
+
+.mobile-game-shell--theme-knowledge.mobile-game-shell--tablet-stage-side-ads .mobile-game-shell__stage-shell-grid {
+  grid-template-columns: clamp(104px, 11vw, 164px) minmax(0, 1fr) clamp(104px, 11vw, 164px);
+}
+
+.mobile-game-shell--theme-knowledge.mobile-game-shell--tablet-stage-side-ads .mobile-game-shell__stage-side-ad,
+.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--tablet-stage-side-ads .mobile-game-shell__stage-side-ad {
+  padding: 0.86rem 0.72rem;
+  border-radius: 22px;
+}
+
+.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--tablet-stage-side-ads .mobile-game-shell__stage-shell-grid {
+  grid-template-columns: clamp(132px, 14vw, 208px) minmax(0, 1fr) clamp(132px, 14vw, 208px);
+  gap: clamp(0.62rem, 1.2vw, 1.05rem);
+}
+
+.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--tablet-stage-side-ads .mobile-game-shell__stage-side-ad .ad-preview-card__title {
+  font-size: 0.94rem;
+}
+
+.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--tablet-stage-side-ads .mobile-game-shell__stage-side-ad .ad-preview-card__description {
+  font-size: 0.76rem;
 }
 
 .mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-shell {
