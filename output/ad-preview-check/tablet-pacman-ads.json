@@ -1,0 +1,22 @@
+{
+  "name": "tablet-pacman-ads",
+  "contextOptions": {
+    "viewport": {
+      "width": 834,
+      "height": 1194
+    },
+    "screen": {
+      "width": 834,
+      "height": 1194
+    },
+    "isMobile": true,
+    "hasTouch": true,
+    "deviceScaleFactor": 2
+  },
+  "metrics": {
+    "desktopCards": 0,
+    "stageCards": 4,
+    "usesMobileShell": true,
+    "shellMode": "dual-screen"
+  }
+}

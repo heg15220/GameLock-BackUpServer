@@ -4142,3 +4142,44 @@ pm run build OK fuera del sandbox con NODE_OPTIONS=--max-old-space-size=4096.
 [2026-04-11] Valle Tranquilo: arreglada la entrada al ayuntamiento. Los portales ahora consideran proximidad a door o approach, y travelToLandmark cola portalId para entrar automaticamente al llegar. Validado con Chromium: el mapa cambia a town_hall sin errores de consola.
 [2026-04-11] Valle Tranquilo: anadidos Clara dentro del ayuntamiento, boton visible de salida para interiores y acceso directo a licencias desde Clara o el boton del ayuntamiento cuando estas dentro. Validado con Chromium: entrar, abrir licencias y salir al valle sin errores.
 [2026-04-11] Valle Tranquilo: el mostrador de licencias ahora deja claro que cada permiso se compra solo con monedas; ya no muestra materiales de obra en ese modal. Dig Hole Treasure: ocultada la barra superior en mobile/tablet embebido y la estamina vuelve a respetar el estado hidden, de modo que no aparece en world_select. Validado con Chromium sin errores.
+
+## 2026-04-12 - Slots publicitarios de playground
+- Anadida configuracion central src/config/adPreview.js con slots de escritorio y slots adaptativos para Arcade DS, listos para enlazar cuando lleguen las creatividades reales.
+- GamePlayground ahora expone un boton persistente para mostrar/ocultar la vista previa publicitaria; por defecto queda activada y guarda el estado en localStorage.
+- En escritorio se renderizan 4 viñetas laterales (2 izquierda, 2 derecha) y en MobileGameShell dual-screen se miden los huecos reales del gameplay para insertar slots solo donde sobra pantalla.
+
+- El mismo control y los mismos slots se aplican tambien en GameLaunchModal, para que la publicidad preparada aparezca tanto en la ficha como en la experiencia de juego lanzada.
+
+- Corregida la ubicacion de las viñetas en escritorio dentro del modal: ahora el layout cuelga de launch-game-area mediante launch-game-area-layout, en lugar de anidarse dentro de game-playground.
+
+
+- 2026-04-12 ad slots mobile fix: stabilized stage viewport ref in MobileGameShell and stopped MobileStageAdOverlay from clearing placements on transient null viewport nodes during gameplay rerenders.
+
+- 2026-04-12 ad slots mobile final pass: restored the mobile ad toggle visibility, excluded overlay nodes from stage isolation, and added immediate + retried measurements in MobileStageAdOverlay so Arcade DS can recover bottom-slot placements after delayed gameplay layout.
+
+- 2026-04-12 ad slots Arcade DS single-banner: MobileStageAdOverlay now returns a single placement only, prioritizes the bottom strip, and stretches the banner to the full horizontal space available inside the stage screen.
+
+- 2026-04-12 mobile knowledge/strategy bottom banner: MobileGameShell now renders a dedicated bottom ad card for strategy and knowledge categories on phone/tablet, using MOBILE_APP_BOTTOM_AD_SLOT and a stage-shell layout with a persistent footer banner below the main screen.
+
+- 2026-04-12 system-level bottom banner: moved the strategy/knowledge mobile ad out of the stage shell and into a system footer area at the bottom of MobileGameShell, so it sits below the overall app body instead of inside gameplay.
+
+## 2026-04-12 - Banner inferior del modal y fullscreen
+- El banner inferior de estrategia/conocimiento se ha movido del MobileGameShell al nivel del GameLaunchModal para que se comporte como overlay del sistema y el scroll del modal reserve el hueco inferior.
+- El MobileGameShell conserva el padding interno para paneles scrollables y vuelve a renderizar el banner solo en modo fullscreen, porque en fullscreen el overlay del modal deja de ser visible.
+- La verificacion de build no se ha completado porque fue interrumpida manualmente dos veces durante npm run build.
+
+- Ajustado fullscreen del MobileGameShell para que la reserva inferior del banner no se pierda: una regla especifica reaplica padding-bottom y scroll-padding-bottom en .mobile-game-shell--fullscreen.mobile-game-shell--with-system-bottom-ad sobre controls-panel y 	ouch-copy.
+
+- En fullscreen con banner del shell activo se ha anadido un mobile-game-shell__system-bottom-spacer al final del contenido scrollable (	ouch-copy y controls-stack) para garantizar recorrido hasta el final del panel incluso cuando el padding no basta, como en ajedrez con piezas capturadas.
+
+- Activado MobileStageAdOverlay tambien para Touch Stage (shellMode === mobile-first con shellTheme === default), reutilizando la misma logica de viñeta unica adaptativa que ya usaban los juegos tipo Arcade DS.
+
+- rcade-neon-rush ahora mide el canvas interno #gc dentro del iframe para el overlay de anuncios (iframe:#gc) y en horizontal prioriza dos viñetas verticales laterales si hay hueco suficiente.
+
+- Corregido el overlay de 
+eon-rush para no usar ResizeObserver.observe() sobre nodos del iframe con el observer del documento padre; ahora solo observa nodos del mismo documento y usa esize de la ventana interna como fallback seguro.
+
+- Corregido MobileGameShell.isolateStageBranch: ahora ignora selectores especiales iframe: y protege querySelector con 	ry/catch, porque rcade-neon-rush podia romper el shell al recibir iframe:#gc como selector no valido.
+
+- Igualado GamePlayground con GameLaunchModal para conocimiento/estrategia en movil/tablet: ahora tambien calcula showMobileSystemBottomAd, pasa showSystemBottomAd a MobileGameShell y renderiza MOBILE_APP_BOTTOM_AD_SLOT como banner inferior del sistema.
+

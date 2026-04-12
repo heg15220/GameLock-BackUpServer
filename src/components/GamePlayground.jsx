@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import AdPreviewCard from "./AdPreviewCard";
 import AdventureGame from "../games/AdventureGame";
 import ActionGame from "../games/ActionGame";
 import RacingGame from "../games/RacingGame";
@@ -23,6 +24,12 @@ import { MOBILE_SHELL_CATEGORIES, getViewportProfile } from "../utils/mobileShel
 import MobileGameShell from "../mobile/MobileGameShell";
 import { getResponsiveMobileShellMode } from "../mobile/mobileGameProfiles";
 import { NATIVE_MOBILE_GAME_IDS } from "../mobile/nativeMobileGameIds";
+import {
+  AD_PREVIEW_STORAGE_KEY,
+  DEFAULT_AD_PREVIEW_ENABLED,
+  DESKTOP_AD_SLOTS,
+  MOBILE_APP_BOTTOM_AD_SLOT,
+} from "../config/adPreview";
 
 const PlatformerGame = lazy(() => import("../games/PlatformerGame"));
 const FighterGame = lazy(() => import("../games/FighterGame"));
@@ -233,13 +240,17 @@ const UI_COPY_BY_LOCALE = {
     playNow: "Jugar ahora",
     readyMode: "Modo interactivo listo para la categoria",
     loading: "Cargando motor del juego...",
-    unsupported: "Este juego todavia no tiene motor jugable asignado."
+    unsupported: "Este juego todavia no tiene motor jugable asignado.",
+    showAds: "Mostrar viñetas de publicidad",
+    hideAds: "Ocultar viñetas de publicidad",
   },
   en: {
     playNow: "Play now",
     readyMode: "Interactive mode is ready for category",
     loading: "Loading game engine...",
-    unsupported: "This game does not have a playable engine assigned yet."
+    unsupported: "This game does not have a playable engine assigned yet.",
+    showAds: "Show ad preview slots",
+    hideAds: "Hide ad preview slots",
   }
 };
 
@@ -247,11 +258,32 @@ const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
   "strategy-poker-holdem-no-bet",
 ]);
 
+function readInitialAdPreviewEnabled() {
+  if (typeof window === "undefined") {
+    return DEFAULT_AD_PREVIEW_ENABLED;
+  }
+
+  const storedValue = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
+  if (storedValue == null) {
+    return DEFAULT_AD_PREVIEW_ENABLED;
+  }
+
+  return storedValue === "true";
+}
+
 function GamePlayground({ game }) {
   const locale = useMemo(resolveBrowserLanguage, []);
   const [viewport, setViewport] = useState(getViewportProfile);
+  const [adPreviewEnabled, setAdPreviewEnabled] = useState(readInitialAdPreviewEnabled);
   const resolvedLocale = locale === "es" ? "es" : "en";
   const copy = UI_COPY_BY_LOCALE[resolvedLocale] ?? UI_COPY_BY_LOCALE.en;
+  const desktopAdColumns = useMemo(
+    () => ({
+      left: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "left"),
+      right: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "right"),
+    }),
+    []
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -269,6 +301,14 @@ function GamePlayground({ game }) {
       window.removeEventListener("orientationchange", syncViewport);
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(AD_PREVIEW_STORAGE_KEY, String(adPreviewEnabled));
+  }, [adPreviewEnabled]);
 
   if (!game) {
     return null;
@@ -289,9 +329,22 @@ function GamePlayground({ game }) {
     viewport.isMobile &&
     !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? "")) &&
     !forceDesktopTabletLayout;
+  const showDesktopAdRails = adPreviewEnabled && viewportFormFactor === "desktop";
+  const showMobileSystemBottomAd =
+    adPreviewEnabled &&
+    useMobileGameShell &&
+    viewportFormFactor !== "desktop" &&
+    (
+      categoryKey === "Estrategia" ||
+      categoryKey === "Strategy" ||
+      categoryKey === "Conocimiento" ||
+      categoryKey === "Knowledge"
+    );
   const sectionClassName = [
     "game-playground",
+    adPreviewEnabled ? "game-playground--ad-preview" : "game-playground--ad-preview-off",
     useMobileGameShell ? "playground-mobile-enabled" : "",
+    showMobileSystemBottomAd ? "game-playground--with-system-bottom-ad" : "",
     viewport.isMobile ? "playground-mobile-active" : "",
     `playground-device-${viewportFormFactor}`,
     viewport.orientation === "portrait" ? "playground-mobile-portrait" : "playground-mobile-landscape",
@@ -311,43 +364,104 @@ function GamePlayground({ game }) {
       data-device-form-factor={viewportFormFactor}
     >
       <div className="playground-header">
-        <h3>{copy.playNow}</h3>
-        <p>
-          {copy.readyMode}{" "}
-          <strong>{game.category}</strong>.
-        </p>
-        {controlHint ? <p className="control-hint">{controlHint}</p> : null}
+        <div className="playground-header__copy">
+          <h3>{copy.playNow}</h3>
+          <p>
+            {copy.readyMode}{" "}
+            <strong>{game.category}</strong>.
+          </p>
+          {controlHint ? <p className="control-hint">{controlHint}</p> : null}
+        </div>
+        <button
+          type="button"
+          className="playground-ad-toggle"
+          onClick={() => {
+            setAdPreviewEnabled((currentValue) => !currentValue);
+          }}
+          aria-pressed={adPreviewEnabled}
+        >
+          {adPreviewEnabled ? copy.hideAds : copy.showAds}
+        </button>
       </div>
 
-      {ActiveGame ? (
-        useMobileGameShell ? (
-          <MobileGameShell
-            game={game}
-            viewport={viewport}
-            locale={resolvedLocale}
-            fallback={<p className="unsupported-game">{copy.loading}</p>}
-          >
-            <ActiveGame />
-          </MobileGameShell>
-        ) : (
-          <div className="playground-device-shell">
-            <div className="playground-device-bezel">
-              {mobileShellMode === "dual-screen" && viewport.orientation === "portrait" ? (
-                <div className="playground-device-hinge" aria-hidden="true" />
-              ) : null}
-              <div className="playground-device-content">
-                <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
-                  <ActiveGame />
-                </Suspense>
+      <div
+        className={[
+          "playground-stage-layout",
+          showDesktopAdRails ? "playground-stage-layout--with-ads" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {showDesktopAdRails ? (
+          <aside className="playground-ad-column playground-ad-column--left" aria-label="Desktop ad rail left">
+            {desktopAdColumns.left.map((slot) => (
+              <AdPreviewCard
+                key={slot.id}
+                slot={slot}
+                locale={resolvedLocale}
+                className="playground-ad-column__card"
+              />
+            ))}
+          </aside>
+        ) : null}
+
+        <div className="playground-stage-main">
+          {ActiveGame ? (
+            useMobileGameShell ? (
+              <MobileGameShell
+                game={game}
+                viewport={viewport}
+                locale={resolvedLocale}
+                showAdPreview={adPreviewEnabled}
+                showSystemBottomAd={showMobileSystemBottomAd}
+                fallback={<p className="unsupported-game">{copy.loading}</p>}
+              >
+                <ActiveGame />
+              </MobileGameShell>
+            ) : (
+              <div className="playground-device-shell">
+                <div className="playground-device-bezel">
+                  {mobileShellMode === "dual-screen" && viewport.orientation === "portrait" ? (
+                    <div className="playground-device-hinge" aria-hidden="true" />
+                  ) : null}
+                  <div className="playground-device-content">
+                    <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
+                      <ActiveGame />
+                    </Suspense>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )
-      ) : (
-        <p className="unsupported-game">
-          {copy.unsupported}
-        </p>
-      )}
+            )
+          ) : (
+            <p className="unsupported-game">
+              {copy.unsupported}
+            </p>
+          )}
+        </div>
+
+        {showDesktopAdRails ? (
+          <aside className="playground-ad-column playground-ad-column--right" aria-label="Desktop ad rail right">
+            {desktopAdColumns.right.map((slot) => (
+              <AdPreviewCard
+                key={slot.id}
+                slot={slot}
+                locale={resolvedLocale}
+                className="playground-ad-column__card"
+              />
+            ))}
+          </aside>
+        ) : null}
+      </div>
+
+      {showMobileSystemBottomAd ? (
+        <div className="playground-system-bottom-ad-wrap">
+          <AdPreviewCard
+            slot={MOBILE_APP_BOTTOM_AD_SLOT}
+            locale={resolvedLocale}
+            className="playground-system-bottom-ad"
+          />
+        </div>
+      ) : null}
     </section>
   );
 }

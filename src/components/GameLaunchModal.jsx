@@ -6,10 +6,30 @@ import useMobileGameViewport from "../mobile/useMobileGameViewport";
 import MobileGameShell from "../mobile/MobileGameShell";
 import { getResponsiveMobileShellMode } from "../mobile/mobileGameProfiles";
 import { NATIVE_MOBILE_GAME_IDS } from "../mobile/nativeMobileGameIds";
+import AdPreviewCard from "./AdPreviewCard";
+import {
+  AD_PREVIEW_STORAGE_KEY,
+  DEFAULT_AD_PREVIEW_ENABLED,
+  DESKTOP_AD_SLOTS,
+  MOBILE_APP_BOTTOM_AD_SLOT,
+} from "../config/adPreview";
 
 const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
   "strategy-poker-holdem-no-bet",
 ]);
+
+function readInitialAdPreviewEnabled() {
+  if (typeof window === "undefined") {
+    return DEFAULT_AD_PREVIEW_ENABLED;
+  }
+
+  const storedValue = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
+  if (storedValue == null) {
+    return DEFAULT_AD_PREVIEW_ENABLED;
+  }
+
+  return storedValue === "true";
+}
 
 function GameLaunchModal({ game, onClose }) {
   const { t, locale } = useTranslations();
@@ -18,6 +38,7 @@ function GameLaunchModal({ game, onClose }) {
   const controlHint = CONTROL_HINTS_BY_LOCALE[locale]?.[game.id];
 
   const [infoOpen, setInfoOpen] = useState(false);
+  const [adPreviewEnabled, setAdPreviewEnabled] = useState(readInitialAdPreviewEnabled);
   const viewport = useMobileGameViewport();
 
   // Lock body scroll while the modal is open so the body scrollbar
@@ -45,6 +66,14 @@ function GameLaunchModal({ game, onClose }) {
     return () => window.removeEventListener("launch-game-close", handleCloseRequest);
   }, [onClose]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(AD_PREVIEW_STORAGE_KEY, String(adPreviewEnabled));
+  }, [adPreviewEnabled]);
+
   const mobileShellMode = getResponsiveMobileShellMode(game, viewport);
   const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(String(game.category ?? ""));
   const forceDesktopTabletLayout =
@@ -56,9 +85,26 @@ function GameLaunchModal({ game, onClose }) {
     !NATIVE_MOBILE_GAME_IDS.has(String(game.id ?? "")) &&
     !forceDesktopTabletLayout;
   const viewportFormFactor = viewport.formFactor ?? "desktop";
+  const categoryKey = String(game.category ?? "");
+  const showMobileSystemBottomAd =
+    adPreviewEnabled &&
+    useMobileGameShell &&
+    viewportFormFactor !== "desktop" &&
+    (
+      categoryKey === "Estrategia" ||
+      categoryKey === "Strategy" ||
+      categoryKey === "Conocimiento" ||
+      categoryKey === "Knowledge"
+    );
+  const showDesktopAdRails = adPreviewEnabled && viewportFormFactor === "desktop";
+  const desktopAdColumns = {
+    left: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "left"),
+    right: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "right"),
+  };
   const launchPlaygroundClassName = [
     "game-playground",
     "launch-game-playground",
+    adPreviewEnabled ? "game-playground--ad-preview" : "game-playground--ad-preview-off",
     useMobileGameShell ? "playground-mobile-enabled" : "",
     viewport.isMobile ? "playground-mobile-active" : "",
     `playground-device-${viewportFormFactor}`,
@@ -72,11 +118,13 @@ function GameLaunchModal({ game, onClose }) {
     "launch-overlay",
     useMobileGameShell ? "launch-overlay--mobile-shell" : "",
     useMobileGameShell ? `launch-overlay--device-${viewportFormFactor}` : "",
+    showMobileSystemBottomAd ? "launch-overlay--with-system-bottom-ad" : "",
   ]
     .filter(Boolean)
     .join(" ");
   const launchGameAreaClassName = [
     "launch-game-area",
+    showDesktopAdRails ? "launch-game-area--with-ads" : "",
     useMobileGameShell ? "launch-game-area--mobile-shell" : "",
     useMobileGameShell ? `launch-game-area--device-${viewportFormFactor}` : "",
   ]
@@ -121,6 +169,23 @@ function GameLaunchModal({ game, onClose }) {
             {infoOpen ? t("hideInfo") : t("showInfo")}
           </button>
         ) : null}
+
+        <button
+          type="button"
+          className={[
+            "launch-info-toggle",
+            "launch-ad-toggle",
+            adPreviewEnabled ? "active" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          onClick={() => setAdPreviewEnabled((currentValue) => !currentValue)}
+          aria-pressed={adPreviewEnabled}
+        >
+          {locale === "en"
+            ? adPreviewEnabled ? "Hide ads" : "Show ads"
+            : adPreviewEnabled ? "Ocultar publicidad" : "Mostrar publicidad"}
+        </button>
       </div>
 
       {/* ── Scrollable body: info strip + game area ─────────────────────── */}
@@ -164,6 +229,8 @@ function GameLaunchModal({ game, onClose }) {
                 game={game}
                 viewport={viewport}
                 locale={locale}
+                showAdPreview={adPreviewEnabled}
+                showSystemBottomAd={showMobileSystemBottomAd}
                 fallback={
                   <div className="launch-loading">
                     <span className="launch-loading-dot" />
@@ -177,34 +244,71 @@ function GameLaunchModal({ game, onClose }) {
               </MobileGameShell>
             ) : (
               <div
-                className={launchPlaygroundClassName}
-                data-category={String(game.category ?? "").toLowerCase()}
-                data-game-id={game.id}
-                data-mobile-shell={mobileShellMode}
-                data-mobile-orientation={viewport.orientation}
-                data-device-form-factor={viewportFormFactor}
+                className={[
+                  "launch-game-area-layout",
+                  showDesktopAdRails ? "launch-game-area-layout--with-ads" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
-                <div className="playground-device-shell">
-                  <div className="playground-device-bezel">
-                    {mobileShellMode === "dual-screen" && viewport.orientation === "portrait" ? (
-                      <div className="playground-device-hinge" aria-hidden="true" />
-                    ) : null}
-                    <div className="playground-device-content">
-                      <Suspense
-                        fallback={
-                          <div className="launch-loading">
-                            <span className="launch-loading-dot" />
-                            <span className="launch-loading-dot" />
-                            <span className="launch-loading-dot" />
-                            <p>{t("loading")}</p>
-                          </div>
-                        }
-                      >
-                        <ActiveGame />
-                      </Suspense>
+                {showDesktopAdRails ? (
+                  <aside className="playground-ad-column playground-ad-column--left" aria-label="Desktop ad rail left">
+                    {desktopAdColumns.left.map((slot) => (
+                      <AdPreviewCard
+                        key={slot.id}
+                        slot={slot}
+                        locale={locale}
+                        className="playground-ad-column__card"
+                      />
+                    ))}
+                  </aside>
+                ) : null}
+
+                <div className="launch-game-area-stage">
+                  <div
+                    className={launchPlaygroundClassName}
+                    data-category={String(game.category ?? "").toLowerCase()}
+                    data-game-id={game.id}
+                    data-mobile-shell={mobileShellMode}
+                    data-mobile-orientation={viewport.orientation}
+                    data-device-form-factor={viewportFormFactor}
+                  >
+                    <div className="playground-device-shell">
+                      <div className="playground-device-bezel">
+                        {mobileShellMode === "dual-screen" && viewport.orientation === "portrait" ? (
+                          <div className="playground-device-hinge" aria-hidden="true" />
+                        ) : null}
+                        <div className="playground-device-content">
+                          <Suspense
+                            fallback={
+                              <div className="launch-loading">
+                                <span className="launch-loading-dot" />
+                                <span className="launch-loading-dot" />
+                                <span className="launch-loading-dot" />
+                                <p>{t("loading")}</p>
+                              </div>
+                            }
+                          >
+                            <ActiveGame />
+                          </Suspense>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {showDesktopAdRails ? (
+                  <aside className="playground-ad-column playground-ad-column--right" aria-label="Desktop ad rail right">
+                    {desktopAdColumns.right.map((slot) => (
+                      <AdPreviewCard
+                        key={slot.id}
+                        slot={slot}
+                        locale={locale}
+                        className="playground-ad-column__card"
+                      />
+                    ))}
+                  </aside>
+                ) : null}
               </div>
             )
           ) : (
@@ -213,6 +317,16 @@ function GameLaunchModal({ game, onClose }) {
         </section>
 
       </div>
+
+      {showMobileSystemBottomAd ? (
+        <div className="launch-system-bottom-ad-wrap">
+          <AdPreviewCard
+            slot={MOBILE_APP_BOTTOM_AD_SLOT}
+            locale={locale}
+            className="launch-system-bottom-ad"
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

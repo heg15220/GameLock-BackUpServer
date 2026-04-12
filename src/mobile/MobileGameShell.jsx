@@ -1,14 +1,17 @@
-import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AdPreviewCard from "../components/AdPreviewCard";
 import MobileControlDeck from "./MobileControlDeck";
 import MobileBowlingFramesPanel from "./MobileBowlingFramesPanel";
 import MobileGameStatusPanel from "./MobileGameStatusPanel";
 import MobileHeadSoccerTournamentPanel from "./MobileHeadSoccerTournamentPanel";
+import { MOBILE_APP_BOTTOM_AD_SLOT } from "../config/adPreview";
 import {
   getMobileControlProfile,
   getResponsiveMobileShellMode,
 } from "./mobileGameProfiles";
 import { getMobileStageSelectors } from "./mobileStageProfiles";
 import useMobileRuntimeSnapshot from "./useMobileRuntimeSnapshot";
+import MobileStageAdOverlay from "./MobileStageAdOverlay";
 import "./mobile-game-shell.css";
 
 const TABLET_LANDSCAPE_STACK_CATEGORIES = new Set([
@@ -112,7 +115,14 @@ function isolateStageBranch(viewport, selectors) {
   clearStageIsolation(viewport);
 
   const stageTarget = selectors
-    .map((selector) => viewport.querySelector(selector))
+    .filter((selector) => typeof selector === "string" && !selector.startsWith("iframe:"))
+    .map((selector) => {
+      try {
+        return viewport.querySelector(selector);
+      } catch {
+        return null;
+      }
+    })
     .find(Boolean);
 
   if (!stageTarget) {
@@ -129,7 +139,11 @@ function isolateStageBranch(viewport, selectors) {
       break;
     }
     Array.from(parent.children).forEach((sibling) => {
-      if (sibling !== current && sibling.tagName !== "STYLE") {
+      if (
+        sibling !== current &&
+        sibling.tagName !== "STYLE" &&
+        sibling.getAttribute("data-mobile-stage-overlay") !== "true"
+      ) {
         sibling.setAttribute("data-mobile-stage-hidden", "true");
       }
     });
@@ -144,6 +158,8 @@ export default function MobileGameShell({
   game,
   viewport,
   locale,
+  showAdPreview = false,
+  showSystemBottomAd: showSystemBottomAdOverride,
   fallback,
   children,
 }) {
@@ -172,8 +188,15 @@ export default function MobileGameShell({
     [locale]
   );
   const isDualScreen = shellMode === "dual-screen";
+  const isTouchStage = shellMode === "mobile-first" && shellTheme === "default";
   const isPortrait = viewport.orientation === "portrait";
   const viewportFormFactor = viewport.formFactor ?? "desktop";
+  const derivedShowSystemBottomAd =
+    showAdPreview &&
+    viewportFormFactor !== "desktop" &&
+    (shellTheme === "strategy" || shellTheme === "knowledge");
+  const showSystemBottomAd = showSystemBottomAdOverride ?? derivedShowSystemBottomAd;
+  const showStageAdOverlay = showAdPreview && (isDualScreen || isTouchStage);
   const isTabletLandscapeStack =
     isDualScreen &&
     viewportFormFactor === "tablet" &&
@@ -183,6 +206,11 @@ export default function MobileGameShell({
     () => getMobileStageSelectors(game?.id),
     [game?.id]
   );
+  const handleStageViewportRef = useCallback((node) => {
+    setStageViewportNode((currentNode) => (
+      currentNode === node ? currentNode : node
+    ));
+  }, []);
 
   useEffect(() => {
     const viewportNode = stageViewportNode;
@@ -257,6 +285,7 @@ export default function MobileGameShell({
     `mobile-game-shell--${shellMode}`,
     `mobile-game-shell--device-${viewportFormFactor}`,
     `mobile-game-shell--theme-${shellTheme}`,
+    showSystemBottomAd ? "mobile-game-shell--with-system-bottom-ad" : "",
     isTabletLandscapeStack ? "mobile-game-shell--tablet-landscape-stack" : "",
     isFullscreen ? "mobile-game-shell--fullscreen" : "",
     isDualScreen ? "mobile-game-shell--has-controls" : "mobile-game-shell--touch-native",
@@ -326,6 +355,11 @@ export default function MobileGameShell({
     </section>
   );
 
+  const fullscreenSystemAdSpacerNode =
+    showSystemBottomAd && isFullscreen ? (
+      <div className="mobile-game-shell__system-bottom-spacer" aria-hidden="true" />
+    ) : null;
+
   return (
     <div
       className={shellClassName}
@@ -356,11 +390,17 @@ export default function MobileGameShell({
               <div className="mobile-game-shell__screen-glass">
                 <div
                   className="mobile-game-shell__stage-viewport"
-                  ref={(node) => {
-                    setStageViewportNode(node);
-                  }}
+                  ref={handleStageViewportRef}
                 >
                   <Suspense fallback={fallback}>{children}</Suspense>
+                  <MobileStageAdOverlay
+                    viewportNode={stageViewportNode}
+                    enabled={showStageAdOverlay}
+                    locale={locale}
+                    formFactor={viewportFormFactor}
+                    gameId={game?.id}
+                    stageSelectors={stageSelectors}
+                  />
                 </div>
               </div>
             </div>
@@ -386,6 +426,7 @@ export default function MobileGameShell({
                       </div>
                     </>
                   )}
+                  {fullscreenSystemAdSpacerNode}
                 </div>
               </div>
             </section>
@@ -399,10 +440,20 @@ export default function MobileGameShell({
               />
               <strong>{shellCopy.touchTitle}</strong>
               <p>{shellCopy.touchDescription}</p>
+              {fullscreenSystemAdSpacerNode}
             </section>
           )}
         </div>
       </div>
+      {showSystemBottomAd && isFullscreen ? (
+        <div className="mobile-game-shell__system-bottom-ad-wrap">
+          <AdPreviewCard
+            slot={MOBILE_APP_BOTTOM_AD_SLOT}
+            locale={locale}
+            className="mobile-game-shell__system-bottom-ad"
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

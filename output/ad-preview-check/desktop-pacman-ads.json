@@ -1,0 +1,19 @@
+{
+  "name": "desktop-pacman-ads",
+  "contextOptions": {
+    "viewport": {
+      "width": 1440,
+      "height": 960
+    },
+    "screen": {
+      "width": 1440,
+      "height": 960
+    }
+  },
+  "metrics": {
+    "desktopCards": 4,
+    "stageCards": 0,
+    "usesMobileShell": false,
+    "shellMode": null
+  }
+}

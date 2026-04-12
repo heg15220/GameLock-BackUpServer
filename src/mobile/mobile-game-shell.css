@@ -12,9 +12,17 @@
 }
 
 .launch-overlay--mobile-shell .launch-topbar-badges,
-.launch-overlay--mobile-shell .launch-info-toggle,
 .launch-overlay--mobile-shell .launch-info {
   display: none;
+}
+
+.launch-overlay--mobile-shell .launch-ad-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 0.34rem 0.72rem;
+  font-size: 0.74rem;
 }
 
 .launch-game-area--mobile-shell {
@@ -30,6 +38,7 @@
 .mobile-game-shell {
   --mobile-shell-screen: #0b1221;
   --mobile-shell-shadow: rgba(15, 23, 42, 0.28);
+  --mobile-shell-system-ad-space: 108px;
   --mobile-shell-max-width: 100%;
   --mobile-shell-min-height: calc(100svh - 88px);
   --mobile-shell-hardware-gap: 0.7rem;
@@ -50,6 +59,15 @@
   display: flex;
   align-items: stretch;
   margin-inline: auto;
+  position: relative;
+}
+
+.mobile-game-shell--with-system-bottom-ad .mobile-game-shell__controls-panel,
+.mobile-game-shell--with-system-bottom-ad .mobile-game-shell__touch-copy {
+  padding-bottom: calc(
+    var(--mobile-shell-panel-padding) + var(--mobile-shell-system-ad-space) + env(safe-area-inset-bottom, 0px)
+  );
+  scroll-padding-bottom: calc(var(--mobile-shell-system-ad-space) + 0.8rem);
 }
 
 .mobile-game-shell--theme-strategy {
@@ -300,6 +318,44 @@
     inset 0 -1px 0 rgba(102, 86, 68, 0.12);
 }
 
+.mobile-game-shell--device-tablet {
+  --mobile-shell-system-ad-space: 126px;
+}
+
+.mobile-game-shell__system-bottom-ad-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 0.35rem);
+  pointer-events: none;
+  z-index: 8;
+}
+
+.mobile-game-shell__system-bottom-ad {
+  width: 100%;
+  min-height: 86px;
+  pointer-events: auto;
+}
+
+.mobile-game-shell__system-bottom-ad .ad-preview-card__description {
+  line-height: 1.28;
+}
+
+.mobile-game-shell__system-bottom-ad .ad-preview-card__meta,
+.mobile-game-shell__system-bottom-ad .ad-preview-card__footer {
+  font-size: 0.62rem;
+}
+
+.mobile-game-shell--device-tablet .mobile-game-shell__system-bottom-ad {
+  min-height: 104px;
+}
+
+.mobile-game-shell__system-bottom-spacer {
+  height: calc(var(--mobile-shell-system-ad-space) + env(safe-area-inset-bottom, 0px));
+  min-height: calc(var(--mobile-shell-system-ad-space) + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+
 .mobile-game-shell__controls-panel {
   overflow-y: auto;
 }
@@ -464,6 +520,42 @@
 .mobile-game-shell__stage-viewport > * {
   width: 100%;
   min-height: 100%;
+}
+
+.mobile-stage-ad-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.mobile-stage-ad-overlay__card {
+  position: absolute;
+  pointer-events: auto;
+  overflow: hidden;
+  padding: 0.58rem 0.54rem;
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.84),
+    0 10px 18px rgba(15, 23, 42, 0.16);
+}
+
+.mobile-stage-ad-overlay__card .ad-preview-card__eyebrow {
+  font-size: 0.48rem;
+}
+
+.mobile-stage-ad-overlay__card .ad-preview-card__title {
+  font-size: 0.72rem;
+}
+
+.mobile-stage-ad-overlay__card .ad-preview-card__description {
+  font-size: 0.6rem;
+  line-height: 1.28;
+}
+
+.mobile-stage-ad-overlay__card .ad-preview-card__meta,
+.mobile-stage-ad-overlay__card .ad-preview-card__footer {
+  font-size: 0.54rem;
 }
 
 .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] [data-mobile-stage-hidden="true"] {
@@ -4383,6 +4475,14 @@
 .mobile-game-shell--fullscreen .mobile-game-shell__touch-copy {
   padding: 0.35rem;
   border-radius: 22px;
+}
+
+.mobile-game-shell--fullscreen.mobile-game-shell--with-system-bottom-ad .mobile-game-shell__controls-panel,
+.mobile-game-shell--fullscreen.mobile-game-shell--with-system-bottom-ad .mobile-game-shell__touch-copy {
+  padding: 0.35rem 0.35rem calc(
+    0.35rem + var(--mobile-shell-system-ad-space) + env(safe-area-inset-bottom, 0px)
+  );
+  scroll-padding-bottom: calc(var(--mobile-shell-system-ad-space) + 0.8rem);
 }
 
 .mobile-game-shell--fullscreen .mobile-game-shell__screen-glass {
