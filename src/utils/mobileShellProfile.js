@@ -14,6 +14,8 @@ export const MOBILE_FIRST_GAME_IDS = new Set([
   "arcade-orchard-match-blast",
   "arcade-reactor-toss",
   "arcade-golf-tour-2d",
+  "racing-race2dpro",
+  "racing-sunset-slipstream",
 ]);
 
 const PHONE_MAX_SHORTEST_SIDE = 540;

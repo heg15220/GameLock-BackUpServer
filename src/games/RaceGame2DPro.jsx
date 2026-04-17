@@ -172,11 +172,11 @@ const PHYS = {
   ENGINE_BRAKE: 92,
   ROLLING_DRAG: 28,
   AERO_DRAG: 0.00085,
-  STEER_RATE: 2.45,
-  STEER_RESPONSE: 8.2,
+  STEER_RATE: 3.15,
+  STEER_RESPONSE: 10.5,
   THROTTLE_RESPONSE: 9.0,
   BRAKE_RESPONSE: 10.0,
-  YAW_RESPONSE: 7.0,
+  YAW_RESPONSE: 8.8,
   LATERAL_GRIP: 12.5,
   LATERAL_STABILITY: 9.0,
   CAR_RADIUS: 12,
@@ -190,6 +190,9 @@ const PHYS = {
   OFF_TRACK_MAX_SPEED_FACTOR: 0.82,
   OFF_TRACK_RECOVERY: 0.65,
 };
+
+const JOYSTICK_MAX_RADIUS = 45;
+const JOYSTICK_DEADZONE = 7;
 
 function getTrackUsableHalfWidth(track) {
   return Math.max(PHYS.CAR_RADIUS * 1.5, track.trackWidth * 0.5 - PHYS.CAR_RADIUS * 1.75);
@@ -766,6 +769,7 @@ function createCar(id, isPlayer, aiDifficulty, seedBase) {
     surfaceGrip: 1,
     collided: false,
     collisionCooldown: 0,
+    touchAssist: false,
     aiProfile: isPlayer ? null : AI_PROFILES[aiDifficulty],
     ai: isPlayer
       ? null
@@ -949,8 +953,10 @@ function advanceFinishPresentation(game, dt) {
 function updateCar(car, dt, input, track, weatherProfile, allCars, startLocked) {
   if (car.finished || startLocked) return;
 
+  const touchAssist = Boolean(car.isPlayer && car.touchAssist);
   const offTrackMultiplier = car.offTrack ? lerp(PHYS.OFF_TRACK_GRIP, 1, car.offTrackRecovery) : 1;
-  const surfaceGrip = weatherProfile.gripMult * offTrackMultiplier;
+  const touchGripBonus = touchAssist ? 1.16 : 1;
+  const surfaceGrip = weatherProfile.gripMult * offTrackMultiplier * touchGripBonus;
   car.surfaceGrip = surfaceGrip;
 
   car.throttleState = approach(car.throttleState, input.throttle, PHYS.THROTTLE_RESPONSE, dt);
@@ -976,18 +982,23 @@ function updateCar(car, dt, input, track, weatherProfile, allCars, startLocked) 
   longVel += (driveAccel - brakeAccel - dragAccel - engineBrake) * dt;
   longVel = clamp(longVel, 0, maxSpeed);
 
-  const steerAuthority = clamp((Math.abs(longVel) - 18) / (maxSpeed * 0.58), 0, 1);
+  const steerAuthority = clamp((Math.abs(longVel) - 8) / (maxSpeed * 0.44), 0, 1);
+  const touchYawAssist = touchAssist
+    ? lerp(1, 0.82, clamp(car.throttleState * (0.5 + steerAuthority * 0.5), 0, 1))
+    : 1;
   const targetYawRate = car.steerState
     * PHYS.STEER_RATE
-    * (0.18 + steerAuthority * 0.96)
-    * (0.75 + surfaceGrip * 0.25);
+    * (0.34 + steerAuthority * 1.08)
+    * (0.75 + surfaceGrip * 0.25)
+    * touchYawAssist;
   car.yawRate = approach(car.yawRate, targetYawRate, PHYS.YAW_RESPONSE, dt);
   car.a += car.yawRate * dt;
 
   const lateralGrip = PHYS.LATERAL_GRIP
     * surfaceGrip
     * (0.95 - speedRatio * 0.22)
-    * (car.brakeState > 0.25 ? 0.94 : 1);
+    * (car.brakeState > 0.25 ? 0.94 : 1)
+    * (touchAssist ? 1.36 : 1);
   latVel = lerp(latVel, 0, clamp(lateralGrip * dt, 0, 1));
 
   const alignedForwardX = Math.cos(car.a);
@@ -996,7 +1007,11 @@ function updateCar(car, dt, input, track, weatherProfile, allCars, startLocked) 
   const alignedRightY = alignedForwardX;
   const targetVx = alignedForwardX * longVel + alignedRightX * latVel;
   const targetVy = alignedForwardY * longVel + alignedRightY * latVel;
-  const stabilityBlend = clamp(PHYS.LATERAL_STABILITY * surfaceGrip * dt, 0, 1);
+  const stabilityBlend = clamp(
+    PHYS.LATERAL_STABILITY * surfaceGrip * (touchAssist ? 1.28 : 1) * dt,
+    0,
+    1
+  );
   car.vx = lerp(car.vx, targetVx, stabilityBlend);
   car.vy = lerp(car.vy, targetVy, stabilityBlend);
   car.x += car.vx * dt;
@@ -1224,15 +1239,19 @@ function getPlayerInput(keys, joy, touchInput) {
   let steer = 0;
 
   if (joy.active) {
-    throttle = clamp(-joy.dy / 42, 0, 1);
-    brake = clamp(joy.dy / 42, 0, 1);
-    steer = clamp(joy.dx / 42, -1, 1);
-  } else {
-    if (keys.has("ArrowUp") || keys.has("KeyW") || keys.has("Numpad8")) throttle = 1;
-    if (keys.has("ArrowDown") || keys.has("KeyS") || keys.has("Numpad2")) brake = 1;
-    if (keys.has("ArrowLeft") || keys.has("KeyA") || keys.has("Numpad4")) steer = -1;
-    if (keys.has("ArrowRight") || keys.has("KeyD") || keys.has("Numpad6")) steer = 1;
+    const dx = clamp(joy.dx / JOYSTICK_MAX_RADIUS, -1, 1);
+    const deadzone = JOYSTICK_DEADZONE / JOYSTICK_MAX_RADIUS;
+    const absDx = Math.abs(dx);
+    if (absDx > deadzone) {
+      const normalizedDx = clamp((absDx - deadzone) / (1 - deadzone), 0, 1);
+      steer = Math.sign(dx) * Math.pow(normalizedDx, 0.82);
+    }
   }
+
+  if (keys.has("ArrowUp") || keys.has("KeyW") || keys.has("Numpad8")) throttle = 1;
+  if (keys.has("ArrowDown") || keys.has("KeyS") || keys.has("Numpad2")) brake = 1;
+  if (keys.has("ArrowLeft") || keys.has("KeyA") || keys.has("Numpad4")) steer = steer === 0 ? -1 : Math.min(steer, -0.42);
+  if (keys.has("ArrowRight") || keys.has("KeyD") || keys.has("Numpad6")) steer = steer === 0 ? 1 : Math.max(steer, 0.42);
 
   if (touchInput.touchThrottle) throttle = 1;
   if (touchInput.touchBrake) brake = 1;
@@ -1846,6 +1865,7 @@ export default function RaceGame2DPro() {
       turnsLabel: "Curvas",
       overtakingLabel: "Adelantamiento",
       profileLabel: "Perfil",
+      promoLine: "Te gusta la F1? Visita overcutf1.com",
     },
     en: {
       title: "Race 2D Pro",
@@ -1886,6 +1906,7 @@ export default function RaceGame2DPro() {
       turnsLabel: "Turns",
       overtakingLabel: "Overtaking",
       profileLabel: "Profile",
+      promoLine: "Like F1? Visit overcutf1.com",
     },
   })[lang], [lang]);
 
@@ -1899,6 +1920,13 @@ export default function RaceGame2DPro() {
   const [viewModel, setViewModel] = useState(
     buildSetupViewModel(RACE2DPRO_CIRCUITS[0], "medium", "dry", 3, 5, lang, t)
   );
+  const isTouchControlProfile = useMemo(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
+    return coarsePointer || (navigator.maxTouchPoints ?? 0) > 0;
+  }, []);
 
   const canvasRef = useRef(null);
   const minimapRef = useRef(null);
@@ -1949,6 +1977,10 @@ export default function RaceGame2DPro() {
     for (let i = 0; i < rivals + 1; i += 1) {
       cars.push(createCar(i, i === 0, aiDifficulty, seedBase));
     }
+    const playerCar = cars.find((car) => car.isPlayer);
+    if (playerCar) {
+      playerCar.touchAssist = isTouchControlProfile;
+    }
     const playerGridIndex = Math.floor(Math.random() * cars.length);
     placeCarsOnGrid(cars, track, selectedTrack, playerGridIndex);
 
@@ -1982,7 +2014,7 @@ export default function RaceGame2DPro() {
     setJoyKnob({ dx: 0, dy: 0 });
     setViewModel(buildRaceViewModel("race", gameRef.current, weatherKey, aiDifficulty, lang, t));
     return true;
-  }, [selectedTrack, weatherKey, laps, rivals, aiDifficulty, lang, t]);
+  }, [selectedTrack, weatherKey, laps, rivals, aiDifficulty, lang, t, isTouchControlProfile]);
 
   const startRace = useCallback(() => {
     setScreen("race");
@@ -1995,7 +2027,12 @@ export default function RaceGame2DPro() {
   }, [screen, initializeRace]);
 
   const onJoyStart = useCallback((event) => {
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Some embedded mobile browsers reject pointer capture; continue with local tracking.
+    }
     const rect = event.currentTarget.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
@@ -2003,13 +2040,13 @@ export default function RaceGame2DPro() {
   }, []);
 
   const onJoyMove = useCallback((event) => {
+    event.preventDefault();
     const joy = joyRef.current;
     if (!joy.active || event.pointerId !== joy.pointerId) return;
     const rawDx = event.clientX - joy.cx;
     const rawDy = event.clientY - joy.cy;
-    const maxRadius = 45;
     const distance = Math.hypot(rawDx, rawDy);
-    const factor = distance > maxRadius ? maxRadius / distance : 1;
+    const factor = distance > JOYSTICK_MAX_RADIUS ? JOYSTICK_MAX_RADIUS / distance : 1;
     const dx = rawDx * factor;
     const dy = rawDy * factor;
     joyRef.current.dx = dx;
@@ -2018,16 +2055,26 @@ export default function RaceGame2DPro() {
   }, []);
 
   const onJoyEnd = useCallback((event) => {
+    event.preventDefault();
     if (event.pointerId !== joyRef.current.pointerId) return;
+    try {
+      if (event.currentTarget?.hasPointerCapture?.(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    } catch {
+      // Ignore pointer capture release failures.
+    }
     joyRef.current = { active: false, pointerId: null, cx: 0, cy: 0, dx: 0, dy: 0 };
     setJoyKnob({ dx: 0, dy: 0 });
   }, []);
 
-  const onTouchThrottle = useCallback((value) => {
+  const onTouchThrottle = useCallback((event, value) => {
+    event.preventDefault();
     inputRef.current.touchThrottle = value;
   }, []);
 
-  const onTouchBrake = useCallback((value) => {
+  const onTouchBrake = useCallback((event, value) => {
+    event.preventDefault();
     inputRef.current.touchBrake = value;
   }, []);
 
@@ -2433,6 +2480,8 @@ export default function RaceGame2DPro() {
           onPointerMove={onJoyMove}
           onPointerUp={onJoyEnd}
           onPointerCancel={onJoyEnd}
+          onLostPointerCapture={onJoyEnd}
+          onContextMenu={(event) => event.preventDefault()}
         >
           <div
             className="r2p__joystickKnob"
@@ -2444,18 +2493,30 @@ export default function RaceGame2DPro() {
           <button
             className="r2p__touchBtn"
             type="button"
-            onPointerDown={() => onTouchThrottle(true)}
-            onPointerUp={() => onTouchThrottle(false)}
-            onPointerCancel={() => onTouchThrottle(false)}
+            onPointerDown={(event) => onTouchThrottle(event, true)}
+            onPointerUp={(event) => onTouchThrottle(event, false)}
+            onPointerCancel={(event) => onTouchThrottle(event, false)}
+            onPointerLeave={(event) => onTouchThrottle(event, false)}
+            onTouchStart={(event) => onTouchThrottle(event, true)}
+            onTouchEnd={(event) => onTouchThrottle(event, false)}
+            onTouchCancel={(event) => onTouchThrottle(event, false)}
+            onMouseDown={(event) => event.preventDefault()}
+            onContextMenu={(event) => event.preventDefault()}
           >
             UP
           </button>
           <button
             className="r2p__touchBtn"
             type="button"
-            onPointerDown={() => onTouchBrake(true)}
-            onPointerUp={() => onTouchBrake(false)}
-            onPointerCancel={() => onTouchBrake(false)}
+            onPointerDown={(event) => onTouchBrake(event, true)}
+            onPointerUp={(event) => onTouchBrake(event, false)}
+            onPointerCancel={(event) => onTouchBrake(event, false)}
+            onPointerLeave={(event) => onTouchBrake(event, false)}
+            onTouchStart={(event) => onTouchBrake(event, true)}
+            onTouchEnd={(event) => onTouchBrake(event, false)}
+            onTouchCancel={(event) => onTouchBrake(event, false)}
+            onMouseDown={(event) => event.preventDefault()}
+            onContextMenu={(event) => event.preventDefault()}
           >
             DOWN
           </button>
@@ -2463,6 +2524,7 @@ export default function RaceGame2DPro() {
       </div>
 
       <div className="r2p__keyHint">{t.keyHint}</div>
+      <div className="r2p__promo" aria-hidden="true">{t.promoLine}</div>
     </div>
   );
 }

@@ -4199,3 +4199,21 @@ eon-rush para no usar ResizeObserver.observe() sobre nodos del iframe con el obs
 - `src/mobile/MobileControlDeck.jsx` amplia el deck para soportar botones `click-target` contra controles visibles dentro del iframe, resolviendo el objetivo en el momento del toque para no depender de refrescos del shell.
 - `src/mobile/MobileGameStatusPanel.jsx` deja de duplicar `exit-interior-btn` en el panel de acciones contextual, para que la salida viva solo en el bloque principal de controles.
 - Validacion automatizada incompleta en este turno: hubo interrupciones manuales durante las pasadas Playwright del shell movil/tablet, asi que el ultimo ajuste se ha aplicado por causa raiz y queda pendiente una comprobacion visual final sin interrupciones.
+
+## 2026-04-17 - Responsive mobile shell fixes
+- Ajustado MobileStageAdOverlay para que rcade-neon-rush use paneles laterales completos en landscape movil en lugar de tarjetas compactas.
+- rcade-pong-neon-arena ahora aísla pong-game para mantener visible el HUD/marcador en shell movil/tablet.
+- Añadidos ajustes de shell para rcade-reactor-toss, rcade-neon-crypt, rcade-buscaminas-classic y acing-race2dpro (encaje de stage/HUD/anuncios).
+- acing-race2dpro pasa a mobile-first en el shell responsive para que sus controles táctiles nativos estén presentes en movil y tablet.
+- Verificacion automatizada sin cerrar: build bloqueada primero por spawn EPERM y luego por memoria de Node; la segunda pasada fue interrumpida por el usuario.
+
+- Ajustado Race 2D Pro para que el joystick y botones tactiles prevengan defaults, toleren fallos de pointer-capture y suelten estado al salir/cancelar.
+- Sunset Slipstream pasa a mobile-first responsive y ya no depende del panel lateral en tablet landscape; mantiene controles tactiles nativos dentro del stage.
+- Buscaminas ahora aísla minesweeper-game completo en el shell movil, con HUD/toolbar compactados dentro del stage en lugar de aislar solo el tablero.
+
+- Ajustado el modelo de giro de Race 2D Pro: el joystick ahora prioriza el eje horizontal para direccion, aplica deadzone/curva y la fisica gana mas autoridad de yaw a baja/media velocidad.
+
+- Añadida asistencia de estabilidad tactil en Race 2D Pro: mas agarre efectivo, mas estabilidad lateral y menos yaw al acelerar para reducir derrape excesivo en movil/tablet.
+
+
+- Race 2D Pro ajustado para movil/tablet con HUD mas compacto, mensaje HUD oculto en shell movil, promo sutil localizada (overcutf1.com) y tira inferior reducida para una vineta compacta de publicidad debajo del gameplay.

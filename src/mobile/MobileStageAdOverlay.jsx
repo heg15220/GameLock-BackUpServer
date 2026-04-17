@@ -262,7 +262,7 @@ function buildCompactLandscapeSidePlacements(strips, thresholds) {
     const x = kind === "left"
       ? strip.x + strip.width - slotWidth - thresholds.padding
       : strip.x + thresholds.padding;
-    const y = strip.y + Math.max(thresholds.padding, (strip.height - slotHeight) / 2);
+    const y = strip.y + thresholds.padding;
 
     placements.push({
       id: `${kind}-compact-primary`,
@@ -300,13 +300,6 @@ function computePlacements(
     { kind: "top", x: 0, y: 0, width: viewportRect.width, height: top },
     { kind: "bottom", x: 0, y: targetRect.bottom - viewportRect.top, width: viewportRect.width, height: bottom },
   ];
-
-  if (gameId === "arcade-neon-rush" && formFactor !== "tablet" && isLandscape) {
-    const compactSidePlacements = buildCompactLandscapeSidePlacements(strips, thresholds);
-    if (compactSidePlacements.length > 0) {
-      return compactSidePlacements.slice(0, 2);
-    }
-  }
 
   if ((preferLandscapeSidePlacements || gameId === "arcade-neon-rush") && isLandscape) {
     const sidePlacements = buildLandscapeSidePlacements(strips, thresholds);

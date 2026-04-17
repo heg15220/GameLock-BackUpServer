@@ -236,6 +236,20 @@ function FluxBasinGame() {
   const isTouchLayout = activeDeviceProfile === "touch";
   const controlsCopy = isTouchLayout ? ui.sections.controlsTouch : ui.sections.controls;
   const readyMessage = isTouchLayout ? ui.messages.readyTouch : ui.messages.ready;
+  const activateAction = useCallback((event, action) => {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    action?.();
+  }, []);
+  const actionButtonProps = useCallback((action) => ({
+    onClick: (event) => activateAction(event, action),
+    onPointerDown: (event) => {
+      if (event.pointerType === "mouse") {
+        return;
+      }
+      activateAction(event, action);
+    },
+  }), [activateAction]);
 
   return (
     <div
@@ -253,16 +267,16 @@ function FluxBasinGame() {
           <p>{ui.subtitle}</p>
         </div>
         <div className="flux-basin-actions">
-          <button type="button" onClick={() => runtimeRef.current?.startLevel(continueLevel)}>
+          <button type="button" {...actionButtonProps(() => runtimeRef.current?.startLevel(continueLevel))}>
             {snapshot.totalStars > 0 ? ui.labels.continue : ui.labels.play}
           </button>
-          <button type="button" onClick={() => runtimeRef.current?.openLevelSelect()}>
+          <button type="button" {...actionButtonProps(() => runtimeRef.current?.openLevelSelect())}>
             {ui.labels.levelSelect}
           </button>
-          <button type="button" onClick={() => runtimeRef.current?.togglePause()}>
+          <button type="button" {...actionButtonProps(() => runtimeRef.current?.togglePause())}>
             {snapshot.playState === "paused" ? ui.labels.resume : ui.labels.pause}
           </button>
-          <button type="button" onClick={requestFullscreen}>{ui.labels.fullscreen}</button>
+          <button type="button" {...actionButtonProps(requestFullscreen)}>{ui.labels.fullscreen}</button>
         </div>
       </div>
 
@@ -311,27 +325,30 @@ function FluxBasinGame() {
               <p>{ui.sections.settingsHint}</p>
             </div>
             <div className="flux-basin-toggle-grid">
-              <button type="button" onClick={() => runtimeRef.current?.toggleSound()}>
+              <button type="button" {...actionButtonProps(() => runtimeRef.current?.toggleSound())}>
                 {ui.labels.audio}: {snapshot.settings.soundEnabled ? ui.toggles.on : ui.toggles.off}
               </button>
-              <button type="button" onClick={() => runtimeRef.current?.toggleVibration()}>
+              <button type="button" {...actionButtonProps(() => runtimeRef.current?.toggleVibration())}>
                 {ui.labels.vibration}: {snapshot.settings.vibrationEnabled ? ui.toggles.on : ui.toggles.off}
               </button>
               {!isTouchLayout ? (
-                <button type="button" onClick={() => runtimeRef.current?.setShowTrajectoryHelp(!snapshot.settings.showTrajectoryHelp)}>
+                <button
+                  type="button"
+                  {...actionButtonProps(() => runtimeRef.current?.setShowTrajectoryHelp(!snapshot.settings.showTrajectoryHelp))}
+                >
                   {ui.labels.assist}: {snapshot.settings.showTrajectoryHelp ? ui.toggles.on : ui.toggles.off}
                 </button>
               ) : null}
               <button
                 type="button"
-                onClick={() => runtimeRef.current?.setInputProfile(snapshot.settings.inputProfile === "standard" ? "comfort" : "standard")}
+                {...actionButtonProps(() => runtimeRef.current?.setInputProfile(snapshot.settings.inputProfile === "standard" ? "comfort" : "standard"))}
               >
                 {ui.labels.sensitivity}: {snapshot.settings.inputProfile === "standard" ? ui.toggles.standard : ui.toggles.comfort}
               </button>
-              <button type="button" onClick={() => runtimeRef.current?.setAutoRetry(!snapshot.settings.autoRetry)}>
+              <button type="button" {...actionButtonProps(() => runtimeRef.current?.setAutoRetry(!snapshot.settings.autoRetry))}>
                 {ui.labels.autoRetry}: {snapshot.settings.autoRetry ? ui.toggles.on : ui.toggles.off}
               </button>
-              <button type="button" onClick={() => runtimeRef.current?.cycleSkin()}>
+              <button type="button" {...actionButtonProps(() => runtimeRef.current?.cycleSkin())}>
                 {ui.labels.skin}: {snapshot.selectedSkinName}
               </button>
             </div>
@@ -368,10 +385,10 @@ function FluxBasinGame() {
                   <p>{ui.sections.worldSummary}</p>
                   <p>{snapshot.message || ui.messages.menu}</p>
                   <div className="flux-basin-overlay-actions">
-                    <button type="button" onClick={() => runtimeRef.current?.startLevel(continueLevel)}>
+                    <button type="button" {...actionButtonProps(() => runtimeRef.current?.startLevel(continueLevel))}>
                       {snapshot.totalStars > 0 ? ui.labels.continue : ui.labels.play}
                     </button>
-                    <button type="button" onClick={() => runtimeRef.current?.openLevelSelect()}>
+                    <button type="button" {...actionButtonProps(() => runtimeRef.current?.openLevelSelect())}>
                       {ui.labels.levelSelect}
                     </button>
                   </div>
@@ -387,7 +404,7 @@ function FluxBasinGame() {
                       <p className="flux-basin-overlay-eyebrow">{snapshot.worldName}</p>
                       <h5>{ui.labels.levelSelect}</h5>
                     </div>
-                    <button type="button" onClick={() => runtimeRef.current?.openMenu()}>
+                    <button type="button" {...actionButtonProps(() => runtimeRef.current?.openMenu())}>
                       {ui.labels.backMenu}
                     </button>
                   </div>
@@ -398,7 +415,7 @@ function FluxBasinGame() {
                         type="button"
                         className={`flux-basin-level-button ${level.completed ? "completed" : ""}`}
                         disabled={!level.unlocked}
-                        onClick={() => runtimeRef.current?.startLevel(level.id)}
+                        {...actionButtonProps(() => runtimeRef.current?.startLevel(level.id))}
                       >
                         <strong>{level.index + 1}</strong>
                         <span>{level.name}</span>
@@ -418,13 +435,13 @@ function FluxBasinGame() {
                   <p>{ui.labels.stars}: {"\u2605".repeat(snapshot.starsEarned)}{"\u2606".repeat(3 - snapshot.starsEarned)}</p>
                   <p>{ui.labels.best}: {snapshot.score}</p>
                   <div className="flux-basin-overlay-actions">
-                    <button type="button" onClick={() => runtimeRef.current?.nextLevel()}>
+                    <button type="button" {...actionButtonProps(() => runtimeRef.current?.nextLevel())}>
                       {ui.labels.nextLevel}
                     </button>
-                    <button type="button" onClick={() => runtimeRef.current?.restartLevel()}>
+                    <button type="button" {...actionButtonProps(() => runtimeRef.current?.restartLevel())}>
                       {ui.labels.retry}
                     </button>
-                    <button type="button" onClick={() => runtimeRef.current?.openLevelSelect()}>
+                    <button type="button" {...actionButtonProps(() => runtimeRef.current?.openLevelSelect())}>
                       {ui.labels.levelSelect}
                     </button>
                   </div>
@@ -438,10 +455,10 @@ function FluxBasinGame() {
                   <p className="flux-basin-overlay-eyebrow">{ui.labels.pause}</p>
                   <h5>{snapshot.levelName}</h5>
                   <div className="flux-basin-overlay-actions">
-                    <button type="button" onClick={() => runtimeRef.current?.togglePause()}>
+                    <button type="button" {...actionButtonProps(() => runtimeRef.current?.togglePause())}>
                       {ui.labels.resume}
                     </button>
-                    <button type="button" onClick={() => runtimeRef.current?.restartLevel()}>
+                    <button type="button" {...actionButtonProps(() => runtimeRef.current?.restartLevel())}>
                       {ui.labels.retry}
                     </button>
                   </div>

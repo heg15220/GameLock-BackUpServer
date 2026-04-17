@@ -665,6 +665,31 @@
   font-size: 0.54rem;
 }
 
+.mobile-game-shell__portrait-bottom-vignette {
+  min-height: 0;
+}
+
+.mobile-game-shell__system-bottom-ad--knowledge-inline {
+  min-height: 58px;
+  padding: 0.42rem 0.52rem;
+  border-radius: 16px;
+}
+
+.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__eyebrow {
+  font-size: 0.44rem;
+}
+
+.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__title {
+  font-size: 0.66rem;
+}
+
+.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__description,
+.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__meta,
+.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__footer {
+  font-size: 0.52rem;
+  line-height: 1.24;
+}
+
 .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] [data-mobile-stage-hidden="true"] {
   display: none !important;
 }
@@ -3800,10 +3825,18 @@
   display: none !important;
 }
 
+.mobile-game-shell--has-controls[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport .r2p__touch,
+.mobile-game-shell--has-controls[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport .r2p__keyHint,
+.mobile-game-shell[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport .pong-touch-controls,
+.mobile-game-shell[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport .mini-head {
+  display: none !important;
+}
+
 .mobile-game-shell__stage-viewport .mini-game,
 .mobile-game-shell__stage-viewport .cosmic-vanguard-game,
 .mobile-game-shell__stage-viewport .bubble-game,
-.mobile-game-shell__stage-viewport .head-soccer-pro {
+.mobile-game-shell__stage-viewport .head-soccer-pro,
+.mobile-game-shell__stage-viewport .flux-basin-game {
   min-height: 100%;
   padding: 0 !important;
   border: 0 !important;
@@ -3858,6 +3891,277 @@
 .mobile-game-shell__stage-viewport .mines-board-shell {
   margin: 0 !important;
   border-radius: 18px !important;
+}
+
+.mobile-game-shell[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pong-game {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.38rem;
+  padding: 0.28rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pong-hud {
+  margin: 0;
+  gap: 0.36rem;
+  padding: 0.34rem 0.56rem;
+  border-radius: 14px;
+}
+
+.mobile-game-shell[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pong-hud-score {
+  font-size: clamp(1.35rem, 3.9vw, 1.82rem);
+}
+
+.mobile-game-shell[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pong-hud-timer {
+  font-size: clamp(0.82rem, 2.35vw, 1rem);
+}
+
+.mobile-game-shell[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pong-hud-status {
+  font-size: 0.58rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .pong-stage {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0.24rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-pong-neon-arena"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .phaser-canvas-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hud {
+  inset: 0.4rem 0.4rem auto 0.4rem;
+  gap: 0.36rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hudPanel {
+  min-width: 0;
+  padding: 0.42rem 0.56rem;
+  border-radius: 10px;
+}
+
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hudTrack {
+  font-size: 0.62rem;
+}
+
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hudPos {
+  font-size: clamp(1.14rem, 3.8vw, 1.56rem);
+}
+
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hudLap,
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hudSpeed,
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hudWeather,
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hudTimer,
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hudPosLabel {
+  font-size: 0.62rem;
+  line-height: 1.18;
+}
+
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hudMessage {
+  display: none;
+}
+
+.mobile-game-shell[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__minimapWrap {
+  width: clamp(88px, 17vw, 122px);
+  height: clamp(60px, 9.8vw, 78px);
+}
+
+.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport .r2p__touch {
+  display: flex !important;
+}
+
+.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport .r2p__keyHint {
+  display: none !important;
+}
+
+.mobile-game-shell--with-compact-games-ad.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__touch-copy {
+  padding: 0.3rem 0.36rem;
+}
+
+.mobile-game-shell--with-compact-games-ad.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__touch-panel-content {
+  gap: 0.28rem;
+}
+
+.mobile-game-shell--with-compact-games-ad.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__touch-panel-content > :not(.mobile-game-shell__compact-app-ad) {
+  display: none;
+}
+
+.mobile-game-shell--with-compact-games-ad.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__compact-app-ad {
+  min-height: 58px;
+  padding: 0.42rem 0.54rem;
+  border-radius: 14px;
+}
+
+.mobile-game-shell--with-compact-games-ad.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__compact-app-ad .ad-preview-card__title {
+  font-size: 0.68rem;
+}
+
+.mobile-game-shell--with-compact-games-ad.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__compact-app-ad .ad-preview-card__description,
+.mobile-game-shell--with-compact-games-ad.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__compact-app-ad .ad-preview-card__meta,
+.mobile-game-shell--with-compact-games-ad.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__compact-app-ad .ad-preview-card__footer {
+  font-size: 0.56rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport .mines-board-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
+  max-height: 100%;
+  overflow: auto;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport .mines-board {
+  max-width: 100%;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .minesweeper-game {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+  gap: 0.34rem;
+  padding: 0.3rem;
+  overflow: hidden;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .minesweeper-game .mini-head,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-toolbar,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-custom-panel {
+  margin: 0;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .minesweeper-game .mini-head p,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-help {
+  display: none;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-toolbar,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-custom-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-toolbar label,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-custom-panel label {
+  min-width: 0;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-toolbar select,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-custom-panel input,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-toolbar button,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-custom-panel button {
+  min-height: 42px;
+  padding: 0.52rem 0.58rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-hud {
+  margin: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.28rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-hud > div {
+  padding: 0.28rem 0.36rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-hud span {
+  font-size: 0.54rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-hud strong {
+  font-size: 0.76rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-status,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-ai-feedback {
+  margin: 0;
+  font-size: 0.68rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-leaderboard {
+  margin: 0;
+  padding: 0.34rem 0.38rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-leaderboard-table {
+  max-height: 108px;
+  overflow: auto;
+}
+
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-rank-row {
+  grid-template-columns: 38px minmax(0, 1fr) 68px 54px;
+  font-size: 0.6rem;
+}
+
+.mobile-game-shell[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  min-height: 0;
+  aspect-ratio: auto;
+  border-radius: 22px;
+}
+
+.mobile-game-shell[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__overlay {
+  padding: 0.9rem;
+}
+
+.mobile-game-shell[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__card {
+  width: min(100%, 360px);
+  padding: 1rem;
+  border-radius: 18px;
+}
+
+.mobile-game-shell[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__card h3 {
+  font-size: clamp(1.15rem, 3.6vw, 1.7rem);
+}
+
+.mobile-game-shell[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__hint {
+  min-height: 0;
+  font-size: 0.72rem;
+}
+
+.mobile-game-shell[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__touchControls {
+  inset: auto 0.7rem 0.7rem 0.7rem;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.52rem;
+}
+
+.mobile-game-shell[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__touchPad,
+.mobile-game-shell[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__touchActions {
+  gap: 0.52rem;
+}
+
+.mobile-game-shell[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__touchControls button {
+  min-width: 64px;
+  min-height: 48px;
+  border-radius: 14px;
+  font-size: 0.76rem;
+}
+
+.mobile-game-shell--touch-native[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport .mtr__touchControls {
+  display: flex !important;
 }
 
 .mobile-game-shell--landscape .mobile-control-deck__cluster--actions {
@@ -4043,7 +4347,9 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-bubble-storm"] .mobile-game-shell__body,
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-neon-rush"] .mobile-game-shell__body {
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-neon-rush"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="racing-race2dpro"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__body {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
@@ -4053,8 +4359,19 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__touch-copy,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__touch-copy,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-bubble-storm"] .mobile-game-shell__touch-copy,
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-neon-rush"] .mobile-game-shell__touch-copy {
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-neon-rush"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__touch-copy {
   display: none;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native.mobile-game-shell--with-compact-games-ad[data-game-id="racing-race2dpro"] .mobile-game-shell__body {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native.mobile-game-shell--with-compact-games-ad[data-game-id="racing-race2dpro"] .mobile-game-shell__touch-copy {
+  display: grid;
+  max-height: 92px;
+  overflow: hidden;
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"].mobile-game-shell--touch-native .mobile-game-shell__body {
@@ -4119,7 +4436,7 @@
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-race2dpro"] .mobile-game-shell__body {
-  grid-template-columns: minmax(0, 1.52fr) minmax(332px, 0.56fr);
+  grid-template-columns: minmax(0, 1.66fr) minmax(304px, 0.48fr);
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__body {
@@ -4232,7 +4549,7 @@
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__body {
-  grid-template-columns: minmax(0, 1.32fr) minmax(360px, 0.68fr);
+  grid-template-columns: minmax(0, 1.48fr) minmax(320px, 0.52fr);
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-control-deck__clusters,
@@ -4371,6 +4688,73 @@
   max-height: 100% !important;
   object-fit: contain;
   aspect-ratio: auto;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-shell {
+  min-height: clamp(332px, 74svh, 540px);
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.32rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-head {
+  gap: 0.28rem;
+  align-items: center;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-head > div:first-child > p:not(.flux-basin-world),
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-stage-head p,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-hints,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-controls-copy,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-stage-footer {
+  display: none;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-shell {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.34rem;
+  min-height: 0;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-side {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.34rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-panel {
+  padding: 0.5rem;
+  gap: 0.34rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-stage-wrap {
+  order: -1;
+  min-height: 0;
+  padding: 0.22rem;
+  gap: 0.26rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-canvas-shell {
+  min-height: 0 !important;
+  height: 100%;
+  padding: 0;
+  border-radius: 16px;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 100% !important;
+  object-fit: contain;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay-card {
+  max-width: min(100%, 360px);
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game {
@@ -4606,7 +4990,7 @@
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-board {
-  width: min(100%, 560px);
+  width: min(100%, 620px);
   max-width: 100%;
 }
 
@@ -4622,6 +5006,56 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-crypt"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] canvas {
   max-width: min(100%, 960px) !important;
   margin-inline: auto;
+}
+
+.mobile-game-shell--portrait[data-game-id="arcade-neon-crypt"] .mobile-game-shell__stage-shell {
+  min-height: clamp(380px, 52svh, 600px);
+}
+
+.mobile-game-shell--portrait[data-game-id="arcade-neon-crypt"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] > [data-mobile-stage-branch="true"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.mobile-game-shell--portrait[data-game-id="arcade-neon-crypt"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  aspect-ratio: 960 / 580;
+  object-fit: contain;
+  margin-inline: auto;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--portrait[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__hud {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--portrait[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .r2p__minimapWrap {
+  display: none;
+}
+
+.mobile-game-shell--device-phone[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-toolbar,
+.mobile-game-shell--device-phone[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-custom-panel,
+.mobile-game-shell--device-phone[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-hud {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport .mines-board-shell {
+  padding: 0.18rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-side-ad,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-side-ad {
+  padding: 0.74rem 0.64rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="racing-race2dpro"] .mobile-game-shell__stage-side-ad .ad-preview-card__description,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-side-ad .ad-preview-card__description {
+  font-size: 0.68rem;
+  line-height: 1.3;
 }
 
 .mobile-game-shell--fullscreen {
@@ -5070,9 +5504,31 @@
     min-height: calc(100svh - 74px);
   }
 
-  .mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__body {
-    grid-template-rows: minmax(0, 1fr);
-  }
+.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__body {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-crucigrama-mini"] .mobile-game-shell__body,
+.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-sopa-letras-mega"] .mobile-game-shell__body,
+.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-wikipedia-gacha"] .mobile-game-shell__body {
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 0.32rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-crucigrama-mini"] .mobile-game-shell__portrait-bottom-vignette,
+.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-sopa-letras-mega"] .mobile-game-shell__portrait-bottom-vignette,
+.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-wikipedia-gacha"] .mobile-game-shell__portrait-bottom-vignette {
+  display: block;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-crucigrama-mini"] .mobile-game-shell__portrait-bottom-vignette,
+.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-sopa-letras-mega"] .mobile-game-shell__portrait-bottom-vignette {
+  padding-inline: 0.24rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-wikipedia-gacha"] .mobile-game-shell__portrait-bottom-vignette {
+  padding-inline: 0.18rem;
+}
 
   .mobile-game-shell--portrait[data-game-id="knowledge-refranes-clasicos"].mobile-game-shell--touch-native .mobile-game-shell__body,
   .mobile-game-shell--portrait[data-game-id="knowledge-iq-masters-protocol"].mobile-game-shell--touch-native .mobile-game-shell__body,

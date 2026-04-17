@@ -7,6 +7,8 @@ const DIRECT_TOUCH_GAME_IDS = new Set([
   "arcade-buscaminas-classic",
   "arcade-bubble-storm",
   "arcade-neon-rush",
+  "racing-race2dpro",
+  "racing-sunset-slipstream",
 ]);
 
 const TABLET_LANDSCAPE_CONTROL_DECK_GAME_IDS = new Set([

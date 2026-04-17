@@ -56,12 +56,13 @@ const GAME_STAGE_SELECTORS = {
   ],
   "racing-race2dpro": [".r2p"],
   "racing-sunset-slipstream": [".mtr", ".mtr__canvas"],
+  "arcade-buscaminas-classic": [".minesweeper-game", ".mines-board-shell"],
   "arcade-ice-strike-pro": ["canvas"],
   "arcade-pacman-maze-protocol": [
     ".pacman-stage-shell",
     ".sky-runner-dx-canvas-shell",
   ],
-  "arcade-pong-neon-arena": [".pong-stage"],
+  "arcade-pong-neon-arena": [".pong-game", ".pong-stage"],
   "arcade-stick-brawl-showdown": [
     ".fighter-stage",
     ".phaser-canvas-shell",

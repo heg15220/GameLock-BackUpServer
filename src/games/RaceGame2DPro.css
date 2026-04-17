@@ -474,6 +474,10 @@
   justify-content: space-between;
   align-items: end;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .r2p__joystick,
@@ -488,6 +492,10 @@
   border: 2px solid rgba(255, 255, 255, 0.25);
   background: rgba(8, 12, 18, 0.5);
   position: relative;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .r2p__joystickKnob {
@@ -517,6 +525,12 @@
   color: var(--r2p-ui-text);
   font-size: 1.4rem;
   font-weight: 700;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .r2p__keyHint {
@@ -532,6 +546,26 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(5px);
   pointer-events: none;
+}
+
+.r2p__promo {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  max-width: min(52vw, 320px);
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 12, 18, 0.18);
+  color: rgba(255, 255, 255, 0.54);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 .r2p__endCard {
@@ -664,6 +698,13 @@
   .r2p {
     height: min(90vh, 880px);
     min-height: 500px;
+  }
+
+  .r2p__promo {
+    bottom: 88px;
+    max-width: min(62vw, 280px);
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.44);
   }
 }
 

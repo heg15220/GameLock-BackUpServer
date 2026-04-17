@@ -26,6 +26,12 @@ const TABLET_LANDSCAPE_STACK_CATEGORIES = new Set([
   "sports",
 ]);
 
+const KNOWLEDGE_INLINE_BOTTOM_AD_IDS = new Set([
+  "knowledge-crucigrama-mini",
+  "knowledge-sopa-letras-mega",
+  "knowledge-wikipedia-gacha",
+]);
+
 function resolveShellTheme(game) {
   const categoryKey = String(game?.category ?? "");
   if (categoryKey === "Estrategia" || categoryKey === "Strategy") {
@@ -199,10 +205,16 @@ export default function MobileGameShell({
   const isStrategyTheme = shellTheme === "strategy";
   const isKnowledgeTheme = shellTheme === "knowledge";
   const isGamesCategory = categoryKey === "juegos" || categoryKey === "games";
+  const useKnowledgeInlineBottomAd =
+    showAdPreview &&
+    viewportFormFactor === "phone" &&
+    isPortrait &&
+    isKnowledgeTheme &&
+    KNOWLEDGE_INLINE_BOTTOM_AD_IDS.has(game?.id);
   const derivedShowSystemBottomAd =
     showAdPreview &&
     viewportFormFactor !== "desktop" &&
-    (isStrategyTheme || (isKnowledgeTheme && isPortrait));
+    (isStrategyTheme || (isKnowledgeTheme && isPortrait && !useKnowledgeInlineBottomAd));
   const showSystemBottomAd = showSystemBottomAdOverride ?? derivedShowSystemBottomAd;
   const showTabletStageSideAds =
     showAdPreview &&
@@ -350,6 +362,16 @@ export default function MobileGameShell({
         className="mobile-game-shell__compact-app-ad"
       />
     ) : null;
+  const knowledgeInlineBottomAdNode =
+    useKnowledgeInlineBottomAd ? (
+      <section className="mobile-game-shell__portrait-bottom-vignette">
+        <AdPreviewCard
+          slot={MOBILE_APP_BOTTOM_AD_SLOT}
+          locale={locale}
+          className="mobile-game-shell__system-bottom-ad mobile-game-shell__system-bottom-ad--inline mobile-game-shell__system-bottom-ad--knowledge-inline"
+        />
+      </section>
+    ) : null;
 
   const statusPanelsNode = (
     <>
@@ -496,6 +518,8 @@ export default function MobileGameShell({
               stageFrameNode
             )}
           </section>
+
+          {knowledgeInlineBottomAdNode}
 
           {isDualScreen ? (
             <section className="mobile-game-shell__controls-shell">
