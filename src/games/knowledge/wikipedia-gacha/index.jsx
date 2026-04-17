@@ -179,6 +179,310 @@ function getRewardSourceLabel(rewardSource, es) {
   return es ? "Sistema" : "System";
 }
 
+const MISSION_COPY = {
+  "open-1-pack": {
+    es: { title: "Calentamiento del archivista", description: "Abre 1 sobre." },
+    en: { title: "Archivist Warm-up", description: "Open 1 pack." },
+  },
+  "open-2-packs": {
+    es: { title: "Borrador de archivo", description: "Abre 2 sobres en un solo dia." },
+    en: { title: "Archive Draft", description: "Open 2 packs in a single day." },
+  },
+  "collect-2-new": {
+    es: { title: "Descubrimientos nuevos", description: "Consigue 2 cartas nuevas hoy." },
+    en: { title: "Fresh Discoveries", description: "Get 2 new cards today." },
+  },
+  "pull-sr-plus": {
+    es: { title: "Pico de calidad", description: "Obtiene 1 carta SR o superior." },
+    en: { title: "Quality Spike", description: "Obtain 1 SR or higher card." },
+  },
+  "click-wikipedia": {
+    es: { title: "Abrir la fuente", description: "Visita 1 articulo en Wikipedia." },
+    en: { title: "Open The Source", description: "Visit 1 article on Wikipedia." },
+  },
+  "favorite-1-card": {
+    es: { title: "Eleccion del curador", description: "Marca 1 carta como favorita." },
+    en: { title: "Curator's Pick", description: "Mark 1 favorite card." },
+  },
+  "collect-3-cards": {
+    es: { title: "Entrada al archivo", description: "Consigue 3 cartas hoy." },
+    en: { title: "Archive Intake", description: "Obtain 3 cards today." },
+  },
+  "open-4-packs": {
+    es: { title: "Sesion larga", description: "Abre 4 sobres en un solo dia." },
+    en: { title: "Long Session", description: "Open 4 packs in a single day." },
+  },
+  "open-6-packs": {
+    es: { title: "Barrido de la boveda", description: "Abre 6 sobres en un solo dia." },
+    en: { title: "Vault Sweep", description: "Open 6 packs in a single day." },
+  },
+  "collect-5-new": {
+    es: { title: "Expansion del catalogo", description: "Consigue 5 cartas nuevas hoy." },
+    en: { title: "Catalog Expansion", description: "Get 5 new cards today." },
+  },
+  "collect-10-cards": {
+    es: { title: "Entrada masiva", description: "Consigue 10 cartas hoy." },
+    en: { title: "Bulk Intake", description: "Obtain 10 cards today." },
+  },
+  "collect-4-duplicates": {
+    es: { title: "Camara de ecos", description: "Consigue 4 cartas duplicadas hoy." },
+    en: { title: "Echo Chamber", description: "Obtain 4 duplicate cards today." },
+  },
+  "earn-60-shards": {
+    es: { title: "Pase de refinado", description: "Gana 60 shards por duplicados hoy." },
+    en: { title: "Refinement Pass", description: "Earn 60 shards from duplicates today." },
+  },
+  "pull-2-sr-plus": {
+    es: { title: "Relevo de rareza", description: "Obtiene 2 cartas SR o superiores hoy." },
+    en: { title: "Rarity Relay", description: "Obtain 2 SR or higher cards today." },
+  },
+  "pull-ssr-plus": {
+    es: { title: "Ruptura abstracta", description: "Obtiene 1 carta SSR o superior hoy." },
+    en: { title: "Abstract Breakthrough", description: "Obtain 1 SSR or higher card today." },
+  },
+  "click-2-sources": {
+    es: { title: "Corredor de notas", description: "Visita 2 paginas de articulos en Wikipedia hoy." },
+    en: { title: "Footnote Runner", description: "Visit 2 article pages on Wikipedia today." },
+  },
+  "click-4-sources": {
+    es: { title: "Inmersion en referencias", description: "Visita 4 paginas de articulos en Wikipedia hoy." },
+    en: { title: "Reference Dive", description: "Visit 4 article pages on Wikipedia today." },
+  },
+  "favorite-3-cards": {
+    es: { title: "Muro del curador", description: "Marca 3 cartas como favoritas." },
+    en: { title: "Curator Wall", description: "Mark 3 favorite cards." },
+  },
+  "favorite-6-cards": {
+    es: { title: "Rotacion de galeria", description: "Marca 6 cartas como favoritas." },
+    en: { title: "Gallery Rotation", description: "Mark 6 favorite cards." },
+  },
+  "science-dive": {
+    es: { title: "Lote de ciencia", description: "Consigue 2 cartas de Science hoy." },
+    en: { title: "Science Stack", description: "Obtain 2 Science cards today." },
+  },
+  "history-dive": {
+    es: { title: "Lote de historia", description: "Consigue 2 cartas de History hoy." },
+    en: { title: "History Stack", description: "Obtain 2 History cards today." },
+  },
+  "geography-dive": {
+    es: { title: "Lote de geografia", description: "Consigue 2 cartas de Geography hoy." },
+    en: { title: "Geography Stack", description: "Obtain 2 Geography cards today." },
+  },
+  "technology-dive": {
+    es: { title: "Lote de tecnologia", description: "Consigue 2 cartas de Technology hoy." },
+    en: { title: "Technology Stack", description: "Obtain 2 Technology cards today." },
+  },
+  "art-dive": {
+    es: { title: "Lote de arte", description: "Consigue 2 cartas de Art hoy." },
+    en: { title: "Art Stack", description: "Obtain 2 Art cards today." },
+  },
+  "culture-dive": {
+    es: { title: "Lote de cultura", description: "Consigue 2 cartas de Culture hoy." },
+    en: { title: "Culture Stack", description: "Obtain 2 Culture cards today." },
+  },
+  "society-dive": {
+    es: { title: "Lote de sociedad", description: "Consigue 2 cartas de Society hoy." },
+    en: { title: "Society Stack", description: "Obtain 2 Society cards today." },
+  },
+  "mathematics-dive": {
+    es: { title: "Lote de matematicas", description: "Consigue 2 cartas de Mathematics hoy." },
+    en: { title: "Mathematics Stack", description: "Obtain 2 Mathematics cards today." },
+  },
+  "collect-1-new": {
+    es: { title: "Espacio en la estanteria", description: "Consigue 1 carta nueva hoy." },
+    en: { title: "New Shelf Space", description: "Get 1 new card today." },
+  },
+};
+
+const TROPHY_COPY = {
+  "first-card": {
+    es: { name: "Primera tirada", description: "Consigue tu primera carta." },
+    en: { name: "First Pull", description: "Obtain your first card." },
+  },
+  "first-sr": {
+    es: { name: "Bengala de senal", description: "Consigue tu primera carta SR o superior." },
+    en: { name: "Signal Flare", description: "Obtain your first SR or higher card." },
+  },
+  "first-ssr": {
+    es: { name: "Abstracto dorado", description: "Consigue tu primera carta SSR o superior." },
+    en: { name: "Golden Abstract", description: "Obtain your first SSR or higher card." },
+  },
+  "unique-15": {
+    es: { name: "Mini biblioteca", description: "Colecciona 15 cartas unicas." },
+    en: { name: "Mini Library", description: "Collect 15 unique cards." },
+  },
+  "duplicates-10": {
+    es: { name: "Eco de archivo", description: "Acumula 10 copias duplicadas." },
+    en: { name: "Archive Echo", description: "Accumulate 10 duplicate copies." },
+  },
+  "science-collector": {
+    es: { name: "Curador de ciencia", description: "Colecciona 6 cartas de Science." },
+    en: { name: "Science Curator", description: "Collect 6 Science cards." },
+  },
+  "history-collector": {
+    es: { name: "Curador de historia", description: "Colecciona 5 cartas de History." },
+    en: { name: "History Curator", description: "Collect 5 History cards." },
+  },
+  "first-ur": {
+    es: { name: "Evento ambar", description: "Consigue tu primera carta UR o superior." },
+    en: { name: "Amber Event", description: "Obtain your first UR or higher card." },
+  },
+  "first-lr": {
+    es: { name: "Cita mitica", description: "Consigue tu primera carta LR." },
+    en: { name: "Mythic Citation", description: "Obtain your first LR card." },
+  },
+  "first-sr-plus-set": {
+    es: { name: "Cluster de senales", description: "Colecciona 3 cartas distintas de SR o superior." },
+    en: { name: "Signal Cluster", description: "Collect 3 distinct SR or higher cards." },
+  },
+  "unique-40": {
+    es: { name: "Sala de lectura", description: "Colecciona 40 cartas unicas." },
+    en: { name: "Reading Room", description: "Collect 40 unique cards." },
+  },
+  "unique-80": {
+    es: { name: "Gran archivo", description: "Colecciona 80 cartas unicas." },
+    en: { name: "Grand Archive", description: "Collect 80 unique cards." },
+  },
+  "unique-150": {
+    es: { name: "Estanterias infinitas", description: "Colecciona 150 cartas unicas." },
+    en: { name: "Endless Stacks", description: "Collect 150 unique cards." },
+  },
+  "duplicates-30": {
+    es: { name: "Estante resonante", description: "Acumula 30 copias duplicadas." },
+    en: { name: "Resonant Shelf", description: "Accumulate 30 duplicate copies." },
+  },
+  "duplicates-75": {
+    es: { name: "Eco recursivo", description: "Acumula 75 copias duplicadas." },
+    en: { name: "Recursive Echo", description: "Accumulate 75 duplicate copies." },
+  },
+  "copies-120": {
+    es: { name: "Peso de papel", description: "Alcanza 120 copias totales en el archivo." },
+    en: { name: "Paperweight", description: "Reach 120 total copies in the archive." },
+  },
+  "packs-10": {
+    es: { name: "Rutina de tiradas", description: "Abre 10 sobres en total." },
+    en: { name: "Routine Puller", description: "Open 10 packs overall." },
+  },
+  "packs-25": {
+    es: { name: "Turno de noche", description: "Abre 25 sobres en total." },
+    en: { name: "Night Shift", description: "Open 25 packs overall." },
+  },
+  "packs-50": {
+    es: { name: "Operador de archivadores", description: "Abre 50 sobres en total." },
+    en: { name: "Binder Operator", description: "Open 50 packs overall." },
+  },
+  "packs-100": {
+    es: { name: "Motor del archivo", description: "Abre 100 sobres en total." },
+    en: { name: "Archive Engine", description: "Open 100 packs overall." },
+  },
+  "favorites-3": {
+    es: { name: "Estante personal", description: "Marca 3 cartas como favoritas." },
+    en: { name: "Personal Shelf", description: "Mark 3 favorite cards." },
+  },
+  "favorites-10": {
+    es: { name: "Muro del curador", description: "Marca 10 cartas como favoritas." },
+    en: { name: "Curator's Wall", description: "Mark 10 favorite cards." },
+  },
+  "geography-collector": {
+    es: { name: "Curador del atlas", description: "Colecciona 6 cartas de Geography." },
+    en: { name: "Atlas Curator", description: "Collect 6 Geography cards." },
+  },
+  "technology-collector": {
+    es: { name: "Curador de tecnologia", description: "Colecciona 6 cartas de Technology." },
+    en: { name: "Tech Curator", description: "Collect 6 Technology cards." },
+  },
+  "art-collector": {
+    es: { name: "Curador de galeria", description: "Colecciona 6 cartas de Art." },
+    en: { name: "Gallery Curator", description: "Collect 6 Art cards." },
+  },
+  "culture-collector": {
+    es: { name: "Curador de cultura", description: "Colecciona 6 cartas de Culture." },
+    en: { name: "Culture Curator", description: "Collect 6 Culture cards." },
+  },
+  "society-collector": {
+    es: { name: "Curador civico", description: "Colecciona 6 cartas de Society." },
+    en: { name: "Civic Curator", description: "Collect 6 Society cards." },
+  },
+  "mathematics-collector": {
+    es: { name: "Curador de numeros", description: "Colecciona 4 cartas de Mathematics." },
+    en: { name: "Numbers Curator", description: "Collect 4 Mathematics cards." },
+  },
+  "topic-variety-4": {
+    es: { name: "Referencias cruzadas", description: "Colecciona cartas de 4 grupos tematicos distintos." },
+    en: { name: "Cross-Referenced", description: "Collect cards from 4 different topic groups." },
+  },
+  "topic-variety-7": {
+    es: { name: "Lector universal", description: "Colecciona cartas de 7 grupos tematicos distintos." },
+    en: { name: "Universal Reader", description: "Collect cards from 7 different topic groups." },
+  },
+  "wikipedia-clicks-5": {
+    es: { name: "Fuente primaria", description: "Abre 5 articulos en Wikipedia." },
+    en: { name: "Primary Source", description: "Open 5 articles on Wikipedia." },
+  },
+  "wikipedia-clicks-25": {
+    es: { name: "Peregrino de notas", description: "Abre 25 articulos en Wikipedia." },
+    en: { name: "Footnote Pilgrim", description: "Open 25 articles on Wikipedia." },
+  },
+  "mission-claims-5": {
+    es: { name: "Guarda de listas", description: "Reclama 5 recompensas de mision." },
+    en: { name: "Checklist Keeper", description: "Claim 5 mission rewards." },
+  },
+  "mission-claims-20": {
+    es: { name: "Jefe de despacho", description: "Reclama 20 recompensas de mision." },
+    en: { name: "Dispatch Chief", description: "Claim 20 mission rewards." },
+  },
+  "shards-250": {
+    es: { name: "Reserva de shards", description: "Mantiene 250 shards a la vez." },
+    en: { name: "Shard Cache", description: "Hold 250 shards at once." },
+  },
+  "shards-1000": {
+    es: { name: "Deposito de shards", description: "Mantiene 1000 shards a la vez." },
+    en: { name: "Shard Reserve", description: "Hold 1000 shards at once." },
+  },
+  "gems-250": {
+    es: { name: "Libro mayor de gemas", description: "Mantiene 250 gemas a la vez." },
+    en: { name: "Gem Ledger", description: "Hold 250 gems at once." },
+  },
+  "gems-750": {
+    es: { name: "Tesoreria de gemas", description: "Mantiene 750 gemas a la vez." },
+    en: { name: "Gem Treasury", description: "Hold 750 gems at once." },
+  },
+  "ssr-set-5": {
+    es: { name: "Estante de prestigio", description: "Colecciona 5 cartas distintas de SSR o superior." },
+    en: { name: "Prestige Shelf", description: "Collect 5 distinct SSR or higher cards." },
+  },
+};
+
+function getLocalizedMissionCopy(code, locale) {
+  const language = locale === "es" ? "es" : "en";
+  return MISSION_COPY[code]?.[language] ?? null;
+}
+
+function getLocalizedTrophyCopy(code, locale) {
+  const language = locale === "es" ? "es" : "en";
+  return TROPHY_COPY[code]?.[language] ?? null;
+}
+
+function localizeMissionEntry(mission, locale) {
+  const localized = getLocalizedMissionCopy(mission?.code, locale);
+  if (!localized) return mission;
+  return {
+    ...mission,
+    title: localized.title,
+    description: localized.description,
+  };
+}
+
+function localizeTrophyEntry(trophy, locale) {
+  const localized = getLocalizedTrophyCopy(trophy?.code, locale);
+  if (!localized) return trophy;
+  return {
+    ...trophy,
+    name: localized.name,
+    description: localized.description,
+  };
+}
+
 function buildClaimMessage(mission, es, fallbackMessage) {
   if (!mission) return fallbackMessage;
   return es
@@ -601,7 +905,19 @@ function TrophyIcon({ iconKey }) {
   );
 }
 
-function MissionCard({ mission, title, progressLabel, rewardLabel, doneLabel, claimedLabel, claimLabel, activeLabel, busy, onClaim }) {
+function MissionCard({
+  mission,
+  title,
+  progressLabel,
+  rewardLabel,
+  doneLabel,
+  claimedLabel,
+  claimLabel,
+  activeLabel,
+  busy,
+  onClaim,
+  formatRewardTypeLabel,
+}) {
   const progressPercent = getMissionPercent(mission);
   const statusLabel = mission.claimed ? claimedLabel : mission.completed ? doneLabel : activeLabel;
   return (
@@ -624,7 +940,7 @@ function MissionCard({ mission, title, progressLabel, rewardLabel, doneLabel, cl
       </div>
       <div className="wg-row-meta">
         <span className="wg-pill-accent">
-          {rewardLabel}: +{mission.rewardAmount} {mission.rewardType}
+          {rewardLabel}: +{mission.rewardAmount} {formatRewardTypeLabel(mission.rewardType)}
         </span>
         <button type="button" className="wg-primary-btn" disabled={!mission.completed || mission.claimed || busy} onClick={() => onClaim(mission.id)}>
           {mission.claimed ? claimedLabel : mission.completed ? claimLabel : activeLabel}
@@ -740,7 +1056,7 @@ export default function WikipediaGachaGame() {
     tapToOpen: es ? "▲ TOCA PARA ABRIR ▲" : "▲ TAP TO OPEN ▲",
     quickRules: es ? "Reglas rapidas" : "Quick rules",
     support: es ? "Soporte" : "Support",
-    missionRewardNote: es ? "Recompensa: +2 sobres por mision completada" : "Reward: +2 packs per completed mission",
+    missionRewardNote: es ? "Las misiones mezclan sobres, gemas y shards segun la dificultad." : "Missions rotate between packs, gems, and shards depending on difficulty.",
     noPackCards: es ? "Abre un sobre para cargar cartas en la baraja." : "Open a pack to load cards into the deck.",
     fullHandReady: es ? "Todas vistas: mazo en mano." : "All seen: full hand view.",
     tapToFlip: es ? "Toca la carta para girarla." : "Tap the card to flip it.",
@@ -989,7 +1305,7 @@ export default function WikipediaGachaGame() {
     const baseTime = Date.now();
     const entries = missionsUnlocked.slice(0, 3).map((mission, index) => ({
       id: `mission-unlock-${mission.id}-${baseTime}-${index}`,
-      title: mission.title,
+      title: getLocalizedMissionCopy(mission.code, locale)?.title ?? mission.title,
       rewardAmount: mission.rewardAmount,
       rewardType: mission.rewardType,
     }));
@@ -1357,9 +1673,28 @@ export default function WikipediaGachaGame() {
     () => recentRewardEvents.filter((entry) => entry.rewardSource === "mission_claim"),
     [recentRewardEvents]
   );
+  const localizedMissions = useMemo(
+    () => (missions.missions ?? []).map((mission) => localizeMissionEntry(mission, locale)),
+    [missions.missions, locale]
+  );
+  const localizedTrophies = useMemo(
+    () => (trophies.trophies ?? []).map((trophy) => localizeTrophyEntry(trophy, locale)),
+    [trophies.trophies, locale]
+  );
+  const localizedMissionRewardHistory = useMemo(
+    () =>
+      missionRewardHistory.map((entry) => ({
+        ...entry,
+        missionTitle:
+          getLocalizedMissionCopy(entry.missionCode, locale)?.title ??
+          entry.missionTitle ??
+          null,
+      })),
+    [missionRewardHistory, locale]
+  );
   const missionRewardTotals = useMemo(
     () =>
-      missionRewardHistory.reduce(
+      localizedMissionRewardHistory.reduce(
         (accumulator, rewardEntry) => {
           const rewardType = normalizeRewardType(rewardEntry.rewardType);
           if (rewardType === "packs" || rewardType === "gems" || rewardType === "shards") {
@@ -1369,7 +1704,7 @@ export default function WikipediaGachaGame() {
         },
         { packs: 0, gems: 0, shards: 0 }
       ),
-    [missionRewardHistory]
+    [localizedMissionRewardHistory]
   );
   const packSlots = Array.from({ length: Math.max(currentPackCards.length || 0, 5) }, (_, index) => currentPackCards[index] ?? null);
   const packMetaSource = packResult ?? historyEntries[0] ?? null;
@@ -1438,13 +1773,13 @@ export default function WikipediaGachaGame() {
         claimable: missionSummary.claimable ?? 0,
       },
       missionRewards: {
-        totalLogged: missionRewardHistory.length,
+        totalLogged: localizedMissionRewardHistory.length,
         totalsByType: missionRewardTotals,
-        latest: missionRewardHistory.length
+        latest: localizedMissionRewardHistory.length
           ? {
-              rewardType: normalizeRewardType(missionRewardHistory[0].rewardType),
-              rewardAmount: missionRewardHistory[0].rewardAmount ?? 0,
-              missionTitle: missionRewardHistory[0].missionTitle ?? null,
+              rewardType: normalizeRewardType(localizedMissionRewardHistory[0].rewardType),
+              rewardAmount: localizedMissionRewardHistory[0].rewardAmount ?? 0,
+              missionTitle: localizedMissionRewardHistory[0].missionTitle ?? null,
             }
           : null,
       },
@@ -1600,7 +1935,7 @@ export default function WikipediaGachaGame() {
               <article key={notice.id} className="wg-mission-unlock-toast">
                 <header>
                   <strong>{text.dailyMissionUnlocked}</strong>
-                  <span>+{notice.rewardAmount} {String(notice.rewardType).toUpperCase()}</span>
+                  <span>+{notice.rewardAmount} {getRewardTypeLabel(notice.rewardType, es)}</span>
                 </header>
                 <p>{notice.title}</p>
               </article>
@@ -1671,8 +2006,8 @@ export default function WikipediaGachaGame() {
               <div className="wg-home-mission-card">
                 <h3>{text.missionsTab}</h3>
                 <div className="wg-home-mission-list">
-                  {missions.missions.length ? (
-                    missions.missions.slice(0, 5).map((mission) => (
+                  {localizedMissions.length ? (
+                    localizedMissions.slice(0, 5).map((mission) => (
                       <article key={mission.id} className="wg-home-mission-row">
                         <span>{mission.title}</span>
                         <span>{mission.progressValue}/{mission.targetValue}</span>
@@ -1825,9 +2160,6 @@ export default function WikipediaGachaGame() {
                 ) : (
                   <div className="wg-pack-empty-state">
                     <p>{text.noPackCards}</p>
-                    <button type="button" className="wg-primary-btn" onClick={() => void handleOpenPack()}>
-                      {busy ? text.opening : text.openPack}
-                    </button>
                   </div>
                 )}
               </div>
@@ -1841,9 +2173,6 @@ export default function WikipediaGachaGame() {
               </div>
 
               <div className="wg-pack-actions-row">
-                <button type="button" className="wg-primary-btn" onClick={() => void handleOpenPack()}>
-                  {busy ? text.opening : text.openPack}
-                </button>
                 <button
                   type="button"
                   className="wg-secondary-btn with-icon"
@@ -2016,9 +2345,9 @@ export default function WikipediaGachaGame() {
                   </article>
                 </div>
 
-                {missionRewardHistory.length ? (
+                {localizedMissionRewardHistory.length ? (
                   <div className="wg-reward-log-shell is-missions">
-                    {missionRewardHistory.slice(0, 8).map((rewardEntry) => {
+                    {localizedMissionRewardHistory.slice(0, 8).map((rewardEntry) => {
                       const rewardType = normalizeRewardType(rewardEntry.rewardType);
                       return (
                         <article key={rewardEntry.id} className={`wg-reward-log-row is-${rewardType}`}>
@@ -2038,10 +2367,10 @@ export default function WikipediaGachaGame() {
                 )}
               </article>
 
-              {missions.missions.length ? (
+              {localizedMissions.length ? (
                 <div className="wg-mission-grid">
-                  {missions.missions.map((mission) => (
-                    <MissionCard key={mission.id} mission={mission} progressLabel={text.progress} rewardLabel={text.reward} doneLabel={text.done} claimedLabel={text.claimed} claimLabel={text.claim} activeLabel={text.active} busy={busy} onClaim={(missionId) => void handleClaimMission(missionId)} />
+                  {localizedMissions.map((mission) => (
+                    <MissionCard key={mission.id} mission={mission} progressLabel={text.progress} rewardLabel={text.reward} doneLabel={text.done} claimedLabel={text.claimed} claimLabel={text.claim} activeLabel={text.active} busy={busy} onClaim={(missionId) => void handleClaimMission(missionId)} formatRewardTypeLabel={(rewardType) => getRewardTypeLabel(rewardType, es)} />
                   ))}
                 </div>
               ) : (
@@ -2067,7 +2396,7 @@ export default function WikipediaGachaGame() {
               </div>
 
               <div className="wg-trophy-grid">
-                {trophies.trophies.length ? trophies.trophies.map((trophy) => <TrophyCard key={trophy.id} trophy={trophy} pointsLabel={text.points} unlockedLabel={text.unlocked} lockedLabel={text.locked} />) : <p className="wg-empty">{es ? "Todavia no hay trofeos en el archivo." : "There are no trophies in this archive yet."}</p>}
+                {localizedTrophies.length ? localizedTrophies.map((trophy) => <TrophyCard key={trophy.id} trophy={trophy} pointsLabel={text.points} unlockedLabel={text.unlocked} lockedLabel={text.locked} />) : <p className="wg-empty">{es ? "Todavia no hay trofeos en el archivo." : "There are no trophies in this archive yet."}</p>}
               </div>
             </section>
           ) : null}

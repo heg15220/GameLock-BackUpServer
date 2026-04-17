@@ -4243,3 +4243,11 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Verificacion backend real: sesiones con X-Wikipedia-Language: es devuelven sobres con sourceUrl en es.wikipedia.org; sesiones con en devuelven sourceUrl en en.wikipedia.org.
 - Verificacion UI: carga del juego en http://127.0.0.1:4173/#game=knowledge-wikipedia-gacha con Playwright sin errores nuevos; artefactos en output/wiki-gacha-lang-check/.
 
+
+## 2026-04-17 - Wikipedia Gacha recompensas, retos y trofeos
+- Rehecho el sistema de misiones diarias para que use un pool mucho mayor de plantillas con seleccion diaria variada por usuario, en lugar de mostrar siempre el mismo set fijo.
+- Anadidas metricas nuevas de progreso diario: cartas obtenidas, duplicados del dia, shards ganados, SSR+/UR+ del dia y progreso por tematicas (Science, Mathematics, History, Geography, Technology, Art, Culture, Society).
+- Expandido el pool de misiones a 28 plantillas y el catalogo de trofeos permanentes a 39 entradas, cubriendo hitos de aperturas, coleccion unica, duplicados, favoritos, exploracion, recompensas y especializacion por temas.
+- Ajustado el frontend del juego para mostrar el tipo de recompensa traducido y para dejar claro que las recompensas de misiones ya no son fijas.
+- Validacion 2026-04-17: NODE_OPTIONS=--max-old-space-size=4096 npm run build OK; backend local verificado con 9 misiones diarias activas y 39 trofeos totales en /missions y /trophies.
+

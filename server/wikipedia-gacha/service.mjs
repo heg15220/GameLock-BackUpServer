@@ -21,6 +21,25 @@ import { openStateDb, DEFAULT_DB_PATH } from "./db.mjs";
 
 const MISSION_BY_ID = new Map(MISSIONS.map((mission) => [mission.id, mission]));
 const TROPHY_BY_ID = new Map(TROPHIES.map((trophy) => [trophy.id, trophy]));
+const TRACKED_TOPIC_GROUPS = [
+  "Science",
+  "Mathematics",
+  "History",
+  "Geography",
+  "Technology",
+  "Art",
+  "Culture",
+  "Society",
+];
+const DAILY_MISSION_GROUP_SLOTS = [
+  { group: "starter", count: 1 },
+  { group: "packs", count: 2 },
+  { group: "collection", count: 2 },
+  { group: "rarity", count: 1 },
+  { group: "explore", count: 1 },
+  { group: "curation", count: 1 },
+  { group: "topic", count: 1 },
+];
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -59,6 +78,87 @@ function isoDate(now) {
 
 function yyyyMmDd(now) {
   return now.toISOString().slice(0, 10);
+}
+
+function normalizeStatCount(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return 0;
+  }
+  return Math.max(0, Math.floor(numeric));
+}
+
+function normalizeTopicCounts(topicCounts) {
+  const normalized = {};
+  for (const topicGroup of TRACKED_TOPIC_GROUPS) {
+    normalized[topicGroup] = normalizeStatCount(topicCounts?.[topicGroup]);
+  }
+  return normalized;
+}
+
+function getTopicMetricKey(topicGroup) {
+  return `${String(topicGroup ?? "").toLowerCase()}_cards_obtained`;
+}
+
+function hashString(value) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function pickDailyMissionTemplates(profile, now) {
+  const resetDate = yyyyMmDd(now);
+  const selected = [];
+  const selectedIds = new Set();
+  const activeDailyMissions = MISSIONS.filter(
+    (mission) => mission.isActive && mission.missionScope === "daily"
+  );
+
+  const rankCandidates = (group) =>
+    activeDailyMissions
+      .filter((mission) => mission.missionGroup === group && !selectedIds.has(mission.id))
+      .map((mission) => ({
+        mission,
+        score: hashString(
+          `${profile.browserToken}:${resetDate}:${group}:${mission.code}:${mission.id}`
+        ),
+      }))
+      .sort((left, right) => left.score - right.score || left.mission.id - right.mission.id)
+      .map((entry) => entry.mission);
+
+  for (const slot of DAILY_MISSION_GROUP_SLOTS) {
+    const candidates = rankCandidates(slot.group);
+    for (const mission of candidates.slice(0, slot.count)) {
+      selected.push(mission);
+      selectedIds.add(mission.id);
+    }
+  }
+
+  const desiredCount = DAILY_MISSION_GROUP_SLOTS.reduce(
+    (sum, slot) => sum + slot.count,
+    0
+  );
+  if (selected.length < desiredCount) {
+    const overflow = activeDailyMissions
+      .filter((mission) => !selectedIds.has(mission.id))
+      .map((mission) => ({
+        mission,
+        score: hashString(
+          `${profile.browserToken}:${resetDate}:overflow:${mission.code}:${mission.id}`
+        ),
+      }))
+      .sort((left, right) => left.score - right.score || left.mission.id - right.mission.id)
+      .map((entry) => entry.mission);
+    for (const mission of overflow.slice(0, desiredCount - selected.length)) {
+      selected.push(mission);
+      selectedIds.add(mission.id);
+    }
+  }
+
+  return selected;
 }
 
 function createId(state, key) {
@@ -187,11 +287,26 @@ function getTodaysStats(state, profileId, now) {
       packsOpened: 0,
       cardsObtained: 0,
       newCardsObtained: 0,
+      duplicateCardsObtained: 0,
       srOrHigherCount: 0,
+      ssrOrHigherCount: 0,
+      urOrHigherCount: 0,
       wikipediaClicks: 0,
+      shardsEarned: 0,
+      topicCardsObtained: normalizeTopicCounts(),
     };
     state.dailyBrowserStats.push(stats);
   }
+  stats.packsOpened = normalizeStatCount(stats.packsOpened);
+  stats.cardsObtained = normalizeStatCount(stats.cardsObtained);
+  stats.newCardsObtained = normalizeStatCount(stats.newCardsObtained);
+  stats.duplicateCardsObtained = normalizeStatCount(stats.duplicateCardsObtained);
+  stats.srOrHigherCount = normalizeStatCount(stats.srOrHigherCount);
+  stats.ssrOrHigherCount = normalizeStatCount(stats.ssrOrHigherCount);
+  stats.urOrHigherCount = normalizeStatCount(stats.urOrHigherCount);
+  stats.wikipediaClicks = normalizeStatCount(stats.wikipediaClicks);
+  stats.shardsEarned = normalizeStatCount(stats.shardsEarned);
+  stats.topicCardsObtained = normalizeTopicCounts(stats.topicCardsObtained);
   return stats;
 }
 
@@ -303,10 +418,9 @@ function getCollectionSummary(state, profileId, getRarityForArticleId) {
 
 function ensureDailyMissions(state, profile, now) {
   const resetDate = yyyyMmDd(now);
-  for (const mission of MISSIONS) {
-    if (!mission.isActive || mission.missionScope !== "daily") {
-      continue;
-    }
+  const activeMissions = pickDailyMissionTemplates(profile, now);
+  const activeMissionIds = new Set(activeMissions.map((mission) => mission.id));
+  for (const mission of activeMissions) {
     const existing = state.browserMissions.find(
       (entry) =>
         entry.browserProfileId === profile.id &&
@@ -329,7 +443,9 @@ function ensureDailyMissions(state, profile, now) {
   }
   return state.browserMissions.filter(
     (entry) =>
-      entry.browserProfileId === profile.id && entry.resetDate === resetDate
+      entry.browserProfileId === profile.id &&
+      entry.resetDate === resetDate &&
+      activeMissionIds.has(entry.missionId)
   );
 }
 
@@ -340,11 +456,20 @@ function recomputeMissionProgress(state, profile, now) {
   const favoritesMarked = collection.filter((entry) => entry.favorite).length;
   const metrics = {
     packs_opened: todaysStats.packsOpened,
+    cards_obtained: todaysStats.cardsObtained,
     new_cards_obtained: todaysStats.newCardsObtained,
+    duplicate_cards_obtained: todaysStats.duplicateCardsObtained,
+    shards_earned: todaysStats.shardsEarned,
     sr_or_higher_count: todaysStats.srOrHigherCount,
+    ssr_or_higher_count: todaysStats.ssrOrHigherCount,
+    ur_or_higher_count: todaysStats.urOrHigherCount,
     wikipedia_clicks: todaysStats.wikipediaClicks,
     favorites_marked: favoritesMarked,
   };
+  for (const topicGroup of TRACKED_TOPIC_GROUPS) {
+    metrics[getTopicMetricKey(topicGroup)] =
+      normalizeStatCount(todaysStats.topicCardsObtained?.[topicGroup]);
+  }
 
   for (const entry of entries) {
     const mission = MISSION_BY_ID.get(entry.missionId);
@@ -429,18 +554,22 @@ function getTrophyConditions(
 ) {
   const collection = getProfileCollections(state, profile.id);
   const uniqueCount = collection.length;
+  const totalCopies = collection.reduce((sum, entry) => sum + entry.copies, 0);
   const duplicateCopies = collection.reduce(
     (sum, entry) => sum + Math.max(0, entry.copies - 1),
     0
   );
-  const scienceCount = collection.filter((entry) => {
-    const topic = entry.topicGroup || getTopicGroupForArticleId(entry.articleId);
-    return topic === "Science";
-  }).length;
-  const historyCount = collection.filter((entry) => {
-    const topic = entry.topicGroup || getTopicGroupForArticleId(entry.articleId);
-    return topic === "History";
-  }).length;
+  const favoritesCount = collection.filter((entry) => entry.favorite).length;
+  const topicCounts = TRACKED_TOPIC_GROUPS.reduce((accumulator, topicGroup) => {
+    accumulator[topicGroup] = collection.filter((entry) => {
+      const topic = entry.topicGroup || getTopicGroupForArticleId(entry.articleId);
+      return topic === topicGroup;
+    }).length;
+    return accumulator;
+  }, {});
+  const discoveredTopicVariety = Object.values(topicCounts).filter(
+    (count) => count > 0
+  ).length;
   const highestRarity = collection.reduce((best, entry) => {
     const rarityCode =
       entry.bestRarityCode || getRarityForArticleId(entry.articleId);
@@ -450,15 +579,61 @@ function getTrophyConditions(
     }
     return best;
   }, null);
+  const srPlusCount = collection.filter((entry) =>
+    rarityAtLeast(entry.bestRarityCode || getRarityForArticleId(entry.articleId), "SR")
+  ).length;
+  const ssrPlusCount = collection.filter((entry) =>
+    rarityAtLeast(entry.bestRarityCode || getRarityForArticleId(entry.articleId), "SSR")
+  ).length;
+  const totalWikipediaClicks = state.dailyBrowserStats
+    .filter((entry) => entry.browserProfileId === profile.id)
+    .reduce((sum, entry) => sum + normalizeStatCount(entry.wikipediaClicks), 0);
+  const missionClaims = state.rewardEvents.filter(
+    (entry) =>
+      entry.browserProfileId === profile.id &&
+      entry.rewardSource === "mission_claim"
+  ).length;
 
   return {
     "first-card": uniqueCount >= 1,
+    "first-sr-plus-set": srPlusCount >= 3,
     "first-sr": highestRarity ? rarityAtLeast(highestRarity, "SR") : false,
     "first-ssr": highestRarity ? rarityAtLeast(highestRarity, "SSR") : false,
+    "first-ur": highestRarity ? rarityAtLeast(highestRarity, "UR") : false,
+    "first-lr": highestRarity ? rarityAtLeast(highestRarity, "LR") : false,
     "unique-15": uniqueCount >= 15,
+    "unique-40": uniqueCount >= 40,
+    "unique-80": uniqueCount >= 80,
+    "unique-150": uniqueCount >= 150,
     "duplicates-10": duplicateCopies >= 10,
-    "science-collector": scienceCount >= 6,
-    "history-collector": historyCount >= 5,
+    "duplicates-30": duplicateCopies >= 30,
+    "duplicates-75": duplicateCopies >= 75,
+    "copies-120": totalCopies >= 120,
+    "packs-10": profile.totalPackOpens >= 10,
+    "packs-25": profile.totalPackOpens >= 25,
+    "packs-50": profile.totalPackOpens >= 50,
+    "packs-100": profile.totalPackOpens >= 100,
+    "favorites-3": favoritesCount >= 3,
+    "favorites-10": favoritesCount >= 10,
+    "science-collector": topicCounts.Science >= 6,
+    "history-collector": topicCounts.History >= 5,
+    "geography-collector": topicCounts.Geography >= 6,
+    "technology-collector": topicCounts.Technology >= 6,
+    "art-collector": topicCounts.Art >= 6,
+    "culture-collector": topicCounts.Culture >= 6,
+    "society-collector": topicCounts.Society >= 6,
+    "mathematics-collector": topicCounts.Mathematics >= 4,
+    "topic-variety-4": discoveredTopicVariety >= 4,
+    "topic-variety-7": discoveredTopicVariety >= 7,
+    "wikipedia-clicks-5": totalWikipediaClicks >= 5,
+    "wikipedia-clicks-25": totalWikipediaClicks >= 25,
+    "mission-claims-5": missionClaims >= 5,
+    "mission-claims-20": missionClaims >= 20,
+    "shards-250": profile.shards >= 250,
+    "shards-1000": profile.shards >= 1000,
+    "gems-250": profile.gems >= 250,
+    "gems-750": profile.gems >= 750,
+    "ssr-set-5": ssrPlusCount >= 5,
   };
 }
 
@@ -1026,9 +1201,24 @@ export function createWikipediaGachaService({
       todaysStats.packsOpened += 1;
       todaysStats.cardsObtained += openingCards.length;
       todaysStats.newCardsObtained += packResult.newCardsCount;
+      todaysStats.duplicateCardsObtained += openingCards.filter(
+        (card) => !card.wasNew
+      ).length;
       todaysStats.srOrHigherCount += openingCards.filter((card) =>
         rarityAtLeast(card.rarity, "SR")
       ).length;
+      todaysStats.ssrOrHigherCount += openingCards.filter((card) =>
+        rarityAtLeast(card.rarity, "SSR")
+      ).length;
+      todaysStats.urOrHigherCount += openingCards.filter((card) =>
+        rarityAtLeast(card.rarity, "UR")
+      ).length;
+      todaysStats.shardsEarned += packResult.totalShards;
+      for (const card of openingCards) {
+        if (TRACKED_TOPIC_GROUPS.includes(card.topicGroup)) {
+          todaysStats.topicCardsObtained[card.topicGroup] += 1;
+        }
+      }
 
       const opening = {
         id: createId(draft, "packOpening"),
@@ -1599,6 +1789,7 @@ export function createWikipediaGachaService({
       }
 
       recomputeMissionProgress(draft, profile, now);
+      const articleCatalog = await ensureCatalogReady(profile.preferredLanguage);
       ensureTrophiesUnlocked(
         draft,
         profile,
@@ -1606,7 +1797,6 @@ export function createWikipediaGachaService({
         articleCatalog.getTopicGroupForArticleId,
         articleCatalog.getRarityForArticleId
       );
-      const articleCatalog = await ensureCatalogReady(profile.preferredLanguage);
       draft.__importResponse = await buildDashboard(
         draft,
         profile,
