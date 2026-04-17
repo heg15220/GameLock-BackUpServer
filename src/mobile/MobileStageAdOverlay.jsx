@@ -53,6 +53,28 @@ function getGlobalRect(node) {
   };
 }
 
+function isMeasurableTarget(node) {
+  if (!node || typeof node.getBoundingClientRect !== "function") {
+    return false;
+  }
+
+  const ownerWindow = node.ownerDocument?.defaultView ?? window;
+  const computedStyle = ownerWindow.getComputedStyle?.(node);
+  if (
+    computedStyle &&
+    (
+      computedStyle.display === "none" ||
+      computedStyle.visibility === "hidden" ||
+      computedStyle.contentVisibility === "hidden"
+    )
+  ) {
+    return false;
+  }
+
+  const rect = node.getBoundingClientRect();
+  return rect.width > 1 && rect.height > 1;
+}
+
 function getStageThresholds(formFactor) {
   if (formFactor === "tablet") {
     return {
@@ -332,7 +354,7 @@ function queryIframeTarget(viewportNode, selector) {
   for (const iframeNode of iframeNodes) {
     try {
       const innerTarget = iframeNode.contentDocument?.querySelector(selector);
-      if (innerTarget) {
+      if (isMeasurableTarget(innerTarget)) {
         return innerTarget;
       }
     } catch {
@@ -358,7 +380,7 @@ function resolveStageTarget(viewportNode, stageSelectors = []) {
     }
 
     const target = viewportNode?.querySelector?.(selector);
-    if (target) {
+    if (isMeasurableTarget(target)) {
       return target;
     }
   }
@@ -396,11 +418,79 @@ export default function MobileStageAdOverlay({
     let retryTimeoutIds = [];
     let targetNode = resolveStageTarget(viewportNode, stageSelectors);
     let targetWindow = null;
+    let observedInnerDocument = null;
+    let innerMutationObserver = null;
+    let innerResizeObserver = null;
+
+    const disconnectInnerObservers = () => {
+      innerMutationObserver?.disconnect?.();
+      innerResizeObserver?.disconnect?.();
+      innerMutationObserver = null;
+      innerResizeObserver = null;
+      observedInnerDocument = null;
+    };
+
+    const syncTargetObservers = (nextTarget) => {
+      const nextWindow = nextTarget?.ownerDocument?.defaultView ?? null;
+      const nextDocument = nextTarget?.ownerDocument ?? null;
+
+      if (targetWindow && targetWindow !== window && targetWindow !== nextWindow) {
+        targetWindow.removeEventListener("resize", queueMeasure);
+      }
+
+      if (canObserveNode(viewportNode, targetNode)) {
+        resizeObserver.unobserve(targetNode);
+      }
+
+      targetNode = nextTarget;
+      targetWindow = nextWindow;
+
+      if (canObserveNode(viewportNode, targetNode)) {
+        resizeObserver.observe(targetNode);
+      }
+
+      if (targetWindow && targetWindow !== window) {
+        targetWindow.addEventListener("resize", queueMeasure);
+      }
+
+      if (nextDocument !== observedInnerDocument) {
+        disconnectInnerObservers();
+
+        if (nextDocument && nextDocument !== viewportNode.ownerDocument && targetWindow) {
+          const innerRoot = nextDocument.documentElement;
+          const innerBody = nextDocument.body;
+          innerMutationObserver = new targetWindow.MutationObserver(() => {
+            queueMeasure();
+          });
+          innerMutationObserver.observe(innerRoot, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["style", "class", "hidden"],
+          });
+
+          if (typeof targetWindow.ResizeObserver === "function") {
+            innerResizeObserver = new targetWindow.ResizeObserver(() => {
+              queueMeasure();
+            });
+            [innerRoot, innerBody, targetNode]
+              .filter(Boolean)
+              .forEach((node) => innerResizeObserver.observe(node));
+          }
+
+          observedInnerDocument = nextDocument;
+        }
+      }
+    };
 
     const measure = () => {
       frameId = 0;
-      targetNode = resolveStageTarget(viewportNode, stageSelectors);
-      targetWindow = targetNode?.ownerDocument?.defaultView ?? null;
+      const nextTarget = resolveStageTarget(viewportNode, stageSelectors);
+      if (nextTarget !== targetNode) {
+        syncTargetObservers(nextTarget);
+      } else {
+        targetWindow = targetNode?.ownerDocument?.defaultView ?? null;
+      }
       if (!targetNode) {
         setPlacements([]);
         return;
@@ -434,31 +524,12 @@ export default function MobileStageAdOverlay({
       queueMeasure();
     });
     resizeObserver.observe(viewportNode);
-    if (canObserveNode(viewportNode, targetNode)) {
-      resizeObserver.observe(targetNode);
-    }
-    if (targetWindow && targetWindow !== window) {
-      targetWindow.addEventListener("resize", queueMeasure);
-    }
+    syncTargetObservers(targetNode);
 
     const mutationObserver = new MutationObserver(() => {
       const nextTarget = resolveStageTarget(viewportNode, stageSelectors);
       if (nextTarget && nextTarget !== targetNode) {
-        if (canObserveNode(viewportNode, targetNode)) {
-          resizeObserver.unobserve(targetNode);
-        }
-        const nextWindow = nextTarget.ownerDocument?.defaultView ?? null;
-        if (targetWindow && targetWindow !== window && targetWindow !== nextWindow) {
-          targetWindow.removeEventListener("resize", queueMeasure);
-        }
-        targetNode = nextTarget;
-        targetWindow = nextWindow;
-        if (canObserveNode(viewportNode, targetNode)) {
-          resizeObserver.observe(targetNode);
-        }
-        if (targetWindow && targetWindow !== window) {
-          targetWindow.addEventListener("resize", queueMeasure);
-        }
+        syncTargetObservers(nextTarget);
       }
       queueMeasure();
     });
@@ -479,6 +550,7 @@ export default function MobileStageAdOverlay({
       retryTimeoutIds.forEach((timeoutId) => {
         window.clearTimeout(timeoutId);
       });
+      disconnectInnerObservers();
       if (targetWindow && targetWindow !== window) {
         targetWindow.removeEventListener("resize", queueMeasure);
       }

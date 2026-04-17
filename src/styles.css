@@ -8810,6 +8810,42 @@ body {
   white-space: nowrap;
 }
 
+.pong-actions__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(7, 11, 18, 0.74), rgba(15, 28, 36, 0.72));
+  padding: 0.2rem 0.26rem 0.2rem 0.52rem;
+}
+
+.pong-actions__field span {
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #67e8f9;
+}
+
+.pong-actions__field select {
+  min-width: 6.25rem;
+  border: 1px solid rgba(34, 211, 238, 0.24);
+  border-radius: 7px;
+  background: rgba(7, 11, 18, 0.82);
+  color: #e2e8f0;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.28rem 0.42rem;
+  cursor: pointer;
+}
+
+.pong-actions__field select:focus {
+  outline: 2px solid rgba(103, 232, 249, 0.34);
+  outline-offset: 1px;
+}
+
 .pong-actions button:hover {
   transform: translateY(-1px);
   border-color: rgba(34, 211, 238, 0.72);

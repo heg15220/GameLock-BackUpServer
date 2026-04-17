@@ -1,0 +1,130 @@
+{
+  "shell": {
+    "sel": ".mobile-game-shell",
+    "width": 383.625,
+    "height": 770,
+    "left": 3.1875,
+    "right": 386.8125,
+    "top": 82.890625,
+    "bottom": 852.890625
+  },
+  "body": {
+    "sel": ".mobile-game-shell__body",
+    "width": 368.1875,
+    "height": 711.203125,
+    "left": 10.90625,
+    "right": 379.09375,
+    "top": 133.96875,
+    "bottom": 845.171875
+  },
+  "stageShell": {
+    "sel": ".mobile-game-shell__stage-shell",
+    "width": 368.1875,
+    "height": 384.609375,
+    "left": 10.90625,
+    "right": 379.09375,
+    "top": 133.96875,
+    "bottom": 518.578125
+  },
+  "viewport": {
+    "sel": ".mobile-game-shell__stage-viewport",
+    "width": 352.1875,
+    "height": 368.609375,
+    "left": 18.90625,
+    "right": 371.09375,
+    "top": 141.96875,
+    "bottom": 510.578125
+  },
+  "pongGame": {
+    "sel": ".pong-game",
+    "width": 352.1875,
+    "height": 368.609375,
+    "left": 18.90625,
+    "right": 371.09375,
+    "top": 141.96875,
+    "bottom": 510.578125
+  },
+  "pongHud": {
+    "sel": ".pong-hud",
+    "width": 494.453125,
+    "height": 42.75,
+    "left": 18.90625,
+    "right": 513.359375,
+    "top": 141.96875,
+    "bottom": 184.71875
+  },
+  "pongStage": {
+    "sel": ".pong-stage",
+    "width": 494.453125,
+    "height": 282.359375,
+    "left": 18.90625,
+    "right": 513.359375,
+    "top": 190.796875,
+    "bottom": 473.15625
+  },
+  "phaserShell": {
+    "sel": ".phaser-canvas-shell",
+    "width": 494.453125,
+    "height": 282.359375,
+    "left": 18.90625,
+    "right": 513.359375,
+    "top": 190.796875,
+    "bottom": 473.15625
+  },
+  "phaserHost": {
+    "sel": ".phaser-canvas-host",
+    "width": 484.796875,
+    "height": 272.703125,
+    "left": 23.734375,
+    "right": 508.53125,
+    "top": 195.625,
+    "bottom": 468.328125
+  },
+  "canvas": {
+    "sel": ".pong-stage canvas",
+    "width": 484.796875,
+    "height": 272.703125,
+    "left": 23.734375,
+    "right": 508.53125,
+    "top": 195.625,
+    "bottom": 468.328125
+  },
+  "stats": {
+    "sel": ".pong-stats",
+    "width": 494.453125,
+    "height": 21.75,
+    "left": 18.90625,
+    "right": 513.359375,
+    "top": 488.828125,
+    "bottom": 510.578125
+  },
+  "styles": {
+    "pongGame": {
+      "display": "grid",
+      "grid-template-rows": "42.75px 282.359px 31.3438px",
+      "width": "352.188px",
+      "max-width": "100%",
+      "height": "368.609px",
+      "padding": "0px"
+    },
+    "pongHud": {
+      "width": "494.453px",
+      "max-width": "none",
+      "padding": "5.44px 8.96px",
+      "margin-top": "0px"
+    },
+    "pongStage": {
+      "width": "494.453px",
+      "max-width": "none",
+      "height": "282.359px",
+      "padding": "3.84px",
+      "margin-top": "0px"
+    },
+    "stats": {
+      "width": "494.453px",
+      "max-width": "none",
+      "margin-top": "9.6px",
+      "display": "flex"
+    }
+  }
+}

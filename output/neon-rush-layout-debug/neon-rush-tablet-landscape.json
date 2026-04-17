@@ -1,0 +1,58 @@
+{
+  "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--touch-native",
+  "viewport": {
+    "left": 26.59375,
+    "top": 127.28125,
+    "width": 1126.8125,
+    "height": 635.765625,
+    "right": 1153.40625,
+    "bottom": 763.046875
+  },
+  "overlay": {
+    "left": 26.59375,
+    "top": 127.28125,
+    "width": 1126.8125,
+    "height": 635.765625,
+    "right": 1153.40625,
+    "bottom": 763.046875
+  },
+  "stageShell": {
+    "left": 26.59375,
+    "top": 127.28125,
+    "width": 1126.8125,
+    "height": 635.765625,
+    "right": 1153.40625,
+    "bottom": 763.046875
+  },
+  "frame": {
+    "left": 27.59375,
+    "top": 128.28125,
+    "width": 1124.8125,
+    "height": 633.765625,
+    "right": 1152.40625,
+    "bottom": 762.046875
+  },
+  "canvas": {
+    "left": 0,
+    "top": 0,
+    "width": 0,
+    "height": 0,
+    "right": 0,
+    "bottom": 0
+  },
+  "cards": [
+    {
+      "index": 0,
+      "text": "ESPACIO PUBLICITARIO\nGoogle Ads listo\n\nSustituye este bloque por el enlace, la creatividad o la unidad real cuando llegue la campaña.\n\nTablet / mobile adaptive\nAdaptive\nEnlace pendiente\nEnlace pendiente",
+      "rect": {
+        "left": 39.59375,
+        "top": 139.28125,
+        "width": 196,
+        "height": 611.765625,
+        "right": 235.59375,
+        "bottom": 751.046875
+      },
+      "classes": "ad-preview-card mobile-stage-ad-overlay__card"
+    }
+  ]
+}

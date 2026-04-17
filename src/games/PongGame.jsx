@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import AdPreviewCard from "../components/AdPreviewCard";
+import { MOBILE_APP_COMPACT_AD_SLOT } from "../config/adPreview";
 import PongRuntime from "./pong/PongRuntime";
 import { DIFFICULTY_ORDER, DIFFICULTY_PRESETS, PONG_WIDTH, PONG_HEIGHT } from "./pong/constants";
 
@@ -78,26 +80,28 @@ function PongGame() {
   }, []);
 
   // — action callbacks ───────────────────────────────────────────────────────
-  const handleStart         = useCallback(() => runtimeRef.current?.startMatch(),       []);
-  const handleRestart       = useCallback(() => runtimeRef.current?.restartMatch(),     []);
-  const handleTogglePause   = useCallback(() => runtimeRef.current?.togglePause(),      []);
-  const handleToggleSound   = useCallback(() => runtimeRef.current?.toggleSound(),      []);
-  const handleCycleDifficulty = useCallback(() => runtimeRef.current?.cycleDifficulty(), []);
-  const handleVirtualAxis   = useCallback((v) => runtimeRef.current?.setVirtualAxis(v), []);
+  const handleStart = useCallback(() => runtimeRef.current?.startMatch(), []);
+  const handleRestart = useCallback(() => runtimeRef.current?.restartMatch(), []);
+  const handleTogglePause = useCallback(() => runtimeRef.current?.togglePause(), []);
+  const handleToggleSound = useCallback(() => runtimeRef.current?.toggleSound(), []);
+  const handleSelectDifficulty = useCallback((event) => {
+    runtimeRef.current?.setDifficulty(event.target.value);
+  }, []);
+  const handleVirtualAxis = useCallback((v) => runtimeRef.current?.setVirtualAxis(v), []);
 
   const isActive  = snapshot.mode === "playing" || snapshot.mode === "countdown" || snapshot.mode === "roundBreak";
   const isMenu    = snapshot.mode === "menu";
   const isPaused  = snapshot.mode === "paused";
   const isFinished = snapshot.mode === "finished";
-
-  const diffIdx = DIFFICULTY_ORDER.indexOf(snapshot.difficultyKey);
-  const nextDiff = DIFFICULTY_PRESETS[DIFFICULTY_ORDER[(diffIdx + 1) % DIFFICULTY_ORDER.length]];
+  const adLocale = typeof document !== "undefined" && String(document.documentElement?.lang ?? "").toLowerCase().startsWith("en")
+    ? "en"
+    : "es";
 
   return (
     <div className="mini-game pong-game">
 
       {/* ── header strip ───────────────────────────────────────────────── */}
-      <div className="mini-head">
+      <div className="mini-head" data-mobile-menu-root="true">
         <div>
           <h4>Pong Neon Arena</h4>
           <p>Pong clásico 1 vs IA con física de english, dificultad adaptativa y audio Web.</p>
@@ -115,9 +119,20 @@ function PongGame() {
           {!isMenu && (
             <button type="button" onClick={handleRestart}>REINICIAR</button>
           )}
-          <button type="button" onClick={handleCycleDifficulty} title={`Siguiente: ${nextDiff.label}`}>
-            {snapshot.difficultyLabel}
-          </button>
+          <label className="pong-actions__field">
+            <span>IA</span>
+            <select
+              value={snapshot.difficultyKey}
+              onChange={handleSelectDifficulty}
+              aria-label="Nivel de IA"
+            >
+              {DIFFICULTY_ORDER.map((difficultyKey) => (
+                <option key={difficultyKey} value={difficultyKey}>
+                  {DIFFICULTY_PRESETS[difficultyKey]?.label ?? difficultyKey}
+                </option>
+              ))}
+            </select>
+          </label>
           <button type="button" onClick={handleToggleSound}>
             {snapshot.soundEnabled ? "AUDIO" : "MUDO"}
           </button>
@@ -151,6 +166,13 @@ function PongGame() {
             width={PONG_WIDTH}
             height={PONG_HEIGHT}
             aria-label="Pong canvas"
+          />
+        </div>
+        <div className="pong-stage-inline-ad">
+          <AdPreviewCard
+            slot={MOBILE_APP_COMPACT_AD_SLOT}
+            locale={adLocale}
+            className="pong-stage-inline-ad__card"
           />
         </div>
       </div>

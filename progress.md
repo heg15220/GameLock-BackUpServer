@@ -4091,9 +4091,12 @@ pm run build requiere permisos fuera de sandbox (error esbuild spawn EPERM en sa
 ## 2026-04-10 - Tablet horizontal desde cero para Arcade/Juegos/Deportes
 - Shell horizontal de tablet consolidado como layout principal para Arcade, Juegos y Deportes con escenario a la izquierda y rail lateral de estado/configuracion/controles a la derecha.
 - src/mobile/mobileGameProfiles.js ahora fuerza deck lateral tambien en tablet landscape para los arcade touch-first y anade perfiles especificos de control para Reactor Toss, Golf Tour, Orchard Match Blast, Bubble Storm, Neon Rush, Buscaminas, Race2DPro y Sunset Slipstream.
-- src/mobile/mobileStageProfiles.js incorpora acing-race2dpro y acing-sunset-slipstream para aislar correctamente el escenario dentro del shell tablet.
+- src/mobile/mobileStageProfiles.js incorpora 
+acing-race2dpro y 
+acing-sunset-slipstream para aislar correctamente el escenario dentro del shell tablet.
 - src/mobile/mobile-game-shell.css suma reglas landscape por juego para Arcade/Juegos/Deportes, tamanos del rail lateral y limpieza de controles tactiles internos duplicados cuando el shell externo ya muestra joystick + botones.
-- src/games/arcade/bubble-storm/index.jsx y untime.js reciben soporte real de apuntado por teclado continuo para que el joystick lateral de tablet tenga efecto autentico.
+- src/games/arcade/bubble-storm/index.jsx y 
+untime.js reciben soporte real de apuntado por teclado continuo para que el joystick lateral de tablet tenga efecto autentico.
 - public/arcade/neon-rush/index.html acepta reinicio por R para integrarlo con el bloque lateral de acciones.
 - Validacion: 
 pm run build OK fuera del sandbox con NODE_OPTIONS=--max-old-space-size=4096.
@@ -4177,7 +4180,8 @@ pm run build OK fuera del sandbox con NODE_OPTIONS=--max-old-space-size=4096.
 - rcade-neon-rush ahora mide el canvas interno #gc dentro del iframe para el overlay de anuncios (iframe:#gc) y en horizontal prioriza dos vi�etas verticales laterales si hay hueco suficiente.
 
 - Corregido el overlay de 
-eon-rush para no usar ResizeObserver.observe() sobre nodos del iframe con el observer del documento padre; ahora solo observa nodos del mismo documento y usa esize de la ventana interna como fallback seguro.
+eon-rush para no usar ResizeObserver.observe() sobre nodos del iframe con el observer del documento padre; ahora solo observa nodos del mismo documento y usa 
+esize de la ventana interna como fallback seguro.
 
 - Corregido MobileGameShell.isolateStageBranch: ahora ignora selectores especiales iframe: y protege querySelector con 	ry/catch, porque rcade-neon-rush podia romper el shell al recibir iframe:#gc como selector no valido.
 
@@ -4203,8 +4207,10 @@ eon-rush para no usar ResizeObserver.observe() sobre nodos del iframe con el obs
 ## 2026-04-17 - Responsive mobile shell fixes
 - Ajustado MobileStageAdOverlay para que rcade-neon-rush use paneles laterales completos en landscape movil en lugar de tarjetas compactas.
 - rcade-pong-neon-arena ahora aísla pong-game para mantener visible el HUD/marcador en shell movil/tablet.
-- Añadidos ajustes de shell para rcade-reactor-toss, rcade-neon-crypt, rcade-buscaminas-classic y acing-race2dpro (encaje de stage/HUD/anuncios).
-- acing-race2dpro pasa a mobile-first en el shell responsive para que sus controles táctiles nativos estén presentes en movil y tablet.
+- Añadidos ajustes de shell para rcade-reactor-toss, rcade-neon-crypt, rcade-buscaminas-classic y 
+acing-race2dpro (encaje de stage/HUD/anuncios).
+- 
+acing-race2dpro pasa a mobile-first en el shell responsive para que sus controles táctiles nativos estén presentes en movil y tablet.
 - Verificacion automatizada sin cerrar: build bloqueada primero por spawn EPERM y luego por memoria de Node; la segunda pasada fue interrumpida por el usuario.
 
 - Ajustado Race 2D Pro para que el joystick y botones tactiles prevengan defaults, toleren fallos de pointer-capture y suelten estado al salir/cancelar.
@@ -4217,3 +4223,9 @@ eon-rush para no usar ResizeObserver.observe() sobre nodos del iframe con el obs
 
 
 - Race 2D Pro ajustado para movil/tablet con HUD mas compacto, mensaje HUD oculto en shell movil, promo sutil localizada (overcutf1.com) y tira inferior reducida para una vineta compacta de publicidad debajo del gameplay.
+
+## 2026-04-17 - Neon Rush mobile landscape ads
+- Corregido MobileStageAdOverlay para ignorar targets ocultos/colapsados y observar tambien mutaciones/resizes dentro de iframes same-origin.
+- arcade-neon-rush ya no prioriza solo iframe:#gc; ahora mide primero iframe:#levelSelect o iframe:#gw segun el estado visible del juego.
+- Ajustada la especificidad CSS de .mobile-stage-ad-overlay .mobile-stage-ad-overlay__card para que las tarjetas conserven position: absolute y no caigan en flujo normal.
+- Verificado con Playwright en movil horizontal (844x390) entrando a un nivel: ambas vinetas laterales quedan visibles y alineadas. Captura: output/neon-rush-layout-debug/neon-rush-phone-landscape-final.png.

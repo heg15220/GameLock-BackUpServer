@@ -318,6 +318,12 @@ function buildMenuControls(scopeElement) {
     });
   };
 
+  scopeElement.querySelectorAll("[data-mobile-menu-root='true']").forEach((root, rootIndex) => {
+    registerEntries(
+      collectControlsFromRoot(root, `menu-root-${rootIndex}`, "hidden", true)
+    );
+  });
+
   scopeElement.querySelectorAll("[data-mobile-stage-hidden='true']").forEach((root, rootIndex) => {
     if (!shouldCollectHiddenMenuRoot(root)) {
       return;

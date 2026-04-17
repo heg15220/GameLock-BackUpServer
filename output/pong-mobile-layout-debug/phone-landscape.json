@@ -1,0 +1,102 @@
+{
+  "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-phone mobile-game-shell--theme-default mobile-game-shell--has-controls",
+  "stageViewport": {
+    "left": 20.1875,
+    "top": 120.6875,
+    "width": 484.453125,
+    "height": 236.3125,
+    "right": 504.640625,
+    "bottom": 357
+  },
+  "pongGame": {
+    "left": 20.1875,
+    "top": 120.6875,
+    "width": 484.453125,
+    "height": 236.3125,
+    "right": 504.640625,
+    "bottom": 357
+  },
+  "pongHud": {
+    "left": 20.1875,
+    "top": 120.6875,
+    "width": 484.453125,
+    "height": 46.75,
+    "right": 504.640625,
+    "bottom": 167.4375
+  },
+  "pongStage": {
+    "left": 20.1875,
+    "top": 173.515625,
+    "width": 484.453125,
+    "height": 146.0625,
+    "right": 504.640625,
+    "bottom": 319.578125
+  },
+  "phaserShell": {
+    "left": 20.1875,
+    "top": 173.515625,
+    "width": 484.453125,
+    "height": 146.0625,
+    "right": 504.640625,
+    "bottom": 319.578125
+  },
+  "phaserHost": {
+    "left": 25.015625,
+    "top": 178.34375,
+    "width": 474.796875,
+    "height": 136.40625,
+    "right": 499.8125,
+    "bottom": 314.75
+  },
+  "canvas": {
+    "left": 25.015625,
+    "top": 178.34375,
+    "width": 474.796875,
+    "height": 136.40625,
+    "right": 499.8125,
+    "bottom": 314.75
+  },
+  "stats": {
+    "left": 20.1875,
+    "top": 335.25,
+    "width": 484.453125,
+    "height": 21.75,
+    "right": 504.640625,
+    "bottom": 357
+  },
+  "styles": {
+    "pongGame": {
+      "display": "grid",
+      "grid-template-rows": "46.75px 146.062px 31.3438px",
+      "height": "236.312px",
+      "min-height": "0px",
+      "padding": "0px"
+    },
+    "pongStage": {
+      "display": "block",
+      "height": "146.062px",
+      "min-height": "0px",
+      "padding": "3.84px",
+      "margin-top": "0px"
+    },
+    "phaserShell": {
+      "display": "block",
+      "height": "146.062px",
+      "min-height": "0px",
+      "padding": "3.84px",
+      "margin-top": "0px"
+    },
+    "phaserHost": {
+      "width": "474.797px",
+      "height": "136.406px",
+      "aspect-ratio": "16 / 9",
+      "display": "block"
+    },
+    "canvas": {
+      "width": "474.797px",
+      "height": "136.406px",
+      "max-width": "100%",
+      "max-height": "100%"
+    }
+  }
+}

@@ -205,7 +205,9 @@ export function formatMobileStatus(snapshot, locale = "es") {
   addEntry(
     entries,
     locale === "en" ? "Difficulty" : "Nivel",
-    snapshot.difficulty ? titleCase(snapshot.difficulty) : titleCase(snapshot.difficultyId)
+    snapshot.difficultyLabel
+      ?? (snapshot.difficulty ? titleCase(snapshot.difficulty) : null)
+      ?? titleCase(snapshot.difficultyId ?? snapshot.difficultyKey)
   );
 
   if (!entries.some((entry) => entry.label === timeLabel)) {
