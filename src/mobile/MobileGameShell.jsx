@@ -333,6 +333,7 @@ export default function MobileGameShell({
     <MobileControlDeck
       profile={profile}
       scopeElement={stageViewportNode}
+      snapshot={runtimeSnapshot}
       onRequestFullscreen={requestFullscreen}
     />
   );

@@ -1,6 +1,122 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { holdInputs, releaseAllInputs, tapInputs } from "./mobileInputBridge";
 
+function isElementVisible(element) {
+  if (!element || element.hidden || element.disabled) {
+    return false;
+  }
+
+  const view = element.ownerDocument?.defaultView;
+  const style = view?.getComputedStyle?.(element);
+  if (!style || style.display === "none" || style.visibility === "hidden") {
+    return false;
+  }
+
+  const rect = element.getBoundingClientRect?.();
+  return Boolean(rect && rect.width > 0 && rect.height > 0);
+}
+
+function resolveActionTarget(button, scopeElement) {
+  if (button.action !== "click-target" || !button.targetSelector || !scopeElement) {
+    return null;
+  }
+
+  const roots = [scopeElement];
+  scopeElement.querySelectorAll("iframe").forEach((frame) => {
+    try {
+      if (frame.contentDocument) {
+        roots.push(frame.contentDocument);
+      }
+    } catch {
+      // Ignore cross-origin or not-ready frames.
+    }
+  });
+
+  for (const root of roots) {
+    try {
+      const candidate = root.querySelector(button.targetSelector);
+      if (isElementVisible(candidate)) {
+        return candidate;
+      }
+    } catch {
+      // Ignore transient iframe/query issues.
+    }
+  }
+
+  return null;
+}
+
+function resolveFrameWindows(scopeElement) {
+  if (!scopeElement) {
+    return [];
+  }
+
+  const targets = [];
+  scopeElement.querySelectorAll("iframe").forEach((frame) => {
+    try {
+      if (frame.contentWindow) {
+        targets.push(frame.contentWindow);
+      }
+    } catch {
+      // Ignore cross-origin or not-ready frames.
+    }
+  });
+  return targets;
+}
+
+function invokeFrameAction(button, scopeElement) {
+  if (button.action !== "invoke-frame" || !button.frameFunction) {
+    return false;
+  }
+
+  const targets = resolveFrameWindows(scopeElement);
+  let invoked = false;
+
+  targets.forEach((targetWindow) => {
+    try {
+      const guardResult = button.frameGuard
+        ? targetWindow[button.frameGuard]?.()
+        : true;
+      if (!guardResult) {
+        return;
+      }
+
+      const frameFunction = targetWindow[button.frameFunction];
+      if (typeof frameFunction === "function") {
+        frameFunction.call(targetWindow);
+        invoked = true;
+      }
+    } catch {
+      // Ignore transient iframe runtime issues.
+    }
+  });
+
+  return invoked;
+}
+
+function resolveRuntimeButton(button, snapshot) {
+  if (button.action !== "valle-travel-context") {
+    return button;
+  }
+
+  const shortcut = snapshot?.travelShortcut;
+  if (!shortcut?.state) {
+    return {
+      ...button,
+      hiddenRuntime: true,
+    };
+  }
+
+  return {
+    ...button,
+    action: "invoke-frame",
+    frameFunction: "useTravelShortcut",
+    frameGuard: null,
+    hiddenRuntime: false,
+    label: button.stateLabels?.[shortcut.state] ?? button.label,
+  };
+}
+
 function MobileControlButton({
   button,
   active,
@@ -22,6 +138,25 @@ function MobileControlButton({
   const triggerTap = () => {
     if (button.action === "fullscreen") {
       onRequestFullscreen?.();
+      return;
+    }
+    if (button.action === "invoke-frame") {
+      const invoked = invokeFrameAction(button, scopeElement);
+      if (!invoked) {
+        return;
+      }
+      setTappedId(button.id);
+      window.setTimeout(() => setTappedId(null), 130);
+      return;
+    }
+    if (button.action === "click-target") {
+      const actionTarget = resolveActionTarget(button, scopeElement);
+      if (!actionTarget) {
+        return;
+      }
+      actionTarget?.click?.();
+      setTappedId(button.id);
+      window.setTimeout(() => setTappedId(null), 130);
       return;
     }
     tapInputs(button.inputs, scopeElement);
@@ -310,6 +445,7 @@ function renderCluster({
 export default function MobileControlDeck({
   profile,
   scopeElement,
+  snapshot,
   onRequestFullscreen,
 }) {
   const [activeCodes, setActiveCodes] = useState(() => new Set());
@@ -372,9 +508,23 @@ export default function MobileControlDeck({
     return null;
   }
 
+  const mapButtons = (buttons = []) => buttons.map((button) => resolveRuntimeButton(button, snapshot));
   const preferLeftJoystick = profile.leftPadMode !== "buttons";
+  const shouldRenderButton = (button) => {
+    if (button.hiddenRuntime) {
+      return false;
+    }
+    if (button.action === "invoke-frame") {
+      return true;
+    }
+    return !button.hideWhenUnavailable || resolveActionTarget(button, scopeElement);
+  };
+  const leftPadButtons = mapButtons(profile.leftPad);
+  const leftSupportButtons = mapButtons(profile.leftSupportPad);
+  const rightPadButtons = mapButtons(profile.rightPad);
+  const utilityButtons = mapButtons(profile.utilities);
   const leftPadNode = renderCluster({
-    buttons: profile.leftPad,
+    buttons: leftPadButtons.filter(shouldRenderButton),
     variant: "mobile-control-deck__cluster--pad",
     preferJoystick: preferLeftJoystick,
     isButtonActive,
@@ -384,9 +534,9 @@ export default function MobileControlDeck({
     onDirectionChange: updateDirectionalState,
     setTappedId,
   });
-  const leftSupportNode = profile.leftSupportPad?.length
+  const leftSupportNode = leftSupportButtons?.length
     ? renderCluster({
-        buttons: profile.leftSupportPad,
+        buttons: leftSupportButtons.filter(shouldRenderButton),
         variant: "mobile-control-deck__cluster--left-support",
         preferJoystick: false,
         isButtonActive,
@@ -430,7 +580,7 @@ export default function MobileControlDeck({
           {leftColumnNode}
 
           {renderCluster({
-            buttons: profile.rightPad,
+            buttons: rightPadButtons.filter(shouldRenderButton),
             variant: "mobile-control-deck__cluster--actions",
             preferJoystick: false,
             isButtonActive,
@@ -443,9 +593,9 @@ export default function MobileControlDeck({
         </div>
       )}
 
-      {profile.utilities?.length ? (
+      {utilityButtons?.length ? (
         <div className="mobile-control-deck__utilities">
-          {profile.utilities.map((button) => (
+          {utilityButtons.filter(shouldRenderButton).map((button) => (
             <MobileControlButton
               key={button.id}
               button={button}

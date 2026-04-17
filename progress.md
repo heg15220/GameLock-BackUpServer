@@ -4192,3 +4192,10 @@ eon-rush para no usar ResizeObserver.observe() sobre nodos del iframe con el obs
 
 - 2026-04-12: neon rush ajustado con overlay lateral compacto en móvil horizontal y mayor aprovechamiento del iframe en tablet horizontal; categoria Juegos (Dig The Hole, Valle Tranquilo) pasa a viñeta compacta de app dentro del panel, sin overlay sobre gameplay.
 
+
+## 2026-04-17 - Valle Tranquilo mobile/touch controls
+- Aumentado el coste de licencias del ayuntamiento en `public/arcade/valle-tranquilo/index.html`: `ridge_plot` pasa a `6800` monedas y `river_plot` a `7600`.
+- `src/mobile/mobileGameProfiles.js` anade un boton tactil `Salir/Exit` al deck de `arcade-valle-tranquilo` usando una accion contextual sobre `#exit-interior-btn`.
+- `src/mobile/MobileControlDeck.jsx` amplia el deck para soportar botones `click-target` contra controles visibles dentro del iframe, resolviendo el objetivo en el momento del toque para no depender de refrescos del shell.
+- `src/mobile/MobileGameStatusPanel.jsx` deja de duplicar `exit-interior-btn` en el panel de acciones contextual, para que la salida viva solo en el bloque principal de controles.
+- Validacion automatizada incompleta en este turno: hubo interrupciones manuales durante las pasadas Playwright del shell movil/tablet, asi que el ultimo ajuste se ha aplicado por causa raiz y queda pendiente una comprobacion visual final sin interrupciones.

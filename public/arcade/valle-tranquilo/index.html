@@ -299,8 +299,7 @@ html.mobile-shell-embed #ctool{
   font-size:11px;
 }
 html.mobile-shell-embed #kb-help-btn{
-  padding:2px 6px!important;
-  font-size:11px!important;
+  display:none!important;
 }
 html.mobile-shell-embed #mb{
   align-items:flex-start;
@@ -392,8 +391,7 @@ html.mobile-shell-embed.mobile-shell-portrait #energy-icon{
   font-size:9px!important;
 }
 html.mobile-shell-embed.mobile-shell-portrait #kb-help-btn{
-  padding:1px 5px!important;
-  font-size:10px!important;
+  display:none!important;
 }
 </style>
 </head>
@@ -1273,8 +1271,8 @@ const FOOD_ITEMS={
 };
 const PLOT_STATES=['locked','permitted','building','built','occupied','sold'];
 const PROPERTY_PLOTS=[
-  {id:'ridge_plot',nameEs:'Solar de la Loma',nameEn:'Ridge Plot',permitCost:680,buildDays:4,builderNpc:'teo',anchor:{col:105,row:67},area:{x:103,y:65,w:4,h:4},buildCost:{wood:10,brick:6,glass:2}},
-  {id:'river_plot',nameEs:'Solar del Rio',nameEn:'River Plot',permitCost:760,buildDays:5,builderNpc:'teo',anchor:{col:21,row:74},area:{x:19,y:72,w:4,h:4},buildCost:{wood:12,brick:8,glass:2}},
+  {id:'ridge_plot',nameEs:'Solar de la Loma',nameEn:'Ridge Plot',permitCost:6800,buildDays:4,builderNpc:'teo',anchor:{col:105,row:67},area:{x:103,y:65,w:4,h:4},buildCost:{wood:10,brick:6,glass:2}},
+  {id:'river_plot',nameEs:'Solar del Rio',nameEn:'River Plot',permitCost:7600,buildDays:5,builderNpc:'teo',anchor:{col:21,row:74},area:{x:19,y:72,w:4,h:4},buildCost:{wood:12,brick:8,glass:2}},
 ];
 const SAVE_STORAGE_KEY='valle_tranquilo_save_v1';
 const SAVE_EXPORT_PREFIX='VT1.';
@@ -2143,6 +2141,26 @@ function leaveInterior(){
   lg(IS_ES?'Vuelves al exterior del valle.':'You return to the valley outside.');
   reAll();
   scrollToPlayer();
+}
+function useTravelShortcut(){
+  if(inInterior()){
+    leaveInterior();
+    return true;
+  }
+  if(inMine()){
+    leaveMine();
+    return true;
+  }
+  if(nearMineGate(1)){
+    openMine();
+    return true;
+  }
+  const portal=activePortal();
+  if(portal){
+    enterPortal(portal);
+    return true;
+  }
+  return false;
 }
 function propertyState(plotId){
   return G.properties?.[plotId]||{state:'locked',daysLeft:0,owner:'none'};
@@ -5825,8 +5843,23 @@ function renderGameToText(){
   const nowMins=gameMinuteStamp();
   const gc=guideCurrent();
   const station=nearestStation(1);
+  const portal=activePortal();
   const modalOpen=document.getElementById('mb').classList.contains('on');
   const screen=!GAME_STARTED?'intro':(modalOpen?'modal':'running');
+  const travelShortcut=inInterior()
+    ? {state:'exitInterior'}
+    : inMine()
+      ? {state:'exitMine'}
+      : nearMineGate(1)
+        ? {state:'enterMine'}
+        : portal
+          ? {
+              state:'enterPortal',
+              portalId:portal.id,
+              targetMap:portal.targetMap,
+              label:IS_ES?(portal.mapLabelEs||portal.labelEs):(portal.mapLabelEn||portal.labelEn)
+            }
+          : null;
   const payload={
     mode:'arcade',
     variant:'valle-tranquilo',
@@ -5844,8 +5877,14 @@ function renderGameToText(){
       inInterior:inInterior(),
       nearMineGate:nearMineGate(1),
       nearMineExit:nearMineExit(1),
+      activePortal:portal?{
+        id:portal.id,
+        targetMap:portal.targetMap,
+        label:IS_ES?(portal.mapLabelEs||portal.labelEs):(portal.mapLabelEn||portal.labelEn)
+      }:null,
       mineRareNodes:mineNodes
     },
+    travelShortcut,
     player:{col:pPos.col,row:pPos.row,dir:pDir,facing:pFacing},
     time:{day:G.day,year:G.year,season:SEASONS[G.sIdx],hour:G.hr,minute:G.mn,weather:G.weather},
     economy:{gold:G.gold,energy:G.energy,health:G.health,farmLevel:G.farmLv,toolTier:G.toolTier},

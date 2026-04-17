@@ -68,6 +68,11 @@ function control(id, label, options = {}) {
     tone: options.tone ?? "default",
     inputs: options.inputs ?? [],
     action: options.action ?? "input",
+    targetSelector: options.targetSelector ?? null,
+    hideWhenUnavailable: options.hideWhenUnavailable ?? false,
+    frameFunction: options.frameFunction ?? null,
+    frameGuard: options.frameGuard ?? null,
+    stateLabels: options.stateLabels ?? null,
   };
 }
 
@@ -1126,6 +1131,18 @@ export function getMobileControlProfile(game, locale = "es") {
             tone: "accent",
             inputs: [input("Enter", "Enter")],
           }),
+          control("travelContext", t(locale, "Entrar", "Enter"), {
+            type: "tap",
+            tone: "utility",
+            action: "valle-travel-context",
+            hideWhenUnavailable: true,
+            stateLabels: {
+              exitInterior: t(locale, "Salir", "Exit"),
+              exitMine: t(locale, "Salir mina", "Exit Mine"),
+              enterMine: t(locale, "Entrar mina", "Enter Mine"),
+              enterPortal: t(locale, "Entrar", "Enter"),
+            },
+          }),
           control("shop", t(locale, "Tienda", "Shop"), {
             type: "tap",
             inputs: [input("KeyB", "b")],
@@ -1146,10 +1163,6 @@ export function getMobileControlProfile(game, locale = "es") {
           control("torch", t(locale, "Ant.", "Torch"), {
             type: "tap",
             inputs: [input("KeyT", "t")],
-          }),
-          control("help", t(locale, "Ayuda", "Help"), {
-            type: "tap",
-            inputs: [input("Slash", "/")],
           }),
         ],
         utilities: [],

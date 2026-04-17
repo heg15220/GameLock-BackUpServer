@@ -559,6 +559,7 @@ function filterContextButtons(buttons, snapshot, gameCategory) {
         ...buttons.filter((button) => button.group === "visible-stage"),
       ]
         .filter((button) => !buttonLabelMatches(button, /fullscreen|pantalla completa/i))
+        .filter((button) => !buttonIdMatches(button, /^exit-interior-btn$/i))
         .filter((button) => {
           if (snapshot.variant !== "valle-tranquilo") {
             return true;
@@ -566,7 +567,7 @@ function filterContextButtons(buttons, snapshot, gameCategory) {
 
           return (
             buttonSourceWeight(button) >= 3
-            || buttonIdMatches(button, /fish-cancel|kb-help/i)
+            || buttonIdMatches(button, /fish-cancel/i)
           );
         })
     ).slice(0, snapshot.variant === "valle-tranquilo" ? 10 : 8);
