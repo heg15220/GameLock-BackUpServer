@@ -551,21 +551,22 @@
 .r2p__promo {
   position: absolute;
   left: 50%;
-  bottom: 12px;
+  bottom: 40px;
   transform: translateX(-50%);
   max-width: min(52vw, 320px);
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(8, 12, 18, 0.18);
-  color: rgba(255, 255, 255, 0.54);
-  font-size: 0.58rem;
+  background: rgba(8, 12, 18, 0.28);
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-align: center;
   backdrop-filter: blur(4px);
   pointer-events: none;
-  opacity: 0.7;
+  opacity: 0.82;
+  z-index: 4;
 }
 
 .r2p__endCard {
@@ -701,10 +702,14 @@
   }
 
   .r2p__promo {
+    left: 50%;
+    right: auto;
     bottom: 88px;
+    transform: translateX(-50%);
     max-width: min(62vw, 280px);
     font-size: 0.5rem;
     color: rgba(255, 255, 255, 0.44);
+    text-align: center;
   }
 }
 

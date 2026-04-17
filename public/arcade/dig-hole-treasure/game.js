@@ -2399,7 +2399,7 @@
 
   function resize() {
     const rect = state.shell.getBoundingClientRect();
-    state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    state.dpr = Math.min(window.devicePixelRatio || 1, 2.5);
     state.viewportWidth = rect.width;
     state.viewportHeight = rect.height;
     state.canvas.width = Math.round(rect.width * state.dpr);
@@ -2407,6 +2407,8 @@
     state.canvas.style.width = `${rect.width}px`;
     state.canvas.style.height = `${rect.height}px`;
     state.ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    state.ctx.imageSmoothingEnabled = true;
+    state.ctx.imageSmoothingQuality = "high";
     refreshHudLayout();
     markUiDirty();
   }

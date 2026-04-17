@@ -91,7 +91,7 @@ body{background:#050008;font-family:'Orbitron',sans-serif;overflow:hidden;height
 #sl{position:absolute;top:var(--nr-stage-top);left:0;width:100%;height:var(--nr-stage-h);pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);
   z-index:10;border-radius:0 0 8px 8px;}
-#gc,#pc{image-rendering:crisp-edges;}
+#gc,#pc{image-rendering:auto;}
 #gw,#gc,#pc,#sl,.ov,.btn{touch-action:none;}
 #ad{position:absolute;top:calc(var(--nr-stage-top) + 11px);left:15px;font-size:9px;color:rgba(255,255,255,.22);letter-spacing:2px;}
 /* OVERLAYS */
@@ -784,9 +784,11 @@ function applyHiDpiCanvas(targetCanvas,targetCtx,w,h){
     targetCanvas.height=ph;
   }
   targetCtx.setTransform(dpr,0,0,dpr,0,0);
+  targetCtx.imageSmoothingEnabled=true;
+  targetCtx.imageSmoothingQuality='high';
 }
 function refreshRenderResolution(){
-  dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+  dpr=Math.max(1,Math.min(3.5,window.devicePixelRatio||1));
   applyHiDpiCanvas(canvas,ctx,W,H);
   applyHiDpiCanvas(pCanvas,pCtx,W,H);
 }

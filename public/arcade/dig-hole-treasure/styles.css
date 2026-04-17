@@ -57,7 +57,7 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
     linear-gradient(180deg, rgba(255,255,255,0.14), rgba(116,79,46,0.08));
 }
 
-#game { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+#game { display: block; image-rendering: auto; }
 
 .hud { position: absolute; inset: 0; pointer-events: none; }
 

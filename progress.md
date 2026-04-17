@@ -4251,3 +4251,14 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Ajustado el frontend del juego para mostrar el tipo de recompensa traducido y para dejar claro que las recompensas de misiones ya no son fijas.
 - Validacion 2026-04-17: NODE_OPTIONS=--max-old-space-size=4096 npm run build OK; backend local verificado con 9 misiones diarias activas y 39 trofeos totales en /missions y /trophies.
 
+
+## 2026-04-17 - Pinball + mobile penalty/sunset
+- Pinball Wizard: canvas sincronizado a resolucion fisica real (HiDPI) para ganar nitidez en desktop/mobile shell.
+- Penalty Neural Keeper: anadido disparo/estirada por tap directo sobre el canvas, dock tactil dentro del stage y shell mobile-first/touch-native para movil/tablet.
+- Sunset Slipstream: refinados overlay/touch controls para movil y tablet, con mejor encaje respecto al area jugable y safe areas.
+- Pendiente recomendado: verificacion visual en navegador del shell movil para penalty y sunset, porque en esta pasada no se cerro una prueba Playwright completa.
+
+- Ajuste posterior en Penalty Neural Keeper: movil phone mantiene mobile-first, pero tablet vuelve a dual-screen; el overlay de seleccion de rival/dificultad en stage ahora hace scroll y estira botones para que sea usable en shell movil/tablet.
+
+- Ajuste adicional en Penalty Neural Keeper: el cliente backend ya no fija 127.0.0.1; ahora prueba same-origin, hostname actual con puerto 8788, localhost y 127.0.0.1, descartando respuestas HTML para que en movil/tablet reales si aparezcan rivales cuando el backend corre en la maquina anfitriona.
+- 2026-04-18: Reoriented Penalty Neural Keeper mobile/tablet shell back to dual-screen, removed the in-stage decision dock, and rebalanced stage/control deck sizing so rival selection and gameplay stay visible in the upper screen.

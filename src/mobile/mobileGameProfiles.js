@@ -741,8 +741,8 @@ export function getMobileControlProfile(game, locale = "es") {
         heading: t(locale, "Green", "Green"),
         hint: t(
           locale,
-          "Apunta con el joystick y usa los botones para lanzar o abrir el selector de hoyos.",
-          "Aim with the joystick and use the action buttons to shoot or open the hole selector."
+          "Arrastra sobre el campo para fijar la trayectoria completa y suelta para golpear; los botones quedan como apoyo.",
+          "Drag on the course to set the full shot path and release to strike; buttons remain as backup."
         ),
         leftPad: directionalPad(locale, {
           up: input("KeyW", "w"),

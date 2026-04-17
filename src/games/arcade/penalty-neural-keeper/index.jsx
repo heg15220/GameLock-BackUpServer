@@ -429,6 +429,21 @@ function localizeKeeperDive(zoneId, locale) {
   return locale === "es" ? `Parar ${zoneLabel.toLowerCase()}` : `Save ${zoneLabel.toLowerCase()}`;
 }
 
+function closestZoneIdFromPoint(x, y) {
+  let closestZoneId = SHOT_ZONES[0]?.id ?? "center";
+  let bestDistance = Number.POSITIVE_INFINITY;
+  for (const zone of SHOT_ZONES) {
+    const dx = zone.target.x - x;
+    const dy = zone.target.y - y;
+    const distance = dx * dx + dy * dy;
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      closestZoneId = zone.id;
+    }
+  }
+  return closestZoneId;
+}
+
 function findTendencyZone(history) {
   if (!history.length) {
     return null;
@@ -2498,6 +2513,19 @@ function PenaltyNeuralKeeperGame() {
     statusMessage = ui.shotGoal;
   }
 
+  const handleCanvasPointerDown = useCallback((event) => {
+    if (actionDisabled || !canvasRef.current) {
+      return;
+    }
+    const rect = canvasRef.current.getBoundingClientRect();
+    if (!rect.width || !rect.height) {
+      return;
+    }
+    const x = ((event.clientX - rect.left) / rect.width) * CANVAS_WIDTH;
+    const y = ((event.clientY - rect.top) / rect.height) * CANVAS_HEIGHT;
+    launchShotForZone(closestZoneIdFromPoint(x, y));
+  }, [actionDisabled, launchShotForZone]);
+
   return (
     <div className="mini-game penalty-shootout-game">
       <div className="mini-head">
@@ -2529,6 +2557,7 @@ function PenaltyNeuralKeeperGame() {
               width={CANVAS_WIDTH}
               height={CANVAS_HEIGHT}
               aria-label="Penalty shootout canvas"
+              onPointerDown={handleCanvasPointerDown}
             />
           </div>
 

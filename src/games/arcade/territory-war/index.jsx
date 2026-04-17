@@ -26,6 +26,23 @@ const CANNON_WIND_FACTOR = 0.22;
 const CANNON_MIN_TARGET_DISTANCE = 240;
 const AI_RECENT_HISTORY = 14;
 
+function syncCanvasResolution(canvas, ctx) {
+  if (!canvas || !ctx || typeof window === "undefined") return;
+  const rect = canvas.getBoundingClientRect();
+  const cssWidth = Math.max(1, rect.width || canvas.clientWidth || WIDTH);
+  const cssHeight = Math.max(1, rect.height || canvas.clientHeight || HEIGHT);
+  const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2.5));
+  const pixelWidth = Math.max(1, Math.round(cssWidth * dpr));
+  const pixelHeight = Math.max(1, Math.round(cssHeight * dpr));
+  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+    canvas.width = pixelWidth;
+    canvas.height = pixelHeight;
+  }
+  ctx.setTransform(pixelWidth / WIDTH, 0, 0, pixelHeight / HEIGHT, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+}
+
 const TERRAIN_PROFILE = {
   ground: { mobility: 0.86, cover: 0.66, stability: 0.94 },
   stone:  { mobility: 0.72, cover: 0.95, stability: 0.98 },
@@ -2037,7 +2054,7 @@ const CSS=`
     width:100%;
     height:auto;
     background:#020617;
-    image-rendering:pixelated;
+    image-rendering:auto;
   }
 
   .tw-overlay{
@@ -2465,10 +2482,12 @@ export default function TerritoryWar(){
   useEffect(()=>{
     const canvas=canvasRef.current;if(!canvas)return;
     const ctx=canvas.getContext("2d");
+    syncCanvasResolution(canvas,ctx);
     let last=performance.now(),acc=0,snapAcc=0;
     const frame=(ts)=>{
       const delta=Math.min(90,ts-last);last=ts;acc+=delta;
       while(acc>=DT_MS){stepState(stateRef.current,inputRef.current,DT);acc-=DT_MS;}
+      syncCanvasResolution(canvas,ctx);
       const state=stateRef.current;
       const shake=state.cameraShake*5;
       const ox=shake>0?(state.rng()-0.5)*shake:0;

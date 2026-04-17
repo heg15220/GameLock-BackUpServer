@@ -44,7 +44,7 @@ export const UI_COPY = {
     controlsDesktop:
       "Raton: arrastra desde la bola para apuntar y definir potencia. Teclado: A/D o flechas (angulo), W/S o flechas (potencia), Espacio/Enter lanza, P pausa, R reinicia, L selector, F pantalla completa.",
     controlsTouch:
-      "Movil/tablet: desliza el dedo desde cualquier zona para lanzar siguiendo la trayectoria del gesto. Tambien puedes arrastrar desde la bola. Botones tactiles: -/+ angulo y -/+ potencia.",
+      "Movil/tablet: arrastra siempre con el dedo sobre el escenario para definir angulo y potencia de la trayectoria completa de la bola; al soltar, golpeas. Los botones tactiles quedan como apoyo opcional.",
     objective:
       "Emboca con el menor numero de golpes posible. Cada nivel combina superficies, hazards, bumpers, zonas de viento y muros en distintos biomas de dia y noche.",
     status: {
@@ -128,7 +128,7 @@ export const UI_COPY = {
     controlsDesktop:
       "Mouse: drag from the ball to aim and set power. Keyboard: A/D or arrows (angle), W/S or arrows (power), Space/Enter shoot, P pause, R restart, L level select, F fullscreen.",
     controlsTouch:
-      "Mobile/tablet: swipe from any screen area to launch the ball following your gesture path. You can also drag from the ball. On-screen controls provide angle +/- and power +/-.",
+      "Mobile/tablet: always drag your finger on the stage to set the ball's full trajectory angle and power, then release to shoot. On-screen buttons remain as optional backup controls.",
     objective:
       "Sink the ball in as few strokes as possible. Levels mix surface patches, hazards, bumpers, wind zones, and walls across day/night biomes.",
     status: {

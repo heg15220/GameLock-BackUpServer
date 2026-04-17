@@ -123,6 +123,23 @@ function closestPtOnSeg(px, py, ax, ay, bx, by) {
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
+function syncCanvasResolution(canvas, ctx) {
+  if (!canvas || !ctx || typeof window === 'undefined') return;
+  const rect = canvas.getBoundingClientRect();
+  const cssWidth = Math.max(1, rect.width || canvas.clientWidth || W);
+  const cssHeight = Math.max(1, rect.height || canvas.clientHeight || H);
+  const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2.5));
+  const pixelWidth = Math.max(1, Math.round(cssWidth * dpr));
+  const pixelHeight = Math.max(1, Math.round(cssHeight * dpr));
+  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+    canvas.width = pixelWidth;
+    canvas.height = pixelHeight;
+  }
+  ctx.setTransform(pixelWidth / W, 0, 0, pixelHeight / H, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+}
+
 // ─── PinballRuntime ───────────────────────────────────────────────────────────
 
 export default class PinballRuntime {
@@ -143,6 +160,9 @@ export default class PinballRuntime {
     this._audioCtx = null;
     this._hiScore  = 0;
     this._loadHiScore();
+    this._onResize = () => syncCanvasResolution(this.canvas, this.ctx);
+    window.addEventListener('resize', this._onResize);
+    syncCanvasResolution(this.canvas, this.ctx);
 
     this._init();
   }
@@ -157,6 +177,7 @@ export default class PinballRuntime {
     if (this.rafId) cancelAnimationFrame(this.rafId);
     window.removeEventListener('keydown', this._onKeyDown);
     window.removeEventListener('keyup',   this._onKeyUp);
+    window.removeEventListener('resize', this._onResize);
     if (this._audioCtx) { try { this._audioCtx.close(); } catch { /**/ } }
   }
 
@@ -257,6 +278,7 @@ export default class PinballRuntime {
     const rawDt = (ts - (this.lastTs ?? ts)) / 1000;
     this.lastTs = ts;
     this._tick(Math.min(rawDt, MAX_DT));
+    syncCanvasResolution(this.canvas, this.ctx);
     this._render();
   }
 

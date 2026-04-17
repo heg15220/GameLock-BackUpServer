@@ -60,6 +60,18 @@ function getTournamentPathText(localeCandidate) {
     : "Round of 16, quarterfinals, semifinals, and final";
 }
 
+function getSponsorBannerCopy(localeCandidate) {
+  return resolveSoccerLocale(localeCandidate) === "es"
+    ? {
+        question: "Te gusta la F1?",
+        answer: "overcutf1.com",
+      }
+    : {
+        question: "Like F1?",
+        answer: "overcutf1.com",
+      };
+}
+
 const GAME_MODE_OPTIONS = [
   { id: "single", label: "Single match" },
   { id: "tournament", label: "Tournament" },
@@ -505,11 +517,52 @@ function drawRoundedRect(ctx, x, y, width, height, radius, fill, stroke = "#1111
   }
 }
 
-function buildCrowdLayer() {
+function getCanvasRenderMetrics(canvas) {
+  if (!canvas || typeof window === "undefined") {
+    return null;
+  }
+
+  const rect = canvas.getBoundingClientRect();
+  const cssWidth = Math.max(1, rect.width || canvas.clientWidth || WIDTH);
+  const cssHeight = Math.max(1, rect.height || canvas.clientHeight || HEIGHT);
+  const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2.5));
+  const pixelWidth = Math.max(1, Math.round(cssWidth * dpr));
+  const pixelHeight = Math.max(1, Math.round(cssHeight * dpr));
+
+  return {
+    pixelWidth,
+    pixelHeight,
+    scaleX: pixelWidth / WIDTH,
+    scaleY: pixelHeight / HEIGHT,
+  };
+}
+
+function syncCanvasResolution(canvas, ctx) {
+  const metrics = getCanvasRenderMetrics(canvas);
+  if (!canvas || !ctx || !metrics) {
+    return null;
+  }
+
+  if (canvas.width !== metrics.pixelWidth || canvas.height !== metrics.pixelHeight) {
+    canvas.width = metrics.pixelWidth;
+    canvas.height = metrics.pixelHeight;
+  }
+
+  ctx.setTransform(metrics.scaleX, 0, 0, metrics.scaleY, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  return metrics;
+}
+
+function buildCrowdLayer(renderScale = 1) {
+  const scale = Math.max(1, renderScale);
   const layer = document.createElement("canvas");
-  layer.width = WIDTH;
-  layer.height = 260;
+  layer.width = Math.max(1, Math.round(WIDTH * scale));
+  layer.height = Math.max(1, Math.round(260 * scale));
   const ctx = layer.getContext("2d");
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
 
   const skyGradient = ctx.createLinearGradient(0, 0, 0, 130);
   skyGradient.addColorStop(0, "#6ec6f5");
@@ -620,30 +673,46 @@ function buildCrowdLayer() {
   return layer;
 }
 
-function drawField(ctx, crowdLayer) {
+function drawField(ctx, crowdLayer, localeCandidate) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
   ctx.drawImage(crowdLayer, 0, 0, WIDTH, 260);
 
+  const sponsorCopy = getSponsorBannerCopy(localeCandidate);
   const banners = [
-    { background: "#1a1a2a", foreground: "#ffee00", text: "ARCADE TOUR", width: 220 },
-    { background: "#1a3a1a", foreground: "#ffffff", text: "HEAD SOCCER PRO", width: 240 },
-    { background: "#ff2200", foreground: "#ffffff", text: "LIVE MATCH", width: 180 },
-    { background: "#1a1a3a", foreground: "#88aaff", text: "STADIUM PACK", width: 180 },
-    { background: "#2a1a00", foreground: "#ffcc00", text: "SEASON 2026", width: 170 },
+    {
+      background: "#0f172a",
+      foreground: "#f8fafc",
+      text: sponsorCopy.question,
+      width: 210,
+      fontSize: 14,
+      textAlign: "center",
+    },
+    {
+      background: "#1d4ed8",
+      foreground: "#eff6ff",
+      text: sponsorCopy.answer,
+      width: 280,
+      fontSize: 13,
+      textAlign: "center",
+    },
+    { background: "#153a29", foreground: "#f8fafc", text: "HEAD SOCCER PRO", width: 220, fontSize: 11 },
+    { background: "#b91c1c", foreground: "#fef2f2", text: "LIVE MATCH", width: 190, fontSize: 11 },
   ];
 
   let bannerX = 0;
   const bannerY = 258;
-  const bannerHeight = 34;
+  const bannerHeight = 36;
   banners.forEach((banner) => {
     ctx.fillStyle = banner.background;
     ctx.fillRect(bannerX, bannerY, banner.width, bannerHeight);
     ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
     ctx.strokeRect(bannerX, bannerY, banner.width, bannerHeight);
     ctx.fillStyle = banner.foreground;
-    ctx.font = "700 13px 'Bricolage Grotesque', sans-serif";
+    ctx.font = `700 ${banner.fontSize || 13}px 'Bricolage Grotesque', sans-serif`;
     ctx.textBaseline = "middle";
-    ctx.fillText(banner.text, bannerX + 8, bannerY + bannerHeight / 2);
+    ctx.textAlign = banner.textAlign || "left";
+    const textX = (banner.textAlign || "left") === "center" ? bannerX + banner.width / 2 : bannerX + 8;
+    ctx.fillText(banner.text, textX, bannerY + bannerHeight / 2);
     bannerX += banner.width;
   });
 
@@ -1023,8 +1092,8 @@ function drawFx(ctx, state) {
   });
 }
 
-function drawScene(ctx, state, crowdLayer) {
-  drawField(ctx, crowdLayer);
+function drawScene(ctx, state, crowdLayer, localeCandidate) {
+  drawField(ctx, crowdLayer, localeCandidate);
   drawGoals(ctx);
   drawPlayer(ctx, state.players.left);
   drawPlayer(ctx, state.players.right);
@@ -1947,12 +2016,13 @@ function buildSnapshot(state) {
 }
 
 const DIFFICULTY_OPTIONS = Object.values(DIFFICULTIES);
-export default function HeadSoccerGame() {
+export default function HeadSoccerGame({ locale }) {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
   const crowdLayerRef = useRef(null);
+  const crowdLayerScaleRef = useRef(0);
 
-  const uiLocale = useMemo(() => resolveSoccerLocale(), []);
+  const uiLocale = useMemo(() => resolveSoccerLocale(locale), [locale]);
   const stateRef = useRef(createInitialState(uiLocale));
   const controlsRef = useRef(createControlState());
 
@@ -1975,18 +2045,28 @@ export default function HeadSoccerGame() {
     settingsRef.current = settings;
   }, [settings]);
 
+  useEffect(() => {
+    setSettings((previous) => (
+      previous.locale === uiLocale ? previous : { ...previous, locale: uiLocale }
+    ));
+  }, [uiLocale]);
+
   const syncSnapshot = useCallback(() => {
     setSnapshot(buildSnapshot(stateRef.current));
   }, []);
 
   const draw = useCallback((time = 0) => {
-    if (!ctxRef.current) {
+    if (!ctxRef.current || !canvasRef.current) {
       return;
     }
-    if (!crowdLayerRef.current) {
-      crowdLayerRef.current = buildCrowdLayer();
+
+    const metrics = syncCanvasResolution(canvasRef.current, ctxRef.current);
+    const crowdScale = metrics ? Math.max(metrics.scaleX, metrics.scaleY) : 1;
+    if (!crowdLayerRef.current || Math.abs(crowdLayerScaleRef.current - crowdScale) > 0.05) {
+      crowdLayerRef.current = buildCrowdLayer(crowdScale);
+      crowdLayerScaleRef.current = crowdScale;
     }
-    drawScene(ctxRef.current, stateRef.current, crowdLayerRef.current, time);
+    drawScene(ctxRef.current, stateRef.current, crowdLayerRef.current, settingsRef.current.locale);
   }, []);
 
   useEffect(() => {
@@ -2006,7 +2086,10 @@ export default function HeadSoccerGame() {
     }
 
     ctxRef.current = canvas.getContext("2d");
-    crowdLayerRef.current = buildCrowdLayer();
+    const metrics = syncCanvasResolution(canvas, ctxRef.current);
+    const crowdScale = metrics ? Math.max(metrics.scaleX, metrics.scaleY) : 1;
+    crowdLayerRef.current = buildCrowdLayer(crowdScale);
+    crowdLayerScaleRef.current = crowdScale;
     draw(0);
 
     const tick = (time) => {

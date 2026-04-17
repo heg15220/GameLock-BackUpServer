@@ -138,9 +138,10 @@
 
 .mtr__touchControls {
   position: absolute;
-  inset: auto 18px 18px 18px;
+  inset: auto 18px calc(18px + env(safe-area-inset-bottom, 0px)) 18px;
   display: none;
   justify-content: space-between;
+  align-items: end;
   gap: 12px;
   pointer-events: none;
 }
@@ -150,6 +151,12 @@
   display: flex;
   gap: 10px;
   pointer-events: auto;
+  padding: 8px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(7, 17, 31, 0.82), rgba(10, 18, 34, 0.68));
+  box-shadow:
+    0 14px 28px rgba(5, 11, 21, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .mtr__touchControls button {
@@ -188,11 +195,13 @@
   }
 
   .mtr__overlay {
-    padding: 16px;
+    align-items: flex-start;
+    padding: 12px 12px 128px;
   }
 
   .mtr__card {
-    padding: 22px;
+    width: min(100%, 360px);
+    padding: 18px 18px 20px;
     border-radius: 20px;
   }
 
@@ -207,12 +216,15 @@
   .mtr__touchControls {
     inset: auto 12px 12px 12px;
     flex-wrap: wrap;
+    gap: 8px;
   }
 
   .mtr__touchPad,
   .mtr__touchActions {
     flex: 1 1 100%;
     justify-content: space-between;
+    padding: 7px;
+    border-radius: 18px;
   }
 
   .mtr__touchControls button {

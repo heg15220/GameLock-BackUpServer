@@ -4270,6 +4270,117 @@
   display: flex !important;
 }
 
+.mobile-game-shell--touch-native[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__overlay {
+  align-items: flex-start;
+  padding: 0.85rem 0.85rem 7rem;
+}
+
+.mobile-game-shell--touch-native[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mtr__card {
+  width: min(100%, 350px);
+  padding: 1rem;
+  border-radius: 20px;
+}
+
+.mobile-game-shell[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-stage {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.mobile-game-shell[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-canvas-host {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.mobile-game-shell[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.mobile-game-shell[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  justify-items: stretch;
+  gap: 0.72rem;
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay,
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay {
+  align-content: start;
+  padding: 0.95rem;
+}
+
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay {
+  padding-bottom: 7rem;
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay-menu {
+  place-content: start;
+}
+
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay h5,
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay p,
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay button {
+  justify-self: stretch;
+}
+
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-team-grid {
+  grid-template-columns: 1fr;
+}
+
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-team-card,
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-difficulty-row button {
+  min-height: 48px;
+}
+
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-touch-dock {
+  display: grid !important;
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-touch-dock {
+  display: none !important;
+}
+
+.mobile-game-shell--portrait.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__body {
+  grid-template-rows: minmax(340px, 1.3fr) minmax(184px, 0.52fr);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay {
+  padding: 1rem;
+  align-content: start;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-team-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-control-deck {
+  grid-template-rows: auto minmax(132px, 1fr) auto;
+  gap: 0.65rem;
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-control-deck__meta p {
+  margin-top: 0.22rem;
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-control-deck__clusters {
+  min-height: 132px;
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-control-deck__zones {
+  gap: 0.5rem;
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-control-deck__button {
+  min-height: 42px;
+}
+
 .mobile-game-shell--landscape .mobile-control-deck__cluster--actions {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   justify-self: stretch;
@@ -4416,6 +4527,10 @@
   grid-template-rows: minmax(0, 1.16fr) minmax(300px, 0.74fr);
 }
 
+.mobile-game-shell--device-tablet.mobile-game-shell--portrait.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__body {
+  grid-template-rows: minmax(396px, 1.28fr) minmax(212px, 0.5fr);
+}
+
 .mobile-game-shell--device-tablet.mobile-game-shell--portrait.mobile-game-shell--touch-native .mobile-game-shell__body {
   grid-template-rows: minmax(0, 1.08fr) minmax(220px, 0.62fr);
 }
@@ -4451,6 +4566,7 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-bubble-storm"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-neon-rush"] .mobile-game-shell__body,
@@ -4463,10 +4579,20 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__touch-copy,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__touch-copy,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__touch-copy,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__touch-copy,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__touch-copy,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-bubble-storm"] .mobile-game-shell__touch-copy,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-neon-rush"] .mobile-game-shell__touch-copy,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="racing-sunset-slipstream"] .mobile-game-shell__touch-copy {
+  display: none;
+}
+
+.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__touch-copy {
   display: none;
 }
 
@@ -4558,7 +4684,7 @@
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__body {
-  grid-template-columns: minmax(0, 1.46fr) minmax(344px, 0.54fr);
+  grid-template-columns: minmax(0, 1.62fr) minmax(308px, 0.38fr);
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-cosmic-vanguard"] .mobile-game-shell__body {

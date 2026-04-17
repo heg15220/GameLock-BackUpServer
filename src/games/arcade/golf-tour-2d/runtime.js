@@ -593,14 +593,6 @@ export default class GolfTourRuntime {
     this.canvas.setPointerCapture?.(event.pointerId);
     this.aim.dragging = true;
     this.aim.pointerId = event.pointerId;
-
-    if (isTouch && !nearBall) {
-      this.aim.swipeMode = true;
-      this.aim.swipeStartX = point.x;
-      this.aim.swipeStartY = point.y;
-      this.updateAimFromSwipe(point, point);
-      return;
-    }
     this.aim.swipeMode = false;
     this.updateAimFromBallDrag(point);
   }
@@ -626,16 +618,6 @@ export default class GolfTourRuntime {
     this.aim.pointerId = null;
 
     const point = this.getCanvasPoint(event);
-    if (this.aim.swipeMode) {
-      const start = { x: this.aim.swipeStartX, y: this.aim.swipeStartY };
-      this.updateAimFromSwipe(start, point);
-      this.aim.swipeMode = false;
-      if (magnitude(point.x - start.x, point.y - start.y) > 22) {
-        this.launchBall();
-      }
-      return;
-    }
-
     this.updateAimFromBallDrag(point);
     if (magnitude(this.ball.x - point.x, this.ball.y - point.y) > 24) {
       this.launchBall();

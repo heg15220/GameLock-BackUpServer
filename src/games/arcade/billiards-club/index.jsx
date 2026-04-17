@@ -2426,23 +2426,80 @@ function drawTable(ctx, state, preview, placementGhost) {
   drawRoundedRect(ctx, 28, 24, TABLE_WIDTH - 56, TABLE_HEIGHT - 48, 34);
   ctx.fill();
 
+  ctx.save();
+  drawRoundedRect(ctx, 28, 24, TABLE_WIDTH - 56, TABLE_HEIGHT - 48, 34);
+  ctx.clip();
+  for (let offset = -TABLE_HEIGHT; offset < TABLE_WIDTH; offset += 26) {
+    ctx.strokeStyle = "rgba(255, 236, 179, 0.065)";
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.moveTo(offset, 28);
+    ctx.lineTo(offset + TABLE_HEIGHT * 0.92, TABLE_HEIGHT - 28);
+    ctx.stroke();
+  }
+  for (let y = 40; y < TABLE_HEIGHT - 40; y += 24) {
+    ctx.strokeStyle = "rgba(51, 25, 10, 0.11)";
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.moveTo(42, y);
+    ctx.lineTo(TABLE_WIDTH - 42, y + 6);
+    ctx.stroke();
+  }
+  ctx.restore();
+
   ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
   drawRoundedRect(ctx, 48, 44, TABLE_WIDTH - 96, TABLE_HEIGHT - 88, 26);
   ctx.fill();
 
+  ctx.strokeStyle = "rgba(255, 248, 220, 0.16)";
+  ctx.lineWidth = 2.2;
+  drawRoundedRect(ctx, 38, 34, TABLE_WIDTH - 76, TABLE_HEIGHT - 68, 30);
+  ctx.stroke();
+
   const felt = ctx.createLinearGradient(PLAY_LEFT, PLAY_TOP, PLAY_RIGHT, PLAY_BOTTOM);
-  felt.addColorStop(0, "#0d7f55");
-  felt.addColorStop(0.5, "#0f6f4c");
-  felt.addColorStop(1, "#09593d");
+  felt.addColorStop(0, "#11875c");
+  felt.addColorStop(0.45, "#0f6f4c");
+  felt.addColorStop(1, "#084f37");
   ctx.fillStyle = felt;
   drawRoundedRect(ctx, PLAY_LEFT - 10, PLAY_TOP - 10, PLAY_RIGHT - PLAY_LEFT + 20, PLAY_BOTTOM - PLAY_TOP + 20, 24);
   ctx.fill();
+
+  ctx.save();
+  drawRoundedRect(ctx, PLAY_LEFT - 10, PLAY_TOP - 10, PLAY_RIGHT - PLAY_LEFT + 20, PLAY_BOTTOM - PLAY_TOP + 20, 24);
+  ctx.clip();
+  for (let x = PLAY_LEFT - 2; x <= PLAY_RIGHT + 2; x += 22) {
+    ctx.strokeStyle = "rgba(236, 253, 245, 0.028)";
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.moveTo(x, PLAY_TOP - 8);
+    ctx.lineTo(x, PLAY_BOTTOM + 8);
+    ctx.stroke();
+  }
+  for (let y = PLAY_TOP - 2; y <= PLAY_BOTTOM + 2; y += 16) {
+    ctx.strokeStyle = "rgba(7, 48, 35, 0.07)";
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(PLAY_LEFT - 8, y);
+    ctx.lineTo(PLAY_RIGHT + 8, y);
+    ctx.stroke();
+  }
+  ctx.restore();
 
   const sheen = ctx.createRadialGradient(TABLE_CENTER_X - 120, TABLE_CENTER_Y - 90, 40, TABLE_CENTER_X, TABLE_CENTER_Y, 360);
   sheen.addColorStop(0, "rgba(255, 255, 255, 0.12)");
   sheen.addColorStop(1, "rgba(255, 255, 255, 0)");
   ctx.fillStyle = sheen;
   ctx.fillRect(PLAY_LEFT - 10, PLAY_TOP - 10, PLAY_RIGHT - PLAY_LEFT + 20, PLAY_BOTTOM - PLAY_TOP + 20);
+
+  ctx.strokeStyle = "rgba(227, 246, 234, 0.14)";
+  ctx.lineWidth = 1.8;
+  drawRoundedRect(ctx, PLAY_LEFT - 10, PLAY_TOP - 10, PLAY_RIGHT - PLAY_LEFT + 20, PLAY_BOTTOM - PLAY_TOP + 20, 24);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(4, 32, 22, 0.42)";
+  ctx.lineWidth = 3.2;
+  drawRoundedRect(ctx, PLAY_LEFT + 3, PLAY_TOP + 3, PLAY_RIGHT - PLAY_LEFT - 6, PLAY_BOTTOM - PLAY_TOP - 6, 18);
+  ctx.stroke();
 
   ctx.strokeStyle = "rgba(229, 231, 235, 0.15)";
   ctx.lineWidth = 2;
@@ -2483,10 +2540,29 @@ function drawTable(ctx, state, preview, placementGhost) {
   if (modeHasPockets(state.modeKey)) {
     POCKETS.forEach((pocket) => {
       const selected = state.calledPocketId === pocket.id;
+      const pocketGlow = ctx.createRadialGradient(
+        pocket.x - pocket.radius * 0.18,
+        pocket.y - pocket.radius * 0.2,
+        2,
+        pocket.x,
+        pocket.y,
+        pocket.radius + 8
+      );
+      pocketGlow.addColorStop(0, selected ? "rgba(254, 240, 138, 0.5)" : "rgba(255, 255, 255, 0.14)");
+      pocketGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = pocketGlow;
+      ctx.beginPath();
+      ctx.arc(pocket.x, pocket.y, pocket.radius + 8, 0, Math.PI * 2);
+      ctx.fill();
       ctx.beginPath();
       ctx.fillStyle = selected ? "#fde68a" : "#05080f";
       ctx.arc(pocket.x, pocket.y, pocket.radius, 0, Math.PI * 2);
       ctx.fill();
+      ctx.beginPath();
+      ctx.strokeStyle = "rgba(255, 251, 235, 0.14)";
+      ctx.lineWidth = 1.6;
+      ctx.arc(pocket.x, pocket.y, pocket.radius - 3, 0, Math.PI * 2);
+      ctx.stroke();
       if (selected) {
         ctx.beginPath();
         ctx.strokeStyle = "rgba(250, 204, 21, 0.8)";
@@ -2761,6 +2837,26 @@ function eventToWorld(canvas, event, options = {}) {
   };
 }
 
+function syncCanvasResolution(canvas, ctx, fullscreen = false) {
+  if (!canvas || !ctx) return false;
+  const rect = canvas.getBoundingClientRect();
+  const cssWidth = Math.max(1, rect.width || canvas.clientWidth || TABLE_WIDTH);
+  const cssHeight = Math.max(1, rect.height || canvas.clientHeight || TABLE_HEIGHT);
+  const dprCap = fullscreen ? 3 : 2.5;
+  const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap));
+  const pixelWidth = Math.max(1, Math.round(cssWidth * dpr));
+  const pixelHeight = Math.max(1, Math.round(cssHeight * dpr));
+  if (canvas.width === pixelWidth && canvas.height === pixelHeight) {
+    return false;
+  }
+  canvas.width = pixelWidth;
+  canvas.height = pixelHeight;
+  ctx.setTransform(pixelWidth / TABLE_WIDTH, 0, 0, pixelHeight / TABLE_HEIGHT, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  return true;
+}
+
 function readMobileViewport() {
   if (typeof window === "undefined") return { isMobile: false, isPortrait: false };
   const width = Math.max(window.innerWidth || 0, document.documentElement?.clientWidth || 0);
@@ -2785,6 +2881,7 @@ function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated
       onSnapshot(buildSnapshot(this.state));
     },
     draw() {
+      syncCanvasResolution(canvas, ctx, this.state.fullscreen);
       const preview = (this.state.phase === "aim" || this.state.phase === "placing" || this.state.phase === "ai-thinking")
         ? getAimPreview(this.state)
         : null;
@@ -3140,6 +3237,7 @@ function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated
       instance.rafId = requestAnimationFrame(instance.frame);
     },
     start() {
+      syncCanvasResolution(canvas, ctx, this.state.fullscreen);
       const move = (event) => {
         const worldPoint = eventToWorld(canvas, event, { rotateTable: isTableRotated() });
         this.setPointer(worldPoint);
