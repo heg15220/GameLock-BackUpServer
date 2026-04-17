@@ -10,7 +10,7 @@ function writeJson(res, statusCode, payload) {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,PATCH,OPTIONS",
     "Access-Control-Allow-Headers":
-      "Content-Type,X-Browser-Token,Accept,Idempotency-Key",
+      "Content-Type,X-Browser-Token,X-Wikipedia-Language,Accept,Idempotency-Key",
     "Cache-Control": "no-store",
   });
   res.end(JSON.stringify(payload));
@@ -50,6 +50,25 @@ function getBrowserToken(req, body = {}) {
   );
 }
 
+function normalizePreferredLanguage(value) {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+  return String(value).toLowerCase().startsWith("es") ? "es" : "en";
+}
+
+function getPreferredLanguage(req, body = {}, searchParams = null) {
+  return normalizePreferredLanguage(
+    req.headers["x-wikipedia-language"] ||
+    body.preferredLanguage ||
+    body.language ||
+    body.locale ||
+    searchParams?.get("lang") ||
+    searchParams?.get("language") ||
+    searchParams?.get("locale")
+  );
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(
     req.url || "/",
@@ -68,10 +87,14 @@ const server = createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/session/bootstrap") {
+      const body = await readBody(req);
       writeJson(
         res,
         201,
-        await wikipediaGachaService.bootstrapSession(await readBody(req))
+        await wikipediaGachaService.bootstrapSession({
+          ...body,
+          preferredLanguage: getPreferredLanguage(req, body, url.searchParams),
+        })
       );
       return;
     }
@@ -80,7 +103,10 @@ const server = createServer(async (req, res) => {
       writeJson(
         res,
         200,
-        await wikipediaGachaService.getSessionMe(getBrowserToken(req))
+        await wikipediaGachaService.getSessionMe(
+          getBrowserToken(req),
+          getPreferredLanguage(req, {}, url.searchParams)
+        )
       );
       return;
     }
@@ -89,7 +115,10 @@ const server = createServer(async (req, res) => {
       writeJson(
         res,
         200,
-        await wikipediaGachaService.getPackStatus(getBrowserToken(req))
+        await wikipediaGachaService.getPackStatus(
+          getBrowserToken(req),
+          getPreferredLanguage(req, {}, url.searchParams)
+        )
       );
       return;
     }
@@ -99,7 +128,10 @@ const server = createServer(async (req, res) => {
       writeJson(
         res,
         200,
-        await wikipediaGachaService.openPack(getBrowserToken(req, body))
+        await wikipediaGachaService.openPack(
+          getBrowserToken(req, body),
+          getPreferredLanguage(req, body, url.searchParams)
+        )
       );
       return;
     }
@@ -108,7 +140,10 @@ const server = createServer(async (req, res) => {
       writeJson(
         res,
         200,
-        await wikipediaGachaService.getPackHistory(getBrowserToken(req))
+        await wikipediaGachaService.getPackHistory(
+          getBrowserToken(req),
+          getPreferredLanguage(req, {}, url.searchParams)
+        )
       );
       return;
     }
@@ -117,17 +152,21 @@ const server = createServer(async (req, res) => {
       writeJson(
         res,
         200,
-        await wikipediaGachaService.getCollection(getBrowserToken(req), {
-          page: url.searchParams.get("page"),
-          pageSize: url.searchParams.get("pageSize"),
-          query: url.searchParams.get("q"),
-          rarity: url.searchParams.get("rarity"),
-          sortBy: url.searchParams.get("sortBy"),
-          topicGroup: url.searchParams.get("topicGroup"),
-          favorite: parseBoolean(url.searchParams.get("favorite")),
-          duplicatesOnly: parseBoolean(url.searchParams.get("duplicatesOnly")),
-          newOnly: parseBoolean(url.searchParams.get("newOnly")),
-        })
+        await wikipediaGachaService.getCollection(
+          getBrowserToken(req),
+          {
+            page: url.searchParams.get("page"),
+            pageSize: url.searchParams.get("pageSize"),
+            query: url.searchParams.get("q"),
+            rarity: url.searchParams.get("rarity"),
+            sortBy: url.searchParams.get("sortBy"),
+            topicGroup: url.searchParams.get("topicGroup"),
+            favorite: parseBoolean(url.searchParams.get("favorite")),
+            duplicatesOnly: parseBoolean(url.searchParams.get("duplicatesOnly")),
+            newOnly: parseBoolean(url.searchParams.get("newOnly")),
+          },
+          getPreferredLanguage(req, {}, url.searchParams)
+        )
       );
       return;
     }
@@ -141,7 +180,8 @@ const server = createServer(async (req, res) => {
         200,
         await wikipediaGachaService.getCollectionItem(
           getBrowserToken(req),
-          Number(collectionItemMatch[1])
+          Number(collectionItemMatch[1]),
+          getPreferredLanguage(req, {}, url.searchParams)
         )
       );
       return;
@@ -158,7 +198,8 @@ const server = createServer(async (req, res) => {
         await wikipediaGachaService.toggleFavorite(
           getBrowserToken(req, body),
           Number(favoriteMatch[1]),
-          body.favorite
+          body.favorite,
+          getPreferredLanguage(req, body, url.searchParams)
         )
       );
       return;
@@ -173,7 +214,8 @@ const server = createServer(async (req, res) => {
         200,
         await wikipediaGachaService.getArticle(
           Number(articleMatch[1]),
-          req.headers["x-browser-token"] ? String(req.headers["x-browser-token"]) : null
+          req.headers["x-browser-token"] ? String(req.headers["x-browser-token"]) : null,
+          getPreferredLanguage(req, {}, url.searchParams)
         )
       );
       return;
@@ -183,7 +225,10 @@ const server = createServer(async (req, res) => {
       writeJson(
         res,
         200,
-        await wikipediaGachaService.searchArticles(url.searchParams.get("q"))
+        await wikipediaGachaService.searchArticles(
+          url.searchParams.get("q"),
+          getPreferredLanguage(req, {}, url.searchParams)
+        )
       );
       return;
     }
@@ -198,7 +243,8 @@ const server = createServer(async (req, res) => {
         200,
         await wikipediaGachaService.registerArticleClick(
           getBrowserToken(req, body),
-          Number(articleClickMatch[1])
+          Number(articleClickMatch[1]),
+          getPreferredLanguage(req, body, url.searchParams)
         )
       );
       return;
@@ -208,7 +254,10 @@ const server = createServer(async (req, res) => {
       writeJson(
         res,
         200,
-        await wikipediaGachaService.getMissions(getBrowserToken(req))
+        await wikipediaGachaService.getMissions(
+          getBrowserToken(req),
+          getPreferredLanguage(req, {}, url.searchParams)
+        )
       );
       return;
     }
@@ -223,7 +272,8 @@ const server = createServer(async (req, res) => {
         200,
         await wikipediaGachaService.claimMission(
           getBrowserToken(req, body),
-          Number(missionClaimMatch[1])
+          Number(missionClaimMatch[1]),
+          getPreferredLanguage(req, body, url.searchParams)
         )
       );
       return;
@@ -233,7 +283,9 @@ const server = createServer(async (req, res) => {
       writeJson(
         res,
         200,
-        await wikipediaGachaService.getTrophies(getBrowserToken(req))
+        await wikipediaGachaService.getTrophies(getBrowserToken(req), {
+          preferredLanguage: getPreferredLanguage(req, {}, url.searchParams),
+        })
       );
       return;
     }
@@ -244,6 +296,7 @@ const server = createServer(async (req, res) => {
         200,
         await wikipediaGachaService.getTrophies(getBrowserToken(req), {
           unlockedOnly: true,
+          preferredLanguage: getPreferredLanguage(req, {}, url.searchParams),
         })
       );
       return;
@@ -254,7 +307,10 @@ const server = createServer(async (req, res) => {
       writeJson(
         res,
         200,
-        await wikipediaGachaService.exportRecoveryCode(getBrowserToken(req, body))
+        await wikipediaGachaService.exportRecoveryCode(
+          getBrowserToken(req, body),
+          getPreferredLanguage(req, body, url.searchParams)
+        )
       );
       return;
     }
@@ -266,7 +322,8 @@ const server = createServer(async (req, res) => {
         200,
         await wikipediaGachaService.importRecoveryCode(
           getBrowserToken(req, body),
-          body.recoveryCode
+          body.recoveryCode,
+          getPreferredLanguage(req, body, url.searchParams)
         )
       );
       return;

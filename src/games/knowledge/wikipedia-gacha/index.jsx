@@ -885,16 +885,16 @@ export default function WikipediaGachaGame() {
       try {
         let token = tokenRef.current;
         if (!token) {
-          token = (await bootstrapWikipediaGachaSession()).browserToken;
+          token = (await bootstrapWikipediaGachaSession({}, browserLocale)).browserToken;
           window.localStorage.setItem(STORAGE_KEY, token);
           setBrowserToken(token);
         }
         try {
           const [dashboardData, collectionData, missionsData, trophiesData] = await Promise.all([
-            fetchWikipediaGachaSession(token),
-            fetchWikipediaGachaCollection(token, toCollectionParams(collectionFilters)),
-            fetchWikipediaGachaMissions(token),
-            fetchWikipediaGachaTrophies(token),
+            fetchWikipediaGachaSession(token, browserLocale),
+            fetchWikipediaGachaCollection(token, toCollectionParams(collectionFilters), browserLocale),
+            fetchWikipediaGachaMissions(token, browserLocale),
+            fetchWikipediaGachaTrophies(token, false, browserLocale),
           ]);
           setDashboard(dashboardData);
           setDashboardStampMs(nowRef.current);
@@ -905,14 +905,14 @@ export default function WikipediaGachaGame() {
           if (error?.code !== "invalid_browser_token") throw error;
           // Token stale (backend restarted or DB reset) — create a fresh session
           window.localStorage.removeItem(STORAGE_KEY);
-          const freshToken = (await bootstrapWikipediaGachaSession()).browserToken;
+          const freshToken = (await bootstrapWikipediaGachaSession({}, browserLocale)).browserToken;
           window.localStorage.setItem(STORAGE_KEY, freshToken);
           setBrowserToken(freshToken);
           const [dashboardData, collectionData, missionsData, trophiesData] = await Promise.all([
-            fetchWikipediaGachaSession(freshToken),
-            fetchWikipediaGachaCollection(freshToken, toCollectionParams(collectionFilters)),
-            fetchWikipediaGachaMissions(freshToken),
-            fetchWikipediaGachaTrophies(freshToken),
+            fetchWikipediaGachaSession(freshToken, browserLocale),
+            fetchWikipediaGachaCollection(freshToken, toCollectionParams(collectionFilters), browserLocale),
+            fetchWikipediaGachaMissions(freshToken, browserLocale),
+            fetchWikipediaGachaTrophies(freshToken, false, browserLocale),
           ]);
           setDashboard(dashboardData);
           setDashboardStampMs(nowRef.current);
@@ -932,12 +932,12 @@ export default function WikipediaGachaGame() {
   useEffect(() => {
     if (!browserToken) return undefined;
     const timeoutId = window.setTimeout(() => {
-      void fetchWikipediaGachaCollection(browserToken, toCollectionParams(collectionFilters))
+      void fetchWikipediaGachaCollection(browserToken, toCollectionParams(collectionFilters), browserLocale)
         .then(setCollection)
         .catch((error) => setErrorMessage(getErrorMessage(error, es)));
     }, 180);
     return () => window.clearTimeout(timeoutId);
-  }, [browserToken, collectionFilters, es]);
+  }, [browserLocale, browserToken, collectionFilters, es]);
 
   const refreshAll = async (message = "") => {
     if (!tokenRef.current) return null;
@@ -946,10 +946,10 @@ export default function WikipediaGachaGame() {
     setErrorMessage("");
     try {
       const [dashboardResult, collectionResult, missionsResult, trophiesResult] = await Promise.allSettled([
-        fetchWikipediaGachaSession(sessionToken),
-        fetchWikipediaGachaCollection(sessionToken, toCollectionParams(collectionFilters)),
-        fetchWikipediaGachaMissions(sessionToken),
-        fetchWikipediaGachaTrophies(sessionToken),
+        fetchWikipediaGachaSession(sessionToken, browserLocale),
+        fetchWikipediaGachaCollection(sessionToken, toCollectionParams(collectionFilters), browserLocale),
+        fetchWikipediaGachaMissions(sessionToken, browserLocale),
+        fetchWikipediaGachaTrophies(sessionToken, false, browserLocale),
       ]);
 
       if (dashboardResult.status !== "fulfilled") {
@@ -1079,7 +1079,7 @@ export default function WikipediaGachaGame() {
       const previousMissionsById = new Map(
         (missions.missions ?? []).map((mission) => [mission.id, { completed: Boolean(mission.completed) }])
       );
-      const result = await openWikipediaGachaPack(tokenRef.current);
+      const result = await openWikipediaGachaPack(tokenRef.current, browserLocale);
       setPackResult({ ...result, startedAtMs: nowRef.current + 120 });
       setDashboard((current) => {
         if (!current) return current;
@@ -1239,7 +1239,7 @@ export default function WikipediaGachaGame() {
   const handleToggleFavorite = async (articleId, favorite) => {
     if (!tokenRef.current) return;
     try {
-      const updated = await toggleWikipediaGachaFavorite(tokenRef.current, articleId, favorite);
+      const updated = await toggleWikipediaGachaFavorite(tokenRef.current, articleId, favorite, browserLocale);
       setCollection((current) => ({
         ...current,
         items: current.items.map((item) => (item.articleId === articleId ? { ...item, favorite: updated.favorite } : item)),
@@ -1255,7 +1255,7 @@ export default function WikipediaGachaGame() {
   const handleSelectArticle = async (articleId) => {
     if (!tokenRef.current) return;
     try {
-      setSelectedArticle(await fetchWikipediaGachaArticle(tokenRef.current, articleId));
+      setSelectedArticle(await fetchWikipediaGachaArticle(tokenRef.current, articleId, browserLocale));
     } catch (error) {
       setErrorMessage(getErrorMessage(error, es));
     }
@@ -1264,7 +1264,7 @@ export default function WikipediaGachaGame() {
   const handleOpenSource = async (article) => {
     if (!tokenRef.current || !article?.articleId || !article?.sourceUrl) return;
     try {
-      await registerWikipediaGachaArticleClick(tokenRef.current, article.articleId);
+      await registerWikipediaGachaArticleClick(tokenRef.current, article.articleId, browserLocale);
       window.open(article.sourceUrl, "_blank", "noopener,noreferrer");
     } catch (error) {
       setErrorMessage(getErrorMessage(error, es));
@@ -1275,7 +1275,7 @@ export default function WikipediaGachaGame() {
     if (!tokenRef.current) return;
     setBusy(true);
     try {
-      const claimResult = await claimWikipediaGachaMission(tokenRef.current, missionId);
+      const claimResult = await claimWikipediaGachaMission(tokenRef.current, missionId, browserLocale);
       await refreshAll(buildClaimMessage(claimResult?.mission, es, text.claimOk));
     } catch (error) {
       setErrorMessage(getErrorMessage(error, es));
@@ -1288,7 +1288,7 @@ export default function WikipediaGachaGame() {
     if (!tokenRef.current) return;
     setBusy(true);
     try {
-      const result = await exportWikipediaGachaRecovery(tokenRef.current);
+      const result = await exportWikipediaGachaRecovery(tokenRef.current, browserLocale);
       setRecoveryCode(result.recoveryCode);
       setStatusMessage(text.exportOk);
     } catch (error) {
@@ -1302,7 +1302,7 @@ export default function WikipediaGachaGame() {
     if (!tokenRef.current || !recoveryImport.trim()) return;
     setBusy(true);
     try {
-      await importWikipediaGachaRecovery(tokenRef.current, recoveryImport.trim());
+      await importWikipediaGachaRecovery(tokenRef.current, recoveryImport.trim(), browserLocale);
       setRecoveryImport("");
       await refreshAll(text.recoveryOk);
     } catch (error) {

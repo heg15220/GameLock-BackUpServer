@@ -61,6 +61,10 @@ function clone(v) {
   return JSON.parse(JSON.stringify(v));
 }
 
+function normalizeLanguage(value) {
+  return String(value ?? "").toLowerCase().startsWith("es") ? "es" : "en";
+}
+
 function toSearchItem(article) {
   return {
     articleId:    article.id,
@@ -121,14 +125,14 @@ function computeQualityScore(pageviews30d, contentLength, hasImage) {
 // ── topic-group inference ────────────────────────────────────────────────────
 
 const TOPIC_PATTERNS = [
-  [/\b(physics|chemistry|biology|botany|zoology|astronomy|geology|ecology|genetics|neuroscience)\b/, "Science"],
-  [/\b(mathematics|algebra|calculus|geometry|statistics|topology|arithmetic|number theory)\b/, "Mathematics"],
-  [/\b(history|war|battle|empire|dynasty|ancient|medieval|revolution|civiliz)\b/, "History"],
-  [/\b(geograph|country|countries|mountain|river|ocean|continent|city|cities|island)\b/, "Geography"],
-  [/\b(technology|computer|software|internet|engineering|electronics|programming|robotics)\b/, "Technology"],
-  [/\b(art|painting|sculpture|music|literature|film|cinema|architecture|photography)\b/, "Art"],
-  [/\b(sport|sports|game|games|entertainment|food|fashion|culture|television)\b/, "Culture"],
-  [/\b(philosophy|religion|politics|economics|sociology|psychology|law)\b/, "Society"],
+  [/\b(physics|chemistry|biology|botany|zoology|astronomy|geology|ecology|genetics|neuroscience|fisica|quimica|biologia|botanica|zoologia|astronomia|geologia|ecologia|genetica|neurociencia)\b/, "Science"],
+  [/\b(mathematics|algebra|calculus|geometry|statistics|topology|arithmetic|number theory|matematicas|algebra|calculo|geometria|estadistica|topologia|aritmetica|teoria de numeros)\b/, "Mathematics"],
+  [/\b(history|war|battle|empire|dynasty|ancient|medieval|revolution|civiliz|historia|guerra|batalla|imperio|dinastia|antigu|medieval|revolucion|civiliz)\b/, "History"],
+  [/\b(geograph|country|countries|mountain|river|ocean|continent|city|cities|island|geografia|pais|paises|montana|rio|oceano|continente|ciudad|ciudades|isla)\b/, "Geography"],
+  [/\b(technology|computer|software|internet|engineering|electronics|programming|robotics|tecnologia|computacion|informatica|ingenieria|electronica|programacion|robotica)\b/, "Technology"],
+  [/\b(art|painting|sculpture|music|literature|film|cinema|architecture|photography|arte|pintura|escultura|musica|literatura|cine|arquitectura|fotografia)\b/, "Art"],
+  [/\b(sport|sports|game|games|entertainment|food|fashion|culture|television|deporte|deportes|juego|juegos|entretenimiento|comida|moda|cultura|television)\b/, "Culture"],
+  [/\b(philosophy|religion|politics|economics|sociology|psychology|law|filosofia|religion|politica|economia|sociologia|psicologia|derecho)\b/, "Society"],
 ];
 
 function inferTopicGroup(categories = []) {
@@ -145,7 +149,7 @@ function inferTopicGroup(categories = []) {
  * Convert a raw article seed from wikipedia-api.mjs into a full article
  * object (same shape produced by buildArticleFromSeed in constants.mjs).
  */
-function seedToArticle(raw) {
+function seedToArticle(raw, languageCode) {
   const qualityScore = computeQualityScore(
     raw.pageviews30d,
     raw.contentLength,
@@ -172,6 +176,7 @@ function seedToArticle(raw) {
       categories:      raw.categories ?? [],
       imageUrl:        raw.imageUrl,
       flavorText:      null,
+      languageCode:    raw.languageCode ?? languageCode,
     },
     raw.pageid,
   );
@@ -179,7 +184,8 @@ function seedToArticle(raw) {
 
 // ── factory ───────────────────────────────────────────────────────────────────
 
-export function createWikipediaGachaCatalog() {
+export function createWikipediaGachaCatalog(options = {}) {
+  const languageCode = normalizeLanguage(options.language);
   /** All pooled articles keyed by article ID. */
   const articleById = new Map();
 
@@ -206,10 +212,16 @@ export function createWikipediaGachaCatalog() {
   }
 
   function _seedStatic() {
+    if (languageCode !== "en") {
+      return;
+    }
     for (const article of ARTICLES) _add(clone(article));
   }
 
   function _isReady() {
+    if (languageCode !== "en") {
+      return articleById.size >= 24;
+    }
     return RARITY_ORDER.every((r) => (rarityBuckets[r]?.length ?? 0) >= POOL_MIN_PER_RARITY);
   }
 
@@ -224,8 +236,8 @@ export function createWikipediaGachaCatalog() {
     _refilling = true;
     try {
       for (let i = 0; i < maxBatches && _needsRefill(); i++) {
-        const seeds = await fetchRandomArticles(50);
-        for (const raw of seeds) _add(seedToArticle(raw));
+        const seeds = await fetchRandomArticles(50, { language: languageCode });
+        for (const raw of seeds) _add(seedToArticle(raw, languageCode));
 
         if (_isReady() && _readyResolve) {
           _readyResolve();
@@ -251,9 +263,12 @@ export function createWikipediaGachaCatalog() {
   // 2. Enrich static articles with live imageUrl / pageviews (one batch call).
   //    Static seeds were hardcoded without images; this patches them in-place.
   (async () => {
+    if (languageCode !== "en") {
+      return;
+    }
     try {
       const titles = ARTICLES.map((a) => a.wikipediaTitle);
-      const live = await fetchArticlesByTitles(titles);
+      const live = await fetchArticlesByTitles(titles, { language: languageCode });
       const liveByTitle = new Map(live.map((s) => [s.title, s]));
       for (const article of ARTICLES) {
         const seed = liveByTitle.get(article.wikipediaTitle);
@@ -292,7 +307,7 @@ export function createWikipediaGachaCatalog() {
   }, WARM_UP_TIMEOUT_MS).unref();
 
   console.log(
-    `[wikipedia-gacha] pool seeded with ${articleById.size} static articles;` +
+    `[wikipedia-gacha][${languageCode}] pool seeded with ${articleById.size} static articles;` +
     ` Wikipedia background fill starting…`,
   );
 

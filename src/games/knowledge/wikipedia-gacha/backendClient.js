@@ -25,20 +25,42 @@ function authHeaders(browserToken) {
   return browserToken ? { "X-Browser-Token": browserToken } : {};
 }
 
-export function bootstrapWikipediaGachaSession(payload = {}) {
+function normalizePreferredLanguage(preferredLanguage) {
+  if (!preferredLanguage) {
+    return {};
+  }
+  return {
+    "X-Wikipedia-Language": String(preferredLanguage).toLowerCase().startsWith("es")
+      ? "es"
+      : "en",
+  };
+}
+
+function buildHeaders(browserToken, preferredLanguage) {
+  return {
+    ...authHeaders(browserToken),
+    ...normalizePreferredLanguage(preferredLanguage),
+  };
+}
+
+export function bootstrapWikipediaGachaSession(payload = {}, preferredLanguage) {
   return request("/api/wikipedia-gacha/session/bootstrap", {
     method: "POST",
-    body: JSON.stringify(payload),
+    headers: normalizePreferredLanguage(preferredLanguage ?? payload.preferredLanguage),
+    body: JSON.stringify({
+      ...payload,
+      preferredLanguage: preferredLanguage ?? payload.preferredLanguage,
+    }),
   });
 }
 
-export function fetchWikipediaGachaSession(browserToken) {
+export function fetchWikipediaGachaSession(browserToken, preferredLanguage) {
   return request("/api/wikipedia-gacha/session/me", {
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
   });
 }
 
-export function fetchWikipediaGachaCollection(browserToken, params = {}) {
+export function fetchWikipediaGachaCollection(browserToken, params = {}, preferredLanguage) {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value === undefined || value === null || value === "") {
@@ -47,77 +69,77 @@ export function fetchWikipediaGachaCollection(browserToken, params = {}) {
     search.set(key, String(value));
   });
   return request(`/api/wikipedia-gacha/collection?${search.toString()}`, {
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
   });
 }
 
-export function fetchWikipediaGachaMissions(browserToken) {
+export function fetchWikipediaGachaMissions(browserToken, preferredLanguage) {
   return request("/api/wikipedia-gacha/missions", {
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
   });
 }
 
-export function fetchWikipediaGachaTrophies(browserToken, unlockedOnly = false) {
+export function fetchWikipediaGachaTrophies(browserToken, unlockedOnly = false, preferredLanguage) {
   return request(
     unlockedOnly
       ? "/api/wikipedia-gacha/trophies/unlocked"
       : "/api/wikipedia-gacha/trophies",
     {
-      headers: authHeaders(browserToken),
+      headers: buildHeaders(browserToken, preferredLanguage),
     }
   );
 }
 
-export function openWikipediaGachaPack(browserToken) {
+export function openWikipediaGachaPack(browserToken, preferredLanguage) {
   return request("/api/wikipedia-gacha/packs/open", {
     method: "POST",
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
     body: JSON.stringify({ browserToken }),
   });
 }
 
-export function toggleWikipediaGachaFavorite(browserToken, articleId, favorite) {
+export function toggleWikipediaGachaFavorite(browserToken, articleId, favorite, preferredLanguage) {
   return request(`/api/wikipedia-gacha/collection/${articleId}/favorite`, {
     method: "PATCH",
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
     body: JSON.stringify({ browserToken, favorite }),
   });
 }
 
-export function fetchWikipediaGachaArticle(browserToken, articleId) {
+export function fetchWikipediaGachaArticle(browserToken, articleId, preferredLanguage) {
   return request(`/api/wikipedia-gacha/articles/${articleId}`, {
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
   });
 }
 
-export function registerWikipediaGachaArticleClick(browserToken, articleId) {
+export function registerWikipediaGachaArticleClick(browserToken, articleId, preferredLanguage) {
   return request(`/api/wikipedia-gacha/articles/${articleId}/click`, {
     method: "POST",
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
     body: JSON.stringify({ browserToken }),
   });
 }
 
-export function claimWikipediaGachaMission(browserToken, missionId) {
+export function claimWikipediaGachaMission(browserToken, missionId, preferredLanguage) {
   return request(`/api/wikipedia-gacha/missions/${missionId}/claim`, {
     method: "POST",
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
     body: JSON.stringify({ browserToken }),
   });
 }
 
-export function exportWikipediaGachaRecovery(browserToken) {
+export function exportWikipediaGachaRecovery(browserToken, preferredLanguage) {
   return request("/api/wikipedia-gacha/recovery/export", {
     method: "POST",
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
     body: JSON.stringify({ browserToken }),
   });
 }
 
-export function importWikipediaGachaRecovery(browserToken, recoveryCode) {
+export function importWikipediaGachaRecovery(browserToken, recoveryCode, preferredLanguage) {
   return request("/api/wikipedia-gacha/recovery/import", {
     method: "POST",
-    headers: authHeaders(browserToken),
+    headers: buildHeaders(browserToken, preferredLanguage),
     body: JSON.stringify({ browserToken, recoveryCode }),
   });
 }

@@ -30,6 +30,29 @@ function normalizeArticleText(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
+function parsePreferredLanguage(value) {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+  return String(value).toLowerCase().startsWith("es") ? "es" : "en";
+}
+
+function resolvePreferredLanguage(value) {
+  return parsePreferredLanguage(value) ?? "en";
+}
+
+function syncProfilePreferredLanguage(profile, preferredLanguage, now = null) {
+  const normalized = parsePreferredLanguage(preferredLanguage);
+  if (!normalized || profile.preferredLanguage === normalized) {
+    return profile;
+  }
+  profile.preferredLanguage = normalized;
+  if (now) {
+    profile.updatedAt = isoDate(now);
+  }
+  return profile;
+}
+
 function isoDate(now) {
   return now.toISOString();
 }
@@ -178,6 +201,7 @@ function serializeProfile(profile) {
     : 0;
   return {
     displayName: profile.displayName,
+    preferredLanguage: resolvePreferredLanguage(profile.preferredLanguage),
     packsAvailable: profile.packsAvailable,
     maxPacks: profile.maxPacks,
     gems: profile.gems,
@@ -759,14 +783,26 @@ export function createWikipediaGachaService({
   // Live-Wikipedia pool: articles are fetched from the Wikipedia API and held
   // in RAM.  Pack openings are O(1) synchronous lookups — no disk or network
   // I/O in the critical path.
-  const articleCatalog = createWikipediaGachaCatalog();
+  const articleCatalogs = new Map();
 
-  async function ensureCatalogReady() {
-    await db.ready;
-    await articleCatalog.ready();
+  function getArticleCatalog(language = "en") {
+    const normalizedLanguage = resolvePreferredLanguage(language);
+    let catalog = articleCatalogs.get(normalizedLanguage);
+    if (!catalog) {
+      catalog = createWikipediaGachaCatalog({ language: normalizedLanguage });
+      articleCatalogs.set(normalizedLanguage, catalog);
+    }
+    return catalog;
   }
 
-  async function resolveArticleFromCardLike(cardLike) {
+  async function ensureCatalogReady(language = "en") {
+    await db.ready;
+    const articleCatalog = getArticleCatalog(language);
+    await articleCatalog.ready();
+    return articleCatalog;
+  }
+
+  async function resolveArticleFromCardLike(cardLike, articleCatalog) {
     const rawId = cardLike?.articleId ?? cardLike?.id;
     const articleId = Number(rawId);
     if (!Number.isFinite(articleId)) return null;
@@ -778,10 +814,10 @@ export function createWikipediaGachaService({
    * Pool articles are already fully hydrated from the Wikipedia API, so this
    * is an O(1) RAM lookup with no network I/O.
    */
-  async function hydrateCardLike(cardLike) {
+  async function hydrateCardLike(cardLike, articleCatalog) {
     if (!cardLike || typeof cardLike !== "object") return cardLike;
 
-    const article = await resolveArticleFromCardLike(cardLike);
+    const article = await resolveArticleFromCardLike(cardLike, articleCatalog);
     if (!article) return cardLike;
 
     return {
@@ -797,18 +833,18 @@ export function createWikipediaGachaService({
     };
   }
 
-  async function hydrateCards(cards) {
-    return Promise.all((cards ?? []).map((card) => hydrateCardLike(card)));
+  async function hydrateCards(cards, articleCatalog) {
+    return Promise.all((cards ?? []).map((card) => hydrateCardLike(card, articleCatalog)));
   }
 
-  async function hydrateDashboard(dashboard) {
+  async function hydrateDashboard(dashboard, articleCatalog) {
     const recentPackHistory = await Promise.all(
       (dashboard.recentPackHistory ?? []).map(async (entry) => ({
         ...entry,
-        cards: await hydrateCards(entry.cards ?? []),
+        cards: await hydrateCards(entry.cards ?? [], articleCatalog),
       }))
     );
-    const recentCollection = await hydrateCards(dashboard.recentCollection ?? []);
+    const recentCollection = await hydrateCards(dashboard.recentCollection ?? [], articleCatalog);
 
     return {
       ...dashboard,
@@ -818,7 +854,10 @@ export function createWikipediaGachaService({
   }
 
   async function bootstrapSession(payload = {}) {
-    await ensureCatalogReady();
+    const preferredLanguage = resolvePreferredLanguage(
+      payload.preferredLanguage ?? payload.language ?? payload.locale
+    );
+    const articleCatalog = await ensureCatalogReady(preferredLanguage);
     const now = nowFn();
     const browserToken = createToken(randomBytesFn);
     const profile = {
@@ -827,6 +866,7 @@ export function createWikipediaGachaService({
       displayName: payload.displayName
         ? String(payload.displayName).slice(0, 80)
         : "Anonymous Archivist",
+      preferredLanguage,
       packsAvailable: DEFAULT_STARTING_PACKS,
       maxPacks: DEFAULT_MAX_PACKS,
       lastPackRegenAt: isoDate(now),
@@ -865,15 +905,17 @@ export function createWikipediaGachaService({
     };
   }
 
-  async function getSessionMe(browserToken) {
-    await ensureCatalogReady();
+  async function getSessionMe(browserToken, preferredLanguage = null) {
     const now = nowFn();
-    const state = await store.forToken(browserToken).update((draft) => {
+    const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       applyPackRegeneration(profile, now);
       profile.lastSeenAt = isoDate(now);
       profile.updatedAt = isoDate(now);
       recomputeMissionProgress(draft, profile, now);
+      const articleCatalog = getArticleCatalog(profile.preferredLanguage);
+      await articleCatalog.ready();
       ensureTrophiesUnlocked(
         draft,
         profile,
@@ -886,16 +928,18 @@ export function createWikipediaGachaService({
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
+    const preferredCatalog = await ensureCatalogReady(profile?.preferredLanguage);
     return hydrateDashboard(
-      await buildDashboard(state, profile, now, articleCatalog)
+      await buildDashboard(state, profile, now, preferredCatalog),
+      preferredCatalog
     );
   }
 
-  async function getPackStatus(browserToken) {
-    await ensureCatalogReady();
+  async function getPackStatus(browserToken, preferredLanguage = null) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       applyPackRegeneration(profile, now);
       profile.lastSeenAt = isoDate(now);
       profile.updatedAt = isoDate(now);
@@ -907,12 +951,13 @@ export function createWikipediaGachaService({
     return serializePackStatus(profile, now);
   }
 
-  async function openPack(browserToken) {
-    await ensureCatalogReady();
+  async function openPack(browserToken, preferredLanguage = null) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       applyPackRegeneration(profile, now);
+      const articleCatalog = await ensureCatalogReady(profile.preferredLanguage);
 
       if (profile.packsAvailable <= 0) {
         const error = new Error("No packs available.");
@@ -1034,29 +1079,34 @@ export function createWikipediaGachaService({
     });
 
     const response = state.__lastOpenPackResponse;
+    const profile = state.browserProfiles.find(
+      (entry) => entry.browserToken === browserToken
+    );
+    const articleCatalog = await ensureCatalogReady(profile?.preferredLanguage);
     return {
       ...response,
-      cards: await hydrateCards(response.cards ?? []),
+      cards: await hydrateCards(response.cards ?? [], articleCatalog),
     };
   }
 
-  async function getPackHistory(browserToken) {
-    await ensureCatalogReady();
+  async function getPackHistory(browserToken, preferredLanguage = null) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       applyPackRegeneration(profile, now);
       return draft;
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
+    const articleCatalog = await ensureCatalogReady(profile?.preferredLanguage);
     const packHistory = await Promise.all(
       getProfilePackHistory(state, profile.id).map(async (entry) => {
         const serialized = serializePackHistoryEntry(entry);
         return {
           ...serialized,
-          cards: await hydrateCards(serialized.cards ?? []),
+          cards: await hydrateCards(serialized.cards ?? [], articleCatalog),
         };
       })
     );
@@ -1064,17 +1114,18 @@ export function createWikipediaGachaService({
     return { packHistory };
   }
 
-  async function getCollection(browserToken, filters = {}) {
-    await ensureCatalogReady();
+  async function getCollection(browserToken, filters = {}, preferredLanguage = null) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       applyPackRegeneration(profile, now);
       return draft;
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
+    const articleCatalog = await ensureCatalogReady(profile?.preferredLanguage);
     const page = Math.max(1, Number(filters.page) || 1);
     const pageSize = Math.min(60, Math.max(1, Number(filters.pageSize) || 24));
 
@@ -1094,7 +1145,7 @@ export function createWikipediaGachaService({
     const sorted = sortCollectionItems(filtered, filters.sortBy);
     const startIndex = (page - 1) * pageSize;
     const items = sorted.slice(startIndex, startIndex + pageSize);
-    const hydratedItems = await hydrateCards(items);
+    const hydratedItems = await hydrateCards(items, articleCatalog);
 
     return {
       page,
@@ -1112,17 +1163,18 @@ export function createWikipediaGachaService({
     };
   }
 
-  async function getCollectionItem(browserToken, articleId) {
-    await ensureCatalogReady();
+  async function getCollectionItem(browserToken, articleId, preferredLanguage = null) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       applyPackRegeneration(profile, now);
       return draft;
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
+    const articleCatalog = await ensureCatalogReady(profile?.preferredLanguage);
     const collectionEntry = state.browserCollection.find(
       (entry) =>
         entry.browserProfileId === profile.id && entry.articleId === articleId
@@ -1134,15 +1186,16 @@ export function createWikipediaGachaService({
       throw error;
     }
     return hydrateCardLike(
-      await serializeCollectionEntry(collectionEntry, articleCatalog.getArticleById)
+      await serializeCollectionEntry(collectionEntry, articleCatalog.getArticleById),
+      articleCatalog
     );
   }
 
-  async function toggleFavorite(browserToken, articleId, favorite) {
-    await ensureCatalogReady();
+  async function toggleFavorite(browserToken, articleId, favorite, preferredLanguage = null) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       const collectionEntry = draft.browserCollection.find(
         (entry) =>
           entry.browserProfileId === profile.id && entry.articleId === articleId
@@ -1163,17 +1216,34 @@ export function createWikipediaGachaService({
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
+    const articleCatalog = await ensureCatalogReady(profile?.preferredLanguage);
     const collectionEntry = state.browserCollection.find(
       (entry) =>
         entry.browserProfileId === profile.id && entry.articleId === articleId
     );
     return hydrateCardLike(
-      await serializeCollectionEntry(collectionEntry, articleCatalog.getArticleById)
+      await serializeCollectionEntry(collectionEntry, articleCatalog.getArticleById),
+      articleCatalog
     );
   }
 
-  async function getArticle(articleId, browserToken = null) {
-    await ensureCatalogReady();
+  async function getArticle(articleId, browserToken = null, preferredLanguage = null) {
+    let articleCatalog = await ensureCatalogReady(preferredLanguage);
+    let profile = null;
+
+    if (browserToken) {
+      const now = nowFn();
+      const state = await store.forToken(browserToken).update((draft) => {
+        const currentProfile = ensureProfile(draft, browserToken);
+        syncProfilePreferredLanguage(currentProfile, preferredLanguage, now);
+        return draft;
+      });
+      profile = state.browserProfiles.find(
+        (entry) => entry.browserToken === browserToken
+      ) ?? null;
+      articleCatalog = await ensureCatalogReady(profile?.preferredLanguage);
+    }
+
     const article = await articleCatalog.getArticleById(articleId);
     if (!article) {
       const error = new Error("Article not found.");
@@ -1183,13 +1253,10 @@ export function createWikipediaGachaService({
     }
 
     if (!browserToken) {
-      return hydrateCardLike(clone(article));
+      return hydrateCardLike(clone(article), articleCatalog);
     }
 
     const state = await store.forToken(browserToken).read();
-    const profile = state.browserProfiles.find(
-      (entry) => entry.browserToken === browserToken
-    );
     const collectionEntry = profile
       ? state.browserCollection.find(
           (entry) =>
@@ -1202,18 +1269,18 @@ export function createWikipediaGachaService({
       inCollection: Boolean(collectionEntry),
       copies: collectionEntry?.copies ?? 0,
       favorite: collectionEntry?.favorite ?? false,
-    });
+    }, articleCatalog);
   }
 
-  async function searchArticles(query) {
-    await ensureCatalogReady();
+  async function searchArticles(query, preferredLanguage = null) {
+    const articleCatalog = await ensureCatalogReady(preferredLanguage);
     const items = await articleCatalog.searchArticles(query, 20);
     return { items };
   }
 
-  async function registerArticleClick(browserToken, articleId) {
-    await ensureCatalogReady();
+  async function registerArticleClick(browserToken, articleId, preferredLanguage = null) {
     const now = nowFn();
+    const articleCatalog = await ensureCatalogReady(preferredLanguage);
     const article = await articleCatalog.getArticleById(articleId);
     if (!article) {
       const error = new Error("Article not found.");
@@ -1223,6 +1290,7 @@ export function createWikipediaGachaService({
     }
     await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       const stats = getTodaysStats(draft, profile.id, now);
       stats.wikipediaClicks += 1;
       profile.updatedAt = isoDate(now);
@@ -1236,11 +1304,11 @@ export function createWikipediaGachaService({
     };
   }
 
-  async function getMissions(browserToken) {
-    await ensureCatalogReady();
+  async function getMissions(browserToken, preferredLanguage = null) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       recomputeMissionProgress(draft, profile, now);
       return draft;
     });
@@ -1253,11 +1321,11 @@ export function createWikipediaGachaService({
     };
   }
 
-  async function claimMission(browserToken, missionId) {
-    await ensureCatalogReady();
+  async function claimMission(browserToken, missionId, preferredLanguage = null) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       const entries = recomputeMissionProgress(draft, profile, now);
       const entry = entries.find((candidate) => candidate.missionId === missionId);
       if (!entry) {
@@ -1318,11 +1386,13 @@ export function createWikipediaGachaService({
     return state.__claimMissionResponse;
   }
 
-  async function getTrophies(browserToken, { unlockedOnly = false } = {}) {
-    await ensureCatalogReady();
+  async function getTrophies(browserToken, { unlockedOnly = false, preferredLanguage = null } = {}) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      const profileLanguage = profile.preferredLanguage;
+      const articleCatalog = getArticleCatalog(profileLanguage);
       ensureTrophiesUnlocked(
         draft,
         profile,
@@ -1335,6 +1405,7 @@ export function createWikipediaGachaService({
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
+    const articleCatalog = await ensureCatalogReady(profile?.preferredLanguage);
     const unlockedEntries = state.browserTrophies.filter(
       (entry) => entry.browserProfileId === profile.id
     );
@@ -1372,11 +1443,11 @@ export function createWikipediaGachaService({
     };
   }
 
-  async function exportRecoveryCode(browserToken) {
-    await ensureCatalogReady();
+  async function exportRecoveryCode(browserToken, preferredLanguage = null) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
       const code = createRecoveryCode(randomBytesFn);
       const collection = getProfileCollections(draft, profile.id);
       const packHistory = getProfilePackHistory(draft, profile.id);
@@ -1391,6 +1462,7 @@ export function createWikipediaGachaService({
         snapshot: {
           profile: {
             displayName: profile.displayName,
+            preferredLanguage: resolvePreferredLanguage(profile.preferredLanguage),
             packsAvailable: profile.packsAvailable,
             maxPacks: profile.maxPacks,
             lastPackRegenAt: profile.lastPackRegenAt,
@@ -1442,8 +1514,7 @@ export function createWikipediaGachaService({
     return state.__recoveryResponse;
   }
 
-  async function importRecoveryCode(browserToken, recoveryCode) {
-    await ensureCatalogReady();
+  async function importRecoveryCode(browserToken, recoveryCode, preferredLanguage = null) {
     const now = nowFn();
 
     // Recovery codes are stored in a separate indexed table, not inside the
@@ -1462,6 +1533,9 @@ export function createWikipediaGachaService({
       const snapshot = recoverySnapshot;
       Object.assign(profile, {
         displayName: snapshot.profile.displayName,
+        preferredLanguage: resolvePreferredLanguage(
+          preferredLanguage ?? snapshot.profile.preferredLanguage
+        ),
         packsAvailable: snapshot.profile.packsAvailable,
         maxPacks: snapshot.profile.maxPacks,
         lastPackRegenAt: snapshot.profile.lastPackRegenAt,
@@ -1532,6 +1606,7 @@ export function createWikipediaGachaService({
         articleCatalog.getTopicGroupForArticleId,
         articleCatalog.getRarityForArticleId
       );
+      const articleCatalog = await ensureCatalogReady(profile.preferredLanguage);
       draft.__importResponse = await buildDashboard(
         draft,
         profile,
@@ -1541,7 +1616,11 @@ export function createWikipediaGachaService({
       return draft;
     });
 
-    return hydrateDashboard(state.__importResponse);
+    const profile = state.browserProfiles.find(
+      (entry) => entry.browserToken === browserToken
+    );
+    const articleCatalog = await ensureCatalogReady(profile?.preferredLanguage);
+    return hydrateDashboard(state.__importResponse, articleCatalog);
   }
 
   return {
@@ -1562,11 +1641,13 @@ export function createWikipediaGachaService({
     exportRecoveryCode,
     importRecoveryCode,
     async getCatalog(limit = 500) {
-      await ensureCatalogReady();
+      const articleCatalog = await ensureCatalogReady();
       return articleCatalog.listCatalog(limit);
     },
     async close() {
-      await articleCatalog.close();
+      await Promise.all(
+        Array.from(articleCatalogs.values()).map((catalog) => catalog.close())
+      );
       await db.close();
     },
   };

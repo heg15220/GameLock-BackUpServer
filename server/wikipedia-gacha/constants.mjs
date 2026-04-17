@@ -78,8 +78,8 @@ function computeDef(contentLength, sectionCount, referenceCount, rarityCode) {
   return capStat(base * multiplier);
 }
 
-function articleUrl(slug) {
-  return `https://en.wikipedia.org/wiki/${slug}`;
+function articleUrl(slug, languageCode = "en") {
+  return `https://${languageCode}.wikipedia.org/wiki/${slug}`;
 }
 
 function normalizeText(value) {
@@ -102,13 +102,16 @@ function buildExtractDetails(seed) {
 
 export function buildArticleFromSeed(seed, id) {
   const rarityCode = seed.rarityCode ?? getRarityFromQScore(seed.qualityScore);
+  const languageCode = String(seed.languageCode ?? "en").toLowerCase().startsWith("es")
+    ? "es"
+    : "en";
   return {
     id,
     wikipediaPageId: seed.wikipediaPageId,
     wikipediaTitle: seed.title,
     wikipediaSlug: seed.slug,
-    languageCode: "en",
-    sourceUrl: articleUrl(seed.slug),
+    languageCode,
+    sourceUrl: articleUrl(seed.slug, languageCode),
     imageUrl: seed.imageUrl ?? null,
     extractText: buildExtractPreview(seed),
     longExtractText: buildExtractDetails(seed),

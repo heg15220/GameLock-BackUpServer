@@ -4229,3 +4229,17 @@ acing-race2dpro pasa a mobile-first en el shell responsive para que sus controle
 - arcade-neon-rush ya no prioriza solo iframe:#gc; ahora mide primero iframe:#levelSelect o iframe:#gw segun el estado visible del juego.
 - Ajustada la especificidad CSS de .mobile-stage-ad-overlay .mobile-stage-ad-overlay__card para que las tarjetas conserven position: absolute y no caigan en flujo normal.
 - Verificado con Playwright en movil horizontal (844x390) entrando a un nivel: ambas vinetas laterales quedan visibles y alineadas. Captura: output/neon-rush-layout-debug/neon-rush-phone-landscape-final.png.
+
+## 2026-04-17 - Wikipedia Gacha idioma Wikipedia API
+- Integrada propagacion de idioma preferido basada en navegador para wikipedia-gacha: es si 
+avigator.language empieza por es, en en cualquier otro caso.
+- Backend preserva su estructura actual y ahora resuelve catalogos/llamadas de Wikipedia por idioma sin romper el contrato existente.
+- service.mjs ya sincroniza preferredLanguage tambien en getSessionMe, evitando que el dashboard inicial se hidrate con el catalogo ingles por defecto tras bootstrap/rutas ya adaptadas.
+- Pendiente inmediato: validacion tecnica (
+pm run build) y corregir cualquier error residual de compilacion si aparece.
+
+- Validacion 2026-04-17: 
+pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
+- Verificacion backend real: sesiones con X-Wikipedia-Language: es devuelven sobres con sourceUrl en es.wikipedia.org; sesiones con en devuelven sourceUrl en en.wikipedia.org.
+- Verificacion UI: carga del juego en http://127.0.0.1:4173/#game=knowledge-wikipedia-gacha con Playwright sin errores nuevos; artefactos en output/wiki-gacha-lang-check/.
+

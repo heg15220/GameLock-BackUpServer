@@ -15,7 +15,6 @@
 
 import https from "node:https";
 
-const WIKIPEDIA_API_HOST = "en.wikipedia.org";
 const WIKIPEDIA_API_PATH = "/w/api.php";
 const USER_AGENT =
   "WikipediaGachaGame/1.0 (educational non-commercial project)";
@@ -31,16 +30,24 @@ async function _throttle() {
   _lastRequestAt = Date.now();
 }
 
+function normalizeLanguage(value) {
+  return String(value ?? "").toLowerCase().startsWith("es") ? "es" : "en";
+}
+
+function resolveApiHost(languageCode) {
+  return `${normalizeLanguage(languageCode)}.wikipedia.org`;
+}
+
 /**
  * Perform an HTTPS GET request and return the parsed JSON body.
  * @param {string} path  Full path + query string
  * @param {number} timeoutMs
  */
-function httpsGetJson(path, timeoutMs = 20_000) {
+function httpsGetJson(path, languageCode = "en", timeoutMs = 20_000) {
   return new Promise((resolve, reject) => {
     const req = https.get(
       {
-        hostname: WIKIPEDIA_API_HOST,
+        hostname: resolveApiHost(languageCode),
         path,
         headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
       },
@@ -84,8 +91,10 @@ const DETAIL_EXTRACT_LENGTH = 2400;
  * Returns null for redirects, disambiguation pages, stubs with no
  * extractable prose, or missing pages.
  */
-export function pageToArticleSeed(page) {
+export function pageToArticleSeed(page, languageCode = "en") {
   if (!page || !page.pageid || page.missing || page.redirect) return null;
+
+  const locale = normalizeLanguage(languageCode);
 
   // Disambiguation pages (detected via pageprops set by the API)
   if (page.pageprops?.disambiguation !== undefined) return null;
@@ -97,9 +106,13 @@ export function pageToArticleSeed(page) {
   if (
     title.startsWith("Wikipedia:") ||
     title.startsWith("Template:") ||
+    title.startsWith("Plantilla:") ||
     title.startsWith("Category:") ||
+    title.startsWith("Categoría:") ||
     title.startsWith("File:") ||
+    title.startsWith("Archivo:") ||
     title.startsWith("Help:") ||
+    title.startsWith("Ayuda:") ||
     title.startsWith("Portal:")
   ) {
     return null;
@@ -112,7 +125,11 @@ export function pageToArticleSeed(page) {
   if (
     normalizedExtract.length < MIN_EXTRACT_LENGTH ||
     normalizedExtract.includes(" may refer to:") ||
-    normalizedExtract.includes(" can refer to:")
+    normalizedExtract.includes(" can refer to:") ||
+    (locale === "es" && (
+      normalizedExtract.includes(" puede referirse a:") ||
+      normalizedExtract.includes(" hace referencia a:")
+    ))
   ) {
     return null;
   }
@@ -140,6 +157,7 @@ export function pageToArticleSeed(page) {
     pageviews30d,
     imageUrl,
     categories,
+    languageCode: locale,
   };
 }
 
@@ -151,9 +169,10 @@ export function pageToArticleSeed(page) {
  * @param {string[]} titles  Wikipedia article titles (spaces, not underscores)
  * @returns {Promise<Array>}
  */
-export async function fetchArticlesByTitles(titles) {
+export async function fetchArticlesByTitles(titles, options = {}) {
   if (!titles.length) return [];
   const batch = titles.slice(0, 50);
+  const languageCode = normalizeLanguage(options.language);
   await _throttle();
 
   const params = new URLSearchParams({
@@ -173,9 +192,9 @@ export async function fetchArticlesByTitles(titles) {
     ppprop:        "disambiguation",
   });
 
-  const json = await httpsGetJson(`${WIKIPEDIA_API_PATH}?${params}`);
+  const json = await httpsGetJson(`${WIKIPEDIA_API_PATH}?${params}`, languageCode);
   return Object.values(json?.query?.pages ?? {})
-    .map(pageToArticleSeed)
+    .map((page) => pageToArticleSeed(page, languageCode))
     .filter(Boolean);
 }
 
@@ -189,8 +208,9 @@ export async function fetchArticlesByTitles(titles) {
  * @param {number} count  1–50
  * @returns {Promise<Array>}  Array of article-seed objects.
  */
-export async function fetchRandomArticles(count = 50) {
+export async function fetchRandomArticles(count = 50, options = {}) {
   const n = Math.min(50, Math.max(1, count));
+  const languageCode = normalizeLanguage(options.language);
   await _throttle();
 
   const params = new URLSearchParams({
@@ -212,8 +232,8 @@ export async function fetchRandomArticles(count = 50) {
     clshow:        "!hidden", // skip hidden maintenance categories
   });
 
-  const json = await httpsGetJson(`${WIKIPEDIA_API_PATH}?${params}`);
+  const json = await httpsGetJson(`${WIKIPEDIA_API_PATH}?${params}`, languageCode);
   return Object.values(json?.query?.pages ?? {})
-    .map(pageToArticleSeed)
+    .map((page) => pageToArticleSeed(page, languageCode))
     .filter(Boolean);
 }
