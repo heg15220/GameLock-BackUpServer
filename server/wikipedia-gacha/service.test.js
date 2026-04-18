@@ -179,4 +179,100 @@ describe("wikipedia gacha service", () => {
     const dashboard = await service.getSessionMe(session.browserToken);
     expect(dashboard.packStatus.pityCounter).toBe(0);
   });
+
+  it("grants three packs after a rewarded ad when the user is empty", async () => {
+    let now = new Date("2026-03-18T13:00:00.000Z");
+    const storeFile = path.join(
+      os.tmpdir(),
+      `wiki-gacha-test-${Date.now()}-${Math.round(Math.random() * 9999)}.json`
+    );
+    const service = createWikipediaGachaService({
+      storeFile,
+      nowFn: () => now,
+      randomFn: () => 0.01,
+    });
+
+    const session = await service.bootstrapSession();
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      now = new Date(now.getTime() + 901);
+      await service.openPack(session.browserToken);
+    }
+
+    now = new Date(now.getTime() + 901);
+    const specialPack = await service.openPack(session.browserToken);
+    expect(specialPack.guaranteedSrPlus).toBe(true);
+
+    const beforeReward = await service.getSessionMe(session.browserToken);
+    expect(beforeReward.packStatus.packsAvailable).toBe(0);
+    expect(beforeReward.packStatus.nextPackGuaranteedSrPlus).toBe(false);
+
+    const reward = await service.claimRewardedAdPacks(session.browserToken);
+    expect(reward.rewardedPacks).toBe(3);
+    expect(reward.packStatus.packsAvailable).toBe(3);
+
+    const afterReward = await service.getSessionMe(session.browserToken);
+    expect(afterReward.packStatus.packsAvailable).toBe(3);
+    expect(
+      afterReward.recentRewardEvents.some(
+        (entry) => entry.rewardSource === "rewarded_ad" && entry.rewardAmount === 3
+      )
+    ).toBe(true);
+  });
+
+  it("does not allow a rewarded ad while the special guaranteed pack is waiting", async () => {
+    let now = new Date("2026-03-18T14:00:00.000Z");
+    const storeFile = path.join(
+      os.tmpdir(),
+      `wiki-gacha-test-${Date.now()}-${Math.round(Math.random() * 9999)}.json`
+    );
+    const service = createWikipediaGachaService({
+      storeFile,
+      nowFn: () => now,
+      randomFn: () => 0.01,
+    });
+
+    const session = await service.bootstrapSession();
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      now = new Date(now.getTime() + 901);
+      await service.openPack(session.browserToken);
+    }
+
+    await expect(
+      service.claimRewardedAdPacks(session.browserToken)
+    ).rejects.toMatchObject({
+      code: "rewarded_ad_not_available",
+    });
+  });
+
+  it("opens the special guaranteed pack even when normal packs are empty", async () => {
+    let now = new Date("2026-03-18T15:00:00.000Z");
+    const storeFile = path.join(
+      os.tmpdir(),
+      `wiki-gacha-test-${Date.now()}-${Math.round(Math.random() * 9999)}.json`
+    );
+    const service = createWikipediaGachaService({
+      storeFile,
+      nowFn: () => now,
+      randomFn: () => 0.01,
+    });
+
+    const session = await service.bootstrapSession();
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      now = new Date(now.getTime() + 901);
+      await service.openPack(session.browserToken);
+    }
+
+    const beforeSpecial = await service.getSessionMe(session.browserToken);
+    expect(beforeSpecial.packStatus.packsAvailable).toBe(0);
+    expect(beforeSpecial.packStatus.nextPackGuaranteedSrPlus).toBe(true);
+
+    now = new Date(now.getTime() + 901);
+    const specialPack = await service.openPack(session.browserToken);
+    expect(specialPack.guaranteedSrPlus).toBe(true);
+    expect(specialPack.packsRemaining).toBe(0);
+
+    const afterSpecial = await service.getSessionMe(session.browserToken);
+    expect(afterSpecial.packStatus.packsAvailable).toBe(0);
+    expect(afterSpecial.packStatus.nextPackGuaranteedSrPlus).toBe(false);
+  });
 });

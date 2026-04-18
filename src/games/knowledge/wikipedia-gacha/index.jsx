@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import AdPreviewCard from "../../../components/AdPreviewCard";
 import useMobileGameViewport from "../../../mobile/useMobileGameViewport";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
 import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
 import {
   bootstrapWikipediaGachaSession,
+  claimWikipediaGachaRewardedAdPacks,
   claimWikipediaGachaMission,
   exportWikipediaGachaRecovery,
   fetchWikipediaGachaArticle,
@@ -24,6 +26,13 @@ const RARITY_ORDER = ["LR", "UR", "SSR", "SR", "R", "UC", "C"];
 const TOP_TIER_RARITIES = new Set(RARITY_ORDER.slice(0, 2));
 const PACK_PITY_TARGET = 10;
 const PACK_REGEN_SECONDS = 60;
+const REWARDED_AD_DURATION_SECONDS = 5;
+const REWARDED_AD_PREVIEW_SLOT = {
+  id: "wikipedia-gacha-rewarded-ad",
+  provider: "google-ads-rewarded-preview",
+  sizeLabel: "Rewarded vignette",
+  fallbackSize: "Fullscreen +3 packs",
+};
 
 const RARITY_ACCENTS = {
   C: "#8e8a82",
@@ -577,6 +586,11 @@ function getErrorMessage(error, es) {
       ? "No quedan sobres disponibles. Espera la recarga o reclama misiones."
       : "No packs are available. Wait for regeneration or claim missions.";
   }
+  if (error?.code === "rewarded_ad_not_available") {
+    return es
+      ? "El anuncio con recompensa solo aparece cuando no quedan sobres."
+      : "The rewarded ad is only available when no packs remain.";
+  }
   if (error?.message) return error.message;
   return es
     ? "No se puede contactar con el backend local de Wikipedia Gacha."
@@ -699,6 +713,9 @@ function getRewardSourceLabel(rewardSource, es) {
   }
   if (rewardSource === "duplicate_cards") {
     return es ? "Duplicados" : "Duplicates";
+  }
+  if (rewardSource === "rewarded_ad") {
+    return es ? "Anuncio" : "Ad";
   }
   return es ? "Sistema" : "System";
 }
@@ -1593,6 +1610,16 @@ export default function WikipediaGachaGame() {
     specialPackReady: es ? "Sobre especial listo" : "Special pack ready",
     specialPackHint: es ? "Se activa cada 10 sobres y garantiza al menos 1 carta SR+." : "It unlocks every 10 packs and guarantees at least 1 SR+ card.",
     tapToOpen: es ? "▲ TOCA PARA ABRIR ▲" : "▲ TAP TO OPEN ▲",
+    watchAd: es ? "Ver anuncio (+3 sobres)" : "Watch ad (+3 packs)",
+    adRewardReady: es ? "Recompensa lista: +3 sobres" : "Reward ready: +3 packs",
+    adModalTitle: es ? "Anuncio con recompensa" : "Rewarded ad",
+    adModalSubtitle: es ? "Cierra el anuncio al terminar para recuperar 3 sobres al instante." : "Close the ad after viewing to recover 3 packs instantly.",
+    adSponsored: es ? "Patrocinado" : "Sponsored",
+    adClose: es ? "Cerrar anuncio" : "Close ad",
+    adCloseIn: es ? "Cerrar en" : "Close in",
+    adRewardOk: es ? "Ya tienes hasta 3 sobres listos tras ver el anuncio." : "You now have up to 3 packs ready after viewing the ad.",
+    adVignetteTitle: es ? "Recupera sobres sin esperar" : "Recover packs without waiting",
+    adVignetteCopy: es ? "Mira un anuncio a pantalla completa y desbloquea 3 sobres extra para seguir abriendo ahora." : "Watch a full-screen ad and unlock 3 extra packs to keep opening right now.",
     quickRules: es ? "Reglas rapidas" : "Quick rules",
     support: es ? "Soporte" : "Support",
     missionRewardNote: es ? "Las misiones mezclan sobres, gemas y shards segun la dificultad." : "Missions rotate between packs, gems, and shards depending on difficulty.",
@@ -1651,6 +1678,9 @@ export default function WikipediaGachaGame() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [shareBusy, setShareBusy] = useState(false);
+  const [rewardedAdOpen, setRewardedAdOpen] = useState(false);
+  const [rewardedAdSecondsLeft, setRewardedAdSecondsLeft] = useState(0);
+  const [rewardedAdClaimBusy, setRewardedAdClaimBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [missionUnlockFeed, setMissionUnlockFeed] = useState([]);
@@ -1738,6 +1768,14 @@ export default function WikipediaGachaGame() {
     if (!isMobileViewport) return;
     shellScrollRef.current?.scrollTo?.({ top: 0, behavior: "auto" });
   }, [activeTab, isMobileViewport]);
+
+  useEffect(() => {
+    if (!rewardedAdOpen || rewardedAdSecondsLeft <= 0) return undefined;
+    const timeoutId = window.setTimeout(() => {
+      setRewardedAdSecondsLeft((current) => Math.max(0, current - 1));
+    }, 1000);
+    return () => window.clearTimeout(timeoutId);
+  }, [rewardedAdOpen, rewardedAdSecondsLeft]);
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -2001,7 +2039,14 @@ export default function WikipediaGachaGame() {
 
   const handleOpenPackFromHero = () => {
     if (!tokenRef.current || busy || loading || packHeroAnimState !== "idle") return;
-    if ((packStatus?.packsAvailable ?? 0) <= 0) return;
+
+    if (canWatchRewardedAd) {
+      setRewardedAdSecondsLeft(REWARDED_AD_DURATION_SECONDS);
+      setRewardedAdOpen(true);
+      setStatusMessage("");
+      setErrorMessage("");
+      return;
+    }
 
     clearPackHeroTimeouts();
     setPackHeroAnimState("priming");
@@ -2018,6 +2063,24 @@ export default function WikipediaGachaGame() {
     }, 1800);
 
     packHeroTimeoutsRef.current.push(burstTimeoutId, openTimeoutId, resetTimeoutId);
+  };
+
+  const handleCloseRewardedAdAndClaim = async () => {
+    if (!tokenRef.current || rewardedAdSecondsLeft > 0 || rewardedAdClaimBusy) return;
+    setRewardedAdClaimBusy(true);
+    setErrorMessage("");
+    setStatusMessage("");
+
+    try {
+      await claimWikipediaGachaRewardedAdPacks(tokenRef.current, browserLocale);
+      setRewardedAdOpen(false);
+      setRewardedAdSecondsLeft(0);
+      await refreshAll(text.adRewardOk);
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error, es));
+    } finally {
+      setRewardedAdClaimBusy(false);
+    }
   };
 
   const handleRevealCurrentCard = () => {
@@ -2235,6 +2298,11 @@ export default function WikipediaGachaGame() {
   const specialPackReady = Boolean(packStatus?.nextPackGuaranteedSrPlus);
   const packFillPercent = getPackFillPercent(packStatus);
   const packRegenPercent = getPackRegenPercent(packStatus);
+  const canWatchRewardedAd = !loading
+    && !busy
+    && packHeroAnimState === "idle"
+    && !specialPackReady
+    && (packStatus?.packsAvailable ?? 0) <= 0;
   const collectionSummary = collection.summary ?? dashboard?.collectionSummary ?? { uniqueCards: 0, totalCopies: 0, favorites: 0, rarityBreakdown: {} };
   const missionSummary = missions.summary ?? dashboard?.missionSummary ?? { total: 0, completed: 0, claimable: 0 };
   const trophySummary = trophies.summary ?? dashboard?.trophySummary ?? { total: 0, unlocked: 0, points: 0 };
@@ -2312,6 +2380,12 @@ export default function WikipediaGachaGame() {
         secondsUntilNextPack: packStatus?.secondsUntilNextPack ?? 0,
         nextPackGuaranteedSrPlus: Boolean(packStatus?.nextPackGuaranteedSrPlus),
       },
+      rewardedAd: {
+        available: canWatchRewardedAd,
+        open: rewardedAdOpen,
+        secondsLeft: rewardedAdSecondsLeft,
+        claiming: rewardedAdClaimBusy,
+      },
       collection: {
         total: collection.total,
         page: collection.page,
@@ -2388,6 +2462,40 @@ export default function WikipediaGachaGame() {
     missions: { badge: missionSummary.claimable ? `${missionSummary.claimable}` : null },
     trophies: { badge: trophySummary.unlocked ? `${trophySummary.unlocked}` : null },
   };
+
+  const rewardedAdModal = rewardedAdOpen ? (
+    <div className="wg-rewarded-ad-backdrop" role="presentation">
+      <article className="wg-rewarded-ad-modal" onClick={(event) => event.stopPropagation()}>
+        <button
+          type="button"
+          className="wg-rewarded-ad-close"
+          onClick={() => void handleCloseRewardedAdAndClaim()}
+          disabled={rewardedAdSecondsLeft > 0 || rewardedAdClaimBusy}
+        >
+          {rewardedAdSecondsLeft > 0
+            ? `${text.adCloseIn} ${rewardedAdSecondsLeft}s`
+            : rewardedAdClaimBusy
+              ? text.opening
+              : text.adClose}
+        </button>
+
+        <div className="wg-rewarded-ad-shell">
+          <span className="wg-rewarded-ad-sponsored">{text.adSponsored}</span>
+          <div className="wg-rewarded-ad-copy">
+            <h3>{text.adModalTitle}</h3>
+            <p>{text.adModalSubtitle}</p>
+          </div>
+          <div className="wg-rewarded-ad-card">
+            <AdPreviewCard slot={REWARDED_AD_PREVIEW_SLOT} locale={locale} className="wg-rewarded-ad-preview-card" />
+          </div>
+          <div className="wg-rewarded-ad-reward">
+            <span>{text.watchAd}</span>
+            <strong>{rewardedAdSecondsLeft > 0 ? `${rewardedAdSecondsLeft}s` : text.adRewardReady}</strong>
+          </div>
+        </div>
+      </article>
+    </div>
+  ) : null;
 
   const articleModal = selectedArticle ? (
     <div className={`wg-modal-backdrop${isMobileViewport ? " is-mobile" : ""}`} role="presentation" onClick={() => setSelectedArticle(null)}>
@@ -2560,9 +2668,9 @@ export default function WikipediaGachaGame() {
               <button
                 type="button"
                 id="gacha-pack-container"
-                className={`wg-pack-hero${packHeroAnimState !== "idle" ? " is-opening" : ""}${packHeroAnimState === "burst" ? " is-burst" : ""}${specialPackReady ? " is-special" : ""}`}
+                className={`wg-pack-hero${packHeroAnimState !== "idle" ? " is-opening" : ""}${packHeroAnimState === "burst" ? " is-burst" : ""}${specialPackReady ? " is-special" : ""}${canWatchRewardedAd ? " is-rewarded" : ""}`}
                 onClick={handleOpenPackFromHero}
-                disabled={busy || packHeroAnimState !== "idle" || (packStatus?.packsAvailable ?? 0) <= 0}
+                disabled={busy || rewardedAdClaimBusy || loading || packHeroAnimState !== "idle"}
               >
                 <span className="wg-pack-hero-aura" aria-hidden="true" />
                 <span className="wg-pack-hero-rim" aria-hidden="true" />
@@ -2579,12 +2687,24 @@ export default function WikipediaGachaGame() {
                 </div>
                 <span className="wg-pack-call-action">
                   {packHeroAnimState === "idle"
-                    ? specialPackReady
+                    ? canWatchRewardedAd
+                      ? text.watchAd
+                      : specialPackReady
                       ? text.specialPackReady
                       : text.tapToOpen
                     : text.opening}
                 </span>
               </button>
+
+              {canWatchRewardedAd ? (
+                <div className="wg-home-rewarded-ad-panel">
+                  <div className="wg-home-rewarded-ad-copy">
+                    <strong>{text.adVignetteTitle}</strong>
+                    <p>{text.adVignetteCopy}</p>
+                  </div>
+                  <AdPreviewCard slot={REWARDED_AD_PREVIEW_SLOT} locale={locale} className="wg-home-rewarded-ad-card" />
+                </div>
+              ) : null}
             </div>
 
             <div className="wg-home-intel-grid">
@@ -3171,6 +3291,7 @@ export default function WikipediaGachaGame() {
         </div>
       </footer>
 
+      {rewardedAdModal}
       {articleModal}
     </section>
   );

@@ -1189,6 +1189,115 @@
   border-radius: 24px;
 }
 
+.wg-rewarded-ad-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background:
+    radial-gradient(circle at top, rgba(72, 162, 255, 0.18), transparent 36%),
+    rgba(4, 7, 12, 0.94);
+}
+
+.wg-rewarded-ad-modal {
+  position: relative;
+  width: min(100vw - 24px, 1120px);
+  min-height: min(100vh - 24px, 720px);
+  padding: 26px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(7, 12, 20, 0.98), rgba(5, 8, 14, 0.98)),
+    radial-gradient(circle at top right, rgba(255, 191, 47, 0.12), transparent 28%);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.46);
+}
+
+.wg-rewarded-ad-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  min-width: 120px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(7, 12, 20, 0.88);
+  color: #f8fafc;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.wg-rewarded-ad-close:disabled {
+  opacity: 0.62;
+}
+
+.wg-rewarded-ad-shell {
+  min-height: 100%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.wg-rewarded-ad-sponsored {
+  display: inline-flex;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 191, 47, 0.2);
+  background: rgba(255, 191, 47, 0.08);
+  color: #f4d58d;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wg-rewarded-ad-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.wg-rewarded-ad-copy h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+}
+
+.wg-rewarded-ad-copy p {
+  margin: 0;
+  color: #9bb0cb;
+  font-size: 0.92rem;
+}
+
+.wg-rewarded-ad-card {
+  width: min(420px, 100%);
+}
+
+.wg-rewarded-ad-preview-card {
+  min-height: 220px;
+}
+
+.wg-rewarded-ad-reward {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+.wg-rewarded-ad-reward span {
+  color: #94a3b8;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wg-rewarded-ad-reward strong {
+  color: #f8fafc;
+  font-family: "DM Serif Display", "Times New Roman", serif;
+  font-size: clamp(1.2rem, 2.8vw, 1.9rem);
+}
+
 .wg-modal-stack-preview {
   display: flex;
   justify-content: center;
@@ -1869,6 +1978,26 @@
   animation: wg-pulse 1.5s ease-in-out infinite;
 }
 
+.wg-pack-hero.is-rewarded .wg-pack-call-action {
+  left: 50%;
+  right: auto;
+  bottom: -42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 220px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 191, 47, 0.34);
+  background: linear-gradient(135deg, rgba(255, 191, 47, 0.2), rgba(72, 162, 255, 0.18));
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.26);
+  transform: translateX(-50%);
+}
+
+.wg-pack-hero.is-rewarded:not(:disabled):hover .wg-pack-call-action {
+  border-color: rgba(255, 191, 47, 0.56);
+}
+
 @keyframes wg-pulse {
   0%,
   100% {
@@ -2058,6 +2187,36 @@
   border-radius: 14px;
   border: 1px solid rgba(31, 41, 55, 0.9);
   background: rgba(0, 0, 0, 0.7);
+}
+
+.wg-home-rewarded-ad-panel {
+  width: min(360px, 100%);
+  display: grid;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.wg-home-rewarded-ad-copy {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+}
+
+.wg-home-rewarded-ad-copy strong {
+  color: #f8fafc;
+  font-family: "DM Serif Display", "Times New Roman", serif;
+  font-size: 1rem;
+}
+
+.wg-home-rewarded-ad-copy p {
+  margin: 0;
+  color: #9fb1c9;
+  font-size: 0.76rem;
+  line-height: 1.28;
+}
+
+.wg-home-rewarded-ad-card {
+  width: 100%;
 }
 
 .wg-home-mission-card h3 {
@@ -4481,6 +4640,46 @@
 .wg-shell.is-mobile .wg-pack-hero {
   width: min(100%, 330px);
   height: min(62svh, 500px);
+}
+
+.wg-shell.is-mobile .wg-pack-hero.is-rewarded .wg-pack-call-action {
+  min-width: 0;
+  width: calc(100% - 32px);
+  bottom: -38px;
+  padding: 9px 12px;
+  font-size: 0.72rem;
+}
+
+.wg-shell.is-mobile .wg-home-rewarded-ad-panel {
+  width: 100%;
+  margin-top: 22px;
+}
+
+.wg-shell.is-mobile .wg-rewarded-ad-modal {
+  width: 100vw;
+  min-height: 100vh;
+  padding: 18px 14px;
+  border-radius: 0;
+}
+
+.wg-shell.is-mobile .wg-rewarded-ad-close {
+  top: 10px;
+  right: 10px;
+  min-width: 104px;
+  padding: 9px 12px;
+  font-size: 0.72rem;
+}
+
+.wg-shell.is-mobile .wg-rewarded-ad-shell {
+  gap: 14px;
+}
+
+.wg-shell.is-mobile .wg-rewarded-ad-copy p {
+  font-size: 0.84rem;
+}
+
+.wg-shell.is-mobile .wg-rewarded-ad-card {
+  width: 100%;
 }
 
 .wg-shell.is-mobile .wg-pack-call-action {

@@ -136,6 +136,19 @@ const server = createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/ads/rewarded-packs") {
+      const body = await readBody(req);
+      writeJson(
+        res,
+        200,
+        await wikipediaGachaService.claimRewardedAdPacks(
+          getBrowserToken(req, body),
+          getPreferredLanguage(req, body, url.searchParams)
+        )
+      );
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/packs/history") {
       writeJson(
         res,

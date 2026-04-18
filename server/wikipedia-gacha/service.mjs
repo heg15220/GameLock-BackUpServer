@@ -344,6 +344,30 @@ function serializePackStatus(profile, now) {
   };
 }
 
+function awardPackReward(state, profile, now, amount, rewardSource, metadataJson = {}) {
+  const rewardAmount = Math.max(
+    0,
+    Math.min(profile.maxPacks - profile.packsAvailable, Math.floor(Number(amount) || 0))
+  );
+  if (rewardAmount <= 0) {
+    return 0;
+  }
+
+  profile.packsAvailable += rewardAmount;
+  profile.updatedAt = isoDate(now);
+  profile.lastSeenAt = isoDate(now);
+  state.rewardEvents.push({
+    id: createId(state, "rewardEvent"),
+    browserProfileId: profile.id,
+    rewardSource,
+    rewardType: "packs",
+    rewardAmount,
+    createdAt: isoDate(now),
+    metadataJson,
+  });
+  return rewardAmount;
+}
+
 function serializePackCardResult(article, collectionEntry, packCard) {
   return {
     articleId: article.id,
@@ -1133,8 +1157,9 @@ export function createWikipediaGachaService({
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
       applyPackRegeneration(profile, now);
       const articleCatalog = await ensureCatalogReady(profile.preferredLanguage);
+      const hasSpecialPackReady = Number(profile.pityCounter) >= PITY_THRESHOLD;
 
-      if (profile.packsAvailable <= 0) {
+      if (profile.packsAvailable <= 0 && !hasSpecialPackReady) {
         const error = new Error("No packs available.");
         error.statusCode = 409;
         error.code = "no_packs_available";
@@ -1177,7 +1202,9 @@ export function createWikipediaGachaService({
         })
       );
 
-      profile.packsAvailable -= 1;
+      if (!hasSpecialPackReady) {
+        profile.packsAvailable -= 1;
+      }
       profile.totalPackOpens += 1;
       profile.lastPackOpenedAt = isoDate(now);
       profile.lastSeenAt = isoDate(now);
@@ -1576,6 +1603,41 @@ export function createWikipediaGachaService({
     return state.__claimMissionResponse;
   }
 
+  async function claimRewardedAdPacks(browserToken, preferredLanguage = null) {
+    const now = nowFn();
+    const state = await store.forToken(browserToken).update((draft) => {
+      const profile = ensureProfile(draft, browserToken);
+      syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      applyPackRegeneration(profile, now);
+
+      const targetPackCount = Math.min(profile.maxPacks, 3);
+      if (profile.packsAvailable >= targetPackCount || profile.pityCounter >= PITY_THRESHOLD) {
+        const error = new Error("Rewarded ad is only available when no packs remain.");
+        error.statusCode = 409;
+        error.code = "rewarded_ad_not_available";
+        throw error;
+      }
+
+      const rewardedPacks = awardPackReward(
+        draft,
+        profile,
+        now,
+        targetPackCount - profile.packsAvailable,
+        "rewarded_ad",
+        { rewardedPacks: 3 }
+      );
+      draft.__rewardedAdResponse = {
+        rewardedPacks,
+        profile: serializeProfile(profile),
+        packStatus: serializePackStatus(profile, now),
+      };
+      recomputeMissionProgress(draft, profile, now);
+      return draft;
+    });
+
+    return state.__rewardedAdResponse;
+  }
+
   async function getTrophies(browserToken, { unlockedOnly = false, preferredLanguage = null } = {}) {
     const now = nowFn();
     const state = await store.forToken(browserToken).update((draft) => {
@@ -1827,6 +1889,7 @@ export function createWikipediaGachaService({
     registerArticleClick,
     getMissions,
     claimMission,
+    claimRewardedAdPacks,
     getTrophies,
     exportRecoveryCode,
     importRecoveryCode,

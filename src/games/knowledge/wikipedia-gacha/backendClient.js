@@ -98,6 +98,14 @@ export function openWikipediaGachaPack(browserToken, preferredLanguage) {
   });
 }
 
+export function claimWikipediaGachaRewardedAdPacks(browserToken, preferredLanguage) {
+  return request("/api/wikipedia-gacha/ads/rewarded-packs", {
+    method: "POST",
+    headers: buildHeaders(browserToken, preferredLanguage),
+    body: JSON.stringify({ browserToken }),
+  });
+}
+
 export function toggleWikipediaGachaFavorite(browserToken, articleId, favorite, preferredLanguage) {
   return request(`/api/wikipedia-gacha/collection/${articleId}/favorite`, {
     method: "PATCH",
