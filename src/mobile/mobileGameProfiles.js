@@ -988,7 +988,7 @@ export function getMobileControlProfile(game, locale = "es") {
       return {
         layout: "split",
         heading: t(locale, "Combate", "Fight"),
-        hint: t(locale, "Movimiento a la izquierda. Ataques y defensa a la derecha.", "Movement on the left. Attacks and guard on the right."),
+        hint: t(locale, "Movimiento y bloqueo a la izquierda. Todo el arsenal a la derecha.", "Movement and guard on the left. Full attack kit on the right."),
         leftPad: directionalPad(locale, {
           up: input("KeyW", "w"),
           left: input("KeyA", "a"),
@@ -998,9 +998,27 @@ export function getMobileControlProfile(game, locale = "es") {
           downLabel: t(locale, "Bloq.", "Guard"),
         }),
         rightPad: [
+          control("guard", t(locale, "Bloqueo", "Guard"), {
+            type: "hold",
+            tone: "utility",
+            inputs: [input("KeyS", "s")],
+          }),
           control("jab", "Jab", { type: "tap", tone: "primary", inputs: [input("Space", " ")] }),
           control("cross", "Cross", { type: "tap", inputs: [input("Enter", "Enter")] }),
-          control("super", "Super", { type: "tap", tone: "accent", inputs: [input("KeyB", "b")] }),
+          control("kick-light", t(locale, "Kick", "Kick"), {
+            type: "tap",
+            inputs: [input("KeyJ", "j")],
+          }),
+          control("kick-heavy", t(locale, "Smash", "Smash"), {
+            type: "tap",
+            inputs: [input("KeyK", "k")],
+          }),
+          control("projectile", t(locale, "Shot", "Shot"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyF", "f")],
+          }),
+          control("super", "Super", { type: "tap", tone: "primary", inputs: [input("KeyB", "b")] }),
         ],
         utilities: utilityRow(locale),
       };

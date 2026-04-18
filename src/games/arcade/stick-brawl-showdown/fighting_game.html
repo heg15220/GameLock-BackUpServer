@@ -2,12 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>BRAWL STICKS — 2D Fighter</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100%;}
 body{background:#07070f;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Share Tech Mono',monospace;overflow:hidden;user-select:none;}
-#wrap{position:relative;width:900px;}
+#wrap{position:relative;width:min(100%,900px);max-width:900px;}
 #hud{display:flex;align-items:center;justify-content:space-between;padding:8px 10px 6px;background:linear-gradient(180deg,#000 0%,#0a0a18 100%);border-bottom:2px solid #1a1a3a;}
 .phud{display:flex;flex-direction:column;gap:3px;width:330px;}
 .phud.r{align-items:flex-end;}
@@ -69,6 +71,50 @@ body{background:#07070f;display:flex;flex-direction:column;align-items:center;ju
 .scharname{font-family:'Bebas Neue';font-size:18px;letter-spacing:3px;}
 .scharsub{font-size:8px;color:#333;letter-spacing:3px;}
 .vstext{font-family:'Bebas Neue';font-size:52px;color:#ff3344;text-shadow:0 0 18px #ff3344;align-self:center;margin:0 30px 15px;}
+.ctrl-divider{width:1px;background:#111;}
+body.mobile-shell-embed{justify-content:flex-start;padding:0;background:radial-gradient(circle at 50% 12%, rgba(68,153,255,.16), transparent 34%),linear-gradient(180deg,#05070f 0%,#0a1020 100%);}
+body.mobile-shell-embed #wrap{width:min(100%, 900px);max-width:none;}
+body.mobile-shell-embed #gc{width:100%;height:auto;}
+body.mobile-shell-embed #hud{gap:clamp(8px,2vw,14px);padding:clamp(6px,1.8vw,10px) clamp(8px,2vw,12px) clamp(5px,1.4vw,8px);}
+body.mobile-shell-embed .phud{width:min(34vw,330px);min-width:0;}
+body.mobile-shell-embed #timer{font-size:clamp(38px,7vw,52px);}
+body.mobile-shell-embed #rndt{letter-spacing:3px;}
+body.mobile-shell-embed #bigmsg{font-size:clamp(46px,11vw,88px);letter-spacing:clamp(3px,1.4vw,8px);}
+body.mobile-shell-embed #submsg{font-size:clamp(10px,2vw,13px);letter-spacing:clamp(2px,1vw,5px);}
+body.mobile-shell-embed #combo{bottom:24%;}
+body.mobile-shell-embed #cnum{font-size:clamp(52px,10vw,80px);}
+body.mobile-shell-embed #ctrl{gap:8px 12px;padding:7px 12px 9px;}
+body.mobile-shell-embed .cg{flex:1 1 calc(25% - 12px);min-width:140px;}
+body.mobile-shell-embed #start h1{font-size:clamp(60px,12vw,96px);}
+body.mobile-shell-embed #start h2{font-size:clamp(9px,1.9vw,11px);letter-spacing:clamp(3px,1vw,7px);}
+body.mobile-shell-embed #startbtn{font-size:clamp(15px,2.6vw,18px);letter-spacing:clamp(3px,1vw,5px);padding:10px clamp(18px,4vw,28px);}
+body.mobile-shell-embed .startrow{gap:clamp(12px,3vw,28px);align-items:flex-end;}
+body.mobile-shell-embed .vstext{margin:0 0 15px;font-size:clamp(34px,7vw,52px);}
+body.mobile-shell-embed .schar canvas{width:clamp(86px,18vw,120px);height:auto;}
+body.mobile-shell-embed.mobile-shell-portrait{justify-content:flex-start;}
+body.mobile-shell-embed.mobile-shell-portrait #hud{padding-inline:10px;}
+body.mobile-shell-embed.mobile-shell-portrait .phud{width:min(42%,172px);}
+body.mobile-shell-embed.mobile-shell-portrait .pname{font-size:16px;letter-spacing:2px;}
+body.mobile-shell-embed.mobile-shell-portrait .hpw{height:16px;}
+body.mobile-shell-embed.mobile-shell-portrait .wd{width:9px;height:9px;}
+body.mobile-shell-embed.mobile-shell-portrait #timer{font-size:34px;}
+body.mobile-shell-embed.mobile-shell-portrait #ctrl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;padding:8px 10px 10px;}
+body.mobile-shell-embed.mobile-shell-portrait #ctrl > .ctrl-divider,
+body.mobile-shell-embed.mobile-shell-portrait #ctrl > div:nth-child(n+6){display:none;}
+body.mobile-shell-embed.mobile-shell-portrait .cg{min-width:0;text-align:left;}
+body.mobile-shell-embed.mobile-shell-portrait .cl{font-size:7px;letter-spacing:1.5px;}
+body.mobile-shell-embed.mobile-shell-portrait .k{font-size:8px;padding:1px 4px;}
+body.mobile-shell-embed.mobile-shell-portrait #start{padding:18px 14px;}
+body.mobile-shell-embed.mobile-shell-portrait #start h2,
+body.mobile-shell-embed.mobile-shell-portrait .scharsub,
+body.mobile-shell-embed.mobile-shell-portrait #start > div:last-child{display:none;}
+body.mobile-shell-embed.mobile-shell-portrait .startrow{width:100%;justify-content:space-between;}
+body.mobile-shell-embed.mobile-shell-portrait .scharname{font-size:16px;letter-spacing:2px;}
+body.mobile-shell-embed.mobile-shell-portrait .lifeopt{margin-top:10px;margin-bottom:6px;}
+body.mobile-shell-embed.mobile-shell-landscape #ctrl{justify-content:center;}
+body.mobile-shell-embed.mobile-shell-landscape .cg{min-width:110px;}
+body.mobile-shell-embed.mobile-shell-landscape #start{padding:18px 24px;}
+body.mobile-shell-embed.mobile-shell-landscape #start > div:last-child{font-size:8px;letter-spacing:2px;text-align:center;}
 </style>
 </head>
 <body>
@@ -129,7 +175,7 @@ body{background:#07070f;display:flex;flex-direction:column;align-items:center;ju
     <div class="cg"><div class="cl">P1 PUÑOS</div><div class="ck"><span class="k">G</span>jab <span class="k">H</span>fuerte</div></div>
     <div class="cg"><div class="cl">P1 PATADAS</div><div class="ck"><span class="k">J</span>rápida <span class="k">K</span>fuerte</div></div>
     <div class="cg"><div class="cl">P1 ESPECIAL</div><div class="ck"><span class="k">F</span>proyectil <span class="k">B</span>súper</div></div>
-    <div style="width:1px;background:#111"></div>
+    <div class="ctrl-divider"></div>
     <div class="cg"><div class="cl">P2 MOVER</div><div class="ck"><span class="k">←</span><span class="k">→</span><span class="k">↑</span><span class="k">↓=bloqueo</span></div></div>
     <div class="cg"><div class="cl">P2 PUÑOS</div><div class="ck"><span class="k">1</span>jab <span class="k">2</span>fuerte</div></div>
     <div class="cg"><div class="cl">P2 PATADAS</div><div class="ck"><span class="k">3</span>rápida <span class="k">4</span>fuerte</div></div>
@@ -1099,6 +1145,73 @@ function animStartScreen(){
 }
 animStartScreen();
 
+const FRAME_MS = 1000 / 60;
+let mainLoopStarted = false;
+
+function renderGameToText(){
+  const startVisible = document.getElementById('start').style.display !== 'none';
+  return JSON.stringify({
+    mode: 'arcade-stick-brawl-showdown',
+    phase: startVisible ? 'menu' : (GS.over ? 'finished' : (GS.active ? 'fight' : 'round-intro')),
+    coordinates: 'origin_top_left_x_right_y_down_pixels',
+    round: GS.round,
+    timer: GS.timer,
+    active: GS.active,
+    over: GS.over,
+    p1: {
+      x: Number(F.p1.x.toFixed(2)),
+      y: Number(F.p1.y.toFixed(2)),
+      hp: F.p1.hp,
+      superMeter: Number(F.p1.superMeter.toFixed(2)),
+      wins: F.p1.wins,
+      blocking: F.p1.blocking,
+      jumping: F.p1.isJumping,
+      animState: F.p1.animState,
+    },
+    p2: {
+      x: Number(F.p2.x.toFixed(2)),
+      y: Number(F.p2.y.toFixed(2)),
+      hp: F.p2.hp,
+      superMeter: Number(F.p2.superMeter.toFixed(2)),
+      wins: F.p2.wins,
+      blocking: F.p2.blocking,
+      jumping: F.p2.isJumping,
+      animState: F.p2.animState,
+    },
+    projectiles: projectiles.slice(0, 4).map((projectile) => ({
+      x: Number(projectile.x.toFixed(2)),
+      y: Number(projectile.y.toFixed(2)),
+      owner: projectile.owner,
+    })),
+  });
+}
+
+window.render_game_to_text = renderGameToText;
+window.advanceTime = (ms = FRAME_MS) => {
+  const totalMs = Math.max(FRAME_MS, Number(ms) || FRAME_MS);
+  const frames = Math.max(1, Math.round(totalMs / FRAME_MS));
+  for(let i=0;i<frames;i++){
+    if(document.getElementById('start').style.display === 'none'){
+      update();
+    }
+    render();
+  }
+  return Promise.resolve();
+};
+
+function loop(){
+  if(!mainLoopStarted)return;
+  update();
+  render();
+  requestAnimationFrame(loop);
+}
+
+function ensureMainLoop(){
+  if(mainLoopStarted)return;
+  mainLoopStarted = true;
+  requestAnimationFrame(loop);
+}
+
 // ================================================================
 // GAME START
 // ================================================================
@@ -1106,7 +1219,7 @@ function startGame(){
   document.getElementById('start').style.display='none';
   GS.round=1; F.p1.wins=0; F.p2.wins=0;
   updateWinsHUD(); startRound();
-  requestAnimationFrame(function loop(ts){ update(); render(); requestAnimationFrame(loop); });
+  ensureMainLoop();
 }
 document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElementById('start').style.display!=='none')startGame(); });
 </script>

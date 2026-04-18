@@ -4328,13 +4328,33 @@
   justify-self: stretch;
 }
 
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay-copy,
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay-copy,
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay-setup,
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-overlay-setup {
+  display: none;
+}
+
 .mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-team-grid {
   grid-template-columns: 1fr;
+  margin-top: 0;
 }
 
 .mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-team-card,
 .mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-difficulty-row button {
   min-height: 48px;
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-team-card span,
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-team-card span {
+  display: none;
+}
+
+.mobile-game-shell--has-controls[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-team-card.selected,
+.mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-team-card.selected {
+  box-shadow:
+    0 0 0 2px var(--penalty-team-accent, #38bdf8),
+    0 18px 32px rgba(8, 15, 28, 0.42);
 }
 
 .mobile-game-shell--touch-native[data-game-id="arcade-penalty-neural-keeper"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .penalty-touch-dock {
@@ -5178,6 +5198,44 @@
   max-height: 100%;
   margin-inline: 0 !important;
   border-radius: 22px;
+}
+
+.mobile-game-shell[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] > .stick-brawl-showdown-game[data-mobile-stage-branch="true"] {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 0.32rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .stick-brawl-showdown-stage {
+  margin-top: 0;
+  padding: 0.22rem;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.mobile-game-shell[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .stick-brawl-showdown-frame-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.mobile-game-shell[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .stick-brawl-showdown-frame {
+  width: 100%;
+  height: 100%;
+}
+
+.mobile-game-shell[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .stick-brawl-showdown-inline-ad {
+  padding: 0.46rem 0.32rem 0.24rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .stick-brawl-showdown-inline-ad__card {
+  max-width: none;
+  margin-inline: auto;
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay-card,

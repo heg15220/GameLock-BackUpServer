@@ -2476,6 +2476,8 @@ function PenaltyNeuralKeeperGame() {
   const learningIndex = game.activeShot?.keeper.learningIndex ?? game.aiTelemetry.learningIndex ?? 0;
   const saveProbability = game.activeShot?.outcome.saveProbability ?? game.aiTelemetry.saveProbability ?? 0;
   const actionDisabled = game.phase !== "ready" || !game.matchId;
+  const isOverlayMenuPhase = ["booting", "menu", "starting", "finished"].includes(game.phase);
+  const showMobilePanelSetup = game.phase === "menu" || game.phase === "finished";
   const controlsTitle = game.turnMode === "save" ? ui.defendTitle : ui.controlsTitle;
   const controlsHint = game.turnMode === "save" ? ui.defendHint : ui.controlsHint;
   const turnLedLabel = game.turnMode === "save" ? ui.turnSave : ui.turnAttack;
@@ -2528,6 +2530,40 @@ function PenaltyNeuralKeeperGame() {
 
   return (
     <div className="mini-game penalty-shootout-game">
+      <div className="penalty-mobile-menu-root" data-mobile-menu-root="true" aria-hidden="true">
+        {showMobilePanelSetup ? (
+          <label className="penalty-mobile-menu-root__field">
+            <span>{isEs ? "Nivel IA" : "AI level"}</span>
+            <select
+              id="penalty-mobile-difficulty-select"
+              value={game.selectedDifficultyId}
+              onChange={(event) => selectDifficulty(event.target.value)}
+              disabled={game.phase === "starting" || game.teamsLoading}
+              aria-label={isEs ? "Nivel de la IA" : "AI level"}
+            >
+              {DIFFICULTY_OPTIONS.map((difficulty) => (
+                <option key={`mobile-${difficulty.id}`} value={difficulty.id}>
+                  {difficulty.label[locale] ?? difficulty.label.en}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        {showMobilePanelSetup ? (
+          <button
+            id="penalty-mobile-start-btn"
+            type="button"
+            onClick={startShootout}
+            disabled={!game.selectedRivalId || game.phase === "starting" || game.teamsLoading}
+          >
+            {game.phase === "finished" ? (isEs ? "Jugar otra vez" : "Play again") : (isEs ? "Iniciar partida" : "Start match")}
+          </button>
+        ) : null}
+        <button id="penalty-mobile-menu-btn" type="button" onClick={restartShootout}>
+          {isEs ? "Menu" : "Menu"}
+        </button>
+      </div>
+
       <div className="mini-head">
         <div>
           <h4>{ui.title}</h4>
@@ -2561,17 +2597,19 @@ function PenaltyNeuralKeeperGame() {
             />
           </div>
 
-          {(["booting", "menu", "starting", "finished"].includes(game.phase)) ? (
+          {isOverlayMenuPhase ? (
             <div className="penalty-overlay penalty-overlay-menu">
-              <h5>
-                {game.phase === "finished"
-                  ? (isEs ? "Resultado final" : "Final result")
-                  : game.phase === "booting"
-                    ? (isEs ? "Cargando rivales" : "Loading rivals")
-                    : (isEs ? "Selecciona rival" : "Select rival")}
-              </h5>
-              <p>{game.phase === "finished" ? finalSummary : ui.menuBody}</p>
-              <p>{game.teamsError || (game.phase === "finished" ? ui.finishedBody : ui.menuHint)}</p>
+              <div className="penalty-overlay-copy">
+                <h5>
+                  {game.phase === "finished"
+                    ? (isEs ? "Resultado final" : "Final result")
+                    : game.phase === "booting"
+                      ? (isEs ? "Cargando rivales" : "Loading rivals")
+                      : (isEs ? "Selecciona rival" : "Select rival")}
+                </h5>
+                <p>{game.phase === "finished" ? finalSummary : ui.menuBody}</p>
+                <p>{game.teamsError || (game.phase === "finished" ? ui.finishedBody : ui.menuHint)}</p>
+              </div>
               {!game.teamsLoading ? (
                 <>
                   <div className="penalty-team-grid">
@@ -2582,27 +2620,30 @@ function PenaltyNeuralKeeperGame() {
                         className={`penalty-team-card${team.id === game.selectedRivalId ? " selected" : ""}`}
                         style={{ "--penalty-team-accent": team.colors?.primary ?? "#38bdf8" }}
                         onClick={() => selectRival(team)}
+                        aria-pressed={team.id === game.selectedRivalId}
                       >
                         <strong>{team.displayName}</strong>
                         <span>{localizeDifficulty(team.difficultyProfileId, locale)}</span>
                       </button>
                     ))}
                   </div>
-                  <div className="penalty-difficulty-row">
-                    {DIFFICULTY_OPTIONS.map((difficulty) => (
-                      <button
-                        key={difficulty.id}
-                        type="button"
-                        className={difficulty.id === game.selectedDifficultyId ? "selected" : ""}
-                        onClick={() => selectDifficulty(difficulty.id)}
-                      >
-                        {difficulty.label[locale] ?? difficulty.label.en}
-                      </button>
-                    ))}
+                  <div className="penalty-overlay-setup">
+                    <div className="penalty-difficulty-row">
+                      {DIFFICULTY_OPTIONS.map((difficulty) => (
+                        <button
+                          key={difficulty.id}
+                          type="button"
+                          className={difficulty.id === game.selectedDifficultyId ? "selected" : ""}
+                          onClick={() => selectDifficulty(difficulty.id)}
+                        >
+                          {difficulty.label[locale] ?? difficulty.label.en}
+                        </button>
+                      ))}
+                    </div>
+                    <button type="button" onClick={startShootout} disabled={!game.selectedRivalId || game.phase === "starting"}>
+                      {game.phase === "finished" ? (isEs ? "Jugar otra vez" : "Play again") : (isEs ? "Arrancar tanda" : "Start shootout")}
+                    </button>
                   </div>
-                  <button type="button" onClick={startShootout} disabled={!game.selectedRivalId || game.phase === "starting"}>
-                    {game.phase === "finished" ? (isEs ? "Jugar otra vez" : "Play again") : (isEs ? "Arrancar tanda" : "Start shootout")}
-                  </button>
                 </>
               ) : null}
             </div>

@@ -4262,3 +4262,11 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 
 - Ajuste adicional en Penalty Neural Keeper: el cliente backend ya no fija 127.0.0.1; ahora prueba same-origin, hostname actual con puerto 8788, localhost y 127.0.0.1, descartando respuestas HTML para que en movil/tablet reales si aparezcan rivales cuando el backend corre en la maquina anfitriona.
 - 2026-04-18: Reoriented Penalty Neural Keeper mobile/tablet shell back to dual-screen, removed the in-stage decision dock, and rebalanced stage/control deck sizing so rival selection and gameplay stay visible in the upper screen.
+
+## 2026-04-18 - Stick Brawl mobile/tablet
+- src/games/arcade/stick-brawl-showdown/index.jsx migrado a wrapper embebido con iframe referenciado, syncEmbeddedFrameLayout y proxy de render_game_to_text / advanceTime.
+- src/games/arcade/stick-brawl-showdown/fighting_game.html actualizado con meta viewport, reglas mobile-shell-embed para portrait/landscape y payload runtime basico para automatizacion.
+- src/mobile/mobileGameProfiles.js ampliado para exponer el kit completo de combate en tactil, incluyendo boton dedicado de Bloqueo.
+- Anadida vineta de publicidad inline bajo el gameplay de Stick Brawl y ajustado src/mobile/mobileStageProfiles.js + src/mobile/mobile-game-shell.css para conservarla dentro de la rama visible del juego en shell movil/tablet.
+- Verificacion pendiente: rerun de npm run build/validacion visual tras estos ultimos cambios; la pasada anterior quedo interrumpida por el usuario.
+

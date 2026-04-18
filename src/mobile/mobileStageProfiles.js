@@ -64,6 +64,7 @@ const GAME_STAGE_SELECTORS = {
   ],
   "arcade-pong-neon-arena": [".pong-game", ".pong-stage"],
   "arcade-stick-brawl-showdown": [
+    ".stick-brawl-showdown-game",
     ".fighter-stage",
     ".phaser-canvas-shell",
   ],

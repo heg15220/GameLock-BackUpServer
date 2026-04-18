@@ -631,6 +631,20 @@ function isConfigurationButton(button) {
   return /(new game|nueva partida|restart|reiniciar|rematch|revancha|apply|aplicar|adjust|ajustes|settings|config|setup|score|marcador|stats|estad|rules|reglas)/i.test(text);
 }
 
+function isPenaltyShootoutSnapshot(snapshot) {
+  return snapshot?.mode === "arcade-penalty-neural-keeper";
+}
+
+function isPenaltyMenuButton(button) {
+  const buttonId = String(button?.target?.id ?? button?.id ?? "");
+  return /^penalty-mobile-(start|menu)-btn$/i.test(buttonId);
+}
+
+function isPenaltyDifficultySelect(field) {
+  const selectId = String(field?.target?.id ?? field?.id ?? "");
+  return /^penalty-mobile-difficulty-select$/i.test(selectId);
+}
+
 export default function MobileGameStatusPanel({
   gameCategory,
   locale,
@@ -652,15 +666,25 @@ export default function MobileGameStatusPanel({
   const derivedPreplayState =
     isPreplayState(snapshot) ||
     (isStrategyCategory(gameCategory) && snapshot?.started === false);
+  const isPenaltyShootout = isPenaltyShootoutSnapshot(snapshot);
+  const penaltyMenuButtons = useMemo(
+    () => dedupeButtons(menuControls.buttons.filter((button) => isPenaltyMenuButton(button))),
+    [menuControls.buttons]
+  );
+  const penaltyMenuSelects = useMemo(
+    () => menuControls.selects.filter((field) => isPenaltyDifficultySelect(field)),
+    [menuControls.selects]
+  );
+  const activeMenuSelects = isPenaltyShootout ? penaltyMenuSelects : menuControls.selects;
   const strategyOrKnowledgeContextSelects =
     !derivedPreplayState &&
     (isStrategyCategory(gameCategory) || isKnowledgeCategory(gameCategory)) &&
-    menuControls.selects.length > 0;
+    activeMenuSelects.length > 0;
   const allowPostMatchSetup =
     snapshot?.mode === "billiards_pool" &&
     snapshot?.status === "match-over";
   const preplayButtons = dedupeButtons(
-    menuControls.buttons
+    (isPenaltyShootout ? penaltyMenuButtons : menuControls.buttons)
       .filter((button) => button.group !== "actions")
       .filter((button) => !button.disabled)
       .filter((button) => !/fullscreen|pantalla completa/i.test(String(button.label ?? "")))
@@ -668,11 +692,16 @@ export default function MobileGameStatusPanel({
   const visibleMenuButtons = allowPostMatchSetup
     ? contextButtons
     : preplayButtons;
+  const showPenaltyMenuControls =
+    isPenaltyShootout &&
+    (preplayButtons.length > 0 || activeMenuSelects.length > 0);
   const showMenuControls =
+    showPenaltyMenuControls ||
     (derivedPreplayState || allowPostMatchSetup) &&
-    (preplayButtons.length > 0 || menuControls.selects.length > 0);
+    (preplayButtons.length > 0 || activeMenuSelects.length > 0);
   const showContextButtons =
     !derivedPreplayState &&
+    !isPenaltyShootout &&
     !allowPostMatchSetup &&
     contextButtons.length > 0;
   const strategyOrKnowledgeContext = isStrategyCategory(gameCategory) || isKnowledgeCategory(gameCategory);
@@ -823,9 +852,9 @@ export default function MobileGameStatusPanel({
         <div className="mobile-game-status-panel__menu">
           <strong>{locale === "en" ? "Pre-game controls" : "Controles previos"}</strong>
 
-          {menuControls.selects.length ? (
+          {activeMenuSelects.length ? (
             <div className="mobile-game-status-panel__selects">
-              {menuControls.selects.map((field) => (
+              {activeMenuSelects.map((field) => (
                 <label key={field.id}>
                   {field.label ? <span>{field.label}</span> : null}
                   <select
@@ -873,7 +902,7 @@ export default function MobileGameStatusPanel({
           <strong>{locale === "en" ? "Match setup" : "Configuracion de partida"}</strong>
           {strategyOrKnowledgeContextSelects ? (
             <div className="mobile-game-status-panel__selects">
-              {menuControls.selects.map((field) => (
+              {activeMenuSelects.map((field) => (
                 <label key={`setup-${field.id}`}>
                   {field.label ? <span>{field.label}</span> : null}
                   <select
@@ -920,7 +949,7 @@ export default function MobileGameStatusPanel({
           <strong>{locale === "en" ? "Context controls" : "Controles contextuales"}</strong>
           {strategyOrKnowledgeContextSelects ? (
             <div className="mobile-game-status-panel__selects">
-              {menuControls.selects.map((field) => (
+              {activeMenuSelects.map((field) => (
                 <label key={`context-${field.id}`}>
                   {field.label ? <span>{field.label}</span> : null}
                   <select
