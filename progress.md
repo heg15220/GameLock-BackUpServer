@@ -4270,3 +4270,11 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Anadida vineta de publicidad inline bajo el gameplay de Stick Brawl y ajustado src/mobile/mobileStageProfiles.js + src/mobile/mobile-game-shell.css para conservarla dentro de la rama visible del juego en shell movil/tablet.
 - Verificacion pendiente: rerun de npm run build/validacion visual tras estos ultimos cambios; la pasada anterior quedo interrumpida por el usuario.
 
+
+## 2026-04-18 - Wikipedia Gacha share export
+- En `src/games/knowledge/wikipedia-gacha/index.jsx` se anadio un boton pequeno `Compartir` sobre `Volver al Gacha` cuando el pack ya se ha revelado por completo.
+- El click genera un PNG descargable con las 5 cartas del sobre en horizontal, usando `canvas` y fallback visual si alguna imagen de carta no carga.
+- Ajustados estilos en `src/games/knowledge/wikipedia-gacha/styles.css` para el bloque vertical de acciones y para mantener visibles ambos botones tambien en movil.
+- Verificacion:
+  - `node --max-old-space-size=4096 node_modules/vite/bin/vite.js build` OK.
+  - Smoke test Playwright local OK: boton visible, `Volver al Gacha` visible y descarga correcta (`output/wikipedia-gacha-share/`).

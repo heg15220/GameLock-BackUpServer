@@ -34,6 +34,530 @@ const RARITY_ACCENTS = {
   UR: "#ffca48",
   LR: "#f0edcd",
 };
+const PACK_SHARE_CARD_WIDTH = 288;
+const PACK_SHARE_CARD_HEIGHT = 408;
+const PACK_SHARE_CARD_GAP = 22;
+
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+  const corner = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + corner, y);
+  ctx.lineTo(x + width - corner, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + corner);
+  ctx.lineTo(x + width, y + height - corner);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - corner, y + height);
+  ctx.lineTo(x + corner, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - corner);
+  ctx.lineTo(x, y + corner);
+  ctx.quadraticCurveTo(x, y, x + corner, y);
+  ctx.closePath();
+}
+
+function wrapCanvasText(ctx, text, maxWidth, maxLines) {
+  const tokens = String(text ?? "").split(/\s+/).filter(Boolean);
+  if (!tokens.length) return [];
+  const lines = [];
+  let currentLine = "";
+
+  tokens.forEach((token) => {
+    const candidate = currentLine ? `${currentLine} ${token}` : token;
+    if (!currentLine || ctx.measureText(candidate).width <= maxWidth) {
+      currentLine = candidate;
+      return;
+    }
+    lines.push(currentLine);
+    currentLine = token;
+  });
+
+  if (currentLine) lines.push(currentLine);
+  if (lines.length <= maxLines) return lines;
+
+  const clamped = lines.slice(0, maxLines);
+  let finalLine = clamped[maxLines - 1];
+  while (finalLine.length > 0 && ctx.measureText(`${finalLine}...`).width > maxWidth) {
+    finalLine = finalLine.slice(0, -1).trimEnd();
+  }
+  clamped[maxLines - 1] = finalLine ? `${finalLine}...` : "...";
+  return clamped;
+}
+
+function loadCardImage(url) {
+  if (!url) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.decoding = "async";
+    image.onload = () => resolve(image);
+    image.onerror = () => resolve(null);
+    image.src = url;
+  });
+}
+
+function canvasToBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+        return;
+      }
+      reject(new Error("pack_share_blob_failed"));
+    }, "image/png");
+  });
+}
+
+function hexToRgb(hex) {
+  const normalized = String(hex ?? "").replace("#", "").trim();
+  if (normalized.length === 3) {
+    return {
+      r: parseInt(normalized[0] + normalized[0], 16),
+      g: parseInt(normalized[1] + normalized[1], 16),
+      b: parseInt(normalized[2] + normalized[2], 16),
+    };
+  }
+  if (normalized.length === 6) {
+    return {
+      r: parseInt(normalized.slice(0, 2), 16),
+      g: parseInt(normalized.slice(2, 4), 16),
+      b: parseInt(normalized.slice(4, 6), 16),
+    };
+  }
+  return { r: 255, g: 255, b: 255 };
+}
+
+function mixHexColors(colorA, colorB, weight = 0.5, alpha = 1) {
+  const first = hexToRgb(colorA);
+  const second = hexToRgb(colorB);
+  const clampedWeight = Math.max(0, Math.min(1, weight));
+  const r = Math.round((first.r * clampedWeight) + (second.r * (1 - clampedWeight)));
+  const g = Math.round((first.g * clampedWeight) + (second.g * (1 - clampedWeight)));
+  const b = Math.round((first.b * clampedWeight) + (second.b * (1 - clampedWeight)));
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function colorWithAlpha(hex, alpha = 1) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function drawChamferedRect(ctx, x, y, width, height, chamfer) {
+  const cut = Math.min(chamfer, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + cut, y);
+  ctx.lineTo(x + width - cut, y);
+  ctx.lineTo(x + width, y + cut);
+  ctx.lineTo(x + width, y + height - cut);
+  ctx.lineTo(x + width - cut, y + height);
+  ctx.lineTo(x + cut, y + height);
+  ctx.lineTo(x, y + height - cut);
+  ctx.lineTo(x, y + cut);
+  ctx.closePath();
+}
+
+function drawTopicGlyphCanvas(ctx, topicGroup, x, y, size) {
+  const normalized = String(topicGroup ?? "").toLowerCase();
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.lineWidth = Math.max(1.6, size * 0.08);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#f8fafc";
+
+  if (normalized.includes("people") || normalized.includes("persona") || normalized.includes("person")) {
+    ctx.beginPath();
+    ctx.arc(0, -size * 0.18, size * 0.2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.34, size * 0.34);
+    ctx.quadraticCurveTo(0, size * 0.02, size * 0.34, size * 0.34);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  if (normalized.includes("bio") || normalized.includes("taxon") || normalized.includes("science")) {
+    ctx.beginPath();
+    ctx.moveTo(size * 0.36, -size * 0.34);
+    ctx.quadraticCurveTo(-size * 0.22, -size * 0.34, -size * 0.26, size * 0.3);
+    ctx.quadraticCurveTo(size * 0.22, size * 0.24, size * 0.36, -size * 0.34);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.2, size * 0.26);
+    ctx.quadraticCurveTo(size * 0.04, 0, size * 0.28, -size * 0.14);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  if (normalized.includes("geo") || normalized.includes("location") || normalized.includes("places")) {
+    ctx.beginPath();
+    ctx.moveTo(0, size * 0.42);
+    ctx.quadraticCurveTo(-size * 0.36, size * 0.06, -size * 0.36, -size * 0.1);
+    ctx.arc(0, -size * 0.1, size * 0.3, Math.PI, 0, false);
+    ctx.quadraticCurveTo(size * 0.36, size * 0.06, 0, size * 0.42);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, -size * 0.1, size * 0.1, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  ctx.beginPath();
+  ctx.moveTo(0, -size * 0.42);
+  ctx.lineTo(-size * 0.34, -size * 0.2);
+  ctx.lineTo(-size * 0.34, size * 0.22);
+  ctx.lineTo(0, size * 0.42);
+  ctx.lineTo(size * 0.34, size * 0.22);
+  ctx.lineTo(size * 0.34, -size * 0.2);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, -size * 0.42);
+  ctx.lineTo(0, size * 0.42);
+  ctx.moveTo(-size * 0.34, -size * 0.2);
+  ctx.lineTo(0, 0);
+  ctx.lineTo(size * 0.34, -size * 0.2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawStackCardForShare(ctx, card, image, x, y, width, height, locale) {
+  const scale = width / 240;
+  const accent = RARITY_ACCENTS[getRarity(card)] ?? "#8e8a82";
+  const title = getTitle(card);
+  const rarity = getRarity(card);
+  const topicLabel = card?.topicGroup ?? (locale === "es" ? "Archivo" : "Archive");
+  const qualityValue = Number.isFinite(Number(card?.qualityScore)) ? Number(card.qualityScore) : "--";
+  const serialId = String(card?.articleId ?? card?.id ?? "----").padStart(4, "0");
+  const chamfer = 11 * scale;
+  const innerInset = 8 * scale;
+  const contentX = x + innerInset;
+  const contentY = y + innerInset;
+  const contentWidth = width - (innerInset * 2);
+  const contentHeight = height - (innerInset * 2);
+  const headerHeight = 40 * scale;
+  const artMargin = 4 * scale;
+  const artHeight = 140 * scale;
+  const statsHeight = 50 * scale;
+  const serialHeight = 18 * scale;
+  const artY = contentY + headerHeight + artMargin;
+  const artX = contentX + artMargin;
+  const artWidth = contentWidth - (artMargin * 2);
+  const blurbY = artY + artHeight;
+  const blurbHeight = contentY + contentHeight - statsHeight - serialHeight - blurbY;
+
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
+  ctx.shadowBlur = 30 * scale;
+  ctx.shadowOffsetY = 16 * scale;
+  drawChamferedRect(ctx, x, y, width, height, chamfer);
+  ctx.fillStyle = "rgba(5, 8, 14, 0.98)";
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  drawChamferedRect(ctx, x, y, width, height, chamfer);
+  const frameGradient = ctx.createLinearGradient(x, y, x + width, y + height);
+  frameGradient.addColorStop(0, mixHexColors(accent, "#f8fafc", 0.56));
+  frameGradient.addColorStop(0.44, mixHexColors(accent, "#e5e7eb", 0.42));
+  frameGradient.addColorStop(1, mixHexColors(accent, "#0f172a", 0.3));
+  ctx.fillStyle = frameGradient;
+  ctx.fill();
+  ctx.strokeStyle = mixHexColors(accent, "#1f2937", 0.55);
+  ctx.lineWidth = 2 * scale;
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  drawChamferedRect(ctx, x + (5 * scale), y + (5 * scale), width - (10 * scale), height - (10 * scale), 10 * scale);
+  ctx.strokeStyle = mixHexColors(accent, "#ffffff", 0.44, 0.34);
+  ctx.lineWidth = 1 * scale;
+  ctx.stroke();
+  ctx.restore();
+
+  const cornerGlowSpots = [
+    [x + (contentWidth * 0.08), y + (height * 0.09)],
+    [x + (width * 0.92), y + (height * 0.09)],
+    [x + (width * 0.08), y + (height * 0.91)],
+    [x + (width * 0.92), y + (height * 0.91)],
+  ];
+  cornerGlowSpots.forEach(([gx, gy]) => {
+    const glow = ctx.createRadialGradient(gx, gy, 0, gx, gy, 18 * scale);
+    glow.addColorStop(0, mixHexColors(accent, "#ffffff", 0.34, 0.16));
+    glow.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(gx - (22 * scale), gy - (22 * scale), 44 * scale, 44 * scale);
+  });
+
+  const fxGlow = ctx.createRadialGradient(x + (width * 0.18), y + (height * 0.08), 0, x + (width * 0.18), y + (height * 0.08), width * 0.34);
+  fxGlow.addColorStop(0, mixHexColors(accent, "#ffffff", 0.42, 0.24));
+  fxGlow.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = fxGlow;
+  ctx.fillRect(x, y, width, height);
+
+  const bottomGlow = ctx.createRadialGradient(x + (width * 0.85), y + height, 0, x + (width * 0.85), y + height, width * 0.5);
+  bottomGlow.addColorStop(0, mixHexColors(accent, "#ffffff", 0.24, 0.12));
+  bottomGlow.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = bottomGlow;
+  ctx.fillRect(x, y, width, height);
+
+  ctx.save();
+  drawRoundedRect(ctx, contentX, contentY, contentWidth, contentHeight, 10 * scale);
+  const innerGradient = ctx.createLinearGradient(contentX, contentY, contentX, contentY + contentHeight);
+  innerGradient.addColorStop(0, "rgba(10, 16, 28, 0.92)");
+  innerGradient.addColorStop(1, mixHexColors(accent, "#0b111c", 0.22, 0.98));
+  ctx.fillStyle = innerGradient;
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+  ctx.lineWidth = 1 * scale;
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  drawRoundedRect(ctx, contentX, contentY, contentWidth, contentHeight, 10 * scale);
+  ctx.clip();
+  for (let lineY = contentY; lineY < contentY + contentHeight; lineY += 3 * scale) {
+    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.fillRect(contentX, lineY, contentWidth, 1 * scale);
+  }
+  for (let lineX = contentX; lineX < contentX + contentWidth; lineX += 4 * scale) {
+    ctx.fillStyle = "rgba(255,255,255,0.016)";
+    ctx.fillRect(lineX, contentY, 1 * scale, contentHeight);
+  }
+  ctx.restore();
+
+  ctx.save();
+  drawRoundedRect(ctx, contentX, contentY, contentWidth, headerHeight, 10 * scale);
+  ctx.clip();
+  const headerGradient = ctx.createLinearGradient(contentX, contentY, contentX + contentWidth, contentY);
+  headerGradient.addColorStop(0, mixHexColors(accent, "#000000", 0.4, 0.88));
+  headerGradient.addColorStop(1, "rgba(0, 0, 0, 0.22)");
+  ctx.fillStyle = headerGradient;
+  ctx.fillRect(contentX, contentY, contentWidth, headerHeight);
+  ctx.restore();
+  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  ctx.fillRect(contentX, contentY + headerHeight, contentWidth, 1 * scale);
+
+  ctx.fillStyle = mixHexColors(accent, "#ffffff", 0.76);
+  ctx.font = `700 ${8.8 * scale}px "Inter", "Segoe UI", sans-serif`;
+  ctx.fillText(rarity, contentX + (10 * scale), contentY + (15 * scale));
+  ctx.beginPath();
+  ctx.fillStyle = mixHexColors(accent, "#ffffff", 0.76);
+  ctx.arc(contentX + (26 * scale), contentY + (12 * scale), 2.3 * scale, 0, Math.PI * 2);
+  ctx.fill();
+
+  let titleFontSize = 13 * scale;
+  if (title.length > 72) titleFontSize = 11.3 * scale;
+  else if (title.length > 48) titleFontSize = 12 * scale;
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+  ctx.shadowBlur = 2 * scale;
+  ctx.fillStyle = "#f5f8ff";
+  ctx.font = `700 ${titleFontSize}px "Cinzel", "Times New Roman", serif`;
+  wrapCanvasText(ctx, title, 108 * scale, 2).forEach((line, index) => {
+    ctx.fillText(line, contentX + (34 * scale), contentY + (14 * scale) + (index * 13 * scale));
+  });
+  ctx.restore();
+
+  const pillHeight = 15 * scale;
+  const qualityText = `Q ${qualityValue}`;
+  ctx.save();
+  drawRoundedRect(ctx, contentX + contentWidth - (80 * scale), contentY + (5 * scale), 68 * scale, pillHeight, 999);
+  ctx.fillStyle = colorWithAlpha("#03080f", 0.42);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.28)";
+  ctx.lineWidth = 1 * scale;
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = "#d5deea";
+  ctx.font = `700 ${6.5 * scale}px "Inter", "Segoe UI", sans-serif`;
+  ctx.fillText(topicLabel.slice(0, 14).toUpperCase(), contentX + contentWidth - (75 * scale), contentY + (15 * scale));
+
+  ctx.save();
+  drawRoundedRect(ctx, contentX + contentWidth - (58 * scale), contentY + (22 * scale), 46 * scale, pillHeight, 999);
+  ctx.fillStyle = mixHexColors(accent, "#000000", 0.18, 0.74);
+  ctx.fill();
+  ctx.strokeStyle = mixHexColors(accent, "#ffffff", 0.56, 0.35);
+  ctx.lineWidth = 1 * scale;
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = "#fff4b0";
+  ctx.fillText(qualityText, contentX + contentWidth - (51 * scale), contentY + (32 * scale));
+
+  ctx.save();
+  drawRoundedRect(ctx, artX, artY, artWidth, artHeight, 1.5 * scale);
+  ctx.clip();
+  const artGradient = ctx.createLinearGradient(artX, artY, artX, artY + artHeight);
+  artGradient.addColorStop(0, mixHexColors(accent, "#232938", 0.36));
+  artGradient.addColorStop(1, mixHexColors(accent, "#171b26", 0.24));
+  ctx.fillStyle = artGradient;
+  ctx.fillRect(artX, artY, artWidth, artHeight);
+  if (image) {
+    const imageScale = Math.max(artWidth / image.width, artHeight / image.height);
+    const drawWidth = image.width * imageScale;
+    const drawHeight = image.height * imageScale;
+    const drawX = artX + ((artWidth - drawWidth) / 2);
+    const drawY = artY + ((artHeight - drawHeight) / 2);
+    ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+  } else {
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    ctx.font = `700 ${100 * scale}px "DM Serif Display", "Times New Roman", serif`;
+    ctx.textAlign = "center";
+    ctx.fillText((title[0] ?? "W").toUpperCase(), artX + (artWidth / 2), artY + (94 * scale));
+    ctx.fillStyle = "#f1f5f9";
+    ctx.font = `700 ${13 * scale}px "Space Grotesk", "Segoe UI", sans-serif`;
+    wrapCanvasText(ctx, title, artWidth - (28 * scale), 2).forEach((line, index) => {
+      ctx.fillText(line, artX + (artWidth / 2), artY + (artHeight / 2) + (index * 15 * scale));
+    });
+    ctx.textAlign = "left";
+  }
+  const artSheen = ctx.createLinearGradient(artX, artY, artX, artY + artHeight);
+  artSheen.addColorStop(0, "rgba(255,255,255,0.14)");
+  artSheen.addColorStop(0.24, "rgba(255,255,255,0)");
+  artSheen.addColorStop(1, "rgba(0,0,0,0.38)");
+  ctx.fillStyle = artSheen;
+  ctx.fillRect(artX, artY, artWidth, artHeight);
+  ctx.restore();
+
+  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  ctx.fillRect(artX, artY, artWidth, 1 * scale);
+  ctx.fillRect(artX, artY + artHeight - (1 * scale), artWidth, 1 * scale);
+
+  const topicBadgeRadius = 13 * scale;
+  const topicBadgeX = artX + artWidth - (20 * scale);
+  const topicBadgeY = artY + (20 * scale);
+  const topicGlow = ctx.createRadialGradient(topicBadgeX - (5 * scale), topicBadgeY - (5 * scale), 0, topicBadgeX, topicBadgeY, topicBadgeRadius);
+  topicGlow.addColorStop(0, mixHexColors(accent, "#ffffff", 0.45, 0.5));
+  topicGlow.addColorStop(1, "rgba(18,24,34,0.92)");
+  ctx.beginPath();
+  ctx.arc(topicBadgeX, topicBadgeY, topicBadgeRadius, 0, Math.PI * 2);
+  ctx.fillStyle = topicGlow;
+  ctx.fill();
+  ctx.strokeStyle = mixHexColors(accent, "#d1d5db", 0.7);
+  ctx.lineWidth = 1 * scale;
+  ctx.stroke();
+  drawTopicGlyphCanvas(ctx, topicLabel, topicBadgeX, topicBadgeY + (0.5 * scale), 8 * scale);
+
+  ctx.beginPath();
+  ctx.arc(artX + (16 * scale), artY + artHeight - (16 * scale), 10 * scale, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(0,0,0,0.65)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.32)";
+  ctx.lineWidth = 1 * scale;
+  ctx.stroke();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `700 ${7 * scale}px "Inter", "Segoe UI", sans-serif`;
+  ctx.fillText("i", artX + (13 * scale), artY + artHeight - (13 * scale));
+
+  ctx.save();
+  drawRoundedRect(ctx, artX, blurbY, artWidth, blurbHeight, 0);
+  const blurbGradient = ctx.createLinearGradient(artX, blurbY, artX, blurbY + blurbHeight);
+  blurbGradient.addColorStop(0, mixHexColors(accent, "#111827", 0.2, 0.42));
+  blurbGradient.addColorStop(1, "rgba(10,16,28,0.44)");
+  ctx.fillStyle = blurbGradient;
+  ctx.fill();
+  ctx.restore();
+
+  const blurb = getBlurb(card);
+  const lines = wrapCanvasText(ctx, blurb, artWidth - (16 * scale), 6);
+  const firstLetter = blurb.charAt(0);
+  const remaining = blurb.slice(1).trimStart();
+  ctx.fillStyle = mixHexColors(accent, "#fff6c6", 0.72);
+  ctx.font = `700 ${15 * scale}px "Cinzel", "Times New Roman", serif`;
+  ctx.fillText(firstLetter, artX + (8 * scale), blurbY + (18 * scale));
+  ctx.fillStyle = "#e5edf8";
+  ctx.font = `500 ${7.7 * scale}px "Cormorant Garamond", "Times New Roman", serif`;
+  const blurbLines = wrapCanvasText(ctx, remaining, artWidth - (28 * scale), 6);
+  blurbLines.forEach((line, index) => {
+    ctx.fillText(line, artX + (18 * scale), blurbY + (18 * scale) + (index * 10 * scale));
+  });
+
+  const serialY = contentY + contentHeight - statsHeight - serialHeight;
+  ctx.strokeStyle = mixHexColors(accent, "#ffffff", 0.4, 0.26);
+  ctx.setLineDash([4 * scale, 3 * scale]);
+  ctx.beginPath();
+  ctx.moveTo(contentX + (8 * scale), serialY);
+  ctx.lineTo(contentX + contentWidth - (8 * scale), serialY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = "#d9e2f2";
+  ctx.font = `700 ${6.4 * scale}px "Inter", "Segoe UI", sans-serif`;
+  ctx.fillText(`#${serialId}`, contentX + (8 * scale), serialY + (12 * scale));
+  ctx.textAlign = "center";
+  ctx.fillText(rarity, contentX + (contentWidth / 2), serialY + (12 * scale));
+  ctx.textAlign = "right";
+  ctx.fillText(`x${Number(card?.copies ?? 1)}`, contentX + contentWidth - (8 * scale), serialY + (12 * scale));
+  ctx.textAlign = "left";
+
+  const statsY = contentY + contentHeight - statsHeight;
+  const statsGradient = ctx.createLinearGradient(contentX, statsY, contentX, statsY + statsHeight);
+  statsGradient.addColorStop(0, mixHexColors(accent, "#000000", 0.22, 0.82));
+  statsGradient.addColorStop(1, "rgba(0, 0, 0, 0.82)");
+  ctx.fillStyle = statsGradient;
+  ctx.fillRect(contentX, statsY, contentWidth, statsHeight);
+  ctx.fillStyle = mixHexColors(accent, "#000000", 0.18, 0.24);
+  ctx.fillRect(contentX, statsY, contentWidth / 2, statsHeight);
+  ctx.fillRect(contentX + (contentWidth / 2), statsY, contentWidth / 2, statsHeight);
+  ctx.strokeStyle = "rgba(255,255,255,0.2)";
+  ctx.lineWidth = 1 * scale;
+  ctx.beginPath();
+  ctx.moveTo(contentX + (contentWidth / 2), statsY);
+  ctx.lineTo(contentX + (contentWidth / 2), statsY + statsHeight);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(contentX, statsY);
+  ctx.lineTo(contentX + contentWidth, statsY);
+  ctx.stroke();
+
+  ctx.fillStyle = "#f87171";
+  ctx.font = `800 ${7 * scale}px "Inter", "Segoe UI", sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillText("ATK", contentX + (contentWidth * 0.25), statsY + (16 * scale));
+  ctx.fillStyle = "#60a5fa";
+  ctx.fillText("DEF", contentX + (contentWidth * 0.75), statsY + (16 * scale));
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `900 ${16 * scale}px "Inter", "Segoe UI", sans-serif`;
+  ctx.fillText(`${Number(card?.atk) || 0}`, contentX + (contentWidth * 0.25), statsY + (34 * scale));
+  ctx.fillText(`${Number(card?.def ?? card?.defStat) || 0}`, contentX + (contentWidth * 0.75), statsY + (34 * scale));
+  ctx.textAlign = "left";
+}
+
+async function buildPackShareCanvas(cards, locale) {
+  const trimmedCards = cards.slice(0, 5);
+  const canvasPadding = 34;
+  const canvasWidth = (canvasPadding * 2) + (PACK_SHARE_CARD_WIDTH * trimmedCards.length) + (PACK_SHARE_CARD_GAP * Math.max(0, trimmedCards.length - 1));
+  const canvasHeight = (canvasPadding * 2) + PACK_SHARE_CARD_HEIGHT;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("pack_share_canvas_failed");
+
+  const imageAssets = await Promise.all(trimmedCards.map((card) => loadCardImage(card?.imageUrl)));
+
+  const background = ctx.createLinearGradient(0, 0, canvasWidth, canvasHeight);
+  background.addColorStop(0, "#05080f");
+  background.addColorStop(0.55, "#0a1422");
+  background.addColorStop(1, "#111f33");
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+  const glow = ctx.createRadialGradient(canvasWidth * 0.22, 80, 40, canvasWidth * 0.22, 80, 420);
+  glow.addColorStop(0, "rgba(72, 162, 255, 0.24)");
+  glow.addColorStop(1, "rgba(72, 162, 255, 0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+  trimmedCards.forEach((card, index) => {
+    const x = canvasPadding + (index * (PACK_SHARE_CARD_WIDTH + PACK_SHARE_CARD_GAP));
+    const y = canvasPadding;
+    const image = imageAssets[index];
+    drawStackCardForShare(ctx, card, image, x, y, PACK_SHARE_CARD_WIDTH, PACK_SHARE_CARD_HEIGHT, locale);
+  });
+
+  return canvas;
+}
 
 function formatCountdown(totalSeconds) {
   if (totalSeconds <= 0) return "00:00";
@@ -519,6 +1043,21 @@ function ExternalIcon() {
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M13 5h6v6M10 14 19 5M19 13v4.5A1.5 1.5 0 0 1 17.5 19h-11A1.5 1.5 0 0 1 5 17.5v-11A1.5 1.5 0 0 1 6.5 5H11"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 16V5m0 0-4 4m4-4 4 4M5 14.5v3A1.5 1.5 0 0 0 6.5 19h11a1.5 1.5 0 0 0 1.5-1.5v-3"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.8"
@@ -1066,7 +1605,11 @@ export default function WikipediaGachaGame() {
     topRarityPullHint: es ? "Has obtenido una carta de las rarezas mas altas." : "You pulled at least one card from the top rarities.",
     cardCarousel: es ? "Carrusel de cartas" : "Card carousel",
     sourceLink: es ? "Ver fuente" : "View source",
+    sharePack: es ? "Compartir" : "Share",
+    sharingPack: es ? "Generando..." : "Generating...",
     backToGacha: es ? "Volver al Gacha" : "Back to Gacha",
+    sharePackOk: es ? "Imagen del sobre descargada." : "Pack image downloaded.",
+    sharePackError: es ? "No se pudo generar la imagen del sobre." : "Could not generate the pack image.",
     detailFlipHint: es ? "Haz click en la carta para ver mas descripcion." : "Click the card to read more description.",
     detailFlipBackHint: es ? "Haz click para volver al frente." : "Click to flip back to the front.",
     detailDescriptionTitle: es ? "Descripcion extendida" : "Extended description",
@@ -1107,6 +1650,7 @@ export default function WikipediaGachaGame() {
   const [recoveryImport, setRecoveryImport] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [shareBusy, setShareBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [missionUnlockFeed, setMissionUnlockFeed] = useState([]);
@@ -1587,6 +2131,33 @@ export default function WikipediaGachaGame() {
     }
   };
 
+  const handleSharePack = async () => {
+    if (!currentPackCards.length || shareBusy) return;
+
+    setShareBusy(true);
+    setErrorMessage("");
+    setStatusMessage("");
+
+    try {
+      const shareCanvas = await buildPackShareCanvas(currentPackCards, locale);
+      const blob = await canvasToBlob(shareCanvas);
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const filenameId = packMetaSource?.packOpeningId ?? Date.now();
+      const anchor = document.createElement("a");
+      anchor.href = downloadUrl;
+      anchor.download = `wikipedia-gacha-pack-${filenameId}.png`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 1200);
+      setStatusMessage(text.sharePackOk);
+    } catch (_error) {
+      setErrorMessage(text.sharePackError);
+    } finally {
+      setShareBusy(false);
+    }
+  };
+
   const handleClaimMission = async (missionId) => {
     if (!tokenRef.current) return;
     setBusy(true);
@@ -1953,18 +2524,32 @@ export default function WikipediaGachaGame() {
         {!loading && activeTab === "home" ? (
           <section className="wg-home-stage">
             <div className="wg-home-center">
-              <div className="wg-pack-status-pill">
-                <span>{text.dailyPacks}:</span>
-                <strong>{packStatus?.packsAvailable ?? "--"} / {packStatus?.maxPacks ?? "--"}</strong>
+              <div className="wg-home-pack-status-card">
+                <div className="wg-home-pack-status-inline">
+                  <span className="wg-home-pack-status-label">{text.dailyPacks}</span>
+                  <strong className="wg-home-pack-status-value">{packStatus?.packsAvailable ?? "--"} / {packStatus?.maxPacks ?? "--"}</strong>
+                  <div className="wg-home-pack-status-chip">
+                    {packStatus && packStatus.packsAvailable >= packStatus.maxPacks ? text.packsReady : `${packFillPercent}%`}
+                  </div>
+                </div>
+
+                <div className="wg-home-pack-status-subline">
+                  <span>{text.nextPack}</span>
+                  <strong>{formatCountdown(packStatus?.secondsUntilNextPack ?? 0)}</strong>
+                </div>
+
+                <div className="wg-home-pack-status-meter is-pity">
+                  <div className="wg-home-pack-status-meter-head">
+                    <span>{text.specialPackReady}</span>
+                    <strong>
+                      {pityPullsRemaining <= 0 ? text.guaranteed : `${pityPullsRemaining} ${text.pullsUntilGold}`}
+                    </strong>
+                  </div>
+                  <div className="wg-progress-bar is-pity">
+                    <span style={{ width: `${Math.round(((PACK_PITY_TARGET - pityPullsRemaining) / PACK_PITY_TARGET) * 100)}%` }} />
+                  </div>
+                </div>
               </div>
-              <p className="wg-pack-subline">
-                {packStatus && packStatus.packsAvailable >= packStatus.maxPacks
-                  ? text.packsReady
-                  : `${text.nextPack}: ${formatCountdown(packStatus?.secondsUntilNextPack ?? 0)}`}
-              </p>
-              <p className="wg-pack-progress">
-                {pityPullsRemaining <= 0 ? text.guaranteed : `${pityPullsRemaining} ${text.pullsUntilGold}`}
-              </p>
               {specialPackReady ? (
                 <div className="wg-special-pack-banner">
                   <strong>{text.specialPackReady}</strong>
@@ -2166,10 +2751,24 @@ export default function WikipediaGachaGame() {
             </div>
 
             <div className="wg-stack-footer">
-              <div className="wg-back-gacha-wrap">
-                <button type="button" className="wg-back-gacha-btn" onClick={() => setActiveTab("home")}>
-                  {text.backToGacha}
-                </button>
+              <div className="wg-stack-return-actions">
+                {allPackCardsSeen ? (
+                  <button
+                    type="button"
+                    className="wg-secondary-btn with-icon wg-share-pack-btn"
+                    onClick={() => void handleSharePack()}
+                    disabled={shareBusy || !currentPackCards.length}
+                  >
+                    <ShareIcon />
+                    <span>{shareBusy ? text.sharingPack : text.sharePack}</span>
+                  </button>
+                ) : null}
+
+                <div className="wg-back-gacha-wrap">
+                  <button type="button" className="wg-back-gacha-btn" onClick={() => setActiveTab("home")}>
+                    {text.backToGacha}
+                  </button>
+                </div>
               </div>
 
               <div className="wg-pack-actions-row">
