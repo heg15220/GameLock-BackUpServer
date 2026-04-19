@@ -1,0 +1,100 @@
+{
+  "generatedAt": "2026-04-19T10:08:23.009Z",
+  "baseUrl": "http://127.0.0.1:8801",
+  "users": 3000,
+  "locale": "en",
+  "timeoutMs": 60000,
+  "warmupMs": 25.59,
+  "scenarios": [
+    {
+      "name": "bootstrapSession",
+      "requests": 3000,
+      "ok": 3000,
+      "failed": 0,
+      "avgMs": 6609.07,
+      "medianMs": 6610.59,
+      "p95Ms": 6625.73,
+      "p99Ms": 6635.89,
+      "minMs": 3386.25,
+      "maxMs": 6647.95,
+      "failures": []
+    },
+    {
+      "name": "getSessionMe",
+      "requests": 3000,
+      "ok": 3000,
+      "failed": 0,
+      "avgMs": 14700.75,
+      "medianMs": 14756.25,
+      "p95Ms": 15100.14,
+      "p99Ms": 15119.21,
+      "minMs": 14067.13,
+      "maxMs": 16122.44,
+      "failures": []
+    },
+    {
+      "name": "openPack",
+      "requests": 3000,
+      "ok": 771,
+      "failed": 2229,
+      "avgMs": 2878.13,
+      "medianMs": 3026.48,
+      "p95Ms": 3478.58,
+      "p99Ms": 3518.66,
+      "minMs": 1706.75,
+      "maxMs": 3637.74,
+      "failures": [
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_BUSY",
+          "message": "SQLITE_BUSY: database is locked"
+        }
+      ]
+    }
+  ]
+}

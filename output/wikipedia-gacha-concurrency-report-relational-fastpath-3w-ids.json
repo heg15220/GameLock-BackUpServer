@@ -1,0 +1,101 @@
+{
+  "generatedAt": "2026-04-19T11:02:29.283Z",
+  "baseUrl": "http://127.0.0.1:8821",
+  "users": 3000,
+  "locale": "en",
+  "timeoutMs": 30000,
+  "clientWorkers": 1,
+  "warmupMs": 22.07,
+  "scenarios": [
+    {
+      "name": "bootstrapSession",
+      "requests": 3000,
+      "ok": 3000,
+      "failed": 0,
+      "avgMs": 6213.11,
+      "medianMs": 6215.86,
+      "p95Ms": 6354.02,
+      "p99Ms": 6368.07,
+      "minMs": 5996.5,
+      "maxMs": 6370.87,
+      "failures": []
+    },
+    {
+      "name": "getSessionMe",
+      "requests": 3000,
+      "ok": 3000,
+      "failed": 0,
+      "avgMs": 6649.49,
+      "medianMs": 6650.23,
+      "p95Ms": 6675.61,
+      "p99Ms": 6738.2,
+      "minMs": 6602.65,
+      "maxMs": 6870.45,
+      "failures": []
+    },
+    {
+      "name": "openPack",
+      "requests": 3000,
+      "ok": 3,
+      "failed": 2997,
+      "avgMs": 20663.96,
+      "medianMs": 20713.42,
+      "p95Ms": 21284.76,
+      "p99Ms": 21284.76,
+      "minMs": 19993.7,
+      "maxMs": 21284.76,
+      "failures": [
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        },
+        {
+          "status": 500,
+          "code": "SQLITE_ERROR",
+          "message": "SQLITE_ERROR: cannot start a transaction within a transaction"
+        }
+      ]
+    }
+  ]
+}

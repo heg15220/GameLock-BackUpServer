@@ -16,7 +16,7 @@ import {
   compareRarity,
 } from "./constants.mjs";
 import { createWikipediaGachaCatalog } from "./catalog.mjs";
-import { createSqliteStore } from "./storage.mjs";
+import { createEmptyState, createSqliteStore } from "./storage.mjs";
 import { openStateDb, DEFAULT_DB_PATH } from "./db.mjs";
 
 const MISSION_BY_ID = new Map(MISSIONS.map((mission) => [mission.id, mission]));
@@ -31,6 +31,7 @@ const TRACKED_TOPIC_GROUPS = [
   "Culture",
   "Society",
 ];
+const TOKEN_ID_NAMESPACE_SIZE = 1_000_000;
 const DAILY_MISSION_GROUP_SLOTS = [
   { group: "starter", count: 1 },
   { group: "packs", count: 2 },
@@ -40,6 +41,23 @@ const DAILY_MISSION_GROUP_SLOTS = [
   { group: "curation", count: 1 },
   { group: "topic", count: 1 },
 ];
+const LAST_SEEN_TOUCH_INTERVAL_MS = 5 * 60 * 1000;
+const MAX_DASHBOARD_PACK_HISTORY = 4;
+const MAX_PERSISTED_PACK_HISTORY = 24;
+const STATELESS_TOKEN_PREFIX = "wg1";
+const TOKEN_SECRET = process.env.WIKIPEDIA_GACHA_TOKEN_SECRET ?? "wikipedia-gacha-dev-secret";
+
+function buildEmptyCollectionSummary() {
+  return {
+    uniqueCards: 0,
+    totalCopies: 0,
+    favorites: 0,
+    rarityBreakdown: RARITY_ORDER.reduce((accumulator, rarity) => {
+      accumulator[rarity] = 0;
+      return accumulator;
+    }, {}),
+  };
+}
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -195,8 +213,47 @@ function summarizePack(cards) {
     .join(", ");
 }
 
-function createToken(randomBytesFn) {
-  return randomBytesFn(32).toString("hex");
+function signStatelessTokenPayload(encodedPayload) {
+  return crypto
+    .createHmac("sha256", TOKEN_SECRET)
+    .update(encodedPayload)
+    .digest("base64url");
+}
+
+function parseStatelessToken(browserToken) {
+  const [prefix, encodedPayload, signature] = String(browserToken ?? "").split(".");
+  if (!prefix || !encodedPayload || !signature || prefix !== STATELESS_TOKEN_PREFIX) {
+    return null;
+  }
+  const expectedSignature = signStatelessTokenPayload(encodedPayload);
+  const expectedBuffer = Buffer.from(expectedSignature, "utf8");
+  const signatureBuffer = Buffer.from(signature, "utf8");
+  if (
+    expectedBuffer.length !== signatureBuffer.length ||
+    !crypto.timingSafeEqual(expectedBuffer, signatureBuffer)
+  ) {
+    return null;
+  }
+  try {
+    const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8"));
+    return payload?.v === 1 ? payload : null;
+  } catch {
+    return null;
+  }
+}
+
+function createToken(randomBytesFn, payload = {}) {
+  const encodedPayload = Buffer.from(
+    JSON.stringify({
+      v: 1,
+      j: randomBytesFn(8).toString("base64url"),
+      n: payload.displayName ?? "Anonymous Archivist",
+      l: resolvePreferredLanguage(payload.preferredLanguage),
+      t: payload.createdAt ?? new Date().toISOString(),
+    }),
+    "utf8"
+  ).toString("base64url");
+  return `${STATELESS_TOKEN_PREFIX}.${encodedPayload}.${signStatelessTokenPayload(encodedPayload)}`;
 }
 
 function createRecoveryCode(randomBytesFn) {
@@ -204,10 +261,64 @@ function createRecoveryCode(randomBytesFn) {
   return `${RECOVERY_CODE_PREFIX}-${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8, 12)}`;
 }
 
+function createTokenScopedIdBase(browserToken) {
+  const hash = crypto
+    .createHash("sha256")
+    .update(String(browserToken ?? ""))
+    .digest();
+  return hash.readUInt32BE(0) * TOKEN_ID_NAMESPACE_SIZE;
+}
+
+function primeStateIdsFromToken(state, browserToken) {
+  const baseId = createTokenScopedIdBase(browserToken) + 1;
+  state.nextIds = {
+    profile: baseId,
+    collection: baseId,
+    packOpening: baseId,
+    browserMission: baseId,
+    browserTrophy: baseId,
+    rewardEvent: baseId,
+    dailyStat: baseId,
+  };
+}
+
+function materializeProfileFromToken(state, browserToken) {
+  const tokenPayload = parseStatelessToken(browserToken);
+  if (!tokenPayload) {
+    return null;
+  }
+  primeStateIdsFromToken(state, browserToken);
+  const createdAt = new Date(tokenPayload.t).toString() === "Invalid Date"
+    ? new Date().toISOString()
+    : new Date(tokenPayload.t).toISOString();
+  const profile = {
+    id: createId(state, "profile"),
+    browserToken,
+    displayName: tokenPayload.n
+      ? String(tokenPayload.n).slice(0, 80)
+      : "Anonymous Archivist",
+    preferredLanguage: resolvePreferredLanguage(tokenPayload.l),
+    packsAvailable: DEFAULT_STARTING_PACKS,
+    maxPacks: DEFAULT_MAX_PACKS,
+    lastPackRegenAt: createdAt,
+    gems: 0,
+    shards: 0,
+    trophiesPoints: 0,
+    totalPackOpens: 0,
+    pityCounter: 0,
+    createdAt,
+    updatedAt: createdAt,
+    lastSeenAt: createdAt,
+    lastPackOpenedAt: null,
+  };
+  state.browserProfiles.push(profile);
+  return profile;
+}
+
 function ensureProfile(state, browserToken) {
   const profile = state.browserProfiles.find(
     (entry) => entry.browserToken === browserToken
-  );
+  ) ?? materializeProfileFromToken(state, browserToken);
   if (!profile) {
     const error = new Error("Browser profile not found.");
     error.statusCode = 401;
@@ -271,6 +382,63 @@ function getProfilePackHistory(state, profileId) {
   return state.packOpenings
     .filter((opening) => opening.browserProfileId === profileId)
     .sort((left, right) => new Date(right.openedAt) - new Date(left.openedAt));
+}
+
+function hasProfileCollection(state, profileId) {
+  return state.browserCollection.some((entry) => entry.browserProfileId === profileId);
+}
+
+function hasProfilePackOpenings(state, profileId) {
+  return state.packOpenings.some((entry) => entry.browserProfileId === profileId);
+}
+
+function hasProfileRewardEvents(state, profileId) {
+  return state.rewardEvents.some((entry) => entry.browserProfileId === profileId);
+}
+
+function hasProfileDailyStats(state, profileId) {
+  return state.dailyBrowserStats.some((entry) => entry.browserProfileId === profileId);
+}
+
+function hasProfileTrophies(state, profileId) {
+  return state.browserTrophies.some((entry) => entry.browserProfileId === profileId);
+}
+
+function shouldSkipExpensiveTrophyRecompute(state, profile) {
+  return (
+    profile.totalPackOpens <= 0 &&
+    profile.gems <= 0 &&
+    profile.shards <= 0 &&
+    !hasProfileCollection(state, profile.id) &&
+    !hasProfileRewardEvents(state, profile.id) &&
+    !hasProfileDailyStats(state, profile.id) &&
+    !hasProfileTrophies(state, profile.id)
+  );
+}
+
+function hasPersistedProgress(state, profile) {
+  return (
+    profile.totalPackOpens > 0 ||
+    profile.gems > 0 ||
+    profile.shards > 0 ||
+    profile.trophiesPoints > 0 ||
+    hasProfileCollection(state, profile.id) ||
+    hasProfilePackOpenings(state, profile.id) ||
+    hasProfileRewardEvents(state, profile.id) ||
+    hasProfileDailyStats(state, profile.id) ||
+    hasProfileTrophies(state, profile.id)
+  );
+}
+
+function trimProfilePackHistory(state, profileId, maxEntries = MAX_PERSISTED_PACK_HISTORY) {
+  const sorted = getProfilePackHistory(state, profileId);
+  if (sorted.length <= maxEntries) {
+    return;
+  }
+  const keepIds = new Set(sorted.slice(0, maxEntries).map((entry) => entry.id));
+  state.packOpenings = state.packOpenings.filter(
+    (entry) => entry.browserProfileId !== profileId || keepIds.has(entry.id)
+  );
 }
 
 function getTodaysStats(state, profileId, now) {
@@ -388,6 +556,16 @@ function serializePackCardResult(article, collectionEntry, packCard) {
   };
 }
 
+function serializeStoredPackCardResult(article, collectionEntry, packCard) {
+  return {
+    articleId: article.id,
+    wasNew: packCard.wasNew,
+    copiesAfterPull: collectionEntry.copies,
+    shardsEarned: packCard.shardsEarned,
+    rarity: article.rarityCode,
+  };
+}
+
 function serializePackHistoryEntry(opening) {
   const normalizedCards = (opening.cards ?? []).map((card) => ({
     ...card,
@@ -476,6 +654,7 @@ function ensureDailyMissions(state, profile, now) {
 function recomputeMissionProgress(state, profile, now) {
   const todaysStats = getTodaysStats(state, profile.id, now);
   const entries = ensureDailyMissions(state, profile, now);
+  let changed = false;
   const collection = getProfileCollections(state, profile.id);
   const favoritesMarked = collection.filter((entry) => entry.favorite).length;
   const metrics = {
@@ -500,13 +679,20 @@ function recomputeMissionProgress(state, profile, now) {
     if (!mission) {
       continue;
     }
-    entry.progressValue = Math.min(
+    const nextProgressValue = Math.min(
       mission.targetValue,
       metrics[mission.targetType] ?? 0
     );
-    entry.completed = entry.progressValue >= mission.targetValue;
-    entry.updatedAt = isoDate(now);
+    const nextCompleted = nextProgressValue >= mission.targetValue;
+    if (entry.progressValue !== nextProgressValue || entry.completed !== nextCompleted) {
+      entry.progressValue = nextProgressValue;
+      entry.completed = nextCompleted;
+      entry.updatedAt = isoDate(now);
+      changed = true;
+    }
   }
+
+  state.__missionProgressChanged = changed;
 
   return entries;
 }
@@ -568,6 +754,17 @@ function serializeRewardEvent(entry) {
     missionCode: metadata.missionCode ?? mission?.code ?? null,
     packOpeningId: metadata.packOpeningId ?? null,
   };
+}
+
+function getRecentRewardEvents(state, profileId, limit = 14) {
+  return state.rewardEvents
+    .filter((entry) => entry.browserProfileId === profileId)
+    .sort(
+      (left, right) =>
+        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+    )
+    .slice(0, limit)
+    .map(serializeRewardEvent);
 }
 
 function getTrophyConditions(
@@ -681,6 +878,7 @@ function ensureTrophiesUnlocked(
     getRarityForArticleId
   );
 
+  let changed = false;
   for (const trophy of TROPHIES) {
     if (unlockedCodes.has(trophy.code) || !conditions[trophy.code]) {
       continue;
@@ -693,11 +891,19 @@ function ensureTrophiesUnlocked(
     });
     profile.trophiesPoints += trophy.points;
     unlockedCodes.add(trophy.code);
+    changed = true;
   }
+
+  state.__trophiesUnlockedChanged = changed;
 
   return state.browserTrophies.filter(
     (entry) => entry.browserProfileId === profile.id
   );
+}
+
+function shouldTouchLastSeen(profile, now) {
+  const lastSeenAtMs = profile?.lastSeenAt ? new Date(profile.lastSeenAt).getTime() : 0;
+  return !Number.isFinite(lastSeenAtMs) || (now.getTime() - lastSeenAtMs) >= LAST_SEEN_TOUCH_INTERVAL_MS;
 }
 
 function getTrophySummary(
@@ -924,37 +1130,18 @@ function createPackCards(state, profile, now, randomFn, articleCatalog) {
   };
 }
 
-async function buildDashboard(state, profile, now, articleCatalog) {
-  const recentCollection = await Promise.all(
-    sortCollectionItems(
-      await Promise.all(
-        getProfileCollections(state, profile.id).map((entry) =>
-          serializeCollectionEntry(entry, articleCatalog.getArticleById)
-        )
-      ),
-      "recent"
-    ).slice(0, 8)
-  );
-  const recentRewardEvents = state.rewardEvents
-    .filter((entry) => entry.browserProfileId === profile.id)
-    .sort(
-      (left, right) =>
-        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
-    )
-    .slice(0, 14)
-    .map(serializeRewardEvent);
-
+async function buildDashboard(state, profile, now, articleCatalog, summaries = {}) {
   return {
     browserToken: profile.browserToken,
     profile: serializeProfile(profile),
     packStatus: serializePackStatus(profile, now),
-    collectionSummary: getCollectionSummary(
+    collectionSummary: summaries.collectionSummary ?? getCollectionSummary(
       state,
       profile.id,
       articleCatalog.getRarityForArticleId
     ),
-    missionSummary: getMissionSummary(state, profile, now),
-    trophySummary: getTrophySummary(
+    missionSummary: summaries.missionSummary ?? getMissionSummary(state, profile, now),
+    trophySummary: summaries.trophySummary ?? getTrophySummary(
       state,
       profile,
       now,
@@ -962,10 +1149,9 @@ async function buildDashboard(state, profile, now, articleCatalog) {
       articleCatalog.getRarityForArticleId
     ),
     recentPackHistory: getProfilePackHistory(state, profile.id)
-      .slice(0, 4)
+      .slice(0, MAX_DASHBOARD_PACK_HISTORY)
       .map(serializePackHistoryEntry),
-    recentCollection,
-    recentRewardEvents,
+    recentRewardEvents: getRecentRewardEvents(state, profile.id),
   };
 }
 
@@ -1001,6 +1187,27 @@ export function createWikipediaGachaService({
     return articleCatalog;
   }
 
+  async function buildTransientStateForUnpersistedToken(
+    browserToken,
+    preferredLanguage,
+    now
+  ) {
+    if (!parseStatelessToken(browserToken)) {
+      return null;
+    }
+    if (await store.hasPersistedState(browserToken)) {
+      return null;
+    }
+    const state = createEmptyState();
+    const profile = materializeProfileFromToken(state, browserToken);
+    if (!profile) {
+      return null;
+    }
+    syncProfilePreferredLanguage(profile, preferredLanguage, now);
+    applyPackRegeneration(profile, now);
+    return { state, profile };
+  }
+
   async function resolveArticleFromCardLike(cardLike, articleCatalog) {
     const rawId = cardLike?.articleId ?? cardLike?.id;
     const articleId = Number(rawId);
@@ -1021,6 +1228,11 @@ export function createWikipediaGachaService({
 
     return {
       ...cardLike,
+      title: cardLike.title ?? article.wikipediaTitle ?? `Article #${article.id}`,
+      rarity: cardLike.rarity ?? article.rarityCode ?? "C",
+      qualityScore: Number(cardLike.qualityScore ?? article.qualityScore) || 0,
+      atk: Number(cardLike.atk ?? article.atk) || 0,
+      def: Number(cardLike.def ?? cardLike.defStat ?? article.defStat) || 0,
       extractText:
         normalizeArticleText(cardLike.extractText) ||
         normalizeArticleText(article.extractText),
@@ -1029,11 +1241,169 @@ export function createWikipediaGachaService({
         normalizeArticleText(article.longExtractText) ||
         normalizeArticleText(article.extractText),
       imageUrl: cardLike.imageUrl ?? article.imageUrl ?? null,
+      flavorText: cardLike.flavorText ?? article.flavorText ?? null,
+      sourceUrl: cardLike.sourceUrl ?? article.sourceUrl ?? null,
+      topicGroup: cardLike.topicGroup ?? article.topicGroup ?? "General",
     };
   }
 
   async function hydrateCards(cards, articleCatalog) {
     return Promise.all((cards ?? []).map((card) => hydrateCardLike(card, articleCatalog)));
+  }
+
+  async function performOpenPackMutation(draft, profile, now, articleCatalog) {
+    const hasSpecialPackReady = Number(profile.pityCounter) >= PITY_THRESHOLD;
+
+    if (profile.packsAvailable <= 0 && !hasSpecialPackReady) {
+      const error = new Error("No packs available.");
+      error.statusCode = 409;
+      error.code = "no_packs_available";
+      throw error;
+    }
+
+    const lastOpenAtMs = profile.lastPackOpenedAt
+      ? new Date(profile.lastPackOpenedAt).getTime()
+      : 0;
+    if (now.getTime() - lastOpenAtMs < 900) {
+      const error = new Error("Pack open rate limit exceeded.");
+      error.statusCode = 429;
+      error.code = "pack_open_rate_limited";
+      throw error;
+    }
+
+    const wasAtCap = profile.packsAvailable >= profile.maxPacks;
+    const packResult = createPackCards(
+      draft,
+      profile,
+      now,
+      randomFn,
+      articleCatalog
+    );
+    const openingCards = await Promise.all(
+      packResult.packCards.map(async (packCard) => {
+        const article = await articleCatalog.getArticleById(packCard.articleId);
+        if (!article) {
+          const error = new Error(`Article ${packCard.articleId} not found.`);
+          error.statusCode = 500;
+          error.code = "catalog_article_not_found";
+          throw error;
+        }
+        const collectionEntry = draft.browserCollection.find(
+          (entry) =>
+            entry.browserProfileId === profile.id &&
+            entry.articleId === packCard.articleId
+        );
+        return serializePackCardResult(article, collectionEntry, packCard);
+      })
+    );
+    const storedOpeningCards = await Promise.all(
+      packResult.packCards.map(async (packCard) => {
+        const article = await articleCatalog.getArticleById(packCard.articleId);
+        if (!article) {
+          const error = new Error(`Article ${packCard.articleId} not found.`);
+          error.statusCode = 500;
+          error.code = "catalog_article_not_found";
+          throw error;
+        }
+        const collectionEntry = draft.browserCollection.find(
+          (entry) =>
+            entry.browserProfileId === profile.id &&
+            entry.articleId === packCard.articleId
+        );
+        return serializeStoredPackCardResult(article, collectionEntry, packCard);
+      })
+    );
+
+    if (!hasSpecialPackReady) {
+      profile.packsAvailable -= 1;
+    }
+    profile.totalPackOpens += 1;
+    profile.lastPackOpenedAt = isoDate(now);
+    profile.lastSeenAt = isoDate(now);
+    profile.updatedAt = isoDate(now);
+    if (wasAtCap) {
+      profile.lastPackRegenAt = isoDate(now);
+    }
+    const safePityCounter = Number.isFinite(Number(profile.pityCounter))
+      ? Math.max(
+          0,
+          Math.min(PITY_THRESHOLD, Math.floor(Number(profile.pityCounter)))
+        )
+      : 0;
+    profile.pityCounter = packResult.guaranteedSrPlus
+      ? 0
+      : Math.min(PITY_THRESHOLD, safePityCounter + 1);
+
+    const todaysStats = getTodaysStats(draft, profile.id, now);
+    todaysStats.packsOpened += 1;
+    todaysStats.cardsObtained += openingCards.length;
+    todaysStats.newCardsObtained += packResult.newCardsCount;
+    todaysStats.duplicateCardsObtained += openingCards.filter(
+      (card) => !card.wasNew
+    ).length;
+    todaysStats.srOrHigherCount += openingCards.filter((card) =>
+      rarityAtLeast(card.rarity, "SR")
+    ).length;
+    todaysStats.ssrOrHigherCount += openingCards.filter((card) =>
+      rarityAtLeast(card.rarity, "SSR")
+    ).length;
+    todaysStats.urOrHigherCount += openingCards.filter((card) =>
+      rarityAtLeast(card.rarity, "UR")
+    ).length;
+    todaysStats.shardsEarned += packResult.totalShards;
+    for (const card of openingCards) {
+      if (TRACKED_TOPIC_GROUPS.includes(card.topicGroup)) {
+        todaysStats.topicCardsObtained[card.topicGroup] += 1;
+      }
+    }
+
+    const opening = {
+      id: createId(draft, "packOpening"),
+      browserProfileId: profile.id,
+      openedAt: isoDate(now),
+      guaranteedSrPlus: packResult.guaranteedSrPlus,
+      packType: "standard",
+      resultSummary: summarizePack(openingCards),
+      cards: storedOpeningCards,
+    };
+    draft.packOpenings.push(opening);
+    trimProfilePackHistory(draft, profile.id);
+
+    if (packResult.totalShards > 0) {
+      draft.rewardEvents.push({
+        id: createId(draft, "rewardEvent"),
+        browserProfileId: profile.id,
+        rewardSource: "duplicate_cards",
+        rewardType: "shards",
+        rewardAmount: packResult.totalShards,
+        createdAt: isoDate(now),
+        metadataJson: {
+          packOpeningId: opening.id,
+        },
+      });
+    }
+
+    recomputeMissionProgress(draft, profile, now);
+    ensureTrophiesUnlocked(
+      draft,
+      profile,
+      now,
+      articleCatalog.getTopicGroupForArticleId,
+      articleCatalog.getRarityForArticleId
+    );
+    const nextPackStatus = serializePackStatus(profile, now);
+    draft.__lastOpenPackResponse = {
+      packOpeningId: opening.id,
+      guaranteedSrPlus: packResult.guaranteedSrPlus,
+      packsRemaining: profile.packsAvailable,
+      pityCounter: profile.pityCounter,
+      totalPackOpens: profile.totalPackOpens,
+      packStatus: nextPackStatus,
+      shardsEarned: packResult.totalShards,
+      newCardsCount: packResult.newCardsCount,
+      cards: openingCards,
+    };
+    return draft;
   }
 
   async function hydrateDashboard(dashboard, articleCatalog) {
@@ -1043,12 +1413,10 @@ export function createWikipediaGachaService({
         cards: await hydrateCards(entry.cards ?? [], articleCatalog),
       }))
     );
-    const recentCollection = await hydrateCards(dashboard.recentCollection ?? [], articleCatalog);
 
     return {
       ...dashboard,
       recentPackHistory,
-      recentCollection,
     };
   }
 
@@ -1056,19 +1424,21 @@ export function createWikipediaGachaService({
     const preferredLanguage = resolvePreferredLanguage(
       payload.preferredLanguage ?? payload.language ?? payload.locale
     );
-    const articleCatalog = await ensureCatalogReady(preferredLanguage);
     const now = nowFn();
-    const browserToken = createToken(randomBytesFn);
+    const displayName = payload.displayName
+      ? String(payload.displayName).slice(0, 80)
+      : "Anonymous Archivist";
+    const browserToken = createToken(randomBytesFn, {
+      displayName,
+      preferredLanguage,
+      createdAt: isoDate(now),
+    });
+    store.registerTransientToken(browserToken);
     const profile = {
-      id: null,
-      browserToken,
-      displayName: payload.displayName
-        ? String(payload.displayName).slice(0, 80)
-        : "Anonymous Archivist",
+      displayName,
       preferredLanguage,
       packsAvailable: DEFAULT_STARTING_PACKS,
       maxPacks: DEFAULT_MAX_PACKS,
-      lastPackRegenAt: isoDate(now),
       gems: 0,
       shards: 0,
       trophiesPoints: 0,
@@ -1077,72 +1447,174 @@ export function createWikipediaGachaService({
       createdAt: isoDate(now),
       updatedAt: isoDate(now),
       lastSeenAt: isoDate(now),
-      lastPackOpenedAt: null,
     };
-
-    const state = await store.forToken(browserToken).update(async (draft) => {
-      profile.id = createId(draft, "profile");
-      draft.browserProfiles.push(profile);
-      ensureDailyMissions(draft, profile, now);
-      ensureTrophiesUnlocked(
-        draft,
-        profile,
-        now,
-        articleCatalog.getTopicGroupForArticleId,
-        articleCatalog.getRarityForArticleId
-      );
-      return draft;
-    });
-
-    const createdProfile = state.browserProfiles.find(
-      (entry) => entry.browserToken === browserToken
-    );
     return {
       browserToken,
-      profile: serializeProfile(createdProfile),
-      packStatus: serializePackStatus(createdProfile, now),
+      profile: serializeProfile(profile),
+      packStatus: serializePackStatus({
+        ...profile,
+        lastPackRegenAt: isoDate(now),
+      }, now),
     };
   }
 
   async function getSessionMe(browserToken, preferredLanguage = null) {
     const now = nowFn();
+    const transient = await buildTransientStateForUnpersistedToken(
+      browserToken,
+      preferredLanguage,
+      now
+    );
+    if (transient) {
+      const missionEntries = ensureDailyMissions(transient.state, transient.profile, now);
+      return {
+        browserToken: transient.profile.browserToken,
+        profile: serializeProfile(transient.profile),
+        packStatus: serializePackStatus(transient.profile, now),
+        collectionSummary: buildEmptyCollectionSummary(),
+        missionSummary: {
+          total: missionEntries.length,
+          completed: missionEntries.filter((entry) => entry.completed).length,
+          claimable: missionEntries.filter((entry) => entry.completed && !entry.claimed).length,
+        },
+        trophySummary: {
+          total: TROPHIES.length,
+          unlocked: 0,
+          points: transient.profile.trophiesPoints,
+        },
+        recentPackHistory: [],
+        recentRewardEvents: [],
+      };
+    }
+    let collectionSummary = null;
+    let missionSummary = null;
+    let trophySummary = null;
+    let hasCollection = false;
+    let hasPackHistory = false;
+    let shouldHydrateDashboardResponse = false;
     const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
+      let changed = false;
+      const previousLanguage = profile.preferredLanguage;
+      const previousPacksAvailable = profile.packsAvailable;
+      const previousLastPackRegenAt = profile.lastPackRegenAt;
+
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      changed ||= profile.preferredLanguage !== previousLanguage;
       applyPackRegeneration(profile, now);
-      profile.lastSeenAt = isoDate(now);
-      profile.updatedAt = isoDate(now);
+      changed ||= profile.packsAvailable !== previousPacksAvailable;
+      changed ||= profile.lastPackRegenAt !== previousLastPackRegenAt;
+      if (shouldTouchLastSeen(profile, now)) {
+        profile.lastSeenAt = isoDate(now);
+        changed = true;
+      }
       recomputeMissionProgress(draft, profile, now);
-      const articleCatalog = getArticleCatalog(profile.preferredLanguage);
-      await articleCatalog.ready();
-      ensureTrophiesUnlocked(
-        draft,
-        profile,
-        now,
-        articleCatalog.getTopicGroupForArticleId,
-        articleCatalog.getRarityForArticleId
-      );
-      return draft;
+      changed ||= Boolean(draft.__missionProgressChanged);
+      hasCollection = hasProfileCollection(draft, profile.id);
+      hasPackHistory = hasProfilePackOpenings(draft, profile.id);
+      shouldHydrateDashboardResponse = hasCollection || hasPackHistory;
+      if (shouldSkipExpensiveTrophyRecompute(draft, profile)) {
+        collectionSummary = buildEmptyCollectionSummary();
+      } else {
+        const articleCatalog = getArticleCatalog(profile.preferredLanguage);
+        await articleCatalog.ready();
+        ensureTrophiesUnlocked(
+          draft,
+          profile,
+          now,
+          articleCatalog.getTopicGroupForArticleId,
+          articleCatalog.getRarityForArticleId
+        );
+        changed ||= Boolean(draft.__trophiesUnlockedChanged);
+        collectionSummary = hasCollection
+          ? getCollectionSummary(
+              draft,
+              profile.id,
+              articleCatalog.getRarityForArticleId
+            )
+          : buildEmptyCollectionSummary();
+      }
+      const missionEntries = ensureDailyMissions(draft, profile, now);
+      missionSummary = {
+        total: missionEntries.length,
+        completed: missionEntries.filter((entry) => entry.completed).length,
+        claimable: missionEntries.filter((entry) => entry.completed && !entry.claimed).length,
+      };
+      trophySummary = {
+        total: TROPHIES.length,
+        unlocked: draft.browserTrophies.filter((entry) => entry.browserProfileId === profile.id).length,
+        points: profile.trophiesPoints,
+      };
+      if (changed) {
+        profile.updatedAt = isoDate(now);
+      }
+      return {
+        state: draft,
+        persist: changed && hasPersistedProgress(draft, profile),
+      };
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
     );
+    if (!shouldHydrateDashboardResponse) {
+      return {
+        browserToken: profile.browserToken,
+        profile: serializeProfile(profile),
+        packStatus: serializePackStatus(profile, now),
+        collectionSummary: collectionSummary ?? buildEmptyCollectionSummary(),
+        missionSummary: missionSummary ?? { total: 0, completed: 0, claimable: 0 },
+        trophySummary: trophySummary ?? {
+          total: TROPHIES.length,
+          unlocked: 0,
+          points: profile.trophiesPoints,
+        },
+        recentPackHistory: [],
+        recentRewardEvents: getRecentRewardEvents(state, profile.id),
+      };
+    }
     const preferredCatalog = await ensureCatalogReady(profile?.preferredLanguage);
     return hydrateDashboard(
-      await buildDashboard(state, profile, now, preferredCatalog),
+      await buildDashboard(state, profile, now, preferredCatalog, {
+        collectionSummary,
+        missionSummary,
+        trophySummary,
+      }),
       preferredCatalog
     );
   }
 
   async function getPackStatus(browserToken, preferredLanguage = null) {
     const now = nowFn();
+    const transient = await buildTransientStateForUnpersistedToken(
+      browserToken,
+      preferredLanguage,
+      now
+    );
+    if (transient) {
+      return serializePackStatus(transient.profile, now);
+    }
     const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
+      let changed = false;
+      const previousLanguage = profile.preferredLanguage;
+      const previousPacksAvailable = profile.packsAvailable;
+      const previousLastPackRegenAt = profile.lastPackRegenAt;
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      changed ||= profile.preferredLanguage !== previousLanguage;
       applyPackRegeneration(profile, now);
-      profile.lastSeenAt = isoDate(now);
-      profile.updatedAt = isoDate(now);
-      return draft;
+      changed ||= profile.packsAvailable !== previousPacksAvailable;
+      changed ||= profile.lastPackRegenAt !== previousLastPackRegenAt;
+      if (shouldTouchLastSeen(profile, now)) {
+        profile.lastSeenAt = isoDate(now);
+        changed = true;
+      }
+      if (changed) {
+        profile.updatedAt = isoDate(now);
+      }
+      return {
+        state: draft,
+        persist: changed && hasPersistedProgress(draft, profile),
+      };
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
@@ -1152,147 +1624,27 @@ export function createWikipediaGachaService({
 
   async function openPack(browserToken, preferredLanguage = null) {
     const now = nowFn();
+    const transient = await buildTransientStateForUnpersistedToken(
+      browserToken,
+      preferredLanguage,
+      now
+    );
+    if (transient) {
+      const articleCatalog = await ensureCatalogReady(transient.profile.preferredLanguage);
+      await performOpenPackMutation(transient.state, transient.profile, now, articleCatalog);
+      await store.forToken(browserToken).write(transient.state);
+      const response = transient.state.__lastOpenPackResponse;
+      return {
+        ...response,
+        cards: await hydrateCards(response.cards ?? [], articleCatalog),
+      };
+    }
     const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
       applyPackRegeneration(profile, now);
       const articleCatalog = await ensureCatalogReady(profile.preferredLanguage);
-      const hasSpecialPackReady = Number(profile.pityCounter) >= PITY_THRESHOLD;
-
-      if (profile.packsAvailable <= 0 && !hasSpecialPackReady) {
-        const error = new Error("No packs available.");
-        error.statusCode = 409;
-        error.code = "no_packs_available";
-        throw error;
-      }
-
-      const lastOpenAtMs = profile.lastPackOpenedAt
-        ? new Date(profile.lastPackOpenedAt).getTime()
-        : 0;
-      if (now.getTime() - lastOpenAtMs < 900) {
-        const error = new Error("Pack open rate limit exceeded.");
-        error.statusCode = 429;
-        error.code = "pack_open_rate_limited";
-        throw error;
-      }
-
-      const wasAtCap = profile.packsAvailable >= profile.maxPacks;
-      const packResult = createPackCards(
-        draft,
-        profile,
-        now,
-        randomFn,
-        articleCatalog
-      );
-      const openingCards = await Promise.all(
-        packResult.packCards.map(async (packCard) => {
-          const article = await articleCatalog.getArticleById(packCard.articleId);
-          if (!article) {
-            const error = new Error(`Article ${packCard.articleId} not found.`);
-            error.statusCode = 500;
-            error.code = "catalog_article_not_found";
-            throw error;
-          }
-          const collectionEntry = draft.browserCollection.find(
-            (entry) =>
-              entry.browserProfileId === profile.id &&
-              entry.articleId === packCard.articleId
-          );
-          return serializePackCardResult(article, collectionEntry, packCard);
-        })
-      );
-
-      if (!hasSpecialPackReady) {
-        profile.packsAvailable -= 1;
-      }
-      profile.totalPackOpens += 1;
-      profile.lastPackOpenedAt = isoDate(now);
-      profile.lastSeenAt = isoDate(now);
-      profile.updatedAt = isoDate(now);
-      if (wasAtCap) {
-        profile.lastPackRegenAt = isoDate(now);
-      }
-      const safePityCounter = Number.isFinite(Number(profile.pityCounter))
-        ? Math.max(
-            0,
-            Math.min(PITY_THRESHOLD, Math.floor(Number(profile.pityCounter)))
-          )
-        : 0;
-      // Special pack cadence: every 10 opened packs, regardless of rarity results.
-      // Once consumed, the counter restarts.
-      profile.pityCounter = packResult.guaranteedSrPlus
-        ? 0
-        : Math.min(PITY_THRESHOLD, safePityCounter + 1);
-
-      const todaysStats = getTodaysStats(draft, profile.id, now);
-      todaysStats.packsOpened += 1;
-      todaysStats.cardsObtained += openingCards.length;
-      todaysStats.newCardsObtained += packResult.newCardsCount;
-      todaysStats.duplicateCardsObtained += openingCards.filter(
-        (card) => !card.wasNew
-      ).length;
-      todaysStats.srOrHigherCount += openingCards.filter((card) =>
-        rarityAtLeast(card.rarity, "SR")
-      ).length;
-      todaysStats.ssrOrHigherCount += openingCards.filter((card) =>
-        rarityAtLeast(card.rarity, "SSR")
-      ).length;
-      todaysStats.urOrHigherCount += openingCards.filter((card) =>
-        rarityAtLeast(card.rarity, "UR")
-      ).length;
-      todaysStats.shardsEarned += packResult.totalShards;
-      for (const card of openingCards) {
-        if (TRACKED_TOPIC_GROUPS.includes(card.topicGroup)) {
-          todaysStats.topicCardsObtained[card.topicGroup] += 1;
-        }
-      }
-
-      const opening = {
-        id: createId(draft, "packOpening"),
-        browserProfileId: profile.id,
-        openedAt: isoDate(now),
-        guaranteedSrPlus: packResult.guaranteedSrPlus,
-        packType: "standard",
-        resultSummary: summarizePack(openingCards),
-        cards: openingCards,
-      };
-      draft.packOpenings.push(opening);
-
-      if (packResult.totalShards > 0) {
-        draft.rewardEvents.push({
-          id: createId(draft, "rewardEvent"),
-          browserProfileId: profile.id,
-          rewardSource: "duplicate_cards",
-          rewardType: "shards",
-          rewardAmount: packResult.totalShards,
-          createdAt: isoDate(now),
-          metadataJson: {
-            packOpeningId: opening.id,
-          },
-        });
-      }
-
-      recomputeMissionProgress(draft, profile, now);
-      ensureTrophiesUnlocked(
-        draft,
-        profile,
-        now,
-        articleCatalog.getTopicGroupForArticleId,
-        articleCatalog.getRarityForArticleId
-      );
-      const nextPackStatus = serializePackStatus(profile, now);
-      draft.__lastOpenPackResponse = {
-        packOpeningId: opening.id,
-        guaranteedSrPlus: packResult.guaranteedSrPlus,
-        packsRemaining: profile.packsAvailable,
-        pityCounter: profile.pityCounter,
-        totalPackOpens: profile.totalPackOpens,
-        packStatus: nextPackStatus,
-        shardsEarned: packResult.totalShards,
-        newCardsCount: packResult.newCardsCount,
-        cards: openingCards,
-      };
-      return draft;
+      return performOpenPackMutation(draft, profile, now, articleCatalog);
     });
 
     const response = state.__lastOpenPackResponse;
@@ -1308,11 +1660,32 @@ export function createWikipediaGachaService({
 
   async function getPackHistory(browserToken, preferredLanguage = null) {
     const now = nowFn();
+    const transient = await buildTransientStateForUnpersistedToken(
+      browserToken,
+      preferredLanguage,
+      now
+    );
+    if (transient) {
+      return { packHistory: [] };
+    }
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      let changed = false;
+      const previousLanguage = profile.preferredLanguage;
+      const previousPacksAvailable = profile.packsAvailable;
+      const previousLastPackRegenAt = profile.lastPackRegenAt;
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      changed ||= profile.preferredLanguage !== previousLanguage;
       applyPackRegeneration(profile, now);
-      return draft;
+      changed ||= profile.packsAvailable !== previousPacksAvailable;
+      changed ||= profile.lastPackRegenAt !== previousLastPackRegenAt;
+      if (changed) {
+        profile.updatedAt = isoDate(now);
+      }
+      return {
+        state: draft,
+        persist: changed && hasPersistedProgress(draft, profile),
+      };
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
@@ -1333,11 +1706,41 @@ export function createWikipediaGachaService({
 
   async function getCollection(browserToken, filters = {}, preferredLanguage = null) {
     const now = nowFn();
+    const transient = await buildTransientStateForUnpersistedToken(
+      browserToken,
+      preferredLanguage,
+      now
+    );
+    if (transient) {
+      const page = Math.max(1, Number(filters.page) || 1);
+      const pageSize = Math.min(60, Math.max(1, Number(filters.pageSize) || 24));
+      return {
+        page,
+        pageSize,
+        total: 0,
+        items: [],
+        summary: buildEmptyCollectionSummary(),
+        availableTopics: [],
+      };
+    }
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      let changed = false;
+      const previousLanguage = profile.preferredLanguage;
+      const previousPacksAvailable = profile.packsAvailable;
+      const previousLastPackRegenAt = profile.lastPackRegenAt;
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      changed ||= profile.preferredLanguage !== previousLanguage;
       applyPackRegeneration(profile, now);
-      return draft;
+      changed ||= profile.packsAvailable !== previousPacksAvailable;
+      changed ||= profile.lastPackRegenAt !== previousLastPackRegenAt;
+      if (changed) {
+        profile.updatedAt = isoDate(now);
+      }
+      return {
+        state: draft,
+        persist: changed && hasPersistedProgress(draft, profile),
+      };
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
@@ -1384,9 +1787,22 @@ export function createWikipediaGachaService({
     const now = nowFn();
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
+      let changed = false;
+      const previousLanguage = profile.preferredLanguage;
+      const previousPacksAvailable = profile.packsAvailable;
+      const previousLastPackRegenAt = profile.lastPackRegenAt;
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      changed ||= profile.preferredLanguage !== previousLanguage;
       applyPackRegeneration(profile, now);
-      return draft;
+      changed ||= profile.packsAvailable !== previousPacksAvailable;
+      changed ||= profile.lastPackRegenAt !== previousLastPackRegenAt;
+      if (changed) {
+        profile.updatedAt = isoDate(now);
+      }
+      return {
+        state: draft,
+        persist: changed && hasPersistedProgress(draft, profile),
+      };
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
@@ -1452,8 +1868,16 @@ export function createWikipediaGachaService({
       const now = nowFn();
       const state = await store.forToken(browserToken).update((draft) => {
         const currentProfile = ensureProfile(draft, browserToken);
+        const previousLanguage = currentProfile.preferredLanguage;
         syncProfilePreferredLanguage(currentProfile, preferredLanguage, now);
-        return draft;
+        const changed = currentProfile.preferredLanguage !== previousLanguage;
+        if (changed) {
+          currentProfile.updatedAt = isoDate(now);
+        }
+        return {
+          state: draft,
+          persist: changed && hasPersistedProgress(draft, currentProfile),
+        };
       });
       profile = state.browserProfiles.find(
         (entry) => entry.browserToken === browserToken
@@ -1523,11 +1947,28 @@ export function createWikipediaGachaService({
 
   async function getMissions(browserToken, preferredLanguage = null) {
     const now = nowFn();
+    const transient = await buildTransientStateForUnpersistedToken(
+      browserToken,
+      preferredLanguage,
+      now
+    );
+    if (transient) {
+      const missions = ensureDailyMissions(transient.state, transient.profile, now);
+      return {
+        missions: missions.map(serializeMissionEntry),
+        summary: getMissionSummary(transient.state, transient.profile, now),
+      };
+    }
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
       recomputeMissionProgress(draft, profile, now);
-      return draft;
+      return {
+        state: draft,
+        persist:
+          (draft.__missionProgressChanged || false) &&
+          hasPersistedProgress(draft, profile),
+      };
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
@@ -1640,6 +2081,32 @@ export function createWikipediaGachaService({
 
   async function getTrophies(browserToken, { unlockedOnly = false, preferredLanguage = null } = {}) {
     const now = nowFn();
+    const transient = await buildTransientStateForUnpersistedToken(
+      browserToken,
+      preferredLanguage,
+      now
+    );
+    if (transient) {
+      return {
+        trophies: TROPHIES.filter(
+          (trophy) => !unlockedOnly
+        ).map((trophy) => ({
+          id: trophy.id,
+          code: trophy.code,
+          name: trophy.name,
+          description: trophy.description,
+          iconKey: trophy.iconKey,
+          points: trophy.points,
+          unlockedAt: null,
+          unlocked: false,
+        })),
+        summary: {
+          total: TROPHIES.length,
+          unlocked: 0,
+          points: transient.profile.trophiesPoints,
+        },
+      };
+    }
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
@@ -1652,7 +2119,12 @@ export function createWikipediaGachaService({
         articleCatalog.getTopicGroupForArticleId,
         articleCatalog.getRarityForArticleId
       );
-      return draft;
+      return {
+        state: draft,
+        persist:
+          (draft.__trophiesUnlockedChanged || false) &&
+          hasPersistedProgress(draft, profile),
+      };
     });
     const profile = state.browserProfiles.find(
       (entry) => entry.browserToken === browserToken
@@ -1898,6 +2370,9 @@ export function createWikipediaGachaService({
       return articleCatalog.listCatalog(limit);
     },
     async close() {
+      if (typeof store.flush === "function") {
+        await store.flush();
+      }
       await Promise.all(
         Array.from(articleCatalogs.values()).map((catalog) => catalog.close())
       );

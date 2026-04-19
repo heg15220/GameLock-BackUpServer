@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-04-19T10:11:02.326Z",
+  "baseUrl": "http://127.0.0.1:8802",
+  "users": 3000,
+  "locale": "en",
+  "timeoutMs": 60000,
+  "warmupMs": 24.93,
+  "scenarios": [
+    {
+      "name": "bootstrapSession",
+      "requests": 3000,
+      "ok": 3000,
+      "failed": 0,
+      "avgMs": 6568.28,
+      "medianMs": 6569.72,
+      "p95Ms": 6602.9,
+      "p99Ms": 6608.04,
+      "minMs": 3350.97,
+      "maxMs": 6614.02,
+      "failures": []
+    },
+    {
+      "name": "getSessionMe",
+      "requests": 3000,
+      "ok": 3000,
+      "failed": 0,
+      "avgMs": 14659.22,
+      "medianMs": 14728.8,
+      "p95Ms": 15079.14,
+      "p99Ms": 15106.8,
+      "minMs": 13981.37,
+      "maxMs": 16046.89,
+      "failures": []
+    },
+    {
+      "name": "openPack",
+      "requests": 3000,
+      "ok": 3000,
+      "failed": 0,
+      "avgMs": 3434.07,
+      "medianMs": 3381.17,
+      "p95Ms": 4155.48,
+      "p99Ms": 4470.15,
+      "minMs": 1658.89,
+      "maxMs": 4503.85,
+      "failures": []
+    }
+  ]
+}

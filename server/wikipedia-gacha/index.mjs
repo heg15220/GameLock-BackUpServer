@@ -1,8 +1,14 @@
+import cluster from "node:cluster";
 import { createServer } from "node:http";
+import process from "node:process";
 import { URL } from "node:url";
-import { wikipediaGachaService } from "./service.mjs";
 
 const port = Number(process.env.PORT || 8791);
+const host = process.env.HOST || "0.0.0.0";
+const configuredWorkers = Number(process.env.WIKIPEDIA_GACHA_WORKERS || 1);
+const workerCount = Number.isFinite(configuredWorkers) && configuredWorkers > 0
+  ? Math.floor(configuredWorkers)
+  : 1;
 
 function writeJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
@@ -69,288 +75,371 @@ function getPreferredLanguage(req, body = {}, searchParams = null) {
   );
 }
 
-const server = createServer(async (req, res) => {
-  const url = new URL(
-    req.url || "/",
-    `http://${req.headers.host || `127.0.0.1:${port}`}`
-  );
-
-  if (req.method === "OPTIONS") {
-    writeJson(res, 204, {});
-    return;
-  }
-
-  try {
-    if (req.method === "GET" && url.pathname === "/health") {
-      writeJson(res, 200, { ok: true, service: "wikipedia-gacha-backend" });
-      return;
-    }
-
-    if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/session/bootstrap") {
-      const body = await readBody(req);
-      writeJson(
-        res,
-        201,
-        await wikipediaGachaService.bootstrapSession({
-          ...body,
-          preferredLanguage: getPreferredLanguage(req, body, url.searchParams),
-        })
-      );
-      return;
-    }
-
-    if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/session/me") {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.getSessionMe(
-          getBrowserToken(req),
-          getPreferredLanguage(req, {}, url.searchParams)
-        )
-      );
-      return;
-    }
-
-    if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/packs/status") {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.getPackStatus(
-          getBrowserToken(req),
-          getPreferredLanguage(req, {}, url.searchParams)
-        )
-      );
-      return;
-    }
-
-    if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/packs/open") {
-      const body = await readBody(req);
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.openPack(
-          getBrowserToken(req, body),
-          getPreferredLanguage(req, body, url.searchParams)
-        )
-      );
-      return;
-    }
-
-    if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/ads/rewarded-packs") {
-      const body = await readBody(req);
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.claimRewardedAdPacks(
-          getBrowserToken(req, body),
-          getPreferredLanguage(req, body, url.searchParams)
-        )
-      );
-      return;
-    }
-
-    if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/packs/history") {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.getPackHistory(
-          getBrowserToken(req),
-          getPreferredLanguage(req, {}, url.searchParams)
-        )
-      );
-      return;
-    }
-
-    if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/collection") {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.getCollection(
-          getBrowserToken(req),
-          {
-            page: url.searchParams.get("page"),
-            pageSize: url.searchParams.get("pageSize"),
-            query: url.searchParams.get("q"),
-            rarity: url.searchParams.get("rarity"),
-            sortBy: url.searchParams.get("sortBy"),
-            topicGroup: url.searchParams.get("topicGroup"),
-            favorite: parseBoolean(url.searchParams.get("favorite")),
-            duplicatesOnly: parseBoolean(url.searchParams.get("duplicatesOnly")),
-            newOnly: parseBoolean(url.searchParams.get("newOnly")),
-          },
-          getPreferredLanguage(req, {}, url.searchParams)
-        )
-      );
-      return;
-    }
-
-    const collectionItemMatch = url.pathname.match(
-      /^\/api\/wikipedia-gacha\/collection\/(\d+)$/
+function createRequestHandler(wikipediaGachaService) {
+  return async (req, res) => {
+    const url = new URL(
+      req.url || "/",
+      `http://${req.headers.host || `127.0.0.1:${port}`}`
     );
-    if (req.method === "GET" && collectionItemMatch) {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.getCollectionItem(
-          getBrowserToken(req),
-          Number(collectionItemMatch[1]),
-          getPreferredLanguage(req, {}, url.searchParams)
-        )
-      );
+
+    if (req.method === "OPTIONS") {
+      writeJson(res, 204, {});
       return;
     }
 
-    const favoriteMatch = url.pathname.match(
-      /^\/api\/wikipedia-gacha\/collection\/(\d+)\/favorite$/
-    );
-    if (req.method === "PATCH" && favoriteMatch) {
-      const body = await readBody(req);
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.toggleFavorite(
-          getBrowserToken(req, body),
-          Number(favoriteMatch[1]),
-          body.favorite,
-          getPreferredLanguage(req, body, url.searchParams)
-        )
-      );
-      return;
-    }
+    try {
+      if (req.method === "GET" && url.pathname === "/health") {
+        writeJson(res, 200, { ok: true, service: "wikipedia-gacha-backend" });
+        return;
+      }
 
-    const articleMatch = url.pathname.match(
-      /^\/api\/wikipedia-gacha\/articles\/(\d+)$/
-    );
-    if (req.method === "GET" && articleMatch) {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.getArticle(
-          Number(articleMatch[1]),
-          req.headers["x-browser-token"] ? String(req.headers["x-browser-token"]) : null,
-          getPreferredLanguage(req, {}, url.searchParams)
-        )
-      );
-      return;
-    }
+      if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/session/bootstrap") {
+        const body = await readBody(req);
+        writeJson(
+          res,
+          201,
+          await wikipediaGachaService.bootstrapSession({
+            ...body,
+            preferredLanguage: getPreferredLanguage(req, body, url.searchParams),
+          })
+        );
+        return;
+      }
 
-    if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/articles/search") {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.searchArticles(
-          url.searchParams.get("q"),
-          getPreferredLanguage(req, {}, url.searchParams)
-        )
-      );
-      return;
-    }
+      if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/session/me") {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.getSessionMe(
+            getBrowserToken(req),
+            getPreferredLanguage(req, {}, url.searchParams)
+          )
+        );
+        return;
+      }
 
-    const articleClickMatch = url.pathname.match(
-      /^\/api\/wikipedia-gacha\/articles\/(\d+)\/click$/
-    );
-    if (req.method === "POST" && articleClickMatch) {
-      const body = await readBody(req);
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.registerArticleClick(
-          getBrowserToken(req, body),
-          Number(articleClickMatch[1]),
-          getPreferredLanguage(req, body, url.searchParams)
-        )
-      );
-      return;
-    }
+      if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/packs/status") {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.getPackStatus(
+            getBrowserToken(req),
+            getPreferredLanguage(req, {}, url.searchParams)
+          )
+        );
+        return;
+      }
 
-    if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/missions") {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.getMissions(
-          getBrowserToken(req),
-          getPreferredLanguage(req, {}, url.searchParams)
-        )
-      );
-      return;
-    }
+      if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/packs/open") {
+        const body = await readBody(req);
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.openPack(
+            getBrowserToken(req, body),
+            getPreferredLanguage(req, body, url.searchParams)
+          )
+        );
+        return;
+      }
 
-    const missionClaimMatch = url.pathname.match(
-      /^\/api\/wikipedia-gacha\/missions\/(\d+)\/claim$/
-    );
-    if (req.method === "POST" && missionClaimMatch) {
-      const body = await readBody(req);
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.claimMission(
-          getBrowserToken(req, body),
-          Number(missionClaimMatch[1]),
-          getPreferredLanguage(req, body, url.searchParams)
-        )
-      );
-      return;
-    }
+      if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/ads/rewarded-packs") {
+        const body = await readBody(req);
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.claimRewardedAdPacks(
+            getBrowserToken(req, body),
+            getPreferredLanguage(req, body, url.searchParams)
+          )
+        );
+        return;
+      }
 
-    if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/trophies") {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.getTrophies(getBrowserToken(req), {
-          preferredLanguage: getPreferredLanguage(req, {}, url.searchParams),
-        })
-      );
-      return;
-    }
+      if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/packs/history") {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.getPackHistory(
+            getBrowserToken(req),
+            getPreferredLanguage(req, {}, url.searchParams)
+          )
+        );
+        return;
+      }
 
-    if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/trophies/unlocked") {
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.getTrophies(getBrowserToken(req), {
-          unlockedOnly: true,
-          preferredLanguage: getPreferredLanguage(req, {}, url.searchParams),
-        })
-      );
-      return;
-    }
+      if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/collection") {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.getCollection(
+            getBrowserToken(req),
+            {
+              page: url.searchParams.get("page"),
+              pageSize: url.searchParams.get("pageSize"),
+              query: url.searchParams.get("q"),
+              rarity: url.searchParams.get("rarity"),
+              sortBy: url.searchParams.get("sortBy"),
+              topicGroup: url.searchParams.get("topicGroup"),
+              favorite: parseBoolean(url.searchParams.get("favorite")),
+              duplicatesOnly: parseBoolean(url.searchParams.get("duplicatesOnly")),
+              newOnly: parseBoolean(url.searchParams.get("newOnly")),
+            },
+            getPreferredLanguage(req, {}, url.searchParams)
+          )
+        );
+        return;
+      }
 
-    if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/recovery/export") {
-      const body = await readBody(req);
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.exportRecoveryCode(
-          getBrowserToken(req, body),
-          getPreferredLanguage(req, body, url.searchParams)
-        )
+      const collectionItemMatch = url.pathname.match(
+        /^\/api\/wikipedia-gacha\/collection\/(\d+)$/
       );
-      return;
-    }
+      if (req.method === "GET" && collectionItemMatch) {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.getCollectionItem(
+            getBrowserToken(req),
+            Number(collectionItemMatch[1]),
+            getPreferredLanguage(req, {}, url.searchParams)
+          )
+        );
+        return;
+      }
 
-    if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/recovery/import") {
-      const body = await readBody(req);
-      writeJson(
-        res,
-        200,
-        await wikipediaGachaService.importRecoveryCode(
-          getBrowserToken(req, body),
-          body.recoveryCode,
-          getPreferredLanguage(req, body, url.searchParams)
-        )
+      const favoriteMatch = url.pathname.match(
+        /^\/api\/wikipedia-gacha\/collection\/(\d+)\/favorite$/
       );
-      return;
-    }
+      if (req.method === "PATCH" && favoriteMatch) {
+        const body = await readBody(req);
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.toggleFavorite(
+            getBrowserToken(req, body),
+            Number(favoriteMatch[1]),
+            body.favorite,
+            getPreferredLanguage(req, body, url.searchParams)
+          )
+        );
+        return;
+      }
 
-    writeJson(res, 404, { error: "not_found" });
-  } catch (error) {
-    writeJson(res, error.statusCode || 500, {
-      error: error.code || "internal_error",
-      message: error.message || "Unexpected server error.",
+      const articleMatch = url.pathname.match(
+        /^\/api\/wikipedia-gacha\/articles\/(\d+)$/
+      );
+      if (req.method === "GET" && articleMatch) {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.getArticle(
+            Number(articleMatch[1]),
+            req.headers["x-browser-token"] ? String(req.headers["x-browser-token"]) : null,
+            getPreferredLanguage(req, {}, url.searchParams)
+          )
+        );
+        return;
+      }
+
+      if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/articles/search") {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.searchArticles(
+            url.searchParams.get("q"),
+            getPreferredLanguage(req, {}, url.searchParams)
+          )
+        );
+        return;
+      }
+
+      const articleClickMatch = url.pathname.match(
+        /^\/api\/wikipedia-gacha\/articles\/(\d+)\/click$/
+      );
+      if (req.method === "POST" && articleClickMatch) {
+        const body = await readBody(req);
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.registerArticleClick(
+            getBrowserToken(req, body),
+            Number(articleClickMatch[1]),
+            getPreferredLanguage(req, body, url.searchParams)
+          )
+        );
+        return;
+      }
+
+      if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/missions") {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.getMissions(
+            getBrowserToken(req),
+            getPreferredLanguage(req, {}, url.searchParams)
+          )
+        );
+        return;
+      }
+
+      const missionClaimMatch = url.pathname.match(
+        /^\/api\/wikipedia-gacha\/missions\/(\d+)\/claim$/
+      );
+      if (req.method === "POST" && missionClaimMatch) {
+        const body = await readBody(req);
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.claimMission(
+            getBrowserToken(req, body),
+            Number(missionClaimMatch[1]),
+            getPreferredLanguage(req, body, url.searchParams)
+          )
+        );
+        return;
+      }
+
+      if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/trophies") {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.getTrophies(getBrowserToken(req), {
+            preferredLanguage: getPreferredLanguage(req, {}, url.searchParams),
+          })
+        );
+        return;
+      }
+
+      if (req.method === "GET" && url.pathname === "/api/wikipedia-gacha/trophies/unlocked") {
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.getTrophies(getBrowserToken(req), {
+            unlockedOnly: true,
+            preferredLanguage: getPreferredLanguage(req, {}, url.searchParams),
+          })
+        );
+        return;
+      }
+
+      if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/recovery/export") {
+        const body = await readBody(req);
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.exportRecoveryCode(
+            getBrowserToken(req, body),
+            getPreferredLanguage(req, body, url.searchParams)
+          )
+        );
+        return;
+      }
+
+      if (req.method === "POST" && url.pathname === "/api/wikipedia-gacha/recovery/import") {
+        const body = await readBody(req);
+        writeJson(
+          res,
+          200,
+          await wikipediaGachaService.importRecoveryCode(
+            getBrowserToken(req, body),
+            body.recoveryCode,
+            getPreferredLanguage(req, body, url.searchParams)
+          )
+        );
+        return;
+      }
+
+      writeJson(res, 404, { error: "not_found" });
+    } catch (error) {
+      writeJson(res, error.statusCode || 500, {
+        error: error.code || "internal_error",
+        message: error.message || "Unexpected server error.",
+      });
+    }
+  };
+}
+
+function closeServer(server) {
+  return new Promise((resolve, reject) => {
+    server.close((error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve();
     });
-  }
-});
+  });
+}
 
-server.listen(port, () => {
-  console.log(`Wikipedia Gacha backend listening on http://127.0.0.1:${port}`);
-});
+async function startWorker() {
+  const { wikipediaGachaService } = await import("./service.mjs");
+  const server = createServer(createRequestHandler(wikipediaGachaService));
+  let shuttingDown = false;
+
+  const shutdown = async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    try {
+      await closeServer(server);
+    } catch {
+      // ignore server close races during shutdown
+    }
+    try {
+      await wikipediaGachaService.close();
+    } finally {
+      process.exit(0);
+    }
+  };
+
+  process.once("SIGINT", shutdown);
+  process.once("SIGTERM", shutdown);
+
+  server.listen(port, host, () => {
+    console.log(
+      `Wikipedia Gacha backend listening on http://${host}:${port} (pid ${process.pid})`
+    );
+  });
+}
+
+async function startPrimary() {
+  cluster.schedulingPolicy = cluster.SCHED_RR;
+  let shuttingDown = false;
+
+  for (let index = 0; index < workerCount; index += 1) {
+    cluster.fork();
+  }
+
+  cluster.on("exit", () => {
+    if (!shuttingDown) {
+      cluster.fork();
+    }
+  });
+
+  const shutdown = async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    await Promise.all(
+      Object.values(cluster.workers ?? {}).map(
+        (worker) =>
+          new Promise((resolve) => {
+            if (!worker) {
+              resolve();
+              return;
+            }
+            worker.once("exit", resolve);
+            worker.kill("SIGTERM");
+          })
+      )
+    );
+    process.exit(0);
+  };
+
+  process.once("SIGINT", shutdown);
+  process.once("SIGTERM", shutdown);
+}
+
+if (cluster.isPrimary && workerCount > 1) {
+  await startPrimary();
+} else {
+  await startWorker();
+}

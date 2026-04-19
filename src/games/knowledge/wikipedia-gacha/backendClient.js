@@ -1,5 +1,13 @@
+function resolveDefaultBackendRoot() {
+  if (typeof window !== "undefined" && window.location?.hostname) {
+    const protocol = window.location.protocol === "https:" ? "https:" : "http:";
+    return `${protocol}//${window.location.hostname}:8791`;
+  }
+  return "http://127.0.0.1:8791";
+}
+
 const BACKEND_ROOT =
-  import.meta.env.VITE_WIKIPEDIA_GACHA_BACKEND_URL ?? "http://127.0.0.1:8791";
+  import.meta.env.VITE_WIKIPEDIA_GACHA_BACKEND_URL ?? resolveDefaultBackendRoot();
 
 async function request(path, options = {}) {
   const response = await fetch(`${BACKEND_ROOT}${path}`, {
