@@ -1,7 +1,7 @@
 import React from "react";
 import { getLocalizedGame } from "../i18n";
 
-function GameCard({ game, index, locale, onLaunch, t }) {
+function GameCard({ game, index, locale, onLaunch, t, promoNote = null }) {
   const lg = getLocalizedGame(game, locale);
 
   return (
@@ -37,6 +37,21 @@ function GameCard({ game, index, locale, onLaunch, t }) {
         >
           {t("startGame")}
         </button>
+
+        {promoNote ? (
+          <div className="catalog-subliminal catalog-subliminal--sports">
+            <strong>
+              {promoNote.textPrefix}{" "}
+              <a
+                href={`https://${promoNote.domain}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {promoNote.domain}
+              </a>
+            </strong>
+          </div>
+        ) : null}
       </div>
     </article>
   );

@@ -1,0 +1,29 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 664
+  },
+  "shell": {
+    "width": 327.25,
+    "height": 390,
+    "x": 31.375,
+    "y": 90.203125
+  },
+  "card": {
+    "width": 220,
+    "height": 320,
+    "x": 85,
+    "y": 90.203125
+  },
+  "art": {
+    "height": 140
+  },
+  "blurb": {
+    "fontSize": "9.76px",
+    "lineHeight": "12.4928px",
+    "webkitLineClamp": "8",
+    "clientHeight": 100,
+    "scrollHeight": 175,
+    "textLength": 493
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "missionNoticeVisible": false,
+  "missionNoticeBox": null,
+  "rareNoticeVisible": false,
+  "rareNoticeBox": null,
+  "statusBannerVisible": false,
+  "statusBannerBox": null,
+  "collection": {
+    "firstRowCount": 1,
+    "firstCardWidth": 313,
+    "firstCardHeight": 472,
+    "gridColumns": "312.578px",
+    "blurbLineClamp": "8",
+    "blurbFontSize": "10.24px",
+    "blurbLineHeight": "13.5168px",
+    "blurbTextLength": 600
+  },
+  "packScreenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\wg-mobile-fix-check\\wikipedia-gacha-packs-mobile-fix.png",
+  "collectionScreenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\wg-mobile-fix-check\\wikipedia-gacha-collection-mobile-fix.png"
+}

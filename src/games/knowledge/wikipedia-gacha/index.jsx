@@ -1698,6 +1698,7 @@ export default function WikipediaGachaGame() {
   const shellScrollRef = useRef(null);
   const packHeroRef = useRef(null);
   const packsSectionRef = useRef(null);
+  const packsStageRef = useRef(null);
   const collectionSectionRef = useRef(null);
 
   useEffect(() => {
@@ -1821,7 +1822,7 @@ export default function WikipediaGachaGame() {
       activeTab === "home"
         ? packHeroRef.current
         : activeTab === "packs"
-        ? packsSectionRef.current
+        ? packsStageRef.current ?? packsSectionRef.current
         : activeTab === "collection"
         ? collectionSectionRef.current
         : null;
@@ -1836,8 +1837,8 @@ export default function WikipediaGachaGame() {
     const frameId = window.requestAnimationFrame(() => {
       scrollShellTarget(target, {
         behavior: "auto",
-        block: activeTab === "home" ? "center" : "start",
-        padding: activeTab === "packs" ? 10 : 18,
+        block: activeTab === "home" || activeTab === "packs" ? "center" : "start",
+        padding: activeTab === "packs" ? 0 : 18,
       });
     });
 
@@ -2064,10 +2065,10 @@ export default function WikipediaGachaGame() {
     }
 
     const frameId = window.requestAnimationFrame(() => {
-      scrollShellTarget(packsSectionRef.current, {
+      scrollShellTarget(packsStageRef.current ?? packsSectionRef.current, {
         behavior: isMobileViewport ? "smooth" : "auto",
-        block: "start",
-        padding: 8,
+        block: "center",
+        padding: 0,
       });
     });
 
@@ -2850,7 +2851,7 @@ export default function WikipediaGachaGame() {
 
         {!loading && activeTab === "packs" ? (
           <section className="wg-stack-panel" ref={packsSectionRef}>
-            <div className="wg-stack-shell is-deck">
+            <div className="wg-stack-shell is-deck" ref={packsStageRef}>
               <div className="wg-stack-track">
                 {currentPackCards.length ? (
                   allPackCardsSeen ? (

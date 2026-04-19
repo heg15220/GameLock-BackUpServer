@@ -2320,6 +2320,9 @@ export default function HeadSoccerGame({ locale }) {
                     <div className="head-soccer-pro-track-fill" style={{ width: `${snapshot.powers.cpu}%` }} />
                   </div>
                   <strong>{snapshot.competitors.cpu.flag}</strong>
+                  <div className="head-soccer-pro-round-tag head-soccer-pro-round-tag--hud">
+                    {snapshot.roundLabel}{snapshot.goldenGoal ? " | GOLDEN GOAL" : ""} | {snapshot.competitors.you.name} vs {snapshot.competitors.cpu.name}
+                  </div>
                 </div>
               </div>
 
@@ -2327,9 +2330,6 @@ export default function HeadSoccerGame({ locale }) {
                 <b>{snapshot.score.you}</b>
                 <span>-</span>
                 <b>{snapshot.score.cpu}</b>
-              </div>
-              <div className="head-soccer-pro-round-tag">
-                {snapshot.roundLabel}{snapshot.goldenGoal ? " | GOLDEN GOAL" : ""} | {snapshot.competitors.you.name} vs {snapshot.competitors.cpu.name}
               </div>
             </div>
 

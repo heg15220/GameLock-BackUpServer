@@ -414,6 +414,13 @@ body {
   color: #0f172a;
 }
 
+.catalog-subliminal a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.12em;
+}
+
 .catalog-subliminal--sports {
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(224, 242, 254, 0.88));
@@ -1352,6 +1359,15 @@ body {
   text-overflow: ellipsis;
 }
 
+.head-soccer-pro-round-tag--hud {
+  grid-column: 2 / -1;
+  justify-self: end;
+  margin: 0.18rem 0 0;
+  max-width: min(100%, 18rem);
+  padding: 0.1rem 0.42rem;
+  font-size: 0.54rem;
+}
+
 @media (max-width: 1024px) and (orientation: portrait), (max-width: 760px) {
   .catalog-sports-promo-card {
     grid-column: 1 / -1;
@@ -1403,6 +1419,14 @@ body {
     font-size: 0.56rem;
     letter-spacing: 0.03em;
     transform: translateY(-3px);
+  }
+
+  .head-soccer-pro-round-tag--hud {
+    margin-top: 0.12rem;
+    max-width: min(100%, 14rem);
+    padding: 0.08rem 0.34rem;
+    font-size: 0.5rem;
+    transform: none;
   }
 }
 

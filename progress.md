@@ -4289,3 +4289,12 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
   - Playwright local con preview en `output/ui-responsive-check/` para catalogo deportes, mobile Orchard setup, tablet Wordle laboratorio y mobile Crucigrama.
   - Aserciones DOM confirmadas: promo deportes visible, un setup button seleccionado con gradiente/color propio, shell tablet conocimiento con `touchCopyDisplay: grid`, `panelAdCount: 2`, `stageSideAdCount: 0`, y banner compacto de crucigrama con `minHeight: 64px`.
   - Pasada adicional del cliente de la skill en `output/ui-responsive-client/`.
+
+## 2026-04-19 - Wikipedia Gacha mobile cards + notices
+- Ajustado `src/games/knowledge/wikipedia-gacha/styles.css` para que en movil portrait la `collection` pase a una sola columna y las cartas recuperen tamano util real.
+- Las cartas de coleccion en portrait quedan con anchura aprox. `313px` y altura `472px`, con descripcion visible a `8` lineas en lugar del recorte severo previo.
+- Reposicionada la capa flotante de avisos (`wg-live-feedback-layer`) en movil para que quede por encima de la cabecera sticky y no se pierda fuera de pantalla.
+- Validado con Playwright en phone portrait sobre `http://127.0.0.1:5173`: capturas en `output/wg-mobile-fix-check/`.
+- Capturas clave revisadas:
+  - `wikipedia-gacha-mobile-notices-fix.png`: avisos sample de mision/trofeo visibles en viewport (`y=88`, `width=366`).
+  - `wikipedia-gacha-collection-card-mobile-fix.png`: primera carta visible con cabecera, arte y bloque real de descripcion legible.
