@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AdPreviewCard from "../../../components/AdPreviewCard";
 import useMobileGameViewport from "../../../mobile/useMobileGameViewport";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
@@ -1696,6 +1696,9 @@ export default function WikipediaGachaGame() {
   const missionFeedTimeoutsRef = useRef([]);
   const rareDropTimeoutRef = useRef(null);
   const shellScrollRef = useRef(null);
+  const packHeroRef = useRef(null);
+  const packsSectionRef = useRef(null);
+  const collectionSectionRef = useRef(null);
 
   useEffect(() => {
     tokenRef.current = browserToken;
@@ -1775,10 +1778,87 @@ export default function WikipediaGachaGame() {
     ));
   }, [isMobileViewport]);
 
+  const scrollShellTarget = useCallback((element, { behavior = "smooth", block = "start", padding = 18 } = {}) => {
+    if (!element) {
+      return;
+    }
+
+    const shell = shellScrollRef.current;
+    const shellRect = shell?.getBoundingClientRect?.();
+    const shellEscapesViewport =
+      !shellRect
+      || shellRect.height > window.innerHeight + 24
+      || shell.clientHeight > window.innerHeight + 24;
+
+    if (
+      !shell
+      || shellEscapesViewport
+      || typeof shell.scrollTo !== "function"
+      || shell.scrollHeight <= shell.clientHeight + 4
+    ) {
+      element.scrollIntoView({
+        behavior,
+        block: block === "center" ? "center" : "start",
+        inline: "nearest",
+      });
+      return;
+    }
+
+    const elementRect = element.getBoundingClientRect();
+    const currentTop = shell.scrollTop;
+    const elementTop = currentTop + (elementRect.top - shellRect.top);
+    const centeredTop = elementTop - Math.max(0, (shell.clientHeight - elementRect.height) / 2);
+    const startTop = elementTop - padding;
+
+    shell.scrollTo({
+      top: Math.max(0, block === "center" ? centeredTop : startTop),
+      behavior,
+    });
+  }, []);
+
   useEffect(() => {
-    if (!isMobileViewport) return;
-    shellScrollRef.current?.scrollTo?.({ top: 0, behavior: "auto" });
-  }, [activeTab, isMobileViewport]);
+    const target =
+      activeTab === "home"
+        ? packHeroRef.current
+        : activeTab === "packs"
+        ? packsSectionRef.current
+        : activeTab === "collection"
+        ? collectionSectionRef.current
+        : null;
+
+    if (!target) {
+      if (isMobileViewport) {
+        shellScrollRef.current?.scrollTo?.({ top: 0, behavior: "auto" });
+      }
+      return undefined;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      scrollShellTarget(target, {
+        behavior: "auto",
+        block: activeTab === "home" ? "center" : "start",
+        padding: activeTab === "packs" ? 10 : 18,
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [activeTab, isMobileViewport, scrollShellTarget]);
+
+  useEffect(() => {
+    if (activeTab !== "home" || loading) {
+      return undefined;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      scrollShellTarget(packHeroRef.current, {
+        behavior: "auto",
+        block: "center",
+        padding: 18,
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [activeTab, dashboardStampMs, loading, scrollShellTarget]);
 
   useEffect(() => {
     if (!rewardedAdOpen || rewardedAdSecondsLeft <= 0) return undefined;
@@ -1977,6 +2057,22 @@ export default function WikipediaGachaGame() {
     setSeenPackCardIndices([]);
     setHandCenterIndex(0);
   }, [packDeckSignature]);
+
+  useEffect(() => {
+    if (activeTab !== "packs" || !currentPackCards.length) {
+      return undefined;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      scrollShellTarget(packsSectionRef.current, {
+        behavior: isMobileViewport ? "smooth" : "auto",
+        block: "start",
+        padding: 8,
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [activeTab, currentPackCards.length, isMobileViewport, scrollShellTarget]);
 
   const handleOpenPack = async () => {
     if (!tokenRef.current || busy || loading) return;
@@ -2691,6 +2787,7 @@ export default function WikipediaGachaGame() {
               <button
                 type="button"
                 id="gacha-pack-container"
+                ref={packHeroRef}
                 className={`wg-pack-hero${packHeroAnimState !== "idle" ? " is-opening" : ""}${packHeroAnimState === "burst" ? " is-burst" : ""}${specialPackReady ? " is-special" : ""}${canWatchRewardedAd ? " is-rewarded" : ""}`}
                 onClick={handleOpenPackFromHero}
                 disabled={busy || rewardedAdClaimBusy || loading || packHeroAnimState !== "idle"}
@@ -2752,7 +2849,7 @@ export default function WikipediaGachaGame() {
         ) : null}
 
         {!loading && activeTab === "packs" ? (
-          <section className="wg-stack-panel">
+          <section className="wg-stack-panel" ref={packsSectionRef}>
             <div className="wg-stack-shell is-deck">
               <div className="wg-stack-track">
                 {currentPackCards.length ? (
@@ -2964,7 +3061,7 @@ export default function WikipediaGachaGame() {
         ) : null}
 
           {!loading && activeTab === "collection" ? (
-            <section className="wg-panel">
+            <section className="wg-panel" ref={collectionSectionRef}>
               <div className="wg-section-head">
                 <div>
                   <h3>{es ? "Coleccion" : "Collection"}</h3>

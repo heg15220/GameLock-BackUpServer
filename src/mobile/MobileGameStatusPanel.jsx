@@ -113,6 +113,65 @@ function isVisibleControl(element) {
   return rect.width > 0 && rect.height > 0;
 }
 
+function hashString(value) {
+  let hash = 0;
+  const source = String(value ?? "");
+  for (let index = 0; index < source.length; index += 1) {
+    hash = ((hash << 5) - hash + source.charCodeAt(index)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+function resolveButtonActive(button) {
+  if (!button) {
+    return false;
+  }
+
+  const ariaPressed = normalizeText(button.getAttribute("aria-pressed")).toLowerCase();
+  const ariaSelected = normalizeText(button.getAttribute("aria-selected")).toLowerCase();
+  const ariaCurrent = normalizeText(button.getAttribute("aria-current")).toLowerCase();
+  const dataState = normalizeText(
+    button.dataset?.state
+    || button.dataset?.active
+    || button.dataset?.selected
+    || button.dataset?.pressed
+    || button.dataset?.mode
+  ).toLowerCase();
+
+  if (
+    ariaPressed === "true"
+    || ariaSelected === "true"
+    || (ariaCurrent && ariaCurrent !== "false")
+    || ["active", "selected", "checked", "on", "current", "open"].includes(dataState)
+  ) {
+    return true;
+  }
+
+  return Array.from(button.classList ?? []).some((token) =>
+    /^(active|selected|is-selected|is-active|current|on|checked)$/.test(token)
+  );
+}
+
+function buildSetupButtonStyle(gameId, button) {
+  const gameSeed = hashString(gameId || "mobile-shell");
+  const buttonSeed = hashString(`${button?.id || ""}:${button?.label || ""}`);
+  const hueStart = gameSeed % 360;
+  const hueEnd = (hueStart + 20 + (buttonSeed % 42)) % 360;
+  const borderHue = (hueStart + 8) % 360;
+  const glowHue = (hueEnd + 18) % 360;
+
+  return {
+    "--mobile-setup-btn-bg": `linear-gradient(135deg, hsl(${hueStart}deg 86% 95%), hsl(${hueEnd}deg 78% 83%))`,
+    "--mobile-setup-btn-border": `hsla(${borderHue}, 72%, 36%, 0.28)`,
+    "--mobile-setup-btn-color": `hsl(${(hueStart + 234) % 360}deg 34% 20%)`,
+    "--mobile-setup-btn-shadow": `0 10px 18px hsla(${glowHue}, 64%, 48%, 0.18)`,
+    "--mobile-setup-btn-selected-bg": `linear-gradient(135deg, hsl(${hueStart}deg 78% 46%), hsl(${hueEnd}deg 72% 38%))`,
+    "--mobile-setup-btn-selected-color": "hsl(0deg 0% 100%)",
+    "--mobile-setup-btn-selected-border": `hsla(${borderHue}, 78%, 24%, 0.74)`,
+    "--mobile-setup-btn-selected-shadow": `0 14px 24px hsla(${glowHue}, 76%, 34%, 0.28)`,
+  };
+}
+
 function extractControlLabel(button) {
   const ariaLabel = normalizeText(button.getAttribute("aria-label"));
   if (ariaLabel) {
@@ -186,6 +245,7 @@ function collectControlsFromRoot(root, rootKey, group, includeHidden = false) {
       id: key,
       label,
       disabled: Boolean(button.disabled),
+      active: resolveButtonActive(button),
       target: button,
       group,
     });
@@ -646,6 +706,7 @@ function isPenaltyDifficultySelect(field) {
 }
 
 export default function MobileGameStatusPanel({
+  gameId,
   gameCategory,
   locale,
   scopeElement,
@@ -655,6 +716,7 @@ export default function MobileGameStatusPanel({
   const panelRef = useRef(null);
   const [menuControls, setMenuControls] = useState({ buttons: [], selects: [] });
   const [supplementalSections, setSupplementalSections] = useState([]);
+  const [selectedSetupButtonId, setSelectedSetupButtonId] = useState(null);
   const status = useMemo(
     () => formatMobileStatus(snapshot, locale),
     [locale, snapshot]
@@ -787,6 +849,10 @@ export default function MobileGameStatusPanel({
   }, [locale, scopeElement, snapshot]);
 
   useEffect(() => {
+    setSelectedSetupButtonId(null);
+  }, [gameId, scopeElement]);
+
+  useEffect(() => {
     if (!isParchis || !showParchisDicePanel) {
       return;
     }
@@ -883,8 +949,17 @@ export default function MobileGameStatusPanel({
                 <button
                   key={button.id}
                   type="button"
+                  className={[
+                    "mobile-game-status-panel__setup-button",
+                    (button.active || selectedSetupButtonId === button.id) ? "is-selected" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                   disabled={button.disabled}
+                  aria-pressed={button.active || selectedSetupButtonId === button.id}
+                  style={buildSetupButtonStyle(gameId, button)}
                   onClick={() => {
+                    setSelectedSetupButtonId(button.id);
                     button.target.click();
                     setMenuControls(buildMenuControls(scopeElement));
                   }}
@@ -930,8 +1005,17 @@ export default function MobileGameStatusPanel({
                 <button
                   key={`setup-btn-${button.id}`}
                   type="button"
+                  className={[
+                    "mobile-game-status-panel__setup-button",
+                    (button.active || selectedSetupButtonId === button.id) ? "is-selected" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                   disabled={button.disabled}
+                  aria-pressed={button.active || selectedSetupButtonId === button.id}
+                  style={buildSetupButtonStyle(gameId, button)}
                   onClick={() => {
+                    setSelectedSetupButtonId(button.id);
                     button.target.click();
                     setMenuControls(buildMenuControls(scopeElement));
                   }}

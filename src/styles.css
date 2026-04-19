@@ -388,6 +388,140 @@ body {
   font-size: clamp(1.25rem, 2.6vw, 1.7rem);
 }
 
+.catalog-subliminal {
+  margin-top: 0.82rem;
+  display: inline-grid;
+  gap: 0.14rem;
+  padding: 0.52rem 0.72rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(241, 245, 249, 0.82));
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+}
+
+.catalog-subliminal span {
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.catalog-subliminal strong {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.catalog-subliminal--sports {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(224, 242, 254, 0.88));
+  border-color: rgba(14, 116, 144, 0.14);
+}
+
+.catalog-sports-promo-card {
+  display: grid;
+  grid-template-rows: minmax(184px, 0.94fr) auto;
+  color: inherit;
+  text-decoration: none;
+  border-color: rgba(14, 116, 144, 0.22);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(125, 211, 252, 0.2), transparent 30%),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(231, 241, 255, 0.94));
+}
+
+.catalog-sports-promo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(14, 116, 144, 0.16);
+}
+
+.catalog-sports-promo-card__visual {
+  position: relative;
+  min-height: 184px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 78% 22%, rgba(248, 250, 252, 0.9), transparent 20%),
+    linear-gradient(155deg, #0f172a 0%, #1e3a5f 54%, #111827 100%);
+}
+
+.catalog-sports-promo-card__signal {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  padding: 0.24rem 0.52rem;
+  border-radius: 999px;
+  background: rgba(248, 250, 252, 0.14);
+  border: 1px solid rgba(248, 250, 252, 0.18);
+  color: #f8fafc;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.catalog-sports-promo-card__lane {
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  height: 68px;
+  border-radius: 999px;
+  transform: rotate(-16deg);
+  background:
+    linear-gradient(90deg, transparent 0 5%, rgba(248, 250, 252, 0.88) 5% 8%, transparent 8% 13%, rgba(248, 250, 252, 0.88) 13% 16%, transparent 16% 100%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.94));
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+.catalog-sports-promo-card__lane.is-one {
+  top: 38px;
+}
+
+.catalog-sports-promo-card__lane.is-two {
+  top: 92px;
+  opacity: 0.88;
+}
+
+.catalog-sports-promo-card__lane.is-three {
+  top: 146px;
+  opacity: 0.72;
+}
+
+.catalog-sports-promo-card__glow {
+  position: absolute;
+  right: 22px;
+  bottom: 24px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.8) 0%, rgba(250, 204, 21, 0.16) 44%, transparent 72%);
+  filter: blur(4px);
+}
+
+.catalog-sports-promo-card__body {
+  display: grid;
+  gap: 0.54rem;
+}
+
+.catalog-sports-promo-card__body .chip {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.catalog-sports-promo-card__body .card-meta {
+  color: #33506c;
+}
+
+.catalog-sports-promo-card__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  margin-top: 0.18rem;
+  pointer-events: none;
+}
+
 .filter-group {
   display: flex;
   flex-wrap: wrap;
@@ -815,6 +949,27 @@ body {
   pointer-events: auto;
 }
 
+.playground-system-bottom-ad--compact-knowledge {
+  min-height: 64px;
+  padding: 0.48rem 0.58rem;
+  border-radius: 16px;
+}
+
+.playground-system-bottom-ad--compact-knowledge .ad-preview-card__eyebrow {
+  font-size: 0.44rem;
+}
+
+.playground-system-bottom-ad--compact-knowledge .ad-preview-card__title {
+  font-size: 0.68rem;
+}
+
+.playground-system-bottom-ad--compact-knowledge .ad-preview-card__description,
+.playground-system-bottom-ad--compact-knowledge .ad-preview-card__meta,
+.playground-system-bottom-ad--compact-knowledge .ad-preview-card__footer {
+  font-size: 0.54rem;
+  line-height: 1.22;
+}
+
 .game-playground.playground-device-tablet .playground-system-bottom-ad {
   min-height: 104px;
 }
@@ -1195,6 +1350,60 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@media (max-width: 1024px) and (orientation: portrait), (max-width: 760px) {
+  .catalog-sports-promo-card {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(120px, 0.72fr) minmax(0, 1fr);
+    grid-template-rows: none;
+    align-items: stretch;
+  }
+
+  .catalog-sports-promo-card__visual {
+    min-height: 100%;
+  }
+
+  .catalog-sports-promo-card__lane {
+    left: -24%;
+    right: -24%;
+    height: 58px;
+    transform: rotate(72deg);
+  }
+
+  .catalog-sports-promo-card__lane.is-one {
+    top: 4px;
+  }
+
+  .catalog-sports-promo-card__lane.is-two {
+    top: 62px;
+  }
+
+  .catalog-sports-promo-card__lane.is-three {
+    top: 120px;
+  }
+
+  .catalog-sports-promo-card__glow {
+    right: 10px;
+    bottom: 12px;
+    width: 72px;
+    height: 72px;
+  }
+
+  .catalog-sports-promo-card__body .card-meta {
+    gap: 0.42rem;
+  }
+}
+
+@media (max-width: 920px) {
+  .head-soccer-pro-round-tag {
+    margin-top: 0.08rem;
+    max-width: calc(100% - 0.9rem);
+    padding: 0.12rem 0.44rem;
+    font-size: 0.56rem;
+    letter-spacing: 0.03em;
+    transform: translateY(-3px);
+  }
 }
 
 .head-soccer-pro-controls {
@@ -2076,6 +2285,27 @@ body {
   width: 100%;
   min-height: 86px;
   pointer-events: auto;
+}
+
+.launch-system-bottom-ad--compact-knowledge {
+  min-height: 64px;
+  padding: 0.48rem 0.58rem;
+  border-radius: 16px;
+}
+
+.launch-system-bottom-ad--compact-knowledge .ad-preview-card__eyebrow {
+  font-size: 0.44rem;
+}
+
+.launch-system-bottom-ad--compact-knowledge .ad-preview-card__title {
+  font-size: 0.68rem;
+}
+
+.launch-system-bottom-ad--compact-knowledge .ad-preview-card__description,
+.launch-system-bottom-ad--compact-knowledge .ad-preview-card__meta,
+.launch-system-bottom-ad--compact-knowledge .ad-preview-card__footer {
+  font-size: 0.54rem;
+  line-height: 1.22;
 }
 
 .launch-system-bottom-ad .ad-preview-card__description {

@@ -19,6 +19,7 @@ const CATEGORY_ORDER = [
   "Estrategia",
   "RPG",
 ];
+const SPORTS_CATEGORY_KEYS = new Set(["Deportes", "Sports"]);
 
 const getInitialGameIdFromHash = () => {
   const hash = window.location.hash.replace(/^#/, "");
@@ -94,6 +95,8 @@ function App() {
       ? `Page ${currentPage} of ${totalPages}`
       : `Página ${currentPage} de ${totalPages}`;
 
+  const showSportsCatalogSubliminal = SPORTS_CATEGORY_KEYS.has(activeCategory);
+
   return (
     <>
       <div className="app-desktop-layout">
@@ -159,7 +162,12 @@ function App() {
           </section>
 
           <main>
-            <GameGrid games={paginatedGames} onLaunchGame={launchGame} locale={locale} />
+            <GameGrid
+              games={paginatedGames}
+              onLaunchGame={launchGame}
+              locale={locale}
+              showSportsInterstitial={showSportsCatalogSubliminal}
+            />
 
             {filteredGames.length > PAGE_SIZE && (
               <nav className="catalog-pagination" aria-label={pageIndicator}>

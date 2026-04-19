@@ -4796,8 +4796,109 @@
 }
 
 .wg-shell.is-mobile .wg-collection-grid {
-  grid-template-columns: 1fr;
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-card {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 10 / 14;
+  padding: 6px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-favorite {
+  top: -8px;
+  right: -6px;
+  width: 28px;
+  height: 28px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-favorite svg {
+  width: 15px;
+  height: 15px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-header {
+  gap: 6px;
+  padding: 6px 7px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-header-main {
+  column-gap: 6px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-rarity {
+  padding: 2px 5px;
+  font-size: 0.56rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-title {
+  font-size: 0.66rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-title.is-long {
+  font-size: 0.61rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-title.is-longer {
+  font-size: 0.58rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-topic-tag,
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-quality-badge {
+  max-width: 62px;
+  padding: 2px 5px;
+  font-size: 0.46rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-art {
+  height: 92px;
+  margin: 3px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-topic {
+  width: 22px;
+  height: 22px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-topic svg {
+  width: 14px;
+  height: 14px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-info {
+  width: 18px;
+  height: 18px;
+  font-size: 0.54rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-blurb {
+  padding: 5px 6px;
+  font-size: 0.55rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-blurb p {
+  -webkit-line-clamp: 6;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-serial {
+  height: 16px;
+  padding: 0 6px;
+  font-size: 0.46rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-stats {
+  height: 38px;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-stat strong {
+  font-size: 0.74rem;
+}
+
+.wg-shell.is-mobile .wg-collection-grid .wg-stack-stat span {
+  font-size: 0.44rem;
 }
 
 .wg-shell.is-mobile .wg-stack-shell {

@@ -342,6 +342,7 @@ function GamePlayground({ game }) {
     isKnowledgeCategory &&
     viewport.orientation === "portrait" &&
     (useMobileGameShell || PORTRAIT_APP_BOTTOM_AD_GAME_IDS.has(gameId));
+  const useCompactPortraitBottomAd = PORTRAIT_APP_BOTTOM_AD_GAME_IDS.has(gameId);
   const showMobileSystemBottomAd =
     adPreviewEnabled &&
     viewportFormFactor !== "desktop" &&
@@ -471,7 +472,12 @@ function GamePlayground({ game }) {
           <AdPreviewCard
             slot={MOBILE_APP_BOTTOM_AD_SLOT}
             locale={resolvedLocale}
-            className="playground-system-bottom-ad"
+            className={[
+              "playground-system-bottom-ad",
+              useCompactPortraitBottomAd ? "playground-system-bottom-ad--compact-knowledge" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
           />
         </div>
       ) : null}

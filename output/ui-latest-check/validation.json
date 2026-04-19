@@ -1,0 +1,66 @@
+{
+  "desktopSports": {
+    "entries": [
+      "Billar Pool Club",
+      "Bowling Pro Tour",
+      "Penalty Neural Keeper",
+      "Golf Tour 2D Pro",
+      "Archery Horizon 100",
+      "Head Soccer Pro",
+      "Race 2D Pro",
+      "PROMO",
+      "Sunset Slipstream",
+      "Basketball Court Pro"
+    ],
+    "promoRect": {
+      "width": 274,
+      "height": 469
+    },
+    "screenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\ui-latest-check\\sports-desktop.png"
+  },
+  "mobileSports": {
+    "promoRect": {
+      "width": 355,
+      "height": 316
+    },
+    "screenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\ui-latest-check\\sports-mobile.png"
+  },
+  "mobileHeadSoccer": {
+    "fontSize": "8.96px",
+    "marginTop": "1.28px",
+    "transform": "matrix(1, 0, 0, 1, 0, -3)",
+    "offsetFromShellTop": 81,
+    "screenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\ui-latest-check\\head-soccer-mobile.png"
+  },
+  "mobileStrategy": {
+    "hasScrollHost": true,
+    "hasAd": true,
+    "hasBottomSlot": true,
+    "adMinHeight": "64px",
+    "adHeight": 111,
+    "scrollTopBefore": 0,
+    "scrollTopAfter": 499,
+    "scrollHeight": 615,
+    "clientHeight": 116,
+    "screenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\ui-latest-check\\strategy-mobile.png"
+  },
+  "mobileWikipediaGacha": {
+    "home": {
+      "heroCenterOffset": 320,
+      "heroTop": 446,
+      "heroBottom": 858
+    },
+    "packs": {
+      "panelTop": -34,
+      "panelBottom": 606
+    },
+    "collection": {
+      "firstRowCount": 2,
+      "firstCardWidth": 146,
+      "firstCardHeight": 204
+    },
+    "homeScreenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\ui-latest-check\\wikipedia-gacha-home-mobile.png",
+    "packsScreenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\ui-latest-check\\wikipedia-gacha-packs-mobile.png",
+    "collectionScreenshot": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\ui-latest-check\\wikipedia-gacha-collection-mobile.png"
+  }
+}

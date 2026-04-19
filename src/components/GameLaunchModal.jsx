@@ -98,6 +98,7 @@ function GameLaunchModal({ game, onClose }) {
     isKnowledgeCategory &&
     viewport.orientation === "portrait" &&
     (useMobileGameShell || PORTRAIT_APP_BOTTOM_AD_GAME_IDS.has(gameId));
+  const useCompactPortraitBottomAd = PORTRAIT_APP_BOTTOM_AD_GAME_IDS.has(gameId);
   const showMobileSystemBottomAd =
     adPreviewEnabled &&
     viewportFormFactor !== "desktop" &&
@@ -336,7 +337,12 @@ function GameLaunchModal({ game, onClose }) {
           <AdPreviewCard
             slot={MOBILE_APP_BOTTOM_AD_SLOT}
             locale={locale}
-            className="launch-system-bottom-ad"
+            className={[
+              "launch-system-bottom-ad",
+              useCompactPortraitBottomAd ? "launch-system-bottom-ad--compact-knowledge" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
           />
         </div>
       ) : null}

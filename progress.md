@@ -4278,3 +4278,14 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Verificacion:
   - `node --max-old-space-size=4096 node_modules/vite/bin/vite.js build` OK.
   - Smoke test Playwright local OK: boton visible, `Volver al Gacha` visible y descarga correcta (`output/wikipedia-gacha-share/`).
+
+## 2026-04-19 - Ajustes mobile/tablet de paneles y publicidad
+- `src/mobile/MobileGameStatusPanel.jsx` ahora detecta estado activo de botones de setup, aplica color propio por juego/boton en los controles previos y mantiene marca visual de seleccion en mobile.
+- `src/mobile/MobileGameShell.jsx` y `src/mobile/mobile-game-shell.css` reubican la publicidad de Conocimiento/Laboratorio en tablet horizontal fuera del gameplay: se abre panel inferior tactil para estado + viñetas y se eliminan las laterales sobre el stage.
+- `src/App.jsx` y `src/styles.css` anaden una promo subliminal de `overcutf1.com` solo cuando la categoria activa del catalogo es Deportes/Sports.
+- `src/components/GamePlayground.jsx`, `src/components/GameLaunchModal.jsx` y `src/styles.css` reducen la altura del banner inferior para `knowledge-crucigrama-mini` y `knowledge-sopa-letras-mega`.
+- Verificacion:
+  - `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK.
+  - Playwright local con preview en `output/ui-responsive-check/` para catalogo deportes, mobile Orchard setup, tablet Wordle laboratorio y mobile Crucigrama.
+  - Aserciones DOM confirmadas: promo deportes visible, un setup button seleccionado con gradiente/color propio, shell tablet conocimiento con `touchCopyDisplay: grid`, `panelAdCount: 2`, `stageSideAdCount: 0`, y banner compacto de crucigrama con `minHeight: 64px`.
+  - Pasada adicional del cliente de la skill en `output/ui-responsive-client/`.

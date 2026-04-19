@@ -216,7 +216,7 @@ export default function MobileGameShell({
     viewportFormFactor !== "desktop" &&
     (isStrategyTheme || (isKnowledgeTheme && isPortrait && !useKnowledgeInlineBottomAd));
   const showSystemBottomAd = showSystemBottomAdOverride ?? derivedShowSystemBottomAd;
-  const showTabletStageSideAds =
+  const showKnowledgeTabletPanelAds =
     showAdPreview &&
     viewportFormFactor === "tablet" &&
     !isPortrait &&
@@ -239,7 +239,7 @@ export default function MobileGameShell({
   const showStageAdOverlay =
     showAdPreview &&
     !showCompactGamesAppAd &&
-    !showTabletStageSideAds &&
+    !showKnowledgeTabletPanelAds &&
     (isDualScreen || isTouchStage);
   const isTabletLandscapeStack =
     isDualScreen &&
@@ -330,7 +330,7 @@ export default function MobileGameShell({
     `mobile-game-shell--device-${viewportFormFactor}`,
     `mobile-game-shell--theme-${shellTheme}`,
     showSystemBottomAd ? "mobile-game-shell--with-system-bottom-ad" : "",
-    showTabletStageSideAds ? "mobile-game-shell--tablet-stage-side-ads" : "",
+    showKnowledgeTabletPanelAds ? "mobile-game-shell--knowledge-tablet-panel-ads" : "",
     showTouchPanelBottomAd ? "mobile-game-shell--touch-panel-bottom-ad" : "",
     useInlineSystemBottomAd ? "mobile-game-shell--system-bottom-ad-inline" : "",
     showCompactGamesAppAd ? "mobile-game-shell--with-compact-games-ad" : "",
@@ -372,10 +372,24 @@ export default function MobileGameShell({
         />
       </section>
     ) : null;
+  const knowledgeTabletPanelAdsNode =
+    showKnowledgeTabletPanelAds ? (
+      <div className="mobile-game-shell__panel-ad-cluster mobile-game-shell__panel-ad-cluster--knowledge-tablet">
+        {TABLET_APP_SIDE_AD_SLOTS.map((slot) => (
+          <AdPreviewCard
+            key={slot.id}
+            slot={slot}
+            locale={locale}
+            className="mobile-game-shell__panel-ad"
+          />
+        ))}
+      </div>
+    ) : null;
 
   const statusPanelsNode = (
     <>
       <MobileGameStatusPanel
+        gameId={game?.id}
         gameCategory={game?.category}
         locale={locale}
         scopeElement={stageViewportNode}
@@ -496,27 +510,7 @@ export default function MobileGameShell({
 
         <div className="mobile-game-shell__body">
           <section className="mobile-game-shell__stage-shell">
-            {showTabletStageSideAds ? (
-              <div className="mobile-game-shell__stage-shell-grid">
-                <div className="mobile-game-shell__stage-side-ad-wrap mobile-game-shell__stage-side-ad-wrap--left">
-                  <AdPreviewCard
-                    slot={TABLET_APP_SIDE_AD_SLOTS[0]}
-                    locale={locale}
-                    className="mobile-game-shell__stage-side-ad"
-                  />
-                </div>
-                {stageFrameNode}
-                <div className="mobile-game-shell__stage-side-ad-wrap mobile-game-shell__stage-side-ad-wrap--right">
-                  <AdPreviewCard
-                    slot={TABLET_APP_SIDE_AD_SLOTS[1]}
-                    locale={locale}
-                    className="mobile-game-shell__stage-side-ad"
-                  />
-                </div>
-              </div>
-            ) : (
-              stageFrameNode
-            )}
+            {stageFrameNode}
           </section>
 
           {knowledgeInlineBottomAdNode}
@@ -541,6 +535,7 @@ export default function MobileGameShell({
                       </div>
                     </>
                   )}
+                  {knowledgeTabletPanelAdsNode}
                   {compactGamesAdNode}
                   {inlineSystemBottomAdNode}
                   {fullscreenSystemAdSpacerNode}
@@ -551,18 +546,20 @@ export default function MobileGameShell({
             <section className="mobile-game-shell__touch-copy">
               <div className="mobile-game-shell__touch-panel-content">
                 <MobileGameStatusPanel
+                  gameId={game?.id}
                   gameCategory={game?.category}
                   locale={locale}
                   scopeElement={stageViewportNode}
                   snapshot={runtimeSnapshot}
                   bottomContent={touchPanelBottomAdNode}
                 />
-                {showTouchIntroCopy ? (
+                {showTouchIntroCopy && !showKnowledgeTabletPanelAds ? (
                   <>
                     <strong>{shellCopy.touchTitle}</strong>
                     <p>{shellCopy.touchDescription}</p>
                   </>
                 ) : null}
+                {knowledgeTabletPanelAdsNode}
                 {compactGamesAdNode}
               </div>
               {inlineSystemBottomAdNode}

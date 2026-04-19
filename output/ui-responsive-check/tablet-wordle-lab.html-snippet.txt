@@ -1,0 +1,209 @@
+SAAS DE JUEGOS WEB
+
+Playforge Studio
+
+Catálogo de juegos jugables y técnicamente viables. Cada categoría incorpora dirección artística de referencia para llevar la experiencia a nivel profesional en móvil, tablet y escritorio.
+
+Juegos disponibles
+
+67
+
+Temáticas activas
+
+5
+
+Viabilidad técnica
+
+100% Alta
+Explorar juegos
+Todas
+Arcade
+Juegos
+Deportes
+Conocimiento
+Estrategia
+Arcade
+3-6 min
+Sky Runner DX
+
+Plataformas 2D arcade con 32 sectores artesanales, biomas avanzados y jefes con variantes.
+
+Dificultad: Media-Alta
+Solo
+Comenzar
+Arcade
+4-9 min
+Pac-Man Maze Protocol
+
+Arcade de laberinto con persecuciÃ³n, pellets, power mode y FSM de fantasmas.
+
+Dificultad: Media-Alta
+Solo
+Comenzar
+Arcade
+3-8 min
+Stick Brawl Showdown
+
+Fighting arcade 1v1 con IA adaptativa, fisicas refinadas y escenarios dinamicos de alta calidad.
+
+Dificultad: Alta
+Solo vs IA
+Comenzar
+Arcade
+1-3 min
+Flux Basin
+
+Arcade mobile-first de fisica y precision: tira hacia atras, rebota y captura la orbita en una capsula magnetica.
+
+Dificultad: Media-Alta
+Solo
+Comenzar
+Arcade
+4-10 min
+Territory War: Stick Arena
+
+Estrategia por turnos estilo Territory War con granadas, salto y control de altura.
+
+Dificultad: Media-Alta
+Solo vs CPU
+Comenzar
+Arcade
+3-8 min
+Orchard Match Blast
+
+Match-3 arcade propio con bloques de color, cascadas y objetivo de puntuacion.
+
+Dificultad: Media
+Solo
+Comenzar
+Deportes
+5-12 min
+Billar Pool Club
+
+Billar de estilo profesional con Bola 8, Bola 9 y Bola 10, fisica precisa y IA tactica.
+
+Dificultad: Media-Alta
+Solo vs IA
+Comenzar
+Deportes
+6-14 min
+Bowling Pro Tour
+
+Bowling 1v1 rehecho con alley de referencia, marcador oficial, split detector e IA por dificultad.
+
+Dificultad: Variable (4 niveles IA)
+Solo vs IA
+Comenzar
+Deportes
+2-5 min
+Penalty Neural Keeper
+
+Tanda de penaltis por equipos con backend Node, rivales configurables y portero IA adaptativo.
+
+Dificultad: Media-Alta
+Solo vs IA
+Comenzar
+Arcade
+4-8 min
+Cosmic Vanguard
+
+Shooter espacial tactico con wrap-around, pasadas de riesgo/recompensa, bosses por fases y backend de leaderboard.
+
+Dificultad: Media-Alta
+Solo / Competitivo asincrono
+Comenzar
+Deportes
+4-12 min
+Golf Tour 2D Pro
+
+Mini golf 2D side-view con 200 niveles, terrenos en pendiente y hoyos estilo arcade clasico.
+
+Dificultad: Variable (Rookie / Pro / Elite / Master)
+Solo
+Comenzar
+Deportes
+4-10 min
+Archery Horizon 100
+
+Tiro con arco 3D en perspectiva de horizonte con 100 niveles, camara de vuelo y fisica avanzada.
+
+Dificultad: Variable (Rookie / Pro / Elite / Master / Legend)
+Solo
+Comenzar
+Arcade
+3-10 min
+Pinball Wizard
+
+Pinball arcade neon con fÃ­sicas reales de flipper, bumpers pop, slingshots y sistema de multiplicador.
+
+Dificultad: Media
+Solo
+Comenzar
+Arcade
+5-15 min
+Bubble Storm
+
+Dispara burbujas de colores a la rejilla hexagonal, forma grupos de 3+ para hacerlos explotar y encadena caÃ­das en cascada.
+
+Dificultad: Media
+Solo
+Comenzar
+Arcade
+5-15 min
+Ice Strike Pro
+
+Curling profesional con fÃ­sica real de curl, IA estratÃ©gica y mecÃ¡nica de barrido.
+
+Dificultad: Media
+Solo vs IA
+Comenzar
+Arcade
+5-20 min
+Neon Crypt
+
+Dungeon crawler arcade: combate por oleadas con espada, esquiva y enemigos con IA.
+
+Dificultad: Progresiva
+Solo
+Comenzar
+
+Mostrando 1-16 de 67
+
+Anterior
+Página 1 de 5
+Siguiente
+
+Plataforma orientada a modelo SaaS: cada categoría puede crecer con nuevos juegos completos sin romper la arquitectura del frontend.
+
+← Volver al catálogo
+Conocimiento
+Wordle Pro
+3-7 min
+Media-Alta
+? Instrucciones
+Ocultar publicidad
+ESPACIO PUBLICITARIO
+Google Ads listo
+
+Sustituye este bloque por el enlace, la creatividad o la unidad real cuando llegue la campaña.
+
+Desktop rail
+160 x 280
+Enlace pendiente
+Enlace pendiente
+ESPACIO PUBLICITARIO
+Google Ads listo
+
+Sustituye este bloque por el enlace, la creatividad o la unidad real cuando llegue la campaña.
+
+Desktop rail
+160 x 280
+Enlace pendiente
+Enlace pendiente
+Partida aleatoria
+Partida: 7929/10000
+Longitud: 8
+Intentos: 0/7
+Estado: En curso
+
+Escribe letras, Enter valida, Backspace borra y usa el boton de p
