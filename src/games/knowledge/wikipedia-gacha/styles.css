@@ -3914,6 +3914,10 @@
     0 24px 40px rgba(0, 0, 0, 0.36);
 }
 
+.wg-pack-hero.is-special .wg-pack-envelope-paper::before {
+  display: none;
+}
+
 .wg-pack-hero.is-special .wg-pack-logo-w {
   border-color: rgba(202, 150, 54, 0.74);
   box-shadow:

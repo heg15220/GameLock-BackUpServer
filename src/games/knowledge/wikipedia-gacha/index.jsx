@@ -18,6 +18,7 @@ import {
   registerWikipediaGachaArticleClick,
   toggleWikipediaGachaFavorite,
 } from "./backendClient";
+import { canShowRewardedAdCta } from "./packUiState";
 import "./styles.css";
 
 const STORAGE_KEY = "wikipedia_gacha_browser_token";
@@ -2298,11 +2299,17 @@ export default function WikipediaGachaGame() {
   const specialPackReady = Boolean(packStatus?.nextPackGuaranteedSrPlus);
   const packFillPercent = getPackFillPercent(packStatus);
   const packRegenPercent = getPackRegenPercent(packStatus);
-  const canWatchRewardedAd = !loading
-    && !busy
-    && packHeroAnimState === "idle"
-    && !specialPackReady
-    && (packStatus?.packsAvailable ?? 0) <= 0;
+  const latestGuaranteedPackOpened = Boolean(
+    packResult?.guaranteedSrPlus || dashboard?.recentPackHistory?.[0]?.guaranteedSrPlus
+  );
+  const canWatchRewardedAd = canShowRewardedAdCta({
+    loading,
+    busy,
+    packHeroAnimState,
+    packStatus,
+    pityTarget: PACK_PITY_TARGET,
+    latestGuaranteedPackOpened,
+  });
   const collectionSummary = collection.summary ?? dashboard?.collectionSummary ?? { uniqueCards: 0, totalCopies: 0, favorites: 0, rarityBreakdown: {} };
   const missionSummary = missions.summary ?? dashboard?.missionSummary ?? { total: 0, completed: 0, claimable: 0 };
   const trophySummary = trophies.summary ?? dashboard?.trophySummary ?? { total: 0, unlocked: 0, points: 0 };
