@@ -1,0 +1,71 @@
+﻿Wikipedia Gacha backend listening on http://0.0.0.0:8795 (pid 9468)
+Wikipedia Gacha backend listening on http://0.0.0.0:8795 (pid 2080)
+Wikipedia Gacha backend listening on http://0.0.0.0:8795 (pid 10920)
+node : C:\Users\hugoe\Downloads\plataforma-juegos-saas\node_modules\pg-pool\index.js:45
+En línea: 9 Carácter: 3
++   node server/wikipedia-gacha/index.mjs 2>&1
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\hugoe\...ool\index.js:45:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    Error.captureStackTrace(err)
+          ^
+
+error: llave duplicada viola restricci├│n de unicidad ┬½pg_type_typname_nsp_index┬╗
+    at C:\Users\hugoe\Downloads\plataforma-juegos-saas\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  length: 252,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Ya existe la llave (typname, typnamespace)=(user_state, 2200).',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'pg_catalog',
+  table: 'pg_type',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'pg_type_typname_nsp_index',
+  file: 'nbtinsert.c',
+  line: '671',
+  routine: '_bt_check_unique'
+}
+
+Node.js v22.22.2
+C:\Users\hugoe\Downloads\plataforma-juegos-saas\node_modules\pg-pool\index.js:45
+    Error.captureStackTrace(err)
+          ^
+
+error: llave duplicada viola restricci├│n de unicidad ┬½pg_type_typname_nsp_index┬╗
+    at C:\Users\hugoe\Downloads\plataforma-juegos-saas\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  length: 252,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Ya existe la llave (typname, typnamespace)=(user_state, 2200).',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'pg_catalog',
+  table: 'pg_type',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'pg_type_typname_nsp_index',
+  file: 'nbtinsert.c',
+  line: '671',
+  routine: '_bt_check_unique'
+}
+
+Node.js v22.22.2
+Wikipedia Gacha backend listening on http://0.0.0.0:8795 (pid 9332)
+Wikipedia Gacha backend listening on http://0.0.0.0:8795 (pid 12884)
+[wikipedia-gacha][en] pool seeded with 31 static articles; Wikipedia background fill startingÔÇª
+[wikipedia-gacha][en] pool seeded with 31 static articles; Wikipedia background fill startingÔÇª
+[wikipedia-gacha][en] pool seeded with 31 static articles; Wikipedia background fill startingÔÇª
+[wikipedia-gacha] warm-up timeout ÔÇö serving from static seed
+[wikipedia-gacha] warm-up timeout ÔÇö serving from static seed
+[wikipedia-gacha] warm-up timeout ÔÇö serving from static seed

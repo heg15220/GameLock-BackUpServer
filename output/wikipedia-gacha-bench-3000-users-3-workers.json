@@ -1,0 +1,203 @@
+{
+  "generatedAt": "2026-04-19T14:47:17.091Z",
+  "baseUrl": "http://127.0.0.1:8793",
+  "users": 3000,
+  "locale": "en",
+  "timeoutMs": 60000,
+  "clientWorkers": 8,
+  "warmupMs": 20.23,
+  "scenarios": [
+    {
+      "name": "bootstrapSession",
+      "requests": 3000,
+      "ok": 1532,
+      "failed": 1468,
+      "avgMs": 1675.64,
+      "medianMs": 1609.27,
+      "p95Ms": 2046.61,
+      "p99Ms": 2164.03,
+      "minMs": 1277.75,
+      "maxMs": 2217.93,
+      "failures": [
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        }
+      ]
+    },
+    {
+      "name": "getSessionMe",
+      "requests": 1532,
+      "ok": 785,
+      "failed": 747,
+      "avgMs": 867.08,
+      "medianMs": 861.72,
+      "p95Ms": 1046.9,
+      "p99Ms": 1076.08,
+      "minMs": 681.84,
+      "maxMs": 1104.8,
+      "failures": [
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        }
+      ]
+    },
+    {
+      "name": "openPack",
+      "requests": 1532,
+      "ok": 832,
+      "failed": 700,
+      "avgMs": 17961.43,
+      "medianMs": 17888.87,
+      "p95Ms": 20371.28,
+      "p99Ms": 20467.37,
+      "minMs": 15599.09,
+      "maxMs": 20476.71,
+      "failures": [
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        }
+      ]
+    }
+  ]
+}

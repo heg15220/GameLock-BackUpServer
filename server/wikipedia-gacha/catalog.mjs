@@ -255,7 +255,7 @@ export function createWikipediaGachaCatalog(options = {}) {
 
   // 1. Static seed — immediate availability, no network.
   _seedStatic();
-  if (_isReady() && _readyResolve) {
+  if (articleById.size > 0 && _readyResolve) {
     _readyResolve();
     _readyResolve = null;
   }

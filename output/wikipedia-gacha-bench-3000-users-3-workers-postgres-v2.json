@@ -1,0 +1,203 @@
+{
+  "generatedAt": "2026-04-19T15:04:03.146Z",
+  "baseUrl": "http://127.0.0.1:8794",
+  "users": 3000,
+  "locale": "en",
+  "timeoutMs": 60000,
+  "clientWorkers": 8,
+  "warmupMs": 22.53,
+  "scenarios": [
+    {
+      "name": "bootstrapSession",
+      "requests": 3000,
+      "ok": 2152,
+      "failed": 848,
+      "avgMs": 2118.14,
+      "medianMs": 2135.33,
+      "p95Ms": 2725.88,
+      "p99Ms": 2830.04,
+      "minMs": 1443.17,
+      "maxMs": 2860.45,
+      "failures": [
+        {
+          "status": 0,
+          "code": "Error",
+          "message": "request_timeout"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        },
+        {
+          "status": 0,
+          "code": "TypeError",
+          "message": "fetch failed"
+        }
+      ]
+    },
+    {
+      "name": "getSessionMe",
+      "requests": 2152,
+      "ok": 556,
+      "failed": 1596,
+      "avgMs": 1996.95,
+      "medianMs": 1897.3,
+      "p95Ms": 3258.61,
+      "p99Ms": 3508.74,
+      "minMs": 1121.2,
+      "maxMs": 3817.14,
+      "failures": [
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        }
+      ]
+    },
+    {
+      "name": "openPack",
+      "requests": 2152,
+      "ok": 867,
+      "failed": 1285,
+      "avgMs": 18556.66,
+      "medianMs": 18637.52,
+      "p95Ms": 19981.47,
+      "p99Ms": 20117.29,
+      "minMs": 16875.65,
+      "maxMs": 20147.11,
+      "failures": [
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "ECONNRESET",
+          "message": "read ECONNRESET"
+        },
+        {
+          "status": 500,
+          "code": "ECONNRESET",
+          "message": "read ECONNRESET"
+        },
+        {
+          "status": 500,
+          "code": "ECONNRESET",
+          "message": "read ECONNRESET"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        },
+        {
+          "status": 500,
+          "code": "53300",
+          "message": "lo siento, ya tenemos demasiados clientes"
+        }
+      ]
+    }
+  ]
+}

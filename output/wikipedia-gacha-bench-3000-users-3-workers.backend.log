@@ -1,0 +1,15 @@
+﻿Wikipedia Gacha backend listening on http://0.0.0.0:8793 (pid 13912)
+Wikipedia Gacha backend listening on http://0.0.0.0:8793 (pid 4236)
+Wikipedia Gacha backend listening on http://0.0.0.0:8793 (pid 2936)
+[wikipedia-gacha][en] pool seeded with 31 static articles; Wikipedia background fill startingÔÇª
+[wikipedia-gacha][en] pool seeded with 31 static articles; Wikipedia background fill startingÔÇª
+[wikipedia-gacha][en] pool seeded with 31 static articles; Wikipedia background fill startingÔÇª
+node : [wikipedia-gacha] warm-up timeout ÔÇö serving from static seed
+En línea: 7 Carácter: 3
++   node server/wikipedia-gacha/index.mjs 2>&1
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([wikipedia-gach...rom static seed:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[wikipedia-gacha] warm-up timeout ÔÇö serving from static seed
+[wikipedia-gacha] warm-up timeout ÔÇö serving from static seed

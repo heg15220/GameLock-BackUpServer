@@ -36,6 +36,15 @@ const SCHEMA_SQL = `
   CREATE INDEX IF NOT EXISTS idx_recovery_token
     ON recovery_codes (browser_token);
 
+  CREATE TABLE IF NOT EXISTS token_aliases (
+    legacy_token TEXT PRIMARY KEY NOT NULL,
+    current_token TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT ''
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_token_aliases_current
+    ON token_aliases (current_token);
+
   CREATE TABLE IF NOT EXISTS browser_profiles (
     id INTEGER PRIMARY KEY NOT NULL,
     browser_token TEXT NOT NULL UNIQUE,

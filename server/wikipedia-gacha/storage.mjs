@@ -574,6 +574,14 @@ export function createSqliteStore({ db }) {
     return next;
   }
 
+  async function resolvePersistedToken(browserToken) {
+    const row = await db.get(
+      "SELECT current_token AS currentToken FROM token_aliases WHERE legacy_token = ?",
+      [browserToken]
+    );
+    return row?.currentToken ?? browserToken;
+  }
+
   async function readLegacyRaw(browserToken) {
     const row = await db.get("SELECT data_json FROM user_state WHERE browser_token = ?", [browserToken]);
     if (!row) {
@@ -594,6 +602,7 @@ export function createSqliteStore({ db }) {
   }
 
   async function readNormalizedRaw(browserToken) {
+    const resolvedToken = await resolvePersistedToken(browserToken);
     const profile = await db.get(
       `SELECT
          id,
@@ -614,13 +623,14 @@ export function createSqliteStore({ db }) {
          last_pack_opened_at AS lastPackOpenedAt
        FROM browser_profiles
        WHERE browser_token = ?`,
-      [browserToken]
+      [resolvedToken]
     );
 
     if (!profile) {
       return null;
     }
     cachePersistedStatePresence(browserToken, true);
+    cachePersistedStatePresence(resolvedToken, true);
 
     const [
       collectionRows,
@@ -835,6 +845,7 @@ export function createSqliteStore({ db }) {
     };
 
     state.nextIds = buildNextIds(state);
+    touchState(resolvedToken, state);
     return touchState(browserToken, state);
   }
 
@@ -854,9 +865,11 @@ export function createSqliteStore({ db }) {
     const row = await db.get(
       `SELECT 1 AS ok FROM browser_profiles WHERE browser_token = ?
        UNION ALL
+       SELECT 1 AS ok FROM token_aliases WHERE legacy_token = ?
+       UNION ALL
        SELECT 1 AS ok FROM user_state WHERE browser_token = ?
        LIMIT 1`,
-      [browserToken, browserToken]
+      [browserToken, browserToken, browserToken]
     );
     const exists = Boolean(row?.ok);
     cachePersistedStatePresence(browserToken, exists);
@@ -874,10 +887,11 @@ export function createSqliteStore({ db }) {
       : null;
     const profile = (clean.browserProfiles ?? []).find(
       (entry) => entry.browserToken === browserToken
-    );
+    ) ?? ((clean.browserProfiles ?? []).length === 1 ? clean.browserProfiles[0] : null);
     if (!profile) {
       return;
     }
+    const storageToken = profile.browserToken ?? browserToken;
 
     const profileId = Number(profile.id) || 0;
     const collectionRows = (clean.browserCollection ?? []).filter(
@@ -944,7 +958,7 @@ export function createSqliteStore({ db }) {
            last_pack_opened_at = excluded.last_pack_opened_at`,
         [
           profileId,
-          browserToken,
+          storageToken,
           profile.displayName ?? null,
           profile.preferredLanguage ?? null,
           Number(profile.packsAvailable) || 0,
@@ -1260,7 +1274,19 @@ export function createSqliteStore({ db }) {
       }
 
       await db.run("DELETE FROM user_state WHERE browser_token = ?", [browserToken]);
+      await db.run("DELETE FROM user_state WHERE browser_token = ?", [storageToken]);
+      if (storageToken !== browserToken) {
+        await db.run(
+          `INSERT INTO token_aliases (legacy_token, current_token, created_at)
+           VALUES (?, ?, ?)
+           ON CONFLICT(legacy_token) DO UPDATE SET
+             current_token = excluded.current_token,
+             created_at = excluded.created_at`,
+          [browserToken, storageToken, new Date().toISOString()]
+        );
+      }
       cachePersistedStatePresence(browserToken, true);
+      cachePersistedStatePresence(storageToken, true);
 
       for (const recovery of state.recoveries ?? []) {
         recoveryCache.set(recovery.code, recovery.snapshot ?? {});
@@ -1270,7 +1296,7 @@ export function createSqliteStore({ db }) {
            VALUES (?, ?, ?, ?)`,
           [
             recovery.code,
-            browserToken,
+            storageToken,
             serializePersistedValue(compactRecoverySnapshot(recovery.snapshot ?? {})),
             recovery.createdAt ?? new Date().toISOString(),
           ]
@@ -1388,6 +1414,23 @@ export function createSqliteStore({ db }) {
 
 export { createSqliteStore as createJsonStore };
 export { buildEmptyState as createEmptyState };
+export const __storageInternals = {
+  stripTransientKeys,
+  normalizeTopicCounts,
+  buildNextIds,
+  cloneStateSnapshot,
+  rowHasChanged,
+  nowMs,
+  CACHE_TTL_MS,
+  FLUSH_DEBOUNCE_MS,
+  MULTI_WORKER_MODE,
+  STATE_CACHE_ENABLED,
+  DEFERRED_PERSISTENCE_ENABLED,
+  compactRecoverySnapshot,
+  expandRecoverySnapshot,
+  serializePersistedValue,
+  deserializePersistedValue,
+};
 export {
   compactState,
   expandState,

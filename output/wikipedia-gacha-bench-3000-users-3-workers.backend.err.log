@@ -1,0 +1,28 @@
+=8793 : El t‚rmino '=8793' no se reconoce como nombre de un cmdlet, funci¢n, archivo de script o programa ejecutable. 
+Compruebe si escribi¢ correctamente el nombre o, si incluy¢ una ruta de acceso, compruebe que dicha ruta es correcta e 
+int‚ntelo de nuevo.
+En l¡nea: 1 Car cter: 1
++ ='8793'; ='3'; ='C:\Users\hugoe\Downloads\plataforma-juegos-saas\serv ...
++ ~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=8793:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+=3 : El t‚rmino '=3' no se reconoce como nombre de un cmdlet, funci¢n, archivo de script o programa ejecutable. 
+Compruebe si escribi¢ correctamente el nombre o, si incluy¢ una ruta de acceso, compruebe que dicha ruta es correcta e 
+int‚ntelo de nuevo.
+En l¡nea: 1 Car cter: 10
++ ='8793'; ='3'; ='C:\Users\hugoe\Downloads\plataforma-juegos-saas\serv ...
++          ~~~~
+    + CategoryInfo          : ObjectNotFound: (=3:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+=C:\Users\hugoe\Downloads\plataforma-juegos-saas\server\data\wikipedia-gacha\bench-3000-users-3-workers.db : El 
+t‚rmino '=C:\Users\hugoe\Downloads\plataforma-juegos-saas\server\data\wikipedia-gacha\bench-3000-users-3-workers.db' 
+no se reconoce como nombre de un cmdlet, funci¢n, archivo de script o programa ejecutable. Compruebe si escribi¢ 
+correctamente el nombre o, si incluy¢ una ruta de acceso, compruebe que dicha ruta es correcta e int‚ntelo de nuevo.
+En l¡nea: 1 Car cter: 16
++ ... 793'; ='3'; ='C:\Users\hugoe\Downloads\plataforma-juegos-saas\server\ ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=C:\Users\hugoe...rs-3-workers.db:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 

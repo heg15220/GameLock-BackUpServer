@@ -16,8 +16,11 @@ import {
   compareRarity,
 } from "./constants.mjs";
 import { createWikipediaGachaCatalog } from "./catalog.mjs";
-import { createEmptyState, createSqliteStore } from "./storage.mjs";
-import { openStateDb, DEFAULT_DB_PATH } from "./db.mjs";
+import { createEmptyState } from "./storage.mjs";
+import {
+  createWikipediaGachaPersistence,
+  DEFAULT_SQLITE_DB_PATH,
+} from "./persistence.mjs";
 
 const MISSION_BY_ID = new Map(MISSIONS.map((mission) => [mission.id, mission]));
 const TROPHY_BY_ID = new Map(TROPHIES.map((trophy) => [trophy.id, trophy]));
@@ -242,6 +245,14 @@ function parseStatelessToken(browserToken) {
   }
 }
 
+function isExplicitTransientTokenPayload(tokenPayload) {
+  return tokenPayload?.p === 0;
+}
+
+function isPersistedTokenPayload(tokenPayload) {
+  return tokenPayload?.p === 1;
+}
+
 function createToken(randomBytesFn, payload = {}) {
   const encodedPayload = Buffer.from(
     JSON.stringify({
@@ -250,6 +261,7 @@ function createToken(randomBytesFn, payload = {}) {
       n: payload.displayName ?? "Anonymous Archivist",
       l: resolvePreferredLanguage(payload.preferredLanguage),
       t: payload.createdAt ?? new Date().toISOString(),
+      p: payload.persisted ? 1 : 0,
     }),
     "utf8"
   ).toString("base64url");
@@ -330,6 +342,22 @@ function ensureProfile(state, browserToken) {
     ? Math.max(0, Math.min(PITY_THRESHOLD, Math.floor(parsedPityCounter)))
     : 0;
   return profile;
+}
+
+function promoteProfileTokenForPersistence(state, profile, randomBytesFn) {
+  const tokenPayload = parseStatelessToken(profile.browserToken);
+  if (!isExplicitTransientTokenPayload(tokenPayload)) {
+    return profile.browserToken;
+  }
+  const promotedToken = createToken(randomBytesFn, {
+    displayName: profile.displayName,
+    preferredLanguage: profile.preferredLanguage,
+    createdAt: profile.createdAt,
+    persisted: true,
+  });
+  profile.browserToken = promotedToken;
+  state.__promotedBrowserToken = promotedToken;
+  return promotedToken;
 }
 
 function applyPackRegeneration(profile, now) {
@@ -1156,14 +1184,19 @@ async function buildDashboard(state, profile, now, articleCatalog, summaries = {
 }
 
 export function createWikipediaGachaService({
-  dbPath = DEFAULT_DB_PATH,
+  dbPath = DEFAULT_SQLITE_DB_PATH,
+  storageDriver = null,
+  postgresUrl = null,
   randomFn = Math.random,
   nowFn = () => new Date(),
   randomBytesFn = crypto.randomBytes,
 } = {}) {
   // SQLite-backed store — per-user write queues, no global serial bottleneck.
-  const db    = openStateDb(dbPath);
-  const store = createSqliteStore({ db });
+  const { db, store } = createWikipediaGachaPersistence({
+    storageDriver,
+    postgresUrl,
+    dbPath,
+  });
 
   // Live-Wikipedia pool: articles are fetched from the Wikipedia API and held
   // in RAM.  Pack openings are O(1) synchronous lookups — no disk or network
@@ -1192,10 +1225,14 @@ export function createWikipediaGachaService({
     preferredLanguage,
     now
   ) {
-    if (!parseStatelessToken(browserToken)) {
+    const tokenPayload = parseStatelessToken(browserToken);
+    if (!tokenPayload) {
       return null;
     }
-    if (await store.hasPersistedState(browserToken)) {
+    if (isPersistedTokenPayload(tokenPayload)) {
+      return null;
+    }
+    if (!isExplicitTransientTokenPayload(tokenPayload) && await store.hasPersistedState(browserToken)) {
       return null;
     }
     const state = createEmptyState();
@@ -1393,6 +1430,7 @@ export function createWikipediaGachaService({
     );
     const nextPackStatus = serializePackStatus(profile, now);
     draft.__lastOpenPackResponse = {
+      browserToken: profile.browserToken,
       packOpeningId: opening.id,
       guaranteedSrPlus: packResult.guaranteedSrPlus,
       packsRemaining: profile.packsAvailable,
@@ -1432,6 +1470,7 @@ export function createWikipediaGachaService({
       displayName,
       preferredLanguage,
       createdAt: isoDate(now),
+      persisted: false,
     });
     store.registerTransientToken(browserToken);
     const profile = {
@@ -1632,7 +1671,9 @@ export function createWikipediaGachaService({
     if (transient) {
       const articleCatalog = await ensureCatalogReady(transient.profile.preferredLanguage);
       await performOpenPackMutation(transient.state, transient.profile, now, articleCatalog);
-      await store.forToken(browserToken).write(transient.state);
+      promoteProfileTokenForPersistence(transient.state, transient.profile, randomBytesFn);
+      transient.state.__lastOpenPackResponse.browserToken = transient.profile.browserToken;
+      await store.forToken(browserToken).write(transient.state, { immediate: true });
       const response = transient.state.__lastOpenPackResponse;
       return {
         ...response,
@@ -1643,6 +1684,7 @@ export function createWikipediaGachaService({
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
       applyPackRegeneration(profile, now);
+      promoteProfileTokenForPersistence(draft, profile, randomBytesFn);
       const articleCatalog = await ensureCatalogReady(profile.preferredLanguage);
       return performOpenPackMutation(draft, profile, now, articleCatalog);
     });
@@ -1829,6 +1871,7 @@ export function createWikipediaGachaService({
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      promoteProfileTokenForPersistence(draft, profile, randomBytesFn);
       const collectionEntry = draft.browserCollection.find(
         (entry) =>
           entry.browserProfileId === profile.id && entry.articleId === articleId
@@ -1854,10 +1897,13 @@ export function createWikipediaGachaService({
       (entry) =>
         entry.browserProfileId === profile.id && entry.articleId === articleId
     );
-    return hydrateCardLike(
-      await serializeCollectionEntry(collectionEntry, articleCatalog.getArticleById),
-      articleCatalog
-    );
+    return {
+      browserToken: profile.browserToken,
+      ...(await hydrateCardLike(
+        await serializeCollectionEntry(collectionEntry, articleCatalog.getArticleById),
+        articleCatalog
+      )),
+    };
   }
 
   async function getArticle(articleId, browserToken = null, preferredLanguage = null) {
@@ -1929,20 +1975,23 @@ export function createWikipediaGachaService({
       error.code = "article_not_found";
       throw error;
     }
-    await store.forToken(browserToken).update((draft) => {
+    const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      promoteProfileTokenForPersistence(draft, profile, randomBytesFn);
       const stats = getTodaysStats(draft, profile.id, now);
       stats.wikipediaClicks += 1;
       profile.updatedAt = isoDate(now);
       recomputeMissionProgress(draft, profile, now);
+      draft.__articleClickResponse = {
+        browserToken: profile.browserToken,
+        articleId,
+        sourceUrl: article.sourceUrl,
+        ok: true,
+      };
       return draft;
     });
-    return {
-      articleId,
-      sourceUrl: article.sourceUrl,
-      ok: true,
-    };
+    return state.__articleClickResponse;
   }
 
   async function getMissions(browserToken, preferredLanguage = null) {
@@ -1984,6 +2033,7 @@ export function createWikipediaGachaService({
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      promoteProfileTokenForPersistence(draft, profile, randomBytesFn);
       const entries = recomputeMissionProgress(draft, profile, now);
       const entry = entries.find((candidate) => candidate.missionId === missionId);
       if (!entry) {
@@ -2035,6 +2085,7 @@ export function createWikipediaGachaService({
         },
       });
       draft.__claimMissionResponse = {
+        browserToken: profile.browserToken,
         mission: serializeMissionEntry(entry),
         profile: serializeProfile(profile),
       };
@@ -2049,6 +2100,7 @@ export function createWikipediaGachaService({
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      promoteProfileTokenForPersistence(draft, profile, randomBytesFn);
       applyPackRegeneration(profile, now);
 
       const targetPackCount = Math.min(profile.maxPacks, 3);
@@ -2068,6 +2120,7 @@ export function createWikipediaGachaService({
         { rewardedPacks: 3 }
       );
       draft.__rewardedAdResponse = {
+        browserToken: profile.browserToken,
         rewardedPacks,
         profile: serializeProfile(profile),
         packStatus: serializePackStatus(profile, now),
@@ -2172,6 +2225,7 @@ export function createWikipediaGachaService({
     const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
+      promoteProfileTokenForPersistence(draft, profile, randomBytesFn);
       const code = createRecoveryCode(randomBytesFn);
       const collection = getProfileCollections(draft, profile.id);
       const packHistory = getProfilePackHistory(draft, profile.id);
@@ -2229,6 +2283,7 @@ export function createWikipediaGachaService({
       });
 
       draft.__recoveryResponse = {
+        browserToken: profile.browserToken,
         recoveryCode: code,
         createdAt: isoDate(now),
       };
@@ -2254,6 +2309,7 @@ export function createWikipediaGachaService({
 
     const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
+      promoteProfileTokenForPersistence(draft, profile, randomBytesFn);
       const snapshot = recoverySnapshot;
       Object.assign(profile, {
         displayName: snapshot.profile.displayName,
@@ -2382,7 +2438,12 @@ export function createWikipediaGachaService({
 }
 
 export const wikipediaGachaService = createWikipediaGachaService({
-  dbPath: process.env.WIKIPEDIA_GACHA_DB_PATH ?? DEFAULT_DB_PATH,
+  storageDriver: process.env.WIKIPEDIA_GACHA_STORAGE_DRIVER ?? null,
+  postgresUrl:
+    process.env.WIKIPEDIA_GACHA_POSTGRES_URL ??
+    process.env.DATABASE_URL ??
+    null,
+  dbPath: process.env.WIKIPEDIA_GACHA_DB_PATH ?? DEFAULT_SQLITE_DB_PATH,
 });
 
 export {
