@@ -1627,7 +1627,7 @@ function updatePlayerPhysics(player, controls, state, dt) {
     player.vx = PHYSICS.speed;
     player.dir = 1;
   } else {
-    player.vx *= Math.pow(0.72, frame);
+    player.vx = 0;
   }
 
   if (controls.jump && player.onGround) {

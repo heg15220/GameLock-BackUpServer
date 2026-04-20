@@ -2565,10 +2565,12 @@ export default function WikipediaGachaGame() {
     (ms) => setNowMs((current) => current + ms)
   );
 
+  const isTabletViewport = viewport.formFactor === "tablet";
   const shellClassName = [
     "wg-shell",
     "antialiased",
     isMobileViewport ? "is-mobile" : "",
+    isTabletViewport ? "is-tablet" : "",
     isMobileViewport && isPortraitViewport ? "is-mobile-portrait" : "",
     isMobileViewport && !isPortraitViewport ? "is-mobile-landscape" : "",
   ]

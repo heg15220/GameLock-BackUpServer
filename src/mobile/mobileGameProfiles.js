@@ -1130,7 +1130,8 @@ export function getMobileControlProfile(game, locale = "es") {
           right: input("ArrowRight", "ArrowRight"),
           down: input("ArrowDown", "ArrowDown"),
         }),
-        leftSupportPad: [
+        leftSupportPad: [],
+        rightPad: [
           control("toolPrev", t(locale, "Herram-", "Tool-"), {
             type: "tap",
             inputs: [input("KeyQ", "q")],
@@ -1139,8 +1140,6 @@ export function getMobileControlProfile(game, locale = "es") {
             type: "tap",
             inputs: [input("Tab", "Tab")],
           }),
-        ],
-        rightPad: [
           control("tool", t(locale, "Usa", "Use"), {
             type: "tap",
             tone: "primary",

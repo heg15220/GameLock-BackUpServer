@@ -259,32 +259,23 @@ const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
   "strategy-poker-holdem-no-bet",
 ]);
 
-const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([
-  "arcade-reactor-toss",
-]);
+const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([]);
 
 const PORTRAIT_APP_BOTTOM_AD_GAME_IDS = new Set([
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",
 ]);
 
-function readInitialAdPreviewEnabled() {
-  if (typeof window === "undefined") {
-    return DEFAULT_AD_PREVIEW_ENABLED;
-  }
-
-  const storedValue = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
-  if (storedValue == null) {
-    return DEFAULT_AD_PREVIEW_ENABLED;
-  }
-
-  return storedValue === "true";
+function readStoredAdPreview() {
+  if (typeof window === "undefined") return DEFAULT_AD_PREVIEW_ENABLED;
+  const stored = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
+  return stored == null ? DEFAULT_AD_PREVIEW_ENABLED : stored === "true";
 }
 
 function GamePlayground({ game }) {
   const locale = useMemo(resolveBrowserLanguage, []);
   const [viewport, setViewport] = useState(getViewportProfile);
-  const [adPreviewEnabled, setAdPreviewEnabled] = useState(readInitialAdPreviewEnabled);
+  const [adPreviewEnabled, setAdPreviewEnabled] = useState(readStoredAdPreview);
   const resolvedLocale = locale === "es" ? "es" : "en";
   const copy = UI_COPY_BY_LOCALE[resolvedLocale] ?? UI_COPY_BY_LOCALE.en;
   const desktopAdColumns = useMemo(
@@ -320,12 +311,15 @@ function GamePlayground({ game }) {
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.localStorage.setItem(AD_PREVIEW_STORAGE_KEY, String(adPreviewEnabled));
-  }, [adPreviewEnabled]);
+    if (typeof window === "undefined") return undefined;
+    const onStorage = (e) => {
+      if (e.key === AD_PREVIEW_STORAGE_KEY) {
+        setAdPreviewEnabled(e.newValue === "true");
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   if (!game) {
     return null;
@@ -347,14 +341,16 @@ function GamePlayground({ game }) {
     viewport.isMobile &&
     !NATIVE_MOBILE_GAME_IDS.has(gameId) &&
     !forceDesktopTabletLayout;
-  const showDesktopAdRails = adPreviewEnabled && viewportFormFactor === "desktop";
-  const showTabletLandscapeAdRails =
-    adPreviewEnabled &&
-    viewportFormFactor === "tablet" &&
-    viewport.orientation === "landscape" &&
-    !TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS.has(gameId);
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
+  const hasDesktopAdRails = viewportFormFactor === "desktop";
+  const hasTabletLandscapeAdRails =
+    viewportFormFactor === "tablet" &&
+    viewport.orientation === "landscape" &&
+    !isKnowledgeCategory &&
+    !TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS.has(gameId);
+  const showDesktopAdRails = adPreviewEnabled && hasDesktopAdRails;
+  const showTabletLandscapeAdRails = adPreviewEnabled && hasTabletLandscapeAdRails;
   const showPortraitKnowledgeBottomAd =
     isKnowledgeCategory &&
     viewport.orientation === "portrait" &&
@@ -403,29 +399,19 @@ function GamePlayground({ game }) {
           </p>
           {controlHint ? <p className="control-hint">{controlHint}</p> : null}
         </div>
-        <button
-          type="button"
-          className="playground-ad-toggle"
-          onClick={() => {
-            setAdPreviewEnabled((currentValue) => !currentValue);
-          }}
-          aria-pressed={adPreviewEnabled}
-        >
-          {adPreviewEnabled ? copy.hideAds : copy.showAds}
-        </button>
       </div>
 
       <div
         className={[
           "playground-stage-layout",
-          showDesktopAdRails ? "playground-stage-layout--with-ads" : "",
-          showTabletLandscapeAdRails ? "playground-stage-layout--with-tablet-ads" : "",
+          hasDesktopAdRails ? "playground-stage-layout--with-ads" : "",
+          hasTabletLandscapeAdRails ? "playground-stage-layout--with-tablet-ads" : "",
         ]
           .filter(Boolean)
           .join(" ")}
       >
-        {showDesktopAdRails ? (
-          <aside className="playground-ad-column playground-ad-column--left" aria-label="Desktop ad rail left">
+        {hasDesktopAdRails ? (
+          <aside className="playground-ad-column playground-ad-column--left" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
             {desktopAdColumns.left.map((slot) => (
               <AdPreviewCard
                 key={slot.id}
@@ -436,8 +422,8 @@ function GamePlayground({ game }) {
             ))}
           </aside>
         ) : null}
-        {showTabletLandscapeAdRails ? (
-          <aside className="playground-ad-column playground-ad-column--left playground-ad-column--tablet" aria-label="Tablet ad rail left">
+        {hasTabletLandscapeAdRails ? (
+          <aside className="playground-ad-column playground-ad-column--left playground-ad-column--tablet" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
             {tabletAdColumns.left.map((slot) => (
               <AdPreviewCard
                 key={slot.id}
@@ -483,8 +469,8 @@ function GamePlayground({ game }) {
           )}
         </div>
 
-        {showDesktopAdRails ? (
-          <aside className="playground-ad-column playground-ad-column--right" aria-label="Desktop ad rail right">
+        {hasDesktopAdRails ? (
+          <aside className="playground-ad-column playground-ad-column--right" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
             {desktopAdColumns.right.map((slot) => (
               <AdPreviewCard
                 key={slot.id}
@@ -495,8 +481,8 @@ function GamePlayground({ game }) {
             ))}
           </aside>
         ) : null}
-        {showTabletLandscapeAdRails ? (
-          <aside className="playground-ad-column playground-ad-column--right playground-ad-column--tablet" aria-label="Tablet ad rail right">
+        {hasTabletLandscapeAdRails ? (
+          <aside className="playground-ad-column playground-ad-column--right playground-ad-column--tablet" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
             {tabletAdColumns.right.map((slot) => (
               <AdPreviewCard
                 key={slot.id}

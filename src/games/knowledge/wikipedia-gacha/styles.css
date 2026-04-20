@@ -5260,3 +5260,17 @@
 .wg-shell.is-mobile.is-mobile-landscape .wg-mission-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+
+.wg-shell.is-mobile.is-tablet.is-mobile-landscape .wg-collection-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wg-shell.is-mobile.is-tablet.is-mobile-landscape .wg-collection-grid .wg-stack-card {
+  min-height: 260px;
+  aspect-ratio: 10 / 14.5;
+}
+
+.wg-shell.is-mobile.is-tablet.is-mobile-landscape .wg-collection-grid .wg-stack-art {
+  height: 80px;
+}

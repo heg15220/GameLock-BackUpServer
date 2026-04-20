@@ -3523,6 +3523,13 @@ function BilliardsClubGame() {
           <div className="phaser-canvas-host billiards-canvas-host">
             <canvas id="billiards-canvas" ref={canvasRef} width={TABLE_WIDTH} height={TABLE_HEIGHT} className="billiards-canvas" aria-label={locale === "es" ? "Mesa de billar" : "Pool table"} />
           </div>
+          <div className="billiards-canvas-score-strip" aria-hidden="true">
+            {snapshot.players.map((player, index) => (
+              <span key={`cs-${index}`} className={snapshot.currentPlayer === index ? "billiards-canvas-score-item active" : "billiards-canvas-score-item"}>
+                {player.name}: <strong>{player.racksWon}</strong>
+              </span>
+            ))}
+          </div>
           {overlayVisible ? (
             <div className="billiards-overlay">
               {snapshot.status === "menu" ? (

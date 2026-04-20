@@ -191,6 +191,7 @@ export default function PinballWizardGame() {
               onMouseDown={flipL(true)}
               onMouseUp={flipL(false)}
               onMouseLeave={flipL(false)}
+              onContextMenu={(e) => e.preventDefault()}
               aria-label="Left flipper"
             >
               ← FLIP
@@ -204,6 +205,7 @@ export default function PinballWizardGame() {
               onMouseDown={plunge(true)}
               onMouseUp={plunge(false)}
               onMouseLeave={plunge(false)}
+              onContextMenu={(e) => e.preventDefault()}
               aria-label="Plunge"
             >
               ▲ LAUNCH
@@ -217,6 +219,7 @@ export default function PinballWizardGame() {
               onMouseDown={flipR(true)}
               onMouseUp={flipR(false)}
               onMouseLeave={flipR(false)}
+              onContextMenu={(e) => e.preventDefault()}
               aria-label="Right flipper"
             >
               FLIP →

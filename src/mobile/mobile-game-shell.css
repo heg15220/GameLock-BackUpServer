@@ -393,6 +393,16 @@
     inset 0 -1px 0 rgba(102, 86, 68, 0.12);
 }
 
+.mobile-game-shell__screen-frame {
+  transition: opacity 160ms ease;
+}
+
+.mobile-game-shell--transitioning .mobile-game-shell__screen-frame {
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+}
+
 .mobile-game-shell--device-tablet {
   --mobile-shell-system-ad-space: 126px;
 }
@@ -3789,11 +3799,7 @@
   transform: translate(0, 0);
   margin-left: -19%;
   margin-top: -19%;
-  transition: transform 90ms ease-out;
-}
-
-.mobile-control-deck__joystick.is-active .mobile-control-deck__joystick-thumb {
-  transition-duration: 40ms;
+  transition: none;
 }
 
 .mobile-control-deck__joystick-mark {
@@ -4864,6 +4870,26 @@
   grid-template-columns: minmax(0, 1.46fr) minmax(336px, 0.54fr);
 }
 
+/* Valle Tranquilo: ad banner flush under joystick/actions */
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__tablet-section--controls {
+  gap: 0;
+}
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-control-deck {
+  gap: 0.32rem;
+}
+
+/* Dig Hole: compact utility buttons close to clusters */
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-control-deck {
+  gap: 0.32rem;
+}
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-control-deck__utilities .mobile-control-deck__button {
+  min-height: 34px;
+  font-size: 0.68rem;
+  padding-top: 0.22rem;
+  padding-bottom: 0.22rem;
+  border-radius: 10px;
+}
+
 .mobile-game-shell--with-compact-games-ad .mobile-game-shell__controls-stack {
   align-content: start;
 }
@@ -5487,6 +5513,10 @@
   padding: 0.28rem;
   border-radius: 22px;
   gap: 0.45rem;
+}
+
+.mobile-game-shell--fullscreen.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__hardware {
+  height: 100dvh;
 }
 
 .mobile-game-shell--fullscreen .mobile-game-shell__screen-frame,

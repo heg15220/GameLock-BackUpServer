@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import AdPreviewCard from "./components/AdPreviewCard";
 import GameGrid from "./components/GameGrid";
 import GameLaunchModal from "./components/GameLaunchModal";
-import { DESKTOP_AD_SLOTS } from "./config/adPreview";
+import { AD_PREVIEW_STORAGE_KEY, DEFAULT_AD_PREVIEW_ENABLED, DESKTOP_AD_SLOTS } from "./config/adPreview";
 import { games } from "./data/games";
 import { useTranslations, localizeCategory } from "./i18n";
 
@@ -28,12 +28,19 @@ const getInitialGameIdFromHash = () => {
   return games.some((g) => g.id === gameId) ? gameId : null;
 };
 
+function readStoredAdPreview() {
+  if (typeof window === "undefined") return DEFAULT_AD_PREVIEW_ENABLED;
+  const stored = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
+  return stored == null ? DEFAULT_AD_PREVIEW_ENABLED : stored === "true";
+}
+
 function App() {
   const { t, locale } = useTranslations();
 
   const [activeCategory, setActiveCategory] = useState(ALL_KEY);
   const [currentPage, setCurrentPage] = useState(1);
   const [launchedGameId, setLaunchedGameId] = useState(getInitialGameIdFromHash);
+  const [adPreviewEnabled, setAdPreviewEnabled] = useState(readStoredAdPreview);
 
   const categoryKeys = useMemo(() => {
     const uniqueKeys = [...new Set(games.map((g) => g.category))];
@@ -95,12 +102,23 @@ function App() {
       ? `Page ${currentPage} of ${totalPages}`
       : `Página ${currentPage} de ${totalPages}`;
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(AD_PREVIEW_STORAGE_KEY, String(adPreviewEnabled));
+    window.dispatchEvent(new StorageEvent("storage", {
+      key: AD_PREVIEW_STORAGE_KEY,
+      newValue: String(adPreviewEnabled),
+    }));
+  }, [adPreviewEnabled]);
+
+  const toggleAdPreview = () => setAdPreviewEnabled((v) => !v);
+
   const showSportsCatalogSubliminal = SPORTS_CATEGORY_KEYS.has(activeCategory);
 
   return (
     <>
       <div className="app-desktop-layout">
-        <aside className="app-desktop-ads app-desktop-ads--left" aria-label="Desktop ads left">
+        <aside className="app-desktop-ads app-desktop-ads--left" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
           {desktopAdColumns.left.map((slot) => (
             <AdPreviewCard
               key={slot.id}
@@ -119,6 +137,16 @@ function App() {
             <p className="pill">{t("pill")}</p>
             <h1>{t("heroTitle")}</h1>
             <p className="hero-copy">{t("heroCopy")}</p>
+            <button
+              type="button"
+              className={["system-ad-toggle", adPreviewEnabled ? "active" : ""].filter(Boolean).join(" ")}
+              onClick={toggleAdPreview}
+              aria-pressed={adPreviewEnabled}
+            >
+              {locale === "en"
+                ? adPreviewEnabled ? "Hide ads" : "Show ads"
+                : adPreviewEnabled ? "Ocultar publicidad" : "Mostrar publicidad"}
+            </button>
 
             <div className="stats">
               <article>
@@ -198,7 +226,7 @@ function App() {
           </footer>
         </div>
 
-        <aside className="app-desktop-ads app-desktop-ads--right" aria-label="Desktop ads right">
+        <aside className="app-desktop-ads app-desktop-ads--right" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
           {desktopAdColumns.right.map((slot) => (
             <AdPreviewCard
               key={slot.id}
@@ -210,7 +238,7 @@ function App() {
         </aside>
       </div>
 
-      {launchedGame && <GameLaunchModal game={launchedGame} onClose={closeModal} />}
+      {launchedGame && <GameLaunchModal game={launchedGame} onClose={closeModal} adPreviewEnabled={adPreviewEnabled} />}
     </>
   );
 }

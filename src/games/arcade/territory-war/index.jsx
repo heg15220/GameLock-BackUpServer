@@ -2217,6 +2217,8 @@ const CSS=`
     justify-content:center;
     transition:transform 0.12s ease, filter 0.12s ease, border-color 0.12s ease;
     user-select:none;
+    -webkit-touch-callout:none;
+    touch-action:manipulation;
   }
 
   .tw-arr-btn:hover{
@@ -2473,10 +2475,12 @@ export default function TerritoryWar(){
     onMouseLeave:()=>setVirtual(name,false),
     onTouchStart:(e)=>{e.preventDefault();setVirtual(name,true);},
     onTouchEnd:(e)=>{e.preventDefault();setVirtual(name,false);},
+    onContextMenu:(e)=>e.preventDefault(),
   });
   const tapProps=(name)=>({
     onMouseDown:()=>{setVirtual(name,true);setTimeout(()=>setVirtual(name,false),80);},
     onTouchStart:(e)=>{e.preventDefault();setVirtual(name,true);setTimeout(()=>setVirtual(name,false),80);},
+    onContextMenu:(e)=>e.preventDefault(),
   });
 
   useEffect(()=>{

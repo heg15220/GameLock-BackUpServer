@@ -8,8 +8,6 @@ import { getResponsiveMobileShellMode } from "../mobile/mobileGameProfiles";
 import { NATIVE_MOBILE_GAME_IDS } from "../mobile/nativeMobileGameIds";
 import AdPreviewCard from "./AdPreviewCard";
 import {
-  AD_PREVIEW_STORAGE_KEY,
-  DEFAULT_AD_PREVIEW_ENABLED,
   DESKTOP_AD_SLOTS,
   MOBILE_APP_BOTTOM_AD_SLOT,
   TABLET_APP_SIDE_AD_SLOTS,
@@ -19,36 +17,20 @@ const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
   "strategy-poker-holdem-no-bet",
 ]);
 
-const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([
-  "arcade-reactor-toss",
-]);
+const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([]);
 
 const PORTRAIT_APP_BOTTOM_AD_GAME_IDS = new Set([
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",
 ]);
 
-function readInitialAdPreviewEnabled() {
-  if (typeof window === "undefined") {
-    return DEFAULT_AD_PREVIEW_ENABLED;
-  }
-
-  const storedValue = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
-  if (storedValue == null) {
-    return DEFAULT_AD_PREVIEW_ENABLED;
-  }
-
-  return storedValue === "true";
-}
-
-function GameLaunchModal({ game, onClose }) {
+function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
   const { t, locale } = useTranslations();
   const lg = getLocalizedGame(game, locale);
   const ActiveGame = getGameComponent(game.id);
   const controlHint = CONTROL_HINTS_BY_LOCALE[locale]?.[game.id];
 
   const [infoOpen, setInfoOpen] = useState(false);
-  const [adPreviewEnabled, setAdPreviewEnabled] = useState(readInitialAdPreviewEnabled);
   const viewport = useMobileGameViewport();
 
   // Lock body scroll while the modal is open so the body scrollbar
@@ -75,14 +57,6 @@ function GameLaunchModal({ game, onClose }) {
     window.addEventListener("launch-game-close", handleCloseRequest);
     return () => window.removeEventListener("launch-game-close", handleCloseRequest);
   }, [onClose]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.localStorage.setItem(AD_PREVIEW_STORAGE_KEY, String(adPreviewEnabled));
-  }, [adPreviewEnabled]);
 
   const mobileShellMode = getResponsiveMobileShellMode(game, viewport);
   const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(String(game.category ?? ""));
@@ -115,12 +89,14 @@ function GameLaunchModal({ game, onClose }) {
   const showExternalMobileSystemBottomAd =
     showMobileSystemBottomAd &&
     !showShellManagedSystemBottomAd;
-  const showDesktopAdRails = adPreviewEnabled && viewportFormFactor === "desktop";
-  const showTabletLandscapeAdRails =
-    adPreviewEnabled &&
+  const hasDesktopAdRails = viewportFormFactor === "desktop";
+  const hasTabletLandscapeAdRails =
     viewportFormFactor === "tablet" &&
     viewport.orientation === "landscape" &&
+    !isKnowledgeCategory &&
     !TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS.has(gameId);
+  const showDesktopAdRails = adPreviewEnabled && hasDesktopAdRails;
+  const showTabletLandscapeAdRails = adPreviewEnabled && hasTabletLandscapeAdRails;
   const desktopAdColumns = {
     left: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "left"),
     right: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "right"),
@@ -152,8 +128,8 @@ function GameLaunchModal({ game, onClose }) {
     .join(" ");
   const launchGameAreaClassName = [
     "launch-game-area",
-    showDesktopAdRails ? "launch-game-area--with-ads" : "",
-    showTabletLandscapeAdRails ? "launch-game-area--with-tablet-ads" : "",
+    hasDesktopAdRails ? "launch-game-area--with-ads" : "",
+    hasTabletLandscapeAdRails ? "launch-game-area--with-tablet-ads" : "",
     useMobileGameShell ? "launch-game-area--mobile-shell" : "",
     useMobileGameShell ? `launch-game-area--device-${viewportFormFactor}` : "",
   ]
@@ -199,22 +175,6 @@ function GameLaunchModal({ game, onClose }) {
           </button>
         ) : null}
 
-        <button
-          type="button"
-          className={[
-            "launch-info-toggle",
-            "launch-ad-toggle",
-            adPreviewEnabled ? "active" : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
-          onClick={() => setAdPreviewEnabled((currentValue) => !currentValue)}
-          aria-pressed={adPreviewEnabled}
-        >
-          {locale === "en"
-            ? adPreviewEnabled ? "Hide ads" : "Show ads"
-            : adPreviewEnabled ? "Ocultar publicidad" : "Mostrar publicidad"}
-        </button>
       </div>
 
       {/* ── Scrollable body: info strip + game area ─────────────────────── */}
@@ -252,8 +212,8 @@ function GameLaunchModal({ game, onClose }) {
 
         {/* Game area */}
         <section className={launchGameAreaClassName} aria-label={t("playNow")}>
-          {showTabletLandscapeAdRails ? (
-            <aside className="launch-tablet-ad-rail launch-tablet-ad-rail--left" aria-label="Tablet ad rail left">
+          {hasTabletLandscapeAdRails ? (
+            <aside className="launch-tablet-ad-rail launch-tablet-ad-rail--left" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
               {tabletAdColumns.left.map((slot) => (
                 <AdPreviewCard
                   key={slot.id}
@@ -264,8 +224,8 @@ function GameLaunchModal({ game, onClose }) {
               ))}
             </aside>
           ) : null}
-          {showTabletLandscapeAdRails ? (
-            <aside className="launch-tablet-ad-rail launch-tablet-ad-rail--right" aria-label="Tablet ad rail right">
+          {hasTabletLandscapeAdRails ? (
+            <aside className="launch-tablet-ad-rail launch-tablet-ad-rail--right" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
               {tabletAdColumns.right.map((slot) => (
                 <AdPreviewCard
                   key={slot.id}
@@ -299,13 +259,13 @@ function GameLaunchModal({ game, onClose }) {
               <div
                 className={[
                   "launch-game-area-layout",
-                  showDesktopAdRails ? "launch-game-area-layout--with-ads" : "",
+                  hasDesktopAdRails ? "launch-game-area-layout--with-ads" : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
               >
-                {showDesktopAdRails ? (
-                  <aside className="playground-ad-column playground-ad-column--left" aria-label="Desktop ad rail left">
+                {hasDesktopAdRails ? (
+                  <aside className="playground-ad-column playground-ad-column--left" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
                     {desktopAdColumns.left.map((slot) => (
                       <AdPreviewCard
                         key={slot.id}
@@ -350,8 +310,8 @@ function GameLaunchModal({ game, onClose }) {
                   </div>
                 </div>
 
-                {showDesktopAdRails ? (
-                  <aside className="playground-ad-column playground-ad-column--right" aria-label="Desktop ad rail right">
+                {hasDesktopAdRails ? (
+                  <aside className="playground-ad-column playground-ad-column--right" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
                     {desktopAdColumns.right.map((slot) => (
                       <AdPreviewCard
                         key={slot.id}

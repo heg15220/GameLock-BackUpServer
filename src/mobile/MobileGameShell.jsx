@@ -176,6 +176,8 @@ export default function MobileGameShell({
   const shellRef = useRef(null);
   const [stageViewportNode, setStageViewportNode] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const clearTransitionRafRef = useRef(null);
   const shellMode = useMemo(
     () => getResponsiveMobileShellMode(game, viewport),
     [game, viewport]
@@ -234,7 +236,8 @@ export default function MobileGameShell({
   const showCompactGamesAppAd =
     showAdPreview &&
     viewportFormFactor !== "desktop" &&
-    isGamesCategory;
+    isGamesCategory &&
+    game?.id !== "arcade-pinball-wizard";
   const showTouchIntroCopy = !isStrategyTheme;
   const showStageAdOverlay =
     showAdPreview &&
@@ -286,6 +289,15 @@ export default function MobileGameShell({
             || document.webkitFullscreenElement === currentShell)
         )
       );
+      if (clearTransitionRafRef.current != null) {
+        cancelAnimationFrame(clearTransitionRafRef.current);
+      }
+      clearTransitionRafRef.current = requestAnimationFrame(() => {
+        clearTransitionRafRef.current = requestAnimationFrame(() => {
+          setIsTransitioning(false);
+          clearTransitionRafRef.current = null;
+        });
+      });
     };
 
     syncFullscreen();
@@ -295,6 +307,9 @@ export default function MobileGameShell({
     return () => {
       document.removeEventListener("fullscreenchange", syncFullscreen);
       document.removeEventListener("webkitfullscreenchange", syncFullscreen);
+      if (clearTransitionRafRef.current != null) {
+        cancelAnimationFrame(clearTransitionRafRef.current);
+      }
     };
   }, []);
 
@@ -305,6 +320,7 @@ export default function MobileGameShell({
     }
 
     try {
+      setIsTransitioning(true);
       if (document.fullscreenElement || document.webkitFullscreenElement) {
         if (document.exitFullscreen) {
           await document.exitFullscreen();
@@ -320,6 +336,7 @@ export default function MobileGameShell({
       }
     } catch {
       // Ignore fullscreen failures in embedded browsers.
+      setIsTransitioning(false);
     }
   };
 
@@ -336,6 +353,7 @@ export default function MobileGameShell({
     showCompactGamesAppAd ? "mobile-game-shell--with-compact-games-ad" : "",
     isTabletLandscapeStack ? "mobile-game-shell--tablet-landscape-stack" : "",
     isFullscreen ? "mobile-game-shell--fullscreen" : "",
+    isTransitioning ? "mobile-game-shell--transitioning" : "",
     isDualScreen ? "mobile-game-shell--has-controls" : "mobile-game-shell--touch-native",
   ]
     .filter(Boolean)
@@ -421,6 +439,7 @@ export default function MobileGameShell({
       <div className="mobile-game-shell__controls-primary">
         {controlDeckNode}
       </div>
+      {compactGamesAdNode}
     </section>
   );
 
@@ -536,7 +555,7 @@ export default function MobileGameShell({
                     </>
                   )}
                   {knowledgeTabletPanelAdsNode}
-                  {compactGamesAdNode}
+                  {!isTabletLandscapeStack && compactGamesAdNode}
                   {inlineSystemBottomAdNode}
                   {fullscreenSystemAdSpacerNode}
                 </div>
