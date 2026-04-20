@@ -4463,15 +4463,17 @@
 .wg-shell.is-mobile .wg-live-feedback-layer {
   position: fixed;
   inset: 0;
-  z-index: 72;
+  z-index: 120;
 }
 
 .wg-shell.is-mobile .wg-mission-unlock-stack {
-  top: calc(env(safe-area-inset-top, 0px) + 88px);
-  left: 12px;
-  right: 12px;
+  top: calc(env(safe-area-inset-top, 0px) + 72px);
+  left: 10px;
+  right: 10px;
   width: auto;
   max-width: none;
+  max-height: min(34svh, 240px);
+  overflow: visible;
 }
 
 .wg-shell.is-mobile .wg-mission-unlock-toast {
@@ -4492,11 +4494,12 @@
 }
 
 .wg-shell.is-mobile .wg-rare-drop-fx {
-  top: calc(env(safe-area-inset-top, 0px) + 84px);
+  top: calc(env(safe-area-inset-top, 0px) + 68px);
   min-width: 0;
-  width: min(320px, calc(100% - 24px));
-  max-width: calc(100% - 24px);
+  width: min(332px, calc(100% - 20px));
+  max-width: calc(100% - 20px);
   padding: 10px 12px 11px;
+  z-index: 121;
 }
 
 .wg-shell.is-mobile .wg-top-nav {
@@ -4842,8 +4845,8 @@
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-card {
   width: 100%;
   height: auto;
-  min-height: 0;
-  aspect-ratio: 10 / 14;
+  min-height: 360px;
+  aspect-ratio: 10 / 14.9;
   padding: 6px;
 }
 
@@ -4893,7 +4896,7 @@
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-art {
-  height: 92px;
+  height: 104px;
   margin: 3px;
 }
 
@@ -4919,7 +4922,7 @@
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-blurb p {
-  -webkit-line-clamp: 6;
+  -webkit-line-clamp: 8;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-serial {
@@ -4948,8 +4951,8 @@
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-card {
   width: min(100%, 344px);
-  min-height: 472px;
-  aspect-ratio: 10 / 15.1;
+  min-height: 540px;
+  aspect-ratio: 10 / 16.1;
   padding: 8px;
 }
 
@@ -4987,7 +4990,7 @@
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-art {
-  height: 152px;
+  height: 176px;
   margin: 4px;
 }
 
@@ -5012,9 +5015,9 @@
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-blurb p {
-  font-size: 0.64rem;
+  font-size: 0.66rem;
   line-height: 1.32;
-  -webkit-line-clamp: 8;
+  -webkit-line-clamp: 10;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-serial {

@@ -986,6 +986,17 @@ body {
   grid-template-columns: 224px minmax(0, 1fr) 224px;
 }
 
+.playground-stage-layout--with-tablet-ads {
+  align-items: stretch;
+  grid-template-columns: minmax(0, 148px) minmax(0, 1fr) minmax(0, 148px);
+}
+
+.playground-ad-column__card--tablet {
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 3 / 4;
+}
+
 .playground-ad-column {
   display: grid;
   gap: 0.9rem;
@@ -2522,6 +2533,7 @@ body {
   max-width: 1568px;
 }
 
+
 .launch-game-area-layout {
   width: 100%;
 }
@@ -2540,6 +2552,34 @@ body {
 .launch-game-area-layout--with-ads .playground-ad-column {
   position: sticky;
   top: 1rem;
+}
+
+/* Tablet landscape: ads positioned absolutely in the natural margin
+   between the centered 1100px game content and the viewport edges */
+.launch-game-area.launch-game-area--with-tablet-ads {
+  position: relative;
+}
+
+.launch-tablet-ad-rail {
+  position: absolute;
+  top: 1.5rem;
+  bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  /* Fills exactly the space between viewport edge and the 1100px content */
+  width: calc((100% - 1100px) / 2 - 1rem);
+  max-width: none;
+  overflow: hidden;
+}
+
+.launch-tablet-ad-rail--left { left: 0.5rem; }
+.launch-tablet-ad-rail--right { right: 0.5rem; }
+
+.launch-tablet-ad-card {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
 }
 
 /* Loading dots */
@@ -3927,6 +3967,12 @@ body {
     radial-gradient(circle at 90% -18%, rgba(251, 146, 60, 0.25), transparent 48%),
     radial-gradient(circle at 8% -18%, rgba(245, 158, 11, 0.2), transparent 44%),
     linear-gradient(160deg, #2f1f12 0%, #3d2816 100%);
+}
+
+.knowledge-arcade-game.knowledge-crucigrama .knowledge-mode-shell {
+  background: linear-gradient(155deg, rgba(28, 18, 10, 0.84), rgba(55, 33, 17, 0.88));
+  border-color: rgba(251, 146, 60, 0.24);
+  box-shadow: 0 18px 26px rgba(2, 6, 23, 0.25);
 }
 
 .crossword-head-actions {

@@ -29,6 +29,7 @@ import {
   DEFAULT_AD_PREVIEW_ENABLED,
   DESKTOP_AD_SLOTS,
   MOBILE_APP_BOTTOM_AD_SLOT,
+  TABLET_APP_SIDE_AD_SLOTS,
 } from "../config/adPreview";
 
 const PlatformerGame = lazy(() => import("../games/PlatformerGame"));
@@ -258,6 +259,10 @@ const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
   "strategy-poker-holdem-no-bet",
 ]);
 
+const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([
+  "arcade-reactor-toss",
+]);
+
 const PORTRAIT_APP_BOTTOM_AD_GAME_IDS = new Set([
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",
@@ -286,6 +291,13 @@ function GamePlayground({ game }) {
     () => ({
       left: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "left"),
       right: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "right"),
+    }),
+    []
+  );
+  const tabletAdColumns = useMemo(
+    () => ({
+      left: TABLET_APP_SIDE_AD_SLOTS.filter((slot) => slot.side === "left"),
+      right: TABLET_APP_SIDE_AD_SLOTS.filter((slot) => slot.side === "right"),
     }),
     []
   );
@@ -336,6 +348,11 @@ function GamePlayground({ game }) {
     !NATIVE_MOBILE_GAME_IDS.has(gameId) &&
     !forceDesktopTabletLayout;
   const showDesktopAdRails = adPreviewEnabled && viewportFormFactor === "desktop";
+  const showTabletLandscapeAdRails =
+    adPreviewEnabled &&
+    viewportFormFactor === "tablet" &&
+    viewport.orientation === "landscape" &&
+    !TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS.has(gameId);
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
   const showPortraitKnowledgeBottomAd =
@@ -402,6 +419,7 @@ function GamePlayground({ game }) {
         className={[
           "playground-stage-layout",
           showDesktopAdRails ? "playground-stage-layout--with-ads" : "",
+          showTabletLandscapeAdRails ? "playground-stage-layout--with-tablet-ads" : "",
         ]
           .filter(Boolean)
           .join(" ")}
@@ -414,6 +432,18 @@ function GamePlayground({ game }) {
                 slot={slot}
                 locale={resolvedLocale}
                 className="playground-ad-column__card"
+              />
+            ))}
+          </aside>
+        ) : null}
+        {showTabletLandscapeAdRails ? (
+          <aside className="playground-ad-column playground-ad-column--left playground-ad-column--tablet" aria-label="Tablet ad rail left">
+            {tabletAdColumns.left.map((slot) => (
+              <AdPreviewCard
+                key={slot.id}
+                slot={slot}
+                locale={resolvedLocale}
+                className="playground-ad-column__card playground-ad-column__card--tablet"
               />
             ))}
           </aside>
@@ -461,6 +491,18 @@ function GamePlayground({ game }) {
                 slot={slot}
                 locale={resolvedLocale}
                 className="playground-ad-column__card"
+              />
+            ))}
+          </aside>
+        ) : null}
+        {showTabletLandscapeAdRails ? (
+          <aside className="playground-ad-column playground-ad-column--right playground-ad-column--tablet" aria-label="Tablet ad rail right">
+            {tabletAdColumns.right.map((slot) => (
+              <AdPreviewCard
+                key={slot.id}
+                slot={slot}
+                locale={resolvedLocale}
+                className="playground-ad-column__card playground-ad-column__card--tablet"
               />
             ))}
           </aside>

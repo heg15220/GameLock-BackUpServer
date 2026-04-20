@@ -60,12 +60,22 @@ export const MOBILE_APP_BOTTOM_AD_SLOT = createSlot("mobile-app-bottom", {
 });
 
 export const TABLET_APP_SIDE_AD_SLOTS = [
-  createSlot("tablet-app-side-left", {
+  createSlot("tablet-app-side-left-top", {
     side: "left",
     sizeLabel: "Tablet app side banner",
     fallbackSize: "Adaptive",
   }),
-  createSlot("tablet-app-side-right", {
+  createSlot("tablet-app-side-left-bottom", {
+    side: "left",
+    sizeLabel: "Tablet app side banner",
+    fallbackSize: "Adaptive",
+  }),
+  createSlot("tablet-app-side-right-top", {
+    side: "right",
+    sizeLabel: "Tablet app side banner",
+    fallbackSize: "Adaptive",
+  }),
+  createSlot("tablet-app-side-right-bottom", {
     side: "right",
     sizeLabel: "Tablet app side banner",
     fallbackSize: "Adaptive",

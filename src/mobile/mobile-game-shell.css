@@ -4568,6 +4568,10 @@
   margin-inline: auto;
 }
 
+.launch-game-area--mobile-shell.launch-game-area--device-tablet.launch-game-area--with-tablet-ads > * {
+  max-width: 1100px;
+}
+
 .mobile-game-shell--device-tablet {
   --mobile-shell-max-width: min(100%, 1180px);
   --mobile-shell-min-height: calc(100svh - 112px);
@@ -4769,6 +4773,10 @@
 
 .mobile-game-shell--tablet-landscape-stack .mobile-game-shell__hardware {
   gap: 0.58rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__hardware {
+  height: var(--mobile-shell-min-height);
 }
 
 .mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-panel {
@@ -5514,12 +5522,15 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body,
 .mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) clamp(216px, 30svh, 292px);
+  grid-template-rows: minmax(0, 1fr) clamp(260px, 34svh, 340px);
 }
 
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell,
 .mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell {
-  min-height: clamp(432px, 60svh, 640px);
+  min-height: clamp(300px, 44svh, 480px);
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell {
+  min-height: 0;
 }
 
 .mobile-game-shell--tablet-stage-side-ads .mobile-game-shell__stage-shell {
@@ -5554,8 +5565,27 @@
 }
 
 .mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-shell {
-  min-height: clamp(216px, 30svh, 292px);
-  max-height: clamp(216px, 30svh, 292px);
+  min-height: clamp(260px, 34svh, 340px);
+  max-height: clamp(260px, 34svh, 340px);
+}
+
+/* Propagate a definite height through the stage tree so canvas-based games
+   scale by height instead of overflowing the stage viewport. */
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-viewport > * {
+  height: 100%;
+  min-height: 0;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] [data-mobile-stage-branch="true"] {
+  height: 100%;
+  min-height: 0;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-viewport canvas {
+  width: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
 }
 
 .mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-panel {
@@ -5634,17 +5664,17 @@
 @media (max-height: 760px) {
   .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body,
   .mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack.mobile-game-shell--has-controls .mobile-game-shell__body {
-    grid-template-rows: minmax(0, 1fr) clamp(176px, 25svh, 220px);
+    grid-template-rows: minmax(0, 1fr) clamp(210px, 28svh, 260px);
   }
 
   .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell,
   .mobile-game-shell--fullscreen.mobile-game-shell--tablet-landscape-stack .mobile-game-shell__stage-shell {
-    min-height: clamp(320px, 54svh, 520px);
+    min-height: clamp(260px, 42svh, 440px);
   }
 
   .mobile-game-shell--tablet-landscape-stack .mobile-game-shell__controls-shell {
-    min-height: clamp(176px, 25svh, 220px);
-    max-height: clamp(176px, 25svh, 220px);
+    min-height: clamp(210px, 28svh, 260px);
+    max-height: clamp(210px, 28svh, 260px);
   }
 
   .mobile-game-shell--tablet-landscape-stack .mobile-control-deck__clusters {

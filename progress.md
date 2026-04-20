@@ -4298,3 +4298,10 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Capturas clave revisadas:
   - `wikipedia-gacha-mobile-notices-fix.png`: avisos sample de mision/trofeo visibles en viewport (`y=88`, `width=366`).
   - `wikipedia-gacha-collection-card-mobile-fix.png`: primera carta visible con cabecera, arte y bloque real de descripcion legible.
+
+## 2026-04-20 - Ajustes responsive crucigrama / Flux Basin / Wikipedia Gacha
+- Desactivadas las vinetas laterales de publicidad en tablet horizontal para `arcade-reactor-toss` tanto en `GameLaunchModal` como en `GamePlayground`.
+- Ajustado el shell de `knowledge-crucigrama` para eliminar el brillo/linea clara que aparecia en la parte superior del componente.
+- Recolocados los avisos live de `knowledge-wikipedia-gacha` en movil (stack de misiones + rare drop) con mayor `z-index` y menor offset superior para que entren en viewport.
+- Aumentada la altura de las cartas del gacha en movil, especialmente en retrato, para dejar visible mas texto de descripcion.
+- Pendiente: validacion visual final con capturas post-fix de tablet horizontal y movil tras recompilar el frontend.

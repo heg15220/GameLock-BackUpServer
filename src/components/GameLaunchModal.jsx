@@ -12,10 +12,15 @@ import {
   DEFAULT_AD_PREVIEW_ENABLED,
   DESKTOP_AD_SLOTS,
   MOBILE_APP_BOTTOM_AD_SLOT,
+  TABLET_APP_SIDE_AD_SLOTS,
 } from "../config/adPreview";
 
 const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
   "strategy-poker-holdem-no-bet",
+]);
+
+const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([
+  "arcade-reactor-toss",
 ]);
 
 const PORTRAIT_APP_BOTTOM_AD_GAME_IDS = new Set([
@@ -111,9 +116,18 @@ function GameLaunchModal({ game, onClose }) {
     showMobileSystemBottomAd &&
     !showShellManagedSystemBottomAd;
   const showDesktopAdRails = adPreviewEnabled && viewportFormFactor === "desktop";
+  const showTabletLandscapeAdRails =
+    adPreviewEnabled &&
+    viewportFormFactor === "tablet" &&
+    viewport.orientation === "landscape" &&
+    !TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS.has(gameId);
   const desktopAdColumns = {
     left: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "left"),
     right: DESKTOP_AD_SLOTS.filter((slot) => slot.side === "right"),
+  };
+  const tabletAdColumns = {
+    left: TABLET_APP_SIDE_AD_SLOTS.filter((slot) => slot.side === "left"),
+    right: TABLET_APP_SIDE_AD_SLOTS.filter((slot) => slot.side === "right"),
   };
   const launchPlaygroundClassName = [
     "game-playground",
@@ -139,6 +153,7 @@ function GameLaunchModal({ game, onClose }) {
   const launchGameAreaClassName = [
     "launch-game-area",
     showDesktopAdRails ? "launch-game-area--with-ads" : "",
+    showTabletLandscapeAdRails ? "launch-game-area--with-tablet-ads" : "",
     useMobileGameShell ? "launch-game-area--mobile-shell" : "",
     useMobileGameShell ? `launch-game-area--device-${viewportFormFactor}` : "",
   ]
@@ -237,6 +252,30 @@ function GameLaunchModal({ game, onClose }) {
 
         {/* Game area */}
         <section className={launchGameAreaClassName} aria-label={t("playNow")}>
+          {showTabletLandscapeAdRails ? (
+            <aside className="launch-tablet-ad-rail launch-tablet-ad-rail--left" aria-label="Tablet ad rail left">
+              {tabletAdColumns.left.map((slot) => (
+                <AdPreviewCard
+                  key={slot.id}
+                  slot={slot}
+                  locale={locale}
+                  className="launch-tablet-ad-card"
+                />
+              ))}
+            </aside>
+          ) : null}
+          {showTabletLandscapeAdRails ? (
+            <aside className="launch-tablet-ad-rail launch-tablet-ad-rail--right" aria-label="Tablet ad rail right">
+              {tabletAdColumns.right.map((slot) => (
+                <AdPreviewCard
+                  key={slot.id}
+                  slot={slot}
+                  locale={locale}
+                  className="launch-tablet-ad-card"
+                />
+              ))}
+            </aside>
+          ) : null}
           {ActiveGame ? (
             useMobileGameShell ? (
               <MobileGameShell
