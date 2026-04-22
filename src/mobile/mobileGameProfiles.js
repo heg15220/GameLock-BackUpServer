@@ -1035,6 +1035,13 @@ export function getMobileControlProfile(game, locale = "es") {
           upLabel: t(locale, "Salta", "Jump"),
           downLabel: t(locale, "Baja", "Down"),
         }),
+        leftSupportPad: [
+          control("pause", t(locale, "Pausa", "Pause"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyP", "p")],
+          }),
+        ],
         rightPad: [
           control("dig", t(locale, "Excava", "Dig"), {
             type: "hold",
@@ -1058,8 +1065,13 @@ export function getMobileControlProfile(game, locale = "es") {
             tone: "accent",
             inputs: [input("KeyT", "t")],
           }),
+          control("restart", t(locale, "Reinicio", "Restart"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyR", "r")],
+          }),
         ],
-        utilities: utilityRow(locale),
+        utilities: [],
       };
     case "arcade-kitchen-rush-2d":
       return {
@@ -1130,8 +1142,29 @@ export function getMobileControlProfile(game, locale = "es") {
           right: input("ArrowRight", "ArrowRight"),
           down: input("ArrowDown", "ArrowDown"),
         }),
-        leftSupportPad: [],
+        leftSupportPad: [
+          control("mine", t(locale, "Mina", "Mine"), {
+            type: "tap",
+            inputs: [input("KeyM", "m")],
+          }),
+          control("eat", t(locale, "Comer", "Eat"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyH", "h")],
+          }),
+          control("torch", t(locale, "Ant.", "Torch"), {
+            type: "tap",
+            inputs: [input("KeyT", "t")],
+          }),
+        ],
         rightPad: [
+          control("closeModal", t(locale, "✕ Cerrar", "✕ Close"), {
+            type: "tap",
+            tone: "accent",
+            action: "click-target",
+            targetSelector: "#mb.on #m-close",
+            hideWhenUnavailable: true,
+          }),
           control("toolPrev", t(locale, "Herram-", "Tool-"), {
             type: "tap",
             inputs: [input("KeyQ", "q")],
@@ -1169,19 +1202,6 @@ export function getMobileControlProfile(game, locale = "es") {
           control("sleep", t(locale, "Dormir", "Sleep"), {
             type: "tap",
             inputs: [input("KeyZ", "z")],
-          }),
-          control("mine", t(locale, "Mina", "Mine"), {
-            type: "tap",
-            inputs: [input("KeyM", "m")],
-          }),
-          control("eat", t(locale, "Comer", "Eat"), {
-            type: "tap",
-            tone: "accent",
-            inputs: [input("KeyH", "h")],
-          }),
-          control("torch", t(locale, "Ant.", "Torch"), {
-            type: "tap",
-            inputs: [input("KeyT", "t")],
           }),
         ],
         utilities: [],

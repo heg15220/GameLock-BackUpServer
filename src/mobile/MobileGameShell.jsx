@@ -30,6 +30,9 @@ const KNOWLEDGE_INLINE_BOTTOM_AD_IDS = new Set([
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",
   "knowledge-wikipedia-gacha",
+  "knowledge-mapas-atlas",
+  "knowledge-mapas-camino-corto",
+  "knowledge-adivina-pais-silueta",
 ]);
 
 function resolveShellTheme(game) {
@@ -239,10 +242,16 @@ export default function MobileGameShell({
     isGamesCategory &&
     game?.id !== "arcade-pinball-wizard";
   const showTouchIntroCopy = !isStrategyTheme;
+  const isHeadSoccerPhoneLandscape =
+    game?.id === "sports-head-soccer-arena" &&
+    viewportFormFactor === "phone" &&
+    !isPortrait;
   const showStageAdOverlay =
     showAdPreview &&
     !showCompactGamesAppAd &&
     !showKnowledgeTabletPanelAds &&
+    game?.id !== "arcade-pinball-wizard" &&
+    !isHeadSoccerPhoneLandscape &&
     (isDualScreen || isTouchStage);
   const isTabletLandscapeStack =
     isDualScreen &&
@@ -387,6 +396,22 @@ export default function MobileGameShell({
           slot={MOBILE_APP_BOTTOM_AD_SLOT}
           locale={locale}
           className="mobile-game-shell__system-bottom-ad mobile-game-shell__system-bottom-ad--inline mobile-game-shell__system-bottom-ad--knowledge-inline"
+        />
+      </section>
+    ) : null;
+  const showValleMissionsAd =
+    showAdPreview &&
+    game?.id === "arcade-valle-tranquilo" &&
+    viewportFormFactor === "phone" &&
+    isPortrait &&
+    isDualScreen;
+  const valleMissionsAdNode =
+    showValleMissionsAd ? (
+      <section className="mobile-game-shell__panel-divider-ad mobile-game-shell__panel-divider-ad--valle">
+        <AdPreviewCard
+          slot={MOBILE_APP_COMPACT_AD_SLOT}
+          locale={locale}
+          className="mobile-game-shell__panel-divider-ad-card"
         />
       </section>
     ) : null;
@@ -549,6 +574,7 @@ export default function MobileGameShell({
                       <div className="mobile-game-shell__controls-secondary">
                         {statusPanelsNode}
                       </div>
+                      {valleMissionsAdNode}
                       <div className="mobile-game-shell__controls-primary">
                         {controlDeckNode}
                       </div>

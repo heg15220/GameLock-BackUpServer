@@ -4305,3 +4305,8 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Recolocados los avisos live de `knowledge-wikipedia-gacha` en movil (stack de misiones + rare drop) con mayor `z-index` y menor offset superior para que entren en viewport.
 - Aumentada la altura de las cartas del gacha en movil, especialmente en retrato, para dejar visible mas texto de descripcion.
 - Pendiente: validacion visual final con capturas post-fix de tablet horizontal y movil tras recompilar el frontend.
+
+## 2026-04-22 - Archery Horizon HUD movil portrait
+- Ajustado `src/games/arcade/archery-horizon/index.jsx` para compactar el HUD canvas de `viento / gravedad / arrastre` cuando el juego corre en `touch` y la ventana esta en orientacion vertical.
+- El ajuste final reduce mas la caja del HUD, tipografias y medidor de viento solo en portrait movil; desktop y landscape conservan el tamano previo.
+- Validacion visual completada con Playwright en `output/archery-horizon-mobile-portrait/shot-0.png` y sin errores nuevos en consola.

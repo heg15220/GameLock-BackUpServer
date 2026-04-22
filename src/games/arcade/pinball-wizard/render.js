@@ -179,7 +179,7 @@ function drawWallSegments(ctx) {
 
   // Lane separator visual emphasis
   ctx.beginPath();
-  ctx.moveTo(RIGHT, 56);
+  ctx.moveTo(RIGHT, 72);
   ctx.lineTo(RIGHT, H);
   ctx.strokeStyle = C.laneWall;
   ctx.lineWidth   = 2;

@@ -11,8 +11,10 @@ const PIECES_PER_PLAYER = 4;
 const INITIAL_TRACK_PIECES = 0;
 const MAX_LOG_LINES = 14;
 const HUMAN_PLAYER_ID = "human";
-const DICE_ROLL_DURATION_MS = 980;
-const DICE_ROLL_PULSE_MS = 110;
+const HUMAN_DICE_ROLL_DURATION_MS = 980;
+const HUMAN_DICE_ROLL_PULSE_MS = 110;
+const AI_DICE_ROLL_DURATION_MS = 2280;
+const AI_DICE_ROLL_PULSE_MS = 170;
 const AI_THINK_JITTER_MS = 260;
 const PLAYER_COLOR_ORDER = ["red", "blue", "yellow", "green"];
 
@@ -38,6 +40,11 @@ const NEXT_PLAYER_BY_ID = Object.fromEntries(
 );
 const AI_PLAYER_IDS = TURN_ORDER.filter((playerId) => playerId !== HUMAN_PLAYER_ID);
 const isAiPlayer = (playerId) => AI_PLAYER_IDS.includes(playerId);
+const getDiceRollProfile = (ownerId) => (
+  isAiPlayer(ownerId)
+    ? { durationMs: AI_DICE_ROLL_DURATION_MS, pulseMs: AI_DICE_ROLL_PULSE_MS }
+    : { durationMs: HUMAN_DICE_ROLL_DURATION_MS, pulseMs: HUMAN_DICE_ROLL_PULSE_MS }
+);
 const getOpponentIds = (ownerId) => TURN_ORDER.filter((playerId) => playerId !== ownerId);
 const getNextTurnId = (ownerId) => NEXT_PLAYER_BY_ID[ownerId] || TURN_ORDER[0];
 const normalizeHumanColor = (color) => (PLAYER_COLOR_ORDER.includes(color) ? color : "red");
@@ -1337,7 +1344,7 @@ const DIE_PIPS = {
   6: [[14, 12], [42, 12], [14, 28], [42, 28], [14, 44], [42, 44]]
 };
 
-function SvgDie({ value, rolling, size = 56, idSuffix, slotIndex = 0 }) {
+function SvgDie({ value, rolling, size = 56, idSuffix, slotIndex = 0, aiActive = false }) {
   const pips = DIE_PIPS[value] || DIE_PIPS[1];
   const gradientId = `die-grad-${idSuffix}`;
   const shadowId = `die-shadow-${idSuffix}`;
@@ -1347,7 +1354,7 @@ function SvgDie({ value, rolling, size = 56, idSuffix, slotIndex = 0 }) {
       width={size}
       height={size}
       viewBox="0 0 56 56"
-      className={`parchis-svg-die die-slot-${slotIndex}${rolling ? " rolling" : ""}`}
+      className={`parchis-svg-die die-slot-${slotIndex}${rolling ? " rolling" : ""}${aiActive ? " ai-active" : ""}`}
       aria-hidden="true"
     >
       <defs>
@@ -1398,6 +1405,7 @@ function ParchisStrategyGame() {
   const rollOwnerRef = useRef(null);
   const rollDelayRef = useRef(0);
   const rollPulseRef = useRef(0);
+  const rollPulseStepRef = useRef(HUMAN_DICE_ROLL_PULSE_MS);
   const autoMovePendingRef = useRef(false);
   const autoMoveMsRef = useRef(0);
   const autoMoveActionIdRef = useRef(null);
@@ -1421,6 +1429,7 @@ function ParchisStrategyGame() {
     rollOwnerRef.current = null;
     rollDelayRef.current = 0;
     rollPulseRef.current = 0;
+    rollPulseStepRef.current = HUMAN_DICE_ROLL_PULSE_MS;
     setDiceUi((previous) => ({
       ...previous,
       rolling: false,
@@ -1430,10 +1439,12 @@ function ParchisStrategyGame() {
 
   const startDiceRoll = useCallback((ownerId) => {
     if (rollPendingRef.current) return;
+    const profile = getDiceRollProfile(ownerId);
     rollPendingRef.current = true;
     rollOwnerRef.current = ownerId;
-    rollDelayRef.current = DICE_ROLL_DURATION_MS;
+    rollDelayRef.current = profile.durationMs;
     rollPulseRef.current = 0;
+    rollPulseStepRef.current = profile.pulseMs;
     setDiceUi((previous) => ({
       ...previous,
       rolling: true,
@@ -1656,9 +1667,10 @@ function ParchisStrategyGame() {
     if (!rollPendingRef.current) return;
     rollDelayRef.current -= ms;
     rollPulseRef.current += ms;
+    const pulseMs = Math.max(40, rollPulseStepRef.current || HUMAN_DICE_ROLL_PULSE_MS);
 
-    while (rollPulseRef.current >= DICE_ROLL_PULSE_MS && rollPendingRef.current) {
-      rollPulseRef.current -= DICE_ROLL_PULSE_MS;
+    while (rollPulseRef.current >= pulseMs && rollPendingRef.current) {
+      rollPulseRef.current -= pulseMs;
       setDiceUi((previous) => ({
         ...previous,
         faces: [rollDie(), rollDie()]
@@ -1672,6 +1684,7 @@ function ParchisStrategyGame() {
     rollOwnerRef.current = null;
     rollDelayRef.current = 0;
     rollPulseRef.current = 0;
+    rollPulseStepRef.current = HUMAN_DICE_ROLL_PULSE_MS;
     if (!ownerId) return;
 
     const finalDie = rollDie();
@@ -2025,6 +2038,8 @@ function ParchisStrategyGame() {
   const selectedPieceRef = selectedPiece ? pieceCode(selectedPiece) : null;
   const selectedActionText = selectedHumanAction ? describeAction(state, selectedHumanAction) : "";
   const canRollHuman = state.turn === HUMAN_PLAYER_ID && state.phase === "await-roll" && !diceUi.rolling && !state.winner;
+  const aiRolling = diceUi.rolling && isAiPlayer(diceUi.activeOwner);
+  const rollingOwnerLabel = playerLabel(diceUi.activeOwner || "", state.locale);
   const selectionHelpText = selectedHumanAction
     ? copy.ui.selectedAction(selectedActionText)
     : selectedPieceRef
@@ -2046,14 +2061,20 @@ function ParchisStrategyGame() {
 
       <div className="parchis-config">
         <div className="parchis-config-roll">
-          <article className="dice-roll-card parchis-config-roll-card">
+          <article className={`dice-roll-card parchis-config-roll-card${aiRolling ? " is-ai-rolling" : ""}`}>
             <p>{copy.ui.currentRoll}</p>
-            <div className="dice-pair">
+            {aiRolling ? (
+              <div className="parchis-roll-owner-badge" aria-live="polite">
+                {copy.ui.rollingFor}: {rollingOwnerLabel}
+              </div>
+            ) : null}
+            <div className={`dice-pair${aiRolling ? " is-ai-rolling" : ""}`}>
               {diceUi.faces.map((face, index) => (
                 <SvgDie
                   key={`die-face-${index}`}
                   value={face}
                   rolling={diceUi.rolling}
+                  aiActive={aiRolling}
                   idSuffix={`${diceUi.activeOwner || "idle"}-${index}`}
                   slotIndex={index}
                 />
@@ -2061,7 +2082,7 @@ function ParchisStrategyGame() {
             </div>
             <small>
               {diceUi.rolling
-                ? copy.ui.rollingNow(playerLabel(diceUi.activeOwner || "", state.locale))
+                ? copy.ui.rollingNow(rollingOwnerLabel)
                 : copy.ui.rollResolved}
             </small>
           </article>
@@ -2127,7 +2148,7 @@ function ParchisStrategyGame() {
         <span>{copy.ui.playerColor}: {copy.colors[state.humanColor || "red"] || (state.humanColor || "red")}</span>
         {state.pendingBonus != null ? <span>{copy.ui.pendingBonus}: +{state.pendingBonus}</span> : null}
         {aiThinking ? <span>{copy.ui.aiThinking}</span> : null}
-        {diceUi.rolling ? <span>{copy.ui.rollingFor}: {playerLabel(diceUi.activeOwner || "", state.locale)}</span> : null}
+        {diceUi.rolling ? <span>{copy.ui.rollingFor}: {rollingOwnerLabel}</span> : null}
       </div>
 
       <div className="parchis-game-layout">

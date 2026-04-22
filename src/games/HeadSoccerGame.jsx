@@ -2129,11 +2129,29 @@ export default function HeadSoccerGame({ locale }) {
     (name) => ({
       onPointerDown: (event) => {
         event.preventDefault();
+        try {
+          event.currentTarget.setPointerCapture?.(event.pointerId);
+        } catch {
+          /* noop */
+        }
         setTouchState(name, true);
       },
-      onPointerUp: () => setTouchState(name, false),
-      onPointerLeave: () => setTouchState(name, false),
-      onPointerCancel: () => setTouchState(name, false),
+      onPointerUp: (event) => {
+        try {
+          event.currentTarget.releasePointerCapture?.(event.pointerId);
+        } catch {
+          /* noop */
+        }
+        setTouchState(name, false);
+      },
+      onPointerCancel: (event) => {
+        try {
+          event.currentTarget.releasePointerCapture?.(event.pointerId);
+        } catch {
+          /* noop */
+        }
+        setTouchState(name, false);
+      },
     }),
     [setTouchState]
   );

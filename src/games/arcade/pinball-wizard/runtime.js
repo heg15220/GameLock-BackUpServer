@@ -91,11 +91,11 @@ export const WALL_SEGS = [
   { s: [LEFT, TOP, RIGHT, TOP],          t: 'wall'    }, // top
   { s: [LEFT, TOP, LEFT, 438],           t: 'wall'    }, // left upper (to sling)
   { s: [LEFT, 542, LEFT, H],             t: 'wall'    }, // left lower (below sling)
-  // Launch lane — separator starts at y=56 leaving gap [22..56] where deflector redirects ball
-  { s: [RIGHT, 56, RIGHT, H],            t: 'wall'    }, // lane separator (gap above y=56)
+  // Launch lane — separator starts at y=72 leaving gap [22..72] where deflector redirects ball
+  { s: [RIGHT, 72, RIGHT, H],            t: 'wall'    }, // lane separator (gap above y=72)
   { s: [LANE_R, TOP, LANE_R, H],         t: 'wall'    }, // lane right edge
   { s: [RIGHT, TOP, LANE_R, TOP],        t: 'wall'    }, // lane top wall
-  { s: [LANE_R, 58, RIGHT, TOP],         t: 'deflect' }, // deflector → redirects ball LEFT into field
+  { s: [LANE_R, 74, RIGHT, TOP],         t: 'deflect' }, // deflector → redirects ball LEFT into field
   // Gutters
   { s: [LEFT, 542, 86, 640],             t: 'wall'    }, // left gutter diagonal
   { s: [RIGHT, 542, 304, 640],           t: 'wall'    }, // right gutter diagonal

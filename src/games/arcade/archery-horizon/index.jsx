@@ -747,6 +747,13 @@ class ArcheryHorizonRuntime {
     this.emitSnapshot(true);
   }
 
+  usesCompactPortraitHud() {
+    if (this.deviceProfile !== "touch" || typeof window === "undefined") {
+      return false;
+    }
+    return window.innerHeight > window.innerWidth;
+  }
+
   setAimYaw(value) {
     if (this.shotState !== "aiming" || this.screen !== "play") {
       return;
@@ -2657,15 +2664,6 @@ class ArcheryHorizonRuntime {
     }
     ctx.stroke();
 
-    const depthMarker = this.project({ x: 0, y: 0, z: level.target.z });
-    if (depthMarker) {
-      ctx.fillStyle = "rgba(18, 30, 36, 0.72)";
-      ctx.fillRect(depthMarker.x - 80, depthMarker.y - 26, 160, 18);
-      ctx.fillStyle = "rgba(207, 245, 255, 0.95)";
-      ctx.font = "12px 'Segoe UI', sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(`${this.ui.labels.trajectoryDepth}: ${level.target.z.toFixed(1)}m`, depthMarker.x, depthMarker.y - 12);
-    }
   }
 
   drawAimReticle(level) {
@@ -2789,21 +2787,37 @@ class ArcheryHorizonRuntime {
 
     const wind = this.resolveWind(level, this.time);
     const windMagnitude = Math.hypot(wind.x, wind.z);
+    const compactHud = this.usesCompactPortraitHud();
+    const panelX = compactHud ? 10 : 16;
+    const panelY = compactHud ? 10 : 14;
+    const panelWidth = compactHud ? 170 : 242;
+    const panelHeight = compactHud ? 50 : 66;
+    const textX = compactHud ? 16 : 24;
+    const line1Y = compactHud ? 25 : 34;
+    const line2Y = compactHud ? 37 : 52;
+    const line3Y = compactHud ? 49 : 70;
+    const labelFont = compactHud ? "9px 'Segoe UI', sans-serif" : "12px 'Segoe UI', sans-serif";
+    const meterWidth = compactHud ? 96 : 146;
+    const meterHeight = compactHud ? 7 : 10;
+    const meterX = compactHud ? width - 114 : width - 178;
+    const meterY = compactHud ? 16 : 20;
+    const meterFont = compactHud ? "8px 'Segoe UI', sans-serif" : "11px 'Segoe UI', sans-serif";
+    const depthText = `${this.ui.labels.trajectoryDepth}: ${level.target.z.toFixed(1)}m`;
+    const depthFont = compactHud ? "9px 'Segoe UI', sans-serif" : "11px 'Segoe UI', sans-serif";
+    const depthPadX = compactHud ? 8 : 10;
+    const depthHeight = compactHud ? 16 : 18;
+    const depthY = meterY + meterHeight + (compactHud ? 6 : 8);
 
     ctx.fillStyle = "rgba(8, 16, 22, 0.58)";
-    ctx.fillRect(16, 14, 242, 66);
+    ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
 
     ctx.fillStyle = "rgba(229, 245, 255, 0.95)";
-    ctx.font = "12px 'Segoe UI', sans-serif";
+    ctx.font = labelFont;
     ctx.textAlign = "left";
-    ctx.fillText(`${this.ui.labels.wind}: ${wind.x >= 0 ? "+" : ""}${wind.x.toFixed(2)}m/s`, 24, 34);
-    ctx.fillText(`${this.ui.labels.gravity}: ${level.gravity.toFixed(2)}m/s2`, 24, 52);
-    ctx.fillText(`${this.ui.labels.drag}: ${level.drag.toFixed(4)}`, 24, 70);
+    ctx.fillText(`${this.ui.labels.wind}: ${wind.x >= 0 ? "+" : ""}${wind.x.toFixed(2)}m/s`, textX, line1Y);
+    ctx.fillText(`${this.ui.labels.gravity}: ${level.gravity.toFixed(2)}m/s2`, textX, line2Y);
+    ctx.fillText(`${this.ui.labels.drag}: ${level.drag.toFixed(4)}`, textX, line3Y);
 
-    const meterX = width - 178;
-    const meterY = 20;
-    const meterWidth = 146;
-    const meterHeight = 10;
     ctx.fillStyle = "rgba(11, 21, 31, 0.65)";
     ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
     const normalized = clamp(windMagnitude / 2.5, 0, 1);
@@ -2815,9 +2829,18 @@ class ArcheryHorizonRuntime {
     ctx.strokeStyle = "rgba(255, 255, 255, 0.55)";
     ctx.strokeRect(meterX, meterY, meterWidth, meterHeight);
     ctx.fillStyle = "rgba(240, 249, 255, 0.92)";
-    ctx.font = "11px 'Segoe UI', sans-serif";
+    ctx.font = meterFont;
     ctx.textAlign = "right";
-    ctx.fillText(`${this.ui.labels.wind} ${windMagnitude.toFixed(2)}m/s`, meterX + meterWidth, meterY - 4);
+    ctx.fillText(`${this.ui.labels.wind} ${windMagnitude.toFixed(2)}m/s`, meterX + meterWidth, compactHud ? meterY - 2 : meterY - 4);
+
+    ctx.font = depthFont;
+    const depthWidth = Math.ceil(ctx.measureText(depthText).width + depthPadX * 2);
+    const depthX = width - depthWidth - (compactHud ? 10 : 16);
+    ctx.fillStyle = "rgba(18, 30, 36, 0.72)";
+    ctx.fillRect(depthX, depthY, depthWidth, depthHeight);
+    ctx.fillStyle = "rgba(207, 245, 255, 0.95)";
+    ctx.textAlign = "left";
+    ctx.fillText(depthText, depthX + depthPadX, depthY + (compactHud ? 11 : 13));
   }
 
   render() {
