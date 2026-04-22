@@ -40,6 +40,7 @@ const COPY_BY_LOCALE = {
     failed: (word) => `Sin intentos. La palabra era ${word}.`,
     guessStored: "Intento registrado.",
     alreadyFinished: "La partida ha terminado. Pulsa Enter o Partida aleatoria.",
+    solution: "Respuesta correcta",
     legendCorrect: "Correcta",
     legendPresent: "Esta pero en otra posicion",
     legendAbsent: "No aparece",
@@ -69,6 +70,7 @@ const COPY_BY_LOCALE = {
     failed: (word) => `No attempts left. The word was ${word}.`,
     guessStored: "Guess submitted.",
     alreadyFinished: "The match is over. Press Enter or Random match.",
+    solution: "Correct answer",
     legendCorrect: "Correct",
     legendPresent: "Present in another slot",
     legendAbsent: "Not present",
@@ -352,6 +354,11 @@ function WordleKnowledgeGame() {
 
         <p className="wordle-help">{copy.typeHint}</p>
         <p className="wordle-clue"><strong>{copy.clue}:</strong> {state.clue}</p>
+        {state.status === "lost" ? (
+          <p className="wordle-solution">
+            <strong>{copy.solution}:</strong> {state.targetWord}
+          </p>
+        ) : null}
 
         <div className="wordle-grid" style={boardStyle}>
           {paddedRows.map((row, rowIndex) => {

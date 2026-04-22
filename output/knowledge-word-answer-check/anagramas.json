@@ -1,0 +1,56 @@
+{
+  "mode": "knowledge-arcade",
+  "variant": "anagramas",
+  "coordinates": "ui_linear",
+  "locale": "es",
+  "lexicon": {
+    "counts": {
+      "es": 10000,
+      "en": 10000
+    },
+    "overlapCount": 0,
+    "minLength": 5,
+    "maxLength": 10,
+    "source": "crosswordRepoStyleBank",
+    "targetCount": 10000
+  },
+  "match": {
+    "current": 614,
+    "total": 10000
+  },
+  "status": "lost",
+  "wordLength": 5,
+  "attempts": {
+    "used": 4,
+    "max": 4,
+    "remaining": 0
+  },
+  "clue": "Niebla, y especialmente la que se forma sobre el mar.",
+  "scrambledWord": "ABRMU",
+  "guesses": [
+    {
+      "guess": "AAAAA",
+      "exact": false,
+      "valid": false
+    },
+    {
+      "guess": "AAAAA",
+      "exact": false,
+      "valid": false
+    },
+    {
+      "guess": "AAAAA",
+      "exact": false,
+      "valid": false
+    },
+    {
+      "guess": "AAAAA",
+      "exact": false,
+      "valid": false
+    }
+  ],
+  "currentInput": "",
+  "reshuffles": 0,
+  "message": "Sin intentos. La solucion era BRUMA.",
+  "solution": "BRUMA"
+}

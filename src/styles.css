@@ -4331,6 +4331,15 @@ body {
   line-height: 1.4;
 }
 
+.wordle-solution,
+.anagram-solution {
+  margin: 0.3rem 0 0;
+  color: #fde68a;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-align: center;
+}
+
 .wordle-grid {
   margin: 0.62rem auto 0;
   width: min(100%, var(--wordle-max-width, 360px));
@@ -8140,6 +8149,14 @@ body {
   color: #e9d5ff;
   font-size: 0.84rem;
   font-weight: 600;
+  text-align: center;
+}
+
+.hangman-solution {
+  margin: 0.42rem 0 0;
+  color: #fde68a;
+  font-size: 0.88rem;
+  font-weight: 800;
   text-align: center;
 }
 
@@ -23921,6 +23938,11 @@ button.brisca-card.playable:disabled {
     font-size: clamp(0.68rem, 3.2vw, 0.9rem);
   }
 
+  .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-solution,
+  .knowledge-arcade-game.knowledge-anagramas.is-mobile .anagram-solution {
+    font-size: 0.72rem;
+  }
+
   .knowledge-arcade-game.knowledge-wordle.is-mobile .wordle-toolbar,
   .knowledge-arcade-game.knowledge-anagramas.is-mobile .anagram-guess-list {
     margin-top: 0.48rem;
@@ -24013,6 +24035,10 @@ button.brisca-card.playable:disabled {
 
   .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-clue {
     font-size: 0.7rem;
+  }
+
+  .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-solution {
+    font-size: 0.74rem;
   }
 
   .knowledge-arcade-game.knowledge-ahorcado.is-mobile .hangman-keyboard {

@@ -651,18 +651,8 @@ function filterContextButtons(buttons, snapshot, gameCategory) {
       return buttons.filter((button) => buttonIdMatches(button, /^billiards-pocket-/));
     }
 
-    if (snapshot.status === "rack-over") {
-      return buttons.filter(
-        (button) =>
-          buttonIdMatches(button, /^billiards-next-rack-btn$/)
-          || buttonLabelMatches(button, /prepare next rack|siguiente rack|replay rack|repetir rack|new match|nuevo match/i)
-      );
-    }
-
-    if (snapshot.status === "match-over") {
-      return buttons.filter(
-        (button) => buttonLabelMatches(button, /back to menu|volver al menu|new match|nuevo match/i)
-      );
+    if (snapshot.status === "rack-over" || snapshot.status === "match-over") {
+      return [];
     }
   }
 
@@ -743,6 +733,29 @@ export default function MobileGameStatusPanel({
     isPreplayState(snapshot) ||
     (isStrategyCategory(gameCategory) && snapshot?.started === false);
   const isMinesweeper = snapshot?.variant === "minesweeper-classic";
+  const isBilliards = snapshot?.mode === "billiards_pool";
+  const billiardsStatus = isBilliards ? String(snapshot?.status ?? "") : "";
+  const billiardsPlayers = isBilliards && Array.isArray(snapshot?.players) ? snapshot.players : [];
+  const billiardsAiThinking = isBilliards && Boolean(snapshot?.ai?.thinking);
+  const billiardsCurrentPlayerIndex = isBilliards
+    ? (typeof snapshot?.currentPlayer === "number" ? snapshot.currentPlayer : -1)
+    : -1;
+  const billiardsCurrentPlayerName = isBilliards
+    ? (snapshot?.currentPlayerName ?? billiardsPlayers[billiardsCurrentPlayerIndex]?.name ?? "")
+    : "";
+  const billiardsRaceTo = isBilliards ? snapshot?.raceTo : null;
+  const billiardsModeLabel = isBilliards ? snapshot?.modeLabel : null;
+  const billiardsShowScoreboard = isBilliards && billiardsPlayers.length > 0;
+  const billiardsTurnIsAi =
+    isBilliards &&
+    billiardsCurrentPlayerIndex >= 0 &&
+    String(billiardsPlayers[billiardsCurrentPlayerIndex]?.type ?? "").toLowerCase() === "ai";
+  const billiardsShowAiTurn =
+    isBilliards &&
+    (billiardsAiThinking || billiardsTurnIsAi) &&
+    billiardsStatus !== "rack-over" &&
+    billiardsStatus !== "match-over" &&
+    billiardsStatus !== "menu";
   const isPenaltyShootout = isPenaltyShootoutSnapshot(snapshot);
   const penaltyMenuButtons = useMemo(
     () => dedupeButtons(menuControls.buttons.filter((button) => isPenaltyMenuButton(button))),
@@ -977,6 +990,69 @@ export default function MobileGameStatusPanel({
               <strong>{entry.value}</strong>
             </article>
           ))}
+        </div>
+      ) : null}
+
+      {billiardsShowScoreboard ? (
+        <div className="mobile-game-status-panel__billiards-board" aria-live="polite">
+          <div className="mobile-game-status-panel__billiards-scoreboard">
+            <div className="mobile-game-status-panel__billiards-scoreboard-heading">
+              <strong>{locale === "en" ? "Scoreboard" : "Marcador"}</strong>
+              {billiardsModeLabel ? (
+                <span>
+                  {billiardsModeLabel}
+                  {billiardsRaceTo != null
+                    ? ` · ${locale === "en" ? "Race to" : "Objetivo"} ${billiardsRaceTo}`
+                    : ""}
+                </span>
+              ) : null}
+            </div>
+            <div className="mobile-game-status-panel__billiards-players">
+              {billiardsPlayers.map((player, index) => {
+                const isActive = billiardsCurrentPlayerIndex === index;
+                const classNames = [
+                  "mobile-game-status-panel__billiards-player",
+                  isActive ? "is-active" : "",
+                  String(player?.type ?? "").toLowerCase() === "ai" ? "is-ai" : "is-human",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+                return (
+                  <article key={`billiards-player-${index}`} className={classNames}>
+                    <span className="mobile-game-status-panel__billiards-player-role">
+                      {String(player?.type ?? "").toLowerCase() === "ai"
+                        ? locale === "en"
+                          ? "AI"
+                          : "IA"
+                        : locale === "en"
+                          ? "You"
+                          : "Tú"}
+                    </span>
+                    <strong className="mobile-game-status-panel__billiards-player-name">
+                      {player?.name ?? (locale === "en" ? "Player" : "Jugador")}
+                    </strong>
+                    <span className="mobile-game-status-panel__billiards-player-score">
+                      {player?.racksWon ?? 0}
+                    </span>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+          {billiardsShowAiTurn ? (
+            <div
+              className="mobile-game-status-panel__billiards-ai-turn"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="mobile-game-status-panel__billiards-ai-turn-dot" aria-hidden="true" />
+              <span>
+                {locale === "en"
+                  ? `${billiardsCurrentPlayerName || "AI"} is playing the turn...`
+                  : `${billiardsCurrentPlayerName || "La IA"} está jugando el turno...`}
+              </span>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

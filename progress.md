@@ -1,5 +1,18 @@
 Original prompt: [Image #1] [Image #2] [Image #3] [Image #4] Utiliza estas imagenes como ayuda y referencia para profesionalizar y mejorar tecnicamente y graficamente los juegos de las distintas categorias de plataforma-juegos-saas.
 
+## 2026-04-22 - Ahorcado respuesta visible + Wordle/Anagramas alineados con crucigrama
+- src/games/knowledge/HangmanKnowledgeGame.jsx actualizado para revelar la palabra completa al perder y mostrar una linea visible de respuesta correcta; ender_game_to_text expone tambien solution al perder.
+- src/games/knowledge/knowledgeWordLexicon.js ahora construye el banco de Wordle y Anagramas desde crosswordRepoStyleBank.generated, la misma fuente de palabras y pistas usada por el generador real del crucigrama, manteniendo 10k entradas ES y EN sin solape.
+- src/games/knowledge/knowledgeWordLexicon.test.js ajustado para fijar el nuevo origen del banco compartido.
+- src/styles.css ampliado con estilo dedicado para la respuesta visible del ahorcado y ajuste responsive movil.
+- Validacion:
+  - 
+pm run test -- src/games/knowledge/knowledgeWordLexicon.test.js OK.
+  - 
+pm run test -- src/games/knowledge/hangmanKnowledgeGame.test.js OK.
+  - Playwright local OK en output/knowledge-wordle-crossword-bank-check/ y output/knowledge-anagramas-crossword-bank-check/, con lexicon.source = crosswordRepoStyleBank en state-0.json.
+  - Verificacion dirigida de derrota en ahorcado para movil/tablet en output/knowledge-ahorcado-mobile-tablet-answer/; confirmado status: lost, solution poblada y respuesta visible en capturas.
+
 ## 2026-02-22 - Inicio
 - Revisado el estado actual del proyecto React/Vite y de todos los minijuegos.
 - Detectadas oportunidades: mejorar direccion artistica por categoria, HUD y telemetria, consistencia UI y hooks de test (`render_game_to_text` + `advanceTime`).

@@ -1,4 +1,4 @@
-import { CROSSWORD_TERM_BANK } from "./crosswordTermBank";
+import { CROSSWORD_REPO_STYLE_BANK } from "./crosswordRepoStyleBank.generated";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
   createSeededRandom,
@@ -37,35 +37,28 @@ const compareLexiconEntries = (left, right) => {
 
 const buildLocaleLexicon = (locale, { forbiddenWords = null } = {}) => {
   const safeLocale = normalizeLocale(locale);
-  const buckets = CROSSWORD_TERM_BANK[safeLocale] || {};
   const byWord = new Map();
-  const lengths = Object.keys(buckets)
-    .map((value) => Number.parseInt(value, 10))
-    .filter((value) => Number.isInteger(value))
-    .sort((left, right) => left - right);
+  const entries = CROSSWORD_REPO_STYLE_BANK[safeLocale] || [];
 
-  lengths.forEach((lengthKey) => {
-    const entries = buckets[lengthKey] || [];
-    entries.forEach((entry) => {
-      const word = normalizeWord(entry?.word);
-      if (!/^[A-Z]{5,10}$/.test(word)) {
-        return;
-      }
-      if (forbiddenWords?.has(word)) {
-        return;
-      }
-      const clue = normalizeClue(entry?.clue);
-      if (!clue) {
-        return;
-      }
-      if (!byWord.has(word)) {
-        byWord.set(word, {
-          word,
-          length: word.length,
-          clue
-        });
-      }
-    });
+  entries.forEach((entry) => {
+    const word = normalizeWord(entry?.word);
+    if (!/^[A-Z]{5,10}$/.test(word)) {
+      return;
+    }
+    if (forbiddenWords?.has(word)) {
+      return;
+    }
+    const clue = normalizeClue(entry?.clue);
+    if (!clue) {
+      return;
+    }
+    if (!byWord.has(word)) {
+      byWord.set(word, {
+        word,
+        length: word.length,
+        clue
+      });
+    }
   });
 
   const ordered = [...byWord.values()].sort(compareLexiconEntries);
@@ -138,7 +131,7 @@ export const KNOWLEDGE_WORD_LEXICON_META = Object.freeze({
   overlapCount: CROSS_LOCALE_OVERLAP_COUNT,
   minLength: KNOWLEDGE_WORD_MIN_LENGTH,
   maxLength: KNOWLEDGE_WORD_MAX_LENGTH,
-  source: "crosswordTermBank",
+  source: "crosswordRepoStyleBank",
   targetCount: KNOWLEDGE_WORD_TARGET_COUNT
 });
 

@@ -75,6 +75,8 @@ function control(id, label, options = {}) {
     frameFunction: options.frameFunction ?? null,
     frameGuard: options.frameGuard ?? null,
     stateLabels: options.stateLabels ?? null,
+    visibility: options.visibility ?? null,
+    extraClassName: options.extraClassName ?? null,
   };
 }
 
@@ -492,7 +494,10 @@ export function getMobileControlProfile(game, locale = "es") {
         ],
         utilities: utilityRow(locale),
       };
-    case "arcade-billar-pool-club":
+    case "arcade-billar-pool-club": {
+      const billiardsPlay = { billiardsPhases: ["play"] };
+      const billiardsOver = { billiardsPhases: ["rack-over", "match-over"] };
+      const billiardsRackOver = { billiardsPhases: ["rack-over"] };
       return {
         layout: "split",
         leftPadMode: "buttons",
@@ -502,15 +507,19 @@ export function getMobileControlProfile(game, locale = "es") {
           control("powerUp", t(locale, "Pot+", "Pow+"), {
             inputs: [input("KeyW", "w")],
             tone: "accent",
+            visibility: billiardsPlay,
           }),
           control("aimLeft", t(locale, "Aim -", "Aim -"), {
             inputs: [input("KeyA", "a")],
+            visibility: billiardsPlay,
           }),
           control("aimRight", t(locale, "Aim +", "Aim +"), {
             inputs: [input("KeyD", "d")],
+            visibility: billiardsPlay,
           }),
           control("powerDown", t(locale, "Pot-", "Pow-"), {
             inputs: [input("KeyS", "s")],
+            visibility: billiardsPlay,
           }),
         ],
         rightPad: [
@@ -518,28 +527,44 @@ export function getMobileControlProfile(game, locale = "es") {
             type: "tap",
             tone: "primary",
             inputs: [input("Space", " ")],
-          }),
-          control("nextRack", t(locale, "Siguiente", "Next rack"), {
-            type: "tap",
-            tone: "utility",
-            inputs: [input("KeyN", "n")],
+            visibility: billiardsPlay,
           }),
           control("pushOut", t(locale, "Push Out", "Push Out"), {
             type: "tap",
             tone: "accent",
             inputs: [input("KeyO", "o")],
+            visibility: billiardsPlay,
           }),
           control("safety", "Safety", {
             type: "tap",
             inputs: [input("KeyV", "v")],
+            visibility: billiardsPlay,
           }),
           control("place", t(locale, "Auto", "Auto"), {
             type: "tap",
             inputs: [input("KeyP", "p")],
+            visibility: billiardsPlay,
+          }),
+          control("backToConfig", t(locale, "Volver a configuración", "Back to setup"), {
+            type: "tap",
+            tone: "accent",
+            action: "click-any-target",
+            targetSelector: "#billiards-new-match-btn",
+            visibility: billiardsOver,
+            extraClassName: "mobile-control-deck__button--rack-over",
+          }),
+          control("nextRack", t(locale, "Ir al siguiente rack", "Go to next rack"), {
+            type: "tap",
+            tone: "primary",
+            action: "click-any-target",
+            targetSelector: "#billiards-next-rack-btn",
+            visibility: billiardsRackOver,
+            extraClassName: "mobile-control-deck__button--rack-over",
           }),
         ],
         utilities: [],
       };
+    }
     case "arcade-bowling-pro-tour":
       return {
         layout: "split",

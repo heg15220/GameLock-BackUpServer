@@ -41,7 +41,7 @@ const COPY = {
     submit: "Validar",
     clear: "Limpiar",
     help:
-      "Introduce un territorio vecino del actual y pulsa Enter. Atajos globales: R reinicia la ruta y N crea una nueva ruta en el mapa activo.",
+      "Introduce un territorio conectado directamente con el actual y pulsa Enter. Se aceptan fronteras y algunos pasos cortos por mar o puente. Atajos globales: R reinicia la ruta y N crea una nueva ruta en el mapa activo.",
     legendIdeal: "Camino ideal",
     legendAlt: "Ruta alternativa",
     routeTitle: "Ruta construida",
@@ -53,7 +53,7 @@ const COPY = {
     empty: "Escribe un pais antes de validar.",
     unknown: "Ese nombre no pertenece al mapa activo.",
     duplicate: (name) => `${name} ya esta en tu ruta.`,
-    notNeighbor: (name, current) => `${name} no comparte frontera directa con ${current}.`,
+    notNeighbor: (name, current) => `${name} no conecta directamente con ${current}.`,
     unreachable: (name) => `${name} no permite llegar al destino.`,
     idealStep: (name, remain) => `Paso ideal: ${name}. Te quedan ${remain} pasos minimos.`,
     altStep: (name, remain) => `Ruta alternativa: ${name}. Aun quedan ${remain} pasos minimos.`,
@@ -88,7 +88,7 @@ const COPY = {
     submit: "Check",
     clear: "Clear",
     help:
-      "Type a neighboring territory from the current one and press Enter. Global shortcuts: R restarts route, N creates a new route in the active map.",
+      "Type a territory directly connected to the current one and press Enter. Borders plus a few short sea or bridge crossings are accepted. Global shortcuts: R restarts route, N creates a new route in the active map.",
     legendIdeal: "Ideal path",
     legendAlt: "Alternative route",
     routeTitle: "Built route",
@@ -100,7 +100,7 @@ const COPY = {
     empty: "Type a country before checking.",
     unknown: "That name is not in the active map.",
     duplicate: (name) => `${name} is already in your route.`,
-    notNeighbor: (name, current) => `${name} does not share a direct border with ${current}.`,
+    notNeighbor: (name, current) => `${name} is not directly connected to ${current}.`,
     unreachable: (name) => `${name} cannot reach destination.`,
     idealStep: (name, remain) => `Ideal step: ${name}. ${remain} minimum steps remain.`,
     altStep: (name, remain) => `Alternative route: ${name}. ${remain} minimum steps remain.`,
@@ -117,6 +117,24 @@ const SCOPE_OPTIONS = [
   { id: "countries", copyKey: "modeCountries" },
   { id: "provinces", copyKey: "modeProvinces" }
 ];
+
+const SUPPLEMENTAL_COUNTRY_LINKS = Object.freeze({
+  europe: Object.freeze({
+    cyprus: Object.freeze(["turkey"]),
+    denmark: Object.freeze(["norway", "sweden"]),
+    estonia: Object.freeze(["finland"]),
+    finland: Object.freeze(["estonia"]),
+    france: Object.freeze(["united-kingdom"]),
+    iceland: Object.freeze(["united-kingdom"]),
+    italy: Object.freeze(["malta"]),
+    malta: Object.freeze(["italy"]),
+    netherlands: Object.freeze(["united-kingdom"]),
+    norway: Object.freeze(["denmark"]),
+    sweden: Object.freeze(["denmark"]),
+    turkey: Object.freeze(["cyprus"]),
+    "united-kingdom": Object.freeze(["france", "iceland", "netherlands"])
+  })
+});
 
 const normalizeToken = (value) =>
   String(value ?? "")
@@ -187,7 +205,7 @@ const bfsDistances = (graph, startId) => {
   return distances;
 };
 
-const buildGraph = (countryIds, baseAdjacency, centers) => {
+const buildGraph = (countryIds, baseAdjacency, centers, supplementalAdjacency = {}) => {
   const graphSets = Object.fromEntries(countryIds.map((id) => [id, new Set()]));
   const addEdge = (leftId, rightId) => {
     if (!graphSets[leftId] || !graphSets[rightId] || leftId === rightId) return;
@@ -198,6 +216,12 @@ const buildGraph = (countryIds, baseAdjacency, centers) => {
   for (const id of countryIds) {
     for (const neighbor of baseAdjacency[id] ?? []) {
       if (graphSets[neighbor]) addEdge(id, neighbor);
+    }
+  }
+
+  for (const id of countryIds) {
+    for (const neighbor of supplementalAdjacency[id] ?? []) {
+      addEdge(id, neighbor);
     }
   }
 
@@ -346,7 +370,12 @@ const createRegion = (regionId) => {
   );
 
   const ids = countries.map((country) => country.id);
-  const graph = buildGraph(ids, MAP_COUNTRY_ADJACENCY[regionId] ?? {}, centers);
+  const graph = buildGraph(
+    ids,
+    MAP_COUNTRY_ADJACENCY[regionId] ?? {},
+    centers,
+    SUPPLEMENTAL_COUNTRY_LINKS[regionId] ?? {}
+  );
   return {
     id: regionId,
     name: continentData?.name ?? { es: regionId, en: regionId },
@@ -619,8 +648,6 @@ function MapsShortestPathKnowledgeGame() {
 
   const originName = countryName(region, state.challenge.startId, locale);
   const destinationName = countryName(region, state.challenge.destinationId, locale);
-  const currentCountryId = state.route[state.route.length - 1]?.countryId ?? state.challenge.startId;
-  const currentCountryName = countryName(region, currentCountryId, locale);
   const visualRegion = state.scopeMode === "countries"
     ? region.id
     : (region.visualRegion ?? "global");
@@ -654,13 +681,6 @@ function MapsShortestPathKnowledgeGame() {
       })),
     [locale]
   );
-
-  const currentNeighbors = useMemo(() => {
-    const ids = region.graph[currentCountryId] ?? [];
-    return [...ids]
-      .map((id) => ({ id, name: countryName(region, id, locale) }))
-      .sort((left, right) => left.name.localeCompare(right.name));
-  }, [currentCountryId, locale, region]);
 
   const restartRoute = useCallback(() => {
     setState((previous) =>
@@ -897,14 +917,15 @@ function MapsShortestPathKnowledgeGame() {
       visibleCountries: currentRegion.countries.map((country) => {
         const center = currentRegion.centers.get(country.id) ?? [50, 50];
         const inRoute = statusById.has(country.id);
+        const isDestination = country.id === snapshot.challenge.destinationId;
         return {
           id: country.id,
           country: countryName(currentRegion, country.id, locale),
           x: center[0],
           y: center[1],
-          visible: inRoute,
+          visible: inRoute || isDestination,
           status: inRoute ? statusById.get(country.id) : "hidden",
-          destination: country.id === snapshot.challenge.destinationId
+          destination: isDestination
         };
       })
     };
@@ -1044,6 +1065,7 @@ function MapsShortestPathKnowledgeGame() {
                 if (!silhouette) return [];
                 const isRevealed = revealed.has(country.id);
                 const isDestination = country.id === state.challenge.destinationId;
+                if (!isRevealed && !isDestination) return [];
                 const status = routeStatusByCountry.get(country.id);
                 const className = [
                   "maps-shape",
@@ -1147,28 +1169,6 @@ function MapsShortestPathKnowledgeGame() {
                     <span className="target-kind">{step.status}</span>
                   </li>
                 ))}
-              </ul>
-            </div>
-
-            <div className="maps-target-panel">
-              <h5>{copy.neighborsTitle}</h5>
-              <p>{copy.neighborsHint(currentCountryName)}</p>
-              <ul className="maps-target-list">
-                {currentNeighbors.length ? (
-                  currentNeighbors.map((neighbor, index) => (
-                    <li key={neighbor.id} className="revealed">
-                      <span className="target-index">{String(index + 1).padStart(2, "0")}</span>
-                      <span className="target-name">{neighbor.name}</span>
-                      <span className="target-kind">adj</span>
-                    </li>
-                  ))
-                ) : (
-                  <li className="hidden">
-                    <span className="target-index">--</span>
-                    <span className="target-name">{copy.noNeighbors}</span>
-                    <span className="target-kind">adj</span>
-                  </li>
-                )}
               </ul>
             </div>
           </aside>

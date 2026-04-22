@@ -141,16 +141,13 @@ export function formatMobileStatus(snapshot, locale = "es") {
   }
 
   if (snapshot.mode === "billiards_pool" && Array.isArray(snapshot.players) && snapshot.players.length) {
-    if (snapshot.players.length >= 2) {
-      addEntry(
-        entries,
-        locale === "en" ? "Match" : "Serie",
-        `${snapshot.players[0]?.racksWon ?? 0} - ${snapshot.players[1]?.racksWon ?? 0}`
-      );
+    addEntry(entries, locale === "en" ? "Phase" : "Fase", snapshot.statusLabel);
+    if (snapshot.tableOpen) {
+      addEntry(entries, locale === "en" ? "Table" : "Mesa", locale === "en" ? "Open" : "Abierta");
     }
-    addEntry(entries, locale === "en" ? "Turn" : "Turno", snapshot.currentPlayerName);
-    addEntry(entries, locale === "en" ? "Mode" : "Modo", snapshot.modeLabel);
-    addEntry(entries, locale === "en" ? "Race" : "Objetivo", snapshot.raceTo);
+    if (snapshot.ballInHand) {
+      addEntry(entries, locale === "en" ? "Ball" : "Bola", locale === "en" ? "In hand" : "En mano");
+    }
   }
 
   if (scoreboard && typeof scoreboard === "object") {

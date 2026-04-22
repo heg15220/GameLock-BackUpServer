@@ -3379,6 +3379,192 @@
   fill: #214c7a;
 }
 
+.mobile-game-status-panel__billiards-board {
+  display: grid;
+  gap: 0.44rem;
+}
+
+.mobile-game-status-panel__billiards-scoreboard {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.62rem 0.7rem 0.7rem;
+  border-radius: 16px;
+  border: 1px solid rgba(13, 148, 136, 0.28);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(45, 212, 191, 0.18), transparent 50%),
+    linear-gradient(160deg, rgba(6, 44, 36, 0.94), rgba(8, 30, 42, 0.96));
+  color: #ecfeff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 24px rgba(2, 8, 23, 0.28);
+}
+
+.mobile-game-status-panel__billiards-scoreboard-heading {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.mobile-game-status-panel__billiards-scoreboard-heading strong {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #99f6e4;
+}
+
+.mobile-game-status-panel__billiards-scoreboard-heading span {
+  font-size: 0.68rem;
+  color: rgba(209, 250, 229, 0.86);
+}
+
+.mobile-game-status-panel__billiards-players {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 0.38rem;
+}
+
+.mobile-game-status-panel__billiards-player {
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.5rem 0.58rem 0.56rem;
+  border-radius: 13px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.mobile-game-status-panel__billiards-player.is-active {
+  border-color: rgba(94, 234, 212, 0.7);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(45, 212, 191, 0.24), transparent 55%),
+    linear-gradient(180deg, rgba(15, 118, 110, 0.54), rgba(4, 47, 46, 0.62));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 10px 22px rgba(13, 148, 136, 0.3);
+  transform: translateY(-1px);
+}
+
+.mobile-game-status-panel__billiards-player-role {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(165, 243, 252, 0.82);
+}
+
+.mobile-game-status-panel__billiards-player.is-active .mobile-game-status-panel__billiards-player-role {
+  color: #99f6e4;
+}
+
+.mobile-game-status-panel__billiards-player-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #e0f2fe;
+}
+
+.mobile-game-status-panel__billiards-player-score {
+  margin-top: 0.2rem;
+  font-size: 1.66rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #f0fdfa;
+}
+
+.mobile-game-status-panel__billiards-ai-turn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.52rem;
+  padding: 0.52rem 0.7rem;
+  border-radius: 14px;
+  border: 1px solid rgba(234, 179, 8, 0.42);
+  background:
+    linear-gradient(135deg, rgba(253, 224, 71, 0.92), rgba(250, 204, 21, 0.88));
+  color: #44340b;
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1.26;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 10px 18px rgba(214, 158, 24, 0.26);
+}
+
+.mobile-game-status-panel__billiards-ai-turn-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #b45309;
+  box-shadow: 0 0 0 4px rgba(180, 83, 9, 0.18);
+  animation: mobile-billiards-ai-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes mobile-billiards-ai-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 4px rgba(180, 83, 9, 0.22);
+  }
+  50% {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 8px rgba(180, 83, 9, 0);
+  }
+}
+
+/* Billiards rack/match over: control deck shows only the highlighted buttons */
+.mobile-control-deck--billiards-rack-over .mobile-control-deck__cluster--pad,
+.mobile-control-deck--billiards-match-over .mobile-control-deck__cluster--pad {
+  display: none;
+}
+
+.mobile-control-deck--billiards-rack-over .mobile-control-deck__clusters,
+.mobile-control-deck--billiards-match-over .mobile-control-deck__clusters {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mobile-control-deck--billiards-rack-over .mobile-control-deck__cluster--actions,
+.mobile-control-deck--billiards-match-over .mobile-control-deck__cluster--actions {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.mobile-control-deck__button--rack-over {
+  min-height: 58px;
+  padding: 0.78rem 0.9rem;
+  border-radius: 16px;
+  font-size: 0.94rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: 2px solid transparent;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 14px 26px rgba(2, 8, 23, 0.26);
+  animation: mobile-billiards-rack-over-glow 2.4s ease-in-out infinite;
+}
+
+.mobile-control-deck__button--rack-over.tone-primary {
+  background: linear-gradient(160deg, #14b8a6 0%, #0ea5e9 55%, #1d4ed8 100%);
+  color: #f0fdfa;
+  border-color: rgba(94, 234, 212, 0.68);
+}
+
+.mobile-control-deck__button--rack-over.tone-accent {
+  background: linear-gradient(160deg, #facc15 0%, #f97316 100%);
+  color: #3b1d04;
+  border-color: rgba(253, 186, 116, 0.82);
+}
+
+@keyframes mobile-billiards-rack-over-glow {
+  0%, 100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 14px 26px rgba(2, 8, 23, 0.26);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.24),
+      0 16px 34px rgba(234, 179, 8, 0.42);
+  }
+}
+
 .mobile-game-status-panel__buttons,
 .mobile-game-status-panel__selects {
   display: grid;
@@ -5836,6 +6022,48 @@
 
 .mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-control-deck__button.tone-accent {
   background: linear-gradient(180deg, rgba(20, 184, 166, 0.9), rgba(13, 148, 136, 0.92));
+}
+
+/* Buscaminas tablet landscape: bring back the setup panel alongside the board */
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__body {
+  grid-template-columns: minmax(0, 1fr) minmax(272px, 0.34fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0.52rem;
+}
+
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__touch-copy {
+  display: grid;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Buscaminas: hide the "Modo tactil nativo" intro copy in every orientation */
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__touch-panel-content > strong,
+.mobile-game-shell[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__touch-panel-content > p {
+  display: none;
+}
+
+/* Buscaminas tablet (both orientations): let the board fill the available stage area */
+.mobile-game-shell--device-tablet[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-board-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.42rem;
+}
+
+.mobile-game-shell--device-tablet[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-board-shell__content {
+  width: 100%;
+  justify-items: center;
+  align-content: center;
+}
+
+.mobile-game-shell--device-tablet[data-game-id="arcade-buscaminas-classic"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .mines-board {
+  grid-template-columns: repeat(var(--mines-cols, 9), minmax(0, 1fr)) !important;
+  width: 100% !important;
+  max-width: min(100%, 760px);
+  margin-inline: auto;
 }
 
 .mobile-game-shell--fullscreen {

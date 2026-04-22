@@ -1,0 +1,30 @@
+{
+  "mode": "knowledge-arcade",
+  "variant": "ahorcado",
+  "coordinates": "ui_linear",
+  "locale": "es",
+  "match": {
+    "current": 6808,
+    "total": 10000
+  },
+  "status": "lost",
+  "attemptsLeft": 0,
+  "guessedLetters": [
+    "A",
+    "D",
+    "H",
+    "I"
+  ],
+  "wrongLetters": [
+    "B",
+    "C",
+    "E",
+    "F",
+    "G",
+    "J"
+  ],
+  "clue": "Roca de mayor densidad y dureza que el yeso, formada por un sulfato de cal anhidro.",
+  "maskedWord": "ANHIDRITA",
+  "solution": "ANHIDRITA",
+  "message": "Sin intentos. Palabra: ANHIDRITA."
+}

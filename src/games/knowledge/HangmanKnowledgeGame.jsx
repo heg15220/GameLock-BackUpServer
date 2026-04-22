@@ -31,7 +31,8 @@ const COPY_BY_LOCALE = {
     solved: (word) => `Palabra resuelta: ${word}.`,
     wrongLetter: (letter) => `Letra ${letter} incorrecta.`,
     lost: (word) => `Sin intentos. Palabra: ${word}.`,
-    currentWordLabel: (maskedWord) => `Palabra actual: ${maskedWord}`
+    currentWordLabel: (maskedWord) => `Palabra actual: ${maskedWord}`,
+    solution: "Respuesta correcta"
   },
   en: {
     title: "Hangman Flash",
@@ -52,7 +53,8 @@ const COPY_BY_LOCALE = {
     solved: (word) => `Word solved: ${word}.`,
     wrongLetter: (letter) => `Letter ${letter} is wrong.`,
     lost: (word) => `No attempts left. Word: ${word}.`,
-    currentWordLabel: (maskedWord) => `Current word: ${maskedWord}`
+    currentWordLabel: (maskedWord) => `Current word: ${maskedWord}`,
+    solution: "Correct answer"
   }
 };
 
@@ -152,19 +154,19 @@ function HangmanKnowledgeGame() {
   const maskedWord = useMemo(
     () =>
       state.word
-        .split("")
-        .map((letter) => (state.guessedLetters.includes(letter) ? letter : "_"))
-        .join(" "),
-    [state.guessedLetters, state.word]
+      .split("")
+      .map((letter) => (state.status === "lost" || state.guessedLetters.includes(letter) ? letter : "_"))
+      .join(" "),
+    [state.guessedLetters, state.status, state.word]
   );
 
   const maskedTokens = useMemo(
     () =>
       state.word.split("").map((letter) => ({
         letter,
-        revealed: state.guessedLetters.includes(letter)
+        revealed: state.status === "lost" || state.guessedLetters.includes(letter)
       })),
-    [state.guessedLetters, state.word]
+    [state.guessedLetters, state.status, state.word]
   );
 
   const usedLetters = useMemo(
@@ -194,8 +196,9 @@ function HangmanKnowledgeGame() {
     clue: snapshot.clue,
     maskedWord: snapshot.word
       .split("")
-      .map((letter) => (snapshot.guessedLetters.includes(letter) ? letter : "_"))
+      .map((letter) => (snapshot.status === "lost" || snapshot.guessedLetters.includes(letter) ? letter : "_"))
       .join(""),
+    solution: snapshot.status === "lost" ? snapshot.word : null,
     message: snapshot.message
   }), [locale]);
 
@@ -265,6 +268,11 @@ function HangmanKnowledgeGame() {
           ))}
         </p>
         <p className="hangman-clue">{copy.clue}: {state.clue}</p>
+        {state.status === "lost" ? (
+          <p className="hangman-solution">
+            <strong>{copy.solution}:</strong> {state.word}
+          </p>
+        ) : null}
 
         <div className="hangman-keyboard">
           {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((letter) => (

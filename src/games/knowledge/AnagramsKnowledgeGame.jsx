@@ -39,6 +39,7 @@ const COPY_BY_LOCALE = {
     solved: (word) => `Correcto: ${word} es la solucion.`,
     failed: (word) => `Sin intentos. La solucion era ${word}.`,
     validButNotTarget: "Anagrama valido, pero no es la palabra objetivo.",
+    solution: "Respuesta correcta",
     letterAdded: (letter) => `Letra ${letter} anadida.`,
     letterDeleted: "Ultima letra borrada.",
     shuffled: "Letras reordenadas.",
@@ -71,6 +72,7 @@ const COPY_BY_LOCALE = {
     solved: (word) => `Correct: ${word} is the target.`,
     failed: (word) => `No attempts left. The solution was ${word}.`,
     validButNotTarget: "Valid anagram, but not the target word.",
+    solution: "Correct answer",
     letterAdded: (letter) => `Letter ${letter} added.`,
     letterDeleted: "Last letter deleted.",
     shuffled: "Letters shuffled.",
@@ -388,6 +390,11 @@ function AnagramsKnowledgeGame() {
 
         <p className="anagram-help">{copy.typeHint}</p>
         <p className="anagram-clue"><strong>{copy.clue}:</strong> {state.clue}</p>
+        {state.status === "lost" ? (
+          <p className="anagram-solution">
+            <strong>{copy.solution}:</strong> {state.targetWord}
+          </p>
+        ) : null}
 
         <div className="anagram-tiles" aria-label="Scrambled letters">
           {state.scrambledWord.split("").map((letter, index) => (

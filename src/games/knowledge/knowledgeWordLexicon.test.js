@@ -18,6 +18,7 @@ describe("knowledgeWordLexicon", () => {
     expect(KNOWLEDGE_WORD_LEXICON_META.counts.es).toBe(10000);
     expect(KNOWLEDGE_WORD_LEXICON_META.counts.en).toBe(10000);
     expect(KNOWLEDGE_WORD_LEXICON_META.overlapCount).toBe(0);
+    expect(KNOWLEDGE_WORD_LEXICON_META.source).toBe("crosswordRepoStyleBank");
 
     ["es", "en"].forEach((locale) => {
       const lexicon = getKnowledgeWordLexicon(locale);

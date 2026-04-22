@@ -1,0 +1,28 @@
+{
+  "mode": "knowledge-arcade",
+  "variant": "ahorcado",
+  "coordinates": "ui_linear",
+  "locale": "es",
+  "match": {
+    "current": 9820,
+    "total": 10000
+  },
+  "status": "lost",
+  "attemptsLeft": 0,
+  "guessedLetters": [
+    "A",
+    "D"
+  ],
+  "wrongLetters": [
+    "B",
+    "C",
+    "E",
+    "F",
+    "G",
+    "H"
+  ],
+  "clue": "Enfermedad viral consistente en la ausencia de respuesta inmunitaria.",
+  "maskedWord": "SIDA",
+  "solution": "SIDA",
+  "message": "Sin intentos. Palabra: SIDA."
+}

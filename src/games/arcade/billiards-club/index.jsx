@@ -3446,7 +3446,7 @@ function BilliardsClubGame() {
           {snapshot.status === "menu" ? <button id="billiards-start-btn" type="button" onClick={startMatch}>{ui.start}</button> : null}
           {snapshot.status === "rack-over" ? <button id="billiards-next-rack-btn" type="button" onClick={nextRack}>{ui.nextRack}</button> : null}
           <button type="button" onClick={restartRack}>{ui.restartRack}</button>
-          <button type="button" onClick={resetMatch}>{ui.newMatch}</button>
+          <button id="billiards-new-match-btn" type="button" onClick={resetMatch}>{ui.newMatch}</button>
           {mobileViewport.isMobile && mobileViewport.isPortrait && !forceHorizontalTable ? (
             <button id="billiards-orientation-btn" type="button" onClick={() => setPreferVerticalTable((previous) => !previous)}>
               {useVerticalTable ? ui.orientationHorizontal : ui.orientationVertical}
