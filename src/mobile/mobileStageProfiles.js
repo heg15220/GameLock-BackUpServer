@@ -56,7 +56,7 @@ const GAME_STAGE_SELECTORS = {
   ],
   "racing-race2dpro": [".r2p"],
   "racing-sunset-slipstream": [".mtr", ".mtr__canvas"],
-  "arcade-buscaminas-classic": [".minesweeper-game", ".mines-board-shell"],
+  "arcade-buscaminas-classic": [".mines-board-shell", ".minesweeper-game"],
   "arcade-ice-strike-pro": ["canvas"],
   "arcade-pacman-maze-protocol": [
     ".pacman-stage-shell",

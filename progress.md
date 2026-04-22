@@ -4310,3 +4310,12 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Ajustado `src/games/arcade/archery-horizon/index.jsx` para compactar el HUD canvas de `viento / gravedad / arrastre` cuando el juego corre en `touch` y la ventana esta en orientacion vertical.
 - El ajuste final reduce mas la caja del HUD, tipografias y medidor de viento solo en portrait movil; desktop y landscape conservan el tamano previo.
 - Validacion visual completada con Playwright en `output/archery-horizon-mobile-portrait/shot-0.png` y sin errores nuevos en consola.
+
+## 2026-04-22 - Ajuste ads movil domino + buscaminas
+- Domino movil vertical: la viñeta compacta ya no depende de categoria conocimiento; ahora entra por lista explicita de juegos compactos en launch modal y playground.
+- Buscaminas movil/tablet: la viñeta compacta pasa del panel inferior al gameplay dentro de la pantalla de tablero, debajo del board shell, condicionada por el flag de ad preview.
+- Pendiente inmediato: validar visualmente con captura que domino muestra la viñeta compacta y que buscaminas la renderiza dentro del gameplay.
+
+## 2026-04-22 - Buscaminas dropdowns
+- El panel de configuración personalizado del buscaminas cambia de inputs numéricos a desplegables para filas, columnas y minas.
+- Al cambiar filas o columnas se recalcula el máximo de minas para evitar combinaciones inválidas antes de aplicar la partida personalizada.

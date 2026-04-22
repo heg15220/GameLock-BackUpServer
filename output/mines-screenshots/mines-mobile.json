@@ -1,0 +1,8 @@
+{
+  "viewportClass": "mobile-game-shell__stage-viewport",
+  "targetClass": "mines-board-shell",
+  "targetTag": "DIV",
+  "targetHeight": 15.4375,
+  "boardHeight": 15.4375,
+  "boardWidth": 352.1875
+}

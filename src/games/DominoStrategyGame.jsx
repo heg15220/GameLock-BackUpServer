@@ -105,6 +105,17 @@ const I18N = {
       partnerLastMove: "Ultima jugada de companero",
       notApplicable: "no aplica en este modo",
       roundSummary: "Resumen de ronda",
+      resultTitleWonRound: "Ronda ganada",
+      resultTitleLostRound: "Ronda perdida",
+      resultTitleDrawRound: "Ronda empatada",
+      resultTitleWonMatch: "Partida ganada",
+      resultTitleLostMatch: "Partida perdida",
+      resultTitleDrawMatch: "Partida empatada",
+      resultLeadWon: "Tu equipo cierra la mano.",
+      resultLeadLost: "La mano se cierra a favor del rival.",
+      resultLeadDraw: "La ronda termina sin vencedor.",
+      resultOneTileAway: "Te quedaste a una ficha.",
+      resultFewTilesAway: "Te quedaste a pocas fichas.",
       winner: "Ganador",
       reason: "Motivo",
       points: "Puntos",
@@ -237,6 +248,17 @@ const I18N = {
       partnerLastMove: "Partner last move",
       notApplicable: "not applicable in this mode",
       roundSummary: "Round summary",
+      resultTitleWonRound: "Round won",
+      resultTitleLostRound: "Round lost",
+      resultTitleDrawRound: "Round tied",
+      resultTitleWonMatch: "Match won",
+      resultTitleLostMatch: "Match lost",
+      resultTitleDrawMatch: "Match tied",
+      resultLeadWon: "Your team closes the hand.",
+      resultLeadLost: "The hand closes in the rivals' favor.",
+      resultLeadDraw: "The round ends without a winner.",
+      resultOneTileAway: "You were one tile away.",
+      resultFewTilesAway: "You were only a few tiles away.",
       winner: "Winner",
       reason: "Reason",
       points: "Points",
@@ -1333,18 +1355,47 @@ function DominoStrategyGame() {
     return sideMap;
   }, [playerHand, state.chain]);
   const boardDensity = useMemo(() => {
+    const chainLength = state.chain.length;
+
     if (viewportWidth <= 420) {
+      if (chainLength >= 18) {
+        return { columns: 7, cellWidth: 44, cellHeight: 30 };
+      }
+      if (chainLength >= 12) {
+        return { columns: 6, cellWidth: 48, cellHeight: 32 };
+      }
       return { columns: 5, cellWidth: 54, cellHeight: 36 };
     }
     if (viewportWidth <= 620) {
+      if (chainLength >= 18) {
+        return { columns: 8, cellWidth: 50, cellHeight: 34 };
+      }
+      if (chainLength >= 12) {
+        return { columns: 7, cellWidth: 56, cellHeight: 38 };
+      }
       return { columns: 6, cellWidth: 60, cellHeight: 40 };
     }
     if (viewportWidth <= 920) {
+      if (chainLength >= 18) {
+        return { columns: 8, cellWidth: 60, cellHeight: 40 };
+      }
+      if (chainLength >= 12) {
+        return { columns: 7, cellWidth: 66, cellHeight: 44 };
+      }
       return { columns: 7, cellWidth: 72, cellHeight: 48 };
     }
     return { columns: CHAIN_COLUMNS, cellWidth: CHAIN_CELL_WIDTH, cellHeight: CHAIN_CELL_HEIGHT };
-  }, [viewportWidth]);
+  }, [state.chain.length, viewportWidth]);
   const chainLayout = useMemo(() => buildSnakeLayout(state.chain, boardDensity), [state.chain, boardDensity]);
+  const stageCellWidth = boardDensity.cellWidth;
+  const stageRowHeight = boardDensity.cellHeight;
+  const stageTileWidth = Math.max(42, boardDensity.cellWidth - 8);
+  const stageTileHeight = Math.max(34, boardDensity.cellHeight - 4);
+  const stageDoubleWidth = Math.max(24, Math.round(stageTileHeight));
+  const stageDoubleHeight = Math.max(42, Math.round(stageTileWidth));
+  const stageHalfHeight = Math.max(18, Math.round(stageTileHeight - 2));
+  const stageDoubleHalfHeight = Math.max(18, Math.round(stageDoubleHeight / 2 - 2));
+  const stagePipSize = Math.max(6, Math.round(stageTileHeight * 0.18));
   const teamPips = useMemo(() => getTeamPips(state.hands, modeConfig.teamSeats), [state.hands, modeConfig]);
   const lastPlayerMoveTile = useMemo(
     () => state.chain.find((tile) => tile.id === state.lastPlayerMoveTileId) ?? null,
@@ -1360,6 +1411,63 @@ function DominoStrategyGame() {
   const canAdjustTarget = modeConfig.teamIds.every((teamId) => (state.scores[teamId] ?? 0) === 0) && state.roundNumber === 1;
   const isMobileViewport = viewportWidth <= 860;
   const isPortraitMobile = isMobileViewport && viewportHeight >= viewportWidth;
+  const playerTeamId = modeConfig.seatToTeam.player;
+  const playerOutcome = useMemo(() => {
+    if (!state.roundResult) {
+      return null;
+    }
+
+    const decisiveTeam = state.phase === "match-over"
+      ? state.roundResult.matchWinnerTeam
+      : state.roundResult.winnerTeam;
+
+    if (!decisiveTeam || decisiveTeam === "draw") {
+      return "draw";
+    }
+
+    return decisiveTeam === playerTeamId ? "won" : "lost";
+  }, [playerTeamId, state.phase, state.roundResult]);
+  const playerResultTitle = useMemo(() => {
+    if (!playerOutcome) {
+      return "";
+    }
+
+    const isMatchResult = state.phase === "match-over";
+    if (playerOutcome === "won") {
+      return isMatchResult ? T.ui.resultTitleWonMatch : T.ui.resultTitleWonRound;
+    }
+    if (playerOutcome === "lost") {
+      return isMatchResult ? T.ui.resultTitleLostMatch : T.ui.resultTitleLostRound;
+    }
+    return isMatchResult ? T.ui.resultTitleDrawMatch : T.ui.resultTitleDrawRound;
+  }, [playerOutcome, state.phase]);
+  const playerResultLead = useMemo(() => {
+    if (!playerOutcome) {
+      return "";
+    }
+    if (playerOutcome === "won") {
+      return T.ui.resultLeadWon;
+    }
+    if (playerOutcome === "lost") {
+      return T.ui.resultLeadLost;
+    }
+    return T.ui.resultLeadDraw;
+  }, [playerOutcome]);
+  const playerResultDetail = useMemo(() => {
+    if (!state.roundResult || playerOutcome !== "lost") {
+      return "";
+    }
+
+    if (playerHand.length === 1) {
+      return T.ui.resultOneTileAway;
+    }
+
+    if (playerHand.length > 1 && playerHand.length <= 3) {
+      return T.ui.resultFewTilesAway;
+    }
+
+    return "";
+  }, [playerHand.length, playerOutcome, state.roundResult]);
   const selectPlayableTile = useCallback((index, preferredSide) => {
     setState((previous) => ({
       ...previous,
@@ -1374,7 +1482,7 @@ function DominoStrategyGame() {
       : state.phase === "round-over"
         ? T.phase.roundOver
         : T.phase.matchOver;
-  const playerTeamId = modeConfig.seatToTeam.player;
+  const shouldDockPlayerControls = viewportWidth <= 1180;
   const rootClasses = [
     "mini-game",
     "domino-strategy-game",
@@ -1587,9 +1695,9 @@ function DominoStrategyGame() {
       </div>
 
       <div className="domino-edge-readout">
-        <span>{T.ui.leftEdge}: {state.chain[0]?.left ?? "--"}</span>
-        <span>{T.ui.rightEdge}: {state.chain[state.chain.length - 1]?.right ?? "--"}</span>
-        <span>{T.ui.tilesOnTable}: {state.chain.length}/28</span>
+        <span className={state.selectedSide === "left" ? "is-active" : ""}>{T.ui.leftEdge}: {state.chain[0]?.left ?? "--"}</span>
+        <span className="edge-total">{T.ui.tilesOnTable}: {state.chain.length}/28</span>
+        <span className={state.selectedSide === "right" ? "is-active" : ""}>{T.ui.rightEdge}: {state.chain[state.chain.length - 1]?.right ?? "--"}</span>
       </div>
 
       <div className="domino-arena-shell">
@@ -1607,42 +1715,103 @@ function DominoStrategyGame() {
             className="domino-chain domino-chain-stage"
             role="list"
             aria-label={T.ui.chainAria}
-            style={{ width: `${chainLayout.width}px`, height: `${chainLayout.height}px` }}
+            style={{
+              width: `${chainLayout.width}px`,
+              height: `${chainLayout.height}px`,
+              "--domino-stage-cell-width": `${stageCellWidth}px`,
+              "--domino-stage-row-height": `${stageRowHeight}px`,
+              "--domino-stage-tile-width": `${stageTileWidth}px`,
+              "--domino-stage-tile-height": `${stageTileHeight}px`,
+              "--domino-stage-double-width": `${stageDoubleWidth}px`,
+              "--domino-stage-double-height": `${stageDoubleHeight}px`,
+              "--domino-stage-half-height": `${stageHalfHeight}px`,
+              "--domino-stage-double-half-height": `${stageDoubleHalfHeight}px`,
+              "--domino-stage-pip-size": `${stagePipSize}px`,
+            }}
           >
-            {chainLayout.positions.map((node) => (
-              <span
-                key={`${node.tile.id}-${node.index}`}
-                className={`domino-chain-node ${node.axis === "vertical" ? "axis-vertical" : "axis-horizontal"}`}
-                style={{ left: `${node.leftPx}px`, top: `${node.topPx}px` }}
-              >
+            {chainLayout.positions.map((node) => {
+              const previousNode = chainLayout.positions[node.index - 1] ?? null;
+              const nextNode = chainLayout.positions[node.index + 1] ?? null;
+              const isRowStart = !previousNode || previousNode.row !== node.row;
+              const isTurnNode = Boolean(nextNode && nextNode.row !== node.row);
+              const isBoardStart = node.index === 0;
+              const isBoardEnd = node.index === state.chain.length - 1;
+              const rowDirection = node.row % 2 === 0 ? "forward" : "reverse";
+
+              return (
                 <span
-                  role="listitem"
+                  key={`${node.tile.id}-${node.index}`}
                   className={[
-                    "domino-tile",
-                    node.tile.left === node.tile.right ? "is-double" : "",
-                    node.axis === "vertical" && node.tile.left !== node.tile.right ? "is-vertical" : "",
-                    node.tile.id === state.lastPlayerMoveTileId ? "last-player-tile" : "",
-                    node.tile.id === state.lastPartnerMoveTileId ? "last-partner-tile" : "",
-                    node.index === 0 && state.selectedSide === "left" ? "active-edge" : "",
-                    node.index === state.chain.length - 1 && state.selectedSide === "right" ? "active-edge" : ""
+                    "domino-chain-node",
+                    node.axis === "vertical" ? "axis-vertical" : "axis-horizontal",
+                    isRowStart ? "is-row-start" : "",
+                    isTurnNode ? "is-turn-node" : "",
+                    isBoardStart ? "node-start" : "",
+                    isBoardEnd ? "node-end" : "",
+                    rowDirection === "forward" ? "flow-forward" : "flow-reverse",
                   ].filter(Boolean).join(" ")}
+                  style={{ left: `${node.leftPx}px`, top: `${node.topPx}px` }}
                 >
-                  {node.tile.id === state.lastPlayerMoveTileId ? (
-                    <span className="domino-board-badge badge-player">{T.ui.lastPlayerBadge}</span>
-                  ) : null}
-                  {node.tile.id === state.lastPartnerMoveTileId ? (
-                    <span className="domino-board-badge badge-partner">{T.ui.lastPartnerBadge}</span>
-                  ) : null}
-                  <span className="domino-half"><DominoPips value={node.tile.left} /><strong>{node.tile.left}</strong></span>
-                  <span className="domino-divider" />
-                  <span className="domino-half"><DominoPips value={node.tile.right} /><strong>{node.tile.right}</strong></span>
+                  <span
+                    role="listitem"
+                    className={[
+                      "domino-tile",
+                      node.tile.left === node.tile.right ? "is-double" : "",
+                      node.axis === "vertical" && node.tile.left !== node.tile.right ? "is-vertical" : "",
+                      node.tile.id === state.lastPlayerMoveTileId ? "last-player-tile" : "",
+                      node.tile.id === state.lastPartnerMoveTileId ? "last-partner-tile" : "",
+                      isBoardStart && state.selectedSide === "left" ? "active-edge" : "",
+                      isBoardEnd && state.selectedSide === "right" ? "active-edge" : "",
+                    ].filter(Boolean).join(" ")}
+                  >
+                    <span className="domino-board-order">{node.index + 1}</span>
+                    {isRowStart && !isBoardStart ? (
+                      <span
+                        className={`domino-flow-badge row-direction ${rowDirection === "forward" ? "flow-forward" : "flow-reverse"}`}
+                      >
+                        {rowDirection === "forward" ? ">" : "<"}
+                      </span>
+                    ) : null}
+                    {isTurnNode ? (
+                      <span
+                        className={`domino-flow-badge turn-down ${rowDirection === "forward" ? "turn-right" : "turn-left"}`}
+                      >
+                        v
+                      </span>
+                    ) : null}
+                    {isBoardStart ? <span className="domino-board-edge-tag edge-left">{T.ui.left}</span> : null}
+                    {isBoardEnd ? <span className="domino-board-edge-tag edge-right">{T.ui.right}</span> : null}
+                    {node.tile.id === state.lastPlayerMoveTileId ? (
+                      <span className="domino-board-badge badge-player">{T.ui.lastPlayerBadge}</span>
+                    ) : null}
+                    {node.tile.id === state.lastPartnerMoveTileId ? (
+                      <span className="domino-board-badge badge-partner">{T.ui.lastPartnerBadge}</span>
+                    ) : null}
+                    <span className="domino-half"><DominoPips value={node.tile.left} /><strong>{node.tile.left}</strong></span>
+                    <span className="domino-divider" />
+                    <span className="domino-half"><DominoPips value={node.tile.right} /><strong>{node.tile.right}</strong></span>
+                  </span>
                 </span>
-              </span>
-            ))}
+              );
+            })}
           </div>
         </div>
         <div className="domino-seat-slot slot-bottom">{playerSeatChip}</div>
       </div>
+
+      {state.roundResult && playerOutcome ? (
+        <div className={`domino-player-result-banner outcome-${playerOutcome}`} key={`${state.roundNumber}-${state.phase}-${playerOutcome}`}>
+          <div className="domino-player-result-banner__halo" aria-hidden="true" />
+          <div className="domino-player-result-banner__card">
+            <span className="domino-player-result-banner__eyebrow">
+              {state.phase === "match-over" ? T.phase.matchOver : T.phase.roundOver}
+            </span>
+            <strong>{playerResultTitle}</strong>
+            <p>{playerResultLead}</p>
+            {playerResultDetail ? <span className="domino-player-result-banner__detail">{playerResultDetail}</span> : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 
@@ -1724,6 +1893,13 @@ function DominoStrategyGame() {
     </p>
   );
 
+  const playerControlDockBlock = (
+    <div className="domino-player-control-dock">
+      {toolbarBlock}
+      {selectedSummaryBlock}
+    </div>
+  );
+
   const playerHandBlock = (
     <div className="domino-player-zones">
       <section className={`domino-zone domino-zone-player ${state.turn === "player" ? "active" : ""}`}>
@@ -1789,13 +1965,12 @@ function DominoStrategyGame() {
           <section className="domino-mobile-stage-screen">
             {tableBlock}
             {playerHandBlock}
+            {playerControlDockBlock}
           </section>
           <section className="domino-mobile-control-screen">
             {mobileKpisBlock}
             {scoreboardBlock}
             {configBlock}
-            {toolbarBlock}
-            {selectedSummaryBlock}
           </section>
         </div>
       ) : (
@@ -1805,9 +1980,18 @@ function DominoStrategyGame() {
           {scoreboardBlock}
           {tableBlock}
           {playableStripBlock}
-          {toolbarBlock}
-          {selectedSummaryBlock}
-          {playerHandBlock}
+          {shouldDockPlayerControls ? (
+            <>
+              {playerHandBlock}
+              {playerControlDockBlock}
+            </>
+          ) : (
+            <>
+              {toolbarBlock}
+              {selectedSummaryBlock}
+              {playerHandBlock}
+            </>
+          )}
         </>
       )}
 

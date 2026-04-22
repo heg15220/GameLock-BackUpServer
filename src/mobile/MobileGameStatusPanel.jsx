@@ -666,6 +666,15 @@ function filterContextButtons(buttons, snapshot, gameCategory) {
     }
   }
 
+  if (snapshot.variant === "minesweeper-classic") {
+    return dedupeButtons(
+      buttons
+        .filter((button) => button.group === "hidden" || button.group === "visible-stage")
+        .filter((button) => !button.disabled)
+        .filter((button) => !buttonLabelMatches(button, /fullscreen|pantalla completa/i))
+    ).slice(0, 10);
+  }
+
   if (
     (
       modeKey.startsWith("strategy") ||
@@ -733,6 +742,7 @@ export default function MobileGameStatusPanel({
   const derivedPreplayState =
     isPreplayState(snapshot) ||
     (isStrategyCategory(gameCategory) && snapshot?.started === false);
+  const isMinesweeper = snapshot?.variant === "minesweeper-classic";
   const isPenaltyShootout = isPenaltyShootoutSnapshot(snapshot);
   const penaltyMenuButtons = useMemo(
     () => dedupeButtons(menuControls.buttons.filter((button) => isPenaltyMenuButton(button))),
@@ -743,9 +753,13 @@ export default function MobileGameStatusPanel({
     [menuControls.selects]
   );
   const activeMenuSelects = isPenaltyShootout ? penaltyMenuSelects : menuControls.selects;
-  const strategyOrKnowledgeContextSelects =
+  const splitContextSelects =
     !derivedPreplayState &&
-    (isStrategyCategory(gameCategory) || isKnowledgeCategory(gameCategory)) &&
+    (
+      isStrategyCategory(gameCategory) ||
+      isKnowledgeCategory(gameCategory) ||
+      isMinesweeper
+    ) &&
     activeMenuSelects.length > 0;
   const allowPostMatchSetup =
     snapshot?.mode === "billiards_pool" &&
@@ -771,18 +785,21 @@ export default function MobileGameStatusPanel({
     !isPenaltyShootout &&
     !allowPostMatchSetup &&
     contextButtons.length > 0;
-  const strategyOrKnowledgeContext = isStrategyCategory(gameCategory) || isKnowledgeCategory(gameCategory);
-  const contextSetupButtons = strategyOrKnowledgeContext
+  const supportsSplitContextPanels =
+    isStrategyCategory(gameCategory) ||
+    isKnowledgeCategory(gameCategory) ||
+    isMinesweeper;
+  const contextSetupButtons = supportsSplitContextPanels
     ? contextButtons.filter((button) => isConfigurationButton(button))
     : [];
-  const contextActionButtons = strategyOrKnowledgeContext
+  const contextActionButtons = supportsSplitContextPanels
     ? contextButtons.filter((button) => !isConfigurationButton(button))
     : contextButtons;
   const showContextSetup =
     !derivedPreplayState &&
     !allowPostMatchSetup &&
-    strategyOrKnowledgeContext &&
-    (strategyOrKnowledgeContextSelects || contextSetupButtons.length > 0);
+    supportsSplitContextPanels &&
+    (splitContextSelects || contextSetupButtons.length > 0);
   const isParchis =
     snapshot?.mode === "strategy-parchis-ludoteka"
     || snapshot?.variant === "parchis-4p-human-vs-3ai";
@@ -1073,7 +1090,7 @@ export default function MobileGameStatusPanel({
       {showContextSetup ? (
         <div className="mobile-game-status-panel__menu mobile-game-status-panel__menu--setup">
           <strong>{locale === "en" ? "Match setup" : "Configuracion de partida"}</strong>
-          {strategyOrKnowledgeContextSelects ? (
+          {splitContextSelects ? (
             <div className="mobile-game-status-panel__selects">
               {activeMenuSelects.map((field) => (
                 <label key={`setup-${field.id}`}>
@@ -1129,7 +1146,7 @@ export default function MobileGameStatusPanel({
       {showDefaultContextButtons ? (
         <div className="mobile-game-status-panel__menu mobile-game-status-panel__menu--actions">
           <strong>{locale === "en" ? "Context controls" : "Controles contextuales"}</strong>
-          {strategyOrKnowledgeContextSelects ? (
+          {splitContextSelects ? (
             <div className="mobile-game-status-panel__selects">
               {activeMenuSelects.map((field) => (
                 <label key={`context-${field.id}`}>

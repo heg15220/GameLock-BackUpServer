@@ -19,7 +19,8 @@ const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
 
 const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([]);
 
-const PORTRAIT_APP_BOTTOM_AD_GAME_IDS = new Set([
+const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
+  "knowledge-domino-chain",
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",
 ]);
@@ -73,15 +74,17 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
   const categoryKey = String(game.category ?? "");
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
-  const showPortraitKnowledgeBottomAd =
-    isKnowledgeCategory &&
+  const showPortraitCompactBottomAd =
     viewport.orientation === "portrait" &&
-    (useMobileGameShell || PORTRAIT_APP_BOTTOM_AD_GAME_IDS.has(gameId));
-  const useCompactPortraitBottomAd = PORTRAIT_APP_BOTTOM_AD_GAME_IDS.has(gameId);
+    (
+      (isKnowledgeCategory && useMobileGameShell) ||
+      PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS.has(gameId)
+    );
+  const useCompactPortraitBottomAd = PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS.has(gameId);
   const showMobileSystemBottomAd =
     adPreviewEnabled &&
     viewportFormFactor !== "desktop" &&
-    ((isStrategyCategory && useMobileGameShell) || showPortraitKnowledgeBottomAd);
+    ((isStrategyCategory && useMobileGameShell) || showPortraitCompactBottomAd);
   const showShellManagedSystemBottomAd =
     showMobileSystemBottomAd &&
     isStrategyCategory &&

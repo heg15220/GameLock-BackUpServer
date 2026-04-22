@@ -1,4 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AdPreviewCard from "../components/AdPreviewCard";
+import {
+  AD_PREVIEW_STORAGE_KEY,
+  DEFAULT_AD_PREVIEW_ENABLED,
+  MOBILE_APP_COMPACT_AD_SLOT,
+} from "../config/adPreview";
 import useGameRuntimeBridge from "../utils/useGameRuntimeBridge";
 import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
 
@@ -41,6 +47,14 @@ const INITIAL_AI_LEVEL = "intermediate";
 const INITIAL_CUSTOM_CONFIG = { rows: 12, cols: 20, mines: 38 };
 const COMPETITIVE_RIVALS = 25;
 const LONG_PRESS_MS = 360;
+
+function readAdPreviewEnabled() {
+  if (typeof window === "undefined") {
+    return DEFAULT_AD_PREVIEW_ENABLED;
+  }
+  const stored = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
+  return stored == null ? DEFAULT_AD_PREVIEW_ENABLED : stored === "true";
+}
 
 const COMPETITIVE_NAMES_ES = [
   "Atlas", "Nexus", "Vulcan", "Nova", "Aquila", "Orion", "Iris", "Draco", "Lyra",
@@ -755,6 +769,7 @@ function MinesweeperGame() {
   const [matchMode, setMatchMode] = useState("casual");
   const [customConfig, setCustomConfig] = useState(INITIAL_CUSTOM_CONFIG);
   const [flagMode, setFlagMode] = useState(false);
+  const [showAdPreview, setShowAdPreview] = useState(readAdPreviewEnabled);
   const [aiFeedback, setAiFeedback] = useState("");
   const [competitiveRivals, setCompetitiveRivals] = useState([]);
   const [game, setGame] = useState(() =>
@@ -762,6 +777,15 @@ function MinesweeperGame() {
   );
   const touchStateRef = useRef(new Map());
   const touchIgnoreClickRef = useRef(new Map());
+  const rowOptions = useMemo(() => Array.from({ length: 17 }, (_, index) => 8 + index), []);
+  const colOptions = useMemo(() => Array.from({ length: 23 }, (_, index) => 8 + index), []);
+  const mineOptions = useMemo(() => {
+    const maxMines = Math.max(
+      1,
+      Number(customConfig.rows) * Number(customConfig.cols) - 1
+    );
+    return Array.from({ length: maxMines }, (_, index) => index + 1);
+  }, [customConfig.cols, customConfig.rows]);
 
   const startNewGame = useCallback(
     (
@@ -826,6 +850,24 @@ function MinesweeperGame() {
       return false;
     }
     return true;
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const handleStorage = (event) => {
+      if (event.key !== AD_PREVIEW_STORAGE_KEY) {
+        return;
+      }
+      setShowAdPreview(
+        event.newValue == null ? DEFAULT_AD_PREVIEW_ENABLED : event.newValue === "true"
+      );
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   const moveCursor = useCallback((deltaRow, deltaCol) => {
@@ -1179,9 +1221,41 @@ function MinesweeperGame() {
     startNewGame("custom", clamped);
   };
 
+  const handleCustomRowsChange = (event) => {
+    const nextRows = Number(event.target.value);
+    setCustomConfig((prev) => {
+      const nextMaxMines = Math.max(1, nextRows * Number(prev.cols) - 1);
+      return {
+        ...prev,
+        rows: nextRows,
+        mines: clamp(Number(prev.mines), 1, nextMaxMines),
+      };
+    });
+  };
+
+  const handleCustomColsChange = (event) => {
+    const nextCols = Number(event.target.value);
+    setCustomConfig((prev) => {
+      const nextMaxMines = Math.max(1, Number(prev.rows) * nextCols - 1);
+      return {
+        ...prev,
+        cols: nextCols,
+        mines: clamp(Number(prev.mines), 1, nextMaxMines),
+      };
+    });
+  };
+
+  const handleCustomMinesChange = (event) => {
+    const nextMines = Number(event.target.value);
+    setCustomConfig((prev) => ({
+      ...prev,
+      mines: nextMines,
+    }));
+  };
+
   return (
     <div className="mini-game minesweeper-game">
-      <div className="mini-head">
+      <div className="mini-head" data-mobile-menu-root="true">
         <div>
           <h4>{localeIsEs ? "Buscaminas IA Classic" : "Minesweeper IA Classic"}</h4>
           <p>
@@ -1234,51 +1308,36 @@ function MinesweeperGame() {
         </div>
       </div>
 
-      <div className="mines-custom-panel">
+      <div className="mines-custom-panel" data-mobile-menu-root="true">
         <label>
           <span>{localeIsEs ? "Filas" : "Rows"}</span>
-          <input
-            type="number"
-            min={8}
-            max={24}
-            value={customConfig.rows}
-            onChange={(event) =>
-              setCustomConfig((prev) => ({
-                ...prev,
-                rows: event.target.value,
-              }))
-            }
-          />
+          <select value={String(customConfig.rows)} onChange={handleCustomRowsChange}>
+            {rowOptions.map((rows) => (
+              <option key={`rows-${rows}`} value={rows}>
+                {rows}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           <span>{localeIsEs ? "Columnas" : "Columns"}</span>
-          <input
-            type="number"
-            min={8}
-            max={30}
-            value={customConfig.cols}
-            onChange={(event) =>
-              setCustomConfig((prev) => ({
-                ...prev,
-                cols: event.target.value,
-              }))
-            }
-          />
+          <select value={String(customConfig.cols)} onChange={handleCustomColsChange}>
+            {colOptions.map((cols) => (
+              <option key={`cols-${cols}`} value={cols}>
+                {cols}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           <span>{localeIsEs ? "Minas" : "Mines"}</span>
-          <input
-            type="number"
-            min={1}
-            max={999}
-            value={customConfig.mines}
-            onChange={(event) =>
-              setCustomConfig((prev) => ({
-                ...prev,
-                mines: event.target.value,
-              }))
-            }
-          />
+          <select value={String(customConfig.mines)} onChange={handleCustomMinesChange}>
+            {mineOptions.map((mines) => (
+              <option key={`mines-${mines}`} value={mines}>
+                {mines}
+              </option>
+            ))}
+          </select>
         </label>
         <button type="button" onClick={handleApplyCustom}>
           {localeIsEs ? "Aplicar personalizado" : "Apply custom"}
@@ -1350,94 +1409,105 @@ function MinesweeperGame() {
       ) : null}
 
       <div className="mines-board-shell">
-        <div
-          className="mines-board"
-          style={{
-            gridTemplateColumns: `repeat(${game.cols}, ${boardCellSize}px)`,
-          }}
-        >
-          {game.board.map((row, rowIndex) =>
-            row.map((cell, colIndex) => {
-              const isCursor =
-                game.cursor.row === rowIndex && game.cursor.col === colIndex;
-              const cellKey = `${rowIndex}:${colIndex}`;
-              const valueLabel =
-                cell.revealed && !cell.mine && cell.around > 0
-                  ? cell.around
-                  : cell.flagged
-                    ? "F"
-                    : cell.question
-                      ? "?"
-                      : cell.mine && cell.revealed
-                        ? "M"
-                        : "";
+        <div className="mines-board-shell__content">
+          <div
+            className="mines-board"
+            style={{
+              "--mines-cols": game.cols,
+              "--mines-cell": `${boardCellSize}px`,
+              gridTemplateColumns: `repeat(${game.cols}, var(--mines-cell))`,
+            }}
+          >
+            {game.board.map((row, rowIndex) =>
+              row.map((cell, colIndex) => {
+                const isCursor =
+                  game.cursor.row === rowIndex && game.cursor.col === colIndex;
+                const cellKey = `${rowIndex}:${colIndex}`;
+                const valueLabel =
+                  cell.revealed && !cell.mine && cell.around > 0
+                    ? cell.around
+                    : cell.flagged
+                      ? "F"
+                      : cell.question
+                        ? "?"
+                        : cell.mine && cell.revealed
+                          ? "M"
+                          : "";
 
-              return (
-                <button
-                  key={`${rowIndex}-${colIndex}`}
-                  type="button"
-                  className={[
-                    "mines-cell",
-                    cell.revealed ? "is-revealed" : "is-hidden",
-                    cell.flagged && !cell.revealed ? "is-flagged" : "",
-                    cell.question && !cell.revealed ? "is-question" : "",
-                    cell.mine && cell.revealed ? "is-mine" : "",
-                    cell.exploded ? "is-exploded" : "",
-                    isCursor ? "is-cursor" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  data-cell={`${rowIndex}-${colIndex}`}
-                  data-row={rowIndex}
-                  data-col={colIndex}
-                  onClick={() => {
-                    if (shouldIgnoreClick(cellKey)) {
-                      return;
-                    }
-                    runCellAction(rowIndex, colIndex, flagMode ? "mark" : "reveal");
-                  }}
-                  onContextMenu={(event) => {
-                    event.preventDefault();
-                    runCellAction(rowIndex, colIndex, "mark");
-                  }}
-                  onTouchStart={(event) => {
-                    event.preventDefault();
-                    clearTouchState(cellKey);
-                    const timerId = window.setTimeout(() => {
+                return (
+                  <button
+                    key={`${rowIndex}-${colIndex}`}
+                    type="button"
+                    className={[
+                      "mines-cell",
+                      cell.revealed ? "is-revealed" : "is-hidden",
+                      cell.flagged && !cell.revealed ? "is-flagged" : "",
+                      cell.question && !cell.revealed ? "is-question" : "",
+                      cell.mine && cell.revealed ? "is-mine" : "",
+                      cell.exploded ? "is-exploded" : "",
+                      isCursor ? "is-cursor" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    data-cell={`${rowIndex}-${colIndex}`}
+                    data-row={rowIndex}
+                    data-col={colIndex}
+                    onClick={() => {
+                      if (shouldIgnoreClick(cellKey)) {
+                        return;
+                      }
+                      runCellAction(rowIndex, colIndex, flagMode ? "mark" : "reveal");
+                    }}
+                    onContextMenu={(event) => {
+                      event.preventDefault();
                       runCellAction(rowIndex, colIndex, "mark");
+                    }}
+                    onTouchStart={(event) => {
+                      event.preventDefault();
+                      clearTouchState(cellKey);
+                      const timerId = window.setTimeout(() => {
+                        runCellAction(rowIndex, colIndex, "mark");
+                        markTouchClickIgnore(cellKey);
+                        touchStateRef.current.delete(cellKey);
+                      }, LONG_PRESS_MS);
+                      touchStateRef.current.set(cellKey, {
+                        timerId,
+                      });
+                    }}
+                    onTouchEnd={(event) => {
+                      event.preventDefault();
+                      const snapshot = clearTouchState(cellKey);
+                      if (!snapshot) {
+                        return;
+                      }
+                      runCellAction(rowIndex, colIndex, "reveal");
                       markTouchClickIgnore(cellKey);
-                      touchStateRef.current.delete(cellKey);
-                    }, LONG_PRESS_MS);
-                    touchStateRef.current.set(cellKey, {
-                      timerId,
-                    });
-                  }}
-                  onTouchEnd={(event) => {
-                    event.preventDefault();
-                    const snapshot = clearTouchState(cellKey);
-                    if (!snapshot) {
-                      return;
-                    }
-                    runCellAction(rowIndex, colIndex, "reveal");
-                    markTouchClickIgnore(cellKey);
-                  }}
-                  onTouchCancel={() => {
-                    clearTouchState(cellKey);
-                    markTouchClickIgnore(cellKey);
-                  }}
-                  style={{
-                    color:
-                      cell.revealed && cell.around > 0
-                        ? NUMBER_COLORS[cell.around] ?? "#0f172a"
-                        : undefined,
-                  }}
-                  aria-label={`cell-${rowIndex}-${colIndex}`}
-                >
-                  {valueLabel}
-                </button>
-              );
-            })
-          )}
+                    }}
+                    onTouchCancel={() => {
+                      clearTouchState(cellKey);
+                      markTouchClickIgnore(cellKey);
+                    }}
+                    style={{
+                      color:
+                        cell.revealed && cell.around > 0
+                          ? NUMBER_COLORS[cell.around] ?? "#0f172a"
+                          : undefined,
+                    }}
+                    aria-label={`cell-${rowIndex}-${colIndex}`}
+                  >
+                    {valueLabel}
+                  </button>
+                );
+              })
+            )}
+          </div>
+          {showAdPreview ? (
+            <AdPreviewCard
+              slot={MOBILE_APP_COMPACT_AD_SLOT}
+              locale={locale}
+              className="mines-stage-ad"
+            />
+          ) : null}
         </div>
       </div>
 

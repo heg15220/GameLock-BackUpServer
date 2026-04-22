@@ -1369,7 +1369,7 @@ function StrategyMansionTripleEnigmaGame() {
   const initialViewport = useMemo(() => readMobileViewport(), []);
   const [state, setState] = useState(() => createInitialState(locale));
   const [deskTab, setDeskTab] = useState("play");
-  const [showTutorial, setShowTutorial] = useState(() => !initialViewport.isMobile);
+  const [showTutorial, setShowTutorial] = useState(true);
   const [showPlayDetails, setShowPlayDetails] = useState(false);
   const [mobileViewport, setMobileViewport] = useState(initialViewport);
 
@@ -1382,10 +1382,9 @@ function StrategyMansionTripleEnigmaGame() {
   }, [state.auto, state.mode]);
 
   const restart = useCallback(() => {
-    const viewport = readMobileViewport();
     setState(createInitialState(locale));
     setDeskTab("play");
-    setShowTutorial(!viewport.isMobile);
+    setShowTutorial(true);
     setShowPlayDetails(false);
   }, [locale]);
 
@@ -1747,8 +1746,13 @@ function StrategyMansionTripleEnigmaGame() {
                   <>
                     <p>{copy.controls}</p>
                     <ol className="mansion-instructions">
-                      {copy.instructions.map((line) => (
-                        <li key={line}>{line}</li>
+                      {copy.instructions.map((line, index) => (
+                        <li
+                          key={line}
+                          className={`mansion-instruction-step step-${index + 1}`}
+                        >
+                          {line}
+                        </li>
                       ))}
                     </ol>
                     <h6>{copy.optionsTitle}</h6>

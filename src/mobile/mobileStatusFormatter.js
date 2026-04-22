@@ -119,6 +119,27 @@ export function formatMobileStatus(snapshot, locale = "es") {
   const level = snapshot.level;
   const timeLabel = locale === "en" ? "Time" : "Tiempo";
 
+  if (snapshot.variant === "minesweeper-classic") {
+    const boardRows = snapshot.boardSize?.rows;
+    const boardCols = snapshot.boardSize?.cols;
+    const timerValue =
+      snapshot.timerLabel
+      ?? snapshot.timer
+      ?? (snapshot.timerSeconds != null ? formatMs(snapshot.timerSeconds * 1000) : null);
+
+    addEntry(entries, locale === "en" ? "Rows" : "Filas", boardRows);
+    addEntry(entries, locale === "en" ? "Cols" : "Cols", boardCols);
+    addEntry(entries, locale === "en" ? "Mines" : "Minas", snapshot.minesTotal);
+    addEntry(entries, locale === "en" ? "Left" : "Restan", snapshot.minesRemaining);
+    addEntry(entries, timeLabel, timerValue);
+    addEntry(entries, locale === "en" ? "Score" : "Puntos", snapshot.score);
+
+    return {
+      primaryText: resolvePrimaryText(snapshot),
+      entries: entries.slice(0, 6),
+    };
+  }
+
   if (snapshot.mode === "billiards_pool" && Array.isArray(snapshot.players) && snapshot.players.length) {
     if (snapshot.players.length >= 2) {
       addEntry(
