@@ -7,7 +7,6 @@ import MobileHeadSoccerTournamentPanel from "./MobileHeadSoccerTournamentPanel";
 import {
   MOBILE_APP_COMPACT_AD_SLOT,
   MOBILE_APP_BOTTOM_AD_SLOT,
-  TABLET_APP_SIDE_AD_SLOTS,
 } from "../config/adPreview";
 import {
   getMobileControlProfile,
@@ -26,13 +25,11 @@ const TABLET_LANDSCAPE_STACK_CATEGORIES = new Set([
   "sports",
 ]);
 
-const KNOWLEDGE_INLINE_BOTTOM_AD_IDS = new Set([
-  "knowledge-crucigrama-mini",
-  "knowledge-sopa-letras-mega",
-  "knowledge-wikipedia-gacha",
-  "knowledge-mapas-atlas",
-  "knowledge-mapas-camino-corto",
-  "knowledge-adivina-pais-silueta",
+const STRATEGY_TABLET_FULLSCREEN_STATUS_AD_GAME_IDS = new Set([
+  "strategy-baraja-ia-arena",
+  "strategy-chess-grandmaster",
+  "strategy-damas-clasicas",
+  "strategy-parchis-ludoteka",
 ]);
 
 function resolveShellTheme(game) {
@@ -210,27 +207,34 @@ export default function MobileGameShell({
   const isStrategyTheme = shellTheme === "strategy";
   const isKnowledgeTheme = shellTheme === "knowledge";
   const isGamesCategory = categoryKey === "juegos" || categoryKey === "games";
-  const useKnowledgeInlineBottomAd =
-    showAdPreview &&
-    viewportFormFactor === "phone" &&
-    isPortrait &&
-    isKnowledgeTheme &&
-    KNOWLEDGE_INLINE_BOTTOM_AD_IDS.has(game?.id);
   const derivedShowSystemBottomAd =
     showAdPreview &&
     viewportFormFactor !== "desktop" &&
-    (isStrategyTheme || (isKnowledgeTheme && isPortrait && !useKnowledgeInlineBottomAd));
+    (isStrategyTheme || (isKnowledgeTheme && isPortrait));
   const showSystemBottomAd = showSystemBottomAdOverride ?? derivedShowSystemBottomAd;
-  const showKnowledgeTabletPanelAds =
-    showAdPreview &&
-    viewportFormFactor === "tablet" &&
-    !isPortrait &&
-    isKnowledgeTheme;
   const showTouchPanelBottomAd =
     showSystemBottomAd &&
     viewportFormFactor === "phone" &&
     isStrategyTheme &&
     !isDualScreen;
+  const showStrategyTabletFullscreenStatusAd =
+    showAdPreview &&
+    isFullscreen &&
+    viewportFormFactor === "tablet" &&
+    !isPortrait &&
+    isStrategyTheme &&
+    STRATEGY_TABLET_FULLSCREEN_STATUS_AD_GAME_IDS.has(game?.id);
+  const showKnowledgeTabletFullscreenAd =
+    showAdPreview &&
+    isFullscreen &&
+    viewportFormFactor === "tablet" &&
+    !isPortrait &&
+    isKnowledgeTheme &&
+    !showSystemBottomAd;
+  const showTabletFullscreenStatusAd =
+    showStrategyTabletFullscreenStatusAd || showKnowledgeTabletFullscreenAd;
+  const showShellSystemBottomAd =
+    showSystemBottomAd && !showTabletFullscreenStatusAd;
   const useInlineSystemBottomAd =
     showSystemBottomAd &&
     !showTouchPanelBottomAd &&
@@ -248,8 +252,8 @@ export default function MobileGameShell({
     !isPortrait;
   const showStageAdOverlay =
     showAdPreview &&
+    !isKnowledgeTheme &&
     !showCompactGamesAppAd &&
-    !showKnowledgeTabletPanelAds &&
     game?.id !== "arcade-pinball-wizard" &&
     !isHeadSoccerPhoneLandscape &&
     (isDualScreen || isTouchStage);
@@ -355,11 +359,12 @@ export default function MobileGameShell({
     `mobile-game-shell--${shellMode}`,
     `mobile-game-shell--device-${viewportFormFactor}`,
     `mobile-game-shell--theme-${shellTheme}`,
-    showSystemBottomAd ? "mobile-game-shell--with-system-bottom-ad" : "",
-    showKnowledgeTabletPanelAds ? "mobile-game-shell--knowledge-tablet-panel-ads" : "",
+    showShellSystemBottomAd ? "mobile-game-shell--with-system-bottom-ad" : "",
     showTouchPanelBottomAd ? "mobile-game-shell--touch-panel-bottom-ad" : "",
     useInlineSystemBottomAd ? "mobile-game-shell--system-bottom-ad-inline" : "",
     showCompactGamesAppAd ? "mobile-game-shell--with-compact-games-ad" : "",
+    showKnowledgeTabletFullscreenAd ? "mobile-game-shell--knowledge-tablet-fullscreen-ad" : "",
+    showStrategyTabletFullscreenStatusAd ? "mobile-game-shell--strategy-tablet-fullscreen-status-ad" : "",
     isTabletLandscapeStack ? "mobile-game-shell--tablet-landscape-stack" : "",
     isFullscreen ? "mobile-game-shell--fullscreen" : "",
     isTransitioning ? "mobile-game-shell--transitioning" : "",
@@ -389,16 +394,6 @@ export default function MobileGameShell({
         className="mobile-game-shell__compact-app-ad"
       />
     ) : null;
-  const knowledgeInlineBottomAdNode =
-    useKnowledgeInlineBottomAd ? (
-      <section className="mobile-game-shell__portrait-bottom-vignette">
-        <AdPreviewCard
-          slot={MOBILE_APP_BOTTOM_AD_SLOT}
-          locale={locale}
-          className="mobile-game-shell__system-bottom-ad mobile-game-shell__system-bottom-ad--inline mobile-game-shell__system-bottom-ad--knowledge-inline"
-        />
-      </section>
-    ) : null;
   const showValleMissionsAd =
     showAdPreview &&
     game?.id === "arcade-valle-tranquilo" &&
@@ -414,19 +409,6 @@ export default function MobileGameShell({
           className="mobile-game-shell__panel-divider-ad-card"
         />
       </section>
-    ) : null;
-  const knowledgeTabletPanelAdsNode =
-    showKnowledgeTabletPanelAds ? (
-      <div className="mobile-game-shell__panel-ad-cluster mobile-game-shell__panel-ad-cluster--knowledge-tablet">
-        {TABLET_APP_SIDE_AD_SLOTS.map((slot) => (
-          <AdPreviewCard
-            key={slot.id}
-            slot={slot}
-            locale={locale}
-            className="mobile-game-shell__panel-ad"
-          />
-        ))}
-      </div>
     ) : null;
 
   const statusPanelsNode = (
@@ -482,7 +464,7 @@ export default function MobileGameShell({
   );
 
   const fullscreenSystemAdSpacerNode =
-    showSystemBottomAd && isFullscreen && !useInlineSystemBottomAd ? (
+    showShellSystemBottomAd && isFullscreen && !useInlineSystemBottomAd ? (
       <div className="mobile-game-shell__system-bottom-spacer" aria-hidden="true" />
     ) : null;
   const inlineSystemBottomAdNode =
@@ -501,6 +483,16 @@ export default function MobileGameShell({
         className="mobile-game-shell__system-bottom-ad mobile-game-shell__system-bottom-ad--inline mobile-game-shell__system-bottom-ad--touch-panel"
       />
     ) : null;
+  const tabletFullscreenStatusAdNode =
+    showTabletFullscreenStatusAd ? (
+      <AdPreviewCard
+        slot={MOBILE_APP_BOTTOM_AD_SLOT}
+        locale={locale}
+        className="mobile-game-shell__system-bottom-ad mobile-game-shell__system-bottom-ad--inline mobile-game-shell__fullscreen-tablet-status-ad"
+      />
+    ) : null;
+  const touchPanelBottomContent =
+    tabletFullscreenStatusAdNode ?? touchPanelBottomAdNode;
   const stageFrameNode = (
     <div className="mobile-game-shell__screen-frame">
       <div className="mobile-game-shell__screen-glass">
@@ -557,8 +549,6 @@ export default function MobileGameShell({
             {stageFrameNode}
           </section>
 
-          {knowledgeInlineBottomAdNode}
-
           {isDualScreen ? (
             <section className="mobile-game-shell__controls-shell">
               <div className="mobile-game-shell__hinge" aria-hidden="true" />
@@ -580,7 +570,6 @@ export default function MobileGameShell({
                       </div>
                     </>
                   )}
-                  {knowledgeTabletPanelAdsNode}
                   {!isTabletLandscapeStack && compactGamesAdNode}
                   {inlineSystemBottomAdNode}
                   {fullscreenSystemAdSpacerNode}
@@ -596,15 +585,14 @@ export default function MobileGameShell({
                   locale={locale}
                   scopeElement={stageViewportNode}
                   snapshot={runtimeSnapshot}
-                  bottomContent={touchPanelBottomAdNode}
+                  bottomContent={touchPanelBottomContent}
                 />
-                {showTouchIntroCopy && !showKnowledgeTabletPanelAds ? (
+                {showTouchIntroCopy && !showTabletFullscreenStatusAd ? (
                   <>
                     <strong>{shellCopy.touchTitle}</strong>
                     <p>{shellCopy.touchDescription}</p>
                   </>
                 ) : null}
-                {knowledgeTabletPanelAdsNode}
                 {compactGamesAdNode}
               </div>
               {inlineSystemBottomAdNode}
@@ -613,7 +601,7 @@ export default function MobileGameShell({
           )}
         </div>
       </div>
-      {showSystemBottomAd && isFullscreen && !useInlineSystemBottomAd ? (
+      {showShellSystemBottomAd && isFullscreen && !useInlineSystemBottomAd ? (
         <div className="mobile-game-shell__system-bottom-ad-wrap">
           <AdPreviewCard
             slot={MOBILE_APP_BOTTOM_AD_SLOT}

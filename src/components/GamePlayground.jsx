@@ -347,7 +347,6 @@ function GamePlayground({ game }) {
   const hasTabletLandscapeAdRails =
     viewportFormFactor === "tablet" &&
     viewport.orientation === "landscape" &&
-    !isKnowledgeCategory &&
     !TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS.has(gameId);
   const showDesktopAdRails = adPreviewEnabled && hasDesktopAdRails;
   const showTabletLandscapeAdRails = adPreviewEnabled && hasTabletLandscapeAdRails;

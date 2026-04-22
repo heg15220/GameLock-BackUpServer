@@ -930,9 +930,12 @@ class BasketballRuntime {
     // Dark overlay
     ctx.fillStyle = "rgba(8,12,22,0.76)"; ctx.fillRect(0, 0, vW, vH);
 
+    const compactMenu = vW <= 560;
+    const tightMenu = vW <= 420;
+
     // Main card
-    const cw = Math.min(620, vW * 0.90), ch = 360;
-    const cx = vW / 2 - cw / 2, cy = vH / 2 - ch / 2 - 10;
+    const cw = Math.min(compactMenu ? 520 : 620, vW * 0.92), ch = compactMenu ? 320 : 360;
+    const cx = vW / 2 - cw / 2, cy = vH / 2 - ch / 2 - (compactMenu ? 0 : 10);
     ctx.fillStyle = "rgba(9,14,26,0.94)";
     ctx.beginPath(); roundRect(ctx, cx, cy, cw, ch, 18); ctx.fill();
     ctx.strokeStyle = "rgba(240,160,48,0.32)"; ctx.lineWidth = 1.5;
@@ -940,18 +943,27 @@ class BasketballRuntime {
 
     ctx.textAlign = "center";
     ctx.fillStyle = C.accentOrange;
-    ctx.font = "bold 26px Arial, sans-serif";
-    ctx.fillText("🏀  Basketball", vW / 2, cy + 42);
-    ctx.fillStyle = "#6888a8"; ctx.font = "13px Arial, sans-serif";
-    ctx.fillText("Selecciona un modo de juego / Select game mode", vW / 2, cy + 64);
+    ctx.font = `bold ${compactMenu ? 22 : 26}px Arial, sans-serif`;
+    ctx.fillText("🏀  Basketball", vW / 2, cy + (compactMenu ? 38 : 42));
+    ctx.fillStyle = "#6888a8"; ctx.font = `${tightMenu ? 11 : 13}px Arial, sans-serif`;
+    wrapText(ctx, "Selecciona un modo de juego / Select game mode", vW / 2, cy + (compactMenu ? 58 : 64), cw - 36, tightMenu ? 12 : 13);
 
     // Mode cards: Classic (left) | 21 (right)
-    const mcGap = 16, mcW = (cw - 56 - mcGap) / 2, mcH = 175;
-    const mcY = cy + 82;
+    const mcGap = compactMenu ? 12 : 16, mcW = (cw - 56 - mcGap) / 2, mcH = compactMenu ? (tightMenu ? 152 : 148) : 175;
+    const mcY = cy + (compactMenu ? 88 : 82);
     const mcX1 = cx + 28, mcX2 = cx + 28 + mcW + mcGap;
+    const mcY2 = mcY;
 
     const drawModeCard = (x, y, w, h, selected, accent, title, sub, lines, keyHint) => {
       const isHov = this.gameMode === selected;
+      const titleFont = compactMenu ? 14 : 17;
+      const subFont = tightMenu ? 8 : compactMenu ? 9 : 11;
+      const bodyFont = tightMenu ? 7 : compactMenu ? 8 : 11;
+      const buttonFont = tightMenu ? 10 : 12;
+      const bodyLineGap = compactMenu ? 10 : 18;
+      const buttonH = compactMenu ? 26 : 30;
+      const buttonY = y + h - (compactMenu ? 34 : 40);
+      const textWidth = w - 26;
       ctx.fillStyle = isHov ? "rgba(240,160,48,0.10)" : "rgba(255,255,255,0.04)";
       ctx.beginPath(); roundRect(ctx, x, y, w, h, 12); ctx.fill();
       ctx.strokeStyle = isHov ? accent : "rgba(255,255,255,0.10)";
@@ -960,35 +972,41 @@ class BasketballRuntime {
       ctx.textAlign = "center";
       const cx2 = x + w / 2;
       ctx.fillStyle = isHov ? accent : "#a0b8d0";
-      ctx.font = `bold 17px Arial, sans-serif`;
-      ctx.fillText(title, cx2, y + 28);
-      ctx.fillStyle = "#5878a0"; ctx.font = "11px Arial, sans-serif";
-      ctx.fillText(sub, cx2, y + 46);
-      lines.forEach((ln, i) => {
-        ctx.fillStyle = "#486080"; ctx.font = "11px Arial, sans-serif";
-        ctx.fillText(ln, cx2, y + 68 + i * 18);
+      ctx.font = `bold ${titleFont}px Arial, sans-serif`;
+      wrapText(ctx, title, cx2, y + 24, textWidth, compactMenu ? 13 : 16);
+      ctx.fillStyle = "#5878a0"; ctx.font = `${subFont}px Arial, sans-serif`;
+      let lineY = wrapText(ctx, sub, cx2, y + (compactMenu ? 40 : 46), textWidth, compactMenu ? 10 : 13) + (compactMenu ? 10 : 22);
+      const visibleLines = compactMenu ? [] : lines;
+      visibleLines.forEach((ln, i) => {
+        if (i > 0 && compactMenu && lineY >= buttonY - 8) return;
+        ctx.fillStyle = "#486080"; ctx.font = `${bodyFont}px Arial, sans-serif`;
+        lineY = wrapText(ctx, ln, cx2, lineY, textWidth, bodyLineGap) + (compactMenu ? 4 : 6);
       });
-      const by2 = y + h - 40, bw2 = w - 24;
-      const btnG = ctx.createLinearGradient(x + 12, by2, x + 12, by2 + 30);
+      const by2 = buttonY, bw2 = w - 24;
+      const btnG = ctx.createLinearGradient(x + 12, by2, x + 12, by2 + buttonH);
       if (isHov) { btnG.addColorStop(0, "#d86010"); btnG.addColorStop(1, "#9a3c08"); }
       else       { btnG.addColorStop(0, "#243448"); btnG.addColorStop(1, "#182838"); }
       ctx.fillStyle = btnG;
-      ctx.beginPath(); roundRect(ctx, x + 12, by2, bw2, 30, 7); ctx.fill();
+      ctx.beginPath(); roundRect(ctx, x + 12, by2, bw2, buttonH, 7); ctx.fill();
       ctx.fillStyle = isHov ? "#fff" : "#6888a8";
-      ctx.font = `bold 12px Arial, sans-serif`;
-      ctx.fillText(keyHint, cx2, by2 + 20);
+      ctx.font = `bold ${buttonFont}px Arial, sans-serif`;
+      ctx.fillText(keyHint, cx2, by2 + (compactMenu ? 17 : 20));
     };
 
     drawModeCard(mcX1, mcY, mcW, mcH, "classic", C.accentOrange,
       "Court Pro",
       this.locale === "es" ? "6 posiciones · 1 ronda · Puntúa máximo" : "6 spots · 1 round · Score max",
-      this.locale === "es"
-        ? ["Tira desde 6 posiciones", "reglamentarias", "Tiro libre, media distancia,", "triples desde todas las zonas"]
-        : ["Shoot from 6 regulation", "positions", "Free throw, mid-range,", "3-pointers from all zones"],
+      compactMenu
+        ? (this.locale === "es"
+          ? ["6 posiciones reglamentarias", "Libres, media distancia y triples"]
+          : ["6 regulation spots", "Free throws, mid-range and 3s"])
+        : (this.locale === "es"
+          ? ["Tira desde 6 posiciones", "reglamentarias", "Tiro libre, media distancia,", "triples desde todas las zonas"]
+          : ["Shoot from 6 regulation", "positions", "Free throw, mid-range,", "3-pointers from all zones"]),
       this.locale === "es" ? "Jugar Court Pro  (1)" : "Play Court Pro  (1)"
     );
 
-    drawModeCard(mcX2, mcY, mcW, mcH, "21", "#40d878",
+    drawModeCard(mcX2, mcY2, mcW, mcH, "21", "#40d878",
       "El 21",
       this.locale === "es" ? "1 vs IA · Primero en llegar a 21 gana" : "1 vs AI · First to 21 wins",
       this.locale === "es"
@@ -1005,7 +1023,7 @@ class BasketballRuntime {
       (this.locale === "es" ? "Récord Court Pro:" : "Court Pro best:") + ` ${bestC}/${MAX_POSSIBLE}` +
       "    " +
       (this.locale === "es" ? "Récord El 21:" : "21 best:") + ` ${best21}`,
-      vW / 2, cy + ch - 14
+      vW / 2, cy + ch - (compactMenu ? 10 : 14)
     );
   }
 

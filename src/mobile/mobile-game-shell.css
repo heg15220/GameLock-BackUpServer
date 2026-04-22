@@ -287,25 +287,24 @@
   display: none;
 }
 
-.mobile-game-shell--knowledge-tablet-panel-ads.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__body {
+.mobile-game-shell--knowledge-tablet-fullscreen-ad.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__body {
   grid-template-rows: minmax(0, 1fr) auto;
 }
 
-.mobile-game-shell--knowledge-tablet-panel-ads.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__touch-copy {
+.mobile-game-shell--knowledge-tablet-fullscreen-ad.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__touch-copy {
   display: grid;
   gap: 0.62rem;
   overflow-y: auto;
 }
 
-.mobile-game-shell--knowledge-tablet-panel-ads.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__touch-panel-content {
-  display: grid;
-  gap: 0.62rem;
+.mobile-game-shell--strategy-tablet-fullscreen-status-ad.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-strategy.mobile-game-shell--touch-native .mobile-game-shell__body {
+  grid-template-rows: minmax(0, 1fr) auto;
 }
 
-.mobile-game-shell--knowledge-tablet-panel-ads.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-status-panel__chips,
-.mobile-game-shell--knowledge-tablet-panel-ads.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-status-panel__buttons,
-.mobile-game-shell--knowledge-tablet-panel-ads.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-status-panel__selects {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.mobile-game-shell--strategy-tablet-fullscreen-status-ad.mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--theme-strategy.mobile-game-shell--touch-native .mobile-game-shell__touch-copy {
+  display: grid;
+  gap: 0.62rem;
+  overflow-y: auto;
 }
 
 .mobile-game-shell--landscape[data-game-id="strategy-baraja-ia-arena"].mobile-game-shell--touch-native .mobile-game-shell__body {
@@ -427,6 +426,12 @@
   min-height: 86px;
   margin-top: 0.08rem;
   align-self: start;
+}
+
+.mobile-game-shell__fullscreen-tablet-status-ad {
+  min-height: 92px;
+  padding: 0.58rem 0.74rem;
+  border-radius: 20px;
 }
 
 .mobile-game-shell--theme-strategy {
@@ -738,31 +743,6 @@
   font-size: 0.54rem;
 }
 
-.mobile-game-shell__portrait-bottom-vignette {
-  min-height: 0;
-}
-
-.mobile-game-shell__system-bottom-ad--knowledge-inline {
-  min-height: 58px;
-  padding: 0.42rem 0.52rem;
-  border-radius: 16px;
-}
-
-.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__eyebrow {
-  font-size: 0.44rem;
-}
-
-.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__title {
-  font-size: 0.66rem;
-}
-
-.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__description,
-.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__meta,
-.mobile-game-shell__system-bottom-ad--knowledge-inline .ad-preview-card__footer {
-  font-size: 0.52rem;
-  line-height: 1.24;
-}
-
 .mobile-game-shell__panel-divider-ad {
   display: flex;
   width: 100%;
@@ -807,41 +787,6 @@
   font-size: 0.6rem;
   line-height: 1.32;
   color: #e8d4a8;
-}
-
-.mobile-game-shell__panel-ad-cluster {
-  display: grid;
-  gap: 0.56rem;
-}
-
-.mobile-game-shell__panel-ad-cluster--knowledge-tablet {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.mobile-game-shell__panel-ad {
-  width: 100%;
-  min-height: 84px;
-  padding: 0.72rem 0.78rem;
-  border-radius: 20px;
-  align-self: start;
-}
-
-.mobile-game-shell__panel-ad .ad-preview-card__eyebrow {
-  font-size: 0.5rem;
-}
-
-.mobile-game-shell__panel-ad .ad-preview-card__title {
-  font-size: 0.78rem;
-}
-
-.mobile-game-shell__panel-ad .ad-preview-card__description {
-  font-size: 0.62rem;
-  line-height: 1.28;
-}
-
-.mobile-game-shell__panel-ad .ad-preview-card__meta,
-.mobile-game-shell__panel-ad .ad-preview-card__footer {
-  font-size: 0.54rem;
 }
 
 .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] [data-mobile-stage-hidden="true"] {
@@ -6250,37 +6195,6 @@
 
 .mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native .mobile-game-shell__body {
   grid-template-rows: minmax(0, 1fr);
-}
-
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-crucigrama-mini"] .mobile-game-shell__body,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-sopa-letras-mega"] .mobile-game-shell__body,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-wikipedia-gacha"] .mobile-game-shell__body,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-mapas-atlas"] .mobile-game-shell__body,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-mapas-camino-corto"] .mobile-game-shell__body,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-adivina-pais-silueta"] .mobile-game-shell__body {
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 0.32rem;
-}
-
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-crucigrama-mini"] .mobile-game-shell__portrait-bottom-vignette,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-sopa-letras-mega"] .mobile-game-shell__portrait-bottom-vignette,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-wikipedia-gacha"] .mobile-game-shell__portrait-bottom-vignette,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-mapas-atlas"] .mobile-game-shell__portrait-bottom-vignette,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-mapas-camino-corto"] .mobile-game-shell__portrait-bottom-vignette,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-adivina-pais-silueta"] .mobile-game-shell__portrait-bottom-vignette {
-  display: block;
-}
-
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-crucigrama-mini"] .mobile-game-shell__portrait-bottom-vignette,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-sopa-letras-mega"] .mobile-game-shell__portrait-bottom-vignette,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-mapas-atlas"] .mobile-game-shell__portrait-bottom-vignette,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-mapas-camino-corto"] .mobile-game-shell__portrait-bottom-vignette,
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-adivina-pais-silueta"] .mobile-game-shell__portrait-bottom-vignette {
-  padding-inline: 0.24rem;
-}
-
-.mobile-game-shell--device-phone.mobile-game-shell--portrait.mobile-game-shell--theme-knowledge.mobile-game-shell--touch-native[data-game-id="knowledge-wikipedia-gacha"] .mobile-game-shell__portrait-bottom-vignette {
-  padding-inline: 0.18rem;
 }
 
   .mobile-game-shell--portrait[data-game-id="knowledge-refranes-clasicos"].mobile-game-shell--touch-native .mobile-game-shell__body,
