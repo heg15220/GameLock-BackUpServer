@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "generatedAt": "2026-04-23T20:12:45.471Z",
+    "baseUrl": "http://127.0.0.1:4173",
+    "timeoutMs": 25000,
+    "bridgeWaitMs": 8000,
+    "postClickWaitMs": 8000,
+    "excludedGameIds": [
+      "knowledge-wikipedia-gacha",
+      "arcade-penalty-neural-keeper"
+    ]
+  },
+  "summary": {
+    "totalGames": 1,
+    "interactiveDetectedCount": 1,
+    "timeoutCount": 0,
+    "consoleErrorGames": 0,
+    "bridgeReadyMs": {
+      "p50": 13295.46,
+      "p95": 13295.46,
+      "max": 13295.46
+    },
+    "interactiveReadyMs": {
+      "p50": 13295.84,
+      "p95": 13295.84,
+      "max": 13295.84
+    },
+    "slowestInteractive": [
+      {
+        "gameId": "knowledge-crucigrama-mini",
+        "interactiveReadyMs": 13295.84,
+        "bridgeReadyMs": 13295.46,
+        "stateTokens": [
+          "knowledge-arcade",
+          "playing"
+        ]
+      }
+    ],
+    "timedOutGames": []
+  },
+  "results": [
+    {
+      "gameId": "knowledge-crucigrama-mini",
+      "bridgeReadyMs": 13295.46,
+      "interactiveReadyMs": 13295.840999999999,
+      "clickedLabels": [
+        "Abrir crucigrama"
+      ],
+      "interactiveDetected": true,
+      "stateTokens": [
+        "knowledge-arcade",
+        "playing"
+      ],
+      "hasCanvas": false,
+      "hasIframe": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "timedOut": false,
+      "rawState": "{\"mode\":\"knowledge-arcade\",\"variant\":\"crucigrama\",\"coordinates\":\"crossword_grid_origin_top_left_hash_blocked\",\"locale\":\"es\",\"match\":{\"current\":9646,\"total\":12000},\"status\":\"playing\",\"activeDirection\":\"across\",\"selected\":{\"row\":0,\"col\":5},\"moves\":0,\"entries\":[[\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"\",\"\",\"\",\"\",\"\",\"#\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"#\",\"#\",\"\",\"#\",\"#\",\"\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"#\",\"\",\"\",\"\",\"\",\"\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"#\",\"#\",\"\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"#\",\"#\",\"\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"\",\"\",\"#\",\"\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"#\",\"#\",\"#\",\"\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"#\",\"\",\"#\",\"#\",\"#\",\"\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"\",\"\",\"\",\"\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"#\",\"#\",\"#\",\"#\"],[\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\",\"#\"]],\"clues\":{\"across\":[{\"key\":\"across-2-0\",\"id\":2,\"start\":{\"row\":2,\"col\":5},\"cells\":[{\"row\":2,\"col\":5},{\"row\":2,\"col\":6},{\"row\":2,\"col\":7},{\"row\":2,\"col\":8},{\"row\":2,\"col\":9},{\"row\":2,\"col\":10}],\"word\":\"CAMBUR\",\"style\":\"definition\",\"difficulty\":\"hard\",\"qualityScore\":86,\"text\":\"#2 (fila 3, columna 6): Planta de la familia de las Musaceas, parecida al platano, pero con la hoja mas ovalada y el fruto mas redondeado, e igualmente comestible.\"},{\"key\":\"across-5-1\",\"id\":5,\"start\":{\"row\":4,\"col\":7},\"cells\":[{\"row\":4,\"col\":7},{\"row\":4,\"col\":8},{\"row\":4,\"col\":9},{\"row\":4,\"col\":10},{\"row\":4,\"col\":11}],\"word\":\"GLOSA\",\"style\":\"definition\",\"difficulty\":\"medium\",\"qualityScore\":86,\"text\":\"#5 (fila 5, columna 8): Nota que se pone en un instrumento o libro de cuenta y razon para advertir la obligacion a que esta afecto o sujeto algo, como una casa, un juro, etc.\"},{\"key\":\"across-6-2\",\"id\":6,\"start\":{\"row\":7,\"col\":7},\"cells\":[{\"row\":7,\"col\":7},{\"row\":7,\"col\":8},{\"row\":7,\"col\":9}],\"word\":\"HOY\",\"style\":\"cross-link\",\"difficulty\":\"hard\",\"qualityScore\":55,\"text\":\"#6 (fila 8, columna 8): Para dar a entender que algo es o sucede ahora de cierto modo, pero puede cambiar mas adelante.\"},{\"key\":\"across-7-3\",\"id\":7,\"start\":{\"row\":9,\"col\":5},\"cells\":[{\"row\":9,\"col\":5},{\"row\":9,\"col\":6},{\"row\":9,\"col\":7},{\"row\":9,\"col\":8},{\"row\":9,\"col\":9},{\"row\":9,\"col\":10},{\"row\":9,\"col\":11},{\"row\":9,\"col\":12}],\"word\":\"ALBINONA\",\"style\":\"definition\",\"difficulty\":\"hard\",\"qualityScore\":91,\"text\":\"#7 (fila 10, columna 6): Que presenta ausencia congenita de pigmentacion, por lo que su piel, pelo, iris, plumas, flores, etc., son mas o menos blancos a diferencia de los colores propios de su especie.\"},{\"key\":\"across-8-4\",\"id\":8,\"start\":{\"row\":11,\"col\":4},\"cells\":[{\"row\":11,\"col\":4},{\"row\":11,\"col\":5},{\"row\":11,\"col\":6},{\"row\":11,\"col\":7}],\"word\":\"YEMA\",\"style\":\"definition\",\"difficulty\":\"medium\",\"qualityScore\":96,\"text\":\"#8 (fila 12, columna 5): Brote embrionario de los vegetales constituido por hojas o por esbozos foliares a modo de boton escamoso del que se desarrollaran ramas, hojas y flores.\"},{\"key\":\"across-9-5\",\"id\":9,\"start\":{\"row\":13,\"col\":3},\"cells\":[{\"row\":13,\"col\":3},{\"row\":13,\"col\":4},{\"row\":13,\"col\":5},{\"row\":13,\"col\":6},{\"row\":13,\"col\":7},{\"row\":13,\"col\":8},{\"row\":13,\"col\":9},{\"row\":13,\"col\":10}],\"word\":\"BROCATEL\",\"style\":\"definition\",\"difficulty\":\"medium\",\"qualityScore\":60,\"text\":\"#9 (fila 14, columna 4): Tejido de canamo y seda, a modo de damasco, que se emplea en muebles y colgaduras.\"}],\"down\":[{\"key\":\"down-1-0\",\"id\":1,\"start\":{\"row\":0,\"col\":5},\"cells\":[{\"row\":0,\"col\":5},{\"row\":1,\"col\":5},{\"row\":2,\"col\":5},{\"row\":3,\"col\":5},{\"row\":4,\"col\":5}],\"word\":\"LICOR\",\"style\":\"definition\",\"difficulty\":\"hard\",\"qualityScore\":96,\"text\":\"#1 (fila 1, columna 6): Bebida espiritosa obtenida por destilacion, maceracion o mezcla de diversas sustancias, y compuesta de alcohol, agua, azucar y esencias aromaticas variadas.\"},{\"key\":\"down-3-1\",\"id\":3,\"start\":{\"row\":2,\"col\":8},\"cells\":[{\"row\":2,\"col\":8},{\"row\":3,\"col\":8},{\"row\":4,\"col\":8},{\"row\":5,\"col\":8},{\"row\":6,\"col\":8},{\"row\":7,\"col\":8}],\"word\":\"BELCHO\",\"style\":\"definition\",\"difficulty\":\"hard\",\"qualityScore\":72,\"text\":\"#3 (fila 3, columna 9): Mata de la familia de las Efedraceas, de medio metro a un metro de altura, muy ramificada, sin hojas, con flores en amento y frutos en forma de baya, carnosos y encarnados.\"},{\"key\":\"down-4-2\",\"id\":4,\"start\":{\"row\":3,\"col\":11},\"cells\":[{\"row\":3,\"col\":11},{\"row\":4,\"col\":11},{\"row\":5,\"col\":11},{\"row\":6,\"col\":11},{\"row\":7,\"col\":11},{\"row\":8,\"col\":11},{\"row\":9,\"col\":11},{\"row\":10,\"col\":11}],\"word\":\"BAJAMANO\",\"style\":\"definition\",\"difficulty\":\"medium\",\"qualityScore\":92,\"text\":\"#4 (fila 4, columna 12): Ladron que entra en una tienda y, senalando con una mano algo, hurta con la otra lo que tiene junto a si.\"},{\"key\":\"down-6-3\",\"id\":6,\"start\":{\"row\":7,\"col\":7},\"cells\":[{\"row\":7,\"col\":7},{\"row\":8,\"col\":7},{\"row\":9,\"col\":7},{\"row\":10,\"col\":7},{\"row\":11,\"col\":7}],\"word\":\"HEBRA\",\"style\":\"cross-link\",\"difficulty\":\"hard\",\"qualityScore\":92,\"text\":\"#6 (fila 8, columna 8): Porcion de hilo, estambre, seda u otra materia hilada, que para coser algo suele meterse por el ojo de una aguja.\"},{\"key\":\"down-7-4\",\"id\":7,\"start\":{\"row\":9,\"col\":5},\"cells\":[{\"row\":9,\"col\":5},{\"row\":10,\"col\":5},{\"row\":11,\"col\":5},{\"row\":12,\"col\":5},{\"row\":13,\"col\":5}],\"word\":\"AMELO\",\"style\":\"cross-link\",\"difficulty\":\"easy\",\"qualityScore\":87,\"text\":\"#7 (fila 10, columna 6): Planta perenne de la familia de las Compuestas, de cinco a seis decimetros de altura, con tallo recto, ramoso por arriba, hojas sentadas, lanceoladas y enteras, y flores grandes.\"}]},\"grid\":{\"rows\":15,\"cols\":15,\"openCells\":51},\"feedback\":{\"words\":{},\"cells\":{}},\"message\":\"Rellena la rejilla con las pistas.\"}"
+    }
+  ]
+}

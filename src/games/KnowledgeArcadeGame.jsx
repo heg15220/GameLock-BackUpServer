@@ -1,80 +1,34 @@
-﻿import React from "react";
-import SudokuKnowledgeGame from "./knowledge/SudokuKnowledgeGame";
-import DominoKnowledgeGame from "./knowledge/DominoKnowledgeGame";
-import HangmanKnowledgeGame from "./knowledge/HangmanKnowledgeGame";
-import SolitaireKnowledgeGame from "./knowledge/SolitaireKnowledgeGame";
-import PuzzleKnowledgeGame from "./knowledge/PuzzleKnowledgeGame";
-import CrosswordKnowledgeGame from "./knowledge/CrosswordKnowledgeGame";
-import WordSearchKnowledgeGame from "./knowledge/WordSearchKnowledgeGame";
-import WordleKnowledgeGame from "./knowledge/WordleKnowledgeGame";
-import AnagramsKnowledgeGame from "./knowledge/AnagramsKnowledgeGame";
-import MentalMathKnowledgeGame from "./knowledge/MentalMathKnowledgeGame";
-import PeriodicTableKnowledgeGame from "./knowledge/PeriodicTableKnowledgeGame";
-import MapsKnowledgeGame from "./knowledge/MapsKnowledgeGame";
-import MapsShortestPathKnowledgeGame from "./knowledge/MapsShortestPathKnowledgeGame";
-import GuessCountryKnowledgeGame from "./knowledge/GuessCountryKnowledgeGame";
-import ProverbsKnowledgeGame from "./knowledge/ProverbsKnowledgeGame";
-import TimelineKnowledgeGame from "./knowledge/TimelineKnowledgeGame";
-import TangramKnowledgeGame from "./knowledge/TangramKnowledgeGame";
-import IQMastersKnowledgeGame from "./knowledge/IQMastersKnowledgeGame";
+import React, { Suspense, lazy } from "react";
+
+const KnowledgeVariantComponents = {
+  sudoku: lazy(() => import("./knowledge/SudokuKnowledgeGame")),
+  domino: lazy(() => import("./knowledge/DominoKnowledgeGame")),
+  ahorcado: lazy(() => import("./knowledge/HangmanKnowledgeGame")),
+  paciencia: lazy(() => import("./knowledge/SolitaireKnowledgeGame")),
+  puzle: lazy(() => import("./knowledge/PuzzleKnowledgeGame")),
+  crucigrama: lazy(() => import("./knowledge/CrosswordKnowledgeGame")),
+  "sopa-letras": lazy(() => import("./knowledge/WordSearchKnowledgeGame")),
+  wordle: lazy(() => import("./knowledge/WordleKnowledgeGame")),
+  anagramas: lazy(() => import("./knowledge/AnagramsKnowledgeGame")),
+  "calculo-mental": lazy(() => import("./knowledge/MentalMathKnowledgeGame")),
+  "tabla-periodica": lazy(() => import("./knowledge/PeriodicTableKnowledgeGame")),
+  mapas: lazy(() => import("./knowledge/MapsKnowledgeGame")),
+  "mapas-camino-corto": lazy(() => import("./knowledge/MapsShortestPathKnowledgeGame")),
+  "adivina-pais": lazy(() => import("./knowledge/GuessCountryKnowledgeGame")),
+  refranes: lazy(() => import("./knowledge/ProverbsKnowledgeGame")),
+  cronologia: lazy(() => import("./knowledge/TimelineKnowledgeGame")),
+  tangram: lazy(() => import("./knowledge/TangramKnowledgeGame")),
+  "iq-masters": lazy(() => import("./knowledge/IQMastersKnowledgeGame")),
+};
 
 function KnowledgeArcadeGame({ variant }) {
-  if (variant === "sudoku") {
-    return <SudokuKnowledgeGame />;
-  }
-  if (variant === "domino") {
-    return <DominoKnowledgeGame />;
-  }
-  if (variant === "ahorcado") {
-    return <HangmanKnowledgeGame />;
-  }
-  if (variant === "paciencia") {
-    return <SolitaireKnowledgeGame />;
-  }
-  if (variant === "puzle") {
-    return <PuzzleKnowledgeGame />;
-  }
-  if (variant === "crucigrama") {
-    return <CrosswordKnowledgeGame />;
-  }
-  if (variant === "sopa-letras") {
-    return <WordSearchKnowledgeGame />;
-  }
-  if (variant === "wordle") {
-    return <WordleKnowledgeGame />;
-  }
-  if (variant === "anagramas") {
-    return <AnagramsKnowledgeGame />;
-  }
-  if (variant === "calculo-mental") {
-    return <MentalMathKnowledgeGame />;
-  }
-  if (variant === "tabla-periodica") {
-    return <PeriodicTableKnowledgeGame />;
-  }
-  if (variant === "mapas") {
-    return <MapsKnowledgeGame />;
-  }
-  if (variant === "mapas-camino-corto") {
-    return <MapsShortestPathKnowledgeGame />;
-  }
-  if (variant === "adivina-pais") {
-    return <GuessCountryKnowledgeGame />;
-  }
-  if (variant === "refranes") {
-    return <ProverbsKnowledgeGame />;
-  }
-  if (variant === "cronologia") {
-    return <TimelineKnowledgeGame />;
-  }
-  if (variant === "tangram") {
-    return <TangramKnowledgeGame />;
-  }
-  if (variant === "iq-masters") {
-    return <IQMastersKnowledgeGame />;
-  }
-  return <SudokuKnowledgeGame />;
+  const ActiveVariantGame = KnowledgeVariantComponents[variant] ?? KnowledgeVariantComponents.sudoku;
+
+  return (
+    <Suspense fallback={<p className="unsupported-game">Loading...</p>}>
+      <ActiveVariantGame />
+    </Suspense>
+  );
 }
 
 export default KnowledgeArcadeGame;
-

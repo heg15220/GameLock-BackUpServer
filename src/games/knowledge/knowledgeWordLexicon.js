@@ -1,4 +1,4 @@
-import { CROSSWORD_REPO_STYLE_BANK } from "./crosswordRepoStyleBank.generated";
+import { KNOWLEDGE_WORD_BANK } from "./knowledgeWordBank.generated";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
   createSeededRandom,
@@ -26,51 +26,6 @@ const normalizeWord = (value) => (
     .toUpperCase()
 );
 
-const normalizeClue = (value) => String(value || "").trim();
-
-const compareLexiconEntries = (left, right) => {
-  if (left.length !== right.length) {
-    return left.length - right.length;
-  }
-  return left.word.localeCompare(right.word);
-};
-
-const buildLocaleLexicon = (locale, { forbiddenWords = null } = {}) => {
-  const safeLocale = normalizeLocale(locale);
-  const byWord = new Map();
-  const entries = CROSSWORD_REPO_STYLE_BANK[safeLocale] || [];
-
-  entries.forEach((entry) => {
-    const word = normalizeWord(entry?.word);
-    if (!/^[A-Z]{5,10}$/.test(word)) {
-      return;
-    }
-    if (forbiddenWords?.has(word)) {
-      return;
-    }
-    const clue = normalizeClue(entry?.clue);
-    if (!clue) {
-      return;
-    }
-    if (!byWord.has(word)) {
-      byWord.set(word, {
-        word,
-        length: word.length,
-        clue
-      });
-    }
-  });
-
-  const ordered = [...byWord.values()].sort(compareLexiconEntries);
-  if (ordered.length < KNOWLEDGE_WORD_TARGET_COUNT) {
-    throw new Error(
-      `Lexicon ${safeLocale} has ${ordered.length} words and cannot satisfy ${KNOWLEDGE_WORD_TARGET_COUNT}.`
-    );
-  }
-
-  return Object.freeze(ordered.slice(0, KNOWLEDGE_WORD_TARGET_COUNT));
-};
-
 const buildIndexByLength = (entries) => {
   const byLength = new Map();
   entries.forEach((entry) => {
@@ -83,21 +38,44 @@ const buildIndexByLength = (entries) => {
 };
 
 const createLexicon = () => {
-  const es = buildLocaleLexicon("es");
-  const esWordSet = new Set(es.map((entry) => entry.word));
-  const en = buildLocaleLexicon("en", { forbiddenWords: esWordSet });
-  const overlapCount = en.reduce(
-    (count, entry) => (esWordSet.has(entry.word) ? count + 1 : count),
-    0
+  const es = Object.freeze(
+    (KNOWLEDGE_WORD_BANK.es || []).map((entry) => {
+      const word = normalizeWord(entry?.word);
+      return {
+        word,
+        length: word.length,
+        clue: String(entry?.clue || "").trim()
+      };
+    })
   );
+  const en = Object.freeze(
+    (KNOWLEDGE_WORD_BANK.en || []).map((entry) => {
+      const word = normalizeWord(entry?.word);
+      return {
+        word,
+        length: word.length,
+        clue: String(entry?.clue || "").trim()
+      };
+    })
+  );
+  const esWordSet = new Set(es.map((entry) => entry.word));
+  const overlapCount = en.reduce((count, entry) => count + (esWordSet.has(entry.word) ? 1 : 0), 0);
 
   if (KNOWLEDGE_ARCADE_MATCH_COUNT !== KNOWLEDGE_WORD_TARGET_COUNT) {
     throw new Error(
       `Knowledge match count (${KNOWLEDGE_ARCADE_MATCH_COUNT}) must equal lexicon target (${KNOWLEDGE_WORD_TARGET_COUNT}).`
     );
   }
+  if (es.length !== KNOWLEDGE_WORD_TARGET_COUNT || en.length !== KNOWLEDGE_WORD_TARGET_COUNT) {
+    throw new Error(
+      `Knowledge word banks must expose ${KNOWLEDGE_WORD_TARGET_COUNT} entries per locale. Received es=${es.length}, en=${en.length}.`
+    );
+  }
   if (overlapCount > 0) {
     throw new Error(`Knowledge lexicon overlap must be 0 and received ${overlapCount}.`);
+  }
+  if (![...es, ...en].every((entry) => /^[A-Z]{5,10}$/.test(entry.word) && entry.clue.length > 0)) {
+    throw new Error("Knowledge word bank contains invalid entries.");
   }
 
   return Object.freeze({
@@ -131,7 +109,7 @@ export const KNOWLEDGE_WORD_LEXICON_META = Object.freeze({
   overlapCount: CROSS_LOCALE_OVERLAP_COUNT,
   minLength: KNOWLEDGE_WORD_MIN_LENGTH,
   maxLength: KNOWLEDGE_WORD_MAX_LENGTH,
-  source: "crosswordRepoStyleBank",
+  source: KNOWLEDGE_WORD_BANK.meta?.source || "crosswordRepoStyleBank",
   targetCount: KNOWLEDGE_WORD_TARGET_COUNT
 });
 

@@ -1,6 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
+
+const loadOrchardAdvancedPanel = () => import("./OrchardAdvancedPanel");
+const OrchardAdvancedPanel = lazy(loadOrchardAdvancedPanel);
 
 const ROWS = 8;
 const COLS = 9;
@@ -713,6 +716,7 @@ function OrchardMatchBlastGame() {
   const [targetScorePresetId, setTargetScorePresetId] = useState(
     DEFAULT_TARGET_SCORE_OPTION_ID
   );
+  const [showAdvancedPanel, setShowAdvancedPanel] = useState(false);
   const targetScorePreset = useMemo(
     () => getTargetScoreOptionById(targetScorePresetId),
     [targetScorePresetId]
@@ -1824,6 +1828,52 @@ function OrchardMatchBlastGame() {
   useGameRuntimeBridge(game, payloadBuilder, advanceTime);
   const showTouchStartOverlay =
     isTouchDevice && (game.mode === "menu" || game.mode === "won" || game.mode === "lost");
+  const orchardInfoItems = useMemo(() => ([
+    { label: copy.score, value: formatScore(game.score) },
+    { label: copy.targetScoreShort, value: formatScore(game.targetScore) },
+    { label: copy.harvest, value: `${game.harvest}/${game.targetHarvest}` },
+    { label: copy.specials, value: `${game.specialsTriggered}/${game.targetSpecials}` },
+    { label: copy.best, value: formatScore(highScore) },
+    { label: copy.moves, value: game.moves },
+    { label: copy.time, value: fmtTime(game.timeMs) },
+    { label: copy.combo, value: `x${Math.max(1, game.comboNow)}` },
+    { label: copy.flow, value: `x${Math.max(1, game.flowChain)}` },
+    { label: copy.bloomCharge, value: `${Math.round(game.bloomCharge)}%` },
+  ]), [
+    copy.best,
+    copy.bloomCharge,
+    copy.combo,
+    copy.flow,
+    copy.harvest,
+    copy.moves,
+    copy.score,
+    copy.specials,
+    copy.targetScoreShort,
+    copy.time,
+    game.bloomCharge,
+    game.comboNow,
+    game.flowChain,
+    game.harvest,
+    game.moves,
+    game.score,
+    game.specialsTriggered,
+    game.targetHarvest,
+    game.targetScore,
+    game.targetSpecials,
+    game.timeMs,
+    highScore
+  ]);
+  const orchardTargetOptions = useMemo(() => (
+    TARGET_SCORE_OPTIONS.map((option) => ({
+      id: option.id,
+      accent: option.accent,
+      label: option.label[locale],
+      metaLabel: `${formatScore(option.score)} / ${fmtTime(option.timeMs)}`
+    }))
+  ), [formatScore, locale]);
+  const toggleAdvancedPanel = useCallback(() => {
+    setShowAdvancedPanel((current) => !current);
+  }, []);
 
   return (
     <div className="mini-game orchard-match-game">
@@ -1831,29 +1881,6 @@ function OrchardMatchBlastGame() {
         <div>
           <h4>{copy.title}</h4>
           <p>{copy.subtitle}</p>
-        </div>
-        <div className="orchard-target-controls">
-          <span>{copy.targetScoreLabel}</span>
-          <div className="orchard-target-options" role="group" aria-label={copy.targetScoreLabel}>
-            {TARGET_SCORE_OPTIONS.map((option) => {
-              const active = option.id === targetScorePreset.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  className={active ? "is-active" : ""}
-                  onClick={() => selectTargetScorePreset(option.id)}
-                  disabled={game.mode === "playing"}
-                  aria-pressed={active}
-                  style={{ "--orchard-target-accent": option.accent }}
-                >
-                  <strong>{option.label[locale]}</strong>
-                  <span>{`${formatScore(option.score)} / ${fmtTime(option.timeMs)}`}</span>
-                </button>
-              );
-            })}
-          </div>
-          <p>{copy.targetPresetHint}</p>
         </div>
         <div className="orchard-actions">
           <button type="button" onClick={startRun}>
@@ -1874,6 +1901,14 @@ function OrchardMatchBlastGame() {
           </button>
           <button type="button" onClick={fullscreen}>
             {copy.fullscreen}
+          </button>
+          <button
+            type="button"
+            onClick={toggleAdvancedPanel}
+            onPointerEnter={loadOrchardAdvancedPanel}
+            onFocus={loadOrchardAdvancedPanel}
+          >
+            {showAdvancedPanel ? (locale === "es" ? "Ocultar panel" : "Hide panel") : (locale === "es" ? "Abrir panel" : "Open panel")}
           </button>
         </div>
       </div>
@@ -1905,40 +1940,28 @@ function OrchardMatchBlastGame() {
         ) : null}
       </div>
 
-      <div className="orchard-info-strip">
-        <span>
-          {copy.score}: <strong>{formatScore(game.score)}</strong>
-        </span>
-        <span>
-          {copy.targetScoreShort}: <strong>{formatScore(game.targetScore)}</strong>
-        </span>
-        <span>
-          {copy.harvest}: <strong>{game.harvest}/{game.targetHarvest}</strong>
-        </span>
-        <span>
-          {copy.specials}: <strong>{game.specialsTriggered}/{game.targetSpecials}</strong>
-        </span>
-        <span>
-          {copy.best}: <strong>{formatScore(highScore)}</strong>
-        </span>
-        <span>
-          {copy.moves}: <strong>{game.moves}</strong>
-        </span>
-        <span>
-          {copy.time}: <strong>{fmtTime(game.timeMs)}</strong>
-        </span>
-        <span>
-          {copy.combo}: <strong>x{Math.max(1, game.comboNow)}</strong>
-        </span>
-        <span>
-          {copy.flow}: <strong>x{Math.max(1, game.flowChain)}</strong>
-        </span>
-        <span>
-          {copy.bloomCharge}: <strong>{Math.round(game.bloomCharge)}%</strong>
-        </span>
-      </div>
-
-      <p className="orchard-controls">{copy.controls}</p>
+      {showAdvancedPanel ? (
+        <Suspense fallback={<div className="orchard-info-strip"><span>{locale === "es" ? "Cargando panel..." : "Loading panel..."}</span></div>}>
+          <OrchardAdvancedPanel
+            targetScoreLabel={copy.targetScoreLabel}
+            targetPresetHint={copy.targetPresetHint}
+            targetScoreOptions={orchardTargetOptions}
+            selectedTargetOptionId={targetScorePreset.id}
+            onSelectTargetScorePreset={selectTargetScorePreset}
+            selectionDisabled={game.mode === "playing"}
+            infoItems={orchardInfoItems}
+            controlsCopy={copy.controls}
+          />
+        </Suspense>
+      ) : (
+        <div className="orchard-info-strip">
+          {orchardInfoItems.slice(0, 5).map(({ label, value }) => (
+            <span key={label}>
+              {label}: <strong>{value}</strong>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

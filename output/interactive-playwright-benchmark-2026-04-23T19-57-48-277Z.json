@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "generatedAt": "2026-04-23T19:57:48.272Z",
+    "baseUrl": "http://127.0.0.1:4173",
+    "timeoutMs": 20000,
+    "bridgeWaitMs": 5000,
+    "postClickWaitMs": 5000,
+    "excludedGameIds": [
+      "knowledge-wikipedia-gacha",
+      "arcade-penalty-neural-keeper"
+    ]
+  },
+  "summary": {
+    "totalGames": 3,
+    "interactiveDetectedCount": 3,
+    "timeoutCount": 0,
+    "consoleErrorGames": 0,
+    "bridgeReadyMs": {
+      "p50": 7659.53,
+      "p95": 10706.56,
+      "max": 10706.56
+    },
+    "interactiveReadyMs": {
+      "p50": 7887.19,
+      "p95": 10854.83,
+      "max": 10854.83
+    },
+    "slowestInteractive": [
+      {
+        "gameId": "platformer-sky-runner",
+        "interactiveReadyMs": 10854.83,
+        "bridgeReadyMs": 10706.56,
+        "stateTokens": [
+          "platformer_arcade",
+          "playing"
+        ]
+      },
+      {
+        "gameId": "arcade-territory-war",
+        "interactiveReadyMs": 7887.19,
+        "bridgeReadyMs": 7659.53,
+        "stateTokens": [
+          "battle",
+          "playing"
+        ]
+      },
+      {
+        "gameId": "arcade-dig-hole-treasure",
+        "interactiveReadyMs": 4205.71,
+        "bridgeReadyMs": 4205.55,
+        "stateTokens": [
+          "arcade-dig-hole-treasure",
+          "world_select"
+        ]
+      }
+    ],
+    "timedOutGames": []
+  },
+  "results": [
+    {
+      "gameId": "platformer-sky-runner",
+      "bridgeReadyMs": 10706.5605,
+      "interactiveReadyMs": 10854.8327,
+      "clickedLabels": [
+        "Open Route",
+        "Start Route"
+      ],
+      "interactiveDetected": true,
+      "stateTokens": [
+        "platformer_arcade",
+        "playing"
+      ],
+      "hasCanvas": true,
+      "hasIframe": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "timedOut": false,
+      "rawState": "{\"mode\":\"platformer_arcade\",\"coordinates\":\"origin_top_left_x_right_y_down_pixels\",\"screen\":\"playing\",\"catalogLevelCount\":32,\"level\":{\"index\":1,\"total\":8,\"id\":\"thunderhead-lift-19\",\"name\":\"Thunderhead Lift XIX\",\"biome\":\"Tempest Reach\",\"subtitle\":\"A storm column built around spring relays, gust locks and high-altitude backups.\",\"difficulty\":4,\"mechanics\":[\"wind\",\"springs\",\"vertical recovery\"]},\"campaign\":{\"route\":[\"thunderhead-lift-19\",\"sunset-switchbacks-14\",\"crystal-spire-8\",\"reactor-matron-27\",\"acid-runoff-15\",\"bramble-vault-29\",\"tempest-monarch-30\",\"abyss-crown-32\"],\"stages\":[{\"id\":\"thunderhead-lift-19\",\"name\":\"Thunderhead Lift XIX\",\"biome\":\"Tempest Reach\",\"difficulty\":4,\"isBossLevel\":false},{\"id\":\"sunset-switchbacks-14\",\"name\":\"Sunset Switchbacks XIV\",\"biome\":\"Amber Causeway\",\"difficulty\":2,\"isBossLevel\":false},{\"id\":\"crystal-spire-8\",\"name\":\"Crystal Spire VIII\",\"biome\":\"Cryo Ridge\",\"difficulty\":2,\"isBossLevel\":false},{\"id\":\"reactor-matron-27\",\"name\":\"Reactor Matron XXVII\",\"biome\":\"Toxic Rift\",\"difficulty\":5,\"isBossLevel\":true},{\"id\":\"acid-runoff-15\",\"name\":\"Acid Runoff XV\",\"biome\":\"Toxic Rift\",\"difficulty\":3,\"isBossLevel\":false},{\"id\":\"bramble-vault-29\",\"name\":\"Bramble Vault XXIX\",\"biome\":\"Verdant Canopy\",\"difficulty\":5,\"isBossLevel\":false},{\"id\":\"tempest-monarch-30\",\"name\":\"Tempest Monarch XXX\",\"biome\":\"Tempest Reach\",\"difficulty\":5,\"isBossLevel\":true},{\"id\":\"abyss-crown-32\",\"name\":\"Abyss Crown XXXII\",\"biome\":\"Citadel Core\",\"difficulty\":5,\"isBossLevel\":true}],\"bossLevels\":3},\"layout\":\"vertical\",\"visualStyle\":\"storm\",\"isBossLevel\":false,\"checkpoints\":{\"total\":2,\"activated\":0,\"activeId\":null},\"activeWind\":null,\"hazardCount\":0,\"boss\":null,\"score\":0,\"lives\":3,\"timeLeft\":169.98,\"coins\":{\"collected\":0,\"total\":12},\"player\":{\"x\":69,\"y\":514.49,\"vx\":0,\"vy\":29.67,\"onGround\":false,\"facing\":\"right\",\"powerLevel\":0,\"animation\":\"jump\"},\"enemies\":[{\"id\":\"enemy-thunderhead-lift-19-0\",\"type\":\"walker\",\"variant\":null,\"x\":261.03,\"y\":520.47,\"vx\":62,\"direction\":1},{\"id\":\"enemy-thunderhead-lift-19-1\",\"type\":\"jumper\",\"variant\":null,\"x\":644.95,\"y\":520.47,\"vx\":57.04,\"direction\":1},{\"id\":\"enemy-thunderhead-lift-19-2\",\"type\":\"walker\",\"variant\":null,\"x\":965.03,\"y\":520.47,\"vx\":62,\"direction\":1},{\"id\":\"enemy-thunderhead-lift-19-3\",\"type\":\"jumper\",\"variant\":null,\"x\":1348.95,\"y\":520.47,\"vx\":57.04,\"direction\":1},{\"id\":\"enemy-thunderhead-lift-19-4\",\"type\":\"walker\",\"variant\":null,\"x\":1637.03,\"y\":456.47,\"vx\":62,\"direction\":1}],\"items\":[{\"id\":\"item-thunderhead-lift-19-0\",\"type\":\"coin\",\"x\":391,\"y\":263},{\"id\":\"item-thunderhead-lift-19-1\",\"type\":\"coin\",\"x\":423,\"y\":263},{\"id\":\"item-thunderhead-lift-19-2\",\"type\":\"coin\",\"x\":711,\"y\":359},{\"id\":\"item-thunderhead-lift-19-3\",\"type\":\"coin\",\"x\":743,\"y\":359},{\"id\":\"item-thunderhead-lift-19-4\",\"type\":\"coin\",\"x\":1063,\"y\":167},{\"id\":\"item-thunderhead-lift-19-5\",\"type\":\"coin\",\"x\":1095,\"y\":167},{\"id\":\"item-thunderhead-lift-19-6\",\"type\":\"coin\",\"x\":1511,\"y\":167},{\"id\":\"item-thunderhead-lift-19-7\",\"type\":\"coin\",\"x\":1543,\"y\":167},{\"id\":\"item-thunderhead-lift-19-8\",\"type\":\"coin\",\"x\":1735,\"y\":71},{\"id\":\"item-thunderhead-lift-19-9\",\"type\":\"coin\",\"x\":1767,\"y\":71}],\"projectiles\":[],\"goal\":{\"x\":1763,\"y\":-2},\"camera\":{\"x\":0,\"y\":62.4},\"message\":\"Run started. Clear 8 handcrafted sectors and defeat every boss.\"}"
+    },
+    {
+      "gameId": "arcade-territory-war",
+      "bridgeReadyMs": 7659.528800000002,
+      "interactiveReadyMs": 7887.186599999999,
+      "clickedLabels": [
+        "Open Battlefield",
+        "▶ START"
+      ],
+      "interactiveDetected": true,
+      "stateTokens": [
+        "battle",
+        "playing"
+      ],
+      "hasCanvas": true,
+      "hasIframe": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "timedOut": false,
+      "rawState": "{\"mode\":\"battle\",\"phase\":\"playing\",\"mapId\":\"wasteland\",\"teamSize\":3,\"winner\":null,\"wind\":-28.172802068293095,\"turn\":{\"number\":1,\"team\":\"red\",\"unitId\":\"red-0\",\"remainingMs\":30000,\"movementLeft\":260,\"aimDeg\":330,\"charge\":0,\"charging\":false,\"acted\":false,\"settleMs\":0,\"state\":\"ready\",\"usingCannon\":false,\"cannonId\":null,\"cursor\":{\"red\":0,\"blue\":-1},\"unitName\":\"Axel\"},\"teams\":{\"red\":{\"alive\":3,\"total\":3},\"blue\":{\"alive\":3,\"total\":3}},\"cannons\":[{\"id\":\"wasteland-red-cannon\",\"team\":\"red\",\"x\":76,\"y\":420,\"dir\":1,\"powerBoost\":170,\"aimMin\":0,\"aimMax\":359,\"rangeMin\":240},{\"id\":\"wasteland-blue-cannon\",\"team\":\"blue\",\"x\":704,\"y\":420,\"dir\":-1,\"powerBoost\":170,\"aimMin\":0,\"aimMax\":359,\"rangeMin\":240}],\"ai\":{\"stage\":\"idle\",\"targetId\":null,\"confidence\":0.52,\"aggression\":0.56,\"aimBias\":0,\"chargeBias\":0,\"stagnantTurns\":0,\"lastDecision\":null,\"recentShots\":[]},\"units\":[{\"id\":\"red-0\",\"team\":\"red\",\"slot\":0,\"name\":\"Axel\",\"x\":50,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"blue-0\",\"team\":\"blue\",\"slot\":0,\"name\":\"Nyx\",\"x\":730,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":-1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"red-1\",\"team\":\"red\",\"slot\":1,\"name\":\"Noa\",\"x\":100,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"blue-1\",\"team\":\"blue\",\"slot\":1,\"name\":\"Orion\",\"x\":780,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":-1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"red-2\",\"team\":\"red\",\"slot\":2,\"name\":\"Drake\",\"x\":150,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"blue-2\",\"team\":\"blue\",\"slot\":2,\"name\":\"Khan\",\"x\":820,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":-1,\"health\":100,\"alive\":true,\"flashMs\":0}]}"
+    },
+    {
+      "gameId": "arcade-dig-hole-treasure",
+      "bridgeReadyMs": 4205.553200000002,
+      "interactiveReadyMs": 4205.705000000002,
+      "clickedLabels": [],
+      "interactiveDetected": true,
+      "stateTokens": [
+        "arcade-dig-hole-treasure",
+        "world_select"
+      ],
+      "hasCanvas": false,
+      "hasIframe": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "timedOut": false,
+      "rawState": "{\"mode\":\"arcade-dig-hole-treasure\",\"screen\":\"world_select\",\"worldId\":\"jungle\",\"worldName\":\"Selva Enterrada\",\"coordinates\":\"x aumenta hacia la derecha; y aumenta hacia abajo; los valores son pixeles del mundo.\",\"message\":\"\"}"
+    }
+  ]
+}

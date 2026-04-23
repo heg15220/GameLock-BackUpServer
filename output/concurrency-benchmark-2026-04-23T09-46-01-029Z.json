@@ -1,0 +1,2004 @@
+{
+  "meta": {
+    "generatedAt": "2026-04-23T09:46:01.026Z",
+    "baseUrl": "http://127.0.0.1:4173",
+    "concurrency": 3000,
+    "scenario": "warm-game-entry",
+    "readBodies": false,
+    "requestTimeoutMs": 5000,
+    "excludedGameIds": [
+      "knowledge-wikipedia-gacha",
+      "arcade-penalty-neural-keeper"
+    ]
+  },
+  "summary": {
+    "totalGames": 65,
+    "totalRequestErrors": 87000,
+    "totalSessionErrors": 57000,
+    "slowestByP95": [
+      {
+        "gameId": "arcade-dig-hole-treasure",
+        "p95": 19200.1,
+        "p99": 19723.98,
+        "avg": 12746.71
+      },
+      {
+        "gameId": "arcade-stick-brawl-showdown",
+        "p95": 12300.36,
+        "p99": 12368.93,
+        "avg": 11709.09
+      },
+      {
+        "gameId": "arcade-neon-rush",
+        "p95": 11541.77,
+        "p99": 11727.1,
+        "avg": 8190.55
+      },
+      {
+        "gameId": "arcade-valle-tranquilo",
+        "p95": 10421.33,
+        "p99": 10678.84,
+        "avg": 6947.97
+      },
+      {
+        "gameId": "arcade-orchard-match-blast",
+        "p95": 9982.71,
+        "p99": 10012.23,
+        "avg": 9315.35
+      },
+      {
+        "gameId": "arcade-territory-war",
+        "p95": 8911.7,
+        "p99": 8930.91,
+        "avg": 8255.07
+      },
+      {
+        "gameId": "arcade-reactor-toss",
+        "p95": 8274.54,
+        "p99": 8278.4,
+        "avg": 7957.01
+      },
+      {
+        "gameId": "arcade-neon-crypt",
+        "p95": 7236.92,
+        "p99": 7277.86,
+        "avg": 6359.72
+      },
+      {
+        "gameId": "arcade-kitchen-rush-2d",
+        "p95": 6640.73,
+        "p99": 6811.38,
+        "avg": 4573.02
+      },
+      {
+        "gameId": "arcade-golf-tour-2d",
+        "p95": 6476.17,
+        "p99": 6482.43,
+        "avg": 6234.23
+      }
+    ],
+    "slowestByP99": [
+      {
+        "gameId": "arcade-dig-hole-treasure",
+        "p99": 19723.98,
+        "max": 19826.63,
+        "avg": 12746.71
+      },
+      {
+        "gameId": "arcade-stick-brawl-showdown",
+        "p99": 12368.93,
+        "max": 12416.93,
+        "avg": 11709.09
+      },
+      {
+        "gameId": "arcade-neon-rush",
+        "p99": 11727.1,
+        "max": 11818.63,
+        "avg": 8190.55
+      },
+      {
+        "gameId": "arcade-valle-tranquilo",
+        "p99": 10678.84,
+        "max": 10738.79,
+        "avg": 6947.97
+      },
+      {
+        "gameId": "arcade-orchard-match-blast",
+        "p99": 10012.23,
+        "max": 10013.46,
+        "avg": 9315.35
+      },
+      {
+        "gameId": "arcade-territory-war",
+        "p99": 8930.91,
+        "max": 8932.91,
+        "avg": 8255.07
+      },
+      {
+        "gameId": "arcade-reactor-toss",
+        "p99": 8278.4,
+        "max": 8279,
+        "avg": 7957.01
+      },
+      {
+        "gameId": "arcade-neon-crypt",
+        "p99": 7277.86,
+        "max": 7287.97,
+        "avg": 6359.72
+      },
+      {
+        "gameId": "arcade-kitchen-rush-2d",
+        "p99": 6811.38,
+        "max": 6839.81,
+        "avg": 4573.02
+      },
+      {
+        "gameId": "arcade-golf-tour-2d",
+        "p99": 6482.43,
+        "max": 6486,
+        "avg": 6234.23
+      }
+    ],
+    "slowestByAvg": [
+      {
+        "gameId": "arcade-dig-hole-treasure",
+        "avg": 12746.71,
+        "p95": 19200.1,
+        "p99": 19723.98
+      },
+      {
+        "gameId": "arcade-stick-brawl-showdown",
+        "avg": 11709.09,
+        "p95": 12300.36,
+        "p99": 12368.93
+      },
+      {
+        "gameId": "arcade-orchard-match-blast",
+        "avg": 9315.35,
+        "p95": 9982.71,
+        "p99": 10012.23
+      },
+      {
+        "gameId": "arcade-territory-war",
+        "avg": 8255.07,
+        "p95": 8911.7,
+        "p99": 8930.91
+      },
+      {
+        "gameId": "arcade-neon-rush",
+        "avg": 8190.55,
+        "p95": 11541.77,
+        "p99": 11727.1
+      },
+      {
+        "gameId": "arcade-reactor-toss",
+        "avg": 7957.01,
+        "p95": 8274.54,
+        "p99": 8278.4
+      },
+      {
+        "gameId": "arcade-valle-tranquilo",
+        "avg": 6947.97,
+        "p95": 10421.33,
+        "p99": 10678.84
+      },
+      {
+        "gameId": "arcade-neon-crypt",
+        "avg": 6359.72,
+        "p95": 7236.92,
+        "p99": 7277.86
+      },
+      {
+        "gameId": "arcade-golf-tour-2d",
+        "avg": 6234.23,
+        "p95": 6476.17,
+        "p99": 6482.43
+      },
+      {
+        "gameId": "arcade-pinball-wizard",
+        "avg": 5895.61,
+        "p95": 6326.4,
+        "p99": 6377.34
+      }
+    ]
+  },
+  "results": [
+    {
+      "gameId": "platformer-sky-runner",
+      "concurrency": 3000,
+      "totalWallTimeMs": 7114.74,
+      "throughputSessionsPerSecond": 421.66,
+      "responseTimeMs": {
+        "min": 3606.27,
+        "avg": 5757.56,
+        "p50": 6004.6,
+        "p95": 6409.16,
+        "p99": 6424.4,
+        "max": 6428.7
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/PlatformerGame-66c72b87.js:The operation was aborted due to timeout",
+          "/assets/PlatformerGame-66c72b87.js:fetch failed"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/PlatformerGame-66c72b87.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-pacman-maze-protocol",
+      "concurrency": 3000,
+      "totalWallTimeMs": 18.95,
+      "throughputSessionsPerSecond": 158279.61,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-stick-brawl-showdown",
+      "concurrency": 3000,
+      "totalWallTimeMs": 12702.16,
+      "throughputSessionsPerSecond": 236.18,
+      "responseTimeMs": {
+        "min": 10932.94,
+        "avg": 11709.09,
+        "p50": 11766.03,
+        "p95": 12300.36,
+        "p99": 12368.93,
+        "max": 12416.93
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 6000,
+        "uniqueFailures": [
+          "/assets/index-3866d0f6.js:The operation was aborted due to timeout",
+          "/assets/syncEmbeddedFrameLayout-f4e6dfed.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 2,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-3866d0f6.js",
+          "/assets/syncEmbeddedFrameLayout-f4e6dfed.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-reactor-toss",
+      "concurrency": 3000,
+      "totalWallTimeMs": 8473.02,
+      "throughputSessionsPerSecond": 354.06,
+      "responseTimeMs": {
+        "min": 7378.15,
+        "avg": 7957.01,
+        "p50": 8014.11,
+        "p95": 8274.54,
+        "p99": 8278.4,
+        "max": 8279
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-1215c306.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-1215c306.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-territory-war",
+      "concurrency": 3000,
+      "totalWallTimeMs": 9083.91,
+      "throughputSessionsPerSecond": 330.25,
+      "responseTimeMs": {
+        "min": 7508.8,
+        "avg": 8255.07,
+        "p50": 8246.09,
+        "p95": 8911.7,
+        "p99": 8930.91,
+        "max": 8932.91
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-60d24ea3.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-60d24ea3.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-orchard-match-blast",
+      "concurrency": 3000,
+      "totalWallTimeMs": 10155.44,
+      "throughputSessionsPerSecond": 295.41,
+      "responseTimeMs": {
+        "min": 8514.06,
+        "avg": 9315.35,
+        "p50": 9338.74,
+        "p95": 9982.71,
+        "p99": 10012.23,
+        "max": 10013.46
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-7dc890b5.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-7dc890b5.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-billar-pool-club",
+      "concurrency": 3000,
+      "totalWallTimeMs": 5999.58,
+      "throughputSessionsPerSecond": 500.04,
+      "responseTimeMs": {
+        "min": 3180.62,
+        "avg": 4560.57,
+        "p50": 4490.79,
+        "p95": 5903.43,
+        "p99": 5930.37,
+        "max": 5931.66
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-bcafcaf5.js:The operation was aborted due to timeout",
+          "/assets/index-bcafcaf5.js:fetch failed"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-bcafcaf5.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-bowling-pro-tour",
+      "concurrency": 3000,
+      "totalWallTimeMs": 6188.75,
+      "throughputSessionsPerSecond": 484.75,
+      "responseTimeMs": {
+        "min": 943.67,
+        "avg": 2102.54,
+        "p50": 1885.03,
+        "p95": 5023.98,
+        "p99": 5088.08,
+        "max": 5118.44
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-1ccb38c8.js:The operation was aborted due to timeout",
+          "/assets/index-1ccb38c8.js:fetch failed"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-1ccb38c8.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-cosmic-vanguard",
+      "concurrency": 3000,
+      "totalWallTimeMs": 5565.84,
+      "throughputSessionsPerSecond": 539,
+      "responseTimeMs": {
+        "min": 5071.35,
+        "avg": 5136.78,
+        "p50": 5142.91,
+        "p95": 5176.09,
+        "p99": 5183.33,
+        "max": 5187.02
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-70f4b045.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-70f4b045.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-golf-tour-2d",
+      "concurrency": 3000,
+      "totalWallTimeMs": 6617.85,
+      "throughputSessionsPerSecond": 453.32,
+      "responseTimeMs": {
+        "min": 5651.43,
+        "avg": 6234.23,
+        "p50": 6355.37,
+        "p95": 6476.17,
+        "p99": 6482.43,
+        "max": 6486
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-93fb55dc.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-93fb55dc.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-archery-horizon",
+      "concurrency": 3000,
+      "totalWallTimeMs": 6442.74,
+      "throughputSessionsPerSecond": 465.64,
+      "responseTimeMs": {
+        "min": 5056.15,
+        "avg": 5635.78,
+        "p50": 5758.8,
+        "p95": 6065.46,
+        "p99": 6096.41,
+        "max": 6101.44
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-d8664a64.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-d8664a64.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-pinball-wizard",
+      "concurrency": 3000,
+      "totalWallTimeMs": 6530.46,
+      "throughputSessionsPerSecond": 459.39,
+      "responseTimeMs": {
+        "min": 5394.26,
+        "avg": 5895.61,
+        "p50": 5914.83,
+        "p95": 6326.4,
+        "p99": 6377.34,
+        "max": 6383.39
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-49b9c3e6.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-49b9c3e6.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-bubble-storm",
+      "concurrency": 3000,
+      "totalWallTimeMs": 6609.06,
+      "throughputSessionsPerSecond": 453.92,
+      "responseTimeMs": {
+        "min": 5302.38,
+        "avg": 5894.28,
+        "p50": 5878.75,
+        "p95": 6404.79,
+        "p99": 6440.7,
+        "max": 6448.69
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-f0d57694.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-f0d57694.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-ice-strike-pro",
+      "concurrency": 3000,
+      "totalWallTimeMs": 6515.92,
+      "throughputSessionsPerSecond": 460.41,
+      "responseTimeMs": {
+        "min": 4999.31,
+        "avg": 5142.95,
+        "p50": 5090.31,
+        "p95": 5418.51,
+        "p99": 5474.22,
+        "max": 5483.9
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-f43162f8.js:The operation was aborted due to timeout"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-f43162f8.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-neon-crypt",
+      "concurrency": 3000,
+      "totalWallTimeMs": 7411.08,
+      "throughputSessionsPerSecond": 404.8,
+      "responseTimeMs": {
+        "min": 5378.39,
+        "avg": 6359.72,
+        "p50": 6349.16,
+        "p95": 7236.92,
+        "p99": 7277.86,
+        "max": 7287.97
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-34279f43.js:The operation was aborted due to timeout",
+          "/assets/index-34279f43.js:fetch failed"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-34279f43.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-neon-rush",
+      "concurrency": 3000,
+      "totalWallTimeMs": 12392.59,
+      "throughputSessionsPerSecond": 242.08,
+      "responseTimeMs": {
+        "min": 4046.61,
+        "avg": 8190.55,
+        "p50": 8176.22,
+        "p95": 11541.77,
+        "p99": 11727.1,
+        "max": 11818.63
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 9000,
+        "uniqueFailures": [
+          "/arcade/neon-rush/index.html:fetch failed",
+          "/assets/index-4421b3fa.js:The operation was aborted due to timeout",
+          "/assets/index-4421b3fa.js:fetch failed",
+          "/assets/syncEmbeddedFrameLayout-f4e6dfed.js:The operation was aborted due to timeout",
+          "/assets/syncEmbeddedFrameLayout-f4e6dfed.js:fetch failed"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 2,
+        "iframeCount": 1,
+        "lazyResourcePaths": [
+          "/assets/index-4421b3fa.js",
+          "/assets/syncEmbeddedFrameLayout-f4e6dfed.js"
+        ],
+        "iframeResourcePaths": [
+          "/arcade/neon-rush/index.html"
+        ]
+      }
+    },
+    {
+      "gameId": "arcade-pong-neon-arena",
+      "concurrency": 3000,
+      "totalWallTimeMs": 13.34,
+      "throughputSessionsPerSecond": 224955.01,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-buscaminas-classic",
+      "concurrency": 3000,
+      "totalWallTimeMs": 3.55,
+      "throughputSessionsPerSecond": 844665.93,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "sports-head-soccer-arena",
+      "concurrency": 3000,
+      "totalWallTimeMs": 7.71,
+      "throughputSessionsPerSecond": 389291.88,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "racing-race2dpro",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.42,
+      "throughputSessionsPerSecond": 1240592.18,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "racing-sunset-slipstream",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.67,
+      "throughputSessionsPerSecond": 1121956.69,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-quiz-nexus",
+      "concurrency": 3000,
+      "totalWallTimeMs": 8.07,
+      "throughputSessionsPerSecond": 371797.89,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-iq-masters-protocol",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.4,
+      "throughputSessionsPerSecond": 1252086.81,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-refranes-clasicos",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.33,
+      "throughputSessionsPerSecond": 1286780.48,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-sudoku-sprint",
+      "concurrency": 3000,
+      "totalWallTimeMs": 5.08,
+      "throughputSessionsPerSecond": 590574.43,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-domino-chain",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.59,
+      "throughputSessionsPerSecond": 1157452.06,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-ahorcado-flash",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.78,
+      "throughputSessionsPerSecond": 1078360.89,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-paciencia-lite",
+      "concurrency": 3000,
+      "totalWallTimeMs": 4.65,
+      "throughputSessionsPerSecond": 645841.85,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-puzle-deslizante",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.68,
+      "throughputSessionsPerSecond": 1119402.99,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-crucigrama-mini",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.34,
+      "throughputSessionsPerSecond": 1280136.55,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-sopa-letras-mega",
+      "concurrency": 3000,
+      "totalWallTimeMs": 5.44,
+      "throughputSessionsPerSecond": 551267.92,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-wordle-pro",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.88,
+      "throughputSessionsPerSecond": 1041522.01,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-anagramas-pro",
+      "concurrency": 3000,
+      "totalWallTimeMs": 3.13,
+      "throughputSessionsPerSecond": 958037.94,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-calculo-mental-flash10",
+      "concurrency": 3000,
+      "totalWallTimeMs": 4.95,
+      "throughputSessionsPerSecond": 605522.36,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-tabla-periodica-total",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.38,
+      "throughputSessionsPerSecond": 1259551.6,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-mapas-atlas",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.74,
+      "throughputSessionsPerSecond": 1095770.33,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-mapas-camino-corto",
+      "concurrency": 3000,
+      "totalWallTimeMs": 4.37,
+      "throughputSessionsPerSecond": 686200.51,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-adivina-pais-silueta",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.55,
+      "throughputSessionsPerSecond": 1174306.18,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-tangram-pro",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.46,
+      "throughputSessionsPerSecond": 1217384.25,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "knowledge-cronologia-maestra",
+      "concurrency": 3000,
+      "totalWallTimeMs": 4.63,
+      "throughputSessionsPerSecond": 648088.14,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "strategy-sudoku-tecnicas",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.8,
+      "throughputSessionsPerSecond": 1070396.4,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "strategy-chess-grandmaster",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.35,
+      "throughputSessionsPerSecond": 1274697.26,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "strategy-hundir-flota-pro",
+      "concurrency": 3000,
+      "totalWallTimeMs": 3.93,
+      "throughputSessionsPerSecond": 762698.94,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "strategy-parchis-ludoteka",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.36,
+      "throughputSessionsPerSecond": 1270432.79,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "strategy-damas-clasicas",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.68,
+      "throughputSessionsPerSecond": 1118693.37,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "strategy-poker-holdem-no-bet",
+      "concurrency": 3000,
+      "totalWallTimeMs": 5.23,
+      "throughputSessionsPerSecond": 573263.01,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "strategy-baraja-ia-arena",
+      "concurrency": 3000,
+      "totalWallTimeMs": 3.08,
+      "throughputSessionsPerSecond": 975039,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "strategy-mansion-triple-enigma",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.95,
+      "throughputSessionsPerSecond": 1015606.49,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-snake-classic",
+      "concurrency": 3000,
+      "totalWallTimeMs": 4.33,
+      "throughputSessionsPerSecond": 693497.31,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-breakout-1986",
+      "concurrency": 3000,
+      "totalWallTimeMs": 3.76,
+      "throughputSessionsPerSecond": 796939.75,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-space-invaders",
+      "concurrency": 3000,
+      "totalWallTimeMs": 4.21,
+      "throughputSessionsPerSecond": 713029.42,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-tetris-blockfall",
+      "concurrency": 3000,
+      "totalWallTimeMs": 5.43,
+      "throughputSessionsPerSecond": 552964.81,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-frogger-crossing",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.99,
+      "throughputSessionsPerSecond": 1001970.54,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-bomber-grid",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.71,
+      "throughputSessionsPerSecond": 1107665.04,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-galaga-quantum",
+      "concurrency": 3000,
+      "totalWallTimeMs": 4.41,
+      "throughputSessionsPerSecond": 679701.84,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-qbert-prism",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.8,
+      "throughputSessionsPerSecond": 1072807.9,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-lunar-lander-orbit",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.81,
+      "throughputSessionsPerSecond": 1067843.67,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-centipede-circuit",
+      "concurrency": 3000,
+      "totalWallTimeMs": 5.68,
+      "throughputSessionsPerSecond": 528578.48,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-river-raid-neon",
+      "concurrency": 3000,
+      "totalWallTimeMs": 4.55,
+      "throughputSessionsPerSecond": 658674.75,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-tron-lightcycles",
+      "concurrency": 3000,
+      "totalWallTimeMs": 2.66,
+      "throughputSessionsPerSecond": 1125745.81,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-retro-road-fighter-synth",
+      "concurrency": 3000,
+      "totalWallTimeMs": 4.64,
+      "throughputSessionsPerSecond": 647109.58,
+      "responseTimeMs": {
+        "min": 0,
+        "avg": 0,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "max": 0
+      },
+      "errors": {
+        "sessionErrorCount": 0,
+        "requestErrorCount": 0,
+        "uniqueFailures": []
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 0,
+        "iframeCount": 0,
+        "lazyResourcePaths": [],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-kitchen-rush-2d",
+      "concurrency": 3000,
+      "totalWallTimeMs": 7194.79,
+      "throughputSessionsPerSecond": 416.97,
+      "responseTimeMs": {
+        "min": 1890.05,
+        "avg": 4573.02,
+        "p50": 4661.23,
+        "p95": 6640.73,
+        "p99": 6811.38,
+        "max": 6839.81
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 6000,
+        "uniqueFailures": [
+          "/assets/index-176d3589.js:The operation was aborted due to timeout",
+          "/assets/index-176d3589.js:fetch failed",
+          "/assets/index-c1304065.css:fetch failed"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 2,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-176d3589.js",
+          "/assets/index-c1304065.css"
+        ],
+        "iframeResourcePaths": []
+      }
+    },
+    {
+      "gameId": "arcade-dig-hole-treasure",
+      "concurrency": 3000,
+      "totalWallTimeMs": 20028.24,
+      "throughputSessionsPerSecond": 149.79,
+      "responseTimeMs": {
+        "min": 5038.09,
+        "avg": 12746.71,
+        "p50": 13088.26,
+        "p95": 19200.1,
+        "p99": 19723.98,
+        "max": 19826.63
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 15000,
+        "uniqueFailures": [
+          "/arcade/dig-hole-treasure/index.html:fetch failed",
+          "/assets/index-3a0e4566.js:The operation was aborted due to timeout",
+          "/assets/index-3a0e4566.js:fetch failed",
+          "/assets/syncEmbeddedFrameLayout-f4e6dfed.js:fetch failed",
+          "/game.js:fetch failed",
+          "/styles.css:fetch failed"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 2,
+        "iframeCount": 3,
+        "lazyResourcePaths": [
+          "/assets/index-3a0e4566.js",
+          "/assets/syncEmbeddedFrameLayout-f4e6dfed.js"
+        ],
+        "iframeResourcePaths": [
+          "/arcade/dig-hole-treasure/index.html",
+          "/styles.css",
+          "/game.js"
+        ]
+      }
+    },
+    {
+      "gameId": "arcade-valle-tranquilo",
+      "concurrency": 3000,
+      "totalWallTimeMs": 10775.78,
+      "throughputSessionsPerSecond": 278.4,
+      "responseTimeMs": {
+        "min": 2931.55,
+        "avg": 6947.97,
+        "p50": 6922.23,
+        "p95": 10421.33,
+        "p99": 10678.84,
+        "max": 10738.79
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 9000,
+        "uniqueFailures": [
+          "/arcade/valle-tranquilo/index.html:fetch failed",
+          "/assets/index-b747ed83.js:fetch failed",
+          "/assets/syncEmbeddedFrameLayout-f4e6dfed.js:fetch failed"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 2,
+        "iframeCount": 1,
+        "lazyResourcePaths": [
+          "/assets/index-b747ed83.js",
+          "/assets/syncEmbeddedFrameLayout-f4e6dfed.js"
+        ],
+        "iframeResourcePaths": [
+          "/arcade/valle-tranquilo/index.html"
+        ]
+      }
+    },
+    {
+      "gameId": "sports-basketball-court",
+      "concurrency": 3000,
+      "totalWallTimeMs": 3323.92,
+      "throughputSessionsPerSecond": 902.55,
+      "responseTimeMs": {
+        "min": 849.95,
+        "avg": 2115.44,
+        "p50": 2104.79,
+        "p95": 3190.36,
+        "p99": 3280.79,
+        "max": 3297.17
+      },
+      "errors": {
+        "sessionErrorCount": 3000,
+        "requestErrorCount": 3000,
+        "uniqueFailures": [
+          "/assets/index-a1c6b4a5.js:fetch failed"
+        ]
+      },
+      "resources": {
+        "baseCount": 4,
+        "lazyCount": 1,
+        "iframeCount": 0,
+        "lazyResourcePaths": [
+          "/assets/index-a1c6b4a5.js"
+        ],
+        "iframeResourcePaths": []
+      }
+    }
+  ]
+}

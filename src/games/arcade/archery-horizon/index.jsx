@@ -1,6 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
+
+const loadArcheryHorizonAdvancedPanel = () => import("./ArcheryHorizonAdvancedPanel");
+const ArcheryHorizonAdvancedPanel = lazy(loadArcheryHorizonAdvancedPanel);
 
 const WIDTH = 960;
 const HEIGHT = 540;
@@ -2878,6 +2881,7 @@ function ArcheryHorizonGame() {
   const [deviceProfile, setDeviceProfile] = useState(resolveDeviceProfile);
   const [snapshot, setSnapshot] = useState({ ...DEFAULT_SNAPSHOT, locale });
   const [menuLevel, setMenuLevel] = useState(() => loadProgress().lastLevel);
+  const [showAdvancedPanel, setShowAdvancedPanel] = useState(false);
 
   const requestFullscreen = useCallback(async () => {
     const shell = shellRef.current;
@@ -3000,6 +3004,9 @@ function ArcheryHorizonGame() {
   const roundPoints = Math.max(0, Number(snapshot.result?.score) || 0);
   const roundZonePoints = Math.max(0, Number(snapshot.result?.zonePoints) || 0);
   const roundDistanceBonus = Math.max(0, Number(snapshot.result?.distanceBonus) || 0);
+  const toggleAdvancedPanel = useCallback(() => {
+    setShowAdvancedPanel((current) => !current);
+  }, []);
 
   return (
     <div className={`mini-game archery-horizon-game ${deviceProfile === "touch" ? "archery-horizon-touch" : "archery-horizon-desktop"}`}>
@@ -3029,127 +3036,72 @@ function ArcheryHorizonGame() {
           <button type="button" onClick={requestFullscreen}>
             {ui.buttons.fullscreen}
           </button>
+          <button
+            type="button"
+            onClick={toggleAdvancedPanel}
+            onPointerEnter={loadArcheryHorizonAdvancedPanel}
+            onFocus={loadArcheryHorizonAdvancedPanel}
+          >
+            {showAdvancedPanel ? (locale === "es" ? "Ocultar panel" : "Hide panel") : (locale === "es" ? "Abrir panel" : "Open panel")}
+          </button>
         </div>
       </div>
 
       <div className="archery-horizon-shell">
         <aside className="archery-horizon-panel">
-          <section>
-            <h5>{ui.labels.objective}</h5>
-            <p>{ui.labels.objectiveBody}</p>
-          </section>
-
-          <section>
-            <h5>{ui.labels.controls}</h5>
-            <p>{ui.labels.controlsBody}</p>
-          </section>
-
-          <section className="archery-horizon-stats-grid">
-            <article>
-              <span>{ui.labels.level}</span>
-              <strong>{snapshot.level.index}/{snapshot.level.total}</strong>
-            </article>
-            <article>
-              <span>{ui.labels.unlocked}</span>
-              <strong>{snapshot.level.unlocked}/{snapshot.level.total}</strong>
-            </article>
-            <article>
-              <span>{ui.labels.distance}</span>
-              <strong>{snapshot.level.distance.toFixed(1)} m</strong>
-            </article>
-            <article>
-              <span>{ui.labels.difficulty}</span>
-              <strong>{snapshot.level.difficulty}</strong>
-            </article>
-            <article>
-              <span>{ui.labels.environment}</span>
-              <strong>{snapshot.level.environment}</strong>
-            </article>
-            <article>
-              <span>{ui.labels.wind}</span>
-              <strong>{snapshot.level.windX >= 0 ? "+" : ""}{snapshot.level.windX.toFixed(2)} m/s</strong>
-            </article>
-          </section>
-
-          <section className="archery-horizon-slider-card">
-            <h5>{ui.labels.trajectory}</h5>
-            <label>
-              <span>{ui.labels.yaw}: {snapshot.aim.yawDeg.toFixed(1)} deg</span>
-              <input
-                type="range"
-                min={MIN_YAW}
-                max={MAX_YAW}
-                step="0.1"
-                value={snapshot.aim.yawDeg}
-                disabled={snapshot.screen !== "play" || snapshot.playState !== "aiming" || snapshot.paused}
-                onChange={(event) => runtimeRef.current?.setAimYaw(Number(event.target.value))}
+          {showAdvancedPanel ? (
+            <Suspense fallback={<section><p>{locale === "es" ? "Cargando panel de tiro..." : "Loading aiming panel..."}</p></section>}>
+              <ArcheryHorizonAdvancedPanel
+                ui={ui}
+                snapshot={snapshot}
+                minYaw={MIN_YAW}
+                maxYaw={MAX_YAW}
+                minElevation={MIN_ELEVATION}
+                maxElevation={MAX_ELEVATION}
+                minIntensity={MIN_INTENSITY}
+                maxIntensity={MAX_INTENSITY}
+                onSetAimYaw={(value) => runtimeRef.current?.setAimYaw(value)}
+                onSetAimElevation={(value) => runtimeRef.current?.setAimElevation(value)}
+                onSetAimIntensity={(value) => runtimeRef.current?.setAimIntensity(value)}
+                onSelectLevel={(value) => runtimeRef.current?.selectLevel(value)}
               />
-            </label>
-            <label>
-              <span>{ui.labels.trajectory}: {snapshot.aim.elevationDeg.toFixed(1)} deg</span>
-              <input
-                type="range"
-                min={MIN_ELEVATION}
-                max={MAX_ELEVATION}
-                step="0.1"
-                value={snapshot.aim.elevationDeg}
-                disabled={snapshot.screen !== "play" || snapshot.playState !== "aiming" || snapshot.paused}
-                onChange={(event) => runtimeRef.current?.setAimElevation(Number(event.target.value))}
-              />
-            </label>
-            <label>
-              <span>{ui.labels.intensity}: {Math.round(snapshot.aim.intensity * 100)}%</span>
-              <input
-                type="range"
-                min={MIN_INTENSITY}
-                max={MAX_INTENSITY}
-                step="0.001"
-                value={snapshot.aim.intensity}
-                disabled={snapshot.screen !== "play" || snapshot.playState !== "aiming" || snapshot.paused}
-                onChange={(event) => runtimeRef.current?.setAimIntensity(Number(event.target.value))}
-              />
-            </label>
-          </section>
+            </Suspense>
+          ) : (
+            <>
+              <section>
+                <h5>{ui.labels.objective}</h5>
+                <p>{ui.labels.objectiveBody}</p>
+              </section>
 
-          <section>
-            <h5>{ui.labels.levelSelector}</h5>
-            <input
-              type="range"
-              min="1"
-              max={snapshot.level.unlocked}
-              step="1"
-              value={snapshot.level.index}
-              onChange={(event) => runtimeRef.current?.selectLevel(Number(event.target.value))}
-            />
-            <p>{snapshot.level.index}/{snapshot.level.unlocked}</p>
-          </section>
+              <section className="archery-horizon-stats-grid">
+                <article>
+                  <span>{ui.labels.level}</span>
+                  <strong>{snapshot.level.index}/{snapshot.level.total}</strong>
+                </article>
+                <article>
+                  <span>{ui.labels.distance}</span>
+                  <strong>{snapshot.level.distance.toFixed(1)} m</strong>
+                </article>
+                <article>
+                  <span>{ui.labels.wind}</span>
+                  <strong>{snapshot.level.windX >= 0 ? "+" : ""}{snapshot.level.windX.toFixed(2)} m/s</strong>
+                </article>
+                <article>
+                  <span>{ui.labels.status}</span>
+                  <strong>{snapshot.statusLabel}</strong>
+                </article>
+              </section>
 
-          <section className="archery-horizon-stats-grid">
-            <article>
-              <span>{ui.labels.attempts}</span>
-              <strong>{snapshot.stats.attempts}</strong>
-            </article>
-            <article>
-              <span>{ui.labels.hits}</span>
-              <strong>{snapshot.stats.hits}</strong>
-            </article>
-            <article>
-              <span>{ui.labels.bullseyes}</span>
-              <strong>{snapshot.stats.bullseyes}</strong>
-            </article>
-            <article>
-              <span>{ui.labels.score}</span>
-              <strong>{snapshot.stats.score}</strong>
-            </article>
-            <article>
-              <span>{ui.labels.streak}</span>
-              <strong>{snapshot.stats.streak}</strong>
-            </article>
-            <article>
-              <span>{ui.labels.bestStreak}</span>
-              <strong>{snapshot.stats.bestStreak}</strong>
-            </article>
-          </section>
+              <section>
+                <h5>{locale === "es" ? "Panel avanzado" : "Advanced panel"}</h5>
+                <p>
+                  {locale === "es"
+                    ? "Carga los sliders de trayectoria, el selector de nivel y las estadisticas completas cuando los necesites."
+                    : "Load trajectory sliders, level selector, and full stats only when needed."}
+                </p>
+              </section>
+            </>
+          )}
         </aside>
 
         <section className="archery-horizon-stage-wrap">

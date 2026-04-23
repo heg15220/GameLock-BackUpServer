@@ -1,0 +1,178 @@
+{
+  "meta": {
+    "generatedAt": "2026-04-23T11:23:56.406Z",
+    "baseUrl": "http://127.0.0.1:4174",
+    "timeoutMs": 15000,
+    "excludedGameIds": [
+      "knowledge-wikipedia-gacha",
+      "arcade-penalty-neural-keeper"
+    ]
+  },
+  "summary": {
+    "totalGames": 5,
+    "interactiveDetectedCount": 5,
+    "timeoutCount": 0,
+    "consoleErrorGames": 0,
+    "bridgeReadyMs": {
+      "p50": 6744.18,
+      "p95": 7687.31,
+      "max": 7687.31
+    },
+    "interactiveReadyMs": {
+      "p50": 7821.5,
+      "p95": 29846.59,
+      "max": 29846.59
+    },
+    "slowestInteractive": [
+      {
+        "gameId": "platformer-sky-runner",
+        "interactiveReadyMs": 29846.59,
+        "bridgeReadyMs": null,
+        "stateTokens": [
+          "platformer_arcade",
+          "playing"
+        ]
+      },
+      {
+        "gameId": "arcade-territory-war",
+        "interactiveReadyMs": 25293.83,
+        "bridgeReadyMs": null,
+        "stateTokens": [
+          "battle",
+          "playing"
+        ]
+      },
+      {
+        "gameId": "arcade-archery-horizon",
+        "interactiveReadyMs": 7821.5,
+        "bridgeReadyMs": 7687.31,
+        "stateTokens": [
+          "arcade-archery-horizon",
+          "play",
+          "aiming"
+        ]
+      },
+      {
+        "gameId": "arcade-orchard-match-blast",
+        "interactiveReadyMs": 7133.11,
+        "bridgeReadyMs": 6744.18,
+        "stateTokens": [
+          "arcade_match3",
+          "playing"
+        ]
+      },
+      {
+        "gameId": "arcade-kitchen-rush-2d",
+        "interactiveReadyMs": 6674.93,
+        "bridgeReadyMs": 6517.65,
+        "stateTokens": [
+          "arcade-kitchen-rush-2d",
+          "playing",
+          "running"
+        ]
+      }
+    ],
+    "timedOutGames": []
+  },
+  "results": [
+    {
+      "gameId": "platformer-sky-runner",
+      "bridgeReadyMs": null,
+      "interactiveReadyMs": 29846.5879,
+      "clickedLabels": [
+        "Open Route",
+        "Start Route"
+      ],
+      "interactiveDetected": true,
+      "stateTokens": [
+        "platformer_arcade",
+        "playing"
+      ],
+      "hasCanvas": true,
+      "hasIframe": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "timedOut": false,
+      "rawState": "{\"mode\":\"platformer_arcade\",\"coordinates\":\"origin_top_left_x_right_y_down_pixels\",\"screen\":\"playing\",\"catalogLevelCount\":32,\"level\":{\"index\":1,\"total\":8,\"id\":\"forge-bastion-20\",\"name\":\"Forge Bastion XX\",\"biome\":\"Molten Frontier\",\"subtitle\":\"The first new bastion boss: faster charges, hazard wells and short recovery windows.\",\"difficulty\":4,\"mechanics\":[\"boss fight\",\"hazards\",\"checkpoint routing\"]},\"campaign\":{\"route\":[\"forge-bastion-20\",\"moss-cascade-17\",\"citadel-heart-12\",\"sunforge-causeway-26\",\"iron-ascent-9\",\"celestial-apex-31\",\"reactor-matron-27\",\"abyss-crown-32\"],\"stages\":[{\"id\":\"forge-bastion-20\",\"name\":\"Forge Bastion XX\",\"biome\":\"Molten Frontier\",\"difficulty\":4,\"isBossLevel\":true},{\"id\":\"moss-cascade-17\",\"name\":\"Moss Cascade XVII\",\"biome\":\"Verdant Canopy\",\"difficulty\":3,\"isBossLevel\":false},{\"id\":\"citadel-heart-12\",\"name\":\"Citadel Heart XII\",\"biome\":\"Citadel Core\",\"difficulty\":3,\"isBossLevel\":true},{\"id\":\"sunforge-causeway-26\",\"name\":\"Sunforge Causeway XXVI\",\"biome\":\"Amber Causeway\",\"difficulty\":4,\"isBossLevel\":false},{\"id\":\"iron-ascent-9\",\"name\":\"Iron Ascent IX\",\"biome\":\"Iron Bastion\",\"difficulty\":3,\"isBossLevel\":false},{\"id\":\"celestial-apex-31\",\"name\":\"Celestial Apex XXXI\",\"biome\":\"Astral Span\",\"difficulty\":5,\"isBossLevel\":false},{\"id\":\"reactor-matron-27\",\"name\":\"Reactor Matron XXVII\",\"biome\":\"Toxic Rift\",\"difficulty\":5,\"isBossLevel\":true},{\"id\":\"abyss-crown-32\",\"name\":\"Abyss Crown XXXII\",\"biome\":\"Citadel Core\",\"difficulty\":5,\"isBossLevel\":true}],\"bossLevels\":4},\"layout\":\"hybrid\",\"visualStyle\":\"lava\",\"isBossLevel\":true,\"checkpoints\":{\"total\":1,\"activated\":0,\"activeId\":null},\"activeWind\":null,\"hazardCount\":2,\"boss\":{\"id\":\"enemy-forge-bastion-20-3\",\"name\":\"Forge Bastion\",\"variant\":\"forge\",\"health\":14,\"maxHealth\":14},\"score\":0,\"lives\":3,\"timeLeft\":175.98,\"coins\":{\"collected\":0,\"total\":13},\"player\":{\"x\":69,\"y\":386.49,\"vx\":0,\"vy\":29.67,\"onGround\":false,\"facing\":\"right\",\"powerLevel\":1,\"animation\":\"jump\"},\"enemies\":[{\"id\":\"enemy-forge-bastion-20-0\",\"type\":\"walker\",\"variant\":null,\"x\":357.03,\"y\":392.47,\"vx\":62,\"direction\":1},{\"id\":\"enemy-forge-bastion-20-1\",\"type\":\"jumper\",\"variant\":null,\"x\":804.95,\"y\":392.47,\"vx\":57.04,\"direction\":1},{\"id\":\"enemy-forge-bastion-20-2\",\"type\":\"walker\",\"variant\":null,\"x\":1285.03,\"y\":392.47,\"vx\":62,\"direction\":1},{\"id\":\"enemy-forge-bastion-20-3\",\"type\":\"boss\",\"variant\":\"forge\",\"x\":1946.7,\"y\":376.51,\"vx\":42,\"direction\":1}],\"items\":[{\"id\":\"item-forge-bastion-20-0\",\"type\":\"coin\",\"x\":295,\"y\":263},{\"id\":\"item-forge-bastion-20-1\",\"type\":\"coin\",\"x\":327,\"y\":263},{\"id\":\"item-forge-bastion-20-2\",\"type\":\"coin\",\"x\":743,\"y\":135},{\"id\":\"item-forge-bastion-20-3\",\"type\":\"coin\",\"x\":775,\"y\":135},{\"id\":\"item-forge-bastion-20-4\",\"type\":\"coin\",\"x\":1223,\"y\":263},{\"id\":\"item-forge-bastion-20-5\",\"type\":\"coin\",\"x\":1255,\"y\":263},{\"id\":\"item-forge-bastion-20-6\",\"type\":\"coin\",\"x\":1735,\"y\":263},{\"id\":\"item-forge-bastion-20-7\",\"type\":\"coin\",\"x\":1767,\"y\":263},{\"id\":\"item-forge-bastion-20-8\",\"type\":\"coin\",\"x\":2151,\"y\":359},{\"id\":\"item-forge-bastion-20-9\",\"type\":\"coin\",\"x\":2183,\"y\":359},{\"id\":\"item-forge-bastion-20-10\",\"type\":\"coin\",\"x\":2215,\"y\":359}],\"projectiles\":[],\"goal\":{\"x\":2243,\"y\":350},\"camera\":{\"x\":0,\"y\":24},\"message\":\"Run started. Clear 8 handcrafted sectors and defeat every boss. Auto fire power granted for this boss stage.\"}"
+    },
+    {
+      "gameId": "arcade-territory-war",
+      "bridgeReadyMs": null,
+      "interactiveReadyMs": 25293.833599999998,
+      "clickedLabels": [
+        "Open Battlefield",
+        "▶ START"
+      ],
+      "interactiveDetected": true,
+      "stateTokens": [
+        "battle",
+        "playing"
+      ],
+      "hasCanvas": true,
+      "hasIframe": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "timedOut": false,
+      "rawState": "{\"mode\":\"battle\",\"phase\":\"playing\",\"mapId\":\"wasteland\",\"teamSize\":3,\"winner\":null,\"wind\":-13.704079072922468,\"turn\":{\"number\":1,\"team\":\"red\",\"unitId\":\"red-0\",\"remainingMs\":30000,\"movementLeft\":260,\"aimDeg\":330,\"charge\":0,\"charging\":false,\"acted\":false,\"settleMs\":0,\"state\":\"ready\",\"usingCannon\":false,\"cannonId\":null,\"cursor\":{\"red\":0,\"blue\":-1},\"unitName\":\"Axel\"},\"teams\":{\"red\":{\"alive\":3,\"total\":3},\"blue\":{\"alive\":3,\"total\":3}},\"cannons\":[{\"id\":\"wasteland-red-cannon\",\"team\":\"red\",\"x\":76,\"y\":420,\"dir\":1,\"powerBoost\":170,\"aimMin\":0,\"aimMax\":359,\"rangeMin\":240},{\"id\":\"wasteland-blue-cannon\",\"team\":\"blue\",\"x\":704,\"y\":420,\"dir\":-1,\"powerBoost\":170,\"aimMin\":0,\"aimMax\":359,\"rangeMin\":240}],\"ai\":{\"stage\":\"idle\",\"targetId\":null,\"confidence\":0.52,\"aggression\":0.56,\"aimBias\":0,\"chargeBias\":0,\"stagnantTurns\":0,\"lastDecision\":null,\"recentShots\":[]},\"units\":[{\"id\":\"red-0\",\"team\":\"red\",\"slot\":0,\"name\":\"Axel\",\"x\":50,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"blue-0\",\"team\":\"blue\",\"slot\":0,\"name\":\"Nyx\",\"x\":730,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":-1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"red-1\",\"team\":\"red\",\"slot\":1,\"name\":\"Noa\",\"x\":100,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"blue-1\",\"team\":\"blue\",\"slot\":1,\"name\":\"Orion\",\"x\":780,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":-1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"red-2\",\"team\":\"red\",\"slot\":2,\"name\":\"Drake\",\"x\":150,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":1,\"health\":100,\"alive\":true,\"flashMs\":0},{\"id\":\"blue-2\",\"team\":\"blue\",\"slot\":2,\"name\":\"Khan\",\"x\":820,\"y\":420,\"vx\":0,\"vy\":0,\"onGround\":true,\"facing\":-1,\"health\":100,\"alive\":true,\"flashMs\":0}]}"
+    },
+    {
+      "gameId": "arcade-orchard-match-blast",
+      "bridgeReadyMs": 6744.176299999999,
+      "interactiveReadyMs": 7133.1129,
+      "clickedLabels": [
+        "Iniciar run"
+      ],
+      "interactiveDetected": true,
+      "stateTokens": [
+        "arcade_match3",
+        "playing"
+      ],
+      "hasCanvas": true,
+      "hasIframe": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "timedOut": false,
+      "rawState": "{\"mode\":\"arcade_match3\",\"variant\":\"arcade_orchard_match_blast_rebuild_v3\",\"coordinates\":\"origin_top_left_x_right_y_down_board_grid\",\"status\":\"playing\",\"score\":0,\"highScore\":0,\"targetScore\":14800,\"targetScorePresetId\":\"orchard\",\"targetScoreOptions\":[{\"id\":\"sprout\",\"score\":12000,\"timeMs\":180000},{\"id\":\"orchard\",\"score\":14800,\"timeMs\":240000},{\"id\":\"harvest\",\"score\":18000,\"timeMs\":300000},{\"id\":\"legend\",\"score\":22000,\"timeMs\":360000}],\"harvest\":0,\"targetHarvest\":120,\"targetSpecials\":7,\"specialsTriggered\":0,\"specialsCreated\":0,\"bloomCharge\":0,\"bloomBlasts\":0,\"movesLeft\":32,\"timeRemainingMs\":239936,\"targetTimeMs\":240000,\"timeLabel\":\"03:59\",\"bestCombo\":0,\"comboNow\":0,\"flowChain\":0,\"bestFlow\":0,\"flowTimerMs\":0,\"lastGain\":0,\"lastClearCount\":0,\"bonusMovesAwarded\":0,\"selected\":null,\"cursor\":{\"row\":0,\"col\":0},\"hintCells\":[{\"row\":0,\"col\":7},{\"row\":1,\"col\":7}],\"board\":[[\"orange\",\"purple\",\"yellow\",\"green\",\"orange\",\"green\",\"purple\",\"green\",\"purple\"],[\"blue\",\"red\",\"yellow\",\"orange\",\"orange\",\"green\",\"orange\",\"purple\",\"orange\"],[\"blue\",\"purple\",\"purple\",\"green\",\"blue\",\"red\",\"orange\",\"blue\",\"orange\"],[\"orange\",\"blue\",\"orange\",\"red\",\"yellow\",\"blue\",\"blue\",\"purple\",\"green\"],[\"red\",\"orange\",\"red\",\"red\",\"orange\",\"red\",\"yellow\",\"yellow\",\"purple\"],[\"purple\",\"purple\",\"green\",\"orange\",\"orange\",\"purple\",\"purple\",\"green\",\"blue\"],[\"red\",\"blue\",\"green\",\"yellow\",\"green\",\"green\",\"red\",\"yellow\",\"green\"],[\"yellow\",\"yellow\",\"orange\",\"purple\",\"red\",\"purple\",\"orange\",\"blue\",\"red\"]],\"message\":\"Combina, encadena cascadas y controla el ritmo.\",\"objectives\":{\"scoreProgress\":0,\"harvestProgress\":0,\"specialProgress\":0,\"bloomProgress\":0},\"controls\":{\"keyboard\":\"Arrows move, Enter/Space select, H hint, S shuffle, B bloom, R restart, F fullscreen\",\"pointer\":\"Select two adjacent color blocks to swap\"}}"
+    },
+    {
+      "gameId": "arcade-archery-horizon",
+      "bridgeReadyMs": 7687.307000000001,
+      "interactiveReadyMs": 7821.501399999994,
+      "clickedLabels": [
+        "Iniciar tour"
+      ],
+      "interactiveDetected": true,
+      "stateTokens": [
+        "arcade-archery-horizon",
+        "play",
+        "aiming"
+      ],
+      "hasCanvas": true,
+      "hasIframe": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "timedOut": false,
+      "rawState": "{\"mode\":\"arcade-archery-horizon\",\"screen\":\"play\",\"playState\":\"aiming\",\"coordinates\":\"3d_world_origin_at_bow_x_horizontal_y_up_z_depth_positive_towards_horizon\",\"level\":{\"index\":1,\"total\":100,\"unlocked\":1,\"environment\":\"Valle de cedros\",\"difficulty\":\"Rookie\",\"distance\":86.74,\"gravity\":9.395,\"drag\":0.0115,\"windX\":0.134,\"windZ\":-0.036},\"aim\":{\"yawDeg\":-2.24,\"elevationDeg\":25.07,\"intensity\":0.521},\"target\":{\"x\":-1.428,\"y\":2.639,\"z\":86.738,\"radius\":2.516,\"moving\":false,\"movingAmplitude\":0},\"arrow\":{\"inFlight\":false,\"x\":0,\"y\":1.55,\"z\":0,\"vx\":0,\"vy\":0,\"vz\":0,\"speed\":0},\"camera\":{\"mode\":\"aim\",\"x\":0,\"y\":1.75,\"z\":0},\"stats\":{\"attempts\":0,\"hits\":0,\"bullseyes\":0,\"score\":0,\"streak\":0,\"bestStreak\":0},\"result\":{\"hit\":false,\"ring\":\"\",\"score\":0,\"zonePoints\":0,\"distanceBonus\":0,\"reason\":\"\",\"impact\":null,\"distanceToCenter\":null},\"wind\":{\"x\":0.134,\"z\":-0.036},\"statusLabel\":\"Simulacion\",\"message\":\"Ajusta trayectoria e intensidad y lanza.\",\"trajectoryPreview\":[{\"x\":-0.12,\"y\":2.89,\"z\":2.96},{\"x\":-0.23,\"y\":4.18,\"z\":5.92},{\"x\":-0.34,\"y\":5.43,\"z\":8.87},{\"x\":-0.46,\"y\":6.63,\"z\":11.82},{\"x\":-0.57,\"y\":7.78,\"z\":14.77},{\"x\":-0.68,\"y\":8.88,\"z\":17.72},{\"x\":-0.79,\"y\":9.94,\"z\":20.66},{\"x\":-0.9,\"y\":10.95,\"z\":23.61},{\"x\":-1.01,\"y\":11.92,\"z\":26.54},{\"x\":-1.12,\"y\":12.83,\"z\":29.48},{\"x\":-1.22,\"y\":13.7,\"z\":32.42},{\"x\":-1.33,\"y\":14.53,\"z\":35.35},{\"x\":-1.44,\"y\":15.31,\"z\":38.28},{\"x\":-1.54,\"y\":16.04,\"z\":41.21},{\"x\":-1.65,\"y\":16.72,\"z\":44.13},{\"x\":-1.75,\"y\":17.36,\"z\":47.05},{\"x\":-1.85,\"y\":17.95,\"z\":49.97},{\"x\":-1.95,\"y\":18.49,\"z\":52.89},{\"x\":-2.06,\"y\":18.99,\"z\":55.81},{\"x\":-2.16,\"y\":19.44,\"z\":58.72},{\"x\":-2.26,\"y\":19.85,\"z\":61.63},{\"x\":-2.35,\"y\":20.21,\"z\":64.54},{\"x\":-2.45,\"y\":20.52,\"z\":67.45},{\"x\":-2.55,\"y\":20.79,\"z\":70.35},{\"x\":-2.65,\"y\":21.01,\"z\":73.25},{\"x\":-2.74,\"y\":21.18,\"z\":76.15},{\"x\":-2.84,\"y\":21.31,\"z\":79.05},{\"x\":-2.93,\"y\":21.39,\"z\":81.95},{\"x\":-3.03,\"y\":21.43,\"z\":84.84},{\"x\":-3.12,\"y\":21.42,\"z\":87.73},{\"x\":-3.21,\"y\":21.36,\"z\":90.62},{\"x\":-3.3,\"y\":21.26,\"z\":93.51},{\"x\":-3.39,\"y\":21.11,\"z\":96.39},{\"x\":-3.48,\"y\":20.92,\"z\":99.28},{\"x\":-3.57,\"y\":20.68,\"z\":102.16},{\"x\":-3.66,\"y\":20.39,\"z\":105.04},{\"x\":-3.75,\"y\":20.06,\"z\":107.91},{\"x\":-3.84,\"y\":19.68,\"z\":110.79},{\"x\":-3.92,\"y\":19.26,\"z\":113.66},{\"x\":-4.01,\"y\":18.79,\"z\":116.53},{\"x\":-4.09,\"y\":18.28,\"z\":119.4}],\"trajectoryDepth\":119.4,\"paused\":false,\"levelClear\":false,\"campaignClear\":false}"
+    },
+    {
+      "gameId": "arcade-kitchen-rush-2d",
+      "bridgeReadyMs": 6517.650999999998,
+      "interactiveReadyMs": 6674.92779999999,
+      "clickedLabels": [
+        "Iniciar"
+      ],
+      "interactiveDetected": true,
+      "stateTokens": [
+        "arcade-kitchen-rush-2d",
+        "playing",
+        "running"
+      ],
+      "hasCanvas": true,
+      "hasIframe": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "timedOut": false,
+      "rawState": "{\"mode\":\"arcade-kitchen-rush-2d\",\"screen\":\"playing\",\"playState\":\"running\",\"coordinates\":\"origin_top_left_x_right_y_down_pixels\",\"elapsedMs\":0,\"remainingMs\":240000,\"score\":0,\"combo\":0,\"mistakes\":0,\"chef\":{\"x\":270,\"y\":430,\"holdingId\":null},\"selectedIngredientType\":\"onion\",\"activeOrders\":[],\"stations\":[{\"id\":\"fridge_1\",\"type\":\"fridge\",\"label\":\"Nevera\",\"isOn\":false,\"temperature\":20,\"targetTemperature\":null,\"targetPresets\":[],\"maxTemperature\":20,\"itemCount\":0,\"x\":70,\"y\":70,\"w\":126,\"h\":100},{\"id\":\"prep_1\",\"type\":\"prep_table\",\"label\":\"Mesa\",\"isOn\":false,\"temperature\":20,\"targetTemperature\":null,\"targetPresets\":[],\"maxTemperature\":20,\"itemCount\":0,\"x\":230,\"y\":70,\"w\":124,\"h\":100},{\"id\":\"cutting_board_1\",\"type\":\"cutting_board\",\"label\":\"Tabla\",\"isOn\":false,\"temperature\":20,\"targetTemperature\":null,\"targetPresets\":[],\"maxTemperature\":20,\"itemCount\":0,\"x\":390,\"y\":70,\"w\":128,\"h\":100},{\"id\":\"pan_1\",\"type\":\"pan\",\"label\":\"Sarten\",\"isOn\":false,\"temperature\":20,\"targetTemperature\":180,\"targetPresets\":[160,180,200],\"maxTemperature\":220,\"itemCount\":0,\"x\":570,\"y\":72,\"w\":122,\"h\":98},{\"id\":\"pot_1\",\"type\":\"pot\",\"label\":\"Olla\",\"isOn\":false,\"temperature\":20,\"targetTemperature\":92,\"targetPresets\":[80,90,100],\"maxTemperature\":100,\"itemCount\":0,\"x\":724,\"y\":72,\"w\":122,\"h\":98},{\"id\":\"oven_1\",\"type\":\"oven\",\"label\":\"Horno\",\"isOn\":false,\"temperature\":20,\"targetTemperature\":180,\"targetPresets\":[160,180,200,220],\"maxTemperature\":230,\"itemCount\":0,\"x\":758,\"y\":220,\"w\":130,\"h\":118},{\"id\":\"plating_1\",\"type\":\"plating\",\"label\":\"Emplatado\",\"isOn\":false,\"temperature\":20,\"targetTemperature\":null,\"targetPresets\":[],\"maxTemperature\":20,\"itemCount\":0,\"x\":392,\"y\":246,\"w\":134,\"h\":100},{\"id\":\"serving_1\",\"type\":\"serving\",\"label\":\"Entrega\",\"isOn\":false,\"temperature\":20,\"targetTemperature\":null,\"targetPresets\":[],\"maxTemperature\":20,\"itemCount\":0,\"x\":570,\"y\":418,\"w\":140,\"h\":106}],\"plate\":[],\"plateLocation\":\"plating\",\"ingredients\":[],\"nearestStationId\":null,\"feedback\":{\"text\":\"Turno iniciado\",\"kind\":\"info\",\"timerMs\":900},\"fullscreen\":false}"
+    }
+  ]
+}

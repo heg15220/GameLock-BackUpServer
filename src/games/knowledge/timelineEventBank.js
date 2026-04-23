@@ -1,4 +1,4 @@
-import { GENERATED_TIMELINE_EVENTS } from "./timelineEventBank.generated.js";
+import { COMPACT_GENERATED_TIMELINE_EVENTS } from "./timelineEventBank.compact.generated.js";
 
 const E = (id, year, tags, titleEs, titleEn, summaryEs, summaryEn) => ({
   id,
@@ -85,5 +85,5 @@ const BASE_TIMELINE_EVENT_BANK = [
 
 export const TIMELINE_EVENT_BANK = [
   ...BASE_TIMELINE_EVENT_BANK,
-  ...GENERATED_TIMELINE_EVENTS,
+  ...COMPACT_GENERATED_TIMELINE_EVENTS,
 ];
