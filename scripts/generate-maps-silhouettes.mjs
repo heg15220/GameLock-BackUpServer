@@ -11,6 +11,7 @@ const ROOT = process.cwd();
 const COUNTRIES_PATH = path.join(ROOT, "tmp-countries-dataset.geojson");
 const SPAIN_PROVINCES_PATH = path.join(ROOT, "tmp-spain-provinces.geojson");
 const OUTPUT_PATH = path.join(ROOT, "src/games/knowledge/mapsSilhouettesData.js");
+const OUTPUT_THEME_DIR = path.join(ROOT, "src/games/knowledge/mapsSilhouettesThemes");
 
 const MAP_REGION_BOUNDS = {
   europe: { minLon: -32, maxLon: 46, minLat: 26, maxLat: 73 },
@@ -545,13 +546,103 @@ for (const mapDefinition of COUNTRY_MAPS) {
     .map((target) => target.id);
 }
 
-const outputContent = [
-  "export const MAP_SILHOUETTES_BY_THEME = ",
-  JSON.stringify(output, null, 2),
-  ";\n"
+fs.rmSync(OUTPUT_THEME_DIR, { recursive: true, force: true });
+fs.mkdirSync(OUTPUT_THEME_DIR, { recursive: true });
+
+for (const [themeId, themeData] of Object.entries(output)) {
+  const themeFilePath = path.join(OUTPUT_THEME_DIR, `${themeId}.js`);
+  const themeContent = [
+    "const MAP_SILHOUETTE_THEME = ",
+    JSON.stringify(themeData, null, 2),
+    ";\n\nexport default MAP_SILHOUETTE_THEME;\n"
+  ].join("");
+  fs.writeFileSync(themeFilePath, themeContent, "utf8");
+}
+
+const themeIds = Object.keys(output);
+const loaderEntries = themeIds
+  .map((themeId) => `  "${themeId}": () => import("./mapsSilhouettesThemes/${themeId}.js")`)
+  .join(",\n");
+
+const loaderContent = [
+  'import { useEffect, useMemo, useState } from "react";\n\n',
+  "export const MAP_SILHOUETTE_THEME_IDS = ",
+  JSON.stringify(themeIds, null, 2),
+  ";\n\n",
+  "export const MAP_SILHOUETTE_THEME_LOADERS = {\n",
+  loaderEntries,
+  "\n};\n\n",
+  "const THEME_CACHE = new Map();\n",
+  "const THEME_PROMISES = new Map();\n\n",
+  "const normalizeThemeIds = (themeIds) => {\n",
+  "  if (!Array.isArray(themeIds)) return [];\n",
+  "  return [...new Set(themeIds.filter((themeId) => typeof themeId === \"string\" && themeId.length > 0))];\n",
+  "};\n\n",
+  "export const getMapSilhouetteThemeSync = (themeId) => THEME_CACHE.get(themeId) ?? {};\n\n",
+  "export const getMapSilhouettesByThemeSync = (themeIds) => {\n",
+  "  const normalizedThemeIds = normalizeThemeIds(themeIds);\n",
+  "  return Object.fromEntries(\n",
+  "    normalizedThemeIds.map((themeId) => [themeId, getMapSilhouetteThemeSync(themeId)])\n",
+  "  );\n",
+  "};\n\n",
+  "export const loadMapSilhouetteTheme = async (themeId) => {\n",
+  "  if (!themeId || !MAP_SILHOUETTE_THEME_LOADERS[themeId]) return {};\n",
+  "  if (THEME_CACHE.has(themeId)) return THEME_CACHE.get(themeId) ?? {};\n",
+  "  if (!THEME_PROMISES.has(themeId)) {\n",
+  "    THEME_PROMISES.set(\n",
+  "      themeId,\n",
+  "      MAP_SILHOUETTE_THEME_LOADERS[themeId]().then((module) => {\n",
+  "        const themeData = module.default ?? module.MAP_SILHOUETTE_THEME ?? {};\n",
+  "        THEME_CACHE.set(themeId, themeData);\n",
+  "        return themeData;\n",
+  "      })\n",
+  "    );\n",
+  "  }\n",
+  "  return THEME_PROMISES.get(themeId) ?? {};\n",
+  "};\n\n",
+  "export const loadMapSilhouetteThemes = async (themeIds) => {\n",
+  "  const normalizedThemeIds = normalizeThemeIds(themeIds);\n",
+  "  await Promise.all(normalizedThemeIds.map((themeId) => loadMapSilhouetteTheme(themeId)));\n",
+  "  return getMapSilhouettesByThemeSync(normalizedThemeIds);\n",
+  "};\n\n",
+  "export const useMapSilhouetteThemes = (themeIds) => {\n",
+  "  const themeKey = Array.isArray(themeIds)\n",
+  "    ? themeIds.filter((themeId) => typeof themeId === \"string\" && themeId.length > 0).join(\"|\")\n",
+  "    : \"\";\n",
+  "  const normalizedThemeIds = useMemo(() => normalizeThemeIds(themeIds), [themeKey]);\n",
+  "  const [loadedVersion, setLoadedVersion] = useState(0);\n\n",
+  "  useEffect(() => {\n",
+  "    let cancelled = false;\n",
+  "    const missingThemeIds = normalizedThemeIds.filter((themeId) => !THEME_CACHE.has(themeId));\n",
+  "    if (!missingThemeIds.length) return undefined;\n",
+  "    Promise.all(missingThemeIds.map((themeId) => loadMapSilhouetteTheme(themeId)))\n",
+  "      .then(() => {\n",
+  "        if (!cancelled) {\n",
+  "          setLoadedVersion((value) => value + 1);\n",
+  "        }\n",
+  "      })\n",
+  "      .catch(() => {\n",
+  "        if (!cancelled) {\n",
+  "          setLoadedVersion((value) => value + 1);\n",
+  "        }\n",
+  "      });\n",
+  "    return () => {\n",
+  "      cancelled = true;\n",
+  "    };\n",
+  "  }, [normalizedThemeIds]);\n\n",
+  "  const silhouettesByTheme = useMemo(\n",
+  "    () => getMapSilhouettesByThemeSync(normalizedThemeIds),\n",
+  "    [normalizedThemeIds, loadedVersion]\n",
+  "  );\n\n",
+  "  return {\n",
+  "    silhouettesByTheme,\n",
+  "    isLoading: normalizedThemeIds.some((themeId) => !THEME_CACHE.has(themeId))\n",
+  "  };\n",
+  "};\n"
 ].join("");
 
-fs.writeFileSync(OUTPUT_PATH, outputContent, "utf8");
+fs.writeFileSync(OUTPUT_PATH, loaderContent, "utf8");
 
-console.log(`Silhouette file generated: ${path.relative(ROOT, OUTPUT_PATH)}`);
+console.log(`Silhouette loader generated: ${path.relative(ROOT, OUTPUT_PATH)}`);
+console.log(`Silhouette theme chunks generated: ${path.relative(ROOT, OUTPUT_THEME_DIR)}`);
 console.log("Unresolved targets:", JSON.stringify(unresolved, null, 2));

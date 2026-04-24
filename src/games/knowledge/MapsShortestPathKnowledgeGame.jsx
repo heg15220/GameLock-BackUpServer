@@ -8,12 +8,12 @@ import {
   getRandomKnowledgeMatchIdExcept,
   resolveKnowledgeArcadeLocale
 } from "./knowledgeArcadeUtils";
-import { CONTINENT_MAPS } from "./mapsKnowledgeData";
+import { CONTINENT_MAPS, COUNTRY_MAPS } from "./mapsKnowledgeData";
 import { MAP_COUNTRY_PROVINCE_CATALOG } from "./mapsCountryProvincesData.js";
 import { MAP_COUNTRY_GROUPS } from "./mapsCountryGroupsData";
 import { MAP_COUNTRY_ADJACENCY } from "./mapsCountryAdjacencyData";
 import { MAP_PROVINCE_ADJACENCY } from "./mapsProvinceAdjacencyData.js";
-import { MAP_SILHOUETTES_BY_THEME } from "./mapsSilhouettesData";
+import { useMapSilhouetteThemes } from "./mapsSilhouettesData";
 
 const COPY = {
   es: {
@@ -315,13 +315,13 @@ const buildChallengePool = (graph, countryIds) => {
 };
 
 const CONTINENT_BY_ID = new Map(CONTINENT_MAPS.map((entry) => [entry.id, entry]));
+const COUNTRY_MAP_BY_ID = new Map(COUNTRY_MAPS.map((entry) => [entry.id, entry]));
 
 const createRegion = (regionId) => {
   const rawCountries = MAP_COUNTRY_GROUPS[regionId] ?? [];
   if (!rawCountries.length) return null;
   const continentData = CONTINENT_BY_ID.get(regionId);
   const theme = continentData?.theme ?? (regionId === "europe" ? "europe" : `countries-${regionId}`);
-  const silhouettes = MAP_SILHOUETTES_BY_THEME[theme] ?? {};
   const targetById = new Map((continentData?.targets ?? []).map((target) => [target.id, target]));
 
   const countries = rawCountries.map((country) => ({
@@ -351,20 +351,15 @@ const createRegion = (regionId) => {
 
   const centers = new Map(
     countries.map((country, index) => {
-      const silhouetteCenter = silhouettes[country.id]?.center;
       const mapTarget = targetById.get(country.id);
       const fallbackHash = hashValue(`${country.id}:${index}`);
       const fallback = [
         8 + ((fallbackHash % 8400) / 100),
         10 + ((Math.floor(fallbackHash / 113) % 7600) / 100)
       ];
-      const center = Array.isArray(silhouetteCenter)
-        && Number.isFinite(silhouetteCenter[0])
-        && Number.isFinite(silhouetteCenter[1])
-        ? [silhouetteCenter[0], silhouetteCenter[1]]
-        : Number.isFinite(mapTarget?.x) && Number.isFinite(mapTarget?.y)
-          ? [mapTarget.x, mapTarget.y]
-          : fallback;
+      const center = Number.isFinite(mapTarget?.x) && Number.isFinite(mapTarget?.y)
+        ? [mapTarget.x, mapTarget.y]
+        : fallback;
       return [country.id, center];
     })
   );
@@ -384,7 +379,6 @@ const createRegion = (regionId) => {
     countryById,
     aliasToId,
     centers,
-    silhouettes,
     graph,
     pool: buildChallengePool(graph, ids)
   };
@@ -420,7 +414,7 @@ const createProvinceScope = (countryId) => {
   const countryEntry = PROVINCE_COUNTRY_BY_ID.get(countryId);
   if (!countryEntry) return null;
   const theme = countryEntry.id;
-  const silhouettes = MAP_SILHOUETTES_BY_THEME[theme] ?? {};
+  const mapTargetById = new Map((COUNTRY_MAP_BY_ID.get(countryId)?.targets ?? []).map((target) => [target.id, target]));
 
   const nodes = countryEntry.targets.map((target) => ({
     id: target.id,
@@ -448,16 +442,14 @@ const createProvinceScope = (countryId) => {
 
   const centers = new Map(
     nodes.map((node, index) => {
-      const silhouetteCenter = silhouettes[node.id]?.center;
+      const mapTarget = mapTargetById.get(node.id);
       const fallbackHash = hashValue(`${countryId}:${node.id}:${index}`);
       const fallback = [
         8 + ((fallbackHash % 8400) / 100),
         10 + ((Math.floor(fallbackHash / 113) % 7600) / 100)
       ];
-      const center = Array.isArray(silhouetteCenter)
-        && Number.isFinite(silhouetteCenter[0])
-        && Number.isFinite(silhouetteCenter[1])
-        ? [silhouetteCenter[0], silhouetteCenter[1]]
+      const center = Number.isFinite(mapTarget?.x) && Number.isFinite(mapTarget?.y)
+        ? [mapTarget.x, mapTarget.y]
         : fallback;
       return [node.id, center];
     })
@@ -474,7 +466,6 @@ const createProvinceScope = (countryId) => {
     countryById: nodeById,
     aliasToId,
     centers,
-    silhouettes,
     graph,
     pool: buildChallengePool(graph, ids),
     visualRegion: COUNTRY_VISUAL_REGION_BY_ID.get(countryId) ?? "global"
@@ -498,6 +489,18 @@ const resolveScopeContext = (scopeMode, regionId, provinceCountryId) =>
 
 const countryName = (region, countryId, locale) =>
   resolveText(region?.countryById.get(countryId)?.label, locale) || countryId;
+
+const resolveVisualCenter = (silhouettes, centers, countryId) => {
+  const silhouetteCenter = silhouettes?.[countryId]?.center;
+  if (
+    Array.isArray(silhouetteCenter)
+    && Number.isFinite(silhouetteCenter[0])
+    && Number.isFinite(silhouetteCenter[1])
+  ) {
+    return [silhouetteCenter[0], silhouetteCenter[1]];
+  }
+  return centers.get(countryId) ?? [50, 50];
+};
 
 const pickChallenge = (region, matchId) => {
   const ids = region?.countries?.map((country) => country.id) ?? [];
@@ -620,13 +623,14 @@ function MapsShortestPathKnowledgeGame() {
     countryById: new Map(),
     aliasToId: new Map(),
     centers: new Map(),
-    silhouettes: {},
     graph: {},
     pool: [],
     visualRegion: "global"
   }), []);
   const region = resolveScopeContext(state.scopeMode, state.regionId, state.provinceCountryId)
     ?? fallbackRegion;
+  const { silhouettesByTheme } = useMapSilhouetteThemes([region.theme]);
+  const activeSilhouettes = silhouettesByTheme[region.theme] ?? {};
   const hasPlayableData = region.countries.length > 0;
 
   const routeStatusByCountry = useMemo(
@@ -915,7 +919,7 @@ function MapsShortestPathKnowledgeGame() {
       },
       route,
       visibleCountries: currentRegion.countries.map((country) => {
-        const center = currentRegion.centers.get(country.id) ?? [50, 50];
+        const center = resolveVisualCenter(activeSilhouettes, currentRegion.centers, country.id);
         const inRoute = statusById.has(country.id);
         const isDestination = country.id === snapshot.challenge.destinationId;
         return {
@@ -929,7 +933,7 @@ function MapsShortestPathKnowledgeGame() {
         };
       })
     };
-  }, [locale]);
+  }, [activeSilhouettes, locale]);
 
   const advanceTime = useCallback(() => undefined, []);
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
@@ -1061,7 +1065,7 @@ function MapsShortestPathKnowledgeGame() {
               aria-hidden="true"
             >
               {region.countries.flatMap((country) => {
-                const silhouette = region.silhouettes[country.id];
+                const silhouette = activeSilhouettes[country.id];
                 if (!silhouette) return [];
                 const isRevealed = revealed.has(country.id);
                 const isDestination = country.id === state.challenge.destinationId;
@@ -1088,7 +1092,7 @@ function MapsShortestPathKnowledgeGame() {
               const isRevealed = revealed.has(country.id);
               const isDestination = country.id === state.challenge.destinationId;
               if (!isRevealed && !isDestination) return null;
-              const center = region.centers.get(country.id) ?? [50, 50];
+              const center = resolveVisualCenter(activeSilhouettes, region.centers, country.id);
               const status = routeStatusByCountry.get(country.id);
               const routeIndex = routeIndexByCountry.get(country.id);
               const label = countryName(region, country.id, locale);

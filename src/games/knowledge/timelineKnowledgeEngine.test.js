@@ -6,9 +6,10 @@ import {
   evaluateTimelineRound,
   fillTimelineOrder,
   formatTimelineYear,
+  getTimelineEventText,
   summarizeTimelineMission,
 } from "./timelineKnowledgeEngine";
-import { TIMELINE_EVENT_BANK } from "./timelineEventBank";
+import { TIMELINE_EVENT_BANK, loadTimelineEventLocale } from "./timelineEventBank";
 
 const normalizeText = (value) => String(value || "")
   .toLowerCase()
@@ -211,13 +212,17 @@ describe("timelineKnowledgeEngine", () => {
     expect(formatTimelineYear(1969, "en")).toBe("1969");
   });
 
-  it("keeps timeline event content localized in es/en", () => {
+  it("keeps timeline event content localized in es/en", async () => {
+    await Promise.all([
+      loadTimelineEventLocale("es"),
+      loadTimelineEventLocale("en"),
+    ]);
     expect(TIMELINE_EVENT_BANK.length).toBeGreaterThan(0);
     TIMELINE_EVENT_BANK.forEach((event) => {
-      const titleEs = event.title?.es ?? "";
-      const titleEn = event.title?.en ?? "";
-      const summaryEs = event.summary?.es ?? "";
-      const summaryEn = event.summary?.en ?? "";
+      const titleEs = getTimelineEventText(event, "es", "title");
+      const titleEn = getTimelineEventText(event, "en", "title");
+      const summaryEs = getTimelineEventText(event, "es", "summary");
+      const summaryEn = getTimelineEventText(event, "en", "summary");
 
       expect(titleEs.trim().length).toBeGreaterThan(0);
       expect(titleEn.trim().length).toBeGreaterThan(0);

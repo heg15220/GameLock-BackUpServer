@@ -2,7 +2,10 @@ import {
   createSeededRandom,
   shuffleWithRandom,
 } from "./knowledgeArcadeUtils";
-import { TIMELINE_EVENT_BANK } from "./timelineEventBank";
+import {
+  TIMELINE_EVENT_BANK,
+  getTimelineEventText as resolveTimelineEventText,
+} from "./timelineEventBank";
 
 const sortEvents = (left, right) => {
   if (left.year !== right.year) return left.year - right.year;
@@ -136,8 +139,7 @@ export const formatTimelineYear = (year, locale = "es") => {
   return `${value}`;
 };
 
-export const getTimelineEventText = (event, locale, field = "title") =>
-  event?.[field]?.[locale] ?? event?.[field]?.en ?? event?.[field]?.es ?? event?.id ?? "";
+export const getTimelineEventText = resolveTimelineEventText;
 
 const extractGeneratedCategoryId = (eventId) => {
   if (typeof eventId !== "string" || !eventId.startsWith("wd-")) return null;

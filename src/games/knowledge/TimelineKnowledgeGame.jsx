@@ -17,6 +17,7 @@ import {
   getTimelineEventText,
   summarizeTimelineMission,
 } from "./timelineKnowledgeEngine";
+import { loadTimelineEventLocale } from "./timelineEventBank";
 
 const COPY = {
   es: {
@@ -177,30 +178,73 @@ function TimelineKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY[locale] ?? COPY.en, [locale]);
   const viewport = useMobileGameViewport();
-  const [state, setState] = useState(() => createInitialState(copy));
-  const round = getRound(state);
+  const [state, setState] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadMissionState = useCallback((options = {}) => {
+    setIsLoading(true);
+    setState(null);
+    return loadTimelineEventLocale(locale).then(() => {
+      setState(createInitialState(copy, options));
+      setIsLoading(false);
+    });
+  }, [copy, locale]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setState(null);
+    loadTimelineEventLocale(locale).then(() => {
+      if (cancelled) return;
+      setState(createInitialState(copy));
+      setIsLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [copy, locale]);
+
+  const round = getRound(state ?? {});
   const eventById = useMemo(() => new Map((round?.events ?? []).map((event) => [event.id, event])), [round]);
   const anchorEvent = round?.anchorId ? eventById.get(round.anchorId) ?? null : null;
   const anchorSummary = getTimelineEventText(anchorEvent, locale, "summary").trim();
 
   const remainingEvents = useMemo(() => {
-    const placed = new Set(state.placedOrderIds);
+    const placed = new Set(state?.placedOrderIds ?? []);
     return (round?.shuffledOrderIds ?? []).filter((eventId) => !placed.has(eventId)).map((eventId) => eventById.get(eventId)).filter(Boolean);
-  }, [state.placedOrderIds, round, eventById]);
+  }, [eventById, round, state]);
 
-  const summary = useMemo(() => summarizeTimelineMission(state.mission, state.history, state.score), [state.mission, state.history, state.score]);
+  const summary = useMemo(
+    () => (state ? summarizeTimelineMission(state.mission, state.history, state.score) : null),
+    [state]
+  );
 
   const restart = useCallback(() => {
-    setState((prev) => createInitialState(copy, { matchId: getRandomKnowledgeMatchIdExcept(prev.matchId), modeId: prev.modeId, difficultyId: prev.difficultyId }));
-  }, [copy]);
+    const currentMatchId = state?.matchId ?? getRandomKnowledgeMatchId();
+    void loadMissionState({
+      matchId: getRandomKnowledgeMatchIdExcept(currentMatchId),
+      modeId: state?.modeId,
+      difficultyId: state?.difficultyId,
+    });
+  }, [loadMissionState, state]);
 
   const switchMode = useCallback((modeId) => {
-    setState((prev) => createInitialState(copy, { matchId: getRandomKnowledgeMatchIdExcept(prev.matchId), modeId, difficultyId: prev.difficultyId }));
-  }, [copy]);
+    const currentMatchId = state?.matchId ?? getRandomKnowledgeMatchId();
+    void loadMissionState({
+      matchId: getRandomKnowledgeMatchIdExcept(currentMatchId),
+      modeId,
+      difficultyId: state?.difficultyId,
+    });
+  }, [loadMissionState, state]);
 
   const switchDifficulty = useCallback((difficultyId) => {
-    setState((prev) => createInitialState(copy, { matchId: getRandomKnowledgeMatchIdExcept(prev.matchId), modeId: prev.modeId, difficultyId }));
-  }, [copy]);
+    const currentMatchId = state?.matchId ?? getRandomKnowledgeMatchId();
+    void loadMissionState({
+      matchId: getRandomKnowledgeMatchIdExcept(currentMatchId),
+      modeId: state?.modeId,
+      difficultyId,
+    });
+  }, [loadMissionState, state]);
 
   const placeCard = useCallback((eventId) => {
     setState((prev) => {
@@ -371,6 +415,7 @@ function TimelineKnowledgeGame() {
   }, [copy]);
 
   const trySubmitRound = useCallback(() => {
+    if (!state) return;
     if (state.phase !== "playing") return;
     if (state.placedOrderIds.length < state.mission.cardsPerRound) {
       notifyNeedCards();
@@ -380,12 +425,11 @@ function TimelineKnowledgeGame() {
   }, [
     finalizeRound,
     notifyNeedCards,
-    state.mission.cardsPerRound,
-    state.phase,
-    state.placedOrderIds.length,
+    state,
   ]);
 
   useEffect(() => {
+    if (!state) return undefined;
     if (state.phase !== "playing" || state.roundClock <= 0) return undefined;
     const timeoutId = window.setTimeout(() => {
       setState((prev) => {
@@ -394,15 +438,17 @@ function TimelineKnowledgeGame() {
       });
     }, 1000);
     return () => window.clearTimeout(timeoutId);
-  }, [state.phase, state.roundClock]);
+  }, [state]);
 
   useEffect(() => {
+    if (!state) return;
     if (state.phase === "playing" && state.roundClock === 0) {
       finalizeRound("timeout");
     }
-  }, [state.phase, state.roundClock, finalizeRound]);
+  }, [finalizeRound, state]);
 
   useEffect(() => {
+    if (!state) return undefined;
     const onKeyDown = (event) => {
       const tag = event.target?.tagName?.toLowerCase?.();
       if (tag === "input" || tag === "textarea" || tag === "select") return;
@@ -477,12 +523,21 @@ function TimelineKnowledgeGame() {
     remainingEvents,
     removeCard,
     restart,
-    state.phase,
-    state.placedOrderIds,
-    state.mission.cardsPerRound,
+    state,
   ]);
 
   const payloadBuilder = useCallback((snapshot) => {
+    if (!snapshot) {
+      return {
+        mode: "knowledge-arcade",
+        variant: "cronologia",
+        locale,
+        coordinates: copy.coordinates,
+        loading: true,
+        status: "loading",
+        message: copy.missionLoaded(0, 0),
+      };
+    }
     const activeRound = getRound(snapshot);
     const roundById = new Map((activeRound?.events ?? []).map((event) => [event.id, event]));
     const cards = (activeRound?.shuffledOrderIds ?? []).map((eventId) => {
@@ -523,6 +578,37 @@ function TimelineKnowledgeGame() {
 
   const advanceTime = useCallback(() => undefined, []);
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
+
+  if (!state || isLoading || !summary) {
+    return (
+      <div
+        className={[
+          "mini-game",
+          "knowledge-game",
+          "knowledge-arcade-game",
+          "knowledge-cronologia",
+          viewport.isMobile ? "is-mobile" : "",
+          viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+        ].filter(Boolean).join(" ")}
+      >
+        <div className="mini-head timeline-hero">
+          <div className="timeline-hero-copy">
+            <h4>{copy.title}</h4>
+            <p>{copy.subtitle}</p>
+          </div>
+        </div>
+
+        <section
+          className={[
+            "knowledge-mode-shell",
+            viewport.isMobile ? "knowledge-mobile-shell" : ""
+          ].filter(Boolean).join(" ")}
+        >
+          <p className="game-message">{copy.missionLoaded(0, 0)}</p>
+        </section>
+      </div>
+    );
+  }
 
   const latestRoundResult = state.history[state.history.length - 1] ?? null;
   const timerRatio = clamp01(state.roundClock / Math.max(1, state.mission.secondsPerRound));

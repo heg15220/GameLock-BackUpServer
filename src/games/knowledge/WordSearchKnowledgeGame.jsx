@@ -97,8 +97,7 @@ const resolveMatchIdFromHash = () => {
   return null;
 };
 
-const createInitialState = (matchId, locale, copy) => {
-  const match = createWordSearchMatch(matchId, locale);
+const createInitialState = (matchId, match, copy) => {
   const wordIdByPathKey = match.words.reduce((accumulator, word) => ({
     ...accumulator,
     [word.pathKey]: word.id
@@ -129,24 +128,48 @@ function WordSearchKnowledgeGame() {
   const boardRef = useRef(null);
   const selectingRef = useRef(false);
   const selectingPointerIdRef = useRef(null);
-  const [state, setState] = useState(() =>
-    createInitialState(initialMatchId, locale, copy)
-  );
+  const [state, setState] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const wordsearchCellSize = useMemo(() => {
+    if (!state) {
+      return viewport.isMobile ? 18 : 28;
+    }
     if (!viewport.isMobile) return 28;
     const viewportWidth = Math.max(280, viewport.width || 360);
     const boardWidth = Math.max(230, viewportWidth - 86);
     const dynamicCell = Math.floor((boardWidth - Math.max(0, (state.boardSize - 1) * 2)) / state.boardSize);
     return Math.min(26, Math.max(16, dynamicCell));
-  }, [state.boardSize, viewport.isMobile, viewport.width]);
+  }, [state, viewport.isMobile, viewport.width]);
 
-  const restart = useCallback(() => {
+  const loadMatch = useCallback((matchId) => {
     selectingRef.current = false;
     selectingPointerIdRef.current = null;
-    setState((previous) =>
-      createInitialState(getRandomKnowledgeMatchIdExcept(previous.matchId), locale, copy)
-    );
+    setIsLoading(true);
+    setState(null);
+    return createWordSearchMatch(matchId, locale).then((match) => {
+      setState(createInitialState(matchId, match, copy));
+      setIsLoading(false);
+    });
   }, [copy, locale]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setState(null);
+    createWordSearchMatch(initialMatchId, locale).then((match) => {
+      if (cancelled) return;
+      setState(createInitialState(initialMatchId, match, copy));
+      setIsLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [copy, initialMatchId, locale]);
+
+  const restart = useCallback(() => {
+    const currentMatchId = state?.matchId ?? initialMatchId;
+    void loadMatch(getRandomKnowledgeMatchIdExcept(currentMatchId));
+  }, [initialMatchId, loadMatch, state]);
 
   const startSelection = useCallback((row, col, announceAnchor = false) => {
     setState((previous) => {
@@ -281,6 +304,9 @@ function WordSearchKnowledgeGame() {
   }, [clearSelection, copy]);
 
   useEffect(() => {
+    if (!state) {
+      return undefined;
+    }
     const onPointerMove = (event) => {
       if (!selectingRef.current) return;
       updateSelectionFromPointer(event);
@@ -312,6 +338,9 @@ function WordSearchKnowledgeGame() {
   }, [finishSelection, updateSelectionFromPointer]);
 
   useEffect(() => {
+    if (!state) {
+      return undefined;
+    }
     const onKeyDown = (event) => {
       const key = event.key.toLowerCase();
       if (key === "arrowup") {
@@ -397,42 +426,54 @@ function WordSearchKnowledgeGame() {
     finishSelection,
     restart,
     startSelection,
-    state.cursor,
-    state.selectionStart,
-    state.status,
+    state,
     updateSelection
   ]);
 
-  const wordsById = useMemo(() => (
-    state.words.reduce((accumulator, word) => ({
+  const wordsById = useMemo(() => {
+    if (!state) {
+      return {};
+    }
+    return state.words.reduce((accumulator, word) => ({
       ...accumulator,
       [word.id]: word
-    }), {})
-  ), [state.words]);
+    }), {});
+  }, [state]);
 
-  const foundWordIdsSet = useMemo(() => new Set(state.foundWordIds), [state.foundWordIds]);
+  const foundWordIdsSet = useMemo(() => new Set(state?.foundWordIds ?? []), [state]);
 
   const foundCellSet = useMemo(() => {
     const cells = new Set();
-    state.foundWordIds.forEach((wordId) => {
+    (state?.foundWordIds ?? []).forEach((wordId) => {
       const word = wordsById[wordId];
       if (!word) return;
       word.cells.forEach((cell) => cells.add(cellKey(cell.row, cell.col)));
     });
     return cells;
-  }, [state.foundWordIds, wordsById]);
+  }, [state, wordsById]);
 
   const previewCellSet = useMemo(() => {
     const cells = new Set();
-    state.previewPath.forEach((cell) => cells.add(cellKey(cell.row, cell.col)));
+    (state?.previewPath ?? []).forEach((cell) => cells.add(cellKey(cell.row, cell.col)));
     return cells;
-  }, [state.previewPath]);
+  }, [state]);
 
-  const anchorCellKey = state.selectionStart
+  const anchorCellKey = state?.selectionStart
     ? cellKey(state.selectionStart.row, state.selectionStart.col)
     : null;
 
   const payloadBuilder = useCallback((snapshot) => {
+    if (!snapshot) {
+      return {
+        mode: "knowledge-arcade",
+        variant: "sopa-letras",
+        coordinates: "grid_row_col_origin_top_left",
+        locale,
+        loading: true,
+        status: "loading",
+        message: copy.startMessage
+      };
+    }
     const foundSet = new Set(snapshot.foundWordIds);
     return {
       mode: "knowledge-arcade",
@@ -464,10 +505,42 @@ function WordSearchKnowledgeGame() {
       previewPath: snapshot.previewPath,
       message: snapshot.message
     };
-  }, [locale]);
+  }, [copy.startMessage, locale]);
 
   const advanceTime = useCallback(() => undefined, []);
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
+
+  if (!state || isLoading) {
+    return (
+      <div
+        className={[
+          "mini-game",
+          "knowledge-game",
+          "knowledge-arcade-game",
+          "knowledge-sopa-letras",
+          viewport.isMobile ? "is-mobile" : "",
+          viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+        ].filter(Boolean).join(" ")}
+      >
+        <div className="mini-head">
+          <div>
+            <h4>{copy.title}</h4>
+            <p>{copy.subtitle}</p>
+          </div>
+        </div>
+
+        <section
+          className={[
+            "knowledge-mode-shell",
+            viewport.isMobile ? "knowledge-mobile-shell" : ""
+          ].filter(Boolean).join(" ")}
+        >
+          <p className="wordsearch-note">{copy.controls}</p>
+          <p className="game-message">{copy.startMessage}</p>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div

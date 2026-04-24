@@ -60,13 +60,12 @@ const COPY_BY_LOCALE = {
 
 const normalizeLetter = (value) => value.trim().toUpperCase().slice(0, 1);
 
-const createGeneratedWord = (matchId, locale) => {
+const createGeneratedWord = async (matchId, locale) => {
   const safeId = Math.abs(Number(matchId) || 0) % KNOWLEDGE_ARCADE_MATCH_COUNT;
   return getHangmanEntry(safeId, locale);
 };
 
-const createInitialState = (matchId, locale, copy) => {
-  const generated = createGeneratedWord(matchId, locale);
+const createInitialState = (matchId, generated, copy) => {
   return {
     matchId,
     word: generated.word,
@@ -83,11 +82,34 @@ function HangmanKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
   const viewport = useMobileGameViewport();
-  const [state, setState] = useState(() =>
-    createInitialState(getRandomKnowledgeMatchId(), locale, copy)
-  );
+  const initialMatchId = useMemo(() => getRandomKnowledgeMatchId(), []);
+  const [state, setState] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const wrongCount = MAX_ERRORS - state.attemptsLeft;
+  const loadMatch = useCallback((matchId) => {
+    setIsLoading(true);
+    setState(null);
+    return createGeneratedWord(matchId, locale).then((generated) => {
+      setState(createInitialState(matchId, generated, copy));
+      setIsLoading(false);
+    });
+  }, [copy, locale]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setState(null);
+    createGeneratedWord(initialMatchId, locale).then((generated) => {
+      if (cancelled) return;
+      setState(createInitialState(initialMatchId, generated, copy));
+      setIsLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [copy, initialMatchId, locale]);
+
+  const wrongCount = MAX_ERRORS - (state?.attemptsLeft ?? MAX_ERRORS);
 
   const guessLetter = useCallback((letter) => {
     setState((previous) => {
@@ -129,12 +151,14 @@ function HangmanKnowledgeGame() {
   }, [copy]);
 
   const restart = useCallback(() => {
-    setState((previous) =>
-      createInitialState(getRandomKnowledgeMatchIdExcept(previous.matchId), locale, copy)
-    );
-  }, [copy, locale]);
+    const currentMatchId = state?.matchId ?? initialMatchId;
+    void loadMatch(getRandomKnowledgeMatchIdExcept(currentMatchId));
+  }, [initialMatchId, loadMatch, state]);
 
   useEffect(() => {
+    if (!state) {
+      return undefined;
+    }
     const onKeyDown = (event) => {
       const key = event.key;
       if (/^[a-z]$/i.test(key)) {
@@ -149,61 +173,104 @@ function HangmanKnowledgeGame() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [guessLetter, restart, state.status]);
+  }, [guessLetter, restart, state?.status]);
 
   const maskedWord = useMemo(
     () =>
-      state.word
+      (state?.word ?? "")
       .split("")
-      .map((letter) => (state.status === "lost" || state.guessedLetters.includes(letter) ? letter : "_"))
+      .map((letter) => (state?.status === "lost" || state?.guessedLetters.includes(letter) ? letter : "_"))
       .join(" "),
-    [state.guessedLetters, state.status, state.word]
+    [state]
   );
 
   const maskedTokens = useMemo(
     () =>
-      state.word.split("").map((letter) => ({
+      (state?.word ?? "").split("").map((letter) => ({
         letter,
-        revealed: state.status === "lost" || state.guessedLetters.includes(letter)
+        revealed: state?.status === "lost" || state?.guessedLetters.includes(letter)
       })),
-    [state.guessedLetters, state.status, state.word]
+    [state]
   );
 
   const usedLetters = useMemo(
-    () => new Set([...state.guessedLetters, ...state.wrongLetters]),
-    [state.guessedLetters, state.wrongLetters]
+    () => new Set([...(state?.guessedLetters ?? []), ...(state?.wrongLetters ?? [])]),
+    [state]
   );
 
-  const statusLabel = state.status === "won"
+  const statusLabel = state?.status === "won"
     ? copy.statusWon
-    : state.status === "lost"
+    : state?.status === "lost"
       ? copy.statusLost
       : copy.statusPlaying;
 
-  const payloadBuilder = useCallback((snapshot) => ({
-    mode: "knowledge-arcade",
-    variant: "ahorcado",
-    coordinates: "ui_linear",
-    locale,
-    match: {
-      current: snapshot.matchId + 1,
-      total: KNOWLEDGE_ARCADE_MATCH_COUNT
-    },
-    status: snapshot.status,
-    attemptsLeft: snapshot.attemptsLeft,
-    guessedLetters: snapshot.guessedLetters,
-    wrongLetters: snapshot.wrongLetters,
-    clue: snapshot.clue,
-    maskedWord: snapshot.word
-      .split("")
-      .map((letter) => (snapshot.status === "lost" || snapshot.guessedLetters.includes(letter) ? letter : "_"))
-      .join(""),
-    solution: snapshot.status === "lost" ? snapshot.word : null,
-    message: snapshot.message
-  }), [locale]);
+  const payloadBuilder = useCallback((snapshot) => {
+    if (!snapshot) {
+      return {
+        mode: "knowledge-arcade",
+        variant: "ahorcado",
+        coordinates: "ui_linear",
+        locale,
+        loading: true,
+        status: "loading",
+        message: copy.startMessage
+      };
+    }
+    return {
+      mode: "knowledge-arcade",
+      variant: "ahorcado",
+      coordinates: "ui_linear",
+      locale,
+      match: {
+        current: snapshot.matchId + 1,
+        total: KNOWLEDGE_ARCADE_MATCH_COUNT
+      },
+      status: snapshot.status,
+      attemptsLeft: snapshot.attemptsLeft,
+      guessedLetters: snapshot.guessedLetters,
+      wrongLetters: snapshot.wrongLetters,
+      clue: snapshot.clue,
+      maskedWord: snapshot.word
+        .split("")
+        .map((letter) => (snapshot.status === "lost" || snapshot.guessedLetters.includes(letter) ? letter : "_"))
+        .join(""),
+      solution: snapshot.status === "lost" ? snapshot.word : null,
+      message: snapshot.message
+    };
+  }, [copy.startMessage, locale]);
 
   const advanceTime = useCallback(() => undefined, []);
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
+
+  if (!state || isLoading) {
+    return (
+      <div
+        className={[
+          "mini-game",
+          "knowledge-game",
+          "knowledge-arcade-game",
+          "knowledge-ahorcado",
+          viewport.isMobile ? "is-mobile" : "",
+          viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+        ].filter(Boolean).join(" ")}
+      >
+        <div className="mini-head">
+          <div>
+            <h4>{copy.title}</h4>
+            <p>{copy.subtitle}</p>
+          </div>
+        </div>
+        <section
+          className={[
+            "knowledge-mode-shell",
+            viewport.isMobile ? "knowledge-mobile-shell" : ""
+          ].filter(Boolean).join(" ")}
+        >
+          <p className="game-message">{copy.startMessage}</p>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div

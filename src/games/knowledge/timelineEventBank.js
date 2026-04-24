@@ -1,4 +1,7 @@
-import { COMPACT_GENERATED_TIMELINE_EVENTS } from "./timelineEventBank.compact.generated.js";
+import {
+  COMPACT_GENERATED_TIMELINE_EVENT_META,
+  loadCompactGeneratedTimelineLocale,
+} from "./timelineEventBank.compact.generated.js";
 
 const E = (id, year, tags, titleEs, titleEn, summaryEs, summaryEn) => ({
   id,
@@ -83,7 +86,78 @@ const BASE_TIMELINE_EVENT_BANK = [
   E("james-webb-first-deep-field", 2022, ["space", "science"], "Primer deep field del telescopio James Webb", "James Webb first deep field image", "Nueva etapa en observacion infrarroja del universo.", "New stage in infrared observation of the universe."),
 ];
 
-export const TIMELINE_EVENT_BANK = [
-  ...BASE_TIMELINE_EVENT_BANK,
-  ...COMPACT_GENERATED_TIMELINE_EVENTS,
-];
+const normalizeLocale = (locale) => (String(locale || "").toLowerCase().startsWith("es") ? "es" : "en");
+
+const BASE_TIMELINE_TEXT_BY_LOCALE = Object.freeze({
+  es: Object.freeze(
+    Object.fromEntries(
+      BASE_TIMELINE_EVENT_BANK.map((event) => [
+        event.id,
+        {
+          title: event.title.es,
+          summary: event.summary.es,
+        },
+      ])
+    )
+  ),
+  en: Object.freeze(
+    Object.fromEntries(
+      BASE_TIMELINE_EVENT_BANK.map((event) => [
+        event.id,
+        {
+          title: event.title.en,
+          summary: event.summary.en,
+        },
+      ])
+    )
+  ),
+});
+
+const TIMELINE_EVENT_TEXT_CACHE = new Map();
+const TIMELINE_EVENT_TEXT_PROMISES = new Map();
+
+export const BASE_TIMELINE_EVENT_META = Object.freeze(
+  BASE_TIMELINE_EVENT_BANK.map(({ id, year, tags }) => ({ id, year, tags }))
+);
+
+export const TIMELINE_EVENT_BANK = Object.freeze([
+  ...BASE_TIMELINE_EVENT_META,
+  ...COMPACT_GENERATED_TIMELINE_EVENT_META,
+]);
+
+export const loadTimelineEventLocale = async (locale) => {
+  const localeKey = normalizeLocale(locale);
+  if (TIMELINE_EVENT_TEXT_CACHE.has(localeKey)) {
+    return TIMELINE_EVENT_TEXT_CACHE.get(localeKey);
+  }
+  if (!TIMELINE_EVENT_TEXT_PROMISES.has(localeKey)) {
+    TIMELINE_EVENT_TEXT_PROMISES.set(
+      localeKey,
+      loadCompactGeneratedTimelineLocale(localeKey).then((compactText) => {
+        const merged = Object.freeze({
+          ...(BASE_TIMELINE_TEXT_BY_LOCALE[localeKey] || {}),
+          ...(compactText || {}),
+        });
+        TIMELINE_EVENT_TEXT_CACHE.set(localeKey, merged);
+        return merged;
+      })
+    );
+  }
+  return TIMELINE_EVENT_TEXT_PROMISES.get(localeKey);
+};
+
+export const loadTimelineEventBank = async (locale) => {
+  const localeText = await loadTimelineEventLocale(locale);
+  return TIMELINE_EVENT_BANK.map((event) => ({
+    ...event,
+    title: localeText[event.id]?.title ?? "",
+    summary: localeText[event.id]?.summary ?? "",
+  }));
+};
+
+export const getTimelineEventText = (event, locale, field = "title") => {
+  const localeKey = normalizeLocale(locale);
+  const localeText = TIMELINE_EVENT_TEXT_CACHE.get(localeKey) || BASE_TIMELINE_TEXT_BY_LOCALE[localeKey] || {};
+  const text = localeText[event?.id]?.[field];
+  return text ?? event?.id ?? "";
+};

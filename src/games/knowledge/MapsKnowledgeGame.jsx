@@ -18,7 +18,10 @@ import {
   resolveMapDefinition,
   resolveMapVisualRegion
 } from "./mapsKnowledgeData";
-import { MAP_SILHOUETTES_BY_THEME } from "./mapsSilhouettesData";
+import {
+  getMapSilhouetteThemeSync,
+  useMapSilhouetteThemes
+} from "./mapsSilhouettesData";
 
 const COPY_BY_LOCALE = {
   es: {
@@ -184,6 +187,11 @@ function MapsKnowledgeGame() {
   const mapTitle = resolveLocalizedText(activeMap.name, locale);
   const mapSubtitle = resolveLocalizedText(activeMap.subtitle, locale);
   const isFlatSilhouetteScope = state.scopeMode === "country" || state.scopeMode === "city";
+  const silhouetteThemeIds = useMemo(
+    () => [activeMap.theme, activeMap.baseSilhouette?.theme].filter(Boolean),
+    [activeMap.baseSilhouette?.theme, activeMap.theme]
+  );
+  const { silhouettesByTheme } = useMapSilhouetteThemes(silhouetteThemeIds);
   const boardClassName = [
     "maps-board",
     `maps-theme-${activeMap.theme}`,
@@ -192,12 +200,12 @@ function MapsKnowledgeGame() {
     isFlatSilhouetteScope ? "maps-board-flat" : ""
   ].filter(Boolean).join(" ");
   const activeSilhouettes = useMemo(
-    () => MAP_SILHOUETTES_BY_THEME[activeMap.theme] ?? {},
-    [activeMap.theme]
+    () => silhouettesByTheme[activeMap.theme] ?? {},
+    [activeMap.theme, silhouettesByTheme]
   );
   const baseSilhouetteShapes = useMemo(() => {
     if (!activeMap.baseSilhouette?.theme) return [];
-    const baseTheme = MAP_SILHOUETTES_BY_THEME[activeMap.baseSilhouette.theme] ?? {};
+    const baseTheme = silhouettesByTheme[activeMap.baseSilhouette.theme] ?? {};
     const shapeIds = activeMap.baseSilhouette.ids?.length
       ? activeMap.baseSilhouette.ids
       : Object.keys(baseTheme);
@@ -207,7 +215,7 @@ function MapsKnowledgeGame() {
         paths: baseTheme[shapeId]?.paths ?? []
       }))
       .filter((shape) => shape.paths.length);
-  }, [activeMap.baseSilhouette]);
+  }, [activeMap.baseSilhouette, silhouettesByTheme]);
   const revealedSet = useMemo(() => new Set(state.revealedIds), [state.revealedIds]);
 
   const scopeOptions = useMemo(
@@ -514,9 +522,9 @@ function MapsKnowledgeGame() {
       targets: mapDefinition.targets.map((target) => ({
         id: target.id,
         kind: target.kind,
-        x: (MAP_SILHOUETTES_BY_THEME[mapDefinition.theme]?.[target.id]?.center?.[0] ?? target.x),
-        y: (MAP_SILHOUETTES_BY_THEME[mapDefinition.theme]?.[target.id]?.center?.[1] ?? target.y),
-        silhouette: Boolean(MAP_SILHOUETTES_BY_THEME[mapDefinition.theme]?.[target.id]),
+        x: (getMapSilhouetteThemeSync(mapDefinition.theme)[target.id]?.center?.[0] ?? target.x),
+        y: (getMapSilhouetteThemeSync(mapDefinition.theme)[target.id]?.center?.[1] ?? target.y),
+        silhouette: Boolean(getMapSilhouetteThemeSync(mapDefinition.theme)[target.id]),
         revealed: visibleTargets.has(target.id),
         label: visibleTargets.has(target.id)
           ? resolveLocalizedText(target.label, locale)

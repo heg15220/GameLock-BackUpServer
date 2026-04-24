@@ -113,8 +113,7 @@ const resolveMatchIdFromLocation = () => {
   return null;
 };
 
-const createInitialState = (matchId, locale, copy) => {
-  const entry = getKnowledgeWordEntry(locale, matchId);
+const createInitialState = (matchId, entry, copy) => {
   const maxAttempts = resolveMaxAttempts(entry.length);
 
   return {
@@ -135,21 +134,46 @@ function WordleKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
   const viewport = useMobileGameViewport();
-  const [state, setState] = useState(() =>
-    createInitialState(resolveMatchIdFromLocation() ?? getRandomKnowledgeMatchId(), locale, copy)
+  const initialMatchId = useMemo(
+    () => resolveMatchIdFromLocation() ?? getRandomKnowledgeMatchId(),
+    []
   );
+  const [state, setState] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const statusLabel = state.status === "won"
+  const loadMatch = useCallback((matchId) => {
+    setIsLoading(true);
+    setState(null);
+    return getKnowledgeWordEntry(locale, matchId).then((entry) => {
+      setState(createInitialState(matchId, entry, copy));
+      setIsLoading(false);
+    });
+  }, [copy, locale]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setState(null);
+    getKnowledgeWordEntry(locale, initialMatchId).then((entry) => {
+      if (cancelled) return;
+      setState(createInitialState(initialMatchId, entry, copy));
+      setIsLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [copy, initialMatchId, locale]);
+
+  const statusLabel = state?.status === "won"
     ? copy.statusWon
-    : state.status === "lost"
+    : state?.status === "lost"
       ? copy.statusLost
       : copy.statusPlaying;
 
   const restart = useCallback(() => {
-    setState((previous) =>
-      createInitialState(getRandomKnowledgeMatchIdExcept(previous.matchId), locale, copy)
-    );
-  }, [copy, locale]);
+    const currentMatchId = state?.matchId ?? initialMatchId;
+    void loadMatch(getRandomKnowledgeMatchIdExcept(currentMatchId));
+  }, [initialMatchId, loadMatch, state]);
 
   const addLetter = useCallback((letterValue) => {
     const letter = normalizeSingleLetter(letterValue);
@@ -237,6 +261,9 @@ function WordleKnowledgeGame() {
   }, [copy]);
 
   useEffect(() => {
+    if (!state) {
+      return undefined;
+    }
     const onKeyDown = (event) => {
       const key = event.key;
       if (/^[a-z]$/i.test(key)) {
@@ -265,17 +292,23 @@ function WordleKnowledgeGame() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [addLetter, clearLetter, restart, state.status, submitGuess]);
+  }, [addLetter, clearLetter, restart, state?.status, submitGuess]);
 
   const paddedRows = useMemo(() => {
+    if (!state) {
+      return [];
+    }
     const rows = [...state.guesses];
     while (rows.length < state.maxAttempts) {
       rows.push({ guess: "", feedback: [] });
     }
     return rows;
-  }, [state.guesses, state.maxAttempts]);
+  }, [state]);
 
   const boardStyle = useMemo(() => {
+    if (!state) {
+      return {};
+    }
     const targetCell = state.maxAttempts > 6 ? 40 : 44;
     const gap = 6;
     const maxWidth = state.wordLength * targetCell + (state.wordLength - 1) * gap;
@@ -284,35 +317,80 @@ function WordleKnowledgeGame() {
       "--wordle-grid-gap": `${gap}px`,
       "--wordle-max-width": `${maxWidth}px`
     };
-  }, [state.maxAttempts, state.wordLength]);
+  }, [state]);
 
-  const payloadBuilder = useCallback((snapshot) => ({
-    mode: "knowledge-arcade",
-    variant: "wordle",
-    coordinates: "grid_row_col_origin_top_left",
-    locale,
-    lexicon: KNOWLEDGE_WORD_LEXICON_META,
-    match: {
-      current: snapshot.matchId + 1,
-      total: KNOWLEDGE_WORD_TARGET_COUNT
-    },
-    status: snapshot.status,
-    wordLength: snapshot.wordLength,
-    attempts: {
-      used: snapshot.guesses.length,
-      max: snapshot.maxAttempts,
-      remaining: Math.max(0, snapshot.maxAttempts - snapshot.guesses.length)
-    },
-    clue: snapshot.clue,
-    guesses: snapshot.guesses,
-    currentInput: snapshot.currentInput,
-    keyboardState: snapshot.keyboardState,
-    message: snapshot.message,
-    solution: snapshot.status === "playing" ? null : snapshot.targetWord
-  }), [locale]);
+  const payloadBuilder = useCallback((snapshot) => {
+    if (!snapshot) {
+      return {
+        mode: "knowledge-arcade",
+        variant: "wordle",
+        coordinates: "grid_row_col_origin_top_left",
+        locale,
+        lexicon: KNOWLEDGE_WORD_LEXICON_META,
+        loading: true,
+        status: "loading",
+        message: copy.startMessage(0)
+      };
+    }
+    return {
+      mode: "knowledge-arcade",
+      variant: "wordle",
+      coordinates: "grid_row_col_origin_top_left",
+      locale,
+      lexicon: KNOWLEDGE_WORD_LEXICON_META,
+      match: {
+        current: snapshot.matchId + 1,
+        total: KNOWLEDGE_WORD_TARGET_COUNT
+      },
+      status: snapshot.status,
+      wordLength: snapshot.wordLength,
+      attempts: {
+        used: snapshot.guesses.length,
+        max: snapshot.maxAttempts,
+        remaining: Math.max(0, snapshot.maxAttempts - snapshot.guesses.length)
+      },
+      clue: snapshot.clue,
+      guesses: snapshot.guesses,
+      currentInput: snapshot.currentInput,
+      keyboardState: snapshot.keyboardState,
+      message: snapshot.message,
+      solution: snapshot.status === "playing" ? null : snapshot.targetWord
+    };
+  }, [copy, locale]);
 
   const advanceTime = useCallback(() => undefined, []);
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
+
+  if (!state || isLoading) {
+    return (
+      <div
+        className={[
+          "mini-game",
+          "knowledge-game",
+          "knowledge-arcade-game",
+          "knowledge-wordle",
+          viewport.isMobile ? "is-mobile" : "",
+          viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+        ].filter(Boolean).join(" ")}
+      >
+        <div className="mini-head">
+          <div>
+            <h4>{copy.title}</h4>
+            <p>{copy.subtitle}</p>
+          </div>
+        </div>
+        <section
+          className={[
+            "knowledge-mode-shell",
+            viewport.isMobile ? "knowledge-mobile-shell" : ""
+          ].filter(Boolean).join(" ")}
+        >
+          <p className="wordle-help">{copy.typeHint}</p>
+          <p className="game-message">{copy.startMessage(5)}</p>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div

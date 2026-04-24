@@ -56,14 +56,14 @@ describe("wordSearchGenerator", () => {
     expect(groups).toEqual(new Set(["horizontal", "vertical", "diagonal"]));
   });
 
-  it("genera las 10.000 partidas validas por idioma", () => {
-    ["es", "en"].forEach((locale) => {
+  it("genera las 10.000 partidas validas por idioma", async () => {
+    for (const locale of ["es", "en"]) {
       const seenPuzzleKeys = new Set();
       let minWordsObserved = Infinity;
-      const lexiconSet = getKnowledgeWordSet(locale);
+      const lexiconSet = await getKnowledgeWordSet(locale);
 
       for (let matchId = 0; matchId < KNOWLEDGE_ARCADE_MATCH_COUNT; matchId += 1) {
-        const match = createWordSearchMatch(matchId, locale);
+        const match = await createWordSearchMatch(matchId, locale);
         seenPuzzleKeys.add(match.puzzleKey);
         minWordsObserved = Math.min(minWordsObserved, match.words.length);
 
@@ -80,6 +80,6 @@ describe("wordSearchGenerator", () => {
 
       expect(seenPuzzleKeys.size).toBe(KNOWLEDGE_ARCADE_MATCH_COUNT);
       expect(minWordsObserved).toBeGreaterThanOrEqual(WORD_SEARCH_META.minWordsPerMatch);
-    });
-  });
+    }
+  }, 120000);
 });

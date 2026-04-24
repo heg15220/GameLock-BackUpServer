@@ -13,15 +13,15 @@ import {
 } from "./knowledgeWordLexicon";
 
 describe("knowledgeWordLexicon", () => {
-  it("expone 10k palabras por idioma alineadas al total de partidas", () => {
+  it("expone 10k palabras por idioma alineadas al total de partidas", async () => {
     expect(KNOWLEDGE_ARCADE_MATCH_COUNT).toBe(10000);
     expect(KNOWLEDGE_WORD_LEXICON_META.counts.es).toBe(10000);
     expect(KNOWLEDGE_WORD_LEXICON_META.counts.en).toBe(10000);
     expect(KNOWLEDGE_WORD_LEXICON_META.overlapCount).toBe(0);
     expect(KNOWLEDGE_WORD_LEXICON_META.source).toBe("crosswordRepoStyleBank");
 
-    ["es", "en"].forEach((locale) => {
-      const lexicon = getKnowledgeWordLexicon(locale);
+    for (const locale of ["es", "en"]) {
+      const lexicon = await getKnowledgeWordLexicon(locale);
       expect(lexicon.length).toBe(10000);
       lexicon.forEach((entry) => {
         expect(entry.word).toMatch(/^[A-Z]{5,10}$/);
@@ -29,28 +29,32 @@ describe("knowledgeWordLexicon", () => {
         expect(typeof entry.clue).toBe("string");
         expect(entry.clue.length).toBeGreaterThan(0);
       });
-    });
+    }
   });
 
-  it("mantiene bancos es/en sin palabras repetidas entre idiomas", () => {
-    const setEs = getKnowledgeWordSet("es");
-    const setEn = getKnowledgeWordSet("en");
+  it("mantiene bancos es/en sin palabras repetidas entre idiomas", async () => {
+    const [setEs, setEn] = await Promise.all([
+      getKnowledgeWordSet("es"),
+      getKnowledgeWordSet("en"),
+    ]);
     const overlap = [...setEs].reduce((count, word) => count + (setEn.has(word) ? 1 : 0), 0);
 
     expect(overlap).toBe(0);
   });
 
-  it("resuelve entrada por matchId de forma determinista", () => {
-    const first = getKnowledgeWordEntry("es", 0);
-    const wrapped = getKnowledgeWordEntry("es", KNOWLEDGE_ARCADE_MATCH_COUNT);
+  it("resuelve entrada por matchId de forma determinista", async () => {
+    const first = await getKnowledgeWordEntry("es", 0);
+    const wrapped = await getKnowledgeWordEntry("es", KNOWLEDGE_ARCADE_MATCH_COUNT);
     expect(first.word).toBe(wrapped.word);
 
-    const offset = getKnowledgeWordEntry("en", 137);
-    const offsetAgain = getKnowledgeWordEntry("en", 137);
+    const offset = await getKnowledgeWordEntry("en", 137);
+    const offsetAgain = await getKnowledgeWordEntry("en", 137);
     expect(offset.word).toBe(offsetAgain.word);
 
-    const setEs = getKnowledgeWordSet("es");
-    const setEn = getKnowledgeWordSet("en");
+    const [setEs, setEn] = await Promise.all([
+      getKnowledgeWordSet("es"),
+      getKnowledgeWordSet("en"),
+    ]);
     expect(setEs.has(first.word)).toBe(true);
     expect(setEn.has(offset.word)).toBe(true);
   });

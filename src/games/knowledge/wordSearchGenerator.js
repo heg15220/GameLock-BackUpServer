@@ -6,7 +6,7 @@ import {
 } from "./knowledgeArcadeUtils";
 import {
   KNOWLEDGE_WORD_LEXICON_META,
-  getKnowledgeWordLexicon
+  loadKnowledgeWordLexicon
 } from "./knowledgeWordLexicon";
 
 export const WORD_SEARCH_BOARD_SIZE = 20;
@@ -287,53 +287,41 @@ const WORD_BANK_BY_LOCALE = {
   ]
 };
 
-const countOverlap = (leftWords, rightWords) => {
-  const left = leftWords instanceof Set ? leftWords : new Set(leftWords);
-  const right = rightWords instanceof Set ? rightWords : new Set(rightWords);
-  return [...left].reduce((count, word) => count + (right.has(word) ? 1 : 0), 0);
-};
+const WORD_SEARCH_WORD_BANK_CACHE = new Map();
+const WORD_SEARCH_WORD_BANK_PROMISES = new Map();
 
-const createWordSearchWordBank = () => {
-  const esWords = getKnowledgeWordLexicon("es").map((entry) => entry.word);
-  const enWords = getKnowledgeWordLexicon("en").map((entry) => entry.word);
-
-  const esUniqueCount = new Set(esWords).size;
-  const enUniqueCount = new Set(enWords).size;
-  const overlapCount = countOverlap(esWords, enWords);
-  const esCount = esWords.length;
-  const enCount = enWords.length;
-
-  if (
-    esCount !== WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE ||
-    enCount !== WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE
-  ) {
+const validateWordSearchLocaleBank = (locale, words) => {
+  const uniqueCount = new Set(words).size;
+  if (words.length !== WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE) {
     throw new Error(
-      `Word Search requires ${WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE} words per locale. Received es=${esCount}, en=${enCount}.`
+      `Word Search requires ${WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE} words for ${locale}. Received ${words.length}.`
     );
   }
-  if (esUniqueCount !== esCount || enUniqueCount !== enCount) {
+  if (uniqueCount !== words.length) {
     throw new Error(
-      `Word Search requires unique locale banks. Received unique counts es=${esUniqueCount}, en=${enUniqueCount}.`
+      `Word Search requires unique locale banks. Received unique count ${uniqueCount} for ${locale}.`
     );
   }
-  if (overlapCount !== 0 || KNOWLEDGE_WORD_LEXICON_META.overlapCount !== 0) {
-    throw new Error(`Word Search requires disjoint locale banks and received overlap=${overlapCount}.`);
-  }
-
-  return Object.freeze({
-    es: Object.freeze(esWords),
-    en: Object.freeze(enWords),
-    overlapCount,
-    uniqueCounts: Object.freeze({
-      es: esUniqueCount,
-      en: enUniqueCount
-    })
-  });
 };
 
-const WORD_SEARCH_WORD_BANK = createWordSearchWordBank();
-WORD_BANK_BY_LOCALE.es = WORD_SEARCH_WORD_BANK.es;
-WORD_BANK_BY_LOCALE.en = WORD_SEARCH_WORD_BANK.en;
+const loadWordSearchWordBank = async (locale) => {
+  const localeKey = normalizeLocale(locale);
+  if (WORD_SEARCH_WORD_BANK_CACHE.has(localeKey)) {
+    return WORD_SEARCH_WORD_BANK_CACHE.get(localeKey) ?? [];
+  }
+  if (!WORD_SEARCH_WORD_BANK_PROMISES.has(localeKey)) {
+    WORD_SEARCH_WORD_BANK_PROMISES.set(
+      localeKey,
+      loadKnowledgeWordLexicon(localeKey).then((entries) => {
+        const words = Object.freeze(entries.map((entry) => entry.word));
+        validateWordSearchLocaleBank(localeKey, words);
+        WORD_SEARCH_WORD_BANK_CACHE.set(localeKey, words);
+        return words;
+      })
+    );
+  }
+  return WORD_SEARCH_WORD_BANK_PROMISES.get(localeKey) ?? [];
+};
 
 export const WORD_SEARCH_DIRECTIONS = [
   {
@@ -767,15 +755,19 @@ export const WORD_SEARCH_META = {
   minWordsPerMatch: WORD_SEARCH_MIN_WORDS,
   requiredWordsPerLocale: WORD_SEARCH_REQUIRED_WORDS_PER_LOCALE,
   bankCounts: {
-    es: WORD_BANK_BY_LOCALE.es.length,
-    en: WORD_BANK_BY_LOCALE.en.length
+    es: KNOWLEDGE_WORD_LEXICON_META.counts.es,
+    en: KNOWLEDGE_WORD_LEXICON_META.counts.en
   },
-  uniqueBankCounts: WORD_SEARCH_WORD_BANK.uniqueCounts,
-  overlapCount: WORD_SEARCH_WORD_BANK.overlapCount
+  uniqueBankCounts: {
+    es: KNOWLEDGE_WORD_LEXICON_META.counts.es,
+    en: KNOWLEDGE_WORD_LEXICON_META.counts.en
+  },
+  overlapCount: KNOWLEDGE_WORD_LEXICON_META.overlapCount
 };
 
-export const createWordSearchMatch = (matchId, locale) => {
+export const createWordSearchMatch = async (matchId, locale) => {
   const localeKey = normalizeLocale(locale);
+  WORD_BANK_BY_LOCALE[localeKey] = await loadWordSearchWordBank(localeKey);
   const safeMatchId = normalizeMatchId(matchId);
   const seed = (safeMatchId + 1) * 4093 + (localeKey === "es" ? 17 : 59);
   const base = buildMatchWithSeed(safeMatchId, localeKey, seed);

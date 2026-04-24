@@ -1,11 +1,11 @@
 import {
-  CROSSWORD_REPO_STYLE_BANK,
-  CROSSWORD_REPO_STYLE_META
+  CROSSWORD_REPO_STYLE_META,
+  loadCrosswordRepoStyleLocale
 } from "./crosswordRepoStyleBank.generated";
 import {
-  CROSSWORD_MATCH_CACHE,
   CROSSWORD_MATCH_CACHE_META
 } from "./crosswordMatchCache.generated";
+import { loadCrosswordMatchCacheEntry } from "./crosswordMatchCache.generated";
 
 const DEFAULT_CROSSWORD_MATCH_COUNT = 12000;
 
@@ -15,15 +15,10 @@ const CACHE_MATCH_COUNT = Number(
   ?? 0
 );
 
-const CACHE_INFERRED_COUNT = Math.max(
-  Array.isArray(CROSSWORD_MATCH_CACHE?.es) ? CROSSWORD_MATCH_CACHE.es.length : 0,
-  Array.isArray(CROSSWORD_MATCH_CACHE?.en) ? CROSSWORD_MATCH_CACHE.en.length : 0
-);
-
 export const CROSSWORD_MATCH_COUNT = (
   CACHE_MATCH_COUNT > 0
     ? CACHE_MATCH_COUNT
-    : (CACHE_INFERRED_COUNT > 0 ? CACHE_INFERRED_COUNT : DEFAULT_CROSSWORD_MATCH_COUNT)
+    : DEFAULT_CROSSWORD_MATCH_COUNT
 );
 
 const CROSSWORD_MIN_WORD_LENGTH = 3;
@@ -186,20 +181,26 @@ const buildLocaleEntries = (entries = [], locale) => {
   };
 };
 
-const CROSSWORD_LEXICON = Object.freeze({
-  es: buildLocaleEntries(CROSSWORD_REPO_STYLE_BANK.es, "es"),
-  en: buildLocaleEntries(CROSSWORD_REPO_STYLE_BANK.en, "en")
-});
+const CROSSWORD_LEXICON_CACHE = new Map();
 
 export const CROSSWORD_LEXICON_META = Object.freeze({
   source: CROSSWORD_REPO_STYLE_META?.source || {},
   generatedAt: CROSSWORD_REPO_STYLE_META?.generatedAt || null,
-  counts: CROSSWORD_REPO_STYLE_META?.counts || {
-    es: { total: CROSSWORD_LEXICON.es.entries.length },
-    en: { total: CROSSWORD_LEXICON.en.entries.length }
-  },
+  counts: CROSSWORD_REPO_STYLE_META?.counts || {},
   matchCount: CROSSWORD_MATCH_COUNT
 });
+
+const loadCrosswordLexicon = async (locale) => {
+  const localeKey = normalizeLocaleKey(locale);
+  if (CROSSWORD_LEXICON_CACHE.has(localeKey)) {
+    return CROSSWORD_LEXICON_CACHE.get(localeKey);
+  }
+
+  const sourceEntries = await loadCrosswordRepoStyleLocale(localeKey).catch(() => []);
+  const lexicon = buildLocaleEntries(sourceEntries, localeKey);
+  CROSSWORD_LEXICON_CACHE.set(localeKey, lexicon);
+  return lexicon;
+};
 
 const listAvailableLengths = (localeLexicon) => (
   [...localeLexicon.byLength.keys()]
@@ -443,15 +444,10 @@ const decodeCachedDirectionEntries = ({
   return entries;
 };
 
-const buildMatchSkeletonFromCache = (matchId, locale) => {
+const buildMatchSkeletonFromCache = async (matchId, locale) => {
   const localeKey = normalizeLocaleKey(locale);
-  const cacheByLocale = CROSSWORD_MATCH_CACHE?.[localeKey];
-  if (!Array.isArray(cacheByLocale) || cacheByLocale.length === 0) {
-    return null;
-  }
-
   const safeMatchId = normalizeMatchId(matchId);
-  const rawEntry = cacheByLocale[safeMatchId % cacheByLocale.length];
+  const rawEntry = await loadCrosswordMatchCacheEntry(localeKey, safeMatchId).catch(() => null);
   if (!rawEntry || typeof rawEntry !== "object") return null;
 
   const solution = buildSolutionFromCachedRows(rawEntry.s);
@@ -949,9 +945,9 @@ const buildWordEntries = ({
   return { across: acrossEntries, down: downEntries };
 };
 
-const buildMatchSkeleton = (matchId, locale) => {
+const buildMatchSkeleton = async (matchId, locale) => {
   const localeKey = normalizeLocaleKey(locale);
-  const localeLexicon = CROSSWORD_LEXICON[localeKey] || CROSSWORD_LEXICON.en;
+  const localeLexicon = await loadCrosswordLexicon(localeKey);
   const safeMatchId = normalizeMatchId(matchId);
   const availableLengths = listAvailableLengths(localeLexicon);
 
@@ -1061,12 +1057,12 @@ const buildMatchSkeleton = (matchId, locale) => {
   };
 };
 
-export const createCrosswordMatch = (matchId, locale, copy, options = {}) => {
+export const createCrosswordMatch = async (matchId, locale, copy, options = {}) => {
   const safeCopy = resolveCopy(copy);
   const preferCache = options?.preferCache !== false;
   const skeleton = (
-    (preferCache ? buildMatchSkeletonFromCache(matchId, locale) : null)
-    || buildMatchSkeleton(matchId, locale)
+    (preferCache ? await buildMatchSkeletonFromCache(matchId, locale) : null)
+    || await buildMatchSkeleton(matchId, locale)
   );
   const cellNumbers = buildCellNumbers(
     skeleton.solution,

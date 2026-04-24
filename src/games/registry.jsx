@@ -20,28 +20,28 @@
  */
 
 import React, { lazy } from "react";
-import AdventureGame from "./AdventureGame";
-import ActionGame from "./ActionGame";
-import RacingGame from "./RacingGame";
-import KnowledgeArcadeGame from "./KnowledgeArcadeGame";
-import RpgGame from "./RpgGame";
-import HeadSoccerGame from "./HeadSoccerGame";
-import PacmanGame from "./PacmanGame";
-import PongGame from "./PongGame";
-import MinesweeperGame from "./MinesweeperGame";
-import ChessGame from "./ChessGame";
-import CheckersGame from "./CheckersGame";
-import DominoStrategyGame from "./DominoStrategyGame";
-import StrategySudokuGame from "./StrategySudokuGame";
-import StrategyBattleshipGame from "./StrategyBattleshipGame";
-import PokerTexasHoldemGame from "./PokerTexasHoldemGame";
-import ParchisStrategyGame from "./ParchisStrategyGame";
-import StrategyBarajaModesGame from "./StrategyBarajaModesGame";
-import StrategyMansionTripleEnigmaGame from "./StrategyMansionTripleEnigmaGame";
-import RaceGame2DPro from "./RaceGame2DPro";
-import SunsetSlipstream from "./racing/midnight-traffic";
 
-// Heavy engines use lazy() to keep initial bundle small
+// Keep the launch shell lean: every game component loads on demand.
+const AdventureGame = lazy(() => import("./AdventureGame"));
+const ActionGame = lazy(() => import("./ActionGame"));
+const RacingGame = lazy(() => import("./RacingGame"));
+const KnowledgeArcadeGame = lazy(() => import("./KnowledgeArcadeGame"));
+const RpgGame = lazy(() => import("./RpgGame"));
+const HeadSoccerGame = lazy(() => import("./HeadSoccerGame"));
+const PacmanGame = lazy(() => import("./PacmanGame"));
+const PongGame = lazy(() => import("./PongGame"));
+const MinesweeperGame = lazy(() => import("./MinesweeperGame"));
+const ChessGame = lazy(() => import("./ChessGame"));
+const CheckersGame = lazy(() => import("./CheckersGame"));
+const DominoStrategyGame = lazy(() => import("./DominoStrategyGame"));
+const StrategySudokuGame = lazy(() => import("./StrategySudokuGame"));
+const StrategyBattleshipGame = lazy(() => import("./StrategyBattleshipGame"));
+const PokerTexasHoldemGame = lazy(() => import("./PokerTexasHoldemGame"));
+const ParchisStrategyGame = lazy(() => import("./ParchisStrategyGame"));
+const StrategyBarajaModesGame = lazy(() => import("./StrategyBarajaModesGame"));
+const StrategyMansionTripleEnigmaGame = lazy(() => import("./StrategyMansionTripleEnigmaGame"));
+const RaceGame2DPro = lazy(() => import("./RaceGame2DPro"));
+const SunsetSlipstream = lazy(() => import("./racing/midnight-traffic"));
 const KnowledgeGame = lazy(() => import("./KnowledgeGame"));
 const PlatformerGame = lazy(() => import("./PlatformerGame"));
 const FighterGame = lazy(() => import("./FighterGame"));

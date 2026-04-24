@@ -1,8 +1,11 @@
-import { KNOWLEDGE_WORD_BANK } from "./knowledgeWordBank.generated";
+import {
+  KNOWLEDGE_WORD_BANK_META,
+  loadKnowledgeWordBankLocale,
+} from "./knowledgeWordBank.generated";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
   createSeededRandom,
-  shuffleWithRandom
+  shuffleWithRandom,
 } from "./knowledgeArcadeUtils";
 
 export const KNOWLEDGE_WORD_TARGET_COUNT = 10000;
@@ -13,10 +16,13 @@ const LOCALE_FALLBACK = "en";
 const FEEDBACK_PRIORITY = {
   absent: 0,
   present: 1,
-  correct: 2
+  correct: 2,
 };
 
-const normalizeLocale = (locale) => (locale === "es" ? "es" : LOCALE_FALLBACK);
+const LEXICON_CACHE = new Map();
+const LEXICON_PROMISES = new Map();
+
+const normalizeLocale = (locale) => (String(locale || "").toLowerCase().startsWith("es") ? "es" : LOCALE_FALLBACK);
 
 const normalizeWord = (value) => (
   String(value || "")
@@ -37,103 +43,95 @@ const buildIndexByLength = (entries) => {
   return byLength;
 };
 
-const createLexicon = () => {
-  const es = Object.freeze(
-    (KNOWLEDGE_WORD_BANK.es || []).map((entry) => {
-      const word = normalizeWord(entry?.word);
-      return {
-        word,
-        length: word.length,
-        clue: String(entry?.clue || "").trim()
-      };
-    })
-  );
-  const en = Object.freeze(
-    (KNOWLEDGE_WORD_BANK.en || []).map((entry) => {
-      const word = normalizeWord(entry?.word);
-      return {
-        word,
-        length: word.length,
-        clue: String(entry?.clue || "").trim()
-      };
-    })
-  );
-  const esWordSet = new Set(es.map((entry) => entry.word));
-  const overlapCount = en.reduce((count, entry) => count + (esWordSet.has(entry.word) ? 1 : 0), 0);
-
+const validateLocaleEntries = (locale, entries) => {
+  const expectedCount = KNOWLEDGE_WORD_BANK_META.counts?.[locale] ?? KNOWLEDGE_WORD_TARGET_COUNT;
   if (KNOWLEDGE_ARCADE_MATCH_COUNT !== KNOWLEDGE_WORD_TARGET_COUNT) {
     throw new Error(
       `Knowledge match count (${KNOWLEDGE_ARCADE_MATCH_COUNT}) must equal lexicon target (${KNOWLEDGE_WORD_TARGET_COUNT}).`
     );
   }
-  if (es.length !== KNOWLEDGE_WORD_TARGET_COUNT || en.length !== KNOWLEDGE_WORD_TARGET_COUNT) {
+  if (entries.length !== expectedCount || expectedCount !== KNOWLEDGE_WORD_TARGET_COUNT) {
     throw new Error(
-      `Knowledge word banks must expose ${KNOWLEDGE_WORD_TARGET_COUNT} entries per locale. Received es=${es.length}, en=${en.length}.`
+      `Knowledge word bank must expose ${KNOWLEDGE_WORD_TARGET_COUNT} entries for ${locale}. Received ${entries.length}.`
     );
   }
-  if (overlapCount > 0) {
-    throw new Error(`Knowledge lexicon overlap must be 0 and received ${overlapCount}.`);
+  if (!entries.every((entry) => /^[A-Z]{5,10}$/.test(entry.word) && entry.clue.length > 0)) {
+    throw new Error(`Knowledge word bank contains invalid ${locale} entries.`);
   }
-  if (![...es, ...en].every((entry) => /^[A-Z]{5,10}$/.test(entry.word) && entry.clue.length > 0)) {
-    throw new Error("Knowledge word bank contains invalid entries.");
-  }
+};
 
+const buildLexicon = (locale, entries) => {
+  const lexicon = Object.freeze(
+    entries.map((entry) => {
+      const word = normalizeWord(entry?.word);
+      return {
+        word,
+        length: word.length,
+        clue: String(entry?.clue || "").trim(),
+      };
+    })
+  );
+
+  validateLocaleEntries(locale, lexicon);
   return Object.freeze({
-    es,
-    en
+    entries: lexicon,
+    wordSet: new Set(lexicon.map((entry) => entry.word)),
+    byLength: buildIndexByLength(lexicon),
   });
 };
 
-const KNOWLEDGE_WORD_LEXICON = createLexicon();
-
-const WORD_SET_BY_LOCALE = Object.freeze({
-  es: new Set(KNOWLEDGE_WORD_LEXICON.es.map((entry) => entry.word)),
-  en: new Set(KNOWLEDGE_WORD_LEXICON.en.map((entry) => entry.word))
-});
-
-const WORD_SET_BY_LENGTH = Object.freeze({
-  es: buildIndexByLength(KNOWLEDGE_WORD_LEXICON.es),
-  en: buildIndexByLength(KNOWLEDGE_WORD_LEXICON.en)
-});
-
-const CROSS_LOCALE_OVERLAP_COUNT = [...WORD_SET_BY_LOCALE.es].reduce(
-  (count, word) => count + (WORD_SET_BY_LOCALE.en.has(word) ? 1 : 0),
-  0
-);
+const loadLocaleLexicon = async (locale) => {
+  const safeLocale = normalizeLocale(locale);
+  if (LEXICON_CACHE.has(safeLocale)) {
+    return LEXICON_CACHE.get(safeLocale);
+  }
+  if (!LEXICON_PROMISES.has(safeLocale)) {
+    LEXICON_PROMISES.set(
+      safeLocale,
+      loadKnowledgeWordBankLocale(safeLocale).then((entries) => {
+        const lexicon = buildLexicon(safeLocale, entries || []);
+        LEXICON_CACHE.set(safeLocale, lexicon);
+        return lexicon;
+      })
+    );
+  }
+  return LEXICON_PROMISES.get(safeLocale);
+};
 
 export const KNOWLEDGE_WORD_LEXICON_META = Object.freeze({
   counts: Object.freeze({
-    es: KNOWLEDGE_WORD_LEXICON.es.length,
-    en: KNOWLEDGE_WORD_LEXICON.en.length
+    es: KNOWLEDGE_WORD_BANK_META.counts?.es ?? KNOWLEDGE_WORD_TARGET_COUNT,
+    en: KNOWLEDGE_WORD_BANK_META.counts?.en ?? KNOWLEDGE_WORD_TARGET_COUNT,
   }),
-  overlapCount: CROSS_LOCALE_OVERLAP_COUNT,
+  overlapCount: KNOWLEDGE_WORD_BANK_META.overlapCount ?? 0,
   minLength: KNOWLEDGE_WORD_MIN_LENGTH,
   maxLength: KNOWLEDGE_WORD_MAX_LENGTH,
-  source: KNOWLEDGE_WORD_BANK.meta?.source || "crosswordRepoStyleBank",
-  targetCount: KNOWLEDGE_WORD_TARGET_COUNT
+  source: KNOWLEDGE_WORD_BANK_META.source || "crosswordRepoStyleBank",
+  targetCount: KNOWLEDGE_WORD_TARGET_COUNT,
 });
 
-export const getKnowledgeWordLexicon = (locale) => {
-  const safeLocale = normalizeLocale(locale);
-  return KNOWLEDGE_WORD_LEXICON[safeLocale] || KNOWLEDGE_WORD_LEXICON[LOCALE_FALLBACK];
+export const loadKnowledgeWordLexicon = async (locale) => {
+  const lexicon = await loadLocaleLexicon(locale);
+  return lexicon?.entries ?? [];
 };
 
-export const getKnowledgeWordEntry = (locale, matchId) => {
-  const lexicon = getKnowledgeWordLexicon(locale);
+export const getKnowledgeWordLexicon = loadKnowledgeWordLexicon;
+
+export const getKnowledgeWordEntry = async (locale, matchId) => {
+  const lexicon = await loadKnowledgeWordLexicon(locale);
   const safeIndex = ((Number(matchId) || 0) + KNOWLEDGE_WORD_TARGET_COUNT) % KNOWLEDGE_WORD_TARGET_COUNT;
   return lexicon[safeIndex];
 };
 
-export const getKnowledgeWordSet = (locale) => {
-  const safeLocale = normalizeLocale(locale);
-  return WORD_SET_BY_LOCALE[safeLocale] || WORD_SET_BY_LOCALE[LOCALE_FALLBACK];
+export const getKnowledgeWordSet = async (locale) => {
+  const lexicon = await loadLocaleLexicon(locale);
+  return lexicon?.wordSet ?? new Set();
 };
 
-export const getKnowledgeWordsByLength = (locale, length) => {
-  const safeLocale = normalizeLocale(locale);
+export const getKnowledgeWordsByLength = async (locale, length) => {
+  const lexicon = await loadLocaleLexicon(locale);
   const size = Number(length) || 0;
-  const values = WORD_SET_BY_LENGTH[safeLocale]?.get(size) || [];
-  return values;
+  return lexicon?.byLength?.get(size) || [];
 };
 
 export const normalizeKnowledgeGuess = (value) => normalizeWord(value);
@@ -171,7 +169,7 @@ export const computeWordleFeedback = (guessValue, targetValue) => {
 
 export const mergeWordleKeyboardState = (previousState, guess, feedback) => {
   const next = {
-    ...(previousState || {})
+    ...(previousState || {}),
   };
 
   const safeGuess = normalizeWord(guess);
@@ -235,4 +233,4 @@ export const hasSameLetters = (leftValue, rightValue) => {
   return leftKeys.every((letter) => leftHistogram[letter] === rightHistogram[letter]);
 };
 
-export default KNOWLEDGE_WORD_LEXICON;
+export default loadKnowledgeWordLexicon;

@@ -251,6 +251,9 @@ const COPY_BY_LOCALE = {
   es: {
     title: "Crucigrama Dinamico",
     subtitle: "Rellena la rejilla 15x15 usando pistas horizontales y verticales.",
+    loading: "Cargando crucigrama...",
+    loadingTitle: "Runtime y cache bajo demanda",
+    loadingBody: "Se esta cargando solo el shard del cache necesario para esta partida.",
     restart: "Partida aleatoria",
     match: "Partida",
     board: "Tablero",
@@ -294,6 +297,9 @@ const COPY_BY_LOCALE = {
   en: {
     title: "Dynamic Crossword",
     subtitle: "Fill the fixed 15x15 grid using across and down clues.",
+    loading: "Loading crossword...",
+    loadingTitle: "Runtime and cache on demand",
+    loadingBody: "Only the cache shard needed for this match is being loaded.",
     restart: "Random match",
     match: "Match",
     board: "Board",
@@ -371,8 +377,8 @@ const resolveNextSelection = (solution, selected, direction, step) => {
   return nextCellInRow(solution, selected, step);
 };
 
-const createInitialState = (matchId, locale, copy) => {
-  const crossword = createCrosswordMatch(matchId, locale, copy);
+const createInitialState = async (matchId, locale, copy) => {
+  const crossword = await createCrosswordMatch(matchId, locale, copy);
   const { wordByKey, cellWordMap } = buildWordMaps(crossword.clues);
   return {
     matchId,
@@ -397,14 +403,43 @@ const createInitialState = (matchId, locale, copy) => {
 
 const allWordKeys = (snapshot) => Object.keys(snapshot.wordByKey);
 
-function CrosswordKnowledgeGameRuntime() {
-  const locale = useMemo(resolveKnowledgeArcadeLocale, []);
-  const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
-  const viewport = useMobileGameViewport();
-  const mobileInputRef = useRef(null);
-  const [state, setState] = useState(() =>
-    createInitialState(getRandomCrosswordMatchId(), locale, copy)
+function CrosswordRuntimeLoading({ copy }) {
+  return (
+    <div className="mini-game knowledge-game knowledge-arcade-game knowledge-crucigrama">
+      <div className="mini-head">
+        <div>
+          <h4>{copy.title}</h4>
+          <p>{copy.subtitle}</p>
+        </div>
+        <div className="crossword-head-actions">
+          <button type="button" disabled>{copy.loading ?? "Loading crossword..."}</button>
+        </div>
+      </div>
+      <section className="knowledge-mode-shell">
+        <div className="phaser-canvas-shell" style={{ minHeight: 520, display: "grid", placeItems: "center", padding: 24 }}>
+          <div style={{ maxWidth: 560, textAlign: "center" }}>
+            <strong>{copy.loadingTitle ?? copy.title}</strong>
+            <p>{copy.loadingBody ?? copy.subtitle}</p>
+          </div>
+        </div>
+      </section>
+    </div>
   );
+}
+
+function CrosswordKnowledgeGameRuntimeLoaded({
+  copy,
+  locale,
+  viewport,
+  initialState,
+  requestRestart
+}) {
+  const mobileInputRef = useRef(null);
+  const [state, setState] = useState(initialState);
+
+  useEffect(() => {
+    setState(initialState);
+  }, [initialState]);
 
   const selectedWordKeys = useMemo(() => (
     new Set(
@@ -449,14 +484,8 @@ function CrosswordKnowledgeGameRuntime() {
   }, [state.grid.cols, state.grid.rows, viewport.isMobile, viewport.width]);
 
   const restart = useCallback(() => {
-    setState((previous) =>
-      createInitialState(
-        getRandomCrosswordMatchIdExcept(previous.matchId),
-        locale,
-        copy
-      )
-    );
-  }, [copy, locale]);
+    requestRestart(state.matchId);
+  }, [requestRestart, state.matchId]);
 
   const writeLetter = useCallback((letter) => {
     setState((previous) => {
@@ -973,6 +1002,58 @@ function CrosswordKnowledgeGameRuntime() {
 
       <p className="game-message">{state.message}</p>
     </div>
+  );
+}
+
+function CrosswordKnowledgeGameRuntime() {
+  const locale = useMemo(resolveKnowledgeArcadeLocale, []);
+  const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
+  const viewport = useMobileGameViewport();
+  const [initialState, setInitialState] = useState(null);
+
+  const loadMatch = useCallback(async (matchId) => {
+    const nextState = await createInitialState(matchId, locale, copy);
+    setInitialState(nextState);
+  }, [copy, locale]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const matchId = getRandomCrosswordMatchId();
+    setInitialState(null);
+    createInitialState(matchId, locale, copy)
+      .then((nextState) => {
+        if (!cancelled) {
+          setInitialState(nextState);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setInitialState(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [copy, locale]);
+
+  const requestRestart = useCallback((currentMatchId) => {
+    const nextMatchId = getRandomCrosswordMatchIdExcept(currentMatchId);
+    setInitialState(null);
+    void loadMatch(nextMatchId);
+  }, [loadMatch]);
+
+  if (!initialState) {
+    return <CrosswordRuntimeLoading copy={copy} />;
+  }
+
+  return (
+    <CrosswordKnowledgeGameRuntimeLoaded
+      copy={copy}
+      locale={locale}
+      viewport={viewport}
+      initialState={initialState}
+      requestRestart={requestRestart}
+    />
   );
 }
 

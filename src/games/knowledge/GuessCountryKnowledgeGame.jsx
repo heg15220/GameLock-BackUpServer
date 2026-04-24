@@ -10,7 +10,7 @@ import {
   shuffleWithRandom
 } from "./knowledgeArcadeUtils";
 import { MAP_COUNTRY_GROUPS } from "./mapsCountryGroupsData";
-import { MAP_SILHOUETTES_BY_THEME } from "./mapsSilhouettesData";
+import { useMapSilhouetteThemes } from "./mapsSilhouettesData";
 
 const ROUND_COUNT = 5;
 const MAX_RECOMMENDED_VISIBLE = 14;
@@ -57,6 +57,7 @@ const COPY_BY_LOCALE = {
     historyCorrect: "Acertada",
     historyWrong: "Fallada",
     yourGuess: "Tu respuesta",
+    loadingData: "Cargando siluetas del mapa...",
     waitingData: "No hay suficientes siluetas para iniciar esta modalidad."
   },
   en: {
@@ -92,6 +93,7 @@ const COPY_BY_LOCALE = {
     historyCorrect: "Correct",
     historyWrong: "Wrong",
     yourGuess: "Your guess",
+    loadingData: "Loading map silhouettes...",
     waitingData: "Not enough silhouettes are available to start this mode."
   }
 };
@@ -106,9 +108,9 @@ const normalizeToken = (value) =>
 const resolveCountryName = (country, locale) =>
   country?.label?.[locale] ?? country?.label?.en ?? country?.label?.es ?? country?.id ?? "";
 
-const findSilhouetteRef = (countryId) => {
+const findSilhouetteRef = (countryId, silhouettesByTheme) => {
   for (const theme of SILHOUETTE_THEMES) {
-    const shape = MAP_SILHOUETTES_BY_THEME[theme]?.[countryId];
+    const shape = silhouettesByTheme[theme]?.[countryId];
     if (shape?.paths?.length) {
       return { theme, paths: shape.paths };
     }
@@ -116,7 +118,7 @@ const findSilhouetteRef = (countryId) => {
   return null;
 };
 
-const buildCountryPool = () => {
+const buildCountryPool = (silhouettesByTheme) => {
   const mergedById = new Map();
   Object.values(MAP_COUNTRY_GROUPS).forEach((entries) => {
     entries.forEach((entry) => {
@@ -146,7 +148,7 @@ const buildCountryPool = () => {
 
   const out = [];
   mergedById.forEach((country) => {
-    const silhouette = findSilhouetteRef(country.id);
+    const silhouette = findSilhouetteRef(country.id, silhouettesByTheme);
     if (!silhouette) return;
     const aliasSet = new Set([
       country.id.replace(/-/g, " "),
@@ -176,21 +178,19 @@ const buildCountryPool = () => {
   );
 };
 
-const COUNTRY_POOL = buildCountryPool();
-
-const buildRounds = (matchId) => {
-  if (!COUNTRY_POOL.length) return [];
+const buildRounds = (matchId, countryPool) => {
+  if (!countryPool.length) return [];
   const random = createSeededRandom((Number(matchId) || 0) + 1);
-  const shuffled = shuffleWithRandom(COUNTRY_POOL, random);
+  const shuffled = shuffleWithRandom(countryPool, random);
   return shuffled.slice(0, Math.min(ROUND_COUNT, shuffled.length));
 };
 
-const getRecommendations = (draft, locale) => {
+const getRecommendations = (draft, locale, countryPool) => {
   const query = normalizeToken(draft);
   if (!query) return { total: 0, visible: [] };
 
   const matches = [];
-  COUNTRY_POOL.forEach((country) => {
+  countryPool.forEach((country) => {
     let bestScore = null;
     country.searchEntries.forEach((entry) => {
       const index = entry.token.indexOf(query);
@@ -215,8 +215,13 @@ const getRecommendations = (draft, locale) => {
   };
 };
 
-const createInitialState = (copy, matchId = getRandomKnowledgeMatchId()) => {
-  const rounds = buildRounds(matchId);
+const createInitialState = (
+  copy,
+  countryPool,
+  matchId = getRandomKnowledgeMatchId(),
+  emptyMessage = copy.waitingData
+) => {
+  const rounds = buildRounds(matchId, countryPool);
   return {
     matchId,
     rounds,
@@ -227,7 +232,7 @@ const createInitialState = (copy, matchId = getRandomKnowledgeMatchId()) => {
     status: rounds.length ? "playing" : "empty",
     revealCurrent: false,
     history: [],
-    message: rounds.length ? copy.help : copy.waitingData
+    message: rounds.length ? copy.help : emptyMessage
   };
 };
 
@@ -235,16 +240,34 @@ function GuessCountryKnowledgeGame() {
   const locale = useMemo(resolveKnowledgeArcadeLocale, []);
   const copy = useMemo(() => COPY_BY_LOCALE[locale] ?? COPY_BY_LOCALE.en, [locale]);
   const viewport = useMobileGameViewport();
-  const [state, setState] = useState(() => createInitialState(copy));
+  const { silhouettesByTheme, isLoading } = useMapSilhouetteThemes(SILHOUETTE_THEMES);
+  const countryPool = useMemo(
+    () => buildCountryPool(silhouettesByTheme),
+    [silhouettesByTheme]
+  );
+  const [state, setState] = useState(() =>
+    createInitialState(copy, [], getRandomKnowledgeMatchId(), copy.loadingData)
+  );
   const inputRef = useRef(null);
   const shapeRef = useRef(null);
   const [shapeTransform, setShapeTransform] = useState("");
 
+  useEffect(() => {
+    setState((previous) =>
+      createInitialState(
+        copy,
+        countryPool,
+        previous.matchId,
+        isLoading ? copy.loadingData : copy.waitingData
+      )
+    );
+  }, [copy, countryPool, isLoading]);
+
   const currentRound = state.rounds[state.roundIndex] ?? null;
   const currentCountryName = resolveCountryName(currentRound, locale);
   const recommendations = useMemo(
-    () => getRecommendations(state.draft, locale),
-    [state.draft, locale]
+    () => getRecommendations(state.draft, locale, countryPool),
+    [countryPool, locale, state.draft]
   );
   const hiddenRecommendedCount = Math.max(
     0,
@@ -258,9 +281,14 @@ function GuessCountryKnowledgeGame() {
 
   const restart = useCallback(() => {
     setState((previous) =>
-      createInitialState(copy, getRandomKnowledgeMatchIdExcept(previous.matchId))
+      createInitialState(
+        copy,
+        countryPool,
+        getRandomKnowledgeMatchIdExcept(previous.matchId),
+        isLoading ? copy.loadingData : copy.waitingData
+      )
     );
-  }, [copy]);
+  }, [copy, countryPool, isLoading]);
 
   const nextRound = useCallback(() => {
     setState((previous) => {
@@ -395,7 +423,7 @@ function GuessCountryKnowledgeGame() {
 
   const payloadBuilder = useCallback((snapshot) => {
     const snapshotRound = snapshot.rounds[snapshot.roundIndex] ?? null;
-    const snapshotRecommendations = getRecommendations(snapshot.draft, locale);
+    const snapshotRecommendations = getRecommendations(snapshot.draft, locale, countryPool);
     return {
       mode: "knowledge-arcade",
       variant: "adivina-pais",
@@ -432,7 +460,7 @@ function GuessCountryKnowledgeGame() {
       history: snapshot.history.slice(-5),
       message: snapshot.message
     };
-  }, [locale]);
+  }, [countryPool, locale]);
 
   const advanceTime = useCallback(() => undefined, []);
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
@@ -462,7 +490,7 @@ function GuessCountryKnowledgeGame() {
             {copy.restart}
           </button>
         </div>
-        <p className="game-message">{copy.waitingData}</p>
+        <p className="game-message">{isLoading ? copy.loadingData : copy.waitingData}</p>
       </div>
     );
   }

@@ -19,6 +19,13 @@ const OUTPUT_FILE = path.join(
   "knowledge",
   "crosswordRepoStyleBank.generated.js"
 );
+const OUTPUT_LOCALE_DIR = path.join(
+  process.cwd(),
+  "src",
+  "games",
+  "knowledge",
+  "crosswordRepoStyleBankLocales"
+);
 
 const TARGET_PER_LOCALE = 16000;
 const MIN_WORD_LENGTH = 3;
@@ -39,6 +46,11 @@ const SOURCE_INFO = {
       raw: "https://raw.githubusercontent.com/eneko98/RAE-Corpus/main/rae_corpus.json"
     }
   }
+};
+
+const GENERATED_BANK_MIGRATION_SOURCE = {
+  generator: "existing crosswordRepoStyleBank.generated.js",
+  datasets: "re-emitted from previously generated bank because raw datasets were unavailable"
 };
 
 const normalizeAscii = (value) => String(value || "")
@@ -393,15 +405,9 @@ const buildEnglishBank = (records) => {
   return selectBalancedEntries(allEntries, TARGET_PER_LOCALE);
 };
 
-const validateInputFiles = () => {
-  const missing = Object.values(INPUT_FILES).filter((filePath) => !fs.existsSync(filePath));
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing input datasets:\n${missing.join("\n")}\n\n` +
-      "Download the files into tmp/crossword-bank-build before running this script."
-    );
-  }
-};
+const findMissingInputFiles = () => (
+  Object.values(INPUT_FILES).filter((filePath) => !fs.existsSync(filePath))
+);
 
 const buildBank = ({ spanishRows, englishRecords }) => {
   const es = buildSpanishBank(spanishRows);
@@ -414,48 +420,125 @@ const buildBank = ({ spanishRows, englishRecords }) => {
   return { es, en };
 };
 
-const build = () => {
-  validateInputFiles();
-
-  const spanishRows = JSON.parse(fs.readFileSync(INPUT_FILES.es, "utf8"));
-  if (!Array.isArray(spanishRows) || spanishRows.length === 0) {
-    throw new Error("Spanish dataset is empty or invalid.");
+const loadBankFromExistingGeneratedFile = async () => {
+  if (!fs.existsSync(OUTPUT_FILE)) {
+    return null;
   }
 
-  const englishRecords = JSON.parse(fs.readFileSync(INPUT_FILES.en, "utf8"));
-  if (!englishRecords || Array.isArray(englishRecords) || typeof englishRecords !== "object") {
-    throw new Error("English dataset is empty or invalid.");
+  const module = await import(`file://${OUTPUT_FILE.replace(/\\/g, "/")}`);
+  const bank = module.CROSSWORD_REPO_STYLE_BANK;
+  if (!bank?.es || !bank?.en) {
+    return null;
   }
 
-  const bank = buildBank({
-    spanishRows,
-    englishRecords
-  });
+  const meta = module.CROSSWORD_REPO_STYLE_META || null;
+  return { bank, meta };
+};
 
-  const meta = {
-    generatedAt: new Date().toISOString(),
-    source: SOURCE_INFO,
-    constraints: {
-      targetPerLocale: TARGET_PER_LOCALE,
-      minWordLength: MIN_WORD_LENGTH,
-      maxWordLength: MAX_WORD_LENGTH,
-      maxClueLength: MAX_CLUE_LENGTH
-    },
-    counts: {
-      es: addLengthCounts(bank.es),
-      en: addLengthCounts(bank.en)
+const build = async () => {
+  const missing = findMissingInputFiles();
+  let bank;
+  let meta;
+
+  if (missing.length === 0) {
+    const spanishRows = JSON.parse(fs.readFileSync(INPUT_FILES.es, "utf8"));
+    if (!Array.isArray(spanishRows) || spanishRows.length === 0) {
+      throw new Error("Spanish dataset is empty or invalid.");
     }
-  };
+
+    const englishRecords = JSON.parse(fs.readFileSync(INPUT_FILES.en, "utf8"));
+    if (!englishRecords || Array.isArray(englishRecords) || typeof englishRecords !== "object") {
+      throw new Error("English dataset is empty or invalid.");
+    }
+
+    bank = buildBank({
+      spanishRows,
+      englishRecords
+    });
+
+    meta = {
+      generatedAt: new Date().toISOString(),
+      source: SOURCE_INFO,
+      constraints: {
+        targetPerLocale: TARGET_PER_LOCALE,
+        minWordLength: MIN_WORD_LENGTH,
+        maxWordLength: MAX_WORD_LENGTH,
+        maxClueLength: MAX_CLUE_LENGTH
+      },
+      counts: {
+        es: addLengthCounts(bank.es),
+        en: addLengthCounts(bank.en)
+      }
+    };
+  } else {
+    const existing = await loadBankFromExistingGeneratedFile();
+    if (!existing) {
+      throw new Error(
+        `Missing input datasets:\n${missing.join("\n")}\n\n` +
+        "Download the files into tmp/crossword-bank-build before running this script."
+      );
+    }
+
+    bank = existing.bank;
+    meta = {
+      generatedAt: new Date().toISOString(),
+      source: existing.meta?.source || GENERATED_BANK_MIGRATION_SOURCE,
+      constraints: existing.meta?.constraints || {
+        targetPerLocale: TARGET_PER_LOCALE,
+        minWordLength: MIN_WORD_LENGTH,
+        maxWordLength: MAX_WORD_LENGTH,
+        maxClueLength: MAX_CLUE_LENGTH
+      },
+      counts: existing.meta?.counts || {
+        es: addLengthCounts(bank.es),
+        en: addLengthCounts(bank.en)
+      }
+    };
+  }
+
+  fs.rmSync(OUTPUT_LOCALE_DIR, { recursive: true, force: true });
+  fs.mkdirSync(OUTPUT_LOCALE_DIR, { recursive: true });
+
+  Object.entries(bank).forEach(([locale, entries]) => {
+    const localeFile = path.join(OUTPUT_LOCALE_DIR, `${locale}.generated.js`);
+    const localeContent =
+      "/* eslint-disable */\n" +
+      "// Auto-generated by scripts/build_crossword_repo_style_bank.mjs\n" +
+      `const CROSSWORD_REPO_STYLE_LOCALE_BANK = ${JSON.stringify(entries, null, 2)};\n\n` +
+      "export default CROSSWORD_REPO_STYLE_LOCALE_BANK;\n";
+    fs.writeFileSync(localeFile, localeContent, "utf8");
+  });
 
   const fileContent =
     "/* eslint-disable */\n" +
     "// Auto-generated by scripts/build_crossword_repo_style_bank.mjs\n" +
-    `export const CROSSWORD_REPO_STYLE_BANK = ${JSON.stringify(bank, null, 2)};\n\n` +
-    `export const CROSSWORD_REPO_STYLE_META = ${JSON.stringify(meta, null, 2)};\n`;
+    `export const CROSSWORD_REPO_STYLE_META = ${JSON.stringify(meta, null, 2)};\n\n` +
+    "export const CROSSWORD_REPO_STYLE_LOCALE_LOADERS = {\n" +
+    '  "es": () => import("./crosswordRepoStyleBankLocales/es.generated.js"),\n' +
+    '  "en": () => import("./crosswordRepoStyleBankLocales/en.generated.js")\n' +
+    "};\n\n" +
+    "const LOCALE_CACHE = new Map();\n" +
+    "const LOCALE_PROMISES = new Map();\n\n" +
+    "const normalizeLocaleKey = (locale) => (String(locale || \"es\").toLowerCase().startsWith(\"es\") ? \"es\" : \"en\");\n\n" +
+    "export const loadCrosswordRepoStyleLocale = async (locale) => {\n" +
+    "  const localeKey = normalizeLocaleKey(locale);\n" +
+    "  const loader = CROSSWORD_REPO_STYLE_LOCALE_LOADERS[localeKey];\n" +
+    "  if (!loader) return [];\n" +
+    "  if (LOCALE_CACHE.has(localeKey)) return LOCALE_CACHE.get(localeKey) ?? [];\n" +
+    "  if (!LOCALE_PROMISES.has(localeKey)) {\n" +
+    "    LOCALE_PROMISES.set(localeKey, loader().then((module) => {\n" +
+    "      const localeEntries = module.default ?? [];\n" +
+    "      LOCALE_CACHE.set(localeKey, localeEntries);\n" +
+    "      return localeEntries;\n" +
+    "    }));\n" +
+    "  }\n" +
+    "  return LOCALE_PROMISES.get(localeKey) ?? [];\n" +
+    "};\n";
 
   fs.writeFileSync(OUTPUT_FILE, fileContent, "utf8");
   console.log(`Generated ${OUTPUT_FILE}`);
+  console.log(`Generated locale files in ${OUTPUT_LOCALE_DIR}`);
   console.log(meta.counts);
 };
 
-build();
+await build();

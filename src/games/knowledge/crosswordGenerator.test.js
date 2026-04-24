@@ -46,15 +46,15 @@ describe("crosswordGenerator", () => {
     expect(CROSSWORD_LEXICON_META.counts.en[9]).toBeGreaterThan(100);
   });
 
-  it("genera tableros validos con pistas jugables, no spoiler y no roboticas", () => {
+  it("genera tableros validos con pistas jugables, no spoiler y no roboticas", async () => {
     const locales = ["es", "en"];
     const sampleMatchIds = [0, 1, 2, 17, 91, 512, 2049, CROSSWORD_MATCH_COUNT - 1];
 
-    locales.forEach((locale) => {
+    for (const locale of locales) {
       const seenPuzzleKeys = new Set();
 
-      sampleMatchIds.forEach((matchId) => {
-        const match = createCrosswordMatch(matchId, locale, makeCopy());
+      for (const matchId of sampleMatchIds) {
+        const match = await createCrosswordMatch(matchId, locale, makeCopy());
         seenPuzzleKeys.add(match.puzzleKey);
 
         expect(match.grid.rows).toBe(15);
@@ -97,30 +97,40 @@ describe("crosswordGenerator", () => {
           expect(typeof entry.style).toBe("string");
           expect(entry.style.length).toBeGreaterThan(0);
         });
-      });
+      }
 
       expect(seenPuzzleKeys.size).toBe(sampleMatchIds.length);
-    });
-  });
+    }
+  }, 20000);
 
-  it("cubre mezcla de longitudes incluyendo 3 y 10 letras en el cache", () => {
+  it("cubre mezcla de longitudes incluyendo 3 y 10 letras en el cache", async () => {
     const lengths = new Set();
     const locales = ["es", "en"];
 
-    locales.forEach((locale) => {
+    for (const locale of locales) {
       for (let matchId = 0; matchId < 220; matchId += 11) {
-        const match = createCrosswordMatch(matchId, locale, makeCopy());
+        const match = await createCrosswordMatch(matchId, locale, makeCopy());
         const clues = [...match.clues.across, ...match.clues.down];
         clues.forEach((entry) => lengths.add(entry.word.length));
       }
-    });
+    }
 
     expect(lengths.has(3)).toBe(true);
     expect(lengths.has(10)).toBe(true);
   });
 
-  it("clasifica una palabra como pendiente, incorrecta y correcta", () => {
-    const match = createCrosswordMatch(42, "es", makeCopy());
+  it("mantiene operativo el generador local cuando se desactiva el cache precalculado", async () => {
+    const match = await createCrosswordMatch(7, "en", makeCopy(), { preferCache: false });
+
+    expect(match.grid.rows).toBe(15);
+    expect(match.grid.cols).toBe(15);
+    expect(match.clues.across.length).toBeGreaterThanOrEqual(4);
+    expect(match.clues.down.length).toBeGreaterThanOrEqual(4);
+    expect(match.puzzleKey).toContain("repo-crossword-en-");
+  });
+
+  it("clasifica una palabra como pendiente, incorrecta y correcta", async () => {
+    const match = await createCrosswordMatch(42, "es", makeCopy());
     const entries = createEntries(match.solution);
     const firstAcross = match.clues.across[0];
     const { wordByKey } = buildWordMaps(match.clues);
@@ -168,15 +178,15 @@ describe("crosswordGenerator", () => {
     });
   });
 
-  it("aplica diversidad real de estrategias y niveles de dificultad", () => {
+  it("aplica diversidad real de estrategias y niveles de dificultad", async () => {
     const styles = new Set();
     const difficulties = new Set();
     const styleFrequency = {};
     const locales = ["es", "en"];
 
-    locales.forEach((locale) => {
+    for (const locale of locales) {
       for (let matchId = 0; matchId < 60; matchId += 1) {
-        const match = createCrosswordMatch(matchId, locale, makeCopy());
+        const match = await createCrosswordMatch(matchId, locale, makeCopy());
         const clues = [...match.clues.across, ...match.clues.down];
         const puzzleStyles = new Set(clues.map((entry) => entry.style));
         expect(puzzleStyles.size).toBeGreaterThanOrEqual(2);
@@ -187,7 +197,7 @@ describe("crosswordGenerator", () => {
           styleFrequency[entry.style] = (styleFrequency[entry.style] || 0) + 1;
         });
       }
-    });
+    }
 
     expect(styles.size).toBeGreaterThanOrEqual(8);
     expect(difficulties.has("easy")).toBe(true);

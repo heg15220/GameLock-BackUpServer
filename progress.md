@@ -4405,3 +4405,75 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
   - `dist/assets/mapsSilhouettesData-*.js` sigue en ~`2.41 MB`.
   - `dist/assets/CrosswordKnowledgeGameRuntime-*.js` sigue en ~`63 MB`.
   - Prioridad recomendada: trocear `mapsSilhouettesData` por tema/uso y sacar `crosswordMatchCache.generated` del runtime principal del crucigrama.
+
+## 2026-04-24 - Split de mapsSilhouettesData por tema
+- `scripts/generate-maps-silhouettes.mjs` deja de generar un unico `mapsSilhouettesData.js` gigante y ahora emite:
+  - loader ligero `src/games/knowledge/mapsSilhouettesData.js`
+  - chunks por tema en `src/games/knowledge/mapsSilhouettesThemes/*.js`
+- `src/games/knowledge/MapsKnowledgeGame.jsx` ya no importa el dataset monolitico; carga solo `activeMap.theme` y `baseSilhouette.theme` bajo demanda via `useMapSilhouetteThemes`.
+- `src/games/knowledge/GuessCountryKnowledgeGame.jsx` reconstruye su pool de paises desde las siluetas cargadas de `countries-america/africa/asia/oceania` y muestra estado `Cargando siluetas...` mientras llegan los chunks.
+- `src/games/knowledge/MapsShortestPathKnowledgeGame.jsx` elimina la dependencia estatica al dataset de siluetas; las regiones/provincias se inicializan con centros de `mapsKnowledgeData` y solo cargan el tema visual activo al renderizar.
+- Validacion:
+  - `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK.
+  - El monolito `dist/assets/mapsSilhouettesData-*.js` queda sustituido por loader ligero `~30.39 kB` y chunks tematicos separados (`world ~114 kB`, `europe ~79 kB`, `countries-america ~72.53 kB`, etc.).
+  - Chunks de entrada de los juegos de mapas tras el split:
+    - `GuessCountryKnowledgeGame-*.js` ~ `12.71 kB`
+    - `MapsKnowledgeGame-*.js` ~ `13.44 kB`
+    - `MapsShortestPathKnowledgeGame-*.js` ~ `339.16 kB`
+- Impacto operativo:
+  - Queda resuelto el cuello de botella de `mapsSilhouettesData` como blob unico de ~`2.4 MB`.
+  - El siguiente cuello de botella grande sigue siendo `CrosswordKnowledgeGameRuntime-*.js` ~ `63.03 MB`.
+  - Dentro de mapas, el siguiente recorte potencial esta en `mapsKnowledgeData-*.js` (~`208.91 kB`) y en el propio `MapsShortestPathKnowledgeGame-*.js` por sus catalogos/adyacencias.
+
+## 2026-04-24 - Crucigrama cache shardizado + runtime async
+- `scripts/build_crossword_match_cache.mjs` deja de generar un `crosswordMatchCache.generated.js` monolitico y ahora emite:
+  - loader ligero `src/games/knowledge/crosswordMatchCache.generated.js`
+  - `48` shards en `src/games/knowledge/crosswordMatchCacheShards/` (`24` por locale, `500` partidas por shard)
+- `src/games/knowledge/crosswordGenerator.js` ya no arrastra el cache completo al import estatico; `createCrosswordMatch(...)` pasa a asincrono y carga solo el shard necesario para `locale + matchId`, con fallback al generador local si el shard no estuviera disponible.
+- `src/games/knowledge/CrosswordKnowledgeGameRuntime.jsx` pasa a wrapper de carga asincrona: muestra estado de carga mientras trae la partida, y el runtime jugable vive en una rama cargada cuando el estado inicial ya esta resuelto.
+- `src/games/knowledge/crosswordGenerator.test.js` adaptado a `await createCrosswordMatch(...)` para validar el flujo nuevo.
+- Validacion:
+  - `node scripts/build_crossword_match_cache.mjs` OK.
+  - `npm run test -- src/games/knowledge/crosswordGenerator.test.js` OK (`5` tests).
+  - `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK.
+- Impacto en bundle confirmado por build:
+  - `CrosswordKnowledgeGameRuntime-*.js` baja de ~`63.03 MB` a ~`2.80 MB` minificado.
+  - El cache deja de aparecer como un unico chunk gigante y pasa a shards de ~`1.20-1.33 MB` minificados cada uno, cargados solo bajo demanda.
+  - `CrosswordKnowledgeGame-*.js` shell se mantiene ligero (~`3.00 kB`).
+- Siguiente cuello de botella real tras este split:
+  - `CrosswordKnowledgeGameRuntime-*.js` sigue relativamente pesado (~`2.80 MB`) porque `crosswordRepoStyleBank.generated` y la logica completa del generador siguen dentro del runtime.
+  - `index-*.js` base compartida sigue ~`2.68 MB`.
+  - Prioridad recomendada: trocear/derivar `crosswordRepoStyleBank.generated` para que el crucigrama no cargue el banco completo cuando ya existe cache precalculada.
+
+## 2026-04-24 - crosswordRepoStyleBank por locale + runtime minimo de crucigrama
+- `scripts/build_crossword_repo_style_bank.mjs` deja de emitir un banco monolitico y ahora genera:
+  - loader ligero `src/games/knowledge/crosswordRepoStyleBank.generated.js`
+  - locales separados en `src/games/knowledge/crosswordRepoStyleBankLocales/es.generated.js` y `src/games/knowledge/crosswordRepoStyleBankLocales/en.generated.js`
+- El builder incorpora ruta de migracion: si faltan los datasets temporales crudos, recompone los locales a partir del banco generado existente y vuelve a emitir el formato shardizado por locale.
+- `scripts/build_crossword_match_cache.mjs` y `scripts/generate-knowledge-word-banks.mjs` pasan a consumir el banco de estilo por locale en lugar del blob completo.
+- `src/games/knowledge/crosswordGenerator.js` elimina la importacion estatica del banco repo-style: el lexicon del generador local se carga bajo demanda por locale y solo entra en juego cuando se necesita fallback (`preferCache: false` o fallo del cache precalculado).
+- `src/games/knowledge/crosswordGenerator.test.js` amplia cobertura para validar que el generador local sigue operativo sin cache precalculado.
+- Validacion:
+  - `node scripts/build_crossword_repo_style_bank.mjs` OK.
+  - `npm run test -- src/games/knowledge/crosswordGenerator.test.js` OK (`6` tests).
+  - `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK.
+- Impacto en bundle confirmado por build:
+  - `CrosswordKnowledgeGameRuntime-*.js` baja de ~`2.80 MB` a ~`33.75 kB` minificado (`11.77 kB` gzip).
+  - El peso del banco repo-style pasa a chunks por locale cargados bajo demanda: `es.generated-*.js` ~`1.42 MB` y `en.generated-*.js` ~`1.34 MB`.
+  - El runtime normal del crucigrama queda desacoplado tanto del cache completo como del banco repo-style completo.
+- Siguiente cuello de botella real tras esta pasada:
+  - `index-*.js` base compartida sigue ~`2.68 MB`.
+  - `knowledgeWordLexicon-*.js` / `HangmanKnowledgeGame-*.js` siguen ~`1.44 MB`.
+  - `TimelineKnowledgeGame-*.js` sigue ~`709 kB`.
+
+## 2026-04-24 - registro de juegos lazy y limpieza del shell inicial
+- `src/games/registry.jsx` deja de importar en caliente los juegos del modal de lanzamiento: el registro completo pasa a `lazy(() => import(...))`, incluyendo `AdventureGame`, `ActionGame`, `RacingGame`, `KnowledgeArcadeGame`, `RpgGame`, `HeadSoccerGame`, `PacmanGame`, `PongGame`, `MinesweeperGame`, `ChessGame`, `CheckersGame`, `DominoStrategyGame`, `StrategySudokuGame`, `StrategyBattleshipGame`, `PokerTexasHoldemGame`, `ParchisStrategyGame`, `StrategyBarajaModesGame`, `StrategyMansionTripleEnigmaGame`, `RaceGame2DPro` y `SunsetSlipstream`.
+- Las variantes wrapper (`Knowledge*`, retro variants, etc.) siguen resolviendo sobre componentes lazy, por lo que el modal conserva compatibilidad con `Suspense` tanto en desktop como dentro de `MobileGameShell`.
+- Validacion:
+  - `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK.
+- Impacto en bundle confirmado por build:
+  - `index-*.js` base compartida baja de ~`2.68 MB` a ~`490.64 kB`.
+  - El shell principal deja de absorber los runtimes de juegos que ahora salen como chunks independientes (`KnowledgeGame`, `PacmanGame`, `HeadSoccerGame`, `ChessGame`, `PongGame`, `CheckersGame`, `StrategyBattleshipGame`, `ParchisStrategyGame`, `PokerTexasHoldemGame`, etc.).
+  - Los cuellos de botella que quedaban pendientes de la pasada anterior (`index`, `knowledgeWordLexicon`/`HangmanKnowledgeGame`, `TimelineKnowledgeGame`) quedan cerrados.
+- Estado actual tras esta ronda:
+  - Los warnings de Vite ya no vienen del shell inicial, sino de assets/runtime cargados bajo demanda (`phaser` y bancos `generated` grandes por locale/shard).
