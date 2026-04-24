@@ -3,6 +3,9 @@ dist
 .DS_Store
 npm-debug.log*
 .npm-cache
+tests/bench/results/*.json
+tests/bench/results/*.html
+tests/bench/results/.last-game-list.json
 server/data/wikipedia-gacha/catalog.ndjson
 server/data/wikipedia-gacha/catalog.ndjson
 server/data/wikipedia-gacha/catalog.ndjson

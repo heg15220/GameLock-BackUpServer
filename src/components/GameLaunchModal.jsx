@@ -7,6 +7,7 @@ import MobileGameShell from "../mobile/MobileGameShell";
 import { getResponsiveMobileShellMode } from "../mobile/mobileGameProfiles";
 import { NATIVE_MOBILE_GAME_IDS } from "../mobile/nativeMobileGameIds";
 import AdPreviewCard from "./AdPreviewCard";
+import BenchReadyMarker from "../bench/BenchReadyMarker";
 import {
   DESKTOP_AD_SLOTS,
   MOBILE_APP_BOTTOM_AD_SLOT,
@@ -58,6 +59,16 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
     window.addEventListener("launch-game-close", handleCloseRequest);
     return () => window.removeEventListener("launch-game-close", handleCloseRequest);
   }, [onClose]);
+
+  useEffect(() => {
+    // In bench mode the harness calls __bench.reset() itself before
+    // dispatching open-game, so the modal must not double-reset —
+    // doing so would orphan the promise the harness is awaiting.
+    // We only stash the gameId for diagnostics.
+    if (!import.meta.env.VITE_BENCH) return;
+    if (typeof window === "undefined" || !window.__bench) return;
+    window.__bench.gameId = String(game.id ?? "");
+  }, [game.id]);
 
   const mobileShellMode = getResponsiveMobileShellMode(game, viewport);
   const mobileShellEligible = MOBILE_SHELL_CATEGORIES.has(String(game.category ?? ""));
@@ -256,6 +267,7 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
                 }
               >
                 <ActiveGame />
+                {import.meta.env.VITE_BENCH ? <BenchReadyMarker gameId={gameId} /> : null}
               </MobileGameShell>
             ) : (
               <div
@@ -305,6 +317,7 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
                             }
                           >
                             <ActiveGame />
+                            {import.meta.env.VITE_BENCH ? <BenchReadyMarker gameId={gameId} /> : null}
                           </Suspense>
                         </div>
                       </div>

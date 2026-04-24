@@ -17,7 +17,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dev:bench": "cross-env VITE_BENCH=1 vite --port 5173",
+    "build:bench": "cross-env VITE_BENCH=1 vite build",
+    "preview:bench": "cross-env VITE_BENCH=1 vite preview --port 5173",
+    "test:bench": "playwright test --config=tests/bench/playwright.bench.config.js",
+    "bench:report": "node tests/bench/report.mjs"
   },
   "dependencies": {
     "howler": "^2.2.4",
@@ -28,6 +33,8 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "cross-env": "^7.0.3",
     "playwright": "^1.44.1",
     "vite": "^4.5.14",
     "vitest": "^0.34.6"

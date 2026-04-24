@@ -103,6 +103,26 @@ function App() {
       : `Página ${currentPage} de ${totalPages}`;
 
   useEffect(() => {
+    if (!import.meta.env.VITE_BENCH) return;
+    if (typeof window === "undefined") return;
+    window.__benchGames = games.map((g) => ({ id: g.id, category: g.category }));
+    const openHandler = (e) => {
+      const id = e?.detail;
+      if (typeof id !== "string") return;
+      if (games.some((g) => g.id === id)) {
+        setLaunchedGameId(id);
+      }
+    };
+    const closeHandler = () => setLaunchedGameId(null);
+    window.addEventListener("bench:open-game", openHandler);
+    window.addEventListener("bench:close-game", closeHandler);
+    return () => {
+      window.removeEventListener("bench:open-game", openHandler);
+      window.removeEventListener("bench:close-game", closeHandler);
+    };
+  }, []);
+
+  useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(AD_PREVIEW_STORAGE_KEY, String(adPreviewEnabled));
     window.dispatchEvent(new StorageEvent("storage", {
