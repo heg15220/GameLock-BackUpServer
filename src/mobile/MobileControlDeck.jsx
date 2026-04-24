@@ -1,6 +1,26 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { holdInputs, releaseAllInputs, tapInputs } from "./mobileInputBridge";
 
+function getEmbeddedStandaloneRoots(scopeElement) {
+  if (!scopeElement) {
+    return [];
+  }
+
+  const candidates = [scopeElement, ...scopeElement.querySelectorAll("*")];
+  return candidates.flatMap((node, index) => {
+    const shadowRoot = node?.shadowRoot;
+    const bodyRoot = shadowRoot?.querySelector?.("#embedded-body");
+    if (!shadowRoot || !bodyRoot) {
+      return [];
+    }
+
+    return [{
+      key: node.id || `shadow-host-${index}`,
+      queryRoot: shadowRoot,
+    }];
+  });
+}
+
 function isElementVisible(element) {
   if (!element || element.hidden || element.disabled) {
     return false;
@@ -33,6 +53,9 @@ function resolveActionTarget(button, scopeElement) {
       // Ignore cross-origin or not-ready frames.
     }
   });
+  getEmbeddedStandaloneRoots(scopeElement).forEach(({ queryRoot }) => {
+    roots.push(queryRoot);
+  });
 
   for (const root of roots) {
     try {
@@ -54,15 +77,29 @@ function resolveFrameWindows(scopeElement) {
   }
 
   const targets = [];
+  const seenTargets = new Set();
+  const registerTarget = (targetWindow) => {
+    if (!targetWindow || seenTargets.has(targetWindow)) {
+      return;
+    }
+    seenTargets.add(targetWindow);
+    targets.push(targetWindow);
+  };
+
   scopeElement.querySelectorAll("iframe").forEach((frame) => {
     try {
       if (frame.contentWindow) {
-        targets.push(frame.contentWindow);
+        registerTarget(frame.contentWindow);
       }
     } catch {
       // Ignore cross-origin or not-ready frames.
     }
   });
+
+  getEmbeddedStandaloneRoots(scopeElement).forEach(({ queryRoot }) => {
+    registerTarget(queryRoot.host?.ownerDocument?.defaultView ?? window);
+  });
+
   return targets;
 }
 

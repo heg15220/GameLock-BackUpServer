@@ -5616,8 +5616,8 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-kitchen-rush-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .kitchen-rush-canvas-shell,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .fighter-stage,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame,
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame,
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame {
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-dig-hole-treasure-frame,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-valle-tranquilo-frame {
   display: block;
   width: 100%;
   height: 100%;

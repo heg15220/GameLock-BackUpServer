@@ -7,7 +7,13 @@ import { getInputLoop } from "./fixtures/inputs-by-game.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const RESULTS_DIR = path.join(__dirname, "results");
 const SAMPLE_MS = Number(process.env.BENCH_SAMPLE_MS || 5000);
-const ARCADE_CATEGORIES = new Set(["Arcade", "Deportes", "Sports"]);
+const BENCH_CATEGORIES = new Set([
+  "Arcade",
+  "Deportes",
+  "Sports",
+  "Estrategia",
+  "Juegos",
+]);
 
 // A single context reused across tests so cache / JS compilation is
 // warm — matches the real user flow (browsing catalog, opening games).
@@ -36,7 +42,7 @@ function classify(value, ideal) {
 }
 
 function resolveGameList(found) {
-  const filtered = found.filter((g) => ARCADE_CATEGORIES.has(String(g.category ?? "")));
+  const filtered = found.filter((g) => BENCH_CATEGORIES.has(String(g.category ?? "")));
   // Dedupe by id in case
   const byId = new Map();
   for (const g of filtered) byId.set(g.id, g);

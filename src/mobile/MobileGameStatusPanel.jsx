@@ -365,6 +365,112 @@ function dispatchSelectEvents(select) {
   select.dispatchEvent(new win.Event("change", { bubbles: true }));
 }
 
+function getEmbeddedStandaloneRoots(scopeElement) {
+  if (!scopeElement) {
+    return [];
+  }
+
+  const candidates = [scopeElement, ...scopeElement.querySelectorAll("*")];
+  return candidates.flatMap((node, index) => {
+    const shadowRoot = node?.shadowRoot;
+    const bodyRoot = shadowRoot?.querySelector?.("#embedded-body");
+    if (!shadowRoot || !bodyRoot) {
+      return [];
+    }
+
+    return [{
+      key: node.id || `shadow-host-${index}`,
+      queryRoot: shadowRoot,
+    }];
+  });
+}
+
+function collectEmbeddedControls(queryRoot, rootKey, registerEntries) {
+  if (!queryRoot?.querySelectorAll) {
+    return;
+  }
+
+  const modalRoots = [
+    ...queryRoot.querySelectorAll(
+      "#mb.on, #worldSelect:not(.hidden), #panelOverlay:not(.hidden), #treasureRoomOverlay:not(.hidden), #endingOverlay:not(.hidden), .overlay:not(.hidden)"
+    ),
+  ];
+  modalRoots.forEach((root, rootIndex) => {
+    registerEntries(
+      collectControlsFromRoot(root, `${rootKey}-modal-${rootIndex}`, "modal")
+    );
+  });
+
+  const actionRoots = [
+    ...queryRoot.querySelectorAll("#actb, .action-row, #guide-actions"),
+  ];
+  actionRoots.forEach((root, rootIndex) => {
+    registerEntries(
+      collectControlsFromRoot(root, `${rootKey}-actions-${rootIndex}`, "actions", true)
+    );
+  });
+
+  const visibleStandaloneButtons = [...queryRoot.querySelectorAll("button")].filter((button) => {
+    if (
+      button.closest(
+        "#mb.on, .overlay:not(.hidden), #panelOverlay:not(.hidden), #worldSelect:not(.hidden), #endingOverlay:not(.hidden), #treasureRoomOverlay:not(.hidden), #actb, .action-row, #guide-actions"
+      )
+    ) {
+      return false;
+    }
+
+    return isVisibleControl(button);
+  });
+
+  visibleStandaloneButtons.forEach((button, buttonIndex) => {
+    registerEntries({
+      buttons: [{
+        id: button.id || `${rootKey}-visible-button-${buttonIndex}`,
+        label: extractControlLabel(button),
+        disabled: Boolean(button.disabled),
+        target: button,
+        group: "visible-stage",
+      }],
+      selects: [],
+    });
+  });
+
+  const visibleStandaloneSelects = [...queryRoot.querySelectorAll("select")].filter((select) => {
+    if (select.closest("#mb.on, .overlay:not(.hidden), #panelOverlay:not(.hidden), #worldSelect:not(.hidden)")) {
+      return false;
+    }
+    return isVisibleControl(select);
+  });
+
+  visibleStandaloneSelects.forEach((select, selectIndex) => {
+    registerEntries({
+      buttons: [],
+      selects: [{
+        id: select.id || `${rootKey}-select-${selectIndex}`,
+        label: extractSelectLabel(select),
+        disabled: Boolean(select.disabled),
+        value: select.value,
+        target: select,
+        options: Array.from(select.options).map((option) => ({
+          value: option.value,
+          label: normalizeText(option.textContent) || option.value,
+        })),
+        group: "visible-select",
+      }],
+    });
+  });
+}
+
+function getValleQueryRoot(scopeElement) {
+  const standaloneRoot = getEmbeddedStandaloneRoots(scopeElement)[0]?.queryRoot;
+  if (standaloneRoot) {
+    return standaloneRoot;
+  }
+
+  const frame = scopeElement?.querySelector?.("iframe");
+  return frame?.contentDocument ?? null;
+}
+
 function buildMenuControls(scopeElement) {
   if (!scopeElement) {
     return { buttons: [], selects: [] };
@@ -401,75 +507,11 @@ function buildMenuControls(scopeElement) {
     if (!doc) {
       return;
     }
+    collectEmbeddedControls(doc, `iframe-${frameIndex}`, registerEntries);
+  });
 
-    const modalRoots = [
-      ...doc.querySelectorAll(
-        "#mb.on, #worldSelect:not(.hidden), #panelOverlay:not(.hidden), #treasureRoomOverlay:not(.hidden), #endingOverlay:not(.hidden), .overlay:not(.hidden)"
-      ),
-    ];
-    modalRoots.forEach((root, rootIndex) => {
-      registerEntries(
-        collectControlsFromRoot(root, `iframe-${frameIndex}-modal-${rootIndex}`, "modal")
-      );
-    });
-
-    const actionRoots = [
-      ...doc.querySelectorAll("#actb, .action-row, #guide-actions"),
-    ];
-    actionRoots.forEach((root, rootIndex) => {
-      registerEntries(
-        collectControlsFromRoot(root, `iframe-${frameIndex}-actions-${rootIndex}`, "actions", true)
-      );
-    });
-
-    const visibleStandaloneButtons = [...doc.querySelectorAll("button")].filter((button) => {
-      if (
-        button.closest(
-          "#mb.on, .overlay:not(.hidden), #panelOverlay:not(.hidden), #worldSelect:not(.hidden), #endingOverlay:not(.hidden), #treasureRoomOverlay:not(.hidden), #actb, .action-row, #guide-actions"
-        )
-      ) {
-        return false;
-      }
-
-      return isVisibleControl(button);
-    });
-
-    visibleStandaloneButtons.forEach((button, buttonIndex) => {
-      registerEntries({
-        buttons: [{
-          id: button.id || `iframe-${frameIndex}-visible-button-${buttonIndex}`,
-          label: extractControlLabel(button),
-          disabled: Boolean(button.disabled),
-          target: button,
-          group: "visible-stage",
-        }],
-        selects: [],
-      });
-    });
-
-    const visibleStandaloneSelects = [...doc.querySelectorAll("select")].filter((select) => {
-      if (select.closest("#mb.on, .overlay:not(.hidden), #panelOverlay:not(.hidden), #worldSelect:not(.hidden)")) {
-        return;
-      }
-      return isVisibleControl(select);
-    });
-    visibleStandaloneSelects.forEach((select, selectIndex) => {
-      registerEntries({
-        buttons: [],
-        selects: [{
-          id: select.id || `iframe-${frameIndex}-select-${selectIndex}`,
-          label: extractSelectLabel(select),
-          disabled: Boolean(select.disabled),
-          value: select.value,
-          target: select,
-          options: Array.from(select.options).map((option) => ({
-            value: option.value,
-            label: normalizeText(option.textContent) || option.value,
-          })),
-          group: "visible-select",
-        }],
-      });
-    });
+  getEmbeddedStandaloneRoots(scopeElement).forEach(({ key, queryRoot }) => {
+    collectEmbeddedControls(queryRoot, key, registerEntries);
   });
 
   scopeElement.querySelectorAll(".parchis-actions").forEach((root, rootIndex) => {
@@ -520,13 +562,12 @@ function buildSupplementalSections(scopeElement, snapshot, locale) {
     return [];
   }
 
-  const frame = scopeElement.querySelector("iframe");
-  const doc = frame?.contentDocument;
-  if (!doc) {
+  const queryRoot = getValleQueryRoot(scopeElement);
+  if (!queryRoot?.querySelectorAll) {
     return [];
   }
 
-  const tools = Array.from(doc.querySelectorAll("#pl .tb")).map((button, index) => ({
+  const tools = Array.from(queryRoot.querySelectorAll("#pl .tb")).map((button, index) => ({
     id: button.id || `valle-tool-${index}`,
     label: extractValleToolLabel(button),
     icon: extractValleIcon(button),
@@ -535,7 +576,7 @@ function buildSupplementalSections(scopeElement, snapshot, locale) {
     target: button,
   }));
 
-  const inventory = Array.from(doc.querySelectorAll("#invw .is:not(.e)"))
+  const inventory = Array.from(queryRoot.querySelectorAll("#invw .is:not(.e)"))
     .map((slot, index) => {
       const label = normalizeText(slot.querySelector(".il")?.textContent);
       if (!label) {
@@ -552,7 +593,7 @@ function buildSupplementalSections(scopeElement, snapshot, locale) {
     })
     .filter(Boolean);
 
-  const quests = Array.from(doc.querySelectorAll("#qsl .qi"))
+  const quests = Array.from(queryRoot.querySelectorAll("#qsl .qi"))
     .map((entry, index) => {
       const label = normalizeText(entry.querySelector(".qt")?.textContent || entry.textContent);
       if (!label) {
@@ -616,30 +657,59 @@ function filterContextButtons(buttons, snapshot, gameCategory) {
   const isStrategyFamily = isStrategyCategory(gameCategory);
   const isKnowledgeFamily = isKnowledgeCategory(gameCategory);
   const actionButtons = buttons.filter((button) => button.group === "actions");
+  const modalButtons = buttons.filter((button) => button.group === "modal");
   const buttonIdMatches = (button, pattern) =>
     pattern.test(String(button.target?.id ?? button.id ?? ""));
   const buttonLabelMatches = (button, pattern) =>
     pattern.test(String(button.label ?? ""));
 
   if (snapshot.mode === "arcade-dig-hole-treasure" || snapshot.variant === "valle-tranquilo") {
+    if (snapshot.variant === "valle-tranquilo") {
+      const valleScreen = String(snapshot?.screen ?? "").toLowerCase();
+      const valleButtons = dedupeButtons(
+        [
+          ...modalButtons,
+          ...actionButtons,
+          ...buttons.filter((button) =>
+            button.group === "visible-stage" || button.group === "hidden"
+          ),
+        ]
+          .filter((button) => !button.disabled)
+          .filter((button) => !buttonLabelMatches(button, /fullscreen|pantalla completa/i))
+          .filter((button) => {
+            if (
+              button.group === "modal" ||
+              buttonIdMatches(button, /^(m-close|exit-interior-btn)$/i) ||
+              buttonIdMatches(button, /fish-cancel/i)
+            ) {
+              return true;
+            }
+
+            return buttonSourceWeight(button) >= 3;
+          })
+      );
+
+      if (valleScreen === "modal") {
+        const prioritizedModalButtons = valleButtons.filter((button) => (
+          button.group === "modal" || buttonIdMatches(button, /^m-close$/i)
+        ));
+        const fallbackButtons = valleButtons.filter((button) => !prioritizedModalButtons.includes(button));
+        return [...prioritizedModalButtons, ...fallbackButtons].slice(0, 10);
+      }
+
+      return valleButtons.slice(0, 10);
+    }
+
     return dedupeButtons(
       [
         ...actionButtons,
         ...buttons.filter((button) => button.group === "visible-stage"),
       ]
         .filter((button) => !buttonLabelMatches(button, /fullscreen|pantalla completa/i))
-        .filter((button) => !buttonIdMatches(button, /^exit-interior-btn$/i))
         .filter((button) => {
-          if (snapshot.variant !== "valle-tranquilo") {
-            return true;
-          }
-
-          return (
-            buttonSourceWeight(button) >= 3
-            || buttonIdMatches(button, /fish-cancel/i)
-          );
+          return true;
         })
-    ).slice(0, snapshot.variant === "valle-tranquilo" ? 10 : 8);
+    ).slice(0, 8);
   }
 
   if (snapshot.mode === "billiards_pool") {
@@ -1331,4 +1401,3 @@ export default function MobileGameStatusPanel({
     </section>
   );
 }
-

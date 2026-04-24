@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
 
-const GAME_HTML = path.resolve("public/arcade/neon-rush/index.html");
+const GAME_HTML = path.resolve("src/arcade/neon-rush/index.html");
 
 function loadGameBuilders() {
   const html = fs.readFileSync(GAME_HTML, "utf8");

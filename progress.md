@@ -4477,3 +4477,9 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
   - Los cuellos de botella que quedaban pendientes de la pasada anterior (`index`, `knowledgeWordLexicon`/`HangmanKnowledgeGame`, `TimelineKnowledgeGame`) quedan cerrados.
 - Estado actual tras esta ronda:
   - Los warnings de Vite ya no vienen del shell inicial, sino de assets/runtime cargados bajo demanda (`phaser` y bancos `generated` grandes por locale/shard).
+
+## 2026-04-25 - Dig Hole stamina HUD visible in mobile/tablet gameplay
+- Ajustada src/arcade/dig-hole-treasure/styles.css para que mobile-shell-ui-externalized solo oculte message-box; stamina-hud vuelve a mantenerse visible dentro del stage en movil y tablet.
+
+- Ajuste extra en src/arcade/dig-hole-treasure/styles.css: tambien se restaura message-box para que el texto de material encontrado siga visible dentro del gameplay movil/tablet.
+

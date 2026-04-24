@@ -260,6 +260,13 @@ export function formatMobileStatus(snapshot, locale = "es") {
     addEntry(entries, locale === "en" ? "Depth" : "Prof.", snapshot.depthMeters != null ? `${snapshot.depthMeters}m` : null);
     addEntry(entries, locale === "en" ? "Load" : "Carga", snapshot.inventoryCount != null && snapshot.capacity != null ? `${snapshot.inventoryCount}/${snapshot.capacity}` : null);
     addEntry(entries, locale === "en" ? "Coins" : "Mon.", snapshot.coins);
+    addEntry(
+      entries,
+      locale === "en" ? "Stamina" : "Estam.",
+      snapshot.stamina != null && snapshot.maxStamina != null
+        ? `${Math.ceil(snapshot.stamina)}/${snapshot.maxStamina}`
+        : null
+    );
   }
 
   return {

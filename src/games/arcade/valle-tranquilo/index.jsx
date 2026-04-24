@@ -1,13 +1,17 @@
 import React from "react";
 import StandaloneHtmlGameHost from "../../../components/StandaloneHtmlGameHost";
-import valleTranquiloHtml from "../../../../public/arcade/valle-tranquilo/index.html?raw";
+import valleTranquiloHtml from "../../../arcade/valle-tranquilo/index.html?raw";
+import useEmbeddedMobileShellBodyClassName from "../useEmbeddedMobileShellBodyClassName";
 
 export default function ValleTranquiloGame() {
+  const { bodyClassName, shellRef } = useEmbeddedMobileShellBodyClassName();
+
   return (
-    <div className="arcade-neon-rush-shell">
+    <div ref={shellRef} className="arcade-valle-tranquilo-shell">
       <StandaloneHtmlGameHost
         html={valleTranquiloHtml}
-        className="arcade-neon-rush-frame"
+        bodyClassName={bodyClassName}
+        className="arcade-valle-tranquilo-frame"
       />
     </div>
   );

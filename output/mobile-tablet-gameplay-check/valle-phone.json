@@ -1,0 +1,202 @@
+{
+  "scenario": "valle-phone",
+  "gameId": "arcade-valle-tranquilo",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "state": {
+    "mode": "arcade",
+    "variant": "valle-tranquilo",
+    "screen": "intro",
+    "statusLabel": "Introduccion",
+    "language": "es",
+    "coordinates": "origin at top-left, x right, y down",
+    "map": {
+      "id": "farm",
+      "name": "Valle Abierto",
+      "zone": "Valle Abierto",
+      "size": {
+        "cols": 144,
+        "rows": 92
+      },
+      "inInterior": false,
+      "nearMineGate": false,
+      "nearMineExit": false,
+      "activePortal": null,
+      "mineRareNodes": null
+    },
+    "travelShortcut": null,
+    "player": {
+      "col": 60,
+      "row": 57,
+      "dir": 1,
+      "facing": {
+        "dc": 1,
+        "dr": 0
+      }
+    },
+    "time": {
+      "day": 1,
+      "year": 1,
+      "season": "spring",
+      "hour": 7,
+      "minute": 0,
+      "weather": "sunny"
+    },
+    "economy": {
+      "gold": 150,
+      "energy": 100,
+      "health": 100,
+      "farmLevel": 1,
+      "toolTier": 1
+    },
+    "resources": {
+      "stone": 2,
+      "copperOre": 0,
+      "ironOre": 0,
+      "tinOre": 0,
+      "silverOre": 0,
+      "goldOre": 0,
+      "marble": 0,
+      "diamond": 0,
+      "steel": 0,
+      "torch": 2,
+      "bread": 2,
+      "mythril": 0,
+      "voidCrystal": 0,
+      "geode": 0,
+      "moss": 0
+    },
+    "home": {
+      "orchardUnlocked": false,
+      "houseWing": false,
+      "storageTypes": {
+        "wood": 0,
+        "ore": 0,
+        "pantry": 0
+      },
+      "nearbyStation": null
+    },
+    "survival": {
+      "torchEquipped": false,
+      "darknessRisk": false,
+      "canEat": true
+    },
+    "housing": [
+      {
+        "id": "ridge_plot",
+        "state": "locked",
+        "daysLeft": 0
+      },
+      {
+        "id": "river_plot",
+        "state": "locked",
+        "daysLeft": 0
+      }
+    ],
+    "tool": "water",
+    "guide": {
+      "step": 1,
+      "total": 8,
+      "completed": false,
+      "current": "Muevete por el valle",
+      "progress": "0/8"
+    },
+    "movement": {
+      "autoPathSteps": 0,
+      "queuedAction": null,
+      "queuedTalkNpc": null,
+      "queuedPortal": null
+    },
+    "fishing": {
+      "active": false,
+      "target": null,
+      "readyIn": 0,
+      "windowLeft": 0,
+      "retries": 0
+    },
+    "quests": [
+      {
+        "id": "q1",
+        "title": "Entregar 3 maderas",
+        "npc": "Marco",
+        "recommended": true
+      },
+      {
+        "id": "q2",
+        "title": "Pescar 2 truchas",
+        "npc": "Elena",
+        "recommended": true
+      },
+      {
+        "id": "q3",
+        "title": "Cosechar 1 calabaza",
+        "npc": "Felix",
+        "recommended": true
+      }
+    ],
+    "save": {
+      "started": false,
+      "localExists": false,
+      "localBytes": 0
+    },
+    "target": {
+      "col": 61,
+      "row": 57
+    },
+    "hovered": null
+  },
+  "shellInfo": {
+    "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--device-phone mobile-game-shell--theme-default mobile-game-shell--with-compact-games-ad mobile-game-shell--has-controls",
+    "embeddedBodyClass": "spring morning mobile-shell-embed mobile-shell-ui-externalized mobile-shell-portrait",
+    "hud": {
+      "display": "flex",
+      "visibility": "visible",
+      "opacity": "1",
+      "width": 350.1875,
+      "height": 34.953125
+    },
+    "bot": {
+      "display": "flex",
+      "visibility": "visible",
+      "opacity": "1",
+      "width": 350.1875,
+      "height": 85.109375
+    },
+    "pl": {
+      "display": "flex",
+      "visibility": "visible",
+      "opacity": "1",
+      "width": 142.875,
+      "height": 317.9375
+    },
+    "pr": {
+      "display": "flex",
+      "visibility": "visible",
+      "opacity": "1",
+      "width": 142.875,
+      "height": 317.9375
+    },
+    "ctool": {
+      "display": "block",
+      "visibility": "visible",
+      "opacity": "1",
+      "width": 58.359375,
+      "height": 33.53125
+    },
+    "fishCancel": {
+      "display": "none",
+      "visibility": "visible",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+    },
+    "appRows": "34.9531px 317.938px 85.1094px"
+  },
+  "errors": [],
+  "files": {
+    "stage": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\valle-phone-stage.png",
+    "full": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\valle-phone-full.png"
+  }
+}

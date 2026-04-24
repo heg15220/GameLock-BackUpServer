@@ -1,0 +1,38 @@
+{
+  "scenario": "dig-hole-tablet",
+  "gameId": "arcade-dig-hole-treasure",
+  "viewport": {
+    "width": 1024,
+    "height": 1366
+  },
+  "state": {
+    "mode": "arcade-dig-hole-treasure",
+    "screen": "world_select",
+    "worldId": "jungle",
+    "worldName": "Selva Enterrada",
+    "coordinates": "x aumenta hacia la derecha; y aumenta hacia abajo; los valores son pixeles del mundo.",
+    "message": ""
+  },
+  "shellInfo": {
+    "shellClass": null,
+    "embeddedBodyClass": "",
+    "hud": {
+      "display": "block",
+      "visibility": "visible",
+      "opacity": "1",
+      "width": 469.625,
+      "height": 758
+    },
+    "bot": null,
+    "pl": null,
+    "pr": null,
+    "ctool": null,
+    "fishCancel": null,
+    "appRows": null
+  },
+  "errors": [],
+  "files": {
+    "stage": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\dig-hole-tablet-stage.png",
+    "full": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\dig-hole-tablet-full.png"
+  }
+}

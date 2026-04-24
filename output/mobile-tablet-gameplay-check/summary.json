@@ -1,0 +1,520 @@
+[
+  {
+    "scenario": "dig-hole-phone",
+    "gameId": "arcade-dig-hole-treasure",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "state": {
+      "mode": "arcade-dig-hole-treasure",
+      "screen": "running",
+      "worldId": "jungle",
+      "worldName": "Selva Enterrada",
+      "coordinates": "x aumenta hacia la derecha; y aumenta hacia abajo; los valores son pixeles del mundo.",
+      "message": "",
+      "bestDepthMeters": 0,
+      "coins": 0,
+      "inventoryCount": 0,
+      "collectedTotal": 0,
+      "capacity": 12,
+      "stamina": 100,
+      "maxStamina": 100,
+      "staminaLevel": 0,
+      "staminaCriticalTimer": 0,
+      "shovelLevel": 0,
+      "jetpackOwned": false,
+      "torches": 0,
+      "darkness": 0,
+      "soilType": "Tierra",
+      "canUseMarket": true,
+      "treasureVisible": false,
+      "treasureReady": false,
+      "treasureDoorOpened": false,
+      "treasureChestOpened": false,
+      "guidanceArrow": "↓",
+      "guidanceSignalActive": true,
+      "inventory": [],
+      "depthMeters": 0,
+      "player": {
+        "x": 886,
+        "y": 178,
+        "vx": 0,
+        "vy": 0,
+        "facing": 1
+      },
+      "digTarget": null,
+      "nextBreadcrumb": {
+        "x": 923.1,
+        "y": 1674.8,
+        "depthMeters": 1831
+      },
+      "placedTorches": [],
+      "nearbyMaterials": []
+    },
+    "shellInfo": {
+      "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--device-phone mobile-game-shell--theme-default mobile-game-shell--with-compact-games-ad mobile-game-shell--has-controls",
+      "embeddedBodyClass": "",
+      "hud": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 350.1875,
+        "height": 438
+      },
+      "bot": null,
+      "pl": null,
+      "pr": null,
+      "ctool": null,
+      "fishCancel": null,
+      "appRows": null
+    },
+    "errors": [],
+    "files": {
+      "stage": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\dig-hole-phone-stage.png",
+      "full": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\dig-hole-phone-full.png"
+    }
+  },
+  {
+    "scenario": "dig-hole-tablet",
+    "gameId": "arcade-dig-hole-treasure",
+    "viewport": {
+      "width": 1024,
+      "height": 1366
+    },
+    "state": {
+      "mode": "arcade-dig-hole-treasure",
+      "screen": "world_select",
+      "worldId": "jungle",
+      "worldName": "Selva Enterrada",
+      "coordinates": "x aumenta hacia la derecha; y aumenta hacia abajo; los valores son pixeles del mundo.",
+      "message": ""
+    },
+    "shellInfo": {
+      "shellClass": null,
+      "embeddedBodyClass": "",
+      "hud": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 469.625,
+        "height": 758
+      },
+      "bot": null,
+      "pl": null,
+      "pr": null,
+      "ctool": null,
+      "fishCancel": null,
+      "appRows": null
+    },
+    "errors": [],
+    "files": {
+      "stage": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\dig-hole-tablet-stage.png",
+      "full": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\dig-hole-tablet-full.png"
+    }
+  },
+  {
+    "scenario": "valle-phone",
+    "gameId": "arcade-valle-tranquilo",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "state": {
+      "mode": "arcade",
+      "variant": "valle-tranquilo",
+      "screen": "intro",
+      "statusLabel": "Introduccion",
+      "language": "es",
+      "coordinates": "origin at top-left, x right, y down",
+      "map": {
+        "id": "farm",
+        "name": "Valle Abierto",
+        "zone": "Valle Abierto",
+        "size": {
+          "cols": 144,
+          "rows": 92
+        },
+        "inInterior": false,
+        "nearMineGate": false,
+        "nearMineExit": false,
+        "activePortal": null,
+        "mineRareNodes": null
+      },
+      "travelShortcut": null,
+      "player": {
+        "col": 60,
+        "row": 57,
+        "dir": 1,
+        "facing": {
+          "dc": 1,
+          "dr": 0
+        }
+      },
+      "time": {
+        "day": 1,
+        "year": 1,
+        "season": "spring",
+        "hour": 7,
+        "minute": 0,
+        "weather": "sunny"
+      },
+      "economy": {
+        "gold": 150,
+        "energy": 100,
+        "health": 100,
+        "farmLevel": 1,
+        "toolTier": 1
+      },
+      "resources": {
+        "stone": 2,
+        "copperOre": 0,
+        "ironOre": 0,
+        "tinOre": 0,
+        "silverOre": 0,
+        "goldOre": 0,
+        "marble": 0,
+        "diamond": 0,
+        "steel": 0,
+        "torch": 2,
+        "bread": 2,
+        "mythril": 0,
+        "voidCrystal": 0,
+        "geode": 0,
+        "moss": 0
+      },
+      "home": {
+        "orchardUnlocked": false,
+        "houseWing": false,
+        "storageTypes": {
+          "wood": 0,
+          "ore": 0,
+          "pantry": 0
+        },
+        "nearbyStation": null
+      },
+      "survival": {
+        "torchEquipped": false,
+        "darknessRisk": false,
+        "canEat": true
+      },
+      "housing": [
+        {
+          "id": "ridge_plot",
+          "state": "locked",
+          "daysLeft": 0
+        },
+        {
+          "id": "river_plot",
+          "state": "locked",
+          "daysLeft": 0
+        }
+      ],
+      "tool": "water",
+      "guide": {
+        "step": 1,
+        "total": 8,
+        "completed": false,
+        "current": "Muevete por el valle",
+        "progress": "0/8"
+      },
+      "movement": {
+        "autoPathSteps": 0,
+        "queuedAction": null,
+        "queuedTalkNpc": null,
+        "queuedPortal": null
+      },
+      "fishing": {
+        "active": false,
+        "target": null,
+        "readyIn": 0,
+        "windowLeft": 0,
+        "retries": 0
+      },
+      "quests": [
+        {
+          "id": "q1",
+          "title": "Entregar 3 maderas",
+          "npc": "Marco",
+          "recommended": true
+        },
+        {
+          "id": "q2",
+          "title": "Pescar 2 truchas",
+          "npc": "Elena",
+          "recommended": true
+        },
+        {
+          "id": "q3",
+          "title": "Cosechar 1 calabaza",
+          "npc": "Felix",
+          "recommended": true
+        }
+      ],
+      "save": {
+        "started": false,
+        "localExists": false,
+        "localBytes": 0
+      },
+      "target": {
+        "col": 61,
+        "row": 57
+      },
+      "hovered": null
+    },
+    "shellInfo": {
+      "shellClass": "mobile-game-shell mobile-game-shell--portrait mobile-game-shell--dual-screen mobile-game-shell--device-phone mobile-game-shell--theme-default mobile-game-shell--with-compact-games-ad mobile-game-shell--has-controls",
+      "embeddedBodyClass": "spring morning mobile-shell-embed mobile-shell-ui-externalized mobile-shell-portrait",
+      "hud": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 350.1875,
+        "height": 34.953125
+      },
+      "bot": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 350.1875,
+        "height": 85.109375
+      },
+      "pl": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 142.875,
+        "height": 317.9375
+      },
+      "pr": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 142.875,
+        "height": 317.9375
+      },
+      "ctool": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 58.359375,
+        "height": 33.53125
+      },
+      "fishCancel": {
+        "display": "none",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 0,
+        "height": 0
+      },
+      "appRows": "34.9531px 317.938px 85.1094px"
+    },
+    "errors": [],
+    "files": {
+      "stage": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\valle-phone-stage.png",
+      "full": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\valle-phone-full.png"
+    }
+  },
+  {
+    "scenario": "valle-tablet",
+    "gameId": "arcade-valle-tranquilo",
+    "viewport": {
+      "width": 1024,
+      "height": 1366
+    },
+    "state": {
+      "mode": "arcade",
+      "variant": "valle-tranquilo",
+      "screen": "intro",
+      "statusLabel": "Introduccion",
+      "language": "es",
+      "coordinates": "origin at top-left, x right, y down",
+      "map": {
+        "id": "farm",
+        "name": "Valle Abierto",
+        "zone": "Valle Abierto",
+        "size": {
+          "cols": 144,
+          "rows": 92
+        },
+        "inInterior": false,
+        "nearMineGate": false,
+        "nearMineExit": false,
+        "activePortal": null,
+        "mineRareNodes": null
+      },
+      "travelShortcut": null,
+      "player": {
+        "col": 60,
+        "row": 57,
+        "dir": 1,
+        "facing": {
+          "dc": 1,
+          "dr": 0
+        }
+      },
+      "time": {
+        "day": 1,
+        "year": 1,
+        "season": "spring",
+        "hour": 7,
+        "minute": 0,
+        "weather": "sunny"
+      },
+      "economy": {
+        "gold": 150,
+        "energy": 100,
+        "health": 100,
+        "farmLevel": 1,
+        "toolTier": 1
+      },
+      "resources": {
+        "stone": 2,
+        "copperOre": 0,
+        "ironOre": 0,
+        "tinOre": 0,
+        "silverOre": 0,
+        "goldOre": 0,
+        "marble": 0,
+        "diamond": 0,
+        "steel": 0,
+        "torch": 2,
+        "bread": 2,
+        "mythril": 0,
+        "voidCrystal": 0,
+        "geode": 0,
+        "moss": 0
+      },
+      "home": {
+        "orchardUnlocked": false,
+        "houseWing": false,
+        "storageTypes": {
+          "wood": 0,
+          "ore": 0,
+          "pantry": 0
+        },
+        "nearbyStation": null
+      },
+      "survival": {
+        "torchEquipped": false,
+        "darknessRisk": false,
+        "canEat": true
+      },
+      "housing": [
+        {
+          "id": "ridge_plot",
+          "state": "locked",
+          "daysLeft": 0
+        },
+        {
+          "id": "river_plot",
+          "state": "locked",
+          "daysLeft": 0
+        }
+      ],
+      "tool": "water",
+      "guide": {
+        "step": 1,
+        "total": 8,
+        "completed": false,
+        "current": "Muevete por el valle",
+        "progress": "0/8"
+      },
+      "movement": {
+        "autoPathSteps": 0,
+        "queuedAction": null,
+        "queuedTalkNpc": null,
+        "queuedPortal": null
+      },
+      "fishing": {
+        "active": false,
+        "target": null,
+        "readyIn": 0,
+        "windowLeft": 0,
+        "retries": 0
+      },
+      "quests": [
+        {
+          "id": "q1",
+          "title": "Entregar 3 maderas",
+          "npc": "Marco",
+          "recommended": true
+        },
+        {
+          "id": "q2",
+          "title": "Pescar 2 truchas",
+          "npc": "Elena",
+          "recommended": true
+        },
+        {
+          "id": "q3",
+          "title": "Cosechar 1 calabaza",
+          "npc": "Felix",
+          "recommended": true
+        }
+      ],
+      "save": {
+        "started": false,
+        "localExists": false,
+        "localBytes": 0
+      },
+      "target": {
+        "col": 61,
+        "row": 57
+      },
+      "hovered": null
+    },
+    "shellInfo": {
+      "shellClass": null,
+      "embeddedBodyClass": "spring morning",
+      "hud": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 469.625,
+        "height": 34.953125
+      },
+      "bot": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 469.625,
+        "height": 85.109375
+      },
+      "pl": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 142.875,
+        "height": 637.9375
+      },
+      "pr": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 142.875,
+        "height": 637.9375
+      },
+      "ctool": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 60.34375,
+        "height": 22.53125
+      },
+      "fishCancel": {
+        "display": "none",
+        "visibility": "visible",
+        "opacity": "1",
+        "width": 0,
+        "height": 0
+      },
+      "appRows": "34.9531px 637.938px 85.1094px"
+    },
+    "errors": [],
+    "files": {
+      "stage": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\valle-tablet-stage.png",
+      "full": "C:\\Users\\hugoe\\Downloads\\plataforma-juegos-saas\\output\\mobile-tablet-gameplay-check\\valle-tablet-full.png"
+    }
+  }
+]

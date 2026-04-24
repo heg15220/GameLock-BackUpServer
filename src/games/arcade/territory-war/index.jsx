@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useCallback, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 
 const loadTerritoryWarRuntime = () => import("./TerritoryWarRuntime");
 const TerritoryWarRuntime = lazy(loadTerritoryWarRuntime);
@@ -50,18 +50,36 @@ function TerritoryWarShell({ onOpen }) {
 }
 
 export default function TerritoryWar() {
+  const shellRef = useRef(null);
   const [shouldLoadRuntime, setShouldLoadRuntime] = useState(false);
   const openRuntime = useCallback(() => {
     setShouldLoadRuntime(true);
   }, []);
 
+  useEffect(() => {
+    const shellElement = shellRef.current;
+    if (!shellElement) {
+      return;
+    }
+
+    if (shellElement.closest(".mobile-game-shell")) {
+      setShouldLoadRuntime(true);
+    }
+  }, []);
+
   if (!shouldLoadRuntime) {
-    return <TerritoryWarShell onOpen={openRuntime} />;
+    return (
+      <div ref={shellRef}>
+        <TerritoryWarShell onOpen={openRuntime} />
+      </div>
+    );
   }
 
   return (
-    <Suspense fallback={<TerritoryWarLoadingShell />}>
-      <TerritoryWarRuntime />
-    </Suspense>
+    <div ref={shellRef}>
+      <Suspense fallback={<TerritoryWarLoadingShell />}>
+        <TerritoryWarRuntime />
+      </Suspense>
+    </div>
   );
 }

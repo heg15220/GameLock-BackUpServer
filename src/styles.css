@@ -24570,7 +24570,9 @@ button.brisca-card.playable:disabled {
   }
 }
 
-.arcade-neon-rush-shell {
+.arcade-neon-rush-shell,
+.arcade-valle-tranquilo-shell,
+.arcade-dig-hole-treasure-shell {
   position: relative;
   width: 100%;
   height: 100%;
@@ -24584,14 +24586,18 @@ button.brisca-card.playable:disabled {
     0 16px 34px rgba(2, 6, 23, 0.35);
 }
 
-.arcade-neon-rush-stage-fit {
+.arcade-neon-rush-stage-fit,
+.arcade-valle-tranquilo-stage-fit,
+.arcade-dig-hole-treasure-stage-fit {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
 
-.arcade-neon-rush-frame {
+.arcade-neon-rush-frame,
+.arcade-valle-tranquilo-frame,
+.arcade-dig-hole-treasure-frame {
   width: 100%;
   height: 100%;
   border: 0;
@@ -24601,7 +24607,9 @@ button.brisca-card.playable:disabled {
   transform: translateZ(0);
 }
 
-.arcade-neon-rush-loading {
+.arcade-neon-rush-loading,
+.arcade-valle-tranquilo-loading,
+.arcade-dig-hole-treasure-loading {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -24618,7 +24626,9 @@ button.brisca-card.playable:disabled {
 }
 
 @media (max-width: 760px) {
-  .arcade-neon-rush-shell {
+  .arcade-neon-rush-shell,
+  .arcade-valle-tranquilo-shell,
+  .arcade-dig-hole-treasure-shell {
     min-height: 440px;
     border-radius: 10px;
   }
@@ -25926,7 +25936,11 @@ button.brisca-card.playable:disabled {
 }
 
 .game-playground:not(.playground-mobile-enabled) .playground-device-content > .arcade-neon-rush-shell,
-.launch-game-playground .playground-device-content > .arcade-neon-rush-shell {
+.game-playground:not(.playground-mobile-enabled) .playground-device-content > .arcade-valle-tranquilo-shell,
+.game-playground:not(.playground-mobile-enabled) .playground-device-content > .arcade-dig-hole-treasure-shell,
+.launch-game-playground .playground-device-content > .arcade-neon-rush-shell,
+.launch-game-playground .playground-device-content > .arcade-valle-tranquilo-shell,
+.launch-game-playground .playground-device-content > .arcade-dig-hole-treasure-shell {
   height: clamp(520px, 72vh, 760px);
 }
 

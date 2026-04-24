@@ -976,8 +976,8 @@ function StrategySudokuGame() {
           <h5>{copy.techniquesTitle}</h5>
           <p>{copy.techniquesSubtitle}</p>
           <div className="strategy-sudoku-technique-list">
-            {copy.techniques.map((technique) => (
-              <span key={technique}>{technique}</span>
+            {copy.techniques.map((technique, index) => (
+              <span key={`${index}-${technique}`}>{technique}</span>
             ))}
           </div>
           <p className="strategy-sudoku-keyboard-help">{copy.keyboardHelp}</p>

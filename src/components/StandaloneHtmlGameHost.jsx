@@ -2,6 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 const EMPTY_LIST = [];
 
+function tokenizeClassName(className) {
+  return String(className ?? "")
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(Boolean);
+}
+
 function extractBodyHtml(html) {
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   const bodyHtml = bodyMatch ? bodyMatch[1] : html;
@@ -14,10 +21,36 @@ function extractInlineBlocks(html, tagName) {
 }
 
 function normalizeStandaloneCss(cssText) {
-  return cssText
+  const embeddedHtmlToken = "__EMBEDDED_HTML__";
+  const embeddedBodyToken = "__EMBEDDED_BODY__";
+  let normalizedCss = cssText
     .replace(/:root/g, ":host")
-    .replace(/\bhtml\b/g, "#embedded-body")
-    .replace(/\bbody\b/g, "#embedded-body");
+    .replace(/\bhtml\b/g, embeddedHtmlToken)
+    .replace(/\bbody\b/g, embeddedBodyToken)
+    .replace(new RegExp(embeddedHtmlToken, "g"), "#embedded-body")
+    .replace(new RegExp(embeddedBodyToken, "g"), "#embedded-body")
+    .replace(/\b100(?:d|s|l)?vh\b/g, "100%")
+    .replace(/\b100(?:d|s|l)?vw\b/g, "100%");
+
+  let previousCss = "";
+  while (normalizedCss !== previousCss) {
+    previousCss = normalizedCss;
+    normalizedCss = normalizedCss
+      .replace(
+        /((?:\.[-\w]+|\[[^\]]+\]|:[-\w()]+)+)\s+#embedded-body\b/g,
+        "#embedded-body$1"
+      )
+      .replace(
+        /#embedded-body([^,{]*?)\s*>\s*#embedded-body([^,{]*)/g,
+        "#embedded-body$1$2"
+      )
+      .replace(
+        /#embedded-body([^,{]*?)\s+#embedded-body([^,{]*)/g,
+        "#embedded-body$1$2"
+      );
+  }
+
+  return normalizedCss;
 }
 
 function createScopedDocument({ hostElement, bodyElement, shadowRoot, cleanup }) {
@@ -160,24 +193,99 @@ function createScopedWindow({ documentProxy, cleanup }) {
   return proxy;
 }
 
-function runStandaloneScript(source, scopedWindow, documentProxy) {
+// Bare identifiers like `requestAnimationFrame(loop)` or `setInterval(...)`
+// inside a `new Function(...)` body resolve against the real global, not the
+// `window` parameter — so they bypass the scoped proxy and their ids are
+// never tracked for cleanup. Shadow them with function-local vars so embedded
+// scripts route through the proxy's tracked versions without changes.
+const SCOPED_GLOBAL_PROLOGUE = [
+  "var requestAnimationFrame = window.requestAnimationFrame;",
+  "var cancelAnimationFrame = window.cancelAnimationFrame;",
+  "var setTimeout = window.setTimeout;",
+  "var clearTimeout = window.clearTimeout;",
+  "var setInterval = window.setInterval;",
+  "var clearInterval = window.clearInterval;",
+].join("\n");
+
+// Top-level `function foo(){}` declarations inside `new Function(...)` stay
+// local to the runner, so inline HTML handlers like `onclick="foo()"` (which
+// resolve against the real `window`) can't see them. Extract column-0 names
+// and append `window.foo = foo` lines so those handlers work, tracking the
+// names for cleanup on unmount.
+function extractTopLevelFunctionNames(source) {
+  const names = new Set();
+  const re = /^function\s+([A-Za-z_$][\w$]*)/gm;
+  let match;
+  while ((match = re.exec(source)) !== null) {
+    names.add(match[1]);
+  }
+  return [...names];
+}
+
+function runStandaloneScript(source, scopedWindow, documentProxy, exposedNames) {
+  const topLevelNames = extractTopLevelFunctionNames(source);
+  const exposeEpilogue = topLevelNames
+    .map((name) => `try{window.${name}=${name};}catch(e){}`)
+    .join("\n");
   const runner = new Function(
     "window",
     "document",
     "globalThis",
     "self",
-    `${source}\n//# sourceURL=embedded-standalone-game.js`
+    `${SCOPED_GLOBAL_PROLOGUE}\n${source}\n${exposeEpilogue}\n//# sourceURL=embedded-standalone-game.js`
   );
   runner(scopedWindow, documentProxy, scopedWindow, scopedWindow);
+  for (const name of topLevelNames) {
+    exposedNames.add(name);
+  }
+}
+
+function syncEmbeddedBodyClassName(
+  bodyElement,
+  nextExternalClassTokens,
+  appliedExternalClassTokensRef,
+  isSyncingBodyClassRef
+) {
+  const appliedExternalClassSet = new Set(appliedExternalClassTokensRef.current);
+  const runtimeClassTokens = tokenizeClassName(bodyElement.className).filter(
+    (token) => !appliedExternalClassSet.has(token)
+  );
+  const nextClassName = [...runtimeClassTokens, ...nextExternalClassTokens].join(" ");
+
+  appliedExternalClassTokensRef.current = nextExternalClassTokens;
+  if (bodyElement.className === nextClassName) {
+    return false;
+  }
+
+  isSyncingBodyClassRef.current = true;
+  bodyElement.className = nextClassName;
+  isSyncingBodyClassRef.current = false;
+  return true;
+}
+
+function dispatchEmbeddedLayoutSync(bodyElement) {
+  const win = bodyElement?.ownerDocument?.defaultView;
+  if (!win) {
+    return;
+  }
+
+  win.requestAnimationFrame(() => {
+    win.dispatchEvent(new win.Event("resize"));
+  });
 }
 
 export default function StandaloneHtmlGameHost({
   className = "",
+  bodyClassName = "",
   html,
   scripts = EMPTY_LIST,
   styles = EMPTY_LIST,
 }) {
   const hostRef = useRef(null);
+  const bodyElementRef = useRef(null);
+  const bodyClassTokensRef = useRef(tokenizeClassName(bodyClassName));
+  const appliedBodyClassTokensRef = useRef(tokenizeClassName(bodyClassName));
+  const isSyncingBodyClassRef = useRef(false);
   const [isReady, setIsReady] = useState(false);
   const parsed = useMemo(
     () => ({
@@ -189,6 +297,27 @@ export default function StandaloneHtmlGameHost({
   );
 
   useEffect(() => {
+    const nextBodyClassTokens = tokenizeClassName(bodyClassName);
+    bodyClassTokensRef.current = nextBodyClassTokens;
+
+    const bodyElement = bodyElementRef.current;
+    if (!bodyElement) {
+      appliedBodyClassTokensRef.current = nextBodyClassTokens;
+      return;
+    }
+
+    const classNameChanged = syncEmbeddedBodyClassName(
+      bodyElement,
+      nextBodyClassTokens,
+      appliedBodyClassTokensRef,
+      isSyncingBodyClassRef
+    );
+    if (classNameChanged) {
+      dispatchEmbeddedLayoutSync(bodyElement);
+    }
+  }, [bodyClassName]);
+
+  useEffect(() => {
     const hostElement = hostRef.current;
     if (!hostElement) {
       return undefined;
@@ -197,6 +326,7 @@ export default function StandaloneHtmlGameHost({
     const shadowRoot = hostElement.shadowRoot ?? hostElement.attachShadow({ mode: "open" });
     const cleanup = {
       documentListeners: [],
+      exposedNames: new Set(),
       intervals: new Set(),
       rafs: new Set(),
       timeouts: new Set(),
@@ -234,6 +364,28 @@ export default function StandaloneHtmlGameHost({
     bodyElement.id = "embedded-body";
     bodyElement.innerHTML = parsed.bodyHtml;
     shadowRoot.appendChild(bodyElement);
+    bodyElementRef.current = bodyElement;
+    syncEmbeddedBodyClassName(
+      bodyElement,
+      bodyClassTokensRef.current,
+      appliedBodyClassTokensRef,
+      isSyncingBodyClassRef
+    );
+    const bodyClassObserver = new MutationObserver(() => {
+      if (isSyncingBodyClassRef.current) {
+        return;
+      }
+      syncEmbeddedBodyClassName(
+        bodyElement,
+        bodyClassTokensRef.current,
+        appliedBodyClassTokensRef,
+        isSyncingBodyClassRef
+      );
+    });
+    bodyClassObserver.observe(bodyElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
 
     const documentProxy = createScopedDocument({
       hostElement,
@@ -245,7 +397,7 @@ export default function StandaloneHtmlGameHost({
 
     try {
       for (const source of [...parsed.inlineScripts, ...scripts]) {
-        runStandaloneScript(source, scopedWindow, documentProxy);
+        runStandaloneScript(source, scopedWindow, documentProxy, cleanup.exposedNames);
       }
       setIsReady(true);
     } catch (error) {
@@ -254,6 +406,8 @@ export default function StandaloneHtmlGameHost({
     }
 
     return () => {
+      bodyClassObserver.disconnect();
+      bodyElementRef.current = null;
       for (const { type, listener, options } of cleanup.windowListeners) {
         window.removeEventListener(type, listener, options);
       }
@@ -275,6 +429,14 @@ export default function StandaloneHtmlGameHost({
       }
       if (window.advanceTime !== previousBridge.advanceTime) {
         window.advanceTime = previousBridge.advanceTime;
+      }
+
+      for (const name of cleanup.exposedNames) {
+        try {
+          delete window[name];
+        } catch (e) {
+          window[name] = undefined;
+        }
       }
 
       shadowRoot.innerHTML = "";
