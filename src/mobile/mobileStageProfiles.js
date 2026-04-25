@@ -91,9 +91,12 @@ const GAME_STAGE_SELECTORS = {
   ],
   "arcade-bubble-storm": [".bubble-game", ".bubble-canvas"],
   "arcade-neon-rush": [
-    "iframe:#levelSelect",
+    "shadow:#gw",
+    "shadow:#gc",
+    "shadow:#levelSelect",
     "iframe:#gw",
     "iframe:#gc",
+    "iframe:#levelSelect",
     ".arcade-neon-rush-shell",
     ".arcade-neon-rush-frame",
   ],

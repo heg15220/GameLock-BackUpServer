@@ -224,7 +224,11 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
         )}
 
         {/* Game area */}
-        <section className={launchGameAreaClassName} aria-label={t("playNow")}>
+        <section
+          className={launchGameAreaClassName}
+          data-game-id={gameId}
+          aria-label={t("playNow")}
+        >
           {hasTabletLandscapeAdRails ? (
             <aside className="launch-tablet-ad-rail launch-tablet-ad-rail--left" aria-hidden={!adPreviewEnabled} style={adPreviewEnabled ? undefined : { visibility: "hidden" }}>
               {tabletAdColumns.left.map((slot) => (

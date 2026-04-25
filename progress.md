@@ -4483,3 +4483,17 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 
 - Ajuste extra en src/arcade/dig-hole-treasure/styles.css: tambien se restaura message-box para que el texto de material encontrado siga visible dentro del gameplay movil/tablet.
 
+
+## 2026-04-25 - Neon Rush mobile/tablet layout diagnosis
+- Reproducido Neon Rush en viewport telefono: el HTML entra en mobile shell, pero el host Shadow DOM no propagaba --mobile-shell-width/height y MobileStageAdOverlay no podia medir #gw/#gc dentro del shadow root, por eso no aparecian viñetas alrededor del stage.
+- En tablet Playwright con navegador desktop no activo mobile shell por perfil de puntero, pero el ajuste se centra en el flujo real touch/mobile shell y no cambia desktop rails.
+
+## 2026-04-25 - Neon Rush mobile/tablet responsive + ads implementation
+- StandaloneHtmlGameHost ahora propaga --mobile-shell-width y --mobile-shell-height desde el host Shadow DOM para que el HTML responsive de Neon Rush use dimensiones reales del stage.
+- MobileStageAdOverlay soporta selectores shadow:... y Neon Rush prioriza #gw/#gc/#levelSelect dentro del shadow root para calcular huecos alrededor del juego.
+- MobileGameShell usa viñetas de stage para arcade-neon-rush en vez del banner compacto generico de juegos.
+
+## 2026-04-25 - Neon Rush validation
+- Capturas Playwright revisadas: phone portrait muestra banner inferior dentro del stage tras seleccionar nivel; phone landscape muestra viñetas laterales sin tapar #gw; tablet landscape del modal queda con shell a 900px y railes de 124px a ambos lados.
+- Validacion tecnica: web_game_playwright_client.mjs OK sin errors-0.json; render_game_to_text responde fase ls. Build OK con NODE_OPTIONS=--max-old-space-size=4096 npm run build (el primer build sin memoria extra fallo por heap OOM).
+- Nota: queda una modificacion ajena en output/mobile-tablet-gameplay-check-after/vite.out.log generada por un proceso Vite previo; no se ha tocado.

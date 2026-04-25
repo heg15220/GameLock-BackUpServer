@@ -274,6 +274,18 @@ function dispatchEmbeddedLayoutSync(bodyElement) {
   });
 }
 
+function syncEmbeddedHostSizeVars(hostElement, bodyElement) {
+  if (!hostElement || !bodyElement) {
+    return;
+  }
+
+  const width = Math.max(0, hostElement.clientWidth || hostElement.offsetWidth || 0);
+  const height = Math.max(0, hostElement.clientHeight || hostElement.offsetHeight || 0);
+
+  bodyElement.style.setProperty("--mobile-shell-width", `${width}px`);
+  bodyElement.style.setProperty("--mobile-shell-height", `${height}px`);
+}
+
 export default function StandaloneHtmlGameHost({
   className = "",
   bodyClassName = "",
@@ -365,6 +377,7 @@ export default function StandaloneHtmlGameHost({
     bodyElement.innerHTML = parsed.bodyHtml;
     shadowRoot.appendChild(bodyElement);
     bodyElementRef.current = bodyElement;
+    syncEmbeddedHostSizeVars(hostElement, bodyElement);
     syncEmbeddedBodyClassName(
       bodyElement,
       bodyClassTokensRef.current,
@@ -386,6 +399,11 @@ export default function StandaloneHtmlGameHost({
       attributes: true,
       attributeFilter: ["class"],
     });
+    const hostSizeObserver = new ResizeObserver(() => {
+      syncEmbeddedHostSizeVars(hostElement, bodyElement);
+      dispatchEmbeddedLayoutSync(bodyElement);
+    });
+    hostSizeObserver.observe(hostElement);
 
     const documentProxy = createScopedDocument({
       hostElement,
@@ -407,6 +425,7 @@ export default function StandaloneHtmlGameHost({
 
     return () => {
       bodyClassObserver.disconnect();
+      hostSizeObserver.disconnect();
       bodyElementRef.current = null;
       for (const { type, listener, options } of cleanup.windowListeners) {
         window.removeEventListener(type, listener, options);

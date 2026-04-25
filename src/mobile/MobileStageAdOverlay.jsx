@@ -365,6 +365,18 @@ function queryIframeTarget(viewportNode, selector) {
   return null;
 }
 
+function queryShadowTarget(viewportNode, selector) {
+  const nodes = viewportNode?.querySelectorAll?.("*") ?? [];
+  for (const node of nodes) {
+    const innerTarget = node.shadowRoot?.querySelector?.(selector);
+    if (isMeasurableTarget(innerTarget)) {
+      return innerTarget;
+    }
+  }
+
+  return null;
+}
+
 function resolveStageTarget(viewportNode, stageSelectors = []) {
   for (const selector of stageSelectors) {
     if (typeof selector !== "string" || selector.length === 0) {
@@ -375,6 +387,14 @@ function resolveStageTarget(viewportNode, stageSelectors = []) {
       const iframeTarget = queryIframeTarget(viewportNode, selector.slice(7));
       if (iframeTarget) {
         return iframeTarget;
+      }
+      continue;
+    }
+
+    if (selector.startsWith("shadow:")) {
+      const shadowTarget = queryShadowTarget(viewportNode, selector.slice(7));
+      if (shadowTarget) {
+        return shadowTarget;
       }
       continue;
     }

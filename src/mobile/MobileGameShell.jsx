@@ -240,20 +240,27 @@ export default function MobileGameShell({
     !showTouchPanelBottomAd &&
     viewportFormFactor === "phone" &&
     isStrategyTheme;
+  const useStageAdInsteadOfCompactGamesAd = game?.id === "arcade-neon-rush";
   const showCompactGamesAppAd =
     showAdPreview &&
     viewportFormFactor !== "desktop" &&
     isGamesCategory &&
-    game?.id !== "arcade-pinball-wizard";
+    game?.id !== "arcade-pinball-wizard" &&
+    !useStageAdInsteadOfCompactGamesAd;
   const showTouchIntroCopy = !isStrategyTheme;
   const isHeadSoccerPhoneLandscape =
     game?.id === "sports-head-soccer-arena" &&
     viewportFormFactor === "phone" &&
     !isPortrait;
+  const useExternalTabletLandscapeAds =
+    game?.id === "arcade-neon-rush" &&
+    viewportFormFactor === "tablet" &&
+    !isPortrait;
   const showStageAdOverlay =
     showAdPreview &&
     !isKnowledgeTheme &&
     !showCompactGamesAppAd &&
+    !useExternalTabletLandscapeAds &&
     game?.id !== "arcade-pinball-wizard" &&
     !isHeadSoccerPhoneLandscape &&
     (isDualScreen || isTouchStage);
