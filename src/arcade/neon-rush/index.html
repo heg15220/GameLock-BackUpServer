@@ -59,6 +59,10 @@ body{background:#050008;font-family:'Orbitron',sans-serif;overflow:hidden;height
     var(--mobile-shell-width, 100vw),
     calc((var(--mobile-shell-height, 100vh) - 12px) * 900 / 512)
   );
+  --nr-hud-h:calc(var(--nr-shell-w) * 56 / 900);
+  --nr-bar-h:max(4px, calc(var(--nr-shell-w) * 5 / 900));
+  --nr-stage-h:calc(var(--nr-shell-w) * 450 / 900);
+  --nr-stage-top:calc(var(--nr-hud-h) + var(--nr-bar-h));
 }
 .mobile-shell-landscape body{
   padding:6px;
@@ -774,6 +778,7 @@ const canvas=document.getElementById('gc');
 const ctx=canvas.getContext('2d');
 const pCanvas=document.getElementById('pc');
 const pCtx=pCanvas.getContext('2d');
+const gameWrap=document.getElementById('gw');
 
 let dpr=1;
 function applyHiDpiCanvas(targetCanvas,targetCtx,w,h){
@@ -792,8 +797,22 @@ function refreshRenderResolution(){
   applyHiDpiCanvas(canvas,ctx,W,H);
   applyHiDpiCanvas(pCanvas,pCtx,W,H);
 }
+function refreshLayoutVars(){
+  if(!gameWrap)return;
+  const rect=gameWrap.getBoundingClientRect();
+  const width=Math.max(1,rect.width||W);
+  const hudH=width*56/900;
+  const barH=Math.max(4,width*5/900);
+  gameWrap.style.setProperty('--nr-hud-h',`${hudH}px`);
+  gameWrap.style.setProperty('--nr-bar-h',`${barH}px`);
+  gameWrap.style.setProperty('--nr-stage-h',`${width*450/900}px`);
+  gameWrap.style.setProperty('--nr-stage-top',`${hudH+barH}px`);
+}
 refreshRenderResolution();
-window.addEventListener('resize',refreshRenderResolution);
+window.addEventListener('resize',()=>{
+  refreshLayoutVars();
+  refreshRenderResolution();
+});
 
 let state='ls',curLv=0,lvObjs=[],bgR=[],score=0,best=0;
 let attempt=1,gTime=0,camX=0,parts=[];
@@ -836,6 +855,7 @@ function loadLv(n){
   assistScale=1;
   document.getElementById('levelSelect').style.display='none';
   document.getElementById('gw').style.display='block';
+  refreshLayoutVars();
   const ttl=`LEVEL ${n+1} — ${META[n].n}`;
   document.getElementById('ln2').style.color=META[n].c;
   document.getElementById('ln2').textContent=ttl;

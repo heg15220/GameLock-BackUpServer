@@ -2786,11 +2786,11 @@ body {
 }
 
 .launch-game-area.launch-game-area--with-tablet-ads.launch-game-area--mobile-shell[data-game-id="arcade-neon-rush"] > .mobile-game-shell {
-  max-width: 900px;
+  max-width: min(100%, 780px);
 }
 
 .launch-game-area.launch-game-area--with-tablet-ads.launch-game-area--mobile-shell[data-game-id="arcade-neon-rush"] .launch-tablet-ad-rail {
-  width: max(0px, min(150px, calc((100% - 900px) / 2 - 1rem)));
+  width: max(0px, min(150px, calc((100% - 780px) / 2 - 1rem)));
 }
 
 /* Loading dots */

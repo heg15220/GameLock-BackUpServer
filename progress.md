@@ -4497,3 +4497,15 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Capturas Playwright revisadas: phone portrait muestra banner inferior dentro del stage tras seleccionar nivel; phone landscape muestra viñetas laterales sin tapar #gw; tablet landscape del modal queda con shell a 900px y railes de 124px a ambos lados.
 - Validacion tecnica: web_game_playwright_client.mjs OK sin errors-0.json; render_game_to_text responde fase ls. Build OK con NODE_OPTIONS=--max-old-space-size=4096 npm run build (el primer build sin memoria extra fallo por heap OOM).
 - Nota: queda una modificacion ajena en output/mobile-tablet-gameplay-check-after/vite.out.log generada por un proceso Vite previo; no se ha tocado.
+
+## 2026-04-25 - Neon Rush ratio + mobile/tablet ad vignettes
+- Ajustado `src/arcade/neon-rush/index.html`: el wrapper `#gw` recalcula en pixeles `--nr-hud-h`, `--nr-bar-h`, `--nr-stage-h` y `--nr-stage-top` tras seleccionar nivel y en resize. Esto elimina la dependencia ambigua de porcentajes dentro del Shadow DOM y mantiene el canvas jugable en ratio 2:1 en desktop, movil y tablet.
+- Ajustado `src/styles.css`: en tablet landscape con viñetas externas, Neon Rush limita el shell a `780px` y calcula railes sobre ese ancho para que las viñetas pasen de ~46px a ~106px en viewport 1024x768.
+- Validacion:
+  - Desktop 1280x720: `#gc` medido `731x366`, ratio `2.00`.
+  - Phone portrait 390x844: `#gc` medido `350x175`, ratio `2.00`, 1 viñeta inferior.
+  - Phone landscape 844x390: `#gc` medido `376x188`, ratio `2.00`, 2 viñetas laterales.
+  - Tablet landscape 1024x768: `#gc` medido `757x379`, ratio `2.00`, 4 viñetas externas con railes de `106px`.
+  - Tablet portrait 768x1024: `#gc` medido `683x342`, ratio `2.00`, 1 viñeta inferior.
+  - `node web_game_playwright_client.mjs --url http://127.0.0.1:5198/index.html#game=arcade-neon-rush --click-selector .lc --actions-file output\neon-rush-responsive-fix\actions.json --iterations 3 --pause-ms 250 --screenshot-dir output\neon-rush-responsive-fix\web-game-client-final` OK sin `errors-0.json`.
+  - `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK (primer intento dentro del sandbox fallo con `spawn EPERM`; repetido fuera del sandbox OK).
