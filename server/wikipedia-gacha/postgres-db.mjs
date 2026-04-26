@@ -4,12 +4,24 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
 const DEFAULT_POSTGRES_POOL_MAX = Math.max(
-  16,
-  Number(process.env.WIKIPEDIA_GACHA_POSTGRES_POOL_MAX || 24) || 24
+  2,
+  Number(process.env.WIKIPEDIA_GACHA_POSTGRES_POOL_MAX || 8) || 8
+);
+const DEFAULT_POSTGRES_POOL_MIN = Math.max(
+  0,
+  Number(process.env.WIKIPEDIA_GACHA_POSTGRES_POOL_MIN || 2) || 2
 );
 const DEFAULT_POSTGRES_IDLE_TIMEOUT_MS = Math.max(
   1_000,
   Number(process.env.WIKIPEDIA_GACHA_POSTGRES_IDLE_TIMEOUT_MS || 30_000) || 30_000
+);
+const DEFAULT_POSTGRES_CONNECT_TIMEOUT_MS = Math.max(
+  500,
+  Number(process.env.WIKIPEDIA_GACHA_POSTGRES_CONNECT_TIMEOUT_MS || 2_000) || 2_000
+);
+const DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS = Math.max(
+  500,
+  Number(process.env.WIKIPEDIA_GACHA_POSTGRES_STATEMENT_TIMEOUT_MS || 3_000) || 3_000
 );
 
 const SCHEMA_SQL = fs.readFileSync(
@@ -111,8 +123,12 @@ async function initializeSchema(pool) {
 export function openPostgresStateDb({
   connectionString,
   poolMax = DEFAULT_POSTGRES_POOL_MAX,
+  poolMin = DEFAULT_POSTGRES_POOL_MIN,
   idleTimeoutMillis = DEFAULT_POSTGRES_IDLE_TIMEOUT_MS,
+  connectionTimeoutMillis = DEFAULT_POSTGRES_CONNECT_TIMEOUT_MS,
+  statementTimeoutMs = DEFAULT_POSTGRES_STATEMENT_TIMEOUT_MS,
   ssl = process.env.WIKIPEDIA_GACHA_POSTGRES_SSL,
+  applicationName = process.env.WIKIPEDIA_GACHA_POSTGRES_APP_NAME ?? "wgc-worker",
 } = {}) {
   if (!connectionString) {
     throw new Error("A Postgres connection string is required.");
@@ -122,9 +138,20 @@ export function openPostgresStateDb({
   const pool = new Pool({
     connectionString,
     max: poolMax,
+    min: poolMin,
     idleTimeoutMillis,
+    connectionTimeoutMillis,
     allowExitOnIdle: true,
     ssl: normalizeSslConfig(ssl),
+    application_name: applicationName,
+    // statement_timeout cap on the server side. Each connection inherits this
+    // when it joins the pool, so even slow planner regressions can not pin a
+    // worker indefinitely.
+    statement_timeout: statementTimeoutMs,
+    query_timeout: statementTimeoutMs,
+    // 1s is enough for healthy Postgres locks; if a row is held longer we
+    // would rather fail fast than queue requests behind it.
+    lock_timeout: 1_000,
   });
 
   const poolApi = createQueryApi(pool);

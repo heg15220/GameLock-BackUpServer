@@ -58,6 +58,38 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_browser_collection_profile_article
   ON browser_collection (browser_profile_id, article_id);
 CREATE INDEX IF NOT EXISTS idx_browser_collection_profile
   ON browser_collection (browser_profile_id);
+CREATE INDEX IF NOT EXISTS idx_browser_collection_profile_favorite
+  ON browser_collection (browser_profile_id) WHERE favorite = TRUE;
+CREATE INDEX IF NOT EXISTS idx_browser_collection_profile_rarity
+  ON browser_collection (browser_profile_id, best_rarity_code);
+CREATE INDEX IF NOT EXISTS idx_browser_collection_profile_topic
+  ON browser_collection (browser_profile_id, topic_group);
+CREATE INDEX IF NOT EXISTS idx_browser_collection_profile_obtained
+  ON browser_collection (browser_profile_id, last_obtained_at DESC);
+
+CREATE TABLE IF NOT EXISTS articles (
+  article_id        BIGINT NOT NULL,
+  language          TEXT   NOT NULL,
+  title             TEXT   NOT NULL DEFAULT '',
+  rarity_code       TEXT   NULL,
+  quality_score     INTEGER NOT NULL DEFAULT 0,
+  atk               INTEGER NOT NULL DEFAULT 0,
+  def_stat          INTEGER NOT NULL DEFAULT 0,
+  image_url         TEXT NULL,
+  extract_text      TEXT NULL,
+  long_extract_text TEXT NULL,
+  flavor_text       TEXT NULL,
+  source_url        TEXT NULL,
+  topic_group       TEXT NULL,
+  first_seen_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  last_seen_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (article_id, language)
+);
+
+CREATE INDEX IF NOT EXISTS idx_articles_topic
+  ON articles (topic_group);
+CREATE INDEX IF NOT EXISTS idx_articles_rarity
+  ON articles (rarity_code);
 
 CREATE TABLE IF NOT EXISTS pack_openings (
   id BIGINT PRIMARY KEY,
@@ -70,26 +102,23 @@ CREATE TABLE IF NOT EXISTS pack_openings (
 
 CREATE INDEX IF NOT EXISTS idx_pack_openings_profile
   ON pack_openings (browser_profile_id);
+CREATE INDEX IF NOT EXISTS idx_pack_openings_profile_opened_desc
+  ON pack_openings (browser_profile_id, opened_at DESC);
 
 CREATE TABLE IF NOT EXISTS pack_opening_cards (
-  pack_opening_id BIGINT NOT NULL REFERENCES pack_openings(id) ON DELETE CASCADE,
-  slot_number INTEGER NOT NULL,
-  article_id INTEGER NOT NULL,
-  rarity TEXT NULL,
-  quality_score INTEGER NOT NULL DEFAULT 0,
-  atk INTEGER NOT NULL DEFAULT 0,
-  def_stat INTEGER NOT NULL DEFAULT 0,
-  image_url TEXT NULL,
-  extract_text TEXT NULL,
-  long_extract_text TEXT NULL,
-  flavor_text TEXT NULL,
-  was_new BOOLEAN NOT NULL DEFAULT FALSE,
+  pack_opening_id   BIGINT NOT NULL REFERENCES pack_openings(id) ON DELETE CASCADE,
+  slot_number       INTEGER NOT NULL,
+  article_id        BIGINT  NOT NULL,
+  language          TEXT    NOT NULL DEFAULT 'en',
+  was_new           BOOLEAN NOT NULL DEFAULT FALSE,
   copies_after_pull INTEGER NOT NULL DEFAULT 0,
-  shards_earned INTEGER NOT NULL DEFAULT 0,
-  source_url TEXT NULL,
-  topic_group TEXT NULL,
-  PRIMARY KEY (pack_opening_id, slot_number)
+  shards_earned     INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (pack_opening_id, slot_number),
+  FOREIGN KEY (article_id, language) REFERENCES articles (article_id, language)
 );
+
+CREATE INDEX IF NOT EXISTS idx_pack_opening_cards_article
+  ON pack_opening_cards (article_id, language);
 
 CREATE TABLE IF NOT EXISTS browser_missions (
   id BIGINT PRIMARY KEY,

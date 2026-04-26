@@ -75,8 +75,20 @@ function getPreferredLanguage(req, body = {}, searchParams = null) {
   );
 }
 
+function getIdempotencyKey(req) {
+  const value = req.headers["idempotency-key"];
+  if (!value) return null;
+  return String(value).slice(0, 80);
+}
+
 function createRequestHandler(wikipediaGachaService) {
   return async (req, res) => {
+    // 5s hard cap per request — anything above this is a bug; respond fast
+    // and free the worker slot. Nginx upstream is sized to retry on its own.
+    req.setTimeout(5_000, () => {
+      try { req.destroy(new Error("request_timeout")); } catch { /* ignore */ }
+    });
+
     const url = new URL(
       req.url || "/",
       `http://${req.headers.host || `127.0.0.1:${port}`}`
@@ -89,7 +101,14 @@ function createRequestHandler(wikipediaGachaService) {
 
     try {
       if (req.method === "GET" && url.pathname === "/health") {
-        writeJson(res, 200, { ok: true, service: "wikipedia-gacha-backend" });
+        const health = typeof wikipediaGachaService.checkHealth === "function"
+          ? await wikipediaGachaService.checkHealth()
+          : { ok: true };
+        writeJson(res, health.ok ? 200 : 503, {
+          service: "wikipedia-gacha-backend",
+          workerPid: process.pid,
+          ...health,
+        });
         return;
       }
 
@@ -137,7 +156,8 @@ function createRequestHandler(wikipediaGachaService) {
           200,
           await wikipediaGachaService.openPack(
             getBrowserToken(req, body),
-            getPreferredLanguage(req, body, url.searchParams)
+            getPreferredLanguage(req, body, url.searchParams),
+            getIdempotencyKey(req) || body.idempotencyKey || null
           )
         );
         return;
@@ -374,6 +394,13 @@ function closeServer(server) {
 async function startWorker() {
   const { wikipediaGachaService } = await import("./service.mjs");
   const server = createServer(createRequestHandler(wikipediaGachaService));
+
+  // keepAliveTimeout > Nginx default (60s) prevents the upstream from racing
+  // closed connections. headersTimeout must always exceed keepAliveTimeout.
+  server.keepAliveTimeout = 65_000;
+  server.headersTimeout = 66_000;
+  server.requestTimeout = 30_000;
+
   let shuttingDown = false;
 
   const shutdown = async () => {

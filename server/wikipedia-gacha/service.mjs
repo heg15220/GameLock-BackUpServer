@@ -21,6 +21,7 @@ import {
   createWikipediaGachaPersistence,
   DEFAULT_SQLITE_DB_PATH,
 } from "./persistence.mjs";
+import { createCache } from "./cache.mjs";
 
 const MISSION_BY_ID = new Map(MISSIONS.map((mission) => [mission.id, mission]));
 const TROPHY_BY_ID = new Map(TROPHIES.map((trophy) => [trophy.id, trophy]));
@@ -584,14 +585,44 @@ function serializePackCardResult(article, collectionEntry, packCard) {
   };
 }
 
-function serializeStoredPackCardResult(article, collectionEntry, packCard) {
+function serializeStoredPackCardResult(article, collectionEntry, packCard, language) {
   return {
     articleId: article.id,
+    language: language ?? "en",
     wasNew: packCard.wasNew,
     copiesAfterPull: collectionEntry.copies,
     shardsEarned: packCard.shardsEarned,
     rarity: article.rarityCode,
   };
+}
+
+function buildArticleSnapshot(article, language) {
+  return {
+    articleId: article.id,
+    language: language ?? "en",
+    title: article.wikipediaTitle ?? "",
+    rarityCode: article.rarityCode ?? null,
+    qualityScore: Number(article.qualityScore) || 0,
+    atk: Number(article.atk) || 0,
+    defStat: Number(article.defStat) || 0,
+    imageUrl: article.imageUrl ?? null,
+    extractText: article.extractText ?? null,
+    longExtractText: article.longExtractText ?? article.extractText ?? null,
+    flavorText: article.flavorText ?? null,
+    sourceUrl: article.sourceUrl ?? null,
+    topicGroup: article.topicGroup ?? null,
+  };
+}
+
+function pushPendingArticle(state, article, language) {
+  if (!article || !language) return;
+  if (!state.__articlesPending) {
+    state.__articlesPending = new Map();
+  }
+  const key = `${article.id}|${language}`;
+  if (!state.__articlesPending.has(key)) {
+    state.__articlesPending.set(key, buildArticleSnapshot(article, language));
+  }
 }
 
 function serializePackHistoryEntry(opening) {
@@ -1190,6 +1221,7 @@ export function createWikipediaGachaService({
   randomFn = Math.random,
   nowFn = () => new Date(),
   randomBytesFn = crypto.randomBytes,
+  cache: cacheOverride = null,
 } = {}) {
   // SQLite-backed store — per-user write queues, no global serial bottleneck.
   const { db, store } = createWikipediaGachaPersistence({
@@ -1197,6 +1229,44 @@ export function createWikipediaGachaService({
     postgresUrl,
     dbPath,
   });
+  const cache = cacheOverride ?? createCache();
+  const PACK_OPEN_RATE_LIMIT = Math.max(
+    1,
+    Number(process.env.WIKIPEDIA_GACHA_RATE_LIMIT_PER_MIN || 60) || 60
+  );
+
+  // In-memory rate-limit fallback for when Redis is unavailable. Each entry
+  // is {count, resetAt}. Cleared lazily on access.
+  const localRateBuckets = new Map();
+  function incrLocalRate(token, windowMs = 60_000) {
+    if (!token) return 0;
+    const now = Date.now();
+    const bucket = localRateBuckets.get(token);
+    if (!bucket || bucket.resetAt <= now) {
+      localRateBuckets.set(token, { count: 1, resetAt: now + windowMs });
+      return 1;
+    }
+    bucket.count += 1;
+    return bucket.count;
+  }
+  // Periodic eviction so the map cannot grow unbounded under churn.
+  const localRateSweep = setInterval(() => {
+    const now = Date.now();
+    for (const [k, v] of localRateBuckets) {
+      if (v.resetAt <= now) localRateBuckets.delete(k);
+    }
+  }, 60_000);
+  if (typeof localRateSweep.unref === "function") localRateSweep.unref();
+
+  function hashQuery(value) {
+    if (value == null) return "_";
+    if (typeof value !== "object") return String(value);
+    const keys = Object.keys(value).sort();
+    const pairs = keys
+      .filter((k) => value[k] !== undefined && value[k] !== null && value[k] !== "")
+      .map((k) => `${k}=${value[k]}`);
+    return pairs.length ? pairs.join("&") : "_";
+  }
 
   // Live-Wikipedia pool: articles are fetched from the Wikipedia API and held
   // in RAM.  Pack openings are O(1) synchronous lookups — no disk or network
@@ -1333,6 +1403,7 @@ export function createWikipediaGachaService({
         return serializePackCardResult(article, collectionEntry, packCard);
       })
     );
+    const packLanguage = profile.preferredLanguage ?? "en";
     const storedOpeningCards = await Promise.all(
       packResult.packCards.map(async (packCard) => {
         const article = await articleCatalog.getArticleById(packCard.articleId);
@@ -1347,7 +1418,8 @@ export function createWikipediaGachaService({
             entry.browserProfileId === profile.id &&
             entry.articleId === packCard.articleId
         );
-        return serializeStoredPackCardResult(article, collectionEntry, packCard);
+        pushPendingArticle(draft, article, packLanguage);
+        return serializeStoredPackCardResult(article, collectionEntry, packCard, packLanguage);
       })
     );
 
@@ -1632,32 +1704,19 @@ export function createWikipediaGachaService({
     if (transient) {
       return serializePackStatus(transient.profile, now);
     }
-    const state = await store.forToken(browserToken).update(async (draft) => {
-      const profile = ensureProfile(draft, browserToken);
-      let changed = false;
-      const previousLanguage = profile.preferredLanguage;
-      const previousPacksAvailable = profile.packsAvailable;
-      const previousLastPackRegenAt = profile.lastPackRegenAt;
-      syncProfilePreferredLanguage(profile, preferredLanguage, now);
-      changed ||= profile.preferredLanguage !== previousLanguage;
-      applyPackRegeneration(profile, now);
-      changed ||= profile.packsAvailable !== previousPacksAvailable;
-      changed ||= profile.lastPackRegenAt !== previousLastPackRegenAt;
-      if (shouldTouchLastSeen(profile, now)) {
-        profile.lastSeenAt = isoDate(now);
-        changed = true;
-      }
-      if (changed) {
-        profile.updatedAt = isoDate(now);
-      }
-      return {
-        state: draft,
-        persist: changed && hasPersistedProgress(draft, profile),
-      };
-    });
-    const profile = state.browserProfiles.find(
-      (entry) => entry.browserToken === browserToken
-    );
+    // Lean read: a single SELECT on browser_profiles, no enqueue, no full
+    // state hydration. Pack regeneration is computed ephemerally on a clone
+    // — the next write path (openPack, claim, etc.) will recompute and
+    // persist it correctly. Same idempotent math, no wasted I/O on reads.
+    const persisted = await store.readProfileOnly(browserToken);
+    if (!persisted) {
+      const error = new Error("Browser profile not found.");
+      error.statusCode = 401;
+      error.code = "invalid_browser_token";
+      throw error;
+    }
+    const profile = { ...persisted };
+    applyPackRegeneration(profile, now);
     return serializePackStatus(profile, now);
   }
 
@@ -2404,27 +2463,185 @@ export function createWikipediaGachaService({
   }
 
   return {
-    bootstrapSession,
-    getSessionMe,
-    getPackStatus,
-    openPack,
-    getPackHistory,
-    getCollection,
-    getCollectionItem,
-    toggleFavorite,
-    getArticle,
-    searchArticles,
-    registerArticleClick,
-    getMissions,
-    claimMission,
-    claimRewardedAdPacks,
-    getTrophies,
-    exportRecoveryCode,
-    importRecoveryCode,
+    bootstrapSession: async (payload) => {
+      const result = await bootstrapSession(payload);
+      if (cache.enabled && result?.browserToken) {
+        cache.invalidateUser(result.browserToken).catch(() => {});
+      }
+      return result;
+    },
+
+    getSessionMe: (token, lang) => {
+      if (!cache.enabled) return getSessionMe(token, lang);
+      return cache.getOrSet(`me:${token}`, cache.ttls.sessionMe, () =>
+        getSessionMe(token, lang)
+      );
+    },
+
+    getPackStatus: (token, lang) => {
+      if (!cache.enabled) return getPackStatus(token, lang);
+      return cache.getOrSet(`packs:${token}`, cache.ttls.packStatus, () =>
+        getPackStatus(token, lang)
+      );
+    },
+
+    openPack: async (token, lang, idempotencyKey = null) => {
+      if (cache.enabled && idempotencyKey) {
+        const replay = await cache.takeIdempotency(token, idempotencyKey);
+        if (replay) return replay;
+      }
+      const rateCount = cache.enabled
+        ? await cache.incrRateLimit("open", token, 60)
+        : incrLocalRate(token);
+      if (token && rateCount > PACK_OPEN_RATE_LIMIT) {
+        const error = new Error("Rate limit exceeded for pack opens.");
+        error.statusCode = 429;
+        error.code = "rate_limited";
+        throw error;
+      }
+      const result = await openPack(token, lang);
+      if (cache.enabled) {
+        await cache.invalidateUser(token);
+        if (idempotencyKey) {
+          await cache.storeIdempotency(token, idempotencyKey, result);
+        }
+      }
+      return result;
+    },
+
+    getPackHistory: (token, lang) => {
+      if (!cache.enabled) return getPackHistory(token, lang);
+      return cache.getOrSet(`hist:${token}`, cache.ttls.collection, () =>
+        getPackHistory(token, lang)
+      );
+    },
+
+    getCollection: (token, query, lang) => {
+      if (!cache.enabled) return getCollection(token, query, lang);
+      return cache.getOrSet(
+        `col:${token}:${hashQuery(query)}`,
+        cache.ttls.collection,
+        () => getCollection(token, query, lang)
+      );
+    },
+
+    getCollectionItem: (token, articleId, lang) => {
+      if (!cache.enabled) return getCollectionItem(token, articleId, lang);
+      return cache.getOrSet(
+        `colitem:${token}:${articleId}`,
+        cache.ttls.collection,
+        () => getCollectionItem(token, articleId, lang)
+      );
+    },
+
+    toggleFavorite: async (token, articleId, favorite, lang) => {
+      const result = await toggleFavorite(token, articleId, favorite, lang);
+      if (cache.enabled) {
+        await Promise.all([
+          cache.del(`me:${token}`, `colitem:${token}:${articleId}`),
+          cache.invalidateUserScoped(token, "col"),
+        ]);
+      }
+      return result;
+    },
+
+    getArticle: (articleId, token, lang) => {
+      if (!cache.enabled) return getArticle(articleId, token, lang);
+      const normalizedLang = lang === "es" ? "es" : "en";
+      return cache.getOrSet(
+        `art:${normalizedLang}:${articleId}`,
+        cache.ttls.article,
+        () => getArticle(articleId, token, lang)
+      );
+    },
+
+    searchArticles: (query, lang) => {
+      if (!cache.enabled) return searchArticles(query, lang);
+      const normalizedLang = lang === "es" ? "es" : "en";
+      const normalizedQuery = String(query ?? "").trim().toLowerCase().slice(0, 80);
+      if (!normalizedQuery) return searchArticles(query, lang);
+      return cache.getOrSet(
+        `search:${normalizedLang}:${normalizedQuery}`,
+        cache.ttls.search,
+        () => searchArticles(query, lang)
+      );
+    },
+
+    registerArticleClick: async (token, articleId, lang) => {
+      const result = await registerArticleClick(token, articleId, lang);
+      if (cache.enabled) {
+        await Promise.all([
+          cache.del(`me:${token}`),
+          cache.invalidateUserScoped(token, "miss"),
+        ]);
+      }
+      return result;
+    },
+
+    getMissions: (token, lang) => {
+      if (!cache.enabled) return getMissions(token, lang);
+      const today = new Date().toISOString().slice(0, 10);
+      return cache.getOrSet(
+        `miss:${token}:${today}`,
+        cache.ttls.missions,
+        () => getMissions(token, lang)
+      );
+    },
+
+    claimMission: async (token, missionId, lang) => {
+      const result = await claimMission(token, missionId, lang);
+      if (cache.enabled) await cache.invalidateUser(token);
+      return result;
+    },
+
+    claimRewardedAdPacks: async (token, lang) => {
+      const result = await claimRewardedAdPacks(token, lang);
+      if (cache.enabled) await cache.invalidateUser(token);
+      return result;
+    },
+
+    getTrophies: (token, options) => {
+      if (!cache.enabled) return getTrophies(token, options);
+      const scope = options?.unlockedOnly ? "unlocked" : "all";
+      return cache.getOrSet(
+        `troph:${token}:${scope}`,
+        cache.ttls.trophies,
+        () => getTrophies(token, options)
+      );
+    },
+
+    exportRecoveryCode: async (token, lang) => {
+      const result = await exportRecoveryCode(token, lang);
+      if (cache.enabled) await cache.del(`me:${token}`);
+      return result;
+    },
+
+    importRecoveryCode: async (token, recoveryCode, lang) => {
+      const result = await importRecoveryCode(token, recoveryCode, lang);
+      if (cache.enabled) {
+        await cache.invalidateUser(token);
+        if (result?.browserToken && result.browserToken !== token) {
+          await cache.invalidateUser(result.browserToken);
+        }
+      }
+      return result;
+    },
+
+    async checkHealth() {
+      const dbHealthy = await db.get("SELECT 1 AS ok").then(() => true).catch(() => false);
+      const redisHealthy = cache.enabled ? await cache.ping() : null;
+      return {
+        ok: dbHealthy,
+        db: dbHealthy ? "ok" : "down",
+        redis: cache.enabled ? (redisHealthy ? "ok" : "degraded") : "disabled",
+      };
+    },
+
     async getCatalog(limit = 500) {
       const articleCatalog = await ensureCatalogReady();
       return articleCatalog.listCatalog(limit);
     },
+
     async close() {
       if (typeof store.flush === "function") {
         await store.flush();
@@ -2432,6 +2649,8 @@ export function createWikipediaGachaService({
       await Promise.all(
         Array.from(articleCatalogs.values()).map((catalog) => catalog.close())
       );
+      try { await cache.close(); } catch { /* ignore */ }
+      clearInterval(localRateSweep);
       await db.close();
     },
   };

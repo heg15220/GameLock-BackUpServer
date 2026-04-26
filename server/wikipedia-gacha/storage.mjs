@@ -1409,7 +1409,23 @@ export function createSqliteStore({ db }) {
     }
   }
 
-  return { forToken, findRecovery, flush, hasPersistedState, registerTransientToken };
+  // SQLite parity: the postgres store exposes a lean readProfileOnly() that
+  // skips the per-token queue. SQLite does not have that bottleneck (single
+  // file), so we just delegate to the full readRaw and pluck the profile.
+  async function readProfileOnly(browserToken) {
+    const state = await readRaw(browserToken);
+    return state?.browserProfiles?.find(
+      (entry) => entry.browserToken === browserToken
+    ) ?? null;
+  }
+  return {
+    forToken,
+    readProfileOnly,
+    findRecovery,
+    flush,
+    hasPersistedState,
+    registerTransientToken,
+  };
 }
 
 export { createSqliteStore as createJsonStore };
