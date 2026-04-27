@@ -1,0 +1,347 @@
+{
+  "startedAt": "2026-04-27T10:30:50.006Z",
+  "vuCount": 20,
+  "thresholdMs": 500,
+  "backends": [
+    {
+      "name": "cosmic-vanguard",
+      "baseUrl": "http://127.0.0.1:8787",
+      "vuCount": 20,
+      "completedVus": 25,
+      "wallDurationMs": 106,
+      "errors": [],
+      "errorCount": 0,
+      "phases": {
+        "open": {
+          "count": 20,
+          "avg": 31.1,
+          "min": 15.75,
+          "max": 42.68,
+          "p50": 31.25,
+          "p95": 42.68,
+          "p99": 42.68
+        },
+        "play": {
+          "count": 20,
+          "avg": 22.5,
+          "min": 10.83,
+          "max": 33.17,
+          "p50": 24.01,
+          "p95": 33.17,
+          "p99": 33.17
+        },
+        "gameplay": {
+          "count": 20,
+          "avg": 38.42,
+          "min": 22.71,
+          "max": 49.39,
+          "p50": 40.64,
+          "p95": 49.39,
+          "p99": 49.39
+        }
+      },
+      "rows": [
+        {
+          "backend": "cosmic-vanguard",
+          "phase": "open",
+          "n": 20,
+          "avg(ms)": 31.1,
+          "p50(ms)": 31.25,
+          "p95(ms)": 42.68,
+          "p99(ms)": 42.68,
+          "max(ms)": 42.68,
+          "verdict": "ok"
+        },
+        {
+          "backend": "cosmic-vanguard",
+          "phase": "play",
+          "n": 20,
+          "avg(ms)": 22.5,
+          "p50(ms)": 24.01,
+          "p95(ms)": 33.17,
+          "p99(ms)": 33.17,
+          "max(ms)": 33.17,
+          "verdict": "ok"
+        },
+        {
+          "backend": "cosmic-vanguard",
+          "phase": "gameplay",
+          "n": 20,
+          "avg(ms)": 38.42,
+          "p50(ms)": 40.64,
+          "p95(ms)": 49.39,
+          "p99(ms)": 49.39,
+          "max(ms)": 49.39,
+          "verdict": "ok"
+        }
+      ]
+    },
+    {
+      "name": "penalty-shootout",
+      "baseUrl": "http://127.0.0.1:8788",
+      "vuCount": 20,
+      "completedVus": 0,
+      "wallDurationMs": 37,
+      "errors": [
+        {
+          "phase": "gameplay",
+          "vuId": 0,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 1,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 2,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 3,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 4,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 5,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 6,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 7,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 8,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 9,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 10,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 11,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 12,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 13,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 14,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 15,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 16,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 17,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 18,
+          "status": 0,
+          "error": "no_match_id"
+        },
+        {
+          "phase": "gameplay",
+          "vuId": 19,
+          "status": 0,
+          "error": "no_match_id"
+        }
+      ],
+      "errorCount": 20,
+      "phases": {
+        "open": {
+          "count": 20,
+          "avg": 23.45,
+          "min": 11.77,
+          "max": 31.54,
+          "p50": 25.44,
+          "p95": 31.54,
+          "p99": 31.54
+        },
+        "play": {
+          "count": 20,
+          "avg": 8.24,
+          "min": 3.8,
+          "max": 12.8,
+          "p50": 8.71,
+          "p95": 12.8,
+          "p99": 12.8
+        },
+        "gameplay": {
+          "count": 20,
+          "avg": 0.01,
+          "min": 0,
+          "max": 0.16,
+          "p50": 0,
+          "p95": 0.16,
+          "p99": 0.16
+        }
+      },
+      "rows": [
+        {
+          "backend": "penalty-shootout",
+          "phase": "open",
+          "n": 20,
+          "avg(ms)": 23.45,
+          "p50(ms)": 25.44,
+          "p95(ms)": 31.54,
+          "p99(ms)": 31.54,
+          "max(ms)": 31.54,
+          "verdict": "ok"
+        },
+        {
+          "backend": "penalty-shootout",
+          "phase": "play",
+          "n": 20,
+          "avg(ms)": 8.24,
+          "p50(ms)": 8.71,
+          "p95(ms)": 12.8,
+          "p99(ms)": 12.8,
+          "max(ms)": 12.8,
+          "verdict": "ok"
+        },
+        {
+          "backend": "penalty-shootout",
+          "phase": "gameplay",
+          "n": 20,
+          "avg(ms)": 0.01,
+          "p50(ms)": 0,
+          "p95(ms)": 0.16,
+          "p99(ms)": 0.16,
+          "max(ms)": 0.16,
+          "verdict": "ok"
+        }
+      ]
+    },
+    {
+      "name": "wikipedia-gacha",
+      "baseUrl": "http://127.0.0.1:8791",
+      "vuCount": 20,
+      "completedVus": 25,
+      "wallDurationMs": 181,
+      "errors": [],
+      "errorCount": 0,
+      "phases": {
+        "open": {
+          "count": 20,
+          "avg": 28.71,
+          "min": 13.84,
+          "max": 38.19,
+          "p50": 31.5,
+          "p95": 38.19,
+          "p99": 38.19
+        },
+        "play": {
+          "count": 20,
+          "avg": 13.3,
+          "min": 11.27,
+          "max": 16.25,
+          "p50": 12.8,
+          "p95": 16.25,
+          "p99": 16.25
+        },
+        "gameplay": {
+          "count": 20,
+          "avg": 86.42,
+          "min": 46.78,
+          "max": 127.39,
+          "p50": 89.17,
+          "p95": 127.39,
+          "p99": 127.39
+        }
+      },
+      "rows": [
+        {
+          "backend": "wikipedia-gacha",
+          "phase": "open",
+          "n": 20,
+          "avg(ms)": 28.71,
+          "p50(ms)": 31.5,
+          "p95(ms)": 38.19,
+          "p99(ms)": 38.19,
+          "max(ms)": 38.19,
+          "verdict": "ok"
+        },
+        {
+          "backend": "wikipedia-gacha",
+          "phase": "play",
+          "n": 20,
+          "avg(ms)": 13.3,
+          "p50(ms)": 12.8,
+          "p95(ms)": 16.25,
+          "p99(ms)": 16.25,
+          "max(ms)": 16.25,
+          "verdict": "ok"
+        },
+        {
+          "backend": "wikipedia-gacha",
+          "phase": "gameplay",
+          "n": 20,
+          "avg(ms)": 86.42,
+          "p50(ms)": 89.17,
+          "p95(ms)": 127.39,
+          "p99(ms)": 127.39,
+          "max(ms)": 127.39,
+          "verdict": "ok"
+        }
+      ]
+    }
+  ]
+}

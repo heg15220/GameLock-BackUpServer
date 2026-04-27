@@ -1,0 +1,17 @@
+{
+  "updatedAt": "2026-04-27T10:42:34.355Z",
+  "entries": [
+    {
+      "id": "1777286554355-0",
+      "pilot": "VU1359",
+      "score": 16976,
+      "wave": 6,
+      "sector": 3,
+      "accuracy": 78,
+      "enemiesDestroyed": 42,
+      "asteroidsCleared": 18,
+      "createdAt": "2026-04-27T10:42:33.869Z",
+      "source": "concurrency-test"
+    }
+  ]
+}

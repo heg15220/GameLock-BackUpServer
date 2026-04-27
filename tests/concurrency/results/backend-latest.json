@@ -1,0 +1,334 @@
+{
+  "startedAt": "2026-04-27T10:42:40.310Z",
+  "vuCount": 500,
+  "thresholdMs": 500,
+  "backends": [
+    {
+      "name": "cosmic-vanguard",
+      "baseUrl": "http://127.0.0.1:8787",
+      "vuCount": 500,
+      "completedVus": 500,
+      "wallDurationMs": 2023,
+      "errors": [],
+      "errorCount": 0,
+      "phases": {
+        "open": {
+          "success": {
+            "count": 500,
+            "avg": 789.68,
+            "min": 379.45,
+            "max": 958.03,
+            "p50": 796.59,
+            "p95": 940.52,
+            "p99": 955.02
+          },
+          "failed": {
+            "count": 0,
+            "avg": null,
+            "min": null,
+            "max": null,
+            "p50": null,
+            "p95": null,
+            "p99": null
+          }
+        },
+        "play": {
+          "success": {
+            "count": 500,
+            "avg": 425.41,
+            "min": 240.25,
+            "max": 497.97,
+            "p50": 430.82,
+            "p95": 484.73,
+            "p99": 490.06
+          },
+          "failed": {
+            "count": 0,
+            "avg": null,
+            "min": null,
+            "max": null,
+            "p50": null,
+            "p95": null,
+            "p99": null
+          }
+        },
+        "gameplay": {
+          "success": {
+            "count": 500,
+            "avg": 538.41,
+            "min": 389.46,
+            "max": 670.67,
+            "p50": 535.57,
+            "p95": 635.71,
+            "p99": 661.06
+          },
+          "failed": {
+            "count": 0,
+            "avg": null,
+            "min": null,
+            "max": null,
+            "p50": null,
+            "p95": null,
+            "p99": null
+          }
+        }
+      },
+      "rows": [
+        {
+          "backend": "cosmic-vanguard",
+          "phase": "open",
+          "ok": 500,
+          "err": 0,
+          "avg(ms)": 789.68,
+          "p50(ms)": 796.59,
+          "p95(ms)": 940.52,
+          "p99(ms)": 955.02,
+          "max(ms)": 958.03,
+          "verdict": "fail"
+        },
+        {
+          "backend": "cosmic-vanguard",
+          "phase": "play",
+          "ok": 500,
+          "err": 0,
+          "avg(ms)": 425.41,
+          "p50(ms)": 430.82,
+          "p95(ms)": 484.73,
+          "p99(ms)": 490.06,
+          "max(ms)": 497.97,
+          "verdict": "ok"
+        },
+        {
+          "backend": "cosmic-vanguard",
+          "phase": "gameplay",
+          "ok": 500,
+          "err": 0,
+          "avg(ms)": 538.41,
+          "p50(ms)": 535.57,
+          "p95(ms)": 635.71,
+          "p99(ms)": 661.06,
+          "max(ms)": 670.67,
+          "verdict": "fail"
+        }
+      ]
+    },
+    {
+      "name": "penalty-shootout",
+      "baseUrl": "http://127.0.0.1:8788",
+      "vuCount": 500,
+      "completedVus": 500,
+      "wallDurationMs": 1317,
+      "errors": [],
+      "errorCount": 0,
+      "phases": {
+        "open": {
+          "success": {
+            "count": 500,
+            "avg": 646.01,
+            "min": 326.17,
+            "max": 807.24,
+            "p50": 657.34,
+            "p95": 792.58,
+            "p99": 805.22
+          },
+          "failed": {
+            "count": 0,
+            "avg": null,
+            "min": null,
+            "max": null,
+            "p50": null,
+            "p95": null,
+            "p99": null
+          }
+        },
+        "play": {
+          "success": {
+            "count": 500,
+            "avg": 348.17,
+            "min": 154.13,
+            "max": 374.98,
+            "p50": 340.95,
+            "p95": 373.04,
+            "p99": 374.55
+          },
+          "failed": {
+            "count": 0,
+            "avg": null,
+            "min": null,
+            "max": null,
+            "p50": null,
+            "p95": null,
+            "p99": null
+          }
+        },
+        "gameplay": {
+          "success": {
+            "count": 500,
+            "avg": 226.72,
+            "min": 118.2,
+            "max": 374.62,
+            "p50": 220.3,
+            "p95": 337.03,
+            "p99": 371.94
+          },
+          "failed": {
+            "count": 0,
+            "avg": null,
+            "min": null,
+            "max": null,
+            "p50": null,
+            "p95": null,
+            "p99": null
+          }
+        }
+      },
+      "rows": [
+        {
+          "backend": "penalty-shootout",
+          "phase": "open",
+          "ok": 500,
+          "err": 0,
+          "avg(ms)": 646.01,
+          "p50(ms)": 657.34,
+          "p95(ms)": 792.58,
+          "p99(ms)": 805.22,
+          "max(ms)": 807.24,
+          "verdict": "fail"
+        },
+        {
+          "backend": "penalty-shootout",
+          "phase": "play",
+          "ok": 500,
+          "err": 0,
+          "avg(ms)": 348.17,
+          "p50(ms)": 340.95,
+          "p95(ms)": 373.04,
+          "p99(ms)": 374.55,
+          "max(ms)": 374.98,
+          "verdict": "ok"
+        },
+        {
+          "backend": "penalty-shootout",
+          "phase": "gameplay",
+          "ok": 500,
+          "err": 0,
+          "avg(ms)": 226.72,
+          "p50(ms)": 220.3,
+          "p95(ms)": 337.03,
+          "p99(ms)": 371.94,
+          "max(ms)": 374.62,
+          "verdict": "ok"
+        }
+      ]
+    },
+    {
+      "name": "wikipedia-gacha",
+      "baseUrl": "http://127.0.0.1:8791",
+      "vuCount": 500,
+      "completedVus": 500,
+      "wallDurationMs": 4504,
+      "errors": [],
+      "errorCount": 0,
+      "phases": {
+        "open": {
+          "success": {
+            "count": 500,
+            "avg": 642.58,
+            "min": 344.66,
+            "max": 745.25,
+            "p50": 643.7,
+            "p95": 735.63,
+            "p99": 743.79
+          },
+          "failed": {
+            "count": 0,
+            "avg": null,
+            "min": null,
+            "max": null,
+            "p50": null,
+            "p95": null,
+            "p99": null
+          }
+        },
+        "play": {
+          "success": {
+            "count": 500,
+            "avg": 264.2,
+            "min": 197.1,
+            "max": 286.73,
+            "p50": 263.06,
+            "p95": 284.81,
+            "p99": 286.45
+          },
+          "failed": {
+            "count": 0,
+            "avg": null,
+            "min": null,
+            "max": null,
+            "p50": null,
+            "p95": null,
+            "p99": null
+          }
+        },
+        "gameplay": {
+          "success": {
+            "count": 500,
+            "avg": 1946.76,
+            "min": 611.73,
+            "max": 3433.07,
+            "p50": 1911.21,
+            "p95": 3273.33,
+            "p99": 3386.69
+          },
+          "failed": {
+            "count": 0,
+            "avg": null,
+            "min": null,
+            "max": null,
+            "p50": null,
+            "p95": null,
+            "p99": null
+          }
+        }
+      },
+      "rows": [
+        {
+          "backend": "wikipedia-gacha",
+          "phase": "open",
+          "ok": 500,
+          "err": 0,
+          "avg(ms)": 642.58,
+          "p50(ms)": 643.7,
+          "p95(ms)": 735.63,
+          "p99(ms)": 743.79,
+          "max(ms)": 745.25,
+          "verdict": "fail"
+        },
+        {
+          "backend": "wikipedia-gacha",
+          "phase": "play",
+          "ok": 500,
+          "err": 0,
+          "avg(ms)": 264.2,
+          "p50(ms)": 263.06,
+          "p95(ms)": 284.81,
+          "p99(ms)": 286.45,
+          "max(ms)": 286.73,
+          "verdict": "ok"
+        },
+        {
+          "backend": "wikipedia-gacha",
+          "phase": "gameplay",
+          "ok": 500,
+          "err": 0,
+          "avg(ms)": 1946.76,
+          "p50(ms)": 1911.21,
+          "p95(ms)": 3273.33,
+          "p99(ms)": 3386.69,
+          "max(ms)": 3433.07,
+          "verdict": "fail"
+        }
+      ]
+    }
+  ]
+}

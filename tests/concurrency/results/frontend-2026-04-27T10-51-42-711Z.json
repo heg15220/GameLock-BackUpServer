@@ -1,0 +1,1012 @@
+{
+  "startedAt": "2026-04-27T10:51:42.712Z",
+  "vuCount": 500,
+  "thresholdMs": 500,
+  "previewBase": "http://127.0.0.1:4173",
+  "appOpen": {
+    "indexHtml": {
+      "stats": {
+        "count": 500,
+        "avg": 648.09,
+        "min": 320.85,
+        "max": 745.78,
+        "p50": 677.23,
+        "p95": 736.87,
+        "p99": 742.32
+      },
+      "errors": 0
+    },
+    "mainBundle": {
+      "url": "/assets/index-25faca34.js",
+      "stats": {
+        "count": 488,
+        "avg": 1980,
+        "min": 947.6,
+        "max": 3045.07,
+        "p50": 1935.58,
+        "p95": 2925.48,
+        "p99": 3035.42
+      },
+      "errors": 12
+    }
+  },
+  "perGame": [
+    {
+      "id": "adventure-echoes",
+      "chunk": "/assets/AdventureGame-539940e1.js",
+      "stats": {
+        "count": 488,
+        "avg": 505.63,
+        "min": 267.71,
+        "max": 775.06,
+        "p50": 444.73,
+        "p95": 754.55,
+        "p99": 772.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "action-core-strike",
+      "chunk": "/assets/ActionGame-bca2c86b.js",
+      "stats": {
+        "count": 488,
+        "avg": 504.41,
+        "min": 277.58,
+        "max": 762.34,
+        "p50": 445.35,
+        "p95": 747.13,
+        "p99": 760.87
+      },
+      "errors": 12
+    },
+    {
+      "id": "racing-neon-lanes",
+      "chunk": "/assets/RacingGame-80049d57.js",
+      "stats": {
+        "count": 488,
+        "avg": 515.59,
+        "min": 282.92,
+        "max": 771.22,
+        "p50": 454.89,
+        "p95": 758.03,
+        "p99": 770.08
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-quiz-nexus",
+      "chunk": "/assets/KnowledgeGame-a89013d5.js",
+      "stats": {
+        "count": 488,
+        "avg": 532.33,
+        "min": 275,
+        "max": 817.42,
+        "p50": 501.17,
+        "p95": 805.98,
+        "p99": 816.64
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-logic-vault",
+      "chunk": "/assets/KnowledgeGame-a89013d5.js",
+      "stats": {
+        "count": 488,
+        "avg": 532.33,
+        "min": 275,
+        "max": 817.42,
+        "p50": 501.17,
+        "p95": 805.98,
+        "p99": 816.64
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-iq-masters-protocol",
+      "chunk": "/assets/IQMastersKnowledgeGame-bb0c43ae.js",
+      "stats": {
+        "count": 488,
+        "avg": 521.45,
+        "min": 274.76,
+        "max": 783.57,
+        "p50": 462.54,
+        "p95": 766.83,
+        "p99": 782.29
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-refranes-clasicos",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-wikipedia-gacha",
+      "chunk": "/assets/index-1c4aed97.js",
+      "stats": {
+        "count": 488,
+        "avg": 647.37,
+        "min": 324.3,
+        "max": 947.49,
+        "p50": 635.5,
+        "p95": 921.65,
+        "p99": 943.31
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-sudoku-sprint",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-domino-chain",
+      "chunk": "/assets/DominoStrategyGame-9576ff6e.js",
+      "stats": {
+        "count": 488,
+        "avg": 513.48,
+        "min": 273.72,
+        "max": 798.83,
+        "p50": 455.5,
+        "p95": 785.1,
+        "p99": 796.28
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-ahorcado-flash",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-paciencia-lite",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-puzle-deslizante",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-crucigrama-mini",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-sopa-letras-mega",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-wordle-pro",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-anagramas-pro",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-calculo-mental-flash10",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-tabla-periodica-total",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-mapas-atlas",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-mapas-camino-corto",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-adivina-pais-silueta",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-tangram-pro",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "knowledge-cronologia-maestra",
+      "chunk": "/assets/KnowledgeArcadeGame-02464295.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.51,
+        "min": 291.92,
+        "max": 779.81,
+        "p50": 456.44,
+        "p95": 762.12,
+        "p99": 766.73
+      },
+      "errors": 12
+    },
+    {
+      "id": "strategy-chess-grandmaster",
+      "chunk": "/assets/ChessGame-7a9c966c.js",
+      "stats": {
+        "count": 488,
+        "avg": 511.63,
+        "min": 271.93,
+        "max": 783.15,
+        "p50": 444.79,
+        "p95": 763.5,
+        "p99": 781.49
+      },
+      "errors": 12
+    },
+    {
+      "id": "strategy-damas-clasicas",
+      "chunk": "/assets/CheckersGame-f723b3a8.js",
+      "stats": {
+        "count": 488,
+        "avg": 522.62,
+        "min": 283.25,
+        "max": 776.42,
+        "p50": 470.3,
+        "p95": 763.36,
+        "p99": 775.43
+      },
+      "errors": 12
+    },
+    {
+      "id": "strategy-sudoku-tecnicas",
+      "chunk": "/assets/StrategySudokuGame-c3efa758.js",
+      "stats": {
+        "count": 488,
+        "avg": 522.47,
+        "min": 293.95,
+        "max": 787.34,
+        "p50": 466.29,
+        "p95": 771.96,
+        "p99": 786.22
+      },
+      "errors": 12
+    },
+    {
+      "id": "strategy-hundir-flota-pro",
+      "chunk": "/assets/StrategyBattleshipGame-51d2e2a7.js",
+      "stats": {
+        "count": 488,
+        "avg": 534.42,
+        "min": 305.75,
+        "max": 806.61,
+        "p50": 471.23,
+        "p95": 793,
+        "p99": 805.32
+      },
+      "errors": 12
+    },
+    {
+      "id": "strategy-poker-holdem-no-bet",
+      "chunk": "/assets/PokerTexasHoldemGame-f34b2526.js",
+      "stats": {
+        "count": 488,
+        "avg": 586.49,
+        "min": 321.64,
+        "max": 871.47,
+        "p50": 568.42,
+        "p95": 845.58,
+        "p99": 868.79
+      },
+      "errors": 12
+    },
+    {
+      "id": "strategy-parchis-ludoteka",
+      "chunk": "/assets/ParchisStrategyGame-fd998c5e.js",
+      "stats": {
+        "count": 488,
+        "avg": 587.85,
+        "min": 304.91,
+        "max": 867.32,
+        "p50": 565.75,
+        "p95": 845.75,
+        "p99": 863.57
+      },
+      "errors": 12
+    },
+    {
+      "id": "strategy-baraja-ia-arena",
+      "chunk": "/assets/StrategyBarajaModesGame-55cbf7cd.js",
+      "stats": {
+        "count": 488,
+        "avg": 705.8,
+        "min": 335.5,
+        "max": 1025.92,
+        "p50": 694.68,
+        "p95": 1000.81,
+        "p99": 1021.76
+      },
+      "errors": 12
+    },
+    {
+      "id": "strategy-mansion-triple-enigma",
+      "chunk": "/assets/StrategyMansionTripleEnigmaGame-87b47a15.js",
+      "stats": {
+        "count": 488,
+        "avg": 531.13,
+        "min": 341.41,
+        "max": 792.65,
+        "p50": 452.02,
+        "p95": 775.19,
+        "p99": 791.47
+      },
+      "errors": 12
+    },
+    {
+      "id": "rpg-emberfall",
+      "chunk": "/assets/RpgGame-f3b9589e.js",
+      "stats": {
+        "count": 488,
+        "avg": 520.27,
+        "min": 331.78,
+        "max": 766.83,
+        "p50": 427.9,
+        "p95": 753.32,
+        "p99": 765.9
+      },
+      "errors": 12
+    },
+    {
+      "id": "platformer-sky-runner",
+      "chunk": "/assets/PlatformerGame-d8cabace.js",
+      "stats": {
+        "count": 488,
+        "avg": 517.95,
+        "min": 337.15,
+        "max": 758.19,
+        "p50": 424.12,
+        "p95": 743.96,
+        "p99": 756.7
+      },
+      "errors": 12
+    },
+    {
+      "id": "fighter-neon-dojo",
+      "chunk": "/assets/FighterGame-f3d61e39.js",
+      "stats": {
+        "count": 488,
+        "avg": 531.48,
+        "min": 342.43,
+        "max": 794.71,
+        "p50": 441.04,
+        "p95": 780.12,
+        "p99": 792.85
+      },
+      "errors": 12
+    },
+    {
+      "id": "sports-head-soccer-arena",
+      "chunk": "/assets/HeadSoccerGame-02cbd18c.js",
+      "stats": {
+        "count": 500,
+        "avg": 584.54,
+        "min": 333.95,
+        "max": 882.08,
+        "p50": 499.84,
+        "p95": 864.31,
+        "p99": 880.44
+      },
+      "errors": 0
+    },
+    {
+      "id": "arcade-pacman-maze-protocol",
+      "chunk": "/assets/PacmanGame-b3224d90.js",
+      "stats": {
+        "count": 488,
+        "avg": 539.16,
+        "min": 346.93,
+        "max": 808.93,
+        "p50": 458.43,
+        "p95": 793.81,
+        "p99": 807.45
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-reactor-toss",
+      "chunk": null,
+      "stats": null
+    },
+    {
+      "id": "arcade-territory-war",
+      "chunk": null,
+      "stats": null
+    },
+    {
+      "id": "arcade-orchard-match-blast",
+      "chunk": "/assets/index-e1c8d3ee.js",
+      "stats": {
+        "count": 500,
+        "avg": 540.39,
+        "min": 351.92,
+        "max": 795.02,
+        "p50": 462.46,
+        "p95": 773.26,
+        "p99": 793.79
+      },
+      "errors": 0
+    },
+    {
+      "id": "arcade-billar-pool-club",
+      "chunk": "/assets/index-a8601ce1.js",
+      "stats": {
+        "count": 500,
+        "avg": 653.77,
+        "min": 371.22,
+        "max": 959.28,
+        "p50": 591.14,
+        "p95": 942.15,
+        "p99": 957.67
+      },
+      "errors": 0
+    },
+    {
+      "id": "arcade-bowling-pro-tour",
+      "chunk": "/assets/index-b66efeae.js",
+      "stats": {
+        "count": 500,
+        "avg": 680.36,
+        "min": 354.17,
+        "max": 961.76,
+        "p50": 653.93,
+        "p95": 940.7,
+        "p99": 957.13
+      },
+      "errors": 0
+    },
+    {
+      "id": "arcade-penalty-neural-keeper",
+      "chunk": "/assets/index-8559ba3e.js",
+      "stats": {
+        "count": 500,
+        "avg": 586.95,
+        "min": 391.71,
+        "max": 850.66,
+        "p50": 504.42,
+        "p95": 832.08,
+        "p99": 849.39
+      },
+      "errors": 0
+    },
+    {
+      "id": "arcade-cosmic-vanguard",
+      "chunk": "/assets/index-e3f3fade.js",
+      "stats": {
+        "count": 500,
+        "avg": 561.13,
+        "min": 358.59,
+        "max": 824.74,
+        "p50": 482.97,
+        "p95": 807.36,
+        "p99": 823.26
+      },
+      "errors": 0
+    },
+    {
+      "id": "arcade-golf-tour-2d",
+      "chunk": null,
+      "stats": null
+    },
+    {
+      "id": "arcade-archery-horizon",
+      "chunk": "/assets/index-df62de49.js",
+      "stats": {
+        "count": 500,
+        "avg": 672.34,
+        "min": 380.07,
+        "max": 959.49,
+        "p50": 609.17,
+        "p95": 936.97,
+        "p99": 957.9
+      },
+      "errors": 0
+    },
+    {
+      "id": "arcade-pinball-wizard",
+      "chunk": "/assets/index-bea33f2e.js",
+      "stats": {
+        "count": 500,
+        "avg": 545.95,
+        "min": 332.4,
+        "max": 792.69,
+        "p50": 490.78,
+        "p95": 774.09,
+        "p99": 790.68
+      },
+      "errors": 0
+    },
+    {
+      "id": "arcade-bubble-storm",
+      "chunk": null,
+      "stats": null
+    },
+    {
+      "id": "arcade-ice-strike-pro",
+      "chunk": "/assets/index-d96d8f38.js",
+      "stats": {
+        "count": 488,
+        "avg": 524.35,
+        "min": 205.52,
+        "max": 816.32,
+        "p50": 464.48,
+        "p95": 802.28,
+        "p99": 814.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-stick-brawl-showdown",
+      "chunk": "/assets/index-006f5310.js",
+      "stats": {
+        "count": 488,
+        "avg": 511.54,
+        "min": 247.53,
+        "max": 789.38,
+        "p50": 478.03,
+        "p95": 765.62,
+        "p99": 786.71
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-neon-crypt",
+      "chunk": "/assets/index-c67a7c2d.js",
+      "stats": {
+        "count": 488,
+        "avg": 507.99,
+        "min": 229.73,
+        "max": 771.35,
+        "p50": 453.6,
+        "p95": 757.98,
+        "p99": 770.06
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-neon-rush",
+      "chunk": "/assets/index-7e95cb16.js",
+      "stats": {
+        "count": 488,
+        "avg": 533.15,
+        "min": 259.6,
+        "max": 809.5,
+        "p50": 499.85,
+        "p95": 791.95,
+        "p99": 807.09
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-kitchen-rush-2d",
+      "chunk": "/assets/index-695de591.js",
+      "stats": {
+        "count": 488,
+        "avg": 649.58,
+        "min": 311.14,
+        "max": 943.5,
+        "p50": 631.42,
+        "p95": 918.09,
+        "p99": 939.8
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-dig-hole-treasure",
+      "chunk": "/assets/index-eeddf31c.js",
+      "stats": {
+        "count": 488,
+        "avg": 908.34,
+        "min": 392.12,
+        "max": 1337.68,
+        "p50": 916.68,
+        "p95": 1299.84,
+        "p99": 1331.19
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-valle-tranquilo",
+      "chunk": "/assets/index-9c986fea.js",
+      "stats": {
+        "count": 488,
+        "avg": 1329.7,
+        "min": 591.86,
+        "max": 2053.17,
+        "p50": 1308.41,
+        "p95": 1965.28,
+        "p99": 2034.47
+      },
+      "errors": 12
+    },
+    {
+      "id": "sports-basketball-court",
+      "chunk": "/assets/index-6f33e14c.js",
+      "stats": {
+        "count": 488,
+        "avg": 569.16,
+        "min": 265.7,
+        "max": 883.62,
+        "p50": 551.42,
+        "p95": 867.48,
+        "p99": 881.09
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-pong-neon-arena",
+      "chunk": "/assets/PongGame-6c79b6d5.js",
+      "stats": {
+        "count": 488,
+        "avg": 553.68,
+        "min": 247.3,
+        "max": 851.81,
+        "p50": 519.97,
+        "p95": 835.39,
+        "p99": 850.61
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-buscaminas-classic",
+      "chunk": "/assets/MinesweeperGame-a80ecb4e.js",
+      "stats": {
+        "count": 488,
+        "avg": 510.48,
+        "min": 278.47,
+        "max": 781.95,
+        "p50": 457.69,
+        "p95": 765.73,
+        "p99": 780.61
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-snake-classic",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-breakout-1986",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-space-invaders",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-tetris-blockfall",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-frogger-crossing",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-bomber-grid",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-galaga-quantum",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-qbert-prism",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-lunar-lander-orbit",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-centipede-circuit",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-river-raid-neon",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-tron-lightcycles",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "arcade-retro-road-fighter-synth",
+      "chunk": "/assets/index-011144b5.js",
+      "stats": {
+        "count": 488,
+        "avg": 571.68,
+        "min": 293.95,
+        "max": 873.81,
+        "p50": 532.91,
+        "p95": 849.66,
+        "p99": 870.68
+      },
+      "errors": 12
+    },
+    {
+      "id": "racing-race2dpro",
+      "chunk": "/assets/RaceGame2DPro-0ef66e08.js",
+      "stats": {
+        "count": 488,
+        "avg": 535.73,
+        "min": 283.52,
+        "max": 837.02,
+        "p50": 469.68,
+        "p95": 824.41,
+        "p99": 835.16
+      },
+      "errors": 12
+    },
+    {
+      "id": "racing-sunset-slipstream",
+      "chunk": null,
+      "stats": null
+    }
+  ]
+}

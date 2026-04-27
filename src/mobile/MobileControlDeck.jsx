@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { holdInputs, releaseAllInputs, tapInputs } from "./mobileInputBridge";
+import { holdInputs, releaseAllInputs, repeatInputs, tapInputs } from "./mobileInputBridge";
 
 function getEmbeddedStandaloneRoots(scopeElement) {
   if (!scopeElement) {
@@ -299,15 +299,53 @@ function collectUniqueInputs(buttons) {
   return Array.from(inputMap.values());
 }
 
+const JOYSTICK_DEAD_ZONE = 0.16;
+const JOYSTICK_THUMB_TRAVEL_RATIO = 0.32;
+const JOYSTICK_REPEAT_INITIAL_DELAY_MS = 160;
+const JOYSTICK_REPEAT_INTERVAL_MS = 70;
+
 function MobileJoystick({
   buttonsBySlot,
   activeSlots,
   onDirectionChange,
+  onDirectionRepeat,
 }) {
   const joystickRef = useRef(null);
   const pointerIdRef = useRef(null);
   const previousSlotsRef = useRef([]);
+  const activeSlotsRef = useRef([]);
+  const repeatStartTimerRef = useRef(null);
+  const repeatTimerRef = useRef(null);
   const [thumb, setThumb] = useState({ x: 0, y: 0, active: false });
+
+  const stopRepeating = () => {
+    if (repeatStartTimerRef.current != null) {
+      clearTimeout(repeatStartTimerRef.current);
+      repeatStartTimerRef.current = null;
+    }
+    if (repeatTimerRef.current != null) {
+      clearInterval(repeatTimerRef.current);
+      repeatTimerRef.current = null;
+    }
+  };
+
+  const beginRepeating = () => {
+    if (!onDirectionRepeat) {
+      return;
+    }
+    stopRepeating();
+    repeatStartTimerRef.current = setTimeout(() => {
+      repeatStartTimerRef.current = null;
+      repeatTimerRef.current = setInterval(() => {
+        const slots = activeSlotsRef.current;
+        if (!slots.length) {
+          stopRepeating();
+          return;
+        }
+        onDirectionRepeat(slots);
+      }, JOYSTICK_REPEAT_INTERVAL_MS);
+    }, JOYSTICK_REPEAT_INITIAL_DELAY_MS);
+  };
 
   const emitSlots = (nextSlots) => {
     const previousSlots = previousSlotsRef.current;
@@ -317,6 +355,12 @@ function MobileJoystick({
     if (previousKey !== nextKey) {
       onDirectionChange(previousSlots, nextSlots);
       previousSlotsRef.current = nextSlots;
+      activeSlotsRef.current = nextSlots;
+      if (nextSlots.length === 0) {
+        stopRepeating();
+      } else {
+        beginRepeating();
+      }
     }
   };
 
@@ -329,8 +373,10 @@ function MobileJoystick({
     const rect = element.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const rawX = (event.clientX - centerX) / (rect.width / 2);
-    const rawY = (event.clientY - centerY) / (rect.height / 2);
+    const halfWidth = rect.width / 2 || 1;
+    const halfHeight = rect.height / 2 || 1;
+    const rawX = (event.clientX - centerX) / halfWidth;
+    const rawY = (event.clientY - centerY) / halfHeight;
     const distance = Math.hypot(rawX, rawY);
 
     let dx = rawX;
@@ -340,25 +386,25 @@ function MobileJoystick({
       dy /= distance;
     }
 
-    const deadZone = 0.24;
     const nextSlots = [];
 
-    if (dx <= -deadZone && buttonsBySlot.left) {
+    if (dx <= -JOYSTICK_DEAD_ZONE && buttonsBySlot.left) {
       nextSlots.push("left");
     }
-    if (dx >= deadZone && buttonsBySlot.right) {
+    if (dx >= JOYSTICK_DEAD_ZONE && buttonsBySlot.right) {
       nextSlots.push("right");
     }
-    if (dy <= -deadZone && buttonsBySlot.up) {
+    if (dy <= -JOYSTICK_DEAD_ZONE && buttonsBySlot.up) {
       nextSlots.push("up");
     }
-    if (dy >= deadZone && buttonsBySlot.down) {
+    if (dy >= JOYSTICK_DEAD_ZONE && buttonsBySlot.down) {
       nextSlots.push("down");
     }
 
+    const travel = rect.width * JOYSTICK_THUMB_TRAVEL_RATIO;
     setThumb({
-      x: dx * 26,
-      y: dy * 26,
+      x: dx * travel,
+      y: dy * travel,
       active: true,
     });
     emitSlots(nextSlots);
@@ -367,10 +413,14 @@ function MobileJoystick({
   const releaseJoystick = () => {
     setThumb({ x: 0, y: 0, active: false });
     emitSlots([]);
+    stopRepeating();
     pointerIdRef.current = null;
   };
 
-  useEffect(() => () => emitSlots([]), []);
+  useEffect(() => () => {
+    emitSlots([]);
+    stopRepeating();
+  }, []);
 
   return (
     <div className="mobile-control-deck__joystick-wrap">
@@ -434,6 +484,7 @@ function renderCluster({
   onRequestFullscreen,
   onHoldStateChange,
   onDirectionChange,
+  onDirectionRepeat,
   setTappedId,
 }) {
   if (!buttons.length) {
@@ -489,6 +540,11 @@ function renderCluster({
             const pressInputs = nextInputs.filter((input) => !previousCodes.has(input.code));
 
             onDirectionChange(releaseInputs, pressInputs);
+          }}
+          onDirectionRepeat={(slots) => {
+            const heldButtons = slots.map((slot) => buttonsBySlot[slot]).filter(Boolean);
+            const heldInputs = collectUniqueInputs(heldButtons);
+            onDirectionRepeat?.(heldInputs);
           }}
         />
       </div>
@@ -568,6 +624,13 @@ export default function MobileControlDeck({
     });
   };
 
+  const repeatDirectionalInputs = (heldInputs) => {
+    if (!heldInputs?.length) {
+      return;
+    }
+    repeatInputs(heldInputs, scopeElement);
+  };
+
   const isButtonActive = (button) => {
     if (tappedId === button.id) {
       return true;
@@ -603,6 +666,7 @@ export default function MobileControlDeck({
     onRequestFullscreen,
     onHoldStateChange: updateHoldState,
     onDirectionChange: updateDirectionalState,
+    onDirectionRepeat: repeatDirectionalInputs,
     setTappedId,
   });
   const leftSupportNode = leftSupportButtons?.length
@@ -615,6 +679,7 @@ export default function MobileControlDeck({
         onRequestFullscreen,
         onHoldStateChange: updateHoldState,
         onDirectionChange: updateDirectionalState,
+        onDirectionRepeat: repeatDirectionalInputs,
         setTappedId,
       })
     : null;
@@ -668,6 +733,7 @@ export default function MobileControlDeck({
             onRequestFullscreen,
             onHoldStateChange: updateHoldState,
             onDirectionChange: updateDirectionalState,
+            onDirectionRepeat: repeatDirectionalInputs,
             setTappedId,
           })}
         </div>

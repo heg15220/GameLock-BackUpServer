@@ -451,20 +451,20 @@ export function getMobileControlProfile(game, locale = "es") {
           control("right", "▶", { inputs: [input("KeyD", "d")] }),
         ],
         rightPad: [
-          control("jump", t(locale, "Salta", "Jump"), {
-            type: "hold",
-            tone: "accent",
-            inputs: [input("KeyW", "w")],
+          control("start", "Start", {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("Enter", "Enter")],
           }),
           control("kick", t(locale, "Disparo", "Kick"), {
             type: "hold",
             tone: "primary",
             inputs: [input("Space", " ")],
           }),
-          control("start", "Start", {
-            type: "tap",
-            tone: "utility",
-            inputs: [input("Enter", "Enter")],
+          control("jump", t(locale, "Salta", "Jump"), {
+            type: "hold",
+            tone: "accent",
+            inputs: [input("KeyW", "w")],
           }),
         ],
         utilities: utilityRow(locale),

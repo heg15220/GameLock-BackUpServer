@@ -6070,6 +6070,22 @@
   min-height: 100dvh;
 }
 
+.mobile-game-shell--pseudo-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  margin: 0;
+  background:
+    radial-gradient(circle at 10% 5%, #ffe2a4 0%, transparent 30%),
+    radial-gradient(circle at 90% 5%, #afe9e0 0%, transparent 28%),
+    linear-gradient(180deg, #fffdf6 0%, #fbf6ea 100%);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
 .mobile-game-shell--fullscreen .mobile-game-shell__hardware {
   padding: 0.28rem;
   border-radius: 22px;

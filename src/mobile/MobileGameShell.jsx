@@ -176,6 +176,7 @@ export default function MobileGameShell({
   const shellRef = useRef(null);
   const [stageViewportNode, setStageViewportNode] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [pseudoFullscreen, setPseudoFullscreen] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const clearTransitionRafRef = useRef(null);
   const shellMode = useMemo(
@@ -203,6 +204,10 @@ export default function MobileGameShell({
   const isTouchStage = shellMode === "mobile-first" && shellTheme === "default";
   const isPortrait = viewport.orientation === "portrait";
   const viewportFormFactor = viewport.formFactor ?? "desktop";
+  const usePseudoFullscreen =
+    viewportFormFactor === "tablet" && !isPortrait;
+  const skipFullscreenTransition = usePseudoFullscreen;
+  const showFullscreenLayout = isFullscreen || pseudoFullscreen;
   const categoryKey = String(game?.category ?? "").toLowerCase();
   const isStrategyTheme = shellTheme === "strategy";
   const isKnowledgeTheme = shellTheme === "knowledge";
@@ -219,14 +224,14 @@ export default function MobileGameShell({
     !isDualScreen;
   const showStrategyTabletFullscreenStatusAd =
     showAdPreview &&
-    isFullscreen &&
+    showFullscreenLayout &&
     viewportFormFactor === "tablet" &&
     !isPortrait &&
     isStrategyTheme &&
     STRATEGY_TABLET_FULLSCREEN_STATUS_AD_GAME_IDS.has(game?.id);
   const showKnowledgeTabletFullscreenAd =
     showAdPreview &&
-    isFullscreen &&
+    showFullscreenLayout &&
     viewportFormFactor === "tablet" &&
     !isPortrait &&
     isKnowledgeTheme &&
@@ -333,14 +338,27 @@ export default function MobileGameShell({
     };
   }, []);
 
+  useEffect(() => {
+    if (!usePseudoFullscreen && pseudoFullscreen) {
+      setPseudoFullscreen(false);
+    }
+  }, [usePseudoFullscreen, pseudoFullscreen]);
+
   const requestFullscreen = async () => {
     const target = shellRef.current;
     if (!target) {
       return;
     }
 
+    if (usePseudoFullscreen) {
+      setPseudoFullscreen((previous) => !previous);
+      return;
+    }
+
     try {
-      setIsTransitioning(true);
+      if (!skipFullscreenTransition) {
+        setIsTransitioning(true);
+      }
       if (document.fullscreenElement || document.webkitFullscreenElement) {
         if (document.exitFullscreen) {
           await document.exitFullscreen();
@@ -373,7 +391,8 @@ export default function MobileGameShell({
     showKnowledgeTabletFullscreenAd ? "mobile-game-shell--knowledge-tablet-fullscreen-ad" : "",
     showStrategyTabletFullscreenStatusAd ? "mobile-game-shell--strategy-tablet-fullscreen-status-ad" : "",
     isTabletLandscapeStack ? "mobile-game-shell--tablet-landscape-stack" : "",
-    isFullscreen ? "mobile-game-shell--fullscreen" : "",
+    showFullscreenLayout ? "mobile-game-shell--fullscreen" : "",
+    pseudoFullscreen ? "mobile-game-shell--pseudo-fullscreen" : "",
     isTransitioning ? "mobile-game-shell--transitioning" : "",
     isDualScreen ? "mobile-game-shell--has-controls" : "mobile-game-shell--touch-native",
   ]
@@ -471,7 +490,7 @@ export default function MobileGameShell({
   );
 
   const fullscreenSystemAdSpacerNode =
-    showShellSystemBottomAd && isFullscreen && !useInlineSystemBottomAd ? (
+    showShellSystemBottomAd && showFullscreenLayout && !useInlineSystemBottomAd ? (
       <div className="mobile-game-shell__system-bottom-spacer" aria-hidden="true" />
     ) : null;
   const inlineSystemBottomAdNode =
@@ -608,7 +627,7 @@ export default function MobileGameShell({
           )}
         </div>
       </div>
-      {showShellSystemBottomAd && isFullscreen && !useInlineSystemBottomAd ? (
+      {showShellSystemBottomAd && showFullscreenLayout && !useInlineSystemBottomAd ? (
         <div className="mobile-game-shell__system-bottom-ad-wrap">
           <AdPreviewCard
             slot={MOBILE_APP_BOTTOM_AD_SLOT}

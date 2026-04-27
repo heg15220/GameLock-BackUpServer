@@ -80,6 +80,16 @@ export function tapInputs(inputs, scopeElement) {
   }, TAP_RELEASE_MS);
 }
 
+export function repeatInputs(inputs, scopeElement) {
+  const targets = collectTargets(scopeElement);
+  if (!inputs?.length || !targets.length) {
+    return;
+  }
+  inputs.forEach((input) => {
+    targets.forEach((targetWindow) => dispatchKeyboardEvent(targetWindow, "keydown", input));
+  });
+}
+
 export function holdInputs(inputs, scopeElement, active, nextValue) {
   const targets = collectTargets(scopeElement);
   if (!inputs?.length || !targets.length) {
