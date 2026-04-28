@@ -2626,6 +2626,7 @@ function drawSky(t){
   g.addColorStop(1,blendCSS(sk.b,st.b,.3));
   sCtx.fillStyle=g;
   sCtx.fillRect(0,0,cw,ch);
+  drawDistantLandscape(t,tod,sn);
 
   if(tod==='night'||tod==='evening'){
     const a=tod==='night'?1:.35;
@@ -2683,6 +2684,54 @@ function drawSun2(tod){
   sCtx.fillStyle=sg; sCtx.beginPath(); sCtx.arc(sx,sy,80,0,Math.PI*2); sCtx.fill();
   sCtx.fillStyle=col; fillPxCircle(sCtx,sx,sy,16);
   sCtx.fillStyle='rgba(255,255,200,.5)'; fillPxCircle(sCtx,sx-4,sy-4,6);
+}
+
+function drawPixelRidge(ctx,baseY,amp,step,color,phase=0){
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(-step,ch);
+  ctx.lineTo(-step,baseY);
+  for(let x=-step;x<=cw+step;x+=step){
+    const y=baseY-Math.sin((x+phase)*0.012)*amp-Math.sin((x+phase)*0.031)*amp*.35;
+    ctx.lineTo(x,Math.round(y));
+  }
+  ctx.lineTo(cw+step,ch);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawDistantLandscape(t,tod,sn){
+  if(perfLite&&document.fullscreenElement) return;
+  const baseY=Math.max(130,Math.round(ch*.54));
+  const palettes={
+    spring:{far:'#6fae7c',mid:'#5c9f52',field:'#6db84e',field2:'#8ac95e'},
+    summer:{far:'#678f68',mid:'#5d9446',field:'#79b84a',field2:'#b4c65a'},
+    autumn:{far:'#8c754b',mid:'#9a6937',field:'#b88438',field2:'#d49a45'},
+    winter:{far:'#8da0ad',mid:'#748b9a',field:'#ceddea',field2:'#edf5fb'},
+  };
+  const p=palettes[sn]||palettes.spring;
+  const shade=tod==='night'?'rgba(8,12,28,.52)':tod==='evening'?'rgba(130,48,18,.18)':'rgba(255,255,255,0)';
+  drawPixelRidge(sCtx,baseY-34,22,38,p.far,G.frame*.08);
+  drawPixelRidge(sCtx,baseY-12,18,32,p.mid,G.frame*.12+90);
+  sCtx.fillStyle=p.field;
+  sCtx.fillRect(0,baseY,cw,ch-baseY);
+  sCtx.fillStyle=p.field2;
+  const bandStep=perfLite?42:28;
+  for(let y=baseY+12;y<ch;y+=bandStep){
+    sCtx.fillRect(0,y,cw,3);
+  }
+  if(!perfLite){
+    sCtx.fillStyle=sn==='winter'?'rgba(255,255,255,.32)':'rgba(36,80,32,.22)';
+    for(let x=16;x<cw;x+=74){
+      const y=baseY-8+((x*17)%22);
+      sCtx.fillRect(x,y,18,10);
+      sCtx.fillRect(x+4,y-7,10,10);
+    }
+  }
+  if(shade!=='rgba(255,255,255,0)'){
+    sCtx.fillStyle=shade;
+    sCtx.fillRect(0,baseY-72,cw,ch-baseY+72);
+  }
 }
 
 function fillPxCircle(ctx,cx,cy,r){
@@ -3507,13 +3556,24 @@ function drawCropSprite(col,row,cell,t){
 
 function drawHoverOverlay(col,row){
   const x=ox+col*TW, y=oy+row*TH;
-  gCtx.globalAlpha=.18;
-  gCtx.fillStyle='#ffffff';
+  const pulse=.5+.5*Math.sin(G.frame*.12);
+  gCtx.globalAlpha=.12+.05*pulse;
+  gCtx.fillStyle='#fff4bd';
   gCtx.fillRect(x,y,TW,TH);
   gCtx.globalAlpha=1;
-  gCtx.strokeStyle='rgba(240,192,60,.8)';
+  gCtx.strokeStyle=`rgba(255,220,112,${.72+.18*pulse})`;
   gCtx.lineWidth=2;
   gCtx.strokeRect(x+1,y+1,TW-2,TH-2);
+  gCtx.fillStyle=`rgba(255,238,150,${.45+.25*pulse})`;
+  const l=9;
+  gCtx.fillRect(x+2,y+2,l,2);
+  gCtx.fillRect(x+2,y+2,2,l);
+  gCtx.fillRect(x+TW-l-2,y+2,l,2);
+  gCtx.fillRect(x+TW-4,y+2,2,l);
+  gCtx.fillRect(x+2,y+TH-4,l,2);
+  gCtx.fillRect(x+2,y+TH-l-2,2,l);
+  gCtx.fillRect(x+TW-l-2,y+TH-4,l,2);
+  gCtx.fillRect(x+TW-4,y+TH-l-2,2,l);
 }
 
 const TOOL_ORDER=['water','hoe','plant','harvest','axe','pickaxe','fish','path','fence'];
@@ -3712,9 +3772,21 @@ function drawActionTarget(){
   if(!target||!inBounds(target.col,target.row)) return;
   const x=ox+target.col*TW,y=oy+target.row*TH;
   const inRange=isWithinActionRange(target.col,target.row);
-  gCtx.strokeStyle=queuedActionIdx!=null?'rgba(120,220,255,.95)':inRange?'rgba(240,192,60,.9)':'rgba(220,130,90,.9)';
+  const pulse=.5+.5*Math.sin(G.frame*.16);
+  const color=queuedActionIdx!=null?'120,220,255':inRange?'240,192,60':'220,130,90';
+  gCtx.strokeStyle=`rgba(${color},${.75+.2*pulse})`;
   gCtx.lineWidth=2;
   gCtx.strokeRect(x+5,y+5,TW-10,TH-10);
+  gCtx.fillStyle=`rgba(${color},${.4+.25*pulse})`;
+  const l=8;
+  gCtx.fillRect(x+5,y+5,l,2);
+  gCtx.fillRect(x+5,y+5,2,l);
+  gCtx.fillRect(x+TW-13,y+5,l,2);
+  gCtx.fillRect(x+TW-7,y+5,2,l);
+  gCtx.fillRect(x+5,y+TH-7,l,2);
+  gCtx.fillRect(x+5,y+TH-13,2,l);
+  gCtx.fillRect(x+TW-13,y+TH-7,l,2);
+  gCtx.fillRect(x+TW-7,y+TH-13,2,l);
 }
 function cycleTool(dir=1){
   const idx=TOOL_ORDER.indexOf(G.tool);
@@ -4188,6 +4260,57 @@ function drawWeather(t){
   const tc=TINTS[sn]?.[tod==='night'||tod==='evening'?'n':'d'];
   if(tc){fCtx.fillStyle=tc;fCtx.fillRect(0,0,cw,ch);}
 }
+
+function drawAtmosphereGrade(t){
+  fCtx.save();
+  if(inInterior()){
+    const glow=fCtx.createRadialGradient(cw*.48,ch*.28,0,cw*.48,ch*.28,Math.max(cw,ch)*.72);
+    glow.addColorStop(0,'rgba(255,194,116,.10)');
+    glow.addColorStop(1,'rgba(22,10,4,.24)');
+    fCtx.fillStyle=glow;
+    fCtx.fillRect(0,0,cw,ch);
+    fCtx.restore();
+    return;
+  }
+  if(inMine()){
+    const mineGlow=fCtx.createRadialGradient(cw*.5,ch*.45,0,cw*.5,ch*.45,Math.max(cw,ch)*.78);
+    mineGlow.addColorStop(0,'rgba(90,58,130,.08)');
+    mineGlow.addColorStop(1,'rgba(0,0,0,.34)');
+    fCtx.fillStyle=mineGlow;
+    fCtx.fillRect(0,0,cw,ch);
+    fCtx.restore();
+    return;
+  }
+  const tod=TOD();
+  const sn=SEASONS[G.sIdx];
+  if(!perfLite&&(tod==='morning'||tod==='day'||tod==='evening')){
+    const sx=tod==='morning'?cw*.12:tod==='day'?cw*.74:cw*.28;
+    const sy=tod==='morning'?ch*.38:tod==='day'?ch*.11:ch*.18;
+    const light=tod==='evening'?'255,132,56':'255,224,124';
+    const beam=fCtx.createRadialGradient(sx,sy,0,sx,sy,Math.max(cw,ch)*.82);
+    beam.addColorStop(0,`rgba(${light},.16)`);
+    beam.addColorStop(.42,`rgba(${light},.045)`);
+    beam.addColorStop(1,`rgba(${light},0)`);
+    fCtx.fillStyle=beam;
+    fCtx.fillRect(0,0,cw,ch);
+  }
+  const seasonEdge={
+    spring:'rgba(10,48,24,.22)',
+    summer:'rgba(26,40,10,.18)',
+    autumn:'rgba(64,28,10,.22)',
+    winter:'rgba(12,30,54,.21)',
+  }[sn]||'rgba(8,18,28,.2)';
+  const vignette=fCtx.createRadialGradient(cw*.5,ch*.5,Math.min(cw,ch)*.24,cw*.5,ch*.5,Math.max(cw,ch)*.72);
+  vignette.addColorStop(0,'rgba(0,0,0,0)');
+  vignette.addColorStop(1,seasonEdge);
+  fCtx.fillStyle=vignette;
+  fCtx.fillRect(0,0,cw,ch);
+  if(G.weather==='rainy'||G.weather==='stormy'){
+    fCtx.fillStyle=G.weather==='stormy'?'rgba(20,24,36,.14)':'rgba(60,85,110,.08)';
+    fCtx.fillRect(0,0,cw,ch);
+  }
+  fCtx.restore();
+}
 function drawPropertyPlots(t){
   if(inMine()||inInterior()) return;
   PROPERTY_PLOTS.forEach(plot=>{
@@ -4324,6 +4447,7 @@ function draw(){
   fCtx.clearRect(0,0,cw,ch);
   drawWeather(t);
   drawDarknessMask(t,playerRenderPos);
+  drawAtmosphereGrade(t);
   if(mapFade>0){
     fCtx.fillStyle=`rgba(0,0,0,${mapFade})`;
     fCtx.fillRect(0,0,cw,ch);

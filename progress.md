@@ -4509,3 +4509,21 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
   - Tablet portrait 768x1024: `#gc` medido `683x342`, ratio `2.00`, 1 viñeta inferior.
   - `node web_game_playwright_client.mjs --url http://127.0.0.1:5198/index.html#game=arcade-neon-rush --click-selector .lc --actions-file output\neon-rush-responsive-fix\actions.json --iterations 3 --pause-ms 250 --screenshot-dir output\neon-rush-responsive-fix\web-game-client-final` OK sin `errors-0.json`.
   - `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK (primer intento dentro del sandbox fallo con `spawn EPERM`; repetido fuera del sandbox OK).
+
+## 2026-04-28 - Valle Tranquilo visual quality pass
+- Iniciada mejora acotada de gameplay sin assets nuevos: `src/arcade/valle-tranquilo/index.html` ahora dibuja paisaje distante procedural por estacion, grading atmosferico barato en el overlay y marcadores de hover/objetivo con esquinas animadas.
+- Restricciones respetadas: sin nuevas dependencias, sin imagenes externas y con ramas `perfLite` para evitar trabajo extra en fullscreen/pantallas grandes.
+- Validacion: `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK fuera del sandbox tras `spawn EPERM` dentro del sandbox.
+- Validacion gameplay: Playwright sobre servidor estatico local OK; `render_game_to_text` quedo en `screen: running`, sin errores de consola, movimiento y avance temporal funcionando. Nota: el cliente generico captura solo una capa canvas en este juego multicapa, por eso se uso captura de pagina completa adicional para inspeccion visual.
+
+## 2026-04-28 - Wikipedia Gacha frontend smoothness pass
+- Reducido el reloj global de UI de 200ms a 1000ms y memoizado el diccionario localizado en `src/games/knowledge/wikipedia-gacha/index.jsx` para evitar re-renderizados completos mientras el jugador esta idle o durante animaciones.
+- Optimizado `src/games/knowledge/wikipedia-gacha/styles.css`: containment/compositor hints en shell, paneles, pack y cartas; eliminada la animacion de filtros y box-shadow en efectos de apertura.
+- Validacion: `npx vitest run src/games/knowledge/wikipedia-gacha/packUiState.test.js` OK; `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK. Ambos necesitaron repetirse fuera del sandbox tras `spawn EPERM`.
+
+## 2026-04-28 - Wikipedia Gacha rarity taxonomy redesign
+- Redisenada la capa visual de rarezas en `src/games/knowledge/wikipedia-gacha/index.jsx`: C/UC/R/SR/SSR/UR/LR mantienen codigos internos, pero ahora se presentan como Apunte, Ficha, Entrada, Monografia, Codice, Canon y Singularidad, con equivalentes en ingles.
+- Nueva paleta en `src/games/knowledge/wikipedia-gacha/styles.css` ligada a jerarquia de cantidad y stats: comunes mas sobrios, rangos medios verdes/azules y niveles escasos violeta, ambar y marfil.
+- Los textos de misiones/trofeos y la garantia de sobre pasan de SR/SSR a Monografia/Codice en la UI, sin cambiar la logica de filtros, backend ni guardado.
+- Validacion: `npx vitest run src/games/knowledge/wikipedia-gacha/packUiState.test.js` OK; `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK; Playwright con backend local en-US abrio un sobre y verifico una carta real `Entry R` con ATK/DEF visibles.
+- Ajuste posterior: las rarezas ahora muestran abreviaturas de 2 letras (`AP/FI/EN/MO/CO/CA/SI`) junto al codigo interno; los nombres completos quedan solo en tooltip/accesibilidad para no ocupar espacio en carta.

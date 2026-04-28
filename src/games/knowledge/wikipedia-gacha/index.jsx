@@ -36,13 +36,57 @@ const REWARDED_AD_PREVIEW_SLOT = {
 };
 
 const RARITY_ACCENTS = {
-  C: "#8e8a82",
-  UC: "#7a93b8",
-  R: "#3fcb6a",
-  SR: "#48a2ff",
-  SSR: "#ff7a4b",
-  UR: "#ffca48",
-  LR: "#f0edcd",
+  C: "#6f7f8d",
+  UC: "#2f9b8f",
+  R: "#78b84a",
+  SR: "#2f8fe3",
+  SSR: "#b85de6",
+  UR: "#f2a93b",
+  LR: "#ffd24a",
+};
+const RARITY_META = {
+  C: {
+    label: { es: "AP", en: "NO" },
+    fullLabel: { es: "Apunte", en: "Note" },
+    dropWeight: 32,
+    statMultiplier: 0.8,
+  },
+  UC: {
+    label: { es: "FI", en: "FI" },
+    fullLabel: { es: "Ficha", en: "File" },
+    dropWeight: 23,
+    statMultiplier: 0.9,
+  },
+  R: {
+    label: { es: "EN", en: "EN" },
+    fullLabel: { es: "Entrada", en: "Entry" },
+    dropWeight: 20,
+    statMultiplier: 1,
+  },
+  SR: {
+    label: { es: "MO", en: "MO" },
+    fullLabel: { es: "Monografia", en: "Monograph" },
+    dropWeight: 13,
+    statMultiplier: 1.15,
+  },
+  SSR: {
+    label: { es: "CO", en: "CO" },
+    fullLabel: { es: "Codice", en: "Codex" },
+    dropWeight: 7,
+    statMultiplier: 1.3,
+  },
+  UR: {
+    label: { es: "CA", en: "CA" },
+    fullLabel: { es: "Canon", en: "Canon" },
+    dropWeight: 4,
+    statMultiplier: 1.5,
+  },
+  LR: {
+    label: { es: "LE", en: "LE" },
+    fullLabel: { es: "Legendaria", en: "Legendary" },
+    dropWeight: 1,
+    statMultiplier: 1.8,
+  },
 };
 const PACK_SHARE_CARD_WIDTH = 288;
 const PACK_SHARE_CARD_HEIGHT = 408;
@@ -233,9 +277,10 @@ function drawTopicGlyphCanvas(ctx, topicGroup, x, y, size) {
 
 function drawStackCardForShare(ctx, card, image, x, y, width, height, locale) {
   const scale = width / 240;
-  const accent = RARITY_ACCENTS[getRarity(card)] ?? "#8e8a82";
+  const accent = getRarityAccent(getRarity(card));
   const title = getTitle(card);
   const rarity = getRarity(card);
+  const rarityLabel = getRarityDisplay(rarity, locale);
   const topicLabel = card?.topicGroup ?? (locale === "es" ? "Archivo" : "Archive");
   const qualityValue = Number.isFinite(Number(card?.qualityScore)) ? Number(card.qualityScore) : "--";
   const serialId = String(card?.articleId ?? card?.id ?? "----").padStart(4, "0");
@@ -350,7 +395,7 @@ function drawStackCardForShare(ctx, card, image, x, y, width, height, locale) {
 
   ctx.fillStyle = mixHexColors(accent, "#ffffff", 0.76);
   ctx.font = `700 ${8.8 * scale}px "Inter", "Segoe UI", sans-serif`;
-  ctx.fillText(rarity, contentX + (10 * scale), contentY + (15 * scale));
+  ctx.fillText(rarityLabel, contentX + (10 * scale), contentY + (15 * scale));
   ctx.beginPath();
   ctx.fillStyle = mixHexColors(accent, "#ffffff", 0.76);
   ctx.arc(contentX + (26 * scale), contentY + (12 * scale), 2.3 * scale, 0, Math.PI * 2);
@@ -494,7 +539,7 @@ function drawStackCardForShare(ctx, card, image, x, y, width, height, locale) {
   ctx.font = `700 ${6.4 * scale}px "Inter", "Segoe UI", sans-serif`;
   ctx.fillText(`#${serialId}`, contentX + (8 * scale), serialY + (12 * scale));
   ctx.textAlign = "center";
-  ctx.fillText(rarity, contentX + (contentWidth / 2), serialY + (12 * scale));
+  ctx.fillText(rarityLabel, contentX + (contentWidth / 2), serialY + (12 * scale));
   ctx.textAlign = "right";
   ctx.fillText(`x${Number(card?.copies ?? 1)}`, contentX + contentWidth - (8 * scale), serialY + (12 * scale));
   ctx.textAlign = "left";
@@ -604,6 +649,35 @@ function getTitle(card) {
 
 function getRarity(card) {
   return card?.rarity ?? card?.rarityCode ?? "C";
+}
+
+function getRarityAccent(rarity) {
+  return RARITY_ACCENTS[rarity] ?? RARITY_ACCENTS.C;
+}
+
+function getRarityLabel(rarity, locale) {
+  const language = locale === "es" ? "es" : "en";
+  return RARITY_META[rarity]?.label?.[language] ?? rarity;
+}
+
+function getRarityDisplay(rarity, locale) {
+  const label = getRarityLabel(rarity, locale);
+  return `${label} ${rarity}`;
+}
+
+function getRarityFullLabel(rarity, locale) {
+  const language = locale === "es" ? "es" : "en";
+  return RARITY_META[rarity]?.fullLabel?.[language] ?? getRarityLabel(rarity, locale);
+}
+
+function getRarityTitle(rarity, locale) {
+  const meta = RARITY_META[rarity];
+  if (!meta) return rarity;
+  const label = getRarityFullLabel(rarity, locale);
+  const multiplier = meta.statMultiplier.toFixed(meta.statMultiplier % 1 ? 2 : 0);
+  return locale === "es"
+    ? `${label} (${rarity}) - peso ${meta.dropWeight}, ATK/DEF x${multiplier}`
+    : `${label} (${rarity}) - weight ${meta.dropWeight}, ATK/DEF x${multiplier}`;
 }
 
 function getDef(card) {
@@ -735,8 +809,8 @@ const MISSION_COPY = {
     en: { title: "Fresh Discoveries", description: "Get 2 new cards today." },
   },
   "pull-sr-plus": {
-    es: { title: "Pico de calidad", description: "Obtiene 1 carta SR o superior." },
-    en: { title: "Quality Spike", description: "Obtain 1 SR or higher card." },
+    es: { title: "Pico de calidad", description: "Obtiene 1 carta MO+." },
+    en: { title: "Quality Spike", description: "Obtain 1 MO+ card." },
   },
   "click-wikipedia": {
     es: { title: "Abrir la fuente", description: "Visita 1 articulo en Wikipedia." },
@@ -775,12 +849,12 @@ const MISSION_COPY = {
     en: { title: "Refinement Pass", description: "Earn 60 shards from duplicates today." },
   },
   "pull-2-sr-plus": {
-    es: { title: "Relevo de rareza", description: "Obtiene 2 cartas SR o superiores hoy." },
-    en: { title: "Rarity Relay", description: "Obtain 2 SR or higher cards today." },
+    es: { title: "Relevo de rareza", description: "Obtiene 2 cartas MO+ hoy." },
+    en: { title: "Rarity Relay", description: "Obtain 2 MO+ cards today." },
   },
   "pull-ssr-plus": {
-    es: { title: "Ruptura abstracta", description: "Obtiene 1 carta SSR o superior hoy." },
-    en: { title: "Abstract Breakthrough", description: "Obtain 1 SSR or higher card today." },
+    es: { title: "Ruptura abstracta", description: "Obtiene 1 carta CO+ hoy." },
+    en: { title: "Abstract Breakthrough", description: "Obtain 1 CO+ card today." },
   },
   "click-2-sources": {
     es: { title: "Corredor de notas", description: "Visita 2 paginas de articulos en Wikipedia hoy." },
@@ -842,12 +916,12 @@ const TROPHY_COPY = {
     en: { name: "First Pull", description: "Obtain your first card." },
   },
   "first-sr": {
-    es: { name: "Bengala de senal", description: "Consigue tu primera carta SR o superior." },
-    en: { name: "Signal Flare", description: "Obtain your first SR or higher card." },
+    es: { name: "Bengala de senal", description: "Consigue tu primera carta MO+." },
+    en: { name: "Signal Flare", description: "Obtain your first MO+ card." },
   },
   "first-ssr": {
-    es: { name: "Abstracto dorado", description: "Consigue tu primera carta SSR o superior." },
-    en: { name: "Golden Abstract", description: "Obtain your first SSR or higher card." },
+    es: { name: "Abstracto dorado", description: "Consigue tu primera carta CO+." },
+    en: { name: "Golden Abstract", description: "Obtain your first CO+ card." },
   },
   "unique-15": {
     es: { name: "Mini biblioteca", description: "Colecciona 15 cartas unicas." },
@@ -866,16 +940,16 @@ const TROPHY_COPY = {
     en: { name: "History Curator", description: "Collect 5 History cards." },
   },
   "first-ur": {
-    es: { name: "Evento ambar", description: "Consigue tu primera carta UR o superior." },
-    en: { name: "Amber Event", description: "Obtain your first UR or higher card." },
+    es: { name: "Evento ambar", description: "Consigue tu primera carta CA+." },
+    en: { name: "Amber Event", description: "Obtain your first CA+ card." },
   },
   "first-lr": {
-    es: { name: "Cita mitica", description: "Consigue tu primera carta LR." },
-    en: { name: "Mythic Citation", description: "Obtain your first LR card." },
+    es: { name: "Cita legendaria", description: "Consigue tu primera carta LE." },
+    en: { name: "Legendary Citation", description: "Obtain your first LE card." },
   },
   "first-sr-plus-set": {
-    es: { name: "Cluster de senales", description: "Colecciona 3 cartas distintas de SR o superior." },
-    en: { name: "Signal Cluster", description: "Collect 3 distinct SR or higher cards." },
+    es: { name: "Cluster de senales", description: "Colecciona 3 cartas distintas MO+." },
+    en: { name: "Signal Cluster", description: "Collect 3 distinct MO+ cards." },
   },
   "unique-40": {
     es: { name: "Sala de lectura", description: "Colecciona 40 cartas unicas." },
@@ -990,8 +1064,8 @@ const TROPHY_COPY = {
     en: { name: "Gem Treasury", description: "Hold 750 gems at once." },
   },
   "ssr-set-5": {
-    es: { name: "Estante de prestigio", description: "Colecciona 5 cartas distintas de SSR o superior." },
-    en: { name: "Prestige Shelf", description: "Collect 5 distinct SSR or higher cards." },
+    es: { name: "Estante de prestigio", description: "Colecciona 5 cartas distintas CO+." },
+    en: { name: "Prestige Shelf", description: "Collect 5 distinct CO+ cards." },
   },
 };
 
@@ -1096,13 +1170,17 @@ function SummaryTile({ label, value, accent, note }) {
   );
 }
 
-function RarityBadge({ rarity }) {
+function RarityBadge({ rarity, locale }) {
+  const label = getRarityLabel(rarity, locale);
   return (
     <span
       className="wg-rarity-badge"
-      style={{ "--wg-rarity-accent": RARITY_ACCENTS[rarity] ?? "#8e8a82" }}
+      style={{ "--wg-rarity-accent": getRarityAccent(rarity) }}
+      title={getRarityTitle(rarity, locale)}
+      aria-label={getRarityTitle(rarity, locale)}
     >
-      {rarity}
+      <span>{label}</span>
+      <small>{rarity}</small>
     </span>
   );
 }
@@ -1126,13 +1204,13 @@ function ArticleArt({ article, compact = false, archiveLabel }) {
   );
 }
 
-function SmallCard({ item, archiveLabel, copiesLabel, favoriteTag, onOpen, onToggleFavorite, formatNumber }) {
+function SmallCard({ item, archiveLabel, copiesLabel, favoriteTag, onOpen, onToggleFavorite, formatNumber, locale }) {
   const rarity = getRarity(item);
   return (
-    <article className="wg-mini-card" style={{ "--wg-rarity-accent": RARITY_ACCENTS[rarity] ?? "#8e8a82" }}>
+    <article className="wg-mini-card" style={{ "--wg-rarity-accent": getRarityAccent(rarity) }}>
       <button type="button" className="wg-card-open" onClick={() => onOpen(item.articleId)}>
         <div className="wg-card-headline">
-          <RarityBadge rarity={rarity} />
+          <RarityBadge rarity={rarity} locale={locale} />
           <span className="wg-chip">{item.topicGroup ?? archiveLabel}</span>
           {item.favorite ? <span className="wg-new-pill">{favoriteTag}</span> : null}
         </div>
@@ -1163,12 +1241,12 @@ function SmallCard({ item, archiveLabel, copiesLabel, favoriteTag, onOpen, onTog
   );
 }
 
-function PackShowcase({ card, archiveLabel, qualityLabel, copiesLabel, shardsLabel, newLabel, formatNumber }) {
+function PackShowcase({ card, archiveLabel, qualityLabel, copiesLabel, shardsLabel, newLabel, formatNumber, locale }) {
   const rarity = getRarity(card);
   return (
-    <article className="wg-showcase-card" style={{ "--wg-rarity-accent": RARITY_ACCENTS[rarity] ?? "#8e8a82" }}>
+    <article className="wg-showcase-card" style={{ "--wg-rarity-accent": getRarityAccent(rarity) }}>
       <div className="wg-card-headline">
-        <RarityBadge rarity={rarity} />
+        <RarityBadge rarity={rarity} locale={locale} />
         <span className="wg-chip">{card.topicGroup ?? archiveLabel}</span>
         {card.wasNew ? <span className="wg-new-pill">{newLabel}</span> : null}
         <span className="wg-chip">{qualityLabel} {card.qualityScore}</span>
@@ -1234,8 +1312,10 @@ function TopicGlyph({ topicGroup }) {
   );
 }
 
-function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite, onCardActivate }) {
+function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite, onCardActivate, locale }) {
   const rarity = getRarity(card);
+  const rarityLabel = getRarityLabel(rarity, locale);
+  const rarityDisplay = getRarityDisplay(rarity, locale);
   const title = getTitle(card);
   const titleClassName = `wg-stack-title${
     title.length > 72 ? " is-longer" : title.length > 48 ? " is-long" : ""
@@ -1257,7 +1337,7 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite,
   return (
     <article
       className="wg-stack-card"
-      style={{ "--wg-rarity-accent": RARITY_ACCENTS[rarity] ?? "#8e8a82" }}
+      style={{ "--wg-rarity-accent": getRarityAccent(rarity) }}
       role="button"
       tabIndex={0}
       onClick={handleActivate}
@@ -1286,7 +1366,10 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite,
         <div className="wg-stack-inner">
           <header className="wg-stack-header">
             <div className="wg-stack-header-main">
-              <span className="wg-stack-rarity">{rarity}</span>
+              <span className="wg-stack-rarity" title={getRarityTitle(rarity, locale)}>
+                <span>{rarityLabel}</span>
+                <small>{rarity}</small>
+              </span>
               <span className={titleClassName}>{title}</span>
             </div>
             <div className="wg-stack-header-meta">
@@ -1327,7 +1410,7 @@ function StackCard({ card, archiveLabel, formatNumber, onOpen, onToggleFavorite,
 
           <div className="wg-stack-serial">
             <span>#{serialId}</span>
-            <span>{rarity}</span>
+            <span>{rarityDisplay}</span>
             <span>x{formatNumber(card?.copies ?? 1)}</span>
           </div>
 
@@ -1351,6 +1434,7 @@ function DetailFlipCard({
   card,
   archiveLabel,
   formatNumber,
+  locale,
   isFlipped,
   onFlip,
   flipHint,
@@ -1381,6 +1465,7 @@ function DetailFlipCard({
             card={card}
             archiveLabel={archiveLabel}
             formatNumber={formatNumber}
+            locale={locale}
             onOpen={() => {}}
             onToggleFavorite={() => {}}
           />
@@ -1390,7 +1475,7 @@ function DetailFlipCard({
 
       <article className="wg-detail-flip-face is-back">
         <header className="wg-detail-back-head">
-          <RarityBadge rarity={rarity} />
+          <RarityBadge rarity={rarity} locale={locale} />
           <span className="wg-chip">{card.topicGroup ?? archiveLabel}</span>
         </header>
         <h4>{title}</h4>
@@ -1550,7 +1635,7 @@ export default function WikipediaGachaGame() {
     return (value) => formatter.format(Number(value) || 0);
   }, [es]);
 
-  const text = {
+  const text = useMemo(() => ({
     archive: es ? "Archivo" : "Archive",
     quality: "Q",
     copies: es ? "Copias" : "Copies",
@@ -1594,7 +1679,7 @@ export default function WikipediaGachaGame() {
     unlocked: es ? "Desbloqueado" : "Unlocked",
     locked: es ? "Bloqueado" : "Locked",
     points: es ? "Puntos" : "Points",
-    guaranteed: es ? "SR+ garantizado" : "Guaranteed SR+",
+    guaranteed: es ? "MO+ garantizada" : "Guaranteed MO+",
     newCard: es ? "Nueva" : "New",
     duplicateCard: es ? "Duplicada" : "Duplicate",
     pending: es ? "Pendiente" : "Pending",
@@ -1609,7 +1694,7 @@ export default function WikipediaGachaGame() {
     trophiesTab: es ? "Trofeos" : "Trophies",
     packsReady: es ? "Sobres cargados" : "Packs full",
     specialPackReady: es ? "Sobre especial listo" : "Special pack ready",
-    specialPackHint: es ? "Se activa cada 10 sobres y garantiza al menos 1 carta SR+." : "It unlocks every 10 packs and guarantees at least 1 SR+ card.",
+    specialPackHint: es ? "Se activa cada 10 sobres y garantiza al menos 1 carta MO+." : "It unlocks every 10 packs and guarantees at least 1 MO+ card.",
     tapToOpen: es ? "▲ TOCA PARA ABRIR ▲" : "▲ TAP TO OPEN ▲",
     watchAd: es ? "Ver anuncio (+3 sobres)" : "Watch ad (+3 packs)",
     adRewardReady: es ? "Recompensa lista: +3 sobres" : "Reward ready: +3 packs",
@@ -1629,8 +1714,8 @@ export default function WikipediaGachaGame() {
     tapToFlip: es ? "Toca la carta para girarla." : "Tap the card to flip it.",
     tapToNextCard: es ? "Toca de nuevo para pasar a la siguiente." : "Tap again to move to the next card.",
     dailyMissionUnlocked: es ? "Mision diaria desbloqueada" : "Daily mission unlocked",
-    topRarityPull: es ? "Drop de rareza maxima" : "Top-tier rarity pull",
-    topRarityPullHint: es ? "Has obtenido una carta de las rarezas mas altas." : "You pulled at least one card from the top rarities.",
+    topRarityPull: es ? "Drop CA/LE" : "CA/LE pull",
+    topRarityPullHint: es ? "Has obtenido una carta de la capa mas escasa del archivo." : "You pulled a card from the archive's scarcest layer.",
     cardCarousel: es ? "Carrusel de cartas" : "Card carousel",
     sourceLink: es ? "Ver fuente" : "View source",
     sharePack: es ? "Compartir" : "Share",
@@ -1654,7 +1739,7 @@ export default function WikipediaGachaGame() {
     reviewMissions: es ? "Ver misiones" : "Review missions",
     unknownMission: es ? "Mision diaria" : "Daily mission",
     totalMissionRewards: es ? "Total reclamado hoy" : "Total claimed today",
-  };
+  }), [es]);
 
   const [activeTab, setActiveTab] = useState("home");
   const [nowMs, setNowMs] = useState(() => Date.now());
@@ -1766,7 +1851,7 @@ export default function WikipediaGachaGame() {
   );
 
   useEffect(() => {
-    const intervalId = window.setInterval(() => setNowMs((current) => current + 200), 200);
+    const intervalId = window.setInterval(() => setNowMs(Date.now()), 1000);
     return () => window.clearInterval(intervalId);
   }, []);
 
@@ -2636,6 +2721,7 @@ export default function WikipediaGachaGame() {
                 card={selectedArticle}
                 archiveLabel={text.archive}
                 formatNumber={formatNumber}
+                locale={locale}
                 isFlipped={detailCardFlipped}
                 onFlip={() => setDetailCardFlipped((current) => !current)}
                 flipHint={text.detailFlipHint}
@@ -2726,7 +2812,7 @@ export default function WikipediaGachaGame() {
         {rareDropFx ? (
           <div className={`wg-rare-drop-fx is-${String(rareDropFx.topRarity).toLowerCase()}`}>
             <span className="wg-rare-drop-kicker">{text.topRarityPull}</span>
-            <strong>{rareDropFx.rarities.join(" · ")}</strong>
+            <strong>{rareDropFx.rarities.map((rarity) => getRarityLabel(rarity, locale)).join(" / ")}</strong>
             <p>{text.topRarityPullHint}</p>
           </div>
         ) : null}
@@ -2908,6 +2994,7 @@ export default function WikipediaGachaGame() {
                                   card={card}
                                   archiveLabel={text.archive}
                                   formatNumber={formatNumber}
+                                  locale={locale}
                                   onOpen={(articleId) => void handleSelectArticle(articleId)}
                                   onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
                                   onCardActivate={() => {
@@ -2948,6 +3035,7 @@ export default function WikipediaGachaGame() {
                               card={historyCard}
                               archiveLabel={text.archive}
                               formatNumber={formatNumber}
+                              locale={locale}
                               onOpen={(articleId) => void handleSelectArticle(articleId)}
                               onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
                             />
@@ -2962,7 +3050,7 @@ export default function WikipediaGachaGame() {
                               className="wg-reveal-face is-back"
                               aria-label={text.tapToFlip}
                               onClick={handleRevealCurrentCard}
-                              style={{ "--wg-rarity-accent": RARITY_ACCENTS[getRarity(focusedPackCard)] ?? "#8e8a82" }}
+                              style={{ "--wg-rarity-accent": getRarityAccent(getRarity(focusedPackCard)) }}
                             >
                               <span className="wg-reveal-back-glow" aria-hidden="true" />
                               <span className="wg-reveal-back-frame" aria-hidden="true" />
@@ -2975,6 +3063,7 @@ export default function WikipediaGachaGame() {
                                 card={focusedPackCard}
                                 archiveLabel={text.archive}
                                 formatNumber={formatNumber}
+                                locale={locale}
                                 onOpen={(articleId) => void handleSelectArticle(articleId)}
                                 onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
                                 onCardActivate={handleAdvanceRevealedCard}
@@ -3055,7 +3144,7 @@ export default function WikipediaGachaGame() {
                     disabled={!card || (!allPackCardsSeen && index !== clampedRevealCursor)}
                   >
                     <span>#{index + 1}</span>
-                    <strong>{card ? `${getRarity(card)} - ${getTitle(card)}` : text.pending}</strong>
+                    <strong>{card ? `${getRarityLabel(getRarity(card), locale)} - ${getTitle(card)}` : text.pending}</strong>
                   </button>
                 ))}
               </div>
@@ -3081,8 +3170,8 @@ export default function WikipediaGachaGame() {
 
               <div className="wg-rarity-summary-grid">
                 {RARITY_ORDER.map((rarity) => (
-                  <article key={rarity} className="wg-rarity-summary-card" style={{ "--wg-rarity-accent": RARITY_ACCENTS[rarity] ?? "#8e8a82" }}>
-                    <RarityBadge rarity={rarity} />
+                  <article key={rarity} className="wg-rarity-summary-card" style={{ "--wg-rarity-accent": getRarityAccent(rarity) }}>
+                    <RarityBadge rarity={rarity} locale={locale} />
                     <strong>{collectionSummary.rarityBreakdown?.[rarity] ?? 0}</strong>
                   </article>
                 ))}
@@ -3093,7 +3182,7 @@ export default function WikipediaGachaGame() {
                   <input type="text" value={collectionFilters.query} placeholder={text.searchPlaceholder} onChange={(event) => setCollectionFilters((current) => ({ ...current, query: event.target.value, page: 1 }))} />
                   <select value={collectionFilters.rarity} onChange={(event) => setCollectionFilters((current) => ({ ...current, rarity: event.target.value, page: 1 }))}>
                     <option value="">{text.rarityPlaceholder}</option>
-                    {RARITY_ORDER.map((rarity) => <option key={rarity} value={rarity}>{rarity}</option>)}
+                    {RARITY_ORDER.map((rarity) => <option key={rarity} value={rarity}>{getRarityDisplay(rarity, locale)}</option>)}
                   </select>
                   <select value={collectionFilters.topicGroup} onChange={(event) => setCollectionFilters((current) => ({ ...current, topicGroup: event.target.value, page: 1 }))}>
                     <option value="">{text.topicPlaceholder}</option>
@@ -3130,6 +3219,7 @@ export default function WikipediaGachaGame() {
                       card={item}
                       archiveLabel={text.archive}
                       formatNumber={formatNumber}
+                      locale={locale}
                       onOpen={(articleId) => void handleSelectArticle(articleId)}
                       onToggleFavorite={(articleId, favorite) => void handleToggleFavorite(articleId, favorite)}
                     />
@@ -3293,8 +3383,8 @@ export default function WikipediaGachaGame() {
                 </div>
                 <div className="wg-mobile-rule-pills">
                   {(es
-                    ? ["5 cartas", "SR+ cada 10", "1 sobre/min", "Dupes -> shards"]
-                    : ["5 cards", "SR+ every 10", "1 pack/min", "Dupes -> shards"]).map((rule) => (
+                    ? ["5 cartas", "MO+ cada 10", "1 sobre/min", "Dupes -> shards"]
+                    : ["5 cards", "MO+ every 10", "1 pack/min", "Dupes -> shards"]).map((rule) => (
                     <span key={rule}>{rule}</span>
                   ))}
                 </div>
@@ -3347,13 +3437,13 @@ export default function WikipediaGachaGame() {
                   {(es
                     ? [
                         "Cada pack contiene 5 cartas.",
-                        "Cada 10 sobres abiertos, el siguiente es un sobre especial con garantia SR+.",
+                        "Cada 10 sobres abiertos, el siguiente es un sobre especial con garantia MO+.",
                         "Los sobres regeneran 1 por minuto hasta el tope.",
                         "Los duplicados entregan shards y el progreso queda ligado al navegador.",
                       ]
                     : [
                         "Each pack contains 5 cards.",
-                        "Every 10 opened packs, the next one becomes a special pack with SR+ guarantee.",
+                        "Every 10 opened packs, the next one becomes a special pack with MO+ guarantee.",
                         "Packs regenerate once per minute until the cap.",
                         "Duplicates grant shards and progress stays bound to the browser.",
                       ]).map((rule) => <li key={rule}>{rule}</li>)}
