@@ -2060,40 +2060,6 @@ function ParchisStrategyGame() {
       </div>
 
       <div className="parchis-config">
-        <div className="parchis-config-roll">
-          <article className={`dice-roll-card parchis-config-roll-card${aiRolling ? " is-ai-rolling" : ""}`}>
-            <p>{copy.ui.currentRoll}</p>
-            {aiRolling ? (
-              <div className="parchis-roll-owner-badge" aria-live="polite">
-                {copy.ui.rollingFor}: {rollingOwnerLabel}
-              </div>
-            ) : null}
-            <div className={`dice-pair${aiRolling ? " is-ai-rolling" : ""}`}>
-              {diceUi.faces.map((face, index) => (
-                <SvgDie
-                  key={`die-face-${index}`}
-                  value={face}
-                  rolling={diceUi.rolling}
-                  aiActive={aiRolling}
-                  idSuffix={`${diceUi.activeOwner || "idle"}-${index}`}
-                  slotIndex={index}
-                />
-              ))}
-            </div>
-            <small>
-              {diceUi.rolling
-                ? copy.ui.rollingNow(rollingOwnerLabel)
-                : copy.ui.rollResolved}
-            </small>
-          </article>
-
-          <div className="parchis-config-roll-actions">
-            <button type="button" className="parchis-roll-inline" onClick={rollHuman} disabled={!canRollHuman}>
-              {copy.ui.rollDice}
-            </button>
-          </div>
-        </div>
-
         <label htmlFor="parchis-human-color">
           {copy.ui.playerColor}
           <select
@@ -2198,6 +2164,38 @@ function ParchisStrategyGame() {
                 <span>{copy.ui.active}: {pieceStats[player.id].active}</span>
               </article>
             ))}
+          </div>
+
+          <div className="parchis-panel-roll">
+            <article className={`dice-roll-card parchis-config-roll-card${aiRolling ? " is-ai-rolling" : ""}`}>
+              <p>{copy.ui.currentRoll}</p>
+              {aiRolling ? (
+                <div className="parchis-roll-owner-badge" aria-live="polite">
+                  {copy.ui.rollingFor}: {rollingOwnerLabel}
+                </div>
+              ) : null}
+              <div className={`dice-pair${aiRolling ? " is-ai-rolling" : ""}`}>
+                {diceUi.faces.map((face, index) => (
+                  <SvgDie
+                    key={`die-face-${index}`}
+                    value={face}
+                    rolling={diceUi.rolling}
+                    aiActive={aiRolling}
+                    idSuffix={`${diceUi.activeOwner || "idle"}-${index}`}
+                    slotIndex={index}
+                  />
+                ))}
+              </div>
+              <small>
+                {diceUi.rolling
+                  ? copy.ui.rollingNow(rollingOwnerLabel)
+                  : copy.ui.rollResolved}
+              </small>
+            </article>
+
+            <button type="button" className="parchis-roll-inline" onClick={rollHuman} disabled={!canRollHuman}>
+              {copy.ui.rollDice}
+            </button>
           </div>
 
           <div className="parchis-actions">

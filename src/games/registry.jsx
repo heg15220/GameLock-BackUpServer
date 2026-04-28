@@ -20,6 +20,7 @@
  */
 
 import React, { lazy } from "react";
+import { withStrategyIntro } from "./strategy/StrategyIntroGate";
 
 // Keep the launch shell lean: every game component loads on demand.
 const AdventureGame = lazy(() => import("./AdventureGame"));
@@ -125,14 +126,14 @@ export const GAME_REGISTRY = {
   "knowledge-adivina-pais-silueta": KnowledgeAdivinaPaisGame,
   "knowledge-tangram-pro": KnowledgeTangramGame,
   "knowledge-cronologia-maestra": KnowledgeCronologiaGame,
-  "strategy-chess-grandmaster":  ChessGame,
-  "strategy-damas-clasicas":     CheckersGame,
-  "strategy-sudoku-tecnicas":    StrategySudokuGame,
-  "strategy-hundir-flota-pro":   StrategyBattleshipGame,
-  "strategy-poker-holdem-no-bet": PokerTexasHoldemGame,
-  "strategy-parchis-ludoteka":   ParchisStrategyGame,
-  "strategy-baraja-ia-arena":    StrategyBarajaModesGame,
-  "strategy-mansion-triple-enigma": StrategyMansionTripleEnigmaGame,
+  "strategy-chess-grandmaster":  withStrategyIntro("strategy-chess-grandmaster", ChessGame),
+  "strategy-damas-clasicas":     withStrategyIntro("strategy-damas-clasicas", CheckersGame),
+  "strategy-sudoku-tecnicas":    withStrategyIntro("strategy-sudoku-tecnicas", StrategySudokuGame),
+  "strategy-hundir-flota-pro":   withStrategyIntro("strategy-hundir-flota-pro", StrategyBattleshipGame),
+  "strategy-poker-holdem-no-bet": withStrategyIntro("strategy-poker-holdem-no-bet", PokerTexasHoldemGame),
+  "strategy-parchis-ludoteka":   withStrategyIntro("strategy-parchis-ludoteka", ParchisStrategyGame),
+  "strategy-baraja-ia-arena":    withStrategyIntro("strategy-baraja-ia-arena", StrategyBarajaModesGame),
+  "strategy-mansion-triple-enigma": withStrategyIntro("strategy-mansion-triple-enigma", StrategyMansionTripleEnigmaGame),
   "rpg-emberfall":               RpgGame,
   "platformer-sky-runner":       PlatformerGame,
   "fighter-neon-dojo":           FighterGame,

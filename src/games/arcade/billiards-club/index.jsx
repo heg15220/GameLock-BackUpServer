@@ -36,12 +36,20 @@ const MODE_PRESETS = {
       es: "Mesa abierta, lisas/rayas y cierre cantando la 8.",
       en: "Open table, solids/stripes assignment, and a called 8-ball finish.",
     },
+    description: {
+      es: "Una partida clasica de pool. Tras la rotura, los jugadores se reparten lisas (1-7) y rayas (9-15): el primero en embocar legalmente decide su grupo. Para ganar tienes que meter todas tus bolas y, al final, hundir la bola 8 en la tronera que cantes. Si emboca la 8 antes de tiempo o en otra tronera, pierde el rack.",
+      en: "The classic pool match. After the break, the table is open: the first legal pocket decides who plays solids (1-7) and who plays stripes (9-15). You win by clearing your group and then sinking the 8-ball in the pocket you call. Pocketing the 8 too early or in the wrong pocket loses the rack.",
+    },
   },
   "nine-ball": {
     label: { es: "Bola 9", en: "9-Ball" },
     summary: {
       es: "Orden numerico, blanca en mano y regla de tres faltas.",
       en: "Numerical order, cue-ball in hand fouls, and the three-foul rule.",
+    },
+    description: {
+      es: "Solo se juega con las bolas del 1 al 9. En cada tiro, la blanca tiene que tocar primero la bola de menor numero que quede en la mesa. Gana quien emboca la 9, ya sea por orden o gracias a una combinacion legal. Cualquier falta entrega la blanca en mano al rival, y tres faltas seguidas significan perder el rack.",
+      en: "Only balls 1 through 9 are in play. The cue ball must contact the lowest-numbered ball on the table first on every shot. Whoever legally pockets the 9 wins, either in rotation or via a legal combo. Fouls give cue-ball-in-hand to the opponent, and three fouls in a row lose the rack.",
     },
   },
   "ten-ball": {
@@ -50,6 +58,10 @@ const MODE_PRESETS = {
       es: "Tiro cantado, push out y reposicion de la 10.",
       en: "Called-shot discipline, push out, and legal 10-ball spotting.",
     },
+    description: {
+      es: "Variante exigente con bolas del 1 al 10. Igual que la Bola 9 hay que tocar primero la bola mas baja, pero ademas todo tiro hacia tronera debe cantarse. Tras la rotura puedes declarar push out para reposicionar; si la 10 cae sin cantarla o por accidente, vuelve a la mesa. Solo cuenta como victoria la 10 cantada y embocada limpiamente.",
+      en: "A demanding variant with balls 1-10. As in 9-ball you must hit the lowest ball first, but every pocketed ball has to be called. After the break you can declare a push out to reposition. If the 10 drops uncalled or by accident, it spots back on the table. Only a properly called and cleanly pocketed 10 wins the rack.",
+    },
   },
   "carom-libre": {
     label: { es: "Carambola Libre", en: "Free Carom" },
@@ -57,12 +69,20 @@ const MODE_PRESETS = {
       es: "Mesa sin troneras con 3 bolas: puntua al contactar las dos bolas objetivas en un mismo tiro.",
       en: "Pocketless 3-ball table: score by contacting both object balls in a single shot.",
     },
+    description: {
+      es: "Un duelo de billar a tres bolas sin troneras. Tu blanca debe golpear, en un mismo tiro, las otras dos bolas para anotar una carambola. Cada carambola te concede otro tiro; si fallas, le toca al rival. La partida se juega a un numero fijo de puntos, asi que la precision y el control de la blanca son lo que decide el ganador.",
+      en: "A three-ball duel on a pocketless table. Your cue ball must contact both object balls in the same shot to score a carom. Every successful carom keeps you at the table; a miss passes the turn. Matches go to a fixed point total, so precision and cue-ball control decide the winner.",
+    },
   },
   kelly: {
     label: { es: "Kelly", en: "Kelly" },
     summary: {
       es: "Modalidad recreativa multi-jugador: cada jugador tiene bola objetivo propia y gana quien emboca la suya.",
       en: "Recreational multiplayer variant: each player has a personal target ball and wins by pocketing it.",
+    },
+    description: {
+      es: "Modalidad festiva para 2 a 15 jugadores. A cada jugador se le asigna en secreto una bola objetivo personal (su 'pea'). En tu turno tiras como en pool normal, pero solo ganas si embocas tu propia bola objetivo. Si emboca la de otro, esa persona queda eliminada de la ronda. Es un modo social donde la estrategia esta en disimular cual es tu bola.",
+      en: "A festive mode for 2 to 15 players. Each player is secretly assigned a personal target ball (their 'pea'). On your turn you shoot like in regular pool, but you only win by sinking your own target ball. Pocketing someone else's eliminates that player from the round. It's a social variant where bluffing about your ball is half the game.",
     },
   },
 };
@@ -255,6 +275,8 @@ const UI_COPY = {
     speedToUnderstand: "Rompe, gestiona faltas, usa push out/safety cuando toque y gana un duelo al mejor de",
     racksUnit: "racks",
     racks: "racks.",
+    modeIntroEyebrow: "Modo seleccionado",
+    modeIntroDismiss: "Entendido",
   },
   en: {
     title: "Pool Club Billiards",
@@ -347,6 +369,8 @@ const UI_COPY = {
     speedToUnderstand: "Break, manage fouls, use push out/safety when needed, and win a duel race to",
     racksUnit: "racks",
     racks: "racks.",
+    modeIntroEyebrow: "Selected mode",
+    modeIntroDismiss: "Got it",
   },
 };
 
@@ -377,6 +401,10 @@ function modeLabel(modeKey, locale) {
 
 function modeSummary(modeKey, locale) {
   return localizeLabel(MODE_PRESETS[modeKey]?.summary, locale) || "";
+}
+
+function modeDescription(modeKey, locale) {
+  return localizeLabel(MODE_PRESETS[modeKey]?.description, locale) || modeSummary(modeKey, locale);
 }
 
 function difficultyLabel(difficultyKey, locale) {
@@ -3294,6 +3322,8 @@ function BilliardsClubGame() {
   const [mobileViewport, setMobileViewport] = useState(() => readMobileViewport());
   const [embeddedInMobileShell, setEmbeddedInMobileShell] = useState(false);
   const [preferVerticalTable, setPreferVerticalTable] = useState(true);
+  const [modeIntro, setModeIntro] = useState(null);
+  const previousModeRef = useRef(null);
   const forceHorizontalTable = mobileViewport.isMobile && embeddedInMobileShell;
   const useVerticalTable =
     mobileViewport.isMobile &&
@@ -3363,6 +3393,23 @@ function BilliardsClubGame() {
     return () => {
       window.removeEventListener("resize", syncMobileShell);
     };
+  }, []);
+
+  useEffect(() => {
+    const currentMode = snapshot.variant;
+    if (!currentMode) return undefined;
+    if (previousModeRef.current === null) {
+      previousModeRef.current = currentMode;
+      return undefined;
+    }
+    if (previousModeRef.current === currentMode) return undefined;
+    previousModeRef.current = currentMode;
+    setModeIntro({ modeKey: currentMode, key: Date.now() });
+    return undefined;
+  }, [snapshot.variant]);
+
+  const dismissModeIntro = useCallback(() => {
+    setModeIntro(null);
   }, []);
 
   const startMatch = useCallback(() => runtimeRef.current?.startMatch(), []);
@@ -3554,6 +3601,32 @@ function BilliardsClubGame() {
                   <button type="button" onClick={resetMatch}>{ui.newMatch}</button>
                 </>
               ) : null}
+            </div>
+          ) : null}
+          {modeIntro ? (
+            <div
+              key={modeIntro.key}
+              className="billiards-mode-intro"
+              role="status"
+              aria-live="polite"
+              data-mobile-stage-overlay="true"
+              onClick={dismissModeIntro}
+            >
+              <div className="billiards-mode-intro-card">
+                <span className="billiards-mode-intro-eyebrow">{ui.modeIntroEyebrow}</span>
+                <h5 className="billiards-mode-intro-title">{modeLabel(modeIntro.modeKey, locale)}</h5>
+                <p className="billiards-mode-intro-body">{modeDescription(modeIntro.modeKey, locale)}</p>
+                <button
+                  type="button"
+                  className="billiards-mode-intro-dismiss"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    dismissModeIntro();
+                  }}
+                >
+                  {ui.modeIntroDismiss}
+                </button>
+              </div>
             </div>
           ) : null}
         </div>

@@ -13518,21 +13518,62 @@ body {
   place-items: center;
   pointer-events: none;
   z-index: 7;
+  overflow: hidden;
+  animation: checkers-overlay-fade 360ms ease-out both;
+}
+
+.checkers-end-overlay::before,
+.checkers-end-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
 }
 
 .checkers-end-overlay.win {
   background: radial-gradient(circle at 50% 60%, rgba(34, 197, 94, 0.38), rgba(21, 128, 61, 0.12) 62%, transparent 84%);
+  animation: checkers-overlay-fade 360ms ease-out both, checkers-win-pulse 2.4s ease-in-out 360ms infinite;
+}
+
+.checkers-end-overlay.win::before {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 6px),
+    radial-gradient(circle at 82% 30%, rgba(253, 224, 71, 0.95) 0%, rgba(253, 224, 71, 0) 5px),
+    radial-gradient(circle at 30% 78%, rgba(134, 239, 172, 0.95) 0%, rgba(134, 239, 172, 0) 5px),
+    radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 5px),
+    radial-gradient(circle at 50% 14%, rgba(253, 224, 71, 0.9) 0%, rgba(253, 224, 71, 0) 4px),
+    radial-gradient(circle at 12% 60%, rgba(110, 231, 183, 0.95) 0%, rgba(110, 231, 183, 0) 4px),
+    radial-gradient(circle at 88% 82%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 4px);
+  animation: checkers-confetti 2.6s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+.checkers-end-overlay.win::after {
+  background: conic-gradient(from 0deg at 50% 50%, rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0.18) 45deg, rgba(255, 255, 255, 0) 90deg, rgba(255, 255, 255, 0) 360deg);
+  animation: checkers-win-rays 5s linear infinite;
+  mix-blend-mode: screen;
+  opacity: 0.55;
 }
 
 .checkers-end-overlay.lose {
   background: radial-gradient(circle at 50% 40%, rgba(239, 68, 68, 0.34), rgba(127, 29, 29, 0.15) 60%, transparent 84%);
+  animation: checkers-overlay-fade 360ms ease-out both, checkers-lose-shake 0.6s ease-in-out 1, checkers-lose-throb 2.6s ease-in-out 0.6s infinite;
+}
+
+.checkers-end-overlay.lose::before {
+  background: radial-gradient(circle at 50% 50%, rgba(127, 29, 29, 0) 50%, rgba(15, 23, 42, 0.45) 100%);
+  animation: checkers-lose-vignette 2.6s ease-in-out 0.6s infinite;
 }
 
 .checkers-end-overlay.draw {
   background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.3), rgba(148, 163, 184, 0.14) 62%, transparent 84%);
+  animation: checkers-overlay-fade 360ms ease-out both, checkers-draw-pulse 3s ease-in-out 360ms infinite;
 }
 
 .checkers-end-badge {
+  position: relative;
+  z-index: 2;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 999px;
   padding: 0.48rem 0.86rem;
@@ -13542,15 +13583,105 @@ body {
   background: rgba(15, 23, 42, 0.62);
   color: #fff7ed;
   text-align: center;
+  animation: checkers-badge-pop 520ms cubic-bezier(0.18, 1.18, 0.4, 1.12) both;
+}
+
+.checkers-end-overlay.win .checkers-end-badge {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(21, 128, 61, 0.78) 100%);
+  border-color: rgba(253, 224, 71, 0.75);
+  box-shadow: 0 0 0 0 rgba(253, 224, 71, 0.55);
+  animation: checkers-badge-pop 520ms cubic-bezier(0.18, 1.18, 0.4, 1.12) both, checkers-win-glow 1.6s ease-in-out 520ms infinite;
+}
+
+.checkers-end-overlay.lose .checkers-end-badge {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.86) 0%, rgba(127, 29, 29, 0.82) 100%);
+  border-color: rgba(239, 68, 68, 0.55);
 }
 
 .checkers-end-badge strong {
   font-size: 0.84rem;
+  letter-spacing: 0.04em;
+}
+
+.checkers-end-overlay.win .checkers-end-badge strong {
+  text-shadow: 0 0 12px rgba(253, 224, 71, 0.7);
 }
 
 .checkers-end-badge span {
   font-size: 0.68rem;
   opacity: 0.94;
+}
+
+@keyframes checkers-overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes checkers-badge-pop {
+  0% { opacity: 0; transform: scale(0.4) rotate(-6deg); }
+  60% { opacity: 1; transform: scale(1.12) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes checkers-win-pulse {
+  0%, 100% { filter: brightness(1) saturate(1); }
+  50% { filter: brightness(1.18) saturate(1.25); }
+}
+
+@keyframes checkers-win-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0.0), 0 0 22px rgba(34, 197, 94, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(253, 224, 71, 0.18), 0 0 34px rgba(34, 197, 94, 0.62); }
+}
+
+@keyframes checkers-confetti {
+  0% { transform: translateY(-4px) scale(1); opacity: 0.85; }
+  50% { transform: translateY(4px) scale(1.04); opacity: 1; }
+  100% { transform: translateY(-4px) scale(1); opacity: 0.85; }
+}
+
+@keyframes checkers-win-rays {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes checkers-lose-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+}
+
+@keyframes checkers-lose-throb {
+  0%, 100% { filter: brightness(0.92) saturate(1); }
+  50% { filter: brightness(1.08) saturate(1.2); }
+}
+
+@keyframes checkers-lose-vignette {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes checkers-draw-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkers-end-overlay,
+  .checkers-end-overlay.win,
+  .checkers-end-overlay.lose,
+  .checkers-end-overlay.draw,
+  .checkers-end-badge,
+  .checkers-end-overlay.win .checkers-end-badge {
+    animation: checkers-overlay-fade 360ms ease-out both;
+  }
+  .checkers-end-overlay::before,
+  .checkers-end-overlay::after {
+    animation: none;
+  }
 }
 
 .checkers-action-row {
@@ -13737,22 +13868,28 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
-.parchis-config-roll {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.6rem;
-  align-items: stretch;
-}
-
-.parchis-config-roll-card,
 .parchis-config-history {
   height: 100%;
 }
 
-.parchis-config-roll-actions {
+.parchis-panel-roll {
   display: grid;
-  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.62rem;
+  border: 1px solid rgba(126, 105, 70, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 252, 244, 0.92);
+}
+
+.parchis-panel-roll .parchis-config-roll-card {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.parchis-panel-roll .parchis-roll-inline {
+  width: 100%;
+  min-width: 0;
 }
 
 .parchis-roll-inline {
@@ -14432,14 +14569,6 @@ body {
 @media (max-width: 980px) {
   .parchis-game-layout {
     grid-template-columns: 1fr;
-  }
-
-  .parchis-config-roll {
-    grid-template-columns: 1fr;
-  }
-
-  .parchis-config-roll-actions {
-    justify-items: stretch;
   }
 
   .parchis-roll-inline {
@@ -17016,6 +17145,169 @@ button.brisca-card.playable:disabled {
   color: #1f2937;
   font-weight: 800;
   cursor: pointer;
+}
+
+.billiards-mode-intro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 8;
+  background: radial-gradient(circle at 50% 35%, rgba(15, 23, 42, 0.55) 0%, rgba(2, 6, 12, 0.78) 70%);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: billiards-mode-intro-fade 320ms ease-out both;
+}
+
+.billiards-mode-intro-card {
+  position: relative;
+  max-width: 32rem;
+  width: 100%;
+  padding: 1.1rem 1.35rem 1.25rem;
+  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(8, 47, 73, 0.96) 0%, rgba(15, 23, 42, 0.96) 50%, rgba(20, 83, 45, 0.92) 100%);
+  border: 1px solid rgba(250, 204, 21, 0.42);
+  color: #fefce8;
+  text-align: left;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 0 36px rgba(250, 204, 21, 0.18);
+  animation: billiards-mode-intro-pop 540ms cubic-bezier(0.18, 1.18, 0.4, 1.08) both;
+  overflow: hidden;
+}
+
+.billiards-mode-intro-card::before {
+  content: "";
+  position: absolute;
+  inset: -40% -30% auto auto;
+  width: 70%;
+  height: 200%;
+  background: linear-gradient(110deg, transparent 30%, rgba(250, 204, 21, 0.18) 50%, transparent 70%);
+  transform: translateX(-120%) rotate(8deg);
+  animation: billiards-mode-intro-shine 1.6s ease-out 0.32s 1 forwards;
+  pointer-events: none;
+}
+
+.billiards-mode-intro-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #facc15, #22c55e, #38bdf8, #facc15);
+  background-size: 200% 100%;
+  animation: billiards-mode-intro-bar 2.4s linear infinite;
+}
+
+.billiards-mode-intro-eyebrow {
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(250, 204, 21, 0.16);
+  color: #fde68a;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 800;
+  border: 1px solid rgba(250, 204, 21, 0.32);
+}
+
+.billiards-mode-intro-title {
+  margin: 0.55rem 0 0.4rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fefce8;
+  letter-spacing: 0.01em;
+  text-shadow: 0 0 16px rgba(250, 204, 21, 0.35);
+  animation: billiards-mode-intro-title 700ms ease-out 0.12s both;
+}
+
+.billiards-mode-intro-body {
+  margin: 0 0 0.85rem;
+  color: #ecfdf5;
+  font-size: 0.92rem;
+  line-height: 1.46;
+  animation: billiards-mode-intro-body 720ms ease-out 0.2s both;
+}
+
+.billiards-mode-intro-dismiss {
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%);
+  color: #1f2937;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(234, 179, 8, 0.32);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.billiards-mode-intro-dismiss:hover,
+.billiards-mode-intro-dismiss:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(234, 179, 8, 0.38);
+  filter: brightness(1.05);
+}
+
+@keyframes billiards-mode-intro-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes billiards-mode-intro-pop {
+  0% { opacity: 0; transform: translateY(18px) scale(0.86); }
+  60% { opacity: 1; transform: translateY(-4px) scale(1.04); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes billiards-mode-intro-shine {
+  to { transform: translateX(140%) rotate(8deg); }
+}
+
+@keyframes billiards-mode-intro-bar {
+  from { background-position: 0% 50%; }
+  to { background-position: 200% 50%; }
+}
+
+@keyframes billiards-mode-intro-title {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes billiards-mode-intro-body {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .billiards-mode-intro-card {
+    padding: 0.95rem 1rem 1.1rem;
+  }
+  .billiards-mode-intro-title {
+    font-size: 1.18rem;
+  }
+  .billiards-mode-intro-body {
+    font-size: 0.86rem;
+    line-height: 1.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .billiards-mode-intro,
+  .billiards-mode-intro-card,
+  .billiards-mode-intro-title,
+  .billiards-mode-intro-body {
+    animation: billiards-mode-intro-fade 240ms ease-out both;
+  }
+  .billiards-mode-intro-card::before,
+  .billiards-mode-intro-card::after {
+    display: none;
+  }
 }
 
 .billiards-sidepanel {
@@ -26376,5 +26668,273 @@ button.brisca-card.playable:disabled {
   .head-soccer-pro-stage > .head-soccer-pro-controls {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+/* ── Strategy intro gate ─────────────────────────────────────────────────── */
+.strategy-intro {
+  --strategy-intro-accent: #0f5a74;
+  --strategy-intro-accent-soft: #dff1f6;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.9rem, 2.4vw, 1.8rem);
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 12% -8%, color-mix(in srgb, var(--strategy-intro-accent) 16%, transparent), transparent 52%),
+    radial-gradient(circle at 92% 110%, color-mix(in srgb, var(--strategy-intro-accent) 12%, transparent), transparent 48%),
+    linear-gradient(170deg, #fffdf6 0%, var(--bg) 60%, #fdf3d8 100%);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  animation: strategy-intro-fade 0.32s ease-out both;
+  font-family: "Outfit", "Inter", system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.strategy-intro-card {
+  position: relative;
+  width: min(640px, 100%);
+  background: linear-gradient(180deg, #fffef9 0%, #fff8e6 100%);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow:
+    0 18px 38px rgba(35, 36, 33, 0.12),
+    0 2px 0 rgba(255, 255, 255, 0.7) inset;
+  padding: clamp(1.5rem, 3.4vw, 2.4rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.strategy-intro-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--strategy-intro-accent) 0%,
+    color-mix(in srgb, var(--strategy-intro-accent) 35%, var(--amber-500)) 55%,
+    var(--amber-500) 100%
+  );
+}
+
+.strategy-intro-hero {
+  align-self: flex-start;
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: var(--strategy-intro-accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--strategy-intro-accent) 18%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.strategy-intro-glyph {
+  font-family: "Bricolage Grotesque", "Outfit", serif;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--strategy-intro-accent);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.strategy-intro-glow {
+  position: absolute;
+  inset: -10px;
+  border-radius: 28px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--strategy-intro-accent) 20%, transparent) 0%,
+    transparent 65%
+  );
+  z-index: -1;
+}
+
+.strategy-intro-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--strategy-intro-accent) 80%, var(--ink));
+}
+
+.strategy-intro-title {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  line-height: 1.12;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.strategy-intro-lead {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.strategy-intro-section {
+  background: rgba(255, 252, 235, 0.7);
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.strategy-intro-section h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--strategy-intro-accent) 70%, var(--ink));
+}
+
+.strategy-intro-section p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.strategy-intro-section ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.strategy-intro-section li {
+  position: relative;
+  padding-left: 1.35rem;
+  font-size: 0.93rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.strategy-intro-section li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--strategy-intro-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--strategy-intro-accent) 18%, transparent);
+}
+
+.strategy-intro-config {
+  margin: 0;
+  padding: 0.7rem 0.95rem;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  background: color-mix(in srgb, var(--strategy-intro-accent-soft) 70%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--strategy-intro-accent) 30%, transparent);
+}
+
+.strategy-intro-cta {
+  margin-top: 0.4rem;
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.95rem 1.4rem;
+  font-family: inherit;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #fffdf2;
+  background:
+    linear-gradient(
+      135deg,
+      var(--strategy-intro-accent) 0%,
+      color-mix(in srgb, var(--strategy-intro-accent) 70%, var(--amber-500)) 100%
+    );
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow:
+    0 10px 22px color-mix(in srgb, var(--strategy-intro-accent) 35%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.strategy-intro-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 14px 28px color-mix(in srgb, var(--strategy-intro-accent) 45%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.strategy-intro-cta:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+
+.strategy-intro-cta:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--strategy-intro-accent) 60%, transparent);
+  outline-offset: 3px;
+}
+
+.strategy-intro-cta-arrow {
+  font-size: 1.25rem;
+  transition: transform 0.18s ease;
+}
+
+.strategy-intro-cta:hover .strategy-intro-cta-arrow {
+  transform: translateX(3px);
+}
+
+@keyframes strategy-intro-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 540px) {
+  .strategy-intro {
+    padding: 0.75rem;
+  }
+  .strategy-intro-card {
+    padding: 1.25rem;
+    border-radius: 18px;
+    gap: 0.85rem;
+  }
+  .strategy-intro-hero {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+  }
+  .strategy-intro-glyph {
+    font-size: 1.7rem;
+  }
+  .strategy-intro-cta {
+    padding: 0.85rem 1.1rem;
+    font-size: 0.98rem;
   }
 }

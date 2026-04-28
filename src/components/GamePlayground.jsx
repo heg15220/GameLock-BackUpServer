@@ -16,6 +16,7 @@ import StrategyBattleshipGame from "../games/StrategyBattleshipGame";
 import PokerTexasHoldemGame from "../games/PokerTexasHoldemGame";
 import ParchisStrategyGame from "../games/ParchisStrategyGame";
 import StrategyMansionTripleEnigmaGame from "../games/StrategyMansionTripleEnigmaGame";
+import { withStrategyIntro } from "../games/strategy/StrategyIntroGate";
 import RaceGame2DPro from "../games/RaceGame2DPro";
 import SunsetSlipstream from "../games/racing/midnight-traffic";
 import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
@@ -91,13 +92,13 @@ const GAME_COMPONENTS = {
   "knowledge-mapas-camino-corto": KnowledgeMapasCaminoCortoGame,
   "knowledge-adivina-pais-silueta": KnowledgeAdivinaPaisGame,
   "knowledge-tangram-pro": KnowledgeTangramGame,
-  "strategy-chess-grandmaster": ChessGame,
-  "strategy-damas-clasicas": CheckersGame,
-  "strategy-sudoku-tecnicas": StrategySudokuGame,
-  "strategy-hundir-flota-pro": StrategyBattleshipGame,
-  "strategy-poker-holdem-no-bet": PokerTexasHoldemGame,
-  "strategy-parchis-ludoteka": ParchisStrategyGame,
-  "strategy-mansion-triple-enigma": StrategyMansionTripleEnigmaGame,
+  "strategy-chess-grandmaster": withStrategyIntro("strategy-chess-grandmaster", ChessGame),
+  "strategy-damas-clasicas": withStrategyIntro("strategy-damas-clasicas", CheckersGame),
+  "strategy-sudoku-tecnicas": withStrategyIntro("strategy-sudoku-tecnicas", StrategySudokuGame),
+  "strategy-hundir-flota-pro": withStrategyIntro("strategy-hundir-flota-pro", StrategyBattleshipGame),
+  "strategy-poker-holdem-no-bet": withStrategyIntro("strategy-poker-holdem-no-bet", PokerTexasHoldemGame),
+  "strategy-parchis-ludoteka": withStrategyIntro("strategy-parchis-ludoteka", ParchisStrategyGame),
+  "strategy-mansion-triple-enigma": withStrategyIntro("strategy-mansion-triple-enigma", StrategyMansionTripleEnigmaGame),
   "rpg-emberfall": RpgGame,
   "platformer-sky-runner": PlatformerGame,
   "fighter-neon-dojo": FighterGame,
