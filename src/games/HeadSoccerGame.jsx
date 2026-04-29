@@ -21,7 +21,7 @@ const FIELD = {
 const PHYSICS = {
   playerGravity: 0.5,
   ballGravity: 0.34,
-  bounce: 0.84,
+  bounce: 0.64,
   friction: 0.992,
   speed: 4.8,
   jumpVelocity: -14.6,
@@ -117,11 +117,11 @@ const DIFFICULTIES = {
     id: "rookie",
     label: "Rookie",
     reactionSeconds: 0.34,
-    anticipation: 18,
+    anticipation: 14,
     minX: 370,
-    jumpRange: 122,
-    jumpOffset: 6,
-    chargeDistance: 70,
+    jumpRange: 108,
+    jumpOffset: 8,
+    chargeDistance: 68,
     chargeChance: 0.22,
     releaseMin: 0.24,
     releaseMax: 0.4,
@@ -129,28 +129,46 @@ const DIFFICULTIES = {
   pro: {
     id: "pro",
     label: "Pro",
-    reactionSeconds: 0.25,
-    anticipation: 40,
+    reactionSeconds: 0.18,
+    anticipation: 22,
     minX: 350,
-    jumpRange: 136,
-    jumpOffset: 0,
-    chargeDistance: 80,
+    jumpRange: 120,
+    jumpOffset: 3,
+    chargeDistance: 78,
     chargeChance: 0.35,
     releaseMin: 0.14,
     releaseMax: 0.32,
+    predictionDepth: 1.2,
+    headerLead: 0.22,
+    headerReach: 70,
+    chargeLeadMin: 0.16,
+    chargeLeadMax: 0.46,
+    chargeReach: 60,
+    aggressionBase: 0.55,
+    panicReleaseShift: -0.06,
+    protectGuardX: 220,
   },
   elite: {
     id: "elite",
     label: "Elite",
-    reactionSeconds: 0.17,
-    anticipation: 58,
+    reactionSeconds: 0.13,
+    anticipation: 30,
     minX: 330,
-    jumpRange: 160,
-    jumpOffset: -8,
-    chargeDistance: 95,
-    chargeChance: 0.52,
-    releaseMin: 0.1,
-    releaseMax: 0.22,
+    jumpRange: 142,
+    jumpOffset: -2,
+    chargeDistance: 92,
+    chargeChance: 0.55,
+    releaseMin: 0.09,
+    releaseMax: 0.2,
+    predictionDepth: 1.6,
+    headerLead: 0.2,
+    headerReach: 80,
+    chargeLeadMin: 0.13,
+    chargeLeadMax: 0.52,
+    chargeReach: 74,
+    aggressionBase: 0.72,
+    panicReleaseShift: -0.08,
+    protectGuardX: 200,
   },
 };
 
@@ -1180,6 +1198,9 @@ function createInitialState(localeCandidate = "en") {
       charge: false,
       rethinkIn: 0,
       releaseDelay: 0,
+      predSamples: [],
+      predLandingX: null,
+      predLandingT: null,
     },
   };
 }
@@ -1288,6 +1309,9 @@ function startMatch(state, settings, options = {}) {
   state.ai.charge = false;
   state.ai.rethinkIn = 0;
   state.ai.releaseDelay = 0;
+  state.ai.predSamples = [];
+  state.ai.predLandingX = null;
+  state.ai.predLandingT = null;
   state.result = { title: "", subtitle: "", accent: "#f8fafc" };
   state.matchMeta.roundLabel = options.roundLabel || getSingleMatchLabel(settings.locale);
   state.message = options.message || "Kick off. Jump and attack with headers to create space.";
@@ -1685,18 +1709,18 @@ function updateBallPhysics(state, dt) {
   if (ball.y + FIELD.ballRadius >= FIELD.groundY) {
     const incoming = Math.abs(ball.vy);
     const chain = Math.min(ball.bounceChain || 0, 8);
-    const scriptedBounce = [18.8, 16.2, 13.9, 11.8, 9.9, 8.3, 7.0, 6.1, 5.4][chain];
-    const carryMultiplier = Math.max(0.34, 0.86 - chain * 0.07);
-    const rebound = clamp(Math.max(scriptedBounce, incoming * PHYSICS.bounce * carryMultiplier), 5.2, 24);
+    const scriptedBounce = [13.6, 11.7, 10.0, 8.5, 7.2, 6.1, 5.2, 4.5, 3.9][chain];
+    const carryMultiplier = Math.max(0.32, 0.78 - chain * 0.07);
+    const rebound = clamp(Math.max(scriptedBounce, incoming * PHYSICS.bounce * carryMultiplier), 3.8, 17);
     ball.y = FIELD.groundY - FIELD.ballRadius;
     ball.vy = -rebound;
-    ball.vx *= Math.max(0.72, 0.92 - chain * 0.03);
+    ball.vx *= Math.max(0.7, 0.9 - chain * 0.03);
     ball.bounceChain = chain + 1;
   }
 
   if (ball.y - FIELD.ballRadius < FIELD.ceilingY) {
     ball.y = FIELD.ceilingY + FIELD.ballRadius;
-    ball.vy = Math.abs(ball.vy) * 0.58;
+    ball.vy = Math.abs(ball.vy) * 0.46;
   }
 
   if (ball.x - FIELD.ballRadius <= FIELD.left && ball.y > FIELD.goalTop) {
@@ -1711,12 +1735,12 @@ function updateBallPhysics(state, dt) {
 
   if (ball.x - FIELD.ballRadius < FIELD.left && ball.y <= FIELD.goalTop) {
     ball.x = FIELD.left + FIELD.ballRadius;
-    ball.vx = Math.abs(ball.vx) * 0.7;
+    ball.vx = Math.abs(ball.vx) * 0.55;
   }
 
   if (ball.x + FIELD.ballRadius > FIELD.right && ball.y <= FIELD.goalTop) {
     ball.x = FIELD.right - FIELD.ballRadius;
-    ball.vx = -Math.abs(ball.vx) * 0.7;
+    ball.vx = -Math.abs(ball.vx) * 0.55;
   }
 
   const left = state.players.left;
@@ -1736,53 +1760,313 @@ function updateBallPhysics(state, dt) {
   }
 }
 
+const BOUNCE_SCRIPT = [13.6, 11.7, 10.0, 8.5, 7.2, 6.1, 5.2, 4.5, 3.9];
+
+function predictBallTrajectory(ball, depthSec) {
+  const totalSteps = Math.max(1, Math.round(depthSec * 60));
+  const ballRadius = FIELD.ballRadius;
+  let x = ball.x;
+  let y = ball.y;
+  let vx = ball.vx;
+  let vy = ball.vy;
+  let chain = ball.bounceChain || 0;
+  let landingX = null;
+  let landingT = null;
+  let crossesAiSideT = null;
+  const samples = new Array(totalSteps);
+
+  for (let s = 1; s <= totalSteps; s += 1) {
+    vy += PHYSICS.ballGravity;
+    vx *= PHYSICS.friction;
+    vy *= PHYSICS.friction;
+    x += vx;
+    y += vy;
+
+    if (y + ballRadius >= FIELD.groundY && vy > 0) {
+      const c = Math.min(chain, 8);
+      const carry = Math.max(0.32, 0.78 - c * 0.07);
+      const rebound = clamp(Math.max(BOUNCE_SCRIPT[c], Math.abs(vy) * PHYSICS.bounce * carry), 3.8, 17);
+      y = FIELD.groundY - ballRadius;
+      vy = -rebound;
+      vx *= Math.max(0.7, 0.9 - c * 0.03);
+      if (landingX === null) {
+        landingX = x;
+        landingT = s / 60;
+      }
+      chain += 1;
+    }
+
+    if (y - ballRadius < FIELD.ceilingY) {
+      y = FIELD.ceilingY + ballRadius;
+      vy = Math.abs(vy) * 0.46;
+    }
+
+    if (x - ballRadius < FIELD.left) {
+      x = FIELD.left + ballRadius;
+      vx = Math.abs(vx) * 0.55;
+    }
+    if (x + ballRadius > FIELD.right) {
+      x = FIELD.right - ballRadius;
+      vx = -Math.abs(vx) * 0.55;
+    }
+
+    if (crossesAiSideT === null && x > WIDTH / 2 && ball.x <= WIDTH / 2) {
+      crossesAiSideT = s / 60;
+    }
+
+    samples[s - 1] = { x, y, vx, vy, t: s / 60 };
+  }
+
+  if (landingX === null) {
+    const last = samples[samples.length - 1];
+    landingX = last ? last.x : ball.x;
+    landingT = last ? last.t : depthSec;
+  }
+
+  return { samples, landingX, landingT, crossesAiSideT };
+}
+
 function updateAi(state, dt) {
   const profile = DIFFICULTIES[state.difficultyId] || DIFFICULTIES.pro;
   const ai = state.ai;
   const cpu = state.players.right;
   const ball = state.ball;
 
-  ai.rethinkIn -= dt;
-  if (ai.rethinkIn <= 0) {
-    const deltaX = ball.x - cpu.x;
-    const deltaY = ball.y - (cpu.y - 80);
-    const distance = Math.hypot(deltaX, deltaY);
+  // Rookie keeps the legacy reactive AI — easy to read.
+  if (profile.id === "rookie") {
+    ai.rethinkIn -= dt;
+    if (ai.rethinkIn <= 0) {
+      const deltaX = ball.x - cpu.x;
+      const deltaY = ball.y - (cpu.y - 80);
+      const distance = Math.hypot(deltaX, deltaY);
+      const targetX = ball.vx > 0 ? ball.x + profile.anticipation : ball.x;
+      ai.left = cpu.x > targetX + 15 && cpu.x > profile.minX;
+      ai.right = cpu.x < targetX - 15;
+      ai.jump = deltaY < -40 + profile.jumpOffset && Math.abs(deltaX) < profile.jumpRange && cpu.onGround;
+      ai.charge = distance < profile.chargeDistance && Math.random() < profile.chargeChance;
+      ai.rethinkIn = profile.reactionSeconds;
+    }
 
-    const targetX = ball.vx > 0 ? ball.x + profile.anticipation : ball.x;
-
-    ai.left = cpu.x > targetX + 15 && cpu.x > profile.minX;
-    ai.right = cpu.x < targetX - 15;
-    ai.jump = deltaY < -40 + profile.jumpOffset && Math.abs(deltaX) < profile.jumpRange && cpu.onGround;
-    ai.charge = distance < profile.chargeDistance && Math.random() < profile.chargeChance;
-    ai.rethinkIn = profile.reactionSeconds;
+    if (ai.charge && !cpu.charging) {
+      cpu.charging = true;
+      ai.releaseDelay = profile.releaseMin + Math.random() * (profile.releaseMax - profile.releaseMin);
+    }
+    if (cpu.charging) {
+      ai.releaseDelay -= dt;
+      if (ai.releaseDelay <= 0) {
+        releaseKick(cpu, state);
+        ai.charge = false;
+      }
+    }
+    const jumpNow = ai.jump;
+    ai.jump = false;
+    updatePlayerPhysics(cpu, { left: ai.left, right: ai.right, jump: jumpNow }, state, dt);
+    return;
   }
 
-  if (ai.charge && !cpu.charging) {
+  // === Pro/Elite: predictive adaptive AI ===
+  // Geometry note: CPU is on the right side, faces LEFT (dir = -1).
+  //   Foot kick origin: footX = cpu.x + dir*27 = cpu.x - 27.
+  //   For the kick to send the ball LEFT (toward the player goal) the ball must be
+  //   strictly LEFT of the foot. So the AI body must sit to the RIGHT of the ball
+  //   (offset of ~+38 px). All target X values use that "right-of-ball" bias.
+
+  // Match-state signals.
+  const lead = state.scores.right - state.scores.left;
+  const matchDuration = Math.max(1, state.matchDuration);
+  const timeRatio = clamp(state.timer / matchDuration, 0, 1);
+  const lateGame = timeRatio < 0.4;
+  const veryLate = timeRatio < 0.15;
+  const protectMode = lead >= 2 && lateGame;
+  const holdMode = lead === 1 && lateGame;
+  const panicMode = lead <= -1 && lateGame;
+  const urgency = clamp(
+    profile.aggressionBase + -lead * 0.28 + (1 - timeRatio) * 0.42 + (panicMode ? 0.3 : 0) - (protectMode ? 0.45 : 0),
+    -0.4,
+    1.6
+  );
+
+  // Refresh trajectory periodically.
+  ai.rethinkIn -= dt;
+  if (ai.rethinkIn <= 0 || !ai.predSamples || ai.predSamples.length === 0) {
+    const traj = predictBallTrajectory(ball, profile.predictionDepth);
+    ai.predSamples = traj.samples;
+    ai.predLandingX = traj.landingX;
+    ai.predLandingT = traj.landingT;
+    ai.rethinkIn = profile.reactionSeconds;
+  }
+  const samples = ai.predSamples;
+
+  // Useful constants
+  const cpuMaxSpeedPxPerSec = PHYSICS.speed * 60; // ~288 px/s
+  const aiVy0 = PHYSICS.jumpVelocity;
+  const aiG = PHYSICS.playerGravity;
+  const headerReach = profile.headerReach;
+  const playerHalf = PHYSICS.playerHalfWidth;
+  const FOOT_OFFSET = 38; // body must be this many px right of ball for a left-going kick
+  const FOOT_Y_TOP = cpu.y - 55;
+  const FOOT_Y_BOT = cpu.y + 8;
+
+  // Scan trajectory for opportunities and threats.
+  let footIntercept = null;
+  let headerIntercept = null;
+  let dangerSample = null;
+  for (let i = 0; i < samples.length; i += 1) {
+    const s = samples[i];
+    if (s.t < 0.04) continue;
+
+    // Threat: ball nearing own goal area moving right.
+    if (dangerSample === null && s.x > FIELD.right - 230 && s.vx > 1) {
+      dangerSample = s;
+    }
+
+    // Foot intercept: predicted foot-height ball that AI can walk to in time.
+    if (footIntercept === null && s.y >= FOOT_Y_TOP && s.y <= FOOT_Y_BOT) {
+      const desiredX = clamp(s.x + FOOT_OFFSET, FIELD.left + 60, FIELD.right - playerHalf - 4);
+      const walkDist = Math.abs(desiredX - cpu.x);
+      const walkTime = walkDist / cpuMaxSpeedPxPerSec;
+      // Allow a small slack — AI keeps walking while charging.
+      if (walkTime <= s.t + 0.18) {
+        footIntercept = { t: s.t, sample: s, targetX: desiredX, walkTime };
+      }
+    }
+
+    // Header intercept: jump-now reach, accounting for AI vertical trajectory.
+    if (headerIntercept === null && cpu.onGround && s.y < cpu.y - 30) {
+      const n = s.t * 60;
+      const dy = aiVy0 * n + 0.5 * aiG * n * (n + 1);
+      if (dy < 0) {
+        const headY = cpu.y + dy - 61;
+        const dx = Math.abs(s.x - cpu.x);
+        if (dx <= headerReach && Math.hypot(dx, s.y - headY) <= headerReach) {
+          headerIntercept = { t: s.t, sample: s, headY };
+        }
+      }
+    }
+  }
+
+  // === Tactical mode: choose intent ===
+  // - Header has timing priority (only fires for a tiny window).
+  // - Foot intercept = main attack/defense move.
+  // - Otherwise position around predicted landing or guard goal.
+  let targetX;
+  let intent;
+  if (headerIntercept) {
+    targetX = cpu.x; // hold ground while jumping
+    intent = "header";
+  } else if (footIntercept) {
+    targetX = footIntercept.targetX;
+    intent = "foot";
+  } else if (dangerSample) {
+    // Emergency: ball going to own goal with no clean intercept — sprint to goal line.
+    targetX = clamp(dangerSample.x + FOOT_OFFSET, FIELD.right - 200, FIELD.right - playerHalf - 4);
+    intent = "rescue";
+  } else {
+    const landing = ai.predLandingX ?? ball.x;
+    targetX = clamp(landing + FOOT_OFFSET, FIELD.left + 60, FIELD.right - playerHalf - 4);
+    intent = ball.x < WIDTH / 2 ? "press" : "track";
+  }
+
+  // Apply tactical biases per match mode.
+  if (protectMode) {
+    const guardLine = FIELD.right - profile.protectGuardX;
+    if (intent !== "header" && intent !== "foot") {
+      targetX = Math.max(targetX, guardLine);
+    } else {
+      // Even when intercepting, don't over-commit too far forward.
+      targetX = Math.max(targetX, guardLine - 60);
+    }
+  } else if (holdMode && intent === "press") {
+    // Slight backwards bias when ball is in opponent half and we're 1 ahead.
+    targetX = Math.max(targetX, WIDTH / 2 + 60);
+  } else if (panicMode) {
+    // Allow sprinting deep into opponent half when intercepting low.
+    if (intent === "foot" || intent === "press") {
+      targetX = Math.max(targetX, FIELD.left + 100);
+    }
+  }
+
+  targetX = clamp(targetX, FIELD.left + playerHalf, FIELD.right - playerHalf);
+
+  // Variable deadband: tight on attack, looser when guarding.
+  const deadband = intent === "header" ? 4 : panicMode ? 6 : protectMode ? 22 : 10;
+  ai.left = cpu.x > targetX + deadband;
+  ai.right = cpu.x < targetX - deadband;
+
+  // === Jump decision ===
+  // Jump when a header opportunity exists AND it makes tactical sense.
+  let shouldJump = false;
+  if (headerIntercept) {
+    const sH = headerIntercept.sample;
+    const goingToOurGoal = sH.vx > 0.4;
+    const inOurHalf = sH.x >= WIDTH / 2 - 40;
+    const offensiveHeader = sH.x < WIDTH / 2 - 20; // ball already in opponent half — head it deeper
+    if (goingToOurGoal || inOurHalf) {
+      shouldJump = !protectMode || goingToOurGoal; // protect mode only jumps to clear danger
+    } else if (offensiveHeader) {
+      shouldJump = !protectMode && (urgency > 0.2 || panicMode);
+    }
+  }
+
+  // Anti-spam: don't repeatedly jump in protect mode unless real danger.
+  if (protectMode && shouldJump && !(headerIntercept && headerIntercept.sample.vx > 0.6)) {
+    shouldJump = false;
+  }
+
+  // === Charge decision ===
+  let shouldCharge = false;
+  if (!cpu.charging && cpu.onGround && footIntercept) {
+    const fi = footIntercept;
+    const tooFarToReach = Math.abs(fi.targetX - cpu.x) > 110 && fi.t < 0.32;
+    const insideChargeWindow = fi.t >= profile.chargeLeadMin && fi.t <= profile.chargeLeadMax;
+    if (insideChargeWindow && !tooFarToReach) {
+      shouldCharge = true;
+    }
+    if (protectMode) {
+      // Only commit to a charge if the ball is squarely in slot.
+      shouldCharge = shouldCharge && Math.abs(fi.sample.x - cpu.x) < 70 && Math.random() < 0.55;
+    } else if (holdMode) {
+      // 1-goal lead: still attack but skip risky deep charges.
+      const tooDeep = fi.targetX < WIDTH / 2 + 40;
+      if (tooDeep) shouldCharge = false;
+    }
+  }
+
+  // Hopeful chaos shot when trailing in the dying minutes.
+  if (panicMode && veryLate && !cpu.charging && !shouldCharge && Math.abs(ball.x - cpu.x) < 220) {
+    if (Math.random() < 0.012 + urgency * 0.018) {
+      shouldCharge = true;
+    }
+  }
+
+  if (shouldCharge) {
     cpu.charging = true;
-    ai.releaseDelay = profile.releaseMin + Math.random() * (profile.releaseMax - profile.releaseMin);
+    const releaseShift = panicMode ? profile.panicReleaseShift : 0;
+    ai.releaseDelay = clamp(
+      profile.releaseMin + Math.random() * (profile.releaseMax - profile.releaseMin) + releaseShift,
+      0.05,
+      0.55
+    );
   }
 
   if (cpu.charging) {
     ai.releaseDelay -= dt;
-    if (ai.releaseDelay <= 0) {
+    const footX = cpu.x - 27;
+    const ballAtFoot = ball.x < footX + 6 && ball.x > footX - 30 && ball.y > cpu.y - 50;
+    const ballEscapedRight = ball.x > cpu.x + 36 && ball.vx > 1.2;
+    const wrongSide = ball.x > cpu.x - 8; // ball moved to wrong side of foot — abort or hope
+    if (
+      ai.releaseDelay <= 0 ||
+      ballAtFoot ||
+      ballEscapedRight ||
+      (veryLate && panicMode && ai.releaseDelay < 0.1) ||
+      (wrongSide && ai.releaseDelay < 0.05)
+    ) {
       releaseKick(cpu, state);
-      ai.charge = false;
     }
   }
 
-  const jumpNow = ai.jump;
-  ai.jump = false;
-
-  updatePlayerPhysics(
-    cpu,
-    {
-      left: ai.left,
-      right: ai.right,
-      jump: jumpNow,
-    },
-    state,
-    dt
-  );
+  updatePlayerPhysics(cpu, { left: ai.left, right: ai.right, jump: shouldJump }, state, dt);
 }
 
 function updateFx(state, dt) {
