@@ -228,6 +228,8 @@ export default class GolfTourRuntime {
       swipeMode: false,
       swipeStartX: this.ball.x,
       swipeStartY: this.ball.y,
+      swipeEndX: this.ball.x,
+      swipeEndY: this.ball.y,
       preview: [],
     };
     this.aim.preview = buildPreview(this.level, this.ball, this.aim.angleDeg, this.aim.power);
@@ -381,6 +383,10 @@ export default class GolfTourRuntime {
     this.aim.power = 0.52;
     this.aim.dragging = false;
     this.aim.swipeMode = false;
+    this.aim.swipeStartX = this.ball.x;
+    this.aim.swipeStartY = this.ball.y;
+    this.aim.swipeEndX = this.ball.x;
+    this.aim.swipeEndY = this.ball.y;
     this.aim.preview = buildPreview(this.level, this.ball, this.aim.angleDeg, this.aim.power);
   }
 
@@ -575,8 +581,10 @@ export default class GolfTourRuntime {
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-    this.aim.angleDeg = clamp(angle, -175, -8);
-    this.aim.power = clamp(magnitude(dx, dy) / 240, 0.16, 1);
+    this.aim.angleDeg = angle;
+    this.aim.power = clamp(magnitude(dx, dy) / 260, 0, 1);
+    this.aim.swipeEndX = end.x;
+    this.aim.swipeEndY = end.y;
     this.aim.preview = buildPreview(this.level, this.ball, this.aim.angleDeg, this.aim.power);
   }
 
@@ -590,10 +598,20 @@ export default class GolfTourRuntime {
     if (!nearBall && !isTouch) {
       return;
     }
+    event.preventDefault?.();
     this.canvas.setPointerCapture?.(event.pointerId);
     this.aim.dragging = true;
     this.aim.pointerId = event.pointerId;
-    this.aim.swipeMode = false;
+    this.aim.swipeMode = isTouch;
+    if (isTouch) {
+      this.aim.swipeStartX = point.x;
+      this.aim.swipeStartY = point.y;
+      this.aim.swipeEndX = point.x;
+      this.aim.swipeEndY = point.y;
+      this.aim.power = 0;
+      this.aim.preview = buildPreview(this.level, this.ball, this.aim.angleDeg, this.aim.power);
+      return;
+    }
     this.updateAimFromBallDrag(point);
   }
 
@@ -601,6 +619,7 @@ export default class GolfTourRuntime {
     if (!this.aim.dragging || event.pointerId !== this.aim.pointerId) {
       return;
     }
+    event.preventDefault?.();
     const point = this.getCanvasPoint(event);
     if (this.aim.swipeMode) {
       this.updateAimFromSwipe({ x: this.aim.swipeStartX, y: this.aim.swipeStartY }, point);
@@ -613,11 +632,21 @@ export default class GolfTourRuntime {
     if (!this.aim.dragging || event.pointerId !== this.aim.pointerId) {
       return;
     }
+    event.preventDefault?.();
     this.canvas.releasePointerCapture?.(event.pointerId);
     this.aim.dragging = false;
     this.aim.pointerId = null;
 
     const point = this.getCanvasPoint(event);
+    if (this.aim.swipeMode) {
+      const start = { x: this.aim.swipeStartX, y: this.aim.swipeStartY };
+      this.updateAimFromSwipe(start, point);
+      this.aim.swipeMode = false;
+      if (magnitude(point.x - start.x, point.y - start.y) > 18) {
+        this.launchBall();
+      }
+      return;
+    }
     this.updateAimFromBallDrag(point);
     if (magnitude(this.ball.x - point.x, this.ball.y - point.y) > 24) {
       this.launchBall();
@@ -1005,6 +1034,8 @@ export default class GolfTourRuntime {
         power: round(this.aim.power, 3),
         dragging: this.aim.dragging,
         swipeMode: this.aim.swipeMode,
+        swipeStart: { x: round(this.aim.swipeStartX), y: round(this.aim.swipeStartY) },
+        swipeEnd: { x: round(this.aim.swipeEndX), y: round(this.aim.swipeEndY) },
         preview: this.aim.preview.map((point) => ({ x: round(point.x), y: round(point.y) })),
       },
       physics: {

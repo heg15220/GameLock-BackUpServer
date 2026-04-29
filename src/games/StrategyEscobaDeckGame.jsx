@@ -105,6 +105,18 @@ const SEAT_LAYOUTS = {
   ],
 };
 
+const clockwiseSeatAngle = (seat) => {
+  const x = (seat?.x ?? 50) - 50;
+  const y = (seat?.y ?? 50) - 50;
+  return (Math.atan2(x, -y) + Math.PI * 2) % (Math.PI * 2);
+};
+
+const clockwiseOrderFromPlayers = (players) =>
+  [...players]
+    .map((player, index) => ({ player, index, angle: clockwiseSeatAngle(player.seat) }))
+    .sort((a, b) => (a.angle - b.angle) || (a.index - b.index))
+    .map(({ player }) => player.id);
+
 const T = {
   es: {
     title: "Escoba del 15 IA",
@@ -851,7 +863,7 @@ const createMatch = (locale, opts = {}) => {
   const deck = DECKS[deckId];
   const players = buildPlayers(playerCount, teamMode, t);
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
-  const order = players.map((p) => p.id);
+  const order = clockwiseOrderFromPlayers(players);
   const base = {
     locale,
     deckId,

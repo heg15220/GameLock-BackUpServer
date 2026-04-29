@@ -102,7 +102,7 @@ export const games = [
 
     title: "Sky Runner DX",
     category: "Arcade",
-    tagline: "Plataformas 2D arcade con 32 sectores artesanales, biomas avanzados y jefes con variantes.",
+    tagline: "Plataformas de salto, enemigos y jefes: supera la ruta sin perder todas las vidas.",
     description:
       "Run arcade inspirado en plataformas retro: ahora hay 32 sectores artesanales con biomas propios, zonas de viento, springs, checkpoints, hazards y varios bosses de comportamiento diferenciado. Cada partida compone una ruta de 8 sectores y siempre remata con un nuevo jefe final.",
     objective_es: "Completa una ruta de 8 sectores, asegura checkpoints, domina los hazards y derrota a los bosses hasta capturar el cubo final.",
@@ -124,7 +124,7 @@ export const games = [
     techFocus: "Arquitectura modular con 32 sectores, reachability reforzada, bosses por variante y telemetrÃ­a de entorno.",
 
     category_en: "Arcade",
-    tagline_en: "2D arcade platformer with 32 handcrafted sectors, advanced biomes and variant bosses.",
+    tagline_en: "A platformer with jumps, enemies and bosses: clear the route before losing all lives.",
     description_en:
       "A retro platformer run rebuilt around 32 handcrafted sectors with distinct biomes, wind zones, springs, checkpoints, hazards and several differentiated bosses. Each session assembles an 8-sector route and always ends with a new final boss.",
     objective_en: "Complete an 8-sector route, secure checkpoints, master hazards and defeat the bosses to capture the final cube.",
@@ -155,13 +155,13 @@ export const games = [
 
     title: "Pac-Man Maze Protocol",
     category: "Arcade",
-    tagline: "Arcade de laberinto con persecuciÃ³n, pellets, power mode y FSM de fantasmas.",
+    tagline: "Laberinto de puntos y fantasmas: recoge todo y usa poderes para contraatacar.",
     description:
       "VersiÃ³n completa de Pac-Man con mapa por tiles, tÃºneles laterales, 4 fantasmas con comportamientos diferenciados, sistema de vidas/puntuaciÃ³n/niveles y modo debug para validar IA y colisiones.",
     objective_es: "Recoge todos los pellets del laberinto sin ser atrapado por los fantasmas. Usa power pellets para revertir los roles.",
     howToPlay_es: "WASD o flechas para moverte. Enter/Espacio para empezar, P/Esc para pausa, R reinicia, M activa el sonido.",
     highlights: [
-      "FSM de fantasmas con modos scatter, chase, frightened y eaten.",
+      "Fantasmas con estados distintos: persecucion, huida y vuelta a casa.",
       "Targeting fiel: Blinky/Pinky/Inky/Clyde con reglas distintas.",
       "Power pellets con bonus de fantasmas encadenado (200/400/800/1600).",
       "Loop fijo 60 ticks + render Canvas y puente QA render_game_to_text.",
@@ -174,7 +174,7 @@ export const games = [
     techFocus: "Arquitectura modular engine/world/entities/ai/state + HUD React desacoplado.",
 
     category_en: "Arcade",
-    tagline_en: "Maze arcade with pursuit, pellets, power mode and ghost FSM.",
+    tagline_en: "A maze of dots and ghosts: collect everything and use powers to fight back.",
     description_en:
       "Full Pac-Man with tile map, side tunnels, 4 ghosts with distinct behaviors, lives/score/levels system and debug mode to validate AI and collisions.",
     objective_en: "Collect all pellets in the maze without being caught by ghosts. Use power pellets to reverse roles.",
@@ -200,7 +200,7 @@ export const games = [
 
     title: "Stick Brawl Showdown",
     category: "Arcade",
-    tagline: "Fighting arcade 1v1 con IA adaptativa, fisicas refinadas y escenarios dinamicos de alta calidad.",
+    tagline: "Lucha 1 contra 1: bloquea, golpea y gana rounds contra la IA.",
     description:
       "Combate stickman competitivo creado para la seccion Arcade: incluye motor fisico con momentum, knockback progresivo, guard break, regeneracion de vida condicionada y una IA que lee patrones del jugador para ajustar su estrategia en tiempo real.",
     objective_es: "Gana el mejor de tres rounds reduciendo la vida rival a cero o llegando con ventaja al final del tiempo.",
@@ -221,7 +221,7 @@ export const games = [
     techFocus: "State machine de lucha, IA adaptativa basada en patron, control de recursos (vida/guardia/super) y pipeline Canvas 2D.",
 
     category_en: "Arcade",
-    tagline_en: "1v1 arcade fighter with adaptive AI, refined physics, and high-detail dynamic stages.",
+    tagline_en: "One-on-one fighting: block, strike and win rounds against the AI.",
     description_en:
       "Competitive stickman combat built for the Arcade category, featuring momentum-driven physics, progressive knockback, guard break, conditional health regeneration, and AI that reads player patterns to adapt strategy in real time.",
     objective_en: "Win a best-of-three set by KO or by holding the health lead when the timer expires.",
@@ -249,7 +249,7 @@ export const games = [
 
     title: "Flux Basin",
     category: "Arcade",
-    tagline: "Desliza para lanzar la pelota rayada al cubo. Â¡Domina los rebotes en 12 niveles!",
+    tagline: "Lanza una bola al objetivo calculando fuerza, \u00e1ngulo y rebotes.",
     description:
       "Arcade de fisica al estilo TigerBall (Laxarus P.C., 2016): desliza en la direccion del lanzamiento, calibra la fuerza y deja que la gravedad y los rebotes lleven la pelota rayada directo al cubo azul.",
     objective_es:
@@ -268,7 +268,7 @@ export const games = [
     viability: "Alta: motor Canvas 2D propio con fisica ligera, colisiones discretas y estado serializable.",
     visualStyle: "Paleta menta-turquesa con pelota rayada, cubos cilindricas teal, bloques amarillos y estrellas doradas.",
     techFocus: "Fisica de proyectil con swipe-to-throw, colision circulo-AABB, progresion por niveles y bridge QA.",
-    tagline: "Arcade mobile-first de fisica y precision: tira hacia atras, rebota y captura la orbita en una capsula magnetica.",
+    tagline: "Lanza una bola al objetivo calculando fuerza, \u00e1ngulo y rebotes.",
     description:
       "Arcade 2D original ambientado en una fundicion neon-industrial. Dominas una orbita energetica con un unico gesto principal: tirar hacia atras y soltar. La dificultad crece con bumpers, rampas, compuertas temporizadas, portales, ventiladores, campos de gravedad y superficies gel.",
     objective_es:
@@ -287,7 +287,7 @@ export const games = [
     techFocus: "Arquitectura modular por capas (physics/level/entities/systems/services), prefabs parametrizables y HUD React desacoplado.",
 
     category_en: "Arcade",
-    tagline_en: "Swipe to toss the striped ball into the cup. Master the rebounds across 12 levels!",
+    tagline_en: "Launch a ball into the target by judging power, angle and rebounds.",
     description_en:
       "A physics arcade in the spirit of TigerBall (Laxarus P.C., 2016): swipe in the throw direction, gauge the power, and let gravity and bounces carry the striped ball straight into the teal cup.",
     objective_en:
@@ -306,7 +306,7 @@ export const games = [
     viability_en: "High: custom Canvas 2D runtime with lightweight physics, discrete collisions, and serializable state.",
     visualStyle_en: "Mint-teal palette with striped ball, teal cylindrical cups, yellow sun-blocks, and golden stars.",
     techFocus_en: "Projectile physics with swipe-to-throw, circle-vs-AABB collisions, level progression, and QA bridge.",
-    tagline_en: "Mobile-first physics arcade: pull back, bank cleanly, and secure the orb inside a magnetic capsule.",
+    tagline_en: "Launch a ball into the target by judging power, angle and rebounds.",
     description_en:
       "An original 2D physics arcade set inside a neon-industrial foundry. You command an energy orb with one main gesture: pull back and release. Difficulty escalates through bumpers, ramps, timed gates, portals, fans, gravity wells, and gel surfaces.",
     objective_en:
@@ -332,7 +332,7 @@ export const games = [
 
     title: "Territory War: Stick Arena",
     category: "Arcade",
-    tagline: "Estrategia por turnos estilo Territory War con granadas, salto y control de altura.",
+    tagline: "Batalla por turnos con equipos stickman, altura, saltos y granadas.",
     description:
       "Arcade tactico por turnos inspirado en Territory War: cada ronda activas un stickman, te reposicionas con movimiento limitado, ajustas angulo/potencia y lanzas granadas para eliminar el escuadron rival.",
     objective_es: "Deja al equipo contrario sin unidades vivas. El ultimo equipo en pie gana la partida.",
@@ -352,7 +352,7 @@ export const games = [
     techFocus: "Turn manager, artilleria paraboloide, IA de punteria y resolucion de dano por radio.",
 
     category_en: "Arcade",
-    tagline_en: "Territory War style turn-based strategy with grenades, jumps, and high-ground control.",
+    tagline_en: "Turn-based stickman team battle with high ground, jumps and grenades.",
     description_en:
       "Turn-based tactical arcade inspired by Territory War: each round you control one stickman, reposition with limited movement, set angle/power, and throw grenades to wipe the rival squad.",
     objective_en: "Eliminate every enemy unit. Last team standing wins the match.",
@@ -379,7 +379,7 @@ export const games = [
 
     title: "Orchard Match Blast",
     category: "Arcade",
-    tagline: "Match-3 arcade propio con bloques de color, cascadas y objetivo de puntuacion.",
+    tagline: "Combina bloques de colores, crea cascadas y alcanza la puntuaci\u00f3n objetivo.",
     description:
       "Juego match-3 original inspirado en la mecanica Slide & Match: intercambia bloques de color adyacentes, activa cadenas de cascada y optimiza cada movimiento para alcanzar la meta de puntuacion antes de agotar tiempo o movimientos.",
     objective_es: "Alcanza la puntuacion objetivo encadenando lineas de 3 o mas bloques antes de quedarte sin tiempo o movimientos.",
@@ -398,7 +398,7 @@ export const games = [
     techFocus: "Deteccion de matches, cascadas por gravedad, busqueda de jugada posible y puente QA automatizable.",
 
     category_en: "Arcade",
-    tagline_en: "Original match-3 arcade with color blocks, cascades, and score goals.",
+    tagline_en: "Match colored blocks, trigger cascades and reach the target score.",
     description_en:
       "An original match-3 game inspired by the Slide & Match mechanic: swap adjacent color blocks, trigger cascade chains, and optimize each move to reach the target score before running out of time or moves.",
     objective_en: "Reach the target score by chaining lines of 3+ color blocks before time or moves run out.",
@@ -424,7 +424,7 @@ export const games = [
 
     title: "Billar Pool Club",
     category: "Deportes",
-    tagline: "Billar de estilo profesional con Bola 8, Bola 9 y Bola 10, fisica precisa y IA tactica.",
+    tagline: "Billar con bola 8, 9 y 10: apunta, golpea y planifica la mesa.",
     description:
       "Mesa de pool top-down con sensacion de club real: saque, blanca en mano, lectura de angulos, grupos lisas/rayas, cierre cantado de la 8, disciplina Bola 9 y Bola 10 con push out, safety y tres faltas consecutivas.",
     objective_es: "Gana un match al mejor de tres racks dominando el saque, las entradas largas y la gestion de faltas segun el modo elegido.",
@@ -443,7 +443,7 @@ export const games = [
     techFocus: "Fisica de billar, evaluacion de faltas, estados de rack/match y automatizacion QA.",
 
     category_en: "Sports",
-    tagline_en: "Professional-style billiards with 8-ball, 9-ball and 10-ball, precise physics and tactical AI.",
+    tagline_en: "Billiards with 8-ball, 9-ball and 10-ball: aim, shoot and plan the table.",
     description_en:
       "A top-down pool table with club-level feel: break shot, cue-ball in hand, angle reading, solids/stripes grouping, called 8-ball finish, plus 9-ball and 10-ball with push out, safety, and three-foul pressure.",
     objective_en: "Win a best-of-three match by controlling the break, building long runs, and managing fouls under the selected rule set.",
@@ -469,7 +469,7 @@ export const games = [
 
     title: "Bowling Pro Tour",
     category: "Deportes",
-    tagline: "Bowling 1v1 rehecho con alley de referencia, marcador oficial, split detector e IA por dificultad.",
+    tagline: "Bolos contra la IA: ajusta tiro, efecto y potencia para derribar pinos.",
     description:
       "Juego de bolos profesional en navegador rehecho a partir del pack de referencia 03-Bowling-Assets-Original: entorno de alley reinterpretado en canvas, marcador completo por cuadros, reglas reales de strike/spare, detector de split, alternancia de pista A/B y panel integrado de assets + reglamento.",
     objective_es: "Gana la serie de 10 cuadros frente a la IA sumando la mayor puntuacion acumulada con buena lectura de lineas y conversion de spares.",
@@ -490,7 +490,7 @@ export const games = [
     techFocus: "Motor de reglas de bowling + simulacion de pinfall collider-inspired + panel de referencia de assets y reglamento.",
 
     category_en: "Sports",
-    tagline_en: "Rebuilt 1v1 bowling with a reference alley environment, official scoring, split detection, and tiered AI.",
+    tagline_en: "Bowling against AI: tune aim, spin and power to knock down pins.",
     description_en:
       "Professional browser bowling rebuilt from the 03-Bowling-Assets-Original reference pack: a reinterpreted alley environment in canvas, full frame-by-frame scoring, real strike/spare rules, split detection, A/B lane alternation, and an integrated asset + rulebook panel.",
     objective_en: "Win the 10-frame series against AI by maximizing cumulative score through strong line control and spare conversion.",
@@ -517,7 +517,7 @@ export const games = [
 
     title: "Penalty Neural Keeper",
     category: "Deportes",
-    tagline: "Tanda de penaltis por equipos con backend Node, rivales configurables y portero IA adaptativo.",
+    tagline: "Tanda de penaltis: elige tiro y enga\u00f1a al portero rival.",
     description:
       "Arcade de penaltis por equipos con backend ligero: eliges rival y dificultad, juegas tanda clasica de 5 lanzamientos mas muerte subita y cada disparo se resuelve en servidor con IA adaptativa del portero, historial de tiros y simulacion automatica del turno rival.",
     objective_es:
@@ -539,7 +539,7 @@ export const games = [
     techFocus: "Modelado de tiro por curvas quadraticas + IA adaptativa de corto plazo + telemetria QA completa.",
 
     category_en: "Sports",
-    tagline_en: "Team shootout with Node backend, configurable rivals, and an adaptive AI goalkeeper.",
+    tagline_en: "Penalty shootout: choose your shot and outsmart the goalkeeper.",
     description_en:
       "Team-based penalty arcade backed by a lightweight server: choose rival and difficulty, play a classic 5-shot shootout plus sudden death, and have every attempt resolved server-side with adaptive goalkeeper AI, shot history, and simulated rival turns.",
     objective_en:
@@ -568,7 +568,7 @@ export const games = [
 
     title: "Cosmic Vanguard",
     category: "Arcade",
-    tagline: "Shooter espacial tactico con wrap-around, pasadas de riesgo/recompensa, bosses por fases y backend de leaderboard.",
+    tagline: "Shooter espacial: pilota, esquiva oleadas y derrota jefes.",
     description:
       "Arcade espacial original construido para la plataforma: pilotas una nave con inercia refinada en orbitas cerradas, limpias oleadas de cazas y drones, rozas fuego y asteroides para activar Vanguard Drive, rompes cinturones de asteroides, gestionas calor/energia/escudo y sobrevives hasta llegar a dreadnoughts con fases y refuerzos por sector. Incluye backend Node ligero para clasificacion y configuracion diaria, con fallback local cuando no esta disponible.",
     objective_es:
@@ -591,7 +591,7 @@ export const games = [
     techFocus: "Motor 2D deterministic-step + IA de persecucion/disparo + persistencia remota/local de runs.",
 
     category_en: "Arcade",
-    tagline_en: "Tactical space shooter with wrap-around movement, risk-reward close passes, phased bosses, and leaderboard backend.",
+    tagline_en: "Space shooter: pilot, dodge waves and defeat bosses.",
     description_en:
       "Original space arcade built for the platform: pilot a refined-inertia ship across wrapped orbits, skim bullets and asteroids to activate Vanguard Drive, clear waves of fighters and drones, break asteroid belts, manage heat/energy/shields, and survive long enough to reach phased dreadnoughts with reinforcement bursts. It includes a lightweight Node backend for daily configuration and leaderboard sync, plus a local fallback when the server is unavailable.",
     objective_en:
@@ -621,7 +621,7 @@ export const games = [
 
     title: "Golf Tour 2D Pro",
     category: "Deportes",
-    tagline: "Mini golf 2D side-view con 200 niveles, terrenos en pendiente y hoyos estilo arcade clasico.",
+    tagline: "Minigolf 2D: completa hoyos con el menor n\u00famero de golpes.",
     description:
       "Campana larga y rejugable de mini golf 2D en vista lateral: 200 niveles repartidos en biomas de dia, ocaso, noche, neon y tormenta, con terreno estratificado (capa verde + subsuelo), montanas de fondo, bandera y hoyo con tubo vertical. El gameplay se basa en tiros parabolicos con gravedad, rebote sobre pendientes, control de viento y gestion de obstaculos.",
     objective_es:
@@ -644,7 +644,7 @@ export const games = [
     techFocus: "Runtime modular (niveles/fisica/render) con colision sobre terreno continuo y campana de 200 mapas.",
 
     category_en: "Sports",
-    tagline_en: "Side-view 2D mini golf with 200 levels, layered terrain slopes, and classic cup presentation.",
+    tagline_en: "2D mini golf: finish holes in as few strokes as possible.",
     description_en:
       "A long-form replayable side-view 2D mini golf campaign: 200 levels across diverse day/night biomes with layered ground perspective, mountain backdrops, and tube-style cup + flag targets. Gameplay focuses on arc shots under gravity, slope rebounds, wind control, and obstacle management.",
     objective_en:
@@ -673,7 +673,7 @@ export const games = [
 
     title: "Archery Horizon 100",
     category: "Deportes",
-    tagline: "Tiro con arco 3D en perspectiva de horizonte con 100 niveles, camara de vuelo y fisica avanzada.",
+    tagline: "Tiro con arco: calcula distancia, ca\u00edda y viento para acertar.",
     description:
       "Campana de 100 niveles de tiro con arco donde la distancia crece con la dificultad: cuanto mas avanzado el nivel, mas lejos aparece la diana en la profundidad del mapa. El jugador configura intensidad y trayectoria antes de disparar, la flecha vuela con gravedad, drag, viento dinamico y zonas de corriente, y la camara sigue toda la parabola hasta el punto de impacto.",
     objective_es:
@@ -696,7 +696,7 @@ export const games = [
     techFocus: "Simulacion balistica 3D simplificada + colision en plano de objetivo + camara follow-shot + progresion de 100 niveles.",
 
     category_en: "Sports",
-    tagline_en: "Horizon-depth 3D archery with 100 levels, flight camera tracking, and advanced physics.",
+    tagline_en: "Archery challenge: judge distance, drop and wind to hit the target.",
     description_en:
       "A 100-level archery campaign where difficulty scales mainly through range: the harder the level, the farther the target sits on the map horizon. Players set intensity and trajectory before each release, then watch a full camera-follow shot driven by gravity, drag, dynamic wind, moving targets, and tactical obstacle layers.",
     objective_en:
@@ -726,7 +726,7 @@ export const games = [
 
     title: "Pinball Wizard",
     category: "Arcade",
-    tagline: "Pinball arcade neon con fÃ­sicas reales de flipper, bumpers pop, slingshots y sistema de multiplicador.",
+    tagline: "Pinball arcade: mant\u00e9n la bola viva y encadena objetivos.",
     description:
       "Mesa de pinball 2D con motor de fÃ­sica propio: bola de cromo con gravedad y fricciÃ³n de aire, flippers con velocidad angular real que transfieren energÃ­a a la bola, tres bumpers pop de expulsiÃ³n elÃ¡stica, cinco drop-targets con reset de multiplicador, dos slingshots laterales y tres rollover lanes en la parte superior. El plunger de resorte se carga manteniendo Espacio â€” la potencia determina el alcance inicial de la bola.",
     objective_es:
@@ -751,7 +751,7 @@ export const games = [
     techFocus: "FÃ­sica real de flipper con omega angular + sub-stepping + colisiÃ³n cÃ¡psula-segmento + bumper elÃ¡stico + audio procedural.",
 
     category_en: "Arcade",
-    tagline_en: "Neon arcade pinball with real flipper physics, pop bumpers, slingshots, and a multiplier system.",
+    tagline_en: "Arcade pinball: keep the ball alive and chain targets.",
     description_en:
       "A 2D pinball table with a custom physics engine: chrome ball with gravity and air friction, flippers with real angular velocity that transfer energy to the ball, three elastically ejecting pop bumpers, five resetting drop targets, two lateral slingshots, and three top rollover lanes. The spring plunger charges while Space is held â€” release power determines initial ball speed.",
     objective_en:
@@ -783,7 +783,7 @@ export const games = [
 
     title: "Bubble Storm",
     category: "Arcade",
-    tagline: "Dispara burbujas de colores a la rejilla hexagonal, forma grupos de 3+ para hacerlos explotar y encadena caÃ­das en cascada.",
+    tagline: "Dispara burbujas y une tres iguales para limpiar el tablero.",
     description:
       "Bubble Storm es un juego de disparo de burbujas estilo Bust-a-Move con rejilla hexagonal real, trayectoria con rebote en paredes y lÃ³gica de caÃ­da de burbujas aisladas. El caÃ±Ã³n central apunta siguiendo el ratÃ³n; la lÃ­nea de ayuda punteada muestra la trayectoria exacta antes de disparar. Cada niveles aÃ±ade colores adicionales a la rejilla. Cada N disparos aparece una nueva fila en la parte superior que empuja todo hacia abajo â€” si las burbujas cruzan la lÃ­nea de peligro, es game over.",
     objective_es:
@@ -808,7 +808,7 @@ export const games = [
     techFocus: "Rejilla hexagonal offset con BFS match + BFS flood-fill de aislamiento + snap-to-nearest-empty + trayectoria con rebotes.",
 
     category_en: "Arcade",
-    tagline_en: "Shoot coloured bubbles at the hex grid, match 3+ to pop them, and chain cascade drops for massive scores.",
+    tagline_en: "Shoot bubbles and match three of a kind to clear the board.",
     description_en:
       "Bubble Storm is a Bust-a-Move-style bubble shooter with a true hexagonal grid, wall-bouncing trajectory, and isolated-bubble drop logic. The central cannon aims with the mouse; a dotted guide line shows the exact trajectory before shooting. Each level adds more colours to the grid. Every N shots a new row pushes in from the top â€” if bubbles cross the danger line, it's game over.",
     objective_en:
@@ -840,7 +840,7 @@ export const games = [
 
     title: "Ice Strike Pro",
     category: "Arcade",
-    tagline: "Curling profesional con fÃ­sica real de curl, IA estratÃ©gica y mecÃ¡nica de barrido.",
+    tagline: "Curling: lanza, barre y coloca piedras cerca del centro.",
     description:
       "Ice Strike Pro es un simulador de curling 2D con fÃ­sica autÃ©ntica: las piedras curvan segÃºn la rotaciÃ³n aplicada, el rozamiento reduce la velocidad, y barrer con la escoba (tecla S) disminuye la fricciÃ³n en pleno vuelo. La IA planifica tiros de draw, guardas y takeouts. Cada partida dura 6 ends con 4 piedras por equipo y fin.",
     objective_es:
@@ -864,7 +864,7 @@ export const games = [
     techFocus: "FÃ­sica de curl con velocidad lateral proporcional a la velocidad frontal + collisiones elÃ¡sticas multi-piedra + predicciÃ³n de trayectoria en tiempo real.",
 
     category_en: "Arcade",
-    tagline_en: "Professional curling with real curl physics, strategic AI, and a live sweeping mechanic.",
+    tagline_en: "Curling: throw, sweep and place stones near the center.",
     description_en:
       "Ice Strike Pro is a 2D curling simulator with authentic physics: stones curl based on applied rotation, friction gradually slows them down, and sweeping with the broom (S key) reduces friction mid-flight. The AI plans draw shots, guards, and takeouts. Each match lasts 6 ends with 4 stones per team per end.",
     objective_en:
@@ -895,7 +895,7 @@ export const games = [
 
     title: "Neon Crypt",
     category: "Arcade",
-    tagline: "Dungeon crawler arcade: combate por oleadas con espada, esquiva y enemigos con IA.",
+    tagline: "Mazmorra arcade: combate con espada, esquiva y sobrevive a oleadas.",
     description:
       "Neon Crypt es un arena dungeon crawler top-down por oleadas. MuÃ©vete con WASD, apunta con el ratÃ³n y ataca con un arco de espada de 86Â°. El dash te da invencibilidad breve para esquivar proyectiles. Cada oleada incluye Grunts que cargan, Arqueros que mantienen distancia y disparan, Brutos lentos pero demoledores, y Jefes cada 5 oleadas con ataques en rÃ¡faga de 8 proyectiles. Recoge orbes verdes de los enemigos caÃ­dos para recuperar vida.",
     objective_es:
@@ -919,7 +919,7 @@ export const games = [
     techFocus: "Steering behavior con separaciÃ³n dinÃ¡mica + colisiones circulares + arco de hitbox angular + sistema de partÃ­culas procedural + proyectiles con trail de elipse.",
 
     category_en: "Arcade",
-    tagline_en: "Arena dungeon crawler: wave combat with sword, dash, and AI-driven enemies.",
+    tagline_en: "Arcade dungeon: fight with a sword, dodge and survive waves.",
     description_en:
       "Neon Crypt is a top-down arena dungeon crawler with wave-based combat. Move with WASD, aim with the mouse, and attack with an 86Â° sword arc. The dash grants brief invincibility to dodge projectiles. Each wave includes Grunts that charge, Archers who keep distance and shoot, slow-but-hard-hitting Brutes, and a Boss every 5 waves firing an 8-projectile circular burst. Collect green orbs from fallen enemies to restore HP.",
     objective_en:
@@ -950,7 +950,7 @@ export const games = [
 
     title: "Neon Rush",
     category: "Arcade",
-    tagline: "Runner de precision con 100 niveles, entornos variados y salto de baja latencia + salto aereo de apoyo.",
+    tagline: "Runner de precisi\u00f3n: salta obst\u00e1culos y supera niveles al ritmo justo.",
     description:
       "Integracion completa del juego Neon Rush con 100 niveles de dificultad progresiva. El jugador avanza de forma continua y debe reaccionar con saltos precisos para evitar pinchos, techos, bloques y secuencias combinadas. Se reforzo la jugabilidad para reducir frustracion: jump buffer, coyote time, hitboxes mas justas, salto aereo de apoyo y asistencia dinamica tras varios intentos.",
     objective_es:
@@ -974,7 +974,7 @@ export const games = [
     techFocus: "Runner determinista con ajustes de input-latency, fisica de salto y balance de colisiones para esquiva fiable.",
 
     category_en: "Arcade",
-    tagline_en: "Precision runner with 100 levels, varied environments, and low-latency jump response + assist air jump.",
+    tagline_en: "Precision runner: jump hazards and clear levels with exact timing.",
     description_en:
       "Full Neon Rush integration with 100 progressively harder levels. The player auto-runs and must react with precise jumps to avoid spikes, ceiling traps, blocks, and mixed obstacle patterns. Gameplay was tuned to reduce frustration: jump buffer, coyote time, fairer hitboxes, an assist air jump, and dynamic assist after repeated failures.",
     objective_en:
@@ -1005,7 +1005,7 @@ export const games = [
 
     title: "Pong Neon Arena",
     category: "Arcade",
-    tagline: "Pong clÃ¡sico 1 vs IA con fÃ­sica de english, dificultad adaptativa y audio Web.",
+    tagline: "Pong contra la IA: devuelve la bola y busca el hueco.",
     description:
       "VersiÃ³n avanzada del Pong original con fÃ­sica realista de spin (english), IA adaptativa con tres perfiles de juego, sistema de puntuaciÃ³n por tiempo o marcador, efectos de partÃ­culas y audio generado por Web Audio API.",
     objective_es: "Alcanza 9 puntos antes que la IA o consigue la mayor puntuaciÃ³n cuando expire el tiempo. Usa el Ã¡ngulo de golpe para engaÃ±ar a la CPU.",
@@ -1024,7 +1024,7 @@ export const games = [
     techFocus: "Loop fijo 120Hz + render RAF, IA con dificultad dinÃ¡mica y Web Audio API procedural.",
 
     category_en: "Arcade",
-    tagline_en: "Classic Pong 1 vs AI with english physics, adaptive difficulty and Web Audio.",
+    tagline_en: "Pong against AI: return the ball and find the opening.",
     description_en:
       "An advanced take on the original Pong featuring realistic spin physics, adaptive AI with three play profiles, score-by-time or scorecard system, particle effects and procedural audio via Web Audio API.",
     objective_en: "Reach 9 points before the AI or score the most when time runs out. Use shot angle to trick the CPU.",
@@ -1050,7 +1050,7 @@ export const games = [
 
     title: "Buscaminas IA Classic",
     category: "Arcade",
-    tagline: "Buscaminas clasico con primer clic seguro, puntuacion por tiempo/celdas y modo competitivo.",
+    tagline: "Buscaminas cl\u00e1sico: deduce minas, marca banderas y despeja casillas.",
     description:
       "Version moderna del Buscaminas con reglas clasicas: abre celdas seguras, interpreta numeros adyacentes y marca minas con banderas. Incluye tres niveles de IA asistente (basica, tactica y avanzada), primer clic garantizado, puntuacion por celdas descubiertas y tiempo, y modo competitivo con clasificacion local contra 25 rivales.",
     objective_es: "Abre todas las celdas seguras sin detonar minas. Usa banderas y pistas numericas para deducir posiciones peligrosas.",
@@ -1071,7 +1071,7 @@ export const games = [
     techFocus: "Generacion segura de minas, flood-fill de celdas vacias y solver IA por niveles.",
 
     category_en: "Arcade",
-    tagline_en: "Classic Minesweeper with safe first click, score by time/cells, and competitive mode.",
+    tagline_en: "Classic Minesweeper: deduce mines, place flags and clear cells.",
     description_en:
       "Modern Minesweeper built on classic rules: reveal safe cells, read adjacent numbers and flag mines. It includes three assistant AI levels (basic, tactical and advanced), guaranteed safe first click, score based on revealed cells plus time, and a competitive mode with a local 25-rival leaderboard.",
     objective_en: "Reveal every safe cell without detonating mines. Use flags and numeric clues to deduce dangerous spots.",
@@ -1100,7 +1100,7 @@ export const games = [
 
         title: "Head Soccer Pro",
     category: "Deportes",
-    tagline: "Futbol 1v1 arcade reconstruido con fisica determinista, IA por niveles y HUD competitivo.",
+    tagline: "F\u00fatbol arcade 1 contra 1: salta, dispara y marca m\u00e1s goles.",
     description:
       "Partidos rapidos 1v1 con identidad arcade y control preciso. Manten el tiro para cargar potencia, rompe la defensa rival y gestiona el ritmo del reloj en estadios cartoon.",
     objective_es: "Marca mas goles que la CPU antes de que termine el tiempo, combinando salto, cabezazo y disparo cargado.",
@@ -1119,7 +1119,7 @@ export const games = [
     techFocus: "Motor Canvas con timestep fijo, IA configurable por perfil y bridge de automatizacion QA.",
 
     category_en: "Sports",
-    tagline_en: "Rebuilt 1v1 arcade soccer with deterministic physics, tiered AI, and competitive HUD.",
+    tagline_en: "One-on-one arcade soccer: jump, shoot and score more goals.",
     description_en:
       "Fast 1v1 matches with arcade identity and responsive controls. Hold shots to charge power, break defensive setups, and manage the match clock under pressure.",
     objective_en: "Score more goals than the CPU before time runs out using jumps, headers, and charged shots.",
@@ -1146,7 +1146,7 @@ export const games = [
 
     title: "Race 2D Pro",
     category: "Deportes",
-    tagline: "6 circuitos nuevos, procedimiento de salida FIA y carrera 2D realista.",
+    tagline: "Carrera 2D: traza bien, adelanta y cruza la meta primero.",
     description:
       "Juego de carreras 2D con motor Canvas nativo. Incluye 6 circuitos rediseÃ±ados desde cero con una metodologÃ­a de tramos rectos y curvas enlazadas, procedimiento de salida tipo parrilla con cinco luces y estrategia de carrera por vueltas.",
     objective_es: "Termina la carrera en primera posiciÃ³n superando a todos los rivales antes de que completen sus vueltas.",
@@ -1165,7 +1165,7 @@ export const games = [
     techFocus: "Canvas 2D, fÃ­sica de vehÃ­culo, procedimiento de salida, trazado procedural por segmentos.",
 
     category_en: "Sports",
-    tagline_en: "6 new circuits, FIA-style start procedure, and realistic 2D racing.",
+    tagline_en: "2D racing: drive clean lines, overtake and finish first.",
     description_en:
       "2D racing game with a native Canvas engine. It features 6 rebuilt circuits authored from straight-and-corner blueprints, a five-light grid start procedure, and lap-based race flow with realistic pack behaviour.",
     objective_en: "Finish the race in first place by beating all rivals before they complete their laps.",
@@ -1192,7 +1192,7 @@ export const games = [
 
     title: "Sunset Slipstream",
     category: "Deportes",
-    tagline: "Supervivencia arcade top-down con trafico denso, near miss, escudos y focus.",
+    tagline: "Supervivencia en carretera: esquiva tr\u00e1fico y encadena adelantamientos.",
     description:
       "Carreras de supervivencia en autopista con camara cenital, carretera vertical y control con inercia. Debes leer el trafico, corregir la trazada con precision y exprimir los near miss para cargar focus, activar camara lenta y seguir vivo cuando la densidad sube.",
     objective_es: "Sobrevive el maximo tiempo posible, esquiva coches y encadena near miss para subir la puntuacion.",
@@ -1211,7 +1211,7 @@ export const games = [
     techFocus: "Scroll vertical, control con inercia, spawns deterministicos, near miss scoring y bullet-time ligero.",
 
     category_en: "Sports",
-    tagline_en: "Top-down highway survival with dense traffic, near misses, shields, and focus.",
+    tagline_en: "Road survival: dodge traffic and chain close passes.",
     description_en:
       "A survival racer built around a top-down highway, a vertical road layout, and inertia-based handling. Read traffic, correct the car precisely, and milk near misses to charge focus, trigger slow motion, and stay alive as density ramps up.",
     objective_en: "Survive as long as possible, dodge traffic, and chain near misses to climb the score.",
@@ -1236,7 +1236,7 @@ export const games = [
 
     title: "Quiz Nexus",
     category: "Conocimiento",
-    tagline: "Rondas de conocimiento con lÃ­mite de tiempo por pregunta.",
+    tagline: "Preguntas de cultura general: responde r\u00e1pido antes de que acabe el tiempo.",
     description:
       "Juego de preguntas por bloques temÃ¡ticos con feedback inmediato. Combina rapidez y precisiÃ³n para acumular puntos y cerrar la sesiÃ³n con rango experto.",
     objective_es: "Responde el mayor nÃºmero de preguntas correctamente dentro del tiempo lÃ­mite para alcanzar el rango experto.",
@@ -1254,7 +1254,7 @@ export const games = [
     techFocus: "SelecciÃ³n balanceada por tÃ³picos, i18n es/en y puntuaciÃ³n por racha.",
 
     category_en: "Knowledge",
-    tagline_en: "Knowledge rounds with a time limit per question.",
+    tagline_en: "General knowledge questions: answer quickly before time runs out.",
     description_en:
       "A question game in thematic blocks with immediate feedback. Combine speed and accuracy to accumulate points and end the session with an expert rank.",
     objective_en: "Answer as many questions correctly as possible within the time limit to reach the expert rank.",
@@ -1279,7 +1279,7 @@ export const games = [
 
     title: "IQ Masters Figure Line",
     category: "Conocimiento",
-    tagline: "Puzzle single-line profesional: traza figuras usando cada segmento una sola vez.",
+    tagline: "Puzzle de trazo \u00fanico: completa figuras sin repetir segmentos.",
     description:
       "Juego de figuras tipo single-line inspirado en retos de agilidad mental. Conecta nodos adyacentes para recorrer todos los segmentos sin repetir ninguno. Incluye progresion por niveles, tiempos objetivo, pista contextual y estilo visual cuidado.",
     objective_es:
@@ -1301,7 +1301,7 @@ export const games = [
       "Validacion de aristas sobre grafo, runtime reactivo por nodos, soporte pointer events y bridge QA render_game_to_text.",
 
     category_en: "Knowledge",
-    tagline_en: "Professional single-line puzzle: trace figures while using each edge exactly once.",
+    tagline_en: "Single-line puzzle: complete figures without repeating edges.",
     description_en:
       "Single-line figure tracing inspired by premium brain-puzzle apps. Connect adjacent nodes and clear every edge exactly once. Includes progressive levels, contextual hints, and polished visual feedback.",
     objective_en:
@@ -1330,7 +1330,7 @@ export const games = [
 
     title: "Reto de Refranes",
     category: "Conocimiento",
-    tagline: "5 rondas para completar refranes del refranero espanol o ingles segun idioma.",
+    tagline: "Refranes populares: completa la frase correcta en cada ronda.",
     description:
       "Modo de memoria verbal y cultura popular. En cada ronda se muestra el inicio de un refran y debes escribir la parte restante; si fallas, el juego revela la respuesta correcta antes de pasar al siguiente.",
     objective_es:
@@ -1351,7 +1351,7 @@ export const games = [
     techFocus: "Banco bilingue generado desde fuentes publicas, normalizacion de texto y validacion por prompt+respuesta.",
 
     category_en: "Knowledge",
-    tagline_en: "5 rounds to complete Spanish or English proverbs based on browser language.",
+    tagline_en: "Popular proverbs: complete the correct saying each round.",
     description_en:
       "Verbal-memory and folk-wisdom mode. Each round reveals the opening of a proverb and you must type the missing continuation; when you fail, the correct answer is shown before the next round.",
     objective_en:
@@ -1379,7 +1379,7 @@ export const games = [
 
     title: "Wikipedia Gacha",
     category: "Conocimiento",
-    tagline: "Sobres de articulos de Wikipedia con rareza por Q-Score, sesion anonima por navegador y coleccion persistente.",
+    tagline: "Colecci\u00f3n de cartas de Wikipedia: abre sobres y completa tu archivo.",
     description:
       "Vertical slice jugable de un gacha de conocimiento: cada navegador obtiene un token anonimo, abre sobres de 5 cartas, acumula duplicados, completa misiones diarias y desbloquea trofeos sin crear cuenta.",
     objective_es:
@@ -1400,7 +1400,7 @@ export const games = [
     techFocus: "Sesion anonima, RNG de sobres, pity, persistencia de coleccion, misiones, trofeos y render_game_to_text para QA.",
 
     category_en: "Knowledge",
-    tagline_en: "Wikipedia article packs with Q-Score rarity, anonymous browser sessions, and persistent collection progress.",
+    tagline_en: "Wikipedia card collection: open packs and complete your archive.",
     description_en:
       "Playable vertical slice of a knowledge gacha: every browser gets an anonymous token, opens 5-card packs, collects duplicates, clears daily missions, and unlocks trophies without creating an account.",
     objective_en:
@@ -1428,7 +1428,7 @@ export const games = [
 
     title: "Sudoku Sprint 4x4",
     category: "Conocimiento",
-    tagline: "Sudoku de resoluciÃ³n rÃ¡pida con validaciÃ³n inmediata y control por teclado.",
+    tagline: "Sudoku r\u00e1pido 4x4: completa la cuadr\u00edcula con l\u00f3gica.",
     description:
       "Modo de agilidad mental en formato Sudoku 4x4. Rellena celdas sin repetir nÃºmeros y completa el tablero con cero conflictos.",
     objective_es: "Rellena el tablero Sudoku 4x4 sin repetir nÃºmeros en filas, columnas ni bloques.",
@@ -1446,7 +1446,7 @@ export const games = [
     techFocus: "ValidaciÃ³n de fila/columna/bloque + bridge QA de estado serializable.",
 
     category_en: "Knowledge",
-    tagline_en: "Quick-solve Sudoku with immediate validation and keyboard control.",
+    tagline_en: "Fast 4x4 Sudoku: complete the grid with logic.",
     description_en:
       "A mental agility mode in 4x4 Sudoku format. Fill cells without repeating numbers and complete the board with zero conflicts.",
     objective_en: "Fill the 4x4 Sudoku board without repeating numbers in any row, column or block.",
@@ -1472,7 +1472,7 @@ export const games = [
 
     title: "Domino Clasico Arena",
     category: "Estrategia",
-    tagline: "Mesa de domino clasico 4 jugadores por parejas con tranca y puntuacion acumulada.",
+    tagline: "Domin\u00f3 por parejas: coloca fichas, bloquea rivales y suma puntos.",
     description:
       "Implementacion completa del domino clasico doble-seis: 7 fichas por jugador, apertura con 6|6, turnos circulares, pases, cierre por tranca y marcador por equipos hasta objetivo.",
     objective_es: "Domina rondas de domino en parejas y alcanza antes que el rival la meta de puntos.",
@@ -1490,7 +1490,7 @@ export const games = [
     techFocus: "Motor de rondas 4 asientos con tranca, puntuacion por parejas e IA multi-nivel.",
 
     category_en: "Strategy",
-    tagline_en: "Classic 4-player team domino with blockage, scoring and configurable AI difficulty.",
+    tagline_en: "Partner domino: place tiles, block rivals and score points.",
     description_en:
       "Full double-six domino implementation with 7 tiles per seat, opening by 6|6, clockwise turns, forced passes, blockage resolution and team scoring by rounds.",
     objective_en: "Win team domino rounds and reach the target score before the rival pair.",
@@ -1515,7 +1515,7 @@ export const games = [
 
     title: "Ahorcado Flash",
     category: "Conocimiento",
-    tagline: "Adivina palabras con pista temÃ¡tica y lÃ­mite de fallos.",
+    tagline: "Ahorcado con pistas: adivina la palabra antes de agotar intentos.",
     description:
       "Juego clÃ¡sico de palabras: usa las pistas y acierta letras antes de perder todos los intentos disponibles.",
     objective_es: "Adivina la palabra oculta letra a letra antes de agotar todos los intentos disponibles.",
@@ -1533,7 +1533,7 @@ export const games = [
     techFocus: "Entrada por teclado global, mÃ¡scara de palabra y gestiÃ³n de intentos.",
 
     category_en: "Knowledge",
-    tagline_en: "Guess words with a themed clue and error limit.",
+    tagline_en: "Hangman with clues: guess the word before attempts run out.",
     description_en: "Classic word game: use clues and guess letters before losing all available attempts.",
     objective_en: "Guess the hidden word letter by letter before running out of all available attempts.",
     howToPlay_en: "Type letters to guess the word. When finished, press Enter or the random match button for a new word.",
@@ -1557,7 +1557,7 @@ export const games = [
 
     title: "Paciencia ClÃ¡sica Lite",
     category: "Conocimiento",
-    tagline: "Solitario compacto con stock, descarte y fundaciones por palo.",
+    tagline: "Solitario compacto: ordena cartas y completa fundaciones por palo.",
     description:
       "VersiÃ³n ligera de paciencia: roba cartas, organiza columnas y construye fundaciones de As a 7 para ganar la ronda.",
     objective_es: "Construye las cuatro fundaciones de As a 7 organizando correctamente las columnas del solitario.",
@@ -1575,7 +1575,7 @@ export const games = [
     techFocus: "Reglas de movimiento tipo solitario + progresiÃ³n por fundaciones.",
 
     category_en: "Knowledge",
-    tagline_en: "Compact solitaire with stock, waste and suit foundations.",
+    tagline_en: "Compact solitaire: organize cards and complete suit foundations.",
     description_en:
       "A lightweight patience game: draw cards, organize columns and build foundations from Ace to 7 to win the round.",
     objective_en: "Build all four foundations from Ace to 7 by correctly organizing the solitaire columns.",
@@ -1600,7 +1600,7 @@ export const games = [
 
     title: "Puzle Deslizante 8",
     category: "Conocimiento",
-    tagline: "Ordena fichas del 1 al 8 moviendo el hueco vacÃ­o.",
+    tagline: "Puzzle deslizante: mueve el hueco y ordena las piezas.",
     description: "Puzzle numÃ©rico clÃ¡sico de 8 piezas. Mueve las fichas adyacentes para ordenar la secuencia completa.",
     objective_es: "Ordena las fichas del 1 al 8 deslizando el espacio vacÃ­o para completar la secuencia.",
     howToPlay_es: "Usa las flechas para mover el hueco o pulsa fichas adyacentes directamente. R carga una nueva partida aleatoria.",
@@ -1617,7 +1617,7 @@ export const games = [
     techFocus: "Movimientos por flechas/click y verificaciÃ³n instantÃ¡nea de soluciÃ³n.",
 
     category_en: "Knowledge",
-    tagline_en: "Order tiles 1 to 8 by moving the empty space.",
+    tagline_en: "Sliding puzzle: move the empty space and order the tiles.",
     description_en: "Classic 8-piece sliding puzzle. Move adjacent tiles to sort the complete sequence.",
     objective_en: "Sort tiles 1 to 8 by sliding the empty space to complete the sequence.",
     howToPlay_en: "Use arrows to move the blank or click adjacent tiles directly. R loads a new random match.",
@@ -1641,7 +1641,7 @@ export const games = [
 
     title: "Crucigrama Pro",
     category: "Conocimiento",
-    tagline: "Crucigrama dinamico con mas de 10.000 partidas y selector de longitud maxima.",
+    tagline: "Crucigrama: resuelve pistas y cruza palabras hasta completar el tablero.",
     description:
       "Rellena una rejilla dinamica de crucigrama con pistas naturales. El juego permite elegir longitud maxima de palabra (6-10), valida progreso y mantiene partidas deterministas para rejugar.",
     objective_es: "Completa la rejilla usando pistas horizontales y verticales, ajustando la longitud maxima segun el reto deseado.",
@@ -1659,7 +1659,7 @@ export const games = [
     techFocus: "EdiciÃ³n celda a celda, navegaciÃ³n por flechas y comprobaciÃ³n de soluciÃ³n.",
 
     category_en: "Knowledge",
-    tagline_en: "Dynamic crossword with 10k+ matches and max-length selector.",
+    tagline_en: "Crossword: solve clues and cross words to complete the board.",
     description_en:
       "Fill a dynamic crossword grid with natural clues. You can choose max word length (6-10), keep deterministic replayability, and check progress at any time.",
     objective_en: "Complete the grid using across and down clues while tuning the max word length for your preferred challenge.",
@@ -1684,7 +1684,7 @@ export const games = [
 
     title: "Sopa de Letras Mega",
     category: "Conocimiento",
-    tagline: "Tablero grande 20x20 con 10.000 partidas ES/EN y palabras en 8 direcciones.",
+    tagline: "Sopa de letras: encuentra palabras ocultas en varias direcciones.",
     description:
       "Encuentra palabras de conocimiento general dentro de una rejilla grande. Cada partida cambia de forma determinista y permite localizar palabras en horizontal, vertical o diagonal, tanto en sentido normal como al revÃ©s.",
     objective_es: "Encuentra todas las palabras ocultas en la rejilla 20x20 en horizontal, vertical o diagonal.",
@@ -1703,7 +1703,7 @@ export const games = [
     techFocus: "GeneraciÃ³n procedural bilingÃ¼e de 10k partidas + detecciÃ³n de lÃ­neas (horizontal/reversa/vertical/diagonal).",
 
     category_en: "Knowledge",
-    tagline_en: "Large 20x20 board with 10,000 ES/EN matches and words in 8 directions.",
+    tagline_en: "Word search: find hidden words in several directions.",
     description_en:
       "Find general knowledge words within a large grid. Each match changes deterministically and lets you locate words horizontally, vertically or diagonally, in both normal and reverse directions.",
     objective_en: "Find all hidden words in the 20x20 grid horizontally, vertically or diagonally.",
@@ -1728,7 +1728,7 @@ export const games = [
 
     title: "Wordle Pro",
     category: "Conocimiento",
-    tagline: "Adivina la palabra secreta con feedback por letra y banco ES/EN de 10.000 palabras.",
+    tagline: "Wordle: adivina la palabra con pistas de letras por intento.",
     description:
       "Version pro de Wordle para la categoria Conocimiento: cada partida usa una palabra real del banco bilingue (es/en) y te da feedback exacto de letra correcta, letra presente o letra ausente.",
     objective_es: "Descubre la palabra objetivo antes de agotar los intentos maximos de la ronda.",
@@ -1746,7 +1746,7 @@ export const games = [
     techFocus: "Evaluacion determinista por posicion/frecuencia + sincronizacion de estado de teclado.",
 
     category_en: "Knowledge",
-    tagline_en: "Guess the secret word with per-letter feedback and a bilingual 10,000-word bank.",
+    tagline_en: "Wordle: guess the word using letter clues after each try.",
     description_en:
       "Pro Wordle mode for the Knowledge category: each match uses a real target word from the bilingual bank (es/en) and returns exact feedback for correct, present and absent letters.",
     objective_en: "Find the target word before running out of maximum attempts.",
@@ -1771,7 +1771,7 @@ export const games = [
 
     title: "Anagramas Pro",
     category: "Conocimiento",
-    tagline: "Reordena letras para encontrar la palabra objetivo con banco ES/EN de 10.000 palabras.",
+    tagline: "Anagramas: reordena letras mezcladas para formar la palabra.",
     description:
       "Modo de anagramas con palabras reales del banco bilingue. Recibes letras mezcladas de la solucion y debes reconstruir la palabra correcta en intentos limitados.",
     objective_es: "Reconstruye la palabra objetivo usando exactamente las letras mostradas antes de agotar los intentos.",
@@ -1789,7 +1789,7 @@ export const games = [
     techFocus: "Generacion determinista de anagramas + control de intentos y verificacion por histogramas.",
 
     category_en: "Knowledge",
-    tagline_en: "Reorder letters to find the target word using a bilingual 10,000-word bank.",
+    tagline_en: "Anagrams: reorder scrambled letters to form the word.",
     description_en:
       "Anagram mode with real words from the bilingual lexicon. You receive shuffled letters from the solution and must reconstruct the exact target within limited attempts.",
     objective_en: "Rebuild the target word using exactly the displayed letters before attempts run out.",
@@ -1813,7 +1813,7 @@ export const games = [
 
     title: "Calculo Mental Flash 10",
     category: "Conocimiento",
-    tagline: "Partidas de 10 rondas con operaciones mixtas y limite global de 40 segundos.",
+    tagline: "C\u00e1lculo mental: resuelve operaciones r\u00e1pidas con precisi\u00f3n.",
     description:
       "Modo rapido de matematicas mentales: cada sesion genera 10 calculos de dificultad creciente y solo dispones de 40 segundos totales para completarlos.",
     objective_es: "Resuelve las 10 rondas de calculo antes de que el cronometro de 40 segundos llegue a cero.",
@@ -1831,7 +1831,7 @@ export const games = [
     techFocus: "Generador procedural de operaciones + control de ronda/tiempo + bridge QA serializable.",
 
     category_en: "Knowledge",
-    tagline_en: "10-round matches with mixed operations and a strict 40-second global timer.",
+    tagline_en: "Mental math: solve quick operations with accuracy.",
     description_en:
       "Fast mental-math mode: each session builds 10 escalating calculations and gives you only 40 total seconds to finish them.",
     objective_en: "Solve all 10 calculation rounds before the 40-second timer reaches zero.",
@@ -1856,7 +1856,7 @@ export const games = [
 
     title: "Tabla Periodica Total",
     category: "Conocimiento",
-    tagline: "Tabla periodica completa con 118 casillas vacias para colocar cada elemento.",
+    tagline: "Tabla peri\u00f3dica: coloca elementos en su posici\u00f3n correcta.",
     description:
       "Reto de memorizacion avanzada: la tabla aparece vacia y debes escribir el elemento correcto en cada posicion hasta completar las 118 casillas.",
     objective_es: "Completa toda la tabla periodica introduciendo el simbolo o nombre correcto en cada celda.",
@@ -1874,7 +1874,7 @@ export const games = [
     techFocus: "Motor de validacion de elementos + navegacion de rejilla irregular + bridge QA completo.",
 
     category_en: "Knowledge",
-    tagline_en: "Complete periodic table with 118 empty cells to place every element.",
+    tagline_en: "Periodic table: place elements in their correct positions.",
     description_en:
       "Advanced memory challenge: the table starts empty and you must enter the correct element in every position until all 118 cells are solved.",
     objective_en: "Complete the full periodic table by entering the correct symbol or name in each cell.",
@@ -1899,7 +1899,7 @@ export const games = [
 
     title: "Mapas Atlas",
     category: "Conocimiento",
-    tagline: "Adivina nombres ocultos en mundo, continentes, paises, provincias y ciudades.",
+    tagline: "Mapas: identifica pa\u00edses, regiones, provincias o ciudades.",
     description:
       "Juego geografico basado en escritura: eliges la escala (mundo, continente, pais o ciudades) y desbloqueas etiquetas ocultas al introducir el nombre correcto de cada objetivo.",
     objective_es:
@@ -1922,7 +1922,7 @@ export const games = [
     techFocus: "Normalizacion de texto multilenguaje + motor de desbloqueo por mapa + runtime bridge.",
 
     category_en: "Knowledge",
-    tagline_en: "Guess hidden names across world, continents, countries, provinces and cities.",
+    tagline_en: "Maps: identify countries, regions, provinces or cities.",
     description_en:
       "Typing-based geography challenge: choose scope (world, continent, country, or cities) and unlock hidden labels by entering each correct name.",
     objective_en:
@@ -1952,7 +1952,7 @@ export const games = [
 
     title: "Adivina el camino mas corto",
     category: "Conocimiento",
-    tagline: "Conecta origen y destino por frontera (paises o provincias) usando la ruta minima.",
+    tagline: "Ruta geogr\u00e1fica: conecta dos lugares con el camino m\u00e1s corto.",
     description:
       "Reto geografico por adyacencia con dos apartados: paises por continente y provincias por pais. Recibes un origen y un destino y debes escribir nodos vecinos para construir la ruta mas corta.",
     objective_es:
@@ -1974,7 +1974,7 @@ export const games = [
     techFocus: "BFS para camino minimo + validacion de vecinos en paises/provincias + telemetria de ruta.",
 
     category_en: "Knowledge",
-    tagline_en: "Connect origin and destination through borders (countries or provinces) using shortest path.",
+    tagline_en: "Geography route: connect two places using the shortest path.",
     description_en:
       "Adjacency-based geography challenge with two sections: countries by continent and provinces by country. Each match gives origin and destination and you must type neighboring nodes to build the shortest route.",
     objective_en:
@@ -2003,7 +2003,7 @@ export const games = [
 
     title: "Adivina el pais",
     category: "Conocimiento",
-    tagline: "5 rondas por partida para identificar paises por su silueta.",
+    tagline: "Adivina el pa\u00eds por su silueta en el mapa.",
     description:
       "Reto geografico corto y directo: en cada ronda aparece la silueta de un pais y debes escribir su nombre. Mientras escribes, el juego muestra recomendaciones de todos los paises compatibles con esas letras.",
     objective_es:
@@ -2025,7 +2025,7 @@ export const games = [
     techFocus: "Filtrado incremental de paises + validacion por alias + zoom dinamico de silueta SVG.",
 
     category_en: "Knowledge",
-    tagline_en: "5 rounds per match to identify countries from their silhouette.",
+    tagline_en: "Guess the country from its map silhouette.",
     description_en:
       "Short geography challenge: each round shows one country silhouette and you must type the country name. While typing, live recommendations list every country that matches the current letters.",
     objective_en:
@@ -2054,7 +2054,7 @@ export const games = [
 
     title: "Tangram Pro",
     category: "Conocimiento",
-    tagline: "Puzzle espacial con las 7 tans clasicas y validacion profesional de encaje.",
+    tagline: "Tangram: coloca siete piezas para encajar la silueta.",
     description:
       "Version de tangram orientada a precision geomtrica: debes reconstruir la silueta objetivo usando exactamente las 7 piezas tradicionales (2 triangulos grandes, 1 mediano, 2 pequenos, 1 cuadrado y 1 paralelogramo), sin solapes y con control total de rotacion/volteo.",
     objective_es:
@@ -2076,7 +2076,7 @@ export const games = [
     techFocus: "Geometria de poligonos convexos + SAT para solapes + snapping por orientacion.",
 
     category_en: "Knowledge",
-    tagline_en: "Spatial tangram puzzle with all 7 tans and strict silhouette validation.",
+    tagline_en: "Tangram: place seven pieces to match the silhouette.",
     description_en:
       "Tangram mode focused on geometric precision: rebuild the target silhouette using all 7 classic tans (2 large triangles, 1 medium, 2 small, 1 square, 1 parallelogram), with no overlaps and full rotation/flip control.",
     objective_en:
@@ -2105,7 +2105,7 @@ export const games = [
 
     title: "Cronologia Maestra",
     category: "Conocimiento",
-    tagline: "Mision profunda de orden temporal con pistas tacticas, analitica y ranking final.",
+    tagline: "Cronolog\u00eda: ordena eventos hist\u00f3ricos en la l\u00ednea temporal.",
     description:
       "Juego de conocimiento historico orientado a precision cronologica. En cada ronda recibes eventos reales mezclados, un evento ancla y recursos limitados de Intel para pedir pistas. Debes construir la linea temporal correcta y sostener consistencia a lo largo de toda la mision.",
     objective_es:
@@ -2127,7 +2127,7 @@ export const games = [
     techFocus: "Generacion procedural por semilla + evaluacion de orden + sistema de pistas y scoring avanzado.",
 
     category_en: "Knowledge",
-    tagline_en: "Deep timeline mission with tactical hints, analytics, and final ranking.",
+    tagline_en: "Timeline: order historical events on the timeline.",
     description_en:
       "Historical-knowledge game focused on chronology accuracy. Every round gives mixed real events, one anchor event, and limited Intel resources for hints. Build the correct timeline and keep consistency across the entire mission.",
     objective_en:
@@ -2156,7 +2156,7 @@ export const games = [
 
     title: "Sudoku Tecnicas Pro",
     category: "Estrategia",
-    tagline: "Sudoku clasico 9x9 con pistas logicas basadas en tecnicas tradicionales.",
+    tagline: "Sudoku 9x9: resuelve con l\u00f3gica filas, columnas y regiones.",
     description:
       "Version estrategica del Sudoku: completa la rejilla 9x9 sin repetir numeros en filas, columnas ni recuadros 3x3. Incluye pistas aplicadas por logica (grupo completo, barrido, barrido en linea y recuento) para guiar la resolucion sin fuerza bruta.",
     objective_es: "Completa el tablero 9x9 sin conflictos usando deduccion logica y tecnicas clasicas de Sudoku.",
@@ -2175,7 +2175,7 @@ export const games = [
     techFocus: "Generacion con unicidad, validacion de restricciones y motor de pistas por tecnicas Sudoku.",
 
     category_en: "Strategy",
-    tagline_en: "Classic 9x9 Sudoku with logical hints based on traditional techniques.",
+    tagline_en: "9x9 Sudoku: solve rows, columns and boxes with logic.",
     description_en:
       "Strategic Sudoku mode: complete the 9x9 grid with no repeated digits in rows, columns, or 3x3 boxes. Includes logic-driven hints (complete group, box scan, line scan, counting) to support solving without brute force.",
     objective_en: "Complete the 9x9 board without conflicts using logical deduction and classic Sudoku techniques.",
@@ -2201,7 +2201,7 @@ export const games = [
 
     title: "Grandmaster Chess Arena",
     category: "Estrategia",
-    tagline: "Ajedrez completo con reglas FIDE, promociÃ³n, enroque y tablas reglamentarias.",
+    tagline: "Ajedrez completo: protege tu rey y busca el jaque mate.",
     description:
       "ImplementaciÃ³n profesional de ajedrez para web: valida legalidad de cada movimiento, incluye capturas al paso, enroque corto/largo, promociones completas y detecciÃ³n de jaque, mate, ahogado y tablas por repeticiÃ³n/material.",
     objective_es: "Pon en jaque mate al rey rival o logra tablas ventajosas aplicando todas las reglas FIDE del ajedrez.",
@@ -2220,7 +2220,7 @@ export const games = [
     techFocus: "GeneraciÃ³n de movimientos legales, SAN en espaÃ±ol, IA minimax y reglas FIDE de tablas.",
 
     category_en: "Strategy",
-    tagline_en: "Full chess with FIDE rules, promotion, castling and regulatory draws.",
+    tagline_en: "Full chess: protect your king and aim for checkmate.",
     description_en:
       "Professional web chess implementation: validates legality of every move, includes en passant captures, short/long castling, full promotions and detection of check, checkmate, stalemate and draws by repetition/material.",
     objective_en: "Checkmate the opponent's king or achieve advantageous draws using all FIDE chess rules.",
@@ -2246,7 +2246,7 @@ export const games = [
 
     title: "Hundir la Flota Pro",
     category: "Estrategia",
-    tagline: "Edicion Classic Card 4x3 con coordenadas ocultas, clavijas y poderes tacticos.",
+    tagline: "Hundir la flota: localiza barcos y dispara coordenadas clave.",
     description:
       "Adaptacion profesional de Hundir la Flota Classic Card basada en el reglamento del PDF oficial. Cada jugador organiza 12 cartas de coordenadas (5 naves y 7 fallos) en una cuadrilla 4x3 boca abajo y gestiona una mano de 5 cartas de batalla para revelar, danar y hundir la flota rival antes de perder la propia.",
     objective_es:
@@ -2268,7 +2268,7 @@ export const games = [
     techFocus: "Motor de cartas ocultas/reveladas, acumulacion de clavijas por nave y resolucion de poderes con elecciones.",
 
     category_en: "Strategy",
-    tagline_en: "Classic Card 4x3 edition with hidden coordinates, pegs, and tactical power cards.",
+    tagline_en: "Battleship: locate ships and fire at key coordinates.",
     description_en:
       "Professional Battleship Classic Card implementation aligned with the official PDF rulebook. Each player arranges 12 coordinate cards (5 ships and 7 misses) in a hidden 4x3 grid and manages a 5-card battle hand to reveal, damage, and sink the enemy fleet.",
     objective_en:
@@ -2297,7 +2297,7 @@ export const games = [
 
     title: "Parchis Ludoteka Arena",
     category: "Estrategia",
-    tagline: "Parchis estrategico individual (Tu vs 3 IAs) con capturas, barreras y bonus +10/+20.",
+    tagline: "Parch\u00eds contra IAs: captura, bloquea y lleva fichas a meta.",
     description:
       "Adaptacion completa de reglas clave de parchis para la plataforma: salida obligatoria con 5, turno extra por 6, regla de tres 6 consecutivos, casillas seguras, capturas, barreras, pasillo final, llegada exacta y bonus por comer/coronar.",
     objective_es: "Completa el recorrido con tus 4 fichas antes que los 3 rivales IA, gestionando riesgo de captura, bloqueos y tempo de turnos.",
@@ -2316,7 +2316,7 @@ export const games = [
     techFocus: "Sistema de reglas de parchis con evaluacion IA por heuristicas y estimacion de amenaza.",
 
     category_en: "Strategy",
-    tagline_en: "Individual strategy parchis (You vs 3 AIs) with captures, barriers and +10/+20 bonuses.",
+    tagline_en: "Parchis against AI: capture, block and bring pieces home.",
     description_en:
       "A full strategic adaptation of core parchis rules for the platform: mandatory exit on 5, extra turn on 6, three-consecutive-6 penalty, safe cells, captures, barriers, final lane routing, exact finish and +10/+20 rewards.",
     objective_en: "Complete the route with all 4 pieces before the 3 AI rivals while managing capture risk, blockades and turn tempo.",
@@ -2342,7 +2342,7 @@ export const games = [
 
     title: "Damas Estrategia Pro",
     category: "Estrategia",
-    tagline: "Damas 8x8 con IA por niveles, capturas encadenadas, control de errores y reglas configurables de bloqueo.",
+    tagline: "Damas cl\u00e1sicas: captura piezas y corona para ganar ventaja.",
     description:
       "Implementacion profesional de damas clasicas sobre tablero 8x8: 12 fichas por lado, movimiento diagonal en ambas direcciones, capturas multiples en cadena, coronacion a dama, prioridad de dama al capturar, derrota por 3 errores y modo configurable de bloqueo (pierde/tablas/material).",
     objective_es: "Captura todas las fichas rivales o bloquea su juego antes de alcanzar el limite de errores.",
@@ -2361,7 +2361,7 @@ export const games = [
     techFocus: "Motor de reglas + minimax con alpha-beta + telemetria de errores, bloqueo y repeticion.",
 
     category_en: "Strategy",
-    tagline_en: "8x8 checkers with multi-level AI, chain captures, error control, and configurable block rules.",
+    tagline_en: "Classic checkers: capture pieces and crown kings for advantage.",
     description_en:
       "Professional web checkers implementation on an 8x8 board: 12 pieces per side, diagonal movement in both directions, multi-capture chains, king promotion, king-capture priority, defeat after 3 mistakes, and configurable blocked resolution (loss/draw/material).",
     objective_en: "Capture all opponent pieces or lock their position before reaching the mistake limit.",
@@ -2387,7 +2387,7 @@ export const games = [
 
     title: "Poker Clasico Draw Con Apuestas",
     category: "Estrategia",
-    tagline: "Poker clasico de 5 cartas contra 1 a 8 IAs, con ciegas, bote real y apuestas de fichas.",
+    tagline: "Poker de cinco cartas: apuesta, cambia cartas y gana el bote.",
     description:
       "Version estrategica de poker clasico (baraja de 52, sin comodin) para la plataforma: cada jugador recibe 5 cartas, juega ronda de apuesta inicial, realiza un descarte unico de 0 a 5 cartas, disputa una ronda final y cierra en showdown. Hay ciega pequena/grande, bote real y acciones de igualar, subir, all-in o retirarse.",
     objective_es: "Alcanza primero la meta de fichas ganando botes en rondas con apuestas reales.",
@@ -2408,7 +2408,7 @@ export const games = [
     techFocus: "Pipeline de poker clasico 5-card draw con economia de apuesta (pot/blinds/raise/call/all-in) e IA orientada a gestion de riesgo por mano.",
 
     category_en: "Strategy",
-    tagline_en: "Classic 5-card poker versus 1 to 8 AIs, with blinds, real pot play and chip betting.",
+    tagline_en: "Five-card poker: bet, draw cards and win the pot.",
     description_en:
       "Strategy-focused classic poker (52-card deck, no jokers): each player gets 5 private cards, plays an opening betting round, performs a single 0-5 card draw, plays a final betting round, and resolves the hand at showdown. The table includes small/big blinds and a real shared pot.",
     objective_en: "Reach the chip target first by winning pots in real betting rounds.",
@@ -2436,7 +2436,7 @@ export const games = [
 
     title: "Baraja IA Arena",
     category: "Estrategia",
-    tagline: "Mesa de baraja con Brisca/Tute, Mus y Escoba del 15 (espanola en navegador es*).",
+    tagline: "Colecci\u00f3n de cartas: Brisca/Tute, Mus y Escoba contra IA.",
     description:
       "Juego de cartas estrategico con selector de modalidad: Brisca/Tute mantiene el motor de bazas original, Mus anade un modo configurable a 40 piedras (2/4/6 jugadores) y Escoba del 15 incorpora mesa de 2 a 4 jugadores. En navegadores con idioma es* se usa baraja espanola de 40; en el resto, baraja inglesa adaptada (sin 8, 9, 10).",
     objective_es: "Elige modalidad: gana bazas en Brisca/Tute, llega a 40 piedras en Mus o suma 15 para capturar cartas y puntuar categorias en Escoba.",
@@ -2459,7 +2459,7 @@ export const games = [
     techFocus: "Convivencia de motor Brisca/Tute existente con motor Mus (lances, descarte y tanteo a 40 piedras) y motor Escoba del 15 (capturas por suma, escobas y puntuacion por categorias), incluyendo adaptaciones de baraja inglesa.",
 
     category_en: "Strategy",
-    tagline_en: "Card table with Brisca/Tute, Mus, and Escoba 15 (Spanish deck for es* browsers).",
+    tagline_en: "Card-game collection: Brisca/Tute, Mus and Escoba against AI.",
     description_en:
       "Card strategy game with a top mode switch: Brisca/Tute keeps the original trick-taking engine, Mus adds a configurable race to 40 stones (2/4/6 players), and Escoba 15 adds a 2-to-4 player capture mode. Browsers with es* locale use the traditional 40-card Spanish deck; other locales use the adapted 40-card English deck (8/9/10 removed).",
     objective_en: "Choose mode: win tricks in Brisca/Tute, reach 40 stones in Mus, or build 15-point captures in Escoba to score category points.",
@@ -2489,7 +2489,7 @@ export const games = [
 
     title: "Mansion Triple Enigma",
     category: "Estrategia",
-    tagline: "Deduccion competitiva tipo misterio con IA adaptativa, faroles y pistas publicas.",
+    tagline: "Deducci\u00f3n en una mansi\u00f3n: re\u00fane pistas y resuelve el misterio.",
     description:
       "Version independiente inspirada en la formula de deduccion de sospechoso + arma + sala. Juegas contra tres IAs que observan el contexto de la mesa, ajustan su nivel de riesgo y deciden cuando farolear en sugerencias o lanzar pistas verdaderas/enganosas para proteger su ventaja.",
     objective_es: "Resuelve antes que nadie la combinacion exacta del caso: culpable, arma y habitacion.",
@@ -2510,7 +2510,7 @@ export const games = [
     techFocus: "Motor de inferencia por eventos (refutaciones, no-respuestas, pistas) + politica IA de bluff/riesgo contextual.",
 
     category_en: "Strategy",
-    tagline_en: "Competitive mystery deduction with adaptive AI, bluff timing, and public hint mind-games.",
+    tagline_en: "Mansion deduction: gather clues and solve the mystery.",
     description_en:
       "Independent take on suspect + weapon + room deduction. You face three AIs that read table context, adjust risk appetite, and decide when to bluff through misleading suggestions or signal true/false hints to protect their line.",
     objective_en: "Solve the exact case combination first: culprit, weapon, and room.",
@@ -2539,7 +2539,7 @@ export const games = [
     sessionTime: "2-6 min",
     title: "Snake Classico 1977",
     category: "Arcade",
-    tagline: "Snake clÃ¡sico rediseÃ±ado con look neon premium, HUD limpio y animaciones modernas.",
+    tagline: "Snake cl\u00e1sico: come, crece y evita chocar contigo mismo.",
     description: "Relectura visual de Snake con tablero glow, fondo dinÃ¡mico y sprites mÃ¡s legibles. Mantiene control preciso por rejilla, progresiÃ³n por nivel y sesiones cortas con sensaciÃ³n de arcade actual.",
     objective_es: "Come frutos para crecer y supera el objetivo de cada nivel sin chocar con muros ni con tu cola.",
     howToPlay_es: "Flechas o WASD para girar. Enter/Espacio inicia, P pausa, R reinicia y F pantalla completa.",
@@ -2555,7 +2555,7 @@ export const games = [
     visualStyle: "Neon-cyber con gradientes, bloom suave y jerarquÃ­a visual moderna de tablero.",
     techFocus: "Control por eventos, colisiones de rejilla y progresion de dificultad estable.",
     category_en: "Arcade",
-    tagline_en: "Classic Snake rebuilt with premium neon visuals, cleaner HUD, and modern animation polish.",
+    tagline_en: "Classic Snake: eat, grow and avoid crashing into yourself.",
     description_en: "A visual rework of Snake featuring glow-grid readability, animated backdrops, and refined sprite treatment while keeping precise tile control, level progression, and short replayable sessions.",
     objective_en: "Eat fruits, grow longer, and clear each level objective without hitting walls or your own tail.",
     howToPlay_en: "Use arrows or WASD to steer. Enter/Space starts, P pauses, R restarts, and F toggles fullscreen.",
@@ -2577,7 +2577,7 @@ export const games = [
     sessionTime: "3-7 min",
     title: "Breakout 1986 Remix",
     category: "Arcade",
-    tagline: "Brick breaker renovado con iluminaciÃ³n reactiva, bloques glossy y feedback moderno.",
+    tagline: "Rompebloques: mant\u00e9n la bola viva y limpia ladrillos.",
     description: "Breakout reinterpretado con escenario de cabina, trazas de bola, glow de impactos y lectura visual profesional. Conserva las capas de resistencia, el control fino de rebote y el power-up tÃ¡ctico de pala.",
     objective_es: "Destruye todos los bloques del muro sin perder tus vidas.",
     howToPlay_es: "A/D o flechas izquierda/derecha para mover pala. Espacio lanza bola. P pausa, R reinicia y F pantalla completa.",
@@ -2593,7 +2593,7 @@ export const games = [
     visualStyle: "Cabina arcade contemporÃ¡nea con materiales brillantes y contraste cinematogrÃ¡fico.",
     techFocus: "Deteccion de colisiones, control de angulo en pala y progresion por olas de bloques.",
     category_en: "Arcade",
-    tagline_en: "Rebuilt brick breaker with reactive lighting, glossy bricks, and modern impact feedback.",
+    tagline_en: "Brick breaker: keep the ball alive and clear bricks.",
     description_en: "A redesigned Breakout featuring cabinet-like presentation, ball trails, impact glow, and professional readability while preserving layered brick durability, paddle-angle control, and tactical width boosts.",
     objective_en: "Destroy every brick wall before losing all lives.",
     howToPlay_en: "Use A/D or left/right arrows to move paddle. Space launches ball. P pauses, R restarts, F toggles fullscreen.",
@@ -2615,7 +2615,7 @@ export const games = [
     sessionTime: "3-8 min",
     title: "Space Invaders Core",
     category: "Arcade",
-    tagline: "Defensa espacial con UI moderna, enemigos estilizados y lectura tÃ¡ctica superior.",
+    tagline: "Defensa espacial: dispara invasores antes de que desciendan.",
     description: "Shooter arcade inspirado en Space Invaders con direcciÃ³n artÃ­stica renovada: naves mÃ¡s definidas, disparos luminosos, atmÃ³sfera espacial dinÃ¡mica y HUD claro para sesiones intensas por oleadas.",
     objective_es: "Elimina todas las naves invasoras antes de que alcancen tu base.",
     howToPlay_es: "A/D o flechas para moverte y Espacio para disparar. P pausa, R reinicia, F pantalla completa.",
@@ -2631,7 +2631,7 @@ export const games = [
     visualStyle: "Sci-fi neon moderno con sprites refinados, trazas de disparo y brillo ambiental.",
     techFocus: "Gestor de oleadas, colisiones bala-hitbox e IA de fuego por escuadron.",
     category_en: "Arcade",
-    tagline_en: "Space defense with modern UI treatment, stylized enemies, and sharper tactical readability.",
+    tagline_en: "Space defense: shoot invaders before they descend.",
     description_en: "Space Invaders-inspired shooter with a refreshed visual direction: cleaner ships, luminous fire lines, dynamic backdrop atmosphere, and a polished HUD for wave-based pressure.",
     objective_en: "Destroy all invader ships before they reach your base line.",
     howToPlay_en: "Move with A/D or arrows and shoot with Space. P pauses, R restarts, F toggles fullscreen.",
@@ -2653,7 +2653,7 @@ export const games = [
     sessionTime: "4-12 min",
     title: "Tetris Blockfall",
     category: "Arcade",
-    tagline: "Tetris moderno con tablero premium, ghost piece y panel visual mejorado.",
+    tagline: "Bloques tipo Tetris: encaja piezas y completa l\u00edneas.",
     description: "ImplementaciÃ³n estilo Tetris con tetrominÃ³s clÃ¡sicos y una capa grÃ¡fica mÃ¡s actual: pozo con volumen, piezas con brillo, ghost piece para lectura de caÃ­da y HUD mÃ¡s limpio para decisiones rÃ¡pidas.",
     objective_es: "Completa lineas para mantener el pozo limpio y maximizar puntuacion.",
     howToPlay_es: "A/D mueve, arriba rota, abajo soft drop y Espacio hard drop. P pausa, R reinicia y F pantalla completa.",
@@ -2669,7 +2669,7 @@ export const games = [
     visualStyle: "Cabina neo-arcade con panel lateral, bloques glossy y profundidad visual.",
     techFocus: "Colision de piezas, rotacion matricial y scoring por line clears.",
     category_en: "Arcade",
-    tagline_en: "Modern Tetris with premium board treatment, ghost piece, and upgraded visual paneling.",
+    tagline_en: "Tetris-style blocks: fit pieces and complete lines.",
     description_en: "Tetris-style implementation with classic tetrominoes plus a contemporary visual layer: depth-focused well rendering, glossy blocks, ghost-piece readability, and cleaner HUD decisions.",
     objective_en: "Complete lines to keep the well clean and maximize score.",
     howToPlay_en: "A/D moves, up rotates, down soft drops, Space hard drops. P pauses, R restarts, F toggles fullscreen.",
@@ -2691,7 +2691,7 @@ export const games = [
     sessionTime: "3-8 min",
     title: "Frogger Crossing DX",
     category: "Arcade",
-    tagline: "Frogger rediseÃ±ado con carriles vivos, props detallados y look moderno.",
+    tagline: "Cruza carretera y r\u00edo esquivando coches y usando troncos.",
     description: "Arcade inspirado en Frogger con actualizaciÃ³n estÃ©tica completa: carretera y rÃ­o con mÃ¡s profundidad, vehÃ­culos y troncos mÃ¡s expresivos, y una lectura de timing mÃ¡s clara en todo el recorrido.",
     objective_es: "Llega a todas las guaridas superiores sin ser atropellado ni caer al agua.",
     howToPlay_es: "Flechas o WASD para saltar en rejilla. P pausa, R reinicia y F pantalla completa.",
@@ -2707,7 +2707,7 @@ export const games = [
     visualStyle: "Arcade colorista contemporÃ¡neo con capas de escenario y animaciÃ³n ambiental.",
     techFocus: "Movimiento por casillas, deteccion por lane y progresion por slots objetivo.",
     category_en: "Arcade",
-    tagline_en: "Frogger refreshed with living lanes, richer props, and a modernized presentation.",
+    tagline_en: "Cross road and river by dodging cars and riding logs.",
     description_en: "Frogger-inspired arcade with full visual refresh: deeper road-and-river layering, more expressive vehicles/logs, and clearer timing readability across the run.",
     objective_en: "Reach every top home slot without being hit or falling into water.",
     howToPlay_en: "Use arrows or WASD to hop tile-by-tile. P pauses, R restarts, F toggles fullscreen.",
@@ -2729,7 +2729,7 @@ export const games = [
     sessionTime: "4-10 min",
     title: "Bomber Grid 1989",
     category: "Arcade",
-    tagline: "Bomber tÃ¡ctico con laberinto texturizado, explosiones glow y UI moderna.",
+    tagline: "Bomber de laberinto: pon bombas, abre caminos y atrapa rivales.",
     description: "Arcade de laberinto tipo bomber con rediseÃ±o visual profundo: tiles con materiales diferenciados, bombas y llamas mÃ¡s legibles, y feedback visual reforzado para jugar rÃ¡pido sin perder precisiÃ³n.",
     objective_es: "Elimina todas las patrullas del laberinto sin quedar atrapado por tus explosiones.",
     howToPlay_es: "Flechas/WASD para moverte y Espacio para colocar bomba. P pausa, R reinicia y F pantalla completa.",
@@ -2745,7 +2745,7 @@ export const games = [
     visualStyle: "Maze neo-arcade con texturas, brillos de explosiÃ³n y contraste competitivo.",
     techFocus: "Pathing por celdas, detonacion radial en cruz y sistema de mejoras.",
     category_en: "Arcade",
-    tagline_en: "Tactical bomber maze with textured arenas, glow explosions, and modern UI polish.",
+    tagline_en: "Bomber maze: place bombs, open paths and trap rivals.",
     description_en: "Bomber-style maze arcade with major visual upgrades: differentiated tile materials, clearer bomb/flame readability, and stronger impact feedback for fast, precise play.",
     objective_en: "Eliminate every maze patrol without trapping yourself in your own blast path.",
     howToPlay_en: "Use arrows/WASD to move and Space to plant bombs. P pauses, R restarts, F toggles fullscreen.",
@@ -2767,7 +2767,7 @@ export const games = [
     sessionTime: "3-9 min",
     title: "Galaga Quantum",
     category: "Arcade",
-    tagline: "Shooter por oleadas con formaciones vivas, combo y jefes de cierre.",
+    tagline: "Shooter de naves: esquiva patrones y supera oleadas.",
     description: "Relectura de Galaga con enemigos en patrones sinusoidales, combo de precision y oleadas con dificultad escalable.",
     objective_es: "Elimina toda la oleada sin que la defensa sea atravesada.",
     howToPlay_es: "A/D o flechas para moverte y Espacio para disparar. P pausa, R reinicia y F pantalla completa.",
@@ -2783,7 +2783,7 @@ export const games = [
     visualStyle: "Neon sci-fi con proyectiles brillantes y siluetas modernizadas.",
     techFocus: "Gestor de oleadas, combo timer y colisiones de proyectiles.",
     category_en: "Arcade",
-    tagline_en: "Wave shooter with living formations, combo flow, and stage-end bosses.",
+    tagline_en: "Ship shooter: dodge patterns and clear waves.",
     description_en: "A modern Galaga take with sinusoidal enemy formations, precision combo pacing, and scalable wave pressure.",
     objective_en: "Clear the entire wave before enemies breach your defense.",
     howToPlay_en: "A/D or arrows to move and Space to shoot. P pauses, R restarts, F toggles fullscreen.",
@@ -2805,7 +2805,7 @@ export const games = [
     sessionTime: "3-7 min",
     title: "Qbert Prism Jump",
     category: "Arcade",
-    tagline: "Puzzle-arcade isometrico con conversion cromatica y patrullas rivales.",
+    tagline: "Puzzle isom\u00e9trico: salta casillas y cambia todos los colores.",
     description: "Inspirado en Qbert, este modo exige dominar saltos diagonales sobre una piramide donde cada celda debe convertirse sin caer ni chocar.",
     objective_es: "Convierte todas las celdas de la piramide al color objetivo.",
     howToPlay_es: "Flechas o WASD para saltar en diagonales. Enter/Espacio inicia, P pausa, R reinicia y F pantalla completa.",
@@ -2821,7 +2821,7 @@ export const games = [
     visualStyle: "Prism neon con volumen isometrico y contraste fuerte.",
     techFocus: "Grid triangular, reglas de salto y control de estado por celda.",
     category_en: "Arcade",
-    tagline_en: "Isometric puzzle-arcade with color conversion and rival patrol pressure.",
+    tagline_en: "Isometric puzzle: hop across tiles and change every color.",
     description_en: "Inspired by Qbert, this mode focuses on diagonal hopping over a pyramid where every tile must be converted without falling or colliding.",
     objective_en: "Convert every pyramid tile to its target color state.",
     howToPlay_en: "Use arrows or WASD for diagonal hops. Enter/Space starts, P pauses, R restarts, F toggles fullscreen.",
@@ -2843,7 +2843,7 @@ export const games = [
     sessionTime: "3-8 min",
     title: "Lunar Lander Orbit",
     category: "Arcade",
-    tagline: "Aterrizaje orbital con fisica fina, consumo de fuel y precision de vector.",
+    tagline: "Aterrizaje lunar: controla empuje, velocidad y combustible.",
     description: "Lander clÃ¡sico reconstruido con presentaciÃ³n moderna. Controla angulo, velocidad horizontal/vertical y combustible para aterrizar de forma segura.",
     objective_es: "Aterriza sobre la plataforma cumpliendo limites de velocidad y angulo.",
     howToPlay_es: "A/D rota, W activa propulsor. P pausa, R reinicia y F pantalla completa.",
@@ -2859,7 +2859,7 @@ export const games = [
     visualStyle: "Paisaje lunar synth con HUD minimal y telemetria de descenso.",
     techFocus: "Integracion de velocidad, control angular y verificacion de aterrizaje.",
     category_en: "Arcade",
-    tagline_en: "Orbital landing challenge with precise physics, fuel management, and vector control.",
+    tagline_en: "Lunar landing: control thrust, speed and fuel.",
     description_en: "A classic Lander rebuilt with modern presentation. Control angle, horizontal/vertical speed, and fuel to execute safe touchdowns.",
     objective_en: "Land on the platform within safe speed and angle limits.",
     howToPlay_en: "A/D rotates, W fires thruster. P pauses, R restarts, F toggles fullscreen.",
@@ -2881,7 +2881,7 @@ export const games = [
     sessionTime: "4-9 min",
     title: "Centipede Circuit",
     category: "Arcade",
-    tagline: "Shooter de base fija con enjambres segmentados, hongos tacticos y ritmo moderno.",
+    tagline: "Shooter fijo: rompe enjambres segmentados antes de ser rodeado.",
     description: "Actualizacion visual de Centipede con cuadricula clara y lectura de amenazas por capas. Defiende la base disparando a segmentos y unidades de caÃ­da.",
     objective_es: "Elimina todos los segmentos centipede antes de que alcancen la base.",
     howToPlay_es: "Flechas/WASD para moverte en la zona inferior y Espacio para disparar. P pausa, R reinicia y F pantalla completa.",
@@ -2897,7 +2897,7 @@ export const games = [
     visualStyle: "Arcade bio-neon con grid legible y contraste competitivo.",
     techFocus: "Pathing segmentado, proyectiles verticales y control de obstaculos.",
     category_en: "Arcade",
-    tagline_en: "Fixed-shooter with segmented swarms, tactical mushrooms, and modern pacing.",
+    tagline_en: "Fixed shooter: break segmented swarms before being surrounded.",
     description_en: "A Centipede visual refresh with clear grid readability and layered threat flow. Defend your base by breaking segments and reacting to drop-in pressure units.",
     objective_en: "Eliminate all centipede segments before they breach the base.",
     howToPlay_en: "Use arrows/WASD in the lower zone and Space to shoot. P pauses, R restarts, F toggles fullscreen.",
@@ -2919,7 +2919,7 @@ export const games = [
     sessionTime: "4-10 min",
     title: "River Raid Neon",
     category: "Arcade",
-    tagline: "Raid aereo por caÃ±on dinamico con fuel, disparos y lectura de trayectorias moderna.",
+    tagline: "Raid a\u00e9reo: esquiva, dispara y recoge combustible.",
     description: "Inspirado en River Raid: avanza por un caÃ±on vivo, esquiva colisiones, destruye objetivos y recoge combustible para sostener la carrera.",
     objective_es: "Completa la distancia objetivo sin chocar y sin quedarte sin combustible.",
     howToPlay_es: "A/D maniobra, W acelera, S frena, Espacio dispara. P pausa, R reinicia y F pantalla completa.",
@@ -2935,7 +2935,7 @@ export const games = [
     visualStyle: "Top-down neon militar con agua y terreno estilizados.",
     techFocus: "Generacion de bordes, economia de fuel y colisiones dinamicas.",
     category_en: "Arcade",
-    tagline_en: "Aerial canyon raid with fuel routing, gunplay, and modern trajectory readability.",
+    tagline_en: "Aerial raid: dodge, shoot and collect fuel.",
     description_en: "River Raid inspired run through a living canyon. Dodge impacts, destroy targets, and collect fuel to sustain long-distance survival.",
     objective_en: "Reach target distance without crashing or running out of fuel.",
     howToPlay_en: "A/D steers, W throttles, S brakes, Space fires. P pauses, R restarts, F toggles fullscreen.",
@@ -2957,7 +2957,7 @@ export const games = [
     sessionTime: "3-7 min",
     title: "Tron Lightcycles",
     category: "Arcade",
-    tagline: "Duelo de trazos de luz con IA reactiva y tablero moderno de alto contraste.",
+    tagline: "Motos de luz: gira y obliga a la IA a chocar.",
     description: "Basado en Lightcycles: controla direccion en tiempo real y obliga a la IA a chocar contra estelas sin tocar paredes ni rastro propio.",
     objective_es: "Haz que la IA colisione antes que tu en el duelo de estelas.",
     howToPlay_es: "Flechas o WASD para cambiar direccion. P pausa, R reinicia y F pantalla completa.",
@@ -2973,7 +2973,7 @@ export const games = [
     visualStyle: "Arena dark-neon con lineas electricas y glow cromatico.",
     techFocus: "Direccion discreta, deteccion de choque y decision AI de supervivencia.",
     category_en: "Arcade",
-    tagline_en: "Light-trail duel with reactive AI and high-contrast modern board design.",
+    tagline_en: "Lightcycles: turn sharply and force the AI to crash.",
     description_en: "Lightcycles-inspired duel: steer in real time and force AI crashes while avoiding walls and existing trails.",
     objective_en: "Force the AI to crash before you do in the trail duel.",
     howToPlay_en: "Use arrows or WASD to change direction. P pauses, R restarts, F toggles fullscreen.",
@@ -2995,7 +2995,7 @@ export const games = [
     sessionTime: "3-8 min",
     title: "Road Fighter Synth",
     category: "Arcade",
-    tagline: "Carrera arcade vertical con trafico agresivo y estetica synth moderna.",
+    tagline: "Carrera vertical: cambia de carril y sobrevive al tr\u00e1fico.",
     description: "Relectura de Road Fighter con enfoque competitivo: cambia carril al milisegundo, controla ritmo y supera tramos de trÃ¡fico creciente.",
     objective_es: "Completa la distancia objetivo sin colisionar con el trafico.",
     howToPlay_es: "A/D cambia carril, W acelera, S frena. P pausa, R reinicia y F pantalla completa.",
@@ -3011,7 +3011,7 @@ export const games = [
     visualStyle: "Autopista synthwave con luces y alto contraste.",
     techFocus: "Gestor de trafico por carril, colisiones y pacing de distancia.",
     category_en: "Arcade",
-    tagline_en: "Vertical arcade traffic racer with aggressive flow and modern synth aesthetics.",
+    tagline_en: "Vertical racer: switch lanes and survive traffic.",
     description_en: "A modern Road Fighter-inspired loop: lane-switch with precision timing, pace management, and progressive traffic segments.",
     objective_en: "Complete target distance without colliding with traffic.",
     howToPlay_en: "A/D swaps lanes, W accelerates, S brakes. P pauses, R restarts, F toggles fullscreen.",
@@ -3033,7 +3033,7 @@ export const games = [
     sessionTime: "6-12 min",
     title: "Kitchen Rush 2D",
     category: "Arcade",
-    tagline: "Cocina 2D con flujo completo: ingredientes con estados, estaciones activas, cortes, coccion y entregas cronometradas.",
+    tagline: "Cocina cronometrada: prepara ingredientes y entrega pedidos.",
     description:
       "Juego de cocina con sistema jugable real: cada ingrediente tiene estado propio, se transforma por acciones (cortar, hervir, freir, hornear), y el plato final se valida por receta, precision y tiempo de entrega.",
     objective_es:
@@ -3055,7 +3055,7 @@ export const games = [
     techFocus: "Modelo de transformaciones, estaciones con termica, pipeline de recetas y bucle de pedidos en tiempo real.",
 
     category_en: "Arcade",
-    tagline_en: "Full-loop 2D kitchen game with stateful ingredients, active stations, slicing, cooking, and timed service.",
+    tagline_en: "Timed cooking: prepare ingredients and serve orders.",
     description_en:
       "A complete cooking gameplay system where each ingredient has its own state, transforms through actions (cut, boil, fry, bake), and final dishes are validated by recipe correctness, timing, and quality.",
     objective_en:
@@ -3082,7 +3082,7 @@ export const games = [
     sessionTime: "8-18 min",
     title: "Dig The Hole",
     category: "Juegos",
-    tagline: "Excava un subsuelo continuo, descubre materiales incrustados y recupera el hallazgo final de cada mundo.",
+    tagline: "Excavaci\u00f3n: cava, encuentra materiales y recupera tesoros.",
     description:
       "Juego 2D de excavacion con monigote sin rostro, terreno visualmente continuo y materiales incrustados que van apareciendo al cavar. Selva y urbanizacion usan tierra uniforme bajo la superficie; el desierto arranca con arena en la capa alta y cercana. Recoges hallazgos, vuelves al puesto, mejoras pala o mochila y avanzas hacia un hallazgo principal enterrado.",
     objective_es:
@@ -3104,7 +3104,7 @@ export const games = [
     techFocus: "Subsuelo continuo, rasterizacion del terreno por mascara, distribucion de hallazgos por profundidad y loop ligero de mercado.",
 
     category_en: "Games",
-    tagline_en: "Excavate continuous ground, reveal embedded materials, and recover the final buried find in each world.",
+    tagline_en: "Digging adventure: excavate, find materials and recover treasures.",
     description_en:
       "A 2D digging game with a faceless stick-figure miner, continuous-looking terrain, and embedded resources that appear as you carve the wall. Jungle and urban worlds are mostly dirt below the surface, while the desert starts with sand-heavy upper layers. Gather finds, sell them at the surface, upgrade shovel or storage, and reach the main buried relic.",
     objective_en:
@@ -3131,7 +3131,7 @@ export const games = [
     sessionTime: "8-20 min",
     title: "Valle Tranquilo",
     category: "Juegos",
-    tagline: "Life-sim de granja pixel-art con cultivos, pesca, vecinos, tienda y ciclo estacional.",
+    tagline: "Granja tranquila: cultiva, pesca y mejora tu vida diaria.",
     description:
       "Simulador cozy de granja en vista top-down inspirado en el ritmo de juegos tipo Stardew. Gestiona energia, tiempo y recursos mientras labras, plantas, cosechas, pescas, hablas con NPC y mejoras tu granja dia a dia.",
     objective_es:
@@ -3153,7 +3153,7 @@ export const games = [
     techFocus: "Render 2D tile-based, simulacion temporal, economia ligera y sistemas de progresion acoplados.",
 
     category_en: "Games",
-    tagline_en: "Pixel-art farming life-sim with crops, fishing, villagers, shop, and seasonal flow.",
+    tagline_en: "Cozy farming: grow crops, fish and improve daily life.",
     description_en:
       "A cozy top-down farming simulator inspired by Stardew-like pacing. Manage energy, time, and resources while tilling, planting, harvesting, fishing, meeting villagers, and upgrading your farm day by day.",
     objective_en:
@@ -3182,7 +3182,7 @@ export const games = [
 
     title: "Basketball Court Pro",
     category: "Deportes",
-    tagline: "Entrena desde las 6 posiciones reglamentarias del baloncesto con fÃ­sicas balisticas reales y perspectiva 3D del pabellÃ³n.",
+    tagline: "Tiro de baloncesto: ajusta fuerza y direcci\u00f3n para anotar.",
     description:
       "Juego de baloncesto de entrenamiento donde cada ronda recorre las 6 posiciones reglamentarias: tiro libre, media distancia, triple esquina izquierda, triple esquina derecha, triple lateral izquierdo y triple central. El jugador ajusta el Ã¡ngulo de arco (38-66Â°), la potencia y la desviaciÃ³n lateral antes de cada lanzamiento. La bola sigue una trayectoria balÃ­stica real con gravedad y drag aerodinÃ¡mico, rebota fÃ­sicamente en el aro y la tabla, y la cÃ¡mara 3D se posiciona detrÃ¡s del tirador en cada posiciÃ³n para mostrar el pabellÃ³n de entrenamiento desde su perspectiva.",
     objective_es:
@@ -3207,7 +3207,7 @@ export const games = [
     techFocus: "ProyecciÃ³n perspectiva 3D custom, fÃ­sica balÃ­stica con substep, colisiÃ³n esfÃ©rica aro + tabla y preview de trayectoria en tiempo real.",
 
     category_en: "Sports",
-    tagline_en: "Train from all 6 regulation basketball spots with real ballistic physics and a 3D gymnasium perspective view.",
+    tagline_en: "Basketball shooting: adjust power and direction to score.",
     description_en:
       "A basketball training game where each round cycles through 6 regulation positions: free throw, mid-range, left corner 3, right corner 3, left wing 3, and center 3. Players tune arc angle (38-66Â°), power, and lateral deviation before each shot. The ball follows a real ballistic trajectory with gravity and aerodynamic drag, physically bounces off the rim and backboard, and the 3D camera repositions behind the shooter at each spot to show the gymnasium from their perspective.",
     objective_en:

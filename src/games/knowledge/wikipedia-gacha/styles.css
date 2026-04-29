@@ -4496,6 +4496,7 @@
 }
 
 .wg-shell.is-mobile {
+  contain: none;
   min-height: 100svh;
   padding: 0 0 calc(94px + env(safe-area-inset-bottom, 0px));
   border-radius: 0;
@@ -4888,15 +4889,17 @@
 
 .wg-shell.is-mobile .wg-collection-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  justify-items: center;
+  align-items: start;
+  gap: 9px;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-card {
-  width: 100%;
+  width: min(100%, 178px);
   height: auto;
-  min-height: 360px;
-  aspect-ratio: 10 / 14.9;
-  padding: 6px;
+  min-height: 0;
+  aspect-ratio: 10 / 15.1;
+  padding: 5px;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-favorite {
@@ -4912,41 +4915,48 @@
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-header {
-  gap: 6px;
-  padding: 6px 7px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px;
+  padding: 5px 6px 5px 9px;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-header-main {
-  column-gap: 6px;
+  grid-template-columns: 1fr;
+  row-gap: 3px;
+  column-gap: 0;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-rarity {
-  padding: 2px 5px;
-  font-size: 0.56rem;
+  max-width: 56px;
+  padding: 2px 4px;
+  font-size: 0.5rem;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-title {
-  font-size: 0.66rem;
+  font-size: 0.58rem;
+  line-height: 1.12;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-title.is-long {
-  font-size: 0.61rem;
+  font-size: 0.54rem;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-title.is-longer {
-  font-size: 0.58rem;
+  font-size: 0.5rem;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-topic-tag,
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-quality-badge {
-  max-width: 62px;
-  padding: 2px 5px;
-  font-size: 0.46rem;
+  max-width: 52px;
+  padding: 2px 4px;
+  font-size: 0.42rem;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-art {
-  height: 104px;
-  margin: 3px;
+  height: 78px;
+  margin: 4px 5px 3px;
+  border-radius: 8px 16px 8px 16px;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-topic {
@@ -4966,81 +4976,92 @@
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-blurb {
+  min-height: 48px;
+  margin: 0 5px 3px;
   padding: 5px 6px;
-  font-size: 0.55rem;
+  font-size: 0.52rem;
+  line-height: 1.2;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-blurb p {
-  -webkit-line-clamp: 8;
+  font-size: 0.52rem;
+  line-height: 1.2;
+  -webkit-line-clamp: 4;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-serial {
-  height: 16px;
-  padding: 0 6px;
-  font-size: 0.46rem;
+  height: 15px;
+  margin: 0 5px;
+  padding: 0 5px;
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-stats {
-  height: 38px;
+  height: 32px;
+  margin: 3px 5px 5px;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-stat strong {
-  font-size: 0.74rem;
+  font-size: 0.68rem;
 }
 
 .wg-shell.is-mobile .wg-collection-grid .wg-stack-stat span {
-  font-size: 0.44rem;
+  font-size: 0.4rem;
+  letter-spacing: 0.12em;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid {
-  grid-template-columns: 1fr;
-  justify-items: center;
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-card {
-  width: min(100%, 344px);
-  min-height: 540px;
-  aspect-ratio: 10 / 16.1;
-  padding: 8px;
+  width: min(100%, 176px);
+  min-height: 0;
+  aspect-ratio: 10 / 15.2;
+  padding: 5px;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-header {
-  gap: 8px;
-  padding: 8px 9px;
+  gap: 5px;
+  padding: 5px 6px 5px 9px;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-header-main {
-  column-gap: 7px;
+  row-gap: 3px;
+  column-gap: 0;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-rarity {
-  padding: 2px 6px;
-  font-size: 0.62rem;
+  max-width: 56px;
+  padding: 2px 4px;
+  font-size: 0.5rem;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-title {
-  font-size: 0.78rem;
+  font-size: 0.59rem;
+  line-height: 1.12;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-title.is-long {
-  font-size: 0.72rem;
+  font-size: 0.55rem;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-title.is-longer {
-  font-size: 0.68rem;
+  font-size: 0.51rem;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-topic-tag,
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-quality-badge {
-  max-width: 88px;
-  padding: 3px 6px;
-  font-size: 0.52rem;
+  max-width: 52px;
+  padding: 2px 4px;
+  font-size: 0.42rem;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-art {
-  height: 176px;
-  margin: 4px;
+  height: 78px;
+  margin: 4px 5px 3px;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-topic {
@@ -5060,31 +5081,59 @@
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-blurb {
-  padding: 7px 8px;
+  min-height: 48px;
+  margin: 0 5px 3px;
+  padding: 5px 6px;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-blurb p {
-  font-size: 0.66rem;
-  line-height: 1.32;
-  -webkit-line-clamp: 10;
+  font-size: 0.52rem;
+  line-height: 1.2;
+  -webkit-line-clamp: 4;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-serial {
-  height: 18px;
-  padding: 0 8px;
-  font-size: 0.52rem;
+  height: 15px;
+  margin: 0 5px;
+  padding: 0 5px;
+  font-size: 0.42rem;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-stats {
-  height: 42px;
+  height: 32px;
+  margin: 3px 5px 5px;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-stat strong {
-  font-size: 0.82rem;
+  font-size: 0.68rem;
 }
 
 .wg-shell.is-mobile.is-mobile-portrait .wg-collection-grid .wg-stack-stat span {
-  font-size: 0.48rem;
+  font-size: 0.4rem;
+}
+
+.wg-shell.is-mobile.is-tablet .wg-collection-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.wg-shell.is-mobile.is-tablet .wg-collection-grid .wg-stack-card {
+  width: min(100%, 214px);
+  aspect-ratio: 10 / 15;
+}
+
+.wg-shell.is-mobile.is-tablet .wg-collection-grid .wg-stack-art {
+  height: 96px;
+}
+
+.wg-shell.is-mobile.is-tablet .wg-collection-grid .wg-stack-blurb,
+.wg-shell.is-mobile.is-tablet .wg-collection-grid .wg-stack-blurb p {
+  font-size: 0.56rem;
+  line-height: 1.22;
+}
+
+.wg-shell.is-mobile.is-tablet .wg-collection-grid .wg-stack-blurb p {
+  -webkit-line-clamp: 5;
 }
 
 .wg-shell.is-mobile .wg-stack-shell {

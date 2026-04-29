@@ -3,7 +3,9 @@ import useGameRuntimeBridge from "../utils/useGameRuntimeBridge";
 
 const TARGET_STONES = 40;
 const HAND_SIZE = 4;
-const RESOLVE_MS = 1200;
+const RESOLVE_MS = 3600;
+const DEAL_MS = 280;
+const LANCE_AI_MS = 4200;
 const BACK_IMAGE = "/assets/cards/spanish/reverso.png";
 const PLAYER_OPTIONS = [2, 4, 6];
 
@@ -97,13 +99,14 @@ const T = {
     mus: "Mus",
     clear: "Limpiar descarte",
     confirm: "Confirmar descarte",
-    controls: "M/A Mus, X/B No Mus, 1-4 o flechas para descarte, Enter confirmar, N mano, R reinicio.",
+    controls: "M/A Mus, X/B No Mus, 1-4 o flechas descarte. Lances: P paso, E envido, Q/Enter quiero, X no quiero, R reenvido, O ordago.",
     phase: "Fase",
     dealing: "Repartiendo cartas...",
     pDealing: "Reparto",
     pMus: "Decision Mus",
     pDiscard: "Descarte",
     pResolve: "Resolviendo lances",
+    pLance: "Lances",
     pRound: "Mano cerrada",
     pMatch: "Partida terminada",
     deck: "Baraja",
@@ -129,9 +132,9 @@ const T = {
     adaptation: "Nota: la baraja inglesa es una adaptacion no tradicional del Mus.",
     rulesTitle: "Reglamento aplicado",
     rulesClassic:
-      "Objetivo: 40 piedras. Lances: Grande, Chica, Pares y Juego/Punto. Se aplican equivalencias 3~Rey y 2~As. IA aplica paso, envido, quiero/no quiero, reenvido y ordago con cobro de dejes.",
+      "Objetivo: 40 piedras. Lances en orden: Grande, Chica, Pares y Juego/Punto. Equivalencias 3~Rey y 2~As. Empates por cercania a mano. IA aplica paso, envido, quiero/no quiero, reenvido, ordago, dejes y premios de Pares/Juego/Punto.",
     rulesEnglish:
-      "Adaptacion sobre baraja inglesa. Se mantienen 40 piedras y lances de Mus, con equivalencias K~3 y A~2. IA tambien aplica envites/dejes/ordago. No es Mus tradicional.",
+      "Adaptacion sobre baraja inglesa. Se mantienen 40 piedras y lances de Mus, con equivalencias K~3 y A~2. La IA aplica paso, envido, quiero/no quiero, reenvido, ordago, dejes y premios de Pares/Juego/Punto. No es Mus tradicional.",
     pass: "Paso",
     envido: "Envido",
     quiero: "Quiero",
@@ -140,6 +143,14 @@ const T = {
     ordago: "Ordago",
     deje: "Deje",
     summary: "Resumen lances",
+    currentLance: "Lance actual",
+    speaking: "Habla",
+    stake: "Envite",
+    lancePot: "Apuesta",
+    openLance: "Abre lance",
+    answerBet: "Responde al envite",
+    answerOrdago: "Responde al ordago",
+    humanLanceHint: "Elige accion para hablar por tu pareja.",
     boardScore: "Marcador acumulado",
     showHandInfo: "Ver mi jugada",
     hideHandInfo: "Ocultar jugada",
@@ -161,6 +172,10 @@ const T = {
     reasonDeje: "por deje",
     reasonAccepted: "envite aceptado",
     reasonOrdago: "ordago aceptado",
+    reasonSkipped: "no se disputa",
+    noPares: "Nadie tiene pares",
+    bestBy: "Mejor jugada",
+    premium: "premios",
   },
   en: {
     title: "AI Mus",
@@ -177,13 +192,14 @@ const T = {
     mus: "Mus",
     clear: "Clear discard",
     confirm: "Confirm discard",
-    controls: "M/A Mus, X/B No Mus, 1-4 or arrows for discard, Enter confirm, N hand, R restart.",
+    controls: "M/A Mus, X/B No Mus, 1-4 or arrows discard. Lances: P pass, E bet, Q/Enter accept, X decline, R raise, O ordago.",
     phase: "Phase",
     dealing: "Dealing cards...",
     pDealing: "Dealing",
     pMus: "Mus decision",
     pDiscard: "Discard",
     pResolve: "Resolving lances",
+    pLance: "Lances",
     pRound: "Hand over",
     pMatch: "Match over",
     deck: "Deck",
@@ -209,9 +225,9 @@ const T = {
     adaptation: "Note: English deck mode is a non-traditional Mus adaptation.",
     rulesTitle: "Applied rules",
     rulesClassic:
-      "Target: 40 stones. Lances: Grande, Chica, Pairs and Juego/Point. Equivalences 3~King and 2~Ace. AI now applies pass, envido, want/no-want, re-raise and ordago.",
+      "Target: 40 stones. Lances in order: Grande, Chica, Pairs and Juego/Point. Equivalences 3~King and 2~Ace. Ties are settled by closeness to mano. AI applies pass, envido, want/no-want, re-raise, ordago, leaves and Pairs/Juego/Point awards.",
     rulesEnglish:
-      "Adapted to English deck. Keeps 40-stone target and Mus lances with K~3 and A~2 equivalences. AI also applies betting/leaves/ordago logic. Not traditional Mus.",
+      "Adapted to English deck. Keeps 40-stone target and Mus lances with K~3 and A~2 equivalences. AI applies pass, envido, want/no-want, re-raise, ordago, leaves and Pairs/Juego/Point awards. Not traditional Mus.",
     pass: "Pass",
     envido: "Bet +2",
     quiero: "Accept",
@@ -220,6 +236,14 @@ const T = {
     ordago: "Ordago",
     deje: "Leave",
     summary: "Lance summary",
+    currentLance: "Current lance",
+    speaking: "Speaking",
+    stake: "Bet",
+    lancePot: "Stake",
+    openLance: "Open lance",
+    answerBet: "Answer bet",
+    answerOrdago: "Answer ordago",
+    humanLanceHint: "Choose an action for your pair.",
     boardScore: "Accumulated score",
     showHandInfo: "Show my hand read",
     hideHandInfo: "Hide hand read",
@@ -241,6 +265,10 @@ const T = {
     reasonDeje: "by leave",
     reasonAccepted: "accepted bet",
     reasonOrdago: "accepted ordago",
+    reasonSkipped: "not played",
+    noPares: "No player has pairs",
+    bestBy: "Best hand",
+    premium: "awards",
   },
 };
 
@@ -293,6 +321,18 @@ const SEAT_LAYOUTS = {
   ],
 };
 
+const clockwiseSeatAngle = (seat) => {
+  const x = (seat?.x ?? 50) - 50;
+  const y = (seat?.y ?? 50) - 50;
+  return (Math.atan2(x, -y) + Math.PI * 2) % (Math.PI * 2);
+};
+
+const clockwiseOrderFromPlayers = (players) =>
+  [...players]
+    .map((player, index) => ({ player, index, angle: clockwiseSeatAngle(player.seat) }))
+    .sort((a, b) => (a.angle - b.angle) || (a.index - b.index))
+    .map(({ player }) => player.id);
+
 const isEs = () => typeof navigator !== "undefined" && String(navigator.language || "").toLowerCase().startsWith("es");
 const localeOf = () => (isEs() ? "es" : "en");
 const tt = (loc) => T[loc] || T.en;
@@ -316,7 +356,7 @@ const rotateFrom = (order, id) => {
   return i < 0 ? [...order] : [...order.slice(i), ...order.slice(0, i)];
 };
 const nextId = (order, id) => order[(order.indexOf(id) + 1) % order.length];
-const teamLabel = (side, t) => (side === "user" ? t.teamUser : t.teamRival);
+const teamLabel = (side, t) => (side === "user" ? t.teamUser : side === "rival" ? t.teamRival : "--");
 const gameValue = (rank) => (rank === 1 || rank === 2 ? 1 : rank >= 10 || rank === 3 ? 10 : rank);
 const pairKey = (deckId, rank) => {
   if (rank === 1 || rank === 2) return "A";
@@ -422,7 +462,7 @@ const createRound = (loc, variantId, diffId, playerCount, stones, round, manoId)
   const t = tt(loc);
   const players = makePlayers(t, playerCount);
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
-  const order = players.map((p) => p.id);
+  const order = clockwiseOrderFromPlayers(players);
   const deckId = VARIANTS[variantId].deckId;
   const stock = shuffle(buildDeck(deckId));
   const hands = Object.fromEntries(order.map((id) => [id, []]));
@@ -449,7 +489,7 @@ const createRound = (loc, variantId, diffId, playerCount, stones, round, manoId)
     humanVote: null,
     aiVotes: null,
     aiDiscard: {},
-    auto: { type: "deal", ms: 110 },
+    auto: { type: "deal", ms: DEAL_MS },
     stones: { ...stones },
     lastRound: null,
     message: t.dealing,
@@ -460,7 +500,7 @@ const createMatch = (loc, opts = {}) => {
   const variantId = normVar(opts.variantId || "mus_classic");
   const diffId = normDiff(opts.difficultyId || "medium");
   const playerCount = normPlayers(opts.playerCount || 4);
-  const order = makePlayers(tt(loc), playerCount).map((p) => p.id);
+  const order = clockwiseOrderFromPlayers(makePlayers(tt(loc), playerCount));
   const manoId = order[Math.floor(Math.random() * order.length)];
   return createRound(loc, variantId, diffId, playerCount, { user: 0, rival: 0 }, 1, manoId);
 };
@@ -486,7 +526,7 @@ const dealOneCard = (s) => {
     stock,
     dealQueue: rest,
     dealAnim: finished ? null : { to: targetId, toX: seat.x, toY: seat.y, key: `${card.id}-${rest.length}` },
-    auto: finished ? null : { type: "deal", ms: 110 },
+    auto: finished ? null : { type: "deal", ms: DEAL_MS },
     phase: finished ? "mus-decision" : "dealing",
     message: finished ? t.askMus : t.dealing,
   };
@@ -513,7 +553,7 @@ const aiDiscard = (state, hand) => {
 };
 
 const oppositeSide = (side) => (side === "user" ? "rival" : "user");
-const sideFromGain = (gain, fallback = "user") => (gain.user > 0 ? "user" : gain.rival > 0 ? "rival" : fallback);
+const sideFromGain = (gain, fallback = null) => (gain.user > 0 ? "user" : gain.rival > 0 ? "rival" : fallback);
 
 const sortByLance = (ids, cmp, manoOrder) => [...ids].sort((a, b) => {
   const diff = cmp(a, b);
@@ -533,6 +573,7 @@ const strengthByOrder = (sorted, byId) => {
 };
 
 const buildLances = (s) => {
+  const t = tt(s.locale);
   const manoOrder = rotateFrom(s.order, s.manoId);
   const lances = [];
   const sideOf = (id) => s.byId[id]?.side || "rival";
@@ -554,6 +595,7 @@ const buildLances = (s) => {
     sideStrength: strengthByOrder(grandeSorted, s.byId),
     passAward: { user: grandeSide === "user" ? 1 : 0, rival: grandeSide === "rival" ? 1 : 0 },
     noWantBonus: { user: 0, rival: 0 },
+    showdownBonus: { user: 0, rival: 0 },
   });
 
   const chicaCmp = (a, b) => cmpVecAsc(
@@ -573,6 +615,7 @@ const buildLances = (s) => {
     sideStrength: strengthByOrder(chicaSorted, s.byId),
     passAward: { user: chicaSide === "user" ? 1 : 0, rival: chicaSide === "rival" ? 1 : 0 },
     noWantBonus: { user: 0, rival: 0 },
+    showdownBonus: { user: 0, rival: 0 },
   });
 
   const pairBy = Object.fromEntries(s.order.map((id) => [id, pairInfo(s.hands[id])]));
@@ -601,6 +644,22 @@ const buildLances = (s) => {
         rival: pairWinnerSide === "rival" ? Math.max(1, pairValueBySide.rival) : 0,
       },
       noWantBonus: pairValueBySide,
+      showdownBonus: pairValueBySide,
+    });
+  } else {
+    lances.push({
+      key: "pares",
+      name: "Pares",
+      participants: [],
+      participantSides: { user: false, rival: false },
+      winnerId: null,
+      winnerSide: null,
+      sideStrength: { user: 0, rival: 0 },
+      passAward: { user: 0, rival: 0 },
+      noWantBonus: { user: 0, rival: 0 },
+      showdownBonus: { user: 0, rival: 0 },
+      playable: false,
+      skipReason: t.noPares,
     });
   }
 
@@ -637,6 +696,7 @@ const buildLances = (s) => {
         rival: juegoWinnerSide === "rival" ? Math.max(2, juegoValueBySide.rival) : 0,
       },
       noWantBonus: juegoValueBySide,
+      showdownBonus: juegoValueBySide,
     });
   } else {
     const puntoSorted = sortByLance(s.order, (a, b) => totals[a] - totals[b], manoOrder);
@@ -652,6 +712,7 @@ const buildLances = (s) => {
       sideStrength: strengthByOrder(puntoSorted, s.byId),
       passAward: { user: puntoSide === "user" ? 1 : 0, rival: puntoSide === "rival" ? 1 : 0 },
       noWantBonus: { user: 1, rival: 1 },
+      showdownBonus: { user: puntoSide === "user" ? 1 : 0, rival: puntoSide === "rival" ? 1 : 0 },
     });
   }
 
@@ -663,6 +724,20 @@ const simulateLanceEnvite = (s, lance, t) => {
   const bothSides = lance.participantSides.user && lance.participantSides.rival;
   const events = [];
   const gain = { user: 0, rival: 0 };
+  if (lance.playable === false) {
+    return {
+      key: lance.key,
+      name: lance.name,
+      gain,
+      winnerId: null,
+      winnerSide: null,
+      outcome: "skipped",
+      stake: 0,
+      bonus: { user: 0, rival: 0 },
+      events: [lance.skipReason || t.reasonSkipped],
+      ordagoAccepted: false,
+    };
+  }
   if (!bothSides) {
     gain.user += lance.passAward.user || 0;
     gain.rival += lance.passAward.rival || 0;
@@ -670,9 +745,11 @@ const simulateLanceEnvite = (s, lance, t) => {
       key: lance.key,
       name: lance.name,
       gain,
+      winnerId: lance.winnerId,
       winnerSide: sideFromGain(gain, lance.winnerSide),
       outcome: "pass",
       stake: 0,
+      bonus: { user: 0, rival: 0 },
       events: [`${t.pass} / ${t.pass}`],
       ordagoAccepted: false,
     };
@@ -715,31 +792,39 @@ const simulateLanceEnvite = (s, lance, t) => {
   };
 
   const settleNoWant = (bettor, stake, wasOrdago) => {
-    gain[bettor] += 1;
+    const deje = wasOrdago ? Math.max(1, stake || 0) : Math.max(1, stake - 2);
+    const bonus = lance.noWantBonus?.[bettor] || 0;
+    gain[bettor] += deje;
     if (lance.key === "pares" || lance.key === "juego" || lance.key === "punto") {
-      gain[bettor] += lance.noWantBonus[bettor] || 0;
+      gain[bettor] += bonus;
     }
     return {
       key: lance.key,
       name: lance.name,
       gain: { ...gain },
+      winnerId: null,
       winnerSide: bettor,
       outcome: "deje",
       stake,
+      deje,
+      bonus: { user: bettor === "user" ? bonus : 0, rival: bettor === "rival" ? bonus : 0 },
       events: [...events, wasOrdago ? `${t.noQuiero} (${t.ordago})` : t.noQuiero],
       ordagoAccepted: false,
     };
   };
 
   const settleAccepted = (stake) => {
-    gain[lance.winnerSide] += stake;
+    const bonus = lance.showdownBonus?.[lance.winnerSide] || 0;
+    gain[lance.winnerSide] += stake + bonus;
     return {
       key: lance.key,
       name: lance.name,
       gain: { ...gain },
+      winnerId: lance.winnerId,
       winnerSide: lance.winnerSide,
       outcome: "accepted-envite",
       stake,
+      bonus: { user: lance.winnerSide === "user" ? bonus : 0, rival: lance.winnerSide === "rival" ? bonus : 0 },
       events: [...events, t.quiero],
       ordagoAccepted: false,
     };
@@ -752,9 +837,11 @@ const simulateLanceEnvite = (s, lance, t) => {
       key: lance.key,
       name: lance.name,
       gain: { ...gain },
+      winnerId: lance.winnerId,
       winnerSide: sideFromGain(gain, lance.winnerSide),
       outcome: "pass",
       stake: 0,
+      bonus: { user: 0, rival: 0 },
       events: [...events],
       ordagoAccepted: false,
     };
@@ -817,9 +904,11 @@ const simulateLanceEnvite = (s, lance, t) => {
       key: lance.key,
       name: lance.name,
       gain: { user: 0, rival: 0 },
+      winnerId: lance.winnerId,
       winnerSide: lance.winnerSide,
       outcome: "ordago-accepted",
       stake: TARGET_STONES,
+      bonus: { user: 0, rival: 0 },
       events: [...events, t.quiero],
       ordagoAccepted: true,
     };
@@ -871,6 +960,335 @@ const resolveLances = (s) => {
   };
 };
 
+const nextLanceActor = (activePlayers, actorId, byId, requiredSide = null) => {
+  if (!activePlayers.length) return null;
+  const start = Math.max(0, activePlayers.indexOf(actorId));
+  for (let step = 1; step <= activePlayers.length; step += 1) {
+    const id = activePlayers[(start + step) % activePlayers.length];
+    if (!requiredSide || byId[id]?.side === requiredSide) return id;
+  }
+  return activePlayers[(start + 1) % activePlayers.length] || null;
+};
+
+const lanceActionContext = (s, lance, side) => {
+  const profile = DIFF[s.difficultyId] || DIFF.medium;
+  const confidence = lance.sideStrength?.[side] || 0;
+  const pressure = ((s.stones[oppositeSide(side)] || 0) - (s.stones[side] || 0)) / TARGET_STONES;
+  const nearEnd = s.stones.user >= 35 || s.stones.rival >= 35;
+  const jitter = () => (Math.random() * 2 - 1) * profile.noise;
+  return { profile, confidence, pressure, nearEnd, jitter };
+};
+
+const decideLanceAiAction = (s) => {
+  const betting = s.betting;
+  const lance = s.lances?.[betting?.lanceIndex];
+  const actor = s.byId[betting?.actorId];
+  if (!betting || !lance || !actor) return "pass";
+  const { profile, confidence, pressure, nearEnd, jitter } = lanceActionContext(s, lance, actor.side);
+  if (!betting.pending) {
+    const ordagoScore = confidence + pressure * 0.45 + (nearEnd ? 0.12 : 0) + jitter() * 0.35;
+    const canOpenOrdago = nearEnd || pressure > 0.22;
+    if (canOpenOrdago && ordagoScore >= profile.ordago) return "ordago";
+    const betScore = confidence + pressure * 0.24 + jitter();
+    if (betScore >= profile.betStart || Math.random() < profile.bluff * Math.max(0.2, 1 - confidence)) return "envido";
+    return "pass";
+  }
+  if (betting.pending === "ordago") {
+    const losePressure = (s.stones[oppositeSide(actor.side)] || 0) >= 35 ? 0.2 : 0;
+    const acceptScore = confidence + pressure * 0.55 + losePressure + jitter();
+    return acceptScore >= profile.ordagoAccept ? "quiero" : "no-quiero";
+  }
+  const stake = betting.stake || 2;
+  const risk = Math.min(1, stake / 10);
+  const acceptScore = confidence + pressure * 0.32 - risk * profile.stakeFear + jitter();
+  if (acceptScore < profile.accept) return "no-quiero";
+  const ordagoScore = confidence + pressure * 0.44 + (nearEnd || stake >= 6 ? 0.14 : 0) + jitter() * 0.3;
+  const canRaiseToOrdago = nearEnd || stake >= 8 || pressure > 0.28;
+  if (canRaiseToOrdago && ordagoScore >= profile.ordago && stake >= 4) return "ordago";
+  const raiseScore = confidence + pressure * 0.2 - risk * 0.35 + jitter() * 0.6;
+  if (raiseScore >= profile.raise && stake < 10) return "reenvido";
+  return "quiero";
+};
+
+const settleInteractivePass = (lance, events) => ({
+  key: lance.key,
+  name: lance.name,
+  gain: { user: lance.passAward.user || 0, rival: lance.passAward.rival || 0 },
+  winnerId: lance.winnerId,
+  winnerSide: sideFromGain(lance.passAward || { user: 0, rival: 0 }, lance.winnerSide),
+  outcome: "pass",
+  stake: 0,
+  bonus: { user: 0, rival: 0 },
+  events: [...events],
+  ordagoAccepted: false,
+});
+
+const settleInteractiveNoWant = (lance, betting, t, wasOrdago) => {
+  const bettor = betting.lastAggressorSide || lance.winnerSide || "user";
+  const stake = betting.stake || 0;
+  const deje = wasOrdago ? Math.max(1, stake || 0) : Math.max(1, stake - 2);
+  const bonus = (lance.key === "pares" || lance.key === "juego" || lance.key === "punto")
+    ? lance.noWantBonus?.[bettor] || 0
+    : 0;
+  return {
+    key: lance.key,
+    name: lance.name,
+    gain: { user: bettor === "user" ? deje + bonus : 0, rival: bettor === "rival" ? deje + bonus : 0 },
+    winnerId: null,
+    winnerSide: bettor,
+    outcome: "deje",
+    stake,
+    deje,
+    bonus: { user: bettor === "user" ? bonus : 0, rival: bettor === "rival" ? bonus : 0 },
+    events: [...(betting.events || []), wasOrdago ? `${t.noQuiero} (${t.ordago})` : t.noQuiero],
+    ordagoAccepted: false,
+  };
+};
+
+const settleInteractiveAccepted = (lance, betting, t) => {
+  const bonus = lance.showdownBonus?.[lance.winnerSide] || 0;
+  const stake = betting.stake || 0;
+  return {
+    key: lance.key,
+    name: lance.name,
+    gain: {
+      user: lance.winnerSide === "user" ? stake + bonus : 0,
+      rival: lance.winnerSide === "rival" ? stake + bonus : 0,
+    },
+    winnerId: lance.winnerId,
+    winnerSide: lance.winnerSide,
+    outcome: "accepted-envite",
+    stake,
+    bonus: { user: lance.winnerSide === "user" ? bonus : 0, rival: lance.winnerSide === "rival" ? bonus : 0 },
+    events: [...(betting.events || []), t.quiero],
+    ordagoAccepted: false,
+  };
+};
+
+const settleInteractiveOrdago = (lance, betting, t) => ({
+  key: lance.key,
+  name: lance.name,
+  gain: { user: 0, rival: 0 },
+  winnerId: lance.winnerId,
+  winnerSide: lance.winnerSide,
+  outcome: "ordago-accepted",
+  stake: TARGET_STONES,
+  bonus: { user: 0, rival: 0 },
+  events: [...(betting.events || []), t.quiero],
+  ordagoAccepted: true,
+});
+
+const finishInteractiveRound = (state) => {
+  const t = tt(state.locale);
+  const gain = state.lanceGain || { user: 0, rival: 0 };
+  const roundWinner = gain.user > gain.rival ? "user" : gain.rival > gain.user ? "rival" : null;
+  return {
+    ...state,
+    auto: null,
+    betting: null,
+    phase: "round-over",
+    lastRound: {
+      gain,
+      lances: state.lanceResults || [],
+      ordagoAccepted: false,
+      winnerSide: roundWinner,
+    },
+    message: `${t.pRound}: ${state.stones.user}-${state.stones.rival}`,
+  };
+};
+
+const applyInteractiveLanceResult = (state, result) => {
+  const t = tt(state.locale);
+  const gain = {
+    user: (state.lanceGain?.user || 0) + (result.gain?.user || 0),
+    rival: (state.lanceGain?.rival || 0) + (result.gain?.rival || 0),
+  };
+  const stones = {
+    user: (state.stones.user || 0) + (result.gain?.user || 0),
+    rival: (state.stones.rival || 0) + (result.gain?.rival || 0),
+  };
+  const results = [...(state.lanceResults || []), result];
+  if (result.ordagoAccepted) {
+    const winner = result.winnerSide || "rival";
+    return {
+      ...state,
+      auto: null,
+      betting: null,
+      stones: { ...stones, [winner]: TARGET_STONES },
+      lanceGain: gain,
+      lanceResults: results,
+      phase: "match-over",
+      lastRound: { gain, lances: results, ordagoAccepted: true, winnerSide: winner },
+      message: `${teamLabel(winner, t)} ${t.winner.toLowerCase()} (${t.ordago})`,
+    };
+  }
+  const match = stones.user >= TARGET_STONES ? "user" : stones.rival >= TARGET_STONES ? "rival" : null;
+  if (match) {
+    return {
+      ...state,
+      auto: null,
+      betting: null,
+      stones,
+      lanceGain: gain,
+      lanceResults: results,
+      phase: "match-over",
+      lastRound: { gain, lances: results, ordagoAccepted: false, winnerSide: match },
+      message: `${teamLabel(match, t)} ${t.winner.toLowerCase()} (${stones.user}-${stones.rival})`,
+    };
+  }
+  return {
+    ...state,
+    stones,
+    lanceGain: gain,
+    lanceResults: results,
+    betting: null,
+    auto: null,
+  };
+};
+
+const beginLanceAt = (state, index) => {
+  if (state.phase === "match-over") return state;
+  const t = tt(state.locale);
+  let next = { ...state, auto: null, betting: null, lanceIndex: index };
+  for (let i = index; i < (next.lances || []).length; i += 1) {
+    const lance = next.lances[i];
+    if (lance.playable === false) {
+      const skipped = {
+        key: lance.key,
+        name: lance.name,
+        gain: { user: 0, rival: 0 },
+        winnerId: null,
+        winnerSide: null,
+        outcome: "skipped",
+        stake: 0,
+        bonus: { user: 0, rival: 0 },
+        events: [lance.skipReason || t.reasonSkipped],
+        ordagoAccepted: false,
+      };
+      next = applyInteractiveLanceResult(next, skipped);
+      if (next.phase === "match-over") return next;
+      continue;
+    }
+    const bothSides = lance.participantSides.user && lance.participantSides.rival;
+    if (!bothSides) {
+      next = applyInteractiveLanceResult(next, settleInteractivePass(lance, [`${t.pass} / ${t.pass}`]));
+      if (next.phase === "match-over") return next;
+      continue;
+    }
+    const manoOrder = rotateFrom(next.order, next.manoId);
+    const activePlayers = manoOrder.filter((id) => lance.participants.includes(id));
+    const actorId = activePlayers[0] || lance.participants[0];
+    const betting = {
+      lanceIndex: i,
+      activePlayers,
+      actorId,
+      pending: null,
+      stake: 0,
+      lastAggressorSide: null,
+      passes: 0,
+      events: [],
+    };
+    return {
+      ...next,
+      phase: "lance-action",
+      lanceIndex: i,
+      betting,
+      auto: next.byId[actorId]?.ai ? { type: "lance-ai", ms: LANCE_AI_MS } : null,
+      message: `${lance.name}: ${next.byId[actorId]?.name || actorId}`,
+    };
+  }
+  return finishInteractiveRound(next);
+};
+
+const beginInteractiveLances = (state) => beginLanceAt({
+  ...state,
+  phase: "lance-action",
+  lances: buildLances(state),
+  lanceIndex: 0,
+  lanceGain: { user: 0, rival: 0 },
+  lanceResults: [],
+  betting: null,
+  lastRound: null,
+  auto: null,
+}, 0);
+
+const withLanceAuto = (state) => {
+  const actor = state.byId[state.betting?.actorId];
+  if (state.phase === "lance-action" && actor?.ai) {
+    return { ...state, auto: { type: "lance-ai", ms: LANCE_AI_MS } };
+  }
+  return { ...state, auto: null };
+};
+
+const applyLanceAction = (state, action) => {
+  if (state.phase !== "lance-action" || !state.betting) return state;
+  const t = tt(state.locale);
+  const lance = state.lances?.[state.betting.lanceIndex];
+  const actor = state.byId[state.betting.actorId];
+  if (!lance || !actor) return state;
+  const betting = {
+    ...state.betting,
+    events: [...(state.betting.events || [])],
+  };
+  const actorSide = actor.side || "rival";
+  const actorLabel = `${actor.name}: `;
+  const nextOpponent = () => nextLanceActor(betting.activePlayers, actor.id, state.byId, oppositeSide(actorSide));
+  const nextClockwise = () => nextLanceActor(betting.activePlayers, actor.id, state.byId);
+
+  if (!betting.pending) {
+    if (action === "pass") {
+      betting.events.push(`${actorLabel}${t.pass}`);
+      betting.passes += 1;
+      if (betting.passes >= betting.activePlayers.length) {
+        return beginLanceAt(applyInteractiveLanceResult(state, settleInteractivePass(lance, betting.events)), betting.lanceIndex + 1);
+      }
+      betting.actorId = nextClockwise();
+      return withLanceAuto({ ...state, betting, message: `${lance.name}: ${state.byId[betting.actorId]?.name || betting.actorId}` });
+    }
+    if (action === "ordago") {
+      betting.events.push(`${actorLabel}${t.ordago}`);
+      betting.pending = "ordago";
+      betting.lastAggressorSide = actorSide;
+      betting.passes = 0;
+      betting.actorId = nextOpponent();
+      return withLanceAuto({ ...state, betting, message: `${lance.name}: ${t.answerOrdago}` });
+    }
+    betting.events.push(`${actorLabel}${t.envido} (+2)`);
+    betting.pending = "bet";
+    betting.stake += 2;
+    betting.lastAggressorSide = actorSide;
+    betting.passes = 0;
+    betting.actorId = nextOpponent();
+    return withLanceAuto({ ...state, betting, message: `${lance.name}: ${t.answerBet}` });
+  }
+
+  if (betting.pending === "ordago") {
+    if (action === "quiero") {
+      return applyInteractiveLanceResult(state, settleInteractiveOrdago(lance, betting, t));
+    }
+    return beginLanceAt(applyInteractiveLanceResult(state, settleInteractiveNoWant(lance, betting, t, true)), betting.lanceIndex + 1);
+  }
+
+  if (action === "quiero") {
+    return beginLanceAt(applyInteractiveLanceResult(state, settleInteractiveAccepted(lance, betting, t)), betting.lanceIndex + 1);
+  }
+  if (action === "no-quiero") {
+    return beginLanceAt(applyInteractiveLanceResult(state, settleInteractiveNoWant(lance, betting, t, false)), betting.lanceIndex + 1);
+  }
+  if (action === "ordago") {
+    betting.events.push(`${actorLabel}${t.ordago}`);
+    betting.pending = "ordago";
+    betting.lastAggressorSide = actorSide;
+    betting.actorId = nextOpponent();
+    return withLanceAuto({ ...state, betting, message: `${lance.name}: ${t.answerOrdago}` });
+  }
+  betting.events.push(`${actorLabel}${t.reenvido} (+2)`);
+  betting.stake += 2;
+  betting.lastAggressorSide = actorSide;
+  betting.actorId = nextOpponent();
+  return withLanceAuto({ ...state, betting, message: `${lance.name}: ${t.answerBet}` });
+};
+
 const cardText = (c) => (c ? `${c.rankLabel}${c.suitSymbol}` : "--");
 function Card({ card, deckId, hidden = false, compact = false, onClick, disabled, selected }) {
   const img = !hidden && card?.imageUrl;
@@ -919,7 +1337,7 @@ function StrategyMusDeckGame() {
       const disc = Object.fromEntries(aiIds.map((id) => [id, aiDiscard(prev, prev.hands[id])]));
       return { ...prev, phase: "discard-select", humanVote: true, aiVotes: votes, aiDiscard: disc, selected: [], message: t.allMus };
     }
-    return { ...prev, phase: "lance-resolving", humanVote: Boolean(want), aiVotes: votes, auto: { type: "resolve", ms: RESOLVE_MS }, message: `${want ? (prev.byId[aiIds.find((id) => !votes[id]) || "human"]?.name || "IA") : t.human} ${t.noMus}` };
+    return beginInteractiveLances({ ...prev, humanVote: Boolean(want), aiVotes: votes, message: `${want ? (prev.byId[aiIds.find((id) => !votes[id]) || "human"]?.name || "IA") : t.human} ${t.noMus}` });
   }), [t]);
   const toggle = useCallback((idx) => setS((prev) => prev.phase !== "discard-select" ? prev : { ...prev, selected: prev.selected.includes(idx) ? prev.selected.filter((x) => x !== idx) : [...prev.selected, idx].sort((a, b) => a - b) }), []);
   const clear = useCallback(() => setS((prev) => prev.phase === "discard-select" ? { ...prev, selected: [] } : prev), []);
@@ -954,6 +1372,7 @@ function StrategyMusDeckGame() {
       message: t.askMus,
     };
   }), [t]);
+  const lanceAction = useCallback((action) => setS((prev) => applyLanceAction(prev, action)), []);
 
   useEffect(() => {
     if (!s.auto) return undefined;
@@ -961,6 +1380,7 @@ function StrategyMusDeckGame() {
       if (!prev.auto) return prev;
       if (prev.auto.type === "resolve") return resolveLances(prev);
       if (prev.auto.type === "deal") return dealOneCard(prev);
+      if (prev.auto.type === "lance-ai") return applyLanceAction(prev, decideLanceAiAction(prev));
       return prev;
     }), s.auto.ms || 0);
     return () => clearTimeout(tm);
@@ -970,7 +1390,7 @@ function StrategyMusDeckGame() {
     const onKey = (e) => {
       const k = String(e.key || "").toLowerCase();
       if (["input", "textarea", "select"].includes(String(e.target?.tagName || "").toLowerCase())) return;
-      if (k === "r") { e.preventDefault(); restart(); return; }
+      if (k === "r" && s.phase !== "lance-action") { e.preventDefault(); restart(); return; }
       if (k === "n") { e.preventDefault(); nextRound(); return; }
       if (s.phase === "mus-decision" && (k === "m" || k === "a" || e.key === "Enter" || e.key === " ")) { e.preventDefault(); askMus(true); return; }
       if (s.phase === "mus-decision" && (k === "x" || k === "b")) { e.preventDefault(); askMus(false); return; }
@@ -982,11 +1402,19 @@ function StrategyMusDeckGame() {
         return;
       }
       if (s.phase === "discard-select" && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); confirm(); return; }
+      if (s.phase === "lance-action" && s.betting?.actorId === "human") {
+        if (k === "p") { e.preventDefault(); lanceAction("pass"); return; }
+        if (k === "e") { e.preventDefault(); lanceAction("envido"); return; }
+        if (k === "q" || e.key === "Enter") { e.preventDefault(); lanceAction("quiero"); return; }
+        if (k === "x") { e.preventDefault(); lanceAction("no-quiero"); return; }
+        if (k === "r") { e.preventDefault(); lanceAction("reenvido"); return; }
+        if (k === "o") { e.preventDefault(); lanceAction("ordago"); return; }
+      }
       if (s.phase === "round-over" && e.key === "Enter") { e.preventDefault(); nextRound(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [askMus, confirm, nextRound, restart, s.phase, toggle]);
+  }, [askMus, confirm, lanceAction, nextRound, restart, s.betting?.actorId, s.phase, toggle]);
 
   const bridgePayload = useCallback((snap) => ({
     mode: "strategy-mus-ai",
@@ -1005,6 +1433,15 @@ function StrategyMusDeckGame() {
     votes: snap.aiVotes,
     discardSelected: (snap.selected || []).map((i) => i + 1),
     dealingRemaining: snap.dealQueue?.length || 0,
+    currentLance: snap.phase === "lance-action" && snap.betting ? {
+      index: snap.betting.lanceIndex,
+      key: snap.lances?.[snap.betting.lanceIndex]?.key,
+      name: snap.lances?.[snap.betting.lanceIndex]?.name,
+      actorId: snap.betting.actorId,
+      pending: snap.betting.pending,
+      stake: snap.betting.stake,
+      events: snap.betting.events,
+    } : null,
     lastRound: snap.lastRound ? {
       gain: snap.lastRound.gain,
       ordagoAccepted: Boolean(snap.lastRound.ordagoAccepted),
@@ -1019,7 +1456,13 @@ function StrategyMusDeckGame() {
         events: l.events,
       })),
     } : null,
-    actions: { canAskMus: snap.phase === "mus-decision", canDiscard: snap.phase === "discard-select", canNextRound: snap.phase === "round-over", canRestart: true },
+    actions: {
+      canAskMus: snap.phase === "mus-decision",
+      canDiscard: snap.phase === "discard-select",
+      canLanceAction: snap.phase === "lance-action" && snap.betting?.actorId === "human",
+      canNextRound: snap.phase === "round-over",
+      canRestart: true,
+    },
     message: snap.message,
   }), []);
   const advanceTime = useCallback((ms) => setS((prev) => {
@@ -1027,6 +1470,7 @@ function StrategyMusDeckGame() {
     if ((ms || 0) >= (prev.auto.ms || 0)) {
       if (prev.auto.type === "resolve") return resolveLances(prev);
       if (prev.auto.type === "deal") return dealOneCard(prev);
+      if (prev.auto.type === "lance-ai") return applyLanceAction(prev, decideLanceAiAction(prev));
       return prev;
     }
     return { ...prev, auto: { ...prev.auto, ms: (prev.auto.ms || 0) - ms } };
@@ -1039,7 +1483,9 @@ function StrategyMusDeckGame() {
       ? t.pMus
       : s.phase === "discard-select"
         ? t.pDiscard
-        : s.phase === "lance-resolving"
+        : s.phase === "lance-action"
+          ? t.pLance
+          : s.phase === "lance-resolving"
           ? t.pResolve
           : s.phase === "round-over"
             ? t.pRound
@@ -1049,6 +1495,14 @@ function StrategyMusDeckGame() {
   const winnerSide = s.stones.user >= TARGET_STONES ? "user" : s.stones.rival >= TARGET_STONES ? "rival" : null;
   const roundWinner = s.lastRound?.winnerSide || null;
   const readout = handReadout(s, t);
+  const activeLance = s.phase === "lance-action" ? s.lances?.[s.betting?.lanceIndex] : null;
+  const activeActor = s.phase === "lance-action" ? s.byId[s.betting?.actorId] : null;
+  const humanLanceTurn = s.phase === "lance-action" && s.betting?.actorId === "human";
+  const lancePrompt = s.betting?.pending === "ordago"
+    ? t.answerOrdago
+    : s.betting?.pending === "bet"
+      ? t.answerBet
+      : t.openLance;
   const roundReasonLines = (s.lastRound?.lances || [])
     .map((l) => {
       const side = sideFromGain(l.gain || { user: 0, rival: 0 }, l.winnerSide);
@@ -1146,6 +1600,28 @@ function StrategyMusDeckGame() {
               <button type="button" className={s.selected.includes(3) ? "active" : ""} onClick={() => toggle(3)}>&darr;</button>
             </div>
           ) : null}
+          {s.phase === "lance-action" && activeLance && s.betting ? (
+            <div className="mus-lance-panel">
+              <h6>{t.currentLance}: {activeLance.name}</h6>
+              <p>{t.speaking}: <strong>{activeActor?.name || s.betting.actorId}</strong> ({teamLabel(activeActor?.side, t)})</p>
+              <p>{lancePrompt} · {t.lancePot}: <strong>{s.betting.stake || 0}</strong></p>
+              {s.betting.events?.length ? (
+                <ol>
+                  {s.betting.events.slice(-4).map((event, idx) => <li key={`${event}-${idx}`}>{event}</li>)}
+                </ol>
+              ) : null}
+              {humanLanceTurn ? (
+                <div className="mus-action-group mus-lance-actions">
+                  {!s.betting.pending ? <button type="button" onClick={() => lanceAction("pass")}>{t.pass}</button> : null}
+                  {!s.betting.pending ? <button type="button" onClick={() => lanceAction("envido")}>{t.envido}</button> : null}
+                  {s.betting.pending ? <button type="button" onClick={() => lanceAction("quiero")}>{t.quiero}</button> : null}
+                  {s.betting.pending ? <button type="button" onClick={() => lanceAction("no-quiero")}>{t.noQuiero}</button> : null}
+                  {s.betting.pending === "bet" ? <button type="button" onClick={() => lanceAction("reenvido")}>{t.reenvido}</button> : null}
+                  <button type="button" onClick={() => lanceAction("ordago")}>{t.ordago}</button>
+                </div>
+              ) : <p className="mus-discard-counter">{activeActor?.ai ? `${activeActor.name}...` : t.humanLanceHint}</p>}
+            </div>
+          ) : null}
           {s.humanVote != null ? (
             <div className="mus-info-toggle">
               <button type="button" onClick={() => setShowHandInfo((prev) => !prev)}>
@@ -1167,12 +1643,20 @@ function StrategyMusDeckGame() {
               <h6>{t.summary}: {s.lastRound.gain.user} - {s.lastRound.gain.rival}</h6>
               <ul>
                 {s.lastRound.lances.map((l, i) => {
+                  if (l.outcome === "skipped") {
+                    return <li key={`${l.name}-${i}`}>{l.name}: {(l.events || [t.reasonSkipped])[0]}</li>;
+                  }
                   const side = sideFromGain(l.gain || { user: 0, rival: 0 }, l.winnerSide);
                   const stones = (l.gain?.[side] || 0);
                   const detail = (l.events || []).join(" > ");
+                  const winnerName = l.winnerId ? (s.byId[l.winnerId]?.name || l.winnerId) : null;
+                  const bonus = l.bonus?.[side] || 0;
                   return (
                     <li key={`${l.name}-${i}`}>
-                      {l.name}: {teamLabel(side, t)} +{stones}{detail ? ` (${detail})` : ""}
+                      {l.name}: {teamLabel(side, t)} +{stones}
+                      {winnerName ? ` - ${t.bestBy}: ${winnerName}` : ""}
+                      {bonus ? ` - ${t.premium} +${bonus}` : ""}
+                      {detail ? ` (${detail})` : ""}
                     </li>
                   );
                 })}

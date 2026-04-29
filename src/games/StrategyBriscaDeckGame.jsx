@@ -211,6 +211,18 @@ const aiSeatPattern = (aiCount) => {
   return [top, upperLeft, upperRight, left, right];
 };
 
+const clockwiseSeatAngle = (seat) => {
+  const x = (seat?.x ?? 50) - 50;
+  const y = (seat?.y ?? 50) - 50;
+  return (Math.atan2(x, -y) + Math.PI * 2) % (Math.PI * 2);
+};
+
+const clockwiseOrderFromPlayers = (players) =>
+  [...players]
+    .map((player, index) => ({ player, index, angle: clockwiseSeatAngle(player.seat) }))
+    .sort((a, b) => (a.angle - b.angle) || (a.index - b.index))
+    .map(({ player }) => player.id);
+
 const makePlayers = (variantId, aiOpponents, t) => {
   const v = VARIANTS[variantId];
   const total = Math.min(6, Math.max(2, aiOpponents + 1));
@@ -400,7 +412,7 @@ const createConfig = (locale, variantId, aiOpponents, difficultyId) => {
     aiOpponents: ai,
     players,
     mateId,
-    order: players.map((p) => p.id),
+    order: clockwiseOrderFromPlayers(players),
     byId: Object.fromEntries(players.map((p) => [p.id, p])),
   };
 };

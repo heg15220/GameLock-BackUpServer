@@ -23,7 +23,7 @@ function GameCard({ game, index, locale, onLaunch, t, promoNote = null }) {
         </div>
 
         <h3>{lg.title}</h3>
-        <p className="tagline">{lg.tagline}</p>
+        <p className="catalog-description">{lg.catalogDescription}</p>
 
         <div className="card-meta">
           <span>{t("difficulty")}: {lg.difficulty}</span>

@@ -679,10 +679,17 @@ body {
 }
 
 .tagline {
-  margin: 0 0 0.7rem;
+  margin: 0 0 0.42rem;
   color: var(--ink-soft);
   font-size: 0.92rem;
   line-height: 1.4;
+}
+
+.catalog-description {
+  margin: 0 0 0.78rem;
+  color: #415048;
+  font-size: 0.86rem;
+  line-height: 1.42;
 }
 
 .card-meta {
@@ -16336,7 +16343,7 @@ button.brisca-card.playable:disabled {
   z-index: 11;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  animation: mus-deal-pass 160ms ease-out forwards;
+  animation: mus-deal-pass 460ms ease-out forwards;
 }
 
 .strategy-mus-game .mus-deal-fx .brisca-card.compact {
@@ -16391,6 +16398,51 @@ button.brisca-card.playable:disabled {
   border-color: rgba(251, 191, 36, 0.88);
   box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.44);
   color: #fef3c7;
+}
+
+.strategy-mus-game .mus-lance-panel {
+  width: min(360px, 96%);
+  margin: 0 auto 0.44rem;
+  padding: 0.48rem 0.58rem;
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.74);
+  color: #f8fafc;
+  text-align: left;
+}
+
+.strategy-mus-game .mus-lance-panel h6 {
+  margin: 0 0 0.3rem;
+  color: #fde68a;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.strategy-mus-game .mus-lance-panel p {
+  margin: 0;
+  font-size: 0.74rem;
+}
+
+.strategy-mus-game .mus-lance-panel p + p {
+  margin-top: 0.18rem;
+}
+
+.strategy-mus-game .mus-lance-panel ol {
+  margin: 0.34rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.14rem;
+  color: #dbeafe;
+  font-size: 0.72rem;
+}
+
+.strategy-mus-game .mus-lance-actions {
+  justify-content: flex-start;
+  margin-top: 0.42rem;
+}
+
+.strategy-mus-game .mus-lance-actions button {
+  border-color: rgba(251, 191, 36, 0.62);
 }
 
 .strategy-mus-game .mus-info-toggle {
@@ -16513,6 +16565,251 @@ button.brisca-card.playable:disabled {
   border-color: rgba(217, 119, 6, 0.95) !important;
   box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.42);
   transform: translateY(-5px);
+}
+
+@media (max-width: 920px) {
+  .strategy-mus-game .mus-table-felt {
+    min-height: 820px;
+  }
+
+  .strategy-mus-game .mus-center-zone {
+    top: 49%;
+    width: min(440px, 90vw);
+    max-height: 45%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.5rem;
+    gap: 0.34rem;
+    scrollbar-width: thin;
+  }
+
+  .strategy-mus-game .mus-center-zone::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  .strategy-mus-game .mus-center-zone::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.62);
+  }
+
+  .strategy-mus-game .mus-board-score {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.16rem 0.5rem;
+    padding: 0.34rem 0.44rem;
+  }
+
+  .strategy-mus-game .mus-board-score h6 {
+    grid-column: 1 / -1;
+    margin-bottom: 0.08rem;
+  }
+
+  .strategy-mus-game .mus-center-deck {
+    justify-self: center;
+    margin-bottom: 0.18rem;
+    padding: 0.16rem 0.34rem;
+  }
+
+  .strategy-mus-game .mus-center-deck .brisca-card.compact,
+  .strategy-mus-game .mus-deal-fx .brisca-card.compact {
+    width: 32px;
+    min-height: 46px;
+  }
+
+  .strategy-mus-game .mus-lance-panel {
+    width: 100%;
+    padding: 0.42rem 0.48rem;
+    margin-bottom: 0.22rem;
+  }
+
+  .strategy-mus-game .mus-lance-panel h6 {
+    font-size: 0.74rem;
+  }
+
+  .strategy-mus-game .mus-lance-panel p,
+  .strategy-mus-game .mus-lance-panel ol {
+    font-size: 0.7rem;
+  }
+
+  .strategy-mus-game .mus-lance-panel ol {
+    max-height: 4.8em;
+    overflow: hidden;
+  }
+
+  .strategy-mus-game .mus-lance-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.28rem;
+    margin-top: 0.34rem;
+  }
+
+  .strategy-mus-game .mus-lance-actions button,
+  .strategy-mus-game .mus-action-group button {
+    min-width: 0;
+    padding: 0.36rem 0.32rem;
+    font-size: 0.7rem;
+    line-height: 1.08;
+  }
+
+  .strategy-mus-game .mus-hand-readout,
+  .strategy-mus-game .mus-round-summary {
+    padding: 0.38rem 0.46rem;
+    margin-top: 0.18rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .strategy-baraja-modes .strategy-mus-game.brisca-arena {
+    padding: 0.38rem;
+  }
+
+  .strategy-mus-game .mus-config {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .strategy-mus-game .mus-status-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding-bottom: 0.08rem;
+    scrollbar-width: thin;
+  }
+
+  .strategy-mus-game .mus-status-row span {
+    flex: 0 0 auto;
+    font-size: 0.68rem;
+    padding: 0.22rem 0.34rem;
+  }
+
+  .strategy-mus-game .mus-table-felt {
+    min-height: 760px;
+  }
+
+  .strategy-mus-game .mus-table-felt .brisca-seat {
+    width: min(150px, 42vw);
+    padding: 0.34rem;
+    gap: 0.12rem;
+  }
+
+  .strategy-mus-game .mus-table-felt .brisca-seat h5 {
+    font-size: 0.66rem;
+  }
+
+  .strategy-mus-game .mus-table-felt .seat-tag,
+  .strategy-mus-game .mus-table-felt .seat-side,
+  .strategy-mus-game .mus-table-felt .seat-hint-bubble {
+    font-size: 0.56rem;
+  }
+
+  .strategy-mus-game .mus-table-felt .seat-hidden-hand {
+    gap: 0.08rem;
+  }
+
+  .strategy-mus-game .mus-table-felt .seat-hidden-hand .brisca-card.compact,
+  .strategy-mus-game .mus-table-felt .seat-open-hand .brisca-card.compact,
+  .strategy-mus-game .ai-count-5 .seat-open-hand .brisca-card.compact,
+  .strategy-mus-game .ai-count-5 .seat-hidden-hand .brisca-card.compact {
+    width: 24px;
+    min-height: 34px;
+  }
+
+  .strategy-mus-game .mus-center-zone {
+    top: 48%;
+    width: min(360px, 94vw);
+    max-height: 43%;
+    padding: 0.38rem;
+    gap: 0.26rem;
+  }
+
+  .strategy-mus-game .mus-board-score {
+    margin-bottom: 0.12rem;
+  }
+
+  .strategy-mus-game .mus-board-score h6,
+  .strategy-mus-game .mus-lance-panel h6,
+  .strategy-mus-game .mus-round-summary h6,
+  .strategy-mus-game .mus-hand-readout h6 {
+    font-size: 0.68rem;
+  }
+
+  .strategy-mus-game .mus-board-score p,
+  .strategy-mus-game .mus-lance-panel p,
+  .strategy-mus-game .mus-lance-panel ol,
+  .strategy-mus-game .mus-round-summary ul,
+  .strategy-mus-game .mus-hand-readout p,
+  .strategy-mus-game .mus-dealing-message,
+  .strategy-mus-game .mus-discard-counter {
+    font-size: 0.64rem;
+    line-height: 1.22;
+  }
+
+  .strategy-mus-game .mus-lance-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .strategy-mus-game .mus-action-group:not(.mus-lance-actions) {
+    gap: 0.28rem;
+  }
+
+  .strategy-mus-game .mus-action-group:not(.mus-lance-actions) button {
+    flex: 1 1 92px;
+  }
+
+  .strategy-mus-game .mus-discard-grid {
+    width: min(220px, 92%);
+    gap: 0.22rem;
+    margin-bottom: 0.22rem;
+  }
+
+  .strategy-mus-game .mus-discard-grid button {
+    padding: 0.24rem 0.12rem;
+    font-size: 0.68rem;
+  }
+
+  .strategy-mus-game .mus-human-zone {
+    width: min(360px, 96%);
+    padding: 0.42rem;
+  }
+
+  .strategy-mus-game .mus-human-zone .brisca-player-hand {
+    gap: 0.16rem;
+  }
+
+  .strategy-mus-game .mus-human-zone .brisca-card {
+    width: 56px;
+    min-height: 78px;
+  }
+
+  .strategy-mus-game .mus-shortcuts {
+    margin-bottom: 0.18rem;
+  }
+
+  .strategy-mus-game .brisca-help {
+    max-height: 2.8em;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 920px) and (orientation: landscape) {
+  .strategy-mus-game .mus-table-felt {
+    min-height: 650px;
+  }
+
+  .strategy-mus-game .mus-center-zone {
+    top: 50%;
+    width: min(520px, 58vw);
+    max-height: 54%;
+  }
+
+  .strategy-mus-game .mus-lance-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .strategy-mus-game .mus-human-zone .brisca-card {
+    width: 52px;
+    min-height: 72px;
+  }
 }
 
 .strategy-escoba-game .escoba-config {
@@ -21086,12 +21383,17 @@ button.brisca-card.playable:disabled {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   background: #0f1a20;
   min-height: 340px;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .golf-tour-canvas {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 .golf-tour-overlay {

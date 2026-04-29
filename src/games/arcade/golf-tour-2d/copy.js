@@ -40,6 +40,10 @@ export const UI_COPY = {
       surface: "Superficie",
       hazards: "Riesgos",
       campaign: "Campana",
+      angleDown: "Angulo -",
+      angleUp: "Angulo +",
+      powerDown: "Potencia -",
+      powerUp: "Potencia +",
     },
     controlsDesktop:
       "Raton: arrastra desde la bola para apuntar y definir potencia. Teclado: A/D o flechas (angulo), W/S o flechas (potencia), Espacio/Enter lanza, P pausa, R reinicia, L selector, F pantalla completa.",
@@ -124,6 +128,10 @@ export const UI_COPY = {
       surface: "Surface",
       hazards: "Hazards",
       campaign: "Campaign",
+      angleDown: "Angle -",
+      angleUp: "Angle +",
+      powerDown: "Power -",
+      powerUp: "Power +",
     },
     controlsDesktop:
       "Mouse: drag from the ball to aim and set power. Keyboard: A/D or arrows (angle), W/S or arrows (power), Space/Enter shoot, P pause, R restart, L level select, F fullscreen.",

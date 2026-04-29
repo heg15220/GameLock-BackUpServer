@@ -201,7 +201,7 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
         {/* Info strip (colapsable) */}
         {infoOpen && !useMobileGameShell && (
           <header className="launch-info">
-            <p className="launch-tagline">{lg.tagline}</p>
+            <p className="launch-tagline">{lg.catalogDescription}</p>
 
             <dl className="launch-facts">
               {lg.objective && (

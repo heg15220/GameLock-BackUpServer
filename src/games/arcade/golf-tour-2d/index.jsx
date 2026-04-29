@@ -423,10 +423,10 @@ function GolfTour2DGame() {
           </div>
 
           <div className="golf-tour-touch-controls">
-            <button type="button" {...holdProps("aimLeft")}>Angle -</button>
-            <button type="button" {...holdProps("aimRight")}>Angle +</button>
-            <button type="button" {...holdProps("powerDown")}>Power -</button>
-            <button type="button" {...holdProps("powerUp")}>Power +</button>
+            <button type="button" {...holdProps("aimLeft")}>{ui.labels.angleDown}</button>
+            <button type="button" {...holdProps("aimRight")}>{ui.labels.angleUp}</button>
+            <button type="button" {...holdProps("powerDown")}>{ui.labels.powerDown}</button>
+            <button type="button" {...holdProps("powerUp")}>{ui.labels.powerUp}</button>
             <button type="button" onClick={() => runtimeRef.current?.launchBall()}>
               {ui.labels.launch}
             </button>

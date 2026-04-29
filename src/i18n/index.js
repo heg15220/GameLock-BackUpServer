@@ -1,5 +1,6 @@
 ﻿import { useMemo } from "react";
 import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
+import { gameCatalogDescriptions } from "../data/gameCatalogDescriptions";
 
 const STRINGS = {
   es: {
@@ -89,9 +90,13 @@ export function localizeCategory(categoryKey, locale) {
 
 export function getLocalizedGame(game, locale) {
   const isEn = locale === "en";
+  const catalogCopy = gameCatalogDescriptions[game.id];
   return {
     ...game,
     tagline: isEn ? game.tagline_en ?? game.tagline : game.tagline,
+    catalogDescription: isEn
+      ? catalogCopy?.en ?? game.catalogDescription_en ?? game.description_en ?? game.description
+      : catalogCopy?.es ?? game.catalogDescription ?? game.description,
     category: isEn ? game.category_en ?? game.category : game.category,
     description: isEn ? game.description_en ?? game.description : game.description,
     highlights: isEn ? game.highlights_en ?? game.highlights : game.highlights,

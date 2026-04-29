@@ -1781,6 +1781,8 @@ export default function WikipediaGachaGame() {
   const missionFeedTimeoutsRef = useRef([]);
   const rareDropTimeoutRef = useRef(null);
   const shellScrollRef = useRef(null);
+  const articleModalRef = useRef(null);
+  const articleDetailCardRef = useRef(null);
   const packHeroRef = useRef(null);
   const packsSectionRef = useRef(null);
   const packsStageRef = useRef(null);
@@ -1807,6 +1809,35 @@ export default function WikipediaGachaGame() {
   useEffect(() => {
     setDetailCardFlipped(false);
   }, [selectedArticle?.articleId, selectedArticle?.id]);
+
+  useEffect(() => {
+    if (!selectedArticle) {
+      return undefined;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      articleModalRef.current?.scrollTo?.({ top: 0, behavior: "auto" });
+
+      if (isMobileViewport) {
+        window.scrollTo?.({ top: 0, behavior: "auto" });
+        shellScrollRef.current?.scrollTo?.({ top: 0, behavior: "auto" });
+        articleDetailCardRef.current?.scrollIntoView?.({
+          behavior: "smooth",
+          block: "center",
+          inline: "nearest",
+        });
+        return;
+      }
+
+      articleDetailCardRef.current?.scrollIntoView?.({
+        behavior: "auto",
+        block: "center",
+        inline: "nearest",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [selectedArticle?.articleId, selectedArticle?.id, isMobileViewport]);
 
   const clearPackHeroTimeouts = () => {
     packHeroTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
@@ -2706,7 +2737,11 @@ export default function WikipediaGachaGame() {
 
   const articleModal = selectedArticle ? (
     <div className={`wg-modal-backdrop${isMobileViewport ? " is-mobile" : ""}`} role="presentation" onClick={() => setSelectedArticle(null)}>
-      <article className={`wg-modal${isMobileViewport ? " is-mobile" : ""}`} onClick={(event) => event.stopPropagation()}>
+      <article
+        ref={articleModalRef}
+        className={`wg-modal${isMobileViewport ? " is-mobile" : ""}`}
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="wg-section-head">
           <div>
             <h3>{getTitle(selectedArticle)}</h3>
@@ -2716,7 +2751,7 @@ export default function WikipediaGachaGame() {
         </div>
         <div className="wg-modal-grid">
           <div className="wg-modal-card-shell">
-            <div className="wg-modal-stack-preview">
+            <div className="wg-modal-stack-preview" ref={articleDetailCardRef}>
               <DetailFlipCard
                 card={selectedArticle}
                 archiveLabel={text.archive}
