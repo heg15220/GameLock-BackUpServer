@@ -1,0 +1,11 @@
+
+> plataforma-juegos-saas@0.1.0 dev
+> vite --host 127.0.0.1 --port 5175
+
+
+  [32m[1mVITE[22m v4.5.14[39m  [2mready in [0m[1m1090[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5175[22m/[39m
+[2m12:06:18[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/arcade/neon-rush/index.html[22m
+[2m12:06:33[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/arcade/neon-rush/index.html[22m
+[2m12:06:42[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/arcade/neon-rush/index.html[22m

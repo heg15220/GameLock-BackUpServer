@@ -305,10 +305,11 @@ for(let i=0;i<80;i++){
 // ── BUILDERS ──────────────────────────────────────────────────
 const LL=4400;
 const LL_EXT_BASE=7600;
+const START_PADDING=340;
 function levelLengthFor(n){
-  if(n<20)return LL;
+  if(n<20)return LL+START_PADDING;
   const i=n-20;
-  return LL_EXT_BASE+Math.floor(i/10)*260+(i%10)*140;
+  return LL_EXT_BASE+Math.floor(i/10)*260+(i%10)*140+START_PADDING;
 }
 function sp(x,y=GR-S){return{t:'s',x,y,w:S,h:S};}
 function si(x,y=0){return{t:'i',x,y,w:S,h:S};}
@@ -325,7 +326,7 @@ function ir(x,n,g=0){const o=[];for(let i=0;i<n;i++)o.push(si(x+i*(S+g)));return
 // A skilled player needs many attempts; designing for ~3min means generous obstacle density
 // that requires ~20-40 retries average. Each attempt ~10s → 20 attempts ≈ 3min 20s ✓
 
-function buildLv(n){
+function buildLvRaw(n){
   switch(n){
     case 0:return lv1();case 1:return lv2();case 2:return lv3();case 3:return lv4();
     case 4:return lv5();case 5:return lv6();case 6:return lv7();case 7:return lv8();
@@ -334,6 +335,11 @@ function buildLv(n){
     case 16:return lv17();case 17:return lv18();case 18:return lv19();case 19:return lv20();
     default:return buildGeneratedLv(n);
   }
+}
+function buildLv(n){
+  const o=buildLvRaw(n);
+  for(const item of o)item.x+=START_PADDING;
+  return o;
 }
 
 // ── LV1 STARFALL easy neon — intro to jumping ─────────────────
@@ -679,7 +685,7 @@ function ri(rand,min,max){return Math.floor(rand()*(max-min+1))+min;}
 
 function buildGeneratedLv(n){
   const idx=n-20;
-  const len=levelLengthFor(n);
+  const len=levelLengthFor(n)-START_PADDING;
   const rand=mkRand(90210+idx*131);
   const diff=META[n]?.d||'hard';
   const diffBoost=diff==='medium'?0:(diff==='hard'?1:2);

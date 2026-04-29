@@ -192,6 +192,7 @@ export default class PongRuntime {
       active: false,
       until: 0,
       offset: 0,
+      mode: "offset",
       cooldownUntil: 0
     };
 
@@ -505,6 +506,11 @@ export default class PongRuntime {
     return Number.isFinite(preset?.maxBallSpeed) ? preset.maxBallSpeed : BALL_CONFIG.maxSpeed;
   }
 
+  clampBallSpeed() {
+    this.ball.speed = clamp(this.ball.speed, BALL_CONFIG.minSpeed, this.getBallMaxSpeed());
+    return this.ball.speed;
+  }
+
   setDifficulty(key) {
     if (!DIFFICULTY_PRESETS[key]) {
       return;
@@ -514,7 +520,7 @@ export default class PongRuntime {
     this.state.difficultyKey = key;
     this.state.difficultyLabel = DIFFICULTY_PRESETS[key].label;
     this.state.ballMaxSpeed = this.getBallMaxSpeed();
-    this.ball.speed = clamp(this.ball.speed, BALL_CONFIG.minSpeed, this.state.ballMaxSpeed);
+    this.clampBallSpeed();
     this.state.message = `Dificultad ${DIFFICULTY_PRESETS[key].label}`;
     this.statusFlash = 0.42;
     this.publishSnapshot(true);
@@ -619,6 +625,7 @@ export default class PongRuntime {
     this.aiMistake.active = false;
     this.aiMistake.until = 0;
     this.aiMistake.offset = 0;
+    this.aiMistake.mode = "offset";
     this.aiMistake.cooldownUntil = 0;
   }
 
@@ -656,6 +663,7 @@ export default class PongRuntime {
     this.ball.vx = direction;
     this.ball.vy = 0;
     this.ball.speed = BALL_CONFIG.serveSpeed;
+    this.clampBallSpeed();
     this.ball.spin = 0;
     this.ball.trail.length = 0;
     this.ball.lastTouchedBy = "none";
@@ -673,6 +681,7 @@ export default class PongRuntime {
       BALL_CONFIG.minSpeed,
       this.getBallMaxSpeed()
     );
+    this.clampBallSpeed();
     this.ball.spin = 0;
     this.ball.lastTouchedBy = "none";
 
@@ -696,7 +705,8 @@ export default class PongRuntime {
       this.ball.x = this.width - this.ball.radius;
       this.ball.vx = -Math.abs(this.ball.vx);
     }
-    this.ball.speed = clamp(this.ball.speed * BALL_CONFIG.wallSpeedDamp, BALL_CONFIG.minSpeed, this.getBallMaxSpeed());
+    this.ball.speed *= BALL_CONFIG.wallSpeedDamp;
+    this.clampBallSpeed();
     this.wallPulse = 0.55;
     this.audio.playWallCue();
   }
@@ -788,6 +798,9 @@ export default class PongRuntime {
       whiffOffsetMax: Number.isFinite(preset.aiWhiffOffsetMax) ? preset.aiWhiffOffsetMax : 112,
       whiffCooldownMin: Number.isFinite(preset.aiWhiffCooldownMin) ? preset.aiWhiffCooldownMin : 0.95,
       whiffCooldownMax: Number.isFinite(preset.aiWhiffCooldownMax) ? preset.aiWhiffCooldownMax : 1.8,
+      forcedMistakes: Boolean(preset.aiForcedMistakes),
+      pauseMistakeChance: Number.isFinite(preset.aiPauseMistakeChance) ? preset.aiPauseMistakeChance : 0,
+      wrongWayMistakeChance: Number.isFinite(preset.aiWrongWayMistakeChance) ? preset.aiWrongWayMistakeChance : 0,
       personality
     };
   }
@@ -904,16 +917,24 @@ export default class PongRuntime {
         if (this.aiMistake.active && this.elapsed >= this.aiMistake.until) {
           this.aiMistake.active = false;
           this.aiMistake.offset = 0;
+          this.aiMistake.mode = "offset";
         }
 
         if (!this.aiMistake.active && this.elapsed >= this.aiMistake.cooldownUntil) {
           const dangerWindow = clamp((this.ball.x - CENTER_X) / CENTER_X, 0, 1);
           const triggerRate = aiParams.whiffChance * (0.35 + dangerWindow * 0.95);
-          if (Math.random() < triggerRate * dt) {
+          const shouldForceMistake = aiParams.forcedMistakes && (dangerWindow > 0.18 || Math.random() < 0.12);
+          if (shouldForceMistake || Math.random() < triggerRate * dt) {
             const direction = Math.random() < 0.5 ? -1 : 1;
+            const mistakeRoll = Math.random();
             this.aiMistake.active = true;
             this.aiMistake.offset =
               direction * randomRange(aiParams.whiffOffsetMin, aiParams.whiffOffsetMax);
+            this.aiMistake.mode = mistakeRoll < aiParams.pauseMistakeChance
+              ? "pause"
+              : mistakeRoll < aiParams.pauseMistakeChance + aiParams.wrongWayMistakeChance
+                ? "wrongWay"
+                : "offset";
             this.aiMistake.until =
               this.elapsed + randomRange(aiParams.whiffDurationMin, aiParams.whiffDurationMax);
             this.aiMistake.cooldownUntil =
@@ -922,11 +943,19 @@ export default class PongRuntime {
         }
 
         if (this.aiMistake.active) {
-          noisyPrediction += this.aiMistake.offset;
+          if (this.aiMistake.mode === "pause") {
+            noisyPrediction = paddle.y;
+          } else if (this.aiMistake.mode === "wrongWay") {
+            const awayDirection = predicted >= paddle.y ? -1 : 1;
+            noisyPrediction = paddle.y + awayDirection * Math.abs(this.aiMistake.offset);
+          } else {
+            noisyPrediction += this.aiMistake.offset;
+          }
         }
       } else if (this.aiMistake.active) {
         this.aiMistake.active = false;
         this.aiMistake.offset = 0;
+        this.aiMistake.mode = "offset";
       }
 
       targetY = lerp(paddle.y, noisyPrediction, aiParams.predictionWeight);
@@ -934,6 +963,7 @@ export default class PongRuntime {
       if (this.aiMistake.active) {
         this.aiMistake.active = false;
         this.aiMistake.offset = 0;
+        this.aiMistake.mode = "offset";
       }
       const centerOffset = Math.sin(this.elapsed * 1.2 + this.state.round * 0.3) * aiParams.jitter * 0.12;
       targetY = lerp(paddle.y, CENTER_Y + centerOffset, PADDLE_CONFIG.aiCenterPull + aiParams.personality.centerBias * 0.25);
@@ -1025,6 +1055,7 @@ export default class PongRuntime {
       BALL_CONFIG.minSpeed,
       this.getBallMaxSpeed()
     );
+    this.clampBallSpeed();
     this.ball.spin = english;
     this.ball.lastTouchedBy = side;
 
@@ -1049,6 +1080,8 @@ export default class PongRuntime {
   }
 
   updateBall(dt) {
+    this.clampBallSpeed();
+
     this.ball.x += this.ball.vx * this.ball.speed * dt;
     this.ball.y += this.ball.vy * this.ball.speed * dt;
 
@@ -1057,7 +1090,8 @@ export default class PongRuntime {
     if (this.ball.y - this.ball.radius <= 0) {
       this.ball.y = this.ball.radius;
       this.ball.vy = Math.abs(this.ball.vy);
-      this.ball.speed = clamp(this.ball.speed * BALL_CONFIG.wallSpeedDamp, BALL_CONFIG.minSpeed, this.getBallMaxSpeed());
+      this.ball.speed *= BALL_CONFIG.wallSpeedDamp;
+      this.clampBallSpeed();
       this.wallPulse = 0.55;
       this.audio.playWallCue();
     }
@@ -1065,7 +1099,8 @@ export default class PongRuntime {
     if (this.ball.y + this.ball.radius >= this.height) {
       this.ball.y = this.height - this.ball.radius;
       this.ball.vy = -Math.abs(this.ball.vy);
-      this.ball.speed = clamp(this.ball.speed * BALL_CONFIG.wallSpeedDamp, BALL_CONFIG.minSpeed, this.getBallMaxSpeed());
+      this.ball.speed *= BALL_CONFIG.wallSpeedDamp;
+      this.clampBallSpeed();
       this.wallPulse = 0.55;
       this.audio.playWallCue();
     }
@@ -1121,6 +1156,7 @@ export default class PongRuntime {
       this.ball.x = CENTER_X + Math.cos(this.elapsed * 2) * 3;
       this.ball.y = CENTER_Y + Math.sin(this.elapsed * 3.2) * 4;
       this.ball.speed = BALL_CONFIG.serveSpeed * pulse;
+      this.clampBallSpeed();
 
       if (this.state.serveCountdown <= 0) {
         this.serveBall();
