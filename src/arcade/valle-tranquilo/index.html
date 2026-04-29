@@ -2426,7 +2426,7 @@ function resize(){
   const isFullscreen=!!document.fullscreenElement;
   perfLite=cw*ch>=960000;
   const dpr=window.devicePixelRatio||1;
-  const maxDpr=isFullscreen?(perfLite?0.78:0.9):1.5;
+  const maxDpr=isFullscreen?(perfLite?0.78:0.9):(perfLite?0.85:1);
   renderDpr=Math.max(0.72,Math.min(dpr,maxDpr));
   ['sc','gc','fc'].forEach(id=>{
     const c=document.getElementById(id);
@@ -3600,7 +3600,7 @@ function drawFootDust(){
 function tileIndex(col,row){return row*GW+col;}
 function idxToTile(idx){return {col:idx%GW,row:Math.floor(idx/GW)};}
 function normKey(key){return key&&key.length===1?key.toLowerCase():key;}
-function moveRepeatMs(){return KEYS.Shift?85:125;}
+function moveRepeatMs(){return KEYS.Shift?260:360;}
 function isNpcTile(col,row){
   return Object.values(NPC_WORLD).some(npc=>npc.col===col&&npc.row===row);
 }

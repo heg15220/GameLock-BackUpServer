@@ -126,13 +126,13 @@ body.mobile-shell-embed.mobile-shell-landscape #start > div:last-child{font-size
     <div class="startrow">
       <div class="schar">
         <canvas id="sc1" width="120" height="200"></canvas>
-        <div class="scharname" style="color:#44aaff">KAI</div>
+        <div class="scharname" style="color:#44aaff">VOLT</div>
         <div class="scharsub">PLAYER 1</div>
       </div>
       <div class="vstext">VS</div>
       <div class="schar">
         <canvas id="sc2" width="120" height="200"></canvas>
-        <div class="scharname" style="color:#ff4455">RYZE</div>
+        <div class="scharname" style="color:#ff4455">BLAZE</div>
         <div class="scharsub">PLAYER 2 / CPU</div>
       </div>
     </div>
@@ -149,7 +149,7 @@ body.mobile-shell-embed.mobile-shell-landscape #start > div:last-child{font-size
   </div>
   <div id="hud">
     <div class="phud b">
-      <div class="pname b">KAI</div>
+      <div class="pname b">VOLT</div>
       <div class="hpw"><div class="hpfill" id="p1hf"></div><div class="hpdmg" id="p1dm"></div></div>
       <div class="superbar" id="p1sb"></div>
       <div class="wdots" id="p1wd"></div>
@@ -159,7 +159,7 @@ body.mobile-shell-embed.mobile-shell-landscape #start > div:last-child{font-size
       <div id="rndt">ROUND 1</div>
     </div>
     <div class="phud r">
-      <div class="pname r">RYZE</div>
+      <div class="pname r">BLAZE</div>
       <div class="hpw"><div class="hpfill" id="p2hf"></div><div class="hpdmg" id="p2dm"></div></div>
       <div class="superbar" id="p2sb"></div>
       <div class="wdots" id="p2wd"></div>
@@ -853,7 +853,7 @@ function addCombo(pid) {
 
 function triggerKO(loserId) {
   if(GS.over) return; GS.over=true; clearInterval(GS.timerInt);
-  const wid=loserId==='p1'?'p2':'p1', wname=wid==='p1'?'KAI':'RYZE';
+  const wid=loserId==='p1'?'p2':'p1', wname=wid==='p1'?'VOLT':'BLAZE';
   F[loserId].animState='ko'; F[loserId].animLock=true; F[loserId].animT=0; F[loserId].animProg=0;
   F[wid].wins++; updateWinsHUD(); GS.screenShake=0;
   setTimeout(()=>showMsg('K.O.',`${wname} WINS!`),400);
@@ -865,7 +865,7 @@ function triggerKO(loserId) {
 
 function timeUp() {
   if(GS.over) return; GS.over=true; clearInterval(GS.timerInt);
-  const wid=F.p1.hp>=F.p2.hp?'p1':'p2', wname=wid==='p1'?'KAI':'RYZE';
+  const wid=F.p1.hp>=F.p2.hp?'p1':'p2', wname=wid==='p1'?'VOLT':'BLAZE';
   F[wid].wins++; updateWinsHUD();
   GS.screenShake=0;
   showMsg('TIME!',`${wname} WINS!`);
@@ -963,13 +963,16 @@ function update(){
   const p1=F.p1;
   let p1Dir=0;
   const p1WantsBlock=Boolean(held['s']||held['S']);
-  if(!p1.animLock && p1.hitStun<=0){
+  // Allow holding block to chain through block-stun (blockT) so a sequence of
+  // AI attacks does not pass the guard between hits.
+  const p1CanAct = !p1.animLock && (p1.hitStun<=0 || p1.blockT>0);
+  if(p1CanAct){
     p1.blocking=p1WantsBlock&&!p1.isJumping;
-    if(!p1.blocking){
+    if(!p1.blocking && p1.hitStun<=0){
       if(held['a']||held['A']) p1Dir-=1;
       if(held['d']||held['D']) p1Dir+=1;
     }
-    if((held['w']||held['W'])&&!p1.isJumping)doJump('p1', p1Dir);
+    if((held['w']||held['W'])&&!p1.isJumping&&p1.hitStun<=0)doJump('p1', p1Dir);
   } else {
     p1.blocking=false;
   }
@@ -986,13 +989,14 @@ function update(){
   if(!F.p2.isAI){
     const p2=F.p2; let p2Dir=0;
     const p2WantsBlock=Boolean(held['ArrowDown']);
-    if(!p2.animLock && p2.hitStun<=0){
+    const p2CanAct = !p2.animLock && (p2.hitStun<=0 || p2.blockT>0);
+    if(p2CanAct){
       p2.blocking=p2WantsBlock&&!p2.isJumping;
-      if(!p2.blocking){
+      if(!p2.blocking && p2.hitStun<=0){
         if(held['ArrowLeft']) p2Dir-=1;
         if(held['ArrowRight']) p2Dir+=1;
       }
-      if(held['ArrowUp']&&!p2.isJumping)doJump('p2', p2Dir);
+      if(held['ArrowUp']&&!p2.isJumping&&p2.hitStun<=0)doJump('p2', p2Dir);
     } else {
       p2.blocking=false;
     }
@@ -1075,8 +1079,11 @@ function update(){
     }
   });
 
-  // Push-apart
-  const overlap=(F.p1.x+FW+8)-F.p2.x;
+  // Push-apart (side-aware: detect actual left/right by current x so a cross-up
+  // jump never slams the player back next to the AI when sides are swapped).
+  const leftF  = F.p1.x <= F.p2.x ? F.p1 : F.p2;
+  const rightF = F.p1.x <= F.p2.x ? F.p2 : F.p1;
+  const overlap = (leftF.x + FW + 8) - rightF.x;
   if(overlap>0){
     if(F.p1.isJumping && F.p1.y>16)F.p1.crossGrace=Math.max(F.p1.crossGrace,16);
     if(F.p2.isJumping && F.p2.y>16)F.p2.crossGrace=Math.max(F.p2.crossGrace,16);
@@ -1086,12 +1093,11 @@ function update(){
     (F.p2.isJumping && F.p2.y>20) ||
     F.p1.crossGrace>0 ||
     F.p2.crossGrace>0;
-  if(overlap>0){
-    if(!allowCrossByJump){
-      F.p1.x-=overlap/2; F.p2.x+=overlap/2;
-      F.p1.vx=Math.min(F.p1.vx,0);
-      F.p2.vx=Math.max(F.p2.vx,0);
-    }
+  if(overlap>0 && !allowCrossByJump){
+    leftF.x  -= overlap/2;
+    rightF.x += overlap/2;
+    if(leftF.vx  > 0) leftF.vx  = 0;
+    if(rightF.vx < 0) rightF.vx = 0;
   }
   F.p1.x=Math.max(5,Math.min(W-FW-5,F.p1.x));
   F.p2.x=Math.max(5,Math.min(W-FW-5,F.p2.x));
