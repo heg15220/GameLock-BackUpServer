@@ -212,8 +212,8 @@ export const gameCatalogDescriptions = {
     en: "Space defense: shoot invaders before they descend.",
   },
   "arcade-retro-tetris-blockfall": {
-    es: "Bloques tipo Tetris: encaja piezas y completa l\u00edneas.",
-    en: "Tetris-style blocks: fit pieces and complete lines.",
+    es: "Puzzle tipo Blockudoku: encaja piezas entrantes hasta rellenar todo el tablero.",
+    en: "Blockudoku-style puzzle: fit incoming pieces until the whole board is filled.",
   },
   "arcade-retro-frogger-crossing": {
     es: "Cruza carretera y r\u00edo esquivando coches y usando troncos.",

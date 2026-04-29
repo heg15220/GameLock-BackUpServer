@@ -4527,3 +4527,24 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Los textos de misiones/trofeos y la garantia de sobre pasan de SR/SSR a Monografia/Codice en la UI, sin cambiar la logica de filtros, backend ni guardado.
 - Validacion: `npx vitest run src/games/knowledge/wikipedia-gacha/packUiState.test.js` OK; `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK; Playwright con backend local en-US abrio un sobre y verifico una carta real `Entry R` con ATK/DEF visibles.
 - Ajuste posterior: las rarezas ahora muestran abreviaturas de 2 letras (`AP/FI/EN/MO/CO/CA/SI`) junto al codigo interno; los nombres completos quedan solo en tooltip/accesibilidad para no ocupar espacio en carta.
+
+## 2026-04-29 - Tetris convertido a Blockudoku
+- Peticion en curso: cambiar `arcade-retro-tetris-blockfall` a un juego tipo Blockudoku con tablero, piezas entrantes, objetivo de rellenar todo el tablero y limite de 5 minutos.
+- Implementacion aplicada en `src/games/arcade/retro-classics/index.jsx`: tablero 9x9, piezas por tandas de 3, cola de piezas resoluble, victoria por 81/81 celdas y derrota por tiempo/sin huecos.
+- Textos actualizados en catalogo, registry, descripcion corta, perfil movil y asset SVG para dejar de venderlo como Tetris/line clears.
+- Pendiente inmediato: build + Playwright con captura visual y estado `render_game_to_text`.
+
+## 2026-04-29 - Ajuste Blockudoku tablero grande y pieza entrante
+- Cambio sobre la peticion: el tablero pasa a 14x14 y ya no hay bandeja de 3 piezas; ahora existe una unica pieza activa que llega animada desde la derecha.
+- `src/games/arcade/retro-classics/index.jsx` actualizado con `active`, `incomingX`, `ready`, cola secuencial y colocacion solo cuando la pieza entrante esta lista.
+- Actualizados textos de catalogo/registry/descripciones para explicar piezas de una en una desde la derecha y tablero 14x14.
+- Pendiente: validacion build/Playwright tras el ajuste.
+
+## 2026-04-29 - Blockudoku 15x15
+- Ajuste adicional: tablero ampliado a 15x15 para mantener subcuadros 3x3 limpios y una superficie sensiblemente mayor.
+- La cola se genera por patrones resolubles de cada subcuadro 3x3: pieza 2x2, domino vertical y barra horizontal de 3.
+
+## 2026-04-29 - Blockudoku sin contador
+- Peticion posterior: quitar el contador de 5 minutos.
+- Eliminados `BLOCK_TIME_LIMIT_MS`, derrota por tiempo, bonus por tiempo, `timeLeftMs` del estado del Blockudoku y contador visual.
+- Textos actualizados a `Sin limite` / `No time limit`; el objetivo queda completar el tablero sin presion temporal.

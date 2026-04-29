@@ -71,9 +71,9 @@ const DEFINITIONS = {
     lives: 3,
   },
   "tetris-blockfall": {
-    title: { es: "Tetris Blockfall", en: "Tetris Blockfall" },
-    objective: { es: "Completa lineas sin bloquear el pozo.", en: "Complete lines without topping out." },
-    controls: { es: "A/D mover, arriba rotar, abajo soft drop, Espacio hard drop.", en: "A/D move, up rotate, down soft drop, Space hard drop." },
+    title: { es: "Blockudoku Grid", en: "Blockudoku Grid" },
+    objective: { es: "Rellena todo el tablero con las piezas entrantes.", en: "Fill the whole board with the incoming pieces." },
+    controls: { es: "Flechas/WASD mueven la pieza activa y Espacio/Enter la coloca cuando llega.", en: "Arrows/WASD move the active piece, Space/Enter places it when it arrives." },
     accent: "#34d399",
     lives: 1,
   },
@@ -342,31 +342,81 @@ function createAsteroids(level, seed) {
   };
 }
 
-const SHAPES = [
-  { c: "#22d3ee", m: [[1, 1, 1, 1]] },
-  { c: "#facc15", m: [[1, 1], [1, 1]] },
-  { c: "#c084fc", m: [[0, 1, 0], [1, 1, 1]] },
-  { c: "#fb923c", m: [[1, 0, 0], [1, 1, 1]] },
-  { c: "#60a5fa", m: [[0, 0, 1], [1, 1, 1]] },
-  { c: "#34d399", m: [[0, 1, 1], [1, 1, 0]] },
-  { c: "#f87171", m: [[1, 1, 0], [0, 1, 1]] },
+const BLOCK_BOARD_SIZE = 15;
+const BLOCK_INCOMING_X = WIDTH + 90;
+const BLOCK_READY_X = 695;
+
+const BLOCK_PIECES = [
+  { c: "#22d3ee", m: [[1]] },
+  { c: "#facc15", m: [[1, 1]] },
+  { c: "#facc15", m: [[1], [1]] },
+  { c: "#fb923c", m: [[1, 1, 1]] },
+  { c: "#fb923c", m: [[1], [1], [1]] },
+  { c: "#60a5fa", m: [[1, 1, 1, 1]] },
+  { c: "#60a5fa", m: [[1], [1], [1], [1]] },
+  { c: "#a78bfa", m: [[1, 1], [1, 1]] },
+  { c: "#34d399", m: [[1, 0], [1, 1]] },
+  { c: "#34d399", m: [[1, 1], [1, 0]] },
+  { c: "#34d399", m: [[1, 1], [0, 1]] },
+  { c: "#34d399", m: [[0, 1], [1, 1]] },
+  { c: "#f87171", m: [[1, 1, 1], [0, 1, 0]] },
+  { c: "#f87171", m: [[0, 1, 0], [1, 1, 1]] },
+  { c: "#f87171", m: [[1, 0], [1, 1], [1, 0]] },
+  { c: "#f87171", m: [[0, 1], [1, 1], [0, 1]] },
+  { c: "#c084fc", m: [[1, 1, 0], [0, 1, 1]] },
+  { c: "#c084fc", m: [[0, 1, 1], [1, 1, 0]] },
 ];
 
-function createPiece(rng) {
-  const picked = SHAPES[randInt(rng, 0, SHAPES.length)];
-  return { c: picked.c, m: picked.m.map((row) => [...row]), x: 3, y: 0 };
+function createBlockPieceFromIndex(index) {
+  const src = BLOCK_PIECES[index];
+  return { c: src.c, m: src.m.map((row) => [...row]) };
+}
+
+function createBlockPieceQueue(rng) {
+  const pieces = [];
+  for (let row = 0; row < BLOCK_BOARD_SIZE; row += 3) {
+    for (let col = 0; col < BLOCK_BOARD_SIZE; col += 3) {
+      pieces.push(
+        createBlockPieceFromIndex(7),
+        createBlockPieceFromIndex(2),
+        createBlockPieceFromIndex(3)
+      );
+    }
+  }
+  for (let i = pieces.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rng() * (i + 1));
+    [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
+  }
+  return pieces;
+}
+
+function spawnNextBlockPiece(g) {
+  g.active = g.queue.shift() ?? null;
+  g.incomingX = BLOCK_INCOMING_X;
+  g.ready = false;
 }
 
 function createTetris(level, seed) {
   const rng = createRng(seed);
-  return {
-    board: Array.from({ length: 20 }, () => Array.from({ length: 10 }, () => 0)),
-    piece: createPiece(rng),
-    next: createPiece(rng),
-    dropAcc: 0,
-    dropDelay: Math.max(0.72 - (level - 1) * 0.05, 0.12),
-    lines: 0,
+  const queue = createBlockPieceQueue(rng);
+  const game = {
+    board: Array.from({ length: BLOCK_BOARD_SIZE }, () =>
+      Array.from({ length: BLOCK_BOARD_SIZE }, () => 0)
+    ),
+    active: null,
+    incomingX: BLOCK_INCOMING_X,
+    ready: false,
+    cursor: { col: Math.floor(BLOCK_BOARD_SIZE / 2) - 1, row: Math.floor(BLOCK_BOARD_SIZE / 2) - 1 },
+    placedCells: 0,
+    won: false,
+    queue,
+    totalPieces: queue.length,
+    placedPieces: 0,
     rng,
+  };
+  spawnNextBlockPiece(game);
+  return {
+    ...game,
   };
 }
 
@@ -892,30 +942,36 @@ function updateInvaders(state, input, dt) {
   if (g.enemies.length === 0) levelUp(state, "Oleada neutralizada", "Wave neutralized", 520 + state.level * 40);
 }
 
-function rotateCW(matrix) {
-  const rows = matrix.length;
-  const cols = matrix[0].length;
-  const out = Array.from({ length: cols }, () => Array.from({ length: rows }, () => 0));
-  for (let row = 0; row < rows; row += 1) {
-    for (let col = 0; col < cols; col += 1) {
-      out[col][rows - row - 1] = matrix[row][col];
+function blockCanPlace(board, piece, col, row) {
+  if (!piece) return false;
+  for (let r = 0; r < piece.m.length; r += 1) {
+    for (let c = 0; c < piece.m[r].length; c += 1) {
+      if (!piece.m[r][c]) continue;
+      const x = col + c;
+      const y = row + r;
+      if (x < 0 || x >= BLOCK_BOARD_SIZE || y < 0 || y >= BLOCK_BOARD_SIZE) return false;
+      if (board[y][x]) return false;
     }
   }
-  return out;
+  return true;
 }
 
-function tetrisCollision(board, piece, ox = 0, oy = 0, matrix = null) {
-  const m = matrix || piece.m;
-  for (let row = 0; row < m.length; row += 1) {
-    for (let col = 0; col < m[row].length; col += 1) {
-      if (!m[row][col]) continue;
-      const x = piece.x + col + ox;
-      const y = piece.y + row + oy;
-      if (x < 0 || x >= 10 || y >= 20) return true;
-      if (y >= 0 && board[y][x]) return true;
+function blockHasAnyFit(board, piece) {
+  if (!piece) return false;
+  for (let r = 0; r < BLOCK_BOARD_SIZE; r += 1) {
+    for (let c = 0; c < BLOCK_BOARD_SIZE; c += 1) {
+      if (blockCanPlace(board, piece, c, r)) return true;
     }
   }
   return false;
+}
+
+function blockClampCursor(g, piece) {
+  if (!piece) return;
+  const maxCol = Math.max(0, BLOCK_BOARD_SIZE - piece.m[0].length);
+  const maxRow = Math.max(0, BLOCK_BOARD_SIZE - piece.m.length);
+  g.cursor.col = clamp(g.cursor.col, 0, maxCol);
+  g.cursor.row = clamp(g.cursor.row, 0, maxRow);
 }
 
 function updateAsteroids(state, input, dt) {
@@ -988,60 +1044,57 @@ function updateAsteroids(state, input, dt) {
 
 function updateTetris(state, input, dt) {
   const g = state.game;
-  const piece = g.piece;
-  if ((input.pressed("ArrowLeft") || input.pressed("KeyA")) && !tetrisCollision(g.board, piece, -1, 0)) piece.x -= 1;
-  if ((input.pressed("ArrowRight") || input.pressed("KeyD")) && !tetrisCollision(g.board, piece, 1, 0)) piece.x += 1;
-  if (input.pressed("ArrowUp") || input.pressed("KeyW") || input.pressed("KeyX")) {
-    const rotated = rotateCW(piece.m);
-    if (!tetrisCollision(g.board, piece, 0, 0, rotated)) piece.m = rotated;
+
+  if (!g.active && g.queue.length > 0) spawnNextBlockPiece(g);
+  if (g.active) {
+    g.incomingX = Math.max(BLOCK_READY_X, g.incomingX - dt * 430);
+    g.ready = g.incomingX <= BLOCK_READY_X + 0.5;
   }
-  if (input.pressed("Space")) {
-    while (!tetrisCollision(g.board, piece, 0, 1)) {
-      piece.y += 1;
-      addScore(state, 1);
+
+  const piece = g.active;
+
+  if (piece) {
+    if (input.pressed("ArrowLeft") || input.pressed("KeyA")) g.cursor.col -= 1;
+    if (input.pressed("ArrowRight") || input.pressed("KeyD")) g.cursor.col += 1;
+    if (input.pressed("ArrowUp") || input.pressed("KeyW")) g.cursor.row -= 1;
+    if (input.pressed("ArrowDown") || input.pressed("KeyS")) g.cursor.row += 1;
+    blockClampCursor(g, piece);
+  }
+
+  if (piece && g.ready && (input.pressed("Space") || input.pressed("Enter"))) {
+    if (blockCanPlace(g.board, piece, g.cursor.col, g.cursor.row)) {
+      let cells = 0;
+      for (let r = 0; r < piece.m.length; r += 1) {
+        for (let c = 0; c < piece.m[r].length; c += 1) {
+          if (!piece.m[r][c]) continue;
+          g.board[g.cursor.row + r][g.cursor.col + c] = piece.c;
+          cells += 1;
+        }
+      }
+      addScore(state, cells * 5);
+      g.placedCells += cells;
+      g.placedPieces += 1;
+      spawnNextBlockPiece(g);
+
+      const fillSize = BLOCK_BOARD_SIZE * BLOCK_BOARD_SIZE;
+      if (g.placedCells >= fillSize) {
+        addScore(state, 1200);
+        g.won = true;
+        state.phase = "gameover";
+        state.message = state.locale === "es" ? "Tablero completo" : "Board complete";
+        return;
+      }
     }
-    g.dropAcc = g.dropDelay;
   }
-  g.dropAcc += dt * ((input.down("ArrowDown") || input.down("KeyS")) ? 7 : 1);
-  if (g.dropAcc < g.dropDelay) return;
-  g.dropAcc -= g.dropDelay;
-  if (!tetrisCollision(g.board, piece, 0, 1)) {
-    piece.y += 1;
+
+  if (!g.active && g.queue.length === 0 && !g.won) {
+    state.phase = "gameover";
+    state.message = state.locale === "es" ? "Faltan huecos por completar" : "Open cells remain";
     return;
   }
-  for (let row = 0; row < piece.m.length; row += 1) {
-    for (let col = 0; col < piece.m[row].length; col += 1) {
-      if (!piece.m[row][col]) continue;
-      const x = piece.x + col;
-      const y = piece.y + row;
-      if (y >= 0 && y < 20 && x >= 0 && x < 10) g.board[y][x] = piece.c;
-    }
-  }
-  let cleared = 0;
-  for (let row = 19; row >= 0; row -= 1) {
-    if (g.board[row].every(Boolean)) {
-      g.board.splice(row, 1);
-      g.board.unshift(Array.from({ length: 10 }, () => 0));
-      cleared += 1;
-      row += 1;
-    }
-  }
-  if (cleared > 0) {
-    addScore(state, [0, 100, 280, 520, 900][cleared] * Math.max(1, state.level));
-    g.lines += cleared;
-    const targetLevel = 1 + Math.floor(g.lines / 10);
-    if (targetLevel > state.level) {
-      state.level = targetLevel;
-      g.dropDelay = Math.max(0.08, g.dropDelay * 0.94);
-    }
-  }
-  g.piece = g.next;
-  g.piece.x = 3;
-  g.piece.y = 0;
-  g.next = createPiece(g.rng);
-  if (tetrisCollision(g.board, g.piece, 0, 0)) {
+  if (g.active && !blockHasAnyFit(g.board, g.active)) {
     state.phase = "gameover";
-    state.message = state.locale === "es" ? "Stack completo" : "Stack overflow";
+    state.message = state.locale === "es" ? "Sin hueco para la pieza" : "No room left for the piece";
   }
 }
 
@@ -1912,7 +1965,9 @@ function headerKpi(state, locale) {
     case "space-invaders":
       return locale === "es" ? `Invasores ${g.enemies.length}` : `Invaders ${g.enemies.length}`;
     case "tetris-blockfall":
-      return locale === "es" ? `Lineas ${g.lines}` : `Lines ${g.lines}`;
+      return locale === "es"
+        ? `Tablero ${g.placedCells}/${BLOCK_BOARD_SIZE * BLOCK_BOARD_SIZE}`
+        : `Board ${g.placedCells}/${BLOCK_BOARD_SIZE * BLOCK_BOARD_SIZE}`;
     case "frogger-crossing":
       return locale === "es" ? `Guaridas ${g.homes.size}/5` : `Homes ${g.homes.size}/5`;
     case "galaga-quantum":
@@ -2207,83 +2262,157 @@ function drawAsteroids(ctx, state) {
 
 function drawTetris(ctx, state) {
   const g = state.game;
-  const x0 = 306;
-  const y0 = 100;
-  const cell = 18;
-  const boardW = 10 * cell;
-  const boardH = 20 * cell;
-  drawRoundedRect(ctx, x0 - 20, y0 - 16, boardW + 40, boardH + 34, 18);
-  ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
+  const cell = 25;
+  const boardSize = BLOCK_BOARD_SIZE * cell;
+  const x0 = 70;
+  const y0 = 88;
+
+  drawRoundedRect(ctx, x0 - 18, y0 - 18, boardSize + 36, boardSize + 36, 18);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.84)";
   ctx.fill();
   ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
   ctx.stroke();
 
-  const boardBg = ctx.createLinearGradient(x0, y0, x0, y0 + boardH);
+  const boardBg = ctx.createLinearGradient(x0, y0, x0, y0 + boardSize);
   boardBg.addColorStop(0, "#051f2d");
   boardBg.addColorStop(1, "#0f172a");
   ctx.fillStyle = boardBg;
-  ctx.fillRect(x0, y0, boardW, boardH);
+  ctx.fillRect(x0, y0, boardSize, boardSize);
 
-  for (let row = 0; row < 20; row += 1) {
-    for (let col = 0; col < 10; col += 1) {
+  for (let row = 0; row < BLOCK_BOARD_SIZE; row += 1) {
+    for (let col = 0; col < BLOCK_BOARD_SIZE; col += 1) {
       const x = x0 + col * cell;
       const y = y0 + row * cell;
-      ctx.fillStyle = g.board[row][col] || "rgba(15, 23, 42, 0.74)";
-      ctx.fillRect(x, y, cell - 1, cell - 1);
-      if (g.board[row][col]) {
+      const v = g.board[row][col];
+      ctx.fillStyle = v || "rgba(15, 23, 42, 0.7)";
+      ctx.fillRect(x + 1, y + 1, cell - 2, cell - 2);
+      if (v) {
         ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-        ctx.fillRect(x + 2, y + 2, cell - 6, 3);
+        ctx.fillRect(x + 4, y + 4, cell - 10, 4);
       }
     }
   }
 
-  const ghost = { ...g.piece, m: g.piece.m };
-  while (!tetrisCollision(g.board, ghost, 0, 1)) ghost.y += 1;
-  ctx.save();
-  ctx.globalAlpha = 0.25;
-  for (let row = 0; row < ghost.m.length; row += 1) {
-    for (let col = 0; col < ghost.m[row].length; col += 1) {
-      if (!ghost.m[row][col]) continue;
-      const x = ghost.x + col;
-      const y = ghost.y + row;
-      if (y < 0) continue;
-      ctx.fillStyle = g.piece.c;
-      ctx.fillRect(x0 + x * cell, y0 + y * cell, cell - 1, cell - 1);
-    }
-  }
-  ctx.restore();
-
-  for (let row = 0; row < g.piece.m.length; row += 1) {
-    for (let col = 0; col < g.piece.m[row].length; col += 1) {
-      if (!g.piece.m[row][col]) continue;
-      const x = g.piece.x + col;
-      const y = g.piece.y + row;
-      if (y < 0) continue;
-      drawGlow(ctx, x0 + x * cell + cell * 0.5, y0 + y * cell + cell * 0.5, 16, g.piece.c, 0.12);
-      ctx.fillStyle = g.piece.c;
-      ctx.fillRect(x0 + x * cell, y0 + y * cell, cell - 1, cell - 1);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.fillRect(x0 + x * cell + 2, y0 + y * cell + 2, cell - 6, 3);
-    }
+  ctx.strokeStyle = "rgba(56, 189, 248, 0.2)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= BLOCK_BOARD_SIZE; i += 3) {
+    ctx.beginPath();
+    ctx.moveTo(x0 + i * cell + 0.5, y0);
+    ctx.lineTo(x0 + i * cell + 0.5, y0 + boardSize);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, y0 + i * cell + 0.5);
+    ctx.lineTo(x0 + boardSize, y0 + i * cell + 0.5);
+    ctx.stroke();
   }
 
-  const panelX = x0 + boardW + 24;
-  const panelY = y0 + 16;
-  drawRoundedRect(ctx, panelX, panelY, 128, 120, 12);
+  const piece = g.active;
+  if (piece) {
+    const valid = blockCanPlace(g.board, piece, g.cursor.col, g.cursor.row);
+    ctx.save();
+    ctx.globalAlpha = g.ready ? (valid ? 0.55 : 0.4) : 0.18;
+    for (let r = 0; r < piece.m.length; r += 1) {
+      for (let c = 0; c < piece.m[r].length; c += 1) {
+        if (!piece.m[r][c]) continue;
+        const cx = g.cursor.col + c;
+        const cy = g.cursor.row + r;
+        if (cx < 0 || cx >= BLOCK_BOARD_SIZE || cy < 0 || cy >= BLOCK_BOARD_SIZE) continue;
+        ctx.fillStyle = valid ? piece.c : "#f87171";
+        ctx.fillRect(x0 + cx * cell + 2, y0 + cy * cell + 2, cell - 4, cell - 4);
+      }
+    }
+    ctx.restore();
+    ctx.strokeStyle = valid ? "#22d3ee" : "#ef4444";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+      x0 + g.cursor.col * cell + 1.5,
+      y0 + g.cursor.row * cell + 1.5,
+      piece.m[0].length * cell - 3,
+      piece.m.length * cell - 3
+    );
+  }
+
+  const trayX = x0 + boardSize + 34;
+  const trayY = y0;
+  const trayW = WIDTH - trayX - 42;
+  const trayH = boardSize;
+  drawRoundedRect(ctx, trayX, trayY, trayW, trayH, 14);
   ctx.fillStyle = "rgba(15, 23, 42, 0.82)";
   ctx.fill();
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.24)";
+  ctx.strokeStyle = "rgba(148, 163, 184, 0.32)";
   ctx.stroke();
+
   ctx.fillStyle = "#cbd5e1";
-  ctx.font = "600 12px 'JetBrains Mono', monospace";
-  ctx.fillText(state.locale === "es" ? "Siguiente" : "Next", panelX + 14, panelY + 22);
-  for (let row = 0; row < g.next.m.length; row += 1) {
-    for (let col = 0; col < g.next.m[row].length; col += 1) {
-      if (!g.next.m[row][col]) continue;
-      ctx.fillStyle = g.next.c;
-      ctx.fillRect(panelX + 26 + col * 18, panelY + 38 + row * 18, 16, 16);
+  ctx.font = "600 13px 'JetBrains Mono', monospace";
+  ctx.textAlign = "left";
+  ctx.fillText(state.locale === "es" ? "Pieza entrante" : "Incoming piece", trayX + 16, trayY + 24);
+  ctx.fillStyle = "rgba(148, 163, 184, 0.76)";
+  ctx.font = "500 12px 'JetBrains Mono', monospace";
+  ctx.fillText(state.locale === "es" ? "Llega desde la derecha" : "Slides in from the right", trayX + 16, trayY + 44);
+
+  drawRoundedRect(ctx, trayX + 16, trayY + 68, trayW - 32, 138, 14);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.58)";
+  ctx.fill();
+  ctx.strokeStyle = g.ready ? "rgba(52, 211, 153, 0.55)" : "rgba(148, 163, 184, 0.28)";
+  ctx.stroke();
+
+  if (piece) {
+    const cols = piece.m[0].length;
+    const rows = piece.m.length;
+    const slotCell = 24;
+    const pw = cols * slotCell;
+    const ph = rows * slotCell;
+    const startX = g.incomingX - pw * 0.5;
+    const startY = trayY + 137 - ph * 0.5;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(trayX + 16, trayY + 68, trayW - 32, 138);
+    ctx.clip();
+    for (let r = 0; r < rows; r += 1) {
+      for (let c = 0; c < cols; c += 1) {
+        if (!piece.m[r][c]) continue;
+        ctx.fillStyle = piece.c;
+        ctx.fillRect(startX + c * slotCell + 1, startY + r * slotCell + 1, slotCell - 2, slotCell - 2);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
+        ctx.fillRect(startX + c * slotCell + 4, startY + r * slotCell + 4, slotCell - 8, 3);
+      }
     }
+    ctx.restore();
   }
+
+  ctx.fillStyle = "#e2e8f0";
+  ctx.font = "700 28px 'JetBrains Mono', monospace";
+  ctx.fillText(`${g.queue.length}`, trayX + 18, trayY + 260);
+  ctx.fillStyle = "rgba(148, 163, 184, 0.82)";
+  ctx.font = "600 12px 'JetBrains Mono', monospace";
+  ctx.fillText(state.locale === "es" ? "en cola" : "queued", trayX + 72, trayY + 260);
+  ctx.fillText(
+    state.locale === "es" ? "Espacio coloca cuando la pieza esta lista" : "Space places when the piece is ready",
+    trayX + 18,
+    trayY + 298
+  );
+
+  ctx.fillStyle = "#34d399";
+  ctx.font = "700 24px 'JetBrains Mono', monospace";
+  ctx.textAlign = "left";
+  ctx.fillText(state.locale === "es" ? "Sin limite" : "No time limit", x0, y0 - 18);
+
+  ctx.fillStyle = "#cbd5e1";
+  ctx.font = "600 14px 'JetBrains Mono', monospace";
+  ctx.fillText(
+    `${g.placedCells} / ${BLOCK_BOARD_SIZE * BLOCK_BOARD_SIZE}`,
+    x0 + 150,
+    y0 - 18
+  );
+  ctx.fillStyle = "rgba(148, 163, 184, 0.85)";
+  ctx.font = "500 12px 'JetBrains Mono', monospace";
+  ctx.fillText(
+    state.locale === "es"
+      ? `Piezas ${g.placedPieces}/${g.totalPieces}`
+      : `Pieces ${g.placedPieces}/${g.totalPieces}`,
+    x0 + 270,
+    y0 - 20
+  );
 }
 
 function drawFrogger(ctx, state) {
@@ -2884,7 +3013,19 @@ function summary(state) {
     case "space-invaders":
       return { enemies: g.enemies.length, bullets: g.bullets.length, enemyBullets: g.enemyBullets.length };
     case "tetris-blockfall":
-      return { lines: g.lines, piece: { x: g.piece.x, y: g.piece.y }, delay: Math.round(g.dropDelay * 1000) };
+      return {
+        placedCells: g.placedCells,
+        boardSize: BLOCK_BOARD_SIZE * BLOCK_BOARD_SIZE,
+        timeLimit: null,
+        activeReady: g.ready,
+        incomingX: Math.round(g.incomingX),
+        cursor: { col: g.cursor.col, row: g.cursor.row },
+        piecesPlaced: g.placedPieces,
+        piecesTotal: g.totalPieces,
+        piecesQueued: g.queue.length,
+        activePiece: g.active ? { c: g.active.c, w: g.active.m[0].length, h: g.active.m.length, cells: g.active.m.flat().filter(Boolean).length } : null,
+        boardRows: g.board.map((row) => row.map((cell) => (cell ? 1 : 0)).join("")),
+      };
     case "frogger-crossing":
       return { frog: { x: g.frog.x, y: g.frog.y }, homes: g.homes.size, timeLeftMs: Math.max(0, Math.round(g.limitMs - g.roundMs)) };
     case "galaga-quantum":

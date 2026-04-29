@@ -149,17 +149,17 @@ function resolveRetroProfile(gameId, locale) {
       return {
         layout: "split",
         heading: t(locale, "Bloques", "Blocks"),
-        hint: t(locale, "Mueve, rota y acelera la caída.", "Move, rotate, and drop faster."),
+        hint: t(locale, "Encaja piezas hasta rellenar el tablero.", "Fit pieces until the board is full."),
         leftPad: directionalPad(locale, {
           up: input("ArrowUp", "ArrowUp"),
           left: input("ArrowLeft", "ArrowLeft"),
           right: input("ArrowRight", "ArrowRight"),
           down: input("ArrowDown", "ArrowDown"),
-          upLabel: t(locale, "Gira", "Rotate"),
-          downLabel: t(locale, "Baja", "Soft"),
+          upLabel: t(locale, "Arriba", "Up"),
+          downLabel: t(locale, "Abajo", "Down"),
         }),
         rightPad: [
-          control("drop", t(locale, "Drop", "Hard drop"), {
+          control("place", t(locale, "Coloca", "Place"), {
             type: "tap",
             tone: "primary",
             inputs: [input("Space", " ")],
