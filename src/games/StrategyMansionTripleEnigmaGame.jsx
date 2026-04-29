@@ -457,6 +457,7 @@ const ALL_CARD_KEYS = [
 
 const AI_IDS = PLAYER_SPECS.filter((entry) => entry.type === "ai").map((entry) => entry.id);
 const HUMAN_ID = "human";
+const AI_RELIABILITY_VALUES = [30, 40, 50, 60, 70, 80, 90];
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -470,6 +471,38 @@ const readMobileViewport = () => {
 const randomItem = (items) => {
   if (!items?.length) return null;
   return items[Math.floor(Math.random() * items.length)] ?? null;
+};
+
+const createTurnAiReliability = () => {
+  if (AI_IDS.length === 0) return {};
+
+  const sameChance = Math.random() < 0.28;
+  if (sameChance) {
+    const shared = randomItem([40, 50, 60]);
+    return Object.fromEntries(AI_IDS.map((aiId) => [aiId, shared]));
+  }
+
+  const values = [];
+  const useStrongerSpread = Math.random() < 0.55;
+  if (useStrongerSpread && AI_IDS.length >= 3) {
+    const spread = shuffle([30, 50, 80]);
+    AI_IDS.forEach((aiId, index) => {
+      values.push([aiId, spread[index % spread.length]]);
+    });
+  } else {
+    AI_IDS.forEach((aiId) => {
+      values.push([aiId, randomItem(AI_RELIABILITY_VALUES)]);
+    });
+  }
+
+  const uniqueValues = new Set(values.map(([, value]) => value));
+  if (uniqueValues.size === 1) {
+    const firstValue = values[0][1];
+    const alternatives = AI_RELIABILITY_VALUES.filter((value) => value !== firstValue);
+    values[0][1] = randomItem(alternatives) || firstValue;
+  }
+
+  return Object.fromEntries(values);
 };
 
 const shuffle = (items) => {
@@ -820,6 +853,7 @@ const createInitialState = (locale) => {
     locale,
     mode: "playing",
     turnNumber: 1,
+    aiReliability: createTurnAiReliability(),
     players: dealtPlayers,
     aiBrains,
     humanTracker,
@@ -1008,12 +1042,14 @@ const handoffTurn = (state, currentId) => {
   const locale = state.locale;
   const copy = copyFor(locale);
   const nextTurn = state.turnNumber + 1;
+  const aiReliability = createTurnAiReliability();
   if (nextId !== HUMAN_ID) {
     const aiPlayer = getPlayer(state, nextId);
     const plan = createAiTurnPlan(state, aiPlayer);
     return {
       ...state,
       turnNumber: nextTurn,
+      aiReliability,
       activePlayerId: nextId,
       auto: {
         ms: AI_ANALYZE_DELAY_MS,
@@ -1033,6 +1069,7 @@ const handoffTurn = (state, currentId) => {
   const nextState = {
     ...state,
     turnNumber: nextTurn,
+    aiReliability,
     activePlayerId: nextId,
     auto: null,
     aiActivity: null,
@@ -1565,6 +1602,7 @@ function StrategyMansionTripleEnigmaGame() {
         aiActivity: snapshot.aiActivity,
         lastAiAction: snapshot.lastAiAction,
         aiActionHistory: (snapshot.aiActionHistory || []).slice(-24),
+        aiReliability: snapshot.aiReliability || {},
         winnerId: snapshot.winnerId,
         solutionRevealed:
           snapshot.mode === "finished"
@@ -2082,7 +2120,7 @@ function StrategyMansionTripleEnigmaGame() {
                 <ul>
                   {AI_IDS.map((aiId) => {
                     const ai = getPlayer(state, aiId);
-                    const trust = Number(((state.humanTracker.speakerTrust[aiId] || 0.5) * 100).toFixed(1));
+                    const trust = Math.round(state.aiReliability?.[aiId] ?? 50);
                     return (
                       <li key={aiId}>
                         <span>{ai?.name || aiId}</span>

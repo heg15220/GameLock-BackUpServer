@@ -1,6 +1,6 @@
 import wordBlitzImage from "../assets/games/word-blitz.svg";
 import skyRunnerImage from "../assets/games/sky-runner.svg";
-import headSoccerArenaImage from "../assets/games/head-soccer-arena.svg";
+import headSoccerArenaImage from "../assets/games/head-soccer-arena-catalog.png";
 import pacmanMazeProtocolImage from "../assets/games/pacman-maze-protocol.svg";
 import pongNeonArenaImage from "../assets/games/pong-neon-arena.svg";
 import arcadeBuscaminasClassicImage from "../assets/games/arcade-buscaminas-classic.svg";
@@ -16,8 +16,8 @@ import arcadeIceStrikeProImage from "../assets/games/arcade-ice-strike-pro.svg";
 import arcadeNeonCryptImage from "../assets/games/arcade-neon-crypt.svg";
 import arcadeNeonRushImage from "../assets/games/arcade-neon-rush.svg";
 import arcadeKitchenRush2DImage from "../assets/games/arcade-kitchen-rush-2d.svg";
-import arcadeDigHoleTreasureImage from "../assets/games/arcade-dig-hole-treasure.svg";
-import arcadeValleTranquiloImage from "../assets/games/arcade-valle-tranquilo.svg";
+import arcadeDigHoleTreasureImage from "../assets/games/arcade-dig-hole-treasure-catalog.png";
+import arcadeValleTranquiloImage from "../assets/games/arcade-valle-tranquilo-catalog.png";
 import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-showdown.svg";
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
@@ -62,7 +62,7 @@ import strategyPokerNoBetImage from "../assets/games/strategy-poker-no-bet.svg";
 import strategyParchisLudotekaImage from "../assets/games/strategy-parchis-ludoteka.svg";
 import strategyBarajaIaImage from "../assets/games/strategy-baraja-ia.svg";
 import strategyMansionTripleEnigmaImage from "../assets/games/strategy-mansion-triple-enigma.svg";
-import race2dproImage from "../assets/games/race2dpro.svg";
+import race2dproImage from "../assets/games/race2dpro-catalog.png";
 import sunsetSlipstreamImage from "../assets/games/sunset-slipstream.svg";
 
 /**

@@ -4548,3 +4548,34 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Peticion posterior: quitar el contador de 5 minutos.
 - Eliminados `BLOCK_TIME_LIMIT_MS`, derrota por tiempo, bonus por tiempo, `timeLeftMs` del estado del Blockudoku y contador visual.
 - Textos actualizados a `Sin limite` / `No time limit`; el objetivo queda completar el tablero sin presion temporal.
+
+## 2026-04-29 - Race2D Pro nuevos circuitos reales
+- Peticion nueva: ampliar `racing-race2dpro` con mas circuitos usando mapas reales de referencia.
+- `src/games/race2dpro/circuits.js` ahora soporta blueprints por `raw` points ademas de tramos BCM, para poder recrear siluetas grandes y complejas con mas fidelidad.
+- Anadidos 4 circuitos grandes nuevos: Altura Real Loop, Serpentina Club, Tri-Sector DRS y Puerto Norte Park; total del selector: 10 circuitos.
+- `src/games/RaceGame2DPro.jsx` actualiza el subtitulo del setup a 10 circuitos / trazados grandes.
+- Pendiente: build + Playwright con screenshots del selector y al menos un circuito nuevo.
+
+## 2026-04-29 - Race2D Pro selector no cortado
+- Ajustado `src/games/RaceGame2DPro.css` para que el setup use la altura disponible sin centrar contenido fuera del viewport.
+- La lista de circuitos ahora ocupa espacio flexible y hace scroll interno en desktop; en pantallas estrechas vuelve a scroll de pagina para que no se corten tarjetas.
+- Anadido `touch-action: pan-y` en paneles con scroll del selector/configuracion.
+
+## 2026-04-29 - Race2D Pro IA dificil
+- Mejorado `hard` en `src/games/RaceGame2DPro.jsx`: mas velocidad punta, menor margen de frenada, menos error, mas anticipacion y mas agresividad controlada.
+- `computeAiInput` ahora usa short/mid/long lookahead, calcula fuerza de curva, traza entrada/apex, ajusta velocidad por grip/curva/recta, y toma decisiones de trafico con huecos laterales, velocidad relativa y cautela en curva.
+- La IA dificil ahora entiende mejor entorno y situaciones: evita coches lentos delante, aprovecha rebufo en recta, frena antes ante cierre de hueco, reduce riesgo si desliza o se sale de pista.
+- Segunda pasada IA dificil: `updateCar` ahora aplica factores de IA a agarre, motor, frenada y respuesta de direccion. Hard gana mejor uso dinamico del coche; easy/medium conservan limites propios.
+- Validacion ligera: esbuild transform de `src/games/RaceGame2DPro.jsx` OK fuera del sandbox tras EPERM dentro.
+
+## 2026-04-29 - Race2D Pro IA dificil recuperacion
+- Corregido bloqueo de IA dificil donde los coches podian quedarse parados por freno de trafico/precaucion persistente.
+- La IA ahora reduce frenada de precaucion a baja velocidad, mantiene una velocidad minima objetivo y activa modo recuperacion con throttle si queda casi parada o fuera de pista.
+- Pendiente: validacion visual Playwright completa si el entorno Vite/esbuild deja arrancar dev server sin EPERM/OOM.
+
+## 2026-04-30 - Race2D Pro camara movil
+- Ajustada la camara de carrera en perfiles tactiles: mas zoom y menor look-ahead para acercar el circuito en vista movil sin afectar escritorio.
+
+## 2026-04-30 - Race2D Pro IA dificil movil
+- Anadido perfil especifico para IA dificil en movil: mayor velocidad, aceleracion, agarre, velocidad de paso por curva y salida de curva mas agresiva.
+- La mejora solo se aplica cuando el juego detecta perfil tactil y la dificultad es hard; escritorio mantiene el perfil hard normal.

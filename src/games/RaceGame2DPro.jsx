@@ -154,10 +154,79 @@ const ENVIRONMENTS = {
 };
 
 const AI_PROFILES = {
-  easy: { speedFactor: 0.84, lineOffset: 0.55, brakeMargin: 1.38, errorRate: 0.14, errorMag: 0.34, apexPrecision: 0.58 },
-  medium: { speedFactor: 0.93, lineOffset: 0.28, brakeMargin: 1.10, errorRate: 0.04, errorMag: 0.16, apexPrecision: 0.80 },
-  hard: { speedFactor: 1.0, lineOffset: 0.08, brakeMargin: 0.96, errorRate: 0.008, errorMag: 0.05, apexPrecision: 0.95 },
+  easy: {
+    speedFactor: 0.84,
+    lineOffset: 0.55,
+    brakeMargin: 1.38,
+    errorRate: 0.14,
+    errorMag: 0.34,
+    apexPrecision: 0.58,
+    lookAheadBias: 0.9,
+    trafficAwareness: 0.45,
+    cornerCommit: 0.92,
+    throttleCommit: 0.82,
+    aggression: 0.38,
+    gripFactor: 0.96,
+    engineFactor: 0.94,
+    brakeFactor: 0.96,
+    steeringFactor: 0.94,
+  },
+  medium: {
+    speedFactor: 0.93,
+    lineOffset: 0.28,
+    brakeMargin: 1.10,
+    errorRate: 0.04,
+    errorMag: 0.16,
+    apexPrecision: 0.80,
+    lookAheadBias: 1.0,
+    trafficAwareness: 0.68,
+    cornerCommit: 0.98,
+    throttleCommit: 0.93,
+    aggression: 0.62,
+    gripFactor: 1.0,
+    engineFactor: 1.0,
+    brakeFactor: 1.0,
+    steeringFactor: 1.0,
+  },
+  hard: {
+    speedFactor: 1.07,
+    lineOffset: 0.025,
+    brakeMargin: 0.89,
+    errorRate: 0.0015,
+    errorMag: 0.018,
+    apexPrecision: 1.08,
+    lookAheadBias: 1.22,
+    trafficAwareness: 1.0,
+    cornerCommit: 1.08,
+    throttleCommit: 1.06,
+    aggression: 0.92,
+    gripFactor: 1.08,
+    engineFactor: 1.07,
+    brakeFactor: 1.10,
+    steeringFactor: 1.08,
+  },
 };
+
+const AI_MOBILE_HARD_PROFILE = {
+  ...AI_PROFILES.hard,
+  speedFactor: 1.24,
+  brakeMargin: 0.78,
+  apexPrecision: 1.14,
+  lookAheadBias: 1.30,
+  cornerCommit: 1.20,
+  throttleCommit: 1.22,
+  aggression: 1.0,
+  gripFactor: 1.18,
+  engineFactor: 1.28,
+  brakeFactor: 1.14,
+  steeringFactor: 1.12,
+  exitAcceleration: 1.26,
+};
+
+function getAiProfile(aiDifficulty, mobileHardAi) {
+  if (mobileHardAi && aiDifficulty === "hard") return AI_MOBILE_HARD_PROFILE;
+  return AI_PROFILES[aiDifficulty] ?? AI_PROFILES.medium;
+}
 
 const WEATHER_PROFILES = {
   dry: { id: "dry", label: { es: "Seco", en: "Dry" }, icon: "SUN", gripMult: 1.0, rainOverlay: false },
@@ -737,7 +806,7 @@ const CAR_LIVERIES = [
   { primary: "#2d826d", secondary: "#cedc00", helmet: "#000000", number: "#cedc00" },
 ];
 
-function createCar(id, isPlayer, aiDifficulty, seedBase) {
+function createCar(id, isPlayer, aiDifficulty, seedBase, mobileHardAi = false) {
   const livery = CAR_LIVERIES[id % CAR_LIVERIES.length];
   const seed = seedBase + id * 17.23;
   return {
@@ -770,7 +839,7 @@ function createCar(id, isPlayer, aiDifficulty, seedBase) {
     collided: false,
     collisionCooldown: 0,
     touchAssist: false,
-    aiProfile: isPlayer ? null : AI_PROFILES[aiDifficulty],
+    aiProfile: isPlayer ? null : getAiProfile(aiDifficulty, mobileHardAi),
     ai: isPlayer
       ? null
       : {
@@ -954,9 +1023,13 @@ function updateCar(car, dt, input, track, weatherProfile, allCars, startLocked) 
   if (car.finished || startLocked) return;
 
   const touchAssist = Boolean(car.isPlayer && car.touchAssist);
+  const aiGripFactor = car.aiProfile?.gripFactor ?? 1;
+  const aiEngineFactor = car.aiProfile?.engineFactor ?? 1;
+  const aiBrakeFactor = car.aiProfile?.brakeFactor ?? 1;
+  const aiSteeringFactor = car.aiProfile?.steeringFactor ?? 1;
   const offTrackMultiplier = car.offTrack ? lerp(PHYS.OFF_TRACK_GRIP, 1, car.offTrackRecovery) : 1;
   const touchGripBonus = touchAssist ? 1.16 : 1;
-  const surfaceGrip = weatherProfile.gripMult * offTrackMultiplier * touchGripBonus;
+  const surfaceGrip = weatherProfile.gripMult * offTrackMultiplier * touchGripBonus * aiGripFactor;
   car.surfaceGrip = surfaceGrip;
 
   car.throttleState = approach(car.throttleState, input.throttle, PHYS.THROTTLE_RESPONSE, dt);
@@ -975,8 +1048,8 @@ function updateCar(car, dt, input, track, weatherProfile, allCars, startLocked) 
     : 1;
   const maxSpeed = PHYS.MAX_SPEED * (car.aiProfile ? car.aiProfile.speedFactor : 1) * offTrackSpeedFactor;
   const speedRatio = clamp(Math.abs(longVel) / Math.max(1, maxSpeed), 0, 1.15);
-  const driveAccel = PHYS.ENGINE_ACCEL * car.throttleState * clamp(1 - Math.pow(speedRatio, 1.45), 0.18, 1);
-  const brakeAccel = PHYS.BRAKE_DECEL * car.brakeState;
+  const driveAccel = PHYS.ENGINE_ACCEL * aiEngineFactor * car.throttleState * clamp(1 - Math.pow(speedRatio, 1.45), 0.18, 1);
+  const brakeAccel = PHYS.BRAKE_DECEL * aiBrakeFactor * car.brakeState;
   const dragAccel = PHYS.ROLLING_DRAG + Math.abs(longVel) * 0.055 + longVel * longVel * PHYS.AERO_DRAG;
   const engineBrake = car.throttleState < 0.08 ? PHYS.ENGINE_BRAKE : 0;
   longVel += (driveAccel - brakeAccel - dragAccel - engineBrake) * dt;
@@ -988,6 +1061,7 @@ function updateCar(car, dt, input, track, weatherProfile, allCars, startLocked) 
     : 1;
   const targetYawRate = car.steerState
     * PHYS.STEER_RATE
+    * aiSteeringFactor
     * (0.34 + steerAuthority * 1.08)
     * (0.75 + surfaceGrip * 0.25)
     * touchYawAssist;
@@ -1161,57 +1235,124 @@ function computeAiInput(car, track, weatherProfile, allCars) {
   const profile = car.aiProfile;
   const ai = car.ai;
   ai.t += 0.016;
+  ai.lowSpeedTime = car.speed < 28 && !car.finished
+    ? (ai.lowSpeedTime ?? 0) + 0.016
+    : Math.max(0, (ai.lowSpeedTime ?? 0) - 0.048);
 
   const speedRatio = car.speed / PHYS.MAX_SPEED;
-  const shortLook = 0.02 + speedRatio * 0.03;
-  const longLook = 0.06 + speedRatio * 0.04;
+  const awareness = profile.trafficAwareness ?? 0.6;
+  const aggression = profile.aggression ?? 0.5;
+  const lookAheadBias = profile.lookAheadBias ?? 1;
+  const shortLook = (0.018 + speedRatio * 0.034) * lookAheadBias;
+  const midLook = (0.038 + speedRatio * 0.048) * lookAheadBias;
+  const longLook = (0.072 + speedRatio * 0.060) * lookAheadBias;
   const targetS = wrap01(car.s + shortLook);
   const target = sampleTrackAt(track, targetS);
+  const midTarget = sampleTrackAt(track, wrap01(car.s + midLook));
   const longTarget = sampleTrackAt(track, wrap01(car.s + longLook));
-  const isCorner = target.curvature > 0.018;
+  const cornerStrength = Math.max(target.curvature, midTarget.curvature, longTarget.curvature);
+  const isCorner = cornerStrength > 0.014;
   const normalX = -Math.sin(target.ang);
   const normalY = Math.cos(target.ang);
 
   let apexOffset = 0;
   if (isCorner) {
-    const prevTarget = sampleTrackAt(track, wrap01(targetS - 0.005));
-    const angleChange = angNorm(target.ang - prevTarget.ang);
-    apexOffset = Math.sign(angleChange) * track.trackWidth * 0.28 * profile.apexPrecision;
+    const entry = sampleTrackAt(track, wrap01(car.s + shortLook * 0.35));
+    const exit = sampleTrackAt(track, wrap01(car.s + longLook * 1.12));
+    const entryDelta = angNorm(target.ang - entry.ang);
+    const exitDelta = angNorm(exit.ang - target.ang);
+    const curveSign = Math.sign(entryDelta + exitDelta) || Math.sign(angNorm(longTarget.ang - target.ang)) || 1;
+    const phase = clamp((cornerStrength - 0.012) / 0.055, 0, 1);
+    const entryWidening = curveSign * track.trackWidth * 0.18 * profile.apexPrecision * (1 - phase * 0.35);
+    const apexClip = curveSign * track.trackWidth * 0.34 * profile.apexPrecision * phase;
+    apexOffset = lerp(entryWidening, apexClip, clamp(speedRatio * 0.85 + phase * 0.35, 0, 1));
   }
 
   const noiseOffset = Math.sin(ai.t * 0.35 + ai.noiseSeed) * track.trackWidth * profile.lineOffset * 0.4;
   const baseOffset = apexOffset + noiseOffset + ai.lineOffset * profile.lineOffset * track.trackWidth * 0.15;
 
   let overtakeShift = 0;
-  for (const other of allCars) {
-    if (other.id === car.id) continue;
-    const relX = other.x - car.x;
-    const relY = other.y - car.y;
-    const along = relX * Math.cos(car.a) + relY * Math.sin(car.a);
-    const lateral = -relX * Math.sin(car.a) + relY * Math.cos(car.a);
-    if (along > 0 && along < 60 && Math.abs(lateral) < 24) {
-      overtakeShift = lateral < 0 ? 10 : -10;
+  let trafficSpeedBias = 1;
+  let trafficBrakeBias = 0;
+  const usableHalfWidth = getTrackUsableHalfWidth(track);
+  const recoveryMode = ai.lowSpeedTime > 0.55 || (car.offTrack && car.speed < 74);
+  const trafficEnabled = !recoveryMode && ai.lowSpeedTime < 0.24 && !car.offTrack;
+  if (trafficEnabled) {
+    for (const other of allCars) {
+      if (other.id === car.id) continue;
+      const relX = other.x - car.x;
+      const relY = other.y - car.y;
+      const along = relX * Math.cos(car.a) + relY * Math.sin(car.a);
+      const lateral = -relX * Math.sin(car.a) + relY * Math.cos(car.a);
+      const sameLapThreat = !other.finished && Math.abs(wrap01(other.s - car.s + 0.5) - 0.5) < 0.08;
+      if (!sameLapThreat || along <= -18 || along > 150) continue;
+
+      const closing = car.speed - other.speed;
+      const sideSpaceLeft = usableHalfWidth + car.trackOffset;
+      const sideSpaceRight = usableHalfWidth - car.trackOffset;
+      const preferLeft = sideSpaceLeft > sideSpaceRight ? -1 : 1;
+      const passSide = lateral < -8 ? 1 : lateral > 8 ? -1 : preferLeft;
+      const obstacleUrgency = clamp((150 - along) / 130, 0, 1) * clamp((34 - Math.abs(lateral)) / 34, 0, 1);
+
+      if (obstacleUrgency > 0) {
+        const cornerCaution = isCorner ? 0.55 : 1;
+        overtakeShift += passSide * track.trackWidth * 0.32 * awareness * obstacleUrgency * cornerCaution;
+        if (car.speed > 108 && closing > 34 && along < 54) {
+          trafficBrakeBias = Math.max(trafficBrakeBias, (closing - 26) / 110 * (1 - aggression * 0.52));
+        }
+        if (along > 42 && Math.abs(lateral) < 18 && closing < 18 && !isCorner) {
+          trafficSpeedBias = Math.max(trafficSpeedBias, 1 + 0.035 * awareness);
+        }
+      }
     }
   }
 
-  const targetX = target.x + normalX * (baseOffset + overtakeShift);
-  const targetY = target.y + normalY * (baseOffset + overtakeShift);
+  const requestedOffset = recoveryMode ? baseOffset * 0.24 : baseOffset + overtakeShift;
+  const safeOffset = clamp(requestedOffset, -usableHalfWidth * 0.9, usableHalfWidth * 0.9);
+  const targetX = target.x + normalX * safeOffset;
+  const targetY = target.y + normalY * safeOffset;
   let angleDiff = angNorm(Math.atan2(targetY - car.y, targetX - car.x) - car.a);
   if (Math.random() < profile.errorRate) {
     angleDiff += (Math.random() - 0.5) * profile.errorMag * 2;
   }
 
-  const steer = clamp(angleDiff * 2.25, -1, 1);
-  const targetSpeed = (longTarget.speedLimit * weatherProfile.gripMult * profile.speedFactor) / profile.brakeMargin;
+  const steeringGain = 2.25 + awareness * 0.32 + clamp(cornerStrength * 8, 0, 0.55);
+  const steer = clamp(angleDiff * steeringGain, -1, 1);
+  const minUpcomingSpeed = Math.min(target.speedLimit, midTarget.speedLimit, longTarget.speedLimit);
+  const cornerExit = isCorner && longTarget.curvature < cornerStrength * 0.62 && Math.abs(steer) < 0.7;
+  const exitAcceleration = profile.exitAcceleration ?? 1;
+  const straightBonus = cornerStrength < 0.006
+    ? 1 + 0.055 * profile.throttleCommit
+    : (cornerExit ? 1 + 0.045 * exitAcceleration : 1);
+  const cornerGripUse = isCorner ? profile.cornerCommit : 1;
+  const environmentGrip = weatherProfile.gripMult * (car.offTrack ? 0.9 : 1);
+  const rawTargetSpeed = (minUpcomingSpeed * environmentGrip * profile.speedFactor * cornerGripUse * straightBonus * trafficSpeedBias) / profile.brakeMargin;
+  const skillRecovery = clamp((profile.speedFactor - 0.84) / 0.23, 0, 1);
+  const minimumRollingSpeed = car.offTrack
+    ? lerp(58, 90, skillRecovery)
+    : (isCorner ? lerp(78, 128, skillRecovery) : lerp(104, 164, skillRecovery));
+  const targetSpeed = Math.max(minimumRollingSpeed, rawTargetSpeed);
   const speedDiff = car.speed - targetSpeed;
-  const brake = speedDiff > 0 ? clamp(speedDiff / 92, 0, 1) : 0;
-  const throttle = brake > 0.06
+  const slipCaution = car.speed > 84 ? clamp((car.slipAngle - 0.08) / 0.16, 0, 0.45) : 0;
+  const offTrackCaution = car.offTrack ? clamp((car.speed - 70) / 180, 0, 0.22) : 0;
+  const cautionBrake = speedDiff > -12 ? trafficBrakeBias + slipCaution + offTrackCaution : Math.max(0, trafficBrakeBias - 0.12);
+  const rawBrake = clamp((speedDiff > 0 ? speedDiff / (86 - awareness * 18) : 0) + cautionBrake, 0, 1);
+  const brake = recoveryMode && speedDiff < 18 ? 0 : rawBrake;
+  let throttle = brake > 0.06
     ? 0
     : speedDiff < -8
-      ? clamp((targetSpeed - car.speed) / 80, 0.16, isCorner ? 0.72 : 1)
-      : (isCorner ? 0.20 : 0.38);
+      ? clamp((targetSpeed - car.speed) / (76 - awareness * 14), 0.18, isCorner ? 0.78 * profile.throttleCommit : 1)
+      : (isCorner ? 0.24 * profile.throttleCommit : 0.44 * profile.throttleCommit);
 
-  return { throttle, brake, steer };
+  if (cornerExit && brake <= 0.06) {
+    throttle = Math.max(throttle, clamp(0.68 * exitAcceleration, 0.68, 1));
+  }
+
+  if (recoveryMode) {
+    throttle = Math.max(throttle, car.offTrack ? 0.72 * exitAcceleration : 0.58 * exitAcceleration);
+  }
+
+  return { throttle: clamp(throttle, 0, 1), brake, steer };
 }
 
 function checkLapCross(car, prevS, startS, totalLaps, clockMs, onFinish) {
@@ -1437,14 +1578,18 @@ function renderDecorations(ctx, track, env) {
   }
 }
 
-function updateFollowCamera(camera, player, dt) {
-  const lookAhead = 110 + player.speed * 0.46;
+function updateFollowCamera(camera, player, dt, mobileCamera = false) {
+  const lookAhead = mobileCamera
+    ? 72 + player.speed * 0.30
+    : 110 + player.speed * 0.46;
   const targetX = player.x + Math.cos(player.a) * lookAhead + player.vx * 0.14;
   const targetY = player.y + Math.sin(player.a) * lookAhead + player.vy * 0.14;
   const blend = clamp(dt * 4, 0, 1);
   camera.x = lerp(camera.x, targetX, blend);
   camera.y = lerp(camera.y, targetY, blend);
-  const targetZoom = clamp(0.94 - (player.speed / PHYS.MAX_SPEED) * 0.20, 0.68, 0.94);
+  const targetZoom = mobileCamera
+    ? clamp(1.16 - (player.speed / PHYS.MAX_SPEED) * 0.16, 0.92, 1.16)
+    : clamp(0.94 - (player.speed / PHYS.MAX_SPEED) * 0.20, 0.68, 0.94);
   camera.zoom = lerp(camera.zoom, targetZoom, clamp(dt * 2.6, 0, 1));
   camera.shakeX = lerp(camera.shakeX || 0, 0, clamp(dt * 8, 0, 1));
   camera.shakeY = lerp(camera.shakeY || 0, 0, clamp(dt * 8, 0, 1));
@@ -1828,7 +1973,7 @@ export default function RaceGame2DPro() {
   const t = useMemo(() => ({
     es: {
       title: "Race 2D Pro",
-      subtitle: "6 circuitos nuevos | Parrilla escalonada | 5 luces | Fisica revisada",
+      subtitle: "10 circuitos | Trazados grandes | Parrilla escalonada | 5 luces",
       selectTrack: "Circuito",
       selectDifficulty: "Dificultad IA",
       selectWeather: "Clima",
@@ -1869,7 +2014,7 @@ export default function RaceGame2DPro() {
     },
     en: {
       title: "Race 2D Pro",
-      subtitle: "6 new circuits | Staggered grid | 5 lights | Reworked physics",
+      subtitle: "10 circuits | Larger layouts | Staggered grid | 5 lights",
       selectTrack: "Circuit",
       selectDifficulty: "AI difficulty",
       selectWeather: "Weather",
@@ -1975,7 +2120,7 @@ export default function RaceGame2DPro() {
     const seedBase = (selectedTrack.id + 1) * 101 + laps * 17 + rivals * 13 + ({ easy: 5, medium: 11, hard: 19 }[aiDifficulty] || 5);
     const cars = [];
     for (let i = 0; i < rivals + 1; i += 1) {
-      cars.push(createCar(i, i === 0, aiDifficulty, seedBase));
+      cars.push(createCar(i, i === 0, aiDifficulty, seedBase, isTouchControlProfile));
     }
     const playerCar = cars.find((car) => car.isPlayer);
     if (playerCar) {
@@ -2003,7 +2148,7 @@ export default function RaceGame2DPro() {
       endCountdown: 0,
       pendingLeaderboard: null,
       finishPresentation: null,
-      camera: { x: startPoint.x, y: startPoint.y, zoom: 1, shakeX: 0, shakeY: 0 },
+      camera: { x: startPoint.x, y: startPoint.y, zoom: isTouchControlProfile ? 1.12 : 1, shakeX: 0, shakeY: 0 },
       startProcedure: createStartProcedure(selectedTrack.id, laps, rivals, aiDifficulty),
     };
 
@@ -2145,7 +2290,7 @@ export default function RaceGame2DPro() {
           game.camera.shakeX += (Math.random() - 0.5) * PHYS.COLLISION_CAMERA_SHAKE;
           game.camera.shakeY += (Math.random() - 0.5) * PHYS.COLLISION_CAMERA_SHAKE;
         }
-        updateFollowCamera(game.camera, playerCar, STEP_MS / 1000);
+        updateFollowCamera(game.camera, playerCar, STEP_MS / 1000, playerCar.touchAssist);
       }
 
       applyCameraTransform(ctx, game.camera, width, height);
