@@ -6045,8 +6045,7 @@ body {
 .knowledge-arcade-game .quick-actions button,
 .knowledge-arcade-game .domino-toolbar button,
 .knowledge-arcade-game .crossword-toolbar button,
-.knowledge-arcade-game .solitaire-topbar button,
-.knowledge-arcade-game .solitaire-column-actions button {
+.knowledge-arcade-game .klondike-actions button {
   border: 1px solid rgba(148, 163, 184, 0.45);
   border-radius: 9px;
   background:
@@ -6064,8 +6063,7 @@ body {
 .knowledge-arcade-game .quick-actions button:hover,
 .knowledge-arcade-game .domino-toolbar button:hover,
 .knowledge-arcade-game .crossword-toolbar button:hover,
-.knowledge-arcade-game .solitaire-topbar button:hover,
-.knowledge-arcade-game .solitaire-column-actions button:hover {
+.knowledge-arcade-game .klondike-actions button:hover {
   border-color: rgba(125, 211, 252, 0.68);
   box-shadow: 0 8px 16px rgba(2, 6, 23, 0.3);
   transform: translateY(-1px);
@@ -6074,8 +6072,7 @@ body {
 .knowledge-arcade-game .quick-actions button:disabled,
 .knowledge-arcade-game .domino-toolbar button:disabled,
 .knowledge-arcade-game .crossword-toolbar button:disabled,
-.knowledge-arcade-game .solitaire-topbar button:disabled,
-.knowledge-arcade-game .solitaire-column-actions button:disabled {
+.knowledge-arcade-game .klondike-actions button:disabled {
   opacity: 0.48;
   cursor: not-allowed;
   transform: none;
@@ -8208,140 +8205,470 @@ body {
   cursor: not-allowed;
 }
 
-.solitaire-topbar {
-  margin-top: 0.68rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 0.4rem;
+/* ── Klondike Solitaire (paciencia) ────────────────────────────────────── */
+.knowledge-arcade-game.knowledge-paciencia {
+  --klondike-card-w: 70px;
+  --klondike-card-h: 100px;
+  --klondike-faceup-offset: -68px;
+  --klondike-facedown-offset: -82px;
+  --klondike-gap: 0.55rem;
 }
 
-.solitaire-topbar button.selected {
-  border-color: rgba(250, 204, 21, 0.7);
-  box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.2);
-}
-
-.solitaire-foundations {
+.klondike-status-row {
   margin-top: 0.6rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.38rem;
-}
-
-.solitaire-foundations span {
-  border-radius: 999px;
-  border: 1px solid rgba(110, 231, 183, 0.5);
-  background: rgba(6, 95, 70, 0.44);
+  gap: 0.5rem 1rem;
+  font-size: 0.78rem;
   color: #d1fae5;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.23rem 0.62rem;
 }
 
-.solitaire-target-label {
-  margin: 0.6rem 0 0;
-  color: #d1fae5;
-  font-size: 0.79rem;
-  font-weight: 700;
-}
-
-.solitaire-tableau {
-  margin-top: 0.64rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.45rem;
-}
-
-.solitaire-column {
-  border-radius: 11px;
-  border: 1px solid rgba(110, 231, 183, 0.32);
-  background:
-    radial-gradient(circle at 90% -22%, rgba(255, 255, 255, 0.08), transparent 46%),
-    linear-gradient(170deg, rgba(6, 78, 59, 0.68), rgba(6, 95, 70, 0.58));
-  padding: 0.5rem;
-  display: grid;
-  gap: 0.4rem;
-}
-
-.solitaire-column.selected {
-  border-color: rgba(250, 204, 21, 0.74);
-}
-
-.solitaire-column.target {
-  box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.24) inset;
-}
-
-.solitaire-column header strong {
+.klondike-status-row strong {
   color: #ecfdf5;
-  font-size: 0.8rem;
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 700;
+  margin-right: 0.25rem;
 }
 
-.solitaire-stack {
+.klondike-board {
+  margin-top: 0.7rem;
   display: grid;
-  gap: 0.26rem;
+  gap: 0.7rem;
+  user-select: none;
+  /* Allow vertical scroll of the parent shell on touch — only individual
+     interactive cards opt out via touch-action: none below. */
+  touch-action: pan-x pan-y;
 }
 
-.solitaire-card {
+.klondike-top-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--klondike-gap);
+  align-items: start;
+}
+
+.klondike-stock-pair {
+  display: grid;
+  grid-template-columns: repeat(2, var(--klondike-card-w));
+  gap: var(--klondike-gap);
+}
+
+.klondike-foundations {
+  display: grid;
+  grid-template-columns: repeat(4, var(--klondike-card-w));
+  gap: var(--klondike-gap);
+  justify-content: end;
+}
+
+.klondike-pile {
   position: relative;
+  width: var(--klondike-card-w);
+  min-height: var(--klondike-card-h);
+  border-radius: 9px;
+  border: 1.5px dashed rgba(167, 243, 208, 0.42);
+  background: rgba(6, 78, 59, 0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a7f3d0;
+  font-weight: 700;
+  font-size: 1.4rem;
+  font-family: inherit;
+  cursor: default;
+  padding: 0;
+}
+
+.klondike-pile.filled {
+  background: transparent;
+  border-style: solid;
+  border-color: rgba(110, 231, 183, 0.18);
+}
+
+.klondike-pile-icon {
+  opacity: 0.5;
+  font-size: 1.6rem;
+}
+
+.klondike-pile-icon.ghost {
+  opacity: 0.22;
+  font-size: 2rem;
+}
+
+.klondike-pile-label {
+  position: absolute;
+  bottom: -1.05rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.klondike-stock {
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease;
+}
+
+.klondike-stock:hover {
+  border-color: rgba(125, 211, 252, 0.6);
+  transform: translateY(-1px);
+}
+
+.klondike-stock.recycle .klondike-pile-icon {
+  color: #fcd34d;
+  opacity: 0.85;
+}
+
+.klondike-foundation {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(8, 47, 73, 0.32);
+}
+
+.klondike-foundation.empty .klondike-pile-icon {
+  color: rgba(186, 230, 253, 0.55);
+}
+
+.klondike-foundation.red .klondike-pile-icon { color: rgba(252, 165, 165, 0.62); }
+.klondike-foundation.black .klondike-pile-icon { color: rgba(226, 232, 240, 0.5); }
+
+.klondike-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.klondike-tableau {
+  display: grid;
+  grid-template-columns: repeat(7, var(--klondike-card-w));
+  gap: var(--klondike-gap);
+  align-items: start;
+  min-height: calc(var(--klondike-card-h) + 6 * 32px);
+}
+
+.klondike-column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: var(--klondike-card-w);
+  min-height: var(--klondike-card-h);
+  border-radius: 9px;
+}
+
+.klondike-column.empty {
+  border: 1.5px dashed rgba(167, 243, 208, 0.32);
+  background: rgba(6, 78, 59, 0.22);
+  align-items: center;
+  justify-content: center;
+}
+
+.klondike-card {
+  position: relative;
+  width: var(--klondike-card-w);
+  height: var(--klondike-card-h);
   border-radius: 8px;
-  border: 1px solid rgba(226, 232, 240, 0.56);
-  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.35);
+  background: #fdfdfd;
   color: #0f172a;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  min-height: 62px;
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding: 0.18rem 0.32rem;
-  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.2);
-}
-
-.solitaire-card-corner {
-  font-size: 0.62rem;
-  line-height: 1;
   font-weight: 800;
+  padding: 0.22rem 0.34rem;
+  box-shadow: 0 3px 6px rgba(2, 6, 23, 0.35);
+  transition: transform 90ms ease, box-shadow 120ms ease, outline-color 120ms ease;
+  outline: 2px solid transparent;
 }
 
-.solitaire-card-corner.bottom {
+.klondike-card.faceup {
+  background: linear-gradient(160deg, #fefefe 0%, #f1f5f9 100%);
+}
+
+.klondike-card.facedown {
+  background: linear-gradient(135deg, #1e3a8a, #312e81);
+  border-color: rgba(99, 102, 241, 0.55);
+}
+
+.klondike-card.facedown.small {
+  /* Used for stock thumbnail */
+  width: calc(var(--klondike-card-w) - 6px);
+  height: calc(var(--klondike-card-h) - 6px);
+}
+
+.klondike-card.facedown .back-pattern {
+  position: absolute;
+  inset: 4px;
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(45deg,
+      rgba(255, 255, 255, 0.12) 0,
+      rgba(255, 255, 255, 0.12) 4px,
+      rgba(255, 255, 255, 0.04) 4px,
+      rgba(255, 255, 255, 0.04) 8px),
+    radial-gradient(circle at 30% 30%, rgba(125, 211, 252, 0.45), transparent 60%),
+    radial-gradient(circle at 70% 75%, rgba(244, 114, 182, 0.35), transparent 60%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.klondike-card.red { color: #b91c1c; }
+.klondike-card.black { color: #0f172a; }
+
+.klondike-card.interactive {
+  cursor: grab;
+  /* Block native scroll on draggable cards so the drag gesture is captured. */
+  touch-action: none;
+}
+
+.klondike-card.interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(2, 6, 23, 0.45);
+}
+
+.klondike-card.selected {
+  outline-color: rgba(250, 204, 21, 0.95);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.35), 0 6px 14px rgba(2, 6, 23, 0.45);
+}
+
+.klondike-card.dragging {
+  opacity: 0.32;
+}
+
+.klondike-card-corner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+  font-size: 0.74rem;
+}
+
+.klondike-card-corner.bottom {
   justify-self: end;
   align-self: end;
   transform: rotate(180deg);
 }
 
-.solitaire-card-center {
+.klondike-card-corner .rank { font-weight: 800; }
+.klondike-card-corner .suit { font-size: 0.78rem; }
+
+.klondike-card-pip {
   justify-self: center;
   align-self: center;
-  font-size: 1rem;
+  font-size: 1.6rem;
   line-height: 1;
 }
 
-.solitaire-card.red {
-  color: #b91c1c;
+.klondike-drag-layer {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  filter: drop-shadow(0 12px 18px rgba(2, 6, 23, 0.55));
+  transform: rotate(-1.5deg);
 }
 
-.solitaire-card.black {
-  color: #0f172a;
+.klondike-drag-layer .klondike-card {
+  cursor: grabbing;
 }
 
-.solitaire-empty {
-  border-radius: 8px;
-  border: 1px dashed rgba(167, 243, 208, 0.58);
-  color: #a7f3d0;
-  font-size: 0.73rem;
+/* ── Cómo se juega ─────────────────────────────────────────────────────── */
+.klondike-help {
+  margin-top: 0.85rem;
+  border-radius: 11px;
+  border: 1px solid rgba(110, 231, 183, 0.32);
+  background:
+    linear-gradient(170deg, rgba(6, 78, 59, 0.45), rgba(6, 95, 70, 0.32));
+  padding: 0;
+  color: #ecfdf5;
+  font-size: 0.78rem;
+  overflow: hidden;
+}
+
+.klondike-help > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.55rem 0.85rem;
   font-weight: 700;
-  text-align: center;
-  padding: 0.28rem 0.36rem;
+  font-family: "Bricolage Grotesque", sans-serif;
+  color: #ecfdf5;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  user-select: none;
 }
 
-.solitaire-column-actions {
+.klondike-help > summary::-webkit-details-marker { display: none; }
+.klondike-help > summary::marker { content: ""; }
+
+.klondike-help > summary::before {
+  content: "▸";
+  font-size: 0.78rem;
+  color: #a7f3d0;
+  transition: transform 140ms ease;
+}
+
+.klondike-help[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.klondike-help-grid {
   display: grid;
-  gap: 0.28rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  padding: 0.25rem 0.95rem 0.85rem;
+  border-top: 1px solid rgba(110, 231, 183, 0.18);
 }
 
-.solitaire-column small {
-  color: #cbd5e1;
-  font-size: 0.67rem;
-  font-weight: 600;
+.klondike-help-grid h5 {
+  margin: 0.5rem 0 0.4rem;
+  color: #a7f3d0;
+  font-size: 0.8rem;
+  font-family: "Bricolage Grotesque", sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.klondike-help-grid ul {
+  margin: 0;
+  padding-left: 1.05rem;
+  display: grid;
+  gap: 0.32rem;
+  color: #d1fae5;
+  line-height: 1.45;
+}
+
+.klondike-help-grid li::marker {
+  color: rgba(167, 243, 208, 0.65);
+}
+
+@media (max-width: 720px) {
+  .klondike-help-grid {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+}
+
+/* ── Tablet (≤ 1024px) ─────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .knowledge-arcade-game.knowledge-paciencia {
+    --klondike-card-w: 60px;
+    --klondike-card-h: 86px;
+    --klondike-faceup-offset: -58px;
+    --klondike-facedown-offset: -70px;
+    --klondike-gap: 0.45rem;
+  }
+
+  .knowledge-arcade-game.knowledge-paciencia .knowledge-mode-shell {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .klondike-card-pip { font-size: 1.35rem; }
+  .klondike-card-corner { font-size: 0.66rem; }
+  .klondike-card-corner .suit { font-size: 0.7rem; }
+}
+
+/* ── Mobile (≤ 640px) ──────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .knowledge-arcade-game.knowledge-paciencia {
+    --klondike-card-w: 46px;
+    --klondike-card-h: 68px;
+    --klondike-faceup-offset: -46px;
+    --klondike-facedown-offset: -56px;
+    --klondike-gap: 0.32rem;
+  }
+
+  /* Ensure the shell that wraps the game is vertically scrollable on
+     phones, even when the mobile-shell isolation rule isn't active. */
+  .knowledge-arcade-game.knowledge-paciencia .knowledge-mode-shell {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .klondike-status-row {
+    font-size: 0.7rem;
+    gap: 0.35rem 0.7rem;
+  }
+
+  .klondike-top-row {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .klondike-stock-pair,
+  .klondike-foundations {
+    justify-content: center;
+  }
+
+  .klondike-foundations {
+    grid-template-columns: repeat(4, var(--klondike-card-w));
+  }
+
+  .klondike-tableau {
+    grid-template-columns: repeat(7, var(--klondike-card-w));
+    gap: var(--klondike-gap);
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-bottom: 0.4rem;
+    scrollbar-width: thin;
+    /* Allow horizontal pan inside, vertical pan delegated to the shell. */
+    touch-action: pan-x pan-y;
+  }
+
+  .klondike-card-pip { font-size: 1.05rem; }
+  .klondike-card-corner { font-size: 0.58rem; }
+  .klondike-card-corner .suit { font-size: 0.6rem; }
+  .klondike-card { padding: 0.16rem 0.22rem; }
+
+  .klondike-pile-label {
+    font-size: 0.58rem;
+    bottom: -0.95rem;
+  }
+
+  .klondike-actions button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Make the help readable and reachable on small screens. */
+  .klondike-help {
+    margin-top: 0.6rem;
+  }
+
+  .klondike-help > summary {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.82rem;
+  }
+
+  .klondike-help-grid {
+    padding: 0.2rem 0.7rem 0.7rem;
+    font-size: 0.78rem;
+  }
+
+  .klondike-help-grid h5 {
+    font-size: 0.78rem;
+  }
+
+  .klondike-help-grid ul {
+    padding-left: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .klondike-help-grid li {
+    margin-bottom: 0.1rem;
+  }
+}
+
+/* ── Very small (≤ 380px): allow tableau to scroll horizontally ───────── */
+@media (max-width: 380px) {
+  .knowledge-arcade-game.knowledge-paciencia {
+    --klondike-card-w: 42px;
+    --klondike-card-h: 62px;
+    --klondike-faceup-offset: -42px;
+    --klondike-facedown-offset: -52px;
+  }
 }
 
 .puzzle-grid {
@@ -10571,8 +10898,6 @@ body {
     padding-right: 0;
   }
 
-  .solitaire-topbar,
-  .solitaire-tableau,
   .crossword-clues,
   .quick-actions.compact-grid,
   .wordsearch-shell,
@@ -25605,6 +25930,17 @@ button.brisca-card.playable:disabled {
 .battleship-board-wrap {
   display: grid;
   gap: 0.42rem;
+  border-top: 2px solid transparent;
+  padding-top: 0.32rem;
+}
+
+/* Enemy board comes first in DOM; tint header red. Own board comes second; tint green. */
+.battleship-battle-layout .battleship-board-wrap:first-of-type {
+  border-top-color: rgba(248, 113, 113, 0.55);
+}
+
+.battleship-battle-layout .battleship-board-wrap:last-of-type {
+  border-top-color: rgba(74, 222, 128, 0.55);
 }
 
 .battleship-board-wrap h5 {
@@ -25613,6 +25949,14 @@ button.brisca-card.playable:disabled {
   font-size: 0.75rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.battleship-battle-layout .battleship-board-wrap:first-of-type h5 {
+  color: #fecaca;
+}
+
+.battleship-battle-layout .battleship-board-wrap:last-of-type h5 {
+  color: #bbf7d0;
 }
 
 .battleship-ai-wait,
@@ -25845,6 +26189,530 @@ button.brisca-card.playable:disabled {
 .battleship-log {
   max-height: 168px;
   overflow: auto;
+}
+
+/* ── New: status row inside the battle shell ─────────────────────────── */
+.battleship-battle-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.55rem;
+  border-radius: 9px;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  background: rgba(8, 47, 73, 0.42);
+  font-size: 0.72rem;
+  color: #e0f2fe;
+}
+
+.battleship-battle-status-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.battleship-battle-status-pills > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.battleship-battle-status strong {
+  color: #bae6fd;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.66rem;
+}
+
+.battleship-turn-pill {
+  border-radius: 999px;
+  padding: 0.18rem 0.55rem;
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  background: rgba(8, 47, 73, 0.58);
+}
+
+.battleship-turn-pill.active {
+  border-color: rgba(74, 222, 128, 0.75);
+  background: rgba(20, 83, 45, 0.42);
+  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.28) inset;
+  animation: battleshipTurnGlow 1.6s ease-in-out infinite;
+}
+
+@keyframes battleshipTurnGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.28) inset; }
+  50% { box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.55) inset; }
+}
+
+.battleship-turn-pill.waiting {
+  border-color: rgba(148, 163, 184, 0.45);
+  color: #cbd5e1;
+}
+
+.battleship-battle-status-winner {
+  color: #fde68a;
+  font-weight: 700;
+}
+
+.battleship-battle-status-new {
+  flex: 0 0 auto;
+  border: 1px solid rgba(125, 211, 252, 0.55);
+  border-radius: 999px;
+  padding: 0.32rem 0.78rem;
+  background: linear-gradient(140deg, rgba(8, 47, 73, 0.85), rgba(2, 6, 23, 0.78));
+  color: #e0f2fe;
+  font-weight: 700;
+  font-size: 0.7rem;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.battleship-battle-status-new:hover {
+  border-color: rgba(125, 211, 252, 0.9);
+  box-shadow: 0 6px 14px rgba(2, 6, 23, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ── Fleet strip: at-a-glance health for both sides ──────────────────── */
+.battleship-fleet-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.battleship-fleet-strip-side {
+  border-radius: 9px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  background: rgba(15, 23, 42, 0.52);
+  padding: 0.42rem 0.5rem;
+  display: grid;
+  gap: 0.32rem;
+}
+
+.battleship-fleet-strip-side.enemy {
+  border-color: rgba(248, 113, 113, 0.32);
+  background: rgba(76, 5, 25, 0.32);
+}
+
+.battleship-fleet-strip-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #bae6fd;
+  font-weight: 700;
+}
+
+.battleship-fleet-strip-side.enemy .battleship-fleet-strip-label {
+  color: #fda4af;
+}
+
+.battleship-fleet-strip-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.36rem;
+}
+
+.battleship-fleet-pill {
+  display: inline-grid;
+  grid-template-rows: auto auto;
+  align-items: center;
+  justify-items: center;
+  gap: 0.18rem;
+  padding: 0.22rem 0.34rem;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  background: rgba(2, 6, 23, 0.54);
+  min-width: 46px;
+}
+
+.battleship-fleet-pill img {
+  width: 36px;
+  height: 14px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 3px rgba(2, 6, 23, 0.5));
+  opacity: 0.9;
+}
+
+.battleship-fleet-pill.hidden img {
+  opacity: 0.4;
+  filter: grayscale(0.7) drop-shadow(0 1px 3px rgba(2, 6, 23, 0.5));
+}
+
+.battleship-fleet-pill.sunk {
+  border-color: rgba(248, 113, 113, 0.6);
+  background: rgba(127, 29, 29, 0.55);
+}
+
+.battleship-fleet-pill.sunk img {
+  opacity: 0.45;
+  filter: saturate(0.4);
+}
+
+.battleship-fleet-pill-bar {
+  display: block;
+  width: 38px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  overflow: hidden;
+}
+
+.battleship-fleet-pill-bar > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #facc15 70%, #ef4444);
+  transition: width 240ms ease;
+}
+
+.battleship-fleet-pill.hidden .battleship-fleet-pill-bar > span {
+  background: rgba(148, 163, 184, 0.45);
+  width: 100% !important;
+}
+
+.battleship-fleet-pill.sunk .battleship-fleet-pill-bar > span {
+  background: rgba(239, 68, 68, 0.6);
+  width: 0% !important;
+}
+
+/* ── AI wait: more visible indicator ─────────────────────────────────── */
+.battleship-ai-wait {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.78rem;
+  border-radius: 9px;
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  background: linear-gradient(140deg, rgba(8, 47, 73, 0.7), rgba(15, 23, 42, 0.7));
+  color: #e0f2fe;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.battleship-ai-wait-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(125, 211, 252, 0.35);
+  border-top-color: #38bdf8;
+  animation: battleshipSpin 0.85s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes battleshipSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── New: collapsible help inside the shell ──────────────────────────── */
+.battleship-help {
+  margin-top: 0.2rem;
+  border-radius: 11px;
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  background: linear-gradient(170deg, rgba(8, 47, 73, 0.55), rgba(15, 23, 42, 0.5));
+  color: #e0f2fe;
+  font-size: 0.74rem;
+  overflow: hidden;
+}
+
+.battleship-help > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.5rem 0.78rem;
+  font-weight: 700;
+  color: #f0f9ff;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  user-select: none;
+}
+
+.battleship-help > summary::-webkit-details-marker { display: none; }
+.battleship-help > summary::marker { content: ""; }
+
+.battleship-help > summary::before {
+  content: "▸";
+  font-size: 0.78rem;
+  color: #bae6fd;
+  transition: transform 140ms ease;
+}
+
+.battleship-help[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.battleship-help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  padding: 0.2rem 0.85rem 0.78rem;
+  border-top: 1px solid rgba(125, 211, 252, 0.18);
+}
+
+.battleship-help-grid h6 {
+  margin: 0.45rem 0 0.32rem;
+  color: #bae6fd;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+}
+
+.battleship-help-grid ul {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.28rem;
+  color: #dbeafe;
+  line-height: 1.45;
+}
+
+.battleship-help-grid li::marker {
+  color: rgba(147, 197, 253, 0.65);
+}
+
+/* ── Tablet (≤ 1024px): stack boards vertically + scrollable shell ───── */
+@media (max-width: 1024px) {
+  .battleship-battle-shell {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    /* Allow positioned children (status bar) to stick within this scroller */
+    position: relative;
+  }
+
+  /* Sticky status row so the player always sees turn/phase */
+  .battleship-battle-shell .battleship-battle-status {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    backdrop-filter: blur(6px);
+    background: rgba(8, 47, 73, 0.78);
+  }
+
+  /* Reinforce visual cue on selectable tiles for touch UX */
+  .battleship-card-tile.selectable {
+    box-shadow: inset 0 0 0 3px rgba(251, 191, 36, 0.92), 0 4px 10px rgba(251, 191, 36, 0.18);
+  }
+
+  .battleship-battle-layout {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+
+  .battleship-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.36rem;
+  }
+
+  .battleship-card-tile {
+    min-height: 80px;
+    padding: 0.3rem;
+    font-size: 0.62rem;
+  }
+
+  .battleship-card-ship {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .battleship-card-ship img {
+    width: 36px;
+    height: 14px;
+  }
+
+  .battleship-fleet-columns--inside-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .battleship-hand-row {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .battleship-help-grid {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+}
+
+/* ── Mobile (≤ 640px): condensed tiles + horizontal hand + full-width buttons ── */
+@media (max-width: 640px) {
+  .battleship-battle-shell {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .battleship-battle-status {
+    font-size: 0.66rem;
+    gap: 0.35rem;
+    padding: 0.36rem 0.45rem;
+  }
+
+  .battleship-battle-status-pills {
+    gap: 0.28rem 0.6rem;
+  }
+
+  .battleship-battle-status strong {
+    font-size: 0.58rem;
+  }
+
+  .battleship-battle-status-new {
+    font-size: 0.66rem;
+    padding: 0.28rem 0.6rem;
+  }
+
+  .battleship-fleet-strip {
+    grid-template-columns: 1fr;
+    gap: 0.34rem;
+  }
+
+  .battleship-fleet-strip-side {
+    padding: 0.34rem 0.45rem;
+  }
+
+  .battleship-fleet-pill {
+    min-width: 40px;
+    padding: 0.18rem 0.28rem;
+  }
+
+  .battleship-fleet-pill img {
+    width: 30px;
+    height: 12px;
+  }
+
+  .battleship-fleet-pill-bar {
+    width: 32px;
+  }
+
+  .battleship-ai-wait {
+    font-size: 0.72rem;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .battleship-turn-guide {
+    padding: 0.45rem 0.55rem;
+  }
+
+  .battleship-turn-guide h5 {
+    font-size: 0.74rem;
+  }
+
+  .battleship-turn-guide p {
+    font-size: 0.7rem;
+  }
+
+  .battleship-card-grid {
+    gap: 0.3rem;
+  }
+
+  .battleship-card-tile {
+    min-height: 70px;
+    padding: 0.24rem;
+    font-size: 0.58rem;
+  }
+
+  /* Hide the verbose damage label on mobile to keep tiles compact;
+     the meter still conveys the same info visually. */
+  .battleship-card-tile small {
+    display: none;
+  }
+
+  .battleship-card-ship {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 0.18rem;
+  }
+
+  .battleship-card-ship img {
+    width: 30px;
+    height: 12px;
+  }
+
+  .battleship-card-ship span {
+    font-size: 0.56rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .battleship-card-tile .coord-label {
+    font-size: 0.56rem;
+  }
+
+  .battleship-board-wrap h5 {
+    font-size: 0.66rem;
+  }
+
+  .battleship-fleet-columns--inside-shell article {
+    padding: 0.42rem;
+  }
+
+  /* Hand: horizontal scroll, fixed-size cards, easier to tap */
+  .battleship-hand-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.3rem;
+    gap: 0.36rem;
+    grid-template-columns: none;
+  }
+
+  .battleship-hand-card {
+    flex: 0 0 132px;
+    min-height: 64px;
+    padding: 0.4rem;
+  }
+
+  .battleship-choice-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .battleship-choice-row button {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.78rem;
+  }
+
+  .battleship-cancel {
+    width: 100%;
+    justify-self: stretch;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.74rem;
+  }
+
+  .battleship-help-grid {
+    padding: 0.18rem 0.7rem 0.7rem;
+    font-size: 0.72rem;
+  }
+}
+
+/* ── Very small (≤ 380px): hide coord label and reduce further ──────── */
+@media (max-width: 380px) {
+  .battleship-card-tile {
+    min-height: 64px;
+    padding: 0.2rem;
+  }
+
+  .battleship-card-tile .coord-label {
+    display: none;
+  }
+
+  .battleship-card-ship {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+
+  .battleship-card-ship img {
+    width: 24px;
+    height: 10px;
+  }
+
+  .battleship-hand-card {
+    flex: 0 0 116px;
+  }
 }
 
 @keyframes battleshipBackdropDrift {

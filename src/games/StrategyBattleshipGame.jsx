@@ -166,6 +166,17 @@ const COPY_BY_LOCALE = {
       "Mala jugada: disparar rojas a ciegas sin mapa del tablero enemigo.",
       "Mala jugada: gastar poder de tempo sin objetivos, solo para vaciar mano.",
       "Mala jugada: insistir en tipo de carta incorrecto contra un objetivo cuyo poder te obliga a adaptarte."
+    ],
+    helpTitle: "Como se juega",
+    helpRulesTitle: "Reglas",
+    helpControlsTitle: "Controles",
+    helpControls: [
+      "Toca/clic en una carta de tu mano para seleccionarla.",
+      "Toca/clic en una casilla con borde amarillo (objetivo valido) para resolver el efecto.",
+      "Si aparece una eleccion de poder, pulsa una de las opciones para continuar.",
+      "Usa Cancelar accion para deshacer la seleccion antes de aplicarla.",
+      "En 2 jugadores, la pantalla de Cambio aparece entre turnos: pasa el dispositivo al rival y pulsa Continuar.",
+      "Atajo de teclado: N inicia una partida nueva."
     ]
   },
   en: {
@@ -300,6 +311,17 @@ const COPY_BY_LOCALE = {
       "Weak play: blind red pressure with no information edge.",
       "Weak play: spending tempo effects to cycle hand without board conversion.",
       "Weak play: repeating the wrong card type against targets that require adaptation."
+    ],
+    helpTitle: "How to play",
+    helpRulesTitle: "Rules",
+    helpControlsTitle: "Controls",
+    helpControls: [
+      "Tap/click a card in your hand to select it.",
+      "Tap/click a yellow-bordered tile (valid target) to resolve the effect.",
+      "When a power choice appears, tap one of the options to continue.",
+      "Use Cancel action to undo the selection before applying it.",
+      "In 2-player mode, the Handoff screen appears between turns: pass the device and press Continue.",
+      "Keyboard shortcut: N starts a new match."
     ]
   }
 };
@@ -1597,17 +1619,6 @@ function StrategyBattleshipGame() {
         </div>
       </div>
 
-      <section className="battleship-turn-guide" aria-live="polite">
-        <h5>{copy.turnGuideTitle}</h5>
-        <p>{coachHint}</p>
-        {selectedPendingCard ? (
-          <p className="battleship-selected-card">
-            <strong>{`${copy.selectedCardLabel}:`}</strong> {cardLabel(selectedPendingCard)}
-          </p>
-        ) : null}
-        <p className="battleship-target-hint">{copy.validTargetsHint}</p>
-      </section>
-
       <div className="battleship-rules-panel">
         <article>
           <div className="battleship-panel-head">
@@ -1666,6 +1677,130 @@ function StrategyBattleshipGame() {
 
       {game.phase !== "handoff" ? (
       <section className="battleship-battle-shell">
+        <div className="battleship-battle-status">
+          <div className="battleship-battle-status-pills">
+            <span className={`battleship-turn-pill ${isInteractiveTurn ? "active" : "waiting"}`}>
+              <strong>{copy.turnLabel}:</strong> {resolvePlayerLabel(game.currentTurn, game.mode, copy)}
+            </span>
+            <span><strong>{copy.phaseLabel}:</strong> {phaseText}</span>
+            <span><strong>{copy.cardsLabel}:</strong> {visiblePlayer.hand.length}/{visiblePlayer.deck.length}</span>
+            <span><strong>{copy.sunkLabel}:</strong> {countSunkShips(visibleEnemy.coords)}/{countSunkShips(visiblePlayer.coords)}</span>
+            {game.winner ? (
+              <span className="battleship-battle-status-winner">
+                <strong>{copy.winnerLabel}:</strong> {resolvePlayerLabel(game.winner, game.mode, copy)}
+              </span>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            className="battleship-battle-status-new"
+            onClick={() => resetGame(game.mode)}
+            title={copy.newGame}
+          >
+            {copy.newGame}
+          </button>
+        </div>
+
+        <div className="battleship-fleet-strip">
+          <div className="battleship-fleet-strip-side">
+            <span className="battleship-fleet-strip-label">{copy.yourFleetStatus}</span>
+            <div className="battleship-fleet-strip-pills">
+              {ownFleetRows.map((ship) => {
+                const hp = ship.card?.hp ?? ship.hp;
+                const dmg = ship.card?.damage ?? 0;
+                const ratio = Math.max(0, Math.min(1, hp ? (hp - dmg) / hp : 0));
+                const sunk = ship.card?.sunk;
+                const revealed = ship.card?.revealed && !sunk;
+                return (
+                  <span
+                    key={`bs-strip-own-${ship.id}`}
+                    className={`battleship-fleet-pill ${sunk ? "sunk" : revealed ? "revealed" : "hidden"}`}
+                    title={`${ship.name[locale]} - ${ship.status}`}
+                  >
+                    <img src={shipIcon(ship.id)} alt="" aria-hidden="true" />
+                    <span className="battleship-fleet-pill-bar">
+                      <span style={{ width: `${ratio * 100}%` }} />
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+          <div className="battleship-fleet-strip-side enemy">
+            <span className="battleship-fleet-strip-label">{copy.enemyFleetStatus}</span>
+            <div className="battleship-fleet-strip-pills">
+              {enemyFleetRows.map((ship) => {
+                const card = ship.card;
+                const sunk = card?.sunk;
+                const revealed = card?.revealed && !sunk;
+                const hp = card?.hp ?? ship.hp;
+                const dmg = card?.damage ?? 0;
+                const ratio = revealed ? Math.max(0, Math.min(1, hp ? (hp - dmg) / hp : 0)) : 1;
+                return (
+                  <span
+                    key={`bs-strip-enemy-${ship.id}`}
+                    className={`battleship-fleet-pill ${sunk ? "sunk" : revealed ? "revealed" : "hidden"}`}
+                    title={`${ship.name[locale]} - ${ship.status}`}
+                  >
+                    <img src={shipIcon(ship.id)} alt="" aria-hidden="true" />
+                    <span className="battleship-fleet-pill-bar">
+                      <span style={{ width: `${ratio * 100}%` }} />
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <section className="battleship-turn-guide" aria-live="polite">
+          <h5>{copy.turnGuideTitle}</h5>
+          <p>{coachHint}</p>
+          {selectedPendingCard ? (
+            <p className="battleship-selected-card">
+              <strong>{`${copy.selectedCardLabel}:`}</strong> {cardLabel(selectedPendingCard)}
+            </p>
+          ) : null}
+          <p className="battleship-target-hint">{copy.validTargetsHint}</p>
+        </section>
+
+        <p className="game-message battleship-message">{game.message}</p>
+
+        {pendingType === "choice-tempo" ? (
+          <div className="battleship-choice-row">
+            <button type="button" onClick={() => resolvePowerChoice("discard-white")}>{copy.optionDiscardWhite}</button>
+            <button type="button" onClick={() => resolvePowerChoice("play-two")}>{copy.optionPlayTwo}</button>
+          </div>
+        ) : null}
+
+        {pendingType === "choice-repair-draw" ? (
+          <div className="battleship-choice-row">
+            <button type="button" onClick={() => resolvePowerChoice("repair")}>{copy.optionRepair}</button>
+            <button type="button" onClick={() => resolvePowerChoice("draw-three")}>{copy.optionDrawThree}</button>
+          </div>
+        ) : null}
+
+        {pendingType === "discard-white" ? (
+          <div className="battleship-choice-row">
+            <button type="button" onClick={confirmDiscardWhite} disabled={!canConfirmDiscard}>{copy.confirmDiscardWhite}</button>
+          </div>
+        ) : null}
+
+        {game.pending ? (
+          <button type="button" className="battleship-cancel" onClick={cancelPendingAction}>{copy.cancelAction}</button>
+        ) : null}
+
+        {aiThinking ? (
+          <div className="battleship-ai-wait" role="status">
+            <span className="battleship-ai-wait-spinner" aria-hidden="true" />
+            <span>
+              {game.mode === "ai" && game.currentTurn === OPPONENT && game.message && game.message !== copy.chooseCard
+                ? game.message
+                : copy.aiThinking}
+            </span>
+          </div>
+        ) : null}
+
         <div className="battleship-battle-layout">
           <div className="battleship-board-wrap">
             <h5>{copy.enemyGrid}</h5>
@@ -1759,7 +1894,7 @@ function StrategyBattleshipGame() {
           </div>
         </div>
 
-        <div className="battleship-fleet-columns">
+        <div className="battleship-fleet-columns battleship-fleet-columns--inside-shell">
           <article>
             <h5>{copy.yourHand}</h5>
             <div className="battleship-hand-row">
@@ -1804,6 +1939,24 @@ function StrategyBattleshipGame() {
             <p>{visiblePlayer.discard.length}</p>
           </article>
         </div>
+
+        <details className="battleship-help">
+          <summary>{copy.helpTitle}</summary>
+          <div className="battleship-help-grid">
+            <div>
+              <h6>{copy.helpRulesTitle}</h6>
+              <ul>
+                {copy.rules.map((rule) => <li key={`bs-help-rule-${rule}`}>{rule}</li>)}
+              </ul>
+            </div>
+            <div>
+              <h6>{copy.helpControlsTitle}</h6>
+              <ul>
+                {copy.helpControls.map((line) => <li key={`bs-help-ctl-${line}`}>{line}</li>)}
+              </ul>
+            </div>
+          </div>
+        </details>
       </section>
       ) : null}
 
@@ -1846,40 +1999,6 @@ function StrategyBattleshipGame() {
           </article>
         </div>
       </section>
-
-      {pendingType === "choice-tempo" ? (
-        <div className="battleship-choice-row">
-          <button type="button" onClick={() => resolvePowerChoice("discard-white")}>{copy.optionDiscardWhite}</button>
-          <button type="button" onClick={() => resolvePowerChoice("play-two")}>{copy.optionPlayTwo}</button>
-        </div>
-      ) : null}
-
-      {pendingType === "choice-repair-draw" ? (
-        <div className="battleship-choice-row">
-          <button type="button" onClick={() => resolvePowerChoice("repair")}>{copy.optionRepair}</button>
-          <button type="button" onClick={() => resolvePowerChoice("draw-three")}>{copy.optionDrawThree}</button>
-        </div>
-      ) : null}
-
-      {pendingType === "discard-white" ? (
-        <div className="battleship-choice-row">
-          <button type="button" onClick={confirmDiscardWhite} disabled={!canConfirmDiscard}>{copy.confirmDiscardWhite}</button>
-        </div>
-      ) : null}
-
-      {game.pending ? (
-        <button type="button" className="battleship-cancel" onClick={cancelPendingAction}>{copy.cancelAction}</button>
-      ) : null}
-
-      <p className="game-message battleship-message">{game.message}</p>
-      <p className="battleship-controls">{game.mode === "ai" && game.currentTurn === OPPONENT ? copy.waitingAi : copy.controls}</p>
-      {aiThinking ? (
-        <p className="battleship-ai-wait">
-          {game.mode === "ai" && game.currentTurn === OPPONENT && game.message && game.message !== copy.chooseCard
-            ? game.message
-            : copy.aiThinking}
-        </p>
-      ) : null}
 
       <ul className="game-log battleship-log">
         {game.log.length ? game.log.map((entry, idx) => <li key={`card-log-${idx}`}>{entry}</li>) : <li>{copy.chooseCard}</li>}
