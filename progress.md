@@ -4579,3 +4579,13 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 ## 2026-04-30 - Race2D Pro IA dificil movil
 - Anadido perfil especifico para IA dificil en movil: mayor velocidad, aceleracion, agarre, velocidad de paso por curva y salida de curva mas agresiva.
 - La mejora solo se aplica cuando el juego detecta perfil tactil y la dificultad es hard; escritorio mantiene el perfil hard normal.
+
+## 2026-04-30 - Ice Strike Pro curling pass
+- Peticion nueva: corregir Ice Strike Pro para que funcione realmente como juego estilo curling, con turnos estables y experiencia de partida consistente.
+- Diagnostico inicial: `_strategyTarget` tenia la perspectiva del jugador invertida; `takeout` buscaba piedras propias y `raise` buscaba piedras de la CPU.
+- Siguiente paso: ajustar seleccion tactica, estabilidad de flujo de turnos y validar con Playwright usando `render_game_to_text`/`advanceTime`.
+
+## 2026-04-30 - Ice Strike Pro turno 7/8
+- Corregida la causa del bloqueo en 7/8: si la piedra lanzada dejaba de ser `flyingStone` pero otra piedra seguia moviendose por colision, `_update` retornaba antes de simular esa piedra. El flujo veia movimiento perpetuo y nunca avanzaba.
+- Ahora las piedras movidas por impactos siguen recibiendo fisica/friccion aunque no haya `flyingStone`; el end puede avanzar a 8/8 y cerrar marcador.
+- Tambien se hizo el scoring de end transaccional: `scores` se reemplaza con copia nueva, `lastResult` incluye total y `endLog` expone totales para verificacion.

@@ -27,13 +27,17 @@ const RB = 9;    // button
 
 // ── Physics ───────────────────────────────────────────────────────────────────
 const STONE_R      = 15;   // px
-const BASE_FRICTION = 60;  // px/s²  (modulated by ice condition)
+const BASE_FRICTION = 125; // px/s²  (modulated by ice condition)
+const SHOT_SPEED_MIN = 190;
+const SHOT_SPEED_MAX = 470;
 const CURL_K       = 0.056;// lateral drift per unit fwd-speed per second
 const SWEEP_MULT   = 0.70; // minimum friction multiplier while sweeping
 const COR          = 0.91; // coefficient of restitution stone-stone
 const BOARD_BOUNCE_X = 0.42;
 const BOARD_BOUNCE_Y = 0.36;
 const SHOT_CLOCK_SECONDS = 18;
+const MAX_SHOT_SECONDS = 16;
+const REST_SPEED = 4.5;
 const SWEEP_HEAT_GAIN = 0.42;
 const SWEEP_HEAT_COOL = 0.24;
 const FONT_DISPLAY = "\"Rajdhani\", \"Trebuchet MS\", \"Segoe UI\", sans-serif";
@@ -53,10 +57,10 @@ const ICE_COND_KEYS = ["pebbled", "fast", "slow"];
 
 // ── Shot strategies ────────────────────────────────────────────────────────────
 const STRATEGIES = {
-  draw:    { label: "Draw",    key:"1", powerBias: 0.46, color: "#38c8f0", desc: "Aim to button" },
-  guard:   { label: "Guard",  key:"2", powerBias: 0.42, color: "#40e080", desc: "Front of house" },
+  draw:    { label: "Draw",    key:"1", powerBias: 0.48, color: "#38c8f0", desc: "Aim to button" },
+  guard:   { label: "Guard",  key:"2", powerBias: 0.32, color: "#40e080", desc: "Front of house" },
   takeout: { label: "Takeout",key:"3", powerBias: 0.82, color: "#f05050", desc: "Remove opponent" },
-  raise:   { label: "Raise",  key:"4", powerBias: 0.68, color: "#f0c030", desc: "Promote own stone" },
+  raise:   { label: "Raise",  key:"4", powerBias: 0.62, color: "#f0c030", desc: "Promote own stone" },
 };
 
 // ── Palette ───────────────────────────────────────────────────────────────────
@@ -141,6 +145,42 @@ function wrapDeg(v) {
 function angleDiffDeg(a, b) {
   return Math.abs(wrapDeg(a - b));
 }
+function speedFromPower(power) {
+  return SHOT_SPEED_MIN + clamp(power, 0, 1) * (SHOT_SPEED_MAX - SHOT_SPEED_MIN);
+}
+function powerFromSpeed(speed) {
+  return clamp((speed - SHOT_SPEED_MIN) / (SHOT_SPEED_MAX - SHOT_SPEED_MIN), 0, 1);
+}
+function solveShotToTarget(target, rotation, frMult = 1, curlMult = 1, style = "draw") {
+  const safeTarget = target ?? { x: HOUSE_X, y: HOUSE_Y };
+  const dx = safeTarget.x - HACK_X;
+  const dy = safeTarget.y - HACK_Y;
+  const baseDistance = Math.max(70, Math.hypot(dx, dy));
+  const extraDistance = {
+    draw: -48,
+    guard: -36,
+    takeout: 155,
+    "clear-guard": 125,
+    raise: 72,
+  }[style] ?? 0;
+  const effectiveFriction = Math.max(30, BASE_FRICTION * frMult);
+  const desiredDistance = Math.max(95, baseDistance + extraDistance);
+  const speed = clamp(
+    Math.sqrt(2 * effectiveFriction * desiredDistance),
+    SHOT_SPEED_MIN,
+    SHOT_SPEED_MAX
+  );
+  const travelTime = speed / effectiveFriction;
+  const curlDrift = rotation * CURL_K * curlMult * speed * travelTime * travelTime * 0.92;
+  const aimX = safeTarget.x - curlDrift;
+  const angle = Math.atan2(safeTarget.y - HACK_Y, aimX - HACK_X) * 180 / Math.PI;
+  return {
+    angle: clamp(angle, -168, -12),
+    power: powerFromSpeed(speed),
+    speed,
+    target: safeTarget,
+  };
+}
 function makeStoneGrain() {
   const grain = [];
   for (let i = 0; i < 8; i++) {
@@ -167,7 +207,7 @@ function rr(ctx, x, y, w, h, r) {
 // ── Physics: advance one stone one sub-step ────────────────────────────────────
 function stepStone(s, dt, sweepIntensity, frMult, curlMult) {
   const spd = Math.hypot(s.vx, s.vy);
-  if (spd < 0.5) { s.vx = 0; s.vy = 0; return; }
+  if (spd < REST_SPEED) { s.vx = 0; s.vy = 0; return; }
 
   const sweepFactor = clamp(Number(sweepIntensity) || 0, 0, 1);
   const frictionMult = 1 - (1 - SWEEP_MULT) * sweepFactor;
@@ -185,6 +225,11 @@ function stepStone(s, dt, sweepIntensity, frMult, curlMult) {
 
   s.x += s.vx * dt;
   s.y += s.vy * dt;
+}
+
+function stopStone(s) {
+  s.vx = 0;
+  s.vy = 0;
 }
 
 // ── Physics: elastic stone-stone collisions ────────────────────────────────────
@@ -296,13 +341,11 @@ function planAIShot(stones, difficulty, frMult, curlMult, context = {}) {
     planName = "guard";
   }
 
-  const rotation = target.x <= HACK_X ? 1 : -1;
-  const dy    = target.y - HACK_Y;
-  const spd   = 200 + powerBias * 280;
-  const tEst  = Math.abs(dy) / (spd * 0.80);
-  const drift = rotation * CURL_K * curlMult * spd * tEst * tEst * 0.5;
-  const aimX  = target.x - drift;
-  const angle = Math.atan2(dy, aimX - HACK_X);
+  const rotation = Math.abs(target.x - HACK_X) < 4 ? (Math.random() > 0.5 ? 1 : -1) : target.x <= HACK_X ? 1 : -1;
+  const shotStyle = planName === "clear-guard" ? "clear-guard" : planName;
+  const solved = solveShotToTarget(target, rotation, frMult, curlMult, shotStyle);
+  const spd = solved.speed * (0.98 + powerBias * 0.04);
+  const angle = solved.angle * Math.PI / 180;
 
   const eS = difficulty === "easy" ? 2.6 : difficulty === "hard" ? 0.26 : 0.9;
   const errA = (Math.random() - 0.5) * 0.07 * eS;
@@ -341,6 +384,7 @@ class IceStrikeRuntime {
     this.endLog    = [];
     this.lastResult = null;
     this.endTransitionMessage = "";
+    this.endClosed = false;
     this.scorePulse  = { player: 0, ai: 0 };
     this.endTimer  = 0;
 
@@ -373,6 +417,8 @@ class IceStrikeRuntime {
 
     // Flow + feedback
     this.shotClock = SHOT_CLOCK_SECONDS;
+    this.shotTimer = 0;
+    this.forcedSettle = false;
     this.lastRelease = null;
     this.aiLastPlan = null;
 
@@ -450,8 +496,8 @@ class IceStrikeRuntime {
     if (this.phase === "endResult" && (code === "Space" || code === "Enter" || code === "KeyN")) { this._nextEnd(); return; }
 
     if (this.phase === "playerAim") {
-      if (code === "KeyQ") { this.aim.rotation = -1; return; }
-      if (code === "KeyE") { this.aim.rotation =  1; return; }
+      if (code === "KeyQ") { this.aim.rotation = -1; this._applyStrategySolution(); return; }
+      if (code === "KeyE") { this.aim.rotation =  1; this._applyStrategySolution(); return; }
       if (code === "Digit1") { this._setStrategy("draw");    return; }
       if (code === "Digit2") { this._setStrategy("guard");   return; }
       if (code === "Digit3") { this._setStrategy("takeout"); return; }
@@ -535,36 +581,61 @@ class IceStrikeRuntime {
     } else {
       this.strategy = name;
     }
+    this._applyStrategySolution();
+  }
+
+  _applyStrategySolution() {
     const strategyName = this.strategy;
-    const strat   = STRATEGIES[strategyName];
-    // Auto-set power bias for strategy
-    this.aim.power = strat.powerBias;
-    // Auto-aim angle toward strategy target
+    const strat = STRATEGIES[strategyName] ?? STRATEGIES.draw;
     const target = this._strategyTarget(strategyName);
     if (target) {
-      const dx = target.x - HACK_X, dy = target.y - HACK_Y;
-      const ang = Math.atan2(dy, dx) * 180 / Math.PI;
-      this.aim.angle = clamp(ang, -168, -12);
+      const solved = this._shotSolution(target, this.aim.rotation, strategyName);
+      this.aim.angle = solved.angle;
+      this.aim.power = solved.power;
+    } else {
+      this.aim.power = strat.powerBias;
     }
   }
 
-  _strategyTarget(name) {
+  _strategyTarget(name, team = "player") {
     const hc = { x: HOUSE_X, y: HOUSE_Y };
-    const pIn = this.stones.filter(s => s.team === "player" && dist(s, hc) < RH);
-    const aIn = this.stones.filter(s => s.team === "ai"     && dist(s, hc) < RH);
+    const enemyTeam = team === "player" ? "ai" : "player";
+    const ownStones = this.stones.filter(s => s.team === team);
+    const enemyStones = this.stones.filter(s => s.team === enemyTeam);
+    const ownIn = ownStones.filter(s => dist(s, hc) < RH + STONE_R);
+    const enemyIn = enemyStones.filter(s => dist(s, hc) < RH + STONE_R);
+    const frontOwn = ownStones
+      .filter(s => s.y > HOUSE_Y + RH * 0.35 && s.y < HOG_Y - STONE_R)
+      .sort((a, b) => Math.abs(a.x - SH_MID) + a.y * 0.02 - (Math.abs(b.x - SH_MID) + b.y * 0.02));
     switch (name) {
       case "draw":    return { x: HOUSE_X, y: HOUSE_Y };
       case "guard":   return { x: HOUSE_X, y: HOUSE_Y + RH + STONE_R * 2 };
       case "takeout": {
-        const enemy = pIn.sort((a, b) => dist(a, hc) - dist(b, hc))[0];
+        const enemy = (enemyIn.length ? enemyIn : enemyStones)
+          .sort((a, b) => dist(a, hc) - dist(b, hc))[0];
         return enemy ? { x: enemy.x, y: enemy.y } : { x: HOUSE_X, y: HOUSE_Y };
       }
       case "raise": {
-        const own = aIn.sort((a, b) => dist(a, hc) - dist(b, hc))[0];
+        const own = (frontOwn.length ? frontOwn : ownIn)
+          .sort((a, b) => dist(a, hc) - dist(b, hc))[0];
         return own ? { x: own.x, y: own.y } : { x: HOUSE_X, y: HOUSE_Y };
       }
       default: return null;
     }
+  }
+
+  _shotSolution(target, rotation = this.aim.rotation, style = this.strategy) {
+    return solveShotToTarget(target, rotation, this._frMult, this._curlMult, style);
+  }
+
+  _preparePlayerAim(strategy = "draw") {
+    this.phase = "playerAim";
+    this.aim = { angle: -100, power: 0.50, rotation: 1 };
+    this.strategy = strategy;
+    this._applyStrategySolution();
+    this.shotClock = SHOT_CLOCK_SECONDS;
+    this.shotTimer = 0;
+    this.forcedSettle = false;
   }
 
   get _iceCond() { return ICE_CONDITIONS[this.iceCondKey]; }
@@ -588,11 +659,14 @@ class IceStrikeRuntime {
     this.endLog      = [];
     this.lastResult  = null;
     this.endTransitionMessage = "";
+    this.endClosed   = false;
     this.hammer      = "player";
     this.scorePulse  = { player: 0, ai: 0 };
     this.sweeping    = false;
     this.sweepHeat   = 0;
     this._effectiveSweep = false;
+    this.shotTimer   = 0;
+    this.forcedSettle = false;
     this.particles   = [];
     this._dragActive = false;
     this._dragMoved  = false;
@@ -602,6 +676,7 @@ class IceStrikeRuntime {
     this.aiLastPlan  = null;
     this.screen      = "play";
     this.phase       = this._currentTeam === "player" ? "playerAim" : "aiTurn";
+    if (this.phase === "playerAim") this._preparePlayerAim();
     this.shotClock   = this.phase === "playerAim" ? SHOT_CLOCK_SECONDS : 0;
     this.aiTimer     = this.phase === "aiTurn" ? 1.4 : 0;
   }
@@ -609,12 +684,12 @@ class IceStrikeRuntime {
   _deliver() {
     if (this.phase !== "playerAim") return;
     const target = this._strategyTarget(this.strategy) ?? { x: HOUSE_X, y: HOUSE_Y };
-    const strategyBias = STRATEGIES[this.strategy]?.powerBias ?? 0.5;
+    const solution = this._shotSolution(target, this.aim.rotation, this.strategy);
     const baseAngle = this.aim.angle;
-    const desiredAngle = Math.atan2(target.y - HACK_Y, target.x - HACK_X) * 180 / Math.PI;
+    const desiredAngle = solution.angle;
     const angleError = angleDiffDeg(baseAngle, desiredAngle);
-    const powerError = Math.abs(this.aim.power - strategyBias);
-    const releaseQuality = clamp(1 - angleError / 30 - powerError * 1.35, 0, 1);
+    const powerError = Math.abs(this.aim.power - solution.power);
+    const releaseQuality = clamp(1 - angleError / 34 - powerError * 1.55, 0, 1);
     const releaseJitter = (1 - releaseQuality);
     const releaseAngle = baseAngle + (Math.random() - 0.5) * releaseJitter * 8.5;
     const powerMod = 1 + (Math.random() - 0.5) * releaseJitter * 0.20;
@@ -624,7 +699,7 @@ class IceStrikeRuntime {
       : releaseQuality > 0.40 ? "Late release"
       : "Loose release";
 
-    const spd = (200 + this.aim.power * 280) * qualityBoost * powerMod;
+    const spd = speedFromPower(this.aim.power) * qualityBoost * powerMod;
     const relRad = releaseAngle * Math.PI / 180;
     const s   = {
       x: HACK_X, y: HACK_Y,
@@ -655,6 +730,8 @@ class IceStrikeRuntime {
     this.sweeping    = false;
     this.sweepHeat   = 0;
     this._effectiveSweep = false;
+    this.shotTimer   = 0;
+    this.forcedSettle = false;
     this.shotClock   = 0;
     this.aiLastPlan  = null;
   }
@@ -685,25 +762,37 @@ class IceStrikeRuntime {
     this.sweeping    = false;
     this.sweepHeat   = 0;
     this._effectiveSweep = false;
+    this.shotTimer   = 0;
+    this.forcedSettle = false;
     this.aiLastPlan  = shot.planName ?? "draw";
     this.shotClock   = 0;
     this.aiTimer     = 0;
   }
 
   _finishEnd() {
+    if (this.endClosed || this.phase === "endResult" || this.screen !== "play") return;
     const result = computeScore(this.stones);
-    this.lastResult = result;
+    const endScore = {
+      player: result.team === "player" ? result.pts : 0,
+      ai: result.team === "ai" ? result.pts : 0,
+    };
+    this.scores = {
+      player: this.scores.player + endScore.player,
+      ai: this.scores.ai + endScore.ai,
+    };
+    this.lastResult = {
+      ...result,
+      end: this.end,
+      endScore,
+      total: { ...this.scores },
+    };
+    this.endClosed = true;
     if (result.team === "player") {
-      this.scores.player += result.pts;
       this.scorePulse.player = 1;
     } else if (result.team === "ai") {
-      this.scores.ai += result.pts;
       this.scorePulse.ai = 1;
     }
-    this.endLog.push({
-      player: result.team === "player" ? result.pts : 0,
-      ai:     result.team === "ai"     ? result.pts : 0,
-    });
+    this.endLog.push({ ...endScore, total: { ...this.scores } });
     if (result.team === "player") this.hammer = "ai";
     else if (result.team === "ai") this.hammer = "player";
     const isFinalEnd = this.end >= ENDS;
@@ -728,28 +817,38 @@ class IceStrikeRuntime {
     this.flyingStone = null;
     this.lastResult  = null;
     this.endTransitionMessage = "";
+    this.endClosed   = false;
     this.scorePulse  = { player: 0, ai: 0 };
     this.sweeping    = false;
     this.sweepHeat   = 0;
     this._effectiveSweep = false;
+    this.shotTimer   = 0;
+    this.forcedSettle = false;
     this.particles   = [];
     this.aim         = { angle: -100, power: 0.50, rotation: 1 };
     this.strategy    = "draw";
     this.lastRelease = null;
     this.aiLastPlan  = null;
     this.phase       = this._currentTeam === "player" ? "playerAim" : "aiTurn";
+    if (this.phase === "playerAim") this._preparePlayerAim();
     this.shotClock   = this.phase === "playerAim" ? SHOT_CLOCK_SECONDS : 0;
     this.aiTimer     = this.phase === "aiTurn" ? 1.4 : 0;
   }
 
   _advanceDeliveryFlowIfReady() {
-    const anyMoving = this.stones.some((s) => Math.hypot(s.vx, s.vy) > 0.5);
+    if (this.flyingStone && Math.hypot(this.flyingStone.vx, this.flyingStone.vy) <= REST_SPEED) {
+      stopStone(this.flyingStone);
+      this.flyingStone = null;
+    }
+    const anyMoving = this.stones.some((s) => Math.hypot(s.vx, s.vy) > REST_SPEED);
     if (anyMoving || this.flyingStone !== null) return false;
 
     this.delivIdx++;
     this.sweeping = false;
     this.sweepHeat = 0;
     this._effectiveSweep = false;
+    this.shotTimer = 0;
+    this.forcedSettle = false;
 
     if (this.delivIdx >= SHOTS_PER_TEAM * 2) {
       this._finishEnd();
@@ -758,10 +857,7 @@ class IceStrikeRuntime {
 
     const team = this._currentTeam;
     if (team === "player") {
-      this.phase    = "playerAim";
-      this.aim      = { angle: -100, power: 0.50, rotation: 1 };
-      this.strategy = "draw";
-      this.shotClock = SHOT_CLOCK_SECONDS;
+      this._preparePlayerAim();
     } else {
       this.phase    = "aiTurn";
       this.aiTimer  = 0.9 + Math.random() * 0.7;
@@ -797,7 +893,23 @@ class IceStrikeRuntime {
       shotsPerEnd: SHOTS_PER_TEAM * 2,
       hammer: this.hammer,
       scores: { ...this.scores },
+      endLog: this.endLog.map((entry) => ({
+        player: entry.player,
+        ai: entry.ai,
+        total: entry.total ? { ...entry.total } : null,
+      })),
+      lastResult: this.lastResult
+        ? {
+            end: this.lastResult.end,
+            team: this.lastResult.team,
+            pts: this.lastResult.pts,
+            endScore: { ...this.lastResult.endScore },
+            total: { ...this.lastResult.total },
+          }
+        : null,
       shotClock: Number(this.shotClock.toFixed(2)),
+      shotTimer: Number(this.shotTimer.toFixed(2)),
+      forcedSettle: this.forcedSettle,
       sweepHeat: Number(this.sweepHeat.toFixed(3)),
       effectiveSweep: this._effectiveSweep,
       currentTeam: this._currentTeam,
@@ -829,7 +941,7 @@ class IceStrikeRuntime {
         team: s.team,
         x: Number(s.x.toFixed(1)),
         y: Number(s.y.toFixed(1)),
-        moving: Math.hypot(s.vx, s.vy) > 0.5,
+        moving: Math.hypot(s.vx, s.vy) > REST_SPEED,
       })),
       preview: {
         team: preview.team,
@@ -897,21 +1009,23 @@ class IceStrikeRuntime {
 
     if (this.phase !== "flight") return;
 
+    this.shotTimer += dt;
     const flying = this.flyingStone;
-    if (!flying) {
+    const movingWithoutFlying = !flying && this.stones.some((s) => Math.hypot(s.vx, s.vy) > REST_SPEED);
+    if (!flying && !movingWithoutFlying) {
       this._advanceDeliveryFlowIfReady();
       return;
     }
-    const fSpd = Math.hypot(flying.vx, flying.vy);
-    const aiProfile = flying.aiSweepProfile;
+    const fSpd = flying ? Math.hypot(flying.vx, flying.vy) : 0;
+    const aiProfile = flying?.aiSweepProfile;
     const aiSweep =
-      flying.team === "ai" &&
+      flying?.team === "ai" &&
       Boolean(flying.aiSweepCommit) &&
       aiProfile?.enabled &&
       flying.y <= (aiProfile.startY ?? HOG_Y) &&
       fSpd >= (aiProfile.minSpeed ?? 96);
-    const wantsSweep = flying.team === "player" ? this.sweeping : aiSweep;
-    const effectiveSweepWindow = wantsSweep && fSpd > 42 && flying.y > BACK_Y + STONE_R * 0.7;
+    const wantsSweep = flying ? (flying.team === "player" ? this.sweeping : aiSweep) : false;
+    const effectiveSweepWindow = Boolean(flying) && wantsSweep && fSpd > 42 && flying.y > BACK_Y + STONE_R * 0.7;
 
     if (effectiveSweepWindow) {
       const gainMul = flying.team === "player" ? 1 : 0.86;
@@ -971,6 +1085,17 @@ class IceStrikeRuntime {
         s.spinAngle = (s.spinAngle || 0) + s.rotation * spd * sdt * 0.04;
       }
       resolveCollisions(this.stones, this.particles);
+      for (const s of this.stones) {
+        if (Math.hypot(s.vx, s.vy) < REST_SPEED) stopStone(s);
+      }
+    }
+
+    if (this.shotTimer >= MAX_SHOT_SECONDS) {
+      for (const s of this.stones) stopStone(s);
+      this.flyingStone = null;
+      this.sweeping = false;
+      this._effectiveSweep = false;
+      this.forcedSettle = true;
     }
 
     // Sweep particles
@@ -1003,7 +1128,7 @@ class IceStrikeRuntime {
     for (let i = this.stones.length - 1; i >= 0; i--) {
       const s = this.stones[i];
       const spd = Math.hypot(s.vx, s.vy);
-      if (spd > 0.2) {
+      if (spd > REST_SPEED) {
         const hardOob =
           s.x < SH_L - STONE_R * 5 ||
           s.x > SH_R + STONE_R * 5 ||
@@ -1029,7 +1154,10 @@ class IceStrikeRuntime {
     }
 
     if (this.flyingStone && !this.stones.includes(this.flyingStone)) this.flyingStone = null;
-    if (this.flyingStone && Math.hypot(this.flyingStone.vx, this.flyingStone.vy) <= 0.5) this.flyingStone = null;
+    if (this.flyingStone && Math.hypot(this.flyingStone.vx, this.flyingStone.vy) <= REST_SPEED) {
+      stopStone(this.flyingStone);
+      this.flyingStone = null;
+    }
 
     // Check all at rest and move flow to next delivery/end.
     this._advanceDeliveryFlowIfReady();
@@ -1213,7 +1341,7 @@ class IceStrikeRuntime {
     if (this.phase !== "playerAim") return;
 
     const rad = this.aim.angle * Math.PI / 180;
-    const spd = 200 + this.aim.power * 280;
+    const spd = speedFromPower(this.aim.power);
     const rot = this.aim.rotation;
     const strat = STRATEGIES[this.strategy];
     const trajCol = CLR[`traj${this.strategy.charAt(0).toUpperCase() + this.strategy.slice(1)}`] || CLR.trajDraw;
@@ -1818,18 +1946,23 @@ class IceStrikeRuntime {
       ctx.fillStyle = "#88a8cc"; ctx.font = `700 24px ${FONT_DISPLAY}`;
       ctx.fillText("BLANK END", mX, mY - 12);
     }
+    if (res?.total) {
+      ctx.fillStyle = "rgba(238,248,255,0.9)";
+      ctx.font = `700 14px ${FONT_DISPLAY}`;
+      ctx.fillText(`Match score: You ${res.total.player} - ${res.total.ai} CPU`, mX, mY + 8);
+    }
     const isFinalEnd = this.end >= ENDS;
     ctx.fillStyle = "rgba(155,195,240,0.65)"; ctx.font = `600 11px ${FONT_BODY}`;
     if (isFinalEnd) {
-      ctx.fillText(`Final end complete. Scoreboard in ${Math.ceil(Math.max(0, this.endTimer))}s...`, mX, mY + 16);
+      ctx.fillText(`Final end complete. Scoreboard in ${Math.ceil(Math.max(0, this.endTimer))}s...`, mX, mY + 28);
     } else {
-      ctx.fillText(`Next end in ${Math.ceil(Math.max(0, this.endTimer))}s (Space/Enter/click to continue)`, mX, mY + 16);
+      ctx.fillText(`Next end in ${Math.ceil(Math.max(0, this.endTimer))}s (Space/Enter/click to continue)`, mX, mY + 28);
     }
 
     // Ice condition for next end
     const nextCond = ICE_CONDITIONS[this.iceCondKey];
     ctx.fillStyle = nextCond.color; ctx.font = `600 9px ${FONT_BODY}`;
-    ctx.fillText(`Next: ${nextCond.label} ice`, mX, mY + 34);
+    ctx.fillText(`Next: ${nextCond.label} ice`, mX, mY + 44);
   }
 
   _drawMenu(ctx, vW, vH) {

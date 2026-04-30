@@ -1,0 +1,23 @@
+
+> plataforma-juegos-saas@0.1.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+
+  [32m[1mVITE[22m v4.5.14[39m  [2mready in [0m[1m656[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5173[22m/[39m
+[2m10:47:43[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:49:18[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:49:35[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:53:54[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:54:01[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:54:04[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:54:15[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:54:23[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:54:31[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:54:38[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:54:45[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:56:58[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:57:27[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:57:34[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
+[2m10:59:56[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/arcade/ice-strike-pro/index.jsx[22m
