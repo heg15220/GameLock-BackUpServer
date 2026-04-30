@@ -11,7 +11,7 @@ function GameCard({ game, index, locale, onLaunch, t, promoNote = null }) {
     >
       <img
         className="card-image"
-        src={game.image}
+        src={lg.image}
         alt={lg.title}
         loading="lazy"
       />

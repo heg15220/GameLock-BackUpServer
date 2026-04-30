@@ -1,0 +1,28 @@
+﻿<svg width="512" height="320" viewBox="0 0 512 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="320" rx="28" fill="#0F172A"/>
+  <rect x="24" y="24" width="464" height="272" rx="24" fill="url(#bg)"/>
+  <path d="M73 95C73 74.5655 89.5655 58 110 58H172V134H110C89.5655 134 73 117.435 73 97V95Z" fill="#0B1220" opacity="0.9"/>
+  <path d="M170 58H254C282.719 58 306 81.2812 306 110V110C306 138.719 282.719 162 254 162H170V58Z" fill="#FDE68A"/>
+  <path d="M339 160C339 139.565 355.565 123 376 123H438V199H376C355.565 199 339 182.435 339 162V160Z" fill="#0B1220" opacity="0.92"/>
+  <path d="M247 123H376C404.719 123 428 146.281 428 175V175C428 203.719 404.719 227 376 227H247V123Z" fill="#BFDBFE"/>
+  <path d="M105 213C105 192.565 121.565 176 142 176H281V252H142C121.565 252 105 235.435 105 215V213Z" fill="#111827"/>
+  <path d="M282 176H360C388.719 176 412 199.281 412 228V228C412 256.719 388.719 280 360 280H282V176Z" fill="#FCA5A5"/>
+  <path d="M123 91H153" stroke="#F8FAFC" stroke-width="12" stroke-linecap="round"/>
+  <path d="M125 114H225" stroke="#111827" stroke-width="10" stroke-linecap="round"/>
+  <path d="M126 136H257" stroke="#111827" stroke-width="10" stroke-linecap="round"/>
+  <path d="M272 156H393" stroke="#111827" stroke-width="10" stroke-linecap="round"/>
+  <path d="M270 178H390" stroke="#111827" stroke-width="10" stroke-linecap="round"/>
+  <path d="M137 208H247" stroke="#F8FAFC" stroke-width="10" stroke-linecap="round"/>
+  <path d="M136 231H343" stroke="#F8FAFC" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="92" cy="83" r="24" fill="#F8FAFC"/>
+  <path d="M78 72C78 63.1634 85.1634 56 94 56H104V88H94C85.1634 88 78 80.8366 78 72Z" fill="#0F172A"/>
+  <circle cx="421" cy="92" r="24" fill="#F8FAFC"/>
+  <path d="M407 81C407 72.1634 414.163 65 423 65H433V97H423C414.163 97 407 89.8366 407 81Z" fill="#0F172A"/>
+  <defs>
+    <linearGradient id="bg" x1="42" y1="36" x2="462" y2="284" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D4ED8"/>
+      <stop offset="0.5" stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#7C2D12"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,65 @@
+﻿<svg width="800" height="520" viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="60" y1="44" x2="748" y2="476" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B2F4A"/>
+      <stop offset="1" stop-color="#124A6E"/>
+    </linearGradient>
+    <linearGradient id="land" x1="140" y1="120" x2="640" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5EEAD4"/>
+      <stop offset="1" stop-color="#34D399"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="66" y1="58" x2="738" y2="460" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#133854" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#0C2438" stop-opacity="0.92"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="18" y="18" width="764" height="484" rx="34" fill="url(#bg)"/>
+  <rect x="42" y="42" width="716" height="436" rx="28" fill="url(#panel)" stroke="#7DD3FC" stroke-opacity="0.34" stroke-width="2"/>
+
+  <path d="M142 154L194 130L240 142L270 176L252 208L208 214L178 196L150 180L142 154Z" fill="url(#land)" fill-opacity="0.9"/>
+  <path d="M308 148L350 130L382 138L404 168L388 190L360 198L334 190L308 170L308 148Z" fill="url(#land)" fill-opacity="0.9"/>
+  <path d="M352 222L402 208L458 224L494 256L474 286L430 294L390 282L362 254L352 222Z" fill="url(#land)" fill-opacity="0.9"/>
+  <path d="M458 138L524 124L594 140L652 174L642 214L590 228L534 214L486 194L458 162V138Z" fill="url(#land)" fill-opacity="0.9"/>
+  <path d="M612 286L646 276L678 294L672 322L644 334L618 320L612 286Z" fill="url(#land)" fill-opacity="0.9"/>
+  <path d="M312 364L484 352L580 380L514 414L322 410L312 364Z" fill="url(#land)" fill-opacity="0.78"/>
+
+  <g stroke="#BAE6FD" stroke-opacity="0.32" stroke-width="2">
+    <line x1="94" y1="98" x2="706" y2="98"/>
+    <line x1="94" y1="166" x2="706" y2="166"/>
+    <line x1="94" y1="234" x2="706" y2="234"/>
+    <line x1="94" y1="302" x2="706" y2="302"/>
+    <line x1="94" y1="370" x2="706" y2="370"/>
+    <line x1="94" y1="438" x2="706" y2="438"/>
+  </g>
+
+  <g fill="#F0FDFF" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="24">
+    <text x="86" y="108">Atlas Maps</text>
+  </g>
+  <g fill="#BDE7FF" font-family="Inter, Arial, sans-serif" font-weight="600" font-size="14">
+    <text x="86" y="132">World - Continent - Country</text>
+  </g>
+
+  <g>
+    <circle cx="228" cy="174" r="12" fill="#F59E0B"/>
+    <circle cx="370" cy="166" r="12" fill="#F59E0B"/>
+    <circle cx="430" cy="252" r="12" fill="#F59E0B"/>
+    <circle cx="578" cy="178" r="12" fill="#F59E0B"/>
+    <circle cx="648" cy="304" r="12" fill="#F59E0B"/>
+  </g>
+  <g fill="#0C2438" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="12" text-anchor="middle">
+    <text x="228" y="178">?</text>
+    <text x="370" y="170">?</text>
+    <text x="430" y="256">?</text>
+    <text x="578" y="182">?</text>
+    <text x="648" y="308">?</text>
+  </g>
+
+  <rect x="526" y="342" width="188" height="104" rx="14" fill="#0A1F30" fill-opacity="0.72" stroke="#7DD3FC" stroke-opacity="0.32"/>
+  <g fill="#E0F2FE" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700">
+    <text x="544" y="368">Hidden objectives</text>
+    <text x="544" y="390">01  ??????????</text>
+    <text x="544" y="408">02  ??????????</text>
+    <text x="544" y="426">03  ??????????</text>
+  </g>
+</svg>

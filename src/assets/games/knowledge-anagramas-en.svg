@@ -1,0 +1,37 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="30" x2="900" y2="510" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2A1A42"/>
+      <stop offset="1" stop-color="#4A2A5F"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="170" y1="80" x2="790" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#321B4C" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#5A2D72" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <circle cx="150" cy="96" r="122" fill="#C77DFF" fill-opacity="0.24"/>
+  <circle cx="826" cy="444" r="170" fill="#FFD166" fill-opacity="0.2"/>
+
+  <rect x="150" y="70" width="660" height="400" rx="26" fill="url(#panel)" stroke="#F2B5FF" stroke-opacity="0.35"/>
+  <text x="188" y="145" fill="#FFEFFF" font-size="48" font-family="Outfit, Arial, sans-serif" font-weight="700">ANAGRAMS PRO</text>
+  <text x="190" y="182" fill="#F7C7FF" font-size="21" font-family="Outfit, Arial, sans-serif">10k words ES/EN + deterministic shuffles</text>
+
+  <g transform="translate(194 230)">
+    <rect x="0" y="0" width="82" height="82" rx="12" fill="#F4D35E"/>
+    <rect x="98" y="0" width="82" height="82" rx="12" fill="#EE964B"/>
+    <rect x="196" y="0" width="82" height="82" rx="12" fill="#9B5DE5"/>
+    <rect x="294" y="0" width="82" height="82" rx="12" fill="#F15BB5"/>
+    <rect x="392" y="0" width="82" height="82" rx="12" fill="#00BBF9"/>
+
+    <text x="28" y="53" fill="#2A1A42" font-size="38" font-family="Outfit, Arial, sans-serif" font-weight="800">A</text>
+    <text x="126" y="53" fill="#2A1A42" font-size="38" font-family="Outfit, Arial, sans-serif" font-weight="800">R</text>
+    <text x="226" y="53" fill="#FFF2FF" font-size="38" font-family="Outfit, Arial, sans-serif" font-weight="800">G</text>
+    <text x="324" y="53" fill="#FFF2FF" font-size="38" font-family="Outfit, Arial, sans-serif" font-weight="800">A</text>
+    <text x="421" y="53" fill="#F1F8FF" font-size="38" font-family="Outfit, Arial, sans-serif" font-weight="800">N</text>
+  </g>
+
+  <path d="M236 352C336 402 544 402 644 352" stroke="#FFE7FF" stroke-width="7" stroke-linecap="round" stroke-dasharray="12 14"/>
+  <text x="362" y="431" fill="#FFEFFF" font-size="26" font-family="Outfit, Arial, sans-serif" font-weight="700">MIX - REBUILD - SOLVE</text>
+</svg>

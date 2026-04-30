@@ -1,0 +1,109 @@
+﻿<svg width="960" height="540" viewBox="0 0 960 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="48" x2="868" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B2E4F"/>
+      <stop offset="1" stop-color="#174F60"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FCFF"/>
+      <stop offset="1" stop-color="#DCEFFF"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="960" height="540" rx="28" fill="url(#bg)"/>
+  <rect x="56" y="44" width="848" height="452" rx="24" fill="#0A1F36" fill-opacity="0.56" stroke="#7DD3FC" stroke-opacity="0.35"/>
+
+  <g transform="translate(96 92)">
+    <rect x="0" y="0" width="430" height="356" rx="16" fill="#071A2E" stroke="#7DD3FC" stroke-opacity="0.42"/>
+
+    <g transform="translate(24 24)">
+      <rect x="0" y="0" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="40" y="0" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="80" y="0" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="120" y="0" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="160" y="0" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="200" y="0" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="240" y="0" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="280" y="0" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="320" y="0" width="36" height="36" rx="7" fill="url(#tile)"/>
+
+      <rect x="0" y="40" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="40" y="40" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="80" y="40" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="120" y="40" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="160" y="40" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="200" y="40" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="240" y="40" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="280" y="40" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="320" y="40" width="36" height="36" rx="7" fill="url(#tile)"/>
+
+      <rect x="0" y="80" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="40" y="80" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="80" y="80" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="120" y="80" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="160" y="80" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="200" y="80" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="240" y="80" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="280" y="80" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="320" y="80" width="36" height="36" rx="7" fill="url(#tile)"/>
+
+      <rect x="0" y="120" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="40" y="120" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="80" y="120" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="120" y="120" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="160" y="120" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="200" y="120" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="240" y="120" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="280" y="120" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="320" y="120" width="36" height="36" rx="7" fill="url(#tile)"/>
+
+      <rect x="0" y="160" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="40" y="160" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="80" y="160" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="120" y="160" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="160" y="160" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="200" y="160" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="240" y="160" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="280" y="160" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="320" y="160" width="36" height="36" rx="7" fill="url(#tile)"/>
+
+      <rect x="0" y="200" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="40" y="200" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="80" y="200" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="120" y="200" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="160" y="200" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="200" y="200" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="240" y="200" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="280" y="200" width="36" height="36" rx="7" fill="url(#tile)"/>
+      <rect x="320" y="200" width="36" height="36" rx="7" fill="url(#tile)"/>
+    </g>
+
+    <g stroke="url(#mark)" stroke-width="8" stroke-linecap="round" opacity="0.9">
+      <line x1="55" y1="52" x2="374" y2="52"/>
+      <line x1="92" y1="92" x2="334" y2="332"/>
+      <line x1="252" y1="52" x2="252" y2="332"/>
+      <line x1="374" y1="132" x2="214" y2="292"/>
+    </g>
+  </g>
+
+  <g transform="translate(562 120)">
+    <text x="0" y="0" fill="#E0F2FE" font-family="Outfit, sans-serif" font-size="44" font-weight="700">
+      Sopa de Letras
+    </text>
+    <text x="0" y="48" fill="#BAE6FD" font-family="Outfit, sans-serif" font-size="23" font-weight="500">
+      20x20  Â·  10.000 partidas ES/EN
+    </text>
+
+    <rect x="0" y="86" width="304" height="234" rx="14" fill="#082033" stroke="#7DD3FC" stroke-opacity="0.35"/>
+    <text x="20" y="128" fill="#F8FAFC" font-family="Outfit, sans-serif" font-size="22" font-weight="700">ASTRONOMY</text>
+    <text x="20" y="162" fill="#F8FAFC" font-family="Outfit, sans-serif" font-size="22" font-weight="700">CHEMISTRY</text>
+    <text x="20" y="196" fill="#F8FAFC" font-family="Outfit, sans-serif" font-size="22" font-weight="700">ALGORITHM</text>
+    <text x="20" y="230" fill="#F8FAFC" font-family="Outfit, sans-serif" font-size="22" font-weight="700">GEOGRAPHY</text>
+    <text x="20" y="264" fill="#F8FAFC" font-family="Outfit, sans-serif" font-size="22" font-weight="700">HISTORY</text>
+    <text x="20" y="298" fill="#F8FAFC" font-family="Outfit, sans-serif" font-size="22" font-weight="700">BIOLOGY</text>
+  </g>
+</svg>

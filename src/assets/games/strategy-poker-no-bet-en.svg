@@ -1,0 +1,59 @@
+﻿<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="40" x2="1150" y2="690" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B2C23"/>
+      <stop offset="1" stop-color="#113D2F"/>
+    </linearGradient>
+    <linearGradient id="felt" x1="220" y1="120" x2="1020" y2="610" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1D7A57"/>
+      <stop offset="1" stop-color="#145D44"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FCD34D"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <filter id="soft" x="-40" y="-40" width="1360" height="800" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <ellipse cx="640" cy="360" rx="500" ry="240" fill="#071A14" opacity="0.38"/>
+
+  <g filter="url(#soft)">
+    <ellipse cx="640" cy="365" rx="430" ry="220" fill="url(#felt)" stroke="url(#gold)" stroke-width="10"/>
+    <ellipse cx="640" cy="365" rx="355" ry="170" fill="none" stroke="#D1FAE5" stroke-opacity="0.18" stroke-width="2" stroke-dasharray="9 11"/>
+  </g>
+
+  <rect x="470" y="276" width="340" height="124" rx="16" fill="#0A231B" stroke="#34D399" stroke-opacity="0.55"/>
+  <text x="640" y="320" text-anchor="middle" fill="#ECFDF5" font-family="Outfit, Arial" font-size="24" font-weight="700">Classic Draw Poker</text>
+  <text x="640" y="352" text-anchor="middle" fill="#A7F3D0" font-family="Outfit, Arial" font-size="20" font-weight="600">With Betting</text>
+  <text x="640" y="382" text-anchor="middle" fill="#86EFAC" font-family="Outfit, Arial" font-size="16" font-weight="500">Win hands and manage chips</text>
+
+  <g transform="translate(360 430) rotate(-8)">
+    <rect width="158" height="210" rx="16" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="3"/>
+    <text x="28" y="42" fill="#1F2937" font-family="Bricolage Grotesque, Arial" font-size="32" font-weight="800">A</text>
+    <text x="28" y="78" fill="#DC2626" font-family="Arial, 'Segoe UI Symbol', sans-serif" font-size="36" font-weight="700">&#9829;</text>
+    <text x="79" y="136" text-anchor="middle" fill="#DC2626" font-family="Arial, 'Segoe UI Symbol', sans-serif" font-size="72" font-weight="700">&#9829;</text>
+  </g>
+  <g transform="translate(518 424) rotate(-1)">
+    <rect width="158" height="210" rx="16" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="3"/>
+    <text x="28" y="42" fill="#1F2937" font-family="Bricolage Grotesque, Arial" font-size="32" font-weight="800">K</text>
+    <text x="28" y="78" fill="#111827" font-family="Arial, 'Segoe UI Symbol', sans-serif" font-size="36" font-weight="700">&#9824;</text>
+    <text x="79" y="136" text-anchor="middle" fill="#111827" font-family="Arial, 'Segoe UI Symbol', sans-serif" font-size="72" font-weight="700">&#9824;</text>
+  </g>
+  <g transform="translate(676 430) rotate(7)">
+    <rect width="158" height="210" rx="16" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="3"/>
+    <text x="28" y="42" fill="#1F2937" font-family="Bricolage Grotesque, Arial" font-size="32" font-weight="800">Q</text>
+    <text x="28" y="78" fill="#DC2626" font-family="Arial, 'Segoe UI Symbol', sans-serif" font-size="36" font-weight="700">&#9830;</text>
+    <text x="79" y="136" text-anchor="middle" fill="#DC2626" font-family="Arial, 'Segoe UI Symbol', sans-serif" font-size="72" font-weight="700">&#9830;</text>
+  </g>
+
+  <circle cx="257" cy="315" r="66" fill="#0A231B" stroke="#34D399" stroke-opacity="0.45"/>
+  <text x="257" y="302" text-anchor="middle" fill="#A7F3D0" font-family="Outfit, Arial" font-size="16" font-weight="700">1 to 8 AI</text>
+  <text x="257" y="328" text-anchor="middle" fill="#6EE7B7" font-family="Outfit, Arial" font-size="14" font-weight="600">2 to 9 players</text>
+
+  <circle cx="1023" cy="315" r="66" fill="#0A231B" stroke="#34D399" stroke-opacity="0.45"/>
+  <text x="1023" y="304" text-anchor="middle" fill="#A7F3D0" font-family="Outfit, Arial" font-size="16" font-weight="700">Strategy</text>
+  <text x="1023" y="328" text-anchor="middle" fill="#6EE7B7" font-family="Outfit, Arial" font-size="14" font-weight="600">Showdown</text>
+</svg>

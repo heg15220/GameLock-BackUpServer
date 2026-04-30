@@ -1,0 +1,19 @@
+Failed to resolve import "../assets/games/knowledge-refranes-en.svg" from "src\data\games.js". Does the file exist?
+[2m11:10:26[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to resolve import "../assets/games/knowledge-refranes-en.svg" from "src\data\games.js". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mC:/Users/hugoe/Downloads/plataforma-juegos-saas/src/data/games.js[39m:70:39
+[33m  68 |  import knowledgeCronologiaImageEn from "../assets/games/knowledge-cronologia-en.svg";
+  69 |  import knowledgeRefranesImage from "../assets/games/knowledge-refranes.svg";
+  70 |  import knowledgeRefranesImageEn from "../assets/games/knowledge-refranes-en.svg";
+     |                                        ^
+  71 |  import knowledgeWikipediaGachaImage from "../assets/games/knowledge-wikipedia-gacha.svg";
+  72 |  import chessGrandmasterArenaImage from "../assets/games/chess-grandmaster-arena.svg";[39m
+      at formatError (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:44066:46)
+      at TransformContext.error (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:44062:19)
+      at normalizeUrl (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:41845:33)
+      at async file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:41999:47
+      at async Promise.all (index 69)
+      at async TransformContext.transform (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:41915:13)
+      at async Object.transform (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:44356:30)
+      at async loadAndTransform (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:55088:29)
+      at async viteTransformMiddleware (file:///C:/Users/hugoe/Downloads/plataforma-juegos-saas/node_modules/vite/dist/node/chunks/dep-827b23df.js:64699:32)

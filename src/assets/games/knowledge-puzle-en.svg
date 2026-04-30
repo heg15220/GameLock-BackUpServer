@@ -1,0 +1,46 @@
+﻿<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="100" y1="80" x2="1180" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F2937"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#E2E8F0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect x="410" y="130" width="460" height="460" rx="26" fill="#0F172A" stroke="#7DD3FC" stroke-width="6"/>
+
+  <g font-family="Outfit, sans-serif" font-size="56" font-weight="700" fill="#0F172A" text-anchor="middle">
+    <rect x="450" y="170" width="120" height="120" rx="14" fill="url(#tile)"/>
+    <text x="510" y="247">1</text>
+
+    <rect x="580" y="170" width="120" height="120" rx="14" fill="url(#tile)"/>
+    <text x="640" y="247">2</text>
+
+    <rect x="710" y="170" width="120" height="120" rx="14" fill="url(#tile)"/>
+    <text x="770" y="247">3</text>
+
+    <rect x="450" y="300" width="120" height="120" rx="14" fill="url(#tile)"/>
+    <text x="510" y="377">4</text>
+
+    <rect x="580" y="300" width="120" height="120" rx="14" fill="#0EA5E9"/>
+
+    <rect x="710" y="300" width="120" height="120" rx="14" fill="url(#tile)"/>
+    <text x="770" y="377">6</text>
+
+    <rect x="450" y="430" width="120" height="120" rx="14" fill="url(#tile)"/>
+    <text x="510" y="507">7</text>
+
+    <rect x="580" y="430" width="120" height="120" rx="14" fill="url(#tile)"/>
+    <text x="640" y="507">5</text>
+
+    <rect x="710" y="430" width="120" height="120" rx="14" fill="url(#tile)"/>
+    <text x="770" y="507">8</text>
+  </g>
+
+  <text x="640" y="88" text-anchor="middle" font-family="Outfit, sans-serif" font-size="56" font-weight="700" fill="#E0F2FE">PUZZLE 8</text>
+  <text x="640" y="678" text-anchor="middle" font-family="Outfit, sans-serif" font-size="28" font-weight="600" fill="#BAE6FD">Knowledge - Sliding</text>
+</svg>
+

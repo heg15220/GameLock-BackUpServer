@@ -1,4 +1,5 @@
 import wordBlitzImage from "../assets/games/word-blitz.svg";
+import wordBlitzImageEn from "../assets/games/word-blitz-en.svg";
 import skyRunnerImage from "../assets/games/sky-runner.svg";
 import headSoccerArenaImage from "../assets/games/head-soccer-arena-catalog.png";
 import pacmanMazeProtocolImage from "../assets/games/pacman-maze-protocol.svg";
@@ -37,31 +38,52 @@ import arcadeRetroRiverRaidNeonImage from "../assets/games/arcade-retro-river-ra
 import arcadeRetroTronLightcyclesImage from "../assets/games/arcade-retro-tron-lightcycles.svg";
 import arcadeRetroRoadFighterSynthImage from "../assets/games/arcade-retro-road-fighter-synth.svg";
 import knowledgeSudokuImage from "../assets/games/knowledge-sudoku.svg";
+import knowledgeSudokuImageEn from "../assets/games/knowledge-sudoku-en.svg";
 import knowledgeDominoImage from "../assets/games/knowledge-domino.svg";
+import knowledgeDominoImageEn from "../assets/games/knowledge-domino-en.svg";
 import knowledgeAhorcadoImage from "../assets/games/knowledge-ahorcado.svg";
+import knowledgeAhorcadoImageEn from "../assets/games/knowledge-ahorcado-en.svg";
 import knowledgePacienciaImage from "../assets/games/knowledge-paciencia.svg";
+import knowledgePacienciaImageEn from "../assets/games/knowledge-paciencia-en.svg";
 import knowledgePuzleImage from "../assets/games/knowledge-puzle.svg";
+import knowledgePuzleImageEn from "../assets/games/knowledge-puzle-en.svg";
 import knowledgeCrucigramaImage from "../assets/games/knowledge-crucigrama.svg";
+import knowledgeCrucigramaImageEn from "../assets/games/knowledge-crucigrama-en.svg";
 import knowledgeSopaLetrasImage from "../assets/games/knowledge-sopa-letras.svg";
+import knowledgeSopaLetrasImageEn from "../assets/games/knowledge-sopa-letras-en.svg";
 import knowledgeWordleImage from "../assets/games/knowledge-wordle.svg";
 import knowledgeAnagramasImage from "../assets/games/knowledge-anagramas.svg";
+import knowledgeAnagramasImageEn from "../assets/games/knowledge-anagramas-en.svg";
 import knowledgeCalculoMentalImage from "../assets/games/knowledge-calculo-mental.svg";
+import knowledgeCalculoMentalImageEn from "../assets/games/knowledge-calculo-mental-en.svg";
 import knowledgeIqMastersImage from "../assets/games/knowledge-iq-masters.svg";
 import knowledgeTablaPeriodicaImage from "../assets/games/knowledge-tabla-periodica.svg";
+import knowledgeTablaPeriodicaImageEn from "../assets/games/knowledge-tabla-periodica-en.svg";
 import knowledgeMapasImage from "../assets/games/knowledge-mapas.svg";
+import knowledgeMapasImageEn from "../assets/games/knowledge-mapas-en.svg";
 import knowledgeAdivinaPaisImage from "../assets/games/knowledge-adivina-pais.svg";
 import knowledgeTangramImage from "../assets/games/knowledge-tangram.svg";
+import knowledgeTangramImageEn from "../assets/games/knowledge-tangram-en.svg";
 import knowledgeCronologiaImage from "../assets/games/knowledge-cronologia.svg";
+import knowledgeCronologiaImageEn from "../assets/games/knowledge-cronologia-en.svg";
 import knowledgeRefranesImage from "../assets/games/knowledge-refranes.svg";
+import knowledgeRefranesImageEn from "../assets/games/knowledge-refranes-en.svg";
 import knowledgeWikipediaGachaImage from "../assets/games/knowledge-wikipedia-gacha.svg";
 import chessGrandmasterArenaImage from "../assets/games/chess-grandmaster-arena.svg";
+import chessGrandmasterArenaImageEn from "../assets/games/chess-grandmaster-arena-en.svg";
 import strategySudokuTecnicasImage from "../assets/games/strategy-sudoku-tecnicas.svg";
+import strategySudokuTecnicasImageEn from "../assets/games/strategy-sudoku-tecnicas-en.svg";
 import strategyHundirFlotaProImage from "../assets/games/strategy-hundir-flota-pro.svg";
+import strategyHundirFlotaProImageEn from "../assets/games/strategy-hundir-flota-pro-en.svg";
 import strategyDamasProfesionalImage from "../assets/games/strategy-damas-professional.svg";
+import strategyDamasProfesionalImageEn from "../assets/games/strategy-damas-professional-en.svg";
 import strategyPokerNoBetImage from "../assets/games/strategy-poker-no-bet.svg";
+import strategyPokerNoBetImageEn from "../assets/games/strategy-poker-no-bet-en.svg";
 import strategyParchisLudotekaImage from "../assets/games/strategy-parchis-ludoteka.svg";
 import strategyBarajaIaImage from "../assets/games/strategy-baraja-ia.svg";
+import strategyBarajaIaImageEn from "../assets/games/strategy-baraja-ia-en.svg";
 import strategyMansionTripleEnigmaImage from "../assets/games/strategy-mansion-triple-enigma.svg";
+import strategyMansionTripleEnigmaImageEn from "../assets/games/strategy-mansion-triple-enigma-en.svg";
 import race2dproImage from "../assets/games/race2dpro-catalog.png";
 import sunsetSlipstreamImage from "../assets/games/sunset-slipstream.svg";
 
@@ -1232,9 +1254,11 @@ export const games = [
   {
     id: "knowledge-quiz-nexus",
     image: wordBlitzImage,
+    image_en: wordBlitzImageEn,
     sessionTime: "4-8 min",
 
     title: "Quiz Nexus",
+    title_en: "Quiz Nexus",
     category: "Conocimiento",
     tagline: "Preguntas de cultura general: responde r\u00e1pido antes de que acabe el tiempo.",
     description:
@@ -1278,6 +1302,7 @@ export const games = [
     sessionTime: "5-10 min",
 
     title: "IQ Masters Figure Line",
+    title_en: "IQ Masters Figure Line",
     category: "Conocimiento",
     tagline: "Puzzle de trazo \u00fanico: completa figuras sin repetir segmentos.",
     description:
@@ -1326,9 +1351,11 @@ export const games = [
   {
     id: "knowledge-refranes-clasicos",
     image: knowledgeRefranesImage,
+    image_en: knowledgeRefranesImageEn,
     sessionTime: "2-5 min",
 
     title: "Reto de Refranes",
+    title_en: "Proverb Challenge",
     category: "Conocimiento",
     tagline: "Refranes populares: completa la frase correcta en cada ronda.",
     description:
@@ -1378,6 +1405,7 @@ export const games = [
     sessionTime: "4-12 min",
 
     title: "Wikipedia Gacha",
+    title_en: "Wikipedia Gacha",
     category: "Conocimiento",
     tagline: "Colecci\u00f3n de cartas de Wikipedia: abre sobres y completa tu archivo.",
     description:
@@ -1424,9 +1452,11 @@ export const games = [
   {
     id: "knowledge-sudoku-sprint",
     image: knowledgeSudokuImage,
+    image_en: knowledgeSudokuImageEn,
     sessionTime: "3-7 min",
 
     title: "Sudoku Sprint 4x4",
+    title_en: "4x4 Sudoku Sprint",
     category: "Conocimiento",
     tagline: "Sudoku r\u00e1pido 4x4: completa la cuadr\u00edcula con l\u00f3gica.",
     description:
@@ -1468,9 +1498,11 @@ export const games = [
   {
     id: "knowledge-domino-chain",
     image: knowledgeDominoImage,
+    image_en: knowledgeDominoImageEn,
     sessionTime: "6-18 min",
 
     title: "Domino Clasico Arena",
+    title_en: "Classic Domino Arena",
     category: "Estrategia",
     tagline: "Domin\u00f3 por parejas: coloca fichas, bloquea rivales y suma puntos.",
     description:
@@ -1511,9 +1543,11 @@ export const games = [
   {
     id: "knowledge-ahorcado-flash",
     image: knowledgeAhorcadoImage,
+    image_en: knowledgeAhorcadoImageEn,
     sessionTime: "2-4 min",
 
     title: "Ahorcado Flash",
+    title_en: "Hangman Flash",
     category: "Conocimiento",
     tagline: "Ahorcado con pistas: adivina la palabra antes de agotar intentos.",
     description:
@@ -1553,9 +1587,11 @@ export const games = [
   {
     id: "knowledge-paciencia-lite",
     image: knowledgePacienciaImage,
+    image_en: knowledgePacienciaImageEn,
     sessionTime: "4-8 min",
 
     title: "Paciencia ClÃ¡sica Lite",
+    title_en: "Classic Solitaire Lite",
     category: "Conocimiento",
     tagline: "Solitario compacto: ordena cartas y completa fundaciones por palo.",
     description:
@@ -1596,9 +1632,11 @@ export const games = [
   {
     id: "knowledge-puzle-deslizante",
     image: knowledgePuzleImage,
+    image_en: knowledgePuzleImageEn,
     sessionTime: "2-6 min",
 
     title: "Puzle Deslizante 8",
+    title_en: "Sliding Puzzle 8",
     category: "Conocimiento",
     tagline: "Puzzle deslizante: mueve el hueco y ordena las piezas.",
     description: "Puzzle numÃ©rico clÃ¡sico de 8 piezas. Mueve las fichas adyacentes para ordenar la secuencia completa.",
@@ -1637,9 +1675,11 @@ export const games = [
   {
     id: "knowledge-crucigrama-mini",
     image: knowledgeCrucigramaImage,
+    image_en: knowledgeCrucigramaImageEn,
     sessionTime: "4-9 min",
 
     title: "Crucigrama Pro",
+    title_en: "Crossword Pro",
     category: "Conocimiento",
     tagline: "Crucigrama: resuelve pistas y cruza palabras hasta completar el tablero.",
     description:
@@ -1680,9 +1720,11 @@ export const games = [
   {
     id: "knowledge-sopa-letras-mega",
     image: knowledgeSopaLetrasImage,
+    image_en: knowledgeSopaLetrasImageEn,
     sessionTime: "4-10 min",
 
     title: "Sopa de Letras Mega",
+    title_en: "Mega Word Search",
     category: "Conocimiento",
     tagline: "Sopa de letras: encuentra palabras ocultas en varias direcciones.",
     description:
@@ -1727,6 +1769,7 @@ export const games = [
     sessionTime: "3-7 min",
 
     title: "Wordle Pro",
+    title_en: "Wordle Pro",
     category: "Conocimiento",
     tagline: "Wordle: adivina la palabra con pistas de letras por intento.",
     description:
@@ -1767,9 +1810,11 @@ export const games = [
   {
     id: "knowledge-anagramas-pro",
     image: knowledgeAnagramasImage,
+    image_en: knowledgeAnagramasImageEn,
     sessionTime: "3-7 min",
 
     title: "Anagramas Pro",
+    title_en: "Anagrams Pro",
     category: "Conocimiento",
     tagline: "Anagramas: reordena letras mezcladas para formar la palabra.",
     description:
@@ -1809,9 +1854,11 @@ export const games = [
   {
     id: "knowledge-calculo-mental-flash10",
     image: knowledgeCalculoMentalImage,
+    image_en: knowledgeCalculoMentalImageEn,
     sessionTime: "1-4 min",
 
     title: "Calculo Mental Flash 10",
+    title_en: "Mental Math Flash 10",
     category: "Conocimiento",
     tagline: "C\u00e1lculo mental: resuelve operaciones r\u00e1pidas con precisi\u00f3n.",
     description:
@@ -1852,9 +1899,11 @@ export const games = [
   {
     id: "knowledge-tabla-periodica-total",
     image: knowledgeTablaPeriodicaImage,
+    image_en: knowledgeTablaPeriodicaImageEn,
     sessionTime: "6-20 min",
 
     title: "Tabla Periodica Total",
+    title_en: "Complete Periodic Table",
     category: "Conocimiento",
     tagline: "Tabla peri\u00f3dica: coloca elementos en su posici\u00f3n correcta.",
     description:
@@ -1895,9 +1944,11 @@ export const games = [
   {
     id: "knowledge-mapas-atlas",
     image: knowledgeMapasImage,
+    image_en: knowledgeMapasImageEn,
     sessionTime: "4-14 min",
 
     title: "Mapas Atlas",
+    title_en: "Atlas Maps",
     category: "Conocimiento",
     tagline: "Mapas: identifica pa\u00edses, regiones, provincias o ciudades.",
     description:
@@ -1948,9 +1999,11 @@ export const games = [
   {
     id: "knowledge-mapas-camino-corto",
     image: knowledgeMapasImage,
+    image_en: knowledgeMapasImageEn,
     sessionTime: "3-10 min",
 
     title: "Adivina el camino mas corto",
+    title_en: "Guess the Shortest Path",
     category: "Conocimiento",
     tagline: "Ruta geogr\u00e1fica: conecta dos lugares con el camino m\u00e1s corto.",
     description:
@@ -2002,6 +2055,7 @@ export const games = [
     sessionTime: "3-8 min",
 
     title: "Adivina el pais",
+    title_en: "Guess the Country",
     category: "Conocimiento",
     tagline: "Adivina el pa\u00eds por su silueta en el mapa.",
     description:
@@ -2050,9 +2104,11 @@ export const games = [
   {
     id: "knowledge-tangram-pro",
     image: knowledgeTangramImage,
+    image_en: knowledgeTangramImageEn,
     sessionTime: "5-12 min",
 
     title: "Tangram Pro",
+    title_en: "Tangram Pro",
     category: "Conocimiento",
     tagline: "Tangram: coloca siete piezas para encajar la silueta.",
     description:
@@ -2101,9 +2157,11 @@ export const games = [
   {
     id: "knowledge-cronologia-maestra",
     image: knowledgeCronologiaImage,
+    image_en: knowledgeCronologiaImageEn,
     sessionTime: "6-16 min",
 
     title: "Cronologia Maestra",
+    title_en: "Master Timeline",
     category: "Conocimiento",
     tagline: "Cronolog\u00eda: ordena eventos hist\u00f3ricos en la l\u00ednea temporal.",
     description:
@@ -2152,9 +2210,11 @@ export const games = [
   {
     id: "strategy-sudoku-tecnicas",
     image: strategySudokuTecnicasImage,
+    image_en: strategySudokuTecnicasImageEn,
     sessionTime: "5-15 min",
 
     title: "Sudoku Tecnicas Pro",
+    title_en: "Sudoku Techniques Pro",
     category: "Estrategia",
     tagline: "Sudoku 9x9: resuelve con l\u00f3gica filas, columnas y regiones.",
     description:
@@ -2197,9 +2257,11 @@ export const games = [
   {
     id: "strategy-chess-grandmaster",
     image: chessGrandmasterArenaImage,
+    image_en: chessGrandmasterArenaImageEn,
     sessionTime: "5-25 min",
 
     title: "Grandmaster Chess Arena",
+    title_en: "Grandmaster Chess Arena",
     category: "Estrategia",
     tagline: "Ajedrez completo: protege tu rey y busca el jaque mate.",
     description:
@@ -2242,9 +2304,11 @@ export const games = [
   {
     id: "strategy-hundir-flota-pro",
     image: strategyHundirFlotaProImage,
+    image_en: strategyHundirFlotaProImageEn,
     sessionTime: "15-30 min",
 
     title: "Hundir la Flota Pro",
+    title_en: "Battleship Pro",
     category: "Estrategia",
     tagline: "Hundir la flota: localiza barcos y dispara coordenadas clave.",
     description:
@@ -2296,6 +2360,7 @@ export const games = [
     sessionTime: "8-18 min",
 
     title: "Parchis Ludoteka Arena",
+    title_en: "Parcheesi Ludoteka Arena",
     category: "Estrategia",
     tagline: "Parch\u00eds contra IAs: captura, bloquea y lleva fichas a meta.",
     description:
@@ -2338,9 +2403,11 @@ export const games = [
   {
     id: "strategy-damas-clasicas",
     image: strategyDamasProfesionalImage,
+    image_en: strategyDamasProfesionalImageEn,
     sessionTime: "4-16 min",
 
     title: "Damas Estrategia Pro",
+    title_en: "Checkers Strategy Pro",
     category: "Estrategia",
     tagline: "Damas cl\u00e1sicas: captura piezas y corona para ganar ventaja.",
     description:
@@ -2383,9 +2450,11 @@ export const games = [
   {
     id: "strategy-poker-holdem-no-bet",
     image: strategyPokerNoBetImage,
+    image_en: strategyPokerNoBetImageEn,
     sessionTime: "4-10 min",
 
     title: "Poker Clasico Draw Con Apuestas",
+    title_en: "Classic Draw Poker with Betting",
     category: "Estrategia",
     tagline: "Poker de cinco cartas: apuesta, cambia cartas y gana el bote.",
     description:
@@ -2432,9 +2501,11 @@ export const games = [
   {
     id: "strategy-baraja-ia-arena",
     image: strategyBarajaIaImage,
+    image_en: strategyBarajaIaImageEn,
     sessionTime: "3-8 min",
 
     title: "Baraja IA Arena",
+    title_en: "AI Card Arena",
     category: "Estrategia",
     tagline: "Colecci\u00f3n de cartas: Brisca/Tute, Mus y Escoba contra IA.",
     description:
@@ -2485,9 +2556,11 @@ export const games = [
   {
     id: "strategy-mansion-triple-enigma",
     image: strategyMansionTripleEnigmaImage,
+    image_en: strategyMansionTripleEnigmaImageEn,
     sessionTime: "6-14 min",
 
     title: "Mansion Triple Enigma",
+    title_en: "Triple Enigma Mansion",
     category: "Estrategia",
     tagline: "Deducci\u00f3n en una mansi\u00f3n: re\u00fane pistas y resuelve el misterio.",
     description:

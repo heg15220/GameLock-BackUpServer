@@ -1,0 +1,46 @@
+﻿<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="100" y1="70" x2="1180" y2="650" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3F1D2E"/>
+      <stop offset="1" stop-color="#7C2D12"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect x="330" y="120" width="620" height="480" rx="28" fill="#111827" stroke="#FDBA74" stroke-width="6"/>
+
+  <g font-family="Outfit, sans-serif" font-size="38" font-weight="700" text-anchor="middle">
+    <rect x="390" y="180" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="435" y="236" fill="#7C2D12">S</text>
+    <rect x="490" y="180" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="535" y="236" fill="#7C2D12">O</text>
+    <rect x="590" y="180" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="635" y="236" fill="#7C2D12">L</text>
+    <rect x="690" y="180" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="735" y="236" fill="#7C2D12">A</text>
+    <rect x="790" y="180" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="835" y="236" fill="#7C2D12">R</text>
+
+    <rect x="390" y="280" width="90" height="90" rx="10" fill="#111827"/>
+    <rect x="490" y="280" width="90" height="90" rx="10" fill="#111827"/>
+    <rect x="590" y="280" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="635" y="336" fill="#7C2D12">A</text>
+    <rect x="690" y="280" width="90" height="90" rx="10" fill="#111827"/>
+    <rect x="790" y="280" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="835" y="336" fill="#7C2D12">A</text>
+
+    <rect x="390" y="380" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="435" y="436" fill="#7C2D12">P</text>
+    <rect x="490" y="380" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="535" y="436" fill="#7C2D12">A</text>
+    <rect x="590" y="380" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="635" y="436" fill="#7C2D12">S</text>
+    <rect x="690" y="380" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="735" y="436" fill="#7C2D12">A</text>
+    <rect x="790" y="380" width="90" height="90" rx="10" fill="#FFEDD5"/>
+    <text x="835" y="436" fill="#7C2D12">R</text>
+  </g>
+
+  <text x="640" y="90" text-anchor="middle" font-family="Outfit, sans-serif" font-size="56" font-weight="700" fill="#FED7AA">CROSSWORD</text>
+  <text x="640" y="678" text-anchor="middle" font-family="Outfit, sans-serif" font-size="28" font-weight="600" fill="#FDBA74">Knowledge - Mini grid</text>
+</svg>
+

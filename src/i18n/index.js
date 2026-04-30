@@ -93,6 +93,8 @@ export function getLocalizedGame(game, locale) {
   const catalogCopy = gameCatalogDescriptions[game.id];
   return {
     ...game,
+    image: isEn ? game.image_en ?? game.image : game.image,
+    title: isEn ? game.title_en ?? game.title : game.title,
     tagline: isEn ? game.tagline_en ?? game.tagline : game.tagline,
     catalogDescription: isEn
       ? catalogCopy?.en ?? game.catalogDescription_en ?? game.description_en ?? game.description

@@ -1,0 +1,29 @@
+﻿<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="90" x2="1160" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1E3A"/>
+      <stop offset="1" stop-color="#1E3A8A"/>
+    </linearGradient>
+    <linearGradient id="cell" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#E2E8F0"/>
+      <stop offset="1" stop-color="#94A3B8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect x="380" y="120" width="520" height="520" rx="26" fill="#0F172A" stroke="#7DD3FC" stroke-width="6"/>
+  <g opacity="0.95">
+    <rect x="420" y="160" width="210" height="210" rx="14" fill="url(#cell)"/>
+    <rect x="650" y="160" width="210" height="210" rx="14" fill="url(#cell)"/>
+    <rect x="420" y="390" width="210" height="210" rx="14" fill="url(#cell)"/>
+    <rect x="650" y="390" width="210" height="210" rx="14" fill="url(#cell)"/>
+  </g>
+  <g stroke="#0F172A" stroke-width="6" opacity="0.7">
+    <line x1="550" y1="160" x2="550" y2="600"/>
+    <line x1="730" y1="160" x2="730" y2="600"/>
+    <line x1="420" y1="280" x2="860" y2="280"/>
+    <line x1="420" y1="480" x2="860" y2="480"/>
+  </g>
+  <text x="640" y="86" text-anchor="middle" font-family="Outfit, sans-serif" font-size="58" font-weight="700" fill="#E0F2FE">SUDOKU</text>
+  <text x="640" y="680" text-anchor="middle" font-family="Outfit, sans-serif" font-size="28" font-weight="600" fill="#BFDBFE">Knowledge - 4x4 sprint</text>
+</svg>
+

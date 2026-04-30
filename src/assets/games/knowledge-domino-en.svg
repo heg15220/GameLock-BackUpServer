@@ -1,0 +1,36 @@
+﻿<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="1180" y2="660" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#16281A"/>
+      <stop offset="1" stop-color="#166534"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FEFCE8"/>
+      <stop offset="1" stop-color="#FDE68A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <g transform="translate(270 210)">
+    <rect x="0" y="120" width="220" height="120" rx="20" fill="url(#tile)" stroke="#365314" stroke-width="6"/>
+    <line x1="110" y1="126" x2="110" y2="234" stroke="#365314" stroke-width="6"/>
+    <circle cx="56" cy="180" r="12" fill="#365314"/>
+    <circle cx="166" cy="160" r="12" fill="#365314"/>
+    <circle cx="166" cy="200" r="12" fill="#365314"/>
+
+    <rect x="240" y="120" width="220" height="120" rx="20" fill="url(#tile)" stroke="#365314" stroke-width="6"/>
+    <line x1="350" y1="126" x2="350" y2="234" stroke="#365314" stroke-width="6"/>
+    <circle cx="295" cy="160" r="12" fill="#365314"/>
+    <circle cx="295" cy="200" r="12" fill="#365314"/>
+    <circle cx="405" cy="180" r="12" fill="#365314"/>
+
+    <rect x="480" y="120" width="220" height="120" rx="20" fill="url(#tile)" stroke="#365314" stroke-width="6"/>
+    <line x1="590" y1="126" x2="590" y2="234" stroke="#365314" stroke-width="6"/>
+    <circle cx="536" cy="160" r="12" fill="#365314"/>
+    <circle cx="536" cy="200" r="12" fill="#365314"/>
+    <circle cx="646" cy="160" r="12" fill="#365314"/>
+    <circle cx="646" cy="200" r="12" fill="#365314"/>
+  </g>
+  <text x="640" y="118" text-anchor="middle" font-family="Outfit, sans-serif" font-size="56" font-weight="700" fill="#ECFCCB">DOMINO</text>
+  <text x="640" y="678" text-anchor="middle" font-family="Outfit, sans-serif" font-size="28" font-weight="600" fill="#D9F99D">Knowledge - Logic chain</text>
+</svg>
+

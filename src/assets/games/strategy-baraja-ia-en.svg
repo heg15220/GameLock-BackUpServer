@@ -1,0 +1,39 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Baraja IA Strategy</title>
+  <desc id="desc">Strategy card game cover with adaptive deck and AI board.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+
+  <g transform="translate(220 180)">
+    <rect width="220" height="320" rx="20" fill="url(#card)"/>
+    <text x="26" y="52" font-family="Outfit, Arial, sans-serif" font-size="46" font-weight="700" fill="#b91c1c">A</text>
+    <text x="98" y="190" font-family="Outfit, Arial, sans-serif" font-size="120" font-weight="700" fill="#b91c1c">?</text>
+  </g>
+
+  <g transform="translate(470 165) rotate(4)">
+    <rect width="220" height="320" rx="20" fill="#111827" stroke="#334155" stroke-width="4"/>
+    <text x="58" y="170" font-family="Outfit, Arial, sans-serif" font-size="48" font-weight="700" fill="#e2e8f0">IA</text>
+  </g>
+
+  <g transform="translate(700 190) rotate(-6)">
+    <rect width="220" height="320" rx="20" fill="url(#card)"/>
+    <text x="24" y="52" font-family="Outfit, Arial, sans-serif" font-size="46" font-weight="700" fill="#0f172a">R</text>
+    <text x="92" y="192" font-family="Outfit, Arial, sans-serif" font-size="120" font-weight="700" fill="#0f172a">?</text>
+  </g>
+
+  <text x="86" y="120" font-family="Outfit, Arial, sans-serif" font-size="32" font-weight="600" fill="#bfdbfe">Strategy</text>
+  <text x="86" y="172" font-family="Outfit, Arial, sans-serif" font-size="64" font-weight="800" fill="#f8fafc">AI Card Arena</text>
+  <text x="86" y="222" font-family="Outfit, Arial, sans-serif" font-size="26" font-weight="500" fill="#cbd5e1">
+    Baraja espanola si locale es*; inglesa en el resto
+  </text>
+</svg>
