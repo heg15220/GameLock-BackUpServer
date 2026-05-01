@@ -22682,8 +22682,9 @@ button.brisca-card.playable:disabled {
 
 .mansion-layout {
   display: grid;
-  grid-template-columns: minmax(280px, 1.2fr) minmax(300px, 0.95fr);
+  grid-template-columns: minmax(420px, 1fr) minmax(340px, 0.84fr);
   gap: 0.56rem;
+  align-items: start;
 }
 
 .mansion-stage {
@@ -22713,8 +22714,10 @@ button.brisca-card.playable:disabled {
 .mansion-board-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(100px, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: 0.45rem;
+  aspect-ratio: 1 / 0.72;
+  min-height: 320px;
 }
 
 .mansion-room-cell {
@@ -22814,17 +22817,29 @@ button.brisca-card.playable:disabled {
 }
 
 .mansion-stage-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.34rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.3rem;
 }
 
 .mansion-stage-legend .legend {
-  border-radius: 999px;
-  padding: 0.14rem 0.56rem;
-  font-size: 0.58rem;
+  border-radius: 10px;
+  padding: 0.2rem 0.34rem;
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 0;
+  font-size: 0.56rem;
   font-weight: 800;
-  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+
+.mansion-stage-legend .legend::before {
+  content: "";
+  width: 0.68rem;
+  height: 0.68rem;
+  border-radius: 4px;
+  flex: 0 0 auto;
 }
 
 .mansion-stage-legend .legend.legal {
@@ -22833,16 +22848,31 @@ button.brisca-card.playable:disabled {
   background: rgba(14, 116, 144, 0.32);
 }
 
+.mansion-stage-legend .legend.legal::before {
+  background: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14);
+}
+
 .mansion-stage-legend .legend.selected {
   border: 1px solid rgba(251, 191, 36, 0.72);
   color: #fef3c7;
   background: rgba(146, 64, 14, 0.32);
 }
 
+.mansion-stage-legend .legend.selected::before {
+  background: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.14);
+}
+
 .mansion-stage-legend .legend.secret {
   border: 1px solid rgba(192, 132, 252, 0.72);
   color: #f3e8ff;
   background: rgba(107, 33, 168, 0.32);
+}
+
+.mansion-stage-legend .legend.secret::before {
+  background: linear-gradient(135deg, #c084fc 0 45%, #fef3c7 45% 55%, #c084fc 55% 100%);
+  box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.14);
 }
 
 .strategy-mansion-enigma-game .game-message {
@@ -22866,6 +22896,25 @@ button.brisca-card.playable:disabled {
   padding: 0.48rem;
   display: grid;
   gap: 0.46rem;
+}
+
+.strategy-mansion-enigma-game.mansion-compact {
+  gap: 0.42rem;
+}
+
+.strategy-mansion-enigma-game.mansion-compact .mansion-desk,
+.strategy-mansion-enigma-game.mansion-compact .mansion-stage {
+  border-radius: 14px;
+}
+
+.strategy-mansion-enigma-game.mansion-compact .mansion-desk-head,
+.strategy-mansion-enigma-game.mansion-compact .mansion-desk-intro,
+.strategy-mansion-enigma-game.mansion-compact .mansion-panel {
+  gap: 0.34rem;
+}
+
+.strategy-mansion-enigma-game.mansion-compact .mansion-tutorial-box {
+  padding: 0.3rem 0.38rem;
 }
 
 .mansion-desk-head {
@@ -23086,6 +23135,10 @@ button.brisca-card.playable:disabled {
   gap: 0.5rem;
 }
 
+.mansion-panel-play {
+  gap: 0.42rem;
+}
+
 .mansion-ai-activity,
 .mansion-ai-last-action {
   border: 1px solid rgba(56, 189, 248, 0.4);
@@ -23264,8 +23317,8 @@ button.brisca-card.playable:disabled {
 .mansion-weapon-grid {
   margin-top: 0.32rem;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.34rem;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 0.28rem;
 }
 
 .mansion-suspect-grid button,
@@ -23277,8 +23330,9 @@ button.brisca-card.playable:disabled {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 0.34rem;
-  padding: 0.28rem 0.34rem;
+  gap: 0.28rem;
+  min-height: 46px;
+  padding: 0.24rem 0.3rem;
   cursor: pointer;
 }
 
@@ -23330,17 +23384,30 @@ button.brisca-card.playable:disabled {
   background: rgba(15, 23, 42, 0.48);
   padding: 0.36rem 0.46rem;
   display: grid;
-  gap: 0.2rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.24rem;
 }
 
 .mansion-current-picks span {
+  min-width: 0;
   color: #cbd5e1;
   font-size: 0.65rem;
   line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .mansion-current-picks strong {
   color: #f8fafc;
+}
+
+.mansion-panel-notebook {
+  gap: 0.42rem;
+}
+
+.mansion-panel-notebook .mansion-summary-card {
+  display: grid;
+  grid-template-columns: 0.72fr 1.28fr;
+  gap: 0.36rem;
 }
 
 .mansion-accusation-box,
@@ -23430,7 +23497,7 @@ button.brisca-card.playable:disabled {
 .mansion-known-grid {
   margin-top: 0.32rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
   gap: 0.34rem;
 }
 
@@ -23449,11 +23516,17 @@ button.brisca-card.playable:disabled {
   color: #e2e8f0;
   font-size: 0.64rem;
   line-height: 1.28;
+  overflow-wrap: anywhere;
 }
 
 .mansion-notes-block {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.42rem;
+}
+
+.mansion-notes-block > h6 {
+  grid-column: 1 / -1;
 }
 
 .mansion-notes-kind {
@@ -23478,15 +23551,21 @@ button.brisca-card.playable:disabled {
   background: rgba(15, 23, 42, 0.42);
   padding: 0.24rem 0.3rem;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  gap: 0.28rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.24rem;
   align-items: center;
+}
+
+.mansion-notes-kind li small {
+  grid-column: 2 / -1;
+  justify-self: start;
 }
 
 .mansion-notes-kind li strong {
   color: #e2e8f0;
   font-size: 0.63rem;
   line-height: 1.28;
+  overflow-wrap: anywhere;
 }
 
 .mansion-notes-kind li em {
@@ -23625,9 +23704,9 @@ button.brisca-card.playable:disabled {
    ========================================================================= */
 @media (max-width: 760px) {
   .strategy-mansion-enigma-game.mansion-mobile {
-    padding: 0.66rem;
+    padding: 0.46rem;
     display: grid;
-    gap: 0.5rem;
+    gap: 0.38rem;
   }
 
   /* Hero stacks: title + metric chips + restart pill */
@@ -23637,12 +23716,12 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-hero-copy h4 {
-    font-size: 1rem;
+    font-size: 0.94rem;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-hero-copy p {
-    font-size: 0.7rem;
-    line-height: 1.32;
+    font-size: 0.64rem;
+    line-height: 1.25;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-hero-metrics {
@@ -23652,14 +23731,14 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-hero-metrics span {
-    font-size: 0.66rem;
-    padding: 0.26rem 0.56rem;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.42rem;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-hero-metrics button {
-    min-height: 38px;
-    padding: 0.4rem 0.9rem;
-    font-size: 0.74rem;
+    min-height: 34px;
+    padding: 0.32rem 0.72rem;
+    font-size: 0.68rem;
   }
 
   /* Layout: single column in portrait */
@@ -23671,18 +23750,20 @@ button.brisca-card.playable:disabled {
   .strategy-mansion-enigma-game.mansion-mobile .mansion-stage,
   .strategy-mansion-enigma-game.mansion-mobile .mansion-desk {
     min-width: 0;
-    padding: 0.46rem;
+    padding: 0.38rem;
   }
 
   /* Board: keep 3x3 but taller, larger room names */
   .strategy-mansion-enigma-game.mansion-mobile .mansion-board-grid {
-    grid-template-rows: repeat(3, minmax(82px, 1fr));
-    gap: 0.34rem;
+    min-height: clamp(226px, 72vw, 292px);
+    aspect-ratio: 1 / 0.9;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: 0.28rem;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-room-cell {
-    min-height: 86px;
-    border-radius: 12px;
+    min-height: 0;
+    border-radius: 10px;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-room-overlay .room-name {
@@ -23695,20 +23776,26 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-room-cell .room-occupants strong {
-    min-width: 1.36rem;
-    height: 1.36rem;
-    font-size: 0.58rem;
+    min-width: 1.18rem;
+    height: 1.18rem;
+    font-size: 0.52rem;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-stage-legend .legend {
-    font-size: 0.56rem;
-    padding: 0.16rem 0.52rem;
+    justify-content: center;
+    gap: 0.2rem;
+    font-size: 0.5rem;
+    padding: 0.18rem 0.24rem;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile .mansion-stage-legend {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .game-message {
-    font-size: 0.68rem;
-    line-height: 1.34;
-    padding: 0.38rem 0.52rem;
+    font-size: 0.62rem;
+    line-height: 1.28;
+    padding: 0.3rem 0.4rem;
   }
 
   /* Desk tabs: large pill buttons */
@@ -23719,8 +23806,8 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-tab-row button {
-    min-height: 42px;
-    font-size: 0.72rem;
+    min-height: 36px;
+    font-size: 0.66rem;
     border-radius: 11px;
   }
 
@@ -23729,7 +23816,7 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-tutorial-box {
-    padding: 0.38rem 0.44rem;
+    padding: 0.3rem 0.38rem;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-tutorial-box p,
@@ -23740,9 +23827,9 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-inline-toggle {
-    min-height: 34px;
-    padding: 0.24rem 0.7rem;
-    font-size: 0.66rem;
+    min-height: 30px;
+    padding: 0.18rem 0.58rem;
+    font-size: 0.62rem;
     border-radius: 999px;
   }
 
@@ -23764,14 +23851,14 @@ button.brisca-card.playable:disabled {
   .strategy-mansion-enigma-game.mansion-mobile .mansion-weapon-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.34rem;
+    gap: 0.24rem;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-suspect-grid button,
   .strategy-mansion-enigma-game.mansion-mobile .mansion-weapon-grid button {
-    min-height: 64px;
-    padding: 0.42rem 0.3rem;
-    border-radius: 12px;
+    min-height: 52px;
+    padding: 0.28rem 0.24rem;
+    border-radius: 10px;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-suspect-grid button strong,
@@ -23786,9 +23873,9 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-action-row button {
-    min-height: 44px;
-    font-size: 0.76rem;
-    padding: 0.5rem 0.6rem;
+    min-height: 38px;
+    font-size: 0.68rem;
+    padding: 0.36rem 0.48rem;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-current-picks {
@@ -23815,7 +23902,12 @@ button.brisca-card.playable:disabled {
   /* Notebook tab: 1-column note grids */
   .strategy-mansion-enigma-game.mansion-mobile .mansion-known-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.34rem;
+    gap: 0.24rem;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile .mansion-panel-notebook .mansion-summary-card,
+  .strategy-mansion-enigma-game.mansion-mobile .mansion-notes-block {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-notes-kind ul {
@@ -23823,7 +23915,7 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game.mansion-mobile .mansion-notes-kind li {
-    padding: 0.32rem 0.38rem;
+    padding: 0.26rem 0.32rem;
   }
 
   /* Player strip: horizontal scroll */
@@ -23848,17 +23940,19 @@ button.brisca-card.playable:disabled {
    ========================================================================= */
 @media (max-width: 860px) and (orientation: landscape) {
   .strategy-mansion-enigma-game.mansion-mobile-landscape .mansion-layout {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 0.38rem;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile-landscape .mansion-board-grid {
-    grid-template-rows: repeat(3, minmax(62px, 1fr));
-    gap: 0.28rem;
+    min-height: 214px;
+    aspect-ratio: 1 / 0.86;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: 0.24rem;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile-landscape .mansion-room-cell {
-    min-height: 68px;
+    min-height: 0;
   }
 
   .strategy-mansion-enigma-game.mansion-mobile-landscape .mansion-hero-copy p {
@@ -23868,6 +23962,15 @@ button.brisca-card.playable:disabled {
   .strategy-mansion-enigma-game.mansion-mobile-landscape .mansion-tutorial-box {
     display: none;
   }
+
+  .strategy-mansion-enigma-game.mansion-mobile-landscape .mansion-player-strip {
+    display: none;
+  }
+
+  .strategy-mansion-enigma-game.mansion-mobile-landscape .mansion-stage-head p,
+  .strategy-mansion-enigma-game.mansion-mobile-landscape .mansion-key-help {
+    display: none;
+  }
 }
 
 /* =========================================================================
@@ -23875,21 +23978,23 @@ button.brisca-card.playable:disabled {
    ========================================================================= */
 @media (min-width: 761px) and (max-width: 1180px) {
   .strategy-mansion-enigma-game {
-    padding: 0.8rem;
+    padding: 0.62rem;
   }
 
   .strategy-mansion-enigma-game .mansion-layout {
-    grid-template-columns: minmax(280px, 1.2fr) minmax(320px, 1fr);
-    gap: 0.62rem;
+    grid-template-columns: minmax(360px, 1.08fr) minmax(330px, 0.92fr);
+    gap: 0.5rem;
   }
 
   .strategy-mansion-enigma-game .mansion-board-grid {
-    grid-template-rows: repeat(3, minmax(104px, 1fr));
-    gap: 0.54rem;
+    min-height: clamp(286px, 35vw, 372px);
+    aspect-ratio: 1 / 0.78;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: 0.42rem;
   }
 
   .strategy-mansion-enigma-game .mansion-room-cell {
-    min-height: 108px;
+    min-height: 0;
   }
 
   .strategy-mansion-enigma-game .mansion-room-overlay .room-name {
@@ -23897,26 +24002,26 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game .mansion-tab-row button {
-    min-height: 44px;
-    font-size: 0.76rem;
-    padding: 0.4rem 0.8rem;
+    min-height: 38px;
+    font-size: 0.7rem;
+    padding: 0.34rem 0.62rem;
   }
 
   .strategy-mansion-enigma-game .mansion-suspect-grid,
   .strategy-mansion-enigma-game .mansion-weapon-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.44rem;
+    gap: 0.3rem;
   }
 
   .strategy-mansion-enigma-game .mansion-suspect-grid button,
   .strategy-mansion-enigma-game .mansion-weapon-grid button {
-    min-height: 70px;
-    border-radius: 13px;
+    min-height: 54px;
+    border-radius: 11px;
   }
 
   .strategy-mansion-enigma-game .mansion-action-row button {
-    min-height: 46px;
-    font-size: 0.82rem;
+    min-height: 40px;
+    font-size: 0.72rem;
   }
 
   .strategy-mansion-enigma-game .mansion-player-strip {
@@ -23925,8 +24030,16 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game .mansion-accusation-box select {
-    min-height: 44px;
-    font-size: 0.84rem;
+    min-height: 38px;
+    font-size: 0.74rem;
+  }
+
+  .strategy-mansion-enigma-game .mansion-notes-block {
+    gap: 0.3rem;
+  }
+
+  .strategy-mansion-enigma-game .mansion-known-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -23937,7 +24050,27 @@ button.brisca-card.playable:disabled {
   }
 
   .strategy-mansion-enigma-game .mansion-board-grid {
-    grid-template-rows: repeat(3, minmax(118px, 1fr));
+    min-height: clamp(322px, 55vw, 430px);
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+
+  .strategy-mansion-enigma-game .mansion-panel-play {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-ai-activity,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-step:first-of-type,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-action-row,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-current-picks,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-panel-controls,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-reveal-box,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-ai-last-action,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-key-help,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-standby,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-case-closed,
+  .strategy-mansion-enigma-game .mansion-panel-play > .mansion-accusation-box {
+    grid-column: 1 / -1;
   }
 }
 
@@ -25741,6 +25874,30 @@ button.brisca-card.playable:disabled {
   gap: 0.54rem;
 }
 
+.battleship-long-tutorial > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+.battleship-long-tutorial > summary::-webkit-details-marker {
+  display: none;
+}
+
+.battleship-long-tutorial > summary::before {
+  content: ">";
+  color: #bae6fd;
+  font-size: 0.8rem;
+  font-weight: 900;
+  transition: transform 140ms ease;
+}
+
+.battleship-long-tutorial[open] > summary::before {
+  transform: rotate(90deg);
+}
+
 .battleship-long-tutorial h5 {
   margin: 0;
   color: #f0f9ff;
@@ -25765,6 +25922,11 @@ button.brisca-card.playable:disabled {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.54rem;
+}
+
+.battleship-long-tutorial:not([open]) .battleship-long-tutorial-body,
+.battleship-long-tutorial:not([open]) .battleship-tutorial-playbook {
+  display: none;
 }
 
 .battleship-tutorial-playbook article {
@@ -26842,29 +27004,153 @@ button.brisca-card.playable:disabled {
   }
 }
 
+@media (min-width: 761px) and (max-width: 1120px) {
+  .battleship-game {
+    gap: 0.56rem;
+  }
+
+  .battleship-rules-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .battleship-battle-shell {
+    gap: 0.46rem;
+    padding: 0.5rem;
+  }
+
+  .battleship-battle-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.46rem;
+  }
+
+  .battleship-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.28rem;
+  }
+
+  .battleship-card-tile {
+    min-height: 70px;
+    padding: 0.24rem;
+  }
+
+  .battleship-card-ship {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .battleship-card-ship img {
+    width: 32px;
+    height: 12px;
+  }
+
+  .battleship-fleet-columns--inside-shell {
+    grid-template-columns: minmax(0, 1.35fr) minmax(160px, 0.65fr);
+  }
+}
+
 @media (max-width: 760px) {
+  .battleship-game {
+    gap: 0.42rem;
+  }
+
+  .battleship-toolbar,
+  .battleship-rules-panel,
+  .battleship-long-tutorial,
+  .battleship-fleet-status,
+  .battleship-log {
+    display: none;
+  }
+
+  .battleship-battle-shell {
+    padding: 0.38rem;
+    gap: 0.38rem;
+  }
+
+  .battleship-battle-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.42rem;
+  }
+
   .battleship-phase-pills span {
     font-size: 0.66rem;
   }
 
   .battleship-card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.22rem;
   }
 
   .battleship-card-tile {
-    min-height: 86px;
+    min-height: 52px;
+    padding: 0.18rem;
+    gap: 0.14rem;
+    font-size: 0.54rem;
   }
 
   .battleship-hand-row {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    grid-template-columns: none;
+    gap: 0.28rem;
   }
 
   .battleship-card-ship {
-    grid-template-columns: 40px minmax(0, 1fr);
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 0.12rem;
   }
 
   .battleship-card-ship img {
-    width: 40px;
+    width: 24px;
+    height: 10px;
+  }
+
+  .battleship-card-ship span {
+    font-size: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .battleship-card-tile .coord-label {
+    font-size: 0.5rem;
+  }
+
+  .battleship-battle-status {
+    padding: 0.3rem 0.34rem;
+  }
+
+  .battleship-battle-status-pills {
+    gap: 0.22rem;
+  }
+
+  .battleship-battle-status-pills > span:not(:first-child):not(.battleship-battle-status-winner) {
+    display: none;
+  }
+
+  .battleship-turn-guide,
+  .battleship-help,
+  .battleship-fleet-strip {
+    display: none;
+  }
+
+  .battleship-message {
+    font-size: 0.62rem;
+    padding: 0.3rem 0.38rem;
+  }
+
+  .battleship-hand-card {
+    flex: 0 0 116px;
+    min-height: 54px;
+    padding: 0.3rem;
+  }
+
+  .battleship-fleet-columns--inside-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.34rem;
+  }
+
+  .battleship-fleet-columns--inside-shell article:last-child {
+    display: none;
   }
 
   .battleship-fleet-status li {

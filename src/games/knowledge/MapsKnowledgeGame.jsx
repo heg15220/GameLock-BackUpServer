@@ -149,6 +149,19 @@ const pickRandomDifferentId = (items, currentId) => {
   return pool[randomIndex]?.id ?? currentId;
 };
 
+const resolveTargetMarkerPosition = (scopeMode, target, silhouette) => {
+  if (scopeMode === "world") {
+    return {
+      x: target.x,
+      y: target.y
+    };
+  }
+  return {
+    x: silhouette?.center?.[0] ?? target.x,
+    y: silhouette?.center?.[1] ?? target.y
+  };
+};
+
 const createInitialState = ({
   copy,
   matchId = getRandomKnowledgeMatchId(),
@@ -519,17 +532,21 @@ function MapsKnowledgeGame() {
         draft: snapshot.draft,
         message: snapshot.message
       },
-      targets: mapDefinition.targets.map((target) => ({
-        id: target.id,
-        kind: target.kind,
-        x: (getMapSilhouetteThemeSync(mapDefinition.theme)[target.id]?.center?.[0] ?? target.x),
-        y: (getMapSilhouetteThemeSync(mapDefinition.theme)[target.id]?.center?.[1] ?? target.y),
-        silhouette: Boolean(getMapSilhouetteThemeSync(mapDefinition.theme)[target.id]),
-        revealed: visibleTargets.has(target.id),
-        label: visibleTargets.has(target.id)
-          ? resolveLocalizedText(target.label, locale)
-          : null
-      }))
+      targets: mapDefinition.targets.map((target) => {
+        const silhouette = getMapSilhouetteThemeSync(mapDefinition.theme)[target.id];
+        const marker = resolveTargetMarkerPosition(snapshot.scopeMode, target, silhouette);
+        return {
+          id: target.id,
+          kind: target.kind,
+          x: marker.x,
+          y: marker.y,
+          silhouette: Boolean(silhouette),
+          revealed: visibleTargets.has(target.id),
+          label: visibleTargets.has(target.id)
+            ? resolveLocalizedText(target.label, locale)
+            : null
+        };
+      })
     };
   }, [locale]);
 
@@ -681,15 +698,14 @@ function MapsKnowledgeGame() {
               const discovered = revealedSet.has(target.id);
               const targetName = resolveLocalizedText(target.label, locale);
               const silhouette = activeSilhouettes[target.id];
-              const markerX = silhouette?.center?.[0] ?? target.x;
-              const markerY = silhouette?.center?.[1] ?? target.y;
+              const marker = resolveTargetMarkerPosition(state.scopeMode, target, silhouette);
               return (
                 <div
                   key={target.id}
                   className={`maps-node ${discovered ? "revealed" : "hidden"} kind-${target.kind}`.trim()}
                   style={{
-                    left: `${markerX}%`,
-                    top: `${markerY}%`
+                    left: `${marker.x}%`,
+                    top: `${marker.y}%`
                   }}
                   title={discovered ? targetName : copy.hiddenName}
                 >

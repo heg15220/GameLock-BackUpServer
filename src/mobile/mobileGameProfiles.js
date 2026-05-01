@@ -148,8 +148,8 @@ function resolveRetroProfile(gameId, locale) {
     case "arcade-retro-tetris-blockfall":
       return {
         layout: "split",
-        heading: t(locale, "Bloques", "Blocks"),
-        hint: t(locale, "Encaja piezas hasta rellenar el tablero.", "Fit pieces until the board is full."),
+        heading: "Mosaic",
+        hint: t(locale, "Encaja piezas variadas hasta rellenar el tablero.", "Fit varied pieces until the board is full."),
         leftPad: directionalPad(locale, {
           up: input("ArrowUp", "ArrowUp"),
           left: input("ArrowLeft", "ArrowLeft"),
@@ -257,10 +257,6 @@ export function getResponsiveMobileShellMode(game, viewport) {
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
 
-  if (DIRECT_TOUCH_GAME_IDS.has(gameId)) {
-    return "mobile-first";
-  }
-
   const enableTabletLandscapeDeck =
     isTabletLandscapeViewport(viewport) &&
     TABLET_LANDSCAPE_CONTROL_DECK_GAME_IDS.has(gameId);
@@ -269,9 +265,17 @@ export function getResponsiveMobileShellMode(game, viewport) {
     return "dual-screen";
   }
 
+  if (DIRECT_TOUCH_GAME_IDS.has(gameId)) {
+    return "mobile-first";
+  }
+
   const baseMode = getMobileShellMode(game, viewport);
   if (baseMode !== "dual-screen") {
     return baseMode;
+  }
+
+  if (gameId === "strategy-hundir-flota-pro") {
+    return "dual-screen";
   }
 
   if (
@@ -437,6 +441,109 @@ export function getMobileControlProfile(game, locale = "es") {
         }),
       ],
       utilities: utilityRow(locale),
+    };
+  }
+
+  if (gameId === "strategy-hundir-flota-pro") {
+    return {
+      layout: "split",
+      heading: t(locale, "Mesa tactica", "Tactical table"),
+      hint: t(
+        locale,
+        "Toca una carta de mano y despues una casilla amarilla. Las acciones rapidas quedan aqui.",
+        "Tap a hand card, then a yellow target tile. Quick actions stay here."
+      ),
+      leftPad: [
+        control("startIntro", t(locale, "Iniciar", "Start"), {
+          type: "tap",
+          tone: "primary",
+          action: "click-target",
+          targetSelector: ".strategy-intro-cta",
+          hideWhenUnavailable: true,
+        }),
+        control("newMatch", t(locale, "Nueva", "New"), {
+          type: "tap",
+          tone: "utility",
+          action: "click-target",
+          targetSelector: "#battleship-new-match, #battleship-new-match-head",
+          hideWhenUnavailable: true,
+        }),
+        control("cancel", t(locale, "Cancelar", "Cancel"), {
+          type: "tap",
+          tone: "accent",
+          action: "click-target",
+          targetSelector: "#battleship-cancel-action",
+          hideWhenUnavailable: true,
+        }),
+      ],
+      rightPad: [
+        control("hand1", t(locale, "Carta 1", "Card 1"), {
+          type: "tap",
+          tone: "primary",
+          action: "click-target",
+          targetSelector: ".battleship-hand-card:not(:disabled):nth-of-type(1)",
+          hideWhenUnavailable: true,
+        }),
+        control("hand2", t(locale, "Carta 2", "Card 2"), {
+          type: "tap",
+          action: "click-target",
+          targetSelector: ".battleship-hand-card:not(:disabled):nth-of-type(2)",
+          hideWhenUnavailable: true,
+        }),
+        control("hand3", t(locale, "Carta 3", "Card 3"), {
+          type: "tap",
+          action: "click-target",
+          targetSelector: ".battleship-hand-card:not(:disabled):nth-of-type(3)",
+          hideWhenUnavailable: true,
+        }),
+        control("hand4", t(locale, "Carta 4", "Card 4"), {
+          type: "tap",
+          action: "click-target",
+          targetSelector: ".battleship-hand-card:not(:disabled):nth-of-type(4)",
+          hideWhenUnavailable: true,
+        }),
+        control("hand5", t(locale, "Carta 5", "Card 5"), {
+          type: "tap",
+          action: "click-target",
+          targetSelector: ".battleship-hand-card:not(:disabled):nth-of-type(5)",
+          hideWhenUnavailable: true,
+        }),
+        control("discardWhite", t(locale, "Descartar", "Discard"), {
+          type: "tap",
+          action: "click-target",
+          targetSelector: "#battleship-choice-discard-white",
+          hideWhenUnavailable: true,
+        }),
+        control("playTwo", t(locale, "Jugar 2", "Play 2"), {
+          type: "tap",
+          tone: "primary",
+          action: "click-target",
+          targetSelector: "#battleship-choice-play-two",
+          hideWhenUnavailable: true,
+        }),
+        control("repair", t(locale, "Reparar", "Repair"), {
+          type: "tap",
+          tone: "accent",
+          action: "click-target",
+          targetSelector: "#battleship-choice-repair",
+          hideWhenUnavailable: true,
+        }),
+        control("drawThree", t(locale, "Robar 3", "Draw 3"), {
+          type: "tap",
+          tone: "primary",
+          action: "click-target",
+          targetSelector: "#battleship-choice-draw-three",
+          hideWhenUnavailable: true,
+        }),
+        control("confirmDiscard", t(locale, "Confirmar", "Confirm"), {
+          type: "tap",
+          tone: "primary",
+          action: "click-target",
+          targetSelector: "#battleship-confirm-discard-white:not(:disabled)",
+          hideWhenUnavailable: true,
+        }),
+      ],
+      utilities: [],
     };
   }
 

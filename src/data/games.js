@@ -1297,6 +1297,56 @@ export const games = [
   },
 
   {
+    id: "knowledge-wikipedia-gacha",
+    image: knowledgeWikipediaGachaImage,
+    sessionTime: "4-12 min",
+
+    title: "Wikipedia Gacha",
+    title_en: "Wikipedia Gacha",
+    category: "Conocimiento",
+    tagline: "Colecci\u00f3n de cartas de Wikipedia: abre sobres y completa tu archivo.",
+    description:
+      "Vertical slice jugable de un gacha de conocimiento: cada navegador obtiene un token anonimo, abre sobres de 5 cartas, acumula duplicados, completa misiones diarias y desbloquea trofeos sin crear cuenta.",
+    objective_es:
+      "Construye tu coleccion de articulos, persigue cartas SR+, reclama misiones diarias y guarda un codigo de recuperacion para no perder el progreso del navegador.",
+    howToPlay_es:
+      "Usa las pestanas Home / Open Pack / Collection / Missions / Trophies. En Open Pack puedes abrir sobres con boton o con Espacio/Enter; 1-5 cambian de pantalla y R sincroniza el estado.",
+    highlights: [
+      "Sesion anonima por navegador con token persistente en localStorage.",
+      "Backend propio con pity SR+, regeneracion 1 pack/min y coleccion persistente.",
+      "Pack reveal de 5 cartas con rarezas C-LR, flavor text SSR+ y shards por duplicados.",
+      "Misiones diarias, trofeos, historial de sobres y export/import por codigo de recuperacion.",
+      "Esquema MySQL listo para migracion real y vertical slice funcional dentro del repo actual.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo",
+    viability: "Alta: contrato backend estable, estado compacto por navegador y dataset local cacheado.",
+    visualStyle: "Archivo editorial con papel, laton y paneles de gabinete de museo reinterpretados para UI interactiva.",
+    techFocus: "Sesion anonima, RNG de sobres, pity, persistencia de coleccion, misiones, trofeos y render_game_to_text para QA.",
+
+    category_en: "Knowledge",
+    tagline_en: "Wikipedia card collection: open packs and complete your archive.",
+    description_en:
+      "Playable vertical slice of a knowledge gacha: every browser gets an anonymous token, opens 5-card packs, collects duplicates, clears daily missions, and unlocks trophies without creating an account.",
+    objective_en:
+      "Build your article collection, chase SR+ pulls, claim daily missions, and keep a recovery code so browser progress is not lost.",
+    howToPlay_en:
+      "Use the Home / Open Pack / Collection / Missions / Trophies tabs. In Open Pack you can open packs with the button or Space/Enter; keys 1-5 switch screens and R syncs state.",
+    highlights_en: [
+      "Anonymous browser session with a persistent localStorage token.",
+      "Custom backend with SR+ pity, 1 pack/min regen, and persistent collection state.",
+      "Five-card reveal flow with C-LR rarities, SSR+ flavor text, and shard rewards for duplicates.",
+      "Daily missions, trophies, pack history, and export/import via recovery code.",
+      "MySQL schema prepared for real migration plus a functional vertical slice in the current repo.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo",
+    viability_en: "High: stable backend contract, compact per-browser state, and cached local dataset.",
+    visualStyle_en: "Editorial archive with paper, brass, and cabinet-of-curiosities UI framing.",
+    techFocus_en: "Anonymous session flow, pack RNG, pity, collection persistence, missions, trophies, and render_game_to_text QA output.",
+  },
+
+  {
     id: "knowledge-iq-masters-protocol",
     image: knowledgeIqMastersImage,
     sessionTime: "5-10 min",
@@ -1397,56 +1447,6 @@ export const games = [
     viability_en: "High: closed local dataset, text validation and a clear 5-round loop.",
     visualStyle_en: "Editorial quote-card layout focused on typography and proverb recall.",
     techFocus_en: "Bilingual public-source proverb bank, text normalization, and prompt-plus-answer validation.",
-  },
-
-  {
-    id: "knowledge-wikipedia-gacha",
-    image: knowledgeWikipediaGachaImage,
-    sessionTime: "4-12 min",
-
-    title: "Wikipedia Gacha",
-    title_en: "Wikipedia Gacha",
-    category: "Conocimiento",
-    tagline: "Colecci\u00f3n de cartas de Wikipedia: abre sobres y completa tu archivo.",
-    description:
-      "Vertical slice jugable de un gacha de conocimiento: cada navegador obtiene un token anonimo, abre sobres de 5 cartas, acumula duplicados, completa misiones diarias y desbloquea trofeos sin crear cuenta.",
-    objective_es:
-      "Construye tu coleccion de articulos, persigue cartas SR+, reclama misiones diarias y guarda un codigo de recuperacion para no perder el progreso del navegador.",
-    howToPlay_es:
-      "Usa las pestanas Home / Open Pack / Collection / Missions / Trophies. En Open Pack puedes abrir sobres con boton o con Espacio/Enter; 1-5 cambian de pantalla y R sincroniza el estado.",
-    highlights: [
-      "Sesion anonima por navegador con token persistente en localStorage.",
-      "Backend propio con pity SR+, regeneracion 1 pack/min y coleccion persistente.",
-      "Pack reveal de 5 cartas con rarezas C-LR, flavor text SSR+ y shards por duplicados.",
-      "Misiones diarias, trofeos, historial de sobres y export/import por codigo de recuperacion.",
-      "Esquema MySQL listo para migracion real y vertical slice funcional dentro del repo actual.",
-    ],
-    difficulty: "Media",
-    multiplayer: "Solo",
-    viability: "Alta: contrato backend estable, estado compacto por navegador y dataset local cacheado.",
-    visualStyle: "Archivo editorial con papel, laton y paneles de gabinete de museo reinterpretados para UI interactiva.",
-    techFocus: "Sesion anonima, RNG de sobres, pity, persistencia de coleccion, misiones, trofeos y render_game_to_text para QA.",
-
-    category_en: "Knowledge",
-    tagline_en: "Wikipedia card collection: open packs and complete your archive.",
-    description_en:
-      "Playable vertical slice of a knowledge gacha: every browser gets an anonymous token, opens 5-card packs, collects duplicates, clears daily missions, and unlocks trophies without creating an account.",
-    objective_en:
-      "Build your article collection, chase SR+ pulls, claim daily missions, and keep a recovery code so browser progress is not lost.",
-    howToPlay_en:
-      "Use the Home / Open Pack / Collection / Missions / Trophies tabs. In Open Pack you can open packs with the button or Space/Enter; keys 1-5 switch screens and R syncs state.",
-    highlights_en: [
-      "Anonymous browser session with a persistent localStorage token.",
-      "Custom backend with SR+ pity, 1 pack/min regen, and persistent collection state.",
-      "Five-card reveal flow with C-LR rarities, SSR+ flavor text, and shard rewards for duplicates.",
-      "Daily missions, trophies, pack history, and export/import via recovery code.",
-      "MySQL schema prepared for real migration plus a functional vertical slice in the current repo.",
-    ],
-    difficulty_en: "Medium",
-    multiplayer_en: "Solo",
-    viability_en: "High: stable backend contract, compact per-browser state, and cached local dataset.",
-    visualStyle_en: "Editorial archive with paper, brass, and cabinet-of-curiosities UI framing.",
-    techFocus_en: "Anonymous session flow, pack RNG, pity, collection persistence, missions, trophies, and render_game_to_text QA output.",
   },
 
   {
@@ -2585,7 +2585,7 @@ export const games = [
     techFocus: "Motor de inferencia por eventos (refutaciones, no-respuestas, pistas) + politica IA de bluff/riesgo contextual.",
 
     category_en: "Strategy",
-    tagline_en: "Mansion deduction: gather clues and solve the mystery.",
+    tagline_en: "Triple Enigma Mansion: gather clues and solve the mystery.",
     description_en:
       "Independent take on suspect + weapon + room deduction. You face three AIs that read table context, adjust risk appetite, and decide when to bluff through misleading suggestions or signal true/false hints to protect their line.",
     objective_en: "Solve the exact case combination first: culprit, weapon, and room.",
@@ -2726,15 +2726,15 @@ export const games = [
     id: "arcade-retro-tetris-blockfall",
     image: arcadeRetroTetrisBlockfallImage,
     sessionTime: "Sin limite",
-    title: "Blockudoku Grid",
+    title: "Mosaic Grid",
     category: "Arcade",
-    tagline: "Puzzle tipo Blockudoku: encaja piezas entrantes hasta rellenar todo el tablero.",
-    description: "Puzzle de encaje sobre tablero 15x15: las piezas llegan de una en una desde la parte derecha, eliges donde colocarlas y el objetivo es completar todas las casillas.",
+    tagline: "Puzzle de mosaico: encaja piezas entrantes hasta rellenar todo el tablero.",
+    description: "Puzzle de encaje sobre tablero 15x15: las piezas llegan de una en una desde la parte derecha, eliges donde colocarlas y el objetivo es completar todas las casillas con un repertorio amplio de formas.",
     objective_es: "Rellena el tablero completo con las piezas disponibles.",
     howToPlay_es: "Flechas/WASD mueven la pieza activa sobre el tablero y Espacio o Enter la coloca cuando ha llegado desde la derecha. P pausa, R reinicia y F pantalla completa.",
     highlights: [
       "Tablero grande 15x15 con subcuadros 3x3 legibles.",
-      "Piezas que llegan de una en una desde la derecha.",
+      "Piezas variadas que llegan de una en una desde la derecha.",
       "Sin contador de tiempo: la presion esta en el encaje.",
       "Victoria por tablero completo, no por lineas.",
     ],
@@ -2742,15 +2742,15 @@ export const games = [
     multiplayer: "Solo",
     viability: "Alta: puzzle discreto de ocupacion con validacion de encaje.",
     visualStyle: "Cabina neo-arcade con tablero amplio, pieza entrante animada y panel lateral limpio.",
-    techFocus: "Colision de piezas, cola secuencial resoluble, pieza activa entrante, validacion de tablero completo y bridge QA.",
+    techFocus: "Colision de piezas, packs 3x3 resolubles con formas variadas, pieza activa entrante, validacion de tablero completo y bridge QA.",
     category_en: "Arcade",
-    tagline_en: "Blockudoku-style puzzle: fit incoming pieces until the whole board is filled.",
-    description_en: "15x15 fitting puzzle: pieces arrive one by one from the right side, you choose where to place them, and the goal is to complete every cell.",
+    tagline_en: "Mosaic puzzle: fit incoming pieces until the whole board is filled.",
+    description_en: "15x15 fitting puzzle: pieces arrive one by one from the right side, you choose where to place them, and the goal is to complete every cell with a broad shape set.",
     objective_en: "Fill the entire board with the available pieces.",
     howToPlay_en: "Arrows/WASD move the active piece on the board, and Space or Enter places it once it has arrived from the right. P pauses, R restarts, F toggles fullscreen.",
     highlights_en: [
       "Large 15x15 board with readable 3x3 subgrids.",
-      "Pieces arrive one by one from the right side.",
+      "Varied pieces arrive one by one from the right side.",
       "No time limit: the pressure comes from placement.",
       "Win by filling the board, not clearing lines.",
     ],
@@ -2758,7 +2758,7 @@ export const games = [
     multiplayer_en: "Solo",
     viability_en: "High: discrete occupation puzzle with fit validation.",
     visualStyle_en: "Neo-arcade cabinet look with a large board, animated incoming piece, and a clean side panel.",
-    techFocus_en: "Piece collision, solvable sequential queue, incoming active piece, full-board validation, and QA bridge.",
+    techFocus_en: "Piece collision, solvable 3x3 packs with varied shapes, incoming active piece, full-board validation, and QA bridge.",
   },
   {
     id: "arcade-retro-frogger-crossing",

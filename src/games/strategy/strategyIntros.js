@@ -284,10 +284,10 @@ const STRATEGY_INTROS = {
     },
     en: {
       eyebrow: "Strategy / Mystery",
-      title: "Mansion Triple Enigma",
+      title: "Triple Enigma Mansion",
       lead: "Competitive deduction against adaptive AIs with bluffs and public hints.",
       what:
-        "Mansion Triple Enigma is a mystery-style deduction game: a sealed envelope hides one suspect, one weapon and one room. On your turn you move between rooms, raise suggestions so rivals must show cards that disprove them, and narrow possibilities until you dare attempt the final accusation. Three AIs with memory play against you and may bluff when it suits them.",
+        "Triple Enigma Mansion is a mystery-style deduction game: a sealed envelope hides one suspect, one weapon and one room. On your turn you move between rooms, raise suggestions so rivals must show cards that disprove them, and narrow possibilities until you dare attempt the final accusation. Three AIs with memory play against you and may bluff when it suits them.",
       bullets: [
         "Sealed envelope with one card per category: suspect, weapon and room.",
         "Refutation in turn order with partial private information.",

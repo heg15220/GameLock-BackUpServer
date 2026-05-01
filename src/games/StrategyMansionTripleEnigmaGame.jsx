@@ -250,7 +250,7 @@ const COPY = {
     aiPreparing: (name) => `${name} prepara su jugada...`,
     aiActionLine: (name, suspect, weapon, room) =>
       `${name} ejecuta su sospecha: ${suspect} con ${weapon} en ${room}.`,
-    boardTitle: "Mansion",
+    boardTitle: "Mapa de la mansion",
     boardHint: "Haz clic en una sala resaltada para moverte. Las esquinas tienen pasadizos secretos.",
     boardLegendLegal: "Conectada",
     boardLegendSelected: "Elegida",
@@ -322,7 +322,7 @@ const COPY = {
     },
   },
   en: {
-    title: "Mansion Triple Enigma",
+    title: "Triple Enigma Mansion",
     subtitle: "Guided detective mode: deduce suspect, weapon, and room before the AIs.",
     restart: "Restart case",
     controls:
@@ -356,7 +356,7 @@ const COPY = {
     aiPreparing: (name) => `${name} is preparing the move...`,
     aiActionLine: (name, suspect, weapon, room) =>
       `${name} executes a suggestion: ${suspect} with ${weapon} in ${room}.`,
-    boardTitle: "Mansion",
+    boardTitle: "Mansion map",
     boardHint: "Click a highlighted room to move. Corner rooms include secret passages.",
     boardLegendLegal: "Connected",
     boardLegendSelected: "Selected",
@@ -462,10 +462,10 @@ const AI_RELIABILITY_VALUES = [30, 40, 50, 60, 70, 80, 90];
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 const readMobileViewport = () => {
-  if (typeof window === "undefined") return { isMobile: false, isPortrait: false };
+  if (typeof window === "undefined") return { isMobile: false, isPortrait: false, isCompact: false };
   const width = Math.max(window.innerWidth || 0, document.documentElement?.clientWidth || 0);
   const height = Math.max(window.innerHeight || 0, document.documentElement?.clientHeight || 0);
-  return { isMobile: width <= 900, isPortrait: height >= width };
+  return { isMobile: width <= 900, isPortrait: height >= width, isCompact: width <= 1180 };
 };
 
 const randomItem = (items) => {
@@ -1406,7 +1406,7 @@ function StrategyMansionTripleEnigmaGame() {
   const initialViewport = useMemo(() => readMobileViewport(), []);
   const [state, setState] = useState(() => createInitialState(locale));
   const [deskTab, setDeskTab] = useState("play");
-  const [showTutorial, setShowTutorial] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(() => !initialViewport.isCompact);
   const [showPlayDetails, setShowPlayDetails] = useState(false);
   const [mobileViewport, setMobileViewport] = useState(initialViewport);
 
@@ -1421,7 +1421,7 @@ function StrategyMansionTripleEnigmaGame() {
   const restart = useCallback(() => {
     setState(createInitialState(locale));
     setDeskTab("play");
-    setShowTutorial(true);
+    setShowTutorial(!readMobileViewport().isCompact);
     setShowPlayDetails(false);
   }, [locale]);
 
@@ -1632,6 +1632,7 @@ function StrategyMansionTripleEnigmaGame() {
     "mini-game",
     "strategy-mansion-enigma-game",
     state.mode === "playing" && state.activePlayerId !== HUMAN_ID ? "is-ai-turn" : "",
+    mobileViewport.isCompact ? "mansion-compact" : "",
     mobileViewport.isMobile ? "mansion-mobile" : "",
     portraitMobile ? "mansion-mobile-portrait" : "",
     mobileViewport.isMobile && !mobileViewport.isPortrait ? "mansion-mobile-landscape" : "",
@@ -1829,7 +1830,7 @@ function StrategyMansionTripleEnigmaGame() {
           </div>
 
           {deskTab === "play" ? (
-            <div className="mansion-panel">
+            <div className="mansion-panel mansion-panel-play">
               {aiActivityText ? (
                 <div className={`mansion-ai-activity stage-${state.aiActivity?.stage || "idle"}`}>
                   <div className="mansion-ai-lights" aria-hidden="true">

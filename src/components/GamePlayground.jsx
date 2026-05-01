@@ -210,7 +210,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "strategy-hundir-flota-pro": "Battleship Classic Card: play one battle card per turn and refill to 5. Click a hand card, then target card; some power cards let you choose between two effects.",
     "strategy-poker-holdem-no-bet": "Classic 5-card draw with real betting: blinds, pot play, and check/call/raise/fold/all-in decisions. Enter main action, U raise, A all-in, F fold, 1-5 select discard, D discard, S stand pat, N next hand, and R restart.",
     "strategy-parchis-ludoteka": "Pick your token color before starting. S/Enter starts the match, R/Enter/Space rolls the die, 1..9 picks a move, Enter takes the first move, X continues without move, and N starts a new match.",
-    "strategy-mansion-triple-enigma": "Mystery deduction with guided tutorial: move on the board, pick suspect and weapon, then submit a suggestion. A toggles accusation, 1/2/3 switch tabs, Enter confirms, and N restarts the case.",
+    "strategy-mansion-triple-enigma": "Triple Enigma Mansion: move on the board, pick suspect and weapon, then submit a suggestion. A toggles accusation, 1/2/3 switch tabs, Enter confirms, and N restarts the case.",
     "rpg-emberfall": "Explore with WASD/arrows and use attack, skill, defend, focus, summon (U) and potion.",
     "platformer-sky-runner": "Move with A/D or arrows, use variable jump with W/up/space and F action in 8-sector routes with springs, wind, checkpoints and boss fights.",
     "fighter-neon-dojo": "Fight with A/D or arrows, jump W/up, jab J/space, heavy K/enter, guard L/down and special U/B.",
@@ -261,14 +261,22 @@ const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
   "strategy-poker-holdem-no-bet",
 ]);
 
-const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([]);
+const GAME_AD_PREVIEW_DISABLED_IDS = new Set([
+  "strategy-hundir-flota-pro",
+]);
+
+const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([
+  "strategy-hundir-flota-pro",
+]);
 
 const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
   "knowledge-domino-chain",
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",
+  "knowledge-paciencia-lite",
   "knowledge-sudoku-sprint",
   "strategy-sudoku-tecnicas",
+  "strategy-mansion-triple-enigma",
   "knowledge-mapas-atlas",
   "knowledge-mapas-camino-corto",
   "knowledge-adivina-pais-silueta",
@@ -351,13 +359,14 @@ function GamePlayground({ game }) {
     !forceDesktopTabletLayout;
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
+  const adPreviewActiveForGame = adPreviewEnabled && !GAME_AD_PREVIEW_DISABLED_IDS.has(gameId);
   const hasDesktopAdRails = viewportFormFactor === "desktop";
   const hasTabletLandscapeAdRails =
     viewportFormFactor === "tablet" &&
     viewport.orientation === "landscape" &&
     !TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS.has(gameId);
-  const showDesktopAdRails = adPreviewEnabled && hasDesktopAdRails;
-  const showTabletLandscapeAdRails = adPreviewEnabled && hasTabletLandscapeAdRails;
+  const showDesktopAdRails = adPreviewActiveForGame && hasDesktopAdRails;
+  const showTabletLandscapeAdRails = adPreviewActiveForGame && hasTabletLandscapeAdRails;
   const showPortraitCompactBottomAd =
     viewport.orientation === "portrait" &&
     (
@@ -366,7 +375,7 @@ function GamePlayground({ game }) {
     );
   const useCompactPortraitBottomAd = PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS.has(gameId);
   const showMobileSystemBottomAd =
-    adPreviewEnabled &&
+    adPreviewActiveForGame &&
     viewportFormFactor !== "desktop" &&
     ((isStrategyCategory && useMobileGameShell) || showPortraitCompactBottomAd);
   const showShellManagedSystemBottomAd =
@@ -378,7 +387,7 @@ function GamePlayground({ game }) {
     !showShellManagedSystemBottomAd;
   const sectionClassName = [
     "game-playground",
-    adPreviewEnabled ? "game-playground--ad-preview" : "game-playground--ad-preview-off",
+    adPreviewActiveForGame ? "game-playground--ad-preview" : "game-playground--ad-preview-off",
     useMobileGameShell ? "playground-mobile-enabled" : "",
     showExternalMobileSystemBottomAd ? "game-playground--with-system-bottom-ad" : "",
     viewport.isMobile ? "playground-mobile-active" : "",
@@ -451,7 +460,7 @@ function GamePlayground({ game }) {
                 game={game}
                 viewport={viewport}
                 locale={resolvedLocale}
-                showAdPreview={adPreviewEnabled}
+                showAdPreview={adPreviewActiveForGame}
                 showSystemBottomAd={showMobileSystemBottomAd}
                 fallback={<p className="unsupported-game">{copy.loading}</p>}
               >

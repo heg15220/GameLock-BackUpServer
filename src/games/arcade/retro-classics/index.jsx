@@ -71,7 +71,7 @@ const DEFINITIONS = {
     lives: 3,
   },
   "tetris-blockfall": {
-    title: { es: "Blockudoku Grid", en: "Blockudoku Grid" },
+    title: { es: "Mosaic Grid", en: "Mosaic Grid" },
     objective: { es: "Rellena todo el tablero con las piezas entrantes.", en: "Fill the whole board with the incoming pieces." },
     controls: { es: "Flechas/WASD mueven la pieza activa y Espacio/Enter la coloca cuando llega.", en: "Arrows/WASD move the active piece, Space/Enter places it when it arrives." },
     accent: "#34d399",
@@ -346,41 +346,85 @@ const BLOCK_BOARD_SIZE = 15;
 const BLOCK_INCOMING_X = WIDTH + 90;
 const BLOCK_READY_X = 695;
 
-const BLOCK_PIECES = [
-  { c: "#22d3ee", m: [[1]] },
-  { c: "#facc15", m: [[1, 1]] },
-  { c: "#facc15", m: [[1], [1]] },
-  { c: "#fb923c", m: [[1, 1, 1]] },
-  { c: "#fb923c", m: [[1], [1], [1]] },
-  { c: "#60a5fa", m: [[1, 1, 1, 1]] },
-  { c: "#60a5fa", m: [[1], [1], [1], [1]] },
-  { c: "#a78bfa", m: [[1, 1], [1, 1]] },
-  { c: "#34d399", m: [[1, 0], [1, 1]] },
-  { c: "#34d399", m: [[1, 1], [1, 0]] },
-  { c: "#34d399", m: [[1, 1], [0, 1]] },
-  { c: "#34d399", m: [[0, 1], [1, 1]] },
-  { c: "#f87171", m: [[1, 1, 1], [0, 1, 0]] },
-  { c: "#f87171", m: [[0, 1, 0], [1, 1, 1]] },
-  { c: "#f87171", m: [[1, 0], [1, 1], [1, 0]] },
-  { c: "#f87171", m: [[0, 1], [1, 1], [0, 1]] },
-  { c: "#c084fc", m: [[1, 1, 0], [0, 1, 1]] },
-  { c: "#c084fc", m: [[0, 1, 1], [1, 1, 0]] },
+const BLOCK_COLORS = [
+  "#22d3ee",
+  "#facc15",
+  "#fb923c",
+  "#60a5fa",
+  "#a78bfa",
+  "#34d399",
+  "#f87171",
+  "#c084fc",
+  "#2dd4bf",
+  "#f472b6",
 ];
 
-function createBlockPieceFromIndex(index) {
-  const src = BLOCK_PIECES[index];
-  return { c: src.c, m: src.m.map((row) => [...row]) };
+const BLOCK_TILE_PACKS = [
+  [
+    [[1, 1], [1, 1]],
+    [[1], [1]],
+    [[1, 1, 1]],
+  ],
+  [
+    [[1, 1, 1], [0, 1, 0]],
+    [[1, 0], [1, 1]],
+    [[1], [1]],
+  ],
+  [
+    [[1, 0], [1, 0], [1, 1]],
+    [[1, 1], [1, 1], [0, 1]],
+  ],
+  [
+    [[1], [1], [1]],
+    [[1], [1], [1]],
+    [[1], [1], [1]],
+  ],
+  [
+    [[1, 1, 1]],
+    [[1, 1, 1]],
+    [[1, 1, 1]],
+  ],
+  [
+    [[0, 1, 0], [1, 1, 1], [0, 1, 0]],
+    [[1]],
+    [[1]],
+    [[1]],
+    [[1]],
+  ],
+  [
+    [[1, 1], [1, 0], [1, 1]],
+    [[0, 1], [1, 1], [0, 1]],
+  ],
+  [
+    [[1, 1, 1], [1, 1, 1]],
+    [[1, 1, 1]],
+  ],
+  [
+    [[1, 0], [1, 1]],
+    [[1, 1], [0, 1]],
+    [[1, 1, 1]],
+  ],
+  [
+    [[1, 1, 0], [0, 1, 1]],
+    [[1, 0], [1, 1], [0, 1]],
+    [[1]],
+  ],
+];
+
+function createBlockPiece(matrix, color) {
+  return { c: color, m: matrix.map((row) => [...row]) };
 }
 
 function createBlockPieceQueue(rng) {
   const pieces = [];
+  let colorIndex = 0;
   for (let row = 0; row < BLOCK_BOARD_SIZE; row += 3) {
     for (let col = 0; col < BLOCK_BOARD_SIZE; col += 3) {
-      pieces.push(
-        createBlockPieceFromIndex(7),
-        createBlockPieceFromIndex(2),
-        createBlockPieceFromIndex(3)
-      );
+      const pack = BLOCK_TILE_PACKS[Math.floor(rng() * BLOCK_TILE_PACKS.length)];
+      for (const matrix of pack) {
+        pieces.push(createBlockPiece(matrix, BLOCK_COLORS[colorIndex % BLOCK_COLORS.length]));
+        colorIndex += 1;
+      }
     }
   }
   for (let i = pieces.length - 1; i > 0; i -= 1) {
@@ -516,13 +560,41 @@ function createMissile(level, seed) {
   };
 }
 
+function ridgeYAt(ridge, x) {
+  for (let i = 0; i < ridge.length - 1; i += 1) {
+    const a = ridge[i];
+    const b = ridge[i + 1];
+    if (x >= a.x && x <= b.x) {
+      const span = b.x - a.x;
+      const t = span <= 0 ? 0 : (x - a.x) / span;
+      return a.y + (b.y - a.y) * t;
+    }
+  }
+  return BODY_BOTTOM;
+}
+
 function createLander(level, seed) {
   const rng = createRng(seed);
   const padWidth = Math.max(76, 146 - level * 4);
   const padX = randInt(rng, 170, WIDTH - 170);
+  const padLeft = padX - padWidth * 0.5;
+  const padRight = padX + padWidth * 0.5;
+  const padY = HEIGHT - 78;
+  const ridge = [];
+  for (let i = 0; i < 14; i += 1) {
+    const x = (i / 13) * WIDTH;
+    const inPad = x >= padLeft - 24 && x <= padRight + 24;
+    const naturalY = clamp(HEIGHT - 56 - rng() * 36, BODY_TOP + 110, BODY_BOTTOM - 4);
+    ridge.push({ x, y: inPad ? padY : naturalY });
+  }
+  ridge.push({ x: padLeft - 18, y: padY });
+  ridge.push({ x: padLeft, y: padY });
+  ridge.push({ x: padRight, y: padY });
+  ridge.push({ x: padRight + 18, y: padY });
+  ridge.sort((a, b) => a.x - b.x);
   return {
-    ship: { x: WIDTH * 0.5, y: 120, vx: 0, vy: 0, a: -Math.PI * 0.5, fuel: 100 },
-    pad: { x: padX, y: HEIGHT - 78, w: padWidth },
+    ship: { x: WIDTH * 0.5, y: 120, vx: 0, vy: 0, a: -Math.PI * 0.5, fuel: 100, thrust: false },
+    pad: { x: padX, y: padY, w: padWidth },
     gravity: 94 + level * 8,
     safeVx: Math.max(32, 64 - level * 2),
     safeVy: Math.max(70, 120 - level * 3),
@@ -532,10 +604,7 @@ function createLander(level, seed) {
       y: rng() * (HEIGHT - 130),
       r: 1 + rng() * 2,
     })),
-    ridge: Array.from({ length: 14 }, (_, idx) => ({
-      x: (idx / 13) * WIDTH,
-      y: HEIGHT - 54 - rng() * 38,
-    })),
+    ridge,
   };
 }
 
@@ -1353,7 +1422,9 @@ function updateLander(state, input, dt) {
   const ship = g.ship;
   if (input.down("ArrowLeft") || input.down("KeyA")) ship.a -= 2.4 * dt;
   if (input.down("ArrowRight") || input.down("KeyD")) ship.a += 2.4 * dt;
-  if ((input.down("ArrowUp") || input.down("KeyW")) && ship.fuel > 0) {
+  const thrusting = (input.down("ArrowUp") || input.down("KeyW")) && ship.fuel > 0;
+  ship.thrust = thrusting;
+  if (thrusting) {
     const thrust = 210 + state.level * 10;
     ship.vx += Math.cos(ship.a) * thrust * dt;
     ship.vy += Math.sin(ship.a) * thrust * dt;
@@ -1362,16 +1433,25 @@ function updateLander(state, input, dt) {
   ship.vy += g.gravity * dt;
   ship.vx *= 0.996;
   ship.vy *= 0.998;
-  ship.x = clamp(ship.x + ship.vx * dt, 10, WIDTH - 10);
+  const proposedX = ship.x + ship.vx * dt;
+  if (proposedX <= 14 || proposedX >= WIDTH - 14) ship.vx = 0;
+  ship.x = clamp(proposedX, 14, WIDTH - 14);
   ship.y += ship.vy * dt;
-  if (ship.y < 30) {
-    ship.y = 30;
+  if (ship.y < BODY_TOP + 16) {
+    ship.y = BODY_TOP + 16;
     ship.vy = Math.max(0, ship.vy);
   }
-  if (ship.y >= g.pad.y - 11) {
-    const onPad = ship.x >= g.pad.x - g.pad.w * 0.5 && ship.x <= g.pad.x + g.pad.w * 0.5;
+  const padHalf = g.pad.w * 0.5;
+  const onPad = ship.x >= g.pad.x - padHalf && ship.x <= g.pad.x + padHalf;
+  const padTop = g.pad.y;
+  const terrainTop = onPad ? padTop : ridgeYAt(g.ridge, ship.x);
+  if (ship.y + 10 >= terrainTop) {
     const angle = Math.abs(Math.atan2(Math.sin(ship.a + Math.PI * 0.5), Math.cos(ship.a + Math.PI * 0.5)));
     if (onPad && Math.abs(ship.vx) <= g.safeVx && Math.abs(ship.vy) <= g.safeVy && angle <= g.safeAngle) {
+      ship.y = padTop - 10;
+      ship.vx = 0;
+      ship.vy = 0;
+      ship.thrust = false;
       addScore(state, Math.round(320 + ship.fuel * 4));
       levelUp(state, "Aterrizaje limpio", "Clean landing", 520 + state.level * 65);
       return;
@@ -2694,6 +2774,45 @@ function drawLander(ctx, state) {
   drawRoundedRect(ctx, padX, g.pad.y - 6, g.pad.w, 12, 4);
   ctx.fillStyle = "#22c55e";
   ctx.fill();
+  ctx.fillStyle = "#bbf7d0";
+  ctx.fillRect(padX + 4, g.pad.y - 11, 4, 5);
+  ctx.fillRect(padX + g.pad.w - 8, g.pad.y - 11, 4, 5);
+
+  const offHorizontal = ship.x - g.pad.x;
+  if (Math.abs(offHorizontal) > 220) {
+    const dir = offHorizontal > 0 ? -1 : 1;
+    const arrowX = dir > 0 ? WIDTH - 30 : 30;
+    const arrowY = clamp(ship.y, BODY_TOP + 20, BODY_BOTTOM - 20);
+    ctx.fillStyle = "rgba(34, 197, 94, 0.75)";
+    ctx.beginPath();
+    ctx.moveTo(arrowX, arrowY - 9);
+    ctx.lineTo(arrowX + dir * 16, arrowY);
+    ctx.lineTo(arrowX, arrowY + 9);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  if (ship.thrust) {
+    ctx.save();
+    ctx.translate(ship.x, ship.y);
+    ctx.rotate(ship.a + Math.PI * 0.5);
+    const flicker = 5 + Math.random() * 7;
+    ctx.beginPath();
+    ctx.moveTo(-5, 10);
+    ctx.lineTo(5, 10);
+    ctx.lineTo(0, 18 + flicker);
+    ctx.closePath();
+    ctx.fillStyle = "#fb923c";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-3, 10);
+    ctx.lineTo(3, 10);
+    ctx.lineTo(0, 14 + flicker * 0.55);
+    ctx.closePath();
+    ctx.fillStyle = "#fde68a";
+    ctx.fill();
+    ctx.restore();
+  }
 
   ctx.save();
   ctx.translate(ship.x, ship.y);
@@ -2708,7 +2827,83 @@ function drawLander(ctx, state) {
   ctx.fill();
   ctx.strokeStyle = "#a78bfa";
   ctx.stroke();
+  ctx.strokeStyle = "#cbd5e1";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(-7, 9);
+  ctx.lineTo(-11, 14);
+  ctx.moveTo(7, 9);
+  ctx.lineTo(11, 14);
+  ctx.stroke();
+  ctx.lineWidth = 1;
   ctx.restore();
+
+  drawLanderHUD(ctx, state);
+}
+
+function drawLanderHUD(ctx, state) {
+  const g = state.game;
+  const ship = g.ship;
+  const x0 = 22;
+  const y0 = BODY_TOP + 8;
+  const w = 184;
+  const h = 84;
+  drawRoundedRect(ctx, x0, y0, w, h, 9);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(167, 139, 250, 0.45)";
+  ctx.stroke();
+
+  ctx.font = "600 11px 'JetBrains Mono', monospace";
+  ctx.textAlign = "left";
+
+  const fuelPct = Math.max(0, Math.min(1, ship.fuel / 100));
+  ctx.fillStyle = "#cbd5e1";
+  ctx.fillText("FUEL", x0 + 10, y0 + 17);
+  drawRoundedRect(ctx, x0 + 50, y0 + 9, 120, 9, 3);
+  ctx.fillStyle = "rgba(148, 163, 184, 0.22)";
+  ctx.fill();
+  drawRoundedRect(ctx, x0 + 50, y0 + 9, Math.max(0, 120 * fuelPct), 9, 3);
+  ctx.fillStyle = fuelPct > 0.5 ? "#22c55e" : fuelPct > 0.2 ? "#fde68a" : "#f87171";
+  ctx.fill();
+
+  const vxAbs = Math.abs(ship.vx);
+  ctx.fillStyle = "#94a3b8";
+  ctx.fillText("VX", x0 + 10, y0 + 36);
+  ctx.fillStyle = vxAbs <= g.safeVx ? "#86efac" : "#f87171";
+  ctx.textAlign = "right";
+  ctx.fillText(`${Math.round(ship.vx)}`, x0 + 80, y0 + 36);
+
+  const vyAbs = Math.abs(ship.vy);
+  ctx.fillStyle = "#94a3b8";
+  ctx.textAlign = "left";
+  ctx.fillText("VY", x0 + 100, y0 + 36);
+  ctx.fillStyle = vyAbs <= g.safeVy ? "#86efac" : "#f87171";
+  ctx.textAlign = "right";
+  ctx.fillText(`${Math.round(ship.vy)}`, x0 + 170, y0 + 36);
+
+  const angle = Math.abs(Math.atan2(Math.sin(ship.a + Math.PI * 0.5), Math.cos(ship.a + Math.PI * 0.5)));
+  const angleDeg = Math.round((angle * 180) / Math.PI);
+  ctx.fillStyle = "#94a3b8";
+  ctx.textAlign = "left";
+  ctx.fillText("ANG", x0 + 10, y0 + 54);
+  ctx.fillStyle = angle <= g.safeAngle ? "#86efac" : "#f87171";
+  ctx.textAlign = "right";
+  ctx.fillText(`${angleDeg}°`, x0 + 80, y0 + 54);
+
+  const alt = Math.max(0, Math.round(g.pad.y - ship.y));
+  ctx.fillStyle = "#94a3b8";
+  ctx.textAlign = "left";
+  ctx.fillText("ALT", x0 + 100, y0 + 54);
+  ctx.fillStyle = "#cbd5e1";
+  ctx.textAlign = "right";
+  ctx.fillText(`${alt}`, x0 + 170, y0 + 54);
+
+  ctx.font = "500 9px 'JetBrains Mono', monospace";
+  ctx.fillStyle = "rgba(167, 139, 250, 0.78)";
+  ctx.textAlign = "left";
+  ctx.fillText(`MAX VX ${g.safeVx} · VY ${g.safeVy} · ANG ${Math.round((g.safeAngle * 180) / Math.PI)}°`, x0 + 10, y0 + 74);
+  ctx.textAlign = "left";
 }
 
 function drawCentipede(ctx, state) {

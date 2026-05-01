@@ -4589,3 +4589,15 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Corregida la causa del bloqueo en 7/8: si la piedra lanzada dejaba de ser `flyingStone` pero otra piedra seguia moviendose por colision, `_update` retornaba antes de simular esa piedra. El flujo veia movimiento perpetuo y nunca avanzaba.
 - Ahora las piedras movidas por impactos siguen recibiendo fisica/friccion aunque no haya `flyingStone`; el end puede avanzar a 8/8 y cerrar marcador.
 - Tambien se hizo el scoring de end transaccional: `scores` se reemplaza con copia nueva, `lastResult` incluye total y `endLog` expone totales para verificacion.
+
+## 2026-05-01 - Mansion Triple Enigma responsive
+- En curso: ajustes de strategy-mansion-triple-enigma para que ingles use Triple Enigma Mansion, imagen EN propia y layout compacto en movil/tablet.
+- Cambios aplicados: ayuda del juego cerrada por defecto en pantallas <=1180px, clase mansion-compact, tablero con alturas responsive, leyenda visual compacta, Play/Notebook con grids mas densos en movil/tablet.
+- Pendiente: validar build/Playwright. El build en sandbox fallo previamente por spawn EPERM de esbuild y la ejecucion escalada fue interrumpida manualmente.
+
+## 2026-05-01 - Hundir la Flota mesa tactica
+- Desactivadas las vinetas de publicidad de playground/movil para strategy-hundir-flota-pro.
+- La guia larga de Battleship pasa a estar plegada para que el gameplay muestre primero tablero, mano y estado.
+- Mesa tactica optimizada para tablet/movil: tableros 4x3 compactos, mano horizontal y elementos secundarios ocultos en pantallas pequenas.
+- Anadidos ids de accion en StrategyBattleshipGame y perfil movil especifico con botones Nueva, Cancelar, Carta 1-5 y acciones de poder contextuales.
+- Validacion: npm run build en sandbox falla por spawn EPERM de esbuild; build escalado con NODE_OPTIONS=--max-old-space-size=4096 completado OK.

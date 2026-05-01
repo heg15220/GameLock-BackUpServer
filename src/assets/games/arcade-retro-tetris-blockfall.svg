@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Blockudoku Grid">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Mosaic Grid">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#04363b"/>
@@ -29,6 +29,6 @@
   <rect x="466" y="128" width="14" height="14" fill="#c084fc"/>
   <rect x="480" y="128" width="14" height="14" fill="#c084fc"/>
   <rect x="466" y="142" width="14" height="14" fill="#c084fc"/>
-  <text x="76" y="302" fill="#f8fafc" font-size="34" font-family="'Bricolage Grotesque','Segoe UI',sans-serif" font-weight="700">Blockudoku Grid</text>
-  <text x="76" y="326" fill="#99f6e4" font-size="16" font-family="'JetBrains Mono','Consolas',monospace">Incoming pieces, full 15x15 board, no time limit</text>
+  <text x="76" y="302" fill="#f8fafc" font-size="34" font-family="'Bricolage Grotesque','Segoe UI',sans-serif" font-weight="700">Mosaic Grid</text>
+  <text x="76" y="326" fill="#99f6e4" font-size="16" font-family="'JetBrains Mono','Consolas',monospace">Varied pieces, full 15x15 board, no time limit</text>
 </svg>

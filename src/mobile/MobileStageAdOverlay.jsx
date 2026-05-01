@@ -324,6 +324,13 @@ function computePlacements(
   ];
 
   if ((preferLandscapeSidePlacements || gameId === "arcade-neon-rush") && isLandscape) {
+    if (formFactor === "phone") {
+      const compactSidePlacements = buildCompactLandscapeSidePlacements(strips, thresholds);
+      if (compactSidePlacements.length > 0) {
+        return compactSidePlacements.slice(0, 2);
+      }
+    }
+
     const sidePlacements = buildLandscapeSidePlacements(strips, thresholds);
     if (sidePlacements.length > 0) {
       return sidePlacements.slice(0, 2);

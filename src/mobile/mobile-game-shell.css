@@ -5506,6 +5506,114 @@
   max-width: min(100%, 360px);
 }
 
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] {
+  --mobile-shell-hardware-gap: 0.32rem;
+  --mobile-shell-hardware-padding: 0.3rem;
+  --mobile-shell-panel-padding: 0.26rem;
+  --mobile-shell-panel-radius: 18px;
+  --mobile-shell-glass-radius: 14px;
+  --mobile-shell-topbar-gap: 0.4rem;
+  --mobile-shell-topbar-padding: 0;
+  --mobile-shell-brand-size: 0.62rem;
+  --mobile-shell-fullscreen-font-size: 0.6rem;
+  --mobile-shell-fullscreen-padding: 0.26rem 0.48rem;
+  min-height: calc(100svh - 58px);
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__hardware,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__body,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-shell,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__screen-frame,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__screen-glass,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport {
+  min-height: 0;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-head,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-panel,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-stage-head,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-stage-foot,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-touch-controls {
+  display: none !important;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-shell,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-stage-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-canvas-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0 !important;
+  max-height: 100%;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-canvas {
+  height: 100% !important;
+  width: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain;
+  aspect-ratio: 16 / 9;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-overlay {
+  padding: 0.42rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-overlay-card {
+  width: min(100%, 430px);
+  max-height: 100%;
+  overflow: auto;
+  gap: 0.35rem;
+  padding: 0.52rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-overlay-card h5 {
+  font-size: 0.9rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-overlay-card p,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-level-button span,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-level-button em {
+  font-size: 0.62rem;
+  line-height: 1.24;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-level-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-height: none;
+  min-height: 0;
+  gap: 0.28rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-level-button,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-overlay-actions button,
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-level-head button {
+  padding: 0.34rem 0.42rem;
+}
+
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-game {
   width: 100%;
   height: 100%;

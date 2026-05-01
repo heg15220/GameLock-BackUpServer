@@ -1599,7 +1599,7 @@ function StrategyBattleshipGame() {
           <p>{copy.subtitle}</p>
         </div>
         <div className="battleship-head-actions">
-          <button type="button" onClick={() => resetGame(game.mode)}>{copy.newGame}</button>
+          <button type="button" id="battleship-new-match-head" onClick={() => resetGame(game.mode)}>{copy.newGame}</button>
         </div>
       </div>
 
@@ -1640,8 +1640,10 @@ function StrategyBattleshipGame() {
         </article>
       </div>
 
-      <section className="battleship-long-tutorial" aria-labelledby="battleship-tutorial-title">
-        <h5 id="battleship-tutorial-title">{copy.tutorialTitle}</h5>
+      <details className="battleship-long-tutorial" aria-labelledby="battleship-tutorial-title">
+        <summary>
+          <h5 id="battleship-tutorial-title">{copy.tutorialTitle}</h5>
+        </summary>
         <div className="battleship-long-tutorial-body">
           {copy.tutorialParagraphs.map((paragraph, index) => (
             <p key={`battleship-tutorial-paragraph-${index}`}>{paragraph}</p>
@@ -1665,7 +1667,7 @@ function StrategyBattleshipGame() {
             </ul>
           </article>
         </div>
-      </section>
+      </details>
 
       {game.phase === "handoff" ? (
         <section className="battleship-handoff-shell" role="status" aria-live="polite">
@@ -1693,6 +1695,7 @@ function StrategyBattleshipGame() {
           </div>
           <button
             type="button"
+            id="battleship-new-match"
             className="battleship-battle-status-new"
             onClick={() => resetGame(game.mode)}
             title={copy.newGame}
@@ -1768,26 +1771,26 @@ function StrategyBattleshipGame() {
 
         {pendingType === "choice-tempo" ? (
           <div className="battleship-choice-row">
-            <button type="button" onClick={() => resolvePowerChoice("discard-white")}>{copy.optionDiscardWhite}</button>
-            <button type="button" onClick={() => resolvePowerChoice("play-two")}>{copy.optionPlayTwo}</button>
+            <button type="button" id="battleship-choice-discard-white" onClick={() => resolvePowerChoice("discard-white")}>{copy.optionDiscardWhite}</button>
+            <button type="button" id="battleship-choice-play-two" onClick={() => resolvePowerChoice("play-two")}>{copy.optionPlayTwo}</button>
           </div>
         ) : null}
 
         {pendingType === "choice-repair-draw" ? (
           <div className="battleship-choice-row">
-            <button type="button" onClick={() => resolvePowerChoice("repair")}>{copy.optionRepair}</button>
-            <button type="button" onClick={() => resolvePowerChoice("draw-three")}>{copy.optionDrawThree}</button>
+            <button type="button" id="battleship-choice-repair" onClick={() => resolvePowerChoice("repair")}>{copy.optionRepair}</button>
+            <button type="button" id="battleship-choice-draw-three" onClick={() => resolvePowerChoice("draw-three")}>{copy.optionDrawThree}</button>
           </div>
         ) : null}
 
         {pendingType === "discard-white" ? (
           <div className="battleship-choice-row">
-            <button type="button" onClick={confirmDiscardWhite} disabled={!canConfirmDiscard}>{copy.confirmDiscardWhite}</button>
+            <button type="button" id="battleship-confirm-discard-white" onClick={confirmDiscardWhite} disabled={!canConfirmDiscard}>{copy.confirmDiscardWhite}</button>
           </div>
         ) : null}
 
         {game.pending ? (
-          <button type="button" className="battleship-cancel" onClick={cancelPendingAction}>{copy.cancelAction}</button>
+          <button type="button" id="battleship-cancel-action" className="battleship-cancel" onClick={cancelPendingAction}>{copy.cancelAction}</button>
         ) : null}
 
         {aiThinking ? (

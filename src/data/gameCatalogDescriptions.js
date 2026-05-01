@@ -197,7 +197,7 @@ export const gameCatalogDescriptions = {
   },
   "strategy-mansion-triple-enigma": {
     es: "Deducci\u00f3n en una mansi\u00f3n: re\u00fane pistas y resuelve el misterio.",
-    en: "Mansion deduction: gather clues and solve the mystery.",
+    en: "Triple Enigma Mansion: gather clues and solve the mystery.",
   },
   "arcade-retro-snake-classic": {
     es: "Snake cl\u00e1sico: come, crece y evita chocar contigo mismo.",
@@ -212,8 +212,8 @@ export const gameCatalogDescriptions = {
     en: "Space defense: shoot invaders before they descend.",
   },
   "arcade-retro-tetris-blockfall": {
-    es: "Puzzle tipo Blockudoku: encaja piezas entrantes hasta rellenar todo el tablero.",
-    en: "Blockudoku-style puzzle: fit incoming pieces until the whole board is filled.",
+    es: "Puzzle de mosaico: encaja piezas entrantes hasta rellenar todo el tablero.",
+    en: "Mosaic puzzle: fit incoming pieces until the whole board is filled.",
   },
   "arcade-retro-frogger-crossing": {
     es: "Cruza carretera y r\u00edo esquivando coches y usando troncos.",

@@ -32,6 +32,10 @@ const STRATEGY_TABLET_FULLSCREEN_STATUS_AD_GAME_IDS = new Set([
   "strategy-parchis-ludoteka",
 ]);
 
+const MOBILE_SHELL_AD_DISABLED_GAME_IDS = new Set([
+  "strategy-hundir-flota-pro",
+]);
+
 function resolveShellTheme(game) {
   const categoryKey = String(game?.category ?? "");
   if (categoryKey === "Estrategia" || categoryKey === "Strategy") {
@@ -212,8 +216,10 @@ export default function MobileGameShell({
   const isStrategyTheme = shellTheme === "strategy";
   const isKnowledgeTheme = shellTheme === "knowledge";
   const isGamesCategory = categoryKey === "juegos" || categoryKey === "games";
+  const adPreviewEnabledForGame =
+    showAdPreview && !MOBILE_SHELL_AD_DISABLED_GAME_IDS.has(String(game?.id ?? ""));
   const derivedShowSystemBottomAd =
-    showAdPreview &&
+    adPreviewEnabledForGame &&
     viewportFormFactor !== "desktop" &&
     (isStrategyTheme || (isKnowledgeTheme && isPortrait));
   const showSystemBottomAd = showSystemBottomAdOverride ?? derivedShowSystemBottomAd;
@@ -223,14 +229,14 @@ export default function MobileGameShell({
     isStrategyTheme &&
     !isDualScreen;
   const showStrategyTabletFullscreenStatusAd =
-    showAdPreview &&
+    adPreviewEnabledForGame &&
     showFullscreenLayout &&
     viewportFormFactor === "tablet" &&
     !isPortrait &&
     isStrategyTheme &&
     STRATEGY_TABLET_FULLSCREEN_STATUS_AD_GAME_IDS.has(game?.id);
   const showKnowledgeTabletFullscreenAd =
-    showAdPreview &&
+    adPreviewEnabledForGame &&
     showFullscreenLayout &&
     viewportFormFactor === "tablet" &&
     !isPortrait &&
@@ -245,9 +251,11 @@ export default function MobileGameShell({
     !showTouchPanelBottomAd &&
     viewportFormFactor === "phone" &&
     isStrategyTheme;
-  const useStageAdInsteadOfCompactGamesAd = game?.id === "arcade-neon-rush";
+  const useStageAdInsteadOfCompactGamesAd =
+    game?.id === "arcade-neon-rush" ||
+    (game?.id === "arcade-golf-tour-2d" && !isPortrait);
   const showCompactGamesAppAd =
-    showAdPreview &&
+    adPreviewEnabledForGame &&
     viewportFormFactor !== "desktop" &&
     isGamesCategory &&
     game?.id !== "arcade-pinball-wizard" &&
@@ -262,7 +270,7 @@ export default function MobileGameShell({
     viewportFormFactor === "tablet" &&
     !isPortrait;
   const showStageAdOverlay =
-    showAdPreview &&
+    adPreviewEnabledForGame &&
     !isKnowledgeTheme &&
     !showCompactGamesAppAd &&
     !useExternalTabletLandscapeAds &&
@@ -277,6 +285,14 @@ export default function MobileGameShell({
   const stageSelectors = useMemo(
     () => getMobileStageSelectors(game?.id),
     [game?.id]
+  );
+  const adStageSelectors = useMemo(
+    () => (
+      game?.id === "arcade-golf-tour-2d"
+        ? [".golf-tour-canvas", ...stageSelectors]
+        : stageSelectors
+    ),
+    [game?.id, stageSelectors]
   );
   const handleStageViewportRef = useCallback((node) => {
     setStageViewportNode((currentNode) => (
@@ -421,7 +437,7 @@ export default function MobileGameShell({
       />
     ) : null;
   const showValleMissionsAd =
-    showAdPreview &&
+    adPreviewEnabledForGame &&
     game?.id === "arcade-valle-tranquilo" &&
     viewportFormFactor === "phone" &&
     isPortrait &&
@@ -533,12 +549,13 @@ export default function MobileGameShell({
             locale={locale}
             formFactor={viewportFormFactor}
             gameId={game?.id}
-            stageSelectors={stageSelectors}
+            stageSelectors={adStageSelectors}
             preferLandscapeSidePlacements={
-              viewportFormFactor === "tablet" &&
+              (game?.id === "arcade-golf-tour-2d" ||
+              (viewportFormFactor === "tablet" &&
               !isPortrait &&
               shellTheme === "default" &&
-              isDualScreen
+              isDualScreen))
             }
           />
         </div>
