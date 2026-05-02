@@ -1,7 +1,6 @@
 const DEFAULT_STAGE_SELECTORS = [
   ".golf-tour-canvas-shell",
   ".archery-horizon-canvas-shell",
-  ".kitchen-rush-canvas-shell",
   ".flux-basin-canvas-shell",
   ".head-soccer-pro-canvas-shell",
   ".basketball-court-stage",
@@ -71,10 +70,6 @@ const GAME_STAGE_SELECTORS = {
   "arcade-dig-hole-treasure": [
     ".arcade-neon-rush-shell",
     ".arcade-neon-rush-frame",
-  ],
-  "arcade-kitchen-rush-2d": [
-    ".kitchen-rush-canvas-shell",
-    ".kitchen-rush-stage-wrap",
   ],
   "arcade-neon-crypt": ["canvas"],
   "arcade-valle-tranquilo": [

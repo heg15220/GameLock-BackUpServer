@@ -1327,6 +1327,470 @@ function buildProTourExpansionLevel(extraIndex) {
   };
 }
 
+const MASTERS_TOUR_EXPANSION_START_LEVEL = PRO_TOUR_EXPANSION_START_LEVEL + PRO_TOUR_EXPANSION_COUNT;
+const MASTERS_TOUR_EXPANSION_COUNT = 200;
+const MASTERS_TOUR_CHAPTER_SIZE = 20;
+
+const MASTERS_TOUR_CHAPTERS = [
+  {
+    id: "skyline-sprint",
+    name: { es: "Skyline Sprint", en: "Skyline Sprint" },
+    subtitle: {
+      es: "Aperturas claras al alba con calles abiertas y rebotes amistosos.",
+      en: "Clear sunrise openings with open lanes and friendly rebounds.",
+    },
+    themeCycle: [0, 1],
+    windScale: 0.84,
+    hazardType: "water",
+    distanceBoost: -18,
+    obstacleBias: 0,
+    feature: "surface",
+  },
+  {
+    id: "twilight-bazaar",
+    name: { es: "Bazar Crepuscular", en: "Twilight Bazaar" },
+    subtitle: {
+      es: "Atardeceres con bumpers ritmados y lectura tactica.",
+      en: "Sunsets with rhythmic bumpers and tactical reading.",
+    },
+    themeCycle: [1, 5],
+    windScale: 0.94,
+    hazardType: "sludge",
+    distanceBoost: 2,
+    obstacleBias: 1,
+    feature: "bumper",
+  },
+  {
+    id: "glacier-approach",
+    name: { es: "Aproximacion Glaciar", en: "Glacier Approach" },
+    subtitle: {
+      es: "Hielo veloz y vientos cortantes que premian el timing.",
+      en: "Fast ice and biting winds that reward timing.",
+    },
+    themeCycle: [2, 5],
+    windScale: 1.04,
+    hazardType: "water",
+    distanceBoost: 16,
+    obstacleBias: 1,
+    feature: "wind",
+  },
+  {
+    id: "magma-garden",
+    name: { es: "Jardin de Magma", en: "Magma Garden" },
+    subtitle: {
+      es: "Pits de lava y muros calientes con corredores estrechos.",
+      en: "Lava pits and hot walls with narrow corridors.",
+    },
+    themeCycle: [3, 0],
+    windScale: 1.08,
+    hazardType: "lava",
+    distanceBoost: 28,
+    obstacleBias: 2,
+    feature: "wall",
+  },
+  {
+    id: "quantum-lattice",
+    name: { es: "Quantum Lattice", en: "Quantum Lattice" },
+    subtitle: {
+      es: "Corrientes magneticas oscilantes y movers acompasados.",
+      en: "Oscillating magnetic streams and synced movers.",
+    },
+    themeCycle: [4, 2],
+    windScale: 1.12,
+    hazardType: "acid",
+    distanceBoost: 40,
+    obstacleBias: 2,
+    feature: "moving",
+  },
+  {
+    id: "tempest-veil",
+    name: { es: "Velo de Tempestad", en: "Tempest Veil" },
+    subtitle: {
+      es: "Rafagas amplias que borran rutas seguras.",
+      en: "Broad gusts that erase safe routes.",
+    },
+    themeCycle: [5, 4],
+    windScale: 1.2,
+    hazardType: "void",
+    distanceBoost: 52,
+    obstacleBias: 3,
+    feature: "wind",
+  },
+  {
+    id: "obsidian-maze",
+    name: { es: "Laberinto Obsidiano", en: "Obsidian Maze" },
+    subtitle: {
+      es: "Corredores partidos por muros dobles y rebotes precisos.",
+      en: "Corridors split by double walls and precise rebounds.",
+    },
+    themeCycle: [0, 3],
+    windScale: 1.14,
+    hazardType: "sludge",
+    distanceBoost: 66,
+    obstacleBias: 3,
+    feature: "wall",
+  },
+  {
+    id: "hollow-geyser",
+    name: { es: "Geiser Hueco", en: "Hollow Geyser" },
+    subtitle: {
+      es: "Movers verticales pulsantes y ventanas de tiempo cortas.",
+      en: "Pulsing vertical movers and tight timing windows.",
+    },
+    themeCycle: [3, 4, 1],
+    windScale: 1.18,
+    hazardType: "lava",
+    distanceBoost: 76,
+    obstacleBias: 4,
+    feature: "moving",
+  },
+  {
+    id: "aurora-engine",
+    name: { es: "Motor Aurora", en: "Aurora Engine" },
+    subtitle: {
+      es: "Mecanicas combinadas y trayectorias largas con ventana corta.",
+      en: "Combined mechanics and long trajectories with tight windows.",
+    },
+    themeCycle: [4, 2, 0],
+    windScale: 1.26,
+    hazardType: "acid",
+    distanceBoost: 88,
+    obstacleBias: 4,
+    feature: "all",
+  },
+  {
+    id: "eclipse-apex",
+    name: { es: "Cumbre Eclipse", en: "Eclipse Apex" },
+    subtitle: {
+      es: "Cierre absoluto: hazards densos, calle rota y precision quirurgica.",
+      en: "Final showdown: dense hazards, broken fairway, surgical precision.",
+    },
+    themeCycle: [5, 3, 4, 1],
+    windScale: 1.3,
+    hazardType: "void",
+    distanceBoost: 100,
+    obstacleBias: 5,
+    feature: "all",
+  },
+];
+
+function mastersTourBandForLevel(levelNumber) {
+  const relative = levelNumber - MASTERS_TOUR_EXPANSION_START_LEVEL + 1;
+  if (relative <= 30) {
+    return "rookie";
+  }
+  if (relative <= 80) {
+    return "pro";
+  }
+  if (relative <= 140) {
+    return "elite";
+  }
+  return "master";
+}
+
+function determineMastersZoneCount(chapterIndex, difficultyBand, chapterStep) {
+  if (difficultyBand === "rookie") {
+    return 1;
+  }
+  if (difficultyBand === "pro") {
+    return chapterIndex >= 5 && chapterStep % 2 === 1 ? 2 : 1;
+  }
+  if (difficultyBand === "elite") {
+    if (chapterIndex >= 7) {
+      return chapterStep % 3 === 0 ? 3 : 2;
+    }
+    return chapterIndex >= 5 ? 2 : 1;
+  }
+  if (chapterIndex >= 9) {
+    return chapterStep % 2 === 0 ? 3 : 2;
+  }
+  if (chapterIndex >= 7) {
+    return chapterStep % 3 === 0 ? 3 : 2;
+  }
+  return 2;
+}
+
+function buildZoneObstacles(layout, environment, templateIndex, seed, laneLeft, laneRight) {
+  const stub = {
+    ...layout,
+    tee: { x: laneLeft - 66, y: layout.tee?.y ?? 350 },
+    hole: { x: laneRight + 66, y: layout.hole?.y ?? 350 },
+  };
+  return buildObstacles(stub, environment, templateIndex, seed);
+}
+
+function stitchTerrainEntry(terrain, joinY) {
+  if (joinY == null || terrain.length === 0) {
+    return terrain;
+  }
+  const stitched = terrain.map((point) => ({ ...point }));
+  stitched[0].y = joinY;
+  if (stitched.length > 1) {
+    stitched[1].y = stitched[1].y * 0.55 + joinY * 0.45;
+  }
+  if (stitched.length > 2) {
+    stitched[2].y = stitched[2].y * 0.78 + joinY * 0.22;
+  }
+  if (stitched.length > 3) {
+    stitched[3].y = stitched[3].y * 0.9 + joinY * 0.1;
+  }
+  return stitched;
+}
+
+function buildMastersZone({
+  themeIndex,
+  templateIndex,
+  environment,
+  chapter,
+  difficultyBand,
+  seed,
+  zoneIndex,
+  zoneCount,
+  joinY,
+  random,
+}) {
+  const isFirst = zoneIndex === 0;
+  const isLast = zoneIndex === zoneCount - 1;
+  const layout = buildTerrain(themeIndex, templateIndex, seed);
+  layout.terrain = stitchTerrainEntry(layout.terrain, joinY);
+
+  let teeX = null;
+  let teeY = null;
+  if (isFirst) {
+    teeX = clamp(94 + range(random, -16, 18), 78, 220);
+    teeY = getTerrainY(layout.terrain, teeX);
+  }
+
+  let hole = null;
+  if (isLast) {
+    const cupPreset = {
+      rookie: { width: 33, rim: 17, depth: 118 },
+      pro: { width: 30, rim: 16, depth: 122 },
+      elite: { width: 27, rim: 15, depth: 126 },
+      master: { width: 24, rim: 14, depth: 132 },
+    }[difficultyBand];
+    const minHoleX = isFirst ? (teeX ?? 90) + 360 : 540;
+    const maxHoleX = 918;
+    const targetHoleX = clamp(range(random, minHoleX, maxHoleX), minHoleX, maxHoleX);
+    hole = {
+      x: targetHoleX,
+      y: getTerrainY(layout.terrain, targetHoleX),
+      cupWidth: cupPreset.width,
+      rimRadius: cupPreset.rim,
+      cupDepth: cupPreset.depth,
+    };
+  }
+
+  const laneLeft = isFirst ? (teeX ?? 90) + 70 : 60;
+  const laneRight = isLast ? (hole?.x ?? STAGE_WIDTH - 90) - 70 : STAGE_WIDTH - 50;
+
+  const obstacleTemplate = clamp(templateIndex + chapter.obstacleBias, 4, TEMPLATE_COUNT - 1);
+  let obstacles = buildZoneObstacles(layout, environment, obstacleTemplate, seed + 661, laneLeft, laneRight);
+  obstacles = trimObstaclesForProTourBand(obstacles, difficultyBand);
+
+  if (difficultyBand === "master" && isLast) {
+    const teeRef = isFirst
+      ? { x: teeX, y: teeY }
+      : { x: laneLeft - 30, y: getTerrainY(layout.terrain, laneLeft - 30) };
+    const holeRef = hole;
+    addMasterFailsafes(obstacles, layout.terrain, teeRef, holeRef, random);
+    ensureProTourMasterDensity(obstacles, layout.terrain, teeRef, holeRef, random, chapter.hazardType);
+  }
+
+  const hazardPreset = HAZARD_PRESETS[chapter.hazardType] ?? HAZARD_PRESETS[environment.hazardType] ?? HAZARD_PRESETS.water;
+  obstacles.hazardPits = obstacles.hazardPits.map((pit) => ({
+    ...pit,
+    type: chapter.hazardType,
+    tint: hazardPreset.tint,
+    edge: hazardPreset.edge,
+  }));
+
+  const bandScale = { rookie: 0.78, pro: 1, elite: 1.16, master: 1.32 }[difficultyBand];
+  const windScale = bandScale * chapter.windScale;
+  obstacles.windZones = obstacles.windZones.map((zone) => ({
+    ...zone,
+    force: zone.force * windScale,
+    lift: zone.lift * windScale,
+    oscAmp: zone.oscAmp * (0.82 + chapter.windScale * 0.22),
+    width: Math.max(78, zone.width - (difficultyBand === "master" ? 10 : 0)),
+  }));
+  obstacles.movingBumpers = obstacles.movingBumpers.map((mover) => ({
+    ...mover,
+    speed: mover.speed * (0.88 + bandScale * 0.26),
+    range: mover.range * (difficultyBand === "master" ? 1.22 : difficultyBand === "elite" ? 1.12 : 1.04),
+    restitution: clamp(
+      mover.restitution + (difficultyBand === "master" ? 0.05 : difficultyBand === "elite" ? 0.025 : 0),
+      0.72,
+      1.18
+    ),
+  }));
+  obstacles.walls = obstacles.walls.map((wall, index) => ({
+    ...wall,
+    height: clamp(wall.height + (difficultyBand === "master" ? 16 : difficultyBand === "elite" ? 8 : 0), 70, 174),
+    bounce: clamp(wall.bounce + (index % 2 === 0 ? 0.025 : 0), 0.24, 0.6),
+  }));
+
+  const coinCount = {
+    rookie: 2,
+    pro: 2 + (zoneIndex % 2),
+    elite: 2 + (zoneIndex % 2),
+    master: 3,
+  }[difficultyBand];
+  const xMin = isFirst ? (teeX ?? 80) + 40 : 70;
+  const xMax = isLast ? (hole?.x ?? STAGE_WIDTH - 60) - 40 : STAGE_WIDTH - 60;
+  const coins = Array.from({ length: coinCount }, (_, coinIndex) => {
+    const t = (coinIndex + 1) / (coinCount + 1);
+    const x = clamp(xMin + (xMax - xMin) * t + range(random, -22, 24), 70, STAGE_WIDTH - 60);
+    const yLift = {
+      rookie: range(random, 50, 78),
+      pro: range(random, 56, 86),
+      elite: range(random, 60, 92),
+      master: range(random, 64, 100),
+    }[difficultyBand];
+    return { x, y: getTerrainY(layout.terrain, x) - yLift, radius: 12 };
+  });
+
+  const scenery = buildScenery(environment, random, environment.atmosphere);
+  const exitY = getTerrainY(layout.terrain, STAGE_WIDTH - 4);
+
+  return {
+    terrain: layout.terrain,
+    obstacles: retagObstacleIds(obstacles, `masters-zone-${zoneIndex}`),
+    coins,
+    scenery,
+    tee: isFirst && teeX != null ? { x: teeX, y: teeY } : null,
+    hole,
+    exitY,
+    environment,
+    windBase: layout.windBase * windScale,
+  };
+}
+
+function buildMastersTourExpansionLevel(extraIndex) {
+  const levelNumber = MASTERS_TOUR_EXPANSION_START_LEVEL + extraIndex;
+  const chapterIndex = Math.floor(extraIndex / MASTERS_TOUR_CHAPTER_SIZE);
+  const chapterStep = extraIndex % MASTERS_TOUR_CHAPTER_SIZE;
+  const chapter = MASTERS_TOUR_CHAPTERS[chapterIndex];
+  const difficultyBand = mastersTourBandForLevel(levelNumber);
+  const zoneCount = determineMastersZoneCount(chapterIndex, difficultyBand, chapterStep);
+
+  const masterSeed = 220_000 + levelNumber * 2_521 + chapterIndex * 593 + chapterStep * 67;
+  const masterRandom = seededRandom(masterSeed);
+  const themePointer = (chapterStep + chapterIndex) % chapter.themeCycle.length;
+  const baseThemeIndex = chapter.themeCycle[themePointer];
+  const baseEnvironment = ENVIRONMENT_THEMES[baseThemeIndex];
+
+  const zones = [];
+  let joinY = null;
+  for (let zoneIndex = 0; zoneIndex < zoneCount; zoneIndex += 1) {
+    const themeIndex = chapter.themeCycle[(themePointer + zoneIndex) % chapter.themeCycle.length];
+    const environment = ENVIRONMENT_THEMES[themeIndex];
+    const zoneSeed = masterSeed + zoneIndex * 911 + 17;
+    const zoneRandom = seededRandom(zoneSeed);
+    const templateIndex = pickTemplateForProTourBand(zoneRandom, difficultyBand, chapterIndex, chapterStep + zoneIndex);
+    const zone = buildMastersZone({
+      themeIndex,
+      templateIndex,
+      environment,
+      chapter,
+      difficultyBand,
+      seed: zoneSeed,
+      zoneIndex,
+      zoneCount,
+      joinY,
+      random: zoneRandom,
+    });
+    zones.push(zone);
+    joinY = zone.exitY;
+  }
+
+  const firstZone = zones[0];
+  const lastZone = zones[zoneCount - 1];
+
+  const totalObstacleWeight = zones.reduce((sum, zone) => {
+    const o = zone.obstacles;
+    return (
+      sum +
+      o.hazardPits.length * 0.5 +
+      o.movingBumpers.length * 0.7 +
+      o.walls.length * 0.55 +
+      o.windZones.length * 0.36 +
+      o.bumpers.length * 0.22
+    );
+  }, 0);
+
+  const zoneCountBonus = (zoneCount - 1) * 0.85;
+  const basePar = { rookie: 3, pro: 3, elite: 4, master: 5 }[difficultyBand];
+  const par = clamp(Math.round(basePar + totalObstacleWeight * 0.28 + zoneCountBonus), 2, 8);
+  const baseTime = { rookie: 70_000, pro: 64_000, elite: 60_000, master: 55_000 }[difficultyBand];
+  const timeLimitMs = clamp(
+    Math.round(
+      baseTime + (MASTERS_TOUR_CHAPTERS.length - chapterIndex) * 800 + totalObstacleWeight * 2_400 + (zoneCount - 1) * 24_000
+    ),
+    48_000,
+    220_000
+  );
+
+  const aggregatedSituationTags = Array.from(
+    new Set([
+      ...zones.flatMap((zone) => buildSituationTags(zone.environment, zone.obstacles)),
+      "masters-tour-expansion",
+      `chapter-${chapter.id}`,
+      `band-${difficultyBand}`,
+      `feature-${chapter.feature}`,
+      zoneCount > 1 ? "multi-zone" : "single-zone",
+      zoneCount > 1 ? `zones-${zoneCount}` : "zones-1",
+    ])
+  );
+
+  const allCoins = zones.flatMap((zone) => zone.coins);
+  const aggregatedWindBase = zones.reduce((sum, zone) => sum + zone.windBase, 0) / zoneCount + chapterIndex * 2.4;
+
+  const exposedZones = zones.map((zone) => ({
+    terrain: zone.terrain,
+    obstacles: zone.obstacles,
+    coins: zone.coins,
+    scenery: zone.scenery,
+    tee: zone.tee,
+    hole: zone.hole,
+    environment: zone.environment,
+    exitY: zone.exitY,
+  }));
+
+  return {
+    id: `masters-tour-${String(levelNumber).padStart(3, "0")}`,
+    index: BASE_GOLF_LEVELS.length + MOBILE_EXPANSION_COUNT + PRO_TOUR_EXPANSION_COUNT + extraIndex,
+    worldIndex: 22 + chapterIndex,
+    worldLevel: levelNumber,
+    worldName: chapter.name,
+    worldSubtitle: chapter.subtitle,
+    environmentId: baseEnvironment.id,
+    environment: baseEnvironment,
+    name: {
+      es: `${chapter.name.es} - Nivel ${levelNumber}`,
+      en: `${chapter.name.en} - Level ${levelNumber}`,
+    },
+    terrain: firstZone.terrain,
+    tee: firstZone.tee,
+    hole: lastZone.hole,
+    coins: allCoins,
+    obstacles: firstZone.obstacles,
+    situationTags: aggregatedSituationTags,
+    par,
+    timeLimitMs,
+    windBase: aggregatedWindBase,
+    difficultyBand,
+    scenery: firstZone.scenery,
+    starTargets: {
+      three: par,
+      two: par + 1,
+      one: par + 2,
+    },
+    zones: exposedZones,
+    zoneCount,
+  };
+}
+
 const BASE_GOLF_LEVELS = ENVIRONMENT_THEMES.flatMap((_, themeIndex) =>
   Array.from({ length: TEMPLATE_COUNT }, (_, templateIndex) => buildLevel(themeIndex, templateIndex))
 );
@@ -1336,8 +1800,16 @@ const MOBILE_EXPANSION_LEVELS = Array.from({ length: MOBILE_EXPANSION_COUNT }, (
 const PRO_TOUR_EXPANSION_LEVELS = Array.from({ length: PRO_TOUR_EXPANSION_COUNT }, (_, index) =>
   buildProTourExpansionLevel(index)
 );
+const MASTERS_TOUR_EXPANSION_LEVELS = Array.from({ length: MASTERS_TOUR_EXPANSION_COUNT }, (_, index) =>
+  buildMastersTourExpansionLevel(index)
+);
 
-export const GOLF_LEVELS = [...BASE_GOLF_LEVELS, ...MOBILE_EXPANSION_LEVELS, ...PRO_TOUR_EXPANSION_LEVELS];
+export const GOLF_LEVELS = [
+  ...BASE_GOLF_LEVELS,
+  ...MOBILE_EXPANSION_LEVELS,
+  ...PRO_TOUR_EXPANSION_LEVELS,
+  ...MASTERS_TOUR_EXPANSION_LEVELS,
+];
 
 export const LEVEL_COUNT = GOLF_LEVELS.length;
 

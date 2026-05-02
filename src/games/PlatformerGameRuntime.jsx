@@ -265,7 +265,7 @@ function PlatformerGame() {
           <p className="sky-runner-dx-world">Skyline Route</p>
           <h4>Sky Runner DX</h4>
           <p>
-            32 handcrafted sectors with route progression, checkpoint routing, spring tech, wind lanes and boss arenas.
+            132 engineered sectors with route progression, checkpoint routing, spring tech, wind lanes, relics and boss arenas.
           </p>
         </div>
         <div className="sky-runner-dx-actions">

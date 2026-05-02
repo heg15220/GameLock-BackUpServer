@@ -3,6 +3,13 @@ import { spawnToWorldPosition } from "../levels/levelLoader";
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
+const STATIC_ITEM_SIZES = {
+  coin: ITEM_SETTINGS.coinSize,
+  gem: ITEM_SETTINGS.gemSize,
+  time: ITEM_SETTINGS.timeShardSize,
+  shield: ITEM_SETTINGS.shieldSize
+};
+
 export const createItemFromSpawn = (level, spawn, id) => {
   if (spawn.type === "mushroom") {
     const worldSpawn = spawnToWorldPosition(
@@ -27,14 +34,15 @@ export const createItemFromSpawn = (level, spawn, id) => {
     };
   }
 
-  const coinSize = ITEM_SETTINGS.coinSize;
+  const itemType = STATIC_ITEM_SIZES[spawn.type] ? spawn.type : "coin";
+  const itemSize = STATIC_ITEM_SIZES[itemType];
   return {
-    id: id || `coin-${spawn.x}-${spawn.y}`,
-    type: "coin",
-    x: spawn.x * level.tileSize + (level.tileSize - coinSize) / 2,
-    y: spawn.y * level.tileSize + (level.tileSize - coinSize) / 2,
-    w: coinSize,
-    h: coinSize,
+    id: id || `${itemType}-${spawn.x}-${spawn.y}`,
+    type: itemType,
+    x: spawn.x * level.tileSize + (level.tileSize - itemSize) / 2,
+    y: spawn.y * level.tileSize + (level.tileSize - itemSize) / 2,
+    w: itemSize,
+    h: itemSize,
     vx: 0,
     vy: 0,
     active: true,
@@ -75,7 +83,7 @@ export const updateItem = (item, dt, level, moveEntityWithCollisions) => {
 
   item.animationTimer += dt;
 
-  if (item.type === "coin") {
+  if (item.type === "coin" || item.type === "gem" || item.type === "time" || item.type === "shield") {
     return null;
   }
 
@@ -104,4 +112,3 @@ export const updateItem = (item, dt, level, moveEntityWithCollisions) => {
 
   return collision;
 };
-

@@ -23,7 +23,7 @@ function PlatformerGameLoadingShell() {
           <section className="sky-runner-dx-panel sky-runner-dx-panel-primary">
             <div className="sky-runner-dx-current-level">
               <strong>Route runtime on demand</strong>
-              <p>The full 32-sector campaign loads only when the player actually opens it.</p>
+              <p>The full 132-sector campaign loads only when the player actually opens it.</p>
             </div>
           </section>
         </div>
@@ -39,7 +39,7 @@ function PlatformerGameShell({ onOpen }) {
         <div>
           <p className="sky-runner-dx-world">Skyline Route</p>
           <h4>Sky Runner DX</h4>
-          <p>32 handcrafted sectors with route progression, checkpoint routing, spring tech, wind lanes and boss arenas.</p>
+          <p>132 engineered sectors with route progression, checkpoint routing, spring tech, wind lanes, relics and boss arenas.</p>
         </div>
         <div className="sky-runner-dx-actions">
           <button

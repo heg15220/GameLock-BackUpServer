@@ -48,7 +48,12 @@ const DEFAULT_BIOME_BY_STYLE = {
   sunset: "Amber Causeway",
   storm: "Tempest Reach",
   toxic: "Toxic Rift",
-  celestial: "Astral Span"
+  celestial: "Astral Span",
+  aurora: "Aurora Relay",
+  clockwork: "Gearworks",
+  reef: "Sky Reef",
+  void: "Null Expanse",
+  ember: "Emberline"
 };
 
 const DEFAULT_MECHANICS_BY_STYLE = {
@@ -61,7 +66,12 @@ const DEFAULT_MECHANICS_BY_STYLE = {
   sunset: ["long bridges", "tempo jumps"],
   storm: ["wind", "vertical recovery"],
   toxic: ["hazards", "checkpoint routing"],
-  celestial: ["sky islands", "precision climb"]
+  celestial: ["sky islands", "precision climb"],
+  aurora: ["wind gates", "time shards"],
+  clockwork: ["switchback routes", "shield routing"],
+  reef: ["spring chains", "gem routes"],
+  void: ["low-gravity flow", "boss pressure"],
+  ember: ["hazard lanes", "tempo jumps"]
 };
 
 const VISUAL_STYLES = new Set([
@@ -74,7 +84,12 @@ const VISUAL_STYLES = new Set([
   "sunset",
   "storm",
   "toxic",
-  "celestial"
+  "celestial",
+  "aurora",
+  "clockwork",
+  "reef",
+  "void",
+  "ember"
 ]);
 
 export const tileKey = (tx, ty) => `${tx},${ty}`;
@@ -125,6 +140,9 @@ const placeSafetyPlatform = (tiles, width, height, centerX, y, radius = 1) => {
     if (tiles[safeY][x] === TILE_TYPES.EMPTY) {
       tiles[safeY][x] = TILE_TYPES.PLATFORM;
     }
+    if (safeY > 0 && tiles[safeY - 1][x] !== TILE_TYPES.EMPTY && tiles[safeY - 1][x] !== TILE_TYPES.QUESTION) {
+      tiles[safeY - 1][x] = TILE_TYPES.EMPTY;
+    }
   }
 };
 
@@ -146,19 +164,24 @@ const injectSafetyRoute = (tiles, width, height, playerSpawn, goal) => {
     guard += 1;
     const deltaX = targetX - currentX;
     const deltaY = targetY - currentY;
-    const closeEnough = Math.abs(deltaX) <= maxStepX && Math.abs(deltaY) <= 1;
+    const closeEnough = Math.abs(deltaX) <= maxStepX && deltaY >= 0 && Math.abs(deltaY) <= 1;
     if (closeEnough) {
       break;
     }
 
-    const stepX = Math.abs(deltaX) <= maxStepX
+    let stepX = Math.abs(deltaX) <= maxStepX
       ? deltaX
       : Math.sign(deltaX) * maxStepX;
     let stepY = 0;
     if (deltaY < -1) {
-      stepY = Math.max(-maxStepUp, deltaY);
+      const climb = Math.min(maxStepUp, Math.abs(deltaY));
+      const remaining = Math.abs(deltaY) - climb;
+      stepY = -(remaining === 1 ? Math.max(1, climb - 1) : climb);
     } else if (deltaY > 1) {
       stepY = Math.min(maxStepDown, deltaY);
+    }
+    if (stepY < -1 && Math.abs(stepX) >= maxStepX) {
+      stepX = Math.sign(stepX) * (maxStepX - 1);
     }
 
     currentX = clampInt(currentX + stepX, 0, width - 1);
@@ -613,16 +636,46 @@ const normalizeLevel = (rawLevel, levelIndex = 0) => {
   };
 };
 
-const LEVEL_TEMPLATES = LEVELS.map((level, index) => normalizeLevel(level, index));
+const normalizeCatalogEntry = (rawLevel, index) => {
+  const visualStyle = VISUAL_STYLES.has(rawLevel.visualStyle)
+    ? rawLevel.visualStyle
+    : "classic";
+  const layoutType = ["horizontal", "vertical", "hybrid"].includes(rawLevel.layoutType)
+    ? rawLevel.layoutType
+    : "horizontal";
+  const rawBoss = rawLevel.boss && typeof rawLevel.boss === "object" ? rawLevel.boss : null;
+  const mechanics = Array.isArray(rawLevel.mechanics) && rawLevel.mechanics.length
+    ? rawLevel.mechanics.map((mechanic) => String(mechanic))
+    : [...(DEFAULT_MECHANICS_BY_STYLE[visualStyle] || DEFAULT_MECHANICS_BY_STYLE.classic)];
 
-export const getLevelCount = () => LEVEL_TEMPLATES.length;
+  return {
+    index,
+    id: String(rawLevel.id || "platformer-level"),
+    name: String(rawLevel.name || "Arcade Level"),
+    biome: String(rawLevel.biome || DEFAULT_BIOME_BY_STYLE[visualStyle] || "Frontier Plains"),
+    difficulty: clampInt(numberOrFallback(rawLevel.difficulty, 1 + Math.floor(index / 4)), 1, 5),
+    mechanics,
+    visualStyle,
+    layoutType,
+    isBossLevel: Boolean(rawBoss),
+    isFinalBossLevel: Boolean(rawBoss?.finalBoss)
+  };
+};
+
+const LEVEL_CATALOG = LEVELS.map((level, index) => normalizeCatalogEntry(level, index));
+const LEVEL_TEMPLATE_CACHE = new Map();
+
+export const getLevelCount = () => LEVELS.length;
 
 export const getLevelTemplate = (index) => {
-  if (!LEVEL_TEMPLATES.length) {
+  if (!LEVELS.length) {
     throw new Error("No level definitions found.");
   }
-  const safeIndex = ((Math.floor(index) % LEVEL_TEMPLATES.length) + LEVEL_TEMPLATES.length) % LEVEL_TEMPLATES.length;
-  return LEVEL_TEMPLATES[safeIndex];
+  const safeIndex = ((Math.floor(index) % LEVELS.length) + LEVELS.length) % LEVELS.length;
+  if (!LEVEL_TEMPLATE_CACHE.has(safeIndex)) {
+    LEVEL_TEMPLATE_CACHE.set(safeIndex, normalizeLevel(LEVELS[safeIndex], safeIndex));
+  }
+  return LEVEL_TEMPLATE_CACHE.get(safeIndex);
 };
 
 export const createLevelRuntime = (index) => {
@@ -660,17 +713,9 @@ export const createLevelRuntime = (index) => {
 };
 
 export const getLevelCatalog = () =>
-  LEVEL_TEMPLATES.map((template, index) => ({
-    index,
-    id: template.id,
-    name: template.name,
-    biome: template.biome,
-    difficulty: template.difficulty,
-    mechanics: [...template.mechanics],
-    visualStyle: template.visualStyle,
-    layoutType: template.layoutType,
-    isBossLevel: template.isBossLevel,
-    isFinalBossLevel: template.isFinalBossLevel
+  LEVEL_CATALOG.map((entry) => ({
+    ...entry,
+    mechanics: [...entry.mechanics]
   }));
 
 export const getTileType = (level, tx, ty) => {

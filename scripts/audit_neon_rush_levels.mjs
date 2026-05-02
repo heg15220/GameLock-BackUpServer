@@ -273,18 +273,25 @@ function canBeatLevel({ levelIndex, builders, assistScale = 1, maxStates = 4500 
 function runAudit() {
   const builders = loadGameBuilders();
   const total = builders.META.length;
+  const startLevel = Math.max(1, Number.parseInt(process.env.NEON_AUDIT_START ?? "1", 10) || 1);
+  const endLevel = Math.min(total, Number.parseInt(process.env.NEON_AUDIT_END ?? String(total), 10) || total);
+  const maxStates = Number.parseInt(process.env.NEON_AUDIT_MAX_STATES ?? "5000", 10) || 5000;
+  const assistMaxStates = Number.parseInt(process.env.NEON_AUDIT_ASSIST_MAX_STATES ?? "6000", 10) || 6000;
   const results = [];
-  for (let i = 0; i < total; i += 1) {
-    let res = canBeatLevel({ levelIndex: i, builders, assistScale: 1, maxStates: 5000 });
+  for (let i = startLevel - 1; i < endLevel; i += 1) {
+    let res = canBeatLevel({ levelIndex: i, builders, assistScale: 1, maxStates });
     if (!res.beatable) {
-      res = canBeatLevel({ levelIndex: i, builders, assistScale: builders.ASSIST_MIN, maxStates: 6000 });
+      res = canBeatLevel({ levelIndex: i, builders, assistScale: builders.ASSIST_MIN, maxStates: assistMaxStates });
     }
     results.push({ level: i + 1, name: builders.META[i].n, difficulty: builders.META[i].d, ...res });
+    if (process.env.NEON_AUDIT_PROGRESS === "1" && ((i + 1) % 10 === 0 || i + 1 === endLevel)) {
+      console.log(`Audit progress: L${i + 1}/${endLevel}`);
+    }
   }
 
   const impossible = results.filter((r) => !r.beatable);
   const onlyWithAssist = results.filter((r) => r.beatable && r.assistScale < 1);
-  console.log(`Niveles auditados: ${results.length}`);
+  console.log(`Niveles auditados: ${results.length} (L${startLevel}-L${endLevel} de ${total})`);
   console.log(`Completables: ${results.length - impossible.length}`);
   console.log(`Imposibles: ${impossible.length}`);
   console.log(`Solo completables con assist (${builders.ASSIST_MIN}): ${onlyWithAssist.length}`);

@@ -1205,35 +1205,9 @@ export function getMobileControlProfile(game, locale = "es") {
         ],
         utilities: [],
       };
-    case "arcade-kitchen-rush-2d":
-      return {
-        layout: "split",
-        heading: t(locale, "Cocina", "Kitchen"),
+      /*
         hint: t(locale, "Muévete, interactúa y sirve con los botones laterales.", "Move, interact, and serve with the side buttons."),
-        leftPad: directionalPad(locale, {
-          up: input("ArrowUp", "ArrowUp"),
-          left: input("ArrowLeft", "ArrowLeft"),
-          right: input("ArrowRight", "ArrowRight"),
-          down: input("ArrowDown", "ArrowDown"),
-        }),
-        rightPad: [
-          control("interact", t(locale, "Usar", "Use"), {
-            type: "tap",
-            tone: "accent",
-            inputs: [input("KeyE", "e")],
-          }),
-          control("cut", t(locale, "Corta", "Cut"), {
-            type: "tap",
-            tone: "primary",
-            inputs: [input("Space", " ")],
-          }),
-          control("serve", t(locale, "Sirve", "Serve"), {
-            type: "tap",
-            inputs: [input("Enter", "Enter")],
-          }),
-        ],
-        utilities: utilityRow(locale),
-      };
+      */
     case "arcade-neon-crypt":
       return {
         layout: "split",

@@ -11,6 +11,20 @@ import level10 from "./level-10.json";
 import level11 from "./level-11.json";
 import level12 from "./level-12.json";
 import expansionLevels from "./expansionPack";
+import generatedSkyRunnerLevels from "./generatedSkyRunnerMaps";
+
+const tunedExpansionLevels = expansionLevels.map((level) => {
+  if (level.id !== "abyss-crown-32" || !level.boss) {
+    return level;
+  }
+  return {
+    ...level,
+    boss: {
+      ...level.boss,
+      finalBoss: false
+    }
+  };
+});
 
 export const LEVELS = [
   level1,
@@ -25,5 +39,6 @@ export const LEVELS = [
   level10,
   level11,
   level12,
-  ...expansionLevels
+  ...tunedExpansionLevels,
+  ...generatedSkyRunnerLevels
 ];

@@ -16,7 +16,6 @@ import arcadeBubbleStormImage from "../assets/games/arcade-bubble-storm.svg";
 import arcadeIceStrikeProImage from "../assets/games/arcade-ice-strike-pro.svg";
 import arcadeNeonCryptImage from "../assets/games/arcade-neon-crypt.svg";
 import arcadeNeonRushImage from "../assets/games/arcade-neon-rush.svg";
-import arcadeKitchenRush2DImage from "../assets/games/arcade-kitchen-rush-2d.svg";
 import arcadeDigHoleTreasureImage from "../assets/games/arcade-dig-hole-treasure-catalog.png";
 import arcadeValleTranquiloImage from "../assets/games/arcade-valle-tranquilo-catalog.png";
 import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-showdown.svg";
@@ -126,46 +125,46 @@ export const games = [
     category: "Arcade",
     tagline: "Plataformas de salto, enemigos y jefes: supera la ruta sin perder todas las vidas.",
     description:
-      "Run arcade inspirado en plataformas retro: ahora hay 32 sectores artesanales con biomas propios, zonas de viento, springs, checkpoints, hazards y varios bosses de comportamiento diferenciado. Cada partida compone una ruta de 8 sectores y siempre remata con un nuevo jefe final.",
+      "Run arcade inspirado en plataformas retro: ahora hay 132 sectores reestructurados con biomas propios, zonas de viento, springs, checkpoints, hazards, reliquias nuevas y bosses de comportamiento diferenciado. Cada partida compone una ruta de 8 sectores y siempre remata con un jefe final nuevo.",
     objective_es: "Completa una ruta de 8 sectores, asegura checkpoints, domina los hazards y derrota a los bosses hasta capturar el cubo final.",
     howToPlay_es: "A/D o flechas para moverte, W/arriba/espacio para saltar, F activa el power-up de fuego. Springs, corrientes de viento y checkpoints forman parte de la ruta.",
     highlights: [
-      "Pool de 32 sectores artesanales con biomas forestales, tormenta, tÃ³xicos, crepusculares y celestiales.",
+      "Pool de 132 sectores con biomas forestales, tormenta, toxicos, crepusculares, celestiales, aurora, reef, void, ember y clockwork.",
       "Ruta de 8 sectores por run con layouts side-scroll, verticales e hÃ­bridos.",
-      "Varios encuentros de jefe por partida con barra de vida, variantes y jefe final nuevo.",
+      "Varios encuentros de jefe por partida con barra de vida, variantes nuevas y jefe final nuevo.",
       "FÃ­sica arcade consistente con coyote time y jump buffer.",
       "IA enemiga de patrulla, jumper y jefes con perfiles ofensivos distintos.",
-      "Checkpoints, springs, viento y hazards visualmente telegrafiados.",
-      "Power-up de fuego para derrotar enemigos a distancia.",
+      "Checkpoints, springs, viento, hazards, gemas, time shards y escudos visualmente telegrafiados.",
+      "Power-up de fuego y objetos de recuperacion para rutas avanzadas.",
       "Estado QA exportado para automatizaciÃ³n de pruebas.",
     ],
     difficulty: "Media-Alta",
     multiplayer: "Solo",
     viability: "Alta: motor modular Canvas con game loop fijo y colisiones por tiles.",
     visualStyle: "Pixel-art retro con parallax multicapa, biomas nuevos, overlays ambientales y HUD tÃ¡ctico integrado.",
-    techFocus: "Arquitectura modular con 32 sectores, reachability reforzada, bosses por variante y telemetrÃ­a de entorno.",
+    techFocus: "Arquitectura modular con 132 sectores, reachability reforzada, bosses por variante y telemetria de entorno.",
 
     category_en: "Arcade",
     tagline_en: "A platformer with jumps, enemies and bosses: clear the route before losing all lives.",
     description_en:
-      "A retro platformer run rebuilt around 32 handcrafted sectors with distinct biomes, wind zones, springs, checkpoints, hazards and several differentiated bosses. Each session assembles an 8-sector route and always ends with a new final boss.",
+      "A retro platformer run rebuilt around 132 restructured sectors with distinct biomes, wind zones, springs, checkpoints, hazards, new relic items and several differentiated bosses. Each session assembles an 8-sector route and always ends with a new final boss.",
     objective_en: "Complete an 8-sector route, secure checkpoints, master hazards and defeat the bosses to capture the final cube.",
     howToPlay_en: "A/D or arrows to move, W/up/space for variable jump, F to activate the fire power-up. Springs, wind lanes and checkpoints are part of the route.",
     highlights_en: [
-      "Pool of 32 handcrafted sectors across forest, storm, toxic, sunset and celestial biomes.",
+      "Pool of 132 sectors across forest, storm, toxic, sunset, celestial, aurora, reef, void, ember and clockwork biomes.",
       "8-sector routes with side-scroll, vertical and hybrid layouts.",
       "Multiple boss encounters per run with health bars, variants and a new final boss.",
       "Consistent arcade physics with coyote time and jump buffer.",
       "Patrol AI, jumper enemies and bosses with differentiated offensive profiles.",
-      "Checkpoints, springs, wind lanes and telegraphed hazards.",
-      "Fire power-up to defeat distant enemies.",
+      "Checkpoints, springs, wind lanes, telegraphed hazards, gems, time shards and shields.",
+      "Fire power-up and recovery items for advanced routes.",
       "Exported QA state for test automation.",
     ],
     difficulty_en: "Medium-High",
     multiplayer_en: "Solo",
     viability_en: "High: modular Canvas engine with fixed game loop and tile collisions.",
     visualStyle_en: "Retro pixel-art with multi-layer parallax, new biomes, environmental overlays and integrated tactical HUD.",
-    techFocus_en: "Modular architecture with 32 sectors, reinforced reachability, boss variants and environment telemetry.",
+    techFocus_en: "Modular architecture with 132 sectors, reinforced reachability, boss variants and environment telemetry.",
   },
 
 
@@ -645,13 +644,14 @@ export const games = [
     category: "Deportes",
     tagline: "Minigolf 2D: completa hoyos con el menor n\u00famero de golpes.",
     description:
-      "Campana larga y rejugable de mini golf 2D en vista lateral: 200 niveles repartidos en biomas de dia, ocaso, noche, neon y tormenta, con terreno estratificado (capa verde + subsuelo), montanas de fondo, bandera y hoyo con tubo vertical. El gameplay se basa en tiros parabolicos con gravedad, rebote sobre pendientes, control de viento y gestion de obstaculos.",
+      "Campana larga y rejugable de mini golf 2D en vista lateral: 400 niveles repartidos en biomas de dia, ocaso, noche, neon, volcan y tormenta, con terreno estratificado, montanas de fondo, bandera y hoyo con tubo vertical. Incluye campos extendidos donde la bola cruza checkpoints al limite de pantalla para avanzar a nuevas zonas hasta llegar al hoyo. El gameplay se basa en tiros parabolicos con gravedad, rebote sobre pendientes, control de viento y gestion de obstaculos.",
     objective_es:
-      "Emboca en el menor numero de golpes posible y optimiza estrellas por ejecucion limpia en los 200 mapas del tour.",
+      "Emboca en el menor numero de golpes posible y optimiza estrellas por ejecucion limpia en los 400 mapas del tour.",
     howToPlay_es:
-      "Arrastra desde la bola para apuntar y ajustar potencia. Teclado: A/D o flechas para angulo, W/S para potencia, Enter/Espacio lanza, P pausa, R reinicia, L abre selector y F pantalla completa.",
+      "Arrastra desde la bola para apuntar y ajustar potencia. Teclado: A/D o flechas para angulo, W/S para potencia, Enter/Espacio lanza, P pausa, R reinicia, L abre selector y F pantalla completa. En niveles multi-zona, cruza el borde derecho con la bola para avanzar a la siguiente zona del campo.",
     highlights: [
-      "200 niveles diferentes con progresion de dificultad y mapas pensados para mobile-first.",
+      "400 niveles diferentes con progresion de dificultad y mapas pensados para mobile-first.",
+      "Niveles multi-zona con checkpoints en el borde de pantalla para campos extendidos hasta el hoyo.",
       "Fisica side-view con gravedad real, rebotes en slope, rodadura y parada natural por friccion.",
       "Hoyo estilo tubo con bandera y deteccion de embocado por velocidad/entrada al cup.",
       "Direccion artistica inspirada en minigolf lateral: capas de terreno, montanas, arboles y cielo limpio.",
@@ -663,18 +663,19 @@ export const games = [
     multiplayer: "Solo",
     viability: "Alta: motor Canvas determinista con estado serializable y persistencia local ligera.",
     visualStyle: "Minigolf side-view colorista con perspectiva de suelo por capas y horizonte de montanas.",
-    techFocus: "Runtime modular (niveles/fisica/render) con colision sobre terreno continuo y campana de 200 mapas.",
+    techFocus: "Runtime modular (niveles/fisica/render) con colision sobre terreno continuo, campana de 400 mapas y campos extendidos por zonas.",
 
     category_en: "Sports",
     tagline_en: "2D mini golf: finish holes in as few strokes as possible.",
     description_en:
-      "A long-form replayable side-view 2D mini golf campaign: 200 levels across diverse day/night biomes with layered ground perspective, mountain backdrops, and tube-style cup + flag targets. Gameplay focuses on arc shots under gravity, slope rebounds, wind control, and obstacle management.",
+      "A long-form replayable side-view 2D mini golf campaign: 400 levels across diverse day/night/volcanic biomes with layered ground perspective, mountain backdrops, and tube-style cup + flag targets. Includes extended courses where the ball crosses screen-edge checkpoints to advance through additional field zones up to the hole. Gameplay focuses on arc shots under gravity, slope rebounds, wind control, and obstacle management.",
     objective_en:
-      "Sink the ball with the lowest stroke count possible and optimize stars through clean execution across all 200 tour layouts.",
+      "Sink the ball with the lowest stroke count possible and optimize stars through clean execution across all 400 tour layouts.",
     howToPlay_en:
-      "Drag from the ball to set direction and power. Keyboard: A/D or arrows for angle, W/S for power, Enter/Space launches, P pauses, R restarts, L opens level select, and F toggles fullscreen.",
+      "Drag from the ball to set direction and power. Keyboard: A/D or arrows for angle, W/S for power, Enter/Space launches, P pauses, R restarts, L opens level select, and F toggles fullscreen. On multi-zone levels, crossing the right edge advances the ball to the next field zone.",
     highlights_en: [
-      "200 distinct levels with mobile-first pacing and escalating obstacle complexity.",
+      "400 distinct levels with mobile-first pacing and escalating obstacle complexity.",
+      "Multi-zone levels with screen-edge checkpoints for extended courses up to the hole.",
       "Side-view physics with gravity, slope collision, rolling friction, and natural stopping behavior.",
       "Tube-style cup + flag goal with speed-sensitive sink detection.",
       "Visual direction inspired by classic lateral mini golf: layered ground, mountains, trees, clear sky.",
@@ -686,7 +687,7 @@ export const games = [
     multiplayer_en: "Solo",
     viability_en: "High: deterministic Canvas runtime with serializable state and lightweight local persistence.",
     visualStyle_en: "Color-rich side-view mini golf direction with layered terrain perspective and mountain horizon.",
-    techFocus_en: "Modular runtime (levels/physics/render) with continuous terrain collision and 200-level progression architecture.",
+    techFocus_en: "Modular runtime (levels/physics/render) with continuous terrain collision, 400-level progression architecture, and multi-zone scrolling fields with screen-edge checkpoints.",
   },
   {
     id: "arcade-archery-horizon",
@@ -974,13 +975,13 @@ export const games = [
     category: "Arcade",
     tagline: "Runner de precisi\u00f3n: salta obst\u00e1culos y supera niveles al ritmo justo.",
     description:
-      "Integracion completa del juego Neon Rush con 100 niveles de dificultad progresiva. El jugador avanza de forma continua y debe reaccionar con saltos precisos para evitar pinchos, techos, bloques y secuencias combinadas. Se reforzo la jugabilidad para reducir frustracion: jump buffer, coyote time, hitboxes mas justas, salto aereo de apoyo y asistencia dinamica tras varios intentos.",
+      "Integracion completa del juego Neon Rush con 300 niveles de dificultad progresiva. El jugador avanza de forma continua y debe reaccionar con saltos precisos para evitar pinchos, techos, bloques y secuencias combinadas. Se reforzo la jugabilidad para reducir frustracion: jump buffer, coyote time, hitboxes mas justas, salto aereo de apoyo y asistencia dinamica tras varios intentos.",
     objective_es:
       "Completa cada nivel llegando al portal final sin chocar contra obstaculos. Mejora tu mejor tiempo y supera niveles cada vez mas exigentes.",
     howToPlay_es:
       "Pulsa Espacio, flecha arriba, click o tap para saltar. En movil y tablet puedes tocar cualquier zona del juego para activar el salto, y volver a tocar en el aire para usar el salto aereo de apoyo (1 por ciclo). Puedes arrancar desde pantalla inicial con la misma entrada. R reintenta cuando caes y Esc vuelve al menu principal.",
     highlights: [
-      "100 niveles con identidad visual propia (easy/medium/hard/insane) y 80 niveles nuevos de diseno procedural.",
+      "300 niveles con identidad visual propia (easy/medium/hard/insane), incluidos 200 niveles nuevos y 280 fases procedurales controladas.",
       "Mecanicas de precision: pinchos de suelo, pinchos de techo, bloques, jump pads y orbes de impulso.",
       "Respuesta de salto reforzada con jump buffer + coyote time para minimizar delay percibido.",
       "Salto aereo de apoyo (1 por ciclo) para resolver secuencias densas sin bloqueos injustos.",
@@ -998,13 +999,13 @@ export const games = [
     category_en: "Arcade",
     tagline_en: "Precision runner: jump hazards and clear levels with exact timing.",
     description_en:
-      "Full Neon Rush integration with 100 progressively harder levels. The player auto-runs and must react with precise jumps to avoid spikes, ceiling traps, blocks, and mixed obstacle patterns. Gameplay was tuned to reduce frustration: jump buffer, coyote time, fairer hitboxes, an assist air jump, and dynamic assist after repeated failures.",
+      "Full Neon Rush integration with 300 progressively varied levels. The player auto-runs and must react with precise jumps to avoid spikes, ceiling traps, blocks, and mixed obstacle patterns. Gameplay was tuned to reduce frustration: jump buffer, coyote time, fairer hitboxes, an assist air jump, and dynamic assist after repeated failures.",
     objective_en:
       "Complete each level by reaching the final portal without colliding with obstacles. Improve your best runs and clear increasingly demanding stages.",
     howToPlay_en:
       "Press Space, Up Arrow, click, or tap to jump. On mobile/tablet, tapping anywhere in the game area triggers jump, and tapping again mid-air triggers the assist air jump (1 per cycle). The same input starts a run from the intro screen. Press R to retry after a crash and Esc to return to the main menu.",
     highlights_en: [
-      "100 levels with distinct visual identity across easy/medium/hard/insane tiers, including 80 new procedural stages.",
+      "300 levels with distinct visual identity across easy/medium/hard/insane tiers, including 200 new levels and 280 controlled procedural stages.",
       "Precision mechanics: ground spikes, ceiling spikes, solid blocks, jump pads, and boost orbs.",
       "Snappy jump response via jump-buffer + coyote-time to reduce perceived input delay.",
       "Assist air jump (1 per cycle) to keep dense obstacle sections dodgeable.",
@@ -3101,55 +3102,6 @@ export const games = [
     viability_en: "High: deterministic lane runner architecture.",
     visualStyle_en: "Synthwave highway with modern lighting language.",
     techFocus_en: "Lane traffic manager, collision model, distance pacing.",
-  },
-  {
-    id: "arcade-kitchen-rush-2d",
-    image: arcadeKitchenRush2DImage,
-    sessionTime: "6-12 min",
-    title: "Kitchen Rush 2D",
-    category: "Arcade",
-    tagline: "Cocina cronometrada: prepara ingredientes y entrega pedidos.",
-    description:
-      "Juego de cocina con sistema jugable real: cada ingrediente tiene estado propio, se transforma por acciones (cortar, hervir, freir, hornear), y el plato final se valida por receta, precision y tiempo de entrega.",
-    objective_es:
-      "Completa el maximo de pedidos antes de que termine el turno combinando corte, coccion, emplatado y entrega en el punto correcto.",
-    howToPlay_es:
-      "WASD/flechas mueven al chef. E interactua con estaciones. Espacio corta en la tabla. T enciende/apaga olla, sarten y horno. Enter entrega platos. 1-6 seleccionan ingrediente en nevera. P pausa, R reinicia y F pantalla completa.",
-    highlights: [
-      "Ingredientes con estados progresivos (whole/sliced/diced/cooked/overcooked/burned).",
-      "Estaciones especializadas con temperatura propia: tabla, olla, sarten, horno, emplatado y pase.",
-      "Pedidos activos con temporizadores y validacion por receta real.",
-      "Sistema de combo y calidad de entrega: perfect/good/late con penalizacion por errores.",
-      "Particulas de corte, vapor, chisporroteo y humo para feedback tactil visual.",
-      "Arquitectura por capas (data/entities/systems/render/runtime) para escalar recetas e ingredientes.",
-    ],
-    difficulty: "Media-Alta",
-    multiplayer: "Solo",
-    viability: "Alta: runtime determinista en Canvas 2D con estado serializable y puente QA (render_game_to_text + advanceTime).",
-    visualStyle: "Direccion art warm-kitchen en 2D cenital con overlays de calor, sombras suaves y tickets activos.",
-    techFocus: "Modelo de transformaciones, estaciones con termica, pipeline de recetas y bucle de pedidos en tiempo real.",
-
-    category_en: "Arcade",
-    tagline_en: "Timed cooking: prepare ingredients and serve orders.",
-    description_en:
-      "A complete cooking gameplay system where each ingredient has its own state, transforms through actions (cut, boil, fry, bake), and final dishes are validated by recipe correctness, timing, and quality.",
-    objective_en:
-      "Complete as many orders as possible before the shift ends by combining prep, heat control, plating, and on-time delivery.",
-    howToPlay_en:
-      "WASD/arrows move the chef. E interacts with stations. Space cuts on board. T toggles pot/pan/oven heat. Enter serves dishes. Keys 1-6 pick fridge ingredients. P pauses, R restarts, F fullscreen.",
-    highlights_en: [
-      "Progressive ingredient states (whole/sliced/diced/cooked/overcooked/burned).",
-      "Specialized stations with their own heat behavior: board, pot, pan, oven, plating, and service pass.",
-      "Active ticket queue with countdown timers and strict recipe validation.",
-      "Delivery quality and combo loop: perfect/good/late plus error penalties.",
-      "Cutting particles, steam, fry sparks, and smoke feedback for tactile readability.",
-      "Layered architecture (data/entities/systems/render/runtime) to scale recipes and ingredient sets.",
-    ],
-    difficulty_en: "Medium-High",
-    multiplayer_en: "Solo",
-    viability_en: "High: deterministic Canvas 2D runtime with serializable state and QA bridge hooks (render_game_to_text + advanceTime).",
-    visualStyle_en: "Warm top-down kitchen art direction with heat overlays, soft shadows, and active ticket UI.",
-    techFocus_en: "Transformation model, thermal station logic, recipe pipeline, and real-time order loop.",
   },
   {
     id: "arcade-dig-hole-treasure",

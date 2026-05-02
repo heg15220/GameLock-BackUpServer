@@ -67,6 +67,11 @@ export const BOSS_SETTINGS = {
 
 export const ITEM_SETTINGS = {
   coinSize: 18,
+  gemSize: 20,
+  timeShardSize: 20,
+  shieldSize: 22,
+  shieldSeconds: 6,
+  timeShardSeconds: 12,
   mushroomWidth: 24,
   mushroomHeight: 22,
   mushroomSpeed: 72,
@@ -101,6 +106,9 @@ export const CAMERA_SETTINGS = {
 
 export const SCORE_VALUES = {
   coin: 100,
+  gem: 260,
+  timeShard: 160,
+  shield: 180,
   stomp: 220,
   projectileEnemy: 260,
   bossHit: 180,

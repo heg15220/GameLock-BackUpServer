@@ -1,0 +1,805 @@
+{
+  "generatedAt": "2026-05-02T10:35:48.267Z",
+  "results": [
+    {
+      "level": 1,
+      "name": "STARFALL",
+      "difficulty": "easy",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 2,
+      "name": "ACID RAIN",
+      "difficulty": "easy",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 3,
+      "name": "DEEP SPACE",
+      "difficulty": "easy",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 4,
+      "name": "EMBER PATH",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 5,
+      "name": "ICE CAVES",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 6,
+      "name": "GLITCH ZONE",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 7,
+      "name": "TOXIC SWAMP",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 8,
+      "name": "BLOOD MOON",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 9,
+      "name": "VOID WALK",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 10,
+      "name": "STORM GRID",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 11,
+      "name": "NEON TOMB",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 12,
+      "name": "WARP DRIVE",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 13,
+      "name": "LAVA FLOW",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 14,
+      "name": "DARK PULSE",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 15,
+      "name": "NEON STORM",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 16,
+      "name": "CRYSTAL MAZE",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 17,
+      "name": "OMEGA RUN",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 18,
+      "name": "MIRROR WORLD",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 19,
+      "name": "THE ABYSS",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 20,
+      "name": "FINAL RUSH",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 746,
+      "assistScale": 1
+    },
+    {
+      "level": 21,
+      "name": "PHOTON GAUNTLET 21",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1280,
+      "assistScale": 1
+    },
+    {
+      "level": 22,
+      "name": "RAZOR GAUNTLET 22",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1303,
+      "assistScale": 1
+    },
+    {
+      "level": 23,
+      "name": "TITAN GAUNTLET 23",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1326,
+      "assistScale": 1
+    },
+    {
+      "level": 24,
+      "name": "ASTRAL GAUNTLET 24",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1350,
+      "assistScale": 1
+    },
+    {
+      "level": 25,
+      "name": "NOVA GAUNTLET 25",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1373,
+      "assistScale": 1
+    },
+    {
+      "level": 26,
+      "name": "GHOST GAUNTLET 26",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1396,
+      "assistScale": 1
+    },
+    {
+      "level": 27,
+      "name": "PULSE GAUNTLET 27",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1420,
+      "assistScale": 1
+    },
+    {
+      "level": 28,
+      "name": "VECTOR GAUNTLET 28",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1443,
+      "assistScale": 1
+    },
+    {
+      "level": 29,
+      "name": "QUANTUM GAUNTLET 29",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1466,
+      "assistScale": 1
+    },
+    {
+      "level": 30,
+      "name": "SOLAR GAUNTLET 30",
+      "difficulty": "medium",
+      "beatable": true,
+      "frame": 1490,
+      "assistScale": 1
+    },
+    {
+      "level": 31,
+      "name": "ION GAUNTLET 31",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1323,
+      "assistScale": 1
+    },
+    {
+      "level": 32,
+      "name": "CHROME GAUNTLET 32",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1346,
+      "assistScale": 1
+    },
+    {
+      "level": 33,
+      "name": "ORBIT GAUNTLET 33",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1370,
+      "assistScale": 1
+    },
+    {
+      "level": 34,
+      "name": "PLASMA GAUNTLET 34",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1393,
+      "assistScale": 1
+    },
+    {
+      "level": 35,
+      "name": "FUSION GAUNTLET 35",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1416,
+      "assistScale": 1
+    },
+    {
+      "level": 36,
+      "name": "VORTEX GAUNTLET 36",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1440,
+      "assistScale": 1
+    },
+    {
+      "level": 37,
+      "name": "ZENITH GAUNTLET 37",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1463,
+      "assistScale": 1
+    },
+    {
+      "level": 38,
+      "name": "ECHO GAUNTLET 38",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1486,
+      "assistScale": 1
+    },
+    {
+      "level": 39,
+      "name": "RIFT GAUNTLET 39",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1510,
+      "assistScale": 1
+    },
+    {
+      "level": 40,
+      "name": "HALO GAUNTLET 40",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1533,
+      "assistScale": 1
+    },
+    {
+      "level": 41,
+      "name": "PHOTON CORRIDOR 41",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1366,
+      "assistScale": 1
+    },
+    {
+      "level": 42,
+      "name": "RAZOR CORRIDOR 42",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1390,
+      "assistScale": 1
+    },
+    {
+      "level": 43,
+      "name": "TITAN CORRIDOR 43",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1413,
+      "assistScale": 1
+    },
+    {
+      "level": 44,
+      "name": "ASTRAL CORRIDOR 44",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1436,
+      "assistScale": 1
+    },
+    {
+      "level": 45,
+      "name": "NOVA CORRIDOR 45",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1460,
+      "assistScale": 1
+    },
+    {
+      "level": 46,
+      "name": "GHOST CORRIDOR 46",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1483,
+      "assistScale": 1
+    },
+    {
+      "level": 47,
+      "name": "PULSE CORRIDOR 47",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1506,
+      "assistScale": 1
+    },
+    {
+      "level": 48,
+      "name": "VECTOR CORRIDOR 48",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1530,
+      "assistScale": 1
+    },
+    {
+      "level": 49,
+      "name": "QUANTUM CORRIDOR 49",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1553,
+      "assistScale": 1
+    },
+    {
+      "level": 50,
+      "name": "SOLAR CORRIDOR 50",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1576,
+      "assistScale": 1
+    },
+    {
+      "level": 51,
+      "name": "ION CORRIDOR 51",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1410,
+      "assistScale": 1
+    },
+    {
+      "level": 52,
+      "name": "CHROME CORRIDOR 52",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1433,
+      "assistScale": 1
+    },
+    {
+      "level": 53,
+      "name": "ORBIT CORRIDOR 53",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1456,
+      "assistScale": 1
+    },
+    {
+      "level": 54,
+      "name": "PLASMA CORRIDOR 54",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1480,
+      "assistScale": 1
+    },
+    {
+      "level": 55,
+      "name": "FUSION CORRIDOR 55",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1503,
+      "assistScale": 1
+    },
+    {
+      "level": 56,
+      "name": "VORTEX CORRIDOR 56",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1526,
+      "assistScale": 1
+    },
+    {
+      "level": 57,
+      "name": "ZENITH CORRIDOR 57",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1550,
+      "assistScale": 1
+    },
+    {
+      "level": 58,
+      "name": "ECHO CORRIDOR 58",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1573,
+      "assistScale": 1
+    },
+    {
+      "level": 59,
+      "name": "RIFT CORRIDOR 59",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1596,
+      "assistScale": 1
+    },
+    {
+      "level": 60,
+      "name": "HALO CORRIDOR 60",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1620,
+      "assistScale": 1
+    },
+    {
+      "level": 61,
+      "name": "PHOTON ASCENT 61",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1453,
+      "assistScale": 1
+    },
+    {
+      "level": 62,
+      "name": "RAZOR ASCENT 62",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1476,
+      "assistScale": 1
+    },
+    {
+      "level": 63,
+      "name": "TITAN ASCENT 63",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1500,
+      "assistScale": 1
+    },
+    {
+      "level": 64,
+      "name": "ASTRAL ASCENT 64",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1523,
+      "assistScale": 1
+    },
+    {
+      "level": 65,
+      "name": "NOVA ASCENT 65",
+      "difficulty": "hard",
+      "beatable": true,
+      "frame": 1546,
+      "assistScale": 1
+    },
+    {
+      "level": 66,
+      "name": "GHOST ASCENT 66",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1570,
+      "assistScale": 1
+    },
+    {
+      "level": 67,
+      "name": "PULSE ASCENT 67",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1593,
+      "assistScale": 1
+    },
+    {
+      "level": 68,
+      "name": "VECTOR ASCENT 68",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1616,
+      "assistScale": 1
+    },
+    {
+      "level": 69,
+      "name": "QUANTUM ASCENT 69",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1640,
+      "assistScale": 1
+    },
+    {
+      "level": 70,
+      "name": "SOLAR ASCENT 70",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1663,
+      "assistScale": 1
+    },
+    {
+      "level": 71,
+      "name": "ION ASCENT 71",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1496,
+      "assistScale": 1
+    },
+    {
+      "level": 72,
+      "name": "CHROME ASCENT 72",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1520,
+      "assistScale": 1
+    },
+    {
+      "level": 73,
+      "name": "ORBIT ASCENT 73",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1543,
+      "assistScale": 1
+    },
+    {
+      "level": 74,
+      "name": "PLASMA ASCENT 74",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1566,
+      "assistScale": 1
+    },
+    {
+      "level": 75,
+      "name": "FUSION ASCENT 75",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1590,
+      "assistScale": 1
+    },
+    {
+      "level": 76,
+      "name": "VORTEX ASCENT 76",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1613,
+      "assistScale": 1
+    },
+    {
+      "level": 77,
+      "name": "ZENITH ASCENT 77",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1636,
+      "assistScale": 1
+    },
+    {
+      "level": 78,
+      "name": "ECHO ASCENT 78",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1660,
+      "assistScale": 1
+    },
+    {
+      "level": 79,
+      "name": "RIFT ASCENT 79",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1683,
+      "assistScale": 1
+    },
+    {
+      "level": 80,
+      "name": "HALO ASCENT 80",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1706,
+      "assistScale": 1
+    },
+    {
+      "level": 81,
+      "name": "PHOTON FRACTURE 81",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1540,
+      "assistScale": 1
+    },
+    {
+      "level": 82,
+      "name": "RAZOR FRACTURE 82",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1563,
+      "assistScale": 1
+    },
+    {
+      "level": 83,
+      "name": "TITAN FRACTURE 83",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1586,
+      "assistScale": 1
+    },
+    {
+      "level": 84,
+      "name": "ASTRAL FRACTURE 84",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1610,
+      "assistScale": 1
+    },
+    {
+      "level": 85,
+      "name": "NOVA FRACTURE 85",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1633,
+      "assistScale": 1
+    },
+    {
+      "level": 86,
+      "name": "GHOST FRACTURE 86",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1656,
+      "assistScale": 1
+    },
+    {
+      "level": 87,
+      "name": "PULSE FRACTURE 87",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1680,
+      "assistScale": 1
+    },
+    {
+      "level": 88,
+      "name": "VECTOR FRACTURE 88",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1703,
+      "assistScale": 1
+    },
+    {
+      "level": 89,
+      "name": "QUANTUM FRACTURE 89",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1726,
+      "assistScale": 1
+    },
+    {
+      "level": 90,
+      "name": "SOLAR FRACTURE 90",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1750,
+      "assistScale": 1
+    },
+    {
+      "level": 91,
+      "name": "ION FRACTURE 91",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1583,
+      "assistScale": 1
+    },
+    {
+      "level": 92,
+      "name": "CHROME FRACTURE 92",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1606,
+      "assistScale": 1
+    },
+    {
+      "level": 93,
+      "name": "ORBIT FRACTURE 93",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1630,
+      "assistScale": 1
+    },
+    {
+      "level": 94,
+      "name": "PLASMA FRACTURE 94",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1653,
+      "assistScale": 1
+    },
+    {
+      "level": 95,
+      "name": "FUSION FRACTURE 95",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1676,
+      "assistScale": 1
+    },
+    {
+      "level": 96,
+      "name": "VORTEX FRACTURE 96",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1700,
+      "assistScale": 1
+    },
+    {
+      "level": 97,
+      "name": "ZENITH FRACTURE 97",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1723,
+      "assistScale": 1
+    },
+    {
+      "level": 98,
+      "name": "ECHO FRACTURE 98",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1746,
+      "assistScale": 1
+    },
+    {
+      "level": 99,
+      "name": "RIFT FRACTURE 99",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1770,
+      "assistScale": 1
+    },
+    {
+      "level": 100,
+      "name": "HALO FRACTURE 100",
+      "difficulty": "insane",
+      "beatable": true,
+      "frame": 1793,
+      "assistScale": 1
+    }
+  ]
+}

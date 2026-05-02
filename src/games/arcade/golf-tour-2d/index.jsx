@@ -21,6 +21,8 @@ const DEFAULT_SNAPSHOT = {
     name: "",
     par: 3,
     difficulty: "Rookie",
+    zoneIndex: 1,
+    zoneCount: 1,
   },
   score: {
     strokes: 0,
@@ -270,6 +272,12 @@ function GolfTour2DGame() {
               <span>{ui.labels.par}</span>
               <strong>{snapshot.level.par}</strong>
             </article>
+            {snapshot.level.zoneCount > 1 ? (
+              <article>
+                <span>{ui.labels.zone}</span>
+                <strong>{snapshot.level.zoneIndex}/{snapshot.level.zoneCount}</strong>
+              </article>
+            ) : null}
             <article>
               <span>{ui.labels.strokes}</span>
               <strong>{snapshot.score.strokes}</strong>

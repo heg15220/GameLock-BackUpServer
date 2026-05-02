@@ -1,0 +1,10 @@
+
+> plataforma-juegos-saas@0.1.0 dev
+> vite --host 127.0.0.1 --port 5189
+
+
+  [32m[1mVITE[22m v4.5.14[39m  [2mready in [0m[1m742[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5189[22m/[39m
+[2m13:09:56[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/platformer/levels/generatedSkyRunnerMaps.js[22m
+[2m13:13:28[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/games/platformer/levels/generatedSkyRunnerMaps.js[22m

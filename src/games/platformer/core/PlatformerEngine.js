@@ -4,6 +4,7 @@ import {
   DEFAULT_MESSAGE,
   FIXED_STEP_MS,
   FIXED_STEP_SECONDS,
+  ITEM_SETTINGS,
   MAX_FRAME_MS,
   PLATFORMER_ROUTE_LENGTH,
   PLAYER_SETTINGS,
@@ -42,6 +43,7 @@ import {
   TILE_TYPES,
   createLevelRuntime,
   getLevelCatalog,
+  getLevelTemplate,
   getTileType,
   getWorldHeight,
   getWorldWidth,
@@ -143,6 +145,7 @@ export default class PlatformerEngine {
     this.state.message = DEFAULT_MESSAGE;
     this.publishSnapshot(true);
     this.render();
+    this.scheduleLevelPrewarm(initialRun.slice(1));
     this.rafId = requestAnimationFrame(this.loop);
   }
 
@@ -313,6 +316,30 @@ export default class PlatformerEngine {
     return this.state.runLevelIndices[safeRunIndex] ?? safeRunIndex;
   }
 
+  scheduleLevelPrewarm(levelIndices) {
+    const queue = [...new Set(Array.isArray(levelIndices) ? levelIndices : [])]
+      .filter((index) => Number.isFinite(index));
+    if (!queue.length || typeof window === "undefined") {
+      return;
+    }
+
+    const schedule = typeof window.requestIdleCallback === "function"
+      ? (callback) => window.requestIdleCallback(callback, { timeout: 700 })
+      : (callback) => window.setTimeout(callback, 16);
+
+    const prewarmNext = () => {
+      if (!this.running || !queue.length) {
+        return;
+      }
+      getLevelTemplate(queue.shift());
+      if (queue.length) {
+        schedule(prewarmNext);
+      }
+    };
+
+    schedule(prewarmNext);
+  }
+
   refreshActiveBoss() {
     const activeBoss = this.state.enemies.find((enemy) => isBossEnemy(enemy)) || null;
     this.state.activeBoss = activeBoss
@@ -330,11 +357,12 @@ export default class PlatformerEngine {
     this.runCounter += 1;
     this.applyRunPlan(this.buildRunPlan());
     this.loadLevel(0, { resetRun: true, keepPower: false, preserveLives: false });
+    this.scheduleLevelPrewarm(this.state.runLevelIndices.slice(1));
     this.state.screen = SCREENS.PLAYING;
     const bossHint = this.state.bossEntryPowerGranted
       ? " Auto fire power granted for this boss stage."
       : "";
-    this.state.message = `Run started. Clear ${this.state.levelCount} handcrafted sectors and defeat every boss.${bossHint}`;
+    this.state.message = `Run started. Clear ${this.state.levelCount} engineered sectors and defeat every boss.${bossHint}`;
   }
 
   loadLevel(index, options = {}) {
@@ -676,6 +704,59 @@ export default class PlatformerEngine {
       this.spawnBurst(item.x + item.w * 0.5, item.y + item.h * 0.4, {
         count: 18,
         color: "rgba(128,255,186,__ALPHA__)",
+        speedMin: 80,
+        speedMax: 210,
+        lifeMin: 0.2,
+        lifeMax: 0.54
+      });
+      return;
+    }
+
+    if (item.type === "gem") {
+      this.state.score += SCORE_VALUES.gem;
+      this.state.message = `Gem cache secured (+${SCORE_VALUES.gem}).`;
+      this.audio.play("coin");
+      this.spawnBurst(item.x + item.w * 0.5, item.y + item.h * 0.5, {
+        count: 16,
+        color: "rgba(130,230,255,__ALPHA__)",
+        speedMin: 75,
+        speedMax: 180,
+        lifeMin: 0.18,
+        lifeMax: 0.44
+      });
+      return;
+    }
+
+    if (item.type === "time") {
+      this.state.timeLeft = Math.min(
+        this.state.timeLimit,
+        this.state.timeLeft + ITEM_SETTINGS.timeShardSeconds
+      );
+      this.state.score += SCORE_VALUES.timeShard;
+      this.state.message = `Time shard recovered (+${ITEM_SETTINGS.timeShardSeconds}s).`;
+      this.audio.play("coin");
+      this.spawnBurst(item.x + item.w * 0.5, item.y + item.h * 0.5, {
+        count: 15,
+        color: "rgba(190,160,255,__ALPHA__)",
+        speedMin: 70,
+        speedMax: 170,
+        lifeMin: 0.18,
+        lifeMax: 0.46
+      });
+      return;
+    }
+
+    if (item.type === "shield") {
+      this.state.player.invulnerableTimer = Math.max(
+        this.state.player.invulnerableTimer,
+        ITEM_SETTINGS.shieldSeconds
+      );
+      this.state.score += SCORE_VALUES.shield;
+      this.state.message = `Shield active (${ITEM_SETTINGS.shieldSeconds}s).`;
+      this.audio.play("powerup");
+      this.spawnBurst(item.x + item.w * 0.5, item.y + item.h * 0.5, {
+        count: 20,
+        color: "rgba(120,255,210,__ALPHA__)",
         speedMin: 80,
         speedMax: 210,
         lifeMin: 0.2,

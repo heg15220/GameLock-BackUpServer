@@ -268,32 +268,49 @@ const ENV={
  desert: {bg:'#1c1200',g2:'#322100',gl:'#ffb347',br:'rgba(255,179,71,',sc:'#ffe4b5',si:'rgba(255,118,50,.92)',bf:'#2a1900',bb:'#ff9f43',pc:'#ffd27a'},
  jungle: {bg:'#04180c',g2:'#06331a',gl:'#66ff99',br:'rgba(102,255,153,',sc:'#d5ffe7',si:'rgba(0,200,120,.92)',bf:'#052312',bb:'#4dff8f',pc:'#88ffba'},
  glacier:{bg:'#001221',g2:'#00273f',gl:'#8cdcff',br:'rgba(140,220,255,',sc:'#eef9ff',si:'rgba(130,170,255,.95)',bf:'#001f34',bb:'#9be6ff',pc:'#bdefff'},
- eclipse:{bg:'#140014',g2:'#260026',gl:'#ff66ff',br:'rgba(255,102,255,',sc:'#ffd8ff',si:'rgba(255,219,88,.95)',bf:'#1f001f',bb:'#ff88ff',pc:'#ffc2ff'},
- ruins:  {bg:'#14110a',g2:'#252015',gl:'#d4bf7a',br:'rgba(212,191,122,',sc:'#f2ead1',si:'rgba(180,140,90,.92)',bf:'#1f1a0f',bb:'#c9ab6c',pc:'#e6cf9b'},
- volt:   {bg:'#041122',g2:'#072345',gl:'#35b6ff',br:'rgba(53,182,255,',sc:'#d6f1ff',si:'rgba(255,209,82,.94)',bf:'#082043',bb:'#4cc1ff',pc:'#7ed4ff'},
- final:  {bg:'#0f000f',g2:'#1a001a',gl:'#ff00aa',br:'rgba(255,0,170,', sc:'#ffee00',si:'rgba(255,238,0,.9)',bf:'#120012',bb:'#ff00aa',pc:'#ff00aa'},
+  eclipse:{bg:'#140014',g2:'#260026',gl:'#ff66ff',br:'rgba(255,102,255,',sc:'#ffd8ff',si:'rgba(255,219,88,.95)',bf:'#1f001f',bb:'#ff88ff',pc:'#ffc2ff'},
+  ruins:  {bg:'#14110a',g2:'#252015',gl:'#d4bf7a',br:'rgba(212,191,122,',sc:'#f2ead1',si:'rgba(180,140,90,.92)',bf:'#1f1a0f',bb:'#c9ab6c',pc:'#e6cf9b'},
+  volt:   {bg:'#041122',g2:'#072345',gl:'#35b6ff',br:'rgba(53,182,255,',sc:'#d6f1ff',si:'rgba(255,209,82,.94)',bf:'#082043',bb:'#4cc1ff',pc:'#7ed4ff'},
+  metro:  {bg:'#080912',g2:'#111827',gl:'#7dd3fc',br:'rgba(125,211,252,',sc:'#e0f2fe',si:'rgba(244,114,182,.92)',bf:'#111827',bb:'#7dd3fc',pc:'#bae6fd'},
+  coral:  {bg:'#021316',g2:'#06282d',gl:'#2dd4bf',br:'rgba(45,212,191,',sc:'#ccfbf1',si:'rgba(251,113,133,.92)',bf:'#062225',bb:'#2dd4bf',pc:'#99f6e4'},
+  prism:  {bg:'#10051d',g2:'#1e1038',gl:'#c084fc',br:'rgba(192,132,252,',sc:'#f3e8ff',si:'rgba(94,234,212,.92)',bf:'#1c1230',bb:'#c084fc',pc:'#e9d5ff'},
+  forge:  {bg:'#1a0903',g2:'#331305',gl:'#fb923c',br:'rgba(251,146,60,',sc:'#ffedd5',si:'rgba(248,113,113,.94)',bf:'#251006',bb:'#fb923c',pc:'#fed7aa'},
+  lab:    {bg:'#031a18',g2:'#07312e',gl:'#5eead4',br:'rgba(94,234,212,',sc:'#d1fae5',si:'rgba(167,139,250,.92)',bf:'#092825',bb:'#5eead4',pc:'#a7f3d0'},
+  chrome: {bg:'#090b0f',g2:'#151922',gl:'#cbd5e1',br:'rgba(203,213,225,',sc:'#f8fafc',si:'rgba(56,189,248,.9)',bf:'#111827',bb:'#94a3b8',pc:'#e2e8f0'},
+  solaris:{bg:'#181000',g2:'#2d1e00',gl:'#facc15',br:'rgba(250,204,21,',sc:'#fef9c3',si:'rgba(249,115,22,.94)',bf:'#241800',bb:'#facc15',pc:'#fde68a'},
+  nebula: {bg:'#080617',g2:'#141033',gl:'#818cf8',br:'rgba(129,140,248,',sc:'#e0e7ff',si:'rgba(244,114,182,.94)',bf:'#11102b',bb:'#818cf8',pc:'#c7d2fe'},
+  hive:   {bg:'#141100',g2:'#282100',gl:'#fbbf24',br:'rgba(251,191,36,',sc:'#fef3c7',si:'rgba(34,197,94,.9)',bf:'#211b00',bb:'#fbbf24',pc:'#fde68a'},
+  reactor:{bg:'#031122',g2:'#071f3d',gl:'#38bdf8',br:'rgba(56,189,248,',sc:'#e0f2fe',si:'rgba(250,204,21,.92)',bf:'#061a33',bb:'#38bdf8',pc:'#7dd3fc'},
+  final:  {bg:'#0f000f',g2:'#1a001a',gl:'#ff00aa',br:'rgba(255,0,170,', sc:'#ffee00',si:'rgba(255,238,0,.9)',bf:'#120012',bb:'#ff00aa',pc:'#ff00aa'},
 };
 
 const EXTRA_ENV_ROTATION=[
   'aurora','cyber','desert','jungle','glacier','eclipse','ruins','volt',
+  'metro','coral','prism','forge','lab','chrome','solaris','nebula','hive','reactor',
   'neon','acid','space','fire','ice','glitch','toxic','blood',
   'void','storm','tomb','warp','lava','dark','nstorm','crystal','omega','mirror','abyss','final'
 ];
-const NAME_A=['PHOTON','RAZOR','TITAN','ASTRAL','NOVA','GHOST','PULSE','VECTOR','QUANTUM','SOLAR'];
-const NAME_B=['GAUNTLET','CORRIDOR','ASCENT','FRACTURE','TRIAL','LABYRINTH','BREACH','TEMPLE','CASCADE','CIRCUIT'];
+const NAME_A=['PHOTON','RAZOR','TITAN','ASTRAL','NOVA','GHOST','PULSE','VECTOR','QUANTUM','SOLAR','ION','CHROME','ORBIT','PLASMA','FUSION','VORTEX','ZENITH','ECHO','RIFT','HALO'];
+const NAME_B=['GAUNTLET','CORRIDOR','ASCENT','FRACTURE','TRIAL','LABYRINTH','BREACH','TEMPLE','CASCADE','CIRCUIT','RELAY','CHANNEL','SPIRAL','VAULT','NEXUS','BASTION','DRIFT','MATRIX','HORIZON','CROWN'];
 
 function difficultyByNumber(levelNum){
   if(levelNum<=30)return 'medium';
   if(levelNum<=65)return 'hard';
+  if(levelNum<=100)return 'insane';
+  const chapterStep=(levelNum-101)%50;
+  if(chapterStep<8)return 'easy';
+  if(chapterStep<22)return 'medium';
+  if(chapterStep<38)return 'hard';
   return 'insane';
 }
 function accentByDifficulty(diff){
+  if(diff==='easy')return '#39ff14';
   if(diff==='medium')return '#ffee00';
   if(diff==='hard')return '#ff6600';
   return '#ff00aa';
 }
 
-for(let i=0;i<80;i++){
+for(let i=0;i<280;i++){
   const levelNum=21+i;
   const envKey=EXTRA_ENV_ROTATION[i%EXTRA_ENV_ROTATION.length];
   const diff=difficultyByNumber(levelNum);
@@ -684,11 +701,13 @@ function mkRand(seed){
 function ri(rand,min,max){return Math.floor(rand()*(max-min+1))+min;}
 
 function buildGeneratedLv(n){
+  if(n>=20)return buildExtendedGeneratedLv(n);
+
   const idx=n-20;
   const len=levelLengthFor(n)-START_PADDING;
   const rand=mkRand(90210+idx*131);
   const diff=META[n]?.d||'hard';
-  const diffBoost=diff==='medium'?0:(diff==='hard'?1:2);
+  const diffBoost=(diff==='easy'||diff==='medium')?0:(diff==='hard'?1:2);
   const o=[];
   let x=360;
   let seg=0;
@@ -774,6 +793,127 @@ function buildGeneratedLv(n){
   o.push(or(tailX+130,GR-(220+ri(rand,0,35))));
   o.push(...sr(tailX+230,2+diffBoost,3));
   o.push(...sr(len-420,2+Math.min(2,diffBoost),3));
+  o.push(pt(len-100));
+
+  return o;
+}
+
+function buildExtendedGeneratedLv(n){
+  const idx=n-20;
+  const len=levelLengthFor(n)-START_PADDING;
+  const rand=mkRand(120240+idx*173);
+  const diff=META[n]?.d||'hard';
+  const diffBoost=(diff==='easy'||diff==='medium')?0:(diff==='hard'?1:2);
+  const o=[];
+  let x=360;
+  let seg=0;
+  const endX=len-1800;
+  const gapBase=diffBoost===0?245:(diffBoost===1?220:198);
+
+  while(x<endX){
+    const pattern=(idx*5+seg*7+ri(rand,0,9))%10;
+    let used=0;
+
+    if(pattern===0){
+      const count=2+diffBoost+ri(rand,0,1);
+      const spacing=diffBoost===2?204:(diffBoost===1?220:238);
+      for(let i=0;i<count;i++){
+        o.push(sp(x+i*spacing));
+        if(diffBoost>1&&i===count-2&&rand()>.55)o.push(sp(x+i*spacing+42));
+      }
+      used=(count-1)*spacing+S;
+    } else if(pattern===1){
+      const pairs=2+diffBoost+ri(rand,0,1);
+      const spacing=diffBoost===2?218:(diffBoost===1?234:252);
+      for(let i=0;i<pairs;i++){
+        const px=x+i*spacing;
+        o.push(si(px));
+        o.push(sp(px+118));
+      }
+      used=(pairs-1)*spacing+160;
+    } else if(pattern===2){
+      const gates=2+diffBoost;
+      const spacing=diffBoost===2?276:(diffBoost===1?296:320);
+      for(let i=0;i<gates;i++){
+        const gx=x+i*spacing;
+        const h=1+(diffBoost>0&&((i+idx)%2===0)?1:0);
+        o.push(...wl(gx,h));
+        o.push(sp(gx+B+92));
+      }
+      used=(gates-1)*spacing+170;
+    } else if(pattern===3){
+      const bed=3+diffBoost;
+      o.push(pa(x+20));
+      if(diffBoost>0||rand()>.48)o.push(or(x+170,GR-(222+ri(rand,0,26))));
+      o.push(...sr(x+276,bed,10));
+      if(diffBoost>1)o.push(si(x+430));
+      used=520+diffBoost*42;
+    } else if(pattern===4){
+      const steps=2+diffBoost;
+      const spacing=diffBoost===2?292:316;
+      for(let i=0;i<steps;i++){
+        const bx=x+i*spacing;
+        const py=GR-(2+(i%2))*B;
+        o.push(bl(bx,py,B*2,B));
+        o.push(sp(bx+B*2+82));
+        if(diffBoost>1&&i%2===1)o.push(si(bx+142));
+      }
+      used=(steps-1)*spacing+210;
+    } else if(pattern===5){
+      const units=3+diffBoost+ri(rand,0,1);
+      const spacing=diffBoost===2?206:(diffBoost===1?222:242);
+      for(let i=0;i<units;i++){
+        const ux=x+i*spacing;
+        if(i%2===0)o.push(sp(ux));
+        else{o.push(si(ux));o.push(sp(ux+116));}
+      }
+      used=(units-1)*spacing+160;
+    } else if(pattern===6){
+      const clusters=2+diffBoost;
+      const spacing=diffBoost===2?298:328;
+      for(let i=0;i<clusters;i++){
+        const cx=x+i*spacing;
+        o.push(...sr(cx,1+(diffBoost>0&&i%2===0?1:0),8));
+        o.push(...wl(cx+158,1+(diffBoost>1&&i%2===1?1:0)));
+        o.push(sp(cx+248));
+      }
+      used=(clusters-1)*spacing+300;
+    } else if(pattern===7){
+      const count=3+diffBoost;
+      const spacing=diffBoost===2?212:(diffBoost===1?228:248);
+      for(let i=0;i<count;i++){
+        const sx=x+i*spacing;
+        o.push(sp(sx));
+        if(diffBoost>0&&i%3===1)o.push(sp(sx+42));
+        if(diffBoost>1&&i%2===0)o.push(si(sx+104));
+      }
+      used=(count-1)*spacing+160;
+    } else if(pattern===8){
+      o.push(pa(x+10),or(x+156,GR-(218+ri(rand,0,32))));
+      o.push(...sr(x+262,2+diffBoost,12));
+      if(diffBoost>0)o.push(or(x+438,GR-(190+ri(rand,0,28))));
+      used=570+diffBoost*34;
+    } else {
+      const lanes=2+diffBoost;
+      const spacing=diffBoost===2?286:312;
+      for(let i=0;i<lanes;i++){
+        const lx=x+i*spacing;
+        o.push(si(lx));
+        o.push(bl(lx+116,GR-2*B,B*2,B));
+        o.push(sp(lx+236));
+      }
+      used=(lanes-1)*spacing+300;
+    }
+
+    x+=used+gapBase+ri(rand,0,70);
+    seg++;
+  }
+
+  const tailX=len-900;
+  o.push(pa(tailX));
+  o.push(or(tailX+145,GR-(222+ri(rand,0,28))));
+  o.push(...sr(tailX+270,2+diffBoost,10));
+  o.push(...sr(len-430,2+Math.min(2,diffBoost),8));
   o.push(pt(len-100));
 
   return o;

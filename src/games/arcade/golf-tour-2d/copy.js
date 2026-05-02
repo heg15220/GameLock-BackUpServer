@@ -1,7 +1,7 @@
 export const UI_COPY = {
   es: {
     title: "Golf Tour 2D Pro",
-    subtitle: "Mini golf side-view con 200 niveles, biomas variados y obstaculos dinamicos.",
+    subtitle: "Mini golf side-view con 400 niveles, biomas variados, obstaculos dinamicos y campos extendidos por zonas.",
     modeTags: {
       menu: "Campana Arcade",
       playing: "En juego",
@@ -40,6 +40,7 @@ export const UI_COPY = {
       surface: "Superficie",
       hazards: "Riesgos",
       campaign: "Campana",
+      zone: "Zona",
       angleDown: "Angulo -",
       angleUp: "Angulo +",
       powerDown: "Potencia -",
@@ -58,6 +59,7 @@ export const UI_COPY = {
       sunk: "Bola embocada.",
       hazard: "Hazard detectado. Bola repuesta con penalizacion.",
       out: "Fuera de limites. Bola repuesta con penalizacion.",
+      checkpoint: "Checkpoint cruzado. Avanzas a la siguiente zona del campo.",
     },
     quality: {
       perfect: "Perfecto",
@@ -67,7 +69,7 @@ export const UI_COPY = {
     },
     overlays: {
       menuDescription:
-        "Campana profesional con 200 trazados laterales. Cada mapa usa siluetas de suelo con capas visuales, pendientes, hoyo tipo tubo y bandera como en mini golf clasico.",
+        "Campana profesional con 400 trazados laterales y campos extendidos por zonas. Cada mapa usa siluetas de suelo con capas visuales, pendientes, hoyo tipo tubo y bandera como en mini golf clasico.",
       continueHint: "Continua desde el ultimo nivel desbloqueado o abre la seleccion completa.",
       pausedHint: "Ajusta angulo y potencia antes de relanzar.",
       completeHint: "El control de golpes y la gestion de obstaculos determinan estrellas y calidad.",
@@ -89,7 +91,7 @@ export const UI_COPY = {
   },
   en: {
     title: "Golf Tour 2D Pro",
-    subtitle: "Side-view mini golf with 200 levels, diverse biomes, and dynamic obstacles.",
+    subtitle: "Side-view mini golf with 400 levels, diverse biomes, dynamic obstacles, and multi-zone extended courses.",
     modeTags: {
       menu: "Arcade Campaign",
       playing: "Live",
@@ -128,6 +130,7 @@ export const UI_COPY = {
       surface: "Surface",
       hazards: "Hazards",
       campaign: "Campaign",
+      zone: "Zone",
       angleDown: "Angle -",
       angleUp: "Angle +",
       powerDown: "Power -",
@@ -146,6 +149,7 @@ export const UI_COPY = {
       sunk: "Ball sunk.",
       hazard: "Hazard detected. Ball reset with penalty.",
       out: "Out of bounds. Ball reset with penalty.",
+      checkpoint: "Checkpoint crossed. Advancing to the next field zone.",
     },
     quality: {
       perfect: "Perfect",
@@ -155,7 +159,7 @@ export const UI_COPY = {
     },
     overlays: {
       menuDescription:
-        "Professional campaign with 200 lateral layouts. Every map uses layered ground silhouettes, slope geometry, and a tube-style cup + flag target inspired by classic mini golf scenes.",
+        "Professional campaign with 400 lateral layouts and multi-zone extended courses. Every map uses layered ground silhouettes, slope geometry, and a tube-style cup + flag target inspired by classic mini golf scenes.",
       continueHint: "Continue from the latest unlocked level or open full level select.",
       pausedHint: "Tune angle and power before relaunching.",
       completeHint: "Stroke control and obstacle handling determine stars and execution quality.",

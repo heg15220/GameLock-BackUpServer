@@ -4601,3 +4601,36 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Mesa tactica optimizada para tablet/movil: tableros 4x3 compactos, mano horizontal y elementos secundarios ocultos en pantallas pequenas.
 - Anadidos ids de accion en StrategyBattleshipGame y perfil movil especifico con botones Nueva, Cancelar, Carta 1-5 y acciones de poder contextuales.
 - Validacion: npm run build en sandbox falla por spawn EPERM de esbuild; build escalado con NODE_OPTIONS=--max-old-space-size=4096 completado OK.
+
+## 2026-05-02 - Neon Rush ampliado a 300 niveles
+- `src/arcade/neon-rush/index.html` ampliado de 100 a 300 niveles: se mantienen los 20 manuales, los 80 generados existentes y se anaden 200 niveles extra (101-300).
+- Anade 10 entornos nuevos (`metro`, `coral`, `prism`, `forge`, `lab`, `chrome`, `solaris`, `nebula`, `hive`, `reactor`) y amplia los bancos de nombres para reducir repeticion.
+- La dificultad de los niveles nuevos se reparte en ciclos easy/medium/hard/insane para evitar que los 200 extras sean todos insane.
+- Los niveles 101-300 usan `buildExtendedGeneratedLv`, un generador de plantillas separadas con pinchos de suelo, pinchos de techo, bloques, plataformas, jump pads y orbes. Se reserva mas espacio antes de la cola final para evitar solapes imposibles; L245 fue el caso detectado y corregido.
+- `scripts/audit_neon_rush_levels.mjs` ahora acepta rangos por entorno (`NEON_AUDIT_START`, `NEON_AUDIT_END`) y limites de estados para auditar subconjuntos largos.
+- Textos de catalogo/control actualizados a 300 niveles en `src/data/games.js` y `src/games/registry.jsx`.
+- Validacion:
+  - Auditoria de jugabilidad: `NEON_AUDIT_START=101 NEON_AUDIT_END=300 NEON_AUDIT_MAX_STATES=500 NEON_AUDIT_ASSIST_MAX_STATES=800 node scripts/audit_neon_rush_levels.mjs` -> 200/200 completables, 0 imposibles, 0 solo con assist. Reporte: `output/neon-rush-audit-report.json`.
+  - `npm run build` OK usando `NODE_OPTIONS=--max-old-space-size=4096` por OOM con heap por defecto.
+  - Playwright local OK en `output/neon-rush-300-playwright` (nivel 101) y `output/neon-rush-300-playwright-l300` (nivel 300), sin archivos `errors-0.json`.
+
+## 2026-05-02 - Neon Rush auditoria niveles 1-100
+- Ejecutada auditoria L1-L100 con `NEON_AUDIT_START=1 NEON_AUDIT_END=100 NEON_AUDIT_MAX_STATES=1000 NEON_AUDIT_ASSIST_MAX_STATES=1500 node scripts/audit_neon_rush_levels.mjs`.
+- La primera pasada detecto L68 y L93 como imposibles; reauditoria individual con 8000/10000 estados confirmo que eran bloqueos reales del generador antiguo de niveles 21-100.
+- Ajustado `buildGeneratedLv` para que todos los niveles generados desde L21 usen `buildExtendedGeneratedLv`, el generador con plantillas separadas ya validado en L101-L300. Los 20 niveles manuales se mantienen intactos.
+- Resultado final L1-L100: 100/100 completables, 0 imposibles, 0 solo con assist. Reporte actualizado: `output/neon-rush-audit-report.json`.
+- `npm run build` OK con `NODE_OPTIONS=--max-old-space-size=4096`.
+
+2026-05-02 - Sky Runner DX expansion/restructure
+- Expanded platformer catalog to 132 levels by appending 100 deterministic generated Sky Runner maps (levels 33-132) with horizontal, vertical, hybrid and boss arenas.
+- Added new generated biomes/styles: aurora, clockwork, reef, void, ember, plus existing storm/toxic/celestial coverage.
+- Added item mechanics for gem, time shard and shield; added new boss variants mirage, crystal and overclock.
+- Replaced the fixed final boss role: Abyss Crown remains a boss, Sky Runner Prime is now the single final boss.
+- Audited/repaired reachability: safety route generation now avoids impossible stacked climb platforms and all catalog targets/stand nodes pass reachability.
+- Verification: Vitest platformer catalog/reachability/engine all pass; production build passes; Playwright smoke launched Sky Runner DX at catalogLevelCount 132 with gameplay screenshot/state and no console errors.
+2026-05-02 - Sky Runner DX performance/concurrency pass
+- Replaced eager normalization of all 132 platformer levels with lightweight catalog metadata plus lazy normalized template cache.
+- Added idle prewarm of selected run levels so startup only prepares current level and future sector loads are cached before transition.
+- Measured loader: getLevelCatalog ~0.11 ms; preparing 8 runtime levels ~287.6 ms total in Vitest.
+- Verification: platformer catalog/reachability/engine tests pass; production build passes; Sky Runner runtime chunk ~192.72 kB minified / 44.98 kB gzip; Playwright smoke passed with catalogLevelCount 132 and no console errors.
+- Concurrency note: runtime remains client-side/static; >1000 concurrent users require CDN/static hosting with cache headers rather than Vite dev server.

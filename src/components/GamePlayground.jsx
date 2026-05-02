@@ -51,7 +51,6 @@ const IceStrikeProGame = lazy(() => import("../games/arcade/ice-strike-pro"));
 const StickBrawlShowdownGame = lazy(() => import("../games/arcade/stick-brawl-showdown"));
 const DigHoleTreasureGame = lazy(() => import("../games/arcade/dig-hole-treasure"));
 const ValleTranquiloGame = lazy(() => import("../games/arcade/valle-tranquilo"));
-const KitchenRush2DGame = lazy(() => import("../games/arcade/kitchen-rush-2d"));
 const KnowledgeSudokuGame = () => <KnowledgeArcadeGame variant="sudoku" />;
 const KnowledgeAhorcadoGame = () => <KnowledgeArcadeGame variant="ahorcado" />;
 const KnowledgePacienciaGame = () => <KnowledgeArcadeGame variant="paciencia" />;
@@ -157,7 +156,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "strategy-parchis-ludoteka": "Antes de iniciar puedes elegir color de fichas. S/Enter inicia partida, R/Enter/Space tira dado, 1..9 elige jugada, Enter primera jugada, X continua sin jugada y N nueva partida.",
     "strategy-mansion-triple-enigma": "Deduccion tipo misterio con tutorial guiado: mueve en tablero, elige sospechoso y arma, y lanza sospecha. A abre/cierra acusacion final, 1/2/3 cambian pestana, Enter confirma y N reinicia caso.",
     "rpg-emberfall": "Explora con WASD/flechas y usa atacar, habilidad, defender, enfocar, invocar (U) y pocion.",
-    "platformer-sky-runner": "Movimiento con A/D o flechas, salto variable con W/arriba/espacio y accion con F en rutas de 8 sectores con springs, viento, checkpoints y bosses.",
+    "platformer-sky-runner": "Movimiento con A/D o flechas, salto variable con W/arriba/espacio y accion con F en rutas de 8 sectores de un pool de 132 mapas con springs, viento, reliquias, checkpoints y bosses.",
     "fighter-neon-dojo": "Combate con A/D o flechas, salto W/arriba, jab J/espacio, heavy K/enter, guardia L/abajo y special U/B.",
     "sports-head-soccer-arena": "A/D o flechas para mover, arriba/W para salto, mantener Space para cargar y soltar para disparar. Enter inicia, R reinicia, P pausa.",
     "arcade-reactor-toss": "Touch/raton: tira hacia atras desde la orbita y suelta. Flechas o A/D apuntan, W/S ajustan potencia, Enter/Espacio lanza, P pausa, R reinicia, L selecciona nivel, M audio y F pantalla completa.",
@@ -212,7 +211,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "strategy-parchis-ludoteka": "Pick your token color before starting. S/Enter starts the match, R/Enter/Space rolls the die, 1..9 picks a move, Enter takes the first move, X continues without move, and N starts a new match.",
     "strategy-mansion-triple-enigma": "Triple Enigma Mansion: move on the board, pick suspect and weapon, then submit a suggestion. A toggles accusation, 1/2/3 switch tabs, Enter confirms, and N restarts the case.",
     "rpg-emberfall": "Explore with WASD/arrows and use attack, skill, defend, focus, summon (U) and potion.",
-    "platformer-sky-runner": "Move with A/D or arrows, use variable jump with W/up/space and F action in 8-sector routes with springs, wind, checkpoints and boss fights.",
+    "platformer-sky-runner": "Move with A/D or arrows, use variable jump with W/up/space and F action in 8-sector routes from a 132-map pool with springs, wind, relics, checkpoints and boss fights.",
     "fighter-neon-dojo": "Fight with A/D or arrows, jump W/up, jab J/space, heavy K/enter, guard L/down and special U/B.",
     "sports-head-soccer-arena": "A/D or arrows move, up/W jumps, hold Space to charge and release to shoot. Enter starts, R restarts, P pauses.",
     "arcade-reactor-toss": "Touch/mouse: pull back from the orb and release. Arrows or A/D aim, W/S adjust power, Enter/Space launches, P pauses, R restarts, L opens level select, M sound, and F toggles fullscreen.",

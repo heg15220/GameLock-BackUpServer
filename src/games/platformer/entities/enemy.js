@@ -77,6 +77,48 @@ const BOSS_VARIANTS = {
     jumpRangeTiles: 8,
     weaveAmplitude: 14,
     glideLift: 70
+  },
+  mirage: {
+    speedMul: 1.18,
+    chargeMul: 0.92,
+    jumpMul: 1.02,
+    gravityMul: 0.92,
+    decisionMin: 0.48,
+    decisionMax: 0.94,
+    chargeMin: 0.18,
+    chargeMax: 0.42,
+    jumpCooldown: 1.12,
+    jumpRangeTiles: 10,
+    weaveAmplitude: 34,
+    glideLift: 58
+  },
+  crystal: {
+    speedMul: 0.82,
+    chargeMul: 1.26,
+    jumpMul: 1.18,
+    gravityMul: 1.02,
+    decisionMin: 0.72,
+    decisionMax: 1.36,
+    chargeMin: 0.28,
+    chargeMax: 0.72,
+    jumpCooldown: 1.5,
+    jumpRangeTiles: 7,
+    weaveAmplitude: 8,
+    glideLift: 0
+  },
+  overclock: {
+    speedMul: 1.34,
+    chargeMul: 1.42,
+    jumpMul: 0.94,
+    gravityMul: 1,
+    decisionMin: 0.38,
+    decisionMax: 0.78,
+    chargeMin: 0.16,
+    chargeMax: 0.4,
+    jumpCooldown: 0.95,
+    jumpRangeTiles: 9,
+    weaveAmplitude: 20,
+    glideLift: 20
   }
 };
 

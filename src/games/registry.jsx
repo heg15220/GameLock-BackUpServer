@@ -63,7 +63,6 @@ const StickBrawlShowdownGame = lazy(() => import("./arcade/stick-brawl-showdown"
 const NeonCryptGame = lazy(() => import("./arcade/neon-crypt"));
 const NeonRushGame = lazy(() => import("./arcade/neon-rush"));
 const ValleTranquiloGame = lazy(() => import("./arcade/valle-tranquilo"));
-const KitchenRush2DGame = lazy(() => import("./arcade/kitchen-rush-2d"));
 const DigHoleTreasureGame = lazy(() => import("./arcade/dig-hole-treasure"));
 const WikipediaGachaGame = lazy(() => import("./knowledge/wikipedia-gacha"));
 const RetroClassicsGame = lazy(() => import("./arcade/retro-classics"));
@@ -154,7 +153,6 @@ export const GAME_REGISTRY = {
   "arcade-stick-brawl-showdown": StickBrawlShowdownGame,
   "arcade-neon-crypt":           NeonCryptGame,
   "arcade-neon-rush":            NeonRushGame,
-  "arcade-kitchen-rush-2d":      KitchenRush2DGame,
   "arcade-dig-hole-treasure":    DigHoleTreasureGame,
   "arcade-valle-tranquilo":      ValleTranquiloGame,
   "sports-basketball-court":     BasketballCourtGame,
@@ -217,7 +215,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "strategy-baraja-ia-arena":   "Modo baraja con Brisca/Tute, Mus y Escoba: cambia modalidad arriba. Mus permite 2/4/6 jugadores IA+tu. Escoba usa baraja espanola si el navegador es* y baraja inglesa adaptada en otros idiomas. Marca cartas de mesa y juega para sumar 15. Brisca usa click/1-3; Mus usa M/X + 1-4; Escoba usa click + 1-3. N siguiente mano, R reinicio.",
     "strategy-mansion-triple-enigma": "Deduccion de misterio con tutorial guiado: mueve en tablero, elige sospechoso y arma, y lanza sospecha. A abre/cierra acusacion final, 1/2/3 cambian pestana, Enter confirma y N reinicia caso.",
     "rpg-emberfall":               "WASD/flechas para explorar. Atacar, habilidad, defender, enfocar, invocar (U) y poción.",
-    "platformer-sky-runner":       "A/D o flechas para moverse, W/arriba/espacio para saltar, F accion, con springs, viento y checkpoints.",
+    "platformer-sky-runner":       "A/D o flechas para moverse, W/arriba/espacio para saltar, F accion, con 132 mapas, reliquias, springs, viento y checkpoints.",
     "fighter-neon-dojo":           "A/D moverse, W saltar, J jab, K heavy, L guardia, U/B especial.",
     "sports-head-soccer-arena":    "A/D o izq/der mover, arriba/W saltar, mantener Espacio para cargar y soltar para disparar, Enter iniciar, R reiniciar, P pausa.",
     "arcade-reactor-toss": "Touch/raton: tira hacia atras desde la orbita y suelta. Flechas o A/D apuntan, W/S ajustan potencia, Enter/Espacio lanza, P pausa, R reinicia, L selecciona nivel, M audio y F pantalla completa.",
@@ -233,8 +231,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-bubble-storm":         "Mueve el ratón para apuntar y haz clic para disparar. Tab o S cambia la burbuja siguiente. Forma grupos de 3+ del mismo color para hacerlos explotar. R reinicia.",
     "arcade-ice-strike-pro":       "←→/AD apuntan, W sube potencia, Q giro interior, E giro exterior, Espacio lanza. S barre durante el vuelo. R reinicia, Esc menú.",
     "arcade-neon-crypt":           "WASD/flechas mover, ratón apuntar, Click/Espacio atacar con espada, Shift/E esquivar (invencible), recoge orbes verdes para recuperar vida. R reinicia, Esc menú.",
-    "arcade-neon-rush":            "Runner de precision de 100 niveles: Espacio/arriba/click/tap salta con respuesta inmediata (jump buffer + coyote time). Incluye 1 salto aereo de apoyo por ciclo para evitar bloqueos injustos. En movil/tablet, toca cualquier zona del juego para saltar. Esquiva pinchos y techo, usa jump pads/orbes y llega al portal final. R reintenta, Esc menu.",
-    "arcade-kitchen-rush-2d":      "Cocina 2D por estaciones: WASD/flechas mover, E interactuar, Espacio cortar en tabla, T encender/apagar olla/sarten/horno, Enter entregar en zona de servicio y 1-6 seleccionar ingrediente de nevera. P pausa, R reinicia y F pantalla completa.",
+    "arcade-neon-rush":            "Runner de precision de 300 niveles: Espacio/arriba/click/tap salta con respuesta inmediata (jump buffer + coyote time). Incluye 1 salto aereo de apoyo por ciclo para evitar bloqueos injustos. En movil/tablet, toca cualquier zona del juego para saltar. Esquiva pinchos y techo, usa jump pads/orbes y llega al portal final. R reintenta, Esc menu.",
     "arcade-dig-hole-treasure":    "Juego de cavar hoyo 2D: click cava, A/D o flechas mueven, W/arriba/Espacio salta, I/J/K/L excavan arriba/izq/abajo/der, T coloca antorcha, B activa jetpack, E/Enter interactua con puesto, puerta y tesoro, M abre el puesto, P pausa, R reinicia y F pantalla completa.",
     "arcade-valle-tranquilo":      "Sandbox de granja pixel-art: WASD/flechas mueven, 1-9 cambian herramienta, Espacio usa herramienta, E habla con NPC, B tienda, Z dormir y M mina. Click tambien interactua por casilla.",
     "arcade-stick-brawl-showdown": "Fighter arcade avanzado: A/D o flechas mover, W/arriba saltar, S/abajo bloquear, G/espacio jab, H/enter cross, J/K patadas, F proyectil, B super, P pausa y R reinicia.",
@@ -292,7 +289,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "strategy-baraja-ia-arena":   "Card-table mode with Brisca/Tute, Mus, and Escoba: switch mode at the top. Mus supports 2/4/6 players. Escoba uses the Spanish deck when browser locale starts with es, and adapted English deck otherwise. Mark table cards and play to sum 15. Brisca uses click/1-3; Mus uses M/X + 1-4; Escoba uses click + 1-3. N next hand, R restart.",
     "strategy-mansion-triple-enigma": "Triple Enigma Mansion: move on the board, pick suspect and weapon, and submit suggestions. A toggles accusation, 1/2/3 switch tabs, Enter confirms, and N restarts.",
     "rpg-emberfall":               "WASD/arrows to explore. Attack, skill, defend, focus, summon (U) and potion.",
-    "platformer-sky-runner":       "A/D or arrows to move, W/up/space to jump, F action, with springs, wind and checkpoints.",
+    "platformer-sky-runner":       "A/D or arrows to move, W/up/space to jump, F action, with 132 maps, relics, springs, wind and checkpoints.",
     "fighter-neon-dojo":           "A/D move, W jump, J jab, K heavy, L guard, U/B special.",
     "sports-head-soccer-arena":    "A/D or left/right move, up/W jump, hold Space to charge and release to shoot, Enter start, R restart, P pause.",
     "arcade-reactor-toss": "Touch/mouse: pull back from the orb and release. Arrows or A/D aim, W/S tune power, Enter/Space launches, P pauses, R restarts, L opens level select, M audio, and F fullscreen.",
@@ -308,8 +305,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-bubble-storm":         "Move the mouse to aim and click to shoot. Tab or S swaps the next bubble. Match 3+ same-colour bubbles to pop them. R restarts.",
     "arcade-ice-strike-pro":       "←→/AD aim, W raise power, Q in-turn, E out-turn, Space deliver. S sweeps mid-flight. R restart, Esc menu.",
     "arcade-neon-crypt":           "WASD/arrows move, mouse aim, Click/Space sword attack, Shift/E dash (brief invincibility). Collect green orbs to restore HP. R restart, Esc menu.",
-    "arcade-neon-rush":            "100-level precision runner: Space/up/click/tap jumps with immediate response (jump-buffer + coyote-time). Includes one assist air jump per cycle to prevent unfair deadlocks. On mobile/tablet, tap anywhere in the game area to jump. Dodge spikes and ceiling traps, use jump pads/orbs, and reach each final portal. R retries, Esc menu.",
-    "arcade-kitchen-rush-2d":      "2D station-based cooking: WASD/arrows move, E interact, Space cuts on board, T toggles pot/pan/oven heat, Enter serves at the pass, and keys 1-6 select fridge ingredients. P pauses, R restarts, F fullscreen.",
+    "arcade-neon-rush":            "300-level precision runner: Space/up/click/tap jumps with immediate response (jump-buffer + coyote-time). Includes one assist air jump per cycle to prevent unfair deadlocks. On mobile/tablet, tap anywhere in the game area to jump. Dodge spikes and ceiling traps, use jump pads/orbs, and reach each final portal. R retries, Esc menu.",
     "arcade-dig-hole-treasure":    "2D digging run: click digs, A/D or arrows move, W/up/Space jumps, I/J/K/L dig up/left/down/right, T places a torch, B triggers the jetpack, E/Enter interacts with outpost, door, and treasure, M opens the market, P pauses, R restarts, and F toggles fullscreen.",
     "arcade-valle-tranquilo":      "Pixel-art farming sandbox: WASD/arrows move, 1-9 swaps tools, Space uses the current tool, E talks to villagers, B opens the shop, Z sleeps, and M enters the mine. Mouse click also interacts per tile.",
     "arcade-stick-brawl-showdown": "Advanced arcade fighter: A/D or arrows move, W/up jump, S/down block, G/space jab, H/enter cross, J/K kicks, F projectile, B super, P pause, R restart.",

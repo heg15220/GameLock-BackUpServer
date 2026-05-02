@@ -187,6 +187,55 @@ function pointInRect(x, y, rect) {
   return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height;
 }
 
+const OFFSCREEN_HOLE = Object.freeze({
+  x: -2000,
+  y: -2000,
+  rimRadius: 1,
+  cupWidth: 1,
+  cupDepth: 1,
+});
+
+function extractZones(baseLevel) {
+  if (Array.isArray(baseLevel.zones) && baseLevel.zones.length > 0) {
+    return baseLevel.zones.map((zone) => ({
+      terrain: zone.terrain,
+      obstacles: zone.obstacles,
+      coins: zone.coins ?? [],
+      scenery: zone.scenery,
+      tee: zone.tee,
+      hole: zone.hole,
+      environment: zone.environment ?? baseLevel.environment,
+    }));
+  }
+  return [
+    {
+      terrain: baseLevel.terrain,
+      obstacles: baseLevel.obstacles,
+      coins: baseLevel.coins ?? [],
+      scenery: baseLevel.scenery,
+      tee: baseLevel.tee,
+      hole: baseLevel.hole,
+      environment: baseLevel.environment,
+    },
+  ];
+}
+
+function synthesizeZoneLevel(baseLevel, zones, zoneIndex) {
+  const zone = zones[zoneIndex];
+  const isFinal = zoneIndex === zones.length - 1;
+  const isFirst = zoneIndex === 0;
+  return {
+    ...baseLevel,
+    terrain: zone.terrain,
+    scenery: zone.scenery ?? baseLevel.scenery,
+    coins: zone.coins ?? [],
+    obstacles: zone.obstacles ?? baseLevel.obstacles,
+    tee: isFirst ? zone.tee ?? baseLevel.tee : zone.tee ?? baseLevel.tee,
+    hole: isFinal ? zone.hole ?? baseLevel.hole : OFFSCREEN_HOLE,
+    environment: zone.environment ?? baseLevel.environment,
+  };
+}
+
 export default class GolfTourRuntime {
   constructor({ canvas, locale = "en", ui, onSnapshot, onFullscreenRequest, deviceProfile = "desktop" }) {
     this.canvas = canvas;
@@ -204,7 +253,10 @@ export default class GolfTourRuntime {
     this.fullscreen = false;
 
     this.levelIndex = this.save.unlockedLevelIndex;
-    this.level = getLevelByIndex(this.levelIndex);
+    this.baseLevel = getLevelByIndex(this.levelIndex);
+    this.zones = extractZones(this.baseLevel);
+    this.currentZoneIndex = 0;
+    this.level = synthesizeZoneLevel(this.baseLevel, this.zones, 0);
     this.ball = createBall(this.level);
     this.coins = makeCoinState(this.level);
     this.obstacles = cloneObstacles(this.level);
@@ -363,7 +415,10 @@ export default class GolfTourRuntime {
 
   prepareLevel(index) {
     this.levelIndex = clamp(index, 0, this.levels.length - 1);
-    this.level = this.levels[this.levelIndex];
+    this.baseLevel = this.levels[this.levelIndex];
+    this.zones = extractZones(this.baseLevel);
+    this.currentZoneIndex = 0;
+    this.level = synthesizeZoneLevel(this.baseLevel, this.zones, 0);
     this.ball = createBall(this.level);
     this.coins = makeCoinState(this.level);
     this.obstacles = cloneObstacles(this.level);
@@ -378,7 +433,8 @@ export default class GolfTourRuntime {
     this.statusLabel = this.ui.status.ready;
     this.message = this.ui.status.ready;
 
-    const angle = (Math.atan2(this.level.hole.y - this.level.tee.y, this.level.hole.x - this.level.tee.x) * 180) / Math.PI;
+    const aimTarget = this.computeAimTargetForActiveZone();
+    const angle = (Math.atan2(aimTarget.y - this.level.tee.y, aimTarget.x - this.level.tee.x) * 180) / Math.PI;
     this.aim.angleDeg = clamp(angle, -175, -8);
     this.aim.power = 0.52;
     this.aim.dragging = false;
@@ -388,6 +444,53 @@ export default class GolfTourRuntime {
     this.aim.swipeEndX = this.ball.x;
     this.aim.swipeEndY = this.ball.y;
     this.aim.preview = buildPreview(this.level, this.ball, this.aim.angleDeg, this.aim.power);
+  }
+
+  computeAimTargetForActiveZone() {
+    const isFinalZone = this.currentZoneIndex >= this.zones.length - 1;
+    if (isFinalZone) {
+      return { x: this.level.hole.x, y: this.level.hole.y };
+    }
+    const targetX = STAGE_WIDTH - 60;
+    const targetY = getTerrainY(this.level.terrain, targetX) - 90;
+    return { x: targetX, y: targetY };
+  }
+
+  advanceZone() {
+    if (!this.zones || this.currentZoneIndex >= this.zones.length - 1) {
+      return false;
+    }
+    this.currentZoneIndex += 1;
+    this.level = synthesizeZoneLevel(this.baseLevel, this.zones, this.currentZoneIndex);
+    this.coins = makeCoinState(this.level);
+    this.obstacles = cloneObstacles(this.level);
+    this.windForce = this.level.windBase;
+    this.currentWind = { x: this.windForce, y: 0 };
+
+    const carryX = this.ball.x - STAGE_WIDTH;
+    this.ball.x = clamp(carryX, 14, STAGE_WIDTH - 14);
+    const terrainY = getTerrainY(this.level.terrain, this.ball.x);
+    if (this.ball.y >= terrainY - this.ball.radius - 1) {
+      this.ball.y = terrainY - this.ball.radius;
+      const vn = this.ball.vy;
+      if (vn > 0) {
+        this.ball.vy = -vn * BASE_RESTITUTION;
+      }
+      this.ball.onGround = true;
+    } else {
+      this.ball.onGround = false;
+    }
+    this.ball.lastSafeX = this.ball.x;
+    this.ball.lastSafeY = Math.min(this.ball.y, terrainY - this.ball.radius);
+    this.ball.inCup = false;
+    this.ball.cupDwellMs = 0;
+    this.ball.stillMs = 0;
+    this.trail = [];
+    this.surfaceTag = "fairway";
+    this.statusLabel = this.ui.status.checkpoint ?? this.ui.status.moving;
+    this.message = this.ui.status.checkpoint ?? this.ui.status.moving;
+    this.aim.preview = buildPreview(this.level, this.ball, this.aim.angleDeg, this.aim.power);
+    return true;
   }
 
   startCampaign() {
@@ -790,6 +893,9 @@ export default class GolfTourRuntime {
     if (this.ball.inCup) {
       return;
     }
+    if (this.zones && this.currentZoneIndex < this.zones.length - 1) {
+      return;
+    }
     const dt = dtMs / 1000;
     const hole = this.level.hole;
     const cupHalf = hole.cupWidth * 0.5;
@@ -846,7 +952,19 @@ export default class GolfTourRuntime {
       this.ball.y += this.ball.vy * dt;
     }
 
-    if (this.ball.x < -50 || this.ball.x > STAGE_WIDTH + 50 || this.ball.y > STAGE_HEIGHT + 180) {
+    if (this.ball.x < -50) {
+      this.applyPenalty("out");
+      return;
+    }
+    if (this.ball.y > STAGE_HEIGHT + 180) {
+      this.applyPenalty("out");
+      return;
+    }
+    if (this.ball.x > STAGE_WIDTH + 50) {
+      if (this.zones && this.currentZoneIndex < this.zones.length - 1) {
+        this.advanceZone();
+        return;
+      }
       this.applyPenalty("out");
       return;
     }
@@ -1008,6 +1126,8 @@ export default class GolfTourRuntime {
         name: levelInfo.name,
         par: this.level.par,
         difficulty: this.ui.difficulty[this.level.difficultyBand] ?? this.level.difficultyBand,
+        zoneIndex: (this.currentZoneIndex ?? 0) + 1,
+        zoneCount: this.zones?.length ?? 1,
       },
       score: {
         strokes: this.levelStrokes,

@@ -388,6 +388,146 @@ const STYLE_OVERRIDES = {
     hudAccentBar: "rgba(160, 205, 255, 0.20)",
     text: "#f5f8ff",
     textDim: "rgba(210,225,255,0.72)"
+  },
+  aurora: {
+    skyTop: "#071828",
+    skyMid: "#205d7f",
+    skyBottom: "#9be4cc",
+    haze: "rgba(115, 255, 214, 0.18)",
+    farMount: "#23506f",
+    nearMount: "#183b58",
+    midGround: "#23646a",
+    midGroundDark: "#163a46",
+    ridge: "#16364a",
+    groundTop: "#70e3c0",
+    groundMain: "#2f5668",
+    groundStone: "#56879a",
+    brickMain: "#4d9ca4",
+    brickDark: "#2c616a",
+    pipeMain: "#37b99e",
+    pipeDark: "#1f756d",
+    platformMain: "#a5eddc",
+    platformDark: "#4a8b8d",
+    questionMain: "#dcfff1",
+    questionDark: "#4c918a",
+    questionGlow: "rgba(130,255,220,0.45)",
+    hudBg: "rgba(5, 14, 24, 0.80)",
+    hudBorder: "rgba(130, 255, 220, 0.42)",
+    hudAccentBar: "rgba(120,255,220,0.18)",
+    text: "#f1fffb",
+    textDim: "rgba(200,245,235,0.70)"
+  },
+  clockwork: {
+    skyTop: "#17171a",
+    skyMid: "#4f5764",
+    skyBottom: "#d7c08a",
+    haze: "rgba(240, 210, 140, 0.18)",
+    farMount: "#554d49",
+    nearMount: "#36383d",
+    midGround: "#4f4438",
+    midGroundDark: "#2e2926",
+    ridge: "#302d2b",
+    groundTop: "#c7a45a",
+    groundMain: "#514030",
+    groundStone: "#7c7162",
+    brickMain: "#8d7450",
+    brickDark: "#4f3d2d",
+    pipeMain: "#7f8874",
+    pipeDark: "#4d5549",
+    platformMain: "#d0b06a",
+    platformDark: "#756043",
+    questionMain: "#ffe08e",
+    questionDark: "#7b6026",
+    questionGlow: "rgba(255,215,125,0.38)",
+    hudBg: "rgba(14, 12, 10, 0.80)",
+    hudBorder: "rgba(220, 190, 120, 0.40)",
+    hudAccentBar: "rgba(220,180,100,0.18)",
+    text: "#fff7e6",
+    textDim: "rgba(230,215,180,0.68)"
+  },
+  reef: {
+    skyTop: "#075b83",
+    skyMid: "#31adc4",
+    skyBottom: "#c7f3d2",
+    haze: "rgba(150, 255, 220, 0.24)",
+    farMount: "#287c8a",
+    nearMount: "#1b6070",
+    midGround: "#267c74",
+    midGroundDark: "#164f4d",
+    ridge: "#15565a",
+    groundTop: "#76d88e",
+    groundMain: "#346b5b",
+    groundStone: "#5c9186",
+    brickMain: "#4ca982",
+    brickDark: "#2f6d57",
+    pipeMain: "#28b7aa",
+    pipeDark: "#176b70",
+    platformMain: "#d3e48a",
+    platformDark: "#71854a",
+    questionMain: "#fff08a",
+    questionDark: "#768031",
+    questionGlow: "rgba(255,240,120,0.42)",
+    hudBg: "rgba(4, 18, 22, 0.78)",
+    hudBorder: "rgba(120, 230, 210, 0.40)",
+    hudAccentBar: "rgba(120,230,210,0.18)",
+    text: "#f0fffa",
+    textDim: "rgba(205,245,235,0.70)"
+  },
+  void: {
+    skyTop: "#02040d",
+    skyMid: "#141633",
+    skyBottom: "#4a2f78",
+    haze: "rgba(150, 105, 255, 0.14)",
+    farMount: "#181633",
+    nearMount: "#101025",
+    midGround: "#201647",
+    midGroundDark: "#100b26",
+    ridge: "#0c0a20",
+    groundTop: "#8e73d9",
+    groundMain: "#2a2555",
+    groundStone: "#51477d",
+    brickMain: "#5f4ca0",
+    brickDark: "#31285c",
+    pipeMain: "#5d58b8",
+    pipeDark: "#303070",
+    platformMain: "#b6a8ff",
+    platformDark: "#5b4c9a",
+    questionMain: "#f0dcff",
+    questionDark: "#6d54a8",
+    questionGlow: "rgba(205,160,255,0.48)",
+    hudBg: "rgba(5, 5, 18, 0.84)",
+    hudBorder: "rgba(180, 150, 255, 0.42)",
+    hudAccentBar: "rgba(170,140,255,0.18)",
+    text: "#f8f1ff",
+    textDim: "rgba(220,205,255,0.70)"
+  },
+  ember: {
+    skyTop: "#230b10",
+    skyMid: "#753a2a",
+    skyBottom: "#f5b663",
+    haze: "rgba(255, 166, 80, 0.22)",
+    farMount: "#6e3424",
+    nearMount: "#44221d",
+    midGround: "#5c241a",
+    midGroundDark: "#35120f",
+    ridge: "#3d1612",
+    groundTop: "#d87c3b",
+    groundMain: "#5a2c1d",
+    groundStone: "#845a44",
+    brickMain: "#b75f35",
+    brickDark: "#6b321c",
+    pipeMain: "#93613c",
+    pipeDark: "#5d3b27",
+    platformMain: "#dc9853",
+    platformDark: "#7a4a2e",
+    questionMain: "#ffd36b",
+    questionDark: "#885119",
+    questionGlow: "rgba(255,175,80,0.46)",
+    hudBg: "rgba(18, 7, 5, 0.82)",
+    hudBorder: "rgba(255, 165, 100, 0.42)",
+    hudAccentBar: "rgba(255,150,80,0.18)",
+    text: "#fff4e8",
+    textDim: "rgba(255,220,190,0.68)"
   }
 };
 
@@ -1053,13 +1193,17 @@ const drawBoss = (ctx, enemy, cameraX, cameraY, timeSeconds) => {
   const flash = enemy.flashTimer > 0 && Math.floor(enemy.flashTimer * 22) % 2 === 0;
   const pulse = 0.16 + (Math.sin(timeSeconds * 7.2) * 0.5 + 0.5) * 0.24;
   const eyeGlow = 0.6 + Math.sin(timeSeconds * 4.8) * 0.3;
-  const bossPalette = {
+  const bossPalettes = {
     juggernaut: { aura: [255, 80, 70], body: "#aa2c30", trim: "#7a1c22", crown: "#f0e068", eye: [255, 230, 80] },
     sentinel: { aura: [120, 200, 255], body: "#2c4f86", trim: "#1f355c", crown: "#d2e8ff", eye: [140, 250, 255] },
     tempest: { aura: [170, 220, 255], body: "#35648f", trim: "#1f3f64", crown: "#d3e8ff", eye: [190, 245, 255] },
     forge: { aura: [255, 120, 60], body: "#9d4827", trim: "#6f2d13", crown: "#ffc16b", eye: [255, 210, 120] },
-    phantom: { aura: [200, 120, 255], body: "#6d3d8c", trim: "#40205a", crown: "#f0d2ff", eye: [220, 200, 255] }
-  }[enemy.variant || "juggernaut"];
+    phantom: { aura: [200, 120, 255], body: "#6d3d8c", trim: "#40205a", crown: "#f0d2ff", eye: [220, 200, 255] },
+    mirage: { aura: [105, 255, 210], body: "#287f77", trim: "#14514d", crown: "#c8fff2", eye: [180, 255, 235] },
+    crystal: { aura: [135, 210, 255], body: "#406aa6", trim: "#253d70", crown: "#d8f7ff", eye: [150, 240, 255] },
+    overclock: { aura: [255, 210, 80], body: "#a76b25", trim: "#674016", crown: "#ffe88a", eye: [255, 245, 140] }
+  };
+  const bossPalette = bossPalettes[enemy.variant || "juggernaut"] || bossPalettes.juggernaut;
 
   ctx.fillStyle = "rgba(0,0,0,0.26)";
   ctx.fillRect(x + 4, y + enemy.h - 2, enemy.w - 8, 5);
@@ -1133,6 +1277,48 @@ const drawItem = (ctx, item, cameraX, cameraY, timeSeconds) => {
     ctx.strokeRect(x + offset, y, width, item.h);
     ctx.fillStyle = `rgba(255,255,200,${shimmer.toFixed(2)})`;
     ctx.fillRect(x + offset + 1, y + 1, Math.max(1, round(width * 0.5)), 3);
+    return;
+  }
+
+  if (item.type === "gem") {
+    const shine = 0.45 + Math.sin(timeSeconds * 5.5 + item.x * 0.03) * 0.18;
+    ctx.fillStyle = `rgba(110,220,255,${shine.toFixed(2)})`;
+    ctx.fillRect(x - 2, y - 2, item.w + 4, item.h + 4);
+    ctx.fillStyle = "#54d8ff";
+    ctx.fillRect(x + 5, y, item.w - 10, 4);
+    ctx.fillRect(x + 2, y + 4, item.w - 4, 8);
+    ctx.fillRect(x + 6, y + 12, item.w - 12, 6);
+    ctx.fillStyle = "#e7fbff";
+    ctx.fillRect(x + 6, y + 4, 5, 3);
+    ctx.fillRect(x + item.w - 10, y + 7, 3, 5);
+    return;
+  }
+
+  if (item.type === "time") {
+    const pulse = 0.55 + Math.sin(timeSeconds * 6 + item.x * 0.04) * 0.18;
+    ctx.fillStyle = `rgba(190,150,255,${pulse.toFixed(2)})`;
+    ctx.fillRect(x - 2, y - 2, item.w + 4, item.h + 4);
+    ctx.fillStyle = "#7d5cff";
+    ctx.fillRect(x + 4, y, item.w - 8, item.h);
+    ctx.fillStyle = "#d8ccff";
+    ctx.fillRect(x + 7, y + 4, item.w - 14, 3);
+    ctx.fillRect(x + 9, y + 7, item.w - 18, 6);
+    ctx.fillRect(x + 7, y + 14, item.w - 14, 3);
+    return;
+  }
+
+  if (item.type === "shield") {
+    const pulse = 0.35 + Math.sin(timeSeconds * 4.5 + item.x * 0.04) * 0.12;
+    ctx.fillStyle = `rgba(90,255,205,${pulse.toFixed(2)})`;
+    ctx.fillRect(x - 3, y - 3, item.w + 6, item.h + 6);
+    ctx.fillStyle = "#58f0c8";
+    ctx.fillRect(x + 5, y, item.w - 10, 4);
+    ctx.fillRect(x + 2, y + 4, item.w - 4, 8);
+    ctx.fillRect(x + 5, y + 12, item.w - 10, 6);
+    ctx.fillStyle = "#133c42";
+    ctx.fillRect(x + 8, y + 5, item.w - 16, 7);
+    ctx.fillStyle = "#d8fff5";
+    ctx.fillRect(x + 7, y + 3, 4, 3);
     return;
   }
 
@@ -1386,7 +1572,7 @@ export default class Renderer {
     ctx.fillStyle = palette.haze;
     ctx.fillRect(0, VIEWPORT_HEIGHT * 0.52, VIEWPORT_WIDTH, VIEWPORT_HEIGHT * 0.48);
 
-    if (themeKey === "dusk" || visualStyle === "boss_arena" || visualStyle === "celestial") {
+    if (themeKey === "dusk" || visualStyle === "boss_arena" || visualStyle === "celestial" || visualStyle === "void") {
       drawStars(ctx, timeSeconds);
       ctx.fillStyle = "rgba(255,245,215,0.86)";
       ctx.fillRect(596, 50, 22, 22);
@@ -1436,23 +1622,23 @@ export default class Renderer {
     if (visualStyle === "storm") {
       drawRain(ctx, timeSeconds);
     }
-    if (visualStyle === "lava" || visualStyle === "boss_arena") {
+    if (visualStyle === "lava" || visualStyle === "boss_arena" || visualStyle === "ember") {
       drawEmbers(ctx, timeSeconds);
     }
-    if (visualStyle === "celestial") {
+    if (visualStyle === "celestial" || visualStyle === "aurora" || visualStyle === "void") {
       drawAurora(ctx, timeSeconds);
     }
     if (visualStyle === "toxic") {
       drawToxicFumes(ctx, timeSeconds);
     }
-    if (visualStyle === "boss_arena") {
+    if (visualStyle === "boss_arena" || visualStyle === "void") {
       drawLightning(ctx, timeSeconds);
     }
 
     ctx.fillStyle = palette.ridge;
     ctx.fillRect(0, 368, VIEWPORT_WIDTH, VIEWPORT_HEIGHT - 368);
 
-    if (visualStyle === "lava") {
+    if (visualStyle === "lava" || visualStyle === "ember") {
       drawLavaSea(ctx, timeSeconds, 380, "rgba(145, 42, 16, 0.94)", "rgba(255, 190, 100, 0.75)");
     } else if (visualStyle === "boss_arena") {
       drawLavaSea(ctx, timeSeconds, 372, "rgba(115, 30, 25, 0.97)", "rgba(255, 130, 80, 0.82)");
@@ -1652,10 +1838,10 @@ export default class Renderer {
     if (/boss|defeated|warden|titan|overseer/i.test(msg)) {
       msgColor = "#ffb0b0";
       panelColor = "rgba(30, 6, 8, 0.68)";
-    } else if (/coin|collected|hidden/i.test(msg)) {
+    } else if (/coin|collected|hidden|gem|time shard/i.test(msg)) {
       msgColor = "#ffe878";
       panelColor = "rgba(24, 16, 4, 0.60)";
-    } else if (/power.up|fire|mushroom/i.test(msg)) {
+    } else if (/power.up|fire|mushroom|shield/i.test(msg)) {
       msgColor = "#9aefb8";
       panelColor = "rgba(4, 20, 10, 0.60)";
     } else if (/checkpoint|spring|wind/i.test(msg)) {
@@ -1721,7 +1907,7 @@ export default class Renderer {
 
     const subtitle =
       state.screen === SCREENS.START
-        ? `${state.levelCount}-sector route · 32 handcrafted stages · bosses, wind, checkpoints and springs`
+        ? `${state.levelCount}-sector route · 132 engineered stages · bosses, wind, checkpoints, springs and relics`
         : state.screen === SCREENS.LEVEL_COMPLETE
           ? `Loading next stage... (${state.levelIndex + 2}/${state.levelCount})`
           : state.screen === SCREENS.GAME_COMPLETE

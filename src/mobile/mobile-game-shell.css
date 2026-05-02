@@ -4338,7 +4338,6 @@
 .mobile-game-shell__stage-viewport .bowling-canvas-host,
 .mobile-game-shell__stage-viewport .golf-tour-canvas-shell,
 .mobile-game-shell__stage-viewport .archery-horizon-canvas-shell,
-.mobile-game-shell__stage-viewport .kitchen-rush-canvas-shell,
 .mobile-game-shell__stage-viewport .retro-arcade-stage,
 .mobile-game-shell__stage-viewport .basketball-court-stage,
 .mobile-game-shell__stage-viewport .penalty-stage,
@@ -5200,8 +5199,7 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-pacman-maze-protocol"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__body,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-ice-strike-pro"] .mobile-game-shell__body,
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-crypt"] .mobile-game-shell__body,
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-kitchen-rush-2d"] .mobile-game-shell__body {
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-crypt"] .mobile-game-shell__body {
   grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.5fr);
 }
 
@@ -5790,7 +5788,6 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-golf-tour-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .golf-tour-canvas-shell,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-archery-horizon"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .archery-horizon-canvas-shell,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-orchard-match-blast"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .orchard-shell,
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-kitchen-rush-2d"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .kitchen-rush-canvas-shell,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .fighter-stage,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-dig-hole-treasure-frame,

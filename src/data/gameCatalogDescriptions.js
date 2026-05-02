@@ -251,10 +251,6 @@ export const gameCatalogDescriptions = {
     es: "Carrera vertical: cambia de carril y sobrevive al tr\u00e1fico.",
     en: "Vertical racer: switch lanes and survive traffic.",
   },
-  "arcade-kitchen-rush-2d": {
-    es: "Cocina cronometrada: prepara ingredientes y entrega pedidos.",
-    en: "Timed cooking: prepare ingredients and serve orders.",
-  },
   "arcade-dig-hole-treasure": {
     es: "Excavaci\u00f3n: cava, encuentra materiales y recupera tesoros.",
     en: "Digging adventure: excavate, find materials and recover treasures.",
