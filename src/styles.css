@@ -389,42 +389,42 @@ body {
 }
 
 .catalog-subliminal {
-  margin-top: 0.82rem;
+  margin-top: 0.55rem;
   display: inline-grid;
-  gap: 0.14rem;
-  padding: 0.52rem 0.72rem;
+  gap: 0.1rem;
+  padding: 0.22rem 0.5rem;
   border-radius: 999px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(241, 245, 249, 0.82));
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  background: rgba(248, 250, 252, 0.6);
+  box-shadow: none;
+  opacity: 0.72;
 }
 
 .catalog-subliminal span {
-  font-size: 0.54rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .catalog-subliminal strong {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: #64748b;
 }
 
 .catalog-subliminal a {
   color: inherit;
   text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 0.12em;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.14em;
+  text-decoration-color: rgba(100, 116, 139, 0.45);
 }
 
 .catalog-subliminal--sports {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(224, 242, 254, 0.88));
-  border-color: rgba(14, 116, 144, 0.14);
+  background: rgba(241, 245, 249, 0.55);
+  border-color: rgba(14, 116, 144, 0.08);
 }
 
 .catalog-sports-promo-card {

@@ -10,7 +10,7 @@ export const createProjectile = (player) => ({
   w: PROJECTILE_SETTINGS.width,
   h: PROJECTILE_SETTINGS.height,
   vx: player.facing === "right" ? PROJECTILE_SETTINGS.speed : -PROJECTILE_SETTINGS.speed,
-  vy: -20,
+  vy: -180,
   lifeTimer: PROJECTILE_SETTINGS.lifespanSeconds,
   active: true
 });
@@ -26,8 +26,8 @@ export const updateProjectile = (projectile, dt, level, moveEntityWithCollisions
     return null;
   }
 
-  projectile.vy += 520 * dt;
-  projectile.vy = clamp(projectile.vy, -9999, 320);
+  projectile.vy += 400 * dt;
+  projectile.vy = clamp(projectile.vy, -9999, 260);
 
   const collision = moveEntityWithCollisions(projectile, level, dt, { allowOneWay: false });
   if (collision.hitLeft || collision.hitRight || collision.hitCeiling || collision.landed || collision.fellOut) {
