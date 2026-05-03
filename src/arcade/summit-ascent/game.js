@@ -52,11 +52,29 @@
   const ROPE_LENGTH = 240;
   const ROPE_STRETCH = 36;
   const ROPE_CATCH_PENALTY = 28;
-  const AUTO_ANCHOR_INTERVAL = 180;
+  const AUTO_ANCHOR_INTERVAL = 96;
+  const ANCHOR_CEILING_SLACK = 4;
+  const ANCHOR_SWING_DURATION = 0.42;
   const SAFE_GRACE_AFTER_CAVE = 1.6;
   const FOOTHOLD_SNAP_THRESHOLD = 28;
   const PLAYER_RADIUS = 14;
   const PLAYER_HEIGHT = 36;
+
+  // Intro / suelo / caseta de salida
+  const HUT_X = 70;
+  const HUT_GROUND_Y_OFFSET = 18;
+  const INTRO_DOOR_DURATION = 0.65;
+  const INTRO_WALK_SPEED = 92;
+  const GROUND_STRIP_HEIGHT = 28;
+
+  // Cumbre / esplanada / bandera
+  const SUMMIT_PLATEAU_WIDTH = 150;
+  const SUMMIT_PLATEAU_RIGHT_DROP = 110; // píxeles que la silueta cae a la derecha
+  const SUMMIT_FLAG_OFFSET = 88;          // posición de la bandera dentro de la esplanada
+  const SUMMIT_WALK_SPEED = 110;
+  const SUMMIT_FLAG_REACH = 9;
+  const MOUNTAIN_RIGHT_BASE_OFFSET = 1100;
+  const MOUNTAIN_PEAK_NARROW_RATIO = 0.78; // dónde empieza el estrechamiento del pico
 
   // Recursos
   const STAMINA_MAX = 100;
@@ -1300,6 +1318,8 @@
     safeGrace: 0,
     rest: { active: false, secondsLeft: 0, total: 0 },
     cave: { active: null, sessionStart: 0 },
+    intro: { active: false, phase: "door", timer: 0, hutX: HUT_X, groundY: 0, faceArrivalX: 0 },
+    summitWalk: { active: false, flagX: 0, plateauY: 0, plateauLeftX: 0, plateauRightX: 0, completed: false, cheerTimer: 0 },
     fallTime: 0,
     diedAt: null,
     summitAt: null,
@@ -1332,6 +1352,8 @@
       armReachL: 0,
       armReachR: 0,
       shake: 0,
+      anchorSwingTimer: 0,
+      walkPhase: 0,
       rope: { active: true, segments: [] },
     };
   }
@@ -1942,14 +1964,37 @@
     state.flashRecord = false;
     state.summarySnapshot = null;
 
+    const groundY = state.run.mountain.layers[0].from + HUT_GROUND_Y_OFFSET;
+    const wallArrivalX = sampleFaceX(groundY) - 6;
+
     state.climber = createClimber();
-    state.climber.x = state.run.holds[0].x + 4;
-    state.climber.y = state.run.mountain.layers[0].from + 24;
+    state.climber.x = HUT_X;
+    state.climber.y = groundY;
+    state.climber.facing = 1;
     state.anchor = {
-      y: state.climber.y,
-      x: state.climber.x,
-      placed: true,
+      y: groundY,
+      x: wallArrivalX + 6,
+      placed: false,
       manual: false,
+    };
+
+    state.intro = {
+      active: true,
+      phase: "door",
+      timer: 0,
+      hutX: HUT_X,
+      groundY,
+      faceArrivalX: wallArrivalX,
+    };
+
+    state.summitWalk = {
+      active: false,
+      flagX: 0,
+      plateauY: 0,
+      plateauLeftX: 0,
+      plateauRightX: 0,
+      completed: false,
+      cheerTimer: 0,
     };
 
     state.cameraX = state.cameraTargetX = state.climber.x - state.width * 0.5;
@@ -2064,6 +2109,7 @@
 
   function tryPlaceManualAnchor() {
     if (!state.run) return;
+    if (state.intro.active) return;
     const climber = state.climber;
     if (climber.falling) return;
     if (climber.stamina < 10) {
@@ -2072,15 +2118,15 @@
     }
     state.anchor = {
       y: climber.y,
-      x: climber.x,
+      x: sampleFaceX(climber.y) - 4,
       placed: true,
       manual: true,
     };
+    climber.anchorSwingTimer = ANCHOR_SWING_DURATION;
     state.run.stats.anchorsPlaced += 1;
     state.audio.anchor();
     showToast(t("anchorPlaced"));
-    state.pendingAutoAnchorY =
-      Math.max(state.pendingAutoAnchorY, climber.y + AUTO_ANCHOR_INTERVAL);
+    state.pendingAutoAnchorY = climber.y + AUTO_ANCHOR_INTERVAL;
   }
 
   function tryDrinkInline() {
@@ -2311,11 +2357,25 @@
     if (state.state === STATES.PLAYING) {
       state.elapsed += dt;
       state.runTime += dt;
-      updateClimber(dt);
-      updateAnchor();
+      if (state.intro.active) {
+        updateIntro(dt);
+      } else if (state.summitWalk.active) {
+        updateSummitWalk(dt);
+      } else {
+        updateClimber(dt);
+        updateAnchor();
+      }
+      if (state.climber.anchorSwingTimer > 0) {
+        state.climber.anchorSwingTimer = Math.max(
+          0,
+          state.climber.anchorSwingTimer - dt
+        );
+      }
       updateWeather(dt);
       updateBeacon();
-      checkAutoCaveProximity();
+      if (!state.summitWalk.active) {
+        checkAutoCaveProximity();
+      }
       updateRest(dt);
       checkLossOrWin();
     } else if (state.state === STATES.CAVE) {
@@ -2348,6 +2408,69 @@
       showToast(t("msgRestEnd"));
       refreshCaveStateBlock();
     }
+  }
+
+  function updateIntro(dt) {
+    const climber = state.climber;
+    const intro = state.intro;
+    intro.timer += dt;
+
+    // Permite saltar el intro pulsando cualquier dirección o espacio
+    const skipPressed =
+      state.keys.has("arrowleft") ||
+      state.keys.has("arrowright") ||
+      state.keys.has("arrowup") ||
+      state.keys.has("a") ||
+      state.keys.has("d") ||
+      state.keys.has("w") ||
+      state.keys.has("enter");
+
+    if (skipPressed) {
+      climber.x = intro.faceArrivalX;
+      climber.y = intro.groundY;
+      finishIntro();
+      return;
+    }
+
+    if (intro.phase === "door") {
+      if (intro.timer >= INTRO_DOOR_DURATION) {
+        intro.phase = "walk";
+        intro.timer = 0;
+        climber.facing = 1;
+      }
+      return;
+    }
+
+    if (intro.phase === "walk") {
+      // Camina automáticamente hacia la base de la pared
+      const targetX = intro.faceArrivalX;
+      const dx = targetX - climber.x;
+      const step = INTRO_WALK_SPEED * dt;
+      if (dx <= step) {
+        climber.x = targetX;
+        finishIntro();
+      } else {
+        climber.x += step;
+        climber.legSwing += dt * 9;
+        climber.armSwing += dt * 9;
+      }
+    }
+  }
+
+  function finishIntro() {
+    const climber = state.climber;
+    const intro = state.intro;
+    intro.active = false;
+    intro.phase = "arrived";
+    state.anchor = {
+      y: climber.y,
+      x: sampleFaceX(climber.y) - 4,
+      placed: true,
+      manual: false,
+    };
+    state.pendingAutoAnchorY = climber.y + AUTO_ANCHOR_INTERVAL;
+    state.safeGrace = 0.6;
+    setBeacon(t("beaconKeepClimbing"), "↑", "");
   }
 
   function updateClimber(dt) {
@@ -2438,15 +2561,27 @@
     climber.y += -climber.vy * dt; // vy negativa = sube
 
     if (state.anchor.placed) {
-      const delta = climber.y - state.anchor.y;
-      if (delta > ROPE_LENGTH) {
-        climber.y = state.anchor.y + ROPE_LENGTH;
-        climber.vy = Math.max(climber.vy, 0);
-        climber.grip = clamp(climber.grip - 8 * dt, 0, GRIP_MAX);
-        climber.stamina = clamp(climber.stamina - 4 * dt, 0, STAMINA_MAX);
-        if (climbing && state.anchorLimitHintTimer <= 0) {
-          showMessage(t("msgAnchorLimit"), 1.6);
-          state.anchorLimitHintTimer = 1.4;
+      // Regla: el escalador nunca puede pasar por encima del anclaje. Cuando
+      // sube, el anclaje le acompaña (clavándose en la pared) salvo durante
+      // el swing del piolet, en el que el anclaje se queda fijo y bloquea
+      // al climber para que se vea el gesto de anclaje.
+      if (climber.anchorSwingTimer > 0) {
+        const ceiling = state.anchor.y + ANCHOR_CEILING_SLACK;
+        if (climber.y > ceiling) {
+          climber.y = ceiling;
+          climber.vy = Math.min(climber.vy, 0);
+        }
+      } else {
+        if (climber.y > state.anchor.y) {
+          state.anchor.y = climber.y;
+          state.anchor.x = sampleFaceX(climber.y) - 4;
+          state.anchor.manual = false;
+        }
+        if (climber.y >= state.pendingAutoAnchorY) {
+          state.pendingAutoAnchorY = climber.y + AUTO_ANCHOR_INTERVAL;
+          state.run.stats.anchorsPlaced += 1;
+          climber.anchorSwingTimer = ANCHOR_SWING_DURATION;
+          if (state.audio.autoAnchor) state.audio.autoAnchor();
         }
       }
     }
@@ -2693,11 +2828,76 @@
     }
   }
 
+  function startSummitWalk() {
+    if (state.summitWalk.active) return;
+    const summitY = state.run.mountain.height;
+    const summitFaceX = sampleFaceX(summitY);
+    const plateauLeftX = summitFaceX - 6;
+    const plateauRightX = summitFaceX + SUMMIT_PLATEAU_WIDTH;
+    state.summitWalk = {
+      active: true,
+      plateauY: summitY,
+      plateauLeftX,
+      plateauRightX,
+      flagX: summitFaceX + SUMMIT_FLAG_OFFSET,
+      completed: false,
+      cheerTimer: 0,
+    };
+    const climber = state.climber;
+    climber.y = summitY;
+    climber.vy = 0;
+    climber.vx = 0;
+    climber.falling = false;
+    climber.facing = 1;
+    climber.anchorSwingTimer = 0;
+    state.anchor.placed = false;
+    showMessage(t("msgSummitReached") || "¡Cumbre! Camina hasta la bandera.", 4.2);
+    if (state.audio && state.audio.menuConfirm) state.audio.menuConfirm();
+  }
+
+  function updateSummitWalk(dt) {
+    const climber = state.climber;
+    const sw = state.summitWalk;
+    // Lock vertical position en la esplanada
+    climber.y = sw.plateauY;
+    climber.vy = 0;
+
+    let inputX = 0;
+    if (state.keys.has("arrowleft") || state.keys.has("a")) inputX -= 1;
+    if (state.keys.has("arrowright") || state.keys.has("d")) inputX += 1;
+
+    const targetVx = inputX * SUMMIT_WALK_SPEED;
+    climber.vx = lerp(climber.vx, targetVx, 1 - Math.exp(-dt * 11));
+    climber.x += climber.vx * dt;
+
+    // Limitar a la esplanada
+    if (climber.x < sw.plateauLeftX + 4) climber.x = sw.plateauLeftX + 4;
+    if (climber.x > sw.plateauRightX - 4) climber.x = sw.plateauRightX - 4;
+
+    if (inputX !== 0) {
+      climber.facing = inputX > 0 ? 1 : -1;
+      climber.legSwing += dt * 9;
+      climber.armSwing += dt * 9;
+    }
+
+    // Recuperación pasiva
+    climber.stamina = clamp(climber.stamina + 6 * dt, 0, STAMINA_MAX);
+    climber.grip = clamp(climber.grip + 8 * dt, 0, GRIP_MAX);
+
+    // Llegada a la bandera
+    if (!sw.completed && Math.abs(climber.x - sw.flagX) < SUMMIT_FLAG_REACH) {
+      sw.completed = true;
+      sw.cheerTimer = 0.6;
+      triggerWin();
+    }
+  }
+
   function checkLossOrWin() {
     const climber = state.climber;
     const summit = state.run.mountain.height;
-    if (climber.y >= summit - 12) {
-      triggerWin();
+    if (!state.summitWalk.active && climber.y >= summit) {
+      startSummitWalk();
+      return;
     }
   }
 
@@ -2903,13 +3103,54 @@
   function sampleFaceX(y) {
     const mountain = state.run ? state.run.mountain : null;
     if (!mountain) return 220;
-    const t2 = y / mountain.height;
-    const trend = mountain.faceBase + t2 * 220 * (mountain.faceVeer || 0.3);
-    const wave1 = Math.sin(t2 * Math.PI * 6.7 + mountain.seed) * mountain.faceAmp;
-    const wave2 = Math.sin(t2 * Math.PI * 17.5 + mountain.seed * 0.43) *
-      mountain.faceAmp * 0.32;
-    const ledges = Math.sin(t2 * Math.PI * 38.0) * 10;
-    return trend + wave1 + wave2 + ledges;
+    const rawT = y / mountain.height;
+    const t2 = clamp(rawT, 0, 1);
+    // Perfil de montaña: base muy ancha y tendida (ladera), media con
+    // pendiente cada vez más pronunciada, parte alta casi vertical y un
+    // estrechamiento final agresivo para formar el pico tipo silueta clásica.
+    const profileShape = mountain.profileShape || 0.32;
+    const totalSpread = (mountain.faceVeer || 0.3) * 880;
+    let profile = Math.pow(t2, profileShape) * totalSpread;
+    // Pico: a partir de MOUNTAIN_PEAK_NARROW_RATIO la cara avanza más rápido
+    // hacia adentro (estrechando el ancho de la cima).
+    if (t2 > MOUNTAIN_PEAK_NARROW_RATIO) {
+      const top = (t2 - MOUNTAIN_PEAK_NARROW_RATIO) /
+        (1 - MOUNTAIN_PEAK_NARROW_RATIO);
+      profile += smoothstep(0, 1, top) * 70;
+    }
+    const trend = mountain.faceBase + profile;
+    // Ondas: amplitud reducida en la base para que la pendiente lea limpia y
+    // crezca con la altitud. El término "ridge" añade un escalón visible a
+    // mitad para que la silueta tenga carácter (no curva monótona).
+    const ampScale = 0.35 + 0.55 * smoothstep(0.05, 0.55, t2);
+    const wave1 =
+      Math.sin(t2 * Math.PI * 6.7 + mountain.seed) * mountain.faceAmp * ampScale;
+    const wave2 =
+      Math.sin(t2 * Math.PI * 17.5 + mountain.seed * 0.43) *
+      mountain.faceAmp *
+      0.32 *
+      ampScale;
+    const ledges = Math.sin(t2 * Math.PI * 38.0) * 10 * ampScale;
+    // Repisa central: pequeño escalón que se proyecta hacia fuera entre 50-65%
+    const ridgeBump =
+      smoothstep(0.5, 0.6, t2) * (1 - smoothstep(0.6, 0.72, t2)) * 18;
+    return trend + wave1 + wave2 + ledges - ridgeBump;
+  }
+
+  function sampleRightX(y) {
+    const mountain = state.run ? state.run.mountain : null;
+    if (!mountain) return 800;
+    const summitY = mountain.height;
+    const summitFaceX = sampleFaceX(summitY);
+    const plateauRightX = summitFaceX + SUMMIT_PLATEAU_WIDTH;
+    if (y >= summitY) {
+      return plateauRightX;
+    }
+    const t = clamp(y / summitY, 0, 1);
+    // Mismo tipo de curva que la cara izquierda, mirror para la pendiente
+    // derecha; al base la roca es muy ancha (off-screen), al pico estrecho.
+    const profile = Math.pow(1 - t, 0.32) * MOUNTAIN_RIGHT_BASE_OFFSET;
+    return plateauRightX + profile;
   }
 
   /* =====================================================
@@ -2969,10 +3210,13 @@
 
     if (state.run) {
       drawRockMass(ctx);
+      drawBaseScene(ctx);
+      drawSummitCap(ctx);
       drawHolds(ctx);
       drawLedges(ctx);
       drawCaveMouths(ctx);
       drawAnchor(ctx);
+      drawSummitFlag(ctx);
       drawClimber(ctx);
       drawWeather(ctx);
       drawFog(ctx);
@@ -3126,44 +3370,69 @@
     const camY = state.cameraY;
     ctx.save();
 
-    // Fondo profundo (rock-deep)
-    ctx.fillStyle = mountain.paletteRockDeep;
+    const summitY = mountain.height;
+    const summitFaceX = sampleFaceX(summitY);
+    const plateauRightX = summitFaceX + SUMMIT_PLATEAU_WIDTH;
+
     const minY = camY;
     const maxY = camY + state.height;
-
-    // Dibuja la pared como polígono entre mountainFaceX y la derecha del canvas
     const samples = 56;
-    const stepY = (maxY - minY) / samples;
-    ctx.beginPath();
-    for (let i = 0; i <= samples; i++) {
-      const wy = minY + i * stepY;
-      const wx = sampleFaceX(wy);
-      const sx = wx - camX;
-      const sy = state.height - (wy - camY);
-      if (i === 0) ctx.moveTo(sx, sy);
-      else ctx.lineTo(sx, sy);
+
+    // Helper que traza la silueta cerrada de la montaña (cara izquierda hasta
+    // el pico, esplanada plana y cara derecha que baja). Acepta un offset
+    // horizontal hacia adentro para dibujar la capa "interior" más clara.
+    function pathSilhouette(faceOffset) {
+      ctx.beginPath();
+      // Empieza fuera de pantalla a la izquierda al fondo
+      const bottomCanvasY = state.height + 80;
+      ctx.moveTo(-200, bottomCanvasY);
+
+      // Cara izquierda (climbable) desde la base hasta la cumbre
+      const startY = Math.max(minY - 80, 0);
+      const endY = Math.min(maxY + 80, summitY);
+      const usableSamples = Math.max(8, Math.floor(samples * (endY - startY) / (maxY - minY)));
+      for (let i = 0; i <= usableSamples; i++) {
+        const wy = startY + (i / usableSamples) * (endY - startY);
+        const wx = sampleFaceX(wy) + faceOffset;
+        const sx = wx - camX;
+        const sy = state.height - (wy - camY);
+        ctx.lineTo(sx, sy);
+      }
+
+      // Si la cumbre es visible, añade esplanada y cara derecha
+      if (endY >= summitY - 0.5) {
+        const summitScreenY = state.height - (summitY - camY);
+        // Esplanada (slight inclination para look natural)
+        ctx.lineTo(summitFaceX + faceOffset - camX, summitScreenY);
+        ctx.lineTo(plateauRightX - faceOffset - camX, summitScreenY);
+        // Cara derecha bajando con curva
+        const rightSamples = 18;
+        for (let i = 1; i <= rightSamples; i++) {
+          const t = i / rightSamples;
+          const wy = summitY - t * (summitY - 0);
+          const wx = sampleRightX(wy) - faceOffset;
+          const sx = wx - camX;
+          const sy = state.height - (wy - camY);
+          ctx.lineTo(sx, sy);
+        }
+        ctx.lineTo(state.width + 800, bottomCanvasY);
+      } else {
+        // Cumbre no visible: cierre por arriba y derecha como antes
+        ctx.lineTo(state.width + 200, -50);
+        ctx.lineTo(state.width + 200, bottomCanvasY);
+      }
+      ctx.lineTo(-200, bottomCanvasY);
+      ctx.closePath();
     }
-    ctx.lineTo(state.width + 200, 0);
-    ctx.lineTo(state.width + 200, state.height);
-    ctx.lineTo(0, state.height);
-    ctx.closePath();
+
+    // Capa profunda de roca
+    ctx.fillStyle = mountain.paletteRockDeep;
+    pathSilhouette(0);
     ctx.fill();
 
-    // Capa luminosa más cercana (rock)
+    // Capa más clara, ligeramente metida hacia adentro (luz lateral)
     ctx.fillStyle = mountain.paletteRock;
-    ctx.beginPath();
-    for (let i = 0; i <= samples; i++) {
-      const wy = minY + i * stepY;
-      const wx = sampleFaceX(wy) + 18;
-      const sx = wx - camX;
-      const sy = state.height - (wy - camY);
-      if (i === 0) ctx.moveTo(sx, sy);
-      else ctx.lineTo(sx, sy);
-    }
-    ctx.lineTo(state.width + 200, 0);
-    ctx.lineTo(state.width + 200, state.height);
-    ctx.lineTo(0, state.height);
-    ctx.closePath();
+    pathSilhouette(18);
     ctx.fill();
 
     // Texturas (vetas) - ruido determinístico
@@ -3179,13 +3448,16 @@
       ctx.stroke();
     }
 
-    // Bordes de pared (highlight)
+    // Bordes de pared (highlight) sobre la cara izquierda visible
     ctx.strokeStyle = mountain.paletteAccent;
     ctx.lineWidth = 1.6;
     ctx.globalAlpha = 0.5;
     ctx.beginPath();
-    for (let i = 0; i <= samples; i++) {
-      const wy = minY + i * stepY;
+    const hlStart = Math.max(minY - 20, 0);
+    const hlEnd = Math.min(maxY + 20, summitY);
+    const hlSamples = samples;
+    for (let i = 0; i <= hlSamples; i++) {
+      const wy = hlStart + (i / hlSamples) * (hlEnd - hlStart);
       const wx = sampleFaceX(wy);
       const sx = wx - camX;
       const sy = state.height - (wy - camY);
@@ -3193,6 +3465,14 @@
       else ctx.lineTo(sx, sy);
     }
     ctx.stroke();
+    // Si la cumbre es visible, dibujar borde superior (esplanada) y línea de cumbre derecha
+    if (hlEnd >= summitY - 0.5) {
+      const summitScreenY = state.height - (summitY - camY);
+      ctx.beginPath();
+      ctx.moveTo(summitFaceX - camX, summitScreenY);
+      ctx.lineTo(plateauRightX - camX, summitScreenY);
+      ctx.stroke();
+    }
     ctx.globalAlpha = 1;
 
     ctx.restore();
@@ -3219,6 +3499,413 @@
       g: parseInt(s.substr(2, 2), 16),
       b: parseInt(s.substr(4, 2), 16),
     };
+  }
+
+  /* ---- Suelo + caseta de salida (escena base) ---- */
+
+  function drawBaseScene(ctx) {
+    if (!state.run) return;
+    const mountain = state.run.mountain;
+    const camX = state.cameraX;
+    const camY = state.cameraY;
+    const groundWorldY = mountain.layers[0].from + HUT_GROUND_Y_OFFSET;
+    const groundScreenY = state.height - (groundWorldY - camY);
+    if (groundScreenY < -40 || groundScreenY > state.height + 80) return;
+
+    ctx.save();
+
+    // Tira de tierra que va desde el lateral izquierdo del lienzo hasta donde
+    // empieza la roca (sampleFaceX al nivel del suelo). Encima, hierba/musgo.
+    const faceX = sampleFaceX(groundWorldY);
+    const screenFaceX = faceX - camX;
+    const groundLeftScreen = -40;
+    const groundRightScreen = Math.min(screenFaceX + 6, state.width + 40);
+
+    if (groundRightScreen > groundLeftScreen) {
+      // Tierra: extiende desde el suelo hasta el borde inferior, siguiendo
+      // la cara curva de la roca para no solapar la pared.
+      ctx.fillStyle = "#3a2e22";
+      ctx.beginPath();
+      ctx.moveTo(groundLeftScreen, groundScreenY);
+      // Borde superior derecho: sigue la curva de la pared bajando
+      const followSamples = 14;
+      for (let i = 0; i <= followSamples; i++) {
+        const t = i / followSamples;
+        const wy = groundWorldY - t * (state.height + 80);
+        const wxFace = sampleFaceX(wy);
+        const sxFace = wxFace - camX;
+        const syHere = state.height - (wy - camY);
+        ctx.lineTo(Math.min(sxFace + 4, state.width + 40), syHere);
+      }
+      ctx.lineTo(groundLeftScreen, state.height + 40);
+      ctx.closePath();
+      ctx.fill();
+
+      // Capa más clara cerca de la superficie (gradiente)
+      const earthGrad = ctx.createLinearGradient(
+        0,
+        groundScreenY - 4,
+        0,
+        groundScreenY + GROUND_STRIP_HEIGHT + 10
+      );
+      earthGrad.addColorStop(0, "#5a4a36");
+      earthGrad.addColorStop(1, "rgba(58, 46, 34, 0)");
+      ctx.fillStyle = earthGrad;
+      ctx.fillRect(
+        groundLeftScreen,
+        groundScreenY,
+        groundRightScreen - groundLeftScreen,
+        GROUND_STRIP_HEIGHT + 10
+      );
+
+      // Hierba superior
+      ctx.fillStyle = "#5a7a3d";
+      ctx.fillRect(
+        groundLeftScreen,
+        groundScreenY - 3,
+        groundRightScreen - groundLeftScreen,
+        4
+      );
+
+      // Briznas y matas
+      ctx.strokeStyle = "#3e5a2a";
+      ctx.lineWidth = 1.1;
+      for (let gx = groundLeftScreen + 8; gx < groundRightScreen - 4; gx += 11) {
+        const seed = Math.sin(gx * 0.13 + mountain.seed) * 0.5 + 0.5;
+        const h = 3 + seed * 4;
+        ctx.beginPath();
+        ctx.moveTo(gx, groundScreenY - 1);
+        ctx.lineTo(gx + 1.6, groundScreenY - h);
+        ctx.stroke();
+      }
+
+      // Pequeñas piedras
+      ctx.fillStyle = "#777067";
+      for (let i = 0; i < 7; i++) {
+        const sx = groundLeftScreen + 22 + i * 36 + Math.sin(i + mountain.seed) * 6;
+        if (sx > groundRightScreen - 4) break;
+        ctx.beginPath();
+        ctx.ellipse(sx, groundScreenY + 4, 3 + (i % 2) * 1.2, 1.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Caseta de salida: cabaña de madera con techo y chimenea
+    const hutScreenX = HUT_X - camX;
+    const hutBaseY = groundScreenY;
+    drawHutSilhouette(ctx, hutScreenX, hutBaseY, state.intro);
+
+    ctx.restore();
+  }
+
+  function drawHutSilhouette(ctx, hutScreenX, hutBaseY, intro) {
+    if (hutScreenX < -120 || hutScreenX > state.width + 120) return;
+    ctx.save();
+    ctx.translate(hutScreenX, hutBaseY);
+
+    // Sombra
+    ctx.fillStyle = "rgba(0,0,0,0.28)";
+    ctx.beginPath();
+    ctx.ellipse(0, 4, 36, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cuerpo: rectángulo de troncos
+    const bodyW = 56;
+    const bodyH = 38;
+    ctx.fillStyle = "#7a512f";
+    ctx.fillRect(-bodyW / 2, -bodyH, bodyW, bodyH);
+    // Vetas de troncos horizontales
+    ctx.strokeStyle = "rgba(40, 22, 8, 0.55)";
+    ctx.lineWidth = 1.2;
+    for (let y = -bodyH + 6; y < 0; y += 6) {
+      ctx.beginPath();
+      ctx.moveTo(-bodyW / 2 + 2, y);
+      ctx.lineTo(bodyW / 2 - 2, y);
+      ctx.stroke();
+    }
+
+    // Techo: triángulo a dos aguas
+    ctx.fillStyle = "#3e2a1c";
+    ctx.beginPath();
+    ctx.moveTo(-bodyW / 2 - 4, -bodyH);
+    ctx.lineTo(0, -bodyH - 18);
+    ctx.lineTo(bodyW / 2 + 4, -bodyH);
+    ctx.closePath();
+    ctx.fill();
+    // Borde frontal del techo
+    ctx.strokeStyle = "#22140a";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(-bodyW / 2 - 4, -bodyH);
+    ctx.lineTo(0, -bodyH - 18);
+    ctx.lineTo(bodyW / 2 + 4, -bodyH);
+    ctx.stroke();
+
+    // Chimenea
+    ctx.fillStyle = "#4a3528";
+    ctx.fillRect(bodyW / 2 - 16, -bodyH - 14, 8, 10);
+    ctx.fillStyle = "#2a1c14";
+    ctx.fillRect(bodyW / 2 - 17, -bodyH - 14, 10, 2);
+
+    // Humo animado
+    const t2 = state.elapsed * 0.6;
+    ctx.fillStyle = "rgba(220, 220, 220, 0.65)";
+    for (let i = 0; i < 3; i++) {
+      const phase = t2 + i * 0.7;
+      const px = bodyW / 2 - 12 + Math.sin(phase) * 3;
+      const py = -bodyH - 18 - i * 7;
+      const r = 3 + i * 1.1;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Ventana iluminada (lado izquierdo)
+    ctx.fillStyle = "#ffd28a";
+    ctx.fillRect(-bodyW / 2 + 6, -bodyH + 8, 12, 10);
+    ctx.strokeStyle = "#2a1c14";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-bodyW / 2 + 6, -bodyH + 8, 12, 10);
+    ctx.beginPath();
+    ctx.moveTo(-bodyW / 2 + 12, -bodyH + 8);
+    ctx.lineTo(-bodyW / 2 + 12, -bodyH + 18);
+    ctx.moveTo(-bodyW / 2 + 6, -bodyH + 13);
+    ctx.lineTo(-bodyW / 2 + 18, -bodyH + 13);
+    ctx.stroke();
+
+    // Puerta (animada en el intro)
+    let doorOpen = 1;
+    if (intro && intro.active && intro.phase === "door") {
+      doorOpen = clamp(intro.timer / INTRO_DOOR_DURATION, 0, 1);
+    } else if (intro && intro.active && intro.phase === "walk") {
+      doorOpen = 1;
+    } else {
+      doorOpen = 0; // cerrada cuando ya está fuera
+    }
+    const doorW = 14;
+    const doorH = 22;
+    const doorX = bodyW / 2 - 10 - doorW;
+    const doorY = -doorH;
+    // Marco oscuro (interior visible)
+    ctx.fillStyle = "#1a0e06";
+    ctx.fillRect(doorX, doorY, doorW, doorH);
+    // Hoja de la puerta abriéndose hacia fuera (rotación simulada con escala X)
+    const doorScale = 1 - doorOpen * 0.85;
+    if (doorScale > 0.05) {
+      ctx.save();
+      ctx.translate(doorX, doorY);
+      ctx.scale(doorScale, 1);
+      ctx.fillStyle = "#5a3a22";
+      ctx.fillRect(0, 0, doorW, doorH);
+      ctx.strokeStyle = "#22140a";
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(0.5, 0.5, doorW - 1, doorH - 1);
+      ctx.fillStyle = "#d8c08a";
+      ctx.beginPath();
+      ctx.arc(doorW - 3, doorH * 0.55, 1.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Cartelito "Base"
+    ctx.fillStyle = "rgba(255, 246, 220, 0.92)";
+    ctx.fillRect(-bodyW / 2 - 2, -bodyH - 3, 18, 8);
+    ctx.fillStyle = "#3a2614";
+    ctx.font = "bold 6px sans-serif";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillText("BASE", -bodyW / 2 + 7, -bodyH + 1);
+
+    ctx.restore();
+  }
+
+  /* ---- Cumbre: esplanada + bandera ---- */
+
+  function drawSummitCap(ctx) {
+    if (!state.run) return;
+    const mountain = state.run.mountain;
+    const camX = state.cameraX;
+    const camY = state.cameraY;
+    const summitY = mountain.height;
+    const summitScreenY = state.height - (summitY - camY);
+    if (summitScreenY < -40 || summitScreenY > state.height + 40) return;
+
+    const summitFaceX = sampleFaceX(summitY);
+    const plateauRightX = summitFaceX + SUMMIT_PLATEAU_WIDTH;
+    const leftScreen = summitFaceX - camX;
+    const rightScreen = plateauRightX - camX;
+
+    ctx.save();
+    // Capa de nieve / hielo cubriendo la esplanada y bajando un poco por las dos caras
+    const snowGrad = ctx.createLinearGradient(
+      0,
+      summitScreenY - 14,
+      0,
+      summitScreenY + 22
+    );
+    snowGrad.addColorStop(0, "#ffffff");
+    snowGrad.addColorStop(0.55, "#e7eef6");
+    snowGrad.addColorStop(1, "rgba(220, 230, 240, 0)");
+    ctx.fillStyle = snowGrad;
+
+    ctx.beginPath();
+    // Bajada izquierda: sigue la cara hacia abajo unas decenas de px
+    const dropLeftSamples = 8;
+    const dropDepth = 60;
+    const dropStartY = summitY;
+    const dropEndY = summitY - dropDepth;
+    for (let i = 0; i <= dropLeftSamples; i++) {
+      const t = i / dropLeftSamples;
+      const wy = dropStartY - t * dropDepth;
+      const wx = sampleFaceX(wy) - 1;
+      const sx = wx - camX;
+      const sy = state.height - (wy - camY);
+      if (i === 0) ctx.moveTo(sx, sy);
+      else ctx.lineTo(sx, sy);
+    }
+    // Sube hasta el borde izquierdo de la esplanada
+    ctx.lineTo(leftScreen, summitScreenY - 4);
+    // Cresta de nieve sobre la esplanada (ondulación leve)
+    const ridgeSamples = 10;
+    for (let i = 0; i <= ridgeSamples; i++) {
+      const t = i / ridgeSamples;
+      const sx = leftScreen + (rightScreen - leftScreen) * t;
+      const wave = Math.sin(t * Math.PI * 3 + mountain.seed * 0.4) * 2;
+      ctx.lineTo(sx, summitScreenY - 6 - wave);
+    }
+    // Borde derecho: baja por la cara derecha
+    for (let i = 0; i <= dropLeftSamples; i++) {
+      const t = i / dropLeftSamples;
+      const wy = dropEndY + (dropStartY - dropEndY) * t;
+      const wx = sampleRightX(wy) + 1;
+      const sx = wx - camX;
+      const sy = state.height - (wy - camY);
+      ctx.lineTo(sx, sy);
+    }
+    // Cierra siguiendo el contorno por debajo (vuelve por la cara derecha de la esplanada)
+    ctx.lineTo(rightScreen, summitScreenY);
+    ctx.lineTo(leftScreen, summitScreenY);
+    ctx.closePath();
+    ctx.fill();
+
+    // Brillo / highlight superior
+    ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+    ctx.beginPath();
+    ctx.ellipse(
+      (leftScreen + rightScreen) / 2,
+      summitScreenY - 5,
+      (rightScreen - leftScreen) * 0.42,
+      2.4,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+
+    // Pequeñas rocas asomando en la esplanada
+    ctx.fillStyle = darken(mountain.paletteRock, 0.18);
+    for (let i = 0; i < 4; i++) {
+      const t = (i + 0.5) / 4;
+      const sx = leftScreen + (rightScreen - leftScreen) * t;
+      ctx.beginPath();
+      ctx.ellipse(sx, summitScreenY - 2, 4, 1.6, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawSummitFlag(ctx) {
+    if (!state.run) return;
+    const mountain = state.run.mountain;
+    const camX = state.cameraX;
+    const camY = state.cameraY;
+    const summitY = mountain.height;
+    const summitFaceX = sampleFaceX(summitY);
+    const flagX = summitFaceX + SUMMIT_FLAG_OFFSET;
+    const summitScreenY = state.height - (summitY - camY);
+    if (summitScreenY < -120 || summitScreenY > state.height + 60) return;
+
+    const sx = flagX - camX;
+    const baseY = summitScreenY - 6; // sobre la nieve
+
+    ctx.save();
+
+    // Sombra del mástil sobre la nieve
+    ctx.fillStyle = "rgba(0,0,0,0.32)";
+    ctx.beginPath();
+    ctx.ellipse(sx + 2, baseY + 2, 6, 1.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Mástil
+    ctx.strokeStyle = "#3a2814";
+    ctx.lineWidth = 2.4;
+    ctx.lineCap = "round";
+    const poleHeight = 52;
+    ctx.beginPath();
+    ctx.moveTo(sx, baseY);
+    ctx.lineTo(sx, baseY - poleHeight);
+    ctx.stroke();
+
+    // Punta dorada
+    ctx.fillStyle = "#f6c85f";
+    ctx.beginPath();
+    ctx.arc(sx, baseY - poleHeight - 1, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Tela ondeando: triángulo con vértice derecho oscilando
+    const wave = Math.sin(state.elapsed * 5) * 4;
+    const flagW = 26;
+    const flagH = 16;
+    const flagTop = baseY - poleHeight + 2;
+    const flagBottom = flagTop + flagH;
+
+    const flagGrad = ctx.createLinearGradient(sx, flagTop, sx, flagBottom);
+    flagGrad.addColorStop(0, "#ff5b3a");
+    flagGrad.addColorStop(1, "#c8331f");
+    ctx.fillStyle = flagGrad;
+    ctx.beginPath();
+    ctx.moveTo(sx + 1, flagTop);
+    ctx.quadraticCurveTo(
+      sx + flagW * 0.5 + wave * 0.4,
+      flagTop + flagH * 0.18 + wave,
+      sx + flagW + wave,
+      flagTop + flagH * 0.5
+    );
+    ctx.quadraticCurveTo(
+      sx + flagW * 0.5 + wave * 0.4,
+      flagBottom - flagH * 0.18 - wave,
+      sx + 1,
+      flagBottom
+    );
+    ctx.closePath();
+    ctx.fill();
+    // Borde de la tela
+    ctx.strokeStyle = "rgba(80, 24, 12, 0.6)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Pliegue claro
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.32)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(sx + 4, flagTop + flagH * 0.32);
+    ctx.quadraticCurveTo(
+      sx + flagW * 0.5 + wave * 0.3,
+      flagTop + flagH * 0.42 + wave * 0.5,
+      sx + flagW * 0.85 + wave * 0.6,
+      flagTop + flagH * 0.5
+    );
+    ctx.stroke();
+
+    // Texto pequeño de cumbre conseguida (cuando el caminante llega)
+    if (state.summitWalk.active) {
+      ctx.fillStyle = "rgba(255, 250, 230, 0.92)";
+      ctx.font = "bold 9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("CUMBRE", sx, baseY - poleHeight - 6);
+    }
+
+    ctx.restore();
   }
 
   /* ---- Holds (presas) ---- */
@@ -3278,29 +3965,132 @@
     ctx.save();
     for (const cave of state.run.caves) {
       if (cave.taken) continue;
-      const sx = cave.mouthX - camX;
+      // Boca anclada a la pared real (no a un offset fijo)
+      const faceAtMouth = sampleFaceX(cave.mouthY);
+      const mouthScreenX = faceAtMouth - camX;
       const sy = state.height - (cave.mouthY - camY);
-      if (sx < -80 || sx > state.width + 80) continue;
-      if (sy < -80 || sy > state.height + 80) continue;
-      // Halo cálido
-      const grad = ctx.createRadialGradient(sx, sy, 4, sx, sy, 36);
-      grad.addColorStop(0, "rgba(255, 180, 90, 0.9)");
-      grad.addColorStop(0.6, "rgba(255, 130, 50, 0.32)");
-      grad.addColorStop(1, "rgba(255, 130, 50, 0)");
+      if (mouthScreenX < -120 || mouthScreenX > state.width + 120) continue;
+      if (sy < -120 || sy > state.height + 120) continue;
+
+      // Canal: entra hacia la derecha (dentro de la roca) con perspectiva.
+      // Boca exterior alta y estrecha; fondo muy oscuro con luz cálida al final.
+      const mouthHalfH = 18;
+      const channelLen = 56;
+      const backHalfH = 9;
+
+      // Arco exterior (recortado en la roca): degradado oscuro
+      const grad = ctx.createLinearGradient(
+        mouthScreenX,
+        sy,
+        mouthScreenX + channelLen,
+        sy
+      );
+      grad.addColorStop(0, "rgba(28, 16, 6, 0.94)");
+      grad.addColorStop(0.55, "rgba(56, 26, 8, 0.92)");
+      grad.addColorStop(1, "rgba(255, 168, 80, 0.95)");
+
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(sx, sy, 36, 0, Math.PI * 2);
+      ctx.moveTo(mouthScreenX - 2, sy - mouthHalfH);
+      // Arco superior con leve curvatura
+      ctx.quadraticCurveTo(
+        mouthScreenX + channelLen * 0.5,
+        sy - mouthHalfH - 2,
+        mouthScreenX + channelLen,
+        sy - backHalfH
+      );
+      // Pared del fondo (corta)
+      ctx.lineTo(mouthScreenX + channelLen, sy + backHalfH);
+      // Arco inferior
+      ctx.quadraticCurveTo(
+        mouthScreenX + channelLen * 0.5,
+        sy + mouthHalfH + 2,
+        mouthScreenX - 2,
+        sy + mouthHalfH
+      );
+      ctx.closePath();
       ctx.fill();
-      // Boca (mancha negra ovalada)
-      ctx.fillStyle = "rgba(20, 6, 0, 0.92)";
+
+      // Bordes irregulares de roca (pequeñas estalactitas/estalagmitas)
+      ctx.fillStyle = "rgba(15, 8, 4, 0.95)";
+      for (let i = 0; i < 5; i++) {
+        const tx = mouthScreenX + 4 + i * (channelLen * 0.18);
+        const r = 2 + (i % 2);
+        ctx.beginPath();
+        ctx.moveTo(tx - r, sy - mouthHalfH + (i % 2) * 1);
+        ctx.lineTo(tx, sy - mouthHalfH + 5 + (i % 2) * 1.5);
+        ctx.lineTo(tx + r, sy - mouthHalfH + (i % 2) * 1);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(tx - r, sy + mouthHalfH - (i % 2) * 1);
+        ctx.lineTo(tx, sy + mouthHalfH - 5 - (i % 2) * 1.5);
+        ctx.lineTo(tx + r, sy + mouthHalfH - (i % 2) * 1);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Halo cálido proyectándose hacia fuera del canal
+      const halo = ctx.createRadialGradient(
+        mouthScreenX + channelLen - 4,
+        sy,
+        2,
+        mouthScreenX - 8,
+        sy,
+        70
+      );
+      halo.addColorStop(0, "rgba(255, 200, 120, 0.65)");
+      halo.addColorStop(0.4, "rgba(255, 150, 70, 0.22)");
+      halo.addColorStop(1, "rgba(255, 130, 50, 0)");
+      ctx.fillStyle = halo;
       ctx.beginPath();
-      ctx.ellipse(sx, sy, 14, 11, 0, 0, Math.PI * 2);
+      ctx.ellipse(
+        mouthScreenX - 6,
+        sy,
+        46,
+        mouthHalfH + 8,
+        0,
+        0,
+        Math.PI * 2
+      );
       ctx.fill();
-      // Llama interior
-      ctx.fillStyle = "rgba(255, 200, 120, 0.85)";
+
+      // Pequeña silueta de la caseta al fondo (cabaña en miniatura)
+      const hutBackX = mouthScreenX + channelLen - 14;
+      ctx.fillStyle = "rgba(20, 10, 4, 0.92)";
+      ctx.fillRect(hutBackX - 5, sy - 5, 10, 10);
       ctx.beginPath();
-      ctx.ellipse(sx, sy + 2, 4, 2.6, 0, 0, Math.PI * 2);
+      ctx.moveTo(hutBackX - 6, sy - 5);
+      ctx.lineTo(hutBackX, sy - 10);
+      ctx.lineTo(hutBackX + 6, sy - 5);
+      ctx.closePath();
       ctx.fill();
+      // Ventana cálida
+      ctx.fillStyle = "rgba(255, 220, 140, 0.92)";
+      ctx.fillRect(hutBackX - 2, sy - 2, 4, 4);
+
+      // Línea de suelo del canal (suelo de roca)
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(mouthScreenX - 2, sy + mouthHalfH - 1);
+      ctx.lineTo(mouthScreenX + channelLen, sy + backHalfH - 1);
+      ctx.stroke();
+
+      // Marca "E" si el climber está cerca
+      const climber = state.climber;
+      if (Math.abs(climber.y - cave.mouthY) < 60 && !state.intro.active) {
+        ctx.fillStyle = "rgba(255, 246, 220, 0.95)";
+        ctx.font = "bold 9px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("E", mouthScreenX - 14, sy);
+        ctx.strokeStyle = "rgba(255, 246, 220, 0.6)";
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.arc(mouthScreenX - 14, sy, 7, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     }
     ctx.restore();
   }
@@ -3310,31 +4100,68 @@
   function drawAnchor(ctx) {
     const climber = state.climber;
     if (!state.anchor.placed) return;
+    if (state.intro.active) return;
     const camX = state.cameraX;
     const camY = state.cameraY;
     const sx = state.anchor.x - camX;
     const sy = state.height - (state.anchor.y - camY);
-    if (sx >= -20 && sx <= state.width + 20 && sy >= -20 && sy <= state.height + 20) {
+    const px = climber.x - camX;
+    const py = state.height - (climber.y - camY) - 4; // arnés (cintura)
+
+    const visible = sx >= -30 && sx <= state.width + 30 && sy >= -30 && sy <= state.height + 30;
+
+    if (visible) {
       ctx.save();
-      ctx.fillStyle = "#f6c85f";
+      // Mástil del piolet hundido en la roca: sale ligeramente hacia el climber
+      ctx.strokeStyle = "#5a4630";
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = "round";
+      const shaftDx = -8; // hacia el climber (izquierda)
+      const shaftDy = -2;
       ctx.beginPath();
-      ctx.arc(sx, sy, 5, 0, Math.PI * 2);
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + shaftDx, sy + shaftDy);
+      ctx.stroke();
+
+      // Cabeza del piolet clavada en la roca (forma de T)
+      ctx.strokeStyle = "#cfd4d9";
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      ctx.moveTo(sx - 3, sy - 4);
+      ctx.lineTo(sx + 4, sy + 4);
+      ctx.stroke();
+      // Punta hundida en la roca
+      ctx.fillStyle = "#9aa1a8";
+      ctx.beginPath();
+      ctx.arc(sx + 4, sy + 4, 1.6, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "#a96b14";
-      ctx.lineWidth = 2;
+
+      // Pequeño polvo de roca debajo (residuo del impacto)
+      ctx.fillStyle = "rgba(220, 210, 200, 0.32)";
+      ctx.beginPath();
+      ctx.ellipse(sx + 1, sy + 6, 5, 1.6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Mosquetón naranja desde el piolet
+      ctx.strokeStyle = "#e08020";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(sx + shaftDx - 1, sy + shaftDy + 2, 2.2, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
-    // Cuerda
-    const px = climber.x - camX;
-    const py = state.height - (climber.y - camY);
+
+    // Cuerda desde el mosquetón al arnés
     ctx.save();
-    ctx.strokeStyle = "rgba(201, 160, 90, 0.85)";
-    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = "rgba(214, 130, 60, 0.92)";
+    ctx.lineWidth = 1.7;
     ctx.beginPath();
-    ctx.moveTo(sx, sy);
-    const ctrlY = (sy + py) / 2 + 18;
-    ctx.quadraticCurveTo(sx, ctrlY, px, py);
+    const ax = sx - 9;
+    const ay = sy - 0;
+    ctx.moveTo(ax, ay);
+    const ctrlX = (ax + px) / 2 - 6;
+    const ctrlY = Math.max(ay, py) + 14;
+    ctx.quadraticCurveTo(ctrlX, ctrlY, px, py);
     ctx.stroke();
     ctx.restore();
   }
@@ -3343,6 +4170,9 @@
 
   function drawClimber(ctx) {
     const climber = state.climber;
+    // Durante la apertura de la puerta, el climber sigue dentro de la caseta:
+    // no se dibuja hasta que la puerta esté abierta y empiece a caminar.
+    if (state.intro.active && state.intro.phase === "door") return;
     const camX = state.cameraX;
     const camY = state.cameraY;
     const sx = climber.x - camX;
@@ -3413,31 +4243,104 @@
 
   function drawClimberArms(ctx, climber) {
     const sway = Math.sin(climber.armSwing) * 4;
+    const swingT = climber.anchorSwingTimer > 0
+      ? 1 - climber.anchorSwingTimer / ANCHOR_SWING_DURATION
+      : 0;
+
     ctx.save();
     ctx.strokeStyle = "#f06544";
     ctx.lineWidth = 4;
     ctx.lineCap = "round";
-    // Brazo izquierdo (sostiene piolet)
+
+    // Brazo izquierdo (mano de apoyo en la pared)
     ctx.beginPath();
     ctx.moveTo(-5, -5);
     ctx.lineTo(-12 - sway, -10);
     ctx.lineTo(-15 - sway, -16);
     ctx.stroke();
-    // Brazo derecho (estira hacia presa)
+
+    // Brazo derecho: en swing arquea, sube y golpea hacia la roca con el piolet.
+    // Curva: 0..0.45 levantar el piolet, 0.45..0.85 golpe descendente, 0.85..1.0 reposo.
+    let elbowX = 11 + sway;
+    let elbowY = -12;
+    let handX = 13 + sway;
+    let handY = -18;
+    let pickShaftEndX = handX + 7;
+    let pickShaftEndY = handY - 6;
+    let pickHeadX = pickShaftEndX + 2;
+    let pickHeadY = pickShaftEndY + 1;
+
+    if (swingT > 0) {
+      let phase;
+      if (swingT < 0.45) {
+        // levantar el piolet por encima de la cabeza
+        phase = swingT / 0.45;
+        const e = easeOutCubic(phase);
+        elbowX = lerp(11, 6, e);
+        elbowY = lerp(-12, -22, e);
+        handX = lerp(13, 9, e);
+        handY = lerp(-18, -32, e);
+        pickShaftEndX = handX + lerp(7, 14, e);
+        pickShaftEndY = handY + lerp(-6, -14, e);
+      } else if (swingT < 0.85) {
+        // golpe: cae con fuerza hacia la pared (arriba/derecha)
+        phase = (swingT - 0.45) / 0.4;
+        const e = easeOutCubic(phase);
+        elbowX = lerp(6, 14, e);
+        elbowY = lerp(-22, -16, e);
+        handX = lerp(9, 18, e);
+        handY = lerp(-32, -22, e);
+        pickShaftEndX = handX + lerp(14, 14, e);
+        pickShaftEndY = handY + lerp(-14, 0, e);
+      } else {
+        // reposo breve tras el golpe
+        phase = (swingT - 0.85) / 0.15;
+        const e = easeOutCubic(phase);
+        elbowX = lerp(14, 11, e);
+        elbowY = lerp(-16, -12, e);
+        handX = lerp(18, 13, e);
+        handY = lerp(-22, -18, e);
+        pickShaftEndX = handX + lerp(14, 7, e);
+        pickShaftEndY = handY + lerp(0, -6, e);
+      }
+      pickHeadX = pickShaftEndX + 2;
+      pickHeadY = pickShaftEndY + 1;
+    }
+
     ctx.beginPath();
     ctx.moveTo(5, -5);
-    ctx.lineTo(11 + sway, -12);
-    ctx.lineTo(13 + sway, -18);
+    ctx.lineTo(elbowX, elbowY);
+    ctx.lineTo(handX, handY);
     ctx.stroke();
 
-    // Piolet
-    ctx.strokeStyle = "#aaa";
-    ctx.lineWidth = 1.6;
+    // Mástil del piolet en mano derecha
+    ctx.strokeStyle = "#7a6347";
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
-    ctx.moveTo(-15 - sway, -16);
-    ctx.lineTo(-22 - sway, -22);
-    ctx.lineTo(-19 - sway, -23);
+    ctx.moveTo(handX, handY);
+    ctx.lineTo(pickShaftEndX, pickShaftEndY);
     ctx.stroke();
+
+    // Cabeza del piolet (forma de T)
+    ctx.strokeStyle = "#9aa1a8";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(pickShaftEndX - 4, pickShaftEndY + 2);
+    ctx.lineTo(pickShaftEndX + 5, pickShaftEndY - 2);
+    ctx.stroke();
+    ctx.fillStyle = "#cdd2d7";
+    ctx.beginPath();
+    ctx.arc(pickHeadX, pickHeadY, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Destello en el momento del impacto
+    if (swingT > 0.78 && swingT < 0.92) {
+      ctx.fillStyle = "rgba(255, 230, 160, 0.85)";
+      ctx.beginPath();
+      ctx.arc(pickShaftEndX + 2, pickShaftEndY, 4.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     ctx.restore();
   }
 
