@@ -4634,3 +4634,16 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Measured loader: getLevelCatalog ~0.11 ms; preparing 8 runtime levels ~287.6 ms total in Vitest.
 - Verification: platformer catalog/reachability/engine tests pass; production build passes; Sky Runner runtime chunk ~192.72 kB minified / 44.98 kB gzip; Playwright smoke passed with catalogLevelCount 132 and no console errors.
 - Concurrency note: runtime remains client-side/static; >1000 concurrent users require CDN/static hosting with cache headers rather than Vite dev server.
+
+## 2026-05-03 - Summit Ascent game.js completion
+- Anadidos hooks en src/arcade/summit-ascent/game.js: render_game_to_text, advanceTime y __summitAscentApi.
+- Payload textual incluye modo, montana, climber, recursos, progreso, clima, cueva cercana, anclaje, stats y controles.
+- Nota: progress.md no pudo editarse con apply_patch por codificacion legacy; se anade esta entrada por append ASCII desde PowerShell.
+
+## 2026-05-03 - Head Soccer mobile hold input
+- Ajustado src/games/HeadSoccerGame.jsx para mantener el estado tactil por pointerId y limpiar tambien con pointercancel, lostpointercapture, lur y isibilitychange.
+- Pendiente: validar en horizontal que mantener pulsado izquierda/derecha/salto/tiro ya no corta el input ni deja estados colgados.
+
+## 2026-05-03 - Territory Game rename
+- Renombrado el titulo visible de rcade-territory-war a Territory Game en el catalogo, cabecera del juego, overlay y SVG del asset.
+- Se mantienen las referencias internas y descripciones que mencionan Territory War como inspiracion historica.

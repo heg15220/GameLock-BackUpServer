@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Summit Ascent — Escalada de cumbre</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="summitShell" class="summit-shell" data-state="menu" data-mountain="granito" data-locale="es">
+
+    <canvas id="summitCanvas" class="summit-canvas" aria-label="Lienzo de escalada Summit Ascent"></canvas>
+
+    <!-- ======================================================== -->
+    <!-- HUD principal: barras, datos vivos, mini-mapa             -->
+    <!-- ======================================================== -->
+    <section id="summitHud" class="summit-hud" aria-hidden="false">
+
+      <header class="summit-hud-top">
+        <div class="summit-brand-card">
+          <p class="summit-eyebrow" id="hudWorldLabel">Aguja de Granito</p>
+          <h1 class="summit-title" id="hudTitle">Summit Ascent</h1>
+          <p class="summit-objective" id="hudObjective">Asciende hasta la cumbre administrando estamina, agua y anclajes.</p>
+        </div>
+        <div class="summit-quick-actions">
+          <button id="pauseBtn" class="summit-icon-btn" type="button" title="Pausa (P)" aria-label="Pausa">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.4"/><rect x="14" y="5" width="4" height="14" rx="1.4"/></svg>
+          </button>
+          <button id="caveListBtn" class="summit-icon-btn" type="button" title="Ver cuevas" aria-label="Cuevas">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19c2-7 6-12 9-12s7 5 9 12z"/></svg>
+          </button>
+          <button id="muteBtn" class="summit-icon-btn" type="button" title="Silenciar audio (M)" aria-label="Silenciar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h3l4-4v14l-4-4H5z"/><path d="M16 8a5 5 0 0 1 0 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+          <button id="fullscreenBtn" class="summit-icon-btn" type="button" title="Pantalla completa (F)" aria-label="Pantalla completa">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+          <button id="quitBtn" class="summit-icon-btn summit-icon-btn-danger" type="button" title="Volver al menú (Esc)" aria-label="Volver al menú">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="summit-vital-strip">
+        <div class="summit-bar-row">
+          <span class="summit-bar-label" id="staminaLabel">Estamina</span>
+          <div class="summit-bar"><div id="staminaFill" class="summit-bar-fill summit-bar-fill-stamina"></div></div>
+          <strong class="summit-bar-value" id="staminaValue">100</strong>
+        </div>
+        <div class="summit-bar-row">
+          <span class="summit-bar-label" id="waterLabel">Agua</span>
+          <div class="summit-bar"><div id="waterFill" class="summit-bar-fill summit-bar-fill-water"></div></div>
+          <strong class="summit-bar-value" id="waterValue">100</strong>
+        </div>
+        <div class="summit-bar-row">
+          <span class="summit-bar-label" id="gripLabel">Agarre</span>
+          <div class="summit-bar"><div id="gripFill" class="summit-bar-fill summit-bar-fill-grip"></div></div>
+          <strong class="summit-bar-value" id="gripValue">100</strong>
+        </div>
+        <div class="summit-bar-row">
+          <span class="summit-bar-label" id="ascentLabel">Ascenso</span>
+          <div class="summit-bar"><div id="ascentFill" class="summit-bar-fill summit-bar-fill-ascent"></div></div>
+          <strong class="summit-bar-value" id="ascentValue">0%</strong>
+        </div>
+      </div>
+
+      <div class="summit-stat-grid">
+        <div class="summit-stat-pill summit-stat-pill-altitude">
+          <span class="summit-stat-label" id="altitudeLabel">Altitud</span>
+          <strong id="altitudeValue">0 m</strong>
+        </div>
+        <div class="summit-stat-pill summit-stat-pill-weather">
+          <span class="summit-stat-label" id="weatherLabel">Clima</span>
+          <strong id="weatherValue">Tranquilo</strong>
+        </div>
+        <div class="summit-stat-pill summit-stat-pill-zone">
+          <span class="summit-stat-label" id="zoneLabel">Zona</span>
+          <strong id="zoneValue">Campo bajo</strong>
+        </div>
+        <div class="summit-stat-pill summit-stat-pill-food">
+          <span class="summit-stat-label" id="foodLabel">Comida</span>
+          <strong id="foodValue">2</strong>
+        </div>
+        <div class="summit-stat-pill summit-stat-pill-cave">
+          <span class="summit-stat-label" id="caveStatusLabel">Cueva</span>
+          <strong id="caveStatusValue">—</strong>
+        </div>
+        <div class="summit-stat-pill summit-stat-pill-anchor">
+          <span class="summit-stat-label" id="anchorLabel">Anclaje</span>
+          <strong id="anchorValue">Sin anclaje</strong>
+        </div>
+        <div class="summit-stat-pill summit-stat-pill-time">
+          <span class="summit-stat-label" id="timeLabel">Tiempo</span>
+          <strong id="timeValue">00:00</strong>
+        </div>
+        <div class="summit-stat-pill summit-stat-pill-best">
+          <span class="summit-stat-label" id="bestLabel">Récord</span>
+          <strong id="bestValue">0 m</strong>
+        </div>
+      </div>
+
+      <div class="summit-side-rail" id="sideRail">
+        <div class="summit-altitude-rail">
+          <div class="summit-altitude-track">
+            <div id="altitudeFill" class="summit-altitude-fill"></div>
+            <div id="altitudeMarkers" class="summit-altitude-markers"></div>
+            <div id="altitudePin" class="summit-altitude-pin"></div>
+          </div>
+          <span class="summit-altitude-summit-label" id="summitTopLabel">Cumbre</span>
+          <span class="summit-altitude-base-label" id="summitBaseLabel">Base</span>
+        </div>
+      </div>
+
+      <div id="beaconCard" class="summit-beacon-card">
+        <div>
+          <span class="summit-eyebrow" id="beaconLabel">Indicación</span>
+          <strong id="beaconTitle">Mantén el ritmo</strong>
+          <p id="beaconCopy">Los anclajes se colocan automáticamente cada cierto tramo. Espacio coloca uno manual.</p>
+        </div>
+        <div id="beaconArrow" class="summit-beacon-arrow">↑</div>
+      </div>
+
+      <div id="messageBox" class="summit-message-box hidden" role="status" aria-live="polite"></div>
+
+      <footer class="summit-controls-bar" id="controlsHelp">
+        ←→/AD mover · ↑/W escalar · ↓/S bajar · Espacio anclaje · Q beber · E cueva · F comida · M silenciar · P pausa · R reinicia · Esc menú · F pantalla completa
+      </footer>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- Touch d-pad + acciones para móvil/táctil                  -->
+    <!-- ======================================================== -->
+    <div id="touchPad" class="summit-touch-pad" aria-hidden="true">
+      <div class="summit-touch-cluster summit-touch-cluster-left">
+        <button class="summit-touch-btn summit-touch-btn-up" data-touch="up" aria-label="Escalar">↑</button>
+        <button class="summit-touch-btn summit-touch-btn-left" data-touch="left" aria-label="Mover izquierda">←</button>
+        <button class="summit-touch-btn summit-touch-btn-right" data-touch="right" aria-label="Mover derecha">→</button>
+        <button class="summit-touch-btn summit-touch-btn-down" data-touch="down" aria-label="Bajar">↓</button>
+      </div>
+      <div class="summit-touch-cluster summit-touch-cluster-right">
+        <button class="summit-touch-btn summit-touch-btn-anchor" data-touch="anchor" aria-label="Anclaje">⛏</button>
+        <button class="summit-touch-btn summit-touch-btn-water" data-touch="water" aria-label="Beber agua">💧</button>
+        <button class="summit-touch-btn summit-touch-btn-cave" data-touch="cave" aria-label="Entrar cueva">⛰</button>
+        <button class="summit-touch-btn summit-touch-btn-food" data-touch="food" aria-label="Comer">🍫</button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- Overlay: Menú principal + selección de montaña            -->
+    <!-- ======================================================== -->
+    <section id="menuOverlay" class="summit-overlay summit-overlay-menu" aria-modal="true">
+      <div class="summit-modal-card summit-menu-card" role="document">
+
+        <header class="summit-menu-header">
+          <p class="summit-eyebrow" id="menuEyebrow">Aventura vertical</p>
+          <h2 id="menuTitle">Summit Ascent</h2>
+          <p class="summit-lead" id="menuLead">Elige una montaña, gestiona estamina, agua, agarre y rutas para llegar a la cumbre antes de que el clima te cierre el paso.</p>
+        </header>
+
+        <div class="summit-locale-row">
+          <button id="localeEsBtn" class="summit-locale-btn is-active" type="button" data-locale="es">Español</button>
+          <button id="localeEnBtn" class="summit-locale-btn" type="button" data-locale="en">English</button>
+        </div>
+
+        <div class="summit-mountain-grid" id="mountainGrid"></div>
+
+        <article id="mountainDetail" class="summit-mountain-detail">
+          <header class="summit-detail-header">
+            <p class="summit-eyebrow" id="detailEyebrow">Vista previa</p>
+            <h3 id="detailName">Aguja de Granito</h3>
+            <p id="detailDescription">Selecciona una montaña para ver su perfil.</p>
+          </header>
+
+          <div class="summit-detail-grid">
+            <div>
+              <p class="summit-detail-block-label" id="detailLayersLabel">Bandas climáticas</p>
+              <ol id="detailLayersList" class="summit-detail-layers"></ol>
+            </div>
+            <div>
+              <p class="summit-detail-block-label" id="detailCavesLabel">Cuevas y refugios</p>
+              <ol id="detailCavesList" class="summit-detail-caves"></ol>
+            </div>
+          </div>
+
+          <div class="summit-detail-stats">
+            <div class="summit-detail-stat">
+              <span class="summit-detail-stat-label" id="detailHeightLabel">Altura</span>
+              <strong id="detailHeightValue">12 800 m</strong>
+            </div>
+            <div class="summit-detail-stat">
+              <span class="summit-detail-stat-label" id="detailDifficultyLabel">Dificultad</span>
+              <strong id="detailDifficultyValue">Equilibrada</strong>
+            </div>
+            <div class="summit-detail-stat">
+              <span class="summit-detail-stat-label" id="detailRecordLabel">Mejor altitud</span>
+              <strong id="detailRecordValue">0 m</strong>
+            </div>
+            <div class="summit-detail-stat">
+              <span class="summit-detail-stat-label" id="detailRunsLabel">Intentos</span>
+              <strong id="detailRunsValue">0</strong>
+            </div>
+          </div>
+        </article>
+
+        <div class="summit-menu-actions">
+          <button id="startBtn" class="summit-cta-btn" type="button">Iniciar ascenso</button>
+          <button id="randomBtn" class="summit-secondary-btn" type="button">Montaña al azar</button>
+          <button id="tutorialBtn" class="summit-secondary-btn" type="button">Cómo se juega</button>
+          <button id="resetProgressBtn" class="summit-ghost-btn" type="button">Borrar récords</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- Overlay: Tutorial                                         -->
+    <!-- ======================================================== -->
+    <section id="tutorialOverlay" class="summit-overlay summit-overlay-tutorial hidden" aria-modal="true">
+      <div class="summit-modal-card summit-tutorial-card" role="document">
+        <header class="summit-modal-header">
+          <p class="summit-eyebrow" id="tutorialEyebrow">Guía rápida</p>
+          <h2 id="tutorialTitle">Cómo se juega</h2>
+        </header>
+
+        <div class="summit-tutorial-grid">
+          <article class="summit-tutorial-block">
+            <h3 id="tutorialControlsTitle">Controles</h3>
+            <ul id="tutorialControlsList" class="summit-tutorial-list">
+              <li><kbd>←</kbd> / <kbd>A</kbd> / <kbd>→</kbd> / <kbd>D</kbd> moverse lateralmente por la pared</li>
+              <li><kbd>↑</kbd> / <kbd>W</kbd> escalar; <kbd>↓</kbd> / <kbd>S</kbd> descender controladamente</li>
+              <li><kbd>Espacio</kbd> coloca un anclaje manual con piolet</li>
+              <li><kbd>Q</kbd> bebe del cantimplora · <kbd>F</kbd> consume una ración</li>
+              <li><kbd>E</kbd> entrar/salir de cueva al pasar por la entrada</li>
+              <li><kbd>P</kbd> pausa · <kbd>R</kbd> reinicia · <kbd>Esc</kbd> menú · <kbd>F</kbd> pantalla completa</li>
+            </ul>
+          </article>
+
+          <article class="summit-tutorial-block">
+            <h3 id="tutorialResourcesTitle">Recursos</h3>
+            <ul id="tutorialResourcesList" class="summit-tutorial-list">
+              <li><strong>Estamina:</strong> baja al escalar y se acelera con clima adverso. Si llega a 0 caes.</li>
+              <li><strong>Agua:</strong> beber repone estamina y refresca el agarre. Las cuevas la rellenan.</li>
+              <li><strong>Agarre:</strong> indica calidad de presa actual; baja en hielo y lluvia.</li>
+              <li><strong>Anclajes:</strong> manual con Espacio. La cuerda tiene alcance limitado: cuando llegas al tope, clava otro piolet para seguir subiendo. También atrapa caídas cortas.</li>
+              <li><strong>Cuevas:</strong> hasta 6 por montaña. Reponen agua, comida y permiten descansar.</li>
+            </ul>
+          </article>
+
+          <article class="summit-tutorial-block">
+            <h3 id="tutorialPerspectiveTitle">Cámara y vista</h3>
+            <p id="tutorialPerspectiveCopy">La cámara es lateral con seguimiento suave en X e Y, mostrando un corte de la montaña con materiales incrustados (presas, hielo, vetas, ledges). El cielo se desplaza con paralaje cuando te mueves; el suelo y la cumbre quedan referenciados en la barra de altitud lateral.</p>
+          </article>
+
+          <article class="summit-tutorial-block">
+            <h3 id="tutorialClimateTitle">Clima por bandas</h3>
+            <ul id="tutorialClimateList" class="summit-tutorial-list">
+              <li><span class="summit-climate-dot" data-climate="calm"></span> Tranquilo: drenaje base.</li>
+              <li><span class="summit-climate-dot" data-climate="wind"></span> Viento: añade deriva lateral y consumo.</li>
+              <li><span class="summit-climate-dot" data-climate="fog"></span> Niebla: visibilidad reducida y agarre frío.</li>
+              <li><span class="summit-climate-dot" data-climate="rain"></span> Lluvia: roca resbaladiza, agarre debilitado.</li>
+              <li><span class="summit-climate-dot" data-climate="snow"></span> Nieve: estamina alta y peligro de caída.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="summit-modal-actions">
+          <button id="tutorialBackBtn" class="summit-cta-btn" type="button">Volver al menú</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- Overlay: Pausa                                            -->
+    <!-- ======================================================== -->
+    <section id="pauseOverlay" class="summit-overlay summit-overlay-pause hidden" aria-modal="true">
+      <div class="summit-modal-card summit-pause-card" role="document">
+        <header class="summit-modal-header">
+          <p class="summit-eyebrow" id="pauseEyebrow">Ruta detenida</p>
+          <h2 id="pauseTitle">Pausa</h2>
+          <p class="summit-lead" id="pauseLead">Tómate un respiro. La estamina y el clima se reanudarán al continuar.</p>
+        </header>
+
+        <div class="summit-pause-stats" id="pauseStats"></div>
+
+        <div class="summit-modal-actions summit-modal-actions-stack">
+          <button id="resumeBtn" class="summit-cta-btn" type="button">Reanudar</button>
+          <button id="restartFromPauseBtn" class="summit-secondary-btn" type="button">Reiniciar montaña</button>
+          <button id="quitFromPauseBtn" class="summit-ghost-btn" type="button">Volver al menú</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- Overlay: Cueva                                            -->
+    <!-- ======================================================== -->
+    <section id="caveOverlay" class="summit-overlay summit-overlay-cave hidden" aria-modal="true">
+      <div class="summit-modal-card summit-cave-card" role="document">
+        <header class="summit-modal-header">
+          <p class="summit-eyebrow" id="caveEyebrow">Refugio</p>
+          <h2 id="caveTitle">Cueva del Pastor</h2>
+          <p class="summit-lead" id="caveLead">Has llegado a una grieta donde puedes recuperar fuerzas.</p>
+        </header>
+
+        <div class="summit-cave-scene" aria-hidden="true">
+          <div class="summit-cave-fire">
+            <div class="summit-cave-flame"></div>
+            <div class="summit-cave-flame summit-cave-flame-2"></div>
+            <div class="summit-cave-flame summit-cave-flame-3"></div>
+            <div class="summit-cave-fire-base"></div>
+          </div>
+          <div class="summit-cave-rocks summit-cave-rocks-l"></div>
+          <div class="summit-cave-rocks summit-cave-rocks-r"></div>
+          <div class="summit-cave-glow"></div>
+        </div>
+
+        <div class="summit-cave-grid">
+          <article class="summit-cave-block">
+            <p class="summit-detail-block-label" id="caveLootLabel">Hallazgos</p>
+            <p id="caveLootCopy" class="summit-cave-loot-copy">Encuentras agua y víveres dejados por escaladores anteriores.</p>
+            <ul class="summit-cave-resources" id="caveResourceList">
+              <li><span id="caveResourceFoodLabel">Comida disponible</span><strong id="caveResourceFoodValue">3</strong></li>
+              <li><span id="caveResourceWaterLabel">Agua disponible</span><strong id="caveResourceWaterValue">24 ml</strong></li>
+              <li><span id="caveResourceWoodLabel">Leña</span><strong id="caveResourceWoodValue">2</strong></li>
+            </ul>
+          </article>
+
+          <article class="summit-cave-block">
+            <p class="summit-detail-block-label" id="caveActionsLabel">Acciones</p>
+            <div class="summit-cave-actions">
+              <button id="caveDrinkBtn" class="summit-cave-btn" type="button">Beber agua (+18 hidratación)</button>
+              <button id="caveEatBtn" class="summit-cave-btn" type="button">Comer ración (+25 estamina)</button>
+              <button id="caveCollectFoodBtn" class="summit-cave-btn" type="button">Recoger comida disponible</button>
+              <button id="caveRestBtn" class="summit-cave-btn" type="button">Descansar 30 segundos</button>
+              <button id="caveLeaveBtn" class="summit-cave-btn summit-cave-btn-leave" type="button">Salir y continuar</button>
+            </div>
+          </article>
+
+          <article class="summit-cave-block summit-cave-block-wide">
+            <p class="summit-detail-block-label" id="caveStateLabel">Estado actual</p>
+            <ul class="summit-cave-state" id="caveStateList">
+              <li>Estamina: <strong id="caveStateStamina">100/100</strong></li>
+              <li>Agua: <strong id="caveStateWater">100/100</strong></li>
+              <li>Agarre: <strong id="caveStateGrip">100/100</strong></li>
+              <li>Comida: <strong id="caveStateFood">2 raciones</strong></li>
+              <li>Altitud actual: <strong id="caveStateAltitude">0 m</strong></li>
+              <li>Tiempo en montaña: <strong id="caveStateTime">00:00</strong></li>
+            </ul>
+          </article>
+        </div>
+
+        <p id="caveNote" class="summit-cave-note">Los pasos al fuego se oyen lejanos. La pared exterior huele a piedra mojada.</p>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- Overlay: Final (game over / cumbre)                       -->
+    <!-- ======================================================== -->
+    <section id="endingOverlay" class="summit-overlay summit-overlay-end hidden" aria-modal="true">
+      <div class="summit-modal-card summit-end-card" role="document">
+        <header class="summit-modal-header">
+          <p class="summit-eyebrow" id="endingEyebrow">Resultado</p>
+          <h2 id="endingTitle">La cumbre te espera</h2>
+          <p class="summit-lead" id="endingLead">Resumen de tu intento.</p>
+        </header>
+
+        <div class="summit-end-stats" id="endingStats"></div>
+
+        <div class="summit-end-summary" id="endingSummary"></div>
+
+        <div class="summit-modal-actions">
+          <button id="endingRestartBtn" class="summit-cta-btn" type="button">Reintentar montaña</button>
+          <button id="endingChangeBtn" class="summit-secondary-btn" type="button">Cambiar montaña</button>
+          <button id="endingShareBtn" class="summit-ghost-btn" type="button">Copiar resumen</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- Toast (mensajes ligeros)                                  -->
+    <!-- ======================================================== -->
+    <div id="toast" class="summit-toast hidden" role="alert" aria-live="assertive"></div>
+
+  </div>
+
+  <script src="./game.js" defer></script>
+</body>
+</html>

@@ -85,6 +85,7 @@ import strategyMansionTripleEnigmaImage from "../assets/games/strategy-mansion-t
 import strategyMansionTripleEnigmaImageEn from "../assets/games/strategy-mansion-triple-enigma-en.svg";
 import race2dproImage from "../assets/games/race2dpro-catalog.png";
 import sunsetSlipstreamImage from "../assets/games/sunset-slipstream.svg";
+import arcadeSummitAscentImage from "../assets/games/arcade-summit-ascent.svg";
 
 /**
  * Game catalog
@@ -351,7 +352,7 @@ export const games = [
     image: arcadeTerritoryWarImage,
     sessionTime: "4-10 min",
 
-    title: "Territory War: Stick Arena",
+    title: "Territory Game",
     category: "Arcade",
     tagline: "Batalla por turnos con equipos stickman, altura, saltos y granadas.",
     description:
@@ -2613,7 +2614,7 @@ export const games = [
     id: "arcade-retro-snake-classic",
     image: arcadeRetroSnakeClassicImage,
     sessionTime: "2-6 min",
-    title: "Snake Classico 1977",
+    title: "Snake",
     category: "Arcade",
     tagline: "Snake cl\u00e1sico: come, crece y evita chocar contigo mismo.",
     description: "Relectura visual de Snake con tablero glow, fondo dinÃ¡mico y sprites mÃ¡s legibles. Mantiene control preciso por rejilla, progresiÃ³n por nivel y sesiones cortas con sensaciÃ³n de arcade actual.",
@@ -2651,7 +2652,7 @@ export const games = [
     id: "arcade-retro-breakout-1986",
     image: arcadeRetroBreakout1986Image,
     sessionTime: "3-7 min",
-    title: "Breakout 1986 Remix",
+    title: "Breakout",
     category: "Arcade",
     tagline: "Rompebloques: mant\u00e9n la bola viva y limpia ladrillos.",
     description: "Breakout reinterpretado con escenario de cabina, trazas de bola, glow de impactos y lectura visual profesional. Conserva las capas de resistencia, el control fino de rebote y el power-up tÃ¡ctico de pala.",
@@ -2803,7 +2804,7 @@ export const games = [
     id: "arcade-retro-bomber-grid",
     image: arcadeRetroBomberGridImage,
     sessionTime: "4-10 min",
-    title: "Bomber Grid 1989",
+    title: "Bomber",
     category: "Arcade",
     tagline: "Bomber de laberinto: pon bombas, abre caminos y atrapa rivales.",
     description: "Arcade de laberinto tipo bomber con rediseÃ±o visual profundo: tiles con materiales diferenciados, bombas y llamas mÃ¡s legibles, y feedback visual reforzado para jugar rÃ¡pido sin perder precisiÃ³n.",
@@ -3257,5 +3258,70 @@ export const games = [
     viability_en: "High: deterministic Canvas engine, exact ballistic physics, and serialisable state.",
     visualStyle_en: "NBA/FIBA training gymnasium with hardwood floor, overhead lighting, and regulation basket in custom 3D perspective.",
     techFocus_en: "Custom 3D perspective projection, ballistic physics with sub-stepping, spherical rim + backboard collision, and real-time trajectory preview.",
+  },
+
+  {
+    id: "arcade-summit-ascent",
+    image: arcadeSummitAscentImage,
+    sessionTime: "15-25 min",
+
+    title: "Ascenso a la Cumbre",
+    category: "Arcade",
+    tagline: "Escalada vertical 2D: gestiona estamina, cuevas y meteorología hasta plantar la bandera.",
+    description:
+      "Un juego de escalada vertical 2D con un mundo de 16.000 px de altura partido en 8 bandas climáticas (campo base, bosque, roca calma, viento, niebla, tormenta, nieve y cumbre). El escalador articulado tiene cuatro extremidades animadas con un ciclo real de planteo y empuje, casco rojo con gafas, mochila con esterilla, arnés con cuerda visible al último anclaje y dos piolets que se clavan al colocar un anclaje (Espacio). La estamina baja con cada metro escalado y se acelera en bandas hostiles; el clima además recorta el grip lateral. Tres prototipos de montaña — Pico Volcán Negro, Crestas de Hielo Azul y Torre de Granito Dorado — generan paletas, cielo y partículas únicas (cenizas, nieve, lluvia, aurora, magma). Seis cuevas estratégicas reparten comida y agua a lo largo de la subida; si la estamina llega a 0 te sueltas y caes en picado, y solo la cuerda al último anclaje puede salvarte (con penalización).",
+    objective_es:
+      "Sube desde el campo base hasta la bandera de la cumbre (4350 m). Reparte fuerzas entre cuevas: come, bebe agua y planta anclajes para que la cuerda te frene si te sueltas.",
+    howToPlay_es:
+      "↑/W escala, ↓/S baja, ←→/A D mueve lateral por la pared. Espacio planta un anclaje (piolet) que se convierte en el siguiente seguro de la cuerda; mientras subes se autoplantan cada cierta distancia. Q bebe una cantimplora y devuelve estamina; E entra en una cueva si estás en su lado y altura. Dentro de la cueva canjeas comida (+stamina) o coges cantimploras extras y sales con E/Esc.",
+    highlights: [
+      "Mundo vertical de 16.000 px con 8 bandas climáticas y cámara que sigue al escalador con suavizado.",
+      "3 prototipos de montaña con paletas, cielo, partículas y silueta procedural distintas (volcán/hielo/granito).",
+      "Escalador rigeado: 4 extremidades con ciclo de planteo (pares opuestos), arnés con cuerda real al anclaje, piolets cruzados, casco con gafas y mochila con esterilla.",
+      "Sistema de stamina con drenes diferenciados: idle, escalada, lateral, descenso y modificadores por viento, niebla, lluvia y nieve.",
+      "Anclajes manuales con Espacio + auto-anclaje cada 180 px de subida; la cuerda dibuja un sag físico entre escalador y anclaje.",
+      "Mecánica de caída: si te quedas sin estamina te sueltas, gravedad 1450 px/s²; la cuerda te puede frenar si llegas al final del rope length (con −28 stamina).",
+      "Ráfagas de viento que oscilan lateralmente al escalador en bandas tormentosas y de viento.",
+      "6 cuevas estratégicamente distribuidas con menú de canje: 3 platos por cueva (sopa, cecina, barras, té...) más cantimploras de bonus.",
+      "Partículas climáticas reales: lluvia direccional, copos a la deriva, cenizas volcánicas, streaks de viento y bandas de niebla móviles.",
+      "Selector inicial con 3 cards de prototipo (mini ilustración, nombre, descripción) navegable con flechas o ratón/touch.",
+      "HUD vertical con barra de stamina, agua, altímetro y minimapa de banda actual; toast de mensajes y récord de altitud persistente.",
+      "Audio procedural via Web Audio API: anclaje, beber, hit de cuerda, victoria.",
+      "Pad táctil direccional + acciones (anclaje, agua, cueva) para móvil.",
+    ],
+    difficulty: "Media-alta",
+    multiplayer: "Solo",
+    viability: "Alta: Canvas 2D puro, runtime separado del render, estado serializable, sin dependencias externas.",
+    visualStyle: "Pintura digital realista: cielo gradiente por banda, parallax de cordilleras lejanas, pared con strata, cuevas con glow cálido, escalador estilo cómic.",
+    techFocus: "Mundo vertical con cámara suavizada, escalador rigeado por extremidades con phase reach, física de caída + cuerda con catch, generación procedural seedeada y partículas climáticas por banda.",
+
+    category_en: "Arcade",
+    tagline_en: "Vertical 2D climbing: manage stamina, caves, and weather to plant the summit flag.",
+    description_en:
+      "A vertical 2D climbing game with a 16,000 px world split into 8 weather bands (base camp, forest, calm rock, wind, fog, storm, snow, summit). The rigged climber has four animated limbs with a real plant-and-push cycle, red helmet with goggles, backpack with bedroll, harness with a visible rope to the last anchor, and twin ice axes that strike whenever an anchor is planted (Space). Stamina drains with each metre climbed and accelerates in hostile bands; weather also reduces lateral grip. Three mountain prototypes — Black Volcano Peak, Blue Ice Ridges, and Golden Granite Tower — generate unique palettes, skies, and particles (ash, snow, rain, aurora, magma). Six strategically placed caves serve food and water; if your stamina hits zero you slip and fall, and only the rope to your last anchor can save you (with a penalty).",
+    objective_en:
+      "Climb from base camp to the summit flag (4350 m). Pace yourself between caves: eat, drink water, and plant anchors so the rope catches you if you slip.",
+    howToPlay_en:
+      "↑/W climbs, ↓/S descends, ←→/A D moves laterally on the wall. Space plants an anchor (ice axe) that becomes your next rope safety; auto-anchors drop every so often as you climb. Q drinks a water bottle for stamina; E enters a cave if you are at the right side and height. Inside the cave you trade food (+stamina) or grab extra bottles and leave with E/Esc.",
+    highlights_en: [
+      "16,000 px vertical world with 8 weather bands and a smooth-following camera.",
+      "3 mountain prototypes with distinct palettes, skies, particles, and procedural silhouettes (volcano / ice / granite).",
+      "Rigged climber: 4 limbs with paired plant cycles, harness with a live rope to the anchor, twin ice axes, helmeted head with goggles, backpack with bedroll.",
+      "Stamina system with separate drains: idle, climbing, lateral, descending, plus modifiers for wind, fog, rain, and snow.",
+      "Manual anchors with Space + auto-anchors every 180 px climbed; the rope renders with a physical sag between climber and anchor.",
+      "Fall mechanic: if stamina hits zero you slip, gravity 1450 px/s²; the rope catches you when you reach rope length (with −28 stamina).",
+      "Wind gusts laterally sway the climber in stormy and windy bands.",
+      "6 strategically placed caves with a trade menu: 3 dishes per cave (soup, jerky, bars, tea…) plus bonus water bottles.",
+      "Real weather particles: directional rain, drifting flakes, volcanic ash, wind streaks, moving fog bands.",
+      "Start menu with 3 prototype cards (mini illustration, name, blurb) navigable with arrows or mouse/touch.",
+      "Vertical HUD with stamina bar, water, altimeter, and current-band minimap; toast messages and persistent altitude record.",
+      "Procedural audio via Web Audio API: anchor, drink, rope catch, victory.",
+      "On-screen touch D-pad + action buttons (anchor, water, cave) for mobile.",
+    ],
+    difficulty_en: "Medium-hard",
+    multiplayer_en: "Solo",
+    viability_en: "High: pure Canvas 2D, runtime separated from render, serialisable state, no external dependencies.",
+    visualStyle_en: "Digital painting feel: gradient sky per band, parallax distant ranges, stratified rock walls, warm-glow cave entrances, comic-style climber.",
+    techFocus_en: "Vertical world with smoothed camera, limb-rigged climber with phase reach, fall + rope-catch physics, seeded procedural generation, and per-band weather particles.",
   },
 ];

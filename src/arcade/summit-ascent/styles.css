@@ -1,0 +1,2005 @@
+/* ============================================================
+   Summit Ascent — Standalone HTML game
+   Estilos del shell, HUD, overlays, animaciones y temas.
+   ============================================================ */
+
+:root {
+  --summit-bg-deep: #050a18;
+  --summit-bg-mid: #0c1428;
+  --summit-bg-soft: #14223e;
+  --summit-panel: rgba(10, 18, 32, 0.78);
+  --summit-panel-strong: rgba(7, 13, 24, 0.94);
+  --summit-panel-soft: rgba(20, 34, 60, 0.62);
+  --summit-card: rgba(15, 25, 44, 0.95);
+  --summit-text: #f4f7fb;
+  --summit-text-muted: #9eb1cc;
+  --summit-text-dim: #6f8099;
+  --summit-accent: #f6c85f;
+  --summit-accent-soft: #ffd47a;
+  --summit-accent-strong: #f0b03a;
+  --summit-warn: #ff7a59;
+  --summit-danger: #ff5469;
+  --summit-good: #5be39a;
+  --summit-water: #5fa8ff;
+  --summit-grip: #d586ff;
+  --summit-stamina-low: #ff7a7a;
+  --summit-stamina-mid: #facc15;
+  --summit-stamina-high: #5be39a;
+  --summit-rope: #c9a05a;
+  --summit-snow: #e7eef7;
+  --summit-rock-base: #344057;
+  --summit-rock-shade: #1c2436;
+  --summit-rock-light: #4d5a73;
+  --summit-anchor: #f6c85f;
+  --summit-cave-glow: #ffb469;
+  --summit-radius-lg: 22px;
+  --summit-radius-md: 16px;
+  --summit-radius-sm: 12px;
+  --summit-shadow-lg: 0 28px 80px rgba(0, 0, 0, 0.55);
+  --summit-shadow-md: 0 18px 38px rgba(0, 0, 0, 0.42);
+  --summit-shadow-soft: 0 10px 22px rgba(0, 0, 0, 0.28);
+  --summit-bezel: 1px solid rgba(255, 255, 255, 0.08);
+  --summit-bezel-strong: 1px solid rgba(255, 255, 255, 0.18);
+  --summit-bezel-accent: 1px solid rgba(246, 200, 95, 0.55);
+  --summit-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Helvetica Neue", Arial, sans-serif;
+  --summit-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", "Fira Code",
+    Menlo, Consolas, monospace;
+  --summit-transition: 220ms cubic-bezier(0.22, 0.65, 0.21, 1);
+  --summit-transition-slow: 420ms cubic-bezier(0.22, 0.65, 0.21, 1);
+}
+
+/* Tematización por montaña activa (variables sobrescritas en JS) */
+[data-mountain="granito"] {
+  --summit-theme-sky-top: #8eb6e5;
+  --summit-theme-sky-bottom: #1d2a48;
+  --summit-theme-rock: #495568;
+  --summit-theme-rock-deep: #2a3245;
+  --summit-theme-accent: #c8d3e7;
+  --summit-theme-glow: rgba(180, 200, 235, 0.35);
+}
+[data-mountain="volcan"] {
+  --summit-theme-sky-top: #f0a378;
+  --summit-theme-sky-bottom: #2a1a25;
+  --summit-theme-rock: #6f3d33;
+  --summit-theme-rock-deep: #361c1a;
+  --summit-theme-accent: #ffb27a;
+  --summit-theme-glow: rgba(255, 130, 90, 0.42);
+}
+[data-mountain="hielo"] {
+  --summit-theme-sky-top: #cfe7ff;
+  --summit-theme-sky-bottom: #1a2638;
+  --summit-theme-rock: #4f6478;
+  --summit-theme-rock-deep: #1f2c3d;
+  --summit-theme-accent: #b5d6f0;
+  --summit-theme-glow: rgba(170, 210, 240, 0.45);
+}
+[data-mountain="dunas"] {
+  --summit-theme-sky-top: #ffd58a;
+  --summit-theme-sky-bottom: #4a2a1a;
+  --summit-theme-rock: #8a6a4a;
+  --summit-theme-rock-deep: #3a2a1a;
+  --summit-theme-accent: #ffe1a3;
+  --summit-theme-glow: rgba(255, 200, 120, 0.4);
+}
+[data-mountain="jade"] {
+  --summit-theme-sky-top: #a5e6c8;
+  --summit-theme-sky-bottom: #14302a;
+  --summit-theme-rock: #2f5a48;
+  --summit-theme-rock-deep: #102820;
+  --summit-theme-accent: #c9f6dc;
+  --summit-theme-glow: rgba(120, 220, 170, 0.4);
+}
+
+/* ------------------------------------------------------------
+   Shell base (host del juego)
+------------------------------------------------------------ */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: var(--summit-font);
+  color: var(--summit-text);
+  background: var(--summit-bg-deep);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.summit-shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  background: radial-gradient(
+      circle at 50% 18%,
+      var(--summit-bg-soft) 0%,
+      var(--summit-bg-mid) 42%,
+      var(--summit-bg-deep) 100%
+    );
+  isolation: isolate;
+}
+
+.summit-canvas {
+  position: relative;
+  grid-column: 1;
+  grid-row: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--summit-theme-sky-top, #8eb6e5) 0%,
+    var(--summit-theme-sky-bottom, #1d2a48) 88%,
+    #050a18 100%
+  );
+  touch-action: none;
+  z-index: 0;
+}
+
+.summit-shell.hidden {
+  display: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------
+   HUD principal
+------------------------------------------------------------ */
+.summit-hud {
+  position: relative;
+  grid-column: 1;
+  grid-row: 1;
+  pointer-events: none;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto auto 1fr auto;
+  padding: 16px clamp(16px, 3vw, 28px);
+  gap: 10px;
+  font-size: clamp(12px, 1.4vw, 14px);
+}
+
+.summit-hud > * {
+  pointer-events: auto;
+}
+
+.summit-hud-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.summit-brand-card {
+  background: var(--summit-panel);
+  border: var(--summit-bezel-strong);
+  padding: 12px 16px;
+  border-radius: var(--summit-radius-md);
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  max-width: clamp(260px, 38vw, 460px);
+  box-shadow: var(--summit-shadow-soft);
+}
+
+.summit-eyebrow {
+  margin: 0 0 4px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--summit-text-muted);
+  font-weight: 700;
+}
+
+.summit-title {
+  margin: 0;
+  font-size: clamp(20px, 2.8vw, 28px);
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  background: linear-gradient(
+    90deg,
+    var(--summit-accent),
+    var(--summit-accent-soft),
+    var(--summit-text)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.summit-objective {
+  margin: 6px 0 0;
+  color: var(--summit-text-muted);
+  line-height: 1.45;
+  font-size: 13px;
+  max-width: 460px;
+}
+
+.summit-quick-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.summit-icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: var(--summit-bezel-strong);
+  background: var(--summit-panel);
+  color: var(--summit-text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--summit-transition);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--summit-shadow-soft);
+}
+.summit-icon-btn:hover {
+  background: rgba(35, 50, 78, 0.94);
+  border-color: rgba(255, 255, 255, 0.32);
+  transform: translateY(-2px);
+}
+.summit-icon-btn:active {
+  transform: translateY(1px);
+}
+.summit-icon-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+  stroke: currentColor;
+}
+.summit-icon-btn-danger {
+  border-color: rgba(255, 100, 110, 0.55);
+}
+.summit-icon-btn-danger:hover {
+  background: rgba(60, 22, 30, 0.92);
+  border-color: rgba(255, 130, 130, 0.85);
+}
+
+/* Vital strip: barras de estamina/agua/agarre/ascenso */
+.summit-vital-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  background: var(--summit-panel);
+  padding: 12px 16px;
+  border-radius: var(--summit-radius-md);
+  border: var(--summit-bezel-strong);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  max-width: clamp(360px, 56vw, 720px);
+  box-shadow: var(--summit-shadow-soft);
+}
+
+.summit-bar-row {
+  display: grid;
+  grid-template-columns: 78px 1fr 56px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.summit-bar-label {
+  color: var(--summit-text-muted);
+}
+
+.summit-bar-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--summit-mono);
+  font-weight: 700;
+  color: var(--summit-text);
+  font-size: 12px;
+}
+
+.summit-bar {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.summit-bar-fill {
+  height: 100%;
+  width: 50%;
+  border-radius: 999px;
+  transition: width 140ms linear, background 320ms ease;
+  position: relative;
+}
+
+.summit-bar-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.summit-bar-fill-stamina {
+  background: linear-gradient(
+    90deg,
+    var(--summit-stamina-low),
+    var(--summit-stamina-mid),
+    var(--summit-stamina-high)
+  );
+}
+
+.summit-bar-fill-water {
+  background: linear-gradient(90deg, #2563eb, var(--summit-water));
+}
+
+.summit-bar-fill-grip {
+  background: linear-gradient(90deg, #ff7a59, var(--summit-grip));
+}
+
+.summit-bar-fill-ascent {
+  background: linear-gradient(
+    90deg,
+    var(--summit-water),
+    #b8c8ff,
+    var(--summit-text)
+  );
+}
+
+/* Pills de estado */
+.summit-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: 8px;
+  background: var(--summit-panel);
+  padding: 10px 12px;
+  border-radius: var(--summit-radius-md);
+  border: var(--summit-bezel-strong);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  max-width: clamp(360px, 56vw, 720px);
+  box-shadow: var(--summit-shadow-soft);
+}
+
+.summit-stat-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 7px 10px;
+  border-radius: 11px;
+  min-height: 46px;
+  justify-content: center;
+}
+
+.summit-stat-pill strong {
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--summit-mono);
+}
+
+.summit-stat-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--summit-text-muted);
+  font-weight: 700;
+}
+
+.summit-stat-pill-altitude strong {
+  color: var(--summit-water);
+}
+.summit-stat-pill-weather strong {
+  color: var(--summit-accent);
+}
+.summit-stat-pill-zone strong {
+  color: var(--summit-grip);
+}
+.summit-stat-pill-food strong {
+  color: var(--summit-good);
+}
+.summit-stat-pill-cave strong {
+  color: var(--summit-cave-glow);
+}
+.summit-stat-pill-anchor strong {
+  color: var(--summit-anchor);
+}
+.summit-stat-pill-time strong {
+  color: var(--summit-text);
+}
+.summit-stat-pill-best strong {
+  color: var(--summit-accent-soft);
+}
+
+/* Side rail: barra de altitud lateral */
+.summit-side-rail {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.summit-altitude-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border-radius: var(--summit-radius-md);
+  background: var(--summit-panel);
+  border: var(--summit-bezel-strong);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  height: clamp(280px, 60vh, 480px);
+  box-shadow: var(--summit-shadow-soft);
+}
+
+.summit-altitude-track {
+  position: relative;
+  width: 16px;
+  height: 100%;
+  background: linear-gradient(180deg, #f4f7fb 0%, #314360 60%, #16203a 100%);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.summit-altitude-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0%;
+  background: linear-gradient(
+    180deg,
+    var(--summit-accent),
+    var(--summit-water)
+  );
+  transition: height 220ms ease;
+}
+
+.summit-altitude-markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.summit-altitude-marker {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.summit-altitude-marker.is-cave::after {
+  content: "•";
+  position: absolute;
+  right: -14px;
+  top: -10px;
+  color: var(--summit-cave-glow);
+  font-size: 16px;
+  text-shadow: 0 0 6px var(--summit-cave-glow);
+}
+
+.summit-altitude-pin {
+  position: absolute;
+  left: -8px;
+  width: 24px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--summit-accent);
+  bottom: 0;
+  transform: translateY(50%);
+  box-shadow: 0 0 12px rgba(246, 200, 95, 0.7);
+  transition: bottom 220ms ease;
+}
+
+.summit-altitude-summit-label,
+.summit-altitude-base-label {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--summit-text-muted);
+  font-weight: 700;
+}
+
+/* Beacon card: indicador de objetivo cercano */
+.summit-beacon-card {
+  position: absolute;
+  bottom: 86px;
+  left: clamp(16px, 2vw, 28px);
+  background: var(--summit-panel-strong);
+  border: var(--summit-bezel-strong);
+  border-radius: var(--summit-radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: clamp(280px, 36vw, 380px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--summit-shadow-md);
+  pointer-events: auto;
+}
+
+.summit-beacon-card .summit-eyebrow {
+  margin-bottom: 2px;
+}
+
+.summit-beacon-card strong {
+  display: block;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.summit-beacon-card p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--summit-text-muted);
+  line-height: 1.4;
+}
+
+.summit-beacon-arrow {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--summit-accent);
+  text-shadow: 0 0 12px rgba(246, 200, 95, 0.6);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(246, 200, 95, 0.12);
+  flex-shrink: 0;
+  transition: transform 280ms ease;
+}
+
+@keyframes summit-beacon-bob {
+  0%,
+  100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(2px);
+  }
+}
+
+.summit-beacon-card[data-active="true"] .summit-beacon-arrow {
+  animation: summit-beacon-bob 1.4s ease-in-out infinite;
+}
+
+/* Mensaje toast en HUD */
+.summit-message-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  background: var(--summit-panel-strong);
+  border: var(--summit-bezel-accent);
+  border-radius: var(--summit-radius-md);
+  padding: 18px 24px;
+  text-align: center;
+  font-size: clamp(14px, 1.6vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--summit-text);
+  box-shadow: var(--summit-shadow-md);
+  max-width: 540px;
+  opacity: 0;
+  transition: opacity 200ms ease, transform 240ms cubic-bezier(0.18, 0.9, 0.22, 1);
+  pointer-events: none;
+}
+
+.summit-message-box.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Toast lateral (mensajes ligeros) */
+.summit-toast {
+  position: absolute;
+  bottom: 110px;
+  right: 24px;
+  background: var(--summit-panel-strong);
+  border: var(--summit-bezel-strong);
+  border-radius: var(--summit-radius-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--summit-text);
+  box-shadow: var(--summit-shadow-soft);
+  z-index: 9;
+  max-width: 280px;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 200ms ease, transform 220ms ease;
+  pointer-events: none;
+}
+
+.summit-toast.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Controles ayuda inferior */
+.summit-controls-bar {
+  text-align: center;
+  font-size: 11px;
+  color: var(--summit-text-muted);
+  background: var(--summit-panel);
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: var(--summit-bezel-strong);
+  letter-spacing: 0.02em;
+  align-self: center;
+  justify-self: center;
+  margin: 0 auto;
+  max-width: calc(100% - 200px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ------------------------------------------------------------
+   Touch d-pad (ocultos por defecto; se activan en táctil)
+------------------------------------------------------------ */
+.summit-touch-pad {
+  position: absolute;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  display: none;
+  justify-content: space-between;
+  padding: 0 24px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.summit-shell[data-touch="true"] .summit-touch-pad {
+  display: flex;
+}
+
+.summit-touch-cluster {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 4px;
+  pointer-events: auto;
+}
+
+.summit-touch-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(15, 25, 45, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--summit-text);
+  font-size: 22px;
+  font-weight: 800;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 120ms ease, background 160ms ease;
+}
+.summit-touch-btn:active {
+  transform: scale(0.94);
+  background: rgba(40, 60, 100, 0.92);
+}
+
+.summit-touch-btn-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+.summit-touch-btn-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+.summit-touch-btn-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+.summit-touch-btn-down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.summit-touch-cluster-right {
+  grid-template-columns: repeat(2, 56px);
+  grid-template-rows: repeat(2, 56px);
+}
+
+.summit-touch-btn-anchor {
+  grid-column: 1;
+  grid-row: 1;
+  background: rgba(80, 56, 22, 0.7);
+}
+.summit-touch-btn-water {
+  grid-column: 2;
+  grid-row: 1;
+  background: rgba(28, 60, 110, 0.7);
+}
+.summit-touch-btn-cave {
+  grid-column: 1;
+  grid-row: 2;
+  background: rgba(80, 50, 28, 0.7);
+}
+.summit-touch-btn-food {
+  grid-column: 2;
+  grid-row: 2;
+  background: rgba(40, 70, 38, 0.7);
+}
+
+/* ------------------------------------------------------------
+   Overlay base (modal / pantalla)
+------------------------------------------------------------ */
+.summit-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 36px);
+  background: linear-gradient(
+      120deg,
+      rgba(7, 12, 24, 0.78),
+      rgba(8, 13, 25, 0.42)
+    ),
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(120, 170, 255, 0.18),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(246, 200, 95, 0.16),
+      transparent 36%
+    );
+  animation: summit-overlay-in 320ms cubic-bezier(0.18, 0.9, 0.22, 1);
+}
+
+@keyframes summit-overlay-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(2px);
+  }
+}
+
+.summit-modal-card {
+  width: min(1200px, 98vw);
+  max-height: 96vh;
+  overflow: auto;
+  background: linear-gradient(
+    180deg,
+    rgba(14, 22, 38, 0.95),
+    rgba(7, 12, 22, 0.96)
+  );
+  border: var(--summit-bezel-strong);
+  border-radius: var(--summit-radius-lg);
+  padding: clamp(20px, 3vw, 30px);
+  box-shadow: var(--summit-shadow-lg);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.summit-modal-card::-webkit-scrollbar {
+  width: 8px;
+}
+.summit-modal-card::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.summit-modal-header {
+  margin-bottom: 14px;
+}
+.summit-modal-header h2 {
+  margin: 4px 0 4px;
+  font-size: clamp(24px, 4vw, 36px);
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.summit-lead {
+  margin: 6px 0 0;
+  color: var(--summit-text-muted);
+  line-height: 1.55;
+  max-width: 760px;
+  font-size: 14px;
+}
+
+/* ------------------------------------------------------------
+   Menú: selección de montaña
+------------------------------------------------------------ */
+.summit-locale-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.summit-locale-btn {
+  border: var(--summit-bezel-strong);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--summit-text);
+  padding: 9px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  transition: var(--summit-transition);
+}
+.summit-locale-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.summit-locale-btn.is-active {
+  background: linear-gradient(
+    180deg,
+    var(--summit-accent-soft),
+    var(--summit-accent-strong)
+  );
+  color: #1a0f00;
+  border-color: rgba(246, 200, 95, 0.85);
+}
+
+.summit-mountain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.summit-mountain-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: var(--summit-bezel-strong);
+  border-radius: var(--summit-radius-md);
+  cursor: pointer;
+  transition: var(--summit-transition);
+  overflow: hidden;
+  outline: none;
+}
+.summit-mountain-card:hover,
+.summit-mountain-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(246, 200, 95, 0.7);
+  background: rgba(246, 200, 95, 0.08);
+}
+.summit-mountain-card.is-selected {
+  transform: translateY(-3px);
+  border-color: var(--summit-accent);
+  background: rgba(246, 200, 95, 0.12);
+  box-shadow: 0 18px 48px rgba(246, 200, 95, 0.18);
+}
+
+.summit-mountain-card h3 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+.summit-mountain-card p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--summit-text-muted);
+  line-height: 1.45;
+}
+
+.summit-mountain-card-thumb {
+  position: relative;
+  height: 110px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #2d3e5d, #14233f);
+}
+
+.summit-mountain-card-thumb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    var(--summit-card-sky-top, #8eb6e5) 0%,
+    var(--summit-card-sky-bottom, #1d2a48) 100%
+  );
+}
+
+.summit-mountain-card-thumb::after {
+  content: "";
+  position: absolute;
+  inset: 16px 18px 0 16px;
+  background: linear-gradient(
+    160deg,
+    var(--summit-card-rock-top, #4d5a73) 0%,
+    var(--summit-card-rock-bottom, #1c2436) 100%
+  );
+  clip-path: polygon(
+    0% 100%,
+    20% 60%,
+    32% 78%,
+    44% 30%,
+    58% 64%,
+    70% 14%,
+    86% 60%,
+    100% 100%
+  );
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+}
+
+.summit-mountain-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.summit-mountain-card-tag {
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  color: var(--summit-text-muted);
+  letter-spacing: 0.03em;
+}
+
+.summit-mountain-card-flame {
+  background: rgba(255, 130, 90, 0.18);
+  color: #ffaa86;
+}
+.summit-mountain-card-cold {
+  background: rgba(120, 200, 255, 0.18);
+  color: #aad8ff;
+}
+.summit-mountain-card-mid {
+  background: rgba(120, 220, 170, 0.18);
+  color: #a0e8c6;
+}
+
+/* Detalle de montaña seleccionada */
+.summit-mountain-detail {
+  background: rgba(255, 255, 255, 0.04);
+  border: var(--summit-bezel-strong);
+  border-radius: var(--summit-radius-md);
+  padding: 18px;
+  margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.summit-detail-header h3 {
+  margin: 4px 0 6px;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.summit-detail-header p {
+  margin: 0;
+  color: var(--summit-text-muted);
+  line-height: 1.55;
+  font-size: 13.5px;
+}
+
+.summit-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.summit-detail-block-label {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--summit-text-muted);
+  font-weight: 700;
+}
+
+.summit-detail-layers,
+.summit-detail-caves {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summit-detail-layers li,
+.summit-detail-caves li {
+  position: relative;
+  padding: 8px 12px 8px 36px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--summit-text);
+}
+
+.summit-detail-layers li::before,
+.summit-detail-caves li::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--summit-text-dim);
+  box-shadow: 0 0 6px var(--summit-text-dim);
+}
+
+.summit-detail-layers li[data-climate="calm"]::before {
+  background: #6ea3d6;
+  box-shadow: 0 0 6px #6ea3d6;
+}
+.summit-detail-layers li[data-climate="wind"]::before {
+  background: #b3c2d9;
+  box-shadow: 0 0 6px #b3c2d9;
+}
+.summit-detail-layers li[data-climate="fog"]::before {
+  background: #cdd5e3;
+  box-shadow: 0 0 6px #cdd5e3;
+}
+.summit-detail-layers li[data-climate="rain"]::before {
+  background: #5fa8ff;
+  box-shadow: 0 0 6px #5fa8ff;
+}
+.summit-detail-layers li[data-climate="snow"]::before {
+  background: #ffffff;
+  box-shadow: 0 0 8px #ffffff;
+}
+.summit-detail-layers li[data-climate="heat"]::before {
+  background: #ff8a5b;
+  box-shadow: 0 0 8px #ff8a5b;
+}
+
+.summit-detail-caves li::before {
+  background: var(--summit-cave-glow);
+  box-shadow: 0 0 8px var(--summit-cave-glow);
+}
+
+.summit-detail-layers li strong,
+.summit-detail-caves li strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.summit-detail-layers li span,
+.summit-detail-caves li span {
+  color: var(--summit-text-muted);
+  font-size: 11.5px;
+}
+
+.summit-detail-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.summit-detail-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.summit-detail-stat-label {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--summit-text-muted);
+  font-weight: 700;
+}
+
+.summit-detail-stat strong {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--summit-mono);
+  color: var(--summit-text);
+}
+
+/* Acciones del menú */
+.summit-menu-actions,
+.summit-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.summit-modal-actions-stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.summit-cta-btn {
+  appearance: none;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  color: #1a0f00;
+  background: linear-gradient(
+    180deg,
+    var(--summit-accent-soft),
+    var(--summit-accent-strong)
+  );
+  box-shadow: 0 14px 28px rgba(246, 185, 59, 0.28);
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 200ms ease;
+}
+.summit-cta-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 20px 38px rgba(246, 185, 59, 0.4);
+}
+.summit-cta-btn:active {
+  transform: translateY(1px);
+}
+
+.summit-secondary-btn {
+  appearance: none;
+  border: var(--summit-bezel-strong);
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--summit-text);
+  background: rgba(255, 255, 255, 0.05);
+  transition: var(--summit-transition);
+}
+.summit-secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.summit-ghost-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--summit-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 12px 12px;
+  border-radius: 10px;
+  transition: var(--summit-transition);
+}
+.summit-ghost-btn:hover {
+  color: var(--summit-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ------------------------------------------------------------
+   Tutorial overlay
+------------------------------------------------------------ */
+.summit-tutorial-card {
+  width: min(1080px, 96vw);
+}
+
+.summit-tutorial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.summit-tutorial-block {
+  background: rgba(255, 255, 255, 0.04);
+  border: var(--summit-bezel-strong);
+  border-radius: var(--summit-radius-md);
+  padding: 16px;
+}
+
+.summit-tutorial-block h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.summit-tutorial-list {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--summit-text);
+}
+
+.summit-tutorial-list li {
+  list-style: disc;
+  color: var(--summit-text);
+}
+
+.summit-tutorial-list strong {
+  color: var(--summit-accent);
+}
+
+kbd {
+  font-family: var(--summit-mono);
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--summit-text);
+  margin: 0 2px;
+}
+
+.summit-climate-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.summit-climate-dot[data-climate="calm"] {
+  background: #6ea3d6;
+}
+.summit-climate-dot[data-climate="wind"] {
+  background: #b3c2d9;
+}
+.summit-climate-dot[data-climate="fog"] {
+  background: #cdd5e3;
+}
+.summit-climate-dot[data-climate="rain"] {
+  background: #5fa8ff;
+}
+.summit-climate-dot[data-climate="snow"] {
+  background: #ffffff;
+}
+.summit-climate-dot[data-climate="heat"] {
+  background: #ff8a5b;
+}
+
+/* ------------------------------------------------------------
+   Pause overlay
+------------------------------------------------------------ */
+.summit-pause-card {
+  width: min(540px, 92vw);
+  text-align: center;
+}
+
+.summit-pause-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 14px 0 18px;
+  text-align: left;
+}
+
+.summit-pause-stats > div {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summit-pause-stats span {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--summit-text-muted);
+  font-weight: 700;
+}
+
+.summit-pause-stats strong {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--summit-mono);
+}
+
+/* ------------------------------------------------------------
+   Cave overlay
+------------------------------------------------------------ */
+.summit-cave-card {
+  width: min(960px, 96vw);
+  background: linear-gradient(
+    180deg,
+    rgba(40, 22, 12, 0.95),
+    rgba(20, 10, 4, 0.96)
+  );
+  border-color: rgba(246, 200, 95, 0.42);
+}
+
+.summit-cave-scene {
+  position: relative;
+  height: 160px;
+  margin: 8px 0 18px;
+  border-radius: var(--summit-radius-md);
+  overflow: hidden;
+  background: radial-gradient(
+      ellipse at center bottom,
+      rgba(255, 130, 60, 0.4),
+      transparent 65%
+    ),
+    linear-gradient(180deg, rgba(20, 8, 0, 0.78), rgba(12, 4, 0, 0.95));
+  border: 1px solid rgba(246, 200, 95, 0.18);
+}
+
+.summit-cave-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 78%,
+    rgba(255, 170, 80, 0.55) 0%,
+    rgba(255, 170, 80, 0) 60%
+  );
+  animation: summit-cave-glow 3.4s ease-in-out infinite;
+}
+
+@keyframes summit-cave-glow {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.summit-cave-fire {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+}
+
+.summit-cave-fire-base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 200, 120, 0.78),
+    rgba(255, 110, 50, 0.55)
+  );
+  filter: blur(2px);
+}
+
+.summit-cave-flame {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 60px;
+  background: radial-gradient(
+    ellipse at center,
+    #ffd28a 0%,
+    #ff9046 45%,
+    rgba(255, 130, 60, 0) 80%
+  );
+  border-radius: 50% 50% 38% 38%;
+  filter: blur(1px);
+  animation: summit-flame 1.2s ease-in-out infinite;
+}
+
+.summit-cave-flame-2 {
+  width: 22px;
+  height: 44px;
+  background: radial-gradient(
+    ellipse at center,
+    #ffe4b0,
+    #ffaa6a,
+    rgba(255, 130, 60, 0)
+  );
+  animation-duration: 0.9s;
+  animation-delay: 0.3s;
+  opacity: 0.8;
+}
+
+.summit-cave-flame-3 {
+  width: 14px;
+  height: 28px;
+  background: radial-gradient(
+    ellipse at center,
+    #fff5c8,
+    #ffba80,
+    rgba(255, 130, 60, 0)
+  );
+  animation-duration: 1.6s;
+  animation-delay: 0.6s;
+  opacity: 0.6;
+}
+
+@keyframes summit-flame {
+  0%,
+  100% {
+    transform: translateX(-50%) scaleY(1);
+  }
+  50% {
+    transform: translateX(-50%) scaleY(1.2);
+  }
+}
+
+.summit-cave-rocks {
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  width: 38%;
+  background: linear-gradient(180deg, #3a2a1a, #1a0f06);
+  clip-path: polygon(0% 100%, 12% 22%, 32% 60%, 52% 8%, 78% 56%, 100% 30%, 100% 100%);
+}
+
+.summit-cave-rocks-l {
+  left: 0;
+  filter: brightness(0.78);
+}
+
+.summit-cave-rocks-r {
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.summit-cave-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.summit-cave-block {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--summit-radius-md);
+  padding: 14px;
+}
+
+.summit-cave-block-wide {
+  grid-column: 1 / -1;
+}
+
+.summit-cave-loot-copy {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--summit-text-muted);
+  line-height: 1.5;
+}
+
+.summit-cave-resources,
+.summit-cave-state {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summit-cave-resources li,
+.summit-cave-state li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--summit-text);
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.summit-cave-resources li strong,
+.summit-cave-state li strong {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--summit-mono);
+  color: var(--summit-accent);
+}
+
+.summit-cave-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summit-cave-btn {
+  appearance: none;
+  border: 1px solid rgba(246, 200, 95, 0.4);
+  background: rgba(80, 50, 22, 0.55);
+  color: var(--summit-text);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: var(--summit-transition);
+}
+.summit-cave-btn:hover {
+  background: rgba(120, 70, 28, 0.78);
+  border-color: rgba(246, 200, 95, 0.85);
+}
+.summit-cave-btn:disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
+}
+
+.summit-cave-btn-leave {
+  background: linear-gradient(
+    180deg,
+    rgba(246, 200, 95, 0.85),
+    rgba(214, 162, 53, 0.85)
+  );
+  color: #1a0f00;
+  border-color: transparent;
+}
+.summit-cave-btn-leave:hover {
+  filter: brightness(1.06);
+}
+
+.summit-cave-note {
+  margin: 18px 0 0;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 10px;
+  border-left: 3px solid var(--summit-cave-glow);
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--summit-text-muted);
+}
+
+/* ------------------------------------------------------------
+   Ending overlay (game over / cumbre alcanzada)
+------------------------------------------------------------ */
+.summit-end-card {
+  width: min(700px, 96vw);
+  text-align: center;
+}
+
+.summit-end-card[data-result="won"] {
+  border-color: rgba(91, 227, 154, 0.5);
+}
+
+.summit-end-card[data-result="dead"] {
+  border-color: rgba(255, 84, 105, 0.5);
+}
+
+.summit-end-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 14px 0 18px;
+  text-align: left;
+}
+
+.summit-end-stats > div {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summit-end-stats span {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--summit-text-muted);
+  font-weight: 700;
+}
+
+.summit-end-stats strong {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--summit-mono);
+}
+
+.summit-end-summary {
+  background: rgba(0, 0, 0, 0.32);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: left;
+  color: var(--summit-text);
+  white-space: pre-line;
+  border-left: 3px solid var(--summit-accent);
+}
+
+/* ------------------------------------------------------------
+   Animaciones generales
+------------------------------------------------------------ */
+@keyframes summit-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(246, 200, 95, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(246, 200, 95, 0);
+  }
+}
+
+@keyframes summit-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes summit-slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes summit-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+.summit-shake {
+  animation: summit-shake 360ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+/* ------------------------------------------------------------
+   Responsive
+------------------------------------------------------------ */
+@media (max-width: 920px) {
+  .summit-hud {
+    padding: 12px;
+    gap: 8px;
+  }
+  .summit-vital-strip {
+    grid-template-columns: 1fr;
+  }
+  .summit-stat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  }
+  .summit-side-rail {
+    right: 8px;
+  }
+  .summit-altitude-rail {
+    height: clamp(220px, 50vh, 380px);
+  }
+  .summit-controls-bar {
+    max-width: 100%;
+    font-size: 10.5px;
+  }
+  .summit-beacon-card {
+    bottom: 110px;
+    left: 12px;
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 640px) {
+  .summit-brand-card {
+    padding: 9px 12px;
+  }
+  .summit-title {
+    font-size: 18px;
+  }
+  .summit-objective {
+    display: none;
+  }
+  .summit-controls-bar {
+    display: none;
+  }
+  .summit-icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+  .summit-icon-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  .summit-cave-grid {
+    grid-template-columns: 1fr;
+  }
+  .summit-detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .summit-mountain-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+  .summit-tutorial-grid {
+    grid-template-columns: 1fr;
+  }
+  .summit-side-rail {
+    display: none;
+  }
+}
+
+@media (max-height: 540px) {
+  .summit-beacon-card {
+    bottom: 12px;
+    left: 12px;
+    max-width: 240px;
+    padding: 8px 10px;
+  }
+  .summit-beacon-card p {
+    display: none;
+  }
+  .summit-controls-bar {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   Variantes por estado
+------------------------------------------------------------ */
+.summit-shell[data-state="menu"] .summit-hud,
+.summit-shell[data-state="tutorial"] .summit-hud {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.summit-shell[data-state="cave"] .summit-hud {
+  filter: blur(2px) saturate(0.8);
+}
+
+.summit-shell[data-state="dead"] .summit-canvas,
+.summit-shell[data-state="won"] .summit-canvas {
+  filter: saturate(0.6) brightness(0.75);
+}
+
+.summit-shell[data-state="paused"] .summit-canvas {
+  filter: blur(3px) saturate(0.85);
+}
+
+/* Altura justa: HUD con zonas más compactas */
+.summit-shell[data-density="compact"] .summit-vital-strip,
+.summit-shell[data-density="compact"] .summit-stat-grid {
+  padding: 8px 10px;
+}
+
+.summit-shell[data-density="compact"] .summit-stat-pill {
+  min-height: 38px;
+  padding: 4px 8px;
+}
+
+/* Indicador de carga del audio */
+.summit-shell[data-audio="muted"] .summit-icon-btn[id="muteBtn"] {
+  background: rgba(80, 30, 36, 0.78);
+  border-color: rgba(255, 130, 130, 0.6);
+  color: #ffb0b0;
+}
+
+/* ------------------------------------------------------------
+   Estilos específicos de dificultad/clima en la barra de altitud
+------------------------------------------------------------ */
+.summit-altitude-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.summit-altitude-band[data-climate="snow"] {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(220, 230, 240, 0.32));
+}
+.summit-altitude-band[data-climate="rain"] {
+  background: linear-gradient(180deg, rgba(70, 130, 200, 0.42), rgba(50, 100, 160, 0.28));
+}
+.summit-altitude-band[data-climate="fog"] {
+  background: linear-gradient(180deg, rgba(180, 200, 220, 0.45), rgba(140, 160, 180, 0.25));
+}
+.summit-altitude-band[data-climate="wind"] {
+  background: linear-gradient(180deg, rgba(170, 190, 210, 0.32), rgba(140, 170, 200, 0.18));
+}
+.summit-altitude-band[data-climate="calm"] {
+  background: linear-gradient(180deg, rgba(110, 160, 220, 0.22), rgba(70, 100, 160, 0.18));
+}
+.summit-altitude-band[data-climate="heat"] {
+  background: linear-gradient(180deg, rgba(255, 140, 90, 0.36), rgba(220, 110, 60, 0.26));
+}
+
+/* ------------------------------------------------------------
+   Mountain card themed previews
+------------------------------------------------------------ */
+.summit-mountain-card[data-mountain="granito"] .summit-mountain-card-thumb {
+  --summit-card-sky-top: #8eb6e5;
+  --summit-card-sky-bottom: #1d2a48;
+  --summit-card-rock-top: #4d5a73;
+  --summit-card-rock-bottom: #1c2436;
+}
+.summit-mountain-card[data-mountain="volcan"] .summit-mountain-card-thumb {
+  --summit-card-sky-top: #f0a378;
+  --summit-card-sky-bottom: #2a1a25;
+  --summit-card-rock-top: #6f3d33;
+  --summit-card-rock-bottom: #361c1a;
+}
+.summit-mountain-card[data-mountain="hielo"] .summit-mountain-card-thumb {
+  --summit-card-sky-top: #cfe7ff;
+  --summit-card-sky-bottom: #1a2638;
+  --summit-card-rock-top: #4f6478;
+  --summit-card-rock-bottom: #1f2c3d;
+}
+.summit-mountain-card[data-mountain="dunas"] .summit-mountain-card-thumb {
+  --summit-card-sky-top: #ffd58a;
+  --summit-card-sky-bottom: #4a2a1a;
+  --summit-card-rock-top: #8a6a4a;
+  --summit-card-rock-bottom: #3a2a1a;
+}
+.summit-mountain-card[data-mountain="jade"] .summit-mountain-card-thumb {
+  --summit-card-sky-top: #a5e6c8;
+  --summit-card-sky-bottom: #14302a;
+  --summit-card-rock-top: #2f5a48;
+  --summit-card-rock-bottom: #102820;
+}
+
+/* ------------------------------------------------------------
+   Estado deshabilitado / loading
+------------------------------------------------------------ */
+button:disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
+  filter: saturate(0.6);
+}
+
+.summit-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: summit-skeleton 1.4s linear infinite;
+  border-radius: 10px;
+}
+
+@keyframes summit-skeleton {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ------------------------------------------------------------
+   Reducción de movimiento (a11y)
+------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ------------------------------------------------------------
+   Notas finales: utilidades menores
+------------------------------------------------------------ */
+.summit-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  color: var(--summit-text-muted);
+}
+
+.summit-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.16),
+    transparent
+  );
+  margin: 14px 0;
+}
+
+.summit-text-good {
+  color: var(--summit-good);
+}
+.summit-text-warn {
+  color: var(--summit-warn);
+}
+.summit-text-danger {
+  color: var(--summit-danger);
+}
+.summit-text-mono {
+  font-family: var(--summit-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------
+   Ajustes finales del HUD (z-order, scroll suave)
+------------------------------------------------------------ */
+.summit-hud,
+.summit-overlay {
+  -webkit-overflow-scrolling: touch;
+}
+
+.summit-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 60%,
+    rgba(0, 0, 0, 0.36) 100%
+  );
+}

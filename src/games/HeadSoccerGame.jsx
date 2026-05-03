@@ -2309,6 +2309,7 @@ export default function HeadSoccerGame({ locale }) {
   const uiLocale = useMemo(() => resolveSoccerLocale(locale), [locale]);
   const stateRef = useRef(createInitialState(uiLocale));
   const controlsRef = useRef(createControlState());
+  const activeTouchPointersRef = useRef(new Map());
 
   const frameRef = useRef(0);
   const previousTimeRef = useRef(0);
@@ -2409,10 +2410,34 @@ export default function HeadSoccerGame({ locale }) {
     controlsRef.current.touch[name] = value;
   }, []);
 
+  const releaseTouchPointer = useCallback(
+    (pointerId) => {
+      const name = activeTouchPointersRef.current.get(pointerId);
+      if (!name) {
+        return;
+      }
+
+      activeTouchPointersRef.current.delete(pointerId);
+      setTouchState(name, false);
+    },
+    [setTouchState]
+  );
+
+  const releaseAllTouchPointers = useCallback(() => {
+    Array.from(activeTouchPointersRef.current.keys()).forEach((pointerId) => {
+      releaseTouchPointer(pointerId);
+    });
+  }, [releaseTouchPointer]);
+
   const bindTouchHold = useCallback(
     (name) => ({
       onPointerDown: (event) => {
+        if (event.pointerType === "mouse" && event.button !== 0) {
+          return;
+        }
+
         event.preventDefault();
+        activeTouchPointersRef.current.set(event.pointerId, name);
         try {
           event.currentTarget.setPointerCapture?.(event.pointerId);
         } catch {
@@ -2426,7 +2451,7 @@ export default function HeadSoccerGame({ locale }) {
         } catch {
           /* noop */
         }
-        setTouchState(name, false);
+        releaseTouchPointer(event.pointerId);
       },
       onPointerCancel: (event) => {
         try {
@@ -2434,11 +2459,43 @@ export default function HeadSoccerGame({ locale }) {
         } catch {
           /* noop */
         }
-        setTouchState(name, false);
+        releaseTouchPointer(event.pointerId);
+      },
+      onLostPointerCapture: (event) => {
+        releaseTouchPointer(event.pointerId);
       },
     }),
-    [setTouchState]
+    [releaseTouchPointer, setTouchState]
   );
+
+  useEffect(() => {
+    const onWindowPointerEnd = (event) => {
+      releaseTouchPointer(event.pointerId);
+    };
+
+    const onWindowBlur = () => {
+      releaseAllTouchPointers();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        releaseAllTouchPointers();
+      }
+    };
+
+    window.addEventListener("pointerup", onWindowPointerEnd);
+    window.addEventListener("pointercancel", onWindowPointerEnd);
+    window.addEventListener("blur", onWindowBlur);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pointerup", onWindowPointerEnd);
+      window.removeEventListener("pointercancel", onWindowPointerEnd);
+      window.removeEventListener("blur", onWindowBlur);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      releaseAllTouchPointers();
+    };
+  }, [releaseAllTouchPointers, releaseTouchPointer]);
 
   useEffect(() => {
     const onKeyDown = (event) => {

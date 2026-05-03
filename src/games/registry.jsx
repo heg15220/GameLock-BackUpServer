@@ -64,6 +64,7 @@ const NeonCryptGame = lazy(() => import("./arcade/neon-crypt"));
 const NeonRushGame = lazy(() => import("./arcade/neon-rush"));
 const ValleTranquiloGame = lazy(() => import("./arcade/valle-tranquilo"));
 const DigHoleTreasureGame = lazy(() => import("./arcade/dig-hole-treasure"));
+const SummitAscentGame = lazy(() => import("./arcade/summit-ascent"));
 const WikipediaGachaGame = lazy(() => import("./knowledge/wikipedia-gacha"));
 const RetroClassicsGame = lazy(() => import("./arcade/retro-classics"));
 
@@ -154,6 +155,7 @@ export const GAME_REGISTRY = {
   "arcade-neon-crypt":           NeonCryptGame,
   "arcade-neon-rush":            NeonRushGame,
   "arcade-dig-hole-treasure":    DigHoleTreasureGame,
+  "arcade-summit-ascent":        SummitAscentGame,
   "arcade-valle-tranquilo":      ValleTranquiloGame,
   "sports-basketball-court":     BasketballCourtGame,
   "arcade-pong-neon-arena":      PongGame,
@@ -233,6 +235,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-neon-crypt":           "WASD/flechas mover, ratón apuntar, Click/Espacio atacar con espada, Shift/E esquivar (invencible), recoge orbes verdes para recuperar vida. R reinicia, Esc menú.",
     "arcade-neon-rush":            "Runner de precision de 300 niveles: Espacio/arriba/click/tap salta con respuesta inmediata (jump buffer + coyote time). Incluye 1 salto aereo de apoyo por ciclo para evitar bloqueos injustos. En movil/tablet, toca cualquier zona del juego para saltar. Esquiva pinchos y techo, usa jump pads/orbes y llega al portal final. R reintenta, Esc menu.",
     "arcade-dig-hole-treasure":    "Juego de cavar hoyo 2D: click cava, A/D o flechas mueven, W/arriba/Espacio salta, I/J/K/L excavan arriba/izq/abajo/der, T coloca antorcha, B activa jetpack, E/Enter interactua con puesto, puerta y tesoro, M abre el puesto, P pausa, R reinicia y F pantalla completa.",
+    "arcade-summit-ascent":        "Escalada vertical 2D: ↑/W escala, ↓/S baja, ←→/A D mueve lateral, Espacio planta anclaje con piolet, Q bebe agua (+12 stamina), E entra/sale de cueva. Elige montaña entre Pico Volcán Negro, Crestas de Hielo Azul o Torre de Granito Dorado. Bandas de viento, niebla, lluvia y nieve drenan estamina más rápido. Sin estamina caes; la cuerda te puede salvar.",
     "arcade-valle-tranquilo":      "Sandbox de granja pixel-art: WASD/flechas mueven, 1-9 cambian herramienta, Espacio usa herramienta, E habla con NPC, B tienda, Z dormir y M mina. Click tambien interactua por casilla.",
     "arcade-stick-brawl-showdown": "Fighter arcade avanzado: A/D o flechas mover, W/arriba saltar, S/abajo bloquear, G/espacio jab, H/enter cross, J/K patadas, F proyectil, B super, P pausa y R reinicia.",
     "sports-basketball-court":     "Baloncesto 6 posiciones: arriba/abajo ajustan arco, izq/der la desviación lateral y W/S la potencia. Space o Enter lanza. P pausa, R nueva ronda y F pantalla completa.",
@@ -307,6 +310,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-neon-crypt":           "WASD/arrows move, mouse aim, Click/Space sword attack, Shift/E dash (brief invincibility). Collect green orbs to restore HP. R restart, Esc menu.",
     "arcade-neon-rush":            "300-level precision runner: Space/up/click/tap jumps with immediate response (jump-buffer + coyote-time). Includes one assist air jump per cycle to prevent unfair deadlocks. On mobile/tablet, tap anywhere in the game area to jump. Dodge spikes and ceiling traps, use jump pads/orbs, and reach each final portal. R retries, Esc menu.",
     "arcade-dig-hole-treasure":    "2D digging run: click digs, A/D or arrows move, W/up/Space jumps, I/J/K/L dig up/left/down/right, T places a torch, B triggers the jetpack, E/Enter interacts with outpost, door, and treasure, M opens the market, P pauses, R restarts, and F toggles fullscreen.",
+    "arcade-summit-ascent":        "Vertical 2D climbing: ↑/W climbs, ↓/S descends, ←→/A D lateral move, Space plants an ice-axe anchor, Q drinks water (+12 stamina), E enters/leaves a cave. Pick from Black Volcano Peak, Blue Ice Ridges, or Golden Granite Tower. Wind, fog, rain, and snow bands drain stamina faster. If stamina hits zero you fall — the rope may catch you.",
     "arcade-valle-tranquilo":      "Pixel-art farming sandbox: WASD/arrows move, 1-9 swaps tools, Space uses the current tool, E talks to villagers, B opens the shop, Z sleeps, and M enters the mine. Mouse click also interacts per tile.",
     "arcade-stick-brawl-showdown": "Advanced arcade fighter: A/D or arrows move, W/up jump, S/down block, G/space jab, H/enter cross, J/K kicks, F projectile, B super, P pause, R restart.",
     "sports-basketball-court":     "Basketball 6 positions: up/down tune arc, left/right lateral aim, W/S power. Space or Enter shoots. P pauses, R starts a new round, and F toggles fullscreen.",

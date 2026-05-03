@@ -2551,7 +2551,7 @@ export default function TerritoryWar(){
         {/* Top bar */}
         <div className="tw-top-bar">
           <div className="tw-title-block">
-            <div className="tw-title">Territory War</div>
+            <div className="tw-title">Territory Game</div>
             <div className="tw-subtitle">Tactical stick duel with revamped command HUD</div>
           </div>
           <div className="tw-toolbar-right">
@@ -2599,7 +2599,7 @@ export default function TerritoryWar(){
           {sn.mode==="menu"&&(
             <div className="tw-overlay">
               <div className="tw-overlay-card">
-                <h2>Territory War</h2>
+                <h2>Territory Game</h2>
                 <p style={{color:"#6688aa",marginBottom:6,fontSize:15}}>{MAP_DESC[sn.mapId]??"Tactical stickman combat."}</p>
                 <p>Eliminate all enemies using grenades and long-range cannons. Aim carefully, manage power, and exploit terrain resources.</p>
                 <br/>

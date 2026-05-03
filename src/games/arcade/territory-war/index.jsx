@@ -8,7 +8,7 @@ function TerritoryWarLoadingShell() {
     <div className="mini-game">
       <div className="mini-head">
         <div>
-          <h4>Territory War</h4>
+          <h4>Territory Game</h4>
           <p>Preparing battlefield runtime, terrain set, squads, and tactical HUD.</p>
         </div>
       </div>
@@ -24,7 +24,7 @@ function TerritoryWarShell({ onOpen }) {
     <div className="mini-game">
       <div className="mini-head">
         <div>
-          <h4>Territory War</h4>
+          <h4>Territory Game</h4>
           <p>Tactical stick duel with long-range throws, cannon control, and battlefield terrain.</p>
         </div>
         <div className="mini-actions">

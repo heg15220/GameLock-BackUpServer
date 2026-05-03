@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-03-19T23:04:37.967Z",
-  "matchesPlayed": 30,
-  "matchesWon": 7,
+  "updatedAt": "2026-05-02T13:53:20.833Z",
+  "matchesPlayed": 32,
+  "matchesWon": 8,
   "byDifficulty": {
     "competitive": {
-      "played": 27,
-      "won": 7
+      "played": 29,
+      "won": 8
     },
     "professional": {
       "played": 2,
@@ -18,10 +18,10 @@
   },
   "byRival": {
     "harbor-athletic": {
-      "played": 16,
-      "won": 4,
-      "goalsFor": 32,
-      "goalsAgainst": 48
+      "played": 17,
+      "won": 5,
+      "goalsFor": 36,
+      "goalsAgainst": 51
     },
     "sunset-rovers": {
       "played": 4,
@@ -36,18 +36,18 @@
       "goalsAgainst": 30
     },
     "iron-keepers": {
-      "played": 1,
+      "played": 2,
       "won": 1,
-      "goalsFor": 4,
-      "goalsAgainst": 3
+      "goalsFor": 7,
+      "goalsAgainst": 8
     }
   },
   "favoriteZones": {
     "down-left": 40,
-    "top-left": 44,
-    "center": 12,
-    "down-right": 11,
-    "top-right": 22
+    "top-left": 45,
+    "center": 16,
+    "down-right": 12,
+    "top-right": 26
   },
   "conversionByZone": {
     "down-left": {
@@ -55,20 +55,20 @@
       "goals": 18
     },
     "top-left": {
-      "attempts": 44,
+      "attempts": 45,
       "goals": 22
     },
     "center": {
-      "attempts": 12,
-      "goals": 4
+      "attempts": 16,
+      "goals": 7
     },
     "down-right": {
-      "attempts": 11,
-      "goals": 8
+      "attempts": 12,
+      "goals": 9
     },
     "top-right": {
-      "attempts": 22,
-      "goals": 12
+      "attempts": 26,
+      "goals": 15
     }
   }
 }
