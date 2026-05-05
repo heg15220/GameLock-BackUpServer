@@ -102,6 +102,8 @@ html,
 body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   font-family: var(--summit-font);
   color: var(--summit-text);
@@ -130,9 +132,10 @@ body {
 }
 
 .summit-canvas {
-  position: relative;
+  position: absolute;
+  inset: 0;
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 1 / -1;
   display: block;
   width: 100%;
   height: 100%;
@@ -158,17 +161,15 @@ body {
    HUD principal
 ------------------------------------------------------------ */
 .summit-hud {
-  position: relative;
+  position: absolute;
+  inset: 0;
   grid-column: 1;
-  grid-row: 1;
+  grid-row: 1 / -1;
   pointer-events: none;
   z-index: 4;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto auto 1fr auto;
-  padding: 16px clamp(16px, 3vw, 28px);
-  gap: 10px;
-  font-size: clamp(12px, 1.4vw, 14px);
+  display: block;
+  padding: 10px;
+  font-size: 12px;
 }
 
 .summit-hud > * {
@@ -176,55 +177,42 @@ body {
 }
 
 .summit-hud-top {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 14px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
 
 .summit-brand-card {
   background: var(--summit-panel);
   border: var(--summit-bezel-strong);
-  padding: 12px 16px;
-  border-radius: var(--summit-radius-md);
+  padding: 6px 10px;
+  border-radius: 10px;
   backdrop-filter: blur(8px) saturate(150%);
   -webkit-backdrop-filter: blur(8px) saturate(150%);
-  max-width: clamp(260px, 38vw, 460px);
+  max-width: 230px;
   box-shadow: var(--summit-shadow-soft);
 }
 
 .summit-eyebrow {
-  margin: 0 0 4px;
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--summit-text-muted);
   font-weight: 700;
 }
 
 .summit-title {
-  margin: 0;
-  font-size: clamp(20px, 2.8vw, 28px);
-  letter-spacing: -0.02em;
-  font-weight: 800;
-  background: linear-gradient(
-    90deg,
-    var(--summit-accent),
-    var(--summit-accent-soft),
-    var(--summit-text)
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  display: none;
 }
 
 .summit-objective {
-  margin: 6px 0 0;
-  color: var(--summit-text-muted);
-  line-height: 1.45;
-  font-size: 13px;
-  max-width: 460px;
+  display: none;
 }
 
 .summit-quick-actions {
@@ -235,9 +223,9 @@ body {
 }
 
 .summit-icon-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   border: var(--summit-bezel-strong);
   background: var(--summit-panel);
   color: var(--summit-text);
@@ -259,8 +247,8 @@ body {
   transform: translateY(1px);
 }
 .summit-icon-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   fill: currentColor;
   stroke: currentColor;
 }
@@ -274,25 +262,28 @@ body {
 
 /* Vital strip: barras de estamina/agua/agarre/ascenso */
 .summit-vital-strip {
+  position: absolute;
+  top: 52px;
+  left: 10px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 16px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
   background: var(--summit-panel);
-  padding: 12px 16px;
-  border-radius: var(--summit-radius-md);
+  padding: 8px 10px;
+  border-radius: 10px;
   border: var(--summit-bezel-strong);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  max-width: clamp(360px, 56vw, 720px);
+  width: clamp(240px, 25vw, 330px);
   box-shadow: var(--summit-shadow-soft);
 }
 
 .summit-bar-row {
   display: grid;
-  grid-template-columns: 78px 1fr 56px;
+  grid-template-columns: 62px 1fr 42px;
   align-items: center;
-  gap: 10px;
-  font-size: 12px;
+  gap: 7px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.02em;
 }
@@ -307,12 +298,12 @@ body {
   font-family: var(--summit-mono);
   font-weight: 700;
   color: var(--summit-text);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .summit-bar {
   position: relative;
-  height: 12px;
+  height: 8px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
@@ -368,41 +359,44 @@ body {
 
 /* Pills de estado */
 .summit-stat-grid {
+  position: absolute;
+  top: 52px;
+  right: 62px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
-  gap: 8px;
-  background: var(--summit-panel);
-  padding: 10px 12px;
-  border-radius: var(--summit-radius-md);
-  border: var(--summit-bezel-strong);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  max-width: clamp(360px, 56vw, 720px);
-  box-shadow: var(--summit-shadow-soft);
+  grid-template-columns: repeat(3, minmax(82px, 1fr));
+  gap: 5px;
+  max-width: clamp(280px, 34vw, 420px);
+}
+
+.summit-stat-pill-time,
+.summit-stat-pill-best {
+  display: none !important;
 }
 
 .summit-stat-pill {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  background: rgba(255, 255, 255, 0.04);
+  gap: 1px;
+  background: rgba(7, 13, 24, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 7px 10px;
-  border-radius: 11px;
-  min-height: 46px;
+  padding: 5px 7px;
+  border-radius: 9px;
+  min-height: 34px;
   justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .summit-stat-pill strong {
-  font-size: 14px;
+  font-size: 12px;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   font-family: var(--summit-mono);
 }
 
 .summit-stat-label {
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-size: 9px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--summit-text-muted);
   font-weight: 700;
@@ -437,7 +431,7 @@ body {
 .summit-side-rail {
   position: absolute;
   top: 50%;
-  right: 18px;
+  right: 10px;
   transform: translateY(-50%);
   pointer-events: none;
 }
@@ -447,20 +441,20 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 14px 8px;
-  border-radius: var(--summit-radius-md);
+  gap: 5px;
+  padding: 9px 6px;
+  border-radius: 10px;
   background: var(--summit-panel);
   border: var(--summit-bezel-strong);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  height: clamp(280px, 60vh, 480px);
+  height: clamp(210px, 48vh, 360px);
   box-shadow: var(--summit-shadow-soft);
 }
 
 .summit-altitude-track {
   position: relative;
-  width: 16px;
+  width: 10px;
   height: 100%;
   background: linear-gradient(180deg, #f4f7fb 0%, #314360 60%, #16203a 100%);
   border-radius: 999px;
@@ -499,7 +493,7 @@ body {
 .summit-altitude-marker.is-cave::after {
   content: "•";
   position: absolute;
-  right: -14px;
+  right: -11px;
   top: -10px;
   color: var(--summit-cave-glow);
   font-size: 16px;
@@ -508,9 +502,9 @@ body {
 
 .summit-altitude-pin {
   position: absolute;
-  left: -8px;
-  width: 24px;
-  height: 14px;
+  left: -6px;
+  width: 18px;
+  height: 11px;
   border-radius: 4px;
   background: var(--summit-accent);
   bottom: 0;
@@ -521,8 +515,8 @@ body {
 
 .summit-altitude-summit-label,
 .summit-altitude-base-label {
-  font-size: 10px;
-  letter-spacing: 0.16em;
+  font-size: 8px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--summit-text-muted);
   font-weight: 700;
@@ -531,16 +525,16 @@ body {
 /* Beacon card: indicador de objetivo cercano */
 .summit-beacon-card {
   position: absolute;
-  bottom: 86px;
-  left: clamp(16px, 2vw, 28px);
+  bottom: 14px;
+  left: 10px;
   background: var(--summit-panel-strong);
   border: var(--summit-bezel-strong);
-  border-radius: var(--summit-radius-md);
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 7px 9px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  max-width: clamp(280px, 36vw, 380px);
+  gap: 8px;
+  max-width: 260px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: var(--summit-shadow-md);
@@ -553,25 +547,22 @@ body {
 
 .summit-beacon-card strong {
   display: block;
-  font-size: 14px;
+  font-size: 12px;
   letter-spacing: -0.01em;
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 
 .summit-beacon-card p {
-  margin: 0;
-  font-size: 12px;
-  color: var(--summit-text-muted);
-  line-height: 1.4;
+  display: none;
 }
 
 .summit-beacon-arrow {
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--summit-accent);
   text-shadow: 0 0 12px rgba(246, 200, 95, 0.6);
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -598,20 +589,20 @@ body {
 /* Mensaje toast en HUD */
 .summit-message-box {
   position: absolute;
-  top: 50%;
+  top: 58px;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
+  transform: translate(-50%, 0) scale(0.95);
   background: var(--summit-panel-strong);
   border: var(--summit-bezel-accent);
   border-radius: var(--summit-radius-md);
-  padding: 18px 24px;
+  padding: 10px 14px;
   text-align: center;
-  font-size: clamp(14px, 1.6vw, 16px);
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.01em;
   color: var(--summit-text);
   box-shadow: var(--summit-shadow-md);
-  max-width: 540px;
+  max-width: 420px;
   opacity: 0;
   transition: opacity 200ms ease, transform 240ms cubic-bezier(0.18, 0.9, 0.22, 1);
   pointer-events: none;
@@ -619,19 +610,19 @@ body {
 
 .summit-message-box.show {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, 0) scale(1);
 }
 
 /* Toast lateral (mensajes ligeros) */
 .summit-toast {
   position: absolute;
-  bottom: 110px;
-  right: 24px;
+  bottom: 14px;
+  right: 14px;
   background: var(--summit-panel-strong);
   border: var(--summit-bezel-strong);
   border-radius: var(--summit-radius-md);
-  padding: 10px 14px;
-  font-size: 13px;
+  padding: 8px 10px;
+  font-size: 12px;
   color: var(--summit-text);
   box-shadow: var(--summit-shadow-soft);
   z-index: 9;
@@ -649,20 +640,7 @@ body {
 
 /* Controles ayuda inferior */
 .summit-controls-bar {
-  text-align: center;
-  font-size: 11px;
-  color: var(--summit-text-muted);
-  background: var(--summit-panel);
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: var(--summit-bezel-strong);
-  letter-spacing: 0.02em;
-  align-self: center;
-  justify-self: center;
-  margin: 0 auto;
-  max-width: calc(100% - 200px);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  display: none;
 }
 
 /* ------------------------------------------------------------
@@ -765,6 +743,7 @@ body {
   position: absolute;
   inset: 0;
   z-index: 10;
+  pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1951,52 +1930,72 @@ kbd {
 ------------------------------------------------------------ */
 @media (max-width: 920px) {
   .summit-hud {
-    padding: 12px;
-    gap: 8px;
+    padding: 8px;
+  }
+  .summit-hud-top {
+    top: 8px;
+    left: 8px;
+    right: 8px;
   }
   .summit-vital-strip {
+    top: 48px;
+    left: 8px;
+    width: min(300px, calc(100vw - 74px));
     grid-template-columns: 1fr;
   }
   .summit-stat-grid {
-    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    top: auto;
+    left: 8px;
+    right: 54px;
+    bottom: 8px;
+    grid-template-columns: repeat(4, minmax(64px, 1fr));
+    max-width: none;
+  }
+  .summit-stat-pill-best,
+  .summit-stat-pill-time {
+    display: none;
   }
   .summit-side-rail {
     right: 8px;
   }
   .summit-altitude-rail {
-    height: clamp(220px, 50vh, 380px);
-  }
-  .summit-controls-bar {
-    max-width: 100%;
-    font-size: 10.5px;
+    height: clamp(190px, 42vh, 310px);
   }
   .summit-beacon-card {
-    bottom: 110px;
-    left: 12px;
-    max-width: 280px;
+    display: none;
   }
 }
 
 @media (max-width: 640px) {
   .summit-brand-card {
-    padding: 9px 12px;
+    max-width: 160px;
   }
-  .summit-title {
-    font-size: 18px;
-  }
-  .summit-objective {
+  .summit-quick-actions #caveListBtn,
+  .summit-quick-actions #muteBtn {
     display: none;
   }
-  .summit-controls-bar {
-    display: none;
+  .summit-vital-strip {
+    width: min(260px, calc(100vw - 58px));
+  }
+  .summit-bar-row {
+    grid-template-columns: 54px 1fr 34px;
+    gap: 5px;
   }
   .summit-icon-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
   .summit-icon-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 17px;
+    height: 17px;
+  }
+  .summit-stat-grid {
+    grid-template-columns: repeat(2, minmax(70px, 1fr));
+    right: 8px;
+  }
+  .summit-stat-pill-zone,
+  .summit-stat-pill-anchor {
+    display: none;
   }
   .summit-cave-grid {
     grid-template-columns: 1fr;
@@ -2012,6 +2011,12 @@ kbd {
   }
   .summit-side-rail {
     display: none;
+  }
+  .summit-toast {
+    right: 8px;
+    left: 8px;
+    bottom: 8px;
+    max-width: none;
   }
 }
 
@@ -2030,6 +2035,616 @@ kbd {
   }
 }
 
+/* Tablet directa: mantiene HUD completo, pero deja despejado el centro */
+@media (min-width: 641px) and (max-width: 1180px) {
+  .summit-hud-top {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+  }
+  .summit-brand-card {
+    max-width: 210px;
+    padding: 6px 9px;
+  }
+  .summit-quick-actions {
+    gap: 6px;
+  }
+  .summit-vital-strip {
+    top: 50px;
+    left: 8px;
+    width: min(320px, 42vw);
+    padding: 7px 9px;
+  }
+  .summit-stat-grid {
+    top: 50px;
+    right: 58px;
+    bottom: auto;
+    left: auto;
+    grid-template-columns: repeat(3, minmax(78px, 1fr));
+    max-width: min(420px, 48vw);
+  }
+  .summit-side-rail {
+    right: 8px;
+  }
+  .summit-beacon-card {
+    left: 8px;
+    bottom: 8px;
+    max-width: 240px;
+  }
+  .summit-touch-pad {
+    bottom: max(16px, env(safe-area-inset-bottom));
+    padding-inline: 32px;
+  }
+  .summit-touch-cluster {
+    grid-template-columns: repeat(3, 52px);
+    grid-template-rows: repeat(3, 52px);
+  }
+  .summit-touch-cluster-right {
+    grid-template-columns: repeat(2, 52px);
+    grid-template-rows: repeat(2, 52px);
+  }
+  .summit-touch-btn {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+/* Shell móvil/tablet de la plataforma */
+html.mobile-shell-embed,
+html.mobile-shell-embed body,
+body.mobile-shell-embed {
+  width: 100%;
+  height: var(--mobile-shell-height, 100dvh);
+  min-height: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+html.mobile-shell-embed .summit-shell,
+body.mobile-shell-embed .summit-shell {
+  width: var(--mobile-shell-width, 100vw);
+  height: var(--mobile-shell-height, 100dvh);
+  min-height: 0;
+}
+
+html.mobile-shell-embed .summit-hud,
+body.mobile-shell-embed .summit-hud {
+  padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+    max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  font-size: 11px;
+}
+
+html.mobile-shell-embed .summit-hud-top,
+body.mobile-shell-embed .summit-hud-top {
+  top: max(6px, env(safe-area-inset-top));
+  left: max(6px, env(safe-area-inset-left));
+  right: max(6px, env(safe-area-inset-right));
+  gap: 6px;
+}
+
+html.mobile-shell-embed .summit-brand-card,
+body.mobile-shell-embed .summit-brand-card {
+  max-width: 190px;
+  padding: 5px 8px;
+  border-radius: 9px;
+}
+
+html.mobile-shell-embed .summit-eyebrow,
+body.mobile-shell-embed .summit-eyebrow {
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+html.mobile-shell-embed .summit-icon-btn,
+body.mobile-shell-embed .summit-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+
+html.mobile-shell-embed .summit-icon-btn svg,
+body.mobile-shell-embed .summit-icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+html.mobile-shell-embed .summit-side-rail,
+html.mobile-shell-embed .summit-beacon-card,
+html.mobile-shell-embed .summit-controls-bar,
+body.mobile-shell-embed .summit-side-rail,
+body.mobile-shell-embed .summit-beacon-card,
+body.mobile-shell-embed .summit-controls-bar {
+  display: none !important;
+}
+
+html.mobile-shell-embed .summit-touch-pad,
+body.mobile-shell-embed .summit-touch-pad {
+  display: flex;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  padding-inline: max(12px, env(safe-area-inset-left));
+}
+
+html.mobile-shell-embed .summit-touch-btn,
+body.mobile-shell-embed .summit-touch-btn {
+  background: rgba(10, 17, 31, 0.8);
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+
+html.mobile-shell-embed .summit-message-box,
+body.mobile-shell-embed .summit-message-box {
+  left: max(8px, env(safe-area-inset-left));
+  right: max(8px, env(safe-area-inset-right));
+  top: 104px;
+  transform: scale(0.96);
+  max-width: none;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+html.mobile-shell-embed .summit-message-box.show,
+body.mobile-shell-embed .summit-message-box.show {
+  transform: scale(1);
+}
+
+html.mobile-shell-embed .summit-toast,
+body.mobile-shell-embed .summit-toast {
+  left: 12px;
+  right: 12px;
+  bottom: 126px;
+  max-width: none;
+  text-align: center;
+  font-size: 11px;
+}
+
+html.mobile-shell-embed .summit-overlay,
+body.mobile-shell-embed .summit-overlay {
+  padding: 8px;
+}
+
+html.mobile-shell-embed .summit-modal-card,
+body.mobile-shell-embed .summit-modal-card {
+  width: min(100%, 760px);
+  max-height: calc(var(--mobile-shell-height, 100dvh) - 16px);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+html.mobile-shell-embed .summit-menu-header,
+body.mobile-shell-embed .summit-menu-header {
+  margin-bottom: 10px;
+}
+
+html.mobile-shell-embed .summit-menu-header h2,
+html.mobile-shell-embed .summit-modal-header h2,
+body.mobile-shell-embed .summit-menu-header h2,
+body.mobile-shell-embed .summit-modal-header h2 {
+  font-size: 24px;
+}
+
+html.mobile-shell-embed .summit-lead,
+body.mobile-shell-embed .summit-lead {
+  font-size: 12px;
+  line-height: 1.38;
+}
+
+html.mobile-shell-embed .summit-mountain-grid,
+body.mobile-shell-embed .summit-mountain-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+html.mobile-shell-embed .summit-mountain-card,
+body.mobile-shell-embed .summit-mountain-card {
+  padding: 9px;
+  border-radius: 12px;
+  gap: 6px;
+}
+
+html.mobile-shell-embed .summit-mountain-card-thumb,
+body.mobile-shell-embed .summit-mountain-card-thumb {
+  height: 72px;
+  border-radius: 10px;
+}
+
+html.mobile-shell-embed .summit-mountain-card h3,
+body.mobile-shell-embed .summit-mountain-card h3 {
+  font-size: 14px;
+}
+
+html.mobile-shell-embed .summit-mountain-card p,
+html.mobile-shell-embed .summit-detail-header p,
+body.mobile-shell-embed .summit-mountain-card p,
+body.mobile-shell-embed .summit-detail-header p {
+  font-size: 11px;
+  line-height: 1.32;
+}
+
+html.mobile-shell-embed .summit-mountain-detail,
+body.mobile-shell-embed .summit-mountain-detail {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+}
+
+html.mobile-shell-embed .summit-detail-grid,
+html.mobile-shell-embed .summit-tutorial-grid,
+html.mobile-shell-embed .summit-cave-grid,
+body.mobile-shell-embed .summit-detail-grid,
+body.mobile-shell-embed .summit-tutorial-grid,
+body.mobile-shell-embed .summit-cave-grid {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+html.mobile-shell-embed .summit-menu-actions,
+html.mobile-shell-embed .summit-modal-actions,
+body.mobile-shell-embed .summit-menu-actions,
+body.mobile-shell-embed .summit-modal-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+html.mobile-shell-embed .summit-cta-btn,
+html.mobile-shell-embed .summit-secondary-btn,
+html.mobile-shell-embed .summit-ghost-btn,
+body.mobile-shell-embed .summit-cta-btn,
+body.mobile-shell-embed .summit-secondary-btn,
+body.mobile-shell-embed .summit-ghost-btn {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 11px;
+  font-size: 12px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-hud-top,
+body.mobile-shell-embed.mobile-shell-portrait .summit-hud-top {
+  align-items: flex-start;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-brand-card,
+body.mobile-shell-embed.mobile-shell-portrait .summit-brand-card {
+  max-width: 132px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-quick-actions,
+body.mobile-shell-embed.mobile-shell-portrait .summit-quick-actions {
+  gap: 5px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait #caveListBtn,
+html.mobile-shell-embed.mobile-shell-portrait #muteBtn,
+html.mobile-shell-embed.mobile-shell-portrait #fullscreenBtn,
+body.mobile-shell-embed.mobile-shell-portrait #caveListBtn,
+body.mobile-shell-embed.mobile-shell-portrait #muteBtn,
+body.mobile-shell-embed.mobile-shell-portrait #fullscreenBtn {
+  display: none;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-vital-strip,
+body.mobile-shell-embed.mobile-shell-portrait .summit-vital-strip {
+  top: 42px;
+  left: max(6px, env(safe-area-inset-left));
+  right: max(6px, env(safe-area-inset-right));
+  width: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 6px;
+  gap: 4px 6px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-bar-row,
+body.mobile-shell-embed.mobile-shell-portrait .summit-bar-row {
+  grid-template-columns: minmax(38px, 46px) 1fr 28px;
+  gap: 4px;
+  font-size: 9px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-bar,
+body.mobile-shell-embed.mobile-shell-portrait .summit-bar {
+  height: 6px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-bar-value,
+body.mobile-shell-embed.mobile-shell-portrait .summit-bar-value {
+  font-size: 9px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-stat-grid,
+body.mobile-shell-embed.mobile-shell-portrait .summit-stat-grid {
+  top: 112px;
+  left: max(6px, env(safe-area-inset-left));
+  right: max(6px, env(safe-area-inset-right));
+  bottom: auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  max-width: none;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill,
+body.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill {
+  min-height: 29px;
+  padding: 3px 5px;
+  border-radius: 7px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-zone,
+html.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-food,
+html.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-time,
+html.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-best,
+body.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-zone,
+body.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-food,
+body.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-time,
+body.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-best {
+  display: none !important;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-anchor,
+body.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill-anchor {
+  display: flex;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-stat-label,
+body.mobile-shell-embed.mobile-shell-portrait .summit-stat-label {
+  font-size: 7px;
+  letter-spacing: 0.04em;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill strong,
+body.mobile-shell-embed.mobile-shell-portrait .summit-stat-pill strong {
+  font-size: 9px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-touch-pad,
+body.mobile-shell-embed.mobile-shell-portrait .summit-touch-pad {
+  bottom: max(8px, env(safe-area-inset-bottom));
+  padding-inline: 12px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-touch-cluster,
+body.mobile-shell-embed.mobile-shell-portrait .summit-touch-cluster {
+  grid-template-columns: repeat(3, 46px);
+  grid-template-rows: repeat(3, 46px);
+  gap: 3px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-touch-cluster-right,
+body.mobile-shell-embed.mobile-shell-portrait .summit-touch-cluster-right {
+  grid-template-columns: repeat(2, 48px);
+  grid-template-rows: repeat(2, 48px);
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-touch-btn,
+body.mobile-shell-embed.mobile-shell-portrait .summit-touch-btn {
+  width: 46px;
+  height: 46px;
+  font-size: 18px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-touch-cluster-right .summit-touch-btn,
+body.mobile-shell-embed.mobile-shell-portrait .summit-touch-cluster-right .summit-touch-btn {
+  width: 48px;
+  height: 48px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-toast,
+body.mobile-shell-embed.mobile-shell-portrait .summit-toast {
+  bottom: 116px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-message-box,
+body.mobile-shell-embed.mobile-shell-portrait .summit-message-box {
+  top: 150px;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-menu-header .summit-lead,
+html.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card p,
+html.mobile-shell-embed.mobile-shell-portrait .summit-detail-grid,
+body.mobile-shell-embed.mobile-shell-portrait .summit-menu-header .summit-lead,
+body.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card p,
+body.mobile-shell-embed.mobile-shell-portrait .summit-detail-grid {
+  display: none;
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-mountain-grid,
+body.mobile-shell-embed.mobile-shell-portrait .summit-mountain-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html.mobile-shell-embed.mobile-shell-portrait .summit-detail-stats,
+body.mobile-shell-embed.mobile-shell-portrait .summit-detail-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 540px) {
+  html.mobile-shell-embed.mobile-shell-portrait .summit-modal-card,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-modal-card {
+    padding: 10px;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-menu-header h2,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-menu-header h2 {
+    font-size: 22px;
+    margin: 4px 0 8px;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-locale-row,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-locale-row {
+    margin-bottom: 8px;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-locale-btn,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-locale-btn {
+    padding: 7px 12px;
+    font-size: 11px;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-mountain-grid,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-mountain-grid {
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card {
+    padding: 7px;
+    gap: 4px;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card-thumb,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card-thumb {
+    height: 46px;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card h3,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card h3 {
+    font-size: 12px;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card-tags,
+  html.mobile-shell-embed.mobile-shell-portrait .summit-mountain-detail,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-mountain-card-tags,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-mountain-detail {
+    display: none;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-menu-actions,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-menu-actions {
+    grid-template-columns: 1fr 1fr;
+    margin-top: 8px;
+  }
+  html.mobile-shell-embed.mobile-shell-portrait .summit-cta-btn,
+  html.mobile-shell-embed.mobile-shell-portrait .summit-secondary-btn,
+  html.mobile-shell-embed.mobile-shell-portrait .summit-ghost-btn,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-cta-btn,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-secondary-btn,
+  body.mobile-shell-embed.mobile-shell-portrait .summit-ghost-btn {
+    padding: 9px 8px;
+  }
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-hud-top,
+body.mobile-shell-embed.mobile-shell-landscape .summit-hud-top {
+  top: 6px;
+  left: 6px;
+  right: 6px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-vital-strip,
+body.mobile-shell-embed.mobile-shell-landscape .summit-vital-strip {
+  top: 42px;
+  left: 6px;
+  width: min(278px, 35vw);
+  padding: 6px 8px;
+  gap: 4px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-stat-grid,
+body.mobile-shell-embed.mobile-shell-landscape .summit-stat-grid {
+  top: 42px;
+  right: 6px;
+  left: auto;
+  bottom: auto;
+  grid-template-columns: repeat(3, minmax(64px, 1fr));
+  max-width: min(330px, 42vw);
+  gap: 4px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-stat-pill,
+body.mobile-shell-embed.mobile-shell-landscape .summit-stat-pill {
+  min-height: 29px;
+  padding: 3px 5px;
+  border-radius: 7px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-stat-pill-time,
+html.mobile-shell-embed.mobile-shell-landscape .summit-stat-pill-best,
+body.mobile-shell-embed.mobile-shell-landscape .summit-stat-pill-time,
+body.mobile-shell-embed.mobile-shell-landscape .summit-stat-pill-best {
+  display: none !important;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-stat-label,
+body.mobile-shell-embed.mobile-shell-landscape .summit-stat-label {
+  font-size: 7px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-stat-pill strong,
+body.mobile-shell-embed.mobile-shell-landscape .summit-stat-pill strong {
+  font-size: 9px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-touch-pad,
+body.mobile-shell-embed.mobile-shell-landscape .summit-touch-pad {
+  bottom: 6px;
+  padding-inline: 18px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-touch-cluster,
+body.mobile-shell-embed.mobile-shell-landscape .summit-touch-cluster {
+  grid-template-columns: repeat(3, 42px);
+  grid-template-rows: repeat(3, 42px);
+  gap: 3px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-touch-cluster-right,
+body.mobile-shell-embed.mobile-shell-landscape .summit-touch-cluster-right {
+  grid-template-columns: repeat(2, 44px);
+  grid-template-rows: repeat(2, 44px);
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-touch-btn,
+body.mobile-shell-embed.mobile-shell-landscape .summit-touch-btn {
+  width: 42px;
+  height: 42px;
+  font-size: 17px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-touch-cluster-right .summit-touch-btn,
+body.mobile-shell-embed.mobile-shell-landscape .summit-touch-cluster-right .summit-touch-btn {
+  width: 44px;
+  height: 44px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-toast,
+body.mobile-shell-embed.mobile-shell-landscape .summit-toast {
+  bottom: 86px;
+  left: 26%;
+  right: 26%;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-modal-card,
+body.mobile-shell-embed.mobile-shell-landscape .summit-modal-card {
+  width: min(100%, 860px);
+  max-height: calc(var(--mobile-shell-height, 100dvh) - 12px);
+  padding: 12px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-mountain-grid,
+body.mobile-shell-embed.mobile-shell-landscape .summit-mountain-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-mountain-card-thumb,
+body.mobile-shell-embed.mobile-shell-landscape .summit-mountain-card-thumb {
+  height: 56px;
+}
+
+html.mobile-shell-embed.mobile-shell-landscape .summit-detail-grid,
+body.mobile-shell-embed.mobile-shell-landscape .summit-detail-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html.mobile-shell-embed.mobile-shell-ui-externalized .summit-touch-pad,
+body.mobile-shell-embed.mobile-shell-ui-externalized .summit-touch-pad {
+  display: none !important;
+}
+
+html.mobile-shell-embed.mobile-shell-ui-externalized .summit-stat-grid,
+body.mobile-shell-embed.mobile-shell-ui-externalized .summit-stat-grid {
+  display: none !important;
+}
+
+html.mobile-shell-embed.mobile-shell-ui-externalized .summit-vital-strip,
+body.mobile-shell-embed.mobile-shell-ui-externalized .summit-vital-strip {
+  width: min(320px, calc(100% - 12px));
+  left: 6px;
+  right: auto;
+}
+
 /* ------------------------------------------------------------
    Variantes por estado
 ------------------------------------------------------------ */
@@ -2037,6 +2652,20 @@ kbd {
 .summit-shell[data-state="tutorial"] .summit-hud {
   pointer-events: none;
   opacity: 0;
+}
+
+.summit-shell[data-state="menu"] .summit-hud > *,
+.summit-shell[data-state="tutorial"] .summit-hud > * {
+  pointer-events: none;
+}
+
+.summit-shell[data-state="menu"] .summit-touch-pad,
+.summit-shell[data-state="tutorial"] .summit-touch-pad,
+.summit-shell[data-state="paused"] .summit-touch-pad,
+.summit-shell[data-state="cave"] .summit-touch-pad,
+.summit-shell[data-state="dead"] .summit-touch-pad,
+.summit-shell[data-state="won"] .summit-touch-pad {
+  display: none !important;
 }
 
 .summit-shell[data-state="cave"] .summit-hud {

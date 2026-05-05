@@ -4647,3 +4647,26 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 ## 2026-05-03 - Territory Game rename
 - Renombrado el titulo visible de rcade-territory-war a Territory Game en el catalogo, cabecera del juego, overlay y SVG del asset.
 - Se mantienen las referencias internas y descripciones que mencionan Territory War como inspiracion historica.
+
+## 2026-05-04 - Summit Ascent mountain profile visibility
+- Diagnostico: la progresion no se leia porque la base solo movia la cara escalable unas decenas de px en la primera pantalla, la camara recentraba al escalador y drawRockMass pintaba toda la masa con paletteRock uniforme.
+- Ajustado src/arcade/summit-ascent/game.js: sampleFaceX redistribuye el avance horizontal hacia la base/ladera baja para que el arranque no parezca pared; drawRockMass ahora rellena bandas por layer.color y nieve alta dentro de la silueta.
+- Validacion: node --check OK; npm run build OK con NODE_OPTIONS=--max-old-space-size=4096 fuera del sandbox; Playwright genero capturas/estado en output/summit-ascent-mountain-profile-check sin errors*.json, aunque el proceso agoto el timeout despues de escribir los artefactos.
+## 2026-05-05 - Summit Ascent pendiente progresiva por niveles
+- Peticion: la forma de las montanas debe avanzar de manera natural por nivel de altura: primer tramo 1%-5%, llanura de transicion, siguiente 5%-10%, otra llanura, y asi progresivamente.
+- `src/arcade/summit-ascent/game.js` ajustado para que `sampleFaceX` use un perfil acumulativo por capas de altura: cada capa interpola su rango de pendiente y reserva una meseta corta antes de entrar al siguiente rango.
+- Los rangos expuestos en `render_game_to_text` incluyen `route.slope` con `gradeStartPercent`, `gradeEndPercent`, `currentGradePercent` y `onPlateau` para QA.
+- Ajuste visual posterior: los grados bajos usan mucho mas avance horizontal para que el arranque lea como ladera natural, no como pared; los grados altos se estrechan progresivamente.
+- Validacion: `node --check src/arcade/summit-ascent/game.js` OK; Playwright genero capturas/estado en `output/summit-ascent-progressive-slope-check-v2` sin `errors*.json` (el cliente agoto timeout tras escribir artefactos); `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK fuera del sandbox.
+## 2026-05-05 - Summit Ascent llanuras largas
+- Ajuste posterior solicitado: las llanuras entre niveles no deben ser cortas, sino tramos planos largos de varios cientos de metros.
+- `src/arcade/summit-ascent/game.js` cambia la meseta de una formula por altura (`plateauY * run`) a una distancia objetivo por transicion: 320-520 m en escala de juego, calculada de forma determinista por montana/nivel.
+- `render_game_to_text` expone ahora `route.slope.plateauDistanceMeters`; validacion Playwright en `output/summit-ascent-long-plateau-check` mostro 340 m para la primera llanura de Aguja de Granito y no genero `errors*.json`.
+- Validacion tecnica: `node --check src/arcade/summit-ascent/game.js` OK; `NODE_OPTIONS=--max-old-space-size=4096 npm run build` OK fuera del sandbox.
+
+2026-05-06 - Summit Ascent mobile/tablet views
+- Added mobile-shell responsive CSS for summit-ascent matching the existing mobile shell classes used by dig-hole-treasure and valle-tranquilo: mobile-shell-embed, mobile-shell-portrait, mobile-shell-landscape, and mobile-shell-ui-externalized.
+- Added compact phone portrait menu layout so the mountain selector and start actions fit without touch controls showing behind overlays.
+- Added tablet-oriented HUD sizing and direct tablet breakpoint (641px-1180px), plus platform shell landscape/portrait HUD and touch-control layouts.
+- JS now detects mobile-shell-embed classes and enables touch controls even when pointer media queries do not report coarse input.
+- Validated with node --check, standard web_game_playwright_client desktop run, and custom Playwright mobile/tablet metrics/screenshots in output/summit-ascent-mobile-views-check.

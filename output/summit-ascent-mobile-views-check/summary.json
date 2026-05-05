@@ -1,0 +1,481 @@
+[
+  {
+    "scenario": {
+      "name": "phone-portrait",
+      "width": 390,
+      "height": 844,
+      "classes": "mobile-shell-embed mobile-shell-portrait"
+    },
+    "menu": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "htmlClass": "mobile-shell-embed mobile-shell-portrait",
+      "bodyClass": "mobile-shell-embed mobile-shell-portrait",
+      "shellTouch": "true",
+      "state": "menu",
+      "boxes": {
+        ".summit-hud-top": {
+          "display": "flex",
+          "visible": true,
+          "x": 6,
+          "y": 6,
+          "width": 378,
+          "height": 30,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-vital-strip": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 42,
+          "width": 378,
+          "height": 42,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-stat-grid": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 112,
+          "width": 378,
+          "height": 29,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-touch-pad": {
+          "display": "none",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-modal-card": {
+          "display": "block",
+          "visible": true,
+          "x": 8,
+          "y": 192,
+          "width": 374,
+          "height": 460,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-toast": {
+          "display": "none",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        }
+      }
+    },
+    "game": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "htmlClass": "mobile-shell-embed mobile-shell-portrait",
+      "bodyClass": "mobile-shell-embed mobile-shell-portrait",
+      "shellTouch": "true",
+      "state": "playing",
+      "boxes": {
+        ".summit-hud-top": {
+          "display": "flex",
+          "visible": true,
+          "x": 6,
+          "y": 6,
+          "width": 378,
+          "height": 30,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-vital-strip": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 42,
+          "width": 378,
+          "height": 42,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-stat-grid": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 112,
+          "width": 378,
+          "height": 29,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-touch-pad": {
+          "display": "flex",
+          "visible": true,
+          "x": 0,
+          "y": 692,
+          "width": 390,
+          "height": 144,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-modal-card": {
+          "display": "block",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-toast": {
+          "display": "none",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        }
+      }
+    },
+    "menuShot": {
+      "ok": true
+    },
+    "gameShot": {
+      "ok": true
+    },
+    "errors": []
+  },
+  {
+    "scenario": {
+      "name": "tablet-portrait",
+      "width": 820,
+      "height": 1180,
+      "classes": "mobile-shell-embed mobile-shell-portrait"
+    },
+    "menu": {
+      "viewport": {
+        "width": 820,
+        "height": 1180
+      },
+      "htmlClass": "mobile-shell-embed mobile-shell-portrait",
+      "bodyClass": "mobile-shell-embed mobile-shell-portrait",
+      "shellTouch": "true",
+      "state": "menu",
+      "boxes": {
+        ".summit-hud-top": {
+          "display": "flex",
+          "visible": true,
+          "x": 6,
+          "y": 6,
+          "width": 808,
+          "height": 30,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-vital-strip": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 42,
+          "width": 808,
+          "height": 42,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-stat-grid": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 112,
+          "width": 808,
+          "height": 29,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-touch-pad": {
+          "display": "none",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-modal-card": {
+          "display": "block",
+          "visible": true,
+          "x": 30,
+          "y": 103,
+          "width": 760,
+          "height": 973,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-toast": {
+          "display": "none",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        }
+      }
+    },
+    "game": {
+      "viewport": {
+        "width": 820,
+        "height": 1180
+      },
+      "htmlClass": "mobile-shell-embed mobile-shell-portrait",
+      "bodyClass": "mobile-shell-embed mobile-shell-portrait",
+      "shellTouch": "true",
+      "state": "playing",
+      "boxes": {
+        ".summit-hud-top": {
+          "display": "flex",
+          "visible": true,
+          "x": 6,
+          "y": 6,
+          "width": 808,
+          "height": 30,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-vital-strip": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 42,
+          "width": 808,
+          "height": 42,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-stat-grid": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 112,
+          "width": 808,
+          "height": 29,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-touch-pad": {
+          "display": "flex",
+          "visible": true,
+          "x": 0,
+          "y": 1028,
+          "width": 820,
+          "height": 144,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-modal-card": {
+          "display": "block",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-toast": {
+          "display": "none",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        }
+      }
+    },
+    "menuShot": {
+      "ok": true
+    },
+    "gameShot": {
+      "ok": false,
+      "error": "TimeoutError: page.screenshot: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n"
+    },
+    "errors": []
+  },
+  {
+    "scenario": {
+      "name": "tablet-landscape",
+      "width": 1180,
+      "height": 820,
+      "classes": "mobile-shell-embed mobile-shell-landscape"
+    },
+    "menu": {
+      "viewport": {
+        "width": 1180,
+        "height": 820
+      },
+      "htmlClass": "mobile-shell-embed mobile-shell-landscape",
+      "bodyClass": "mobile-shell-embed mobile-shell-landscape",
+      "shellTouch": "true",
+      "state": "menu",
+      "boxes": {
+        ".summit-hud-top": {
+          "display": "flex",
+          "visible": true,
+          "x": 6,
+          "y": 6,
+          "width": 1168,
+          "height": 30,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-vital-strip": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 42,
+          "width": 278,
+          "height": 86,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-stat-grid": {
+          "display": "grid",
+          "visible": true,
+          "x": 970,
+          "y": 42,
+          "width": 204,
+          "height": 62,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-touch-pad": {
+          "display": "none",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-modal-card": {
+          "display": "block",
+          "visible": true,
+          "x": 160,
+          "y": 6,
+          "width": 860,
+          "height": 808,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-toast": {
+          "display": "none",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        }
+      }
+    },
+    "game": {
+      "viewport": {
+        "width": 1180,
+        "height": 820
+      },
+      "htmlClass": "mobile-shell-embed mobile-shell-landscape",
+      "bodyClass": "mobile-shell-embed mobile-shell-landscape",
+      "shellTouch": "true",
+      "state": "playing",
+      "boxes": {
+        ".summit-hud-top": {
+          "display": "flex",
+          "visible": true,
+          "x": 6,
+          "y": 6,
+          "width": 1168,
+          "height": 30,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-vital-strip": {
+          "display": "grid",
+          "visible": true,
+          "x": 6,
+          "y": 42,
+          "width": 278,
+          "height": 86,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-stat-grid": {
+          "display": "grid",
+          "visible": true,
+          "x": 970,
+          "y": 42,
+          "width": 204,
+          "height": 62,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-touch-pad": {
+          "display": "flex",
+          "visible": true,
+          "x": 0,
+          "y": 682,
+          "width": 1180,
+          "height": 132,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-modal-card": {
+          "display": "block",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        ".summit-toast": {
+          "display": "none",
+          "visible": false,
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "overflowX": 0,
+          "overflowY": 0
+        }
+      }
+    },
+    "menuShot": {
+      "ok": true
+    },
+    "gameShot": {
+      "ok": false,
+      "error": "TimeoutError: page.screenshot: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n"
+    },
+    "errors": []
+  }
+]

@@ -52,9 +52,14 @@
   const ROPE_LENGTH = 240;
   const ROPE_STRETCH = 36;
   const ROPE_CATCH_PENALTY = 28;
-  const AUTO_ANCHOR_INTERVAL = 96;
-  const ANCHOR_CEILING_SLACK = 4;
+  const ANCHOR_THROW_DISTANCE = 185;
+  const ANCHOR_MIN_THROW_DISTANCE = 48;
+  const ANCHOR_RETHROW_WINDOW = 14;
+  const ANCHOR_CEILING_SLACK = 3;
   const ANCHOR_SWING_DURATION = 0.42;
+  const ANCHOR_THROW_DURATION = 0.82;
+  const ANCHOR_THROW_ARC_MIN = 56;
+  const ANCHOR_THROW_ARC_MAX = 120;
   const SAFE_GRACE_AFTER_CAVE = 1.6;
   const FOOTHOLD_SNAP_THRESHOLD = 28;
   const PLAYER_RADIUS = 14;
@@ -74,6 +79,18 @@
   const SUMMIT_WALK_SPEED = 110;
   const SUMMIT_FLAG_REACH = 9;
   const MOUNTAIN_RIGHT_BASE_OFFSET = 1100;
+  const SLOPE_LEVEL_STEP_PERCENT = 5;
+  const SLOPE_FIRST_LEVEL_START_PERCENT = 1;
+  const SLOPE_PROFILE_BASE_RUN = 0.02;
+  const SLOPE_PROFILE_GRADE_RUN = 2.05;
+  const SLOPE_PROFILE_SCALE = 0.48;
+  const SLOPE_PLATEAU_RATIO = 0.055;
+  const SLOPE_PLATEAU_MIN_HEIGHT = 72;
+  const SLOPE_PLATEAU_MAX_HEIGHT = 150;
+  const SLOPE_PLATEAU_MIN_METERS = 320;
+  const SLOPE_PLATEAU_MAX_METERS = 520;
+  const WALKABLE_PLATEAU_MARGIN = 26;
+  const WALKABLE_PLATEAU_SPEED = 118;
   const MOUNTAIN_PEAK_NARROW_RATIO = 0.78; // dónde empieza el estrechamiento del pico
 
   // Recursos
@@ -364,8 +381,8 @@
       statBest: "Récord",
 
       anchorLabelNone: "Sin anclaje",
-      anchorLabelAt: "A {{m}} m",
-      anchorPlaced: "Anclaje colocado",
+      anchorLabelAt: "Tope {{m}} m",
+      anchorPlaced: "Anclaje lanzado",
       anchorAuto: "Anclaje automático",
 
       caveStatusEntered: "Activa",
@@ -383,9 +400,13 @@
       msgDrink: "Bebes y recuperas algo de fuerza.",
       msgClimateChange: "Entras en zona: {{name}}.",
       msgAnchorLimit: "La cuerda ya no da más. Planta un nuevo anclaje.",
+      msgNeedAnchor: "Pulsa Espacio para lanzar un anclaje.",
+      msgAnchorFlying: "Anclaje en vuelo.",
+      msgAnchorTooFar: "Alcanza primero el anclaje actual.",
       msgRopeCatch: "La cuerda te atrapa. Pierdes estamina.",
       msgFallToDeath: "Has caído al vacío.",
       msgSummit: "¡Cumbre alcanzada!",
+      msgSummitReached: "¡Cumbre alcanzada! Camina hasta la bandera.",
       msgRecordBeat: "¡Nuevo récord en {{name}}!",
       msgGripLow: "Tu agarre está casi nulo.",
       msgWaterLow: "Tu hidratación está baja.",
@@ -435,6 +456,9 @@
 
       beaconNextCave: "Cueva más cercana",
       beaconKeepClimbing: "Sigue escalando",
+      beaconNeedAnchor: "Lanza anclaje",
+      beaconAnchorTop: "Sube hasta el anclaje",
+      beaconPlateauWalk: "Camina la llanura",
       beaconLowStamina: "Busca refugio",
       beaconWeather: "Clima cambia",
       beaconRain: "Atento a la lluvia",
@@ -547,8 +571,8 @@
       statBest: "Best",
 
       anchorLabelNone: "No anchor",
-      anchorLabelAt: "At {{m}} m",
-      anchorPlaced: "Anchor placed",
+      anchorLabelAt: "Limit {{m}} m",
+      anchorPlaced: "Anchor thrown",
       anchorAuto: "Auto anchor",
 
       caveStatusEntered: "Active",
@@ -566,9 +590,13 @@
       msgDrink: "You drink and feel a little stronger.",
       msgClimateChange: "Entering zone: {{name}}.",
       msgAnchorLimit: "The rope is fully extended. Plant a new anchor.",
+      msgNeedAnchor: "Press Space to throw an anchor.",
+      msgAnchorFlying: "Anchor in flight.",
+      msgAnchorTooFar: "Reach the current anchor first.",
       msgRopeCatch: "The rope catches you. You lose stamina.",
       msgFallToDeath: "You fell into the void.",
       msgSummit: "Summit reached!",
+      msgSummitReached: "Summit reached! Walk to the flag.",
       msgRecordBeat: "New record on {{name}}!",
       msgGripLow: "Your grip is nearly gone.",
       msgWaterLow: "Hydration low.",
@@ -618,6 +646,9 @@
 
       beaconNextCave: "Nearest cave",
       beaconKeepClimbing: "Keep climbing",
+      beaconNeedAnchor: "Throw anchor",
+      beaconAnchorTop: "Climb to anchor",
+      beaconPlateauWalk: "Walk the plateau",
       beaconLowStamina: "Find shelter",
       beaconWeather: "Weather shifts",
       beaconRain: "Rain incoming",
@@ -676,6 +707,13 @@
       faceBase: 220,
       faceAmp: 76,
       faceVeer: 0.34,
+      slopeProfile: {
+        baseSoftness: 0.16,
+        lowerSlopePower: 1.0,
+        wallIntensity: 1.0,
+        summitSharpness: 1.0,
+        roughness: 0.9,
+      },
       tags: { es: ["equilibrada", "viento duro", "cuevas frecuentes"], en: ["balanced", "hard wind", "frequent caves"] },
       description: {
         es: "Pared larga y técnica. Primer tercio tranquilo, viento fuerte a media altura, lluvia sobre roca oscura y nieve final. Cuevas separadas para obligar a gestionar agua.",
@@ -777,6 +815,13 @@
       faceBase: 240,
       faceAmp: 96,
       faceVeer: 0.42,
+      slopeProfile: {
+        baseSoftness: 0.20,
+        lowerSlopePower: 0.85,
+        wallIntensity: 0.9,
+        summitSharpness: 0.85,
+        roughness: 1.25,
+      },
       tags: { es: ["muy largo", "roca inestable", "cuevas generosas"], en: ["very long", "unstable rock", "generous caves"] },
       description: {
         es: "Ascenso más ancho pero con roca inestable. Consume menos al principio, pero las zonas altas alternan niebla caliente, lluvia ácida y placas de nieve.",
@@ -813,6 +858,13 @@
       faceBase: 210,
       faceAmp: 84,
       faceVeer: 0.28,
+      slopeProfile: {
+        baseSoftness: 0.12,
+        lowerSlopePower: 1.1,
+        wallIntensity: 1.15,
+        summitSharpness: 1.2,
+        roughness: 0.85,
+      },
       tags: { es: ["difícil", "pocas cuevas", "frío constante"], en: ["hard", "few caves", "constant cold"] },
       description: {
         es: "El prototipo más severo. Menos cuevas, mucha nieve, niebla peligrosa y viento alto. Cada descanso importa.",
@@ -848,6 +900,13 @@
       faceBase: 230,
       faceAmp: 102,
       faceVeer: 0.5,
+      slopeProfile: {
+        baseSoftness: 0.22,
+        lowerSlopePower: 0.8,
+        wallIntensity: 0.85,
+        summitSharpness: 0.75,
+        roughness: 1.35,
+      },
       tags: { es: ["calor seco", "muros amplios", "anclajes frecuentes"], en: ["dry heat", "wide walls", "frequent anchors"] },
       description: {
         es: "Acantilado de arenisca expuesto al sol. La pared es generosa en presas pero el calor agota antes de tiempo. Pocas cuevas, muchas grietas.",
@@ -882,6 +941,13 @@
       faceBase: 200,
       faceAmp: 88,
       faceVeer: 0.22,
+      slopeProfile: {
+        baseSoftness: 0.10,
+        lowerSlopePower: 1.2,
+        wallIntensity: 1.3,
+        summitSharpness: 1.25,
+        roughness: 1.1,
+      },
       tags: { es: ["extrema", "lluvia constante", "rutas estrechas"], en: ["extreme", "constant rain", "narrow routes"] },
       description: {
         es: "Pared selvática verticalísima sobre la jungla. Lluvia constante, niebla densa y muy poco apoyo. La cumbre se gana sufriendo.",
@@ -1155,28 +1221,23 @@
 
     const mountain = JSON.parse(JSON.stringify(template));
 
-    // Holds (presas): puntos a lo largo de la pared con leve variación
+    // Holds (presas): puntos a lo largo de la pared con leve variación.
+    // Se anclan a la cara real (sampleFaceX) para que aparezcan justo sobre
+    // la roca tanto en la base ancha como en el pico estrecho.
     const holds = [];
     const holdPalette = holdPaletteFor(mountain);
     const holdSpacing = 56;
     for (let y = 80; y < mountain.height; y += holdSpacing) {
-      const t = y / mountain.height;
       const layer = mountain.layers.find((l) => y >= l.from && y <= l.to) ||
         mountain.layers[0];
-      const veer = mountain.faceVeer || 0.3;
-      const trend = mountain.faceBase + t * 220 * veer;
-      const wave1 = Math.sin(t * Math.PI * 6.7 + mountain.seed) *
-        mountain.faceAmp;
-      const wave2 = Math.sin(t * Math.PI * 17.5 + mountain.seed * 0.43) *
-        mountain.faceAmp * 0.32;
-      const x = trend + wave1 + wave2;
-      const offsetX = rngRange(rng, -22, 22);
+      const faceXAt = sampleFaceX(y, mountain);
+      const offsetX = rngRange(rng, -8, 32);
       const offsetY = rngRange(rng, -12, 12);
       const radius = rngRange(rng, 8, 13);
       const color = holdPalette[Math.floor(rng() * holdPalette.length)];
       const climate = layer.climate;
       holds.push({
-        x: x + offsetX,
+        x: faceXAt + offsetX,
         y: y + offsetY,
         radius,
         color,
@@ -1188,11 +1249,7 @@
     // Ledges (cornisas) con orientación
     const ledges = [];
     for (let y = 280; y < mountain.height; y += rngRange(rng, 240, 460)) {
-      const t = y / mountain.height;
-      const trend = mountain.faceBase + t * 220 * (mountain.faceVeer || 0.3);
-      const wave1 =
-        Math.sin(t * Math.PI * 6.7 + mountain.seed) * mountain.faceAmp;
-      const xCenter = trend + wave1;
+      const xCenter = sampleFaceX(y, mountain) + 12;
       const length = rngRange(rng, 38, 90);
       const tilt = rngRange(rng, -0.18, 0.18);
       ledges.push({
@@ -1206,11 +1263,7 @@
     // Marcadores de cuevas y entradas (cada cueva del template)
     const caves = mountain.caves.map((cave) => {
       const cy = cave.y;
-      const t = cy / mountain.height;
-      const trend = mountain.faceBase + t * 220 * (mountain.faceVeer || 0.3);
-      const wave1 =
-        Math.sin(t * Math.PI * 6.7 + mountain.seed) * mountain.faceAmp;
-      const xMouth = trend + wave1 + 36;
+      const xMouth = sampleFaceX(cy, mountain) + 36;
       return Object.assign({}, cave, {
         mouthX: xMouth,
         mouthY: cy,
@@ -1253,6 +1306,7 @@
       altitudeBands,
       stats: {
         anchorsPlaced: 0,
+        manualAnchors: 0,
         falls: 0,
         ropeCatches: 0,
         cavesVisited: 0,
@@ -1314,7 +1368,16 @@
     },
     climber: createClimber(),
     anchor: { y: -Infinity, placed: false, manual: false, x: 0 },
-    pendingAutoAnchorY: AUTO_ANCHOR_INTERVAL,
+    anchorThrow: {
+      active: false,
+      elapsed: 0,
+      duration: ANCHOR_THROW_DURATION,
+      fromX: 0,
+      fromY: 0,
+      targetX: 0,
+      targetY: 0,
+      arcHeight: ANCHOR_THROW_ARC_MIN,
+    },
     safeGrace: 0,
     rest: { active: false, secondsLeft: 0, total: 0 },
     cave: { active: null, sessionStart: 0 },
@@ -1355,6 +1418,19 @@
       anchorSwingTimer: 0,
       walkPhase: 0,
       rope: { active: true, segments: [] },
+    };
+  }
+
+  function createAnchorThrowState() {
+    return {
+      active: false,
+      elapsed: 0,
+      duration: ANCHOR_THROW_DURATION,
+      fromX: 0,
+      fromY: 0,
+      targetX: 0,
+      targetY: 0,
+      arcHeight: ANCHOR_THROW_ARC_MIN,
     };
   }
 
@@ -1602,6 +1678,7 @@
 
   function bindInput() {
     window.addEventListener("resize", resize);
+    window.addEventListener("resize", syncEmbeddedTouchMode);
     window.addEventListener("keydown", onKeyDown, { passive: false });
     window.addEventListener("keyup", onKeyUp);
 
@@ -1629,15 +1706,26 @@
       });
     });
 
-    if (
-      window.matchMedia &&
-      window.matchMedia("(pointer: coarse)").matches
-    ) {
-      state.touchActive = true;
-      document
-        .getElementById("summitShell")
-        .setAttribute("data-touch", "true");
+    syncEmbeddedTouchMode();
+    if (window.MutationObserver) {
+      const observer = new MutationObserver(syncEmbeddedTouchMode);
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+      if (document.body) {
+        observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+      }
     }
+  }
+
+  function syncEmbeddedTouchMode() {
+    const embedded =
+      document.documentElement.classList.contains("mobile-shell-embed") ||
+      (document.body && document.body.classList.contains("mobile-shell-embed"));
+    const coarse =
+      window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    if (!embedded && !coarse && !state.touchActive) return;
+    state.touchActive = true;
+    const shell = document.getElementById("summitShell");
+    if (shell) shell.setAttribute("data-touch", "true");
   }
 
   function triggerTouchAction(action, down) {
@@ -1655,6 +1743,9 @@
     if (!key) return;
     if (down) {
       state.keys.add(key);
+      if (key === " " || key === "q" || key === "e") {
+        handleSingleKey(key, { repeat: false, shiftKey: false });
+      }
     } else {
       state.keys.delete(key);
     }
@@ -1681,7 +1772,9 @@
       }
     }
     state.keys.add(k);
-    handleSingleKey(k, e);
+    if (!e.repeat) {
+      handleSingleKey(k, e);
+    }
   }
 
   function onKeyUp(e) {
@@ -1954,8 +2047,8 @@
     state.runTime = 0;
     state.elapsed = 0;
     state.fallTime = 0;
-    state.pendingAutoAnchorY = AUTO_ANCHOR_INTERVAL;
     state.anchor = { y: -Infinity, placed: false, manual: false, x: 0 };
+    state.anchorThrow = createAnchorThrowState();
     state.safeGrace = 0.6;
     state.rest = { active: false, secondsLeft: 0, total: 0 };
     state.cave.active = null;
@@ -1971,12 +2064,8 @@
     state.climber.x = HUT_X;
     state.climber.y = groundY;
     state.climber.facing = 1;
-    state.anchor = {
-      y: groundY,
-      x: wallArrivalX + 6,
-      placed: false,
-      manual: false,
-    };
+    state.anchor = { y: -Infinity, x: 0, placed: false, manual: false };
+    state.anchorThrow = createAnchorThrowState();
 
     state.intro = {
       active: true,
@@ -2013,7 +2102,7 @@
       t("msgWelcome", { name: mountain.name[state.locale] || mountain.name.es })
     );
     state.audio.menuConfirm();
-    setBeacon(t("beaconKeepClimbing"), "↑", "");
+    setBeacon(t("beaconNeedAnchor"), "Space", t("msgNeedAnchor"));
   }
 
   function setStateMachine(next) {
@@ -2107,26 +2196,91 @@
     return best;
   }
 
+  function hasActiveAnchor() {
+    return Boolean(state.anchor.placed && Number.isFinite(state.anchor.y));
+  }
+
+  function hasAnchorThrow() {
+    return Boolean(state.anchorThrow && state.anchorThrow.active);
+  }
+
+  function anchorTopReached() {
+    if (!hasActiveAnchor()) return true;
+    return state.climber.y >= state.anchor.y - ANCHOR_RETHROW_WINDOW;
+  }
+
+  function anchorClimbRoom() {
+    if (!hasActiveAnchor()) return 0;
+    return Math.max(0, state.anchor.y - state.climber.y - ANCHOR_CEILING_SLACK);
+  }
+
+  function showAnchorClimbHint() {
+    if (state.anchorLimitHintTimer > 0) return;
+    const text = hasAnchorThrow()
+      ? t("msgAnchorFlying")
+      : hasActiveAnchor()
+      ? t("msgAnchorLimit")
+      : t("msgNeedAnchor");
+    showToast(text, 1.35);
+    state.anchorLimitHintTimer = 1.2;
+  }
+
+  function climberPocketWorld() {
+    const climber = state.climber;
+    return {
+      x: climber.x - 8 * climber.facing,
+      y: climber.y - 5,
+    };
+  }
+
+  function anchorThrowPosition(throwState) {
+    const t0 = clamp(throwState.elapsed / throwState.duration, 0, 1);
+    const t1 = t0;
+    const x = lerp(throwState.fromX, throwState.targetX, t1);
+    const baseY = lerp(throwState.fromY, throwState.targetY, t1);
+    const arcY = Math.sin(Math.PI * t1) * throwState.arcHeight;
+    return { x, y: baseY + arcY, t: t1 };
+  }
+
   function tryPlaceManualAnchor() {
     if (!state.run) return;
     if (state.intro.active) return;
     const climber = state.climber;
     if (climber.falling) return;
+    if (hasAnchorThrow()) return;
     if (climber.stamina < 10) {
       showToast(t("msgStaminaLow"));
       return;
     }
-    state.anchor = {
-      y: climber.y,
-      x: sampleFaceX(climber.y) - 4,
-      placed: true,
-      manual: true,
+    if (hasActiveAnchor() && !anchorTopReached()) {
+      showToast(t("msgAnchorTooFar"), 1.4);
+      return;
+    }
+    const mountainTop = state.run.mountain.height;
+    const targetY = Math.min(climber.y + ANCHOR_THROW_DISTANCE, mountainTop);
+    if (targetY < climber.y + ANCHOR_MIN_THROW_DISTANCE && climber.y < mountainTop - 6) {
+      showToast(t("msgAnchorLimit"), 1.4);
+      return;
+    }
+    const targetX = sampleFaceX(targetY) - 4;
+    const pocket = climberPocketWorld();
+    const flightDistance = distance(pocket.x, pocket.y, targetX, targetY);
+    state.anchor = { y: -Infinity, x: 0, placed: false, manual: false };
+    state.anchorThrow = {
+      active: true,
+      elapsed: 0,
+      duration: ANCHOR_THROW_DURATION,
+      fromX: pocket.x,
+      fromY: pocket.y,
+      targetX,
+      targetY,
+      arcHeight: clamp(flightDistance * 0.42, ANCHOR_THROW_ARC_MIN, ANCHOR_THROW_ARC_MAX),
     };
     climber.anchorSwingTimer = ANCHOR_SWING_DURATION;
     state.run.stats.anchorsPlaced += 1;
-    state.audio.anchor();
+    state.run.stats.manualAnchors += 1;
     showToast(t("anchorPlaced"));
-    state.pendingAutoAnchorY = climber.y + AUTO_ANCHOR_INTERVAL;
+    setBeacon(t("beaconAnchorTop"), "↑", formatMetersShort(Math.round((targetY - climber.y) * ALTITUDE_DISPLAY_FACTOR)));
   }
 
   function tryDrinkInline() {
@@ -2363,7 +2517,7 @@
         updateSummitWalk(dt);
       } else {
         updateClimber(dt);
-        updateAnchor();
+        updateAnchor(dt);
       }
       if (state.climber.anchorSwingTimer > 0) {
         state.climber.anchorSwingTimer = Math.max(
@@ -2462,15 +2616,10 @@
     const intro = state.intro;
     intro.active = false;
     intro.phase = "arrived";
-    state.anchor = {
-      y: climber.y,
-      x: sampleFaceX(climber.y) - 4,
-      placed: true,
-      manual: false,
-    };
-    state.pendingAutoAnchorY = climber.y + AUTO_ANCHOR_INTERVAL;
+    state.anchor = { y: -Infinity, x: 0, placed: false, manual: false };
+    state.anchorThrow = createAnchorThrowState();
     state.safeGrace = 0.6;
-    setBeacon(t("beaconKeepClimbing"), "↑", "");
+    setBeacon(t("beaconNeedAnchor"), "Space", t("msgNeedAnchor"));
   }
 
   function updateClimber(dt) {
@@ -2484,6 +2633,7 @@
     if (state.keys.has("arrowright") || state.keys.has("d")) inputX += 1;
     if (state.keys.has("arrowup") || state.keys.has("w")) inputY -= 1;
     if (state.keys.has("arrowdown") || state.keys.has("s")) inputY += 1;
+    let walkablePlateau = currentWalkablePlateau();
 
     if (climber.falling) {
       // Caída libre con drag y deriva por viento
@@ -2499,7 +2649,7 @@
         triggerDeath("ground");
       }
       // ¿Cuerda atrapa?
-      if (state.anchor.placed) {
+      if (hasActiveAnchor()) {
         const delta = climber.y - state.anchor.y;
         if (delta <= -ROPE_LENGTH) {
           // La cuerda se tensa: bot rebote elástico
@@ -2522,13 +2672,22 @@
       return;
     }
 
-    // Movimiento sobre la pared
-    const climbing = inputY < 0;
+    // Movimiento sobre la pared. Subir exige un anclaje fijo por encima,
+    // salvo en las llanuras, donde el jugador camina sin cuerda.
+    const wantsClimb = inputY < 0;
+    const walkingPlateau = Boolean(walkablePlateau);
+    const canClimb = wantsClimb && !walkingPlateau && anchorClimbRoom() > 0;
+    if (wantsClimb && !canClimb && !walkingPlateau) {
+      showAnchorClimbHint();
+    }
+    const climbing = canClimb;
     const descending = inputY > 0;
 
     // Estamina
     if (climbing) {
       climber.stamina -= STAMINA_CLIMB_DRAIN * climateFactor * dt;
+    } else if (walkingPlateau && inputX !== 0) {
+      climber.stamina -= STAMINA_LATERAL_DRAIN * 0.42 * climateFactor * dt;
     } else if (descending) {
       climber.stamina -= STAMINA_DESCENT_DRAIN * climateFactor * dt;
     } else if (inputX !== 0) {
@@ -2542,8 +2701,10 @@
     }
 
     // Velocidades horizontales/verticales
-    const targetVx = inputX * SIDE_SPEED;
-    const targetVy = climbing
+    const targetVx = inputX * (walkingPlateau ? WALKABLE_PLATEAU_SPEED : SIDE_SPEED);
+    const targetVy = walkingPlateau
+      ? 0
+      : climbing
       ? -CLIMB_SPEED
       : descending
       ? -DESCEND_SPEED * -1
@@ -2560,37 +2721,37 @@
     climber.x += climber.vx * dt;
     climber.y += -climber.vy * dt; // vy negativa = sube
 
-    if (state.anchor.placed) {
-      // Regla: el escalador nunca puede pasar por encima del anclaje. Cuando
-      // sube, el anclaje le acompaña (clavándose en la pared) salvo durante
-      // el swing del piolet, en el que el anclaje se queda fijo y bloquea
-      // al climber para que se vea el gesto de anclaje.
-      if (climber.anchorSwingTimer > 0) {
-        const ceiling = state.anchor.y + ANCHOR_CEILING_SLACK;
-        if (climber.y > ceiling) {
-          climber.y = ceiling;
-          climber.vy = Math.min(climber.vy, 0);
-        }
-      } else {
-        if (climber.y > state.anchor.y) {
-          state.anchor.y = climber.y;
-          state.anchor.x = sampleFaceX(climber.y) - 4;
-          state.anchor.manual = false;
-        }
-        if (climber.y >= state.pendingAutoAnchorY) {
-          state.pendingAutoAnchorY = climber.y + AUTO_ANCHOR_INTERVAL;
-          state.run.stats.anchorsPlaced += 1;
-          climber.anchorSwingTimer = ANCHOR_SWING_DURATION;
-          if (state.audio.autoAnchor) state.audio.autoAnchor();
-        }
+    if (walkingPlateau) {
+      state.anchor = { y: -Infinity, x: 0, placed: false, manual: false };
+      state.anchorThrow = createAnchorThrowState();
+      climber.x = clamp(climber.x, walkablePlateau.minX, walkablePlateau.maxX);
+      climber.y = plateauSurfaceYAtX(walkablePlateau, climber.x);
+      climber.vy = 0;
+      if (
+        inputX > 0 &&
+        climber.x >= Math.max(walkablePlateau.startX, walkablePlateau.endX) - 4
+      ) {
+        climber.y = walkablePlateau.endY + 2;
+        climber.x = sampleFaceX(climber.y) + 8;
+      } else if (
+        inputX < 0 &&
+        climber.x <= Math.min(walkablePlateau.startX, walkablePlateau.endX) + 4
+      ) {
+        climber.y = walkablePlateau.startY - 2;
+        climber.x = sampleFaceX(climber.y) + 8;
+      }
+    } else if (hasActiveAnchor()) {
+      const ceiling = state.anchor.y - ANCHOR_CEILING_SLACK;
+      if (climber.y > ceiling) {
+        climber.y = ceiling;
+        climber.vy = Math.max(climber.vy, 0);
       }
     }
-
     if (climber.vx !== 0) {
       climber.facing = climber.vx >= 0 ? 1 : -1;
     }
-    climber.armSwing += dt * (climbing ? 6 : 2);
-    climber.legSwing += dt * (climbing ? 6 : 2.4);
+    climber.armSwing += dt * (climbing ? 6 : walkingPlateau && inputX !== 0 ? 8 : 2);
+    climber.legSwing += dt * (climbing ? 6 : walkingPlateau && inputX !== 0 ? 9 : 2.4);
     climber.bodyTilt = lerp(
       climber.bodyTilt,
       inputX * 0.18 + (layer ? layer.wind * 0.5 : 0),
@@ -2598,11 +2759,13 @@
     );
 
     // Snap a la pared (limita X dentro de los holds)
-    const faceX = sampleFaceX(climber.y);
-    const minX = faceX - 28;
-    const maxX = faceX + 60;
-    if (climber.x < minX) climber.x = minX;
-    if (climber.x > maxX) climber.x = maxX;
+    if (!walkingPlateau) {
+      const faceX = sampleFaceX(climber.y);
+      const minX = faceX - 28;
+      const maxX = faceX + 60;
+      if (climber.x < minX) climber.x = minX;
+      if (climber.x > maxX) climber.x = maxX;
+    }
 
     // Hidratación / agua
     climber.water = clamp(
@@ -2659,8 +2822,19 @@
     }
   }
 
-  function updateAnchor() {
-    // El anclaje permanece fijo hasta que el jugador lo vuelva a clavar.
+  function updateAnchor(dt) {
+    const throwState = state.anchorThrow;
+    if (!throwState || !throwState.active) return;
+    throwState.elapsed += dt;
+    if (throwState.elapsed < throwState.duration) return;
+    state.anchor = {
+      y: throwState.targetY,
+      x: throwState.targetX,
+      placed: true,
+      manual: true,
+    };
+    state.anchorThrow = createAnchorThrowState();
+    state.audio.anchor();
   }
 
   function updateWeather(dt) {
@@ -2850,7 +3024,8 @@
     climber.falling = false;
     climber.facing = 1;
     climber.anchorSwingTimer = 0;
-    state.anchor.placed = false;
+    state.anchor = { y: -Infinity, x: 0, placed: false, manual: false };
+    state.anchorThrow = createAnchorThrowState();
     showMessage(t("msgSummitReached") || "¡Cumbre! Camina hasta la bandera.", 4.2);
     if (state.audio && state.audio.menuConfirm) state.audio.menuConfirm();
   }
@@ -2880,9 +3055,15 @@
       climber.armSwing += dt * 9;
     }
 
+    // En la esplanada el caminante va erguido, sin inclinación de escalada
+    climber.bodyTilt = lerp(climber.bodyTilt, 0, 1 - Math.exp(-dt * 9));
+    climber.anchorSwingTimer = 0;
+
     // Recuperación pasiva
     climber.stamina = clamp(climber.stamina + 6 * dt, 0, STAMINA_MAX);
     climber.grip = clamp(climber.grip + 8 * dt, 0, GRIP_MAX);
+
+    if (sw.cheerTimer > 0) sw.cheerTimer = Math.max(0, sw.cheerTimer - dt);
 
     // Llegada a la bandera
     if (!sw.completed && Math.abs(climber.x - sw.flagX) < SUMMIT_FLAG_REACH) {
@@ -3072,6 +3253,37 @@
       setBeacon(t("beaconLowStamina"), "⚠", t("msgStaminaLow"));
       return;
     }
+    if (!state.intro.active && !state.summitWalk.active) {
+      const plateau = currentWalkablePlateau();
+      if (plateau) {
+        setBeacon(
+          t("beaconPlateauWalk"),
+          "↔",
+          formatMetersShort(Math.round(plateau.distanceMeters))
+        );
+        return;
+      }
+      if (hasAnchorThrow()) {
+        setBeacon(t("beaconAnchorTop"), "↑", t("msgAnchorFlying"));
+        return;
+      }
+      if (!hasActiveAnchor()) {
+        setBeacon(t("beaconNeedAnchor"), "Space", t("msgNeedAnchor"));
+        return;
+      }
+      if (anchorTopReached()) {
+        setBeacon(t("beaconNeedAnchor"), "Space", t("msgAnchorLimit"));
+        return;
+      }
+      setBeacon(
+        t("beaconAnchorTop"),
+        "↑",
+        formatMetersShort(
+          Math.round((state.anchor.y - climber.y) * ALTITUDE_DISPLAY_FACTOR)
+        )
+      );
+      return;
+    }
     const layer = currentLayer(climber.y);
     if (layer && layer.rain >= 0.6) {
       setBeacon(t("beaconRain"), "☔", "");
@@ -3100,57 +3312,408 @@
     );
   }
 
-  function sampleFaceX(y) {
-    const mountain = state.run ? state.run.mountain : null;
-    if (!mountain) return 220;
-    const rawT = y / mountain.height;
-    const t2 = clamp(rawT, 0, 1);
-    // Perfil de montaña: base muy ancha y tendida (ladera), media con
-    // pendiente cada vez más pronunciada, parte alta casi vertical y un
-    // estrechamiento final agresivo para formar el pico tipo silueta clásica.
-    const profileShape = mountain.profileShape || 0.32;
-    const totalSpread = (mountain.faceVeer || 0.3) * 880;
-    let profile = Math.pow(t2, profileShape) * totalSpread;
-    // Pico: a partir de MOUNTAIN_PEAK_NARROW_RATIO la cara avanza más rápido
-    // hacia adentro (estrechando el ancho de la cima).
-    if (t2 > MOUNTAIN_PEAK_NARROW_RATIO) {
-      const top = (t2 - MOUNTAIN_PEAK_NARROW_RATIO) /
-        (1 - MOUNTAIN_PEAK_NARROW_RATIO);
-      profile += smoothstep(0, 1, top) * 70;
+  // Perfil progresivo por fases: base caminable → ladera baja → pared
+  // principal → pared técnica alta → pico/cumbre. Cada fase aporta un
+  // desplazamiento horizontal acumulativo a la cara escalable.
+  // Acepta opcionalmente una montaña explícita para usar antes de que
+  // state.run esté inicializado (durante la generación del mundo).
+  function plateauGeometryAt(y, x, mountainArg) {
+    const mountain = mountainArg || (state.run ? state.run.mountain : null);
+    if (!mountain || !mountain.layers) return null;
+    const layers = mountain.layers;
+    const profileCfg = mountain.slopeProfile || {};
+    for (let i = 0; i < layers.length - 1; i++) {
+      const layer = layers[i];
+      const from = Math.max(0, layer.from || 0);
+      const to = Math.min(mountain.height, layer.to == null ? mountain.height : layer.to);
+      const levelHeight = Math.max(1, to - from);
+      const plateauHeight = clamp(
+        levelHeight * (profileCfg.plateauRatio || SLOPE_PLATEAU_RATIO),
+        SLOPE_PLATEAU_MIN_HEIGHT,
+        SLOPE_PLATEAU_MAX_HEIGHT
+      );
+      const startY = to - plateauHeight;
+      const endY = to;
+      const yInBand =
+        y >= startY - WALKABLE_PLATEAU_MARGIN &&
+        y <= endY + WALKABLE_PLATEAU_MARGIN;
+      if (!yInBand) continue;
+
+      const startX = sampleFaceX(startY, mountain);
+      const endX = sampleFaceX(endY, mountain);
+      const minX = Math.min(startX, endX) - WALKABLE_PLATEAU_MARGIN;
+      const maxX = Math.max(startX, endX) + WALKABLE_PLATEAU_MARGIN;
+      const xInSpan = x == null || (x >= minX && x <= maxX);
+      if (!xInSpan) continue;
+
+      return {
+        index: i,
+        startY,
+        endY,
+        startX,
+        endX,
+        minX,
+        maxX,
+        distanceMeters: plateauDistanceMetersFor(mountain, i),
+      };
     }
-    const trend = mountain.faceBase + profile;
-    // Ondas: amplitud reducida en la base para que la pendiente lea limpia y
-    // crezca con la altitud. El término "ridge" añade un escalón visible a
-    // mitad para que la silueta tenga carácter (no curva monótona).
-    const ampScale = 0.35 + 0.55 * smoothstep(0.05, 0.55, t2);
-    const wave1 =
-      Math.sin(t2 * Math.PI * 6.7 + mountain.seed) * mountain.faceAmp * ampScale;
-    const wave2 =
-      Math.sin(t2 * Math.PI * 17.5 + mountain.seed * 0.43) *
-      mountain.faceAmp *
-      0.32 *
-      ampScale;
-    const ledges = Math.sin(t2 * Math.PI * 38.0) * 10 * ampScale;
-    // Repisa central: pequeño escalón que se proyecta hacia fuera entre 50-65%
-    const ridgeBump =
-      smoothstep(0.5, 0.6, t2) * (1 - smoothstep(0.6, 0.72, t2)) * 18;
-    return trend + wave1 + wave2 + ledges - ridgeBump;
+    return null;
   }
 
-  function sampleRightX(y) {
-    const mountain = state.run ? state.run.mountain : null;
-    if (!mountain) return 800;
+  function plateauSurfaceYAtX(plateau, x) {
+    const span = plateau.endX - plateau.startX;
+    if (Math.abs(span) < 0.001) return plateau.startY;
+    const t = clamp((x - plateau.startX) / span, 0, 1);
+    return lerp(plateau.startY, plateau.endY, t);
+  }
+
+  function currentWalkablePlateau() {
+    if (!state.run || state.intro.active || state.summitWalk.active) return null;
+    return plateauGeometryAt(state.climber.y, state.climber.x, state.run.mountain);
+  }
+
+  function gradeRunRate(gradePercent) {
+    const grade = Math.max(1, gradePercent || 1);
+    return SLOPE_PROFILE_BASE_RUN + SLOPE_PROFILE_GRADE_RUN / grade;
+  }
+
+  function integrateGradeRun(height, startGrade, endGrade, localRatio) {
+    const h = Math.max(0, height) * clamp(localRatio, 0, 1);
+    if (h <= 0) return 0;
+    const gradeDelta = endGrade - startGrade;
+    if (Math.abs(gradeDelta) < 0.0001) {
+      return h * gradeRunRate(startGrade);
+    }
+
+    const f = clamp(localRatio, 0, 1);
+    const integralInvGrade =
+      (Math.log(startGrade + gradeDelta * f) - Math.log(startGrade)) /
+      gradeDelta;
+    return height * (SLOPE_PROFILE_BASE_RUN * f + SLOPE_PROFILE_GRADE_RUN * integralInvGrade);
+  }
+
+  function plateauDistanceMetersFor(mountain, levelIndex) {
+    const seedWave = Math.sin((mountain.seed || 1) * 0.37 + levelIndex * 1.91) * 0.5 + 0.5;
+    return lerp(SLOPE_PLATEAU_MIN_METERS, SLOPE_PLATEAU_MAX_METERS, seedWave);
+  }
+
+  function sampleProgressiveFaceProfile(y, mountainArg) {
+    const mountain = mountainArg || (state.run ? state.run.mountain : null);
+    if (!mountain) {
+      return {
+        x: 0,
+        gradeStart: 1,
+        gradeEnd: 5,
+        gradePercent: 1,
+        plateauBlend: 0,
+        plateauDistanceMeters: 0,
+      };
+    }
+
+    const layers = mountain.layers && mountain.layers.length
+      ? mountain.layers
+      : [{ from: 0, to: mountain.height }];
+    const profileCfg = mountain.slopeProfile || {};
+    const lowerSlopePower = profileCfg.lowerSlopePower == null ? 1.0 : profileCfg.lowerSlopePower;
+    const wallIntensity = profileCfg.wallIntensity == null ? 1.0 : profileCfg.wallIntensity;
+    const summitSharpness = profileCfg.summitSharpness == null ? 1.0 : profileCfg.summitSharpness;
+    const veer = mountain.faceVeer == null ? 0.34 : mountain.faceVeer;
+    const visualScale =
+      (profileCfg.slopeVisualScale || SLOPE_PROFILE_SCALE) *
+      (0.86 + veer * 0.42);
+
+    const clampedY = clamp(y, 0, mountain.height);
+    let x = 0;
+    let gradeStart = SLOPE_FIRST_LEVEL_START_PERCENT;
+    let gradeEnd = SLOPE_LEVEL_STEP_PERCENT;
+    let gradePercent = gradeStart;
+    let plateauBlend = 0;
+    let plateauDistanceMeters = 0;
+
+    for (let i = 0; i < layers.length; i++) {
+      const layer = layers[i];
+      const from = Math.max(0, layer.from || 0);
+      const to = Math.min(mountain.height, layer.to == null ? mountain.height : layer.to);
+      const levelHeight = Math.max(1, to - from);
+      const hasPlateau = i < layers.length - 1;
+      plateauDistanceMeters = hasPlateau ? plateauDistanceMetersFor(mountain, i) : 0;
+      const plateauHeight = hasPlateau
+        ? clamp(
+            levelHeight * (profileCfg.plateauRatio || SLOPE_PLATEAU_RATIO),
+            SLOPE_PLATEAU_MIN_HEIGHT,
+            SLOPE_PLATEAU_MAX_HEIGHT
+          )
+        : 0;
+      const climbHeight = Math.max(1, levelHeight - plateauHeight);
+      const levelStartGrade =
+        i === 0 ? SLOPE_FIRST_LEVEL_START_PERCENT : i * SLOPE_LEVEL_STEP_PERCENT;
+      const levelEndGrade = (i + 1) * SLOPE_LEVEL_STEP_PERCENT;
+      const levelT = layers.length <= 1 ? 0 : i / (layers.length - 1);
+      const technicalFactor =
+        (i < 2 ? lowerSlopePower : 1) *
+        lerp(1, wallIntensity, smoothstep(0.25, 1, levelT)) *
+        (i === layers.length - 1 ? summitSharpness : 1);
+      const effectiveStartGrade = Math.max(1, levelStartGrade * technicalFactor);
+      const effectiveEndGrade = Math.max(effectiveStartGrade + 0.1, levelEndGrade * technicalFactor);
+
+      if (clampedY <= from) {
+        gradeStart = levelStartGrade;
+        gradeEnd = levelEndGrade;
+        gradePercent = levelStartGrade;
+        break;
+      }
+
+      const levelY = Math.min(clampedY, to) - from;
+      if (levelY <= climbHeight) {
+        const local = levelY / climbHeight;
+        x += integrateGradeRun(climbHeight, effectiveStartGrade, effectiveEndGrade, local) * visualScale;
+        gradeStart = levelStartGrade;
+        gradeEnd = levelEndGrade;
+        gradePercent = lerp(levelStartGrade, levelEndGrade, local);
+        break;
+      }
+
+      x += integrateGradeRun(climbHeight, effectiveStartGrade, effectiveEndGrade, 1) * visualScale;
+
+      if (hasPlateau) {
+        const plateauY = Math.min(levelY - climbHeight, plateauHeight);
+        const plateauEase = smoothstep(0, 1, plateauY / Math.max(1, plateauHeight));
+        const plateauDistanceWorld = plateauDistanceMeters / ALTITUDE_DISPLAY_FACTOR;
+        x += plateauDistanceWorld * plateauEase;
+        plateauBlend = plateauY > 0 && clampedY <= to
+          ? Math.sin(plateauEase * Math.PI)
+          : 0;
+        gradeStart = levelEndGrade;
+        gradeEnd = (i + 2) * SLOPE_LEVEL_STEP_PERCENT;
+        gradePercent = levelEndGrade;
+        if (clampedY <= to) break;
+      }
+
+      gradeStart = levelEndGrade;
+      gradeEnd = (i + 2) * SLOPE_LEVEL_STEP_PERCENT;
+      gradePercent = gradeStart;
+    }
+
+    return { x, gradeStart, gradeEnd, gradePercent, plateauBlend, plateauDistanceMeters };
+  }
+
+  function sampleFaceX(y, mountainArg) {
+    const mountain = mountainArg || (state.run ? state.run.mountain : null);
+    if (!mountain) return 220;
+
+    const t = clamp(y / mountain.height, 0, 1);
+
+    const baseX = mountain.faceBase || 220;
+    const profileCfg = mountain.slopeProfile || {};
+    const progressive = sampleProgressiveFaceProfile(y, mountain);
+    const roughnessFactor = profileCfg.roughness == null ? 1.0 : profileCfg.roughness;
+
+    const progressiveRoughnessScale =
+      (0.03 +
+        0.97 *
+          smoothstep(0.07, 0.68, t) *
+          (1.0 - 0.7 * smoothstep(0.88, 1.0, t))) *
+      (1 - 0.78 * progressive.plateauBlend);
+
+    const progressiveAmp = mountain.faceAmp || 76;
+    const progressiveIrregularity =
+      (
+        Math.sin(t * Math.PI * 6.5 + mountain.seed) *
+          progressiveAmp *
+          0.42 *
+          progressiveRoughnessScale *
+          roughnessFactor +
+        Math.sin(t * Math.PI * 15.5 + mountain.seed * 0.43) *
+          progressiveAmp *
+          0.18 *
+          progressiveRoughnessScale *
+          roughnessFactor +
+        Math.sin(t * Math.PI * 42.0 + mountain.seed * 0.17) *
+          5 *
+          progressiveRoughnessScale *
+          roughnessFactor +
+        smoothstep(0.45, 0.52, t) *
+          (1 - smoothstep(0.56, 0.64, t)) *
+          -14 *
+          roughnessFactor *
+          (1 - progressive.plateauBlend) +
+        smoothstep(0.68, 0.74, t) *
+          (1 - smoothstep(0.76, 0.82, t)) *
+          18 *
+          roughnessFactor *
+          (1 - progressive.plateauBlend)
+      ) *
+      (1.0 - 0.82 * smoothstep(0.93, 1.0, t));
+
+    return baseX + progressive.x + progressiveIrregularity;
+
+    const baseSoftness = profileCfg.baseSoftness == null ? 0.15 : profileCfg.baseSoftness;
+    const lowerSlopePower = profileCfg.lowerSlopePower == null ? 1.0 : profileCfg.lowerSlopePower;
+    const wallIntensity = profileCfg.wallIntensity == null ? 1.0 : profileCfg.wallIntensity;
+    const summitSharpness = profileCfg.summitSharpness == null ? 1.0 : profileCfg.summitSharpness;
+  /*
+   * Perfil progresivo de la cara escalable.
+   *
+   * La idea visual es:
+   *
+   * 0.00 - 0.15: base suave, casi caminable.
+   * 0.15 - 0.35: ladera más inclinada.
+   * 0.35 - 0.60: pared principal de escalada.
+   * 0.60 - 0.82: pared técnica alta.
+   * 0.82 - 1.00: pico final estrecho.
+   *
+   * Cada fase suma desplazamiento horizontal acumulativo.
+   * Así la montaña no se comporta como una pared recta, sino como una
+   * ladera que se va empinando y cerrando hacia la cumbre.
+   */
+
+    const baseEnd = clamp(baseSoftness, 0.10, 0.22);
+    const basePush = 240 + baseEnd * 170;
+
+    const phaseBase =
+      smoothstep(0.00, baseEnd, t) *
+      basePush;
+
+    const phaseLowerSlope =
+      smoothstep(baseEnd, 0.35, t) *
+      230 *
+      lowerSlopePower;
+
+    const phaseMainWall =
+      smoothstep(0.35, 0.60, t) *
+      205 *
+      wallIntensity;
+
+    const phaseHighWall =
+      smoothstep(0.60, MOUNTAIN_PEAK_NARROW_RATIO, t) *
+      170 *
+      wallIntensity;
+
+    const phaseSummitNarrow =
+      smoothstep(MOUNTAIN_PEAK_NARROW_RATIO, 1.00, t) *
+      118 *
+      summitSharpness;
+
+    let profile =
+      phaseBase +
+      phaseLowerSlope +
+      phaseMainWall +
+      phaseHighWall +
+      phaseSummitNarrow;
+
+  /*
+   * faceVeer sigue controlando el carácter general de cada montaña.
+   * Un faceVeer alto hace que la montaña avance más hacia la derecha.
+   */
+    const veer = mountain.faceVeer == null ? 0.34 : mountain.faceVeer;
+    profile *= 0.85 + veer * 0.55;
+
+  /*
+   * Irregularidad visual:
+   *
+   * - Muy baja en la base, para que parezca caminable.
+   * - Más visible en la zona media y alta.
+   * - Reducida cerca de la cumbre para que la explanada final sea estable.
+   */
+    const roughnessScale =
+      0.07 +
+      0.93 *
+        smoothstep(0.10, 0.68, t) *
+        (1.0 - 0.65 * smoothstep(0.88, 1.0, t));
+
+    const amp = mountain.faceAmp || 76;
+
+    const wave1 =
+      Math.sin(t * Math.PI * 6.5 + mountain.seed) *
+      amp *
+      0.50 *
+      roughnessScale *
+      roughnessFactor;
+
+    const wave2 =
+      Math.sin(t * Math.PI * 15.5 + mountain.seed * 0.43) *
+      amp *
+      0.22 *
+      roughnessScale *
+      roughnessFactor;
+
+    const microLedges =
+      Math.sin(t * Math.PI * 42.0 + mountain.seed * 0.17) *
+      7 *
+      roughnessScale *
+      roughnessFactor;
+
+  /*
+   * Repisas y salientes puntuales.
+   *
+   * midRidge crea una pequeña repisa hacia fuera en zona media.
+   * highOverhang crea un tramo algo más agresivo en zona alta.
+   */
+    const midRidge =
+      smoothstep(0.45, 0.52, t) *
+      (1 - smoothstep(0.56, 0.64, t)) *
+      -18 *
+      roughnessFactor;
+
+    const highOverhang =
+      smoothstep(0.68, 0.74, t) *
+      (1 - smoothstep(0.76, 0.82, t)) *
+      22 *
+      roughnessFactor;
+
+  /*
+   * Suavizado extra al llegar a la cumbre.
+   * Evita que las ondas deformen demasiado el punto donde empieza la explanada.
+   */
+    const summitStabilizer = 1.0 - 0.75 * smoothstep(0.93, 1.0, t);
+
+    const irregularity =
+      (wave1 + wave2 + microLedges + midRidge + highOverhang) *
+      summitStabilizer;
+
+    return baseX + profile + irregularity;
+  }
+
+  function sampleRightX(y, mountainArg) {
+    const mountain = mountainArg || (state.run ? state.run.mountain : null);
+    if (!mountain) return 900;
+
     const summitY = mountain.height;
-    const summitFaceX = sampleFaceX(summitY);
+    const summitFaceX = sampleFaceX(summitY, mountain);
     const plateauRightX = summitFaceX + SUMMIT_PLATEAU_WIDTH;
+
     if (y >= summitY) {
       return plateauRightX;
     }
+
     const t = clamp(y / summitY, 0, 1);
-    // Mismo tipo de curva que la cara izquierda, mirror para la pendiente
-    // derecha; al base la roca es muy ancha (off-screen), al pico estrecho.
-    const profile = Math.pow(1 - t, 0.32) * MOUNTAIN_RIGHT_BASE_OFFSET;
-    return plateauRightX + profile;
+    const slope = mountain.slopeProfile || {};
+    const summitSharpness = slope.summitSharpness != null ? slope.summitSharpness : 1.0;
+    const roughnessMult = slope.roughness != null ? slope.roughness : 1.0;
+
+    const baseSpread = MOUNTAIN_RIGHT_BASE_OFFSET || 1100;
+    // Cierre progresivo: power > 1 hace que la mayor parte del cierre
+    // ocurra en el tramo medio, dejando la base muy ancha y la cumbre
+    // ya estrechada cuando se acerca al pico. summitSharpness afila el pico.
+    const closeProfile = Math.pow(1 - t, 1.05 + (summitSharpness - 1) * 0.25) * baseSpread;
+
+    const amp = mountain.faceAmp || 76;
+    const roughnessScale =
+      (0.30 + 0.45 * smoothstep(0.05, 0.65, 1 - t)) * roughnessMult;
+
+    const rightWave =
+      Math.sin((1 - t) * Math.PI * 5.2 + mountain.seed * 0.7) *
+      amp *
+      0.32 *
+      roughnessScale;
+
+    const rightWave2 =
+      Math.sin((1 - t) * Math.PI * 13.1 + mountain.seed * 0.37) *
+      amp *
+      0.14 *
+      roughnessScale;
+
+    return plateauRightX + closeProfile + rightWave + rightWave2;
   }
 
   /* =====================================================
@@ -3319,50 +3882,124 @@
 
   /* ---- Picos lejanos ---- */
 
+  // Picos lejanos: cordillera triangular lejana (parallax horizontal lento).
+  // Picos a posiciones fijas en el mundo, generados con seed determinístico.
   function drawDistantPeaks(ctx) {
     if (!state.run) return;
     const mountain = state.run.mountain;
-    const cx = state.width / 2;
-    const baseY = state.height * 0.78 + state.cameraY * PARALLAX_FAR_PEAKS * 0.05;
+    const baseY = state.height * 0.86 + state.cameraY * PARALLAX_FAR_PEAKS * 0.05;
+    const camOffsetX = state.cameraX * PARALLAX_FAR_PEAKS * 0.7;
     ctx.save();
-    ctx.fillStyle = darken(mountain.paletteRock, 0.42);
+    ctx.fillStyle = darken(mountain.paletteRock, 0.46);
     ctx.beginPath();
-    ctx.moveTo(0, state.height);
-    ctx.lineTo(0, baseY);
-    for (let i = 0; i <= 10; i++) {
-      const px = (state.width / 10) * i;
-      const wave = Math.sin(i * 0.7 + state.cameraY * 0.0003) * 22;
-      ctx.lineTo(px, baseY - 60 - wave - Math.abs(i - 5) * 6);
+    ctx.moveTo(-50, state.height);
+    ctx.lineTo(-50, baseY);
+    // Serie de triángulos (montañas) a lo largo del horizonte
+    const peakCount = 7;
+    const span = state.width + 200;
+    for (let i = 0; i <= peakCount; i++) {
+      const t = i / peakCount;
+      const peakX = -50 + t * span - (camOffsetX % (span / peakCount));
+      const seedJit = Math.sin((i + 3.1) * 12.9 + mountain.seed * 0.31);
+      const peakHeight = 92 + (seedJit * 0.5 + 0.5) * 70;
+      const halfBase = 56 + (Math.cos(i * 4.7 + mountain.seed) * 0.5 + 0.5) * 28;
+      // Lado izquierdo del pico
+      ctx.lineTo(peakX - halfBase, baseY);
+      // Cima
+      ctx.lineTo(peakX, baseY - peakHeight);
+      // Lado derecho del pico
+      ctx.lineTo(peakX + halfBase, baseY);
     }
-    ctx.lineTo(state.width, baseY);
-    ctx.lineTo(state.width, state.height);
+    ctx.lineTo(state.width + 50, baseY);
+    ctx.lineTo(state.width + 50, state.height);
     ctx.closePath();
     ctx.fill();
+
+    // Capa de nieve blanquecina en las cimas más altas
+    ctx.fillStyle = "rgba(220, 232, 244, 0.35)";
+    for (let i = 0; i <= peakCount; i++) {
+      const t = i / peakCount;
+      const peakX = -50 + t * span - (camOffsetX % (span / peakCount));
+      const seedJit = Math.sin((i + 3.1) * 12.9 + mountain.seed * 0.31);
+      const peakHeight = 92 + (seedJit * 0.5 + 0.5) * 70;
+      if (peakHeight < 130) continue;
+      const halfBase = 56 + (Math.cos(i * 4.7 + mountain.seed) * 0.5 + 0.5) * 28;
+      const snowCapY = baseY - peakHeight + 14;
+      const snowHalf = halfBase * 0.36;
+      ctx.beginPath();
+      ctx.moveTo(peakX - snowHalf, snowCapY);
+      ctx.lineTo(peakX, baseY - peakHeight);
+      ctx.lineTo(peakX + snowHalf, snowCapY);
+      ctx.closePath();
+      ctx.fill();
+    }
     ctx.restore();
   }
 
+  // Picos medios: cadena más cercana, triángulos más grandes y oscuros
   function drawMidPeaks(ctx) {
     if (!state.run) return;
     const mountain = state.run.mountain;
-    const baseY = state.height * 0.86 + state.cameraY * PARALLAX_MID_PEAKS * 0.05;
+    const baseY = state.height * 0.94 + state.cameraY * PARALLAX_MID_PEAKS * 0.05;
+    const camOffsetX = state.cameraX * PARALLAX_MID_PEAKS * 0.7;
     ctx.save();
-    ctx.fillStyle = darken(mountain.paletteRock, 0.22);
+    ctx.fillStyle = darken(mountain.paletteRock, 0.26);
     ctx.beginPath();
-    ctx.moveTo(0, state.height);
-    ctx.lineTo(0, baseY);
-    for (let i = 0; i <= 14; i++) {
-      const px = (state.width / 14) * i;
-      const wave = Math.sin(i * 0.55 + state.cameraY * 0.0008) * 36;
-      ctx.lineTo(px, baseY - 90 - wave - Math.abs(i - 7) * 12);
+    ctx.moveTo(-80, state.height);
+    ctx.lineTo(-80, baseY);
+    const peakCount = 5;
+    const span = state.width + 280;
+    for (let i = 0; i <= peakCount; i++) {
+      const t = i / peakCount;
+      const peakX = -80 + t * span - (camOffsetX % (span / peakCount));
+      const seedJit = Math.sin((i + 5.7) * 9.31 + mountain.seed * 0.51);
+      const peakHeight = 140 + (seedJit * 0.5 + 0.5) * 110;
+      const halfBase = 90 + (Math.cos(i * 3.3 + mountain.seed * 0.6) * 0.5 + 0.5) * 50;
+      ctx.lineTo(peakX - halfBase, baseY);
+      ctx.lineTo(peakX, baseY - peakHeight);
+      ctx.lineTo(peakX + halfBase, baseY);
     }
-    ctx.lineTo(state.width, baseY);
-    ctx.lineTo(state.width, state.height);
+    ctx.lineTo(state.width + 80, baseY);
+    ctx.lineTo(state.width + 80, state.height);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
   }
 
   /* ---- Masa de roca (cutaway) ---- */
+
+  function drawMountainMaterialBands(ctx, mountain, camY) {
+    const viewMin = camY - 140;
+    const viewMax = camY + state.height + 140;
+
+    for (const layer of mountain.layers) {
+      if (layer.to < viewMin || layer.from > viewMax) continue;
+
+      const syTop = state.height - (layer.to - camY);
+      const syBottom = state.height - (layer.from - camY);
+      const h = syBottom - syTop;
+      if (h <= 0) continue;
+
+      const base = layer.color || mountain.paletteRock;
+      const grad = ctx.createLinearGradient(0, syTop, 0, syBottom);
+      grad.addColorStop(0, darken(base, -0.10));
+      grad.addColorStop(0.54, base);
+      grad.addColorStop(1, darken(base, 0.18));
+      ctx.fillStyle = grad;
+      ctx.fillRect(-220, syTop, state.width + 820, h);
+    }
+
+    const snowStart = mountain.height * 0.84;
+    if (viewMax >= snowStart) {
+      const snowTop = state.height - (mountain.height - camY);
+      const snowBottom = state.height - (snowStart - camY);
+      const snowGrad = ctx.createLinearGradient(0, snowTop, 0, snowBottom);
+      snowGrad.addColorStop(0, "rgba(255,255,255,0.72)");
+      snowGrad.addColorStop(1, "rgba(220,235,240,0)");
+      ctx.fillStyle = snowGrad;
+      ctx.fillRect(-220, snowTop - 20, state.width + 820, snowBottom - snowTop + 40);
+    }
+  }
 
   function drawRockMass(ctx) {
     const mountain = state.run.mountain;
@@ -3431,17 +4068,26 @@
     ctx.fill();
 
     // Capa más clara, ligeramente metida hacia adentro (luz lateral)
+    ctx.save();
+    pathSilhouette(18);
+    ctx.clip();
+    drawMountainMaterialBands(ctx, mountain, camY);
+    ctx.restore();
+
+    ctx.globalAlpha = 0.18;
     ctx.fillStyle = mountain.paletteRock;
     pathSilhouette(18);
     ctx.fill();
+    ctx.globalAlpha = 1;
 
     // Texturas (vetas) - ruido determinístico
-    ctx.strokeStyle = darken(mountain.paletteRock, -0.12);
     ctx.lineWidth = 1.2;
     for (let i = 0; i < 18; i++) {
       const yWorld = camY + (i + 1) * (state.height / 18);
+      const layer = currentLayer(yWorld) || { color: mountain.paletteRock };
       const wx = sampleFaceX(yWorld) + 30 + Math.sin(i * 1.3 + state.elapsed * 0.05) * 8;
       const sy = state.height - (yWorld - camY);
+      ctx.strokeStyle = darken(layer.color || mountain.paletteRock, -0.18);
       ctx.beginPath();
       ctx.moveTo(wx - camX, sy);
       ctx.lineTo(wx - camX + 80, sy + 14);
@@ -3748,43 +4394,41 @@
     snowGrad.addColorStop(1, "rgba(220, 230, 240, 0)");
     ctx.fillStyle = snowGrad;
 
+    // Path del manto de nieve: empieza abajo a la izquierda (en la cara
+    // izquierda, ~dropDepth px por debajo del pico), sube por la cara hasta
+    // el pico, cruza la esplanada con cresta ondulada, y baja por la cara
+    // derecha la misma profundidad. Se cierra por debajo del pico.
+    const dropDepth = 70;
+    const dropSamples = 10;
     ctx.beginPath();
-    // Bajada izquierda: sigue la cara hacia abajo unas decenas de px
-    const dropLeftSamples = 8;
-    const dropDepth = 60;
-    const dropStartY = summitY;
-    const dropEndY = summitY - dropDepth;
-    for (let i = 0; i <= dropLeftSamples; i++) {
-      const t = i / dropLeftSamples;
-      const wy = dropStartY - t * dropDepth;
-      const wx = sampleFaceX(wy) - 1;
+
+    // Cara izquierda: subir desde dropDepth abajo hasta el pico
+    for (let i = 0; i <= dropSamples; i++) {
+      const t = i / dropSamples;
+      const wy = (summitY - dropDepth) + dropDepth * t;
+      const wx = sampleFaceX(wy) - 0.5;
       const sx = wx - camX;
       const sy = state.height - (wy - camY);
       if (i === 0) ctx.moveTo(sx, sy);
       else ctx.lineTo(sx, sy);
     }
-    // Sube hasta el borde izquierdo de la esplanada
-    ctx.lineTo(leftScreen, summitScreenY - 4);
     // Cresta de nieve sobre la esplanada (ondulación leve)
-    const ridgeSamples = 10;
-    for (let i = 0; i <= ridgeSamples; i++) {
+    const ridgeSamples = 12;
+    for (let i = 1; i <= ridgeSamples; i++) {
       const t = i / ridgeSamples;
       const sx = leftScreen + (rightScreen - leftScreen) * t;
-      const wave = Math.sin(t * Math.PI * 3 + mountain.seed * 0.4) * 2;
-      ctx.lineTo(sx, summitScreenY - 6 - wave);
+      const wave = Math.sin(t * Math.PI * 3 + mountain.seed * 0.4) * 2.4;
+      ctx.lineTo(sx, summitScreenY - 7 - wave);
     }
-    // Borde derecho: baja por la cara derecha
-    for (let i = 0; i <= dropLeftSamples; i++) {
-      const t = i / dropLeftSamples;
-      const wy = dropEndY + (dropStartY - dropEndY) * t;
-      const wx = sampleRightX(wy) + 1;
+    // Cara derecha: bajar desde el pico hasta dropDepth abajo
+    for (let i = 0; i <= dropSamples; i++) {
+      const t = i / dropSamples;
+      const wy = summitY - dropDepth * t;
+      const wx = sampleRightX(wy) + 0.5;
       const sx = wx - camX;
       const sy = state.height - (wy - camY);
       ctx.lineTo(sx, sy);
     }
-    // Cierra siguiendo el contorno por debajo (vuelve por la cara derecha de la esplanada)
-    ctx.lineTo(rightScreen, summitScreenY);
-    ctx.lineTo(leftScreen, summitScreenY);
     ctx.closePath();
     ctx.fill();
 
@@ -4099,8 +4743,11 @@
 
   function drawAnchor(ctx) {
     const climber = state.climber;
-    if (!state.anchor.placed) return;
     if (state.intro.active) return;
+    if (hasAnchorThrow()) {
+      drawAnchorThrow(ctx);
+    }
+    if (!hasActiveAnchor()) return;
     const camX = state.cameraX;
     const camY = state.cameraY;
     const sx = state.anchor.x - camX;
@@ -4163,6 +4810,62 @@
     const ctrlY = Math.max(ay, py) + 14;
     ctx.quadraticCurveTo(ctrlX, ctrlY, px, py);
     ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawAnchorThrow(ctx) {
+    const throwState = state.anchorThrow;
+    if (!throwState || !throwState.active) return;
+    const camX = state.cameraX;
+    const camY = state.cameraY;
+    const pos = anchorThrowPosition(throwState);
+    const prev = anchorThrowPosition({
+      ...throwState,
+      elapsed: Math.max(0, throwState.elapsed - 0.035),
+    });
+    const pocket = climberPocketWorld();
+    const sx = pos.x - camX;
+    const sy = state.height - (pos.y - camY);
+    const prevSx = prev.x - camX;
+    const prevSy = state.height - (prev.y - camY);
+    const pocketSx = pocket.x - camX;
+    const pocketSy = state.height - (pocket.y - camY);
+    const angle = Math.atan2(sy - prevSy, sx - prevSx);
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(214, 130, 60, 0.46)";
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([4, 5]);
+    ctx.beginPath();
+    ctx.moveTo(pocketSx, pocketSy);
+    ctx.quadraticCurveTo(
+      (pocketSx + sx) * 0.5 - 18,
+      Math.min(pocketSy, sy) - 38,
+      sx,
+      sy
+    );
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.translate(sx, sy);
+    ctx.rotate(angle);
+    ctx.strokeStyle = "#5a4630";
+    ctx.lineWidth = 2.4;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-10, 0);
+    ctx.lineTo(8, 0);
+    ctx.stroke();
+    ctx.strokeStyle = "#d7dce2";
+    ctx.lineWidth = 2.8;
+    ctx.beginPath();
+    ctx.moveTo(4, -5);
+    ctx.lineTo(10, 4);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255, 214, 120, 0.95)";
+    ctx.beginPath();
+    ctx.arc(-12, 0, 2.2, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 
@@ -4251,6 +4954,34 @@
     ctx.strokeStyle = "#f06544";
     ctx.lineWidth = 4;
     ctx.lineCap = "round";
+
+    // En la cumbre: pose erguida, brazos al costado oscilando como caminata
+    if (state.summitWalk && state.summitWalk.active) {
+      const walkSwing = Math.sin(climber.armSwing) * 6;
+      // Brazo izquierdo balanceando hacia atrás
+      ctx.beginPath();
+      ctx.moveTo(-5, -5);
+      ctx.lineTo(-7 - walkSwing * 0.3, 2);
+      ctx.lineTo(-6 - walkSwing * 0.6, 10);
+      ctx.stroke();
+      // Brazo derecho contrario
+      ctx.beginPath();
+      ctx.moveTo(5, -5);
+      ctx.lineTo(7 + walkSwing * 0.3, 2);
+      ctx.lineTo(6 + walkSwing * 0.6, 10);
+      ctx.stroke();
+      // Cuando llega a la bandera: brazo levantado en celebración
+      if (state.summitWalk.completed) {
+        const cheer = Math.sin(state.elapsed * 6) * 0.4;
+        ctx.beginPath();
+        ctx.moveTo(5, -5);
+        ctx.lineTo(8 + cheer * 2, -16);
+        ctx.lineTo(10 + cheer * 3, -26 - Math.abs(cheer) * 4);
+        ctx.stroke();
+      }
+      ctx.restore();
+      return;
+    }
 
     // Brazo izquierdo (mano de apoyo en la pared)
     ctx.beginPath();
@@ -4627,6 +5358,8 @@
     const climber = state.climber;
     const layer = state.run ? currentLayer(climber.y) : null;
     const cave = state.run ? nearestCave(climber.y) : null;
+    const slopeInfo = state.run ? sampleProgressiveFaceProfile(climber.y, mountain) : null;
+    const plateau = state.run ? currentWalkablePlateau() : null;
     const altitude = state.run
       ? Math.round(climber.y * ALTITUDE_DISPLAY_FACTOR)
       : 0;
@@ -4666,6 +5399,13 @@
         water: round(climber.water, 1),
         grip: round(climber.grip, 1),
         food: climber.food,
+        canClimb: anchorClimbRoom() > 0,
+        canWalkWithoutAnchor: Boolean(plateau || state.summitWalk.active),
+        movementMode: state.summitWalk.active
+          ? "summit-walk"
+          : plateau
+          ? "plateau-walk"
+          : "climb",
       },
       progress: {
         altitudeMeters: altitude,
@@ -4678,6 +5418,25 @@
       },
       route: state.run
         ? {
+            slope: slopeInfo
+              ? {
+                  gradeStartPercent: round(slopeInfo.gradeStart, 1),
+                  gradeEndPercent: round(slopeInfo.gradeEnd, 1),
+                  currentGradePercent: round(slopeInfo.gradePercent, 1),
+                  onPlateau: slopeInfo.plateauBlend > 0.05,
+                  plateauDistanceMeters: round(slopeInfo.plateauDistanceMeters, 0),
+                }
+              : null,
+            walkablePlateau: plateau
+              ? {
+                  index: plateau.index,
+                  startY: round(plateau.startY, 1),
+                  endY: round(plateau.endY, 1),
+                  startX: round(plateau.startX, 1),
+                  endX: round(plateau.endX, 1),
+                  distanceMeters: round(plateau.distanceMeters, 0),
+                }
+              : null,
             currentLayer: layer
               ? {
                   name: layer.name[state.locale] || layer.name.es,
@@ -4711,16 +5470,31 @@
           }
         : null,
       anchor: {
-        placed: Boolean(state.anchor.placed),
+        placed: hasActiveAnchor(),
         manual: Boolean(state.anchor.manual),
-        x: round(state.anchor.x, 1),
-        y: Number.isFinite(state.anchor.y) ? round(state.anchor.y, 1) : null,
-        altitudeMeters: Number.isFinite(state.anchor.y)
+        x: hasActiveAnchor() ? round(state.anchor.x, 1) : null,
+        y: hasActiveAnchor() ? round(state.anchor.y, 1) : null,
+        altitudeMeters: hasActiveAnchor()
           ? Math.round(state.anchor.y * ALTITUDE_DISPLAY_FACTOR)
           : null,
-        ropeRemainingMeters: state.anchor.placed
+        climbRoomWorld: hasActiveAnchor() ? round(anchorClimbRoom(), 1) : 0,
+        topReached: anchorTopReached(),
+        needsAnchor: !hasActiveAnchor() || anchorTopReached(),
+        ropeRemainingMeters: hasActiveAnchor()
           ? Math.max(0, Math.round(ROPE_LENGTH - Math.abs(climber.y - state.anchor.y)))
           : null,
+        throw: hasAnchorThrow()
+          ? {
+              active: true,
+              progress: round(state.anchorThrow.elapsed / state.anchorThrow.duration, 2),
+              fromX: round(state.anchorThrow.fromX, 1),
+              fromY: round(state.anchorThrow.fromY, 1),
+              targetX: round(state.anchorThrow.targetX, 1),
+              targetY: round(state.anchorThrow.targetY, 1),
+              currentX: round(anchorThrowPosition(state.anchorThrow).x, 1),
+              currentY: round(anchorThrowPosition(state.anchorThrow).y, 1),
+            }
+          : { active: false },
       },
       cave: {
         active: state.cave.active
