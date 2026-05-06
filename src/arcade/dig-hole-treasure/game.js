@@ -36,6 +36,7 @@
   const TORCH_PACK_SIZE = 4;
   const DEPTH_BALANCE_BASE_METERS = 3200;
   const GUIDANCE_MARKER_COUNT = 4;
+  const GUIDANCE_ARROW_REVEAL_HEIGHT = 380;
   const TREASURE_MIN_DEPTH_RATIO = 0.86;
   const TREASURE_MAX_DEPTH_RATIO = 0.95;
   const DARKNESS_START_RATIO = 0.22;
@@ -80,7 +81,7 @@
     jungle: {
       id: "jungle",
       title: "Selva Enterrada",
-      subtitle: "Tierra húmeda continua, raíces suaves y minerales verdes incrustados.",
+      subtitle: "Bajo la maleza húmeda palpita una tierra blanda donde raíces, ámbar y vetas verdes esperan a cada palada paciente.",
       treasureName: "Corazón de la Selva",
       shopName: "Puesto de la Selva",
       maxDepthMeters: 9600,
@@ -102,9 +103,9 @@
         { at: 1, color: "#3f2618" },
       ],
       cardFacts: [
-        "El subsuelo es tierra continua de selva, sin bloques visibles.",
-        "La piedra puede aparecer a cualquier profundidad como material base.",
-        "Las vetas aparecen incrustadas a medida que abres huecos en la pared.",
+        "Tierra fértil y blanda en superficie: las primeras paladas avanzan rápido.",
+        "Ámbar, jade y esmeraldas brillan entre las raíces a medida que profundizas.",
+        "El Corazón de la Selva descansa al fondo, escondido tras flechas grabadas en piedra.",
       ],
       materials: [
         { id: "stone", name: "Piedra", rarity: 1, value: 3, color: "#7d7367", accent: "#cfc5ba", weights: [52, 38, 28, 18] },
@@ -117,7 +118,7 @@
     desert: {
       id: "desert",
       title: "Desierto Hundido",
-      subtitle: "Arena en la superficie y cerca de ella, con vetas minerales atrapadas en la duna compacta.",
+      subtitle: "Un mar de arena dorada esconde dunas compactas, vetas saladas y ópalos solares atrapados en la profundidad.",
       treasureName: "Corona del Sol",
       shopName: "Puesto del Oasis",
       maxDepthMeters: 9200,
@@ -140,10 +141,9 @@
         { at: 1, color: "#6f4724" },
       ],
       cardFacts: [
-        "La capa alta y cercana a la superficie es arena casi completa.",
-        "La piedra sigue apareciendo incluso en las capas profundas.",
-        "La arena se compacta en profundidad, pero sigue sin verse cuadriculada.",
-        "Sal, cobre, turquesa y ópalo aparecen incrustados en la pared.",
+        "La superficie es arena suelta: avanzas rápido, pero las paredes se hunden con facilidad.",
+        "Más abajo la duna se compacta y aparecen sal, cobre y turquesa entre las vetas.",
+        "El ópalo solar y la Corona del Sol esperan al final, en el corazón mineralizado del desierto.",
       ],
       materials: [
         { id: "stone", name: "Piedra", rarity: 1, value: 3, color: "#8c816f", accent: "#d7ccb7", weights: [48, 34, 22, 16] },
@@ -156,7 +156,7 @@
     urban: {
       id: "urban",
       title: "Patio Urbano",
-      subtitle: "Bajo la urbanización solo hay tierra removida, con restos y minerales mezclados en la pared.",
+      subtitle: "Bajo las baldosas del barrio, la tierra removida guarda restos cerámicos, cobre tendido y cristales por descubrir.",
       treasureName: "Cápsula del Barrio",
       shopName: "Puesto del Patio",
       maxDepthMeters: 9400,
@@ -178,9 +178,9 @@
         { at: 1, color: "#3b2a20" },
       ],
       cardFacts: [
-        "La urbanización se abre sobre una masa de tierra uniforme.",
-        "La piedra también aparece aquí como material más frecuente.",
-        "La tierra se va vaciando a mano y deja restos y vetas incrustadas visibles.",
+        "El subsuelo del barrio mezcla tierra y restos: cualquier capa puede dar sorpresas.",
+        "Cobre, plata y cristal afloran cerca de tuberías y cimientos olvidados.",
+        "La Cápsula del Barrio reposa al fondo, una memoria enterrada que aguarda ser rescatada.",
       ],
       materials: [
         { id: "stone", name: "Piedra", rarity: 1, value: 3, color: "#77746e", accent: "#cdcbc4", weights: [50, 34, 24, 18] },
@@ -201,13 +201,13 @@
 
     const jungle = WORLDS.jungle;
     jungle.title = "Buried Jungle";
-    jungle.subtitle = "Continuous damp soil, soft roots, and green minerals embedded in the wall.";
+    jungle.subtitle = "Beneath the damp canopy beats a soft, fertile soil where roots, amber and green veins reward every patient swing.";
     jungle.treasureName = "Heart of the Jungle";
     jungle.shopName = "Jungle Outpost";
     jungle.cardFacts = [
-      "The underground is continuous jungle soil, with no visible blocks.",
-      "Stone can appear at any depth as a base material.",
-      "Veins appear embedded as you open passages in the wall.",
+      "Soft topsoil makes the first meters quick to clear.",
+      "Amber, jade and emeralds shimmer between the roots as you go deeper.",
+      "The Heart of the Jungle waits at the bottom, hidden behind carved-stone arrows.",
     ];
     setMaterialName(jungle, "stone", "Stone");
     setMaterialName(jungle, "clay", "Red Clay");
@@ -217,14 +217,13 @@
 
     const desert = WORLDS.desert;
     desert.title = "Sunken Desert";
-    desert.subtitle = "Sand near the surface, with mineral veins trapped in compact dunes.";
+    desert.subtitle = "A sea of golden sand hides compact dunes, salt veins and sun opals trapped deep beneath the heat.";
     desert.treasureName = "Sun Crown";
     desert.shopName = "Oasis Outpost";
     desert.cardFacts = [
-      "The upper layer near the surface is almost pure sand.",
-      "Stone still appears even in deeper layers.",
-      "Sand compacts with depth but keeps the smooth look.",
-      "Salt, copper, turquoise and sun opal are embedded in the wall.",
+      "Loose surface sand lets you sink fast, but tunnel walls collapse easily.",
+      "Lower down the dune compacts and reveals salt, copper and turquoise veins.",
+      "Sun opal and the Sun Crown wait at the end, deep in the desert's mineralized heart.",
     ];
     setMaterialName(desert, "stone", "Stone");
     setMaterialName(desert, "salt", "Salt");
@@ -234,13 +233,13 @@
 
     const urban = WORLDS.urban;
     urban.title = "Urban Yard";
-    urban.subtitle = "Below the neighborhood there is loose soil with mixed remains and minerals.";
+    urban.subtitle = "Beneath the neighborhood pavers, churned soil hides ceramic shards, stretched copper lines and waiting crystals.";
     urban.treasureName = "Neighborhood Capsule";
     urban.shopName = "Yard Outpost";
     urban.cardFacts = [
-      "The neighborhood opens on top of a continuous soil mass.",
-      "Stone also appears here as the most common material.",
-      "Manual digging reveals embedded remains and mineral veins.",
+      "The yard's underground mixes soil and scraps — any layer can surprise you.",
+      "Copper, silver and crystal surface near forgotten pipes and old foundations.",
+      "The Neighborhood Capsule rests at the bottom, a buried memory of the block to recover.",
     ];
     setMaterialName(urban, "stone", "Stone");
     setMaterialName(urban, "ceramic", "Ceramic");
@@ -403,8 +402,8 @@
     setText(
       "worldSelectLead",
       t(
-        "El terreno no se representa por bloques. Cada mundo usa una masa uniforme con materiales unicos y flechas intermedias que te acercan a la puerta del tesoro.",
-        "The terrain is not block-based. Each world uses a continuous mass with unique materials and intermediate arrows guiding you to the treasure door."
+        "Tres biomas, tres tesoros distintos. Cada mundo combina su propia mezcla de tierra y minerales incrustados, y reparte por el subsuelo las flechas talladas que te acercaran a la puerta final.",
+        "Three biomes, three distinct treasures. Each world has its own mix of soil and embedded minerals, and scatters the carved arrows that guide you toward the final door."
       )
     );
     setText("closePanelBtn", t("Volver", "Back"));
@@ -1262,6 +1261,18 @@
       run.guidanceCopy = t(
         `La señal indica ${describeDirection(target.arrow)}. La siguiente referencia queda cerca de ${targetDepth}.`,
         `The signal points ${describeDirection(target.arrow)}. The next marker is near ${targetDepth}.`
+      );
+      return;
+    }
+
+    const withinRevealBand = Math.abs(dy) <= GUIDANCE_ARROW_REVEAL_HEIGHT;
+    if (!withinRevealBand) {
+      run.guidanceArrow = "?";
+      run.guidanceSignalActive = false;
+      run.guidanceTitle = torchMissing ? t("Oscuridad profunda", "Deep darkness") : t("Rastro lejano", "Distant trail");
+      run.guidanceCopy = t(
+        `Sigue cavando hasta acercarte a ${targetDepth}: la siguiente flecha aparecerá cuando estés a su altura.`,
+        `Keep digging toward ${targetDepth}: the next arrow will appear when you are near its depth.`
       );
       return;
     }

@@ -855,6 +855,37 @@
   color: #d7e4f5;
 }
 
+.mobile-game-shell__panel-divider-ad--dig-hole .mobile-game-shell__panel-divider-ad-card {
+  border: 1px solid rgba(198, 148, 84, 0.52);
+  background: linear-gradient(
+    180deg,
+    rgba(44, 31, 22, 0.94),
+    rgba(27, 19, 14, 0.92)
+  );
+  box-shadow:
+    0 6px 16px rgba(26, 16, 8, 0.32),
+    inset 0 0 0 1px rgba(255, 222, 170, 0.08);
+}
+
+.mobile-game-shell__panel-divider-ad--dig-hole .ad-preview-card__eyebrow {
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  color: #f6c987;
+}
+
+.mobile-game-shell__panel-divider-ad--dig-hole .ad-preview-card__title {
+  font-size: 0.78rem;
+  color: #fff5dc;
+}
+
+.mobile-game-shell__panel-divider-ad--dig-hole .ad-preview-card__description,
+.mobile-game-shell__panel-divider-ad--dig-hole .ad-preview-card__meta,
+.mobile-game-shell__panel-divider-ad--dig-hole .ad-preview-card__footer {
+  font-size: 0.6rem;
+  line-height: 1.32;
+  color: #ead7b6;
+}
+
 .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] [data-mobile-stage-hidden="true"] {
   display: none !important;
 }
@@ -3784,6 +3815,30 @@
 .mobile-game-status-panel__buttons button.is-selected {
   background: rgba(102, 187, 106, 0.22);
   border-color: rgba(68, 131, 73, 0.42);
+}
+
+.mobile-game-shell[data-game-id="arcade-dig-hole-treasure"] .mobile-game-status-panel__menu--actions .mobile-game-status-panel__buttons {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mobile-game-shell[data-game-id="arcade-dig-hole-treasure"] .mobile-game-status-panel__buttons button.mobile-game-status-panel__button--dig-inventory {
+  border-color: rgba(65, 230, 255, 0.9);
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.72), transparent 30%),
+    linear-gradient(135deg, #67e8f9 0%, #22c55e 52%, #0f9f6e 100%);
+  color: #032014;
+  text-shadow: 0 1px 0 rgba(211, 255, 240, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.74),
+    0 0 0 2px rgba(34, 211, 238, 0.18),
+    0 12px 22px rgba(13, 148, 136, 0.28),
+    0 0 20px rgba(45, 212, 191, 0.34);
+}
+
+.mobile-game-shell[data-game-id="arcade-dig-hole-treasure"] .mobile-game-status-panel__buttons button.mobile-game-status-panel__button--dig-inventory:hover:not(:disabled),
+.mobile-game-shell[data-game-id="arcade-dig-hole-treasure"] .mobile-game-status-panel__buttons button.mobile-game-status-panel__button--dig-inventory:focus-visible:not(:disabled) {
+  transform: translateY(-1px);
+  filter: saturate(1.08) brightness(1.03);
 }
 
 .mobile-game-status-panel__detail-list {

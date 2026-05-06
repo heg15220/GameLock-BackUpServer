@@ -472,6 +472,21 @@ export default function MobileGameShell({
         />
       </section>
     ) : null;
+  const showDigHoleControlDividerAd =
+    adPreviewEnabledForGame &&
+    game?.id === "arcade-dig-hole-treasure" &&
+    viewportFormFactor !== "desktop" &&
+    isDualScreen;
+  const digHoleControlDividerAdNode =
+    showDigHoleControlDividerAd ? (
+      <section className="mobile-game-shell__panel-divider-ad mobile-game-shell__panel-divider-ad--dig-hole">
+        <AdPreviewCard
+          slot={MOBILE_APP_COMPACT_AD_SLOT}
+          locale={locale}
+          className="mobile-game-shell__panel-divider-ad-card"
+        />
+      </section>
+    ) : null;
 
   const statusPanelsNode = (
     <>
@@ -621,6 +636,7 @@ export default function MobileGameShell({
                     <>
                       {isStatusFirstStack ? tabletStatusSectionNode : tabletControlsSectionNode}
                       {summitControlDividerAdNode}
+                      {digHoleControlDividerAdNode}
                       {isStatusFirstStack ? tabletControlsSectionNode : tabletStatusSectionNode}
                     </>
                   ) : (
@@ -630,6 +646,7 @@ export default function MobileGameShell({
                       </div>
                       {valleMissionsAdNode}
                       {summitControlDividerAdNode}
+                      {digHoleControlDividerAdNode}
                       <div className="mobile-game-shell__controls-primary">
                         {controlDeckNode}
                       </div>

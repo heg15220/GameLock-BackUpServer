@@ -175,6 +175,18 @@ function buildSetupButtonStyle(gameId, button) {
   };
 }
 
+function buildContextButtonClassName(button) {
+  const id = normalizeText(button?.target?.id || button?.id).toLowerCase();
+  const label = normalizeText(button?.label).toLowerCase();
+  const classNames = [];
+
+  if (id === "inventorybtn" || /^(inventario|inventory)$/.test(label)) {
+    classNames.push("mobile-game-status-panel__button--dig-inventory");
+  }
+
+  return classNames.join(" ");
+}
+
 function extractControlLabel(button) {
   const ariaLabel = normalizeText(button.getAttribute("aria-label"));
   if (ariaLabel) {
@@ -706,6 +718,8 @@ function filterContextButtons(buttons, snapshot, gameCategory) {
         ...buttons.filter((button) => button.group === "visible-stage"),
       ]
         .filter((button) => !buttonLabelMatches(button, /fullscreen|pantalla completa/i))
+        .filter((button) => !buttonIdMatches(button, /^surfaceBtn$/i))
+        .filter((button) => !buttonLabelMatches(button, /^(puesto|surface)$/i))
         .filter((button) => {
           return true;
         })
@@ -1321,6 +1335,7 @@ export default function MobileGameStatusPanel({
               <button
                 key={button.id}
                 type="button"
+                className={buildContextButtonClassName(button)}
                 disabled={button.disabled}
                 onClick={() => {
                   button.target.click();
@@ -1342,6 +1357,7 @@ export default function MobileGameStatusPanel({
               <button
                 key={`action-${button.id}`}
                 type="button"
+                className={buildContextButtonClassName(button)}
                 disabled={button.disabled}
                 onClick={() => {
                   button.target.click();

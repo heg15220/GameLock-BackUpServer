@@ -117,7 +117,7 @@ const GAME_COMPONENTS = {
   "arcade-bubble-storm":       BubbleStormGame,
   "arcade-ice-strike-pro":     IceStrikeProGame,
   "arcade-stick-brawl-showdown": StickBrawlShowdownGame,
-  "arcade-dig-hole-treasure": DigHoleTreasureGame,
+  "arcade-dig-hole-treasure": withStrategyIntro("arcade-dig-hole-treasure", DigHoleTreasureGame),
   "arcade-summit-ascent": SummitAscentGame,
   "arcade-valle-tranquilo": ValleTranquiloGame,
   "sports-basketball-court":   BasketballCourtGame,

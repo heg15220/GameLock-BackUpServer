@@ -156,7 +156,7 @@ export const GAME_REGISTRY = {
   "arcade-stick-brawl-showdown": StickBrawlShowdownGame,
   "arcade-neon-crypt":           NeonCryptGame,
   "arcade-neon-rush":            NeonRushGame,
-  "arcade-dig-hole-treasure":    DigHoleTreasureGame,
+  "arcade-dig-hole-treasure":    withStrategyIntro("arcade-dig-hole-treasure", DigHoleTreasureGame),
   "arcade-summit-ascent":        SummitAscentGame,
   "arcade-valle-tranquilo":      ValleTranquiloGame,
   "sports-basketball-court":     BasketballCourtGame,

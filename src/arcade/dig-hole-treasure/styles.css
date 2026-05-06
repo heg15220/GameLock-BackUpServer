@@ -105,11 +105,30 @@ button.secondary { color: #f6f0e3; background: linear-gradient(180deg, #7d6551, 
 .action-row { display: flex; gap: 0.45rem; pointer-events: auto; }
 .action-row button { min-height: 36px; border-radius: 12px; }
 #surfaceBtn {
-  background: linear-gradient(180deg, #f7df9d, #d59b4a);
+  border-color: rgba(255, 210, 79, 0.88);
+  background:
+    radial-gradient(circle at 20% 12%, rgba(255, 255, 255, 0.7), transparent 28%),
+    linear-gradient(180deg, #ffe76d 0%, #ffb21f 52%, #f97316 100%);
+  color: #2f1400;
+  text-shadow: 0 1px 0 rgba(255, 244, 190, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 0 0 2px rgba(255, 199, 44, 0.22),
+    0 12px 24px rgba(249, 115, 22, 0.34),
+    0 0 22px rgba(250, 204, 21, 0.42);
 }
 #inventoryBtn {
-  background: linear-gradient(180deg, #c7efd8, #6fb995);
-  color: #123627;
+  border-color: rgba(82, 226, 255, 0.88);
+  background:
+    radial-gradient(circle at 20% 12%, rgba(255, 255, 255, 0.68), transparent 28%),
+    linear-gradient(180deg, #67e8f9 0%, #22c55e 54%, #0f9f6e 100%);
+  color: #032014;
+  text-shadow: 0 1px 0 rgba(210, 255, 240, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 0 0 2px rgba(34, 211, 238, 0.18),
+    0 12px 24px rgba(13, 148, 136, 0.32),
+    0 0 22px rgba(45, 212, 191, 0.42);
 }
 #fullscreenBtn {
   background: linear-gradient(180deg, #dde8f1, #9bb3c4);

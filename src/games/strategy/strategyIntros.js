@@ -297,6 +297,44 @@ const STRATEGY_INTROS = {
       configHint:
         "After pressing the button you can tune difficulty and options on the panels. Then press Start match to open the case."
     }
+  },
+
+  "arcade-dig-hole-treasure": {
+    icon: "⛏",
+    accent: "#7c2d12",
+    accentSoft: "#fde7d7",
+    es: {
+      eyebrow: "Arcade / Excavacion",
+      title: "Cavar el Hoyo",
+      lead: "Una aventura de excavacion pausada con tres biomas y tres tesoros distintos por descubrir.",
+      what:
+        "Cavar el Hoyo es un juego de excavacion 2D en el que el subsuelo es una masa continua de tierra. Profundizas a tu ritmo, descubres minerales incrustados (piedra, ambar, cobre, jade, plata, cristal u opalo segun el bioma) y sigues las flechas talladas en piedra que aparecen al cavar hasta encontrar la puerta del tesoro. Tres mundos comparten la pantalla de seleccion: la Selva Enterrada, el Desierto Hundido y el Patio Urbano, cada uno con su propia mezcla de materiales y su propio tesoro al fondo.",
+      bullets: [
+        "Excava con la pala y abre tu propio camino por el subsuelo continuo.",
+        "Sigue las flechas que aparecen al cavar hasta abrir la puerta del tesoro de cada mundo.",
+        "Vende minerales en el puesto de superficie y mejora pala, mochila, jetpack y linternas.",
+        "Vigila la estamina y la oscuridad: agotarte sin anclaje o perderte sin luz puede costarte la partida."
+      ],
+      cta: "Empezar a cavar",
+      configHint:
+        "Al pulsar el boton entraras en la pantalla de seleccion de mundo. Elige Selva Enterrada, Desierto Hundido o Patio Urbano y pulsa Iniciar excavacion para empezar a cavar."
+    },
+    en: {
+      eyebrow: "Arcade / Digging",
+      title: "Dig the Hole",
+      lead: "A patient digging adventure with three biomes and three distinct treasures to uncover.",
+      what:
+        "Dig the Hole is a 2D excavation game where the underground is one continuous soil mass. You go deeper at your own pace, uncover embedded minerals (stone, amber, copper, jade, silver, crystal or sun opal depending on the biome) and follow the carved-stone arrows that appear as you dig until you find the treasure door. Three worlds share the selection screen: the Buried Jungle, the Sunken Desert and the Urban Yard, each with its own material mix and its own treasure at the bottom.",
+      bullets: [
+        "Use your shovel to carve your own path through the continuous underground.",
+        "Follow the arrows that appear as you dig to open each world's treasure door.",
+        "Sell minerals at the surface outpost and upgrade shovel, backpack, jetpack and torches.",
+        "Mind your stamina and the darkness — running out of energy or losing your way without a torch can end the run."
+      ],
+      cta: "Start digging",
+      configHint:
+        "After pressing the button you'll enter the world selection screen. Choose Buried Jungle, Sunken Desert or Urban Yard and press Start excavation to begin digging."
+    }
   }
 };
 
