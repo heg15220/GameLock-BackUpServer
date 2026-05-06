@@ -76,6 +76,11 @@ const GAME_STAGE_SELECTORS = {
     ".arcade-neon-rush-shell",
     ".arcade-neon-rush-frame",
   ],
+  "arcade-summit-ascent": [
+    ".arcade-summit-ascent-frame",
+    ".arcade-summit-ascent-shell",
+    "shadow:#summitCanvas",
+  ],
   "arcade-orchard-match-blast": [
     ".orchard-shell",
     ".phaser-canvas-shell",

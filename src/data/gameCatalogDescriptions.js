@@ -259,6 +259,10 @@ export const gameCatalogDescriptions = {
     es: "Granja tranquila: cultiva, pesca y mejora tu vida diaria.",
     en: "Cozy farming: grow crops, fish and improve daily life.",
   },
+  "arcade-summit-ascent": {
+    es: "Escalada de montana: gestiona energia, agua y anclajes para coronar la cumbre.",
+    en: "Mountain climbing: manage stamina, water and anchors to reach the summit.",
+  },
   "sports-basketball-court": {
     es: "Tiro de baloncesto: ajusta fuerza y direcci\u00f3n para anotar.",
     en: "Basketball shooting: adjust power and direction to score.",

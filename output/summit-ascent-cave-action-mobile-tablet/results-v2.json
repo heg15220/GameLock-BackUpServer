@@ -1,0 +1,34 @@
+[
+  {
+    "scenario": "phone-portrait",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "deckFound": true,
+    "hasCaveButtonBefore": true,
+    "hasAnchorButtonBefore": true,
+    "hasWaterButtonBefore": true,
+    "caveClickOk": true,
+    "gameModeAfterStart": "playing",
+    "toastAfterCaveTap": "No hay cuevas cerca.",
+    "deckTextBefore": "EscaladaSube, planta anclajes, bebe agua y usa Cueva cuando el indicador marque una entrada cercana.StartAnclaAguaCuevaPausaReinicio",
+    "errors": []
+  },
+  {
+    "scenario": "tablet-landscape",
+    "viewport": {
+      "width": 1024,
+      "height": 768
+    },
+    "deckFound": true,
+    "hasCaveButtonBefore": true,
+    "hasAnchorButtonBefore": true,
+    "hasWaterButtonBefore": true,
+    "caveClickOk": true,
+    "gameModeAfterStart": "playing",
+    "toastAfterCaveTap": "No hay cuevas cerca.",
+    "deckTextBefore": "EscaladaSube, planta anclajes, bebe agua y usa Cueva cuando el indicador marque una entrada cercana.StartAnclaAguaCuevaPausaReinicio",
+    "errors": []
+  }
+]

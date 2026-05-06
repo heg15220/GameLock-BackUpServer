@@ -1154,6 +1154,59 @@ export function getMobileControlProfile(game, locale = "es") {
         ],
         utilities: utilityRow(locale),
       };
+    case "arcade-summit-ascent":
+      return {
+        layout: "split",
+        heading: t(locale, "Escalada", "Climb"),
+        hint: t(
+          locale,
+          "Sube, planta anclajes, bebe agua y usa Cueva cuando el indicador marque una entrada cercana.",
+          "Climb, plant anchors, drink water, and use Cave when the indicator shows a nearby entrance."
+        ),
+        leftPad: directionalPad(locale, {
+          up: input("ArrowUp", "ArrowUp"),
+          left: input("ArrowLeft", "ArrowLeft"),
+          right: input("ArrowRight", "ArrowRight"),
+          down: input("ArrowDown", "ArrowDown"),
+          upLabel: t(locale, "Sube", "Climb"),
+          downLabel: t(locale, "Baja", "Down"),
+        }),
+        leftSupportPad: [
+          control("pause", t(locale, "Pausa", "Pause"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyP", "p")],
+          }),
+          control("restart", t(locale, "Reinicio", "Restart"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyR", "r")],
+          }),
+        ],
+        rightPad: [
+          control("anchor", t(locale, "Ancla", "Anchor"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Space", " ")],
+          }),
+          control("water", t(locale, "Agua", "Water"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyQ", "q")],
+          }),
+          control("cave", t(locale, "Cueva", "Cave"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("KeyE", "e")],
+          }),
+          control("start", "Start", {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+          }),
+        ],
+        utilities: [],
+      };
     case "arcade-dig-hole-treasure":
       return {
         layout: "split",

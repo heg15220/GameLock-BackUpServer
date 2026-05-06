@@ -806,6 +806,37 @@
   color: #e8d4a8;
 }
 
+.mobile-game-shell__panel-divider-ad--summit .mobile-game-shell__panel-divider-ad-card {
+  border: 1px solid rgba(125, 160, 210, 0.5);
+  background: linear-gradient(
+    180deg,
+    rgba(12, 22, 38, 0.94),
+    rgba(18, 31, 52, 0.9)
+  );
+  box-shadow:
+    0 6px 16px rgba(5, 12, 24, 0.34),
+    inset 0 0 0 1px rgba(214, 232, 255, 0.08);
+}
+
+.mobile-game-shell__panel-divider-ad--summit .ad-preview-card__eyebrow {
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  color: #b6d7ff;
+}
+
+.mobile-game-shell__panel-divider-ad--summit .ad-preview-card__title {
+  font-size: 0.78rem;
+  color: #f5f9ff;
+}
+
+.mobile-game-shell__panel-divider-ad--summit .ad-preview-card__description,
+.mobile-game-shell__panel-divider-ad--summit .ad-preview-card__meta,
+.mobile-game-shell__panel-divider-ad--summit .ad-preview-card__footer {
+  font-size: 0.6rem;
+  line-height: 1.32;
+  color: #d7e4f5;
+}
+
 .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] [data-mobile-stage-hidden="true"] {
   display: none !important;
 }
@@ -5204,7 +5235,8 @@
 }
 
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-game-shell__body,
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__body {
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__body,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-summit-ascent"] .mobile-game-shell__body {
   grid-template-columns: minmax(0, 1.46fr) minmax(336px, 0.54fr);
 }
 
@@ -5226,6 +5258,18 @@
   padding-top: 0.22rem;
   padding-bottom: 0.22rem;
   border-radius: 10px;
+}
+
+/* Summit Ascent: match the compact ad/control rhythm used by Dig Hole and Valle */
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-summit-ascent"] .mobile-game-shell__tablet-section--controls {
+  gap: 0.32rem;
+}
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-summit-ascent"] .mobile-control-deck {
+  gap: 0.32rem;
+}
+
+.mobile-game-shell[data-game-id="arcade-summit-ascent"] .mobile-control-deck__cluster--actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .mobile-game-shell--with-compact-games-ad .mobile-game-shell__controls-stack {
@@ -5791,7 +5835,8 @@
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-stick-brawl-showdown"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .fighter-stage,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-neon-rush"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-neon-rush-frame,
 .mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-dig-hole-treasure"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-dig-hole-treasure-frame,
-.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-valle-tranquilo-frame {
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-valle-tranquilo"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-valle-tranquilo-frame,
+.mobile-game-shell--device-tablet.mobile-game-shell--landscape[data-game-id="arcade-summit-ascent"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .arcade-summit-ascent-frame {
   display: block;
   width: 100%;
   height: 100%;

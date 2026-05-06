@@ -1,0 +1,93 @@
+{
+  "reachedPlateau": {
+    "index": 0,
+    "startY": 1984.5,
+    "endY": 2100,
+    "startX": 1028.9,
+    "endX": 2029.2,
+    "distanceMeters": 340
+  },
+  "beforeExit": {
+    "mode": "plateau-walk",
+    "y": 1988.7,
+    "x": 1004.8,
+    "faceOffsetX": -28,
+    "plateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  "afterExit": {
+    "mode": "climb",
+    "y": 2128,
+    "x": 2045.1,
+    "faceOffsetX": 10,
+    "plateau": null,
+    "anchor": {
+      "placed": false,
+      "manual": false,
+      "x": null,
+      "y": null,
+      "altitudeMeters": null,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": null,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  "anchorAfterTap": {
+    "mode": "climb",
+    "faceOffsetX": 10,
+    "anchor": {
+      "placed": false,
+      "manual": false,
+      "x": null,
+      "y": null,
+      "altitudeMeters": null,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": null,
+      "throw": {
+        "active": true,
+        "progress": 0,
+        "fromX": 2037.1,
+        "fromY": 2123,
+        "targetX": 2069,
+        "targetY": 2313,
+        "currentX": 2037.1,
+        "currentY": 2123
+      }
+    },
+    "toast": "Anclaje lanzado"
+  },
+  "anchorAfterSettle": {
+    "mode": "climb",
+    "faceOffsetX": 10,
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 2069,
+      "y": 2313,
+      "altitudeMeters": 786,
+      "climbRoomWorld": 182,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 55,
+      "throw": {
+        "active": false
+      }
+    },
+    "toast": "Anclaje lanzado"
+  },
+  "maxFaceOffset": 96.8,
+  "sampleCount": 154,
+  "errors": []
+}

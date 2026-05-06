@@ -1,0 +1,2821 @@
+[
+  {
+    "cycle": 0,
+    "mode": "playing",
+    "y": 18,
+    "x": 230.5,
+    "faceOffsetX": -6,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": false,
+      "manual": false,
+      "x": null,
+      "y": null,
+      "altitudeMeters": null,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": null,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 0,
+    "step": 0,
+    "mode": "playing",
+    "y": 44.5,
+    "x": 233.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 384.7,
+      "y": 203,
+      "altitudeMeters": 69,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 0,
+    "step": 1,
+    "mode": "playing",
+    "y": 84.9,
+    "x": 269,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 384.7,
+      "y": 203,
+      "altitudeMeters": 69,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 0,
+    "step": 2,
+    "mode": "playing",
+    "y": 126.7,
+    "x": 303.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 384.7,
+      "y": 203,
+      "altitudeMeters": 69,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 0,
+    "step": 3,
+    "mode": "playing",
+    "y": 168.7,
+    "x": 335.7,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 384.7,
+      "y": 203,
+      "altitudeMeters": 69,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 0,
+    "step": 4,
+    "mode": "playing",
+    "y": 200,
+    "x": 358.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 384.7,
+      "y": 203,
+      "altitudeMeters": 69,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 1,
+    "mode": "playing",
+    "y": 200,
+    "x": 358.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 384.7,
+      "y": 203,
+      "altitudeMeters": 69,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 1,
+    "step": 0,
+    "mode": "playing",
+    "y": 226.5,
+    "x": 377.1,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 500.1,
+      "y": 385,
+      "altitudeMeters": 131,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 1,
+    "step": 1,
+    "mode": "playing",
+    "y": 266.9,
+    "x": 404.2,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 500.1,
+      "y": 385,
+      "altitudeMeters": 131,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 1,
+    "step": 2,
+    "mode": "playing",
+    "y": 308.7,
+    "x": 430.8,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 500.1,
+      "y": 385,
+      "altitudeMeters": 131,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 1,
+    "step": 3,
+    "mode": "playing",
+    "y": 350.7,
+    "x": 456.2,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 500.1,
+      "y": 385,
+      "altitudeMeters": 131,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 1,
+    "step": 4,
+    "mode": "playing",
+    "y": 382,
+    "x": 474.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 500.1,
+      "y": 385,
+      "altitudeMeters": 131,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 2,
+    "mode": "playing",
+    "y": 382,
+    "x": 474.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 500.1,
+      "y": 385,
+      "altitudeMeters": 131,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 2,
+    "step": 0,
+    "mode": "playing",
+    "y": 408.5,
+    "x": 489.3,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 594.4,
+      "y": 567,
+      "altitudeMeters": 193,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 2,
+    "step": 1,
+    "mode": "playing",
+    "y": 448.9,
+    "x": 511.2,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 594.4,
+      "y": 567,
+      "altitudeMeters": 193,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 2,
+    "step": 2,
+    "mode": "playing",
+    "y": 490.7,
+    "x": 533,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 594.4,
+      "y": 567,
+      "altitudeMeters": 193,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 2,
+    "step": 3,
+    "mode": "playing",
+    "y": 532.7,
+    "x": 553.9,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 594.4,
+      "y": 567,
+      "altitudeMeters": 193,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 2,
+    "step": 4,
+    "mode": "playing",
+    "y": 564,
+    "x": 569,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 594.4,
+      "y": 567,
+      "altitudeMeters": 193,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 3,
+    "mode": "playing",
+    "y": 564,
+    "x": 569,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 594.4,
+      "y": 567,
+      "altitudeMeters": 193,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 3,
+    "step": 0,
+    "mode": "playing",
+    "y": 590.5,
+    "x": 581.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 673.7,
+      "y": 749,
+      "altitudeMeters": 255,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 3,
+    "step": 1,
+    "mode": "playing",
+    "y": 630.9,
+    "x": 599.7,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 673.7,
+      "y": 749,
+      "altitudeMeters": 255,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 3,
+    "step": 2,
+    "mode": "playing",
+    "y": 672.7,
+    "x": 618,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 673.7,
+      "y": 749,
+      "altitudeMeters": 255,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 3,
+    "step": 3,
+    "mode": "playing",
+    "y": 714.7,
+    "x": 635.7,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 673.7,
+      "y": 749,
+      "altitudeMeters": 255,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 3,
+    "step": 4,
+    "mode": "playing",
+    "y": 746,
+    "x": 648.5,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 673.7,
+      "y": 749,
+      "altitudeMeters": 255,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 4,
+    "mode": "playing",
+    "y": 746,
+    "x": 648.5,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 673.7,
+      "y": 749,
+      "altitudeMeters": 255,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 4,
+    "step": 0,
+    "mode": "playing",
+    "y": 772.5,
+    "x": 659.1,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 742.4,
+      "y": 931,
+      "altitudeMeters": 317,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 4,
+    "step": 1,
+    "mode": "playing",
+    "y": 812.9,
+    "x": 674.8,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 742.4,
+      "y": 931,
+      "altitudeMeters": 317,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 4,
+    "step": 2,
+    "mode": "playing",
+    "y": 854.7,
+    "x": 690.7,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 742.4,
+      "y": 931,
+      "altitudeMeters": 317,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 4,
+    "step": 3,
+    "mode": "playing",
+    "y": 896.7,
+    "x": 706.1,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 742.4,
+      "y": 931,
+      "altitudeMeters": 317,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 4,
+    "step": 4,
+    "mode": "playing",
+    "y": 928,
+    "x": 717.3,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 742.4,
+      "y": 931,
+      "altitudeMeters": 317,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 5,
+    "mode": "playing",
+    "y": 928,
+    "x": 717.3,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 742.4,
+      "y": 931,
+      "altitudeMeters": 317,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 5,
+    "step": 0,
+    "mode": "playing",
+    "y": 954.5,
+    "x": 726.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 803.2,
+      "y": 1113,
+      "altitudeMeters": 378,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 5,
+    "step": 1,
+    "mode": "playing",
+    "y": 994.9,
+    "x": 740.5,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 803.2,
+      "y": 1113,
+      "altitudeMeters": 378,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 5,
+    "step": 2,
+    "mode": "playing",
+    "y": 1036.7,
+    "x": 754.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 803.2,
+      "y": 1113,
+      "altitudeMeters": 378,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 5,
+    "step": 3,
+    "mode": "playing",
+    "y": 1078.7,
+    "x": 768.3,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 803.2,
+      "y": 1113,
+      "altitudeMeters": 378,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 5,
+    "step": 4,
+    "mode": "playing",
+    "y": 1110,
+    "x": 778.3,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 803.2,
+      "y": 1113,
+      "altitudeMeters": 378,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 6,
+    "mode": "playing",
+    "y": 1110,
+    "x": 778.3,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 803.2,
+      "y": 1113,
+      "altitudeMeters": 378,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 6,
+    "step": 0,
+    "mode": "playing",
+    "y": 1136.5,
+    "x": 786.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 857.4,
+      "y": 1295,
+      "altitudeMeters": 440,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 6,
+    "step": 1,
+    "mode": "playing",
+    "y": 1176.9,
+    "x": 798.9,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 857.4,
+      "y": 1295,
+      "altitudeMeters": 440,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 6,
+    "step": 2,
+    "mode": "playing",
+    "y": 1218.7,
+    "x": 811.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 857.4,
+      "y": 1295,
+      "altitudeMeters": 440,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 6,
+    "step": 3,
+    "mode": "playing",
+    "y": 1260.7,
+    "x": 823.7,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 857.4,
+      "y": 1295,
+      "altitudeMeters": 440,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 6,
+    "step": 4,
+    "mode": "playing",
+    "y": 1292,
+    "x": 832.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 857.4,
+      "y": 1295,
+      "altitudeMeters": 440,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 7,
+    "mode": "playing",
+    "y": 1292,
+    "x": 832.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 857.4,
+      "y": 1295,
+      "altitudeMeters": 440,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 7,
+    "step": 0,
+    "mode": "playing",
+    "y": 1318.5,
+    "x": 840,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 906.3,
+      "y": 1477,
+      "altitudeMeters": 502,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 7,
+    "step": 1,
+    "mode": "playing",
+    "y": 1358.9,
+    "x": 851.1,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 906.3,
+      "y": 1477,
+      "altitudeMeters": 502,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 7,
+    "step": 2,
+    "mode": "playing",
+    "y": 1400.7,
+    "x": 862.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 906.3,
+      "y": 1477,
+      "altitudeMeters": 502,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 7,
+    "step": 3,
+    "mode": "playing",
+    "y": 1442.7,
+    "x": 873.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 906.3,
+      "y": 1477,
+      "altitudeMeters": 502,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 7,
+    "step": 4,
+    "mode": "playing",
+    "y": 1474,
+    "x": 881.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 906.3,
+      "y": 1477,
+      "altitudeMeters": 502,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 8,
+    "mode": "playing",
+    "y": 1474,
+    "x": 881.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 906.3,
+      "y": 1477,
+      "altitudeMeters": 502,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 8,
+    "step": 0,
+    "mode": "playing",
+    "y": 1500.5,
+    "x": 888.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 951.8,
+      "y": 1659,
+      "altitudeMeters": 564,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 8,
+    "step": 1,
+    "mode": "playing",
+    "y": 1540.9,
+    "x": 898.6,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 951.8,
+      "y": 1659,
+      "altitudeMeters": 564,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 8,
+    "step": 2,
+    "mode": "playing",
+    "y": 1582.7,
+    "x": 909.1,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 951.8,
+      "y": 1659,
+      "altitudeMeters": 564,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 8,
+    "step": 3,
+    "mode": "playing",
+    "y": 1624.7,
+    "x": 919.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 951.8,
+      "y": 1659,
+      "altitudeMeters": 564,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 8,
+    "step": 4,
+    "mode": "playing",
+    "y": 1656,
+    "x": 927.1,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 951.8,
+      "y": 1659,
+      "altitudeMeters": 564,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 9,
+    "mode": "playing",
+    "y": 1656,
+    "x": 927.1,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 951.8,
+      "y": 1659,
+      "altitudeMeters": 564,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 9,
+    "step": 0,
+    "mode": "playing",
+    "y": 1682.5,
+    "x": 933.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 994.1,
+      "y": 1841,
+      "altitudeMeters": 626,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 9,
+    "step": 1,
+    "mode": "playing",
+    "y": 1722.9,
+    "x": 943,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 994.1,
+      "y": 1841,
+      "altitudeMeters": 626,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 9,
+    "step": 2,
+    "mode": "playing",
+    "y": 1764.7,
+    "x": 952.8,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 994.1,
+      "y": 1841,
+      "altitudeMeters": 626,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 9,
+    "step": 3,
+    "mode": "playing",
+    "y": 1806.7,
+    "x": 962.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 994.1,
+      "y": 1841,
+      "altitudeMeters": 626,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 9,
+    "step": 4,
+    "mode": "playing",
+    "y": 1838,
+    "x": 969.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 994.1,
+      "y": 1841,
+      "altitudeMeters": 626,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 10,
+    "mode": "playing",
+    "y": 1838,
+    "x": 969.4,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 994.1,
+      "y": 1841,
+      "altitudeMeters": 626,
+      "climbRoomWorld": 0,
+      "topReached": true,
+      "needsAnchor": true,
+      "ropeRemainingMeters": 237,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 10,
+    "step": 0,
+    "mode": "playing",
+    "y": 1864.5,
+    "x": 975.3,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 1283.1,
+      "y": 2023,
+      "altitudeMeters": 688,
+      "climbRoomWorld": 155.5,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 82,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 10,
+    "step": 1,
+    "mode": "playing",
+    "y": 1904.9,
+    "x": 984,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 1283.1,
+      "y": 2023,
+      "altitudeMeters": 688,
+      "climbRoomWorld": 115.1,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 122,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 10,
+    "step": 2,
+    "mode": "playing",
+    "y": 1946.7,
+    "x": 993,
+    "faceOffsetX": -28,
+    "movementMode": "climb",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 1283.1,
+      "y": 2023,
+      "altitudeMeters": 688,
+      "climbRoomWorld": 73.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 164,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 10,
+    "step": 3,
+    "mode": "playing",
+    "y": 1988.7,
+    "x": 1004.8,
+    "faceOffsetX": -28,
+    "movementMode": "plateau-walk",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 1283.1,
+      "y": 2023,
+      "altitudeMeters": 688,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "cycle": 11,
+    "mode": "playing",
+    "y": 1988.7,
+    "x": 1004.8,
+    "faceOffsetX": -28,
+    "movementMode": "plateau-walk",
+    "anchor": {
+      "placed": true,
+      "manual": true,
+      "x": 1283.1,
+      "y": 2023,
+      "altitudeMeters": 688,
+      "climbRoomWorld": 31.3,
+      "topReached": false,
+      "needsAnchor": false,
+      "ropeRemainingMeters": 206,
+      "throw": {
+        "active": false
+      }
+    }
+  },
+  {
+    "plateauStep": 0,
+    "y": 1984.5,
+    "x": 1011.5,
+    "faceOffsetX": -17.4,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 1,
+    "y": 1984.5,
+    "x": 1021.5,
+    "faceOffsetX": -7.4,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 2,
+    "y": 1988.6,
+    "x": 1032.7,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 3,
+    "y": 1993,
+    "x": 1044.3,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 4,
+    "y": 1995.9,
+    "x": 1056,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 5,
+    "y": 1998.2,
+    "x": 1067.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 6,
+    "y": 2000.3,
+    "x": 1079.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 7,
+    "y": 2002.1,
+    "x": 1091.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 8,
+    "y": 2003.8,
+    "x": 1103.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 9,
+    "y": 2005.4,
+    "x": 1115,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 10,
+    "y": 2006.9,
+    "x": 1126.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 11,
+    "y": 2008.3,
+    "x": 1138.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 12,
+    "y": 2009.7,
+    "x": 1150.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 13,
+    "y": 2011,
+    "x": 1162.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 14,
+    "y": 2012.3,
+    "x": 1174,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 15,
+    "y": 2013.5,
+    "x": 1185.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 16,
+    "y": 2014.7,
+    "x": 1197.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 17,
+    "y": 2015.9,
+    "x": 1209.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 18,
+    "y": 2017,
+    "x": 1221.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 19,
+    "y": 2018.1,
+    "x": 1233,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 20,
+    "y": 2019.2,
+    "x": 1244.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 21,
+    "y": 2020.3,
+    "x": 1256.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 22,
+    "y": 2021.4,
+    "x": 1268.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 23,
+    "y": 2022.4,
+    "x": 1280.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 24,
+    "y": 2023.4,
+    "x": 1292,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 25,
+    "y": 2024.4,
+    "x": 1303.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 26,
+    "y": 2025.4,
+    "x": 1315.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 27,
+    "y": 2026.4,
+    "x": 1327.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 28,
+    "y": 2027.4,
+    "x": 1339.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 29,
+    "y": 2028.4,
+    "x": 1351,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 30,
+    "y": 2029.3,
+    "x": 1362.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 31,
+    "y": 2030.3,
+    "x": 1374.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 32,
+    "y": 2031.2,
+    "x": 1386.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 33,
+    "y": 2032.2,
+    "x": 1398.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 34,
+    "y": 2033.1,
+    "x": 1410,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 35,
+    "y": 2034.1,
+    "x": 1421.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 36,
+    "y": 2035,
+    "x": 1433.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 37,
+    "y": 2035.9,
+    "x": 1445.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 38,
+    "y": 2036.8,
+    "x": 1457.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 39,
+    "y": 2037.7,
+    "x": 1469,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 40,
+    "y": 2038.7,
+    "x": 1480.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 41,
+    "y": 2039.6,
+    "x": 1492.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 42,
+    "y": 2040.5,
+    "x": 1504.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 43,
+    "y": 2041.4,
+    "x": 1516.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 44,
+    "y": 2042.3,
+    "x": 1528,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 45,
+    "y": 2043.2,
+    "x": 1539.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 46,
+    "y": 2044.1,
+    "x": 1551.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 47,
+    "y": 2045,
+    "x": 1563.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 48,
+    "y": 2045.9,
+    "x": 1575.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 49,
+    "y": 2046.8,
+    "x": 1587,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 50,
+    "y": 2047.8,
+    "x": 1598.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 51,
+    "y": 2048.7,
+    "x": 1610.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 52,
+    "y": 2049.6,
+    "x": 1622.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 53,
+    "y": 2050.5,
+    "x": 1634.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 54,
+    "y": 2051.5,
+    "x": 1646,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 55,
+    "y": 2052.4,
+    "x": 1657.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 56,
+    "y": 2053.3,
+    "x": 1669.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 57,
+    "y": 2054.3,
+    "x": 1681.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 58,
+    "y": 2055.2,
+    "x": 1693.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 59,
+    "y": 2056.2,
+    "x": 1705,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 60,
+    "y": 2057.1,
+    "x": 1716.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 61,
+    "y": 2058.1,
+    "x": 1728.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 62,
+    "y": 2059.1,
+    "x": 1740.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 63,
+    "y": 2060.1,
+    "x": 1752.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 64,
+    "y": 2061.1,
+    "x": 1764,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 65,
+    "y": 2062.1,
+    "x": 1775.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 66,
+    "y": 2063.2,
+    "x": 1787.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 67,
+    "y": 2064.2,
+    "x": 1799.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 68,
+    "y": 2065.3,
+    "x": 1811.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 69,
+    "y": 2066.4,
+    "x": 1823,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 70,
+    "y": 2067.5,
+    "x": 1834.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 71,
+    "y": 2068.6,
+    "x": 1846.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 72,
+    "y": 2069.8,
+    "x": 1858.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 73,
+    "y": 2070.9,
+    "x": 1870.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 74,
+    "y": 2072.2,
+    "x": 1882,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 75,
+    "y": 2073.4,
+    "x": 1893.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 76,
+    "y": 2074.7,
+    "x": 1905.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 77,
+    "y": 2076.1,
+    "x": 1917.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 78,
+    "y": 2077.5,
+    "x": 1929.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 79,
+    "y": 2078.9,
+    "x": 1941,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 80,
+    "y": 2080.5,
+    "x": 1952.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 81,
+    "y": 2082.2,
+    "x": 1964.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 82,
+    "y": 2084,
+    "x": 1976.4,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 83,
+    "y": 2086,
+    "x": 1988.2,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 84,
+    "y": 2088.2,
+    "x": 2000,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 85,
+    "y": 2091,
+    "x": 2011.8,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 86,
+    "y": 2095,
+    "x": 2023.6,
+    "faceOffsetX": 0,
+    "movementMode": "plateau-walk",
+    "walkablePlateau": {
+      "index": 0,
+      "startY": 1984.5,
+      "endY": 2100,
+      "startX": 1028.9,
+      "endX": 2029.2,
+      "distanceMeters": 340
+    }
+  },
+  {
+    "plateauStep": 87,
+    "y": 2128,
+    "x": 2045.1,
+    "faceOffsetX": 10,
+    "movementMode": "climb",
+    "walkablePlateau": null
+  }
+]

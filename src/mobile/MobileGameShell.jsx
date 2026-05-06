@@ -36,6 +36,10 @@ const MOBILE_SHELL_AD_DISABLED_GAME_IDS = new Set([
   "strategy-hundir-flota-pro",
 ]);
 
+const COMPACT_APP_AD_GAME_IDS = new Set([
+  "arcade-summit-ascent",
+]);
+
 function resolveShellTheme(game) {
   const categoryKey = String(game?.category ?? "");
   if (categoryKey === "Estrategia" || categoryKey === "Strategy") {
@@ -257,7 +261,7 @@ export default function MobileGameShell({
   const showCompactGamesAppAd =
     adPreviewEnabledForGame &&
     viewportFormFactor !== "desktop" &&
-    isGamesCategory &&
+    (isGamesCategory || COMPACT_APP_AD_GAME_IDS.has(game?.id)) &&
     game?.id !== "arcade-pinball-wizard" &&
     !useStageAdInsteadOfCompactGamesAd;
   const showTouchIntroCopy = !isStrategyTheme;
@@ -427,6 +431,7 @@ export default function MobileGameShell({
   const isStatusFirstStack =
     game?.id === "arcade-valle-tranquilo" ||
     game?.id === "arcade-dig-hole-treasure" ||
+    game?.id === "arcade-summit-ascent" ||
     isSportsCategory;
   const compactGamesAdNode =
     showCompactGamesAppAd ? (
@@ -445,6 +450,21 @@ export default function MobileGameShell({
   const valleMissionsAdNode =
     showValleMissionsAd ? (
       <section className="mobile-game-shell__panel-divider-ad mobile-game-shell__panel-divider-ad--valle">
+        <AdPreviewCard
+          slot={MOBILE_APP_COMPACT_AD_SLOT}
+          locale={locale}
+          className="mobile-game-shell__panel-divider-ad-card"
+        />
+      </section>
+    ) : null;
+  const showSummitControlDividerAd =
+    adPreviewEnabledForGame &&
+    game?.id === "arcade-summit-ascent" &&
+    viewportFormFactor !== "desktop" &&
+    isDualScreen;
+  const summitControlDividerAdNode =
+    showSummitControlDividerAd ? (
+      <section className="mobile-game-shell__panel-divider-ad mobile-game-shell__panel-divider-ad--summit">
         <AdPreviewCard
           slot={MOBILE_APP_COMPACT_AD_SLOT}
           locale={locale}
@@ -600,6 +620,7 @@ export default function MobileGameShell({
                   {isTabletLandscapeStack ? (
                     <>
                       {isStatusFirstStack ? tabletStatusSectionNode : tabletControlsSectionNode}
+                      {summitControlDividerAdNode}
                       {isStatusFirstStack ? tabletControlsSectionNode : tabletStatusSectionNode}
                     </>
                   ) : (
@@ -608,6 +629,7 @@ export default function MobileGameShell({
                         {statusPanelsNode}
                       </div>
                       {valleMissionsAdNode}
+                      {summitControlDividerAdNode}
                       <div className="mobile-game-shell__controls-primary">
                         {controlDeckNode}
                       </div>

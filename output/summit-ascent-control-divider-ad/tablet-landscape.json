@@ -1,0 +1,34 @@
+{
+  "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--with-compact-games-ad mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+  "childOrder": [
+    {
+      "tag": "SECTION",
+      "className": "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--status",
+      "text": "CONFIGURACION\nEstado y ajustes de partida\n\nReune marcador, opciones previas y acciones contextuales en un panel inferior"
+    },
+    {
+      "tag": "SECTION",
+      "className": "mobile-game-shell__panel-divider-ad mobile-game-shell__panel-divider-ad--summit",
+      "text": "ESPACIO PUBLICITARIO\nGoogle Ads listo\n\nSustituye este bloque por el enlace, la creatividad o la unidad real cuando llegu"
+    },
+    {
+      "tag": "SECTION",
+      "className": "mobile-game-shell__tablet-section mobile-game-shell__tablet-section--controls",
+      "text": "ZONA DE JUEGO\nJoystick y botones de accion\n\nMantiene el gameplay en la parte superior y concentra debajo los controles t"
+    }
+  ],
+  "dividerRect": {
+    "x": 65.625,
+    "y": 555.59375,
+    "width": 1048.75,
+    "height": 118.71875
+  },
+  "dividerText": "ESPACIO PUBLICITARIO\nGoogle Ads listo\n\nSustituye este bloque por el enlace, la creatividad o la unidad real cuando llegue la campaña.\n\nCompact in-app banner\nAdaptive\nEnlace pendiente\nEnlace pendiente",
+  "compactAdCount": 1,
+  "visibleInViewport": true,
+  "viewport": {
+    "width": 1180,
+    "height": 820
+  },
+  "errors": []
+}

@@ -4670,3 +4670,27 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Added tablet-oriented HUD sizing and direct tablet breakpoint (641px-1180px), plus platform shell landscape/portrait HUD and touch-control layouts.
 - JS now detects mobile-shell-embed classes and enables touch controls even when pointer media queries do not report coarse input.
 - Validated with node --check, standard web_game_playwright_client desktop run, and custom Playwright mobile/tablet metrics/screenshots in output/summit-ascent-mobile-views-check.
+
+2026-05-06 - Summit Ascent external mobile cave action
+- Added a dedicated MobileControlDeck profile for arcade-summit-ascent so mobile/tablet external controls include Anchor, Water, and Cave (KeyE) instead of the generic A/B actions.
+- Pending validation: parse/build and mobile/tablet Playwright screenshots confirming the Cave action button is visible.
+
+2026-05-06 - Summit Ascent external mobile cave action validation
+- Validation completed: node --check src/mobile/mobileGameProfiles.js OK; npm run build required NODE_OPTIONS=--max-old-space-size=4096 outside sandbox and completed OK.
+- Playwright standard client OK in output/summit-ascent-cave-action-web-client with no errors files.
+- Custom phone/tablet Playwright OK in output/summit-ascent-cave-action-mobile-tablet/results-v2.json: both phone portrait and tablet landscape show Start, Ancla, Agua, Cueva; tapping Cueva after Start reaches playing mode and shows No hay cuevas cerca.
+
+2026-05-06 - Summit Ascent collision/anchor regression
+- Tightened climber face bounds and reused the clamp while climbing/falling so the player cannot pass through the mountain body.
+- Fixed plateau exits so leaving a llanura reattaches beyond the plateau detection margin and the next anchor action works immediately.
+- Aligned plateau walking with the sampled mountain face and exposed faceOffsetX in debug payload for regression checks.
+- Validated with node --check, targeted Playwright regression (maxFaceOffset 10, anchor placed after plateau exit), standard web_game_playwright_client run, visual screenshot review, and npm run build with NODE_OPTIONS=--max-old-space-size=4096.
+
+2026-05-06 - Summit Ascent ad vignettes
+- Added Summit Ascent to the compact in-app ad vignette flow used by Dig The Hole and Valle Tranquilo in the mobile shell.
+- Tablet landscape now uses the same status-first stack and compact ad/control spacing pattern as the reference games.
+- Added Summit Ascent mobile stage selectors so stage isolation targets its embedded frame cleanly.
+- Validated with npm run build, targeted Playwright phone/tablet screenshots in output/summit-ascent-ad-vignettes, and web_game_playwright_client desktop pass.
+- 2026-05-06: Reordered Summit Ascent mobile controls: Start moved into the action grid beside Cave, Pause/Restart moved to the support row directly below the joystick, and Summit actions use a two-column grid.
+- 2026-05-06: Updated Summit Ascent catalog placement and copy: catalog item now has a short natural ES/EN description and the game category is Juegos/Games instead of Arcade.
+- 2026-05-06: Generated an English Summit Ascent gameplay screenshot from the live standalone game and switched the catalog image import to src/assets/games/arcade-summit-ascent-gameplay-en.png.

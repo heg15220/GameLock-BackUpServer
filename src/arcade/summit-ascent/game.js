@@ -91,6 +91,9 @@
   const SLOPE_PLATEAU_MAX_METERS = 520;
   const WALKABLE_PLATEAU_MARGIN = 26;
   const WALKABLE_PLATEAU_SPEED = 118;
+  const CLIMBER_FACE_MIN_OFFSET = -28;
+  const CLIMBER_FACE_MAX_OFFSET = 10;
+  const CLIMBER_FACE_REATTACH_OFFSET = 8;
   const MOUNTAIN_PEAK_NARROW_RATIO = 0.78; // dónde empieza el estrechamiento del pico
 
   // Recursos
@@ -2643,6 +2646,7 @@
       if (climber.vy > TERMINAL_VELOCITY) climber.vy = TERMINAL_VELOCITY;
       climber.x += climber.vx * dt;
       climber.y -= climber.vy * dt; // y crece hacia arriba en world coords
+      clampClimberToClimbableFace({ stopInwardVelocity: true });
       state.fallTime += dt;
       if (climber.y <= state.run.mountain.layers[0].from + 4) {
         // Tocó el suelo: muerte
@@ -2731,14 +2735,18 @@
         inputX > 0 &&
         climber.x >= Math.max(walkablePlateau.startX, walkablePlateau.endX) - 4
       ) {
-        climber.y = walkablePlateau.endY + 2;
-        climber.x = sampleFaceX(climber.y) + 8;
+        climber.y = walkablePlateau.endY + WALKABLE_PLATEAU_MARGIN + 2;
+        climber.x = sampleFaceX(climber.y) + CLIMBER_FACE_REATTACH_OFFSET;
+        climber.vx = 0;
+        setBeacon(t("beaconNeedAnchor"), "Space", t("msgNeedAnchor"));
       } else if (
         inputX < 0 &&
         climber.x <= Math.min(walkablePlateau.startX, walkablePlateau.endX) + 4
       ) {
-        climber.y = walkablePlateau.startY - 2;
-        climber.x = sampleFaceX(climber.y) + 8;
+        climber.y = walkablePlateau.startY - WALKABLE_PLATEAU_MARGIN - 2;
+        climber.x = sampleFaceX(climber.y) + CLIMBER_FACE_REATTACH_OFFSET;
+        climber.vx = 0;
+        setBeacon(t("beaconNeedAnchor"), "Space", t("msgNeedAnchor"));
       }
     } else if (hasActiveAnchor()) {
       const ceiling = state.anchor.y - ANCHOR_CEILING_SLACK;
@@ -2760,11 +2768,7 @@
 
     // Snap a la pared (limita X dentro de los holds)
     if (!walkingPlateau) {
-      const faceX = sampleFaceX(climber.y);
-      const minX = faceX - 28;
-      const maxX = faceX + 60;
-      if (climber.x < minX) climber.x = minX;
-      if (climber.x > maxX) climber.x = maxX;
+      clampClimberToClimbableFace({ stopInwardVelocity: true });
     }
 
     // Hidratación / agua
@@ -3341,10 +3345,16 @@
 
       const startX = sampleFaceX(startY, mountain);
       const endX = sampleFaceX(endY, mountain);
-      const minX = Math.min(startX, endX) - WALKABLE_PLATEAU_MARGIN;
-      const maxX = Math.max(startX, endX) + WALKABLE_PLATEAU_MARGIN;
-      const xInSpan = x == null || (x >= minX && x <= maxX);
+      const detectMinX = Math.min(startX, endX) - WALKABLE_PLATEAU_MARGIN;
+      const detectMaxX = Math.max(startX, endX) + WALKABLE_PLATEAU_MARGIN;
+      const xInSpan = x == null || (x >= detectMinX && x <= detectMaxX);
       if (!xInSpan) continue;
+      const upperExitX = Math.max(startX, endX) - WALKABLE_PLATEAU_MARGIN * 0.5;
+      const lowerExitX = Math.min(startX, endX) + WALKABLE_PLATEAU_MARGIN * 0.5;
+      if (x != null && y > endY + 1 && x >= upperExitX) continue;
+      if (x != null && y < startY - 1 && x <= lowerExitX) continue;
+      const minX = Math.min(startX, endX) + CLIMBER_FACE_MIN_OFFSET;
+      const maxX = Math.max(startX, endX) + CLIMBER_FACE_MAX_OFFSET;
 
       return {
         index: i,
@@ -3363,13 +3373,41 @@
   function plateauSurfaceYAtX(plateau, x) {
     const span = plateau.endX - plateau.startX;
     if (Math.abs(span) < 0.001) return plateau.startY;
-    const t = clamp((x - plateau.startX) / span, 0, 1);
-    return lerp(plateau.startY, plateau.endY, t);
+    const targetX = clamp(x, Math.min(plateau.startX, plateau.endX), Math.max(plateau.startX, plateau.endX));
+    let lo = plateau.startY;
+    let hi = plateau.endY;
+    const ascendingX = plateau.endX >= plateau.startX;
+    for (let i = 0; i < 18; i++) {
+      const mid = (lo + hi) * 0.5;
+      const midX = sampleFaceX(mid);
+      if (ascendingX ? midX < targetX : midX > targetX) {
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+    return (lo + hi) * 0.5;
   }
 
   function currentWalkablePlateau() {
     if (!state.run || state.intro.active || state.summitWalk.active) return null;
     return plateauGeometryAt(state.climber.y, state.climber.x, state.run.mountain);
+  }
+
+  function clampClimberToClimbableFace(options = {}) {
+    if (!state.run || !state.climber) return;
+    const climber = state.climber;
+    const faceX = sampleFaceX(climber.y);
+    const minX = faceX + CLIMBER_FACE_MIN_OFFSET;
+    const maxX = faceX + CLIMBER_FACE_MAX_OFFSET;
+    if (climber.x < minX) {
+      climber.x = minX;
+      if (options.stopOutwardVelocity && climber.vx < 0) climber.vx = 0;
+    }
+    if (climber.x > maxX) {
+      climber.x = maxX;
+      if (options.stopInwardVelocity && climber.vx > 0) climber.vx = 0;
+    }
   }
 
   function gradeRunRate(gradePercent) {
@@ -5360,6 +5398,7 @@
     const cave = state.run ? nearestCave(climber.y) : null;
     const slopeInfo = state.run ? sampleProgressiveFaceProfile(climber.y, mountain) : null;
     const plateau = state.run ? currentWalkablePlateau() : null;
+    const faceX = state.run ? sampleFaceX(climber.y, mountain) : null;
     const altitude = state.run
       ? Math.round(climber.y * ALTITUDE_DISPLAY_FACTOR)
       : 0;
@@ -5399,6 +5438,7 @@
         water: round(climber.water, 1),
         grip: round(climber.grip, 1),
         food: climber.food,
+        faceOffsetX: faceX == null ? null : round(climber.x - faceX, 1),
         canClimb: anchorClimbRoom() > 0,
         canWalkWithoutAnchor: Boolean(plateau || state.summitWalk.active),
         movementMode: state.summitWalk.active

@@ -1,0 +1,21 @@
+{
+  "shellClass": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--dual-screen mobile-game-shell--device-tablet mobile-game-shell--theme-default mobile-game-shell--with-compact-games-ad mobile-game-shell--tablet-landscape-stack mobile-game-shell--has-controls",
+  "cardText": "ESPACIO PUBLICITARIO\nGoogle Ads listo\n\nSustituye este bloque por el enlace, la creatividad o la unidad real cuando llegue la campaña.\n\nCompact in-app banner\nAdaptive\nEnlace pendiente\nEnlace pendiente",
+  "cardRect": {
+    "x": 80.703125,
+    "y": 625.046875,
+    "width": 1018.59375,
+    "height": 112.109375
+  },
+  "shellRect": {
+    "width": 1100,
+    "height": 708
+  },
+  "hasStageOverlay": false,
+  "visibleInViewport": true,
+  "viewport": {
+    "width": 1180,
+    "height": 820
+  },
+  "errors": []
+}

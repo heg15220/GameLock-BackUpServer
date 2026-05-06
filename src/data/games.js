@@ -85,7 +85,7 @@ import strategyMansionTripleEnigmaImage from "../assets/games/strategy-mansion-t
 import strategyMansionTripleEnigmaImageEn from "../assets/games/strategy-mansion-triple-enigma-en.svg";
 import race2dproImage from "../assets/games/race2dpro-catalog.png";
 import sunsetSlipstreamImage from "../assets/games/sunset-slipstream.svg";
-import arcadeSummitAscentImage from "../assets/games/arcade-summit-ascent.svg";
+import arcadeSummitAscentImage from "../assets/games/arcade-summit-ascent-gameplay-en.png";
 
 /**
  * Game catalog
@@ -3266,7 +3266,7 @@ export const games = [
     sessionTime: "15-25 min",
 
     title: "Ascenso a la Cumbre",
-    category: "Arcade",
+    category: "Juegos",
     tagline: "Escalada vertical 2D: gestiona estamina, cuevas y meteorología hasta plantar la bandera.",
     description:
       "Un juego de escalada vertical 2D con un mundo de 16.000 px de altura partido en 8 bandas climáticas (campo base, bosque, roca calma, viento, niebla, tormenta, nieve y cumbre). El escalador articulado tiene cuatro extremidades animadas con un ciclo real de planteo y empuje, casco rojo con gafas, mochila con esterilla, arnés con cuerda visible al último anclaje y dos piolets que se clavan al colocar un anclaje (Espacio). La estamina baja con cada metro escalado y se acelera en bandas hostiles; el clima además recorta el grip lateral. Tres prototipos de montaña — Pico Volcán Negro, Crestas de Hielo Azul y Torre de Granito Dorado — generan paletas, cielo y partículas únicas (cenizas, nieve, lluvia, aurora, magma). Seis cuevas estratégicas reparten comida y agua a lo largo de la subida; si la estamina llega a 0 te sueltas y caes en picado, y solo la cuerda al último anclaje puede salvarte (con penalización).",
@@ -3295,7 +3295,7 @@ export const games = [
     visualStyle: "Pintura digital realista: cielo gradiente por banda, parallax de cordilleras lejanas, pared con strata, cuevas con glow cálido, escalador estilo cómic.",
     techFocus: "Mundo vertical con cámara suavizada, escalador rigeado por extremidades con phase reach, física de caída + cuerda con catch, generación procedural seedeada y partículas climáticas por banda.",
 
-    category_en: "Arcade",
+    category_en: "Games",
     tagline_en: "Vertical 2D climbing: manage stamina, caves, and weather to plant the summit flag.",
     description_en:
       "A vertical 2D climbing game with a 16,000 px world split into 8 weather bands (base camp, forest, calm rock, wind, fog, storm, snow, summit). The rigged climber has four animated limbs with a real plant-and-push cycle, red helmet with goggles, backpack with bedroll, harness with a visible rope to the last anchor, and twin ice axes that strike whenever an anchor is planted (Space). Stamina drains with each metre climbed and accelerates in hostile bands; weather also reduces lateral grip. Three mountain prototypes — Black Volcano Peak, Blue Ice Ridges, and Golden Granite Tower — generate unique palettes, skies, and particles (ash, snow, rain, aurora, magma). Six strategically placed caves serve food and water; if your stamina hits zero you slip and fall, and only the rope to your last anchor can save you (with a penalty).",
