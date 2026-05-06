@@ -1,0 +1,10 @@
+[
+  {
+    "type": "console.error",
+    "text": "ReferenceError: angNorm is not defined\n    at zo (http://127.0.0.1:4180/assets/index-6018c947.js:1:60977)\n    at q (http://127.0.0.1:4180/assets/index-6018c947.js:1:62460)\n    at http://127.0.0.1:4180/assets/index-6018c947.js:1:63002\n    at Object.ql [as useState] (http://127.0.0.1:4180/assets/index-d4c0846b.js:30:19892)\n    at U.useState (http://127.0.0.1:4180/assets/index-d4c0846b.js:9:6364)\n    at Yo (http://127.0.0.1:4180/assets/index-6018c947.js:1:62989)\n    at Is (http://127.0.0.1:4180/assets/index-d4c0846b.js:30:16980)\n    at qo (http://127.0.0.1:4180/assets/index-d4c0846b.js:32:3135)\n    at Lu (http://127.0.0.1:4180/assets/index-d4c0846b.js:32:44432)\n    at Iu (http://127.0.0.1:4180/assets/index-d4c0846b.js:32:39683)"
+  },
+  {
+    "type": "pageerror",
+    "text": "ReferenceError: angNorm is not defined"
+  }
+]

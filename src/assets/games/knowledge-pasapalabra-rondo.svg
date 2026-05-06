@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Rosco / Rondo</title>
+  <desc id="desc">Alphabet ring knowledge game card.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#12385c"/>
+      <stop offset=".56" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#1f2937"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset=".5" stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#facc15"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#020617" flood-opacity=".35"/>
+    </filter>
+  </defs>
+  <rect width="640" height="420" rx="0" fill="url(#bg)"/>
+  <path d="M0 315c76-37 148-52 216-46 86 8 137 49 225 49 71 0 134-27 199-74v176H0z" fill="#071827" opacity=".38"/>
+  <g filter="url(#shadow)">
+    <circle cx="320" cy="210" r="142" fill="none" stroke="url(#ring)" stroke-width="22"/>
+    <circle cx="320" cy="210" r="100" fill="#0f172a" opacity=".72"/>
+  </g>
+  <g font-family="Inter, Arial, sans-serif" font-weight="800" font-size="20" text-anchor="middle">
+    <g fill="#e0f2fe">
+      <circle cx="320" cy="54" r="22" fill="#0369a1"/><text x="320" y="61">A</text>
+      <circle cx="395" cy="73" r="22" fill="#047857"/><text x="395" y="80">B</text>
+      <circle cx="456" cy="122" r="22" fill="#0891b2"/><text x="456" y="129">C</text>
+      <circle cx="481" cy="195" r="22" fill="#65a30d"/><text x="481" y="202">D</text>
+      <circle cx="463" cy="270" r="22" fill="#ca8a04"/><text x="463" y="277">E</text>
+      <circle cx="410" cy="329" r="22" fill="#0f766e"/><text x="410" y="336">F</text>
+      <circle cx="334" cy="354" r="22" fill="#0369a1"/><text x="334" y="361">G</text>
+      <circle cx="257" cy="342" r="22" fill="#047857"/><text x="257" y="349">H</text>
+      <circle cx="195" cy="296" r="22" fill="#0891b2"/><text x="195" y="303">I</text>
+      <circle cx="162" cy="224" r="22" fill="#65a30d"/><text x="162" y="231">J</text>
+      <circle cx="176" cy="147" r="22" fill="#ca8a04"/><text x="176" y="154">K</text>
+      <circle cx="239" cy="85" r="22" fill="#0f766e"/><text x="239" y="92">L</text>
+    </g>
+  </g>
+  <text x="320" y="199" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="900" fill="#f8fafc">ROSCO</text>
+  <text x="320" y="235" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#bae6fd">RONDO</text>
+  <rect x="226" y="261" width="188" height="34" rx="17" fill="#f8fafc" opacity=".92"/>
+  <text x="320" y="284" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="900" fill="#0f766e">10K ES / 10K EN</text>
+</svg>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Snake Clasico 1977">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Snake">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#042f2e"/>
@@ -24,6 +24,6 @@
   <circle cx="522" cy="226" r="2.6" fill="#ecfeff"/>
   <circle cx="440" cy="142" r="14" fill="url(#food)"/>
   <circle cx="440" cy="142" r="23" fill="none" stroke="rgba(249,115,22,0.42)" stroke-width="4"/>
-  <text x="84" y="300" fill="#f8fafc" font-size="36" font-family="'Bricolage Grotesque','Segoe UI',sans-serif" font-weight="700">Snake Clasico 1977</text>
+  <text x="84" y="300" fill="#f8fafc" font-size="36" font-family="'Bricolage Grotesque','Segoe UI',sans-serif" font-weight="700">Snake</text>
   <text x="84" y="326" fill="#bae6fd" font-size="16" font-family="'JetBrains Mono','Consolas',monospace">Neon grid, glow, and modern arcade polish</text>
 </svg>

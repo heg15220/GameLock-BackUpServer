@@ -127,6 +127,10 @@ export const gameCatalogDescriptions = {
     es: "Crucigrama: resuelve pistas y cruza palabras hasta completar el tablero.",
     en: "Crossword: solve clues and cross words to complete the board.",
   },
+  "knowledge-pasapalabra-rondo": {
+    es: "Rosco A-Z: responde definiciones, pasa palabra y completa el alfabeto.",
+    en: "A-Z word ring: answer definitions, pass and complete the alphabet.",
+  },
   "knowledge-sopa-letras-mega": {
     es: "Sopa de letras: encuentra palabras ocultas en varias direcciones.",
     en: "Word search: find hidden words in several directions.",

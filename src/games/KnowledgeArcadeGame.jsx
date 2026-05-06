@@ -7,6 +7,7 @@ const KnowledgeVariantComponents = {
   paciencia: lazy(() => import("./knowledge/SolitaireKnowledgeGame")),
   puzle: lazy(() => import("./knowledge/PuzzleKnowledgeGame")),
   crucigrama: lazy(() => import("./knowledge/CrosswordKnowledgeGame")),
+  pasapalabra: lazy(() => import("./knowledge/PasapalabraKnowledgeGame")),
   "sopa-letras": lazy(() => import("./knowledge/WordSearchKnowledgeGame")),
   wordle: lazy(() => import("./knowledge/WordleKnowledgeGame")),
   anagramas: lazy(() => import("./knowledge/AnagramsKnowledgeGame")),

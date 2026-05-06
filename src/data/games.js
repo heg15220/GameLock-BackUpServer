@@ -48,6 +48,7 @@ import knowledgePuzleImage from "../assets/games/knowledge-puzle.svg";
 import knowledgePuzleImageEn from "../assets/games/knowledge-puzle-en.svg";
 import knowledgeCrucigramaImage from "../assets/games/knowledge-crucigrama.svg";
 import knowledgeCrucigramaImageEn from "../assets/games/knowledge-crucigrama-en.svg";
+import knowledgePasapalabraImage from "../assets/games/knowledge-pasapalabra-rondo.svg";
 import knowledgeSopaLetrasImage from "../assets/games/knowledge-sopa-letras.svg";
 import knowledgeSopaLetrasImageEn from "../assets/games/knowledge-sopa-letras-en.svg";
 import knowledgeWordleImage from "../assets/games/knowledge-wordle.svg";
@@ -1122,7 +1123,7 @@ export const games = [
     image: headSoccerArenaImage,
     sessionTime: "3-6 min",
 
-        title: "Head Soccer Pro",
+        title: "Football Head",
     category: "Deportes",
     tagline: "F\u00fatbol arcade 1 contra 1: salta, dispara y marca m\u00e1s goles.",
     description:
@@ -1719,6 +1720,54 @@ export const games = [
     viability_en: "High: fixed low-cost grid and direct-comparison validation.",
     visualStyle_en: "Letter panel with blocked cells and lateral clue list.",
     techFocus_en: "Cell-by-cell editing, arrow navigation and solution checking.",
+  },
+
+  {
+    id: "knowledge-pasapalabra-rondo",
+    image: knowledgePasapalabraImage,
+    sessionTime: "15 min",
+
+    title: "Rosco",
+    title_en: "Rondo",
+    category: "Conocimiento",
+    tagline: "Rosco A-Z: responde definiciones, pasa palabra y completa el alfabeto.",
+    description:
+      "Juego tipo Pasapalabra/Rondo integrado en Conocimiento. Cada partida carga un rosco completo de 26 letras desde la cache generada con el repositorio del diccionario, usando 10.000 palabras con significado por idioma y 10.000 partidas cacheadas para espanol e ingles.",
+    objective_es: "Completa el rosco respondiendo la palabra asociada a cada definicion antes de que se agote el tiempo.",
+    howToPlay_es: "Escribe la respuesta, Enter valida, Espacio pasa palabra y R carga otra partida. Puedes volver a letras pasadas desde el rosco.",
+    highlights: [
+      "10.000 palabras con significado en espanol y 10.000 en ingles.",
+      "10.000 roscos cacheados por idioma, con 26 preguntas por partida.",
+      "Pistas tipo empieza por o contiene para cubrir todo el alfabeto.",
+      "Control de aciertos, fallos, pendientes y temporizador de ronda.",
+      "Carga por shards para no meter todo el banco en el bundle inicial.",
+      "Bridge QA con estado serializado de rosco, letra activa y progreso.",
+    ],
+    difficulty: "Media-Alta",
+    multiplayer: "Solo",
+    viability: "Alta: datos generados por cache, reglas discretas y carga bajo demanda por idioma/partida.",
+    visualStyle: "Rosco alfabetico circular con estados por color, panel de definicion y respuesta central.",
+    techFocus: "Loaders dinamicos de cache + estado de rosco A-Z + validacion normalizada de palabras.",
+
+    category_en: "Knowledge",
+    tagline_en: "A-Z word ring: answer definitions, pass and complete the alphabet.",
+    description_en:
+      "Pasapalabra/Rondo-style game integrated into Knowledge. Each match loads a full 26-letter ring from the generated dictionary cache, using 10,000 word-definition entries per locale and 10,000 cached matches for Spanish and English.",
+    objective_en: "Complete the ring by answering the word tied to each definition before time runs out.",
+    howToPlay_en: "Type the answer, Enter submits, Space passes and R loads another match. You can return to passed letters from the ring.",
+    highlights_en: [
+      "10,000 word-definition entries in Spanish and 10,000 in English.",
+      "10,000 cached rings per locale, with 26 questions per match.",
+      "Starts-with and contains clues to cover the whole alphabet.",
+      "Correct, wrong, pending and round timer tracking.",
+      "Shard loading so the full bank is not pulled into the initial bundle.",
+      "QA bridge with serialized ring state, active letter and progress.",
+    ],
+    difficulty_en: "Medium-High",
+    multiplayer_en: "Solo",
+    viability_en: "High: generated cache data, discrete rules and on-demand loading by locale/match.",
+    visualStyle_en: "Circular alphabet ring with color states, definition panel and central answer flow.",
+    techFocus_en: "Dynamic cache loaders + A-Z ring state + normalized word validation.",
   },
 
   {

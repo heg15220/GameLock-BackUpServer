@@ -4694,3 +4694,27 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - 2026-05-06: Reordered Summit Ascent mobile controls: Start moved into the action grid beside Cave, Pause/Restart moved to the support row directly below the joystick, and Summit actions use a two-column grid.
 - 2026-05-06: Updated Summit Ascent catalog placement and copy: catalog item now has a short natural ES/EN description and the game category is Juegos/Games instead of Arcade.
 - 2026-05-06: Generated an English Summit Ascent gameplay screenshot from the live standalone game and switched the catalog image import to src/assets/games/arcade-summit-ascent-gameplay-en.png.
+
+## 2026-05-06 - Race2D Pro hard AI lane/racecraft pass
+- Peticion: mejorar calidad y capacidad de la IA en nivel dificil.
+- src/games/RaceGame2DPro.jsx actualizado: perfil hard con racecraft/laneScan/recovery/draft, memoria de offset objetivo por rival y evaluacion de carriles para elegir trazada segun curva, trafico, borde de pista, suavidad y rebufo.
+- Pendiente inmediato: build y Playwright para validar que hard arranca, los rivales no se bloquean y la escena sigue visible sin errores de consola.
+
+
+## 2026-05-06 - Race2D Pro hard AI validation
+- Build validado: NODE_OPTIONS=--max-old-space-size=4096 npm run build OK fuera del sandbox tras EPERM/OOM con limites por defecto.
+- Playwright skill client ejecutado en output/race2dpro-hard-ai-check: selector hard visible y estado setup en Dificil sin errores.
+- Playwright dirigido ejecutado en output/race2dpro-hard-ai-custom: carrera hard arrancada, rivales en movimiento, jugador queda P6 sin input, sin errors.json y captura visible revisada.
+
+
+## 2026-05-06 - Lunar Lander Orbit physics pass
+- Peticion: revisar y mejorar mecanica/fisicas de arcade-retro-lunar-lander-orbit.
+- src/games/arcade/retro-classics/index.jsx actualizado: estado inicial con velocidad lateral orbital, rotacion con inercia, gravedad sin drag artificial, empuje principal fisico, contacto por patas/casco contra terreno/plataforma y payload QA ampliado con altitud/angulo/velocidad angular/limites.
+- Pendiente inmediato: build y Playwright con capturas/estado del lander.
+
+
+## 2026-05-06 - Pasapalabra movil: banner inferior no tapa teclado
+- Ajustado src/mobile/mobile-game-shell.css para que, cuando el modal movil usa banner inferior externo, el shell del telefono reduzca su altura efectiva en phone/tablet y quede por encima del anuncio.
+- Anadido knowledge-pasapalabra-rondo a los juegos con banner inferior compacto en src/components/GamePlayground.jsx, igual que en el modal de lanzamiento.
+- Pendiente: validar con Playwright en viewport movil vertical que respuesta, botones y teclado quedan visibles sobre el banner.
+

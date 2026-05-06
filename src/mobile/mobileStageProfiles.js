@@ -134,6 +134,10 @@ const GAME_STAGE_SELECTORS = {
   ],
   "knowledge-wordle-pro": [".knowledge-mode-shell"],
   "knowledge-anagramas-pro": [".knowledge-mode-shell"],
+  "knowledge-pasapalabra-rondo": [
+    ".knowledge-mode-shell",
+    ".pasapalabra-shell",
+  ],
   "knowledge-calculo-mental-flash10": [
     ".knowledge-mode-shell",
     ".mental-math-shell",

@@ -74,6 +74,7 @@ const KnowledgeAhorcadoGame  = () => <KnowledgeArcadeGame variant="ahorcado" />;
 const KnowledgePacienciaGame = () => <KnowledgeArcadeGame variant="paciencia" />;
 const KnowledgePuzleGame     = () => <KnowledgeArcadeGame variant="puzle" />;
 const KnowledgeCrucigramaGame  = () => <KnowledgeArcadeGame variant="crucigrama" />;
+const KnowledgePasapalabraGame = () => <KnowledgeArcadeGame variant="pasapalabra" />;
 const KnowledgeSopaLetrasGame  = () => <KnowledgeArcadeGame variant="sopa-letras" />;
 const KnowledgeWordleGame      = () => <KnowledgeArcadeGame variant="wordle" />;
 const KnowledgeAnagramasGame   = () => <KnowledgeArcadeGame variant="anagramas" />;
@@ -116,6 +117,7 @@ export const GAME_REGISTRY = {
   "knowledge-paciencia-lite":    KnowledgePacienciaGame,
   "knowledge-puzle-deslizante":  KnowledgePuzleGame,
   "knowledge-crucigrama-mini":   KnowledgeCrucigramaGame,
+  "knowledge-pasapalabra-rondo": KnowledgePasapalabraGame,
   "knowledge-sopa-letras-mega":  KnowledgeSopaLetrasGame,
   "knowledge-wordle-pro":        KnowledgeWordleGame,
   "knowledge-anagramas-pro":     KnowledgeAnagramasGame,
@@ -199,6 +201,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "knowledge-puzle-deslizante":  "Flechas mueven el hueco o pulsa fichas adyacentes. R para nueva partida.",
     "knowledge-crucigrama-mini":   "Flechas navegan, letras escriben, Backspace borra, Enter comprueba, botón nueva partida.",
     "knowledge-sopa-letras-mega":  "Arrastra o marca inicio-fin en horizontal, vertical o diagonal (también al revés). R nueva partida.",
+    "knowledge-pasapalabra-rondo": "Rosco A-Z con 10k partidas por idioma: escribe respuesta, Enter valida, Espacio pasa palabra y R nueva partida.",
     "knowledge-wordle-pro":        "Wordle ES/EN con 10k palabras por idioma. Escribe letras, Enter valida, Backspace borra y usa el boton de partida aleatoria.",
     "knowledge-anagramas-pro":     "Anagramas ES/EN con 10k palabras por idioma. Escribe con las mismas letras, Enter valida, M mezcla y usa el boton de partida aleatoria.",
     "knowledge-calculo-mental-flash10": "10 rondas en 40s: escribe resultado, Enter valida y R reinicia.",
@@ -274,6 +277,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "knowledge-puzle-deslizante":  "Arrows move the blank or click adjacent tiles. R for a new match.",
     "knowledge-crucigrama-mini":   "Arrows navigate, letters type, Backspace clears, Enter checks, button for new puzzle.",
     "knowledge-sopa-letras-mega":  "Drag or click start-end horizontally, vertically or diagonally (reverse also works). R new match.",
+    "knowledge-pasapalabra-rondo": "A-Z word ring with 10k matches per locale: type answer, Enter submits, Space passes and R loads a new match.",
     "knowledge-wordle-pro":        "Wordle ES/EN with 10k words per locale. Type letters, Enter submits, Backspace deletes and use the random-match button.",
     "knowledge-anagramas-pro":     "Anagrams ES/EN with 10k words per locale. Type with the same letters, Enter submits, M shuffles and use the random-match button.",
     "knowledge-calculo-mental-flash10": "10 rounds in 40s: type the result, Enter submits, and R restarts.",

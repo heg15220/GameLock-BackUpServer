@@ -31,6 +31,7 @@ const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
   "knowledge-mapas-atlas",
   "knowledge-mapas-camino-corto",
   "knowledge-adivina-pais-silueta",
+  "knowledge-pasapalabra-rondo",
 ]);
 
 function GameLaunchModal({ game, onClose, adPreviewEnabled }) {

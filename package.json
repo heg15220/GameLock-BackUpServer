@@ -13,6 +13,7 @@
     "migrate:wikipedia-gacha-relational": "node scripts/migrate-wikipedia-gacha-to-relational.mjs",
     "generate:crossword-repo-bank": "node scripts/build_crossword_repo_style_bank.mjs",
     "generate:crossword-match-cache": "node scripts/build_crossword_match_cache.mjs",
+    "generate:pasapalabra-cache": "node scripts/build_pasapalabra_cache.mjs",
     "migrate:wikipedia-gacha-store": "node scripts/migrate-store-to-sqlite.mjs",
     "build": "vite build",
     "preview": "vite preview",

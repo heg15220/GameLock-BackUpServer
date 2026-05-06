@@ -204,6 +204,11 @@ const AI_PROFILES = {
     engineFactor: 1.07,
     brakeFactor: 1.10,
     steeringFactor: 1.08,
+    racecraft: 1,
+    laneScan: 1,
+    recoverySkill: 1,
+    draftSkill: 1,
+    defensivePatience: 0.82,
   },
 };
 
@@ -221,6 +226,11 @@ const AI_MOBILE_HARD_PROFILE = {
   brakeFactor: 1.14,
   steeringFactor: 1.12,
   exitAcceleration: 1.26,
+  racecraft: 1.12,
+  laneScan: 1.08,
+  recoverySkill: 1.12,
+  draftSkill: 1.08,
+  defensivePatience: 0.9,
 };
 
 function getAiProfile(aiDifficulty, mobileHardAi) {
@@ -846,6 +856,8 @@ function createCar(id, isPlayer, aiDifficulty, seedBase, mobileHardAi = false) {
           t: 0,
           noiseSeed: pseudoRandom(seed + 0.7) * 9999,
           lineOffset: (pseudoRandom(seed + 2.4) - 0.5) * 0.4,
+          targetOffset: 0,
+          lastLaneConfidence: 0,
         },
     gridX: 0,
     gridY: 0,
@@ -1231,6 +1243,143 @@ function resolveCarCollisions(cars) {
   }
 }
 
+function getTrackDeltaAhead(fromS, toS) {
+  const delta = wrap01(toS - fromS);
+  return delta > 0.5 ? delta - 1 : delta;
+}
+
+function estimateAiTrafficPressure(car, allCars, candidateOffset, track) {
+  let blocking = 0;
+  let draft = 0;
+  let clearAir = 1;
+
+  for (const other of allCars) {
+    if (other.id === car.id || other.finished) continue;
+    const progressDelta = getTrackDeltaAhead(car.s, other.s);
+    if (progressDelta <= -0.012 || progressDelta > 0.12) continue;
+
+    const along = progressDelta * track.totalLength;
+    const lateralGap = Math.abs(candidateOffset - (other.trackOffset || 0));
+    const closing = car.speed - other.speed;
+    const closeLane = clamp((PHYS.CAR_RADIUS * 3.1 - lateralGap) / (PHYS.CAR_RADIUS * 3.1), 0, 1);
+    const nearAhead = clamp((145 - along) / 130, 0, 1);
+    const closingRisk = clamp((closing + 18) / 96, 0, 1);
+
+    if (along > 0) {
+      blocking += closeLane * nearAhead * (0.45 + closingRisk * 0.75);
+      clearAir = Math.min(clearAir, 1 - closeLane * nearAhead * 0.72);
+    }
+
+    if (along > 28 && along < 120 && lateralGap < PHYS.CAR_RADIUS * 2.2 && Math.abs(closing) < 44) {
+      draft = Math.max(draft, clamp((120 - along) / 92, 0, 1) * clamp((PHYS.CAR_RADIUS * 2.2 - lateralGap) / (PHYS.CAR_RADIUS * 2.2), 0, 1));
+    }
+  }
+
+  return { blocking, draft, clearAir };
+}
+
+function chooseAiLaneOffset({
+  car,
+  track,
+  allCars,
+  baseOffset,
+  overtakeShift,
+  recoveryMode,
+  target,
+  midTarget,
+  longTarget,
+  cornerStrength,
+  isCorner,
+  shortLook,
+  longLook,
+  speedRatio,
+  profile,
+  usableHalfWidth,
+}) {
+  const requestedOffset = recoveryMode ? baseOffset * 0.24 : baseOffset + overtakeShift;
+  const clampedRequested = clamp(requestedOffset, -usableHalfWidth * 0.9, usableHalfWidth * 0.9);
+  const racecraft = profile.racecraft ?? 0;
+
+  if (racecraft < 0.85 || recoveryMode) {
+    const recoveryTarget = car.offTrack
+      ? clamp(clampedRequested * 0.35, -usableHalfWidth * 0.48, usableHalfWidth * 0.48)
+      : clampedRequested;
+    car.ai.targetOffset = lerp(car.ai.targetOffset ?? recoveryTarget, recoveryTarget, recoveryMode ? 0.36 : 0.16);
+    car.ai.lastLaneConfidence = recoveryMode ? 0.35 : 0.55;
+    return {
+      offset: clamp(car.ai.targetOffset, -usableHalfWidth * 0.9, usableHalfWidth * 0.9),
+      confidence: car.ai.lastLaneConfidence,
+      draft: 0,
+    };
+  }
+
+  const entry = sampleTrackAt(track, wrap01(car.s + shortLook * 0.35));
+  const exit = sampleTrackAt(track, wrap01(car.s + longLook * 1.15));
+  const entryDelta = angNorm(target.ang - entry.ang);
+  const exitDelta = angNorm(exit.ang - target.ang);
+  const curveSign = Math.sign(entryDelta + exitDelta) || Math.sign(angNorm(longTarget.ang - target.ang)) || 1;
+  const cornerPhase = clamp((cornerStrength - 0.01) / 0.06, 0, 1);
+  const entryBias = curveSign * usableHalfWidth * 0.52;
+  const apexBias = curveSign * usableHalfWidth * 0.18;
+  const exitBias = -curveSign * usableHalfWidth * 0.20;
+  const racingBias = isCorner
+    ? lerp(lerp(entryBias, apexBias, cornerPhase), exitBias, clamp((midTarget.curvature - longTarget.curvature) / Math.max(0.001, cornerStrength), 0, 0.55))
+    : 0;
+  const trafficScan = Math.max(0.18, profile.laneScan ?? 1);
+  const laneStep = usableHalfWidth * 0.22 * trafficScan;
+  const candidates = [
+    clampedRequested,
+    clampedRequested - laneStep,
+    clampedRequested + laneStep,
+    clampedRequested - laneStep * 1.85,
+    clampedRequested + laneStep * 1.85,
+    racingBias,
+    0,
+  ];
+
+  let bestOffset = clampedRequested;
+  let bestScore = -Infinity;
+  let bestTraffic = { blocking: 0, draft: 0, clearAir: 1 };
+  const currentOffset = car.trackOffset || 0;
+  const maxCornerLane = usableHalfWidth * (isCorner ? 0.78 : 0.9);
+
+  for (const candidate of candidates) {
+    const offset = clamp(candidate, -usableHalfWidth * 0.94, usableHalfWidth * 0.94);
+    const absOffset = Math.abs(offset);
+    const edgePenalty = absOffset > maxCornerLane
+      ? Math.pow((absOffset - maxCornerLane) / Math.max(1, usableHalfWidth - maxCornerLane), 2) * (isCorner ? 2.2 : 1.3)
+      : 0;
+    const traffic = estimateAiTrafficPressure(car, allCars, offset, track);
+    const targetScore = 1 - Math.abs(offset - clampedRequested) / Math.max(1, usableHalfWidth);
+    const racingScore = isCorner
+      ? 1 - Math.abs(offset - racingBias) / Math.max(1, usableHalfWidth * 1.5)
+      : 1 - Math.abs(offset) / Math.max(1, usableHalfWidth * 1.8);
+    const smoothPenalty = Math.abs(offset - currentOffset) / Math.max(1, usableHalfWidth) * (speedRatio > 0.62 ? 0.34 : 0.18);
+    const score = targetScore * 0.65
+      + racingScore * (isCorner ? 0.74 : 0.24)
+      + traffic.clearAir * 0.9
+      + traffic.draft * (isCorner ? 0.08 : 0.28) * (profile.draftSkill ?? 1)
+      - traffic.blocking * (1.08 + (profile.defensivePatience ?? 0.7) * 0.32)
+      - edgePenalty
+      - smoothPenalty;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestOffset = offset;
+      bestTraffic = traffic;
+    }
+  }
+
+  const response = clamp(0.18 + racecraft * 0.08 + (bestTraffic.blocking > 0.35 ? 0.12 : 0), 0.16, 0.42);
+  car.ai.targetOffset = lerp(car.ai.targetOffset ?? bestOffset, bestOffset, response);
+  car.ai.lastLaneConfidence = clamp((bestScore + 1.2) / 3.2, 0, 1);
+  return {
+    offset: clamp(car.ai.targetOffset, -usableHalfWidth * 0.9, usableHalfWidth * 0.9),
+    confidence: car.ai.lastLaneConfidence,
+    draft: bestTraffic.draft,
+  };
+}
+
 function computeAiInput(car, track, weatherProfile, allCars) {
   const profile = car.aiProfile;
   const ai = car.ai;
@@ -1303,12 +1452,33 @@ function computeAiInput(car, track, weatherProfile, allCars) {
         if (along > 42 && Math.abs(lateral) < 18 && closing < 18 && !isCorner) {
           trafficSpeedBias = Math.max(trafficSpeedBias, 1 + 0.035 * awareness);
         }
+        if (profile.draftSkill && along > 34 && along < 128 && Math.abs(lateral) < 22 && !isCorner) {
+          const draftWindow = clamp((128 - along) / 94, 0, 1) * clamp((22 - Math.abs(lateral)) / 22, 0, 1);
+          trafficSpeedBias = Math.max(trafficSpeedBias, 1 + 0.052 * draftWindow * profile.draftSkill);
+        }
       }
     }
   }
 
-  const requestedOffset = recoveryMode ? baseOffset * 0.24 : baseOffset + overtakeShift;
-  const safeOffset = clamp(requestedOffset, -usableHalfWidth * 0.9, usableHalfWidth * 0.9);
+  const laneDecision = chooseAiLaneOffset({
+    car,
+    track,
+    allCars,
+    baseOffset,
+    overtakeShift,
+    recoveryMode,
+    target,
+    midTarget,
+    longTarget,
+    cornerStrength,
+    isCorner,
+    shortLook,
+    longLook,
+    speedRatio,
+    profile,
+    usableHalfWidth,
+  });
+  const safeOffset = laneDecision.offset;
   const targetX = target.x + normalX * safeOffset;
   const targetY = target.y + normalY * safeOffset;
   let angleDiff = angNorm(Math.atan2(targetY - car.y, targetX - car.x) - car.a);
@@ -1316,9 +1486,13 @@ function computeAiInput(car, track, weatherProfile, allCars) {
     angleDiff += (Math.random() - 0.5) * profile.errorMag * 2;
   }
 
-  const steeringGain = 2.25 + awareness * 0.32 + clamp(cornerStrength * 8, 0, 0.55);
+  const steeringGain = 2.25 + awareness * 0.32 + (profile.racecraft ?? 0) * 0.18 + clamp(cornerStrength * 8, 0, 0.55);
   const steer = clamp(angleDiff * steeringGain, -1, 1);
   const minUpcomingSpeed = Math.min(target.speedLimit, midTarget.speedLimit, longTarget.speedLimit);
+  const flowUpcomingSpeed = target.speedLimit * 0.26 + midTarget.speedLimit * 0.42 + longTarget.speedLimit * 0.32;
+  const plannedUpcomingSpeed = (profile.racecraft ?? 0) >= 0.85
+    ? lerp(minUpcomingSpeed, Math.min(flowUpcomingSpeed, minUpcomingSpeed * 1.12), laneDecision.confidence)
+    : minUpcomingSpeed;
   const cornerExit = isCorner && longTarget.curvature < cornerStrength * 0.62 && Math.abs(steer) < 0.7;
   const exitAcceleration = profile.exitAcceleration ?? 1;
   const straightBonus = cornerStrength < 0.006
@@ -1326,7 +1500,9 @@ function computeAiInput(car, track, weatherProfile, allCars) {
     : (cornerExit ? 1 + 0.045 * exitAcceleration : 1);
   const cornerGripUse = isCorner ? profile.cornerCommit : 1;
   const environmentGrip = weatherProfile.gripMult * (car.offTrack ? 0.9 : 1);
-  const rawTargetSpeed = (minUpcomingSpeed * environmentGrip * profile.speedFactor * cornerGripUse * straightBonus * trafficSpeedBias) / profile.brakeMargin;
+  const laneSpeedBoost = 1 + (profile.racecraft ?? 0) * laneDecision.confidence * (isCorner ? 0.026 : 0.042);
+  const draftSpeedBoost = 1 + laneDecision.draft * 0.045 * (profile.draftSkill ?? 0);
+  const rawTargetSpeed = (plannedUpcomingSpeed * environmentGrip * profile.speedFactor * cornerGripUse * straightBonus * trafficSpeedBias * laneSpeedBoost * draftSpeedBoost) / profile.brakeMargin;
   const skillRecovery = clamp((profile.speedFactor - 0.84) / 0.23, 0, 1);
   const minimumRollingSpeed = car.offTrack
     ? lerp(58, 90, skillRecovery)
@@ -1335,7 +1511,10 @@ function computeAiInput(car, track, weatherProfile, allCars) {
   const speedDiff = car.speed - targetSpeed;
   const slipCaution = car.speed > 84 ? clamp((car.slipAngle - 0.08) / 0.16, 0, 0.45) : 0;
   const offTrackCaution = car.offTrack ? clamp((car.speed - 70) / 180, 0, 0.22) : 0;
-  const cautionBrake = speedDiff > -12 ? trafficBrakeBias + slipCaution + offTrackCaution : Math.max(0, trafficBrakeBias - 0.12);
+  const trafficBrakeRelief = (profile.racecraft ?? 0) >= 0.85 ? lerp(1, 0.78, laneDecision.confidence) : 1;
+  const cautionBrake = speedDiff > -12
+    ? trafficBrakeBias * trafficBrakeRelief + slipCaution + offTrackCaution
+    : Math.max(0, trafficBrakeBias * trafficBrakeRelief - 0.12);
   const rawBrake = clamp((speedDiff > 0 ? speedDiff / (86 - awareness * 18) : 0) + cautionBrake, 0, 1);
   const brake = recoveryMode && speedDiff < 18 ? 0 : rawBrake;
   let throttle = brake > 0.06

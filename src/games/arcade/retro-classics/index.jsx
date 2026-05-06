@@ -8,6 +8,8 @@ const DT = 1 / 60;
 const DT_MS = 1000 / 60;
 const BODY_TOP = 68;
 const BODY_BOTTOM = HEIGHT - 56;
+const LANDER_FOOT_LOCAL_Y = 15;
+const LANDER_LEG_SPAN = 11;
 
 const UI = {
   es: {
@@ -108,7 +110,7 @@ const DEFINITIONS = {
   "lunar-lander-orbit": {
     title: { es: "Lunar Lander Orbit", en: "Lunar Lander Orbit" },
     objective: { es: "Aterriza suave sobre la plataforma.", en: "Land softly on the target platform." },
-    controls: { es: "A/D rota, W impulso principal.", en: "A/D rotate, W main thruster." },
+    controls: { es: "A/D rota con inercia, W/Espacio activa el motor principal.", en: "A/D rotate with inertia, W/Space fires the main thruster." },
     accent: "#a78bfa",
     lives: 3,
   },
@@ -146,6 +148,10 @@ const ORDER = Object.keys(DEFINITIONS);
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function angNorm(angle) {
+  return Math.atan2(Math.sin(angle), Math.cos(angle));
 }
 
 function text(locale, pair) {
@@ -573,6 +579,32 @@ function ridgeYAt(ridge, x) {
   return BODY_BOTTOM;
 }
 
+function terrainYAtLander(g, x) {
+  const padHalf = g.pad.w * 0.5;
+  if (x >= g.pad.x - padHalf && x <= g.pad.x + padHalf) return g.pad.y;
+  return ridgeYAt(g.ridge, x);
+}
+
+function landerLocalToWorld(ship, localX, localY) {
+  const rotation = ship.a + Math.PI * 0.5;
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  return {
+    x: ship.x + localX * cos - localY * sin,
+    y: ship.y + localX * sin + localY * cos,
+  };
+}
+
+function getLanderContactPoints(ship) {
+  return {
+    nose: landerLocalToWorld(ship, 0, -14),
+    leftFoot: landerLocalToWorld(ship, -LANDER_LEG_SPAN, LANDER_FOOT_LOCAL_Y),
+    rightFoot: landerLocalToWorld(ship, LANDER_LEG_SPAN, LANDER_FOOT_LOCAL_Y),
+    leftHull: landerLocalToWorld(ship, -9, 7),
+    rightHull: landerLocalToWorld(ship, 9, 7),
+  };
+}
+
 function createLander(level, seed) {
   const rng = createRng(seed);
   const padWidth = Math.max(76, 146 - level * 4);
@@ -580,25 +612,47 @@ function createLander(level, seed) {
   const padLeft = padX - padWidth * 0.5;
   const padRight = padX + padWidth * 0.5;
   const padY = HEIGHT - 78;
-  const ridge = [];
+  const terrainPoints = [];
   for (let i = 0; i < 14; i += 1) {
     const x = (i / 13) * WIDTH;
-    const inPad = x >= padLeft - 24 && x <= padRight + 24;
     const naturalY = clamp(HEIGHT - 56 - rng() * 36, BODY_TOP + 110, BODY_BOTTOM - 4);
-    ridge.push({ x, y: inPad ? padY : naturalY });
+    if (x < padLeft - 24 || x > padRight + 24) {
+      terrainPoints.push({ x, y: naturalY });
+    }
   }
-  ridge.push({ x: padLeft - 18, y: padY });
-  ridge.push({ x: padLeft, y: padY });
-  ridge.push({ x: padRight, y: padY });
-  ridge.push({ x: padRight + 18, y: padY });
-  ridge.sort((a, b) => a.x - b.x);
+  const ridge = [
+    ...terrainPoints,
+    { x: padLeft - 30, y: padY + 20 },
+    { x: padLeft - 12, y: padY },
+    { x: padLeft, y: padY },
+    { x: padRight, y: padY },
+    { x: padRight + 12, y: padY },
+    { x: padRight + 30, y: padY + 20 },
+  ].sort((a, b) => a.x - b.x);
+  const startSide = rng() > 0.5 ? 1 : -1;
+  const startX = clamp(padX - startSide * randInt(rng, 210, 310), 90, WIDTH - 90);
+  const startVx = startSide * (34 + level * 2.5);
   return {
-    ship: { x: WIDTH * 0.5, y: 120, vx: 0, vy: 0, a: -Math.PI * 0.5, fuel: 100, thrust: false },
+    ship: {
+      x: startX,
+      y: 118,
+      vx: startVx,
+      vy: -8,
+      a: -Math.PI * 0.5,
+      av: 0,
+      fuel: 100,
+      thrust: false,
+      landed: false,
+    },
     pad: { x: padX, y: padY, w: padWidth },
-    gravity: 94 + level * 8,
-    safeVx: Math.max(32, 64 - level * 2),
-    safeVy: Math.max(70, 120 - level * 3),
-    safeAngle: 0.32,
+    gravity: 76 + level * 4.5,
+    thrustAccel: 235 + level * 4,
+    rotationAccel: 5.4,
+    angularDamping: 0.985,
+    fuelBurn: 16 + level * 0.7,
+    safeVx: Math.max(22, 52 - level * 1.8),
+    safeVy: Math.max(42, 82 - level * 2.6),
+    safeAngle: 0.24,
     stars: Array.from({ length: 58 }, () => ({
       x: rng() * WIDTH,
       y: rng() * (HEIGHT - 130),
@@ -1465,6 +1519,94 @@ function updateLander(state, input, dt) {
     : `Fuel ${fuelInfo}% · VX ${Math.round(ship.vx)} · VY ${Math.round(ship.vy)}`;
 }
 
+function updateLanderImproved(state, input, dt) {
+  const g = state.game;
+  const ship = g.ship;
+  const turn = (input.down("ArrowRight") || input.down("KeyD") ? 1 : 0)
+    - (input.down("ArrowLeft") || input.down("KeyA") ? 1 : 0);
+  ship.av += turn * g.rotationAccel * dt;
+  ship.av *= Math.pow(g.angularDamping, dt * 60);
+  ship.av = clamp(ship.av, -2.8, 2.8);
+  ship.a += ship.av * dt;
+
+  const thrusting = (input.down("ArrowUp") || input.down("KeyW") || input.down("Space")) && ship.fuel > 0;
+  ship.thrust = thrusting;
+  if (thrusting) {
+    ship.vx += Math.cos(ship.a) * g.thrustAccel * dt;
+    ship.vy += Math.sin(ship.a) * g.thrustAccel * dt;
+    ship.fuel = Math.max(0, ship.fuel - dt * g.fuelBurn);
+  }
+  ship.vy += g.gravity * dt;
+  ship.vx = clamp(ship.vx, -260, 260);
+  ship.vy = clamp(ship.vy, -240, 290);
+
+  const proposedX = ship.x + ship.vx * dt;
+  if (proposedX <= 18 || proposedX >= WIDTH - 18) {
+    ship.vx *= -0.18;
+    ship.av *= 0.45;
+  }
+  ship.x = clamp(proposedX, 18, WIDTH - 18);
+  ship.y += ship.vy * dt;
+  if (ship.y < BODY_TOP + 20) {
+    ship.y = BODY_TOP + 20;
+    ship.vy = Math.max(0, ship.vy);
+  }
+
+  const padHalf = g.pad.w * 0.5;
+  const padLeft = g.pad.x - padHalf + 2;
+  const padRight = g.pad.x + padHalf - 2;
+  const points = getLanderContactPoints(ship);
+  const contactEntries = Object.entries(points).map(([name, point]) => ({
+    name,
+    point,
+    terrainY: terrainYAtLander(g, point.x),
+  }));
+  const firstContact = contactEntries.find(({ point, terrainY }) => point.y >= terrainY);
+
+  if (firstContact) {
+    const angle = Math.abs(angNorm(ship.a + Math.PI * 0.5));
+    const feetOnPad = points.leftFoot.x >= padLeft
+      && points.leftFoot.x <= padRight
+      && points.rightFoot.x >= padLeft
+      && points.rightFoot.x <= padRight
+      && points.leftFoot.y >= g.pad.y - 14
+      && points.rightFoot.y >= g.pad.y - 14
+      && points.leftFoot.y <= g.pad.y + 18
+      && points.rightFoot.y <= g.pad.y + 18;
+    const upright = angle <= g.safeAngle && Math.abs(ship.av) < 0.72;
+    const soft = Math.abs(ship.vx) <= g.safeVx && ship.vy >= -8 && ship.vy <= g.safeVy;
+
+    if (feetOnPad && soft && upright) {
+      ship.y += g.pad.y - Math.max(points.leftFoot.y, points.rightFoot.y);
+      ship.vx = 0;
+      ship.vy = 0;
+      ship.av = 0;
+      ship.thrust = false;
+      ship.landed = true;
+      addScore(state, Math.round(320 + ship.fuel * 4));
+      levelUp(state, "Aterrizaje limpio", "Clean landing", 520 + state.level * 65);
+      return;
+    }
+
+    const reason = !feetOnPad
+      ? ["Fuera de plataforma", "Off landing pad"]
+      : !upright
+        ? ["Angulo inestable", "Unstable attitude"]
+        : ["Velocidad excesiva", "Excessive velocity"];
+    loseLife(state, reason[0], reason[1]);
+    return;
+  }
+
+  const footAltitude = Math.max(0, Math.round(Math.min(
+    terrainYAtLander(g, points.leftFoot.x) - points.leftFoot.y,
+    terrainYAtLander(g, points.rightFoot.x) - points.rightFoot.y
+  )));
+  const fuelInfo = Math.round(ship.fuel);
+  state.message = state.locale === "es"
+    ? `Fuel ${fuelInfo}% - ALT ${footAltitude} - VX ${Math.round(ship.vx)} - VY ${Math.round(ship.vy)}`
+    : `Fuel ${fuelInfo}% - ALT ${footAltitude} - VX ${Math.round(ship.vx)} - VY ${Math.round(ship.vy)}`;
+}
+
 function updateCentipede(state, input, dt) {
   const g = state.game;
   const player = g.player;
@@ -1924,7 +2066,7 @@ function updateGame(state, input, dt) {
     case "frogger-crossing": updateFrogger(state, input, dt); break;
     case "galaga-quantum": updateGalaga(state, input, dt); break;
     case "qbert-prism": updateQbert(state, input, dt); break;
-    case "lunar-lander-orbit": updateLander(state, input, dt); break;
+    case "lunar-lander-orbit": updateLanderImproved(state, input, dt); break;
     case "centipede-circuit": updateCentipede(state, input, dt); break;
     case "river-raid-neon": updateRiverRaid(state, input, dt); break;
     case "tron-lightcycles": updateTron(state, input, dt); break;
@@ -2891,7 +3033,11 @@ function drawLanderHUD(ctx, state) {
   ctx.textAlign = "right";
   ctx.fillText(`${angleDeg}°`, x0 + 80, y0 + 54);
 
-  const alt = Math.max(0, Math.round(g.pad.y - ship.y));
+  const points = getLanderContactPoints(ship);
+  const alt = Math.max(0, Math.round(Math.min(
+    terrainYAtLander(g, points.leftFoot.x) - points.leftFoot.y,
+    terrainYAtLander(g, points.rightFoot.x) - points.rightFoot.y
+  )));
   ctx.fillStyle = "#94a3b8";
   ctx.textAlign = "left";
   ctx.fillText("ALT", x0 + 100, y0 + 54);
@@ -3228,7 +3374,26 @@ function summary(state) {
     case "qbert-prism":
       return { row: g.player.row, col: g.player.col, target: g.target, colored: g.tiles.flat().filter((tile) => tile >= g.target).length };
     case "lunar-lander-orbit":
-      return { fuel: Math.round(g.ship.fuel), vx: Math.round(g.ship.vx), vy: Math.round(g.ship.vy), safeVy: g.safeVy };
+      {
+        const points = getLanderContactPoints(g.ship);
+        const altitude = Math.max(0, Math.round(Math.min(
+          terrainYAtLander(g, points.leftFoot.x) - points.leftFoot.y,
+          terrainYAtLander(g, points.rightFoot.x) - points.rightFoot.y
+        )));
+        const angle = Math.abs(angNorm(g.ship.a + Math.PI * 0.5));
+        return {
+          fuel: Math.round(g.ship.fuel),
+          x: Math.round(g.ship.x),
+          y: Math.round(g.ship.y),
+          vx: Math.round(g.ship.vx),
+          vy: Math.round(g.ship.vy),
+          angularVelocity: Number(g.ship.av.toFixed(2)),
+          angleDeg: Math.round((angle * 180) / Math.PI),
+          altitude,
+          pad: { x: Math.round(g.pad.x), y: g.pad.y, width: Math.round(g.pad.w) },
+          limits: { safeVx: g.safeVx, safeVy: g.safeVy, safeAngleDeg: Math.round((g.safeAngle * 180) / Math.PI) },
+        };
+      }
     case "centipede-circuit":
       return { segments: g.segments.length, mushrooms: g.mushrooms.size, bullets: g.bullets.length, flea: g.flea.active };
     case "river-raid-neon":

@@ -1,0 +1,347 @@
+{
+  "isolated": "true",
+  "target": "knowledge-mode-shell pasapalabra-shell",
+  "hidden": [
+    "mini-head"
+  ],
+  "body": {
+    "sel": ".mobile-game-shell__body",
+    "rect": {
+      "x": 10.90625,
+      "y": 111.40625,
+      "w": 368.1875,
+      "h": 711.203125
+    },
+    "display": "grid",
+    "flex": "1 1 0%",
+    "gridTemplateRows": "711.203px",
+    "height": "711.203px",
+    "minHeight": "0px",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "stageShell": {
+    "sel": ".mobile-game-shell__stage-shell",
+    "rect": {
+      "x": 10.90625,
+      "y": 111.40625,
+      "w": 368.1875,
+      "h": 711.203125
+    },
+    "display": "block",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "none",
+    "height": "711.203px",
+    "minHeight": "0px",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "relative"
+  },
+  "screenFrame": {
+    "sel": ".mobile-game-shell__screen-frame",
+    "rect": {
+      "x": 10.90625,
+      "y": 111.40625,
+      "w": 368.1875,
+      "h": 711.203125
+    },
+    "display": "block",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "none",
+    "height": "711.203px",
+    "minHeight": "0px",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "8px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "stageViewport": {
+    "sel": ".mobile-game-shell__stage-viewport",
+    "rect": {
+      "x": 18.90625,
+      "y": 119.40625,
+      "w": 352.1875,
+      "h": 695.203125
+    },
+    "display": "block",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "none",
+    "height": "695.203px",
+    "minHeight": "0px",
+    "maxHeight": "none",
+    "overflow": "hidden",
+    "overflowY": "hidden",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "relative"
+  },
+  "miniGame": {
+    "sel": ".knowledge-pasapalabra",
+    "rect": {
+      "x": 18.90625,
+      "y": 119.40625,
+      "w": 352.1875,
+      "h": 695.203125
+    },
+    "display": "flex",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "none",
+    "height": "695.203px",
+    "minHeight": "100%",
+    "maxHeight": "none",
+    "overflow": "hidden",
+    "overflowY": "hidden",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "relative"
+  },
+  "miniHead": {
+    "sel": ".knowledge-pasapalabra > .mini-head",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    },
+    "display": "none",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "none",
+    "height": "auto",
+    "minHeight": "0px",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "relative"
+  },
+  "shellSection": {
+    "sel": ".pasapalabra-shell",
+    "rect": {
+      "x": 18.90625,
+      "y": 119.40625,
+      "w": 352.1875,
+      "h": 695.203125
+    },
+    "display": "flex",
+    "flex": "1 1 auto",
+    "gridTemplateRows": "none",
+    "height": "695.203px",
+    "minHeight": "0px",
+    "maxHeight": "none",
+    "overflow": "auto",
+    "overflowY": "auto",
+    "padding": "5.12px 5.76px 0px",
+    "visibility": "visible",
+    "position": "relative"
+  },
+  "statusRow": {
+    "sel": ".pasapalabra-shell .knowledge-status-row",
+    "rect": {
+      "x": 25.65625,
+      "y": 125.515625,
+      "w": 338.6875,
+      "h": 22.015625
+    },
+    "display": "flex",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "none",
+    "height": "22.0156px",
+    "minHeight": "auto",
+    "maxHeight": "none",
+    "overflow": "auto",
+    "overflowY": "auto",
+    "padding": "0px 0px 1.28px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "layout": {
+    "sel": ".pasapalabra-layout",
+    "rect": {
+      "x": 25.65625,
+      "y": 153.921875,
+      "w": 338.6875,
+      "h": 659.6875
+    },
+    "display": "flex",
+    "flex": "1 1 auto",
+    "gridTemplateRows": "none",
+    "height": "659.688px",
+    "minHeight": "0px",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "pasaStage": {
+    "sel": ".pasapalabra-stage",
+    "rect": {
+      "x": 25.65625,
+      "y": 153.921875,
+      "w": 338.6875,
+      "h": 461.0625
+    },
+    "display": "flex",
+    "flex": "1 1 auto",
+    "gridTemplateRows": "none",
+    "height": "461.062px",
+    "minHeight": "0px",
+    "maxHeight": "none",
+    "overflow": "hidden auto",
+    "overflowY": "auto",
+    "padding": "2.88px 1.6px 0px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "ring": {
+    "sel": ".pasapalabra-ring",
+    "rect": {
+      "x": 85,
+      "y": 156.796875,
+      "w": 220,
+      "h": 220
+    },
+    "display": "block",
+    "flex": "0 0 auto",
+    "gridTemplateRows": "none",
+    "height": "220px",
+    "minHeight": "auto",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "relative"
+  },
+  "clue": {
+    "sel": ".pasapalabra-clue-card",
+    "rect": {
+      "x": 27.25,
+      "y": 383.515625,
+      "w": 335.5,
+      "h": 88.609375
+    },
+    "display": "block",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "none",
+    "height": "88.6094px",
+    "minHeight": "auto",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "7.36px 9.6px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "panel": {
+    "sel": ".pasapalabra-panel",
+    "rect": {
+      "x": 25.65625,
+      "y": 621.703125,
+      "w": 338.6875,
+      "h": 191.90625
+    },
+    "display": "grid",
+    "flex": "0 0 auto",
+    "gridTemplateRows": "49.2656px 27.7812px 88.5938px",
+    "height": "191.906px",
+    "minHeight": "auto",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "8px 8px 6.4px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "inputRow": {
+    "sel": ".pasapalabra-input-row",
+    "rect": {
+      "x": 33.65625,
+      "y": 630.703125,
+      "w": 322.6875,
+      "h": 49.265625
+    },
+    "display": "grid",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "12px 34.7188px",
+    "height": "49.2656px",
+    "minHeight": "auto",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "actions": {
+    "sel": ".knowledge-pasapalabra .wordle-actions",
+    "rect": {
+      "x": 33.65625,
+      "y": 685.40625,
+      "w": 322.6875,
+      "h": 27.78125
+    },
+    "display": "grid",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "27.7812px",
+    "height": "27.7812px",
+    "minHeight": "auto",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "keyboard": {
+    "sel": ".knowledge-pasapalabra .wordle-keyboard",
+    "rect": {
+      "x": 33.65625,
+      "y": 721.5,
+      "w": 322.6875,
+      "h": 85.71875
+    },
+    "display": "grid",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "26.875px 26.875px 26.875px",
+    "height": "85.7188px",
+    "minHeight": "auto",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "0px",
+    "visibility": "visible",
+    "position": "static"
+  },
+  "message": {
+    "sel": ".knowledge-pasapalabra .pasapalabra-panel .game-message",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    },
+    "display": "none",
+    "flex": "0 1 auto",
+    "gridTemplateRows": "none",
+    "height": "auto",
+    "minHeight": "0px",
+    "maxHeight": "none",
+    "overflow": "visible",
+    "overflowY": "visible",
+    "padding": "8.8px 10.4px",
+    "visibility": "visible",
+    "position": "static"
+  }
+}

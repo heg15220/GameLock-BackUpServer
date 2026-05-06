@@ -1171,7 +1171,7 @@ function createInitialState(localeCandidate = "en") {
     scores: { left: 0, right: 0 },
     result: { title: "", subtitle: "", accent: "#f8fafc" },
     message: "Press Kick Off to start the match.",
-    logs: ["Head Soccer Pro loaded."],
+    logs: ["Football Head loaded."],
     matchMeta: {
       roundLabel: getSingleMatchLabel(locale),
       playerName: getProfileById(selectedId).name,
@@ -2617,7 +2617,7 @@ export default function HeadSoccerGame({ locale }) {
     <div className="mini-game head-soccer-game head-soccer-pro">
       <div className="mini-head">
         <div>
-          <h4>Head Soccer Pro</h4>
+          <h4>Football Head</h4>
           <p>
             {settings.locale === "es"
               ? `Elige partido unico o torneo, avanza por ${tournamentPathText} y lucha por el trofeo.`
@@ -2646,7 +2646,7 @@ export default function HeadSoccerGame({ locale }) {
               ref={canvasRef}
               width={WIDTH}
               height={HEIGHT}
-              aria-label="Head Soccer Pro canvas"
+              aria-label="Football Head canvas"
             />
 
             <button
