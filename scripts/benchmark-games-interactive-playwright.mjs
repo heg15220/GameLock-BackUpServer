@@ -266,7 +266,7 @@ async function benchmarkGame(page, baseUrl, gameId, timeoutMs, bridgeWaitMs, pos
     });
 
     const navigationStartedAt = performance.now();
-    await page.goto(`${baseUrl}/#game=${encodeURIComponent(gameId)}`, {
+    await page.goto(`${baseUrl}/games/${encodeURIComponent(gameId)}`, {
       waitUntil: "domcontentloaded",
       timeout: timeoutMs,
     });

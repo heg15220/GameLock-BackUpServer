@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useMatch, useNavigate } from "react-router-dom";
 import AdPreviewCard from "./components/AdPreviewCard";
 import CookieConsentManager from "./components/CookieConsentManager";
 import { useConsent } from "./components/ConsentContext";
 import GameGrid from "./components/GameGrid";
 import GameLaunchModal from "./components/GameLaunchModal";
+import RouteAnalyticsTracker from "./components/RouteAnalyticsTracker";
 import { AD_PREVIEW_STORAGE_KEY, DESKTOP_AD_SLOTS, isAdPreviewEnabledByCode } from "./config/adPreview";
 import { games } from "./data/games";
 import { useTranslations, localizeCategory } from "./i18n";
@@ -24,12 +26,9 @@ const CATEGORY_ORDER = [
 ];
 const SPORTS_CATEGORY_KEYS = new Set(["Deportes", "Sports"]);
 
-const getInitialGameIdFromHash = () => {
-  const hash = window.location.hash.replace(/^#/, "");
-  const params = new URLSearchParams(hash);
-  const gameId = params.get("game");
-  return games.some((g) => g.id === gameId) ? gameId : null;
-};
+function buildGamePath(gameId) {
+  return `/games/${encodeURIComponent(gameId)}`;
+}
 
 function App() {
   const { t, locale } = useTranslations();
@@ -37,11 +36,35 @@ function App() {
     advertising,
     openSettings: openCookieSettings,
   } = useConsent();
+  const navigate = useNavigate();
+  const gameRouteMatch = useMatch("/games/:gameId");
+  const matchedGameId = gameRouteMatch?.params?.gameId
+    ? decodeURIComponent(gameRouteMatch.params.gameId)
+    : null;
+  const launchedGameId = matchedGameId && games.some((g) => g.id === matchedGameId)
+    ? matchedGameId
+    : null;
 
   const [activeCategory, setActiveCategory] = useState(ALL_KEY);
   const [currentPage, setCurrentPage] = useState(1);
-  const [launchedGameId, setLaunchedGameId] = useState(getInitialGameIdFromHash);
   const adPreviewEnabled = isAdPreviewEnabledByCode() && Boolean(advertising);
+
+  // Legacy hash links (e.g. /#game=arcade-pinball-wizard) get migrated once on
+  // mount so existing bookmarks keep working under BrowserRouter.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash.replace(/^#/, "");
+    if (!hash) return;
+    const params = new URLSearchParams(hash);
+    const legacyGameId = params.get("game");
+    if (legacyGameId && games.some((g) => g.id === legacyGameId)) {
+      navigate(buildGamePath(legacyGameId), { replace: true });
+    } else {
+      const url = new URL(window.location.href);
+      url.hash = "";
+      window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+    }
+  }, [navigate]);
 
   const categoryKeys = useMemo(() => {
     const uniqueKeys = [...new Set(games.map((g) => g.category))];
@@ -78,13 +101,12 @@ function App() {
   );
 
   const launchGame = (gameId) => {
-    setLaunchedGameId(gameId);
-    window.history.replaceState(null, "", `#game=${encodeURIComponent(gameId)}`);
+    if (!games.some((g) => g.id === gameId)) return;
+    navigate(buildGamePath(gameId));
   };
 
   const closeModal = () => {
-    setLaunchedGameId(null);
-    window.history.replaceState(null, "", " ");
+    navigate("/", { replace: true });
   };
 
   const selectCategory = (key) => {
@@ -111,17 +133,17 @@ function App() {
       const id = e?.detail;
       if (typeof id !== "string") return;
       if (games.some((g) => g.id === id)) {
-        setLaunchedGameId(id);
+        navigate(buildGamePath(id));
       }
     };
-    const closeHandler = () => setLaunchedGameId(null);
+    const closeHandler = () => navigate("/", { replace: true });
     window.addEventListener("bench:open-game", openHandler);
     window.addEventListener("bench:close-game", closeHandler);
     return () => {
       window.removeEventListener("bench:open-game", openHandler);
       window.removeEventListener("bench:close-game", closeHandler);
     };
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -266,6 +288,7 @@ function App() {
 
       {launchedGame && <GameLaunchModal game={launchedGame} onClose={closeModal} adPreviewEnabled={adPreviewEnabled} />}
       <CookieConsentManager locale={locale} />
+      <RouteAnalyticsTracker />
     </>
   );
 }

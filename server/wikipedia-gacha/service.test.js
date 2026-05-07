@@ -180,9 +180,7 @@ describe("wikipedia gacha service", () => {
     currentToken = guaranteed.browserToken ?? currentToken;
     expect(guaranteed.guaranteedSrPlus).toBe(true);
     expect(
-      guaranteed.cards.some((card) =>
-        ["SR", "SSR", "UR", "LR"].includes(card.rarity)
-      )
+      guaranteed.cards.some((card) => ["UR", "LR"].includes(card.rarity))
     ).toBe(true);
 
     const dashboard = await service.getSessionMe(currentToken);

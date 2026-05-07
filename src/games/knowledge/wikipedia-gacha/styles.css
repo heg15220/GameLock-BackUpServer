@@ -4518,10 +4518,10 @@
 
 .wg-shell.is-mobile .wg-mission-unlock-stack {
   top: calc(env(safe-area-inset-top, 0px) + 72px);
-  left: 10px;
+  left: auto;
   right: 10px;
-  width: auto;
-  max-width: none;
+  width: min(240px, calc(100% - 20px));
+  max-width: calc(100% - 20px);
   max-height: min(34svh, 240px);
   overflow: visible;
 }

@@ -19,6 +19,7 @@ import {
   toggleWikipediaGachaFavorite,
 } from "./backendClient";
 import { canShowRewardedAdCta } from "./packUiState";
+import { ENABLE_MONETIZATION_PREVIEW } from "../../../config/monetizationGate";
 import "./styles.css";
 
 const STORAGE_KEY = "wikipedia_gacha_browser_token";
@@ -1694,7 +1695,7 @@ export default function WikipediaGachaGame() {
     trophiesTab: es ? "Trofeos" : "Trophies",
     packsReady: es ? "Sobres cargados" : "Packs full",
     specialPackReady: es ? "Sobre especial listo" : "Special pack ready",
-    specialPackHint: es ? "Se activa cada 10 sobres y garantiza al menos 1 carta MO+." : "It unlocks every 10 packs and guarantees at least 1 MO+ card.",
+    specialPackHint: es ? "Se activa cada 10 sobres y garantiza al menos 1 carta CA o LE." : "It unlocks every 10 packs and guarantees at least 1 CA or LE card.",
     tapToOpen: es ? "▲ TOCA PARA ABRIR ▲" : "▲ TAP TO OPEN ▲",
     watchAd: es ? "Ver anuncio (+3 sobres)" : "Watch ad (+3 packs)",
     adRewardReady: es ? "Recompensa lista: +3 sobres" : "Reward ready: +3 packs",
@@ -2100,11 +2101,13 @@ export default function WikipediaGachaGame() {
     }));
 
     setMissionUnlockFeed((current) => [...current, ...entries].slice(-4));
+    const baseDuration = isMobileViewport ? 2200 : 4300;
+    const stagger = isMobileViewport ? 180 : 240;
     entries.forEach((entry, index) => {
       const timeoutId = window.setTimeout(() => {
         setMissionUnlockFeed((current) => current.filter((notice) => notice.id !== entry.id));
         missionFeedTimeoutsRef.current = missionFeedTimeoutsRef.current.filter((scheduled) => scheduled !== timeoutId);
-      }, 4300 + index * 240);
+      }, baseDuration + index * stagger);
       missionFeedTimeoutsRef.current.push(timeoutId);
     });
   };
@@ -2531,7 +2534,7 @@ export default function WikipediaGachaGame() {
   const latestGuaranteedPackOpened = Boolean(
     packResult?.guaranteedSrPlus || dashboard?.recentPackHistory?.[0]?.guaranteedSrPlus
   );
-  const canWatchRewardedAd = canShowRewardedAdCta({
+  const canWatchRewardedAd = ENABLE_MONETIZATION_PREVIEW && canShowRewardedAdCta({
     loading,
     busy,
     packHeroAnimState,
@@ -3472,13 +3475,13 @@ export default function WikipediaGachaGame() {
                   {(es
                     ? [
                         "Cada pack contiene 5 cartas.",
-                        "Cada 10 sobres abiertos, el siguiente es un sobre especial con garantia MO+.",
+                        "Cada 10 sobres abiertos, el siguiente es un sobre especial con garantia de al menos 1 carta CA o LE.",
                         "Los sobres regeneran 1 por minuto hasta el tope.",
                         "Los duplicados entregan shards y el progreso queda ligado al navegador.",
                       ]
                     : [
                         "Each pack contains 5 cards.",
-                        "Every 10 opened packs, the next one becomes a special pack with MO+ guarantee.",
+                        "Every 10 opened packs, the next one becomes a special pack with at least 1 CA or LE card guaranteed.",
                         "Packs regenerate once per minute until the cap.",
                         "Duplicates grant shards and progress stays bound to the browser.",
                       ]).map((rule) => <li key={rule}>{rule}</li>)}

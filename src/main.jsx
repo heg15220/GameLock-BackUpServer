@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { ConsentProvider } from "./components/ConsentContext";
 import "./styles.css";
@@ -7,9 +8,11 @@ import "./styles.css";
 const bootstrap = () => {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-      <ConsentProvider>
-        <App />
-      </ConsentProvider>
+      <BrowserRouter>
+        <ConsentProvider>
+          <App />
+        </ConsentProvider>
+      </BrowserRouter>
     </React.StrictMode>
   );
 };

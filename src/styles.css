@@ -275,9 +275,10 @@ body {
 
 .hero {
   background:
-    radial-gradient(circle at 98% 0%, rgba(198, 255, 0, 0.18), transparent 30%),
-    radial-gradient(circle at 0% 100%, rgba(0, 229, 195, 0.14), transparent 34%),
-    linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+    radial-gradient(ellipse 55% 75% at 100% 0%, rgba(214, 234, 128, 0.36), transparent 62%),
+    radial-gradient(ellipse 45% 60% at 100% 100%, rgba(210, 188, 222, 0.24), transparent 60%),
+    radial-gradient(ellipse 70% 110% at 0% 45%, rgba(168, 204, 234, 0.28), transparent 68%),
+    linear-gradient(100deg, #e7f0fa 0%, #fbfcf3 70%, #f4f6dc 100%);
   border: 1px solid var(--line);
   border-radius: 24px;
   box-shadow: var(--shadow);

@@ -27,11 +27,12 @@ export const STANDARD_RARITY_WEIGHTS = [
   { rarity: "LR", weight: 1 },
 ];
 
+// Special pack guaranteed slot: must always land on one of the two highest
+// rarities (UR or LR). The flag name kept its historical "SrPlus" suffix to
+// avoid churn across the API surface.
 export const GUARANTEED_SR_PLUS_WEIGHTS = [
-  { rarity: "SR", weight: 58 },
-  { rarity: "SSR", weight: 25 },
-  { rarity: "UR", weight: 13 },
-  { rarity: "LR", weight: 4 },
+  { rarity: "UR", weight: 80 },
+  { rarity: "LR", weight: 20 },
 ];
 
 export const DUPLICATE_SHARDS_BY_RARITY = {
