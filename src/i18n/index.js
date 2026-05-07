@@ -4,14 +4,7 @@ import { gameCatalogDescriptions } from "../data/gameCatalogDescriptions";
 
 const STRINGS = {
   es: {
-    pill: "SaaS de juegos web",
-    heroTitle: "Playforge Studio",
-    heroCopy:
-      "Catálogo de juegos jugables y técnicamente viables. Cada categoría incorpora dirección artística de referencia para llevar la experiencia a nivel profesional en móvil, tablet y escritorio.",
-    statsGames: "Juegos disponibles",
-    statsThemes: "Temáticas activas",
-    statsViability: "Viabilidad técnica",
-    statsViabilityValue: "100% Alta",
+    heroTagline: "¡Una plataforma de juegos donde la variedad está al gusto!",
     exploreTitle: "Explorar juegos",
     allCategories: "Todas",
     difficulty: "Dificultad",
@@ -27,18 +20,9 @@ const STRINGS = {
     hideInfo: "✕ Ocultar",
     sessionLabel: "Sesión",
     modeLabel: "Modo",
-    footerNote:
-      "Plataforma orientada a modelo SaaS: cada categoría puede crecer con nuevos juegos completos sin romper la arquitectura del frontend.",
   },
   en: {
-    pill: "Web games SaaS",
-    heroTitle: "Playforge Studio",
-    heroCopy:
-      "A catalog of playable, technically viable games. Each category includes reference art direction to deliver a professional experience across mobile, tablet and desktop.",
-    statsGames: "Available games",
-    statsThemes: "Active themes",
-    statsViability: "Technical viability",
-    statsViabilityValue: "100% High",
+    heroTagline: "A gaming platform where variety is yours to choose!",
     exploreTitle: "Explore games",
     allCategories: "All",
     difficulty: "Difficulty",
@@ -54,8 +38,6 @@ const STRINGS = {
     hideInfo: "✕ Hide",
     sessionLabel: "Session",
     modeLabel: "Mode",
-    footerNote:
-      "SaaS-oriented platform: each category can grow with new complete games without breaking the frontend architecture.",
   },
 };
 

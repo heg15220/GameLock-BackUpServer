@@ -1,0 +1,33 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="gameLockIconTitle">
+  <title id="gameLockIconTitle">GameLock icon</title>
+  <defs>
+    <linearGradient id="iconGradient" x1="176" y1="852" x2="822" y2="138" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00E5C3"/>
+      <stop offset="0.48" stop-color="#2563FF"/>
+      <stop offset="1" stop-color="#7B3FF2"/>
+    </linearGradient>
+    <linearGradient id="iconSheen" x1="164" y1="384" x2="808" y2="600" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6F89FF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+    <filter id="iconShadow" x="48" y="28" width="928" height="928" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#2563FF" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#iconShadow)">
+    <path d="M304 356V230C304 123.4 390.4 37 497 37C603.6 37 690 123.4 690 230V356H604V230C604 171 556 123 497 123C438 123 390 171 390 230V356H304Z" fill="url(#iconGradient)"/>
+    <path d="M228 316H714C829.4 316 923 409.6 923 525V620C923 735.4 829.4 829 714 829H276C160.6 829 67 735.4 67 620V489C67 393.5 144.5 316 240 316H228Z" fill="url(#iconGradient)"/>
+    <path d="M126 323C274 344 426 312 560 315C700 318 844 367 907 493C792 433 670 437 536 486C398 537 246 552 88 503C94 428 118 360 126 323Z" fill="url(#iconSheen)"/>
+    <path d="M455 485C455 436 511.4 408.7 549.8 439.1L711.6 567.3C742 591.4 742 637.6 711.6 661.7L549.8 789.9C511.4 820.3 455 793 455 744V485Z" fill="white"/>
+    <path d="M222 633H354" stroke="white" stroke-width="55" stroke-linecap="round"/>
+    <path d="M288 567V699" stroke="white" stroke-width="55" stroke-linecap="round"/>
+    <circle cx="750" cy="536" r="31" fill="white"/>
+    <circle cx="816" cy="602" r="31" fill="white"/>
+    <circle cx="684" cy="602" r="31" fill="white"/>
+    <circle cx="750" cy="668" r="31" fill="white"/>
+    <path d="M716 292H904" stroke="#C6FF00" stroke-width="28" stroke-linecap="round"/>
+    <path d="M710 344H850" stroke="#C6FF00" stroke-width="22" stroke-linecap="round"/>
+    <path d="M728 394H820" stroke="#C6FF00" stroke-width="20" stroke-linecap="round"/>
+  </g>
+</svg>

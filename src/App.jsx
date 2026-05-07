@@ -7,6 +7,7 @@ import GameLaunchModal from "./components/GameLaunchModal";
 import { AD_PREVIEW_STORAGE_KEY, DESKTOP_AD_SLOTS, isAdPreviewEnabledByCode } from "./config/adPreview";
 import { games } from "./data/games";
 import { useTranslations, localizeCategory } from "./i18n";
+import gameLockLogo from "./assets/brand/gamelock-logo.png";
 
 const ALL_KEY = "__all__";
 const PAGE_SIZE = 16;
@@ -152,23 +153,8 @@ function App() {
           <div className="background-orb orb-b" aria-hidden="true" />
 
           <header className="hero">
-            <p className="pill">{t("pill")}</p>
-            <h1>{t("heroTitle")}</h1>
-            <p className="hero-copy">{t("heroCopy")}</p>
-            <div className="stats">
-              <article>
-                <p>{t("statsGames")}</p>
-                <strong>{games.length}</strong>
-              </article>
-              <article>
-                <p>{t("statsThemes")}</p>
-                <strong>{categoryKeys.length}</strong>
-              </article>
-              <article>
-                <p>{t("statsViability")}</p>
-                <strong>{t("statsViabilityValue")}</strong>
-              </article>
-            </div>
+            <img className="brand-logo" src={gameLockLogo} alt="GameLock" />
+            <p className="hero-tagline">{t("heroTagline")}</p>
           </header>
 
           <section className="catalog-toolbar">
@@ -212,27 +198,57 @@ function App() {
                     type="button"
                     onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                     disabled={currentPage === 1}
+                    aria-label={locale === "en" ? "Previous page" : "Página anterior"}
                   >
-                    {locale === "en" ? "Previous" : "Anterior"}
+                    <span aria-hidden="true">←</span>
+                    <span className="catalog-pagination-btn-label">
+                      {locale === "en" ? "Previous" : "Anterior"}
+                    </span>
                   </button>
-                  <span>{pageIndicator}</span>
+                  <span className="catalog-pagination-indicator">{pageIndicator}</span>
                   <button
                     type="button"
                     onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                     disabled={currentPage === totalPages}
+                    aria-label={locale === "en" ? "Next page" : "Página siguiente"}
                   >
-                    {locale === "en" ? "Next" : "Siguiente"}
+                    <span className="catalog-pagination-btn-label">
+                      {locale === "en" ? "Next" : "Siguiente"}
+                    </span>
+                    <span aria-hidden="true">→</span>
                   </button>
+                </div>
+                <div className="catalog-pagination-progress" aria-hidden="true">
+                  <span
+                    className="catalog-pagination-progress-fill"
+                    style={{ width: `${(currentPage / totalPages) * 100}%` }}
+                  />
                 </div>
               </nav>
             )}
           </main>
 
-          <footer className="footer-note">
-            <p>{t("footerNote")}</p>
-            <button type="button" className="footer-cookie-settings" onClick={openCookieSettings}>
-              {locale === "en" ? "Cookie settings" : "Configuracion de cookies"}
-            </button>
+          <footer className="site-footer">
+            <div className="site-footer-actions">
+              <button type="button" className="site-footer-link" onClick={openCookieSettings}>
+                {locale === "en" ? "Cookie settings" : "Configuración de cookies"}
+              </button>
+              <button type="button" className="site-footer-link" onClick={() => {}}>
+                {locale === "en" ? "Legal policies" : "Políticas legales"}
+              </button>
+            </div>
+            <p className="site-footer-contact">
+              <span className="site-footer-contact-label">
+                {locale === "en" ? "Contact email:" : "Correo de contacto:"}
+              </span>{" "}
+              <span className="site-footer-contact-email">
+                {locale === "en" ? "email address" : "dirección correo electrónico"}
+              </span>
+            </p>
+            <p className="site-footer-copyright">
+              © {new Date().getFullYear()} GameLock —{" "}
+              {locale === "en" ? "All rights reserved" : "Todos los derechos reservados"}
+            </p>
           </footer>
         </div>
 
