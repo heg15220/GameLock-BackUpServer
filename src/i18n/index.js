@@ -4,7 +4,7 @@ import { gameCatalogDescriptions } from "../data/gameCatalogDescriptions";
 
 const STRINGS = {
   es: {
-    heroTagline: "¡Una plataforma de juegos donde la variedad está al gusto!",
+    heroTagline: "¡Una plataforma de juegos donde hay variedad para todos los gustos!",
     exploreTitle: "Explorar juegos",
     allCategories: "Todas",
     difficulty: "Dificultad",
