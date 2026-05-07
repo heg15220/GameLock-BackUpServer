@@ -4,6 +4,7 @@ import {
   AD_PREVIEW_STORAGE_KEY,
   DEFAULT_AD_PREVIEW_ENABLED,
   MOBILE_APP_COMPACT_AD_SLOT,
+  resolveStoredAdPreviewEnabled,
 } from "../config/adPreview";
 import useGameRuntimeBridge from "../utils/useGameRuntimeBridge";
 import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
@@ -53,7 +54,7 @@ function readAdPreviewEnabled() {
     return DEFAULT_AD_PREVIEW_ENABLED;
   }
   const stored = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
-  return stored == null ? DEFAULT_AD_PREVIEW_ENABLED : stored === "true";
+  return resolveStoredAdPreviewEnabled(stored);
 }
 
 const COMPETITIVE_NAMES_ES = [
@@ -861,9 +862,7 @@ function MinesweeperGame() {
       if (event.key !== AD_PREVIEW_STORAGE_KEY) {
         return;
       }
-      setShowAdPreview(
-        event.newValue == null ? DEFAULT_AD_PREVIEW_ENABLED : event.newValue === "true"
-      );
+      setShowAdPreview(resolveStoredAdPreviewEnabled(event.newValue));
     };
 
     window.addEventListener("storage", handleStorage);

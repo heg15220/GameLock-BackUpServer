@@ -1,5 +1,15 @@
+import { ENABLE_MONETIZATION_PREVIEW } from "./monetizationGate";
+
 export const AD_PREVIEW_STORAGE_KEY = "platform-games-ad-preview-enabled";
-export const DEFAULT_AD_PREVIEW_ENABLED = true;
+export const DEFAULT_AD_PREVIEW_ENABLED = false;
+
+export function isAdPreviewEnabledByCode() {
+  return ENABLE_MONETIZATION_PREVIEW;
+}
+
+export function resolveStoredAdPreviewEnabled(storedValue, fallback = DEFAULT_AD_PREVIEW_ENABLED) {
+  return ENABLE_MONETIZATION_PREVIEW && (storedValue == null ? fallback : storedValue === "true");
+}
 
 function createSlot(id, overrides = {}) {
   return {

@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import AdPreviewCard from "./components/AdPreviewCard";
+import CookieConsentManager from "./components/CookieConsentManager";
+import { useConsent } from "./components/ConsentContext";
 import GameGrid from "./components/GameGrid";
 import GameLaunchModal from "./components/GameLaunchModal";
-import { AD_PREVIEW_STORAGE_KEY, DEFAULT_AD_PREVIEW_ENABLED, DESKTOP_AD_SLOTS } from "./config/adPreview";
+import { AD_PREVIEW_STORAGE_KEY, DESKTOP_AD_SLOTS, isAdPreviewEnabledByCode } from "./config/adPreview";
 import { games } from "./data/games";
 import { useTranslations, localizeCategory } from "./i18n";
 
@@ -28,19 +30,17 @@ const getInitialGameIdFromHash = () => {
   return games.some((g) => g.id === gameId) ? gameId : null;
 };
 
-function readStoredAdPreview() {
-  if (typeof window === "undefined") return DEFAULT_AD_PREVIEW_ENABLED;
-  const stored = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
-  return stored == null ? DEFAULT_AD_PREVIEW_ENABLED : stored === "true";
-}
-
 function App() {
   const { t, locale } = useTranslations();
+  const {
+    advertising,
+    openSettings: openCookieSettings,
+  } = useConsent();
 
   const [activeCategory, setActiveCategory] = useState(ALL_KEY);
   const [currentPage, setCurrentPage] = useState(1);
   const [launchedGameId, setLaunchedGameId] = useState(getInitialGameIdFromHash);
-  const [adPreviewEnabled, setAdPreviewEnabled] = useState(readStoredAdPreview);
+  const adPreviewEnabled = isAdPreviewEnabledByCode() && Boolean(advertising);
 
   const categoryKeys = useMemo(() => {
     const uniqueKeys = [...new Set(games.map((g) => g.category))];
@@ -131,8 +131,6 @@ function App() {
     }));
   }, [adPreviewEnabled]);
 
-  const toggleAdPreview = () => setAdPreviewEnabled((v) => !v);
-
   const showSportsCatalogSubliminal = SPORTS_CATEGORY_KEYS.has(activeCategory);
 
   return (
@@ -157,17 +155,6 @@ function App() {
             <p className="pill">{t("pill")}</p>
             <h1>{t("heroTitle")}</h1>
             <p className="hero-copy">{t("heroCopy")}</p>
-            <button
-              type="button"
-              className={["system-ad-toggle", adPreviewEnabled ? "active" : ""].filter(Boolean).join(" ")}
-              onClick={toggleAdPreview}
-              aria-pressed={adPreviewEnabled}
-            >
-              {locale === "en"
-                ? adPreviewEnabled ? "Hide ads" : "Show ads"
-                : adPreviewEnabled ? "Ocultar publicidad" : "Mostrar publicidad"}
-            </button>
-
             <div className="stats">
               <article>
                 <p>{t("statsGames")}</p>
@@ -243,6 +230,9 @@ function App() {
 
           <footer className="footer-note">
             <p>{t("footerNote")}</p>
+            <button type="button" className="footer-cookie-settings" onClick={openCookieSettings}>
+              {locale === "en" ? "Cookie settings" : "Configuracion de cookies"}
+            </button>
           </footer>
         </div>
 
@@ -259,6 +249,7 @@ function App() {
       </div>
 
       {launchedGame && <GameLaunchModal game={launchedGame} onClose={closeModal} adPreviewEnabled={adPreviewEnabled} />}
+      <CookieConsentManager locale={locale} />
     </>
   );
 }

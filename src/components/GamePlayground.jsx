@@ -29,6 +29,7 @@ import {
   DEFAULT_AD_PREVIEW_ENABLED,
   DESKTOP_AD_SLOTS,
   MOBILE_APP_BOTTOM_AD_SLOT,
+  resolveStoredAdPreviewEnabled,
   TABLET_APP_SIDE_AD_SLOTS,
 } from "../config/adPreview";
 
@@ -289,7 +290,7 @@ const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
 function readStoredAdPreview() {
   if (typeof window === "undefined") return DEFAULT_AD_PREVIEW_ENABLED;
   const stored = window.localStorage.getItem(AD_PREVIEW_STORAGE_KEY);
-  return stored == null ? DEFAULT_AD_PREVIEW_ENABLED : stored === "true";
+  return resolveStoredAdPreviewEnabled(stored);
 }
 
 function GamePlayground({ game }) {
@@ -334,7 +335,7 @@ function GamePlayground({ game }) {
     if (typeof window === "undefined") return undefined;
     const onStorage = (e) => {
       if (e.key === AD_PREVIEW_STORAGE_KEY) {
-        setAdPreviewEnabled(e.newValue === "true");
+        setAdPreviewEnabled(resolveStoredAdPreviewEnabled(e.newValue));
       }
     };
     window.addEventListener("storage", onStorage);

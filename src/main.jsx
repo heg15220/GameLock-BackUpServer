@@ -1,12 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { ConsentProvider } from "./components/ConsentContext";
 import "./styles.css";
 
 const bootstrap = () => {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-      <App />
+      <ConsentProvider>
+        <App />
+      </ConsentProvider>
     </React.StrictMode>
   );
 };
