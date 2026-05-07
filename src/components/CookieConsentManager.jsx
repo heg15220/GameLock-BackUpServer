@@ -255,12 +255,27 @@ function CookieConsentManager({ locale = "es" }) {
     bannerOpen,
     configOpen,
     setConfigOpen,
+    consent,
     preferences,
     acceptAll,
     rejectAll,
     save,
   } = useConsent();
   const [localPreferences, setLocalPreferences] = useState(DEFAULT_COOKIE_PREFERENCES);
+
+  const openConfigPanel = () => {
+    // First-time configure: pre-enable commercial categories so the user can
+    // accept settings as-is and have advertising/affiliate ON by default.
+    // Untouched categories stay at this seed; toggling overrides it.
+    if (!consent) {
+      setLocalPreferences(normalizeCookiePreferences({
+        ...DEFAULT_COOKIE_PREFERENCES,
+        advertising: true,
+        affiliate: true,
+      }));
+    }
+    setConfigOpen(true);
+  };
   const configRef = useRef(null);
 
   const normalizedPreferences = useMemo(
@@ -390,7 +405,7 @@ function CookieConsentManager({ locale = "es" }) {
               <button
                 type="button"
                 className="cookie-consent-secondary"
-                onClick={() => setConfigOpen(true)}
+                onClick={openConfigPanel}
               >
                 {copy.configure}
               </button>
