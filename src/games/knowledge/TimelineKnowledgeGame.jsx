@@ -8,8 +8,6 @@ import {
   resolveKnowledgeArcadeLocale,
 } from "./knowledgeArcadeUtils";
 import {
-  TIMELINE_DIFFICULTY_CONFIG,
-  TIMELINE_MODE_CONFIG,
   buildTimelineMission,
   evaluateTimelineRound,
   fillTimelineOrder,
@@ -23,8 +21,6 @@ const COPY = {
   es: {
     title: "Cronologia Maestra",
     subtitle: "Ordena eventos reales por fecha en misiones por rondas.",
-    mode: "Modo",
-    difficulty: "Dificultad",
     round: "Ronda",
     score: "Puntos",
     streak: "Racha",
@@ -59,8 +55,6 @@ const COPY = {
     noIntel: "No tienes Intel suficiente.",
     noTargets: "No hay objetivos para esa pista.",
     hiddenYear: "Ano oculto",
-    modeLabels: { mix: "Mix global", science: "Ciencia y tecnologia", geopolitics: "Geopolitica", culture: "Cultura y medios" },
-    difficultyLabels: { analyst: "Analista", expert: "Experto", master: "Maestro" },
     shortcut: "Atajos: 1-9 colocar, Backspace quitar, Enter validar, H/J/K pistas, N siguiente ronda, R nueva mision.",
     relationBefore: "antes del ancla",
     relationAfter: "despues del ancla",
@@ -80,8 +74,6 @@ const COPY = {
   en: {
     title: "Master Timeline",
     subtitle: "Sort real events by date in round-based missions.",
-    mode: "Mode",
-    difficulty: "Difficulty",
     round: "Round",
     score: "Score",
     streak: "Streak",
@@ -116,8 +108,6 @@ const COPY = {
     noIntel: "You do not have enough Intel.",
     noTargets: "No targets available for this hint.",
     hiddenYear: "Hidden year",
-    modeLabels: { mix: "Global mix", science: "Science and technology", geopolitics: "Geopolitics", culture: "Culture and media" },
-    difficultyLabels: { analyst: "Analyst", expert: "Expert", master: "Master" },
     shortcut: "Shortcuts: 1-9 place, Backspace remove, Enter validate, H/J/K hints, N next round, R new mission.",
     relationBefore: "before anchor",
     relationAfter: "after anchor",
@@ -149,13 +139,11 @@ const formatRankLabel = (copy, rank) => {
 
 const createInitialState = (copy, options = {}) => {
   const matchId = options.matchId ?? getRandomKnowledgeMatchId();
-  const mission = buildTimelineMission(matchId, options.modeId, options.difficultyId);
+  const mission = buildTimelineMission(matchId);
   const message = copy.missionLoaded(mission.totalRounds, mission.cardsPerRound);
   return {
     matchId: mission.matchId,
     mission,
-    modeId: mission.modeId,
-    difficultyId: mission.difficultyId,
     roundIndex: 0,
     phase: "playing",
     roundClock: mission.secondsPerRound,
@@ -223,26 +211,6 @@ function TimelineKnowledgeGame() {
     const currentMatchId = state?.matchId ?? getRandomKnowledgeMatchId();
     void loadMissionState({
       matchId: getRandomKnowledgeMatchIdExcept(currentMatchId),
-      modeId: state?.modeId,
-      difficultyId: state?.difficultyId,
-    });
-  }, [loadMissionState, state]);
-
-  const switchMode = useCallback((modeId) => {
-    const currentMatchId = state?.matchId ?? getRandomKnowledgeMatchId();
-    void loadMissionState({
-      matchId: getRandomKnowledgeMatchIdExcept(currentMatchId),
-      modeId,
-      difficultyId: state?.difficultyId,
-    });
-  }, [loadMissionState, state]);
-
-  const switchDifficulty = useCallback((difficultyId) => {
-    const currentMatchId = state?.matchId ?? getRandomKnowledgeMatchId();
-    void loadMissionState({
-      matchId: getRandomKnowledgeMatchIdExcept(currentMatchId),
-      modeId: state?.modeId,
-      difficultyId,
     });
   }, [loadMissionState, state]);
 
@@ -559,8 +527,6 @@ function TimelineKnowledgeGame() {
       coordinates: copy.coordinates,
       match: { current: snapshot.matchId + 1, total: KNOWLEDGE_ARCADE_MATCH_COUNT },
       mission: {
-        modeId: snapshot.modeId,
-        difficultyId: snapshot.difficultyId,
         round: snapshot.roundIndex + 1,
         totalRounds: snapshot.mission.totalRounds,
         phase: snapshot.phase,
@@ -678,42 +644,6 @@ function TimelineKnowledgeGame() {
             </div>
             <strong>{state.roundClock}s</strong>
           </article>
-        </div>
-
-        <div className="timeline-config-strip">
-          <section className="timeline-pill-group">
-            <span className="timeline-pill-label">{copy.mode}</span>
-            <div className="timeline-pill-track" role="group" aria-label={copy.mode}>
-              {TIMELINE_MODE_CONFIG.map((mode) => (
-                <button
-                  key={mode.id}
-                  type="button"
-                  className={state.modeId === mode.id ? "timeline-pill-button active" : "timeline-pill-button"}
-                  onClick={() => switchMode(mode.id)}
-                  aria-pressed={state.modeId === mode.id}
-                >
-                  {copy.modeLabels[mode.id] ?? mode.id}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="timeline-pill-group">
-            <span className="timeline-pill-label">{copy.difficulty}</span>
-            <div className="timeline-pill-track" role="group" aria-label={copy.difficulty}>
-              {TIMELINE_DIFFICULTY_CONFIG.map((difficulty) => (
-                <button
-                  key={difficulty.id}
-                  type="button"
-                  className={state.difficultyId === difficulty.id ? "timeline-pill-button active" : "timeline-pill-button"}
-                  onClick={() => switchDifficulty(difficulty.id)}
-                  aria-pressed={state.difficultyId === difficulty.id}
-                >
-                  {copy.difficultyLabels[difficulty.id] ?? difficulty.id}
-                </button>
-              ))}
-            </div>
-          </section>
         </div>
 
         <p className="timeline-shortcut-hint">{copy.shortcut}</p>

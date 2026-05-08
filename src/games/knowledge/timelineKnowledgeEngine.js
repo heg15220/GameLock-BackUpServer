@@ -12,92 +12,13 @@ const sortEvents = (left, right) => {
   return left.id.localeCompare(right.id);
 };
 
-export const TIMELINE_MODE_CONFIG = Object.freeze([
-  {
-    id: "mix",
-    tags: null,
-  },
-  {
-    id: "science",
-    tags: ["science", "technology", "space", "medicine"],
-  },
-  {
-    id: "geopolitics",
-    tags: ["geopolitics", "politics"],
-  },
-  {
-    id: "culture",
-    tags: ["culture", "art", "sports", "media"],
-  },
-]);
-
-const MIX_THEME_GROUP_IDS = Object.freeze([
-  "video-games",
-  "gastronomy",
-  "music",
-  "cinema",
-  "civic-science",
-]);
-
-const CIVIC_SCIENCE_TAG_SET = new Set([
-  "science",
-  "technology",
-  "space",
-  "medicine",
-  "programming",
-  "geopolitics",
-  "war",
-  "rights",
-  "economy",
-  "exploration",
-  "politics",
-]);
-
-const MIX_THEME_BY_GENERATED_CATEGORY = Object.freeze({
-  "video-game": "video-games",
-  restaurant: "gastronomy",
-  "food-company": "gastronomy",
-  "music-album": "music",
-  song: "music",
-  film: "cinema",
-  "historical-event": "civic-science",
-  election: "civic-science",
-  "military-conflict": "civic-science",
-  war: "civic-science",
-  treaty: "civic-science",
-  "political-party": "civic-science",
-  software: "civic-science",
-  "programming-language": "civic-science",
-  "space-mission": "civic-science",
-  satellite: "civic-science",
+export const TIMELINE_MISSION_CONFIG = Object.freeze({
+  rounds: 7,
+  cardsPerRound: 5,
+  secondsPerRound: 80,
+  startIntel: 7,
+  minSpanYears: 260,
 });
-
-export const TIMELINE_DIFFICULTY_CONFIG = Object.freeze([
-  {
-    id: "analyst",
-    rounds: 6,
-    cardsPerRound: 4,
-    secondsPerRound: 95,
-    startIntel: 8,
-    minSpanYears: 180,
-  },
-  {
-    id: "expert",
-    rounds: 7,
-    cardsPerRound: 5,
-    secondsPerRound: 80,
-    startIntel: 7,
-    minSpanYears: 260,
-  },
-  {
-    id: "master",
-    rounds: 8,
-    cardsPerRound: 5,
-    secondsPerRound: 70,
-    startIntel: 6,
-    minSpanYears: 340,
-  },
-]);
 
 const hashValue = (value) => {
   let hash = 2166136261;
@@ -122,15 +43,6 @@ const uniqueIds = (items) => {
   return out;
 };
 
-export const resolveTimelineMode = (modeId) =>
-  TIMELINE_MODE_CONFIG.find((mode) => mode.id === modeId) ?? TIMELINE_MODE_CONFIG[0];
-
-export const resolveTimelineDifficulty = (difficultyId) =>
-  TIMELINE_DIFFICULTY_CONFIG.find((difficulty) => difficulty.id === difficultyId)
-  ?? TIMELINE_DIFFICULTY_CONFIG[1];
-
-export const resolveTimelineLocale = (locale) => (locale === "es" ? "es" : "en");
-
 export const formatTimelineYear = (year, locale = "es") => {
   const value = Number(year) || 0;
   if (value < 0) {
@@ -140,51 +52,6 @@ export const formatTimelineYear = (year, locale = "es") => {
 };
 
 export const getTimelineEventText = resolveTimelineEventText;
-
-const extractGeneratedCategoryId = (eventId) => {
-  if (typeof eventId !== "string" || !eventId.startsWith("wd-")) return null;
-  const qMarker = eventId.lastIndexOf("-q");
-  if (qMarker <= 3) return null;
-  return eventId.slice(3, qMarker);
-};
-
-const GEOPOLITICS_ALLOWED_GENERATED_CATEGORY_SET = new Set([
-  "historical-event",
-  "election",
-  "military-conflict",
-  "war",
-  "treaty",
-  "political-party",
-]);
-
-const GEOPOLITICS_ALLOWED_TAG_SET = new Set([
-  "geopolitics",
-  "politics",
-]);
-
-const isValidGeopoliticsEvent = (event) => {
-  if (!event) return false;
-  const categoryId = extractGeneratedCategoryId(event.id);
-  if (categoryId) return GEOPOLITICS_ALLOWED_GENERATED_CATEGORY_SET.has(categoryId);
-  const tags = event.tags ?? [];
-  return tags.some((tag) => GEOPOLITICS_ALLOWED_TAG_SET.has(tag));
-};
-
-const resolveMixThemeForEvent = (event) => {
-  if (!event) return null;
-  const categoryId = extractGeneratedCategoryId(event.id);
-  if (categoryId && MIX_THEME_BY_GENERATED_CATEGORY[categoryId]) {
-    return MIX_THEME_BY_GENERATED_CATEGORY[categoryId];
-  }
-
-  const tags = event.tags ?? [];
-  if (tags.includes("gaming")) return "video-games";
-  if (tags.includes("gastronomy")) return "gastronomy";
-  if (tags.includes("music")) return "music";
-  if (tags.includes("cinema")) return "cinema";
-  if (tags.some((tag) => CIVIC_SCIENCE_TAG_SET.has(tag))) return "civic-science";
-  return null;
-};
 
 const sampleEvents = (random, pool, count, avoidIds) => {
   const preferred = pool.filter((event) => !avoidIds.has(event.id));
@@ -267,83 +134,24 @@ const buildRound = ({
   };
 };
 
-const buildModePool = (modeId) => {
-  const mode = resolveTimelineMode(modeId);
-  if (mode.id === "geopolitics") {
-    const pool = TIMELINE_EVENT_BANK
-      .filter((event) => isValidGeopoliticsEvent(event))
-      .sort(sortEvents);
-    return pool.length ? pool : [...TIMELINE_EVENT_BANK].sort(sortEvents);
-  }
-  const tagSet = mode.tags ? new Set(mode.tags) : null;
-  const pool = TIMELINE_EVENT_BANK
-    .filter((event) => (tagSet ? event.tags.some((tag) => tagSet.has(tag)) : true))
-    .sort(sortEvents);
-  return pool.length ? pool : [...TIMELINE_EVENT_BANK].sort(sortEvents);
-};
-
-const buildMixThemePool = (themeId) => {
-  const pool = TIMELINE_EVENT_BANK
-    .filter((event) => resolveMixThemeForEvent(event) === themeId)
-    .sort(sortEvents);
-  return pool;
-};
-
-const resolveMissionPool = (modeId, random) => {
-  const mode = resolveTimelineMode(modeId);
-  if (mode.id !== "mix") {
-    return {
-      pool: buildModePool(mode.id),
-      themeGroupId: mode.id,
-    };
-  }
-
-  const candidates = MIX_THEME_GROUP_IDS
-    .map((themeId) => ({ themeId, pool: buildMixThemePool(themeId) }))
-    .filter(({ pool }) => pool.length > 0);
-
-  if (!candidates.length) {
-    return {
-      pool: [...TIMELINE_EVENT_BANK].sort(sortEvents),
-      themeGroupId: "mix-fallback",
-    };
-  }
-
-  const selected = candidates[Math.floor(random() * candidates.length)];
-  return {
-    pool: selected.pool,
-    themeGroupId: selected.themeId,
-  };
-};
-
-export const buildTimelineMission = (
-  matchId,
-  modeId = "mix",
-  difficultyId = "expert",
-) => {
+export const buildTimelineMission = (matchId) => {
   const safeMatchId = Math.max(0, Number(matchId) || 0);
-  const mode = resolveTimelineMode(modeId);
-  const difficulty = resolveTimelineDifficulty(difficultyId);
-  const random = createSeededRandom(
-    safeMatchId
-    + hashValue(mode.id)
-    + Math.imul(hashValue(difficulty.id), 3),
-  );
-  const missionPool = resolveMissionPool(mode.id, random);
-  const pool = missionPool.pool;
+  const random = createSeededRandom(safeMatchId + hashValue("timeline-master"));
+  const pool = [...TIMELINE_EVENT_BANK].sort(sortEvents);
+  const config = TIMELINE_MISSION_CONFIG;
   const rounds = [];
   const usedIds = new Set();
 
-  for (let roundIndex = 0; roundIndex < difficulty.rounds; roundIndex += 1) {
-    if (pool.length - usedIds.size < difficulty.cardsPerRound) {
+  for (let roundIndex = 0; roundIndex < config.rounds; roundIndex += 1) {
+    if (pool.length - usedIds.size < config.cardsPerRound) {
       usedIds.clear();
     }
 
     const round = buildRound({
       random,
       pool,
-      cardsPerRound: difficulty.cardsPerRound,
-      minSpanYears: difficulty.minSpanYears,
+      cardsPerRound: config.cardsPerRound,
+      minSpanYears: config.minSpanYears,
       avoidIds: usedIds,
       roundIndex,
     });
@@ -354,14 +162,11 @@ export const buildTimelineMission = (
 
   return {
     matchId: safeMatchId,
-    modeId: mode.id,
-    themeGroupId: missionPool.themeGroupId,
-    difficultyId: difficulty.id,
     rounds,
     totalRounds: rounds.length,
-    cardsPerRound: difficulty.cardsPerRound,
-    secondsPerRound: difficulty.secondsPerRound,
-    startIntel: difficulty.startIntel,
+    cardsPerRound: config.cardsPerRound,
+    secondsPerRound: config.secondsPerRound,
+    startIntel: config.startIntel,
   };
 };
 
