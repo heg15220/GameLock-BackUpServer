@@ -26431,6 +26431,415 @@ button.brisca-card.playable:disabled {
   }
 }
 
+.knowledge-arcade-game.knowledge-cronologia {
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(15, 32, 46, 0.96) 0%, rgba(17, 91, 94, 0.94) 48%, rgba(177, 104, 48, 0.92) 100%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 18px);
+  color: #122033;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 22px 42px rgba(9, 20, 31, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.knowledge-arcade-game.knowledge-cronologia::before,
+.knowledge-arcade-game.knowledge-cronologia::after {
+  display: none;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .mini-head p {
+  color: #dce8ea;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-hero-copy h4 {
+  color: #ffffff;
+  text-shadow: none;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-head-actions {
+  justify-content: flex-end;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .knowledge-mode-shell.timeline-shell {
+  border-radius: 8px;
+  background:
+    linear-gradient(160deg, rgba(12, 27, 40, 0.88), rgba(18, 53, 59, 0.78)),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 22px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 18px 34px rgba(7, 17, 28, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  gap: 0.7rem;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-status-row {
+  justify-self: start;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.34rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff;
+  padding: 0.38rem 0.56rem;
+  box-shadow: 0 10px 18px rgba(120, 53, 15, 0.24);
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-status-row strong {
+  font-size: 0.98rem;
+  line-height: 1;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-status-row span {
+  color: #fff7ed;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
+  grid-template-areas: none;
+  gap: 0.7rem;
+  align-items: start;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-track-panel,
+.knowledge-arcade-game.knowledge-cronologia .timeline-pool-panel,
+.knowledge-arcade-game.knowledge-cronologia .timeline-result-panel {
+  grid-area: auto;
+  border: 1px solid rgba(11, 31, 45, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, #f8f0e3 0%, #ecf5f2 100%),
+    repeating-linear-gradient(90deg, rgba(15, 118, 110, 0.06) 0 1px, transparent 1px 20px);
+  box-shadow:
+    0 12px 24px rgba(8, 22, 34, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  backdrop-filter: none;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-track-panel {
+  position: relative;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-track-panel,
+.knowledge-arcade-game.knowledge-cronologia .timeline-pool-panel {
+  padding: 0.72rem;
+  display: grid;
+  gap: 0.56rem;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-panel-head h5 {
+  color: #122033;
+  font-size: 0.92rem;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-panel-head span {
+  border: 0;
+  border-radius: 8px;
+  background: rgba(18, 32, 51, 0.1);
+  color: #334155;
+  padding: 0.18rem 0.44rem;
+  font-size: 0.68rem;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-track-slots,
+.knowledge-arcade-game.knowledge-cronologia .timeline-pool ul {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-track-slots {
+  position: relative;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-track-slots::before {
+  content: "";
+  position: absolute;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  left: 1.33rem;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #0f766e, #f59e0b);
+  opacity: 0.38;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-track-slots > li {
+  position: relative;
+  z-index: 1;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-pool ul {
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-event-card,
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card {
+  width: 100%;
+  min-height: 56px;
+  border-radius: 8px;
+  border: 1px solid rgba(11, 31, 45, 0.16);
+  background:
+    linear-gradient(90deg, rgba(15, 118, 110, 0.18) 0 5px, #fff7ea 5px 100%);
+  color: #172236;
+  padding: 0.48rem 0.54rem;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.42rem;
+  text-align: left;
+  box-shadow:
+    0 5px 12px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  animation: none;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-event-card:hover:not(:disabled),
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card.filled:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(14, 116, 144, 0.38);
+  background:
+    linear-gradient(90deg, rgba(15, 118, 110, 0.28) 0 5px, #fff3d9 5px 100%);
+  box-shadow: 0 10px 20px rgba(8, 22, 34, 0.16);
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-event-card:disabled,
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card:disabled {
+  opacity: 1;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card:not(.filled) {
+  border-style: dashed;
+  background:
+    linear-gradient(90deg, rgba(100, 116, 139, 0.14) 0 5px, rgba(241, 245, 249, 0.92) 5px 100%);
+  color: #6b7a8d;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card.filled {
+  border-color: rgba(13, 148, 136, 0.28);
+  background:
+    linear-gradient(90deg, rgba(13, 148, 136, 0.3) 0 5px, #e5fbf4 5px 100%);
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card.is-selected {
+  border-color: rgba(245, 158, 11, 0.78);
+  background:
+    linear-gradient(90deg, rgba(245, 158, 11, 0.48) 0 5px, #fff7d6 5px 100%);
+  box-shadow:
+    0 0 0 2px rgba(245, 158, 11, 0.18),
+    0 12px 22px rgba(120, 53, 15, 0.18);
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card.is-correct {
+  border-color: rgba(22, 163, 74, 0.58);
+  background:
+    linear-gradient(90deg, rgba(22, 163, 74, 0.44) 0 5px, #dcfce7 5px 100%);
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card.is-wrong {
+  border-color: rgba(220, 38, 38, 0.48);
+  background:
+    linear-gradient(90deg, rgba(220, 38, 38, 0.36) 0 5px, #fee2e2 5px 100%);
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-event-card strong,
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card strong {
+  min-width: 0;
+  color: #172236;
+  font-size: 0.82rem;
+  line-height: 1.22;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-event-summary {
+  grid-column: 2 / 4;
+  grid-row: 2;
+  color: #526173;
+  font-size: 0.68rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card:not(.filled) strong {
+  color: #7b8796;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-event-key,
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-index {
+  width: 1.58rem;
+  height: 1.58rem;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #122033, #0f766e);
+  color: #ffffff;
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 0;
+  grid-row: 1 / span 2;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card:not(.filled) .timeline-slot-index {
+  background: #d7e1e6;
+  color: #324254;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-event-year,
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card span:not(.timeline-slot-index):not(.timeline-event-summary) {
+  color: #0f766e;
+  font-size: 0.7rem;
+  font-weight: 900;
+  white-space: nowrap;
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-slot-card.is-wrong .timeline-event-year {
+  color: #b91c1c;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-result-panel {
+  padding: 0.64rem 0.72rem;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-result-panel h5 {
+  margin: 0;
+  color: #122033;
+  font-size: 1rem;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-result-panel p {
+  margin: 0;
+  color: #425369;
+  font-size: 0.82rem;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-result-panel.is-success {
+  border-color: rgba(22, 163, 74, 0.34);
+  background:
+    linear-gradient(90deg, rgba(22, 163, 74, 0.34) 0 6px, #dcfce7 6px 100%);
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-result-panel.is-fail {
+  border-color: rgba(220, 38, 38, 0.28);
+  background:
+    linear-gradient(90deg, rgba(220, 38, 38, 0.32) 0 6px, #fee2e2 6px 100%);
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-actions-dock {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.44rem;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-actions-dock .knowledge-ui-btn,
+.knowledge-arcade-game.knowledge-cronologia .timeline-head-actions .knowledge-ui-btn {
+  width: auto;
+  min-height: 40px;
+  border-radius: 8px;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-empty {
+  margin: 0;
+  color: #425369;
+  font-size: 0.78rem;
+}
+
+.knowledge-arcade-game.knowledge-cronologia .timeline-game-message {
+  border-radius: 8px;
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(12, 27, 40, 0.78);
+  color: #f8fafc;
+  box-shadow: 0 10px 18px rgba(7, 17, 28, 0.22);
+  animation: none;
+}
+
+@media (max-width: 900px) {
+  .knowledge-arcade-game.knowledge-cronologia .timeline-board,
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-board {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: none;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-pool ul {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(76%, 1fr);
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: none;
+    padding-bottom: 0.12rem;
+    scroll-snap-type: x proximity;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia.is-mobile .timeline-event-card {
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .knowledge-arcade-game.knowledge-cronologia .knowledge-mode-shell.timeline-shell {
+    padding: 0.56rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia .timeline-track-panel,
+  .knowledge-arcade-game.knowledge-cronologia .timeline-pool-panel {
+    padding: 0.46rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia .timeline-event-card,
+  .knowledge-arcade-game.knowledge-cronologia .timeline-slot-card {
+    min-height: 44px;
+    grid-template-columns: 1.55rem minmax(0, 1fr) auto;
+    gap: 0.3rem;
+    padding: 0.36rem 0.38rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia .timeline-event-card strong,
+  .knowledge-arcade-game.knowledge-cronologia .timeline-slot-card strong {
+    font-size: 0.68rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia .timeline-event-summary {
+    font-size: 0.6rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia .timeline-event-key,
+  .knowledge-arcade-game.knowledge-cronologia .timeline-slot-index {
+    width: 1.38rem;
+    height: 1.38rem;
+    font-size: 0.64rem;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia .timeline-event-year,
+  .knowledge-arcade-game.knowledge-cronologia .timeline-slot-card span:not(.timeline-slot-index):not(.timeline-event-summary) {
+    font-size: 0.62rem;
+    white-space: nowrap;
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia .timeline-actions-dock {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .knowledge-arcade-game.knowledge-cronologia .timeline-actions-dock .knowledge-ui-btn {
+    width: 100%;
+  }
+}
+
 @media (max-width: 360px) {
   .knowledge-arcade-game.is-mobile .knowledge-status-row {
     flex-wrap: wrap;

@@ -13,10 +13,10 @@ const sortEvents = (left, right) => {
 };
 
 export const TIMELINE_MISSION_CONFIG = Object.freeze({
-  rounds: 7,
-  cardsPerRound: 5,
-  secondsPerRound: 80,
-  startIntel: 7,
+  rounds: 1,
+  cardsPerRound: 7,
+  secondsPerRound: 999,
+  startIntel: 0,
   minSpanYears: 260,
 });
 

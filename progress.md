@@ -4718,3 +4718,13 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Anadido knowledge-pasapalabra-rondo a los juegos con banner inferior compacto en src/components/GamePlayground.jsx, igual que en el modal de lanzamiento.
 - Pendiente: validar con Playwright en viewport movil vertical que respuesta, botones y teclado quedan visibles sobre el banner.
 
+
+## 2026-05-08 - Cronologia Maestra rediseño simple
+- Peticion: rediseñar completamente la interfaz para que el usuario solo ordene 7 eventos de mas antiguo a mas reciente y reciba aviso de acierto o fallo.
+- src/games/knowledge/timelineKnowledgeEngine.js ajustado a una sola partida de 7 eventos, sin temporizador/intel/pistas en la experiencia principal.
+- src/games/knowledge/TimelineKnowledgeGame.jsx reescrito con UI simple: panel Tu orden, panel Eventos, boton Comprobar, Reintentar/Nueva partida y resultado directo correcto/fallo.
+- src/styles.css añade una capa visual nueva para cronologia: fondo claro, tarjetas compactas, estados verde/rojo tras validar y responsive movil con eventos en carrusel.
+- playwright-actions-knowledge-cronologia-maestra.json actualizado para esperar carga y usar 7 acciones.
+- Validacion: Vitest timelineKnowledgeEngine OK; npm run build OK con NODE_OPTIONS=--max-old-space-size=8192; Playwright skill/local sin errores en output/knowledge-cronologia-redesign-v3; Playwright dirigido desktop y movil OK en output/knowledge-cronologia-redesign-directed y output/knowledge-cronologia-redesign-mobile-v2.
+- Nota: el cliente del skill desde ~/.codex no resuelve playwright en Windows; se uso la copia local web_game_playwright_client.mjs para la pasada estandar.
+- Validacion adicional: caso de acierto exacto comprobado con Playwright dirigido; result.exactOrder=true, correctSlots=7 y mensaje Correcto visible.

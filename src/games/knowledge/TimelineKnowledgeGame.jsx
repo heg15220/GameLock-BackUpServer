@@ -10,155 +10,85 @@ import {
 import {
   buildTimelineMission,
   evaluateTimelineRound,
-  fillTimelineOrder,
   formatTimelineYear,
   getTimelineEventText,
-  summarizeTimelineMission,
 } from "./timelineKnowledgeEngine";
 import { loadTimelineEventLocale } from "./timelineEventBank";
 
 const COPY = {
   es: {
     title: "Cronologia Maestra",
-    subtitle: "Ordena eventos reales por fecha en misiones por rondas.",
-    round: "Ronda",
-    score: "Puntos",
-    streak: "Racha",
-    intel: "Intel",
-    timer: "Tiempo",
-    status: "Estado",
-    statusPlaying: "Resolviendo",
-    statusReview: "Revision",
-    statusFinished: "Finalizada",
-    restart: "Nueva mision",
-    nextRound: "Siguiente ronda",
-    hintRange: "Escaner (-1 Intel)",
-    hintExact: "Fecha exacta (-2 Intel)",
-    hintRelation: "Relacion con ancla (-1 Intel)",
-    submit: "Validar ronda",
-    clear: "Limpiar orden",
-    orderCleared: "Orden vaciado.",
-    anchorTitle: "Evento ancla",
-    pending: "Eventos pendientes",
-    timeline: "Linea temporal",
-    review: "Informe",
-    expected: "Orden correcto",
-    yours: "Tu orden",
-    summary: "Resumen",
-    rank: "Rango",
-    rankLabels: { S: "Leyenda", A: "Elite", B: "Solido", C: "En progreso", D: "Aprendiz" },
-    avgAccuracy: "Precision media",
-    avgChronology: "Consistencia media",
-    logTitle: "Bitacora",
-    coordinates: "Los huecos avanzan de izquierda a derecha, del evento mas antiguo al mas reciente.",
-    noPendingEvents: "No quedan eventos pendientes.",
-    noIntel: "No tienes Intel suficiente.",
-    noTargets: "No hay objetivos para esa pista.",
-    hiddenYear: "Ano oculto",
-    shortcut: "Atajos: 1-9 colocar, Backspace quitar, Enter validar, H/J/K pistas, N siguiente ronda, R nueva mision.",
-    relationBefore: "antes del ancla",
-    relationAfter: "despues del ancla",
-    missionLoaded: (r, c) => `Mision cargada: ${r} rondas, ${c} eventos por ronda.`,
-    roundStarted: (r, t) => `Ronda ${r}/${t} lista.`,
-    rangeHintApplied: (n, a, b) => `Escaner ${n}: ${a} - ${b}.`,
-    exactHintApplied: (n, y) => `${n}: fecha ${y}.`,
-    relationHintApplied: (n, rel, anchor) => `${n} ocurre ${rel} ${anchor}.`,
-    cardPlaced: (name) => `Anadido: ${name}.`,
-    cardRemoved: (name) => `Retirado: ${name}.`,
-    needCards: (count) => `Faltan ${count} eventos por colocar.`,
-    roundPerfect: (score, streak) => `Orden perfecto. +${score}. Racha ${streak}.`,
-    roundResolved: (correct, total, score) => `Ronda: ${correct}/${total} exactas. +${score}.`,
-    roundTimeout: (correct, total, score) => `Tiempo agotado: ${correct}/${total} exactas. +${score}.`,
-    missionFinished: (rank, score) => `Mision finalizada. Rango ${rank}. Puntuacion ${score}.`,
+    subtitle: "Ordena los 7 eventos de mas antiguo a mas reciente.",
+    restart: "Nueva partida",
+    submit: "Comprobar",
+    clear: "Borrar orden",
+    events: "Eventos",
+    order: "Tu orden",
+    result: "Resultado",
+    placed: "colocados",
+    oldest: "Mas antiguo",
+    newest: "Mas reciente",
+    emptySlot: (index) => `Hueco ${index}`,
+    addCard: "Anadir",
+    swapAction: "Cambiar",
+    hiddenYear: "Fecha oculta",
+    ready: "Partida lista.",
+    loading: "Preparando eventos...",
+    orderCleared: "Orden borrado.",
+    pickSwap: "Elige otro evento colocado para cambiar posiciones.",
+    swapped: "Posiciones intercambiadas.",
+    correctTitle: "Correcto",
+    wrongTitle: "No es correcto",
+    correctMessage: "Has ordenado los 7 eventos correctamente.",
+    wrongMessage: "El orden no coincide.",
+    needCards: (count) => `Faltan ${count} eventos.`,
+    coordinates: "Ordena de arriba a abajo: del evento mas antiguo al mas reciente.",
   },
   en: {
     title: "Master Timeline",
-    subtitle: "Sort real events by date in round-based missions.",
-    round: "Round",
-    score: "Score",
-    streak: "Streak",
-    intel: "Intel",
-    timer: "Timer",
-    status: "Status",
-    statusPlaying: "Solving",
-    statusReview: "Review",
-    statusFinished: "Finished",
-    restart: "New mission",
-    nextRound: "Next round",
-    hintRange: "Scan (-1 Intel)",
-    hintExact: "Exact year (-2 Intel)",
-    hintRelation: "Anchor relation (-1 Intel)",
-    submit: "Validate round",
+    subtitle: "Order the 7 events from oldest to newest.",
+    restart: "New game",
+    submit: "Check",
     clear: "Clear order",
+    events: "Events",
+    order: "Your order",
+    result: "Result",
+    placed: "placed",
+    oldest: "Oldest",
+    newest: "Newest",
+    emptySlot: (index) => `Slot ${index}`,
+    addCard: "Add",
+    swapAction: "Swap",
+    hiddenYear: "Hidden date",
+    ready: "Game ready.",
+    loading: "Preparing events...",
     orderCleared: "Order cleared.",
-    anchorTitle: "Anchor event",
-    pending: "Pending events",
-    timeline: "Timeline",
-    review: "Report",
-    expected: "Correct order",
-    yours: "Your order",
-    summary: "Summary",
-    rank: "Rank",
-    rankLabels: { S: "Legend", A: "Elite", B: "Solid", C: "In progress", D: "Apprentice" },
-    avgAccuracy: "Average accuracy",
-    avgChronology: "Average consistency",
-    logTitle: "Log",
-    coordinates: "Slots go left to right, from oldest to newest event.",
-    noPendingEvents: "No pending events.",
-    noIntel: "You do not have enough Intel.",
-    noTargets: "No targets available for this hint.",
-    hiddenYear: "Hidden year",
-    shortcut: "Shortcuts: 1-9 place, Backspace remove, Enter validate, H/J/K hints, N next round, R new mission.",
-    relationBefore: "before anchor",
-    relationAfter: "after anchor",
-    missionLoaded: (r, c) => `Mission loaded: ${r} rounds, ${c} events each.`,
-    roundStarted: (r, t) => `Round ${r}/${t} ready.`,
-    rangeHintApplied: (n, a, b) => `Scan ${n}: ${a} - ${b}.`,
-    exactHintApplied: (n, y) => `${n}: year ${y}.`,
-    relationHintApplied: (n, rel, anchor) => `${n} happens ${rel} ${anchor}.`,
-    cardPlaced: (name) => `Added: ${name}.`,
-    cardRemoved: (name) => `Removed: ${name}.`,
-    needCards: (count) => `${count} events still missing.`,
-    roundPerfect: (score, streak) => `Perfect order. +${score}. Streak ${streak}.`,
-    roundResolved: (correct, total, score) => `Round: ${correct}/${total} exact. +${score}.`,
-    roundTimeout: (correct, total, score) => `Time over: ${correct}/${total} exact. +${score}.`,
-    missionFinished: (rank, score) => `Mission complete. Rank ${rank}. Score ${score}.`,
+    pickSwap: "Choose another placed event to swap positions.",
+    swapped: "Positions swapped.",
+    correctTitle: "Correct",
+    wrongTitle: "Not correct",
+    correctMessage: "You ordered all 7 events correctly.",
+    wrongMessage: "The order does not match.",
+    needCards: (count) => `${count} events missing.`,
+    coordinates: "Order top to bottom: oldest event to newest event.",
   },
 };
 
-const pct = (value) => `${Math.round((Number(value) || 0) * 100)}%`;
-const clamp01 = (value) => Math.max(0, Math.min(1, Number(value) || 0));
-const pushLog = (items, value) => [value, ...(items ?? [])].slice(0, 8);
 const getRound = (snapshot) => snapshot.mission?.rounds?.[snapshot.roundIndex] ?? null;
 const findById = (round, eventId) => round?.events?.find((event) => event.id === eventId) ?? null;
-const phaseLabel = (copy, phase) => (phase === "review" ? copy.statusReview : phase === "finished" ? copy.statusFinished : copy.statusPlaying);
-const formatRankLabel = (copy, rank) => {
-  const label = copy.rankLabels?.[rank];
-  return label ? `${rank} - ${label}` : rank;
-};
 
 const createInitialState = (copy, options = {}) => {
   const matchId = options.matchId ?? getRandomKnowledgeMatchId();
   const mission = buildTimelineMission(matchId);
-  const message = copy.missionLoaded(mission.totalRounds, mission.cardsPerRound);
   return {
     matchId: mission.matchId,
     mission,
     roundIndex: 0,
     phase: "playing",
-    roundClock: mission.secondsPerRound,
     placedOrderIds: [],
-    hintRanges: {},
-    hintExact: {},
-    hintRelation: {},
-    hintsUsedRound: 0,
-    score: 0,
-    streak: 0,
-    bestStreak: 0,
-    intel: mission.startIntel,
+    selectedPlacedId: null,
     history: [],
-    message,
-    log: [message],
+    message: copy.ready,
   };
 };
 
@@ -194,18 +124,16 @@ function TimelineKnowledgeGame() {
 
   const round = getRound(state ?? {});
   const eventById = useMemo(() => new Map((round?.events ?? []).map((event) => [event.id, event])), [round]);
-  const anchorEvent = round?.anchorId ? eventById.get(round.anchorId) ?? null : null;
-  const anchorSummary = getTimelineEventText(anchorEvent, locale, "summary").trim();
+  const latestRoundResult = state?.history?.[state.history.length - 1] ?? null;
+  const hasWon = Boolean(latestRoundResult?.exactOrder);
 
   const remainingEvents = useMemo(() => {
     const placed = new Set(state?.placedOrderIds ?? []);
-    return (round?.shuffledOrderIds ?? []).filter((eventId) => !placed.has(eventId)).map((eventId) => eventById.get(eventId)).filter(Boolean);
+    return (round?.shuffledOrderIds ?? [])
+      .filter((eventId) => !placed.has(eventId))
+      .map((eventId) => eventById.get(eventId))
+      .filter(Boolean);
   }, [eventById, round, state]);
-
-  const summary = useMemo(
-    () => (state ? summarizeTimelineMission(state.mission, state.history, state.score) : null),
-    [state]
-  );
 
   const restart = useCallback(() => {
     const currentMatchId = state?.matchId ?? getRandomKnowledgeMatchId();
@@ -216,204 +144,93 @@ function TimelineKnowledgeGame() {
 
   const placeCard = useCallback((eventId) => {
     setState((prev) => {
-      if (prev.phase !== "playing") return prev;
-      if (prev.placedOrderIds.includes(eventId)) return prev;
+      if (!prev || prev.phase !== "playing" || prev.placedOrderIds.includes(eventId)) return prev;
       const currentRound = getRound(prev);
       const event = findById(currentRound, eventId);
       if (!event) return prev;
-      const message = copy.cardPlaced(getTimelineEventText(event, locale, "title"));
-      return { ...prev, placedOrderIds: [...prev.placedOrderIds, eventId], message, log: pushLog(prev.log, message) };
+      return {
+        ...prev,
+        placedOrderIds: [...prev.placedOrderIds, eventId],
+        selectedPlacedId: null,
+        message: copy.ready,
+      };
     });
-  }, [copy, locale]);
+  }, [copy]);
 
   const removeCard = useCallback((eventId) => {
     setState((prev) => {
-      if (prev.phase !== "playing" || !prev.placedOrderIds.includes(eventId)) return prev;
-      const event = findById(getRound(prev), eventId);
-      const message = copy.cardRemoved(event ? getTimelineEventText(event, locale, "title") : eventId);
-      return { ...prev, placedOrderIds: prev.placedOrderIds.filter((id) => id !== eventId), message, log: pushLog(prev.log, message) };
-    });
-  }, [copy, locale]);
-
-  const clearOrder = useCallback(() => {
-    setState((prev) => (prev.phase !== "playing"
-      ? prev
-      : {
-        ...prev,
-        placedOrderIds: [],
-        message: copy.orderCleared,
-        log: pushLog(prev.log, copy.orderCleared),
-      }));
-  }, [copy]);
-
-  const applyHint = useCallback((type) => {
-    setState((prev) => {
-      if (prev.phase !== "playing") return prev;
-      const currentRound = getRound(prev);
-      if (!currentRound) return prev;
-
-      if (type === "range" && prev.intel < 1) {
-        return { ...prev, message: copy.noIntel, log: pushLog(prev.log, copy.noIntel) };
-      }
-      if (type === "exact" && prev.intel < 2) {
-        return { ...prev, message: copy.noIntel, log: pushLog(prev.log, copy.noIntel) };
-      }
-      if (type === "relation" && prev.intel < 1) {
-        return { ...prev, message: copy.noIntel, log: pushLog(prev.log, copy.noIntel) };
-      }
-
-      const anchor = currentRound.anchorId ? findById(currentRound, currentRound.anchorId) : null;
-      let target = null;
-      if (type === "range") {
-        target = currentRound.shuffledOrderIds.map((id) => findById(currentRound, id)).find((event) => event && !prev.hintRanges[event.id] && !prev.hintExact[event.id]);
-      } else if (type === "exact") {
-        target = currentRound.shuffledOrderIds.map((id) => findById(currentRound, id)).find((event) => event && !prev.hintExact[event.id]);
-      } else {
-        target = currentRound.shuffledOrderIds.filter((id) => id !== currentRound.anchorId).map((id) => findById(currentRound, id)).find((event) => event && !prev.hintRelation[event.id]);
-      }
-
-      if (!target) {
-        return { ...prev, message: copy.noTargets, log: pushLog(prev.log, copy.noTargets) };
-      }
-
-      let message = "";
-      let intelCost = 0;
-      let hintRanges = prev.hintRanges;
-      let hintExact = prev.hintExact;
-      let hintRelation = prev.hintRelation;
-
-      if (type === "range") {
-        const range = [target.year - 25, target.year + 25];
-        hintRanges = { ...prev.hintRanges, [target.id]: range };
-        intelCost = 1;
-        message = copy.rangeHintApplied(getTimelineEventText(target, locale, "title"), formatTimelineYear(range[0], locale), formatTimelineYear(range[1], locale));
-      } else if (type === "exact") {
-        hintExact = { ...prev.hintExact, [target.id]: true };
-        intelCost = 2;
-        message = copy.exactHintApplied(getTimelineEventText(target, locale, "title"), formatTimelineYear(target.year, locale));
-      } else {
-        const relation = anchor && target.year < anchor.year ? copy.relationBefore : copy.relationAfter;
-        hintRelation = { ...prev.hintRelation, [target.id]: relation };
-        intelCost = 1;
-        message = copy.relationHintApplied(getTimelineEventText(target, locale, "title"), relation, anchor ? getTimelineEventText(anchor, locale, "title") : "");
-      }
-
+      if (!prev || prev.phase !== "playing" || !prev.placedOrderIds.includes(eventId)) return prev;
       return {
         ...prev,
-        intel: prev.intel - intelCost,
-        hintsUsedRound: prev.hintsUsedRound + 1,
-        hintRanges,
-        hintExact,
-        hintRelation,
-        message,
-        log: pushLog(prev.log, message),
+        placedOrderIds: prev.placedOrderIds.filter((id) => id !== eventId),
+        selectedPlacedId: prev.selectedPlacedId === eventId ? null : prev.selectedPlacedId,
+        message: copy.ready,
       };
     });
-  }, [copy, locale]);
+  }, [copy]);
 
-  const finalizeRound = useCallback((reason = "submit") => {
+  const selectPlacedCard = useCallback((eventId) => {
     setState((prev) => {
-      if (prev.phase !== "playing") return prev;
+      if (!prev || prev.phase !== "playing" || !prev.placedOrderIds.includes(eventId)) return prev;
+      if (!prev.selectedPlacedId) {
+        return { ...prev, selectedPlacedId: eventId, message: copy.pickSwap };
+      }
+      if (prev.selectedPlacedId === eventId) {
+        return { ...prev, selectedPlacedId: null, message: copy.ready };
+      }
+      const firstIndex = prev.placedOrderIds.indexOf(prev.selectedPlacedId);
+      const secondIndex = prev.placedOrderIds.indexOf(eventId);
+      if (firstIndex < 0 || secondIndex < 0) {
+        return { ...prev, selectedPlacedId: null, message: copy.ready };
+      }
+      const placedOrderIds = [...prev.placedOrderIds];
+      [placedOrderIds[firstIndex], placedOrderIds[secondIndex]] = [placedOrderIds[secondIndex], placedOrderIds[firstIndex]];
+      return {
+        ...prev,
+        placedOrderIds,
+        selectedPlacedId: null,
+        message: copy.swapped,
+      };
+    });
+  }, [copy]);
+
+  const clearOrder = useCallback(() => {
+    setState((prev) => {
+      if (!prev || prev.phase !== "playing") return prev;
+      return {
+        ...prev,
+        placedOrderIds: [],
+        selectedPlacedId: null,
+        message: copy.orderCleared,
+      };
+    });
+  }, [copy]);
+
+  const finalizeRound = useCallback(() => {
+    setState((prev) => {
+      if (!prev || prev.phase !== "playing") return prev;
       const currentRound = getRound(prev);
       if (!currentRound) return prev;
-      const finalOrderIds = fillTimelineOrder(currentRound, prev.placedOrderIds);
+      const missing = Math.max(0, prev.mission.cardsPerRound - prev.placedOrderIds.length);
+      if (missing > 0) {
+        return { ...prev, message: copy.needCards(missing) };
+      }
       const evaluation = evaluateTimelineRound({
         round: currentRound,
-        placedOrderIds: finalOrderIds,
-        secondsLeft: prev.roundClock,
-        hintsUsed: prev.hintsUsedRound,
-        streakBefore: prev.streak,
+        placedOrderIds: prev.placedOrderIds,
+        secondsLeft: 0,
+        hintsUsed: 0,
+        streakBefore: 0,
       });
-      const score = prev.score + evaluation.scoreDelta;
-      const streak = evaluation.exactOrder ? prev.streak + 1 : 0;
-      const intel = prev.intel + (evaluation.exactOrder ? 1 : 0);
-      const message = reason === "timeout"
-        ? copy.roundTimeout(evaluation.correctSlots, currentRound.events.length, evaluation.scoreDelta)
-        : evaluation.exactOrder
-          ? copy.roundPerfect(evaluation.scoreDelta, streak)
-          : copy.roundResolved(evaluation.correctSlots, currentRound.events.length, evaluation.scoreDelta);
       return {
         ...prev,
         phase: "review",
-        placedOrderIds: finalOrderIds,
-        score,
-        streak,
-        bestStreak: Math.max(prev.bestStreak, streak),
-        intel,
-        history: [...prev.history, { roundNumber: prev.roundIndex + 1, reason, hintsUsed: prev.hintsUsedRound, secondsLeft: prev.roundClock, ...evaluation }],
-        message,
-        log: pushLog(prev.log, message),
+        selectedPlacedId: null,
+        history: [{ roundNumber: 1, reason: "submit", ...evaluation }],
+        message: evaluation.exactOrder ? copy.correctMessage : copy.wrongMessage,
       };
     });
   }, [copy]);
-
-  const nextRound = useCallback(() => {
-    setState((prev) => {
-      if (prev.phase !== "review") return prev;
-      if (prev.roundIndex >= prev.mission.totalRounds - 1) {
-        const report = summarizeTimelineMission(prev.mission, prev.history, prev.score);
-        const message = copy.missionFinished(formatRankLabel(copy, report.rank), report.totalScore);
-        return { ...prev, phase: "finished", message, log: pushLog(prev.log, message) };
-      }
-      const roundIndex = prev.roundIndex + 1;
-      const message = copy.roundStarted(roundIndex + 1, prev.mission.totalRounds);
-      return {
-        ...prev,
-        roundIndex,
-        phase: "playing",
-        roundClock: prev.mission.secondsPerRound,
-        placedOrderIds: [],
-        hintRanges: {},
-        hintExact: {},
-        hintRelation: {},
-        hintsUsedRound: 0,
-        message,
-        log: pushLog(prev.log, message),
-      };
-    });
-  }, [copy]);
-
-  const notifyNeedCards = useCallback(() => {
-    setState((prev) => {
-      if (prev.phase !== "playing") return prev;
-      const missing = Math.max(0, prev.mission.cardsPerRound - prev.placedOrderIds.length);
-      const message = copy.needCards(missing);
-      return { ...prev, message, log: pushLog(prev.log, message) };
-    });
-  }, [copy]);
-
-  const trySubmitRound = useCallback(() => {
-    if (!state) return;
-    if (state.phase !== "playing") return;
-    if (state.placedOrderIds.length < state.mission.cardsPerRound) {
-      notifyNeedCards();
-      return;
-    }
-    finalizeRound("submit");
-  }, [
-    finalizeRound,
-    notifyNeedCards,
-    state,
-  ]);
-
-  useEffect(() => {
-    if (!state) return undefined;
-    if (state.phase !== "playing" || state.roundClock <= 0) return undefined;
-    const timeoutId = window.setTimeout(() => {
-      setState((prev) => {
-        if (prev.phase !== "playing") return prev;
-        return { ...prev, roundClock: Math.max(0, prev.roundClock - 1) };
-      });
-    }, 1000);
-    return () => window.clearTimeout(timeoutId);
-  }, [state]);
-
-  useEffect(() => {
-    if (!state) return;
-    if (state.phase === "playing" && state.roundClock === 0) {
-      finalizeRound("timeout");
-    }
-  }, [finalizeRound, state]);
 
   useEffect(() => {
     if (!state) return undefined;
@@ -436,26 +253,6 @@ function TimelineKnowledgeGame() {
         if (lastId) removeCard(lastId);
         return;
       }
-      if (key === "h") {
-        event.preventDefault();
-        applyHint("range");
-        return;
-      }
-      if (key === "j") {
-        event.preventDefault();
-        applyHint("exact");
-        return;
-      }
-      if (key === "k") {
-        event.preventDefault();
-        applyHint("relation");
-        return;
-      }
-      if (key === "n" && state.phase === "review") {
-        event.preventDefault();
-        nextRound();
-        return;
-      }
       if (key === "r") {
         event.preventDefault();
         restart();
@@ -464,15 +261,7 @@ function TimelineKnowledgeGame() {
       if (key === "enter") {
         event.preventDefault();
         if (state.phase === "playing") {
-          if (state.placedOrderIds.length < state.mission.cardsPerRound) {
-            notifyNeedCards();
-            return;
-          }
-          finalizeRound("submit");
-          return;
-        }
-        if (state.phase === "review") {
-          nextRound();
+          finalizeRound();
           return;
         }
         restart();
@@ -482,11 +271,8 @@ function TimelineKnowledgeGame() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [
-    applyHint,
-    copy,
     finalizeRound,
-    nextRound,
-    notifyNeedCards,
+    hasWon,
     placeCard,
     remainingEvents,
     removeCard,
@@ -503,41 +289,37 @@ function TimelineKnowledgeGame() {
         coordinates: copy.coordinates,
         loading: true,
         status: "loading",
-        message: copy.missionLoaded(0, 0),
+        message: copy.loading,
       };
     }
     const activeRound = getRound(snapshot);
     const roundById = new Map((activeRound?.events ?? []).map((event) => [event.id, event]));
-    const cards = (activeRound?.shuffledOrderIds ?? []).map((eventId) => {
-      const event = roundById.get(eventId);
-      const exactVisible = snapshot.phase !== "playing" || snapshot.hintExact[eventId] || eventId === activeRound?.anchorId;
-      return {
-        id: eventId,
-        title: getTimelineEventText(event, locale, "title"),
-        year: exactVisible ? event?.year ?? null : null,
-        range: snapshot.hintRanges[eventId] ?? null,
-        relation: snapshot.hintRelation[eventId] ?? null,
-        placedIndex: snapshot.placedOrderIds.indexOf(eventId),
-      };
-    });
+    const result = snapshot.history?.[snapshot.history.length - 1] ?? null;
     return {
       mode: "knowledge-arcade",
       variant: "cronologia",
       locale,
       coordinates: copy.coordinates,
       match: { current: snapshot.matchId + 1, total: KNOWLEDGE_ARCADE_MATCH_COUNT },
-      mission: {
-        round: snapshot.roundIndex + 1,
-        totalRounds: snapshot.mission.totalRounds,
-        phase: snapshot.phase,
-      },
-      score: snapshot.score,
-      streak: snapshot.streak,
-      intel: snapshot.intel,
-      timer: snapshot.roundClock,
-      hintsUsedRound: snapshot.hintsUsedRound,
-      cards,
-      historyTail: snapshot.history.slice(-3),
+      phase: snapshot.phase,
+      cardsPerRound: snapshot.mission.cardsPerRound,
+      pending: (activeRound?.shuffledOrderIds ?? [])
+        .filter((eventId) => !snapshot.placedOrderIds.includes(eventId))
+        .map((eventId) => ({
+          id: eventId,
+          title: getTimelineEventText(roundById.get(eventId), locale, "title"),
+        })),
+      order: snapshot.placedOrderIds.map((eventId, index) => {
+        const event = roundById.get(eventId);
+        return {
+          slot: index + 1,
+          id: eventId,
+          title: getTimelineEventText(event, locale, "title"),
+          year: snapshot.phase === "review" ? event?.year ?? null : null,
+        };
+      }),
+      result: result ? { exactOrder: result.exactOrder, correctSlots: result.correctSlots } : null,
+      selectedPlacedId: snapshot.selectedPlacedId,
       message: snapshot.message,
     };
   }, [copy, locale]);
@@ -545,62 +327,42 @@ function TimelineKnowledgeGame() {
   const advanceTime = useCallback(() => undefined, []);
   useGameRuntimeBridge(state, payloadBuilder, advanceTime);
 
-  if (!state || isLoading || !summary) {
+  const rootClassName = [
+    "mini-game",
+    "knowledge-game",
+    "knowledge-arcade-game",
+    "knowledge-cronologia",
+    viewport.isMobile ? "is-mobile" : "",
+    viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
+  ].filter(Boolean).join(" ");
+
+  if (!state || isLoading) {
     return (
-      <div
-        className={[
-          "mini-game",
-          "knowledge-game",
-          "knowledge-arcade-game",
-          "knowledge-cronologia",
-          viewport.isMobile ? "is-mobile" : "",
-          viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
-        ].filter(Boolean).join(" ")}
-      >
+      <div className={rootClassName}>
         <div className="mini-head timeline-hero">
           <div className="timeline-hero-copy">
             <h4>{copy.title}</h4>
             <p>{copy.subtitle}</p>
           </div>
         </div>
-
-        <section
-          className={[
-            "knowledge-mode-shell",
-            viewport.isMobile ? "knowledge-mobile-shell" : ""
-          ].filter(Boolean).join(" ")}
-        >
-          <p className="game-message">{copy.missionLoaded(0, 0)}</p>
+        <section className="knowledge-mode-shell timeline-shell">
+          <p className="game-message timeline-game-message">{copy.loading}</p>
         </section>
       </div>
     );
   }
 
-  const latestRoundResult = state.history[state.history.length - 1] ?? null;
-  const timerRatio = clamp01(state.roundClock / Math.max(1, state.mission.secondsPerRound));
+  const placedCount = state.placedOrderIds.length;
+  const canSubmit = state.phase === "playing" && placedCount === state.mission.cardsPerRound;
 
   return (
-    <div
-      className={[
-        "mini-game",
-        "knowledge-game",
-        "knowledge-arcade-game",
-        "knowledge-cronologia",
-        viewport.isMobile ? "is-mobile" : "",
-        viewport.isMobile ? `is-mobile-${viewport.orientation}` : ""
-      ].filter(Boolean).join(" ")}
-    >
+    <div className={rootClassName}>
       <div className="mini-head timeline-hero">
         <div className="timeline-hero-copy">
           <h4>{copy.title}</h4>
           <p>{copy.subtitle}</p>
         </div>
         <div className="timeline-head-actions">
-          {state.phase === "review" ? (
-            <button type="button" className="knowledge-ui-btn knowledge-ui-btn-secondary" onClick={nextRound}>
-              {copy.nextRound}
-            </button>
-          ) : null}
           <button type="button" className="knowledge-ui-btn knowledge-ui-btn-primary" onClick={restart}>
             {copy.restart}
           </button>
@@ -614,77 +376,51 @@ function TimelineKnowledgeGame() {
           viewport.isMobile ? "knowledge-mobile-shell" : ""
         ].filter(Boolean).join(" ")}
       >
-        <div className="timeline-command-strip">
-          <div className="timeline-kpi-grid">
-            <article className="timeline-kpi-card">
-              <span>{copy.round}</span>
-              <strong>{Math.min(state.roundIndex + 1, state.mission.totalRounds)}/{state.mission.totalRounds}</strong>
-            </article>
-            <article className="timeline-kpi-card">
-              <span>{copy.score}</span>
-              <strong>{state.score}</strong>
-            </article>
-            <article className="timeline-kpi-card">
-              <span>{copy.streak}</span>
-              <strong>{state.streak}</strong>
-            </article>
-            <article className="timeline-kpi-card">
-              <span>{copy.intel}</span>
-              <strong>{state.intel}</strong>
-            </article>
-            <article className="timeline-kpi-card">
-              <span>{copy.status}</span>
-              <strong>{phaseLabel(copy, state.phase)}</strong>
-            </article>
-          </div>
-          <article className="timeline-clock-card">
-            <span>{copy.timer}</span>
-            <div className="timeline-clock-bar" aria-hidden="true">
-              <i style={{ width: `${Math.round(timerRatio * 100)}%` }} />
-            </div>
-            <strong>{state.roundClock}s</strong>
-          </article>
+        <div className="timeline-status-row">
+          <strong>{placedCount}/{state.mission.cardsPerRound}</strong>
+          <span>{copy.placed}</span>
         </div>
 
-        <p className="timeline-shortcut-hint">{copy.shortcut}</p>
-
         <div className="timeline-board">
-          {anchorEvent ? (
-            <section className="timeline-anchor-card">
-              <h5>{copy.anchorTitle}</h5>
-              <strong>{getTimelineEventText(anchorEvent, locale, "title")}</strong>
-              <span>{formatTimelineYear(anchorEvent.year, locale)}</span>
-              {anchorSummary ? <p>{anchorSummary}</p> : null}
-            </section>
-          ) : null}
-
           <section className="timeline-track timeline-track-panel">
             <div className="timeline-panel-head">
-              <h5>{copy.timeline}</h5>
-              <span>{state.placedOrderIds.length}/{state.mission.cardsPerRound}</span>
+              <h5>{copy.order}</h5>
+              <span>{copy.oldest} - {copy.newest}</span>
             </div>
-            <div className="timeline-track-line" aria-hidden="true" />
             <ol className="timeline-track-slots">
               {Array.from({ length: state.mission.cardsPerRound }, (_, index) => {
                 const eventId = state.placedOrderIds[index] ?? null;
                 const event = eventId ? eventById.get(eventId) ?? null : null;
+                const eventSummary = event ? getTimelineEventText(event, locale, "summary").trim() : "";
+                const slotResult = latestRoundResult?.slotBreakdown?.[index] ?? null;
+                const slotClassName = [
+                  "timeline-slot-card",
+                  event ? "filled" : "",
+                  event && state.selectedPlacedId === event.id ? "is-selected" : "",
+                  state.phase === "review" && slotResult ? (slotResult.error === 0 ? "is-correct" : "is-wrong") : "",
+                ].filter(Boolean).join(" ");
                 return (
                   <li key={`slot-${index}`}>
                     {event ? (
                       <button
                         type="button"
-                        className="timeline-slot-card filled"
-                        onClick={() => removeCard(event.id)}
+                        className={slotClassName}
+                        onClick={() => selectPlacedCard(event.id)}
                         disabled={state.phase !== "playing"}
                         style={{ "--timeline-order": index }}
                       >
+                        <span className="timeline-slot-index">{index + 1}</span>
                         <strong>{getTimelineEventText(event, locale, "title")}</strong>
-                        <span>{state.phase === "playing" ? copy.hiddenYear : formatTimelineYear(event.year, locale)}</span>
+                        {eventSummary ? <span className="timeline-event-summary">{eventSummary}</span> : null}
+                        <span className="timeline-event-year">
+                          {state.phase === "review" ? formatTimelineYear(event.year, locale) : copy.swapAction}
+                        </span>
                       </button>
                     ) : (
                       <button type="button" className="timeline-slot-card" disabled>
-                        <strong>{copy.timeline} #{index + 1}</strong>
-                        <span>{copy.hiddenYear}</span>
+                        <span className="timeline-slot-index">{index + 1}</span>
+                        <strong>{copy.emptySlot(index + 1)}</strong>
+                        <span>{index === 0 ? copy.oldest : index === state.mission.cardsPerRound - 1 ? copy.newest : copy.hiddenYear}</span>
                       </button>
                     )}
                   </li>
@@ -695,21 +431,13 @@ function TimelineKnowledgeGame() {
 
           <section className="timeline-pool timeline-pool-panel">
             <div className="timeline-panel-head">
-              <h5>{copy.pending}</h5>
+              <h5>{copy.events}</h5>
               <span>{remainingEvents.length}</span>
             </div>
             {remainingEvents.length ? (
               <ul>
                 {remainingEvents.map((event, index) => {
-                  const exactVisible = state.phase !== "playing" || state.hintExact[event.id];
-                  const range = state.hintRanges[event.id];
-                  const relation = state.hintRelation[event.id];
                   const eventSummary = getTimelineEventText(event, locale, "summary").trim();
-                  const yearLabel = exactVisible
-                    ? formatTimelineYear(event.year, locale)
-                    : range
-                      ? `${formatTimelineYear(range[0], locale)} - ${formatTimelineYear(range[1], locale)}`
-                      : relation || copy.hiddenYear;
                   return (
                     <li key={event.id}>
                       <button
@@ -721,105 +449,47 @@ function TimelineKnowledgeGame() {
                       >
                         <span className="timeline-event-key">{index + 1}</span>
                         <strong>{getTimelineEventText(event, locale, "title")}</strong>
-                        {eventSummary ? <p>{eventSummary}</p> : null}
-                        <span className="timeline-event-year">{yearLabel}</span>
+                        {eventSummary ? <span className="timeline-event-summary">{eventSummary}</span> : null}
+                        <span className="timeline-event-year">{copy.addCard}</span>
                       </button>
                     </li>
                   );
                 })}
               </ul>
             ) : (
-              <p className="timeline-empty">{copy.noPendingEvents}</p>
+              <p className="timeline-empty">{copy.needCards(0)}</p>
             )}
           </section>
         </div>
 
-        <section className="timeline-actions-dock">
-          <button type="button" className="knowledge-ui-btn knowledge-ui-btn-secondary" onClick={() => applyHint("range")} disabled={state.phase !== "playing"}>
-            {copy.hintRange}
-          </button>
-          <button type="button" className="knowledge-ui-btn knowledge-ui-btn-secondary" onClick={() => applyHint("exact")} disabled={state.phase !== "playing"}>
-            {copy.hintExact}
-          </button>
-          <button type="button" className="knowledge-ui-btn knowledge-ui-btn-secondary" onClick={() => applyHint("relation")} disabled={state.phase !== "playing" || !anchorEvent}>
-            {copy.hintRelation}
-          </button>
-          <button type="button" className="knowledge-ui-btn" onClick={clearOrder} disabled={state.phase !== "playing" || !state.placedOrderIds.length}>
-            {copy.clear}
-          </button>
-          <button
-            type="button"
-            className="knowledge-ui-btn knowledge-ui-btn-accent"
-            onClick={trySubmitRound}
-            disabled={state.phase !== "playing"}
-          >
-            {copy.submit}
-          </button>
-        </section>
-
         {latestRoundResult ? (
-          <section className="timeline-review-panel">
-            <h5>{copy.review}</h5>
-            <div className="timeline-review-grid">
-              <article>
-                <h6>{copy.expected}</h6>
-                <ol>
-                  {latestRoundResult.expectedOrderIds.map((eventId) => {
-                    const event = eventById.get(eventId);
-                    if (!event) return null;
-                    return (
-                      <li key={`expected-${eventId}`}>
-                        <strong>{getTimelineEventText(event, locale, "title")}</strong>
-                        <span>{formatTimelineYear(event.year, locale)}</span>
-                      </li>
-                    );
-                  })}
-                </ol>
-              </article>
-              <article>
-                <h6>{copy.yours}</h6>
-                <ol>
-                  {latestRoundResult.finalOrderIds.map((eventId, index) => {
-                    const event = eventById.get(eventId);
-                    if (!event) return null;
-                    const slotData = latestRoundResult.slotBreakdown[index];
-                    return (
-                      <li key={`actual-${eventId}`}>
-                        <strong>{getTimelineEventText(event, locale, "title")}</strong>
-                        <span>{formatTimelineYear(event.year, locale)}</span>
-                        <em>+{slotData?.error ?? 0}</em>
-                      </li>
-                    );
-                  })}
-                </ol>
-              </article>
-            </div>
+          <section className={["timeline-result-panel", hasWon ? "is-success" : "is-fail"].join(" ")}>
+            <h5>{hasWon ? copy.correctTitle : copy.wrongTitle}</h5>
+            <p>{state.message}</p>
           </section>
         ) : null}
 
-        <div className="timeline-feedback-row">
-          <section className="timeline-summary-panel">
-            <h5>{copy.summary}</h5>
-            <ul>
-              <li>{copy.status}: <strong>{phaseLabel(copy, state.phase)}</strong></li>
-              <li>{copy.score}: <strong>{summary.totalScore}</strong></li>
-              <li>{copy.streak}: <strong>{state.bestStreak}</strong></li>
-              <li>{copy.round}: <strong>{summary.roundsPlayed}/{summary.roundsTarget}</strong></li>
-              <li>{copy.avgAccuracy}: <strong>{pct(summary.averageAccuracy)}</strong></li>
-              <li>{copy.avgChronology}: <strong>{pct(summary.averageChronology)}</strong></li>
-              <li>{copy.rank}: <strong>{formatRankLabel(copy, summary.rank)}</strong></li>
-            </ul>
-          </section>
-
-          <section className="timeline-log-panel">
-            <h5>{copy.logTitle}</h5>
-            <ul>
-              {state.log.map((entry, index) => (
-                <li key={`log-${index}`}>{entry}</li>
-              ))}
-            </ul>
-          </section>
-        </div>
+        <section className="timeline-actions-dock">
+          {state.phase === "playing" ? (
+            <>
+              <button type="button" className="knowledge-ui-btn" onClick={clearOrder} disabled={!placedCount}>
+                {copy.clear}
+              </button>
+              <button
+                type="button"
+                className="knowledge-ui-btn knowledge-ui-btn-accent"
+                onClick={finalizeRound}
+                disabled={!canSubmit}
+              >
+                {copy.submit}
+              </button>
+            </>
+          ) : (
+            <button type="button" className="knowledge-ui-btn knowledge-ui-btn-primary" onClick={restart}>
+              {copy.restart}
+            </button>
+          )}
+        </section>
       </section>
 
       <p className="game-message timeline-game-message">{state.message}</p>
