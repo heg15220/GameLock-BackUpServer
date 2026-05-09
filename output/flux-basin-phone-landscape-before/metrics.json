@@ -1,0 +1,125 @@
+{
+  "url": "http://127.0.0.1:5237/games/arcade-reactor-toss",
+  "viewport": {
+    "w": 844,
+    "h": 390
+  },
+  "shell": {
+    "x": 3.1875,
+    "y": 57.328125,
+    "w": 837.625,
+    "h": 316.671875,
+    "bottom": 374,
+    "text": "Touch StagePantalla completaMundo 1 · Fundicion NeonFlux BasinArcade original de fisica tactil con o"
+  },
+  "body": {
+    "x": 12.1875,
+    "y": 106.6875,
+    "w": 819.625,
+    "h": 258.3125,
+    "bottom": 365,
+    "text": "Mundo 1 · Fundicion NeonFlux BasinArcade original de fisica tactil con orbita, rebote y captura magn"
+  },
+  "stageShell": {
+    "x": 12.1875,
+    "y": 106.6875,
+    "w": 819.625,
+    "h": 332,
+    "bottom": 438.6875,
+    "text": "Mundo 1 · Fundicion NeonFlux BasinArcade original de fisica tactil con orbita, rebote y captura magn"
+  },
+  "screenFrame": {
+    "x": 12.1875,
+    "y": 106.6875,
+    "w": 819.625,
+    "h": 332,
+    "bottom": 438.6875,
+    "text": "Mundo 1 · Fundicion NeonFlux BasinArcade original de fisica tactil con orbita, rebote y captura magn"
+  },
+  "screenGlass": {
+    "x": 20.1875,
+    "y": 114.6875,
+    "w": 803.625,
+    "h": 316,
+    "bottom": 430.6875,
+    "text": "Mundo 1 · Fundicion NeonFlux BasinArcade original de fisica tactil con orbita, rebote y captura magn"
+  },
+  "stageViewport": {
+    "x": 20.1875,
+    "y": 114.6875,
+    "w": 803.625,
+    "h": 316,
+    "bottom": 430.6875,
+    "text": "Mundo 1 · Fundicion NeonFlux BasinArcade original de fisica tactil con orbita, rebote y captura magn"
+  },
+  "game": {
+    "x": 20.1875,
+    "y": 114.6875,
+    "w": 803.625,
+    "h": 316,
+    "bottom": 430.6875,
+    "text": "Mundo 1 · Fundicion NeonFlux BasinArcade original de fisica tactil con orbita, rebote y captura magn"
+  },
+  "head": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "bottom": 0,
+    "text": "Mundo 1 · Fundicion NeonFlux BasinArcade original de fisica tactil con orbita, rebote y captura magn"
+  },
+  "shellInner": {
+    "x": 20.1875,
+    "y": 114.6875,
+    "w": 803.625,
+    "h": 310.890625,
+    "bottom": 425.578125,
+    "text": "Nivel1/100Estrellas0Intentos1Rebotes0Mejor0Tiempo5:00CalibracionIntroduce la orbita en la capsula re"
+  },
+  "side": {
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "bottom": 0,
+    "text": "Nivel1/100Estrellas0Intentos1Rebotes0Mejor0Tiempo5:00CalibracionIntroduce la orbita en la capsula re"
+  },
+  "stageWrap": {
+    "x": 20.1875,
+    "y": 114.6875,
+    "w": 803.625,
+    "h": 455.984375,
+    "bottom": 570.671875,
+    "text": "CalibracionTira hacia atras, suelta y deja que la fisica haga el resto.Tiempo: 5:00Estrellas: 0Skin:"
+  },
+  "canvasShell": {
+    "x": 24.703125,
+    "y": 119.203125,
+    "w": 794.59375,
+    "h": 446.953125,
+    "bottom": 566.15625,
+    "text": "Fundicion NeonFlux Basin100 niveles cortos en un laboratorio neon-industrial, con curva progresiva, "
+  },
+  "canvas": {
+    "x": 25.703125,
+    "y": 120.203125,
+    "w": 792.59375,
+    "h": 445.828125,
+    "bottom": 566.03125,
+    "text": ""
+  },
+  "overlayCard": {
+    "x": 242,
+    "y": 204.28125,
+    "w": 360,
+    "h": 276.796875,
+    "bottom": 481.078125,
+    "text": "Fundicion NeonFlux Basin100 niveles cortos en un laboratorio neon-industrial, con curva progresiva, "
+  },
+  "classes": "mobile-game-shell mobile-game-shell--landscape mobile-game-shell--mobile-first mobile-game-shell--device-phone mobile-game-shell--theme-default mobile-game-shell--touch-native",
+  "scroll": {
+    "x": 0,
+    "y": 0,
+    "docH": 4143
+  }
+}

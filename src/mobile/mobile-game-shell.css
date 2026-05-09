@@ -5561,7 +5561,8 @@
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-shell {
-  min-height: clamp(332px, 74svh, 540px);
+  min-height: 0;
+  height: 100%;
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-game {
@@ -5569,13 +5570,13 @@
   height: 100%;
   min-height: 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 0.32rem;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+  overflow: hidden;
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-head {
-  gap: 0.28rem;
-  align-items: center;
+  display: none;
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-head > div:first-child > p:not(.flux-basin-world),
@@ -5588,43 +5589,85 @@
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-shell {
   grid-template-columns: minmax(0, 1fr);
-  gap: 0.34rem;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+  width: 100%;
+  height: 100%;
   min-height: 0;
+  overflow: hidden;
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-side {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.34rem;
-}
-
-.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-panel {
-  padding: 0.5rem;
-  gap: 0.34rem;
+  display: none;
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-stage-wrap {
-  order: -1;
+  width: 100%;
+  height: 100%;
   min-height: 0;
-  padding: 0.22rem;
-  gap: 0.26rem;
+  max-height: 100%;
+  padding: 0.14rem;
+  gap: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-canvas-shell {
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
   min-height: 0 !important;
   height: 100%;
   padding: 0;
   border-radius: 16px;
+  aspect-ratio: 16 / 9;
+  flex: 0 1 auto;
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-canvas {
   width: 100% !important;
-  height: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
   max-height: 100% !important;
   object-fit: contain;
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay-card {
   max-width: min(100%, 360px);
+  max-height: calc(100% - 0.5rem);
+  overflow-y: auto;
+  gap: 0.38rem;
+  padding: 0.62rem 0.72rem;
+  border-radius: 16px;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay {
+  padding: 0.32rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay-card h5 {
+  font-size: 0.96rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay-card p {
+  font-size: 0.72rem;
+  line-height: 1.28;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay-eyebrow {
+  font-size: 0.58rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay-actions {
+  gap: 0.32rem;
+}
+
+.mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-reactor-toss"] .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .flux-basin-overlay-actions button {
+  padding: 0.44rem 0.56rem;
+  border-radius: 10px;
+  font-size: 0.68rem;
 }
 
 .mobile-game-shell--device-phone.mobile-game-shell--landscape.mobile-game-shell--touch-native[data-game-id="arcade-golf-tour-2d"] {
