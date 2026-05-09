@@ -175,7 +175,9 @@ function App() {
           <div className="background-orb orb-b" aria-hidden="true" />
 
           <header className="hero">
-            <img className="brand-logo" src={gameLockLogo} alt="GameLock" />
+            <div className="brand-logo-frame">
+              <img className="brand-logo" src={gameLockLogo} alt="GameLock" />
+            </div>
             <p className="hero-tagline">{t("heroTagline")}</p>
           </header>
 

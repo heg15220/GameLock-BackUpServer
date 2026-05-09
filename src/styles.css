@@ -274,23 +274,56 @@ body {
 }
 
 .hero {
+  --hero-pad: clamp(1.1rem, 2.5vw, 1.9rem);
+  overflow: hidden;
   background:
-    radial-gradient(ellipse 55% 75% at 100% 0%, rgba(214, 234, 128, 0.36), transparent 62%),
-    radial-gradient(ellipse 45% 60% at 100% 100%, rgba(210, 188, 222, 0.24), transparent 60%),
-    radial-gradient(ellipse 70% 110% at 0% 45%, rgba(168, 204, 234, 0.28), transparent 68%),
-    linear-gradient(100deg, #e7f0fa 0%, #fbfcf3 70%, #f4f6dc 100%);
+    radial-gradient(ellipse 34% 72% at 63% 18%, rgba(198, 255, 0, 0.2), transparent 66%),
+    radial-gradient(ellipse 36% 74% at 3% 84%, rgba(0, 229, 195, 0.16), transparent 66%),
+    linear-gradient(135deg, #ffffff 0%, #f8fbff 42%, #eef5ff 100%);
   border: 1px solid var(--line);
   border-radius: 24px;
   box-shadow: var(--shadow);
-  padding: clamp(1.1rem, 2.5vw, 1.9rem);
+  padding: var(--hero-pad);
   animation: rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.brand-logo {
+.brand-logo-frame {
+  --logo-bleed: clamp(0.85rem, 1.8vw, 1.5rem);
+  position: relative;
   display: block;
-  width: min(560px, 100%);
+  width: min(calc(560px + (var(--logo-bleed) * 2)), 100%);
   height: auto;
-  margin: 0 0 0.7rem;
+  margin:
+    calc(var(--logo-bleed) * -1)
+    0
+    calc(0.7rem - var(--logo-bleed))
+    calc(var(--logo-bleed) * -1);
+  padding: var(--logo-bleed);
+}
+
+.brand-logo-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: url("./assets/brand/gamelock-logo-bg-bleed.png") center / 100% 100% no-repeat;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 var(--logo-bleed), #000 calc(100% - var(--logo-bleed)), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 var(--logo-bleed), #000 calc(100% - var(--logo-bleed)), transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 var(--logo-bleed), #000 calc(100% - var(--logo-bleed)), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 var(--logo-bleed), #000 calc(100% - var(--logo-bleed)), transparent 100%);
+  mask-composite: intersect;
+}
+
+.brand-logo {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
 }
 
 .pill {
