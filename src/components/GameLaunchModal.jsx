@@ -287,7 +287,7 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
                   </div>
                 }
               >
-                <ActiveGame />
+                <ActiveGame locale={locale} />
                 {import.meta.env.VITE_BENCH ? <BenchReadyMarker gameId={gameId} /> : null}
               </MobileGameShell>
             ) : (
@@ -337,7 +337,7 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
                               </div>
                             }
                           >
-                            <ActiveGame />
+                            <ActiveGame locale={locale} />
                             {import.meta.env.VITE_BENCH ? <BenchReadyMarker gameId={gameId} /> : null}
                           </Suspense>
                         </div>

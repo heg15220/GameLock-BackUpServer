@@ -68,7 +68,7 @@ const STRATEGY_INTROS = {
     },
     en: {
       eyebrow: "Strategy / Checkers",
-      title: "Damas Estrategia Pro",
+      title: "Checkers Strategy Pro",
       lead: "8x8 checkers with chain captures, mistake limits and a multi-level AI.",
       what:
         "Checkers is a turn-based board game where you move your 12 pieces diagonally to capture the rival's by jumping over them. Pieces that reach the far row get crowned as kings and can move in both directions. This version also penalises illegal moves and offers configurable rules to resolve blocked positions.",
@@ -104,7 +104,7 @@ const STRATEGY_INTROS = {
     },
     en: {
       eyebrow: "Strategy / Sudoku",
-      title: "Sudoku Tecnicas Pro",
+      title: "Sudoku Techniques Pro",
       lead: "Classic 9x9 Sudoku with reasoned hints and adjustable difficulties.",
       what:
         "Sudoku is about filling a 9x9 grid with numbers 1 to 9 without repeating any digit in a row, column or 3x3 box. This version generates boards with a unique solution and, when you get stuck, can apply a reasoned hint using classic techniques such as line sweeping, naked sets or counting.",
@@ -140,7 +140,7 @@ const STRATEGY_INTROS = {
     },
     en: {
       eyebrow: "Strategy / Battleship",
-      title: "Hundir la Flota Pro",
+      title: "Battleship Pro",
       lead: "Classic Card 4x3 edition with hidden coordinates, peg cards and tactical powers.",
       what:
         "Battleship is a turn-based naval duel where each player hides their fleet and fires at enemy coordinates until everything is sunk. This adaptation follows the Classic Card ruleset: you arrange 12 coordinate cards face-down (5 ships and 7 misses) on a 4x3 grid and manage a five-card battle hand of pegs and powers.",
@@ -211,11 +211,11 @@ const STRATEGY_INTROS = {
         "Tras pulsar el boton podras elegir tu color de fichas y otros ajustes en los paneles. Despues pulsa Iniciar partida para tirar el primer dado."
     },
     en: {
-      eyebrow: "Strategy / Parchis",
-      title: "Parchis Ludoteka Arena",
-      lead: "Solo strategy parchis (you vs 3 AIs) with captures, barriers and bonuses.",
+      eyebrow: "Strategy / Board",
+      title: "Ludoteka Arena",
+      lead: "Solo strategy board game (you vs 3 AIs) with captures, barriers and bonuses.",
       what:
-        "Parchis is a turn-based board game where you move your four tokens around the board based on a dice roll, trying to reach home before your opponents. This version implements the key Ludoteka rules: mandatory exit on a 5, extra turn on a 6, triple-six rule, safe squares, captures, barriers and exact-roll finish.",
+        "It is a turn-based board game where you move your four tokens around the board based on a dice roll, trying to reach home before your opponents. This version implements the key Ludoteka rules: mandatory exit on a 5, extra turn on a 6, triple-six rule, safe squares, captures, barriers and exact-roll finish.",
       bullets: [
         "Core rules: 5 to exit, extra turn on 6, triple-6 penalty.",
         "Stackable +10 (crowning) and +20 (capturing) bonuses.",
@@ -248,14 +248,14 @@ const STRATEGY_INTROS = {
     },
     en: {
       eyebrow: "Strategy / Card Table",
-      title: "Baraja IA Arena",
-      lead: "Three modes on one table: Brisca/Tute, Mus and Escoba del 15.",
+      title: "AI Card Arena",
+      lead: "Three modes on one table: Brisca/Tute, Mus and Sweep 15.",
       what:
-        "This card table bundles three classic games. Brisca and Tute are trick-taking games where you win the trick with the highest card of the lead suit or a trump. Mus is a betting game in pairs with grandes, chicas, pares and juego. Escoba del 15 is about summing 15 points by combining one of your cards with table cards to capture them. You can switch between modes at any time using the top selector.",
+        "This card table bundles three classic games. Brisca and Tute are trick-taking games where you win the trick with the highest card of the lead suit or a trump. Mus is a betting game in pairs with grandes, chicas, pares and juego. Sweep 15 is about summing 15 points by combining one of your cards with table cards to capture them. You can switch between modes at any time using the top selector.",
       bullets: [
         "Brisca/Tute with a trick-taking engine and locale-aware deck.",
         "Mus to 40 stones with 2, 4 or 6 players (duel, pairs or 3v3).",
-        "Escoba del 15 for 2 to 4 players with optional forced pickups."
+        "Sweep 15 for 2 to 4 players with optional forced pickups."
       ],
       cta: "Start match",
       configHint:

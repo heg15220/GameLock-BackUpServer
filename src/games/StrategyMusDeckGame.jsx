@@ -335,7 +335,9 @@ const clockwiseOrderFromPlayers = (players) =>
 
 const isEs = () => typeof navigator !== "undefined" && String(navigator.language || "").toLowerCase().startsWith("es");
 const localeOf = () => (isEs() ? "es" : "en");
+const normalizeLocale = (locale) => (locale === "es" || locale === "en" ? locale : null);
 const tt = (loc) => T[loc] || T.en;
+const defaultVariantForLocale = (locale) => (locale === "es" ? "mus_classic" : "mus_english");
 const normVar = (id) => (VARIANTS[id] ? id : "mus_classic");
 const normDiff = (id) => (DIFF[id] ? id : "medium");
 const normPlayers = (n) => {
@@ -497,7 +499,7 @@ const createRound = (loc, variantId, diffId, playerCount, stones, round, manoId)
 };
 
 const createMatch = (loc, opts = {}) => {
-  const variantId = normVar(opts.variantId || "mus_classic");
+  const variantId = normVar(opts.variantId || defaultVariantForLocale(loc));
   const diffId = normDiff(opts.difficultyId || "medium");
   const playerCount = normPlayers(opts.playerCount || 4);
   const order = clockwiseOrderFromPlayers(makePlayers(tt(loc), playerCount));
@@ -1300,11 +1302,11 @@ function Card({ card, deckId, hidden = false, compact = false, onClick, disabled
   return onClick ? <button type="button" className={cls} onClick={onClick} disabled={disabled}>{face}</button> : <div className={cls}>{face}</div>;
 }
 
-function StrategyMusDeckGame() {
-  const locale = useMemo(localeOf, []);
+function StrategyMusDeckGame({ locale: localeOverride }) {
+  const locale = useMemo(() => normalizeLocale(localeOverride) ?? localeOf(), [localeOverride]);
   const t = useMemo(() => tt(locale), [locale]);
   const [s, setS] = useState(() => createMatch(locale));
-  const [pVar, setPVar] = useState("mus_classic");
+  const [pVar, setPVar] = useState(() => defaultVariantForLocale(locale));
   const [pDiff, setPDiff] = useState("medium");
   const [pPlayers, setPPlayers] = useState(4);
   const [showHandInfo, setShowHandInfo] = useState(false);

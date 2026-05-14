@@ -1074,6 +1074,7 @@ export const games = [
     sessionTime: "3-12 min",
 
     title: "Buscaminas IA Classic",
+    title_en: "AI Minesweeper Classic",
     category: "Arcade",
     tagline: "Buscaminas cl\u00e1sico: deduce minas, marca banderas y despeja casillas.",
     description:
@@ -2413,7 +2414,7 @@ export const games = [
     sessionTime: "8-18 min",
 
     title: "Parchis Ludoteka Arena",
-    title_en: "Parcheesi Ludoteka Arena",
+    title_en: "Ludoteka Arena",
     category: "Estrategia",
     tagline: "Parch\u00eds contra IAs: captura, bloquea y lleva fichas a meta.",
     description:
@@ -2562,14 +2563,14 @@ export const games = [
     category: "Estrategia",
     tagline: "Colecci\u00f3n de cartas: Brisca/Tute, Mus y Escoba contra IA.",
     description:
-      "Juego de cartas estrategico con selector de modalidad: Brisca/Tute mantiene el motor de bazas original, Mus anade un modo configurable a 40 piedras (2/4/6 jugadores) y Escoba del 15 incorpora mesa de 2 a 4 jugadores. En navegadores con idioma es* se usa baraja espanola de 40; en el resto, baraja inglesa adaptada (sin 8, 9, 10).",
+      "Juego de cartas estrategico con selector de modalidad: Brisca/Tute mantiene el motor de bazas original, Mus anade un modo configurable a 40 piedras (2/4/6 jugadores) y Escoba del 15 incorpora mesa de 2 a 4 jugadores. En la version espanola se usa baraja espanola de 40; en la version inglesa, baraja inglesa adaptada.",
     objective_es: "Elige modalidad: gana bazas en Brisca/Tute, llega a 40 piedras en Mus o suma 15 para capturar cartas y puntuar categorias en Escoba.",
     howToPlay_es: "Usa el selector superior para cambiar de modalidad. Brisca/Tute: click o teclas 1-3 para jugar carta. Mus: M/X para Mus-No Mus, 1-4 para descarte, Enter confirma, N siguiente mano y R reinicia. Escoba: marca cartas de mesa y juega una carta para sumar 15 (teclas 1-3, Enter primera carta, N siguiente mano, R reinicia).",
     highlights: [
       "Triple modalidad en un mismo juego: Brisca/Tute + Mus + Escoba.",
       "Mus configurable con 2, 4 o 6 jugadores IA+tu (duelo, parejas o 3v3).",
       "Version Mus clasica con baraja espanola de 40 y version adaptada con baraja inglesa.",
-      "Escoba del 15 con baraja segun idioma del navegador: es* usa espanola de 40; resto usa inglesa adaptada sin 8/9/10 (Diamantes=Oros, Corazones=Copas, Treboles=Bastos, Picas=Espadas).",
+      "Escoba del 15 con baraja segun idioma activo: espanol usa espanola de 40; ingles usa inglesa adaptada sin 8/9/10 (Diamantes=Oros, Corazones=Copas, Treboles=Bastos, Picas=Espadas).",
       "Escoba configurable en 2/3/4 jugadores, opcion de recogida obligatoria y variante por parejas (2v2).",
       "IA configurable por dificultad en ambas modalidades.",
       "Selector de modo sin perder continuidad del juego de baraja existente.",
@@ -2583,17 +2584,17 @@ export const games = [
     techFocus: "Convivencia de motor Brisca/Tute existente con motor Mus (lances, descarte y tanteo a 40 piedras) y motor Escoba del 15 (capturas por suma, escobas y puntuacion por categorias), incluyendo adaptaciones de baraja inglesa.",
 
     category_en: "Strategy",
-    tagline_en: "Card-game collection: Brisca/Tute, Mus and Escoba against AI.",
+    tagline_en: "Card-game collection: Brisca/Tute, Mus and Sweep 15 against AI.",
     description_en:
-      "Card strategy game with a top mode switch: Brisca/Tute keeps the original trick-taking engine, Mus adds a configurable race to 40 stones (2/4/6 players), and Escoba 15 adds a 2-to-4 player capture mode. Browsers with es* locale use the traditional 40-card Spanish deck; other locales use the adapted 40-card English deck (8/9/10 removed).",
-    objective_en: "Choose mode: win tricks in Brisca/Tute, reach 40 stones in Mus, or build 15-point captures in Escoba to score category points.",
-    howToPlay_en: "Use the top switch to change mode. Brisca/Tute: click or keys 1-3 to play cards. Mus: M/X for Mus-No Mus, 1-4 for discard, Enter confirms, N next hand, R restart. Escoba: mark table cards and play a hand card to sum 15 (keys 1-3, Enter first card, N next hand, R restart).",
+      "Card strategy game with a top mode switch: Brisca/Tute keeps the original trick-taking engine, Mus adds a configurable race to 40 stones (2/4/6 players), and Sweep 15 adds a 2-to-4 player capture mode. The Spanish version uses the traditional 40-card Spanish deck; the English version uses the adapted English deck.",
+    objective_en: "Choose mode: win tricks in Brisca/Tute, reach 40 stones in Mus, or build 15-point captures in Sweep 15 to score category points.",
+    howToPlay_en: "Use the top switch to change mode. Brisca/Tute: click or keys 1-3 to play cards. Mus: M/X for Mus-No Mus, 1-4 for discard, Enter confirms, N next hand, R restart. Sweep 15: mark table cards and play a hand card to sum 15 (keys 1-3, Enter first card, N next hand, R restart).",
     highlights_en: [
-      "Triple mode in one game: Brisca/Tute + Mus + Escoba.",
+      "Triple mode in one game: Brisca/Tute + Mus + Sweep 15.",
       "Mus flow supports 2/4/6 players (duel, pairs, and 3v3) with Grande, Chica, Pairs, and Juego/Point lances.",
       "Classic Mus on Spanish 40-card deck plus an adapted English-deck variant.",
-      "Escoba 15 selects deck by browser locale: es* uses traditional Spanish 40-card deck; other locales use adapted English 40-card deck with suit mapping Diamonds=Oros, Hearts=Copas, Clubs=Bastos, Spades=Espadas.",
-      "Escoba supports 2/3/4 players, mandatory-capture option, and optional 2v2 pair accounting.",
+      "Sweep 15 selects deck by active language: Spanish uses the traditional 40-card Spanish deck; English uses adapted English cards with suit mapping Diamonds=Oros, Hearts=Copas, Clubs=Bastos, Spades=Espadas.",
+      "Sweep 15 supports 2/3/4 players, mandatory-capture option, and optional 2v2 pair accounting.",
       "Configurable AI difficulty across both modes.",
       "Mode switch keeps existing card-game flow intact.",
       "Spanish card art source: mcmd/playingcards.io-spanish.playing.cards.",
@@ -2601,9 +2602,9 @@ export const games = [
     ],
     difficulty_en: "Medium",
     multiplayer_en: "Solo vs AI",
-    viability_en: "High: compact state across three discrete engines (tricks + Mus lances + Escoba captures).",
+    viability_en: "High: compact state across three discrete engines (tricks + Mus lances + Sweep 15 captures).",
     visualStyle_en: "Tactical card table with top mode switch and mode-specific status panels.",
-    techFocus_en: "Coexistence of existing Brisca/Tute engine with Mus (discard/lances/race to 40) and Escoba 15 (sum captures/escobas/category scoring), including adapted English-deck rules.",
+    techFocus_en: "Coexistence of existing Brisca/Tute engine with Mus (discard/lances/race to 40) and Sweep 15 (sum captures/sweeps/category scoring), including adapted English-deck rules.",
   },
 
   {
@@ -3207,6 +3208,7 @@ export const games = [
     image: arcadeValleTranquiloImage,
     sessionTime: "8-20 min",
     title: "Valle Tranquilo",
+    title_en: "Quiet Valley",
     category: "Juegos",
     tagline: "Granja tranquila: cultiva, pesca y mejora tu vida diaria.",
     description:
@@ -3315,6 +3317,7 @@ export const games = [
     sessionTime: "15-25 min",
 
     title: "Ascenso a la Cumbre",
+    title_en: "Summit Ascent",
     category: "Juegos",
     tagline: "Escalada vertical 2D: gestiona estamina, cuevas y meteorología hasta plantar la bandera.",
     description:

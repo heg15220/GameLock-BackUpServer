@@ -5,6 +5,8 @@ const isEsLocale = () =>
   typeof navigator !== "undefined" &&
   String(navigator.language || "").toLowerCase().startsWith("es");
 
+const normalizeLocale = (locale) => (locale === "es" || locale === "en" ? locale : null);
+
 /**
  * StrategyIntroGate
  * ─────────────────────────────────────────────────────────────────────────────
@@ -15,8 +17,11 @@ const isEsLocale = () =>
  *
  * Falls back to rendering the bare game when no intro copy is registered.
  */
-function StrategyIntroGate({ gameId, children }) {
-  const locale = useMemo(() => (isEsLocale() ? "es" : "en"), []);
+function StrategyIntroGate({ gameId, children, locale: localeOverride }) {
+  const locale = useMemo(
+    () => normalizeLocale(localeOverride) ?? (isEsLocale() ? "es" : "en"),
+    [localeOverride]
+  );
   const intro = useMemo(() => getStrategyIntro(gameId, locale), [gameId, locale]);
   const [opened, setOpened] = useState(false);
 
@@ -82,7 +87,7 @@ function StrategyIntroGate({ gameId, children }) {
  */
 export function withStrategyIntro(gameId, GameComponent) {
   const Wrapped = (props) => (
-    <StrategyIntroGate gameId={gameId}>
+    <StrategyIntroGate gameId={gameId} locale={props.locale}>
       <GameComponent {...props} />
     </StrategyIntroGate>
   );

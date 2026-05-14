@@ -7,11 +7,13 @@ const isEs = () =>
   typeof navigator !== "undefined" &&
   String(navigator.language || "").toLowerCase().startsWith("es");
 
+const normalizeLocale = (locale) => (locale === "es" || locale === "en" ? locale : null);
+
 const TEXT = {
   es: {
     brisca: "Brisca/Tute",
     mus: "Mus",
-    escoba: "Escoba",
+    escoba: "Escoba del 15",
     helper: "Selecciona modalidad de baraja",
     modeLabel: "Modo",
     activeMode: "Activo",
@@ -19,15 +21,18 @@ const TEXT = {
   en: {
     brisca: "Brisca/Tute",
     mus: "Mus",
-    escoba: "Escoba",
+    escoba: "Sweep 15",
     helper: "Select card mode",
     modeLabel: "Mode",
     activeMode: "Active",
   },
 };
 
-function StrategyBarajaModesGame() {
-  const locale = useMemo(() => (isEs() ? "es" : "en"), []);
+function StrategyBarajaModesGame({ locale: localeOverride }) {
+  const locale = useMemo(
+    () => normalizeLocale(localeOverride) ?? (isEs() ? "es" : "en"),
+    [localeOverride]
+  );
   const t = TEXT[locale] || TEXT.en;
   const [mode, setMode] = useState("brisca");
   const modeLabel = mode === "mus" ? t.mus : mode === "escoba" ? t.escoba : t.brisca;
@@ -59,11 +64,11 @@ function StrategyBarajaModesGame() {
         </p>
       </div>
       {mode === "mus" ? (
-        <StrategyMusDeckGame />
+        <StrategyMusDeckGame locale={locale} />
       ) : mode === "escoba" ? (
-        <StrategyEscobaDeckGame />
+        <StrategyEscobaDeckGame locale={locale} />
       ) : (
-        <StrategyBriscaDeckGame />
+        <StrategyBriscaDeckGame locale={locale} />
       )}
     </div>
   );

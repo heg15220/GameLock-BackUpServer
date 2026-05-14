@@ -207,11 +207,11 @@ const T = {
     newHandStart: "Nueva mano iniciada.",
   },
   en: {
-    title: "AI Escoba 15",
+    title: "AI Sweep 15",
     subtitleSpanish:
-      "Escoba mode using the traditional 40-card Spanish deck (A..7, S, C, R).",
+      "Sweep 15 mode using the traditional 40-card Spanish deck (A..7, S, C, R).",
     subtitleEnglishAdapted:
-      "Escoba mode with adapted English deck: 8/9/10 removed and suits mapped to Oros/Copas/Bastos/Espadas.",
+      "Sweep 15 mode with adapted English deck: 8/9/10 removed and suits mapped to Oros/Copas/Bastos/Espadas.",
     players: "Players",
     diff: "AI difficulty",
     target: "Target points",
@@ -236,7 +236,7 @@ const T = {
     stock: "Stock",
     table: "Table",
     scores: "Scoreboard",
-    escobas: "Escobas",
+    escobas: "Sweeps",
     captures: "Captures",
     hidden: "hidden",
     yourHand: "Your hand",
@@ -245,16 +245,16 @@ const T = {
     invalidCapture: "Invalid selection: selected cards do not make 15.",
     noCapture: "No capture available. Card dropped on table.",
     captured: "Capture completed.",
-    escobaMade: "Escoba completed.",
+    escobaMade: "Sweep completed.",
     handOver: "Hand finished. Review scoring breakdown.",
     tieBreak: "Tie above target. An extra tie-break hand will be played.",
     winner: "Winner",
     roundWinner: "Round winner",
     roundTie: "Round tie",
     wonRoundLed: "Won round",
-    matchEnd: "Escoba match finished",
+    matchEnd: "Sweep 15 match finished",
     summary: "Hand summary",
-    categoryEscobas: "Escobas",
+    categoryEscobas: "Sweeps",
     categorySevenOros: "Seven of Oros",
     categoryMostSevens: "Most sevens",
     categoryMostCards: "Most cards",
@@ -264,9 +264,9 @@ const T = {
       "Click table cards to mark them, then click your hand card to play. Keys: 1-3 play card, Enter plays first card, N next hand, R restart.",
     rulesTitle: "Applied rules",
     rulesSpanish:
-      "Escoba del 15 on the traditional 40-card Spanish deck. Values: Ace=1, 2..7 by rank, Sota=8, Caballo=9, Rey=10. Deal 3 cards to each player and 4 to the table; each play tries to make 15 with played card + table cards. Clearing table gives an escoba (+1). End-hand scoring: +1 per escoba, +1 seven of Oros, +1 most sevens, +1 most cards, +1 most Oros. Category ties award all tied owners.",
+      "Sweep 15 on the traditional 40-card Spanish deck. Values: Ace=1, 2..7 by rank, Sota=8, Caballo=9, Rey=10. Deal 3 cards to each player and 4 to the table; each play tries to make 15 with played card + table cards. Clearing the table scores a sweep (+1). End-hand scoring: +1 per sweep, +1 seven of Oros, +1 most sevens, +1 most cards, +1 most Oros. Category ties award all tied owners.",
     rulesEnglishAdapted:
-      "Escoba del 15 on an adapted English deck (40 cards): 8, 9 and 10 removed. Values: A=1..7=7, J=8, Q=9, K=10. Suit mapping: Diamonds=Oros, Hearts=Copas, Clubs=Bastos, Spades=Espadas. Deal 3 cards each and 4 to table; each play tries to make 15 using played card + table cards. Clearing table gives an escoba (+1). End-hand scoring: +1 each escoba, +1 seven of Oros, +1 most sevens, +1 most cards, +1 most Oros. Category ties award all tied owners.",
+      "Sweep 15 on an adapted English deck (40 cards): 8, 9 and 10 removed. Values: A=1..7=7, J=8, Q=9, K=10. Suit mapping: Diamonds=Oros, Hearts=Copas, Clubs=Bastos, Spades=Espadas. Deal 3 cards each and 4 to table; each play tries to make 15 using played card + table cards. Clearing the table scores a sweep (+1). End-hand scoring: +1 per sweep, +1 seven of Oros, +1 most sevens, +1 most cards, +1 most Oros. Category ties award all tied owners.",
     suitMap: "Suit map",
     teamUser: "Your team",
     teamRival: "Opponents",
@@ -289,7 +289,7 @@ const T = {
       "Mandatory capture is ON: you cannot drop a card when a 15 capture exists.",
     mandatoryHintOff:
       "Mandatory capture is OFF: you may drop a card without capturing.",
-    initialEscoba: "Dealer initial escoba(s)",
+    initialEscoba: "Dealer initial sweep(s)",
     redeal: "Dealt a new set of 3 cards.",
     newHandStart: "New hand started.",
   },
@@ -299,6 +299,7 @@ const isEs = () =>
   typeof navigator !== "undefined" &&
   String(navigator.language || "").toLowerCase().startsWith("es");
 const localeOf = () => (isEs() ? "es" : "en");
+const normalizeLocale = (locale) => (locale === "es" || locale === "en" ? locale : null);
 const tt = (loc) => T[loc] || T.en;
 const deckIdForLocale = (loc) => (loc === "es" ? "spanish" : "english_adapted");
 const normDeckId = (id) => (DECKS[id] ? id : "english_adapted");
@@ -1177,8 +1178,8 @@ function Card({
   return <div className={cls}>{face}</div>;
 }
 
-function StrategyEscobaDeckGame() {
-  const locale = useMemo(localeOf, []);
+function StrategyEscobaDeckGame({ locale: localeOverride }) {
+  const locale = useMemo(() => normalizeLocale(localeOverride) ?? localeOf(), [localeOverride]);
   const t = useMemo(() => tt(locale), [locale]);
   const [s, setS] = useState(() => createMatch(locale));
   const [pPlayers, setPPlayers] = useState(4);

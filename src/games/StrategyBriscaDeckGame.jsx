@@ -150,6 +150,7 @@ const EN_DECK = {
 
 const isEs = () => (typeof navigator !== "undefined" && String(navigator.language || "").toLowerCase().startsWith("es"));
 const localeOf = () => (isEs() ? "es" : "en");
+const normalizeLocale = (locale) => (locale === "es" || locale === "en" ? locale : null);
 const deckFor = (locale) => (locale === "es" ? SPANISH_DECK : EN_DECK);
 const textOf = (locale) => TEXT[locale] || TEXT.en;
 const normVariant = (id) => (VARIANTS[id] ? id : "brisca_duel");
@@ -648,8 +649,8 @@ function shouldUseCompactMobileLayout() {
   return (coarsePointer || hasTouch) && shortestSide <= 480 && longestSide <= 920;
 }
 
-function StrategyBriscaDeckGame() {
-  const locale = useMemo(localeOf, []);
+function StrategyBriscaDeckGame({ locale: localeOverride }) {
+  const locale = useMemo(() => normalizeLocale(localeOverride) ?? localeOf(), [localeOverride]);
   const t = useMemo(() => textOf(locale), [locale]);
   const [s, setS] = useState(() => createMatch(locale));
   const [pVar, setPVar] = useState("brisca_duel");

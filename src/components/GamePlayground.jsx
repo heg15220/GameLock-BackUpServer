@@ -293,8 +293,11 @@ function readStoredAdPreview() {
   return resolveStoredAdPreviewEnabled(stored);
 }
 
-function GamePlayground({ game }) {
-  const locale = useMemo(resolveBrowserLanguage, []);
+function GamePlayground({ game, locale: localeOverride }) {
+  const locale = useMemo(
+    () => (localeOverride === "es" || localeOverride === "en" ? localeOverride : resolveBrowserLanguage()),
+    [localeOverride]
+  );
   const [viewport, setViewport] = useState(getViewportProfile);
   const [adPreviewEnabled, setAdPreviewEnabled] = useState(readStoredAdPreview);
   const resolvedLocale = locale === "es" ? "es" : "en";
@@ -469,7 +472,7 @@ function GamePlayground({ game }) {
                 showSystemBottomAd={showMobileSystemBottomAd}
                 fallback={<p className="unsupported-game">{copy.loading}</p>}
               >
-                <ActiveGame />
+                <ActiveGame locale={resolvedLocale} />
               </MobileGameShell>
             ) : (
               <div className="playground-device-shell">
@@ -479,7 +482,7 @@ function GamePlayground({ game }) {
                   ) : null}
                   <div className="playground-device-content">
                     <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
-                      <ActiveGame />
+                      <ActiveGame locale={resolvedLocale} />
                     </Suspense>
                   </div>
                 </div>

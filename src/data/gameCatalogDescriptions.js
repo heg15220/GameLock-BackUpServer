@@ -197,7 +197,7 @@ export const gameCatalogDescriptions = {
   },
   "strategy-baraja-ia-arena": {
     es: "Colecci\u00f3n de cartas: Brisca/Tute, Mus y Escoba contra IA.",
-    en: "Card-game collection: Brisca/Tute, Mus and Escoba against AI.",
+    en: "Card-game collection: Brisca/Tute, Mus and Sweep 15 against AI.",
   },
   "strategy-mansion-triple-enigma": {
     es: "Deducci\u00f3n en una mansi\u00f3n: re\u00fane pistas y resuelve el misterio.",
