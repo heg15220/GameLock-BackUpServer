@@ -4,7 +4,7 @@ const src = fs.readFileSync(path, "utf8");
 const lines = src.split(/\r?\n/);
 
 const idLineRe = /^\s*E\("([a-z0-9-]+)"/;
-const startMarker = "hurricane-katrina-2005-v2";
+const startMarker = "grammy-awards-first-1959";
 let startIdx = lines.findIndex((l) => l.includes(startMarker));
 if (startIdx < 0) throw new Error("start marker not found");
 // new block starts after the marker line
