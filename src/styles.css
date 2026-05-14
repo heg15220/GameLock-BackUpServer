@@ -606,7 +606,9 @@ body {
   gap: 0.55rem;
 }
 
-.filter-group button {
+.filter-group a {
+  display: inline-flex;
+  align-items: center;
   border: 1px solid var(--line);
   background: var(--surface);
   color: var(--ink);
@@ -616,15 +618,16 @@ body {
   border-radius: 999px;
   padding: 0.45rem 0.9rem;
   cursor: pointer;
+  text-decoration: none;
   transition: all 180ms ease;
 }
 
-.filter-group button:hover {
+.filter-group a:hover {
   transform: translateY(-1px);
   border-color: rgba(37, 99, 255, 0.34);
 }
 
-.filter-group button.active {
+.filter-group a.active {
   background: linear-gradient(120deg, var(--brand-blue), var(--brand-purple));
   color: #ffffff;
   border-color: transparent;
@@ -821,6 +824,7 @@ body {
 }
 
 .enter-btn {
+  display: block;
   width: 100%;
   border: 0;
   border-radius: 11px;
@@ -831,12 +835,67 @@ body {
   font-weight: 700;
   padding: 0.6rem 0.82rem;
   cursor: pointer;
+  text-align: center;
+  text-decoration: none;
   transition: transform 160ms ease, filter 160ms ease;
 }
 
 .enter-btn:hover {
   transform: translateY(-1px);
   filter: brightness(1.05);
+}
+
+.seo-game-index {
+  margin-top: 1.4rem;
+  padding: 1rem;
+  border: 1px solid rgba(37, 99, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.seo-game-index h2 {
+  margin: 0 0 0.75rem;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.15;
+}
+
+.seo-game-index-groups {
+  columns: 3 220px;
+  column-gap: 1.2rem;
+}
+
+.seo-game-index-group {
+  break-inside: avoid;
+  margin: 0 0 0.9rem;
+}
+
+.seo-game-index-group h3 {
+  margin: 0 0 0.35rem;
+  color: var(--brand-blue);
+  font-size: 0.82rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.seo-game-index-group ul {
+  display: grid;
+  gap: 0.22rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seo-game-index-group a {
+  color: #334155;
+  font-size: 0.84rem;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.seo-game-index-group a:hover {
+  color: var(--brand-blue);
+  text-decoration: underline;
 }
 
 .detail-column {
@@ -2793,9 +2852,17 @@ body {
   padding: 0.6rem clamp(1rem, 4vw, 2rem) 0.7rem;
   background: linear-gradient(120deg, var(--surface) 0%, var(--surface-2) 100%);
   border-bottom: 1px solid var(--line);
-  max-height: 28vh;
+  max-height: 34vh;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.launch-title-heading {
+  margin: 0 0 0.25rem;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+  line-height: 1.1;
+  color: var(--ink);
 }
 
 .launch-tagline {
@@ -2841,6 +2908,17 @@ body {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.launch-seo-highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.25rem 1rem;
+  margin: 0.55rem 0 0;
+  padding-left: 1.1rem;
+  color: #526079;
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 /* ── Game area ───────────────────────────────────────────────────────────── */

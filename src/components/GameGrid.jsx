@@ -16,8 +16,8 @@ function getSportsPromoCopy(locale) {
       };
 }
 
-function GameGrid({ games, onLaunchGame, showSportsInterstitial = false }) {
-  const { t, locale } = useTranslations();
+function GameGrid({ games, onLaunchGame, locale: routeLocale, showSportsInterstitial = false }) {
+  const { t, locale } = useTranslations(routeLocale);
   const sportsPromoCopy = getSportsPromoCopy(locale);
 
   return (

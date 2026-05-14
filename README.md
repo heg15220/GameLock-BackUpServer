@@ -56,9 +56,24 @@ npm run dev
 ## Build de produccion
 
 ```bash
-npm run build
+SITE_URL=https://tu-dominio.com npm run build
 npm run preview
 ```
+
+En PowerShell:
+
+```powershell
+$env:SITE_URL="https://tu-dominio.com"; npm run build; npm run preview
+```
+
+`SITE_URL` o `VITE_SITE_URL` se usa para generar `public/sitemap.xml`,
+anadir la directiva absoluta `Sitemap:` en `public/robots.txt` y fijar las
+URLs canonicas de las paginas en produccion.
+
+El SEO publico usa URLs estables por idioma: `/en/` y `/es/`, con juegos en
+`/{idioma}/games/{id}` y categorias en `/{idioma}/categories/{categoria}`.
+Las rutas sin prefijo siguen funcionando por compatibilidad, pero canonizan a
+ingles como idioma principal.
 
 ## Estructura
 

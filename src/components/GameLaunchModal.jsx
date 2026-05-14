@@ -34,13 +34,13 @@ const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
   "knowledge-pasapalabra-rondo",
 ]);
 
-function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
-  const { t, locale } = useTranslations();
+function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale }) {
+  const { t, locale } = useTranslations(routeLocale);
   const lg = getLocalizedGame(game, locale);
   const ActiveGame = getGameComponent(game.id);
   const controlHint = CONTROL_HINTS_BY_LOCALE[locale]?.[game.id];
 
-  const [infoOpen, setInfoOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(true);
   const viewport = useMobileGameViewport();
 
   // Lock body scroll while the modal is open so the body scrollbar
@@ -204,6 +204,7 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
         {/* Info strip (colapsable) */}
         {infoOpen && !useMobileGameShell && (
           <header className="launch-info">
+            <h1 className="launch-title-heading">{lg.title}</h1>
             <p className="launch-tagline">{lg.catalogDescription}</p>
 
             <dl className="launch-facts">
@@ -228,6 +229,14 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled }) {
                 </div>
               )}
             </dl>
+
+            {Array.isArray(lg.highlights) && lg.highlights.length > 0 ? (
+              <ul className="launch-seo-highlights" aria-label={locale === "en" ? "Game highlights" : "Claves del juego"}>
+                {lg.highlights.slice(0, 4).map((highlight) => (
+                  <li key={highlight}>{highlight}</li>
+                ))}
+              </ul>
+            ) : null}
           </header>
         )}
 

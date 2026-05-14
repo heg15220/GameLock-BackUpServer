@@ -53,12 +53,15 @@ const CATEGORY_NAMES = {
   RPG: { es: "RPG", en: "RPG" },
 };
 
-export function useLocale() {
-  return useMemo(resolveBrowserLanguage, []);
+export function useLocale(localeOverride) {
+  return useMemo(
+    () => (localeOverride === "en" || localeOverride === "es" ? localeOverride : resolveBrowserLanguage()),
+    [localeOverride]
+  );
 }
 
-export function useTranslations() {
-  const locale = useLocale();
+export function useTranslations(localeOverride) {
+  const locale = useLocale(localeOverride);
   const strings = STRINGS[locale] ?? STRINGS.en;
   return {
     t: (key) => strings[key] ?? key,

@@ -1,15 +1,24 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useMatch, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AdPreviewCard from "./components/AdPreviewCard";
 import CookieConsentManager from "./components/CookieConsentManager";
 import { useConsent } from "./components/ConsentContext";
 import GameGrid from "./components/GameGrid";
 import GameLaunchModal from "./components/GameLaunchModal";
 import RouteAnalyticsTracker from "./components/RouteAnalyticsTracker";
+import SeoGameIndex from "./components/SeoGameIndex";
+import SeoManager from "./components/SeoManager";
 import { AD_PREVIEW_STORAGE_KEY, DESKTOP_AD_SLOTS, isAdPreviewEnabledByCode } from "./config/adPreview";
 import { games } from "./data/games";
 import { useTranslations, localizeCategory } from "./i18n";
 import gameLockLogo from "./assets/brand/gamelock-logo.png";
+import {
+  buildLocalizedCategoryPath,
+  buildLocalizedGamePath,
+  buildLocalizedPath,
+  getCategoryKeyFromSlug,
+  parseLocalizedPath,
+} from "./seo/seoRoutes";
 
 const ALL_KEY = "__all__";
 const PAGE_SIZE = 16;
@@ -26,21 +35,19 @@ const CATEGORY_ORDER = [
 ];
 const SPORTS_CATEGORY_KEYS = new Set(["Deportes", "Sports"]);
 
-function buildGamePath(gameId) {
-  return `/games/${encodeURIComponent(gameId)}`;
-}
-
 function App() {
-  const { t, locale } = useTranslations();
+  const location = useLocation();
+  const route = useMemo(() => parseLocalizedPath(location.pathname), [location.pathname]);
+  const locale = route.locale;
+  const { t } = useTranslations(locale);
   const {
     advertising,
     openSettings: openCookieSettings,
   } = useConsent();
   const navigate = useNavigate();
-  const gameRouteMatch = useMatch("/games/:gameId");
-  const matchedGameId = gameRouteMatch?.params?.gameId
-    ? decodeURIComponent(gameRouteMatch.params.gameId)
-    : null;
+  const matchedGameId = route.section === "games" ? route.id : null;
+  const routeCategoryKey =
+    route.section === "categories" && route.id ? getCategoryKeyFromSlug(route.id) : null;
   const launchedGameId = matchedGameId && games.some((g) => g.id === matchedGameId)
     ? matchedGameId
     : null;
@@ -58,13 +65,13 @@ function App() {
     const params = new URLSearchParams(hash);
     const legacyGameId = params.get("game");
     if (legacyGameId && games.some((g) => g.id === legacyGameId)) {
-      navigate(buildGamePath(legacyGameId), { replace: true });
+      navigate(buildLocalizedGamePath(locale, legacyGameId), { replace: true });
     } else {
       const url = new URL(window.location.href);
       url.hash = "";
       window.history.replaceState(null, "", `${url.pathname}${url.search}`);
     }
-  }, [navigate]);
+  }, [locale, navigate]);
 
   const categoryKeys = useMemo(() => {
     const uniqueKeys = [...new Set(games.map((g) => g.category))];
@@ -74,11 +81,14 @@ function App() {
   }, []);
 
   const filteredGames = useMemo(() => {
+    if (routeCategoryKey) {
+      return games.filter((g) => g.category === routeCategoryKey);
+    }
     if (activeCategory === ALL_KEY) {
       return games;
     }
     return games.filter((g) => g.category === activeCategory);
-  }, [activeCategory]);
+  }, [activeCategory, routeCategoryKey]);
 
   const totalPages = Math.max(1, Math.ceil(filteredGames.length / PAGE_SIZE));
 
@@ -102,17 +112,27 @@ function App() {
 
   const launchGame = (gameId) => {
     if (!games.some((g) => g.id === gameId)) return;
-    navigate(buildGamePath(gameId));
+    navigate(buildLocalizedGamePath(locale, gameId));
   };
 
   const closeModal = () => {
-    navigate("/", { replace: true });
+    navigate(buildLocalizedPath(locale, "/"), { replace: true });
   };
 
   const selectCategory = (key) => {
     setActiveCategory(key);
     setCurrentPage(1);
+    navigate(key === ALL_KEY ? buildLocalizedPath(locale, "/") : buildLocalizedCategoryPath(locale, key));
   };
+
+  useEffect(() => {
+    setCurrentPage(1);
+    if (routeCategoryKey) {
+      setActiveCategory(routeCategoryKey);
+    } else if (route.section !== "games") {
+      setActiveCategory(ALL_KEY);
+    }
+  }, [route.section, routeCategoryKey]);
 
   const pageStart = filteredGames.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
   const pageEnd = Math.min(currentPage * PAGE_SIZE, filteredGames.length);
@@ -133,17 +153,17 @@ function App() {
       const id = e?.detail;
       if (typeof id !== "string") return;
       if (games.some((g) => g.id === id)) {
-        navigate(buildGamePath(id));
+        navigate(buildLocalizedGamePath(locale, id));
       }
     };
-    const closeHandler = () => navigate("/", { replace: true });
+    const closeHandler = () => navigate(buildLocalizedPath(locale, "/"), { replace: true });
     window.addEventListener("bench:open-game", openHandler);
     window.addEventListener("bench:close-game", closeHandler);
     return () => {
       window.removeEventListener("bench:open-game", openHandler);
       window.removeEventListener("bench:close-game", closeHandler);
     };
-  }, [navigate]);
+  }, [locale, navigate]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -154,7 +174,8 @@ function App() {
     }));
   }, [adPreviewEnabled]);
 
-  const showSportsCatalogSubliminal = SPORTS_CATEGORY_KEYS.has(activeCategory);
+  const effectiveCategory = routeCategoryKey ?? activeCategory;
+  const showSportsCatalogSubliminal = SPORTS_CATEGORY_KEYS.has(effectiveCategory);
 
   return (
     <>
@@ -178,30 +199,47 @@ function App() {
             <div className="brand-logo-frame">
               <img className="brand-logo" src={gameLockLogo} alt="GameLock" />
             </div>
+            {!launchedGame ? (
+              <h1 className="hero-title-text">
+                {routeCategoryKey
+                  ? locale === "en"
+                    ? `${localizeCategory(routeCategoryKey, locale)} browser games`
+                    : `Juegos de ${localizeCategory(routeCategoryKey, locale).toLowerCase()} online gratis`
+                  : locale === "en"
+                    ? "GameLock - free instant browser games"
+                    : "GameLock - juegos online gratis e instantaneos"}
+              </h1>
+            ) : null}
             <p className="hero-tagline">{t("heroTagline")}</p>
           </header>
 
           <section className="catalog-toolbar">
             <h2>{t("exploreTitle")}</h2>
             <div className="filter-group">
-              <button
+              <a
                 key={ALL_KEY}
-                type="button"
-                className={activeCategory === ALL_KEY ? "active" : ""}
-                onClick={() => selectCategory(ALL_KEY)}
+                href={buildLocalizedPath(locale, "/")}
+                className={effectiveCategory === ALL_KEY ? "active" : ""}
+                onClick={(event) => {
+                  event.preventDefault();
+                  selectCategory(ALL_KEY);
+                }}
               >
                 {t("allCategories")}
-              </button>
+              </a>
 
               {categoryKeys.map((key) => (
-                <button
+                <a
                   key={key}
-                  type="button"
-                  className={activeCategory === key ? "active" : ""}
-                  onClick={() => selectCategory(key)}
+                  href={buildLocalizedCategoryPath(locale, key)}
+                  className={effectiveCategory === key ? "active" : ""}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    selectCategory(key);
+                  }}
                 >
                   {localizeCategory(key, locale)}
-                </button>
+                </a>
               ))}
             </div>
           </section>
@@ -250,6 +288,8 @@ function App() {
                 </div>
               </nav>
             )}
+
+            <SeoGameIndex games={games} locale={locale} onLaunchGame={launchGame} />
           </main>
 
           <footer className="site-footer">
@@ -288,8 +328,16 @@ function App() {
         </aside>
       </div>
 
-      {launchedGame && <GameLaunchModal game={launchedGame} onClose={closeModal} adPreviewEnabled={adPreviewEnabled} />}
+      {launchedGame && (
+        <GameLaunchModal
+          game={launchedGame}
+          onClose={closeModal}
+          adPreviewEnabled={adPreviewEnabled}
+          locale={locale}
+        />
+      )}
       <CookieConsentManager locale={locale} />
+      <SeoManager games={games} activeGame={launchedGame} activeCategory={routeCategoryKey} locale={locale} />
       <RouteAnalyticsTracker />
     </>
   );

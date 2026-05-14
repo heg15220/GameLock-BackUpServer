@@ -1,8 +1,10 @@
 import React from "react";
 import { getLocalizedGame } from "../i18n";
+import { buildLocalizedGamePath } from "../seo/seoRoutes";
 
 function GameCard({ game, index, locale, onLaunch, t, promoNote = null }) {
   const lg = getLocalizedGame(game, locale);
+  const gamePath = buildLocalizedGamePath(locale, game.id);
 
   return (
     <article
@@ -30,13 +32,17 @@ function GameCard({ game, index, locale, onLaunch, t, promoNote = null }) {
           <span>{lg.multiplayer}</span>
         </div>
 
-        <button
-          type="button"
+        <a
           className="enter-btn"
-          onClick={() => onLaunch(game.id)}
+          href={gamePath}
+          aria-label={`${t("startGame")}: ${lg.title}`}
+          onClick={(event) => {
+            event.preventDefault();
+            onLaunch(game.id);
+          }}
         >
           {t("startGame")}
-        </button>
+        </a>
 
         {promoNote ? (
           <div className="catalog-subliminal catalog-subliminal--sports">
