@@ -56,6 +56,12 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const adPreviewEnabled = isAdPreviewEnabledByCode() && Boolean(advertising);
 
+  useEffect(() => {
+    if (route.hasLocalePrefix) return;
+    const localizedPath = buildLocalizedPath(locale, location.pathname);
+    navigate(`${localizedPath}${location.search}${location.hash}`, { replace: true });
+  }, [locale, location.hash, location.pathname, location.search, navigate, route.hasLocalePrefix]);
+
   // Legacy hash links (e.g. /#game=arcade-pinball-wizard) get migrated once on
   // mount so existing bookmarks keep working under BrowserRouter.
   useEffect(() => {

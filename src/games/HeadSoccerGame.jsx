@@ -364,6 +364,229 @@ function formatClock(seconds) {
   return `${minutes}:${String(rest).padStart(2, "0")}`;
 }
 
+const HEAD_SOCCER_AUDIO_MUTED_KEY = "headSoccerAudioMuted";
+
+function readStoredHeadSoccerMuted() {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(HEAD_SOCCER_AUDIO_MUTED_KEY) === "1";
+}
+
+function createHeadSoccerAudio(initialMuted = false) {
+  let ctx = null;
+  let master = null;
+  let unlocked = false;
+  let lastEvent = null;
+  let eventCount = 0;
+  let muted = Boolean(initialMuted);
+
+  const applyMuteState = () => {
+    if (master) {
+      master.gain.value = muted ? 0 : 0.18;
+    }
+  };
+
+  const ensure = () => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+      return null;
+    }
+    if (!ctx) {
+      ctx = new AudioContextClass();
+      master = ctx.createGain();
+      applyMuteState();
+      master.connect(ctx.destination);
+    }
+    return ctx;
+  };
+
+  const unlock = () => {
+    const audioContext = ensure();
+    if (!audioContext) {
+      return;
+    }
+    if (audioContext.state === "suspended") {
+      audioContext.resume().catch(() => {});
+    }
+    unlocked = true;
+  };
+
+  const tone = (time, frequency, duration, options = {}) => {
+    if (!ctx || !master) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    osc.type = options.type || "sine";
+    osc.frequency.setValueAtTime(frequency, time);
+    if (options.to) {
+      osc.frequency.exponentialRampToValueAtTime(Math.max(20, options.to), time + duration);
+    }
+    filter.type = options.filterType || "lowpass";
+    filter.frequency.setValueAtTime(options.filter || 1800, time);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, options.gain || 0.08), time + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(master);
+    osc.start(time);
+    osc.stop(time + duration + 0.04);
+  };
+
+  const noise = (time, duration, options = {}) => {
+    if (!ctx || !master) return;
+    const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * duration));
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i += 1) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    }
+    const source = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    filter.type = options.filterType || "bandpass";
+    filter.frequency.value = options.filter || 1200;
+    filter.Q.value = options.q || 0.9;
+    gain.gain.setValueAtTime(options.gain || 0.05, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    source.buffer = buffer;
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(master);
+    source.start(time);
+    source.stop(time + duration + 0.02);
+  };
+
+  const play = (eventName, options = {}) => {
+    const audioContext = ensure();
+    lastEvent = {
+      name: eventName,
+      side: options.side || null,
+      power: typeof options.power === "number" ? Math.round(options.power) : null,
+      at: Date.now(),
+    };
+    eventCount += 1;
+    if (!audioContext || !master || muted) {
+      return;
+    }
+    if (audioContext.state === "suspended") {
+      audioContext.resume().catch(() => {});
+    }
+    const now = audioContext.currentTime + 0.01;
+    switch (eventName) {
+      case "kickoff":
+        tone(now, 440, 0.08, { type: "triangle", gain: 0.05, to: 660 });
+        tone(now + 0.09, 660, 0.12, { type: "triangle", gain: 0.06, to: 880 });
+        break;
+      case "jump":
+        tone(now, 280, 0.16, { type: "square", gain: 0.035, to: 520, filter: 1200 });
+        break;
+      case "charge":
+        tone(now, 180, 0.2, { type: "sawtooth", gain: 0.035, to: 360, filter: 900 });
+        break;
+      case "kick":
+        noise(now, 0.08, { gain: 0.08, filter: 900 });
+        tone(now, 96, 0.12, { type: "triangle", gain: 0.08, to: 64, filter: 700 });
+        break;
+      case "powerKick":
+        noise(now, 0.12, { gain: 0.1, filter: 1500 });
+        tone(now, 130, 0.2, { type: "sawtooth", gain: 0.09, to: 70, filter: 1200 });
+        tone(now + 0.03, 520, 0.18, { type: "triangle", gain: 0.05, to: 820 });
+        break;
+      case "header":
+        tone(now, 220, 0.08, { type: "square", gain: 0.045, to: 160, filter: 1000 });
+        noise(now, 0.05, { gain: 0.035, filter: 1800 });
+        break;
+      case "bounce":
+        tone(now, 130 + Math.min(160, (options.power || 0) * 8), 0.07, { type: "triangle", gain: 0.035, to: 90, filter: 800 });
+        break;
+      case "wall":
+        noise(now, 0.07, { gain: 0.045, filter: 650, q: 1.2 });
+        tone(now, 180, 0.09, { type: "triangle", gain: 0.035, to: 120, filter: 700 });
+        break;
+      case "goal":
+        tone(now, 523, 0.16, { type: "triangle", gain: 0.07, to: 659 });
+        tone(now + 0.13, 659, 0.18, { type: "triangle", gain: 0.08, to: 988 });
+        noise(now + 0.03, 0.32, { gain: 0.045, filter: 2400 });
+        break;
+      case "goldenGoal":
+        tone(now, 392, 0.16, { type: "triangle", gain: 0.08, to: 784 });
+        tone(now + 0.12, 784, 0.24, { type: "triangle", gain: 0.09, to: 1175 });
+        noise(now + 0.02, 0.4, { gain: 0.055, filter: 2800 });
+        break;
+      case "victory":
+        [523, 659, 784, 1046].forEach((note, index) => {
+          tone(now + index * 0.11, note, 0.18, { type: "triangle", gain: 0.06, to: note * 1.02 });
+        });
+        break;
+      case "defeat":
+        [330, 277, 220].forEach((note, index) => {
+          tone(now + index * 0.13, note, 0.22, { type: "sine", gain: 0.055, to: note * 0.82 });
+        });
+        break;
+      case "draw":
+        tone(now, 392, 0.14, { type: "sine", gain: 0.045 });
+        tone(now + 0.16, 392, 0.16, { type: "sine", gain: 0.045 });
+        break;
+      case "pause":
+        tone(now, 520, 0.08, { type: "square", gain: 0.035, to: 300, filter: 900 });
+        break;
+      case "resume":
+        tone(now, 300, 0.08, { type: "square", gain: 0.035, to: 520, filter: 900 });
+        break;
+      default:
+        break;
+    }
+  };
+
+  return {
+    unlock,
+    play,
+    setMuted: (nextMuted) => {
+      muted = Boolean(nextMuted);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(HEAD_SOCCER_AUDIO_MUTED_KEY, muted ? "1" : "0");
+      }
+      applyMuteState();
+      return muted;
+    },
+    toggleMuted: () => {
+      muted = !muted;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(HEAD_SOCCER_AUDIO_MUTED_KEY, muted ? "1" : "0");
+      }
+      applyMuteState();
+      return muted;
+    },
+    snapshot: () => ({
+      unlocked,
+      available: Boolean(ctx),
+      contextState: ctx?.state || "idle",
+      muted,
+      lastEvent,
+      eventCount,
+    }),
+    dispose: () => {
+      if (ctx) {
+        ctx.close().catch(() => {});
+      }
+      ctx = null;
+      master = null;
+    },
+  };
+}
+
+function emitHeadSfx(state, eventName, options = {}) {
+  state.audioLastEvent = {
+    name: eventName,
+    side: options.side || null,
+    frame: state.frame || 0,
+  };
+  state.audio?.play(eventName, options);
+}
+
 function shuffleList(values, random = Math.random) {
   const next = [...values];
   for (let i = next.length - 1; i > 0; i -= 1) {
@@ -1190,6 +1413,9 @@ function createInitialState(localeCandidate = "en") {
       bounceChain: 0,
     },
     fx: [],
+    frame: 0,
+    audio: null,
+    audioLastEvent: null,
     tournament: initialTournament,
     ai: {
       left: false,
@@ -1317,6 +1543,7 @@ function startMatch(state, settings, options = {}) {
   state.message = options.message || "Kick off. Jump and attack with headers to create space.";
 
   resetKickoff(state);
+  emitHeadSfx(state, "kickoff");
   pushLog(
     state,
     `${state.matchMeta.roundLabel}: ${state.matchMeta.playerName} vs ${state.matchMeta.cpuName} - ${duration}s - ${DIFFICULTIES[difficultyId].label}.`
@@ -1518,16 +1745,19 @@ function finishMatch(state) {
     state.result.subtitle = "You controlled the match.";
     state.result.accent = "#f0c030";
     state.message = "Final whistle. You win.";
+    emitHeadSfx(state, "victory");
   } else if (state.scores.left < state.scores.right) {
     state.result.title = "DEFEAT";
     state.result.subtitle = "CPU edged the match. Try again.";
     state.result.accent = "#e74c3c";
     state.message = "Final whistle. CPU wins.";
+    emitHeadSfx(state, "defeat");
   } else {
     state.result.title = "DRAW";
     state.result.subtitle = "Balanced game from both sides.";
     state.result.accent = "#cbd5e1";
     state.message = "Final whistle. Draw.";
+    emitHeadSfx(state, "draw");
   }
 
   pushLog(state, `Final score ${state.scores.left}-${state.scores.right}.`);
@@ -1567,6 +1797,7 @@ function registerGoal(state, side) {
   }
 
   spawnFx(state, WIDTH / 2, FIELD.groundY - 180, goalText, state.goldenGoal ? "#facc15" : "#ffffff", 0.9);
+  emitHeadSfx(state, state.goldenGoal ? "goldenGoal" : "goal", { side });
 }
 function releaseKick(player, state) {
   if (!player.charging) {
@@ -1583,6 +1814,7 @@ function releaseKick(player, state) {
   if (player.special) {
     spawnFx(state, player.x, player.y - 60, "POWER", "#ffd55a", 0.5);
   }
+  emitHeadSfx(state, player.special ? "powerKick" : "kick", { side: player.side, power: chargedPower });
 
   player.power = 0;
 }
@@ -1606,6 +1838,7 @@ function applyBallHits(player, state) {
     ball.vx = clamp(ball.vx, -22, 22);
     ball.vy = clamp(ball.vy, -22, 22);
     ball.bounceChain = 0;
+    emitHeadSfx(state, "header", { side: player.side, power: speed });
   }
 
   if (player.kick && player.kickTimer > 0.07) {
@@ -1616,6 +1849,7 @@ function applyBallHits(player, state) {
 
     if (lowBall && kickDistance < FIELD.ballRadius + 12) {
       const wasSpecial = player.special;
+      const impactPower = player.kickPower;
       const chargeRatio = clamp(player.kickPower / 100, 0, 1);
       const power = wasSpecial ? 1.55 : 0.82 + chargeRatio * 0.68;
       const angle = Math.atan2(ball.y - footY, ball.x - footX);
@@ -1631,6 +1865,7 @@ function applyBallHits(player, state) {
       if (wasSpecial) {
         spawnFx(state, ball.x, ball.y, "FIRE", "#ff9a3c", 0.45);
       }
+      emitHeadSfx(state, wasSpecial ? "powerKick" : "kick", { side: player.side, power: impactPower });
     }
   }
 }
@@ -1657,6 +1892,7 @@ function updatePlayerPhysics(player, controls, state, dt) {
   if (controls.jump && player.onGround) {
     player.vy = PHYSICS.jumpVelocity;
     player.onGround = false;
+    emitHeadSfx(state, "jump", { side: player.side });
   }
 
   player.vy += PHYSICS.playerGravity * frame;
@@ -1716,6 +1952,7 @@ function updateBallPhysics(state, dt) {
     ball.vy = -rebound;
     ball.vx *= Math.max(0.7, 0.9 - chain * 0.03);
     ball.bounceChain = chain + 1;
+    emitHeadSfx(state, "bounce", { power: incoming });
   }
 
   if (ball.y - FIELD.ballRadius < FIELD.ceilingY) {
@@ -1736,11 +1973,13 @@ function updateBallPhysics(state, dt) {
   if (ball.x - FIELD.ballRadius < FIELD.left && ball.y <= FIELD.goalTop) {
     ball.x = FIELD.left + FIELD.ballRadius;
     ball.vx = Math.abs(ball.vx) * 0.55;
+    emitHeadSfx(state, "wall");
   }
 
   if (ball.x + FIELD.ballRadius > FIELD.right && ball.y <= FIELD.goalTop) {
     ball.x = FIELD.right - FIELD.ballRadius;
     ball.vx = -Math.abs(ball.vx) * 0.55;
+    emitHeadSfx(state, "wall");
   }
 
   const left = state.players.left;
@@ -1850,6 +2089,7 @@ function updateAi(state, dt) {
     if (ai.charge && !cpu.charging) {
       cpu.charging = true;
       ai.releaseDelay = profile.releaseMin + Math.random() * (profile.releaseMax - profile.releaseMin);
+      emitHeadSfx(state, "charge", { side: cpu.side });
     }
     if (cpu.charging) {
       ai.releaseDelay -= dt;
@@ -2047,6 +2287,7 @@ function updateAi(state, dt) {
       0.05,
       0.55
     );
+    emitHeadSfx(state, "charge", { side: cpu.side });
   }
 
   if (cpu.charging) {
@@ -2112,6 +2353,7 @@ function readInput(controls) {
 }
 
 function stepGame(state, controls, settings, dt) {
+  state.frame = (state.frame || 0) + 1;
   const input = readInput(controls);
   const mode = settings.mode === "tournament" ? "tournament" : "single";
 
@@ -2141,6 +2383,7 @@ function stepGame(state, controls, settings, dt) {
     state.paused = !state.paused;
     state.message = state.paused ? "Paused." : "Match resumed.";
     pushLog(state, state.paused ? "Game paused." : "Game resumed.");
+    emitHeadSfx(state, state.paused ? "pause" : "resume");
   }
 
   if (state.phase === "intro" || state.phase === "finished" || state.paused) {
@@ -2174,6 +2417,7 @@ function stepGame(state, controls, settings, dt) {
         state.goldenGoal = true;
         state.message = "Time over. Golden goal is active: next goal wins.";
         pushLog(state, "Golden goal activated.");
+        emitHeadSfx(state, "goldenGoal");
       } else {
         finishMatch(state);
         return;
@@ -2184,6 +2428,7 @@ function stepGame(state, controls, settings, dt) {
   const player = state.players.left;
   if (input.kickHeld && !player.charging) {
     player.charging = true;
+    emitHeadSfx(state, "charge", { side: player.side });
   }
   if (!input.kickHeld && player.charging) {
     releaseKick(player, state);
@@ -2296,6 +2541,10 @@ function buildSnapshot(state) {
       vy: round2(state.ball.vy),
       speed: round2(ballSpeed),
     },
+    audio: {
+      ...(state.audio?.snapshot?.() || { unlocked: false, available: false, contextState: "idle", muted: readStoredHeadSoccerMuted(), lastEvent: null, eventCount: 0 }),
+      lastGameEvent: state.audioLastEvent,
+    },
   };
 }
 
@@ -2305,6 +2554,7 @@ export default function HeadSoccerGame({ locale }) {
   const ctxRef = useRef(null);
   const crowdLayerRef = useRef(null);
   const crowdLayerScaleRef = useRef(0);
+  const audioRef = useRef(null);
 
   const uiLocale = useMemo(() => resolveSoccerLocale(locale), [locale]);
   const stateRef = useRef(createInitialState(uiLocale));
@@ -2325,6 +2575,18 @@ export default function HeadSoccerGame({ locale }) {
   });
   const settingsRef = useRef(settings);
   const [snapshot, setSnapshot] = useState(() => buildSnapshot(stateRef.current));
+  const [audioMuted, setAudioMuted] = useState(readStoredHeadSoccerMuted);
+
+  useEffect(() => {
+    audioRef.current = createHeadSoccerAudio(audioMuted);
+    stateRef.current.audio = audioRef.current;
+    return () => {
+      audioRef.current?.dispose?.();
+      if (stateRef.current.audio === audioRef.current) {
+        stateRef.current.audio = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     settingsRef.current = settings;
@@ -2403,10 +2665,21 @@ export default function HeadSoccerGame({ locale }) {
   }, [draw, syncSnapshot]);
 
   const queueAction = useCallback((action) => {
+    audioRef.current?.unlock?.();
     controlsRef.current.queue[action] = true;
   }, []);
 
+  const toggleAudioMuted = useCallback(() => {
+    audioRef.current?.unlock?.();
+    const nextMuted = audioRef.current?.toggleMuted?.();
+    setAudioMuted(Boolean(nextMuted));
+    syncSnapshot();
+  }, [syncSnapshot]);
+
   const setTouchState = useCallback((name, value) => {
+    if (value) {
+      audioRef.current?.unlock?.();
+    }
     controlsRef.current.touch[name] = value;
   }, []);
 
@@ -2514,6 +2787,7 @@ export default function HeadSoccerGame({ locale }) {
       }
 
       controlsRef.current.keys[event.code] = true;
+      audioRef.current?.unlock?.();
 
       if (!event.repeat && event.code === "Enter") {
         queueAction("start");
@@ -2562,6 +2836,7 @@ export default function HeadSoccerGame({ locale }) {
       cpu: current.cpu,
       ball: current.ball,
       result: current.result,
+      audio: current.audio,
       message: current.message,
       logs: current.logs,
       competitors: current.competitors,
@@ -2635,6 +2910,14 @@ export default function HeadSoccerGame({ locale }) {
             disabled={snapshot.phase === "intro" || snapshot.phase === "finished"}
           >
             {pauseLabel}
+          </button>
+          <button
+            type="button"
+            onClick={toggleAudioMuted}
+            aria-pressed={!audioMuted}
+            title={audioMuted ? "Enable sound effects" : "Disable sound effects"}
+          >
+            {audioMuted ? "Sound OFF" : "Sound ON"}
           </button>
         </div>
       </div>

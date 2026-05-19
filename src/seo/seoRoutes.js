@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, normalizeLocale } from "./seoConfig";
+import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
 
 export const CATEGORY_SLUGS = {
   Accion: { en: "action", es: "accion" },
@@ -47,7 +48,7 @@ export function parseLocalizedPath(pathname) {
   const segments = String(pathname || "/").split("/").filter(Boolean);
   const maybeLocale = segments[0];
   const hasLocalePrefix = SUPPORTED_LOCALES.includes(maybeLocale);
-  const locale = hasLocalePrefix ? maybeLocale : DEFAULT_LOCALE;
+  const locale = hasLocalePrefix ? maybeLocale : resolveBrowserLanguage();
   const routeSegments = hasLocalePrefix ? segments.slice(1) : segments;
 
   return {

@@ -25,6 +25,203 @@ const CANNON_SPEED_BONUS = 170;
 const CANNON_WIND_FACTOR = 0.22;
 const CANNON_MIN_TARGET_DISTANCE = 240;
 const AI_RECENT_HISTORY = 14;
+const TERRITORY_WAR_AUDIO_MUTED_KEY = "territoryWarAudioMuted";
+
+function readStoredTerritoryWarMuted() {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(TERRITORY_WAR_AUDIO_MUTED_KEY) === "1";
+}
+
+function createTerritoryWarAudio(initialMuted = false) {
+  let ctx = null;
+  let master = null;
+  let unlocked = false;
+  let lastEvent = null;
+  let eventCount = 0;
+  let muted = Boolean(initialMuted);
+
+  const applyMuteState = () => {
+    if (master) master.gain.value = muted ? 0 : 0.2;
+  };
+
+  const ensure = () => {
+    if (typeof window === "undefined") return null;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!ctx) {
+      ctx = new AudioContextClass();
+      master = ctx.createGain();
+      applyMuteState();
+      master.connect(ctx.destination);
+    }
+    return ctx;
+  };
+
+  const unlock = () => {
+    const audioContext = ensure();
+    if (!audioContext) return;
+    if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+    unlocked = true;
+  };
+
+  const tone = (time, frequency, duration, options = {}) => {
+    if (!ctx || !master) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    osc.type = options.type || "triangle";
+    osc.frequency.setValueAtTime(frequency, time);
+    if (options.to) osc.frequency.exponentialRampToValueAtTime(Math.max(20, options.to), time + duration);
+    filter.type = options.filterType || "lowpass";
+    filter.frequency.value = options.filter || 1600;
+    filter.Q.value = options.q || 0.8;
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, options.gain || 0.06), time + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(master);
+    osc.start(time);
+    osc.stop(time + duration + 0.04);
+  };
+
+  const noise = (time, duration, options = {}) => {
+    if (!ctx || !master) return;
+    const size = Math.max(1, Math.floor(ctx.sampleRate * duration));
+    const buffer = ctx.createBuffer(1, size, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < size; i += 1) {
+      const fade = 1 - i / size;
+      data[i] = (Math.random() * 2 - 1) * fade;
+    }
+    const source = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    source.buffer = buffer;
+    filter.type = options.filterType || "bandpass";
+    filter.frequency.value = options.filter || 900;
+    filter.Q.value = options.q || 1;
+    gain.gain.setValueAtTime(options.gain || 0.06, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(master);
+    source.start(time);
+    source.stop(time + duration + 0.02);
+  };
+
+  const play = (eventName, options = {}) => {
+    const audioContext = ensure();
+    lastEvent = {
+      name: eventName,
+      team: options.team || null,
+      source: options.source || null,
+      power: typeof options.power === "number" ? Math.round(options.power * 100) / 100 : null,
+      at: Date.now(),
+    };
+    eventCount += 1;
+    if (!audioContext || !master || muted) return;
+    if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+    const now = audioContext.currentTime + 0.01;
+    switch (eventName) {
+      case "battleStart":
+        tone(now, 220, 0.11, { type: "square", gain: 0.045, to: 330, filter: 900 });
+        tone(now + 0.12, 330, 0.12, { type: "square", gain: 0.045, to: 440, filter: 1100 });
+        break;
+      case "turnRed":
+      case "turnBlue":
+        tone(now, eventName === "turnRed" ? 440 : 330, 0.08, { type: "triangle", gain: 0.045 });
+        tone(now + 0.08, eventName === "turnRed" ? 660 : 494, 0.1, { type: "triangle", gain: 0.045 });
+        break;
+      case "jump":
+        tone(now, 160, 0.14, { type: "square", gain: 0.04, to: 310, filter: 1000 });
+        break;
+      case "charge":
+        tone(now, 120, 0.18, { type: "sawtooth", gain: 0.035, to: 260, filter: 850 });
+        break;
+      case "cancel":
+        tone(now, 240, 0.08, { type: "square", gain: 0.035, to: 120, filter: 700 });
+        break;
+      case "toggleCannon":
+        tone(now, 180, 0.08, { type: "square", gain: 0.045, to: 260, filter: 700 });
+        noise(now + 0.02, 0.06, { gain: 0.035, filter: 500 });
+        break;
+      case "throw":
+        noise(now, 0.08, { gain: 0.06, filter: 1000 });
+        tone(now, 170, 0.13, { type: "triangle", gain: 0.045, to: 90, filter: 900 });
+        break;
+      case "cannon":
+        noise(now, 0.14, { gain: 0.11, filter: 360 });
+        tone(now, 82, 0.24, { type: "sawtooth", gain: 0.09, to: 45, filter: 500 });
+        break;
+      case "bounce":
+        tone(now, 210, 0.06, { type: "triangle", gain: 0.035, to: 130, filter: 700 });
+        break;
+      case "explosion":
+        noise(now, 0.36, { gain: 0.13, filter: 260, q: 0.7 });
+        tone(now, 70, 0.32, { type: "sawtooth", gain: 0.1, to: 36, filter: 420 });
+        break;
+      case "hit":
+        noise(now, 0.12, { gain: 0.075, filter: 1600 });
+        tone(now, 130, 0.12, { type: "square", gain: 0.045, to: 80, filter: 900 });
+        break;
+      case "ko":
+        tone(now, 260, 0.12, { type: "square", gain: 0.055, to: 130, filter: 900 });
+        tone(now + 0.12, 130, 0.16, { type: "square", gain: 0.05, to: 72, filter: 700 });
+        break;
+      case "victory":
+        [330, 440, 554, 740].forEach((note, index) => tone(now + index * 0.1, note, 0.16, { gain: 0.055, to: note * 1.02 }));
+        break;
+      case "defeat":
+        [294, 220, 165].forEach((note, index) => tone(now + index * 0.12, note, 0.2, { type: "sine", gain: 0.05, to: note * 0.82 }));
+        break;
+      case "pause":
+        tone(now, 420, 0.08, { type: "square", gain: 0.035, to: 210, filter: 800 });
+        break;
+      default:
+        break;
+    }
+  };
+
+  return {
+    unlock,
+    play,
+    setMuted: (nextMuted) => {
+      muted = Boolean(nextMuted);
+      if (typeof window !== "undefined") window.localStorage.setItem(TERRITORY_WAR_AUDIO_MUTED_KEY, muted ? "1" : "0");
+      applyMuteState();
+      return muted;
+    },
+    toggleMuted: () => {
+      muted = !muted;
+      if (typeof window !== "undefined") window.localStorage.setItem(TERRITORY_WAR_AUDIO_MUTED_KEY, muted ? "1" : "0");
+      applyMuteState();
+      return muted;
+    },
+    snapshot: () => ({
+      unlocked,
+      available: Boolean(ctx),
+      contextState: ctx?.state || "idle",
+      muted,
+      lastEvent,
+      eventCount,
+    }),
+    dispose: () => {
+      if (ctx) ctx.close().catch(() => {});
+      ctx = null;
+      master = null;
+    },
+  };
+}
+
+function emitWarSfx(state, eventName, options = {}) {
+  state.audioLastEvent = {
+    name: eventName,
+    team: options.team || state.turn?.team || null,
+    frame: state.frame || 0,
+  };
+  state.audio?.play(eventName, options);
+}
 
 function syncCanvasResolution(canvas, ctx) {
   if (!canvas || !ctx || typeof window === "undefined") return;
@@ -478,7 +675,7 @@ function createState({mapId="wasteland",teamSize=3,mode="menu"}){
     },
     pointer:{x:WIDTH*0.5,y:HEIGHT*0.5,inside:false,down:false},
     virtual:{left:false,right:false,jump:false,aimUp:false,aimDown:false,fire:false},
-    cameraShake:0,winner:null,frame:0,
+    cameraShake:0,winner:null,frame:0,audio:null,audioLastEvent:null,
   };
 }
 
@@ -542,16 +739,25 @@ function startTurn(state,teamId){
     state.ai.stage="idle";state.ai.timerMs=0;state.ai.plan=null;
     state.ai.repathMs=0;state.ai.targetId=null;state.ai.lastMoveX=null;state.ai.stuckMs=0;
   }
+  emitWarSfx(state, teamId==="red"?"turnRed":"turnBlue", { team: teamId });
   return true;
 }
 
 function battleFromMenu(state){
   const fresh=createState({mapId:state.mapId,teamSize:state.teamSize,mode:"battle"});
-  startTurn(fresh,"red");return fresh;
+  fresh.audio=state.audio;
+  startTurn(fresh,"red");
+  emitWarSfx(fresh,"battleStart", { team: "red" });
+  return fresh;
 }
 function restartFromAny(state){
   const fresh=createState({mapId:state.mapId,teamSize:state.teamSize,mode:state.mode==="menu"?"menu":"battle"});
-  if(fresh.mode==="battle")startTurn(fresh,"red");return fresh;
+  fresh.audio=state.audio;
+  if(fresh.mode==="battle"){
+    startTurn(fresh,"red");
+    emitWarSfx(fresh,"battleStart", { team: "red" });
+  }
+  return fresh;
 }
 
 const TOPOLOGY_CACHE=new Map();
@@ -1031,6 +1237,7 @@ function moveCpuTowardPlan(state,unit,dt){
         } else if(unit.onGround){
           unit.vy=-JUMP_SPEED;unit.onGround=false;
           unit.vx=Math.sign(step.toX-step.fromX||1)*MOVE_SPEED;
+          emitWarSfx(state,"jump", { team: unit.team });
           step.started=true;
         }
       } else if(unit.onGround){
@@ -1075,6 +1282,7 @@ function spawnProjectile(state,unit){
   };
   if(!canUseCannon){state.turn.usingCannon=false;state.turn.cannonId=null;}
   state.turn.charging=false;state.turn.acted=true;state.turn.state="resolving";
+  emitWarSfx(state, canUseCannon?"cannon":"throw", { team: unit.team, source: canUseCannon?"cannon":"grenade", power: state.turn.charge });
 }
 
 function spawnParticles(state,x,y,count,color){
@@ -1109,6 +1317,9 @@ function detonate(state,x,y){
     unit.vx+=nx*impulse;unit.vy-=Math.abs(ny)*impulse+130*ratio;unit.onGround=false;
     if(unit.health<=0)unit.alive=false;
   }
+  if(enemyKills+allyKills>0)emitWarSfx(state,"ko", { team: projectile?.ownerTeam, source: projectile?.source, power: enemyKills+allyKills });
+  else if(enemyDamage+allyDamage>0)emitWarSfx(state,"hit", { team: projectile?.ownerTeam, source: projectile?.source, power: (enemyDamage+allyDamage)/100 });
+  emitWarSfx(state,"explosion", { team: projectile?.ownerTeam, source: projectile?.source });
   registerAiDetonationFeedback(state,projectile,{enemyDamage,allyDamage,enemyKills,allyKills,landingX:x,landingY:y});
   state.turn.settleMs=950;
 }
@@ -1119,16 +1330,16 @@ function applyProjectilePhysics(state,dt){
   p.trail.push({x:p.x,y:p.y});
   const px=p.x,py=p.y;
   p.vx+=state.wind*dt*(p.windFactor??0.4);p.vy+=GRAVITY*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.fuseMs-=dt*1000;
-  if(p.x-p.radius<0){p.x=p.radius;p.vx=Math.abs(p.vx)*0.55;p.bounces++;}
-  else if(p.x+p.radius>WIDTH){p.x=WIDTH-p.radius;p.vx=-Math.abs(p.vx)*0.55;p.bounces++;}
-  if(p.y-p.radius<0){p.y=p.radius;p.vy=Math.abs(p.vy)*0.55;p.bounces++;}
+  if(p.x-p.radius<0){p.x=p.radius;p.vx=Math.abs(p.vx)*0.55;p.bounces++;emitWarSfx(state,"bounce", { source:p.source });}
+  else if(p.x+p.radius>WIDTH){p.x=WIDTH-p.radius;p.vx=-Math.abs(p.vx)*0.55;p.bounces++;emitWarSfx(state,"bounce", { source:p.source });}
+  if(p.y-p.radius<0){p.y=p.radius;p.vy=Math.abs(p.vy)*0.55;p.bounces++;emitWarSfx(state,"bounce", { source:p.source });}
   for(const plat of state.map.platforms){
     const l=plat.x,r=plat.x+plat.w,top=plat.y,bot=plat.y+plat.h;
     if(p.x<l-p.radius||p.x>r+p.radius||p.y<top-p.radius||p.y>bot+p.radius)continue;
-    if(py+p.radius<=top&&p.y+p.radius>=top&&p.vy>0){p.y=top-p.radius;p.vy=-Math.abs(p.vy)*0.52;p.vx*=0.90;p.bounces++;continue;}
-    if(py-p.radius>=bot&&p.y-p.radius<=bot&&p.vy<0){p.y=bot+p.radius;p.vy=Math.abs(p.vy)*0.5;p.bounces++;continue;}
-    if(px+p.radius<=l&&p.x+p.radius>=l&&p.vx>0){p.x=l-p.radius;p.vx=-Math.abs(p.vx)*0.55;p.bounces++;continue;}
-    if(px-p.radius>=r&&p.x-p.radius<=r&&p.vx<0){p.x=r+p.radius;p.vx=Math.abs(p.vx)*0.55;p.bounces++;}
+    if(py+p.radius<=top&&p.y+p.radius>=top&&p.vy>0){p.y=top-p.radius;p.vy=-Math.abs(p.vy)*0.52;p.vx*=0.90;p.bounces++;emitWarSfx(state,"bounce", { source:p.source });continue;}
+    if(py-p.radius>=bot&&p.y-p.radius<=bot&&p.vy<0){p.y=bot+p.radius;p.vy=Math.abs(p.vy)*0.5;p.bounces++;emitWarSfx(state,"bounce", { source:p.source });continue;}
+    if(px+p.radius<=l&&p.x+p.radius>=l&&p.vx>0){p.x=l-p.radius;p.vx=-Math.abs(p.vx)*0.55;p.bounces++;emitWarSfx(state,"bounce", { source:p.source });continue;}
+    if(px-p.radius>=r&&p.x-p.radius<=r&&p.vx<0){p.x=r+p.radius;p.vx=Math.abs(p.vx)*0.55;p.bounces++;emitWarSfx(state,"bounce", { source:p.source });}
   }
   if(p.fuseMs<=0||p.bounces>=8||p.y>HEIGHT+90)detonate(state,clamp(p.x,0,WIDTH),clamp(p.y,0,HEIGHT));
 }
@@ -1155,7 +1366,9 @@ function checkBattleEnd(state){
   if(r>0&&b>0)return false;
   state.winner=r<=0&&b<=0?"draw":r>0?"red":"blue";
   state.phase="match-over";state.mode="battle-over";
-  state.turn.charging=false;state.projectile=null;state.ai.stage="idle";state.ai.plan=null;return true;
+  state.turn.charging=false;state.projectile=null;state.ai.stage="idle";state.ai.plan=null;
+  emitWarSfx(state,state.winner==="red"?"victory":"defeat", { team: state.winner });
+  return true;
 }
 
 function handleHumanTurn(state,input,dt){
@@ -1179,8 +1392,10 @@ function handleHumanTurn(state,input,dt){
   if(toggleCannon&&!state.turn.acted&&!state.projectile){
     if(state.turn.usingCannon){
       state.turn.usingCannon=false;state.turn.cannonId=null;
+      emitWarSfx(state,"toggleCannon", { team: unit.team, source: "off" });
     } else if(nearbyCannon){
       state.turn.usingCannon=true;state.turn.cannonId=nearbyCannon.id;
+      emitWarSfx(state,"toggleCannon", { team: unit.team, source: "on" });
     }
   }
   const activeCannon=state.turn.usingCannon?getCannonById(state,state.turn.cannonId):null;
@@ -1203,11 +1418,14 @@ function handleHumanTurn(state,input,dt){
       if(unit.onGround)state.turn.movementLeft=Math.max(0,state.turn.movementLeft-Math.abs(unit.vx)*dt);
       unit.facing=dir>0?1:-1;
     } else if(unit.onGround){unit.vx*=0.68;if(Math.abs(unit.vx)<3)unit.vx=0;}
-    if(jump&&unit.onGround){unit.vy=-JUMP_SPEED;unit.onGround=false;}
+    if(jump&&unit.onGround){unit.vy=-JUMP_SPEED;unit.onGround=false;emitWarSfx(state,"jump", { team: unit.team });}
   }
-  if(cancel){state.turn.charging=false;state.turn.charge=0;state.turn.state="aiming";}
+  if(cancel){state.turn.charging=false;state.turn.charge=0;state.turn.state="aiming";emitWarSfx(state,"cancel", { team: unit.team });}
   if(!state.turn.acted&&!state.projectile){
-    if(fireHeld){state.turn.charging=true;state.turn.charge=clamp(state.turn.charge+dt*0.9,0,1);state.turn.state="charging";}
+    if(fireHeld){
+      if(!state.turn.charging)emitWarSfx(state,"charge", { team: unit.team });
+      state.turn.charging=true;state.turn.charge=clamp(state.turn.charge+dt*0.9,0,1);state.turn.state="charging";
+    }
     else if(state.turn.charging){spawnProjectile(state,unit);}
     else{state.turn.state="aiming";}
   }
@@ -1282,7 +1500,10 @@ function handleCpuTurn(state,dt){
     const diff=angleDeltaDeg(state.turn.aimDeg,state.ai.desiredAim);
     state.turn.aimDeg=normalizeAngleDeg(state.turn.aimDeg+Math.sign(diff)*Math.min(Math.abs(diff),72*dt));
     aimFace();state.ai.timerMs=Math.max(0,state.ai.timerMs-dt*1000);
-    if(Math.abs(diff)<=1.8&&state.ai.timerMs<=0){state.ai.stage="charging";state.turn.charging=true;state.turn.charge=0;}
+    if(Math.abs(diff)<=1.8&&state.ai.timerMs<=0){
+      state.ai.stage="charging";state.turn.charging=true;state.turn.charge=0;
+      emitWarSfx(state,"charge", { team: unit.team });
+    }
     return;
   }
   if(state.ai.stage==="charging"){
@@ -1309,8 +1530,9 @@ function maybeAdvanceTurn(state,dt){
 }
 
 function stepState(state,input,dt){
+  state.frame=(state.frame||0)+1;
   if(input.pressed("KeyR")){Object.assign(state,restartFromAny(state));return;}
-  if(input.pressed("KeyP")&&state.mode!=="menu")state.phase=state.phase==="paused"?"playing":"paused";
+  if(input.pressed("KeyP")&&state.mode!=="menu"){state.phase=state.phase==="paused"?"playing":"paused";emitWarSfx(state,"pause");}
   if(state.mode==="menu"){state.turn.state="ready";return;}
   if(state.phase==="paused"||state.phase==="match-over"){updateExplosions(state,dt);updateParticles(state,dt);return;}
   const active=getActiveUnit(state);
@@ -1323,7 +1545,7 @@ function stepState(state,input,dt){
   applyProjectilePhysics(state,dt);applyUnitPhysics(state,dt);
   updateExplosions(state,dt);updateParticles(state,dt);
   if(checkBattleEnd(state))return;
-  maybeAdvanceTurn(state,dt);state.frame++;
+  maybeAdvanceTurn(state,dt);
 }
 
 // ─── Drawing: faithfully recreating the original game's visual style ──────────
@@ -1888,6 +2110,12 @@ function snapshotOf(state){
       recentShots:state.ai.recentShots.slice(-5),
     },
     units:state.units.map(u=>({...u})),
+    projectile:state.projectile?{x:Math.round(state.projectile.x),y:Math.round(state.projectile.y),vx:Math.round(state.projectile.vx),vy:Math.round(state.projectile.vy),fuseMs:Math.round(state.projectile.fuseMs),source:state.projectile.source}:null,
+    explosions:state.explosions.map(e=>({x:Math.round(e.x),y:Math.round(e.y),radius:Math.round(e.radius)})),
+    audio:{
+      ...(state.audio?.snapshot?.()||{unlocked:false,available:false,contextState:"idle",muted:readStoredTerritoryWarMuted(),lastEvent:null,eventCount:0}),
+      lastGameEvent:state.audioLastEvent,
+    },
   };
 }
 
@@ -2443,16 +2671,35 @@ export default function TerritoryWar(){
   const canvasRef=useRef(null);
   const stateRef=useRef(createState({mode:"menu"}));
   const inputRef=useRef(createInput());
+  const audioRef=useRef(null);
   const[snapshot,setSnapshot]=useState(()=>snapshotOf(stateRef.current));
+  const[audioMuted,setAudioMuted]=useState(readStoredTerritoryWarMuted);
   const rafRef=useRef(null);
 
   const sync=useCallback(()=>setSnapshot(snapshotOf(stateRef.current)),[]);
-  const start=useCallback(()=>{stateRef.current=battleFromMenu(stateRef.current);sync();},[sync]);
-  const restart=useCallback(()=>{stateRef.current=restartFromAny(stateRef.current);sync();},[sync]);
+  useEffect(()=>{
+    audioRef.current=createTerritoryWarAudio(audioMuted);
+    stateRef.current.audio=audioRef.current;
+    return()=>{
+      audioRef.current?.dispose?.();
+      if(stateRef.current.audio===audioRef.current)stateRef.current.audio=null;
+    };
+  },[]);
+
+  const unlockAudio=useCallback(()=>{audioRef.current?.unlock?.();},[]);
+  const toggleAudioMuted=useCallback(()=>{
+    unlockAudio();
+    const nextMuted=audioRef.current?.toggleMuted?.();
+    setAudioMuted(Boolean(nextMuted));
+    sync();
+  },[sync,unlockAudio]);
+  const start=useCallback(()=>{unlockAudio();stateRef.current=battleFromMenu(stateRef.current);sync();},[sync,unlockAudio]);
+  const restart=useCallback(()=>{unlockAudio();stateRef.current=restartFromAny(stateRef.current);sync();},[sync,unlockAudio]);
   const pause=useCallback(()=>{
+    unlockAudio();
     const s=stateRef.current;if(s.mode==="menu")return;
-    s.phase=s.phase==="paused"?"playing":"paused";sync();
-  },[sync]);
+    s.phase=s.phase==="paused"?"playing":"paused";emitWarSfx(s,"pause");sync();
+  },[sync,unlockAudio]);
 
   const setMap=useCallback((id)=>{
     const s=stateRef.current;if(s.mode!=="menu")return;
@@ -2467,7 +2714,7 @@ export default function TerritoryWar(){
     s.turn.unitId=s.units.find(u=>u.team==="red")?.id??null;sync();
   },[sync]);
 
-  const setVirtual=useCallback((name,value)=>{stateRef.current.virtual[name]=value;},[]);
+  const setVirtual=useCallback((name,value)=>{if(value)unlockAudio();stateRef.current.virtual[name]=value;},[unlockAudio]);
 
   const holdProps=(name)=>({
     onMouseDown:()=>setVirtual(name,true),
@@ -2508,13 +2755,13 @@ export default function TerritoryWar(){
   useEffect(()=>{
     const keys=new Set(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Space","KeyA","KeyD","KeyW","KeyQ","KeyE","KeyX","KeyC","KeyR","KeyP"]);
     const onDown=(e)=>{
-      if(e.code==="Enter"&&stateRef.current.mode==="menu"){e.preventDefault();start();return;}
-      if(!keys.has(e.code))return;e.preventDefault();inputRef.current.press(e.code);
+      if(e.code==="Enter"&&stateRef.current.mode==="menu"){e.preventDefault();unlockAudio();start();return;}
+      if(!keys.has(e.code))return;e.preventDefault();unlockAudio();inputRef.current.press(e.code);
     };
     const onUp=(e)=>{if(keys.has(e.code)){e.preventDefault();inputRef.current.release(e.code);}};
     window.addEventListener("keydown",onDown);window.addEventListener("keyup",onUp);
     return()=>{window.removeEventListener("keydown",onDown);window.removeEventListener("keyup",onUp);};
-  },[start]);
+  },[start,unlockAudio]);
 
   useEffect(()=>{
     const renderGameToText=()=>JSON.stringify(snapshotOf(stateRef.current));
@@ -2570,6 +2817,14 @@ export default function TerritoryWar(){
               </div>
             )}
             <div className="tw-actions">
+              <button
+                className="tw-btn"
+                onClick={toggleAudioMuted}
+                aria-pressed={!audioMuted}
+                title={audioMuted?"Enable sound effects":"Disable sound effects"}
+              >
+                {audioMuted?"SOUND OFF":"SOUND ON"}
+              </button>
               <button className="tw-btn red-btn" onClick={start}>▶ START</button>
               <button className="tw-btn" onClick={restart}>↺ RESTART</button>
               {sn.mode!=="menu"&&<button className="tw-btn" onClick={pause}>{sn.phase==="paused"?"▶ RESUME":"⏸ PAUSE"}</button>}
@@ -2591,7 +2846,7 @@ export default function TerritoryWar(){
               stateRef.current.pointer.y=clamp(y,0,HEIGHT);
               stateRef.current.pointer.inside=x>=0&&x<=WIDTH&&y>=0&&y<=HEIGHT;
             }}
-            onPointerDown={()=>{stateRef.current.pointer.down=true;}}
+            onPointerDown={()=>{unlockAudio();stateRef.current.pointer.down=true;}}
             onPointerUp={()=>{stateRef.current.pointer.down=false;}}
             onPointerLeave={()=>{stateRef.current.pointer.down=false;stateRef.current.pointer.inside=false;}}
           />
