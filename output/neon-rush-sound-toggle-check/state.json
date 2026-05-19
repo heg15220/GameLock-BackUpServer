@@ -1,0 +1,29 @@
+{
+  "initial": "SOUND ON",
+  "afterMuteButton": "SOUND OFF",
+  "afterUnmuteButton": "SOUND ON",
+  "mutedStateAudio": {
+    "available": true,
+    "unlocked": true,
+    "running": true,
+    "envKey": "neon",
+    "trackId": "neon",
+    "trackTitle": "Photon Grid",
+    "bpm": 164,
+    "muted": true
+  },
+  "unmutedAudio": {
+    "available": true,
+    "unlocked": true,
+    "running": true,
+    "envKey": "neon",
+    "trackId": "neon",
+    "trackTitle": "Photon Grid",
+    "bpm": 164,
+    "muted": false
+  },
+  "errors": [
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED"
+  ]
+}

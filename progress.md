@@ -4728,3 +4728,15 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Validacion: Vitest timelineKnowledgeEngine OK; npm run build OK con NODE_OPTIONS=--max-old-space-size=8192; Playwright skill/local sin errores en output/knowledge-cronologia-redesign-v3; Playwright dirigido desktop y movil OK en output/knowledge-cronologia-redesign-directed y output/knowledge-cronologia-redesign-mobile-v2.
 - Nota: el cliente del skill desde ~/.codex no resuelve playwright en Windows; se uso la copia local web_game_playwright_client.mjs para la pasada estandar.
 - Validacion adicional: caso de acierto exacto comprobado con Playwright dirigido; result.exactOrder=true, correctSlots=7 y mensaje Correcto visible.
+
+## 2026-05-19 - Neon Rush musica por entorno
+- Peticion: implementar varias pistas de audio para neon-rush segun el contexto de los diferentes mapas, con referencia tipo Geometry Dash.
+- src/arcade/neon-rush/index.html ahora incluye un motor Web Audio sintetico con 12 pistas loopables, mapeadas a los entornos de los 300 niveles: neon, acid, space, fire, ice, glitch, toxic, storm, tomb, warp, prism y boss.
+- La musica se desbloquea con la interaccion del usuario, se prepara al seleccionar nivel, arranca desde cero en cada intento, se corta en choque/victoria y ajusta filtro/intensidad con progreso y dificultad. Anadidos SFX ligeros para salto, pad, orb, crash y win.
+- render_game_to_text expone level.environment y audio (trackId, trackTitle, bpm, running, unlocked) para QA automatizada. Se anadio window.__neonRushAudioSnapshot.
+- Validacion: npm run build OK. Playwright standalone con web_game_playwright_client.mjs OK en output/neon-rush-audio-check, output/neon-rush-audio-acid-check y output/neon-rush-audio-void-check; estados confirman pistas distintas: Photon Grid, Acid Voltage y Orbital Drift. Nota: los runs por file:/// registran ERR_NETWORK_ACCESS_DENIED por el @import externo de Google Fonts preexistente.
+
+## 2026-05-19 - Neon Rush boton de sonido
+- Peticion: anadir un boton para que el usuario pueda usar o quitar el sonido.
+- src/arcade/neon-rush/index.html anade #soundToggle fijo con estados SOUND ON / SOUND OFF, persistencia en localStorage y conexion al master gain del motor Web Audio. El boton no dispara salto ni inicio de intento.
+- Validacion: npm run build OK. Playwright dirigido en output/neon-rush-sound-toggle-check confirma SOUND ON -> SOUND OFF -> SOUND ON y audio.muted true/false en window.__neonRushAudioSnapshot/render_game_to_text. Nota: file:/// sigue registrando ERR_NETWORK_ACCESS_DENIED por Google Fonts externo preexistente.

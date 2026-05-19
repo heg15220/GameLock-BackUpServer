@@ -98,6 +98,12 @@ body{background:#050008;font-family:'Orbitron',sans-serif;overflow:hidden;height
 #gc,#pc{image-rendering:auto;}
 #gw,#gc,#pc,#sl,.ov,.btn{touch-action:none;}
 #ad{position:absolute;top:calc(var(--nr-stage-top) + 11px);left:15px;font-size:9px;color:rgba(255,255,255,.22);letter-spacing:2px;}
+#soundToggle{position:fixed;top:14px;right:14px;z-index:260;font-family:'Orbitron',sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:2px;padding:9px 12px;border-radius:4px;
+  border:1px solid rgba(0,245,255,.42);background:rgba(0,0,0,.62);color:var(--nc);
+  box-shadow:0 0 14px rgba(0,245,255,.18);cursor:pointer;touch-action:manipulation;}
+#soundToggle:hover{border-color:var(--np);color:var(--np);box-shadow:0 0 16px rgba(255,0,170,.24);}
+#soundToggle.muted{border-color:rgba(255,255,255,.22);color:rgba(255,255,255,.48);box-shadow:none;}
 /* OVERLAYS */
 .ov{position:absolute;top:var(--nr-stage-top);left:0;right:0;height:var(--nr-stage-h);display:flex;flex-direction:column;
   align-items:center;justify-content:center;background:rgba(5,0,20,.93);border-radius:0 0 8px 8px;z-index:100;gap:14px;}
@@ -128,6 +134,7 @@ body{background:#050008;font-family:'Orbitron',sans-serif;overflow:hidden;height
   #levelSelect{padding:20px 14px 18px;}
   #levelSelect h1{font-size:30px;letter-spacing:5px;}
   #levelGrid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  #soundToggle{top:8px;right:8px;font-size:8px;letter-spacing:1.4px;padding:7px 9px;}
   #hud{padding:6px 10px;}
   #sd,#bd{font-size:9px;letter-spacing:1.2px;}
   #sd span,#bd span{font-size:12px;margin-left:4px;}
@@ -151,6 +158,8 @@ body{background:#050008;font-family:'Orbitron',sans-serif;overflow:hidden;height
 </style>
 </head>
 <body>
+
+<button id="soundToggle" type="button" aria-pressed="true">SOUND ON</button>
 
 <div id="levelSelect">
   <h1>NEON RUSH</h1>
@@ -292,6 +301,69 @@ const EXTRA_ENV_ROTATION=[
 ];
 const NAME_A=['PHOTON','RAZOR','TITAN','ASTRAL','NOVA','GHOST','PULSE','VECTOR','QUANTUM','SOLAR','ION','CHROME','ORBIT','PLASMA','FUSION','VORTEX','ZENITH','ECHO','RIFT','HALO'];
 const NAME_B=['GAUNTLET','CORRIDOR','ASCENT','FRACTURE','TRIAL','LABYRINTH','BREACH','TEMPLE','CASCADE','CIRCUIT','RELAY','CHANNEL','SPIRAL','VAULT','NEXUS','BASTION','DRIFT','MATRIX','HORIZON','CROWN'];
+
+// -- SYNTH MUSIC -------------------------------------------------
+// Geometry Dash-style looped tracks, generated locally with Web Audio.
+const NR_AUDIO_TRACKS={
+  neon:{id:'neon',title:'Photon Grid',bpm:164,root:49,scale:[0,3,5,7,10],leadWave:'sawtooth',bassWave:'square',arpWave:'triangle',filter:1450,accent:1.04,
+    bass:[0,null,0,2,3,null,2,null,0,null,4,3,2,null,0,null],
+    lead:[null,7,null,5,null,3,5,null,7,null,8,null,10,8,7,null],
+    arp:[0,2,3,4,2,3,5,4,0,2,4,5,7,5,4,2],kick:[0,4,8,12],snare:[4,12],hat:[2,6,10,14]},
+  acid:{id:'acid',title:'Acid Voltage',bpm:168,root:45,scale:[0,2,3,7,8,10],leadWave:'sawtooth',bassWave:'sawtooth',arpWave:'square',filter:1120,accent:1.1,
+    bass:[0,0,null,3,0,0,null,5,0,0,null,3,7,5,3,null],
+    lead:[null,5,7,null,8,null,7,5,null,10,null,8,7,null,5,null],
+    arp:[0,3,5,7,8,7,5,3,0,3,5,7,10,8,7,5],kick:[0,3,8,11,14],snare:[4,12],hat:[1,3,5,7,9,11,13,15]},
+  space:{id:'space',title:'Orbital Drift',bpm:150,root:42,scale:[0,2,5,7,9],leadWave:'triangle',bassWave:'sine',arpWave:'sawtooth',filter:980,accent:.92,
+    bass:[0,null,null,2,4,null,null,2,0,null,5,null,4,null,2,null],
+    lead:[7,null,null,9,null,7,null,5,null,4,null,2,4,null,null,null],
+    arp:[0,2,4,7,9,7,4,2,0,2,5,7,9,7,5,2],kick:[0,8],snare:[4,12],hat:[2,6,10,14]},
+  fire:{id:'fire',title:'Ember Breaker',bpm:172,root:47,scale:[0,2,3,7,10],leadWave:'square',bassWave:'sawtooth',arpWave:'sawtooth',filter:1280,accent:1.16,
+    bass:[0,null,0,3,0,null,5,3,0,null,7,5,3,null,2,null],
+    lead:[null,7,null,10,7,null,5,null,12,10,null,7,5,null,3,null],
+    arp:[0,3,5,7,10,7,5,3,0,3,5,7,12,10,7,5],kick:[0,4,7,8,12,15],snare:[4,12],hat:[2,5,6,10,13,14]},
+  ice:{id:'ice',title:'Crystal Pulse',bpm:156,root:50,scale:[0,2,4,7,11],leadWave:'triangle',bassWave:'square',arpWave:'triangle',filter:1850,accent:.9,
+    bass:[0,null,4,null,2,null,7,null,0,null,4,null,9,null,7,null],
+    lead:[7,11,null,9,null,7,4,null,11,null,9,null,7,null,4,null],
+    arp:[0,4,7,11,12,11,7,4,2,4,7,11,14,11,7,4],kick:[0,8,12],snare:[4,12],hat:[2,6,10,14]},
+  glitch:{id:'glitch',title:'Bitcrush Sector',bpm:178,root:46,scale:[0,1,5,6,10],leadWave:'square',bassWave:'square',arpWave:'sawtooth',filter:1240,accent:1.2,
+    bass:[0,null,6,0,null,5,0,1,0,null,10,6,null,5,1,null],
+    lead:[null,10,6,null,5,6,null,1,10,null,6,5,null,1,0,null],
+    arp:[0,1,5,6,10,6,5,1,0,1,6,10,13,10,6,5],kick:[0,2,8,10,14],snare:[4,12],hat:[1,3,6,7,9,11,14,15]},
+  toxic:{id:'toxic',title:'Biohazard Bass',bpm:166,root:43,scale:[0,3,6,7,10],leadWave:'sawtooth',bassWave:'square',arpWave:'square',filter:1040,accent:1.08,
+    bass:[0,null,0,6,0,null,7,6,0,null,10,7,6,null,3,null],
+    lead:[null,7,null,6,10,null,7,null,12,10,null,7,6,null,3,null],
+    arp:[0,3,6,7,10,7,6,3,0,3,6,7,12,10,7,6],kick:[0,4,8,11,12],snare:[4,12],hat:[2,6,7,10,14]},
+  storm:{id:'storm',title:'Thunder Circuit',bpm:174,root:48,scale:[0,2,5,7,10],leadWave:'sawtooth',bassWave:'sawtooth',arpWave:'triangle',filter:1520,accent:1.14,
+    bass:[0,null,5,null,0,7,5,null,0,null,10,7,5,null,2,null],
+    lead:[12,null,10,7,null,5,7,null,12,null,14,12,10,null,7,null],
+    arp:[0,5,7,10,12,10,7,5,0,2,5,7,10,12,14,12],kick:[0,4,8,12,15],snare:[4,12],hat:[1,2,5,6,9,10,13,14]},
+  tomb:{id:'tomb',title:'Ancient Neon',bpm:152,root:40,scale:[0,1,5,7,8,10],leadWave:'triangle',bassWave:'sine',arpWave:'square',filter:870,accent:.98,
+    bass:[0,null,null,5,0,null,7,null,0,null,8,7,5,null,1,null],
+    lead:[7,null,8,null,10,8,7,null,5,null,7,null,8,7,5,null],
+    arp:[0,5,7,8,10,8,7,5,0,1,5,7,8,10,8,7],kick:[0,8,11],snare:[4,12],hat:[2,6,10,14]},
+  warp:{id:'warp',title:'Hyperwarp',bpm:182,root:51,scale:[0,3,5,6,10],leadWave:'sawtooth',bassWave:'square',arpWave:'sawtooth',filter:1680,accent:1.22,
+    bass:[0,null,0,5,6,null,5,3,0,null,10,6,5,null,3,null],
+    lead:[12,10,null,6,10,null,12,null,15,12,null,10,6,null,5,null],
+    arp:[0,3,5,6,10,12,10,6,0,3,5,6,15,12,10,6],kick:[0,3,6,8,12,14],snare:[4,12],hat:[1,3,5,7,9,11,13,15]},
+  prism:{id:'prism',title:'Prism Cascade',bpm:160,root:53,scale:[0,2,4,7,9,11],leadWave:'triangle',bassWave:'square',arpWave:'triangle',filter:1960,accent:1,
+    bass:[0,null,4,null,7,null,4,null,0,null,9,null,11,9,7,null],
+    lead:[7,9,11,null,12,null,11,9,7,null,9,11,14,12,null,null],
+    arp:[0,4,7,11,12,11,9,7,0,2,4,7,9,11,14,11],kick:[0,8,12],snare:[4,12],hat:[2,4,6,10,12,14]},
+  boss:{id:'boss',title:'Omega Overdrive',bpm:188,root:44,scale:[0,1,4,6,7,10],leadWave:'sawtooth',bassWave:'sawtooth',arpWave:'square',filter:1320,accent:1.28,
+    bass:[0,0,null,6,0,null,7,6,0,0,null,10,7,6,4,null],
+    lead:[12,null,10,7,6,null,7,null,12,10,null,14,12,null,10,null],
+    arp:[0,4,6,7,10,12,10,7,0,1,4,6,7,10,14,12],kick:[0,3,4,8,11,12,15],snare:[4,12],hat:[1,2,5,6,9,10,13,14,15]},
+};
+const NR_ENV_TRACK={
+  neon:'neon',cyber:'neon',metro:'neon',chrome:'neon',reactor:'storm',
+  acid:'acid',toxic:'toxic',jungle:'toxic',lab:'toxic',hive:'toxic',
+  space:'space',void:'space',abyss:'boss',nebula:'space',aurora:'prism',
+  fire:'fire',lava:'fire',forge:'fire',solaris:'fire',desert:'tomb',
+  ice:'ice',glacier:'ice',crystal:'ice',mirror:'prism',coral:'prism',
+  glitch:'glitch',warp:'warp',prism:'prism',eclipse:'warp',
+  storm:'storm',nstorm:'storm',volt:'storm',
+  tomb:'tomb',ruins:'tomb',dark:'boss',blood:'boss',omega:'boss',final:'boss',
+};
 
 function difficultyByNumber(levelNum){
   if(levelNum<=30)return 'medium';
@@ -971,6 +1043,277 @@ const FIXED_STEP_MS=1000/60;
 let lastFrameTime=0;
 let accumulatedMs=0;
 
+function getStoredAudioMuted(){
+  try{return window.localStorage.getItem('neonRushAudioMuted')==='1';}
+  catch(_err){return false;}
+}
+function storeAudioMuted(muted){
+  try{window.localStorage.setItem('neonRushAudioMuted',muted?'1':'0');}
+  catch(_err){}
+}
+
+function createNeonRushAudio(){
+  const Ctx=window.AudioContext||window.webkitAudioContext;
+  const api={
+    available:Boolean(Ctx),unlocked:false,running:false,envKey:'neon',trackId:'neon',
+    trackTitle:NR_AUDIO_TRACKS.neon.title,bpm:NR_AUDIO_TRACKS.neon.bpm,muted:getStoredAudioMuted(),
+  };
+  if(!Ctx){
+    return {
+      unlock(){},
+      prepare(envKey,difficulty){setSnapshot(envKey,difficulty);},
+      start(envKey,difficulty){setSnapshot(envKey,difficulty);},
+      stop(){api.running=false;},
+      sfx(){},
+      sync(){},
+      setMuted(value){api.muted=Boolean(value);storeAudioMuted(api.muted);},
+      toggleMute(){api.muted=!api.muted;storeAudioMuted(api.muted);return api.muted;},
+      snapshot(){return {...api};},
+    };
+  }
+
+  let ctx=null,master=null,musicGain=null,sfxGain=null,musicFilter=null,delay=null,delayGain=null,noiseBuffer=null;
+  let scheduler=null,nextStepAt=0,stepIndex=0,currentTrack=NR_AUDIO_TRACKS.neon;
+
+  function setSnapshot(envKey='neon',difficulty='easy'){
+    const track=pickTrack(envKey,difficulty);
+    api.envKey=envKey;
+    api.trackId=track.id;
+    api.trackTitle=track.title;
+    api.bpm=track.bpm;
+  }
+  function pickTrack(envKey='neon',difficulty='easy'){
+    if(difficulty==='insane'&&(envKey==='dark'||envKey==='blood'||envKey==='omega'||envKey==='abyss'||envKey==='final'))return NR_AUDIO_TRACKS.boss;
+    const id=NR_ENV_TRACK[envKey]||'neon';
+    return NR_AUDIO_TRACKS[id]||NR_AUDIO_TRACKS.neon;
+  }
+  function ensure(){
+    if(ctx)return;
+    ctx=new Ctx();
+    master=ctx.createGain();
+    musicGain=ctx.createGain();
+    sfxGain=ctx.createGain();
+    musicFilter=ctx.createBiquadFilter();
+    delay=ctx.createDelay(0.32);
+    delayGain=ctx.createGain();
+
+    master.gain.value=api.muted?0:.74;
+    musicGain.gain.value=0;
+    sfxGain.gain.value=.52;
+    musicFilter.type='lowpass';
+    musicFilter.frequency.value=1400;
+    musicFilter.Q.value=.72;
+    delay.delayTime.value=.187;
+    delayGain.gain.value=.09;
+
+    musicFilter.connect(musicGain);
+    musicFilter.connect(delayGain);
+    delayGain.connect(delay);
+    delay.connect(musicGain);
+    musicGain.connect(master);
+    sfxGain.connect(master);
+    master.connect(ctx.destination);
+
+    const frames=Math.max(1,Math.floor(ctx.sampleRate*.5));
+    noiseBuffer=ctx.createBuffer(1,frames,ctx.sampleRate);
+    const data=noiseBuffer.getChannelData(0);
+    for(let i=0;i<frames;i++)data[i]=Math.random()*2-1;
+  }
+  function unlock(){
+    ensure();
+    api.unlocked=true;
+    if(ctx.state==='suspended')ctx.resume();
+    if(master&&!api.muted)rampGain(master,.74,.08);
+  }
+  function rampGain(node,value,time=.05){
+    if(!ctx||!node)return;
+    const now=ctx.currentTime;
+    node.gain.cancelScheduledValues(now);
+    node.gain.setTargetAtTime(value,now,Math.max(.01,time));
+  }
+  function midiToFreq(midi){return 440*Math.pow(2,(midi-69)/12);}
+  function noteFreq(track,degree,octaveShift=0){
+    const scale=track.scale;
+    const len=scale.length;
+    const octave=Math.floor(degree/len)+octaveShift;
+    const index=((degree%len)+len)%len;
+    return midiToFreq(track.root+scale[index]+octave*12);
+  }
+  function tone(time,freq,dur,wave,gain,out=musicFilter,detune=0){
+    if(!ctx)return;
+    const osc=ctx.createOscillator();
+    const amp=ctx.createGain();
+    const filt=ctx.createBiquadFilter();
+    osc.type=wave;
+    osc.frequency.setValueAtTime(freq,time);
+    osc.detune.value=detune;
+    filt.type='lowpass';
+    filt.frequency.setValueAtTime(Math.max(360,Math.min(6200,freq*5.5)),time);
+    filt.Q.value=.7;
+    amp.gain.setValueAtTime(0.0001,time);
+    amp.gain.exponentialRampToValueAtTime(Math.max(.0002,gain),time+.012);
+    amp.gain.exponentialRampToValueAtTime(.0001,time+Math.max(.035,dur));
+    osc.connect(filt);filt.connect(amp);amp.connect(out);
+    osc.start(time);osc.stop(time+dur+.04);
+  }
+  function noise(time,dur,type,freq,gain,out=musicFilter){
+    if(!ctx||!noiseBuffer)return;
+    const src=ctx.createBufferSource();
+    const filt=ctx.createBiquadFilter();
+    const amp=ctx.createGain();
+    src.buffer=noiseBuffer;
+    src.loop=true;
+    filt.type=type;
+    filt.frequency.setValueAtTime(freq,time);
+    filt.Q.value=type==='bandpass'?1.6:.7;
+    amp.gain.setValueAtTime(0.0001,time);
+    amp.gain.exponentialRampToValueAtTime(Math.max(.0002,gain),time+.008);
+    amp.gain.exponentialRampToValueAtTime(.0001,time+dur);
+    src.connect(filt);filt.connect(amp);amp.connect(out);
+    src.start(time);src.stop(time+dur+.02);
+  }
+  function kick(time,level=1){
+    if(!ctx)return;
+    const osc=ctx.createOscillator();
+    const amp=ctx.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(136,time);
+    osc.frequency.exponentialRampToValueAtTime(46,time+.105);
+    amp.gain.setValueAtTime(.0001,time);
+    amp.gain.exponentialRampToValueAtTime(.24*level,time+.01);
+    amp.gain.exponentialRampToValueAtTime(.0001,time+.22);
+    osc.connect(amp);amp.connect(musicFilter);
+    osc.start(time);osc.stop(time+.25);
+  }
+  function scheduleStep(time,step,track){
+    const s=step%16;
+    const beatDur=60/track.bpm;
+    const stepDur=beatDur/4;
+    const pulse=track.accent||1;
+    if(track.kick.includes(s))kick(time,s===0?1.18:1);
+    if(track.snare.includes(s)){
+      noise(time,.085,'bandpass',1850,.115* pulse);
+      tone(time,190,.07,'triangle',.035,musicFilter);
+    }
+    if(track.hat.includes(s))noise(time,.036,'highpass',7200,.052);
+
+    const bassDegree=track.bass[s];
+    if(bassDegree!==null&&bassDegree!==undefined){
+      tone(time,noteFreq(track,bassDegree,-1),stepDur*1.42,track.bassWave,.105* pulse,musicFilter);
+    }
+    const arpDegree=track.arp[s];
+    if(arpDegree!==null&&arpDegree!==undefined){
+      tone(time,noteFreq(track,arpDegree,1),stepDur*.72,track.arpWave,.032,musicFilter,s%2?4:-4);
+    }
+    const leadDegree=track.lead[s];
+    if(leadDegree!==null&&leadDegree!==undefined){
+      tone(time,noteFreq(track,leadDegree,1),stepDur*1.7,track.leadWave,.06* pulse,musicFilter,0);
+      if(s===0||s===8)tone(time+.012,noteFreq(track,leadDegree+2,1),stepDur*1.3,track.leadWave,.025,musicFilter,6);
+    }
+  }
+  function pump(){
+    if(!ctx||!api.running)return;
+    const stepDur=(60/currentTrack.bpm)/4;
+    const ahead=ctx.currentTime+.145;
+    while(nextStepAt<ahead){
+      scheduleStep(nextStepAt,stepIndex,currentTrack);
+      stepIndex++;
+      nextStepAt+=stepDur;
+    }
+  }
+  function prepare(envKey,difficulty){
+    const track=pickTrack(envKey,difficulty);
+    currentTrack=track;
+    setSnapshot(envKey,difficulty);
+    if(ctx&&musicFilter)musicFilter.frequency.setTargetAtTime(track.filter,ctx.currentTime,.08);
+  }
+  function start(envKey,difficulty){
+    unlock();
+    prepare(envKey,difficulty);
+    if(api.running){
+      stepIndex=0;
+      nextStepAt=ctx.currentTime+.035;
+      return;
+    }
+    api.running=true;
+    stepIndex=0;
+    nextStepAt=ctx.currentTime+.035;
+    rampGain(musicGain,.32,.045);
+    if(scheduler)clearInterval(scheduler);
+    scheduler=setInterval(pump,25);
+    pump();
+  }
+  function stop(fade=.14){
+    if(!ctx||!api.running)return;
+    api.running=false;
+    rampGain(musicGain,0,fade);
+    const old=scheduler;
+    scheduler=null;
+    window.setTimeout(()=>{if(old)clearInterval(old);},Math.max(80,fade*1000+40));
+  }
+  function sfx(kind){
+    if(!ctx||!api.unlocked||api.muted)return;
+    const t=ctx.currentTime+.006;
+    if(kind==='jump'){
+      tone(t,620,.09,'triangle',.085,sfxGain);
+      tone(t+.025,930,.07,'sine',.045,sfxGain);
+    }else if(kind==='pad'){
+      tone(t,410,.11,'square',.07,sfxGain);
+      tone(t+.03,820,.16,'sawtooth',.095,sfxGain);
+      noise(t,.08,'highpass',5200,.035,sfxGain);
+    }else if(kind==='orb'){
+      tone(t,880,.08,'triangle',.08,sfxGain);
+      tone(t+.035,1320,.1,'triangle',.065,sfxGain);
+    }else if(kind==='crash'){
+      noise(t,.28,'lowpass',860,.18,sfxGain);
+      tone(t,120,.22,'sawtooth',.08,sfxGain);
+      stop(.06);
+    }else if(kind==='win'){
+      tone(t,660,.12,'triangle',.09,sfxGain);
+      tone(t+.09,880,.12,'triangle',.09,sfxGain);
+      tone(t+.18,1320,.22,'triangle',.1,sfxGain);
+      stop(.36);
+    }
+  }
+  function sync(progressPct=0,difficulty='easy'){
+    if(!ctx||!api.running||!musicFilter)return;
+    const diffBoost=difficulty==='insane'?520:difficulty==='hard'?360:difficulty==='medium'?180:0;
+    const target=(currentTrack.filter||1200)+diffBoost+Math.min(420,progressPct*4.2);
+    musicFilter.frequency.setTargetAtTime(target,ctx.currentTime,.08);
+  }
+  function setMuted(value){
+    api.muted=Boolean(value);
+    storeAudioMuted(api.muted);
+    if(ctx&&master)rampGain(master,api.muted?0:.74,.08);
+  }
+  function toggleMute(){
+    setMuted(!api.muted);
+    return api.muted;
+  }
+
+  return {unlock,prepare,start,stop,sfx,sync,setMuted,toggleMute,snapshot(){return {...api};}};
+}
+
+const neonAudio=createNeonRushAudio();
+const soundToggle=document.getElementById('soundToggle');
+function updateSoundToggle(){
+  if(!soundToggle)return;
+  const audio=neonAudio.snapshot();
+  soundToggle.textContent=audio.muted?'SOUND OFF':'SOUND ON';
+  soundToggle.classList.toggle('muted',audio.muted);
+  soundToggle.setAttribute('aria-pressed',String(!audio.muted));
+}
+if(soundToggle){
+  soundToggle.addEventListener('click',(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    neonAudio.unlock();
+    neonAudio.toggleMute();
+    updateSoundToggle();
+  });
+  updateSoundToggle();
+}
+
 function resetP(){
   player={x:120,y:GR-T,vy:0,w:T,h:T,onGround:true,rotation:0,trail:[]};
 }
@@ -990,13 +1333,15 @@ function buildLS(){
     <div class="lname">${m.n}</div>
     <span class="ld ${dMap[m.d]}">${m.d.toUpperCase()}</span>
     <div class="lb">${bTimes[i]?'BEST: '+fmtT(bTimes[i]):'—'}</div>`;
-    c.onclick=()=>loadLv(i);
+    c.onclick=()=>{neonAudio.unlock();loadLv(i);};
     g.appendChild(c);
   });
 }
 
 function loadLv(n){
   curLv=n; levelLength=levelLengthFor(n); lvObjs=buildLv(n); bgR=buildBgR(); env=ENV[META[n].e];
+  neonAudio.stop(.08);
+  neonAudio.prepare(META[n].e,META[n].d);
   attempt=1;
   assistScale=1;
   document.getElementById('levelSelect').style.display='none';
@@ -1021,6 +1366,7 @@ function buildBgR(){
 
 // ── INPUT ─────────────────────────────────────────────────────
 function onIn(){
+  neonAudio.unlock();
   if(state==='start'){startG();return;}
   if(state==='dead'){restartGame();return;}
   if(state==='playing'){
@@ -1057,6 +1403,7 @@ function bindJumpTap(el){
 bindJumpTap(document.getElementById('gw'));
 
 function startG(){
+  neonAudio.start(META[curLv].e,META[curLv].d);
   state='playing';
   document.getElementById('ss').style.display='none';
   gTime=0;score=0;camX=0;resetP();parts=[];
@@ -1074,6 +1421,7 @@ function restartGame(){
 }
 function nextLv(){if(curLv<META.length-1)loadLv(curLv+1);else goLS();}
 function goLS(){
+  neonAudio.stop(.16);
   document.getElementById('gw').style.display='none';
   document.getElementById('levelSelect').style.display='flex';
   buildLS();state='ls';
@@ -1088,6 +1436,7 @@ function spawnP(x,y,col,cnt=12,spd=4){
 
 function die(){
   state='dead';
+  neonAudio.sfx('crash');
   spawnP(player.x+player.w/2,player.y+player.h/2,env.pc,22,8);
   spawnP(player.x+player.w/2,player.y+player.h/2,'#ff00aa',12,6);
   const pr=Math.min(100,Math.round((player.x/levelLength)*100));
@@ -1100,6 +1449,7 @@ function die(){
 
 function winLv(){
   state='win';
+  neonAudio.sfx('win');
   spawnP(player.x+player.w/2,player.y+player.h/2,'#ffee00',38,10);
   spawnP(player.x+player.w/2,player.y+player.h/2,env.pc,25,8);
   done[curLv]=true;
@@ -1132,6 +1482,7 @@ function update(){
       coyoteFrames=0;
       jumpBuffer=0;
       spawnP(player.x+player.w/2,player.y+player.h,env.pc,5,3);
+      neonAudio.sfx('jump');
       return;
     }
     if(airJumpsUsed>=AIR_JUMPS_MAX)return;
@@ -1141,6 +1492,7 @@ function update(){
     jumpBuffer=0;
     airJumpsUsed++;
     spawnP(player.x+player.w/2,player.y+player.h,'#ffee00',8,3.6);
+    neonAudio.sfx('orb');
   };
 
   tryBufferedJump();
@@ -1167,7 +1519,9 @@ function update(){
   score=Math.floor(camX/50);if(score>best)best=score;
   document.getElementById('sc').textContent=score;
   document.getElementById('bt').textContent=best;
-  document.getElementById('pb').style.width=Math.min(100,(player.x/levelLength)*100)+'%';
+  const progressPct=Math.min(100,(player.x/levelLength)*100);
+  document.getElementById('pb').style.width=progressPct+'%';
+  neonAudio.sync(progressPct,META[curLv].d);
   const s=Math.floor(gTime/60);
   document.getElementById('lt').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
 
@@ -1195,14 +1549,16 @@ function update(){
         coyoteFrames=0;
         jumpBuffer=0;
         airJumpsUsed=0;
-        spawnP(player.x+pw/2,player.y+ph,'#ffee00',10,4);}
+        spawnP(player.x+pw/2,player.y+ph,'#ffee00',10,4);
+        neonAudio.sfx('pad');}
     } else if(obj.t==='o'){
       const d=Math.sqrt((px+pw/2-ox)**2+(py+ph/2-oy)**2);
       if(d<obj.r+17&&jumpBuffer>0){player.vy=JF*1.1;player.onGround=false;
         coyoteFrames=0;
         jumpBuffer=0;
         airJumpsUsed=0;
-        spawnP(ox,oy,'#ffee00',12,5);}
+        spawnP(ox,oy,'#ffee00',12,5);
+        neonAudio.sfx('orb');}
     } else if(obj.t==='p'){
       if(rO(px,py,pw,ph,ox,oy,ow,oh))winLv();
     }
@@ -1400,6 +1756,7 @@ function buildTextState(){
       number:curLv+1,
       name:META[curLv]?.n||'UNKNOWN',
       difficulty:META[curLv]?.d||'easy',
+      environment:META[curLv]?.e||'neon',
       length:levelLength,
     },
     player:{
@@ -1418,11 +1775,13 @@ function buildTextState(){
     assistScale:Number(assistScale.toFixed(2)),
     progressPct:Math.min(100,Math.max(0,Math.round((player.x/levelLength)*100))),
     timerFrames:gTime,
+    audio:neonAudio.snapshot(),
     upcoming:getUpcomingObstacles(),
   };
 }
 
 window.render_game_to_text=()=>JSON.stringify(buildTextState());
+window.__neonRushAudioSnapshot=()=>neonAudio.snapshot();
 window.advanceTime=(ms=0)=>{
   const n=Math.max(1,Math.round((Number(ms)||0)/16.6667));
   for(let i=0;i<n;i++){
