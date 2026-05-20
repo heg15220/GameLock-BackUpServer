@@ -1372,7 +1372,10 @@ export default function MobileGameStatusPanel({
       ) : null}
 
       {supplementalSections.map((section) => (
-        <div key={section.id} className="mobile-game-status-panel__menu">
+        <div
+          key={section.id}
+          className={`mobile-game-status-panel__menu mobile-game-status-panel__menu--${section.id}`}
+        >
           <strong>{section.title}</strong>
 
           {section.type === "buttons" ? (

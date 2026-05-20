@@ -3846,6 +3846,10 @@
   gap: 0.42rem;
 }
 
+.mobile-game-shell[data-game-id="arcade-valle-tranquilo"] .mobile-game-status-panel__menu--valle-inventory .mobile-game-status-panel__detail-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .mobile-game-status-panel__detail-item {
   display: grid;
   gap: 0.14rem;
@@ -5084,6 +5088,10 @@
 }
 
 .mobile-game-shell--device-tablet[data-game-id="arcade-valle-tranquilo"] .mobile-game-status-panel__menu--actions .mobile-game-status-panel__buttons {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mobile-game-shell--device-tablet[data-game-id="arcade-valle-tranquilo"] .mobile-game-status-panel__menu--valle-inventory .mobile-game-status-panel__detail-list {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 

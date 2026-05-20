@@ -4740,3 +4740,9 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Peticion: anadir un boton para que el usuario pueda usar o quitar el sonido.
 - src/arcade/neon-rush/index.html anade #soundToggle fijo con estados SOUND ON / SOUND OFF, persistencia en localStorage y conexion al master gain del motor Web Audio. El boton no dispara salto ni inicio de intento.
 - Validacion: npm run build OK. Playwright dirigido en output/neon-rush-sound-toggle-check confirma SOUND ON -> SOUND OFF -> SOUND ON y audio.muted true/false en window.__neonRushAudioSnapshot/render_game_to_text. Nota: file:/// sigue registrando ERR_NETWORK_ACCESS_DENIED por Google Fonts externo preexistente.
+
+## 2026-05-20 - Valle Tranquilo inventario movil agrupado
+- Peticion: en vista movil, el panel de inventario de Valle Tranquilo no debe mostrar un item por fila, sino varios en la misma fila.
+- src/mobile/MobileGameStatusPanel.jsx anade modificadores de clase por seccion suplementaria para poder apuntar solo a valle-inventory sin afectar misiones u otras listas.
+- src/mobile/mobile-game-shell.css ajusta el inventario de arcade-valle-tranquilo a 2 columnas en telefono y 3 en tablet.
+- Validacion: npm run build OK; web_game_playwright_client.mjs OK en output/valle-inventory-mobile-layout-skill; Playwright dirigido movil OK en output/valle-inventory-mobile-layout-directed, con gridTemplateColumns de 2 columnas y captura phone-390x844-inventory-scrolled.png revisada.
