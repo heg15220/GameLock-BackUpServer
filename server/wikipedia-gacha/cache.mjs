@@ -182,8 +182,11 @@ export function createCache({
       `me:${browserToken}`,
       `packs:${browserToken}`,
       `troph:${browserToken}`,
+      `hist:${browserToken}`,
     );
     await delByPattern(`col:${browserToken}:*`);
+    await delByPattern(`colitem:${browserToken}:*`);
+    await delByPattern(`hist:${browserToken}:*`);
     await delByPattern(`miss:${browserToken}:*`);
   }
 

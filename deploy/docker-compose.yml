@@ -1,0 +1,210 @@
+services:
+  db:
+    image: postgres:16
+    container_name: plataforma-juegos-db
+    environment:
+      TZ: ${TZ}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=140"
+      - "-c"
+      - "shared_buffers=1GB"
+      - "-c"
+      - "effective_cache_size=3GB"
+      - "-c"
+      - "work_mem=8MB"
+      - "-c"
+      - "maintenance_work_mem=128MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "random_page_cost=1.1"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+    networks: [app-net]
+    mem_limit: 3g
+    cpus: "1.4"
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: plataforma-juegos-redis
+    command:
+      - "redis-server"
+      - "--bind"
+      - "0.0.0.0"
+      - "--protected-mode"
+      - "no"
+      - "--appendonly"
+      - "no"
+      - "--save"
+      - ""
+      - "--maxmemory"
+      - "512mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+    networks: [app-net]
+    mem_limit: 768m
+    cpus: "0.4"
+
+  wikipedia-gacha-backend:
+    build:
+      context: ..
+      dockerfile: deploy/backend-games/Dockerfile
+    container_name: wikipedia-gacha-backend
+    command: ["node", "server/wikipedia-gacha/index.mjs"]
+    environment:
+      TZ: ${TZ}
+      NODE_ENV: production
+      NODE_OPTIONS: ${NODE_OPTIONS}
+      HOST: 0.0.0.0
+      PORT: "8791"
+      WIKIPEDIA_GACHA_WORKERS: ${WIKIPEDIA_GACHA_WORKERS}
+      WIKIPEDIA_GACHA_TOKEN_SECRET: ${WIKIPEDIA_GACHA_TOKEN_SECRET}
+      WIKIPEDIA_GACHA_STORAGE_DRIVER: postgres
+      WIKIPEDIA_GACHA_POSTGRES_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
+      WIKIPEDIA_GACHA_POSTGRES_POOL_MIN: ${WIKIPEDIA_GACHA_POSTGRES_POOL_MIN}
+      WIKIPEDIA_GACHA_POSTGRES_POOL_MAX: ${WIKIPEDIA_GACHA_POSTGRES_POOL_MAX}
+      WIKIPEDIA_GACHA_RATE_LIMIT_PER_MIN: ${WIKIPEDIA_GACHA_RATE_LIMIT_PER_MIN}
+      REDIS_URL: "redis://redis:6379"
+      WGC_REDIS_PREFIX: "wgc:"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "8791"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8791/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    networks: [app-net]
+    mem_limit: 2g
+    cpus: "1.8"
+
+  penalty-shootout-backend:
+    build:
+      context: ..
+      dockerfile: deploy/backend-games/Dockerfile
+    container_name: penalty-shootout-backend
+    command: ["node", "server/penalty-shootout/index.mjs"]
+    environment:
+      TZ: ${TZ}
+      NODE_ENV: production
+      NODE_OPTIONS: ${NODE_OPTIONS}
+      PORT: "8792"
+    volumes:
+      - penalty_shootout_stats:/app/server/data/penalty-shootout/stats
+    expose:
+      - "8792"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8792/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    networks: [app-net]
+    mem_limit: 768m
+    cpus: "0.5"
+
+  cosmic-vanguard-backend:
+    build:
+      context: ..
+      dockerfile: deploy/backend-games/Dockerfile
+    container_name: cosmic-vanguard-backend
+    command: ["node", "server/cosmic-vanguard-backend.mjs"]
+    environment:
+      TZ: ${TZ}
+      NODE_ENV: production
+      NODE_OPTIONS: ${NODE_OPTIONS}
+      PORT: "8793"
+    volumes:
+      - cosmic_vanguard_data:/app/server/data
+    expose:
+      - "8793"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8793/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    networks: [app-net]
+    mem_limit: 512m
+    cpus: "0.4"
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/web/Dockerfile
+      args:
+        SITE_URL: ${SITE_URL}
+    container_name: plataforma-juegos-web
+    environment:
+      TZ: ${TZ}
+      DOMAIN: ${DOMAIN}
+    depends_on:
+      wikipedia-gacha-backend:
+        condition: service_healthy
+      penalty-shootout-backend:
+        condition: service_healthy
+      cosmic-vanguard-backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    networks: [app-net]
+    mem_limit: 512m
+    cpus: "0.4"
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: plataforma-juegos-certbot
+    entrypoint: /bin/sh
+    command: -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h; done"
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    networks: [app-net]
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: "0.2"
+
+volumes:
+  postgres_data:
+  penalty_shootout_stats:
+  cosmic_vanguard_data:
+  certbot_conf:
+  certbot_www:
+
+networks:
+  app-net:
+    driver: bridge

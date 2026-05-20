@@ -1189,6 +1189,341 @@ function createPackCards(state, profile, now, randomFn, articleCatalog) {
   };
 }
 
+async function pickArticleIdForRarityIncremental({
+  rarity,
+  randomFn,
+  articleCatalog,
+  getCollectionEntries,
+  localCollectionByArticleId,
+}) {
+  const buckets = [];
+  const primary = articleCatalog.getBucketIdsForRarity(rarity);
+  if (primary?.length) {
+    buckets.push(primary);
+  } else {
+    for (const rarityCode of RARITY_ORDER) {
+      const fallback = articleCatalog.getBucketIdsForRarity(rarityCode);
+      if (fallback?.length) {
+        buckets.push(fallback);
+        break;
+      }
+    }
+  }
+  const bucket = buckets[0] ?? [];
+  if (!bucket.length) return null;
+  if (bucket.length === 1) return bucket[0];
+
+  const sampleSize = Math.min(16, bucket.length);
+  const candidateIds = [];
+  const seen = new Set();
+  let guard = 0;
+  while (candidateIds.length < sampleSize && guard < sampleSize * 4) {
+    guard += 1;
+    const candidate = bucket[Math.floor(randomFn() * bucket.length) % bucket.length];
+    if (!seen.has(candidate)) {
+      seen.add(candidate);
+      candidateIds.push(candidate);
+    }
+  }
+  if (!candidateIds.length) {
+    return bucket[Math.floor(randomFn() * bucket.length) % bucket.length];
+  }
+
+  const persistedEntries = await getCollectionEntries(candidateIds);
+  let totalWeight = 0;
+  const weighted = candidateIds.map((articleId) => {
+    const localEntry = localCollectionByArticleId.get(articleId);
+    const persistedEntry = persistedEntries.get(articleId);
+    const owned = (localEntry?.copies ?? persistedEntry?.copies ?? 0) > 0;
+    const weight = owned ? 1 : NEW_CARD_WEIGHT_BOOST;
+    totalWeight += weight;
+    return { articleId, weight };
+  });
+
+  let cursor = randomFn() * totalWeight;
+  for (const candidate of weighted) {
+    cursor -= candidate.weight;
+    if (cursor <= 0) {
+      return candidate.articleId;
+    }
+  }
+  return weighted[weighted.length - 1]?.articleId ?? null;
+}
+
+async function performOpenPackIncrementalMutation({
+  profile,
+  now,
+  randomFn,
+  articleCatalog,
+  getCollectionEntries,
+}) {
+  const draftProfile = { ...profile };
+  applyPackRegeneration(draftProfile, now);
+  const hasSpecialPackReady = Number(draftProfile.pityCounter) >= PITY_THRESHOLD;
+
+  if (draftProfile.packsAvailable <= 0 && !hasSpecialPackReady) {
+    const error = new Error("No packs available.");
+    error.statusCode = 409;
+    error.code = "no_packs_available";
+    throw error;
+  }
+
+  const lastOpenAtMs = draftProfile.lastPackOpenedAt
+    ? new Date(draftProfile.lastPackOpenedAt).getTime()
+    : 0;
+  if (now.getTime() - lastOpenAtMs < 900) {
+    const error = new Error("Pack open rate limit exceeded.");
+    error.statusCode = 429;
+    error.code = "pack_open_rate_limited";
+    throw error;
+  }
+
+  const wasAtCap = draftProfile.packsAvailable >= draftProfile.maxPacks;
+  const localCollectionByArticleId = new Map();
+  const packCards = [];
+  const openingCards = [];
+  const storedOpeningCards = [];
+  const articleSnapshots = new Map();
+  const packLanguage = draftProfile.preferredLanguage ?? "en";
+  let newCardsCount = 0;
+  let totalShards = 0;
+
+  for (let slotIndex = 0; slotIndex < PACK_SIZE; slotIndex += 1) {
+    const forceGuaranteedSlot = hasSpecialPackReady && slotIndex === PACK_SIZE - 1;
+    const rarity = pickWeighted(
+      forceGuaranteedSlot ? GUARANTEED_SR_PLUS_WEIGHTS : STANDARD_RARITY_WEIGHTS,
+      randomFn
+    );
+    const articleId = await pickArticleIdForRarityIncremental({
+      rarity,
+      randomFn,
+      articleCatalog,
+      getCollectionEntries,
+      localCollectionByArticleId,
+    });
+    if (!articleId) continue;
+
+    const article = await articleCatalog.getArticleById(articleId);
+    if (!article) {
+      const error = new Error(`Article ${articleId} not found.`);
+      error.statusCode = 500;
+      error.code = "catalog_article_not_found";
+      throw error;
+    }
+
+    let collectionEntry = localCollectionByArticleId.get(articleId);
+    if (!collectionEntry) {
+      collectionEntry = (await getCollectionEntries([articleId])).get(articleId);
+    }
+    const articleRarity = article.rarityCode ?? rarity;
+    const articleTopicGroup = article.topicGroup ?? "General";
+    const wasNew = !collectionEntry;
+    const shardsEarned = wasNew
+      ? 0
+      : DUPLICATE_SHARDS_BY_RARITY[articleRarity] ?? 0;
+
+    if (!collectionEntry) {
+      collectionEntry = {
+        id: null,
+        browserProfileId: draftProfile.id,
+        articleId,
+        copies: 1,
+        firstObtainedAt: isoDate(now),
+        lastObtainedAt: isoDate(now),
+        favorite: false,
+        bestRarityCode: articleRarity,
+        topicGroup: articleTopicGroup,
+      };
+      newCardsCount += 1;
+    } else {
+      collectionEntry = {
+        ...collectionEntry,
+        copies: Number(collectionEntry.copies || 0) + 1,
+        lastObtainedAt: isoDate(now),
+        bestRarityCode: collectionEntry.bestRarityCode ?? articleRarity,
+        topicGroup: collectionEntry.topicGroup ?? articleTopicGroup,
+      };
+    }
+    localCollectionByArticleId.set(articleId, collectionEntry);
+    totalShards += shardsEarned;
+    draftProfile.shards += shardsEarned;
+    articleSnapshots.set(`${article.id}|${packLanguage}`, buildArticleSnapshot(article, packLanguage));
+
+    const packCard = {
+      articleId,
+      slotNumber: slotIndex + 1,
+      rarity: articleRarity,
+      wasNew,
+      duplicateCountBefore: Math.max(0, collectionEntry.copies - 1),
+      shardsEarned,
+      copiesAfterPull: collectionEntry.copies,
+    };
+    packCards.push(packCard);
+    openingCards.push(serializePackCardResult(article, collectionEntry, packCard));
+    storedOpeningCards.push(serializeStoredPackCardResult(article, collectionEntry, packCard, packLanguage));
+  }
+
+  if (!hasSpecialPackReady) {
+    draftProfile.packsAvailable -= 1;
+  }
+  draftProfile.totalPackOpens += 1;
+  draftProfile.lastPackOpenedAt = isoDate(now);
+  draftProfile.lastSeenAt = isoDate(now);
+  draftProfile.updatedAt = isoDate(now);
+  if (wasAtCap) {
+    draftProfile.lastPackRegenAt = isoDate(now);
+  }
+  const safePityCounter = Number.isFinite(Number(draftProfile.pityCounter))
+    ? Math.max(0, Math.min(PITY_THRESHOLD, Math.floor(Number(draftProfile.pityCounter))))
+    : 0;
+  draftProfile.pityCounter = hasSpecialPackReady
+    ? 0
+    : Math.min(PITY_THRESHOLD, safePityCounter + 1);
+
+  const dailyTopicCounts = {};
+  for (const card of openingCards) {
+    if (TRACKED_TOPIC_GROUPS.includes(card.topicGroup)) {
+      dailyTopicCounts[card.topicGroup] = (dailyTopicCounts[card.topicGroup] || 0) + 1;
+    }
+  }
+
+  const dailyIncrement = {
+    packsOpened: 1,
+    cardsObtained: openingCards.length,
+    newCardsObtained: newCardsCount,
+    duplicateCardsObtained: openingCards.filter((card) => !card.wasNew).length,
+    srOrHigherCount: openingCards.filter((card) => rarityAtLeast(card.rarity, "SR")).length,
+    ssrOrHigherCount: openingCards.filter((card) => rarityAtLeast(card.rarity, "SSR")).length,
+    urOrHigherCount: openingCards.filter((card) => rarityAtLeast(card.rarity, "UR")).length,
+    shardsEarned: totalShards,
+    topicCardsObtained: dailyTopicCounts,
+  };
+
+  return {
+    profile: draftProfile,
+    collectionEntries: Array.from(localCollectionByArticleId.values()),
+    articleSnapshots: Array.from(articleSnapshots.values()),
+    opening: {
+      openedAt: isoDate(now),
+      guaranteedSrPlus: hasSpecialPackReady,
+      packType: "standard",
+      resultSummary: summarizePack(openingCards),
+      cards: storedOpeningCards,
+    },
+    dailyIncrement,
+    rewardEvent: totalShards > 0
+      ? {
+          rewardSource: "duplicate_cards",
+          rewardType: "shards",
+          rewardAmount: totalShards,
+          createdAt: isoDate(now),
+          metadataJson: {},
+        }
+      : null,
+    response: {
+      guaranteedSrPlus: hasSpecialPackReady,
+      shardsEarned: totalShards,
+      newCardsCount,
+      cards: openingCards,
+    },
+  };
+}
+
+function buildProgressFromSqlMetrics({ profile, metrics, now, openingId }) {
+  const resetDate = yyyyMmDd(now);
+  const missionMetricValues = {
+    packs_opened: metrics.todaysStats.packsOpened,
+    cards_obtained: metrics.todaysStats.cardsObtained,
+    new_cards_obtained: metrics.todaysStats.newCardsObtained,
+    duplicate_cards_obtained: metrics.todaysStats.duplicateCardsObtained,
+    shards_earned: metrics.todaysStats.shardsEarned,
+    sr_or_higher_count: metrics.todaysStats.srOrHigherCount,
+    ssr_or_higher_count: metrics.todaysStats.ssrOrHigherCount,
+    ur_or_higher_count: metrics.todaysStats.urOrHigherCount,
+    wikipedia_clicks: metrics.todaysStats.wikipediaClicks,
+    favorites_marked: metrics.favoritesCount,
+  };
+  for (const topicGroup of TRACKED_TOPIC_GROUPS) {
+    missionMetricValues[getTopicMetricKey(topicGroup)] =
+      normalizeStatCount(metrics.todaysStats.topicCardsObtained?.[topicGroup]);
+  }
+
+  const missions = pickDailyMissionTemplates(profile, now).map((mission) => {
+    const progressValue = Math.min(
+      mission.targetValue,
+      missionMetricValues[mission.targetType] ?? 0
+    );
+    return {
+      missionId: mission.id,
+      resetDate,
+      progressValue,
+      completed: progressValue >= mission.targetValue,
+    };
+  });
+
+  const unlockedCodes = new Set(
+    (metrics.unlockedTrophyIds ?? [])
+      .map((id) => TROPHY_BY_ID.get(id)?.code)
+      .filter(Boolean)
+  );
+  const conditions = {
+    "first-card": metrics.uniqueCount >= 1,
+    "first-sr-plus-set": metrics.srPlusCount >= 3,
+    "first-sr": metrics.highestRarity ? rarityAtLeast(metrics.highestRarity, "SR") : false,
+    "first-ssr": metrics.highestRarity ? rarityAtLeast(metrics.highestRarity, "SSR") : false,
+    "first-ur": metrics.highestRarity ? rarityAtLeast(metrics.highestRarity, "UR") : false,
+    "first-lr": metrics.highestRarity ? rarityAtLeast(metrics.highestRarity, "LR") : false,
+    "unique-15": metrics.uniqueCount >= 15,
+    "unique-40": metrics.uniqueCount >= 40,
+    "unique-80": metrics.uniqueCount >= 80,
+    "unique-150": metrics.uniqueCount >= 150,
+    "duplicates-10": metrics.duplicateCopies >= 10,
+    "duplicates-30": metrics.duplicateCopies >= 30,
+    "duplicates-75": metrics.duplicateCopies >= 75,
+    "copies-120": metrics.totalCopies >= 120,
+    "packs-10": profile.totalPackOpens >= 10,
+    "packs-25": profile.totalPackOpens >= 25,
+    "packs-50": profile.totalPackOpens >= 50,
+    "packs-100": profile.totalPackOpens >= 100,
+    "favorites-3": metrics.favoritesCount >= 3,
+    "favorites-10": metrics.favoritesCount >= 10,
+    "science-collector": (metrics.topicCounts.Science ?? 0) >= 6,
+    "history-collector": (metrics.topicCounts.History ?? 0) >= 5,
+    "geography-collector": (metrics.topicCounts.Geography ?? 0) >= 6,
+    "technology-collector": (metrics.topicCounts.Technology ?? 0) >= 6,
+    "art-collector": (metrics.topicCounts.Art ?? 0) >= 6,
+    "culture-collector": (metrics.topicCounts.Culture ?? 0) >= 6,
+    "society-collector": (metrics.topicCounts.Society ?? 0) >= 6,
+    "mathematics-collector": (metrics.topicCounts.Mathematics ?? 0) >= 4,
+    "topic-variety-4": Object.values(metrics.topicCounts).filter((count) => count > 0).length >= 4,
+    "topic-variety-7": Object.values(metrics.topicCounts).filter((count) => count > 0).length >= 7,
+    "wikipedia-clicks-5": metrics.totalWikipediaClicks >= 5,
+    "wikipedia-clicks-25": metrics.totalWikipediaClicks >= 25,
+    "mission-claims-5": metrics.missionClaims >= 5,
+    "mission-claims-20": metrics.missionClaims >= 20,
+    "shards-250": profile.shards >= 250,
+    "shards-1000": profile.shards >= 1000,
+    "gems-250": profile.gems >= 250,
+    "gems-750": profile.gems >= 750,
+    "ssr-set-5": metrics.ssrPlusCount >= 5,
+  };
+
+  const trophiesToUnlock = TROPHIES
+    .filter((trophy) => !unlockedCodes.has(trophy.code) && conditions[trophy.code])
+    .map((trophy) => ({
+      trophyId: trophy.id,
+      points: trophy.points,
+      unlockedAt: isoDate(now),
+    }));
+
+  return {
+    missions,
+    trophiesToUnlock,
+    packStatus: serializePackStatus(profile, now),
+    openingId,
+  };
+}
+
 async function buildDashboard(state, profile, now, articleCatalog, summaries = {}) {
   return {
     browserToken: profile.browserToken,
@@ -1739,6 +2074,34 @@ export function createWikipediaGachaService({
         cards: await hydrateCards(response.cards ?? [], articleCatalog),
       };
     }
+    if (typeof store.openPackIncremental === "function") {
+      const directResult = await store.openPackIncremental(browserToken, {
+        preferredLanguage,
+        nowIso: isoDate(now),
+        statDate: yyyyMmDd(now),
+        maxPackHistory: MAX_PERSISTED_PACK_HISTORY,
+        buildMutation: async (profile, helpers) => {
+          syncProfilePreferredLanguage(profile, preferredLanguage, now);
+          const articleCatalog = await ensureCatalogReady(profile.preferredLanguage);
+          return performOpenPackIncrementalMutation({
+            profile,
+            now,
+            randomFn,
+            articleCatalog,
+            getCollectionEntries: helpers.getCollectionEntries,
+          });
+        },
+        finalizeProgress: ({ profile, metrics, openingId }) =>
+          buildProgressFromSqlMetrics({ profile, metrics, now, openingId }),
+      });
+      if (directResult) {
+        const articleCatalog = await ensureCatalogReady(preferredLanguage);
+        return {
+          ...directResult,
+          cards: await hydrateCards(directResult.cards ?? [], articleCatalog),
+        };
+      }
+    }
     const state = await store.forToken(browserToken).update(async (draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
@@ -1768,6 +2131,30 @@ export function createWikipediaGachaService({
     );
     if (transient) {
       return { packHistory: [] };
+    }
+    if (typeof store.readPackHistory === "function") {
+      const directHistory = await store.readPackHistory(
+        browserToken,
+        preferredLanguage,
+        MAX_PERSISTED_PACK_HISTORY
+      );
+      if (!directHistory) {
+        const error = new Error("Browser profile not found.");
+        error.statusCode = 401;
+        error.code = "invalid_browser_token";
+        throw error;
+      }
+      const articleCatalog = await ensureCatalogReady(
+        preferredLanguage ?? directHistory.preferredLanguage
+      );
+      return {
+        packHistory: await Promise.all(
+          directHistory.packHistory.map(async (entry) => ({
+            ...entry,
+            cards: await hydrateCards(entry.cards ?? [], articleCatalog),
+          }))
+        ),
+      };
     }
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
@@ -1822,6 +2209,29 @@ export function createWikipediaGachaService({
         items: [],
         summary: buildEmptyCollectionSummary(),
         availableTopics: [],
+      };
+    }
+    if (typeof store.readCollectionPage === "function") {
+      const directPage = await store.readCollectionPage(browserToken, {
+        ...filters,
+        preferredLanguage,
+      });
+      if (!directPage) {
+        const error = new Error("Browser profile not found.");
+        error.statusCode = 401;
+        error.code = "invalid_browser_token";
+        throw error;
+      }
+      const articleCatalog = await ensureCatalogReady(
+        preferredLanguage ?? directPage.preferredLanguage
+      );
+      return {
+        page: directPage.page,
+        pageSize: directPage.pageSize,
+        total: directPage.total,
+        items: await hydrateCards(directPage.items, articleCatalog),
+        summary: directPage.summary,
+        availableTopics: directPage.availableTopics,
       };
     }
     const state = await store.forToken(browserToken).update((draft) => {
@@ -1886,6 +2296,40 @@ export function createWikipediaGachaService({
 
   async function getCollectionItem(browserToken, articleId, preferredLanguage = null) {
     const now = nowFn();
+    const transient = await buildTransientStateForUnpersistedToken(
+      browserToken,
+      preferredLanguage,
+      now
+    );
+    if (transient) {
+      const error = new Error("Collection card not found.");
+      error.statusCode = 404;
+      error.code = "collection_item_not_found";
+      throw error;
+    }
+    if (typeof store.readCollectionItem === "function") {
+      const directItem = await store.readCollectionItem(
+        browserToken,
+        articleId,
+        preferredLanguage
+      );
+      if (!directItem) {
+        const error = new Error("Browser profile not found.");
+        error.statusCode = 401;
+        error.code = "invalid_browser_token";
+        throw error;
+      }
+      if (!directItem.item) {
+        const error = new Error("Collection card not found.");
+        error.statusCode = 404;
+        error.code = "collection_item_not_found";
+        throw error;
+      }
+      const articleCatalog = await ensureCatalogReady(
+        preferredLanguage ?? directItem.preferredLanguage
+      );
+      return hydrateCardLike(directItem.item, articleCatalog);
+    }
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       let changed = false;
@@ -2511,7 +2955,7 @@ export function createWikipediaGachaService({
 
     getPackHistory: (token, lang) => {
       if (!cache.enabled) return getPackHistory(token, lang);
-      return cache.getOrSet(`hist:${token}`, cache.ttls.collection, () =>
+      return cache.getOrSet(`hist:${token}:${lang ?? "_"}`, cache.ttls.collection, () =>
         getPackHistory(token, lang)
       );
     },
@@ -2519,7 +2963,7 @@ export function createWikipediaGachaService({
     getCollection: (token, query, lang) => {
       if (!cache.enabled) return getCollection(token, query, lang);
       return cache.getOrSet(
-        `col:${token}:${hashQuery(query)}`,
+        `col:${token}:${lang ?? "_"}:${hashQuery(query)}`,
         cache.ttls.collection,
         () => getCollection(token, query, lang)
       );
@@ -2528,7 +2972,7 @@ export function createWikipediaGachaService({
     getCollectionItem: (token, articleId, lang) => {
       if (!cache.enabled) return getCollectionItem(token, articleId, lang);
       return cache.getOrSet(
-        `colitem:${token}:${articleId}`,
+        `colitem:${token}:${lang ?? "_"}:${articleId}`,
         cache.ttls.collection,
         () => getCollectionItem(token, articleId, lang)
       );
@@ -2538,8 +2982,9 @@ export function createWikipediaGachaService({
       const result = await toggleFavorite(token, articleId, favorite, lang);
       if (cache.enabled) {
         await Promise.all([
-          cache.del(`me:${token}`, `colitem:${token}:${articleId}`),
+          cache.del(`me:${token}`),
           cache.invalidateUserScoped(token, "col"),
+          cache.invalidateUserScoped(token, "colitem"),
         ]);
       }
       return result;
@@ -2549,7 +2994,7 @@ export function createWikipediaGachaService({
       if (!cache.enabled) return getArticle(articleId, token, lang);
       const normalizedLang = lang === "es" ? "es" : "en";
       return cache.getOrSet(
-        `art:${normalizedLang}:${articleId}`,
+        `art:${normalizedLang}:${articleId}:${token || "public"}`,
         cache.ttls.article,
         () => getArticle(articleId, token, lang)
       );

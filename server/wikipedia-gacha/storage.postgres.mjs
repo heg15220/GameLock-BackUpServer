@@ -101,6 +101,104 @@ function articleSnapshotToRow(snapshot) {
   ];
 }
 
+function normalizeCollectionBoolean(value) {
+  return value === true || value === "true" || value === "1" || value === 1;
+}
+
+function serializeCollectionSqlRow(row) {
+  const articleId = Number(row.articleId) || 0;
+  const extractText = row.extractText ?? "";
+  return {
+    articleId,
+    title: row.title ?? `Article #${articleId}`,
+    rarity: row.rarity ?? row.bestRarityCode ?? "C",
+    qualityScore: Number(row.qualityScore) || 0,
+    atk: Number(row.atk) || 0,
+    def: Number(row.defStat) || 0,
+    imageUrl: row.imageUrl ?? null,
+    extractText,
+    longExtractText: row.longExtractText ?? extractText,
+    flavorText: row.flavorText ?? null,
+    topicGroup: row.topicGroup ?? "General",
+    sourceUrl: row.sourceUrl ?? null,
+    categories: [],
+    copies: Number(row.copies) || 0,
+    favorite: Boolean(row.favorite),
+    bestRarityCode: row.bestRarityCode ?? null,
+    firstObtainedAt: row.firstObtainedAt ?? null,
+    lastObtainedAt: row.lastObtainedAt ?? null,
+  };
+}
+
+function serializePackCardSqlRow(row) {
+  const articleId = Number(row.articleId) || 0;
+  const extractText = row.extractText ?? "";
+  return {
+    articleId,
+    language: row.language ?? null,
+    title: row.title ?? `Article #${articleId}`,
+    rarity: row.rarity ?? "C",
+    qualityScore: Number(row.qualityScore) || 0,
+    atk: Number(row.atk) || 0,
+    def: Number(row.defStat) || 0,
+    imageUrl: row.imageUrl ?? null,
+    extractText,
+    longExtractText: row.longExtractText ?? extractText,
+    flavorText: row.flavorText ?? null,
+    wasNew: Boolean(row.wasNew),
+    copiesAfterPull: Number(row.copiesAfterPull) || 0,
+    shardsEarned: Number(row.shardsEarned) || 0,
+    sourceUrl: row.sourceUrl ?? null,
+    topicGroup: row.topicGroup ?? "General",
+  };
+}
+
+function normalizeProfileRow(profile) {
+  if (!profile) return null;
+  return {
+    id: Number(profile.id) || 0,
+    browserToken: profile.browserToken,
+    displayName: profile.displayName ?? null,
+    preferredLanguage: profile.preferredLanguage ?? null,
+    packsAvailable: Number(profile.packsAvailable) || 0,
+    maxPacks: Number(profile.maxPacks) || 0,
+    lastPackRegenAt: profile.lastPackRegenAt ?? "",
+    gems: Number(profile.gems) || 0,
+    shards: Number(profile.shards) || 0,
+    trophiesPoints: Number(profile.trophiesPoints) || 0,
+    totalPackOpens: Number(profile.totalPackOpens) || 0,
+    pityCounter: Number(profile.pityCounter) || 0,
+    createdAt: profile.createdAt ?? "",
+    updatedAt: profile.updatedAt ?? "",
+    lastSeenAt: profile.lastSeenAt ?? "",
+    lastPackOpenedAt: profile.lastPackOpenedAt ?? null,
+  };
+}
+
+function buildCollectionSortSql(sortBy) {
+  switch (sortBy) {
+    case "atk_desc":
+      return "COALESCE(a.atk, 0) DESC, c.last_obtained_at DESC, c.id DESC";
+    case "def_desc":
+      return "COALESCE(a.def_stat, 0) DESC, c.last_obtained_at DESC, c.id DESC";
+    case "title_asc":
+      return "COALESCE(NULLIF(a.title, ''), 'Article #' || c.article_id::text) ASC, c.id ASC";
+    case "rarity_desc":
+      return `CASE COALESCE(c.best_rarity_code, a.rarity_code, 'C')
+        WHEN 'LR' THEN 7
+        WHEN 'UR' THEN 6
+        WHEN 'SSR' THEN 5
+        WHEN 'SR' THEN 4
+        WHEN 'R' THEN 3
+        WHEN 'UC' THEN 2
+        ELSE 1
+      END DESC, COALESCE(a.quality_score, 0) DESC, c.last_obtained_at DESC, c.id DESC`;
+    case "recent":
+    default:
+      return "c.last_obtained_at DESC NULLS LAST, c.id DESC";
+  }
+}
+
 export function createPostgresStore({ db }) {
   const queues = new Map();
   const stateCache = new Map();
@@ -1101,6 +1199,839 @@ export function createPostgresStore({ db }) {
     return profile;
   }
 
+  async function readCollectionPage(browserToken, filters = {}) {
+    const resolvedToken = await resolvePersistedToken(browserToken);
+    const profile = await readProfileOnly(resolvedToken);
+    if (!profile) {
+      return null;
+    }
+
+    const language = String(filters.preferredLanguage || profile.preferredLanguage || "en")
+      .toLowerCase()
+      .startsWith("es")
+      ? "es"
+      : "en";
+    const page = Math.max(1, Number(filters.page) || 1);
+    const pageSize = Math.min(60, Math.max(1, Number(filters.pageSize) || 24));
+    const offset = (page - 1) * pageSize;
+    const query = String(filters.query ?? "").trim().toLowerCase();
+
+    const fromSql = `FROM browser_collection c
+      LEFT JOIN LATERAL (
+        SELECT *
+        FROM articles candidate
+        WHERE candidate.article_id = c.article_id
+        ORDER BY CASE WHEN candidate.language = ? THEN 0 ELSE 1 END
+        LIMIT 1
+      ) a ON TRUE`;
+    const where = ["c.browser_profile_id = ?"];
+    const whereParams = [profile.id];
+
+    if (query) {
+      where.push("LOWER(COALESCE(NULLIF(a.title, ''), 'Article #' || c.article_id::text)) LIKE ?");
+      whereParams.push(`%${query}%`);
+    }
+    if (filters.rarity) {
+      where.push("COALESCE(c.best_rarity_code, a.rarity_code, 'C') = ?");
+      whereParams.push(String(filters.rarity));
+    }
+    if (normalizeCollectionBoolean(filters.favorite)) {
+      where.push("c.favorite = TRUE");
+    }
+    if (normalizeCollectionBoolean(filters.duplicatesOnly)) {
+      where.push("c.copies >= 2");
+    }
+    if (normalizeCollectionBoolean(filters.newOnly)) {
+      where.push("c.copies = 1");
+    }
+    if (filters.topicGroup) {
+      where.push("COALESCE(c.topic_group, a.topic_group) = ?");
+      whereParams.push(String(filters.topicGroup));
+    }
+
+    const whereSql = `WHERE ${where.join(" AND ")}`;
+    const baseParams = [language, ...whereParams];
+    const orderSql = buildCollectionSortSql(filters.sortBy);
+
+    const [countRow, rows, summaryRows, topicRows] = await Promise.all([
+      db.get(
+        `SELECT COUNT(*) AS total
+         ${fromSql}
+         ${whereSql}`,
+        baseParams
+      ),
+      db.all(
+        `SELECT
+           c.id,
+           c.article_id AS "articleId",
+           c.copies,
+           c.first_obtained_at AS "firstObtainedAt",
+           c.last_obtained_at AS "lastObtainedAt",
+           c.favorite,
+           c.best_rarity_code AS "bestRarityCode",
+           COALESCE(c.topic_group, a.topic_group) AS "topicGroup",
+           COALESCE(NULLIF(a.title, ''), 'Article #' || c.article_id::text) AS "title",
+           COALESCE(c.best_rarity_code, a.rarity_code, 'C') AS "rarity",
+           a.quality_score AS "qualityScore",
+           a.atk,
+           a.def_stat AS "defStat",
+           a.image_url AS "imageUrl",
+           a.extract_text AS "extractText",
+           a.long_extract_text AS "longExtractText",
+           a.flavor_text AS "flavorText",
+           a.source_url AS "sourceUrl"
+         ${fromSql}
+         ${whereSql}
+         ORDER BY ${orderSql}
+         LIMIT ? OFFSET ?`,
+        [...baseParams, pageSize, offset]
+      ),
+      db.all(
+        `SELECT
+           COALESCE(c.best_rarity_code, a.rarity_code, 'C') AS rarity,
+           COUNT(*) AS count,
+           SUM(c.copies) AS copies,
+           SUM(CASE WHEN c.favorite THEN 1 ELSE 0 END) AS favorites
+         ${fromSql}
+         WHERE c.browser_profile_id = ?
+         GROUP BY COALESCE(c.best_rarity_code, a.rarity_code, 'C')`,
+        [language, profile.id]
+      ),
+      db.all(
+        `SELECT DISTINCT COALESCE(c.topic_group, a.topic_group) AS topic
+         ${fromSql}
+         WHERE c.browser_profile_id = ?
+           AND COALESCE(c.topic_group, a.topic_group) IS NOT NULL
+         ORDER BY topic ASC`,
+        [language, profile.id]
+      ),
+    ]);
+
+    const rarityBreakdown = {
+      C: 0,
+      UC: 0,
+      R: 0,
+      SR: 0,
+      SSR: 0,
+      UR: 0,
+      LR: 0,
+    };
+    let uniqueCards = 0;
+    let totalCopies = 0;
+    let favorites = 0;
+    for (const row of summaryRows) {
+      const rarity = row.rarity || "C";
+      const count = Number(row.count) || 0;
+      rarityBreakdown[rarity] = count;
+      uniqueCards += count;
+      totalCopies += Number(row.copies) || 0;
+      favorites += Number(row.favorites) || 0;
+    }
+
+    return {
+      browserToken: profile.browserToken,
+      preferredLanguage: profile.preferredLanguage,
+      page,
+      pageSize,
+      total: Number(countRow?.total) || 0,
+      items: rows.map(serializeCollectionSqlRow),
+      summary: {
+        uniqueCards,
+        totalCopies,
+        favorites,
+        rarityBreakdown,
+      },
+      availableTopics: topicRows
+        .map((row) => row.topic)
+        .filter(Boolean)
+        .sort((left, right) => String(left).localeCompare(String(right))),
+    };
+  }
+
+  async function readCollectionItem(browserToken, articleId, preferredLanguage = null) {
+    const resolvedToken = await resolvePersistedToken(browserToken);
+    const profile = await readProfileOnly(resolvedToken);
+    if (!profile) {
+      return null;
+    }
+    const language = String(preferredLanguage || profile.preferredLanguage || "en")
+      .toLowerCase()
+      .startsWith("es")
+      ? "es"
+      : "en";
+    const row = await db.get(
+      `SELECT
+         c.id,
+         c.article_id AS "articleId",
+         c.copies,
+         c.first_obtained_at AS "firstObtainedAt",
+         c.last_obtained_at AS "lastObtainedAt",
+         c.favorite,
+         c.best_rarity_code AS "bestRarityCode",
+         COALESCE(c.topic_group, a.topic_group) AS "topicGroup",
+         COALESCE(NULLIF(a.title, ''), 'Article #' || c.article_id::text) AS "title",
+         COALESCE(c.best_rarity_code, a.rarity_code, 'C') AS "rarity",
+         a.quality_score AS "qualityScore",
+         a.atk,
+         a.def_stat AS "defStat",
+         a.image_url AS "imageUrl",
+         a.extract_text AS "extractText",
+         a.long_extract_text AS "longExtractText",
+         a.flavor_text AS "flavorText",
+         a.source_url AS "sourceUrl"
+       FROM browser_collection c
+       LEFT JOIN LATERAL (
+         SELECT *
+         FROM articles candidate
+         WHERE candidate.article_id = c.article_id
+         ORDER BY CASE WHEN candidate.language = ? THEN 0 ELSE 1 END
+         LIMIT 1
+       ) a ON TRUE
+       WHERE c.browser_profile_id = ?
+         AND c.article_id = ?
+       LIMIT 1`,
+      [language, profile.id, Number(articleId) || 0]
+    );
+    if (!row) {
+      return {
+        browserToken: profile.browserToken,
+        preferredLanguage: profile.preferredLanguage,
+        item: null,
+      };
+    }
+    return {
+      browserToken: profile.browserToken,
+      preferredLanguage: profile.preferredLanguage,
+      item: serializeCollectionSqlRow(row),
+    };
+  }
+
+  async function readPackHistory(browserToken, preferredLanguage = null, limit = 24) {
+    const resolvedToken = await resolvePersistedToken(browserToken);
+    const profile = await readProfileOnly(resolvedToken);
+    if (!profile) {
+      return null;
+    }
+    const language = String(preferredLanguage || profile.preferredLanguage || "en")
+      .toLowerCase()
+      .startsWith("es")
+      ? "es"
+      : "en";
+    const safeLimit = Math.min(100, Math.max(1, Number(limit) || 24));
+    const openingRows = await db.all(
+      `SELECT
+         id,
+         browser_profile_id AS "browserProfileId",
+         opened_at AS "openedAt",
+         guaranteed_sr_plus AS "guaranteedSrPlus",
+         pack_type AS "packType",
+         result_summary AS "resultSummary"
+       FROM pack_openings
+       WHERE browser_profile_id = ?
+       ORDER BY opened_at DESC, id DESC
+       LIMIT ?`,
+      [profile.id, safeLimit]
+    );
+    if (!openingRows.length) {
+      return {
+        browserToken: profile.browserToken,
+        preferredLanguage: profile.preferredLanguage,
+        packHistory: [],
+      };
+    }
+
+    const openingIds = openingRows.map((row) => Number(row.id) || 0);
+    const cardRows = await db.all(
+      `SELECT
+         card.pack_opening_id AS "packOpeningId",
+         card.slot_number AS "slotNumber",
+         card.article_id AS "articleId",
+         card.language AS "language",
+         card.was_new AS "wasNew",
+         card.copies_after_pull AS "copiesAfterPull",
+         card.shards_earned AS "shardsEarned",
+         COALESCE(NULLIF(a.title, ''), 'Article #' || card.article_id::text) AS "title",
+         COALESCE(a.rarity_code, 'C') AS "rarity",
+         a.quality_score AS "qualityScore",
+         a.atk,
+         a.def_stat AS "defStat",
+         a.image_url AS "imageUrl",
+         a.extract_text AS "extractText",
+         a.long_extract_text AS "longExtractText",
+         a.flavor_text AS "flavorText",
+         a.source_url AS "sourceUrl",
+         a.topic_group AS "topicGroup"
+       FROM pack_opening_cards card
+       LEFT JOIN LATERAL (
+         SELECT *
+         FROM articles candidate
+         WHERE candidate.article_id = card.article_id
+         ORDER BY
+           CASE WHEN candidate.language = card.language THEN 0
+                WHEN candidate.language = ? THEN 1
+                ELSE 2
+           END
+         LIMIT 1
+       ) a ON TRUE
+       WHERE card.pack_opening_id = ANY(?::bigint[])
+       ORDER BY card.pack_opening_id DESC, card.slot_number ASC`,
+      [language, openingIds]
+    );
+
+    const cardsByOpeningId = new Map();
+    for (const row of cardRows) {
+      const list = cardsByOpeningId.get(row.packOpeningId) ?? [];
+      list.push(serializePackCardSqlRow(row));
+      cardsByOpeningId.set(row.packOpeningId, list);
+    }
+
+    return {
+      browserToken: profile.browserToken,
+      preferredLanguage: profile.preferredLanguage,
+      packHistory: openingRows.map((row) => ({
+        packOpeningId: row.id,
+        openedAt: row.openedAt,
+        guaranteedSrPlus: Boolean(row.guaranteedSrPlus),
+        packType: row.packType,
+        resultSummary: row.resultSummary,
+        cards: cardsByOpeningId.get(row.id) ?? [],
+      })),
+    };
+  }
+
+  async function openPackIncremental(browserToken, {
+    preferredLanguage = null,
+    nowIso,
+    statDate,
+    maxPackHistory = 24,
+    buildMutation,
+    finalizeProgress,
+  } = {}) {
+    const resolvedToken = await resolvePersistedToken(browserToken);
+    return db.transaction(async (tx) => {
+      const profile = normalizeProfileRow(await tx.get(
+        `SELECT
+           id,
+           browser_token AS "browserToken",
+           display_name AS "displayName",
+           preferred_language AS "preferredLanguage",
+           packs_available AS "packsAvailable",
+           max_packs AS "maxPacks",
+           last_pack_regen_at AS "lastPackRegenAt",
+           gems,
+           shards,
+           trophies_points AS "trophiesPoints",
+           total_pack_opens AS "totalPackOpens",
+           pity_counter AS "pityCounter",
+           created_at AS "createdAt",
+           updated_at AS "updatedAt",
+           last_seen_at AS "lastSeenAt",
+           last_pack_opened_at AS "lastPackOpenedAt"
+         FROM browser_profiles
+         WHERE browser_token = ?
+         FOR UPDATE`,
+        [resolvedToken]
+      ));
+      if (!profile) {
+        return null;
+      }
+
+      const collectionCache = new Map();
+      async function getCollectionEntries(articleIds = []) {
+        const ids = Array.from(
+          new Set(
+            articleIds
+              .map((id) => Number(id) || 0)
+              .filter((id) => id > 0)
+          )
+        );
+        const missing = ids.filter((id) => !collectionCache.has(id));
+        if (missing.length) {
+          const rows = await tx.all(
+            `SELECT
+               id,
+               browser_profile_id AS "browserProfileId",
+               article_id AS "articleId",
+               copies,
+               first_obtained_at AS "firstObtainedAt",
+               last_obtained_at AS "lastObtainedAt",
+               favorite,
+               best_rarity_code AS "bestRarityCode",
+               topic_group AS "topicGroup"
+             FROM browser_collection
+             WHERE browser_profile_id = ?
+               AND article_id = ANY(?::int[])`,
+            [profile.id, missing]
+          );
+          for (const id of missing) {
+            collectionCache.set(id, null);
+          }
+          for (const row of rows) {
+            collectionCache.set(Number(row.articleId) || 0, {
+              ...row,
+              id: Number(row.id) || 0,
+              browserProfileId: Number(row.browserProfileId) || profile.id,
+              articleId: Number(row.articleId) || 0,
+              copies: Number(row.copies) || 0,
+              favorite: Boolean(row.favorite),
+            });
+          }
+        }
+        return new Map(ids.map((id) => [id, collectionCache.get(id) ?? null]));
+      }
+
+      const nextIdRow = await tx.get(
+        `SELECT GREATEST(
+           ?::bigint,
+           COALESCE((SELECT MAX(id) FROM browser_collection WHERE browser_profile_id = ?), 0),
+           COALESCE((SELECT MAX(id) FROM pack_openings WHERE browser_profile_id = ?), 0),
+           COALESCE((SELECT MAX(id) FROM browser_missions WHERE browser_profile_id = ?), 0),
+           COALESCE((SELECT MAX(id) FROM browser_trophies WHERE browser_profile_id = ?), 0),
+           COALESCE((SELECT MAX(id) FROM reward_events WHERE browser_profile_id = ?), 0),
+           COALESCE((SELECT MAX(id) FROM daily_browser_stats WHERE browser_profile_id = ?), 0)
+         ) + 1 AS "nextId"`,
+        [profile.id, profile.id, profile.id, profile.id, profile.id, profile.id, profile.id]
+      );
+      let nextId = Number(nextIdRow?.nextId) || (profile.id + 1);
+      const allocateId = () => {
+        const id = nextId;
+        nextId += 1;
+        return id;
+      };
+
+      const mutation = await buildMutation(profile, {
+        getCollectionEntries,
+        preferredLanguage,
+      });
+
+      await bulkInsertRows(
+        tx,
+        "articles",
+        [
+          "article_id",
+          "language",
+          "title",
+          "rarity_code",
+          "quality_score",
+          "atk",
+          "def_stat",
+          "image_url",
+          "extract_text",
+          "long_extract_text",
+          "flavor_text",
+          "source_url",
+          "topic_group",
+        ],
+        (mutation.articleSnapshots ?? []).map(articleSnapshotToRow),
+        `ON CONFLICT(article_id, language) DO UPDATE SET
+          title = COALESCE(NULLIF(excluded.title, ''), articles.title),
+          rarity_code = COALESCE(excluded.rarity_code, articles.rarity_code),
+          quality_score = GREATEST(excluded.quality_score, articles.quality_score),
+          atk = GREATEST(excluded.atk, articles.atk),
+          def_stat = GREATEST(excluded.def_stat, articles.def_stat),
+          image_url = COALESCE(excluded.image_url, articles.image_url),
+          extract_text = COALESCE(NULLIF(excluded.extract_text, ''), articles.extract_text),
+          long_extract_text = COALESCE(NULLIF(excluded.long_extract_text, ''), articles.long_extract_text),
+          flavor_text = COALESCE(excluded.flavor_text, articles.flavor_text),
+          source_url = COALESCE(excluded.source_url, articles.source_url),
+          topic_group = COALESCE(excluded.topic_group, articles.topic_group),
+          last_seen_at = NOW()`
+      );
+
+      await tx.run(
+        `UPDATE browser_profiles
+         SET display_name = ?,
+             preferred_language = ?,
+             packs_available = ?,
+             max_packs = ?,
+             last_pack_regen_at = ?,
+             gems = ?,
+             shards = ?,
+             trophies_points = ?,
+             total_pack_opens = ?,
+             pity_counter = ?,
+             updated_at = ?,
+             last_seen_at = ?,
+             last_pack_opened_at = ?
+         WHERE id = ?`,
+        [
+          mutation.profile.displayName ?? null,
+          mutation.profile.preferredLanguage ?? null,
+          Number(mutation.profile.packsAvailable) || 0,
+          Number(mutation.profile.maxPacks) || 0,
+          mutation.profile.lastPackRegenAt ?? "",
+          Number(mutation.profile.gems) || 0,
+          Number(mutation.profile.shards) || 0,
+          Number(mutation.profile.trophiesPoints) || 0,
+          Number(mutation.profile.totalPackOpens) || 0,
+          Number(mutation.profile.pityCounter) || 0,
+          mutation.profile.updatedAt ?? nowIso,
+          mutation.profile.lastSeenAt ?? nowIso,
+          mutation.profile.lastPackOpenedAt ?? null,
+          profile.id,
+        ]
+      );
+
+      for (const entry of mutation.collectionEntries ?? []) {
+        if (entry.id) {
+          await tx.run(
+            `UPDATE browser_collection
+             SET copies = ?,
+                 first_obtained_at = ?,
+                 last_obtained_at = ?,
+                 favorite = ?,
+                 best_rarity_code = ?,
+                 topic_group = ?
+             WHERE id = ?`,
+            [
+              Number(entry.copies) || 0,
+              entry.firstObtainedAt ?? null,
+              entry.lastObtainedAt ?? null,
+              Boolean(entry.favorite),
+              entry.bestRarityCode ?? null,
+              entry.topicGroup ?? null,
+              Number(entry.id) || 0,
+            ]
+          );
+        } else {
+          const id = allocateId();
+          entry.id = id;
+          await tx.run(
+            `INSERT INTO browser_collection (
+               id, browser_profile_id, article_id, copies, first_obtained_at,
+               last_obtained_at, favorite, best_rarity_code, topic_group
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              id,
+              profile.id,
+              Number(entry.articleId) || 0,
+              Number(entry.copies) || 0,
+              entry.firstObtainedAt ?? null,
+              entry.lastObtainedAt ?? null,
+              Boolean(entry.favorite),
+              entry.bestRarityCode ?? null,
+              entry.topicGroup ?? null,
+            ]
+          );
+        }
+      }
+
+      const openingId = allocateId();
+      await tx.run(
+        `INSERT INTO pack_openings (
+           id, browser_profile_id, opened_at, guaranteed_sr_plus, pack_type, result_summary
+         ) VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+          openingId,
+          profile.id,
+          mutation.opening.openedAt,
+          Boolean(mutation.opening.guaranteedSrPlus),
+          mutation.opening.packType ?? null,
+          mutation.opening.resultSummary ?? null,
+        ]
+      );
+      await bulkInsertRows(
+        tx,
+        "pack_opening_cards",
+        [
+          "pack_opening_id",
+          "slot_number",
+          "article_id",
+          "language",
+          "was_new",
+          "copies_after_pull",
+          "shards_earned",
+        ],
+        (mutation.opening.cards ?? []).map((card, index) => [
+          openingId,
+          index + 1,
+          Number(card.articleId) || 0,
+          card.language ?? mutation.profile.preferredLanguage ?? "en",
+          Boolean(card.wasNew),
+          Number(card.copiesAfterPull) || 0,
+          Number(card.shardsEarned) || 0,
+        ])
+      );
+
+      await tx.run(
+        `DELETE FROM pack_openings
+         WHERE id IN (
+           SELECT id
+           FROM pack_openings
+           WHERE browser_profile_id = ?
+           ORDER BY opened_at DESC, id DESC
+           OFFSET ?
+         )`,
+        [profile.id, Math.max(1, Number(maxPackHistory) || 24)]
+      );
+
+      const existingDaily = await tx.get(
+        `SELECT
+           id,
+           packs_opened AS "packsOpened",
+           cards_obtained AS "cardsObtained",
+           new_cards_obtained AS "newCardsObtained",
+           duplicate_cards_obtained AS "duplicateCardsObtained",
+           sr_or_higher_count AS "srOrHigherCount",
+           ssr_or_higher_count AS "ssrOrHigherCount",
+           ur_or_higher_count AS "urOrHigherCount",
+           wikipedia_clicks AS "wikipediaClicks",
+           shards_earned AS "shardsEarned",
+           topic_counts_json AS "topicCountsJson"
+         FROM daily_browser_stats
+         WHERE browser_profile_id = ?
+           AND stat_date = ?`,
+        [profile.id, statDate]
+      );
+      const topicCounts = (() => {
+        if (!existingDaily?.topicCountsJson) return {};
+        try {
+          return JSON.parse(existingDaily.topicCountsJson);
+        } catch {
+          return {};
+        }
+      })();
+      for (const [topic, amount] of Object.entries(mutation.dailyIncrement.topicCardsObtained ?? {})) {
+        topicCounts[topic] = (Number(topicCounts[topic]) || 0) + (Number(amount) || 0);
+      }
+      const dailyValues = {
+        packsOpened: (Number(existingDaily?.packsOpened) || 0) + (Number(mutation.dailyIncrement.packsOpened) || 0),
+        cardsObtained: (Number(existingDaily?.cardsObtained) || 0) + (Number(mutation.dailyIncrement.cardsObtained) || 0),
+        newCardsObtained: (Number(existingDaily?.newCardsObtained) || 0) + (Number(mutation.dailyIncrement.newCardsObtained) || 0),
+        duplicateCardsObtained: (Number(existingDaily?.duplicateCardsObtained) || 0) + (Number(mutation.dailyIncrement.duplicateCardsObtained) || 0),
+        srOrHigherCount: (Number(existingDaily?.srOrHigherCount) || 0) + (Number(mutation.dailyIncrement.srOrHigherCount) || 0),
+        ssrOrHigherCount: (Number(existingDaily?.ssrOrHigherCount) || 0) + (Number(mutation.dailyIncrement.ssrOrHigherCount) || 0),
+        urOrHigherCount: (Number(existingDaily?.urOrHigherCount) || 0) + (Number(mutation.dailyIncrement.urOrHigherCount) || 0),
+        wikipediaClicks: Number(existingDaily?.wikipediaClicks) || 0,
+        shardsEarned: (Number(existingDaily?.shardsEarned) || 0) + (Number(mutation.dailyIncrement.shardsEarned) || 0),
+      };
+      if (existingDaily) {
+        await tx.run(
+          `UPDATE daily_browser_stats
+           SET packs_opened = ?,
+               cards_obtained = ?,
+               new_cards_obtained = ?,
+               duplicate_cards_obtained = ?,
+               sr_or_higher_count = ?,
+               ssr_or_higher_count = ?,
+               ur_or_higher_count = ?,
+               wikipedia_clicks = ?,
+               shards_earned = ?,
+               topic_counts_json = ?
+           WHERE id = ?`,
+          [
+            dailyValues.packsOpened,
+            dailyValues.cardsObtained,
+            dailyValues.newCardsObtained,
+            dailyValues.duplicateCardsObtained,
+            dailyValues.srOrHigherCount,
+            dailyValues.ssrOrHigherCount,
+            dailyValues.urOrHigherCount,
+            dailyValues.wikipediaClicks,
+            dailyValues.shardsEarned,
+            JSON.stringify(topicCounts),
+            existingDaily.id,
+          ]
+        );
+      } else {
+        await tx.run(
+          `INSERT INTO daily_browser_stats (
+             id, browser_profile_id, stat_date, packs_opened, cards_obtained,
+             new_cards_obtained, duplicate_cards_obtained, sr_or_higher_count,
+             ssr_or_higher_count, ur_or_higher_count, wikipedia_clicks,
+             shards_earned, topic_counts_json
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            allocateId(),
+            profile.id,
+            statDate,
+            dailyValues.packsOpened,
+            dailyValues.cardsObtained,
+            dailyValues.newCardsObtained,
+            dailyValues.duplicateCardsObtained,
+            dailyValues.srOrHigherCount,
+            dailyValues.ssrOrHigherCount,
+            dailyValues.urOrHigherCount,
+            dailyValues.wikipediaClicks,
+            dailyValues.shardsEarned,
+            JSON.stringify(topicCounts),
+          ]
+        );
+      }
+
+      if (mutation.rewardEvent) {
+        await tx.run(
+          `INSERT INTO reward_events (
+             id, browser_profile_id, reward_source, reward_type, reward_amount,
+             created_at, metadata_json
+           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [
+            allocateId(),
+            profile.id,
+            mutation.rewardEvent.rewardSource,
+            mutation.rewardEvent.rewardType,
+            Number(mutation.rewardEvent.rewardAmount) || 0,
+            mutation.rewardEvent.createdAt,
+            JSON.stringify({
+              ...(mutation.rewardEvent.metadataJson ?? {}),
+              packOpeningId: openingId,
+            }),
+          ]
+        );
+      }
+
+      const [collectionMetricRows, totalClicksRow, missionClaimsRow, trophyRows] = await Promise.all([
+        tx.all(
+          `SELECT
+             COALESCE(best_rarity_code, 'C') AS rarity,
+             COALESCE(topic_group, 'General') AS topic,
+             COUNT(*) AS unique_count,
+             SUM(copies) AS copies,
+             SUM(GREATEST(copies - 1, 0)) AS duplicate_copies,
+             SUM(CASE WHEN favorite THEN 1 ELSE 0 END) AS favorites
+           FROM browser_collection
+           WHERE browser_profile_id = ?
+           GROUP BY COALESCE(best_rarity_code, 'C'), COALESCE(topic_group, 'General')`,
+          [profile.id]
+        ),
+        tx.get(
+          `SELECT COALESCE(SUM(wikipedia_clicks), 0) AS clicks
+           FROM daily_browser_stats
+           WHERE browser_profile_id = ?`,
+          [profile.id]
+        ),
+        tx.get(
+          `SELECT COUNT(*) AS claims
+           FROM reward_events
+           WHERE browser_profile_id = ?
+             AND reward_source = 'mission_claim'`,
+          [profile.id]
+        ),
+        tx.all(
+          `SELECT id, trophy_id AS "trophyId", unlocked_at AS "unlockedAt"
+           FROM browser_trophies
+           WHERE browser_profile_id = ?`,
+          [profile.id]
+        ),
+      ]);
+
+      const metrics = {
+        uniqueCount: 0,
+        totalCopies: 0,
+        duplicateCopies: 0,
+        favoritesCount: 0,
+        topicCounts: {},
+        rarityCounts: {},
+        highestRarity: null,
+        srPlusCount: 0,
+        ssrPlusCount: 0,
+        totalWikipediaClicks: Number(totalClicksRow?.clicks) || 0,
+        missionClaims: Number(missionClaimsRow?.claims) || 0,
+        todaysStats: {
+          ...dailyValues,
+          topicCardsObtained: topicCounts,
+        },
+        unlockedTrophyIds: trophyRows.map((row) => Number(row.trophyId) || 0),
+      };
+      const rarityRank = { C: 1, UC: 2, R: 3, SR: 4, SSR: 5, UR: 6, LR: 7 };
+      for (const row of collectionMetricRows) {
+        const rarity = row.rarity || "C";
+        const unique = Number(row.unique_count) || 0;
+        metrics.uniqueCount += unique;
+        metrics.totalCopies += Number(row.copies) || 0;
+        metrics.duplicateCopies += Number(row.duplicate_copies) || 0;
+        metrics.favoritesCount += Number(row.favorites) || 0;
+        metrics.topicCounts[row.topic] = (metrics.topicCounts[row.topic] || 0) + unique;
+        metrics.rarityCounts[rarity] = (metrics.rarityCounts[rarity] || 0) + unique;
+        if (!metrics.highestRarity || rarityRank[rarity] > rarityRank[metrics.highestRarity]) {
+          metrics.highestRarity = rarity;
+        }
+        if (rarityRank[rarity] >= rarityRank.SR) metrics.srPlusCount += unique;
+        if (rarityRank[rarity] >= rarityRank.SSR) metrics.ssrPlusCount += unique;
+      }
+
+      const progress = finalizeProgress({
+        profile: mutation.profile,
+        metrics,
+        openingId,
+      });
+      let addedTrophyPoints = 0;
+      for (const trophy of progress.trophiesToUnlock ?? []) {
+        await tx.run(
+          `INSERT INTO browser_trophies (
+             id, browser_profile_id, trophy_id, unlocked_at
+           ) VALUES (?, ?, ?, ?)
+           ON CONFLICT(browser_profile_id, trophy_id) DO NOTHING`,
+          [allocateId(), profile.id, trophy.trophyId, trophy.unlockedAt]
+        );
+        addedTrophyPoints += Number(trophy.points) || 0;
+      }
+      if (addedTrophyPoints > 0) {
+        mutation.profile.trophiesPoints += addedTrophyPoints;
+        await tx.run(
+          `UPDATE browser_profiles
+           SET trophies_points = ?, updated_at = ?
+           WHERE id = ?`,
+          [mutation.profile.trophiesPoints, nowIso, profile.id]
+        );
+      }
+
+      for (const mission of progress.missions ?? []) {
+        const existing = await tx.get(
+          `SELECT id, claimed
+           FROM browser_missions
+           WHERE browser_profile_id = ?
+             AND mission_id = ?
+             AND reset_date = ?`,
+          [profile.id, mission.missionId, mission.resetDate]
+        );
+        if (existing) {
+          await tx.run(
+            `UPDATE browser_missions
+             SET progress_value = ?,
+                 completed = ?,
+                 updated_at = ?
+             WHERE id = ?`,
+            [
+              mission.progressValue,
+              Boolean(mission.completed),
+              nowIso,
+              existing.id,
+            ]
+          );
+        } else {
+          await tx.run(
+            `INSERT INTO browser_missions (
+               id, browser_profile_id, mission_id, progress_value, completed,
+               claimed, reset_date, created_at, updated_at
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              allocateId(),
+              profile.id,
+              mission.missionId,
+              mission.progressValue,
+              Boolean(mission.completed),
+              false,
+              mission.resetDate,
+              nowIso,
+              nowIso,
+            ]
+          );
+        }
+      }
+
+      return {
+        ...mutation.response,
+        browserToken: mutation.profile.browserToken,
+        packOpeningId: openingId,
+        totalPackOpens: mutation.profile.totalPackOpens,
+        pityCounter: mutation.profile.pityCounter,
+        packsRemaining: mutation.profile.packsAvailable,
+        packStatus: progress.packStatus,
+      };
+    });
+  }
+
   function forToken(browserToken) {
     async function read() {
       return readRaw(browserToken);
@@ -1192,6 +2123,10 @@ export function createPostgresStore({ db }) {
   return {
     forToken,
     readProfileOnly,
+    readCollectionPage,
+    readCollectionItem,
+    readPackHistory,
+    openPackIncremental,
     findRecovery,
     flush,
     hasPersistedState,

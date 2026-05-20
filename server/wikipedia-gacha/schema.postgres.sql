@@ -90,6 +90,8 @@ CREATE INDEX IF NOT EXISTS idx_articles_topic
   ON articles (topic_group);
 CREATE INDEX IF NOT EXISTS idx_articles_rarity
   ON articles (rarity_code);
+CREATE INDEX IF NOT EXISTS idx_articles_title_lower
+  ON articles (LOWER(title));
 
 CREATE TABLE IF NOT EXISTS pack_openings (
   id BIGINT PRIMARY KEY,
