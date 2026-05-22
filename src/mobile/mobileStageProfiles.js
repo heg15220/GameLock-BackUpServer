@@ -73,8 +73,8 @@ const GAME_STAGE_SELECTORS = {
   ],
   "arcade-neon-crypt": ["canvas"],
   "arcade-valle-tranquilo": [
-    ".arcade-neon-rush-shell",
-    ".arcade-neon-rush-frame",
+    ".arcade-valle-tranquilo-shell",
+    ".arcade-valle-tranquilo-frame",
   ],
   "arcade-summit-ascent": [
     ".arcade-summit-ascent-frame",

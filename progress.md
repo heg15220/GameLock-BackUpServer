@@ -4758,3 +4758,9 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Retirada la vineta AdPreviewCard interna de PongGame para que no aparezca 'Sin seguimiento publicitario'.
 - Ajustado Pong a canvas logico 960x640 y host desktop 3:2 con mas altura util en el modal.
 - Limpiadas reglas moviles que reactivaban la vineta inline en portrait.
+
+## 2026-05-22 - QA final Valle Tranquilo escritorio/movil
+- Revisado Valle Tranquilo para detectar TODO/FIXME/stubs: sin marcadores reales de implementacion a medias; las coincidencias fueron textos normales de UI/exportacion.
+- Corregido perfil mobileStageProfiles de arcade-valle-tranquilo para apuntar a .arcade-valle-tranquilo-shell/.arcade-valle-tranquilo-frame en lugar de clases de Neon Rush.
+- Validado con Playwright desktop, mobile portrait y mobile landscape: intro -> partida, render_game_to_text activo, shell movil con stage target, controles moviles visibles.
+- Validacion enfocada: escritorio mueve jugador con teclado al enfocar canvas; movil abre Tienda con boton tactil y Cerrar vuelve a partida.

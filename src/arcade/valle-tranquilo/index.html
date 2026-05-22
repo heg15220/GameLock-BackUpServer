@@ -1040,8 +1040,8 @@ const CRAFT_RECIPES=[
     nameEn:'Star Alloy',
     out:{star_alloy:1},
     cost:{steel_ingot:2,diamond:1,void_crystal:1},
-    descEs:'Material raro de tier alta inspirado en combinaciones de mesa 3x3.',
-    descEn:'High-tier rare material inspired by 3x3 table combinations.'
+    descEs:'Material raro de tier alta creado con aleaciones y minerales excepcionales.',
+    descEn:'High-tier rare material made from exceptional alloys and minerals.'
   },
   {
     id:'torch_bundle',
@@ -1182,8 +1182,8 @@ const FURNACE_RECIPES=[
     nameEn:'Smelt Iron',
     out:{iron_ingot:1},
     cost:{iron_ore:1,coal:1},
-    descEs:'Refina el hierro para crafteo avanzado.',
-    descEn:'Refines iron for advanced crafting.'
+    descEs:'Refina el hierro para mejoras avanzadas.',
+    descEn:'Refines iron for advanced upgrades.'
   },
   {
     id:'steel_ingot',
@@ -3907,7 +3907,7 @@ function updateContextHint(){
       const label=st.type==='storage'
         ? (LANG==='es'?STORAGE_DEFS[st.storageKey].titleEs:STORAGE_DEFS[st.storageKey].titleEn)
         : st.type==='craft'
-          ? (IS_ES?'Mesa de crafteo':'Crafting Table')
+          ? (IS_ES?'Banco de taller':'Workshop Bench')
           : st.type==='permit'
             ? (IS_ES?'mesa de permisos':'permit desk')
             : (IS_ES?'Horno':'Furnace');
@@ -4656,7 +4656,7 @@ document.addEventListener('keydown',e=>{
 function handleCell(idx){
   const cell=G.grid[idx];
   if(inInterior()){
-    notify(IS_ES?'Dentro de casa usa E sobre cofres, mesa de crafteo u horno.':'Inside the house, use E on chests, the crafting table or the furnace.','info');
+    notify(IS_ES?'Dentro de casa usa E sobre cofres, banco de taller u horno.':'Inside the house, use E on chests, the workshop bench or the furnace.','info');
     return;
   }
   if(G.energy<=0){notify('Sin energÃ­a. Â¡Duerme!','info');return;}
@@ -5253,7 +5253,7 @@ function craftHomeRecipe(id){
   reAll();
 }
 function openCraftingTable(){
-  let h=`<div style="font-family:'VT323';font-size:15px;color:#c7a977">${IS_ES?'Inspirado en la mesa de crafteo de 3x3: combina recursos para crear tiers superiores.':'Inspired by the 3x3 crafting table: combine resources into higher tiers.'}</div>`;
+  let h=`<div style="font-family:'VT323';font-size:15px;color:#c7a977">${IS_ES?'Combina materiales del valle para crear mejoras, piezas utiles y recursos superiores.':'Combine valley materials to create upgrades, useful parts, and higher-tier resources.'}</div>`;
   CRAFT_RECIPES.forEach(recipe=>{
     const done=craftEffectLocked(recipe);
     const can=!done&&countIngredients(recipe.cost);
@@ -5262,7 +5262,7 @@ function openCraftingTable(){
       <div><div class="sn">${LANG==='es'?recipe.nameEs:recipe.nameEn}</div><div class="sd">${recipeCostText(recipe.cost)}</div><div class="sd">${LANG==='es'?recipe.descEs:recipe.descEn}</div></div>
       <span class="sp" style="${done?'color:#60c060':can?'':'color:#c06060'}">${done?(IS_ES?'LISTO':'DONE'):(recipe.out?recipeOutText(recipe.out):(IS_ES?'MEJORA':'UPGRADE'))}</span></div>`;
   });
-  openM(IS_ES?'🪵 MESA DE CRAFTEO':'🪵 CRAFTING TABLE',IS_ES?'Recetas y mejoras de vivienda':'Recipes and home upgrades',h);
+  openM(IS_ES?'🪵 BANCO DE TALLER':'🪵 WORKSHOP BENCH',IS_ES?'Recetas y mejoras de vivienda':'Recipes and home upgrades',h);
 }
 function smeltHomeRecipe(id){
   const recipe=FURNACE_RECIPES.find(r=>r.id===id);
@@ -5623,8 +5623,8 @@ function continueLocalGame(){
   }
 }
 function introNarrativeHtml(){
-  if(IS_ES) return `<p style="margin:0 0 10px">Valle Tranquilo es una vida de campo abierta, sin final impuesto. Llegas con una casa sencilla, unas pocas semillas, herramientas basicas y todo un valle por convertir en un lugar prospero. La partida avanza por dias, clima y estaciones de 28 jornadas; los ciclos se repiten ano tras ano, de modo que siempre puedes seguir mejorando tu granja, tu inventario, tus relaciones y las obras del pueblo.</p><p style="margin:0 0 10px">El primer objetivo es aprender el ritmo esencial: moverte por el mapa, preparar tierra, plantar, regar, cosechar, vender y descansar antes de quedarte sin energia. La guia inicial te propone pasos concretos para no perderte, pero despues eres libre de decidir si quieres cultivar con calma, buscar dinero rapido, explorar, completar encargos o invertir en construccion.</p><p style="margin:0 0 10px">Puedes cultivar verduras, frutas y arboles segun la temporada; pescar en las zonas de agua; talar, picar roca y abrir caminos; colocar vallas; cocinar para recuperar salud; comprar semillas y mejoras; y organizar tus materiales en los cofres de casa. La mesa de crafteo y el horno convierten madera, piedra, minerales y comida en herramientas mejores, lingotes, ladrillos, vidrio, antorchas, recetas y ampliaciones utiles.</p><p style="margin:0 0 10px">El valle esta formado por barrios con identidad propia: la plaza mayor y el ayuntamiento, el barrio artesano, la aldea del lago, las terrazas de cultivo, los huertos del este, bosques, viviendas e interiores visitables. Cada vecino tiene oficio, rutina, gustos, historia y encargos. Hablar, regalar objetos y entregar pedidos aumenta la amistad y te ayuda a integrarte en la economia del valle.</p><p style="margin:0 0 10px">La Mina Abisal funciona como la gran fuente de materiales raros. Entra con energia y antorchas, usa el pico sobre vetas brillantes y vuelve a casa con cobre, hierro, plata, oro, arcilla, cuarzo, obsidiana, marmol, diamantes y recursos especiales. Cada pocos dias la mina repone zonas excavadas, asi que la exploracion minera sigue siendo valiosa durante toda la partida.</p><p style="margin:0">A largo plazo puedes comprar permisos en el ayuntamiento, reunir materiales de obra, contratar construcciones y decidir si las nuevas casas pasan a ser tuyas o se venden. El progreso se guarda localmente y tambien puede exportarse mediante un codigo compacto para continuar en otro navegador. Tu meta no es solo ganar oro: es levantar una rutina sostenible, conocer a la gente del valle y transformar poco a poco un terreno humilde en una comunidad viva.</p>`;
-  return `<p style="margin:0 0 10px">Quiet Valley is an open-ended country-life game with no forced ending. You arrive with a modest home, a few seeds, basic tools, and a whole valley that can slowly become a thriving place. Days pass with weather and 28-day seasons; the cycle continues year after year, so your farm, inventory, relationships, and town projects can keep growing for as long as you want to play.</p><p style="margin:0 0 10px">Your first goal is to learn the core rhythm: move around the map, till soil, plant, water, harvest, sell, and sleep before your energy runs out. The starter guide gives you clear steps so you are never lost, but after that you decide whether to farm peacefully, earn money quickly, explore, complete quests, or invest in construction.</p><p style="margin:0 0 10px">You can grow seasonal crops, fruit trees, and orchard produce; fish in water zones; chop wood, mine rocks, lay paths, and place fences; cook food to recover health; buy seeds and upgrades; and organize materials in your home chests. The crafting table and furnace turn wood, stone, ore, and food into better tools, ingots, bricks, glass, torches, recipes, and useful home improvements.</p><p style="margin:0 0 10px">The valley is divided into distinct places: the civic plaza and town hall, artisan district, lakeside hamlet, southern terraces, eastern orchards, forests, homes, and visitable interiors. Every neighbor has a job, schedule, preferences, story, and quest line. Talking, gifting, and delivering requested items builds friendship and ties you into the valley economy.</p><p style="margin:0 0 10px">The Abyss Mine is the main source of rare materials. Enter with energy and torches, use the pickaxe on glowing veins, and bring home copper, iron, silver, gold, clay, quartz, obsidian, marble, diamonds, and special resources. Every few days, excavated zones regain fresh deposits, so mining remains useful throughout the whole save.</p><p style="margin:0">Long-term progression comes from town-hall permits, construction materials, hired building work, and the choice to keep new houses or sell them. Progress is saved locally and can also be exported as a compact transfer code for another browser. The real goal is not only to earn gold: it is to build a sustainable routine, get to know the valley, and turn a humble starting plot into a living community.</p>`;
+  if(IS_ES) return `<p style="margin:0 0 10px">Valle Tranquilo es una vida de campo abierta, sin final impuesto. Llegas con una casa sencilla, unas pocas semillas, herramientas basicas y todo un valle por convertir en un lugar prospero. La partida avanza por dias, clima y estaciones de 28 jornadas; los ciclos se repiten ano tras ano, de modo que siempre puedes seguir mejorando tu granja, tu inventario, tus relaciones y las obras del pueblo.</p><p style="margin:0 0 10px">El primer objetivo es aprender el ritmo esencial: moverte por el mapa, preparar tierra, plantar, regar, cosechar, vender y descansar antes de quedarte sin energia. La guia inicial te propone pasos concretos para no perderte, pero despues eres libre de decidir si quieres cultivar con calma, buscar dinero rapido, explorar, completar encargos o invertir en construccion.</p><p style="margin:0 0 10px">Puedes cultivar verduras, frutas y arboles segun la temporada; pescar en las zonas de agua; talar, picar roca y abrir caminos; colocar vallas; cocinar para recuperar salud; comprar semillas y mejoras; y organizar tus materiales en los cofres de casa. El banco de taller y el horno convierten madera, piedra, minerales y comida en herramientas mejores, lingotes, ladrillos, vidrio, antorchas, recetas y ampliaciones utiles.</p><p style="margin:0 0 10px">El valle esta formado por barrios con identidad propia: la plaza mayor y el ayuntamiento, el barrio artesano, la aldea del lago, las terrazas de cultivo, los huertos del este, bosques, viviendas e interiores visitables. Cada vecino tiene oficio, rutina, gustos, historia y encargos. Hablar, regalar objetos y entregar pedidos aumenta la amistad y te ayuda a integrarte en la economia del valle.</p><p style="margin:0 0 10px">La Mina Abisal funciona como la gran fuente de materiales raros. Entra con energia y antorchas, usa el pico sobre vetas brillantes y vuelve a casa con cobre, hierro, plata, oro, arcilla, cuarzo, obsidiana, marmol, diamantes y recursos especiales. Cada pocos dias la mina repone zonas excavadas, asi que la exploracion minera sigue siendo valiosa durante toda la partida.</p><p style="margin:0">A largo plazo puedes comprar permisos en el ayuntamiento, reunir materiales de obra, contratar construcciones y decidir si las nuevas casas pasan a ser tuyas o se venden. El progreso se guarda localmente y tambien puede exportarse mediante un codigo compacto para continuar en otro navegador. Tu meta no es solo ganar oro: es levantar una rutina sostenible, conocer a la gente del valle y transformar poco a poco un terreno humilde en una comunidad viva.</p>`;
+  return `<p style="margin:0 0 10px">Quiet Valley is an open-ended country-life game with no forced ending. You arrive with a modest home, a few seeds, basic tools, and a whole valley that can slowly become a thriving place. Days pass with weather and 28-day seasons; the cycle continues year after year, so your farm, inventory, relationships, and town projects can keep growing for as long as you want to play.</p><p style="margin:0 0 10px">Your first goal is to learn the core rhythm: move around the map, till soil, plant, water, harvest, sell, and sleep before your energy runs out. The starter guide gives you clear steps so you are never lost, but after that you decide whether to farm peacefully, earn money quickly, explore, complete quests, or invest in construction.</p><p style="margin:0 0 10px">You can grow seasonal crops, fruit trees, and orchard produce; fish in water zones; chop wood, mine rocks, lay paths, and place fences; cook food to recover health; buy seeds and upgrades; and organize materials in your home chests. The workshop bench and furnace turn wood, stone, ore, and food into better tools, ingots, bricks, glass, torches, recipes, and useful home improvements.</p><p style="margin:0 0 10px">The valley is divided into distinct places: the civic plaza and town hall, artisan district, lakeside hamlet, southern terraces, eastern orchards, forests, homes, and visitable interiors. Every neighbor has a job, schedule, preferences, story, and quest line. Talking, gifting, and delivering requested items builds friendship and ties you into the valley economy.</p><p style="margin:0 0 10px">The Abyss Mine is the main source of rare materials. Enter with energy and torches, use the pickaxe on glowing veins, and bring home copper, iron, silver, gold, clay, quartz, obsidian, marble, diamonds, and special resources. Every few days, excavated zones regain fresh deposits, so mining remains useful throughout the whole save.</p><p style="margin:0">Long-term progression comes from town-hall permits, construction materials, hired building work, and the choice to keep new houses or sell them. Progress is saved locally and can also be exported as a compact transfer code for another browser. The real goal is not only to earn gold: it is to build a sustainable routine, get to know the valley, and turn a humble starting plot into a living community.</p>`;
 }
 function openImportModal(startMode=false){
   const body=`<div style="display:flex;flex-direction:column;gap:10px">
@@ -5858,7 +5858,7 @@ function reAll(){
   }
   const ql=document.getElementById('qsl');ql.innerHTML='';
   if(inInterior()&&ACTIVE_MAP_ID==='player_home'){
-    ql.innerHTML=`<div class="qi"><div class="qt">🪵 ${IS_ES?'Mesa de crafteo':'Crafting table'}</div><div class="qm">${IS_ES?'Combina materiales y monedas para mejoras.':'Combine materials and coins for upgrades.'}</div></div>
+    ql.innerHTML=`<div class="qi"><div class="qt">🪵 ${IS_ES?'Banco de taller':'Workshop bench'}</div><div class="qm">${IS_ES?'Combina materiales y monedas para mejoras.':'Combine materials and coins for upgrades.'}</div></div>
       <div class="qi"><div class="qt">🔥 ${IS_ES?'Horno':'Furnace'}</div><div class="qm">${IS_ES?'Fundicion de cobre, hierro y acero.':'Copper, iron and steel smelting.'}</div></div>
       <div class="qi"><div class="qt">🌳 ${IS_ES?'Huerto':'Orchard'}</div><div class="qm">${G.bought.orchardLot?(IS_ES?'Parcela desbloqueada.':'Lot unlocked.'):(IS_ES?'Desbloquealo en la mesa.':'Unlock it at the table.')}</div></div>`;
   } else if(inMine()){
