@@ -1,5 +1,5 @@
 export const PONG_WIDTH = 960;
-export const PONG_HEIGHT = 540;
+export const PONG_HEIGHT = 640;
 
 export const FIXED_DT = 1 / 120;
 export const MAX_FRAME_DELTA = 0.05;

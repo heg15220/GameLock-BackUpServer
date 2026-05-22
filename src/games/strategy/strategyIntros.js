@@ -161,13 +161,13 @@ const STRATEGY_INTROS = {
     accentSoft: "#d6f0e3",
     es: {
       eyebrow: "Estrategia / Poker clasico",
-      title: "Poker Clasico Draw Con Apuestas",
-      lead: "Poker clasico de 5 cartas con ciegas, bote real y mesa de hasta 8 IAs.",
+      title: "Poker Clasico Draw",
+      lead: "Poker clasico de 5 cartas con ciegas, bote y mesa de hasta 8 IAs.",
       what:
-        "El poker clasico de 5 cartas es un juego de baraja en el que cada jugador recibe cinco cartas, juega una ronda de apuestas, descarta hasta cinco cartas para mejorar su mano y disputa una segunda ronda antes del showdown. Aqui hay ciegas pequena/grande, bote real y todas las acciones tipicas: pasar, igualar, subir, all-in o retirarse.",
+        "El poker clasico de 5 cartas es un juego de baraja en el que cada jugador recibe cinco cartas, toma decisiones por turnos, descarta hasta cinco cartas para mejorar su mano y disputa una segunda ronda antes del showdown. Aqui hay ciegas pequena/grande, bote y acciones tipicas: pasar, igualar, subir, all-in o retirarse.",
       bullets: [
-        "Bote real con ciegas, raises, all-ins y resolucion en showdown.",
-        "Descarte tactico de 0 a 5 cartas entre las dos rondas de apuesta.",
+        "Bote con ciegas, subidas, all-ins y resolucion en showdown.",
+        "Descarte tactico de 0 a 5 cartas entre las dos rondas de decision.",
         "Mesa configurable para 2 a 9 jugadores (tu + 1 a 8 IAs)."
       ],
       cta: "Empezar partida",
@@ -176,13 +176,13 @@ const STRATEGY_INTROS = {
     },
     en: {
       eyebrow: "Strategy / Classic Poker",
-      title: "Classic Draw Poker With Betting",
-      lead: "5-card draw poker with blinds, a real pot and tables up to 8 AIs.",
+      title: "Classic Draw Poker",
+      lead: "5-card draw poker with blinds, a pot and tables up to 8 AIs.",
       what:
-        "Classic 5-card draw poker is a card game where each player receives five cards, runs a betting round, discards up to five cards to improve their hand, and plays a second round before the showdown. Here you have small/big blinds, a real pot and all the standard actions: check, call, raise, all-in or fold.",
+        "Classic 5-card draw poker is a card game where each player receives five cards, makes turn-based decisions, discards up to five cards to improve their hand, and plays a second round before the showdown. Here you have small/big blinds, a pot and the standard actions: check, call, raise, all-in or fold.",
       bullets: [
-        "Real pot with blinds, raises, all-ins and showdown resolution.",
-        "Tactical 0-to-5-card discard between the two betting rounds.",
+        "Pot with blinds, raises, all-ins and showdown resolution.",
+        "Tactical 0-to-5-card discard between the two decision rounds.",
         "Configurable table for 2 to 9 players (you + 1 to 8 AIs)."
       ],
       cta: "Start match",

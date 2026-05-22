@@ -2507,8 +2507,8 @@ export const games = [
     image_en: strategyPokerNoBetImageEn,
     sessionTime: "4-10 min",
 
-    title: "Poker Clasico Draw Con Apuestas",
-    title_en: "Classic Draw Poker with Betting",
+    title: "Poker Clasico Draw",
+    title_en: "Classic Draw Poker",
     category: "Estrategia",
     tagline: "Poker de cinco cartas: apuesta, cambia cartas y gana el bote.",
     description:

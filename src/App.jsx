@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AdPreviewCard from "./components/AdPreviewCard";
 import CookieConsentManager from "./components/CookieConsentManager";
@@ -54,6 +54,7 @@ function App() {
 
   const [activeCategory, setActiveCategory] = useState(ALL_KEY);
   const [currentPage, setCurrentPage] = useState(1);
+  const catalogTopRef = useRef(null);
   const adPreviewEnabled = isAdPreviewEnabledByCode() && Boolean(advertising);
 
   useEffect(() => {
@@ -123,6 +124,25 @@ function App() {
 
   const closeModal = () => {
     navigate(buildLocalizedPath(locale, "/"), { replace: true });
+  };
+
+  const scrollCatalogToTop = () => {
+    if (typeof window === "undefined") return;
+    window.requestAnimationFrame(() => {
+      const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+      const mobileViewport = window.matchMedia?.("(max-width: 767px)")?.matches;
+      catalogTopRef.current?.scrollIntoView({
+        block: "start",
+        behavior: reducedMotion || mobileViewport ? "auto" : "smooth",
+      });
+    });
+  };
+
+  const changeCatalogPage = (direction) => {
+    const nextPage = Math.min(totalPages, Math.max(1, currentPage + direction));
+    if (nextPage === currentPage) return;
+    setCurrentPage(nextPage);
+    scrollCatalogToTop();
   };
 
   const selectCategory = (key) => {
@@ -219,7 +239,7 @@ function App() {
             <p className="hero-tagline">{t("heroTagline")}</p>
           </header>
 
-          <section className="catalog-toolbar">
+          <section className="catalog-toolbar" ref={catalogTopRef}>
             <h2>{t("exploreTitle")}</h2>
             <div className="filter-group">
               <a
@@ -264,7 +284,7 @@ function App() {
                 <div className="catalog-pagination-controls">
                   <button
                     type="button"
-                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    onClick={() => changeCatalogPage(-1)}
                     disabled={currentPage === 1}
                     aria-label={locale === "en" ? "Previous page" : "Página anterior"}
                   >
@@ -276,7 +296,7 @@ function App() {
                   <span className="catalog-pagination-indicator">{pageIndicator}</span>
                   <button
                     type="button"
-                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                    onClick={() => changeCatalogPage(1)}
                     disabled={currentPage === totalPages}
                     aria-label={locale === "en" ? "Next page" : "Página siguiente"}
                   >

@@ -10799,7 +10799,7 @@ body {
   max-width: 100%;
 }
 
-/* Canvas stage — 16:9 via phaser-canvas-shell */
+/* Canvas stage */
 .pong-stage {
   margin-top: 0.72rem;
   border-color: rgba(34, 211, 238, 0.32);
@@ -10807,6 +10807,11 @@ body {
     inset 0 0 0 1px rgba(255, 255, 255, 0.04),
     0 0 28px rgba(34, 211, 238, 0.08),
     0 18px 28px rgba(2, 6, 23, 0.36);
+}
+
+.launch-game-area .pong-game .phaser-canvas-host {
+  aspect-ratio: 3 / 2;
+  max-height: 58vh;
 }
 
 /* Touch controls */

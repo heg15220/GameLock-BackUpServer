@@ -110,7 +110,7 @@ const RULES_PROMPT = {
 };
 const UI_COPY = {
   es: {
-    headerTitle: "Poker Clasico 5 Cartas - Con Apuestas",
+    headerTitle: "Poker Clasico 5 Cartas",
     headerSubtitle: "Mesa de casino con ciegas, bote real y apuestas de fichas en cada mano.",
     newGame: "Nueva partida",
     opponents: "Rivales IA",
@@ -189,7 +189,7 @@ const UI_COPY = {
     mobileExtraInfo: "Detalles"
   },
   en: {
-    headerTitle: "Classic 5-Card Poker - With Betting",
+    headerTitle: "Classic 5-Card Poker",
     headerSubtitle: "Casino table with blinds, real pot, and chip betting each hand.",
     newGame: "New game",
     opponents: "AI opponents",

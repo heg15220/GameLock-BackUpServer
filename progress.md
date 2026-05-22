@@ -4746,3 +4746,15 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - src/mobile/MobileGameStatusPanel.jsx anade modificadores de clase por seccion suplementaria para poder apuntar solo a valle-inventory sin afectar misiones u otras listas.
 - src/mobile/mobile-game-shell.css ajusta el inventario de arcade-valle-tranquilo a 2 columnas en telefono y 3 en tablet.
 - Validacion: npm run build OK; web_game_playwright_client.mjs OK en output/valle-inventory-mobile-layout-skill; Playwright dirigido movil OK en output/valle-inventory-mobile-layout-directed, con gridTemplateColumns de 2 columnas y captura phone-390x844-inventory-scrolled.png revisada.
+
+## 2026-05-22 - Billar tutorial inicial, instrucciones cerradas y Football Head landscape
+- En curso: corregido GameLaunchModal para que el panel de instrucciones no se abra por defecto al lanzar juegos.
+- En curso: src/games/arcade/billiards-club/index.jsx inicializa el tutorial/intro del modo por defecto Bola 8 al montar, manteniendo el disparo al cambiar de modo.
+- En curso: CSS de src/mobile/mobile-game-shell.css ajustado para que Football Head en movil horizontal use el viewport completo y superponga controles.
+
+- Ajuste adicional: el overlay de menu de billar queda oculto mientras el intro/tutorial de modo esta abierto para evitar solape visual.
+
+## 2026-05-22 - Pong Neon Arena: sin vineta publicitaria y tablero mas alto
+- Retirada la vineta AdPreviewCard interna de PongGame para que no aparezca 'Sin seguimiento publicitario'.
+- Ajustado Pong a canvas logico 960x640 y host desktop 3:2 con mas altura util en el modal.
+- Limpiadas reglas moviles que reactivaban la vineta inline en portrait.

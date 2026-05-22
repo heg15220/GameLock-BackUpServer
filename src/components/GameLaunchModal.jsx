@@ -40,7 +40,7 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
   const ActiveGame = getGameComponent(game.id);
   const controlHint = CONTROL_HINTS_BY_LOCALE[locale]?.[game.id];
 
-  const [infoOpen, setInfoOpen] = useState(true);
+  const [infoOpen, setInfoOpen] = useState(false);
   const viewport = useMobileGameViewport();
 
   // Lock body scroll while the modal is open so the body scrollbar

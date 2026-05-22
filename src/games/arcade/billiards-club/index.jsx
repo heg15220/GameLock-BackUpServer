@@ -3322,8 +3322,8 @@ function BilliardsClubGame() {
   const [mobileViewport, setMobileViewport] = useState(() => readMobileViewport());
   const [embeddedInMobileShell, setEmbeddedInMobileShell] = useState(false);
   const [preferVerticalTable, setPreferVerticalTable] = useState(true);
-  const [modeIntro, setModeIntro] = useState(null);
-  const previousModeRef = useRef(null);
+  const [modeIntro, setModeIntro] = useState(() => ({ modeKey: "eight-ball", key: "initial-eight-ball" }));
+  const previousModeRef = useRef("eight-ball");
   const forceHorizontalTable = mobileViewport.isMobile && embeddedInMobileShell;
   const useVerticalTable =
     mobileViewport.isMobile &&
@@ -3439,7 +3439,9 @@ function BilliardsClubGame() {
   const advanceTime = useCallback((ms) => runtimeRef.current?.advanceTime(ms), []);
   useGameRuntimeBridge(snapshot, useCallback((state) => state, []), advanceTime);
 
-  const overlayVisible = snapshot.status === "menu" || snapshot.status === "rack-over" || snapshot.status === "match-over";
+  const overlayVisible =
+    !modeIntro &&
+    (snapshot.status === "menu" || snapshot.status === "rack-over" || snapshot.status === "match-over");
   const humanTurn = snapshot.currentPlayer === PLAYER_HUMAN;
   const canAim = snapshot.status === "aim" && humanTurn;
   const canPlace = snapshot.status === "placing" && humanTurn;

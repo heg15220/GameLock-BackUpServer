@@ -1,6 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import AdPreviewCard from "../components/AdPreviewCard";
-import { MOBILE_APP_COMPACT_AD_SLOT } from "../config/adPreview";
 import PongRuntime from "./pong/PongRuntime";
 import { DIFFICULTY_ORDER, DIFFICULTY_PRESETS, PONG_WIDTH, PONG_HEIGHT } from "./pong/constants";
 
@@ -93,9 +91,6 @@ function PongGame() {
   const isMenu    = snapshot.mode === "menu";
   const isPaused  = snapshot.mode === "paused";
   const isFinished = snapshot.mode === "finished";
-  const adLocale = typeof document !== "undefined" && String(document.documentElement?.lang ?? "").toLowerCase().startsWith("en")
-    ? "en"
-    : "es";
 
   return (
     <div className="mini-game pong-game">
@@ -166,13 +161,6 @@ function PongGame() {
             width={PONG_WIDTH}
             height={PONG_HEIGHT}
             aria-label="Pong canvas"
-          />
-        </div>
-        <div className="pong-stage-inline-ad">
-          <AdPreviewCard
-            slot={MOBILE_APP_COMPACT_AD_SLOT}
-            locale={adLocale}
-            className="pong-stage-inline-ad__card"
           />
         </div>
       </div>
