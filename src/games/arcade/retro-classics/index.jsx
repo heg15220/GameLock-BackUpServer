@@ -18,6 +18,7 @@ const UI = {
     pause: "Pausa",
     resume: "Continuar",
     fullscreen: "Pantalla completa",
+    changePiece: "Cambiar pieza",
     score: "Puntuacion",
     best: "Record",
     level: "Nivel",
@@ -36,6 +37,7 @@ const UI = {
     pause: "Pause",
     resume: "Resume",
     fullscreen: "Fullscreen",
+    changePiece: "Change piece",
     score: "Score",
     best: "Best",
     level: "Level",
@@ -75,7 +77,7 @@ const DEFINITIONS = {
   "tetris-blockfall": {
     title: { es: "Mosaic Grid", en: "Mosaic Grid" },
     objective: { es: "Rellena todo el tablero con las piezas entrantes.", en: "Fill the whole board with the incoming pieces." },
-    controls: { es: "Flechas/WASD mueven la pieza activa y Espacio/Enter la coloca cuando llega.", en: "Arrows/WASD move the active piece, Space/Enter places it when it arrives." },
+    controls: { es: "Flechas/WASD mueven la pieza activa, Espacio/Enter la coloca y C cambia la pieza.", en: "Arrows/WASD move the active piece, Space/Enter places it, and C changes the piece." },
     accent: "#34d399",
     lives: 1,
   },
@@ -421,6 +423,11 @@ function createBlockPiece(matrix, color) {
   return { c: color, m: matrix.map((row) => [...row]) };
 }
 
+function blockPieceCellCount(piece) {
+  if (!piece) return 0;
+  return piece.m.flat().filter(Boolean).length;
+}
+
 function createBlockPieceQueue(rng) {
   const pieces = [];
   let colorIndex = 0;
@@ -442,8 +449,16 @@ function createBlockPieceQueue(rng) {
 
 function spawnNextBlockPiece(g) {
   g.active = g.queue.shift() ?? null;
+  if (!g.active && !blockBoardIsFull(g)) {
+    const piece = createFittingBlockPiece(g);
+    if (piece) {
+      g.active = piece;
+      g.totalPieces += 1;
+    }
+  }
   g.incomingX = BLOCK_INCOMING_X;
   g.ready = false;
+  blockClampCursor(g, g.active);
 }
 
 function createTetris(level, seed) {
@@ -462,6 +477,7 @@ function createTetris(level, seed) {
     queue,
     totalPieces: queue.length,
     placedPieces: 0,
+    swaps: 0,
     rng,
   };
   spawnNextBlockPiece(game);
@@ -1089,6 +1105,56 @@ function blockHasAnyFit(board, piece) {
   return false;
 }
 
+function blockBoardIsFull(g) {
+  return g.placedCells >= BLOCK_BOARD_SIZE * BLOCK_BOARD_SIZE;
+}
+
+function blockAnyQueuedPieceFits(g) {
+  if (blockHasAnyFit(g.board, g.active)) return true;
+  return g.queue.some((piece) => blockHasAnyFit(g.board, piece));
+}
+
+function createFittingBlockPiece(g) {
+  const candidates = BLOCK_TILE_PACKS.flat().map((matrix) => matrix.map((row) => [...row]));
+  candidates.push([[1, 1]], [[1], [1]], [[1]]);
+  for (let i = candidates.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(g.rng() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+  candidates.sort((a, b) =>
+    b.flat().filter(Boolean).length - a.flat().filter(Boolean).length
+  );
+  for (const matrix of candidates) {
+    const color = BLOCK_COLORS[Math.floor(g.rng() * BLOCK_COLORS.length)];
+    const piece = createBlockPiece(matrix, color);
+    if (blockHasAnyFit(g.board, piece)) return piece;
+  }
+  return null;
+}
+
+function ensureBlockCanContinue(g) {
+  if (blockBoardIsFull(g) || blockAnyQueuedPieceFits(g)) return;
+  const piece = createFittingBlockPiece(g);
+  if (!piece) return;
+  g.queue.push(piece);
+  g.totalPieces += 1;
+}
+
+function changeActiveBlockPiece(g) {
+  if (!g.active || blockBoardIsFull(g)) return false;
+  ensureBlockCanContinue(g);
+  if (g.queue.length === 0) {
+    const piece = createFittingBlockPiece(g);
+    if (!piece) return false;
+    g.queue.push(piece);
+    g.totalPieces += 1;
+  }
+  g.queue.push(g.active);
+  spawnNextBlockPiece(g);
+  g.swaps = (g.swaps ?? 0) + 1;
+  return true;
+}
+
 function blockClampCursor(g, piece) {
   if (!piece) return;
   const maxCol = Math.max(0, BLOCK_BOARD_SIZE - piece.m[0].length);
@@ -1168,13 +1234,14 @@ function updateAsteroids(state, input, dt) {
 function updateTetris(state, input, dt) {
   const g = state.game;
 
-  if (!g.active && g.queue.length > 0) spawnNextBlockPiece(g);
+  ensureBlockCanContinue(g);
+  if (!g.active && (g.queue.length > 0 || !blockBoardIsFull(g))) spawnNextBlockPiece(g);
   if (g.active) {
     g.incomingX = Math.max(BLOCK_READY_X, g.incomingX - dt * 430);
     g.ready = g.incomingX <= BLOCK_READY_X + 0.5;
   }
 
-  const piece = g.active;
+  let piece = g.active;
 
   if (piece) {
     if (input.pressed("ArrowLeft") || input.pressed("KeyA")) g.cursor.col -= 1;
@@ -1182,6 +1249,13 @@ function updateTetris(state, input, dt) {
     if (input.pressed("ArrowUp") || input.pressed("KeyW")) g.cursor.row -= 1;
     if (input.pressed("ArrowDown") || input.pressed("KeyS")) g.cursor.row += 1;
     blockClampCursor(g, piece);
+  }
+
+  if (piece && (input.pressed("KeyC") || input.pressed("KeyX"))) {
+    if (changeActiveBlockPiece(g)) {
+      state.message = state.locale === "es" ? "Pieza cambiada" : "Piece changed";
+      piece = g.active;
+    }
   }
 
   if (piece && g.ready && (input.pressed("Space") || input.pressed("Enter"))) {
@@ -1207,17 +1281,12 @@ function updateTetris(state, input, dt) {
         state.message = state.locale === "es" ? "Tablero completo" : "Board complete";
         return;
       }
+      ensureBlockCanContinue(g);
+    } else {
+      state.message = state.locale === "es"
+        ? "No encaja aqui: mueve o cambia pieza"
+        : "No fit here: move or change piece";
     }
-  }
-
-  if (!g.active && g.queue.length === 0 && !g.won) {
-    state.phase = "gameover";
-    state.message = state.locale === "es" ? "Faltan huecos por completar" : "Open cells remain";
-    return;
-  }
-  if (g.active && !blockHasAnyFit(g.board, g.active)) {
-    state.phase = "gameover";
-    state.message = state.locale === "es" ? "Sin hueco para la pieza" : "No room left for the piece";
   }
 }
 
@@ -2609,7 +2678,7 @@ function drawTetris(ctx, state) {
   ctx.font = "600 12px 'JetBrains Mono', monospace";
   ctx.fillText(state.locale === "es" ? "en cola" : "queued", trayX + 72, trayY + 260);
   ctx.fillText(
-    state.locale === "es" ? "Espacio coloca cuando la pieza esta lista" : "Space places when the piece is ready",
+    state.locale === "es" ? "Espacio coloca - C cambia pieza" : "Space places - C changes piece",
     trayX + 18,
     trayY + 298
   );
@@ -3364,7 +3433,10 @@ function summary(state) {
         piecesPlaced: g.placedPieces,
         piecesTotal: g.totalPieces,
         piecesQueued: g.queue.length,
-        activePiece: g.active ? { c: g.active.c, w: g.active.m[0].length, h: g.active.m.length, cells: g.active.m.flat().filter(Boolean).length } : null,
+        swaps: g.swaps,
+        activeCanFitAnywhere: blockHasAnyFit(g.board, g.active),
+        anyQueuedPieceFits: blockAnyQueuedPieceFits(g),
+        activePiece: g.active ? { c: g.active.c, w: g.active.m[0].length, h: g.active.m.length, cells: blockPieceCellCount(g.active) } : null,
         boardRows: g.board.map((row) => row.map((cell) => (cell ? 1 : 0)).join("")),
       };
     case "frogger-crossing":
@@ -3583,6 +3655,12 @@ function RetroClassicsGame({ variant = "snake-classic" }) {
     else if (rt.state.phase === "paused") rt.state.phase = "playing";
     setSnap(snapshot(rt.state, locale));
   };
+  const changePiece = () => {
+    const input = inputRef.current;
+    input.press("KeyC");
+    input.release("KeyC");
+  };
+  const canChangePiece = variant === "tetris-blockfall" && snap.phase === "playing";
 
   return (
     <div className="mini-game retro-arcade-game">
@@ -3595,6 +3673,9 @@ function RetroClassicsGame({ variant = "snake-classic" }) {
           <button type="button" onClick={startOrResume}>{snap.phase === "paused" ? ui.resume : ui.start}</button>
           <button type="button" onClick={restart}>{ui.restart}</button>
           <button type="button" onClick={pauseToggle}>{snap.phase === "paused" ? ui.resume : ui.pause}</button>
+          {variant === "tetris-blockfall" ? (
+            <button type="button" onClick={changePiece} disabled={!canChangePiece}>{ui.changePiece}</button>
+          ) : null}
           <button type="button" onClick={toggleFullscreen}>{ui.fullscreen}</button>
         </div>
       </div>
@@ -3624,6 +3705,7 @@ function RetroClassicsGame({ variant = "snake-classic" }) {
           <button type="button" {...holdProps("ArrowRight")}>?</button>
           <button type="button" {...holdProps("Space")}>A</button>
           <button type="button" {...holdProps("Enter")}>B</button>
+          {variant === "tetris-blockfall" ? <button type="button" {...holdProps("KeyC")}>C</button> : null}
           <button type="button" {...holdProps("KeyP")}>P</button>
         </div>
       ) : null}

@@ -4805,3 +4805,9 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - `src/arcade/summit-ascent/game.js` cambia mensajes visibles: `Esquiva recuperandose`, `Sin estamina para esquivar`, etiqueta `Esquivar`/`Dodge` y estado `Esquivando`/`Dodging`.
 - `src/mobile/mobileGameProfiles.js`, `src/components/GamePlayground.jsx` y `src/games/registry.jsx` actualizan textos de Summit Ascent a `Esquivar`/`Dodge` sin cambiar bindings internos.
 - Validacion: `node --check src/arcade/summit-ascent/game.js` OK; busqueda dirigida sin textos visibles restantes de Summit Ascent como `Salto/Jump` para esta accion; `npm run build` OK.
+
+## 2026-06-02 - Mosaic Grid piece change and late-board continuation
+- Updated Mosaic Grid so a non-fitting active piece no longer ends the match while the board still has playable space.
+- Added C / Change piece handling, visible desktop button, generic touch C button, and mobile/tablet profile button.
+- Added runtime summary fields for swaps and fit checks to support Playwright validation.
+- Verification: npm run build passed; Playwright confirmed C/button changes active piece and phase remains playing. Screenshot: output/mosaic-grid-runtime.png.

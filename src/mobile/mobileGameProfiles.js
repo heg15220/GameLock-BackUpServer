@@ -149,7 +149,7 @@ function resolveRetroProfile(gameId, locale) {
       return {
         layout: "split",
         heading: "Mosaic",
-        hint: t(locale, "Encaja piezas variadas hasta rellenar el tablero.", "Fit varied pieces until the board is full."),
+        hint: t(locale, "Encaja piezas variadas hasta rellenar el tablero. Cambia la pieza cuando no convenga.", "Fit varied pieces until the board is full. Change the piece when needed."),
         leftPad: directionalPad(locale, {
           up: input("ArrowUp", "ArrowUp"),
           left: input("ArrowLeft", "ArrowLeft"),
@@ -163,6 +163,11 @@ function resolveRetroProfile(gameId, locale) {
             type: "tap",
             tone: "primary",
             inputs: [input("Space", " ")],
+          }),
+          control("change", t(locale, "Cambia", "Change"), {
+            type: "tap",
+            tone: "secondary",
+            inputs: [input("KeyC", "c")],
           }),
         ],
         utilities: utilityRow(locale),
