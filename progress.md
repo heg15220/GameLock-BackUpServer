@@ -4764,3 +4764,44 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Corregido perfil mobileStageProfiles de arcade-valle-tranquilo para apuntar a .arcade-valle-tranquilo-shell/.arcade-valle-tranquilo-frame en lugar de clases de Neon Rush.
 - Validado con Playwright desktop, mobile portrait y mobile landscape: intro -> partida, render_game_to_text activo, shell movil con stage target, controles moviles visibles.
 - Validacion enfocada: escritorio mueve jugador con teclado al enfocar canvas; movil abre Tienda con boton tactil y Cerrar vuelve a partida.
+
+## 2026-06-02 - Summit Ascent peligros por zona
+- Peticion: anadir obstaculos aleatorios durante la escalada, con avalanchas/bolas de nieve en zonas nevadas y caida de piedras en zonas de roca, validos para ordenador, tablet y movil.
+- `src/arcade/summit-ascent/game.js` incorpora sistema de peligros por clima: avalancha (`snowball`), desprendimiento de roca (`rock`), placas de hielo (`ice`) y derrumbe seco (`dust`), con aviso previo, carriles esquivables, animacion canvas, colision, perdida de stamina/agarre, knockback, caida si el impacto deja recursos criticos y estadisticas de eventos/esquivas/impactos.
+- `render_game_to_text` expone `hazards.activeEvent`, `activeObstacles` y contadores; `window.__summitAscentApi.forceHazard(kind)` permite QA dirigida sin esperar al azar.
+- `src/arcade/summit-ascent/styles.css` ajusta el aviso en telefono portrait para no tapar barras ni controles.
+- Validacion: `node --check src/arcade/summit-ascent/game.js` OK; `npm run build` OK; Playwright standalone OK en `output/summit-ascent-hazards-standalone`; pruebas dirigidas desktop/phone/tablet en `output/summit-ascent-hazards-viewports` y `output/summit-ascent-hazards-phone-css-check`, sin `errors.json`.
+
+## 2026-06-02 - Summit Ascent salto evasivo
+- Peticion: anadir un boton de salto para esquivar escombros en PC, tablet y movil.
+- `src/arcade/summit-ascent/game.js` anade accion de salto evasivo con tecla `J`, coste de stamina/agarre, cooldown, desplazamiento lateral con arco visual y ventana breve de evasion frente a obstaculos que caen.
+- `src/arcade/summit-ascent/index.html` y `styles.css` incorporan el boton tactil `Salto` junto a los controles internos, adaptado para telefono y tablet sin tapar el gameplay.
+- `src/mobile/mobileGameProfiles.js`, `src/components/GamePlayground.jsx` y `src/games/registry.jsx` actualizan los controles externos y textos de ayuda para exponer `J`/`Salto`.
+- Validacion: `node --check src/arcade/summit-ascent/game.js` OK; Playwright dirigido desktop/phone/tablet OK en `output/summit-ascent-jump-dodge-check` y `output/summit-ascent-jump-button-check`; `npm run build` OK.
+
+## 2026-06-02 - Summit Ascent indicador de salto en ordenador
+- Peticion: mostrar en pantalla, en vista de ordenador, que boton/tecla hay que pulsar para saltar y esquivar escombros.
+- `src/arcade/summit-ascent/index.html` anade un bloque HUD de escritorio con tecla `J`, etiqueta `Saltar / esquivar`, estado y barra de recarga.
+- `src/arcade/summit-ascent/styles.css` posiciona el indicador en escritorio y lo oculta en tactil, movil/tablet y shell movil para no duplicar el boton `Salto`.
+- `src/arcade/summit-ascent/game.js` sincroniza el estado del indicador con el cooldown del salto: listo, saltando, recargando o sin estamina.
+- Validacion: `node --check src/arcade/summit-ascent/game.js` OK; `npm run build` OK; Playwright confirma indicador visible en desktop y oculto en phone, con capturas en `output/summit-ascent-desktop-jump-hint-*`.
+
+## 2026-06-02 - Summit Ascent control lateral durante salto
+- Peticion: el salto debe permitir movimiento libre, no solo un salto vertical o un desplazamiento fijo; el usuario debe poder moverse lateralmente durante el salto si lo desea.
+- `src/arcade/summit-ascent/game.js` cambia el salto evasivo para usar control lateral activo durante la ventana de salto: `A/D`, flechas o pad tactil modifican la velocidad horizontal frame a frame.
+- El salto ya no fuerza un destino lateral cerrado; sin input lateral mantiene la X, y con input lateral aplica air-control con velocidad propia. El arco vertical se aplica de forma incremental para evitar acumulacion de altura.
+- `render_game_to_text` expone `dodge.airControl` y `dodge.arcOffset` para QA.
+- Validacion: `node --check src/arcade/summit-ascent/game.js` OK; Playwright dirigido desktop confirma salto recto con delta X 0 y salto con `D` con delta X +29; Playwright tactil movil confirma boton derecha + `Salto` con delta X +29; capturas revisadas en `output/summit-ascent-free-jump-control`; `npm run build` OK. Nota: el cliente de la skill `develop-web-game` no pudo ejecutarse directamente porque no resolvio `playwright` desde la carpeta de la skill, asi que se uso Playwright local del repo.
+
+## 2026-06-02 - Summit Ascent arreglo salto no funcional
+- Peticion: el salto no funciona en ningun dispositivo; buscar motivo y arreglarlo.
+- Causa detectada: el salto anterior era demasiado corto/sutil y pegado al clamp normal de pared, por lo que apenas se percibia; ademas los controles del shell movil/tablet despachan eventos de teclado contra `document`, mientras el juego solo escuchaba `window`, dejando rutas de entrada sin capturar.
+- `src/arcade/summit-ascent/game.js` escucha teclado en `window` y `document` con deduplicacion por evento, normaliza `key/code`, aumenta duracion/altura del salto, amplia el margen lateral durante la ventana de salto y aplica un clamp especial mientras esta activo.
+- Validacion: `node --check src/arcade/summit-ascent/game.js` OK; Playwright dirigido confirma `J` en desktop con deltaY +43, evento sintetico en `document` con `KeyD`+`KeyJ` con deltaX +54, y boton tactil derecha+`Salto` en phone con deltaX +49.7/deltaY +42.5; captura revisada en `output/summit-ascent-jump-fix/phone-touch-right-jump.png`.
+
+## 2026-06-02 - Summit Ascent renombrar salto a esquivar
+- Peticion: en lugar de llamarle salto, llamarle `Esquivar` y su homologo en ingles.
+- `src/arcade/summit-ascent/index.html` cambia el HUD de desktop, boton tactil y ayuda inferior de `Salto/saltar` a `Esquivar`.
+- `src/arcade/summit-ascent/game.js` cambia mensajes visibles: `Esquiva recuperandose`, `Sin estamina para esquivar`, etiqueta `Esquivar`/`Dodge` y estado `Esquivando`/`Dodging`.
+- `src/mobile/mobileGameProfiles.js`, `src/components/GamePlayground.jsx` y `src/games/registry.jsx` actualizan textos de Summit Ascent a `Esquivar`/`Dodge` sin cambiar bindings internos.
+- Validacion: `node --check src/arcade/summit-ascent/game.js` OK; busqueda dirigida sin textos visibles restantes de Summit Ascent como `Salto/Jump` para esta accion; `npm run build` OK.

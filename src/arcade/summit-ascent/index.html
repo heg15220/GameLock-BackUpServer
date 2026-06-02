@@ -99,6 +99,17 @@
         </div>
       </div>
 
+      <div id="desktopJumpHint" class="summit-desktop-jump-hint" aria-live="polite">
+        <kbd>J</kbd>
+        <div class="summit-desktop-jump-copy">
+          <span id="jumpHintLabel">Esquivar</span>
+          <strong id="jumpHintStatus">Listo</strong>
+          <div class="summit-desktop-jump-meter" aria-hidden="true">
+            <div id="jumpHintMeter" class="summit-desktop-jump-meter-fill"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="summit-side-rail" id="sideRail">
         <div class="summit-altitude-rail">
           <div class="summit-altitude-track">
@@ -123,7 +134,7 @@
       <div id="messageBox" class="summit-message-box hidden" role="status" aria-live="polite"></div>
 
       <footer class="summit-controls-bar" id="controlsHelp">
-        ←→/AD mover · ↑/W escalar · ↓/S bajar · Espacio anclaje · Q beber · E cueva · F comida · M silenciar · P pausa · R reinicia · Esc menú · F pantalla completa
+        ←→/AD mover · ↑/W escalar · ↓/S bajar · J esquivar · Espacio anclaje · Q beber · E cueva · F comida · M silenciar · P pausa · R reinicia · Esc menú · F pantalla completa
       </footer>
 
     </section>
@@ -143,6 +154,7 @@
         <button class="summit-touch-btn summit-touch-btn-water" data-touch="water" aria-label="Beber agua">💧</button>
         <button class="summit-touch-btn summit-touch-btn-cave" data-touch="cave" aria-label="Entrar cueva">⛰</button>
         <button class="summit-touch-btn summit-touch-btn-food" data-touch="food" aria-label="Comer">🍫</button>
+        <button class="summit-touch-btn summit-touch-btn-jump" data-touch="jump" aria-label="Esquivar">Esquivar</button>
       </div>
     </div>
 

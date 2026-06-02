@@ -65,6 +65,30 @@
   const PLAYER_RADIUS = 14;
   const PLAYER_HEIGHT = 36;
 
+  // Obstaculos dinamicos por zona. Los carriles usan los mismos limites
+  // laterales que el escalador para que se puedan esquivar sin despegarse.
+  const HAZARD_WARNING_DURATION = 1.0;
+  const HAZARD_MIN_ALTITUDE = 520;
+  const HAZARD_COLLISION_GRACE = 0.55;
+  const HAZARD_MAX_ACTIVE_OBSTACLES = 18;
+  const HAZARD_LANE_OFFSETS = [-25, -14, -4, 8];
+  const HAZARD_TYPES = {
+    SNOWBALL: "snowball",
+    ROCK: "rock",
+    ICE: "ice",
+    DUST: "dust",
+    SPARK: "spark",
+  };
+  const DODGE_DURATION = 0.52;
+  const DODGE_COOLDOWN = 1.05;
+  const DODGE_STAMINA_COST = 5.5;
+  const DODGE_GRIP_COST = 1.5;
+  const DODGE_LANE_MARGIN = 2;
+  const DODGE_AIR_CONTROL_SPEED = 260;
+  const DODGE_LAUNCH_SPEED = 118;
+  const DODGE_ARC_HEIGHT = 44;
+  const DODGE_LATERAL_CLEARANCE = 52;
+
   // Intro / suelo / caseta de salida
   const HUT_X = 70;
   const HUT_GROUND_Y_OFFSET = 18;
@@ -1313,6 +1337,9 @@
         falls: 0,
         ropeCatches: 0,
         cavesVisited: 0,
+        hazardEvents: 0,
+        hazardsDodged: 0,
+        hazardHits: 0,
       },
     };
   }
@@ -1363,6 +1390,7 @@
       fogPatches: [],
       sparks: [],
     },
+    hazards: createHazardState(),
     parallax: {
       cloudsFar: [],
       cloudsNear: [],
@@ -1398,6 +1426,7 @@
   };
 
   let t = makeT(state.locale);
+  const handledKeyboardEvents = new WeakSet();
 
   function createClimber() {
     return {
@@ -1419,6 +1448,12 @@
       armReachR: 0,
       shake: 0,
       anchorSwingTimer: 0,
+      dodgeTimer: 0,
+      dodgeCooldown: 0,
+      dodgeDir: 1,
+      dodgeStartX: 0,
+      dodgeTargetX: 0,
+      dodgeArcOffset: 0,
       walkPhase: 0,
       rope: { active: true, segments: [] },
     };
@@ -1434,6 +1469,19 @@
       targetX: 0,
       targetY: 0,
       arcHeight: ANCHOR_THROW_ARC_MIN,
+    };
+  }
+
+  function createHazardState() {
+    return {
+      rng: makeRng(1),
+      cooldown: 6,
+      current: null,
+      obstacles: [],
+      impactFlash: 0,
+      warningPulse: 0,
+      lastMessageAt: -999,
+      recentKind: null,
     };
   }
 
@@ -1466,8 +1514,10 @@
       togglePause,
       resumeRun,
       tryPlaceManualAnchor,
+      tryJumpDodge,
       tryDrinkInline,
       tryEnterNearbyCave,
+      forceHazard,
       renderGameToText,
       advanceTime,
     };
@@ -1684,6 +1734,8 @@
     window.addEventListener("resize", syncEmbeddedTouchMode);
     window.addEventListener("keydown", onKeyDown, { passive: false });
     window.addEventListener("keyup", onKeyUp);
+    document.addEventListener("keydown", onKeyDown, { passive: false });
+    document.addEventListener("keyup", onKeyUp);
 
     state.canvas.addEventListener("pointerdown", onPointerDown);
     state.canvas.addEventListener("pointermove", onPointerMove);
@@ -1741,12 +1793,13 @@
       water: "q",
       cave: "e",
       food: "f",
+      jump: "j",
     };
     const key = map[action];
     if (!key) return;
     if (down) {
       state.keys.add(key);
-      if (key === " " || key === "q" || key === "e") {
+      if (key === " " || key === "q" || key === "e" || key === "j") {
         handleSingleKey(key, { repeat: false, shiftKey: false });
       }
     } else {
@@ -1755,7 +1808,10 @@
   }
 
   function onKeyDown(e) {
-    const k = e.key.toLowerCase();
+    if (handledKeyboardEvents.has(e)) return;
+    handledKeyboardEvents.add(e);
+    const k = normalizeKeyEvent(e);
+    if (!k) return;
     if (state.state === STATES.PLAYING) {
       if (
         k === "arrowup" ||
@@ -1769,7 +1825,8 @@
         k === "d" ||
         k === "q" ||
         k === "e" ||
-        k === "f"
+        k === "f" ||
+        k === "j"
       ) {
         e.preventDefault();
       }
@@ -1781,8 +1838,23 @@
   }
 
   function onKeyUp(e) {
-    const k = e.key.toLowerCase();
+    if (handledKeyboardEvents.has(e)) return;
+    handledKeyboardEvents.add(e);
+    const k = normalizeKeyEvent(e);
+    if (!k) return;
     state.keys.delete(k);
+  }
+
+  function normalizeKeyEvent(e) {
+    const key = e && typeof e.key === "string" ? e.key : "";
+    if (key && key !== "Unidentified") return key.toLowerCase();
+    const code = e && typeof e.code === "string" ? e.code : "";
+    if (!code) return "";
+    if (code.startsWith("Key")) return code.slice(3).toLowerCase();
+    if (code.startsWith("Digit")) return code.slice(5);
+    if (code === "Space") return " ";
+    if (code.startsWith("Arrow")) return code.toLowerCase();
+    return code.toLowerCase();
   }
 
   function handleSingleKey(k, ev) {
@@ -1829,6 +1901,11 @@
       case "q":
         if (state.state === STATES.PLAYING) {
           tryDrinkInline();
+        }
+        break;
+      case "j":
+        if (state.state === STATES.PLAYING) {
+          tryJumpDodge();
         }
         break;
       case "e":
@@ -2059,6 +2136,13 @@
     state.anchorLimitHintTimer = 0;
     state.flashRecord = false;
     state.summarySnapshot = null;
+    state.hazards = createHazardState();
+    state.hazards.rng = makeRng(
+      mountain.seed * 977 +
+        (state.progress.runsByMountain[mountain.id] || 1) * 131 +
+        Date.now()
+    );
+    state.hazards.cooldown = rngRange(state.hazards.rng, 4.5, 8.5);
 
     const groundY = state.run.mountain.layers[0].from + HUT_GROUND_Y_OFFSET;
     const wallArrivalX = sampleFaceX(groundY) - 6;
@@ -2097,6 +2181,7 @@
     state.weather.windStreaks = [];
     state.weather.fogPatches = [];
     state.weather.sparks = [];
+    state.hazards.obstacles = [];
 
     setStateMachine(STATES.PLAYING);
     closeAllOverlays();
@@ -2302,6 +2387,37 @@
     );
     state.audio.drink();
     showToast(t("msgDrink"));
+  }
+
+  function tryJumpDodge() {
+    if (!state.run || state.intro.active || state.summitWalk.active) return;
+    const climber = state.climber;
+    if (climber.falling || state.rest.active) return;
+    if (climber.dodgeCooldown > 0 || climber.dodgeTimer > 0) {
+      showToast(state.locale === "es" ? "Esquiva recuperandose." : "Dodge recovering.", 0.8);
+      return;
+    }
+    if (climber.stamina < DODGE_STAMINA_COST + 2) {
+      showToast(state.locale === "es" ? "Sin estamina para esquivar." : "Not enough stamina to dodge.", 1.0);
+      return;
+    }
+    const plateau = currentWalkablePlateau();
+    const inputLeft = state.keys.has("arrowleft") || state.keys.has("a");
+    const inputRight = state.keys.has("arrowright") || state.keys.has("d");
+    const dir = inputLeft ? -1 : inputRight ? 1 : 0;
+    climber.dodgeDir = dir;
+    climber.dodgeStartX = climber.x;
+    climber.dodgeTargetX = climber.x;
+    climber.dodgeArcOffset = 0;
+    climber.dodgeTimer = DODGE_DURATION;
+    climber.dodgeCooldown = DODGE_COOLDOWN;
+    climber.stamina = clamp(climber.stamina - DODGE_STAMINA_COST, 0, STAMINA_MAX);
+    climber.grip = clamp(climber.grip - DODGE_GRIP_COST, 0, GRIP_MAX);
+    climber.vx += climber.dodgeDir * DODGE_LAUNCH_SPEED;
+    climber.bodyTilt += climber.dodgeDir * 0.18;
+    climber.armSwing += 0.9;
+    climber.legSwing += 1.1;
+    if (state.audio && state.audio.stepCold) state.audio.stepCold();
   }
 
   function tryEnterNearbyCave() {
@@ -2529,6 +2645,7 @@
         );
       }
       updateWeather(dt);
+      updateHazards(dt);
       updateBeacon();
       if (!state.summitWalk.active) {
         checkAutoCaveProximity();
@@ -2629,6 +2746,10 @@
     const climber = state.climber;
     const layer = currentLayer(climber.y);
     const climateFactor = layer ? layer.drain : 1;
+    climber.dodgeCooldown = Math.max(0, (climber.dodgeCooldown || 0) - dt);
+    if (climber.dodgeTimer > 0) {
+      climber.dodgeTimer = Math.max(0, climber.dodgeTimer - dt);
+    }
 
     let inputX = 0;
     let inputY = 0;
@@ -2705,7 +2826,10 @@
     }
 
     // Velocidades horizontales/verticales
-    const targetVx = inputX * (walkingPlateau ? WALKABLE_PLATEAU_SPEED : SIDE_SPEED);
+    const dodging = climber.dodgeTimer > 0;
+    const targetVx = dodging
+      ? inputX * DODGE_AIR_CONTROL_SPEED
+      : inputX * (walkingPlateau ? WALKABLE_PLATEAU_SPEED : SIDE_SPEED);
     const targetVy = walkingPlateau
       ? 0
       : climbing
@@ -2714,7 +2838,7 @@
       ? -DESCEND_SPEED * -1
       : 0;
 
-    climber.vx = lerp(climber.vx, targetVx, 1 - Math.exp(-dt * 11));
+    climber.vx = lerp(climber.vx, targetVx, 1 - Math.exp(-dt * (dodging ? 18 : 11)));
     climber.vy = lerp(climber.vy, targetVy, 1 - Math.exp(-dt * 9));
 
     // Aplicar viento
@@ -2724,6 +2848,26 @@
 
     climber.x += climber.vx * dt;
     climber.y += -climber.vy * dt; // vy negativa = sube
+    if (climber.dodgeTimer > 0) {
+      const tDodge = 1 - climber.dodgeTimer / DODGE_DURATION;
+      const arc = walkingPlateau ? 0 : Math.sin(Math.PI * tDodge) * DODGE_ARC_HEIGHT;
+      climber.y += arc - (climber.dodgeArcOffset || 0);
+      climber.dodgeArcOffset = arc;
+      const laneY = climber.y;
+      const faceX = walkingPlateau ? null : sampleFaceX(laneY);
+      const minX = walkingPlateau
+        ? walkablePlateau.minX + DODGE_LANE_MARGIN
+        : faceX + CLIMBER_FACE_MIN_OFFSET + DODGE_LANE_MARGIN - DODGE_LATERAL_CLEARANCE;
+      const maxX = walkingPlateau
+        ? walkablePlateau.maxX - DODGE_LANE_MARGIN
+        : faceX + CLIMBER_FACE_MAX_OFFSET - DODGE_LANE_MARGIN + DODGE_LATERAL_CLEARANCE;
+      climber.x = clamp(climber.x, minX, maxX);
+      climber.dodgeTargetX = climber.x;
+      if (inputX !== 0) climber.dodgeDir = inputX;
+    } else if (climber.dodgeArcOffset) {
+      climber.y -= climber.dodgeArcOffset;
+      climber.dodgeArcOffset = 0;
+    }
 
     if (walkingPlateau) {
       state.anchor = { y: -Infinity, x: 0, placed: false, manual: false };
@@ -2762,13 +2906,16 @@
     climber.legSwing += dt * (climbing ? 6 : walkingPlateau && inputX !== 0 ? 9 : 2.4);
     climber.bodyTilt = lerp(
       climber.bodyTilt,
-      inputX * 0.18 + (layer ? layer.wind * 0.5 : 0),
+      inputX * 0.18 + (climber.dodgeTimer > 0 ? climber.dodgeDir * 0.28 : 0) + (layer ? layer.wind * 0.5 : 0),
       1 - Math.exp(-dt * 8)
     );
 
     // Snap a la pared (limita X dentro de los holds)
     if (!walkingPlateau) {
-      clampClimberToClimbableFace({ stopInwardVelocity: true });
+      clampClimberToClimbableFace({
+        stopInwardVelocity: true,
+        extraMargin: climber.dodgeTimer > 0 ? DODGE_LATERAL_CLEARANCE : 0,
+      });
     }
 
     // Hidratación / agua
@@ -2919,6 +3066,329 @@
     }
     if (layer.rain > 0.4 && Math.random() < dt * 0.05) {
       state.audio.thunder();
+    }
+  }
+
+  function hazardProfileForLayer(layer) {
+    if (!layer) return null;
+    if (layer.snow >= 0.45 || layer.climate === "snow") {
+      return {
+        kind: HAZARD_TYPES.SNOWBALL,
+        event: "avalanche",
+        title: state.locale === "es" ? "Avalancha" : "Avalanche",
+        copy:
+          state.locale === "es"
+            ? "Bolas de nieve bajan por la ladera. Esquiva en lateral."
+            : "Snowballs are rolling down. Dodge sideways.",
+        spawnRate: 0.36,
+        duration: 4.6,
+        count: 8,
+        cooldown: [10, 17],
+        danger: 1.0,
+      };
+    }
+    if (layer.climate === "rain" || layer.rain >= 0.55) {
+      return {
+        kind: HAZARD_TYPES.ROCK,
+        event: "rockfall",
+        title: state.locale === "es" ? "Caida de piedras" : "Rockfall",
+        copy:
+          state.locale === "es"
+            ? "La roca mojada se desprende. Cambia de carril."
+            : "Wet rock breaks loose. Change lane.",
+        spawnRate: 0.46,
+        duration: 4.0,
+        count: 6,
+        cooldown: [9, 15],
+        danger: 0.95,
+      };
+    }
+    if (layer.climate === "wind" || layer.wind >= 0.2) {
+      return {
+        kind: HAZARD_TYPES.ROCK,
+        event: "wind-rockfall",
+        title: state.locale === "es" ? "Rafaga con piedras" : "Wind rockfall",
+        copy:
+          state.locale === "es"
+            ? "El viento arrastra fragmentos por la pared."
+            : "The wind drives fragments along the wall.",
+        spawnRate: 0.42,
+        duration: 3.8,
+        count: 5,
+        cooldown: [8, 14],
+        danger: 0.8,
+      };
+    }
+    if (layer.climate === "fog" || layer.fog >= 0.55) {
+      return {
+        kind: HAZARD_TYPES.ICE,
+        event: "icefall",
+        title: state.locale === "es" ? "Placas ocultas" : "Hidden ice",
+        copy:
+          state.locale === "es"
+            ? "La niebla oculta hielo suelto. Mira las sombras."
+            : "Fog hides loose ice. Watch the shadows.",
+        spawnRate: 0.5,
+        duration: 3.7,
+        count: 5,
+        cooldown: [8, 14],
+        danger: 0.75,
+      };
+    }
+    if (layer.climate === "heat") {
+      return {
+        kind: HAZARD_TYPES.DUST,
+        event: "scree",
+        title: state.locale === "es" ? "Derrumbe seco" : "Dry scree",
+        copy:
+          state.locale === "es"
+            ? "La arenisca se deshace en oleadas cortas."
+            : "Sandstone crumbles in short waves.",
+        spawnRate: 0.34,
+        duration: 3.5,
+        count: 5,
+        cooldown: [9, 16],
+        danger: 0.62,
+      };
+    }
+    return {
+      kind: HAZARD_TYPES.ROCK,
+      event: "loose-rock",
+      title: state.locale === "es" ? "Roca suelta" : "Loose rock",
+      copy:
+        state.locale === "es"
+          ? "Pequenos desprendimientos cruzan la via."
+          : "Small loose rocks cross the route.",
+      spawnRate: 0.58,
+      duration: 2.8,
+      count: 3,
+      cooldown: [13, 22],
+      danger: 0.36,
+    };
+  }
+
+  function updateHazards(dt) {
+    if (!state.run || !state.hazards) return;
+    const hz = state.hazards;
+    const climber = state.climber;
+    const layer = currentLayer(climber.y);
+    hz.warningPulse += dt * 5;
+    hz.impactFlash = Math.max(0, hz.impactFlash - dt * 2.7);
+
+    if (
+      state.intro.active ||
+      state.summitWalk.active ||
+      state.rest.active ||
+      climber.falling ||
+      (climber.y < HAZARD_MIN_ALTITUDE && !(hz.current && hz.current.forced))
+    ) {
+      hz.cooldown = Math.max(hz.cooldown, 1.4);
+      updateActiveHazardObstacles(dt);
+      return;
+    }
+
+    if (!hz.current) {
+      hz.cooldown -= dt;
+      const profile = hazardProfileForLayer(layer);
+      if (profile && hz.cooldown <= 0) {
+        const risk =
+          profile.danger *
+          (0.72 + clamp(climber.y / state.run.mountain.height, 0, 1) * 0.42);
+        if (hz.rng() < risk) {
+          startHazardEvent(profile);
+        } else {
+          hz.cooldown = rngRange(hz.rng, 2.5, 5.5);
+        }
+      }
+    } else {
+      updateHazardEvent(dt);
+    }
+
+    updateActiveHazardObstacles(dt);
+  }
+
+  function startHazardEvent(profile, forced) {
+    const hz = state.hazards;
+    hz.current = {
+      event: profile.event,
+      kind: profile.kind,
+      title: profile.title,
+      copy: profile.copy,
+      elapsed: 0,
+      duration: profile.duration,
+      warning: HAZARD_WARNING_DURATION,
+      spawnRate: profile.spawnRate,
+      nextSpawn: HAZARD_WARNING_DURATION * 0.78,
+      spawned: 0,
+      count: profile.count,
+      danger: profile.danger,
+      forced: Boolean(forced),
+    };
+    hz.recentKind = profile.kind;
+    state.run.stats.hazardEvents += 1;
+    showMessage(profile.title + ": " + profile.copy, UI_TIMING.danger);
+    setBeacon(profile.title, "!", profile.copy);
+    if (state.audio && state.audio.windGust) state.audio.windGust();
+  }
+
+  function updateHazardEvent(dt) {
+    const hz = state.hazards;
+    const event = hz.current;
+    if (!event) return;
+    event.elapsed += dt;
+    event.nextSpawn -= dt;
+    if (
+      event.elapsed >= event.warning &&
+      event.spawned < event.count &&
+      event.nextSpawn <= 0 &&
+      hz.obstacles.length < HAZARD_MAX_ACTIVE_OBSTACLES
+    ) {
+      spawnHazardObstacle(event);
+      event.spawned += 1;
+      event.nextSpawn = rngRange(hz.rng, event.spawnRate * 0.72, event.spawnRate * 1.24);
+    }
+    if (event.elapsed >= event.duration && event.spawned >= event.count) {
+      const profile = hazardProfileForLayer(currentLayer(state.climber.y));
+      const range = profile ? profile.cooldown : [10, 18];
+      hz.cooldown = rngRange(hz.rng, range[0], range[1]);
+      hz.current = null;
+    }
+  }
+
+  function forceHazard(kind) {
+    if (!state.run) return null;
+    const profile = forcedHazardProfile(kind) || hazardProfileForLayer(currentLayer(state.climber.y));
+    state.hazards.current = null;
+    state.hazards.cooldown = 0;
+    startHazardEvent(profile, true);
+    return buildTextPayload().hazards;
+  }
+
+  function forcedHazardProfile(kind) {
+    switch (kind) {
+      case HAZARD_TYPES.SNOWBALL:
+      case "avalanche":
+        return hazardProfileForLayer({ climate: "snow", snow: 1, wind: 0.12, fog: 0.15, rain: 0 });
+      case HAZARD_TYPES.ICE:
+      case "icefall":
+        return hazardProfileForLayer({ climate: "fog", fog: 0.8, snow: 0.2, wind: 0.08, rain: 0 });
+      case HAZARD_TYPES.DUST:
+      case "scree":
+        return hazardProfileForLayer({ climate: "heat", fog: 0, snow: 0, wind: 0.04, rain: 0 });
+      case HAZARD_TYPES.ROCK:
+      case "rockfall":
+        return hazardProfileForLayer({ climate: "rain", rain: 1, wind: 0.08, fog: 0.1, snow: 0 });
+      default:
+        return null;
+    }
+  }
+
+  function spawnHazardObstacle(event) {
+    const hz = state.hazards;
+    const climber = state.climber;
+    const layer = currentLayer(climber.y) || {};
+    const lane = rngChoice(hz.rng, HAZARD_LANE_OFFSETS);
+    const sideBias = rngRange(hz.rng, -8, 8);
+    const startY = climber.y + rngRange(hz.rng, 220, 390);
+    const faceX = sampleFaceX(startY);
+    const speedBase =
+      event.kind === HAZARD_TYPES.SNOWBALL
+        ? rngRange(hz.rng, 250, 350)
+        : event.kind === HAZARD_TYPES.ICE
+        ? rngRange(hz.rng, 285, 390)
+        : event.kind === HAZARD_TYPES.DUST
+        ? rngRange(hz.rng, 210, 310)
+        : rngRange(hz.rng, 320, 460);
+    const radius =
+      event.kind === HAZARD_TYPES.SNOWBALL
+        ? rngRange(hz.rng, 13, 24)
+        : event.kind === HAZARD_TYPES.ICE
+        ? rngRange(hz.rng, 10, 18)
+        : event.kind === HAZARD_TYPES.DUST
+        ? rngRange(hz.rng, 12, 20)
+        : rngRange(hz.rng, 11, 21);
+    hz.obstacles.push({
+      id: `${event.event}-${state.runTime.toFixed(2)}-${event.spawned}`,
+      kind: event.kind,
+      event: event.event,
+      x: faceX + lane + sideBias,
+      y: startY,
+      laneOffset: lane + sideBias,
+      vx: rngRange(hz.rng, -30, 30) + (layer.wind || 0) * 95,
+      vy: speedBase,
+      radius,
+      spin: rngRange(hz.rng, 0, Math.PI * 2),
+      rotSpeed: rngRange(hz.rng, -5, 5),
+      life: 6.0,
+      hit: false,
+      passed: false,
+      alpha: 1,
+      wobble: rngRange(hz.rng, 0, Math.PI * 2),
+    });
+  }
+
+  function updateActiveHazardObstacles(dt) {
+    const hz = state.hazards;
+    const climber = state.climber;
+    hz.obstacles = hz.obstacles.filter((o) => {
+      o.life -= dt;
+      o.y -= o.vy * dt;
+      const faceTarget = sampleFaceX(o.y) + o.laneOffset;
+      o.x = lerp(o.x, faceTarget, 1 - Math.exp(-dt * 7)) + o.vx * dt;
+      o.spin += o.rotSpeed * dt;
+      o.wobble += dt * 5;
+      o.alpha = clamp(o.life, 0, 1);
+
+      if (
+        !o.hit &&
+        !state.intro.active &&
+        !state.summitWalk.active &&
+        !(climber.dodgeTimer > 0)
+      ) {
+        const hitRadius = o.radius + PLAYER_RADIUS * 0.78;
+        if (distanceSq(o.x, o.y, climber.x, climber.y) <= hitRadius * hitRadius) {
+          applyHazardImpact(o);
+          o.hit = true;
+          return false;
+        }
+      }
+      if (!o.passed && o.y < climber.y - 80) {
+        o.passed = true;
+        if (state.run && state.run.stats) state.run.stats.hazardsDodged += 1;
+      }
+      return o.life > 0 && o.y > state.cameraY - 260;
+    });
+  }
+
+  function applyHazardImpact(obstacle) {
+    const climber = state.climber;
+    const heavy = obstacle.kind === HAZARD_TYPES.ROCK || obstacle.kind === HAZARD_TYPES.SNOWBALL;
+    const staminaLoss =
+      obstacle.kind === HAZARD_TYPES.DUST ? 8 : obstacle.kind === HAZARD_TYPES.ICE ? 12 : 16;
+    const gripLoss =
+      obstacle.kind === HAZARD_TYPES.DUST ? 7 : obstacle.kind === HAZARD_TYPES.ICE ? 18 : 15;
+    climber.stamina = clamp(climber.stamina - staminaLoss, 0, STAMINA_MAX);
+    climber.grip = clamp(climber.grip - gripLoss, 0, GRIP_MAX);
+    climber.vx += obstacle.x < climber.x ? 80 : -80;
+    climber.bodyTilt += obstacle.x < climber.x ? 0.18 : -0.18;
+    climber.shake = Math.max(climber.shake || 0, heavy ? 1 : 0.55);
+    state.hazards.impactFlash = heavy ? 1 : 0.62;
+    state.run.stats.hazardHits += 1;
+    if (state.audio && state.audio.ropeCatch) state.audio.ropeCatch();
+    if (state.runTime - state.hazards.lastMessageAt > HAZARD_COLLISION_GRACE) {
+      state.hazards.lastMessageAt = state.runTime;
+      showMessage(
+        state.locale === "es"
+          ? "Impacto en la pared: pierdes agarre y energia."
+          : "Wall impact: grip and stamina lost.",
+        2.0
+      );
+    }
+    if (!climber.falling && (climber.grip <= 4 || climber.stamina <= 0)) {
+      climber.falling = true;
+      climber.vy = 80;
+      state.run.stats.falls += 1;
+      if (state.audio && state.audio.fall) state.audio.fall();
     }
   }
 
@@ -3253,6 +3723,17 @@
   function updateBeacon() {
     if (!state.run) return;
     const climber = state.climber;
+    if (
+      state.hazards.current &&
+      state.hazards.current.elapsed < state.hazards.current.warning + 1.0
+    ) {
+      setBeacon(
+        state.hazards.current.title,
+        "!",
+        state.hazards.current.copy
+      );
+      return;
+    }
     if (climber.stamina < 25) {
       setBeacon(t("beaconLowStamina"), "⚠", t("msgStaminaLow"));
       return;
@@ -3398,8 +3879,9 @@
     if (!state.run || !state.climber) return;
     const climber = state.climber;
     const faceX = sampleFaceX(climber.y);
-    const minX = faceX + CLIMBER_FACE_MIN_OFFSET;
-    const maxX = faceX + CLIMBER_FACE_MAX_OFFSET;
+    const extraMargin = Math.max(0, options.extraMargin || 0);
+    const minX = faceX + CLIMBER_FACE_MIN_OFFSET - extraMargin;
+    const maxX = faceX + CLIMBER_FACE_MAX_OFFSET + extraMargin;
     if (climber.x < minX) {
       climber.x = minX;
       if (options.stopOutwardVelocity && climber.vx < 0) climber.vx = 0;
@@ -3819,6 +4301,7 @@
       drawAnchor(ctx);
       drawSummitFlag(ctx);
       drawClimber(ctx);
+      drawHazards(ctx);
       drawWeather(ctx);
       drawFog(ctx);
       drawAltitudeOverlay(ctx);
@@ -4930,10 +5413,22 @@
     }
 
     // sombra
-    ctx.fillStyle = "rgba(0,0,0,0.32)";
+    ctx.fillStyle = climber.dodgeTimer > 0 ? "rgba(0,0,0,0.18)" : "rgba(0,0,0,0.32)";
     ctx.beginPath();
-    ctx.ellipse(0, 22, 14, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 22, climber.dodgeTimer > 0 ? 18 : 14, 3, 0, 0, Math.PI * 2);
     ctx.fill();
+
+    if (climber.dodgeTimer > 0) {
+      ctx.save();
+      const tDodge = 1 - climber.dodgeTimer / DODGE_DURATION;
+      ctx.globalAlpha = 0.42 * (1 - tDodge);
+      ctx.strokeStyle = "rgba(255, 245, 190, 0.9)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(-climber.dodgeDir * 9, -5, 20, -0.7, 0.95);
+      ctx.stroke();
+      ctx.restore();
+    }
 
     // piernas
     drawClimberLegs(ctx, climber);
@@ -5132,6 +5627,164 @@
     ctx.restore();
   }
 
+  /* ---- Obstaculos dinamicos ---- */
+
+  function drawHazards(ctx) {
+    if (!state.hazards) return;
+    drawHazardWarning(ctx);
+    if (state.hazards.obstacles.length === 0 && state.hazards.impactFlash <= 0) return;
+    const camX = state.cameraX;
+    const camY = state.cameraY;
+    ctx.save();
+    for (const o of state.hazards.obstacles) {
+      const sx = o.x - camX;
+      const sy = state.height - (o.y - camY);
+      if (sx < -60 || sx > state.width + 60 || sy < -80 || sy > state.height + 80) continue;
+      if (o.kind === HAZARD_TYPES.SNOWBALL) {
+        drawSnowballHazard(ctx, sx, sy, o);
+      } else if (o.kind === HAZARD_TYPES.ICE) {
+        drawIceHazard(ctx, sx, sy, o);
+      } else if (o.kind === HAZARD_TYPES.DUST) {
+        drawDustHazard(ctx, sx, sy, o);
+      } else {
+        drawRockHazard(ctx, sx, sy, o);
+      }
+    }
+    if (state.hazards.impactFlash > 0) {
+      ctx.globalAlpha = state.hazards.impactFlash * 0.18;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, state.width, state.height);
+    }
+    ctx.restore();
+  }
+
+  function drawHazardWarning(ctx) {
+    const event = state.hazards.current;
+    if (!event || event.elapsed >= event.warning) return;
+    const tWarn = clamp(event.elapsed / event.warning, 0, 1);
+    const climber = state.climber;
+    const camX = state.cameraX;
+    const camY = state.cameraY;
+    const pulse = 0.55 + 0.45 * Math.sin(state.hazards.warningPulse * 2.2);
+    const topY = climber.y + 250;
+    const bottomY = climber.y + 28;
+    ctx.save();
+    ctx.globalAlpha = (1 - tWarn * 0.28) * pulse;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 7]);
+    ctx.strokeStyle =
+      event.kind === HAZARD_TYPES.SNOWBALL
+        ? "rgba(245, 252, 255, 0.82)"
+        : event.kind === HAZARD_TYPES.DUST
+        ? "rgba(255, 214, 145, 0.75)"
+        : "rgba(255, 206, 118, 0.82)";
+    for (const lane of [-22, 0, 10]) {
+      const xTop = sampleFaceX(topY) + lane - camX;
+      const xBottom = sampleFaceX(bottomY) + lane - camX;
+      const syTop = state.height - (topY - camY);
+      const syBottom = state.height - (bottomY - camY);
+      ctx.beginPath();
+      ctx.moveTo(xTop, syTop);
+      ctx.lineTo(xBottom, syBottom);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.font = "bold 12px ui-monospace, Menlo, Consolas, monospace";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(7, 12, 22, 0.72)";
+    const labelX = sampleFaceX(climber.y + 170) - camX + 4;
+    const labelY = state.height - (climber.y + 170 - camY);
+    ctx.fillRect(labelX - 58, labelY - 15, 116, 24);
+    ctx.fillStyle = "#fff5d0";
+    ctx.fillText(event.title.toUpperCase(), labelX, labelY + 2);
+    ctx.restore();
+  }
+
+  function drawSnowballHazard(ctx, sx, sy, o) {
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.rotate(o.spin);
+    ctx.globalAlpha = o.alpha;
+    const grad = ctx.createRadialGradient(-o.radius * 0.35, -o.radius * 0.35, 2, 0, 0, o.radius);
+    grad.addColorStop(0, "#ffffff");
+    grad.addColorStop(0.55, "#dcecf8");
+    grad.addColorStop(1, "#9fb7c9");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(0, 0, o.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(90, 120, 145, 0.42)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, o.radius * 0.62, 0.3, Math.PI * 1.35);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawRockHazard(ctx, sx, sy, o) {
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.rotate(o.spin);
+    ctx.globalAlpha = o.alpha;
+    ctx.fillStyle = "#5b554c";
+    ctx.strokeStyle = "#2b2723";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const n = 7;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      const r = o.radius * (0.78 + 0.28 * Math.sin(i * 2.3 + o.wobble));
+      const x = Math.cos(a) * r;
+      const y = Math.sin(a) * r;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255, 235, 190, 0.22)";
+    ctx.beginPath();
+    ctx.arc(-o.radius * 0.28, -o.radius * 0.3, o.radius * 0.22, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawIceHazard(ctx, sx, sy, o) {
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.rotate(o.spin);
+    ctx.globalAlpha = o.alpha;
+    ctx.fillStyle = "rgba(195, 235, 255, 0.86)";
+    ctx.strokeStyle = "rgba(80, 150, 190, 0.72)";
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(0, -o.radius * 1.25);
+    ctx.lineTo(o.radius * 0.78, -o.radius * 0.1);
+    ctx.lineTo(o.radius * 0.25, o.radius * 1.15);
+    ctx.lineTo(-o.radius * 0.72, o.radius * 0.28);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawDustHazard(ctx, sx, sy, o) {
+    ctx.save();
+    ctx.globalAlpha = o.alpha * 0.82;
+    const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, o.radius * 2.2);
+    grad.addColorStop(0, "rgba(255, 210, 145, 0.68)");
+    grad.addColorStop(1, "rgba(130, 86, 42, 0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(sx, sy, o.radius * 2.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(112, 80, 50, 0.8)";
+    ctx.beginPath();
+    ctx.arc(sx + Math.sin(o.wobble) * 4, sy, o.radius * 0.56, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   /* ---- Weather render ---- */
 
   function drawWeather(ctx) {
@@ -5298,6 +5951,8 @@
     const best = state.progress.bestAltitudeByMountain[mountain.id] || 0;
     setText("bestValue", `${best} m`);
 
+    updateJumpHint(climber);
+
     // Side rail
     const altitudeFill = document.getElementById("altitudeFill");
     if (altitudeFill) {
@@ -5321,6 +5976,38 @@
       });
       markersWrap.dataset.mountain = mountain.id;
     }
+  }
+
+  function updateJumpHint(climber) {
+    const hint = document.getElementById("desktopJumpHint");
+    if (!hint) return;
+    const label = state.locale === "es" ? "Esquivar" : "Dodge";
+    setText("jumpHintLabel", label);
+
+    let status = state.locale === "es" ? "Listo" : "Ready";
+    let stateName = "ready";
+    let ratio = 1;
+    if (climber.stamina < DODGE_STAMINA_COST + 2) {
+      status = state.locale === "es" ? "Sin estamina" : "No stamina";
+      stateName = "low";
+      ratio = clamp(climber.stamina / (DODGE_STAMINA_COST + 2), 0, 1);
+    } else if (climber.dodgeTimer > 0) {
+      status = state.locale === "es" ? "Esquivando" : "Dodging";
+      stateName = "active";
+      ratio = clamp(climber.dodgeTimer / DODGE_DURATION, 0, 1);
+    } else if (climber.dodgeCooldown > 0) {
+      status =
+        state.locale === "es"
+          ? `Recarga ${climber.dodgeCooldown.toFixed(1)}s`
+          : `Cooldown ${climber.dodgeCooldown.toFixed(1)}s`;
+      stateName = "cooldown";
+      ratio = clamp(1 - climber.dodgeCooldown / DODGE_COOLDOWN, 0, 1);
+    }
+
+    hint.dataset.state = stateName;
+    setText("jumpHintStatus", status);
+    const meter = document.getElementById("jumpHintMeter");
+    if (meter) meter.style.width = `${Math.round(ratio * 100)}%`;
   }
 
   function climateLabel(climate) {
@@ -5440,6 +6127,15 @@
         food: climber.food,
         faceOffsetX: faceX == null ? null : round(climber.x - faceX, 1),
         canClimb: anchorClimbRoom() > 0,
+        dodge: {
+          active: climber.dodgeTimer > 0,
+          timer: round(climber.dodgeTimer || 0, 2),
+          cooldown: round(climber.dodgeCooldown || 0, 2),
+          dir: climber.dodgeDir || 0,
+          targetX: round(climber.dodgeTargetX || 0, 1),
+          airControl: climber.dodgeTimer > 0,
+          arcOffset: round(climber.dodgeArcOffset || 0, 1),
+        },
         canWalkWithoutAnchor: Boolean(plateau || state.summitWalk.active),
         movementMode: state.summitWalk.active
           ? "summit-walk"
@@ -5545,12 +6241,45 @@
         resting: Boolean(state.rest.active),
         restSecondsLeft: round(state.rest.secondsLeft, 1),
       },
+      hazards: {
+        activeEvent: state.hazards.current
+          ? {
+              event: state.hazards.current.event,
+              kind: state.hazards.current.kind,
+              title: state.hazards.current.title,
+              warning: state.hazards.current.elapsed < state.hazards.current.warning,
+              elapsed: round(state.hazards.current.elapsed, 2),
+              duration: round(state.hazards.current.duration, 2),
+              spawned: state.hazards.current.spawned,
+              planned: state.hazards.current.count,
+            }
+          : null,
+        cooldownSeconds: round(state.hazards.cooldown, 1),
+        activeObstacles: state.hazards.obstacles
+          .filter((o) => o.y >= climber.y - 160 && o.y <= climber.y + 430)
+          .slice(0, 8)
+          .map((o) => ({
+            kind: o.kind,
+            x: round(o.x, 1),
+            y: round(o.y, 1),
+            radius: round(o.radius, 1),
+            distanceToClimber: round(distance(o.x, o.y, climber.x, climber.y), 1),
+          })),
+        counts: {
+          events: state.run && state.run.stats ? state.run.stats.hazardEvents : 0,
+          dodged: state.run && state.run.stats ? state.run.stats.hazardsDodged : 0,
+          hits: state.run && state.run.stats ? state.run.stats.hazardHits : 0,
+        },
+      },
       stats: state.run
         ? {
             anchorsPlaced: state.run.stats.anchorsPlaced,
             manualAnchors: state.run.stats.manualAnchors,
             ropeCatches: state.run.stats.ropeCatches,
             cavesVisited: state.run.stats.cavesVisited,
+            hazardEvents: state.run.stats.hazardEvents,
+            hazardsDodged: state.run.stats.hazardsDodged,
+            hazardHits: state.run.stats.hazardHits,
           }
         : null,
       message: document.getElementById("messageBox")?.textContent || "",
@@ -5563,6 +6292,7 @@
         anchor: "Space",
         drink: "Q",
         cave: "E",
+        jump: "J",
         eat: "F",
         pause: "P",
         restart: "R",

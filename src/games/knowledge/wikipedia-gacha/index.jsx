@@ -3523,23 +3523,11 @@ export default function WikipediaGachaGame() {
       ) : null}
 
       <footer className="wg-footer">
-        <p className="wg-footer-note">
-          {es
-            ? "Este sitio es independiente. Si quieres apoyar el proyecto visita la pagina de contacto."
-            : "This site is independently operated. If you would like to support it, please visit the contact page."}
-        </p>
         <p className="wg-footer-subnote">
           {es
             ? "Servicio no oficial y no afiliado con Wikipedia."
             : "This service is unofficial and not affiliated with Wikipedia."}
         </p>
-        <div className="wg-footer-links">
-          <a href="/privacy?lang=EN">Privacy Policy</a>
-          <span>|</span>
-          <a href="/terms?lang=EN">Terms of Service</a>
-          <span>|</span>
-          <a href="/contact?lang=EN">Contact</a>
-        </div>
       </footer>
 
       {rewardedAdModal}

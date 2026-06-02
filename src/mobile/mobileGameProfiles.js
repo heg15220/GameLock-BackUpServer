@@ -1160,8 +1160,8 @@ export function getMobileControlProfile(game, locale = "es") {
         heading: t(locale, "Escalada", "Climb"),
         hint: t(
           locale,
-          "Sube, planta anclajes, bebe agua y usa Cueva cuando el indicador marque una entrada cercana.",
-          "Climb, plant anchors, drink water, and use Cave when the indicator shows a nearby entrance."
+          "Sube, planta anclajes, esquiva escombros y usa Cueva cuando el indicador marque una entrada cercana.",
+          "Climb, plant anchors, dodge debris, and use Cave when the indicator shows a nearby entrance."
         ),
         leftPad: directionalPad(locale, {
           up: input("ArrowUp", "ArrowUp"),
@@ -1198,6 +1198,11 @@ export function getMobileControlProfile(game, locale = "es") {
             type: "tap",
             tone: "accent",
             inputs: [input("KeyE", "e")],
+          }),
+          control("jump", t(locale, "Esquivar", "Dodge"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("KeyJ", "j")],
           }),
           control("start", "Start", {
             type: "tap",
