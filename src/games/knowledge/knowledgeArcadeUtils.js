@@ -7,6 +7,15 @@ export const resolveKnowledgeArcadeLocale = () => {
   return locale === "es" ? "es" : "en";
 };
 
+export const blurVirtualKeyboardOnEnter = (event) => {
+  if (event?.key !== "Enter" || typeof window === "undefined") return;
+  const isTouchSize = window.matchMedia?.(
+    "(max-width: 1180px), (pointer: coarse), (hover: none)"
+  )?.matches;
+  if (!isTouchSize) return;
+  event.currentTarget?.blur?.();
+};
+
 export const getRandomKnowledgeMatchId = () =>
   Math.floor(Math.random() * KNOWLEDGE_ARCADE_MATCH_COUNT);
 

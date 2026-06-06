@@ -2164,15 +2164,16 @@ export const games = [
     title: "Tangram Pro",
     title_en: "Tangram Pro",
     category: "Conocimiento",
-    tagline: "Tangram: coloca siete piezas para encajar la silueta.",
+    tagline: "Tangram: coloca siete piezas en un banco ampliado de siluetas.",
     description:
-      "Version de tangram orientada a precision geomtrica: debes reconstruir la silueta objetivo usando exactamente las 7 piezas tradicionales (2 triangulos grandes, 1 mediano, 2 pequenos, 1 cuadrado y 1 paralelogramo), sin solapes y con control total de rotacion/volteo.",
+      "Version de tangram orientada a precision geomtrica: debes reconstruir un banco ampliado de siluetas usando exactamente las 7 piezas tradicionales (2 triangulos grandes, 1 mediano, 2 pequenos, 1 cuadrado y 1 paralelogramo), sin solapes y con control total de rotacion/volteo.",
     objective_es:
       "Completa cada silueta encajando todas las piezas en su posicion correcta sin superponer geometria.",
     howToPlay_es:
       "Arrastra piezas desde la zona de bandeja al objetivo. Q/E rotan 45 grados, F voltea el paralelogramo, Enter intenta encajar la seleccion y H activa o desactiva guia visual. R reinicia la misma partida y N carga otra silueta.",
     highlights: [
       "Modelo fiel de las 7 tans con proporciones geometricas consistentes.",
+      "Banco ampliado con 20 tipos base y 80 variantes validas de silueta.",
       "Regla de validacion estricta: sin solapes y con todas las piezas encajadas.",
       "Sistema de snap por tolerancia espacial y orientacion por tipo de pieza.",
       "Soporte completo de rotacion por pasos de 45 grados y volteo de paralelogramo.",
@@ -2186,15 +2187,16 @@ export const games = [
     techFocus: "Geometria de poligonos convexos + SAT para solapes + snapping por orientacion.",
 
     category_en: "Knowledge",
-    tagline_en: "Tangram: place seven pieces to match the silhouette.",
+    tagline_en: "Tangram: place seven pieces across an expanded silhouette bank.",
     description_en:
-      "Tangram mode focused on geometric precision: rebuild the target silhouette using all 7 classic tans (2 large triangles, 1 medium, 2 small, 1 square, 1 parallelogram), with no overlaps and full rotation/flip control.",
+      "Tangram mode focused on geometric precision: rebuild an expanded bank of target silhouettes using all 7 classic tans (2 large triangles, 1 medium, 2 small, 1 square, 1 parallelogram), with no overlaps and full rotation/flip control.",
     objective_en:
       "Complete each silhouette by locking every piece in its correct position without overlapping geometry.",
     howToPlay_en:
       "Drag pieces from the tray to the target. Q/E rotates 45 degrees, F flips the parallelogram, Enter snaps the selected piece, and H toggles the guide layer. R restarts the same match and N loads another silhouette.",
     highlights_en: [
       "Faithful 7-tan model with consistent geometric proportions.",
+      "Expanded bank with 20 base figure types and 80 valid silhouette variants.",
       "Strict completion rule: no overlaps and all pieces locked.",
       "Tolerance-based snap system with orientation matching per piece type.",
       "Full 45-degree rotation flow plus dedicated parallelogram flip.",
@@ -2217,9 +2219,9 @@ export const games = [
     title: "Cronologia Maestra",
     title_en: "Master Timeline",
     category: "Conocimiento",
-    tagline: "Cronolog\u00eda: ordena eventos hist\u00f3ricos en la l\u00ednea temporal.",
+    tagline: "Cronolog\u00eda: ordena eventos hist\u00f3ricos de m\u00e1s antiguo a m\u00e1s moderno.",
     description:
-      "Juego de conocimiento historico orientado a precision cronologica. En cada ronda recibes eventos reales mezclados, un evento ancla y recursos limitados de Intel para pedir pistas. Debes construir la linea temporal correcta y sostener consistencia a lo largo de toda la mision.",
+      "Juego de conocimiento historico orientado a precision cronologica. En cada ronda recibes eventos reales mezclados, un evento ancla y recursos limitados de Intel para pedir pistas. La idea es ordenarlos de mas antiguo a mas moderno, construir la linea temporal correcta y sostener consistencia a lo largo de toda la mision.",
     objective_es:
       "Ordena correctamente los eventos de cada ronda para maximizar puntuacion, racha y rango final de mision.",
     howToPlay_es:
@@ -2239,9 +2241,9 @@ export const games = [
     techFocus: "Generacion procedural por semilla + evaluacion de orden + sistema de pistas y scoring avanzado.",
 
     category_en: "Knowledge",
-    tagline_en: "Timeline: order historical events on the timeline.",
+    tagline_en: "Timeline: order historical events from oldest to newest.",
     description_en:
-      "Historical-knowledge game focused on chronology accuracy. Every round gives mixed real events, one anchor event, and limited Intel resources for hints. Build the correct timeline and keep consistency across the entire mission.",
+      "Historical-knowledge game focused on chronology accuracy. Every round gives mixed real events, one anchor event, and limited Intel resources for hints. The idea is to order them from oldest to newest, build the correct timeline, and keep consistency across the entire mission.",
     objective_en:
       "Sort each round's events correctly to maximize score, streak, and final mission rank.",
     howToPlay_en:

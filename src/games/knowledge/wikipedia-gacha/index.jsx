@@ -3,6 +3,7 @@ import AdPreviewCard from "../../../components/AdPreviewCard";
 import useMobileGameViewport from "../../../mobile/useMobileGameViewport";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
 import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
+import { blurVirtualKeyboardOnEnter } from "../knowledgeArcadeUtils";
 import {
   bootstrapWikipediaGachaSession,
   claimWikipediaGachaRewardedAdPacks,
@@ -3217,7 +3218,7 @@ export default function WikipediaGachaGame() {
 
               <div className="wg-filter-shell">
                 <div className="wg-filter-grid">
-                  <input type="text" value={collectionFilters.query} placeholder={text.searchPlaceholder} onChange={(event) => setCollectionFilters((current) => ({ ...current, query: event.target.value, page: 1 }))} />
+                  <input type="text" value={collectionFilters.query} placeholder={text.searchPlaceholder} onChange={(event) => setCollectionFilters((current) => ({ ...current, query: event.target.value, page: 1 }))} onKeyDown={blurVirtualKeyboardOnEnter} />
                   <select value={collectionFilters.rarity} onChange={(event) => setCollectionFilters((current) => ({ ...current, rarity: event.target.value, page: 1 }))}>
                     <option value="">{text.rarityPlaceholder}</option>
                     {RARITY_ORDER.map((rarity) => <option key={rarity} value={rarity}>{getRarityDisplay(rarity, locale)}</option>)}
@@ -3439,7 +3440,7 @@ export default function WikipediaGachaGame() {
                 <div className="wg-recovery-box">
                   <button type="button" className="wg-secondary-btn" onClick={() => void handleExportRecovery()}>{text.exportCode}</button>
                   {recoveryCode ? <code>{recoveryCode}</code> : null}
-                  <input type="text" value={recoveryImport} placeholder="WKVLT-XXXX-XXXX-XXXX" onChange={(event) => setRecoveryImport(event.target.value.toUpperCase())} />
+                  <input type="text" value={recoveryImport} placeholder="WKVLT-XXXX-XXXX-XXXX" onChange={(event) => setRecoveryImport(event.target.value.toUpperCase())} onKeyDown={blurVirtualKeyboardOnEnter} />
                   <button type="button" className="wg-primary-btn" onClick={() => void handleImportRecovery()}>{text.importCode}</button>
                 </div>
               </article>
@@ -3499,7 +3500,7 @@ export default function WikipediaGachaGame() {
                 <div className="wg-recovery-box">
                   <button type="button" className="wg-secondary-btn" onClick={() => void handleExportRecovery()}>{text.exportCode}</button>
                   {recoveryCode ? <code>{recoveryCode}</code> : null}
-                  <input type="text" value={recoveryImport} placeholder="WKVLT-XXXX-XXXX-XXXX" onChange={(event) => setRecoveryImport(event.target.value.toUpperCase())} />
+                  <input type="text" value={recoveryImport} placeholder="WKVLT-XXXX-XXXX-XXXX" onChange={(event) => setRecoveryImport(event.target.value.toUpperCase())} onKeyDown={blurVirtualKeyboardOnEnter} />
                   <button type="button" className="wg-primary-btn" onClick={() => void handleImportRecovery()}>{text.importCode}</button>
                 </div>
               </article>

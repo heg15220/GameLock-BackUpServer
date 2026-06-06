@@ -3,6 +3,7 @@ import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
+  blurVirtualKeyboardOnEnter,
   createSeededRandom,
   getRandomKnowledgeMatchId,
   getRandomKnowledgeMatchIdExcept,
@@ -614,6 +615,7 @@ function GuessCountryKnowledgeGame() {
                     if (event.key === "Enter") {
                       event.preventDefault();
                       submitGuess();
+                      blurVirtualKeyboardOnEnter(event);
                     }
                   }}
                 />

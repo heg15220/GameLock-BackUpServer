@@ -83,6 +83,21 @@ const rotatePointBySteps = ([x, y], steps) => {
   return [x * cos - y * sin, x * sin + y * cos];
 };
 
+const pointsNearlyEqual = (left, right, epsilon = 1e-4) =>
+  Math.abs(left[0] - right[0]) <= epsilon && Math.abs(left[1] - right[1]) <= epsilon;
+
+const normalizePointSet = (points) =>
+  points
+    .map(([x, y]) => [Number(x.toFixed(5)), Number(y.toFixed(5))])
+    .sort((left, right) => (left[0] === right[0] ? left[1] - right[1] : left[0] - right[0]));
+
+const pointSetsEqual = (leftPoints, rightPoints) => {
+  const left = normalizePointSet(leftPoints);
+  const right = normalizePointSet(rightPoints);
+  if (left.length !== right.length) return false;
+  return left.every((point, index) => pointsNearlyEqual(point, right[index]));
+};
+
 export const transformTangramPolygon = (polygon, pose, scale = 1) => {
   const positionX = Number(pose?.x) || 0;
   const positionY = Number(pose?.y) || 0;
@@ -240,8 +255,79 @@ const BASE_TEMPLATE_POSES = Object.freeze([
   }
 ]);
 
+const MIRROR_VARIANTS = Object.freeze([
+  { id: "base", labelEs: "", labelEn: "", mirrorX: false, mirrorY: false },
+  { id: "mirror-x", labelEs: " espejo horizontal", labelEn: " horizontal mirror", mirrorX: true, mirrorY: false },
+  { id: "mirror-y", labelEs: " espejo vertical", labelEn: " vertical mirror", mirrorX: false, mirrorY: true },
+  { id: "mirror-xy", labelEs: " espejo doble", labelEn: " double mirror", mirrorX: true, mirrorY: true }
+]);
+
+const mirrorPoint = ([x, y], variant) => [
+  variant.mirrorX ? -x : x,
+  variant.mirrorY ? -y : y
+];
+
+const resolveMirroredOrientation = (type, rotation, flip, variant) => {
+  const sourcePolygon = transformTangramPolygon(
+    TANGRAM_SHAPES_BY_TYPE[type] ?? TANGRAM_SHAPES_BY_TYPE.smallTriangle,
+    { x: 0, y: 0, rotation, flip },
+    1
+  );
+  const mirroredPolygon = sourcePolygon.map((point) => mirrorPoint(point, variant));
+  const flipOptions = type === "parallelogram" ? [false, true] : [false];
+
+  for (const candidateFlip of flipOptions) {
+    for (let candidateRotation = 0; candidateRotation < 8; candidateRotation += 1) {
+      const candidatePolygon = transformTangramPolygon(
+        TANGRAM_SHAPES_BY_TYPE[type] ?? TANGRAM_SHAPES_BY_TYPE.smallTriangle,
+        { x: 0, y: 0, rotation: candidateRotation, flip: candidateFlip },
+        1
+      );
+      if (pointSetsEqual(mirroredPolygon, candidatePolygon)) {
+        return {
+          rotation: candidateRotation,
+          flip: candidateFlip
+        };
+      }
+    }
+  }
+
+  return {
+    rotation: normalizeRotationSteps(rotation),
+    flip: Boolean(flip)
+  };
+};
+
+const createMirroredTemplate = (template, variant) => {
+  if (variant.id === "base") return template;
+
+  return {
+    id: `${template.id}-${variant.id}`,
+    label: {
+      es: `${template.label.es}${variant.labelEs}`,
+      en: `${template.label.en}${variant.labelEn}`
+    },
+    poses: template.poses.map((pose, index) => {
+      const type = SLOT_TYPES_BY_INDEX[index];
+      const orientation = resolveMirroredOrientation(type, pose.rotation, pose.flip, variant);
+      return {
+        x: variant.mirrorX ? -pose.x : pose.x,
+        y: variant.mirrorY ? -pose.y : pose.y,
+        rotation: orientation.rotation,
+        flip: orientation.flip
+      };
+    })
+  };
+};
+
+const EXPANDED_TEMPLATE_POSES = Object.freeze(
+  BASE_TEMPLATE_POSES.flatMap((template) =>
+    MIRROR_VARIANTS.map((variant) => createMirroredTemplate(template, variant))
+  )
+);
+
 const BASE_TEMPLATES = Object.freeze(
-  BASE_TEMPLATE_POSES.map((template) => ({
+  EXPANDED_TEMPLATE_POSES.map((template) => ({
     ...template,
     slots: template.poses.map((pose, index) => ({
       slotId: `${template.id}-${index + 1}`,
@@ -267,7 +353,7 @@ const rotateSlot = (slot, rotationSteps) => {
 export const buildTangramChallenge = (matchId, locale = "es") => {
   const safeMatchId = Math.max(0, Number(matchId) || 0);
   const templateIndex = safeMatchId % BASE_TEMPLATES.length;
-  const rotationVariant = Math.floor(safeMatchId / BASE_TEMPLATES.length) % 8;
+  const rotationVariant = (Math.floor(safeMatchId / BASE_TEMPLATES.length) % 4) * 2;
   const baseTemplate = BASE_TEMPLATES[templateIndex];
   const challengeLabel = baseTemplate.label?.[locale] ?? baseTemplate.label?.en ?? baseTemplate.id;
   const slots = baseTemplate.slots.map((slot) => rotateSlot(slot, rotationVariant));

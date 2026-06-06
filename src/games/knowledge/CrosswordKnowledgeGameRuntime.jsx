@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
+  blurVirtualKeyboardOnEnter,
   resolveKnowledgeArcadeLocale
 } from "./knowledgeArcadeUtils";
 import {
@@ -751,6 +752,7 @@ function CrosswordKnowledgeGameRuntimeLoaded({
       event.preventDefault();
       checkNow();
       event.currentTarget.value = "";
+      blurVirtualKeyboardOnEnter(event);
     }
   }, [checkNow, clearCell]);
 

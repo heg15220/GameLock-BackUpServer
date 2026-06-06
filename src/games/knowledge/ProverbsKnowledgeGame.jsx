@@ -8,6 +8,7 @@ import {
   isCorrectProverbGuess,
   resolveProverbLocale,
 } from "./proverbBank";
+import { blurVirtualKeyboardOnEnter } from "./knowledgeArcadeUtils";
 
 const ROUND_COUNT = 5;
 
@@ -427,6 +428,7 @@ function ProverbsKnowledgeGame() {
                         } else {
                           submitGuess();
                         }
+                        blurVirtualKeyboardOnEnter(event);
                       }
                     }}
                     placeholder={copy.inputPlaceholder}

@@ -164,12 +164,12 @@ export const gameCatalogDescriptions = {
     en: "Guess the country from its map silhouette.",
   },
   "knowledge-tangram-pro": {
-    es: "Tangram: coloca siete piezas para encajar la silueta.",
-    en: "Tangram: place seven pieces to match the silhouette.",
+    es: "Tangram: coloca siete piezas en un banco ampliado de siluetas.",
+    en: "Tangram: place seven pieces across an expanded silhouette bank.",
   },
   "knowledge-cronologia-maestra": {
-    es: "Cronolog\u00eda: ordena eventos hist\u00f3ricos en la l\u00ednea temporal.",
-    en: "Timeline: order historical events on the timeline.",
+    es: "Cronolog\u00eda: ordena eventos hist\u00f3ricos de m\u00e1s antiguo a m\u00e1s moderno.",
+    en: "Timeline: order historical events from oldest to newest.",
   },
   "strategy-sudoku-tecnicas": {
     es: "Sudoku 9x9: resuelve con l\u00f3gica filas, columnas y regiones.",

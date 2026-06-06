@@ -3,6 +3,7 @@ import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
+  blurVirtualKeyboardOnEnter,
   getRandomKnowledgeMatchId,
   getRandomKnowledgeMatchIdExcept,
   resolveKnowledgeArcadeLocale
@@ -738,6 +739,7 @@ function MapsKnowledgeGame() {
                     if (event.key === "Enter") {
                       event.preventDefault();
                       submitGuess();
+                      blurVirtualKeyboardOnEnter(event);
                     }
                   }}
                 />

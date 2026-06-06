@@ -3,6 +3,7 @@ import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
+  blurVirtualKeyboardOnEnter,
   createSeededRandom,
   getRandomKnowledgeMatchId,
   getRandomKnowledgeMatchIdExcept,
@@ -1139,6 +1140,7 @@ function MapsShortestPathKnowledgeGame() {
                     if (event.key === "Enter") {
                       event.preventDefault();
                       submitGuess();
+                      blurVirtualKeyboardOnEnter(event);
                     }
                   }}
                 />

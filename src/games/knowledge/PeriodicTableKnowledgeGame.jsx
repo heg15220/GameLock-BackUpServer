@@ -3,6 +3,7 @@ import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
+  blurVirtualKeyboardOnEnter,
   getRandomKnowledgeMatchId,
   getRandomKnowledgeMatchIdExcept,
   resolveKnowledgeArcadeLocale
@@ -513,6 +514,7 @@ function PeriodicTableKnowledgeGame() {
                   if (event.key === "Enter") {
                     event.preventDefault();
                     submitCell();
+                    blurVirtualKeyboardOnEnter(event);
                   }
                   if (event.key === "Escape") {
                     event.preventDefault();

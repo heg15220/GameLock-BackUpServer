@@ -28,7 +28,7 @@ describe("tangramEngine", () => {
   });
 
   it("el estado resuelto de un reto no contiene solapes", () => {
-    for (let matchId = 0; matchId < 30; matchId += 1) {
+    for (let matchId = 0; matchId < 160; matchId += 1) {
       const challenge = buildTangramChallenge(matchId, "en");
       const solvedPieces = buildSolvedTangramPieces(challenge);
       const overlaps = computeTangramOverlapPairs(solvedPieces);
@@ -36,6 +36,14 @@ describe("tangramEngine", () => {
       expect(solvedPieces.every((piece) => piece.locked)).toBe(true);
       expect(solvedPieces.every((piece) => piece.targetSlotId)).toBe(true);
     }
+  });
+
+  it("ofrece un banco amplio de tipos de silueta base", () => {
+    const baseIds = new Set();
+    for (let matchId = 0; matchId < 160; matchId += 1) {
+      baseIds.add(buildTangramChallenge(matchId, "es").baseId);
+    }
+    expect(baseIds.size).toBeGreaterThanOrEqual(20);
   });
 
   it("respeta simetrias de rotacion por tipo", () => {

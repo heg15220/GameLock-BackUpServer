@@ -3,6 +3,7 @@ import useGameRuntimeBridge from "../../utils/useGameRuntimeBridge";
 import useMobileGameViewport from "../../mobile/useMobileGameViewport";
 import {
   KNOWLEDGE_ARCADE_MATCH_COUNT,
+  blurVirtualKeyboardOnEnter,
   createSeededRandom,
   getRandomKnowledgeMatchId,
   getRandomKnowledgeMatchIdExcept,
@@ -432,6 +433,7 @@ function MentalMathKnowledgeGame() {
                   } else {
                     restart();
                   }
+                  blurVirtualKeyboardOnEnter(event);
                 }
               }}
               disabled={state.status !== "playing"}

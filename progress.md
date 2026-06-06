@@ -4811,3 +4811,15 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Added C / Change piece handling, visible desktop button, generic touch C button, and mobile/tablet profile button.
 - Added runtime summary fields for swaps and fit checks to support Playwright validation.
 - Verification: npm run build passed; Playwright confirmed C/button changes active piece and phase remains playing. Screenshot: output/mosaic-grid-runtime.png.
+
+## 2026-06-06 - Cronologia copy + teclado movil en conocimiento
+- Actualizadas descripciones de `knowledge-cronologia-maestra` en catalogo y metadata para indicar explicitamente que se ordena de mas antiguo a mas moderno.
+- Anadido `blurVirtualKeyboardOnEnter` en `knowledgeArcadeUtils` y aplicado a inputs/paneles de escritura de juegos de conocimiento con Enter: Adivina pais, Mapas Atlas, Camino mas corto, Calculo Mental, Tabla Periodica, Crucigrama, Refranes y campos de texto de Wikipedia Gacha.
+- Validacion: `npm run build` OK. No se pudo mantener un servidor preview/static en segundo plano desde PowerShell para Playwright; los procesos wrappers salian sin logs ni puerto abierto.
+
+## 2026-06-06 - Tangram banco ampliado de siluetas
+- `src/games/knowledge/tangramEngine.js`: ampliado el banco de Tangram de 5 plantillas base a 20 tipos base mediante variantes reflejadas geometricamente, manteniendo las 7 tans clasicas y snap por slot.
+- Las variantes automaticas de silueta quedan en rotaciones ortogonales validas (0/90/180/270) para evitar solapes detectados en rotaciones globales de 45 grados.
+- `src/games/knowledge/tangramEngine.test.js`: cobertura ampliada a 160 retos y test nuevo que exige >=20 tipos base.
+- Metadata/catalogo actualizados para indicar banco ampliado: 20 tipos base y 80 variantes validas.
+- Validacion: `npm run test -- src/games/knowledge/tangramEngine.test.js` OK; `npm run build` OK; Playwright sobre build en `output/knowledge-tangram-expanded-bank-visible/` confirma una variante reflejada sin solapes y render correcto. Queda un `ERR_NETWORK_ACCESS_DENIED` de recurso externo no bloqueante en captura local.
