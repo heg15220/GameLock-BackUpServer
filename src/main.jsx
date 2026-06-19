@@ -3,7 +3,10 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { ConsentProvider } from "./components/ConsentContext";
+import { registerServiceWorker } from "./pwa/registerServiceWorker";
 import "./styles.css";
+
+registerServiceWorker();
 
 const bootstrap = () => {
   ReactDOM.createRoot(document.getElementById("root")).render(

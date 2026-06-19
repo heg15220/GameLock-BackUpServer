@@ -380,6 +380,113 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+.pwa-install-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  color: #ffffff;
+  background: linear-gradient(120deg, var(--brand-blue), var(--brand-purple));
+  box-shadow: 0 10px 24px rgba(37, 99, 255, 0.24);
+  font: 700 0.9rem/1 "Outfit", sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.pwa-install-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 13px 28px rgba(37, 99, 255, 0.3);
+}
+
+.pwa-install-button:focus-visible,
+.pwa-install-dialog button:focus-visible {
+  outline: 3px solid rgba(0, 229, 195, 0.65);
+  outline-offset: 3px;
+}
+
+.pwa-install-button__icon {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 1rem;
+}
+
+.pwa-install-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(11, 18, 35, 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.pwa-install-dialog {
+  width: min(420px, 100%);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 1.4rem;
+  text-align: center;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(11, 18, 35, 0.25);
+}
+
+.pwa-install-dialog img {
+  display: block;
+  margin: 0 auto 0.8rem;
+  border-radius: 18px;
+}
+
+.pwa-install-dialog h2 {
+  margin: 0;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1.35rem;
+}
+
+.pwa-install-dialog p {
+  margin: 0.8rem 0 1.1rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.pwa-install-dialog button {
+  width: 100%;
+  margin-top: 0.55rem;
+  border: 0;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  color: #ffffff;
+  background: var(--brand-blue);
+  font: 700 0.95rem/1 "Outfit", sans-serif;
+  cursor: pointer;
+}
+
+.pwa-install-dialog .pwa-install-dialog__primary {
+  margin-top: 0;
+  background: linear-gradient(120deg, var(--brand-blue), var(--brand-purple));
+}
+
+.pwa-install-dialog__note {
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: #fff4d6;
+  color: #785700 !important;
+  font-size: 0.85rem;
+}
+
+@media (display-mode: standalone) {
+  .pwa-install-button {
+    display: none;
+  }
+}
+
 .stats {
   margin-top: 1rem;
   display: grid;

@@ -5,6 +5,7 @@ import CookieConsentManager from "./components/CookieConsentManager";
 import { useConsent } from "./components/ConsentContext";
 import GameGrid from "./components/GameGrid";
 import GameLaunchModal from "./components/GameLaunchModal";
+import InstallGameLock from "./components/InstallGameLock";
 import RouteAnalyticsTracker from "./components/RouteAnalyticsTracker";
 import SeoGameIndex from "./components/SeoGameIndex";
 import SeoManager from "./components/SeoManager";
@@ -63,6 +64,16 @@ function App() {
     navigate(`${localizedPath}${location.search}${location.hash}`, { replace: true });
   }, [locale, location.hash, location.pathname, location.search, navigate, route.hasLocalePrefix]);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || route.section !== "") return;
+
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.key, route.section]);
+
   // Legacy hash links (e.g. /#game=arcade-pinball-wizard) get migrated once on
   // mount so existing bookmarks keep working under BrowserRouter.
   useEffect(() => {
@@ -119,11 +130,32 @@ function App() {
 
   const launchGame = (gameId) => {
     if (!games.some((g) => g.id === gameId)) return;
-    navigate(buildLocalizedGamePath(locale, gameId));
+    navigate(buildLocalizedGamePath(locale, gameId), {
+      state: {
+        catalogCategory: routeCategoryKey ?? activeCategory,
+        catalogPage: currentPage,
+      },
+    });
   };
 
   const closeModal = () => {
-    navigate(buildLocalizedPath(locale, "/"), { replace: true });
+    const previousCategory = location.state?.catalogCategory;
+    const previousPage = Number(location.state?.catalogPage);
+    const categoryExists =
+      previousCategory &&
+      previousCategory !== ALL_KEY &&
+      categoryKeys.includes(previousCategory);
+
+    if (Number.isInteger(previousPage) && previousPage > 0) {
+      setCurrentPage(previousPage);
+    }
+    setActiveCategory(categoryExists ? previousCategory : ALL_KEY);
+    navigate(
+      categoryExists
+        ? buildLocalizedCategoryPath(locale, previousCategory)
+        : buildLocalizedPath(locale, "/"),
+      { replace: true }
+    );
   };
 
   const scrollCatalogToTop = () => {
@@ -237,6 +269,7 @@ function App() {
               </h1>
             ) : null}
             <p className="hero-tagline">{t("heroTagline")}</p>
+            <InstallGameLock locale={locale} />
           </header>
 
           <section className="catalog-toolbar" ref={catalogTopRef}>

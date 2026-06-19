@@ -27,9 +27,12 @@ RUN apk add --no-cache openssl
 COPY deploy/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY deploy/nginx/templates/default.conf.template /etc/nginx/templates/default.conf.template
 COPY deploy/nginx/docker-entrypoint.d/40-create-self-signed-cert.sh /docker-entrypoint.d/40-create-self-signed-cert.sh
+COPY deploy/nginx/docker-entrypoint.d/50-watch-certificates.sh /docker-entrypoint.d/50-watch-certificates.sh
 COPY --from=build /app/dist /usr/share/nginx/html
 
-RUN chmod +x /docker-entrypoint.d/40-create-self-signed-cert.sh \
+RUN chmod +x \
+      /docker-entrypoint.d/40-create-self-signed-cert.sh \
+      /docker-entrypoint.d/50-watch-certificates.sh \
  && mkdir -p /var/www/certbot
 
 VOLUME ["/etc/letsencrypt", "/var/www/certbot"]

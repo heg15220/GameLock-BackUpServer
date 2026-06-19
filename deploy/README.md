@@ -24,7 +24,18 @@ Edita `deploy/.env` y cambia `DOMAIN`, `SITE_URL`, `LETSENCRYPT_EMAIL`, `POSTGRE
 docker compose --env-file deploy/.env -f deploy/docker-compose.yml up -d --build
 ```
 
-El contenedor `web` crea un certificado autofirmado temporal si todavia no hay certificados de Let's Encrypt, para que Nginx pueda arrancar desde el primer `up`.
+El contenedor `web` crea un certificado autofirmado temporal en una ruta separada si todavia no hay certificados de Let's Encrypt, para que Nginx pueda arrancar desde el primer `up`. La ruta `/etc/letsencrypt` queda reservada exclusivamente para Certbot.
+
+## Renovacion y continuidad HTTPS
+
+- Certbot comprueba la renovacion dos veces al dia, antes de que el certificado se acerque a su caducidad.
+- Si una comprobacion falla por un problema temporal de red, DNS o proveedor, vuelve a intentarlo cada 15 minutos hasta que funcione.
+- El contenedor `web` vigila el volumen de certificados. Cuando Certbot instala uno nuevo, valida la configuracion con `nginx -t` y hace una recarga gradual de Nginx sin cortar las conexiones activas.
+- El certificado anterior sigue sirviendose mientras la renovacion o la validacion del nuevo certificado falla.
+
+Let's Encrypt es gratuito y sus certificados se solicitan con margen antes de caducar. Un retraso de unos minutos u horas en una renovacion no deberia interrumpir HTTPS con esta configuracion.
+
+Esta proteccion no puede mantener la web disponible si el proveedor suspende o apaga por completo el VPS, el dominio o la red por un pago rechazado. Para ese caso se debe activar renovacion automatica, un metodo de pago alternativo y alertas de facturacion en el proveedor.
 
 ## Emitir el certificado real
 
@@ -37,6 +48,7 @@ LETSENCRYPT_EMAIL="$(sed -n 's/^LETSENCRYPT_EMAIL=//p' deploy/.env)"
 docker compose --env-file deploy/.env -f deploy/docker-compose.yml run --rm certbot certonly \
   --webroot \
   -w /var/www/certbot \
+  --cert-name "$DOMAIN" \
   -d "$DOMAIN" \
   --email "$LETSENCRYPT_EMAIL" \
   --agree-tos \

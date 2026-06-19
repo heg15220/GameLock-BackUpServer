@@ -162,6 +162,7 @@ services:
     environment:
       TZ: ${TZ}
       DOMAIN: ${DOMAIN}
+      CERTIFICATE_RELOAD_INTERVAL_SECONDS: ${CERTIFICATE_RELOAD_INTERVAL_SECONDS:-300}
     depends_on:
       wikipedia-gacha-backend:
         condition: service_healthy
@@ -189,7 +190,23 @@ services:
     image: certbot/certbot:latest
     container_name: plataforma-juegos-certbot
     entrypoint: /bin/sh
-    command: -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h; done"
+    command:
+      - -c
+      - |
+        trap 'exit 0' TERM INT
+        while :; do
+          if certbot renew \
+            --webroot \
+            -w /var/www/certbot \
+            --non-interactive \
+            --no-random-sleep-on-renew; then
+            echo "Certificate renewal check completed successfully."
+            sleep 12h
+          else
+            echo "Certificate renewal failed; retrying in 15 minutes." >&2
+            sleep 15m
+          fi
+        done
     volumes:
       - certbot_conf:/etc/letsencrypt
       - certbot_www:/var/www/certbot
