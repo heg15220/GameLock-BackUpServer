@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { COOKIE_CATEGORIES, DEFAULT_COOKIE_PREFERENCES, normalizeCookiePreferences } from "../utils/cookieConsent";
+import {
+  ACCEPT_ALL_COOKIE_PREFERENCES,
+  COOKIE_CATEGORIES,
+  normalizeCookiePreferences,
+} from "../utils/cookieConsent";
 import { useConsent } from "./ConsentContext";
 
 const CATEGORY_COPY = {
@@ -76,10 +80,10 @@ const UI_COPY = {
     label: "Privacidad y cookies",
     title: "Aviso de privacidad",
     intro:
-      "Usamos el navegador del usuario para recordar preferencias y partidas locales. Tambien dejamos preparada la gestion de consentimiento para futura analitica, publicidad y afiliacion.",
+      "GameLock usa cookies tecnicas y almacenamiento local para prestar los juegos, recordar tu consentimiento, conservar preferencias y guardar partidas o records en este navegador.",
     details:
-      "Puedes aceptar todas las cookies ahora o configurar cada categoria. Las cookies no necesarias no se activaran hasta que exista consentimiento.",
-    acceptAll: "Aceptar",
+      "Puedes aceptar todas las cookies ahora o configurar cada categoria. Las cookies no necesarias, como analitica, publicidad o afiliacion, no se activaran hasta que exista consentimiento.",
+    acceptAll: "Aceptar y continuar",
     configure: "Configurar ajustes",
     settingsTitle: "Preferencias de cookies",
     settingsIntro:
@@ -87,25 +91,25 @@ const UI_COPY = {
     acceptSettings: "Aceptar ajustes",
     rejectAll: "Rechazar",
     purposesSummary: "Ver finalidades y caracteristicas",
-    purposesTitle: "Finalidades",
+    purposesTitle: "Finalidades de uso",
     purposesList: [
-      "Almacenar y/o acceder a informacion en el dispositivo para funciones tecnicas.",
-      "Recordar preferencias elegidas por el usuario.",
-      "Analitica de uso anonima o agregada para mejorar el servicio.",
-      "Publicidad y medicion de anuncios, personalizada solo si se activa y existe base valida.",
-      "Medicion de enlaces de afiliacion si se incorporan programas externos.",
+      "Almacenar y/o acceder a informacion en el dispositivo para prestar funciones tecnicas, recordar el consentimiento y conservar partidas o ajustes locales.",
+      "Recordar preferencias elegidas por el usuario, como idioma o ajustes de visualizacion, si se habilitan.",
+      "Medir uso, rendimiento y errores de forma anonima o agregada para mejorar la plataforma, si se acepta analitica.",
+      "Mostrar y medir publicidad contextual o personalizada solo si se activa una solucion valida y existe consentimiento suficiente.",
+      "Medir enlaces de afiliacion solo si se incorporan programas externos y el usuario acepta esa categoria.",
     ],
-    specialTitle: "Propositos obligatorios",
+    specialTitle: "Funciones tecnicas necesarias",
     specialList: [
-      "Garantizar seguridad, evitar abusos y corregir fallos.",
-      "Ofrecer el contenido y los juegos solicitados.",
-      "Guardar y comunicar las preferencias de privacidad.",
+      "Permitir la navegacion, la seguridad del sitio y la comunicacion de datos necesaria para prestar el servicio solicitado.",
+      "Ofrecer el contenido y los juegos solicitados por el usuario.",
+      "Guardar, aplicar y comunicar las preferencias de privacidad del usuario.",
     ],
-    featuresTitle: "Caracteristicas",
+    featuresTitle: "Caracteristicas del tratamiento",
     featuresList: [
       "Guardar elecciones para futuras visitas desde el mismo navegador.",
-      "No crear cuentas ni perfiles propios de usuario en la plataforma.",
-      "Cargar scripts externos solo cuando la categoria correspondiente este permitida.",
+      "No crear cuentas de usuario ni perfiles propios de usuario en la plataforma.",
+      "Cargar scripts externos solo cuando la categoria correspondiente este aceptada y exista el proveedor configurado.",
     ],
     storageSummary: "Ver cookies y almacenamientos",
     tableHead: ["Nombre", "Dominio", "Finalidad", "Duracion", "Tipo", "Categoria"],
@@ -114,30 +118,34 @@ const UI_COPY = {
     rows: {
       consentPurpose: "Guardar preferencias de consentimiento.",
       consentDuration: "180 dias",
-      consentType: "Cookie propia",
+      consentType: "Tecnica propia",
       localConsentPurpose: "Copia local de preferencias de consentimiento.",
-      localConsentType: "LocalStorage propio",
+      localConsentType: "Almacenamiento local propio",
       localGamePurpose: "Partidas, records o ajustes locales de juegos.",
       localGameDuration: "Persistente hasta borrado del navegador",
+      localGameType: "Funcional propio",
+      languagePurpose: "Recordar idioma, experiencia o ajustes de visualizacion si se habilitan.",
+      languageDuration: "Persistente hasta borrado del navegador",
+      languageType: "Preferencias propias",
       gaPurpose: "Distinguir usuarios y sesiones si se activa Google Analytics.",
       gaDuration: "Hasta 2 anos",
-      gaType: "Cookie propia de GA4",
+      gaType: "Analitica de terceros",
       adsPurpose: "Publicidad y medicion de anuncios si se activa AdSense/GTM.",
       adsDuration: "Segun proveedor",
-      adsType: "Cookie o almacenamiento publicitario",
+      adsType: "Publicidad de terceros",
       affiliatePurpose: "Medicion de enlaces de afiliacion si se activa Amazon Afiliados.",
       affiliateDuration: "Segun proveedor",
-      affiliateType: "Cookie o parametro de afiliacion",
+      affiliateType: "Afiliacion de terceros",
     },
   },
   en: {
     label: "Privacy and cookies",
     title: "Privacy notice",
     intro:
-      "We use the user's browser to remember preferences and local game saves. Consent management is also prepared for future analytics, advertising and affiliate integrations.",
+      "GameLock uses technical cookies and local storage to provide games, remember your consent, keep preferences and save games or scores in this browser.",
     details:
-      "You can accept all cookies now or configure each category. Non-essential cookies will not be enabled until consent exists.",
-    acceptAll: "Accept",
+      "You can accept all cookies now or configure each category. Non-essential cookies, such as analytics, advertising or affiliate measurement, will not be enabled until consent exists.",
+    acceptAll: "Accept and continue",
     configure: "Configure settings",
     settingsTitle: "Cookie preferences",
     settingsIntro:
@@ -145,25 +153,25 @@ const UI_COPY = {
     acceptSettings: "Accept settings",
     rejectAll: "Reject",
     purposesSummary: "View purposes and features",
-    purposesTitle: "Purposes",
+    purposesTitle: "Use purposes",
     purposesList: [
-      "Store and/or access information on the device for technical functions.",
-      "Remember preferences chosen by the user.",
-      "Anonymous or aggregate usage analytics to improve the service.",
-      "Advertising and ad measurement, personalized only if enabled and valid.",
-      "Affiliate link measurement if external programs are added.",
+      "Store and/or access information on the device to provide technical functions, remember consent and keep local game saves or settings.",
+      "Remember preferences chosen by the user, such as language or display settings, if enabled.",
+      "Measure usage, performance and errors anonymously or in aggregate form to improve the platform, if analytics is accepted.",
+      "Show and measure contextual or personalized advertising only if a valid solution is enabled and sufficient consent exists.",
+      "Measure affiliate links only if external programs are added and the user accepts that category.",
     ],
-    specialTitle: "Required purposes",
+    specialTitle: "Required technical functions",
     specialList: [
-      "Ensure security, prevent abuse and fix errors.",
-      "Deliver the requested content and games.",
-      "Store and communicate privacy preferences.",
+      "Enable browsing, site security and data communication required to provide the requested service.",
+      "Deliver the content and games requested by the user.",
+      "Store, apply and communicate the user's privacy preferences.",
     ],
-    featuresTitle: "Features",
+    featuresTitle: "Processing characteristics",
     featuresList: [
       "Save choices for future visits from the same browser.",
       "Do not create user accounts or first-party user profiles on the platform.",
-      "Load external scripts only when the related category is allowed.",
+      "Load external scripts only when the related category has been accepted and the provider is configured.",
     ],
     storageSummary: "View cookies and storage",
     tableHead: ["Name", "Domain", "Purpose", "Duration", "Type", "Category"],
@@ -172,20 +180,24 @@ const UI_COPY = {
     rows: {
       consentPurpose: "Store consent preferences.",
       consentDuration: "180 days",
-      consentType: "First-party cookie",
+      consentType: "First-party technical",
       localConsentPurpose: "Local copy of consent preferences.",
-      localConsentType: "First-party localStorage",
+      localConsentType: "First-party local storage",
       localGamePurpose: "Game saves, best scores or local game settings.",
       localGameDuration: "Persistent until browser deletion",
+      localGameType: "First-party functional",
+      languagePurpose: "Remember language, experience or display settings if enabled.",
+      languageDuration: "Persistent until browser deletion",
+      languageType: "First-party preferences",
       gaPurpose: "Distinguish users and sessions if Google Analytics is enabled.",
       gaDuration: "Up to 2 years",
-      gaType: "GA4 first-party cookie",
+      gaType: "Third-party analytics",
       adsPurpose: "Advertising and ad measurement if AdSense/GTM is enabled.",
       adsDuration: "Set by provider",
-      adsType: "Advertising cookie or storage",
+      adsType: "Third-party advertising",
       affiliatePurpose: "Affiliate link measurement if Amazon Associates is enabled.",
       affiliateDuration: "Set by provider",
-      affiliateType: "Affiliate cookie or parameter",
+      affiliateType: "Third-party affiliate",
     },
   },
 };
@@ -219,7 +231,8 @@ function StorageTable({ copy }) {
   const rows = [
     ["playforge_cookie_consent", copy.currentDomain, copy.rows.consentPurpose, copy.rows.consentDuration, copy.rows.consentType, "necessary"],
     ["playforge.cookieConsent.v1", copy.currentDomain, copy.rows.localConsentPurpose, copy.rows.consentDuration, copy.rows.localConsentType, "necessary"],
-    ["localStorage de juegos", copy.currentDomain, copy.rows.localGamePurpose, copy.rows.localGameDuration, copy.rows.localConsentType, "necessary / preferences"],
+    ["localStorage de juegos", copy.currentDomain, copy.rows.localGamePurpose, copy.rows.localGameDuration, copy.rows.localGameType, "necessary / preferences"],
+    ["preferencias locales", copy.currentDomain, copy.rows.languagePurpose, copy.rows.languageDuration, copy.rows.languageType, "preferences"],
     ["_ga, _ga_<id>", "Google Analytics", copy.rows.gaPurpose, copy.rows.gaDuration, copy.rows.gaType, "analytics"],
     ["AdSense / GTM", "Google", copy.rows.adsPurpose, copy.rows.adsDuration, copy.rows.adsType, "advertising"],
     ["Amazon Afiliados", copy.futureProvider, copy.rows.affiliatePurpose, copy.rows.affiliateDuration, copy.rows.affiliateType, "affiliate"],
@@ -261,18 +274,12 @@ function CookieConsentManager({ locale = "es" }) {
     rejectAll,
     save,
   } = useConsent();
-  const [localPreferences, setLocalPreferences] = useState(DEFAULT_COOKIE_PREFERENCES);
+  const [localPreferences, setLocalPreferences] = useState(ACCEPT_ALL_COOKIE_PREFERENCES);
+  const isNewConsentFlow = !consent;
 
   const openConfigPanel = () => {
-    // First-time configure: pre-enable commercial categories so the user can
-    // accept settings as-is and have advertising/affiliate ON by default.
-    // Untouched categories stay at this seed; toggling overrides it.
-    if (!consent) {
-      setLocalPreferences(normalizeCookiePreferences({
-        ...DEFAULT_COOKIE_PREFERENCES,
-        advertising: true,
-        affiliate: true,
-      }));
+    if (isNewConsentFlow) {
+      setLocalPreferences(ACCEPT_ALL_COOKIE_PREFERENCES);
     }
     setConfigOpen(true);
   };
@@ -285,8 +292,8 @@ function CookieConsentManager({ locale = "es" }) {
 
   useEffect(() => {
     if (!bannerOpen) return;
-    setLocalPreferences(preferences);
-  }, [bannerOpen, preferences]);
+    setLocalPreferences(isNewConsentFlow ? ACCEPT_ALL_COOKIE_PREFERENCES : preferences);
+  }, [bannerOpen, isNewConsentFlow, preferences]);
 
   useEffect(() => {
     if (!bannerOpen || !configOpen) return;

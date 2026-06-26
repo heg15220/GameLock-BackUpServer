@@ -138,7 +138,15 @@ export function ConsentProvider({ children }) {
 
   const openSettings = () => {
     const currentConsent = readCookieConsent();
-    setPreferences(currentConsent?.preferences ?? preferences);
+    if (!currentConsent) {
+      setConsent(null);
+      setPreferences(DEFAULT_COOKIE_PREFERENCES);
+      setBannerOpen(true);
+      setConfigOpen(false);
+      return;
+    }
+
+    setPreferences(currentConsent.preferences);
     setBannerOpen(true);
     setConfigOpen(true);
   };

@@ -5,6 +5,7 @@ export const COOKIE_SETTINGS_EVENT = "playforge:open-cookie-settings";
 export const COOKIE_CONSENT_VERSION = 1;
 
 const CONSENT_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
+const CONSENT_MAX_AGE_MS = CONSENT_COOKIE_MAX_AGE_SECONDS * 1000;
 const GA_COOKIE_PREFIXES = ["_ga", "_gid", "_gat", "_gac_", "_gcl_"];
 
 export const COOKIE_CATEGORIES = [
@@ -82,11 +83,16 @@ function normalizeStoredConsent(rawConsent) {
   if (!rawConsent || typeof rawConsent !== "object") return null;
   const version = Number(rawConsent.version ?? rawConsent.v);
   if (version !== COOKIE_CONSENT_VERSION) return null;
+  const updatedAt = String(rawConsent.updatedAt ?? rawConsent.t ?? "");
+  const updatedAtMs = Date.parse(updatedAt);
+  if (!Number.isFinite(updatedAtMs) || Date.now() - updatedAtMs > CONSENT_MAX_AGE_MS) {
+    return null;
+  }
 
   return {
     version: COOKIE_CONSENT_VERSION,
     decided: true,
-    updatedAt: String(rawConsent.updatedAt ?? rawConsent.t ?? new Date().toISOString()),
+    updatedAt,
     preferences: normalizeCookiePreferences(rawConsent.preferences ?? rawConsent.p),
   };
 }
@@ -98,6 +104,7 @@ export function readCookieConsent() {
     const stored = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
     const parsed = stored ? normalizeStoredConsent(JSON.parse(stored)) : null;
     if (parsed) return parsed;
+    if (stored) window.localStorage.removeItem(COOKIE_CONSENT_STORAGE_KEY);
   } catch {
     // Ignore blocked storage and fall back to the consent cookie.
   }

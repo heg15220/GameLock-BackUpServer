@@ -6,6 +6,7 @@ import { useConsent } from "./components/ConsentContext";
 import GameGrid from "./components/GameGrid";
 import GameLaunchModal from "./components/GameLaunchModal";
 import InstallGameLock from "./components/InstallGameLock";
+import LegalPoliciesModal from "./components/LegalPoliciesModal";
 import RouteAnalyticsTracker from "./components/RouteAnalyticsTracker";
 import SeoGameIndex from "./components/SeoGameIndex";
 import SeoManager from "./components/SeoManager";
@@ -55,6 +56,7 @@ function App() {
 
   const [activeCategory, setActiveCategory] = useState(ALL_KEY);
   const [currentPage, setCurrentPage] = useState(1);
+  const [legalPoliciesOpen, setLegalPoliciesOpen] = useState(false);
   const catalogTopRef = useRef(null);
   const adPreviewEnabled = isAdPreviewEnabledByCode() && Boolean(advertising);
 
@@ -356,7 +358,7 @@ function App() {
               <button type="button" className="site-footer-link" onClick={openCookieSettings}>
                 {locale === "en" ? "Cookie settings" : "Configuración de cookies"}
               </button>
-              <button type="button" className="site-footer-link" onClick={() => {}}>
+              <button type="button" className="site-footer-link" onClick={() => setLegalPoliciesOpen(true)}>
                 {locale === "en" ? "Legal policies" : "Políticas legales"}
               </button>
             </div>
@@ -365,7 +367,7 @@ function App() {
                 {locale === "en" ? "Contact email:" : "Correo de contacto:"}
               </span>{" "}
               <span className="site-footer-contact-email">
-                {locale === "en" ? "email address" : "dirección correo electrónico"}
+                gamelock@gmail.com
               </span>
             </p>
             <p className="site-footer-copyright">
@@ -396,6 +398,12 @@ function App() {
         />
       )}
       <CookieConsentManager locale={locale} />
+      {legalPoliciesOpen && (
+        <LegalPoliciesModal
+          isOpen={legalPoliciesOpen}
+          onClose={() => setLegalPoliciesOpen(false)}
+        />
+      )}
       <SeoManager games={games} activeGame={launchedGame} activeCategory={routeCategoryKey} locale={locale} />
       <RouteAnalyticsTracker />
     </>
