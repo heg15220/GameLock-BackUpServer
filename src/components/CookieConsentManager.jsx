@@ -85,6 +85,10 @@ const UI_COPY = {
       "Puedes aceptar todas las cookies ahora o configurar cada categoria. Las cookies no necesarias, como analitica, publicidad o afiliacion, no se activaran hasta que exista consentimiento.",
     acceptAll: "Aceptar y continuar",
     configure: "Configurar ajustes",
+    policiesNote: "Más información en nuestra",
+    privacyPolicy: "Política de privacidad",
+    cookiePolicy: "Política de cookies",
+    policiesConnector: "y",
     settingsTitle: "Preferencias de cookies",
     settingsIntro:
       "Activa o desactiva cada tipo de cookie. Las necesarias no se pueden desactivar porque guardan el consentimiento y funciones basicas.",
@@ -147,6 +151,10 @@ const UI_COPY = {
       "You can accept all cookies now or configure each category. Non-essential cookies, such as analytics, advertising or affiliate measurement, will not be enabled until consent exists.",
     acceptAll: "Accept and continue",
     configure: "Configure settings",
+    policiesNote: "More information in our",
+    privacyPolicy: "Privacy policy",
+    cookiePolicy: "Cookie policy",
+    policiesConnector: "and",
     settingsTitle: "Cookie preferences",
     settingsIntro:
       "Turn each cookie type on or off. Necessary cookies cannot be disabled because they store consent and core functions.",
@@ -262,7 +270,7 @@ function StorageTable({ copy }) {
   );
 }
 
-function CookieConsentManager({ locale = "es" }) {
+function CookieConsentManager({ locale = "es", onOpenLegal }) {
   const copy = getCopy(locale);
   const {
     bannerOpen,
@@ -329,6 +337,27 @@ function CookieConsentManager({ locale = "es" }) {
         <h2 id="cookie-consent-title">{configOpen ? copy.settingsTitle : copy.title}</h2>
         <p>{configOpen ? copy.settingsIntro : copy.intro}</p>
         {!configOpen && <p>{copy.details}</p>}
+        {!configOpen && onOpenLegal && (
+          <p className="cookie-consent-policy-links">
+            {copy.policiesNote}{" "}
+            <button
+              type="button"
+              className="cookie-consent-policy-link"
+              onClick={() => onOpenLegal("privacy")}
+            >
+              {copy.privacyPolicy}
+            </button>{" "}
+            {copy.policiesConnector}{" "}
+            <button
+              type="button"
+              className="cookie-consent-policy-link"
+              onClick={() => onOpenLegal("cookies")}
+            >
+              {copy.cookiePolicy}
+            </button>
+            .
+          </p>
+        )}
 
         <details className="cookie-consent-details">
           <summary>{copy.purposesSummary}</summary>

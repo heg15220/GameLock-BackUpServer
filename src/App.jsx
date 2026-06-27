@@ -57,6 +57,12 @@ function App() {
   const [activeCategory, setActiveCategory] = useState(ALL_KEY);
   const [currentPage, setCurrentPage] = useState(1);
   const [legalPoliciesOpen, setLegalPoliciesOpen] = useState(false);
+  const [legalPoliciesSection, setLegalPoliciesSection] = useState(null);
+
+  const openLegalPolicies = (section = null) => {
+    setLegalPoliciesSection(section);
+    setLegalPoliciesOpen(true);
+  };
   const catalogTopRef = useRef(null);
   const adPreviewEnabled = isAdPreviewEnabledByCode() && Boolean(advertising);
 
@@ -358,7 +364,7 @@ function App() {
               <button type="button" className="site-footer-link" onClick={openCookieSettings}>
                 {locale === "en" ? "Cookie settings" : "Configuración de cookies"}
               </button>
-              <button type="button" className="site-footer-link" onClick={() => setLegalPoliciesOpen(true)}>
+              <button type="button" className="site-footer-link" onClick={() => openLegalPolicies()}>
                 {locale === "en" ? "Legal policies" : "Políticas legales"}
               </button>
             </div>
@@ -397,11 +403,12 @@ function App() {
           locale={locale}
         />
       )}
-      <CookieConsentManager locale={locale} />
+      <CookieConsentManager locale={locale} onOpenLegal={openLegalPolicies} />
       {legalPoliciesOpen && (
         <LegalPoliciesModal
           isOpen={legalPoliciesOpen}
           onClose={() => setLegalPoliciesOpen(false)}
+          focusSection={legalPoliciesSection}
         />
       )}
       <SeoManager games={games} activeGame={launchedGame} activeCategory={routeCategoryKey} locale={locale} />

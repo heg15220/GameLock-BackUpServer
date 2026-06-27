@@ -1,5 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import resolveBrowserLanguage from "../utils/resolveBrowserLanguage";
+
+const FOCUS_SECTION_IDS = {
+  es: { privacy: "es-privacidad", cookies: "es-cookies" },
+  en: { privacy: "en-privacy", cookies: "en-cookies" },
+};
 
 const COOKIE_ROWS_ES = [
   ["playforge_cookie_consent", "Dominio actual", "Guardar las preferencias de consentimiento del usuario.", "180 dias", "Cookie tecnica propia"],
@@ -30,11 +35,11 @@ const ES_SECTIONS = [
       {
         type: "list",
         items: [
-          "Responsable: Hugo Espasandín García (en adelante, “GameLock”)",
-          "NIF: 49403428A",
-          "Domicilio: Calle Lodeiro, nº 13 B Bertamiráns, A Coruña",
-          "Correo electrónico de contacto: gamelock@gmail.com",
-          "Página web: www.gamelock.es",
+          "Responsable: Hugo E.G. (en adelante, “GameLock”)",
+          "Correo electrónico: gamelock@gmail.com",
+          "Identificación de la web: www.gamelock.es",
+          "Apartado de correos: 636",
+          "Código Postal: 15704",
         ],
       },
     ],
@@ -194,11 +199,11 @@ const EN_SECTIONS = [
       {
         type: "list",
         items: [
-          "Controller: Hugo Espasandin Garcia (hereinafter, \"GameLock\")",
-          "Tax ID number: 49403428A",
-          "Address: Calle Lodeiro, no. 13 B Bertamirans, A Coruna",
+          "Controller: Hugo E.G. (hereinafter, \"GameLock\")",
           "Contact email: gamelock@gmail.com",
-          "Website: www.gamelock.es",
+          "Website identifier: www.gamelock.es",
+          "PO Box: 636",
+          "Postal code: 15704",
         ],
       },
     ],
@@ -418,7 +423,7 @@ function LegalBlock({ block }) {
   return <p>{block.text}</p>;
 }
 
-function LegalPoliciesModal({ isOpen, onClose }) {
+function LegalPoliciesModal({ isOpen, onClose, focusSection = null }) {
   const legalLocale = useMemo(() => resolveBrowserLanguage(), []);
   const copy = UI_COPY[legalLocale] || UI_COPY.es;
   const activeLegalDocuments = useMemo(
@@ -426,11 +431,24 @@ function LegalPoliciesModal({ isOpen, onClose }) {
     [legalLocale]
   );
   const defaultOpenSectionId = activeLegalDocuments[0]?.sections[0]?.id ?? "";
-  const [openSectionIds, setOpenSectionIds] = useState(() => new Set(defaultOpenSectionId ? [defaultOpenSectionId] : []));
+  const focusSectionId = focusSection
+    ? (FOCUS_SECTION_IDS[legalLocale] || FOCUS_SECTION_IDS.es)[focusSection] ?? ""
+    : "";
+  const initialOpenSectionId = focusSectionId || defaultOpenSectionId;
+  const [openSectionIds, setOpenSectionIds] = useState(() => new Set(initialOpenSectionId ? [initialOpenSectionId] : []));
+  const focusSectionRef = useRef(null);
 
   useEffect(() => {
-    setOpenSectionIds(new Set(defaultOpenSectionId ? [defaultOpenSectionId] : []));
-  }, [defaultOpenSectionId, isOpen]);
+    setOpenSectionIds(new Set(initialOpenSectionId ? [initialOpenSectionId] : []));
+  }, [initialOpenSectionId, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !focusSectionId) return undefined;
+    const frame = requestAnimationFrame(() => {
+      focusSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [isOpen, focusSectionId]);
 
   const toggleSection = (sectionId) => {
     setOpenSectionIds((current) => {
@@ -477,7 +495,7 @@ function LegalPoliciesModal({ isOpen, onClose }) {
             <h2>{copy.title}</h2>
           </div>
           <button className="legal-policies-close" type="button" onClick={onClose} aria-label={copy.close}>
-            x
+            ×
           </button>
         </header>
 
@@ -503,6 +521,7 @@ function LegalPoliciesModal({ isOpen, onClose }) {
                         sectionOpen ? "is-open" : "",
                       ].join(" ")}
                       key={section.id}
+                      ref={section.id === focusSectionId ? focusSectionRef : undefined}
                     >
                       <button
                         type="button"
@@ -513,7 +532,7 @@ function LegalPoliciesModal({ isOpen, onClose }) {
                       >
                         <span>{section.title}</span>
                         <span className="legal-policies-section-icon" aria-hidden="true">
-                          {sectionOpen ? "-" : "+"}
+                          {sectionOpen ? "−" : "+"}
                         </span>
                       </button>
                       {sectionOpen && (

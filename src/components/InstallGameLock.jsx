@@ -220,6 +220,14 @@ function InstallGameLock({ locale = "es" }) {
             aria-labelledby="pwa-install-title"
             onMouseDown={(event) => event.stopPropagation()}
           >
+            <button
+              type="button"
+              className="pwa-install-dialog__close"
+              onClick={closeHelp}
+              aria-label={copy.close}
+            >
+              <span aria-hidden="true">×</span>
+            </button>
             <img src="/icons/gamelock-192.png" alt="" width="72" height="72" />
             <h2 id="pwa-install-title">{copy.title}</h2>
             <p>{instructions}</p>

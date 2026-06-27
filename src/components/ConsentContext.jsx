@@ -148,7 +148,7 @@ export function ConsentProvider({ children }) {
 
     setPreferences(currentConsent.preferences);
     setBannerOpen(true);
-    setConfigOpen(true);
+    setConfigOpen(false);
   };
 
   const save = (nextPreferences) => {
