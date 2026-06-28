@@ -10257,6 +10257,16 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.18s ease;
+}
+
+.site-footer-contact-email:hover,
+.site-footer-contact-email:focus-visible {
+  opacity: 0.78;
+  text-decoration: underline;
+  text-decoration-color: var(--brand-purple);
 }
 
 .site-footer-copyright {

@@ -36,7 +36,7 @@ const ES_SECTIONS = [
         type: "list",
         items: [
           "Responsable: Hugo E.G. (en adelante, “GameLock”)",
-          "Correo electrónico: gamelock@gmail.com",
+          "Correo electrónico: gamelockweb@gmail.com",
           "Identificación de la web: www.gamelock.es",
           "Apartado de correos: 636",
           "Código Postal: 15704",
@@ -70,7 +70,7 @@ const ES_SECTIONS = [
         type: "list",
         items: [
           "A través del formulario Contacto. En nuestra página web el usuario encontrará la opción de escribirnos para aclarar todas las dudas que tenga en relación con el funcionamiento de nuestros productos/servicios o cualquier otra cosa que necesite. Para contestar, contactaremos con el usuario a través del correo electrónico o número de teléfono, si nos lo hubiera indicado.",
-          "A través de nuestro email corporativo. A través de nuestro correo electrónico gamelock@gmail.com el usuario podrá escribirnos y/o requerir la información que considere necesaria para aclarar las dudas relacionadas con nuestros servicios.",
+          "A través de nuestro email corporativo. A través de nuestro correo electrónico gamelockweb@gmail.com el usuario podrá escribirnos y/o requerir la información que considere necesaria para aclarar las dudas relacionadas con nuestros servicios.",
           "A través de los comentarios en el blog. También podremos visualizar datos del usuario por comentarios que pueda escribir en los artículos de nuestro blog. Para poder realizar un comentario solicitaremos un nombre y un correo electrónico.",
           "A través de los Mini juegos interactivos. En determinados mini juegos se pueden solicitar datos de identificación (nombre o alias) y, en su caso, dirección de correo electrónico, con el fin de registrar la participación, guardar puntuaciones o mostrar resultados. Estos datos podrán utilizarse para elaborar clasificaciones internas y mostrar rankings, siempre que el usuario haya aceptado las condiciones de participación.",
           "A través de Encuestas, quizzes y rankings. En encuestas, cuestionarios o quizzes que generan rankings de usuarios, se puede recopilar información como nombre o alias, dirección de correo electrónico (si se requiere registro), respuestas aportadas y resultados obtenidos. Estos datos se emplean exclusivamente para fines estadísticos, elaboración de clasificaciones y mejora de la experiencia del usuario en el sitio.",
@@ -94,7 +94,7 @@ const ES_SECTIONS = [
       { type: "p", text: "A fin de facilitar su ejercicio, le facilitamos los enlaces al formulario de solicitud de cada uno de los derechos:" },
       { type: "list", items: ["Formulario de ejercicio del derecho de acceso", "Formulario de ejercicio del derecho de rectificación", "Formulario de ejercicio del derecho de oposición", "Formulario de ejercicio del derecho de supresión (derecho “al olvido”)", "Formulario de ejercicio del derecho a la limitación del tratamiento", "Formulario de ejercicio del derecho a la portabilidad", "Formulario de ejercicio a no ser objeto de decisiones individuales automatizadas"] },
       { type: "p", text: "Para ejercer sus derechos GameLock pone a su disposición los siguientes medios:" },
-      { type: "list", items: ["Mediante solicitud escrita y firmada dirigida a GameLock. Ref. Ejercicio de Derechos LOPD.", "Enviando formulario escaneado y firmado a la dirección de correo electrónico gamelock@gmail.com indicando en el asunto Ejercicio de Derechos LOPD."] },
+      { type: "list", items: ["Mediante solicitud escrita y firmada dirigida a GameLock. Ref. Ejercicio de Derechos LOPD.", "Enviando formulario escaneado y firmado a la dirección de correo electrónico gamelockweb@gmail.com indicando en el asunto Ejercicio de Derechos LOPD."] },
       { type: "p", text: "Asimismo, y especialmente si considera que no ha obtenido satisfacción plena en el ejercicio de sus derechos, le informamos que podrá presentar una reclamación ante la autoridad nacional de control dirigiéndose a estos efectos a la Agencia Española de Protección de Datos (AEPD), C/ Jorge Juan, 6 – 28001 Madrid (www.aepd.es)." },
       { type: "h4", text: "2.2.8 ¿Qué medidas de seguridad tenemos implementadas?" },
       { type: "p", text: "En GameLock nos comprometemos a proteger su información personal." },
@@ -121,7 +121,7 @@ const ES_SECTIONS = [
       { type: "p", text: "Las marcas, logotipos, emblemas, nombres comerciales y demás signos distintivos de Fórmula 1/F1, FIA, escuderías, pilotos y patrocinadores mencionados en esta web son propiedad exclusiva de sus respectivos titulares. Su uso en GameLock tiene únicamente fines informativos y descriptivos, para identificar a los sujetos y eventos comentados." },
       { type: "p", text: "Este sitio web no es oficial y no está asociado de ninguna manera con las empresas de Fórmula 1. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX y las marcas relacionadas son marcas comerciales de Formula One Licensing B.V." },
       { type: "p", text: "Las imágenes y vídeos usados son propios, con licencia o proceden de fuentes que permiten su uso editorial; en caso contrario se indicará su procedencia y titularidad. No se autoriza la descarga ni reutilización de material protegido salvo lo permitido por la ley." },
-      { type: "p", text: "El acceso a GameLock no implica cesión de derechos de propiedad intelectual o industrial. Si considera que algún contenido vulnera sus derechos, puede solicitar su retirada escribiendo a gamelock@gmail.com con prueba de titularidad y la URL del contenido." },
+      { type: "p", text: "El acceso a GameLock no implica cesión de derechos de propiedad intelectual o industrial. Si considera que algún contenido vulnera sus derechos, puede solicitar su retirada escribiendo a gamelockweb@gmail.com con prueba de titularidad y la URL del contenido." },
     ],
   },
   {
@@ -200,7 +200,7 @@ const EN_SECTIONS = [
         type: "list",
         items: [
           "Controller: Hugo E.G. (hereinafter, \"GameLock\")",
-          "Contact email: gamelock@gmail.com",
+          "Contact email: gamelockweb@gmail.com",
           "Website identifier: www.gamelock.es",
           "PO Box: 636",
           "Postal code: 15704",
@@ -234,7 +234,7 @@ const EN_SECTIONS = [
         type: "list",
         items: [
           "Through the Contact form. On our website, users can write to us to clarify any questions about how our products or services work or anything else they may need. To reply, we will contact the user by email or by telephone if they have provided it.",
-          "Through our corporate email. Through gamelock@gmail.com, users may write to us and/or request the information they consider necessary to clarify questions related to our services.",
+          "Through our corporate email. Through gamelockweb@gmail.com, users may write to us and/or request the information they consider necessary to clarify questions related to our services.",
           "Through blog comments. We may also view user data through comments that users write on our blog articles. To comment, we will request a name and an email address.",
           "Through interactive mini-games. In certain mini-games, identifying data such as a name or alias and, where applicable, an email address may be requested to register participation, save scores or display results. These data may be used to create internal classifications and show rankings, provided that the user has accepted the participation conditions.",
           "Through surveys, quizzes and rankings. In surveys, questionnaires or quizzes that generate user rankings, information such as name or alias, email address if registration is required, answers provided and results obtained may be collected. These data are used exclusively for statistical purposes, creation of rankings and improvement of the user experience on the site.",
@@ -258,7 +258,7 @@ const EN_SECTIONS = [
       { type: "p", text: "To facilitate the exercise of rights, we provide the links to the request form for each right:" },
       { type: "list", items: ["Form for exercising the right of access", "Form for exercising the right of rectification", "Form for exercising the right to object", "Form for exercising the right of erasure, also known as the right to be forgotten", "Form for exercising the right to restriction of processing", "Form for exercising the right to data portability", "Form for exercising the right not to be subject to automated individual decisions"] },
       { type: "p", text: "To exercise their rights, GameLock makes the following means available:" },
-      { type: "list", items: ["By written and signed request addressed to GameLock. Ref. Exercise of LOPD Rights.", "By sending the scanned and signed form to gamelock@gmail.com, indicating Exercise of LOPD Rights in the subject line."] },
+      { type: "list", items: ["By written and signed request addressed to GameLock. Ref. Exercise of LOPD Rights.", "By sending the scanned and signed form to gamelockweb@gmail.com, indicating Exercise of LOPD Rights in the subject line."] },
       { type: "p", text: "Likewise, and especially if users consider that they have not obtained full satisfaction in the exercise of their rights, they may lodge a complaint with the national supervisory authority, the Spanish Data Protection Agency (AEPD), C/ Jorge Juan, 6 - 28001 Madrid (www.aepd.es)." },
       { type: "h4", text: "2.2.8 What security measures have we implemented?" },
       { type: "p", text: "At GameLock we are committed to protecting personal information." },
@@ -285,7 +285,7 @@ const EN_SECTIONS = [
       { type: "p", text: "The trademarks, logos, emblems, trade names and other distinctive signs of Formula 1/F1, FIA, teams, drivers and sponsors mentioned on this website are the exclusive property of their respective owners. Their use on GameLock is solely for informational and descriptive purposes, to identify the subjects and events discussed." },
       { type: "p", text: "This website is unofficial and is not associated in any way with Formula 1 companies. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and related marks are trademarks of Formula One Licensing B.V." },
       { type: "p", text: "The images and videos used are owned, licensed or come from sources that allow editorial use; otherwise, their source and ownership will be indicated. Downloading or reusing protected material is not authorised except as permitted by law." },
-      { type: "p", text: "Access to GameLock does not imply any assignment of intellectual or industrial property rights. If users consider that any content infringes their rights, they may request its removal by writing to gamelock@gmail.com with proof of ownership and the URL of the content." },
+      { type: "p", text: "Access to GameLock does not imply any assignment of intellectual or industrial property rights. If users consider that any content infringes their rights, they may request its removal by writing to gamelockweb@gmail.com with proof of ownership and the URL of the content." },
     ],
   },
   {

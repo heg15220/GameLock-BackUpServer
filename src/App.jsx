@@ -372,9 +372,12 @@ function App() {
               <span className="site-footer-contact-label">
                 {locale === "en" ? "Contact email:" : "Correo de contacto:"}
               </span>{" "}
-              <span className="site-footer-contact-email">
-                gamelock@gmail.com
-              </span>
+              <a
+                className="site-footer-contact-email"
+                href="mailto:gamelockweb@gmail.com"
+              >
+                gamelockweb@gmail.com
+              </a>
             </p>
             <p className="site-footer-copyright">
               © {new Date().getFullYear()} GameLock —{" "}
