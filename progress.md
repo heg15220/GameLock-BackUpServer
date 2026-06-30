@@ -4823,3 +4823,11 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - `src/games/knowledge/tangramEngine.test.js`: cobertura ampliada a 160 retos y test nuevo que exige >=20 tipos base.
 - Metadata/catalogo actualizados para indicar banco ampliado: 20 tipos base y 80 variantes validas.
 - Validacion: `npm run test -- src/games/knowledge/tangramEngine.test.js` OK; `npm run build` OK; Playwright sobre build en `output/knowledge-tangram-expanded-bank-visible/` confirma una variante reflejada sin solapes y render correcto. Queda un `ERR_NETWORK_ACCESS_DENIED` de recurso externo no bloqueante en captura local.
+
+## 2026-06-30 - Arcade retro: textos de juego actualizados
+- Se actualizaron las descripciones publicas y how-to-play de `arcade-pacman-maze-protocol`, `arcade-retro-breakout-1986` y `arcade-retro-bomber-grid`.
+- Lumen Relay ahora explica la exploracion de nodos, la sobrecarga y el control solo por movimiento.
+- Chromatic Tether ahora se describe como breakout: mover el emisor, mantener la pelota en juego y romper paneles.
+- Pulse Garden ahora explica el laberinto por celdas, la colocacion de balizas, la explosion en cruz y el riesgo de quedar dentro de la onda.
+- Resumenes de catalogo en `src/data/gameCatalogDescriptions.js` alineados con esas descripciones.
+- Validacion: `npm run build` OK.

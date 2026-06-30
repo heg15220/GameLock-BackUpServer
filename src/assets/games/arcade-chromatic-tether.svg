@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Chromatic Tether">
+  <defs>
+    <linearGradient id="ct-bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#092a38"/><stop offset="1" stop-color="#261547"/></linearGradient>
+    <linearGradient id="ct-ray" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#5eead4"/><stop offset="1" stop-color="#c084fc"/></linearGradient>
+  </defs>
+  <rect width="640" height="360" rx="28" fill="url(#ct-bg)"/>
+  <circle cx="522" cy="65" r="92" fill="#5eead4" opacity=".09"/>
+  <g transform="translate(92 58)">
+    <path d="M0 28h92l18 18-18 18H0L18 46Z" fill="#5eead4"/>
+    <path d="M126 28h92l18 18-18 18h-92l18-18Z" fill="#60a5fa"/>
+    <path d="M252 28h92l18 18-18 18h-92l18-18Z" fill="#c084fc"/>
+    <path d="M63 83h92l18 18-18 18H63l18-18Z" fill="#f472b6"/>
+    <path d="M189 83h92l18 18-18 18h-92l18-18Z" fill="#fbbf24"/>
+  </g>
+  <path d="M320 214 420 272" stroke="url(#ct-ray)" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="320" cy="214" r="14" fill="#fff" stroke="#5eead4" stroke-width="6"/>
+  <path d="M218 286h204l-32 22H250Z" fill="url(#ct-ray)"/>
+  <text x="42" y="330" fill="#ecfeff" font-size="34" font-family="Segoe UI,sans-serif" font-weight="800">CHROMATIC TETHER</text>
+</svg>

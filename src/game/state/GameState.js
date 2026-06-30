@@ -1,4 +1,4 @@
-const STORAGE_KEY = "pacman_high_score_v1";
+const STORAGE_KEY = "lumen_relay_high_score_v1";
 
 const readHighScore = () => {
   if (typeof window === "undefined") return 0;

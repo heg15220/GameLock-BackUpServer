@@ -15,6 +15,7 @@ import { MAP_COUNTRY_GROUPS } from "./mapsCountryGroupsData";
 import { MAP_COUNTRY_ADJACENCY } from "./mapsCountryAdjacencyData";
 import { MAP_PROVINCE_ADJACENCY } from "./mapsProvinceAdjacencyData.js";
 import { useMapSilhouetteThemes } from "./mapsSilhouettesData";
+import MapDataLegalFooter from "./MapDataLegalFooter";
 
 const COPY = {
   es: {
@@ -1182,6 +1183,7 @@ function MapsShortestPathKnowledgeGame() {
       </section>
 
       <p className="game-message">{state.message}</p>
+      <MapDataLegalFooter locale={locale} />
     </div>
   );
 }

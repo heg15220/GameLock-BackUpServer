@@ -2,7 +2,7 @@ import wordBlitzImage from "../assets/games/word-blitz.svg";
 import wordBlitzImageEn from "../assets/games/word-blitz-en.svg";
 import skyRunnerImage from "../assets/games/sky-runner.svg";
 import headSoccerArenaImage from "../assets/games/head-soccer-arena-catalog.png";
-import pacmanMazeProtocolImage from "../assets/games/pacman-maze-protocol.svg";
+import pacmanMazeProtocolImage from "../assets/games/arcade-lumen-relay.svg";
 import pongNeonArenaImage from "../assets/games/pong-neon-arena.svg";
 import arcadeBuscaminasClassicImage from "../assets/games/arcade-buscaminas-classic.svg";
 import arcadeBillarPoolClubImage from "../assets/games/arcade-billar-pool-club.svg";
@@ -24,11 +24,11 @@ import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-b
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
 import arcadeTerritoryWarImage from "../assets/games/arcade-territory-war.svg";
 import arcadeRetroSnakeClassicImage from "../assets/games/arcade-retro-snake-classic.svg";
-import arcadeRetroBreakout1986Image from "../assets/games/arcade-retro-breakout-1986.svg";
+import arcadeRetroBreakout1986Image from "../assets/games/arcade-chromatic-tether.svg";
 import arcadeRetroSpaceInvadersImage from "../assets/games/arcade-retro-space-invaders.svg";
 import arcadeRetroTetrisBlockfallImage from "../assets/games/arcade-retro-tetris-blockfall.svg";
 import arcadeRetroFroggerCrossingImage from "../assets/games/arcade-retro-frogger-crossing.svg";
-import arcadeRetroBomberGridImage from "../assets/games/arcade-retro-bomber-grid.svg";
+import arcadeRetroBomberGridImage from "../assets/games/arcade-pulse-garden.svg";
 import arcadeRetroGalagaQuantumImage from "../assets/games/arcade-retro-galaga-quantum.svg";
 import arcadeRetroQbertPrismImage from "../assets/games/arcade-retro-qbert-prism.svg";
 import arcadeRetroLunarLanderOrbitImage from "../assets/games/arcade-retro-lunar-lander-orbit.svg";
@@ -90,29 +90,29 @@ import arcadeSummitAscentImage from "../assets/games/arcade-summit-ascent-gamepl
 
 /**
  * Game catalog
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
  * Each entry contains a Spanish (default) set of fields plus *_en counterparts
  * for the English locale.  The helper getLocalizedGame() in src/i18n/index.js
  * picks the correct set based on the browser language.
  *
  * REQUIRED FIELDS PER GAME
- *   id          â€“ unique slug, used as the component registry key
- *   image       â€“ imported SVG asset
- *   category    â€“ Spanish key used internally for filtering  (no accents, e.g. "Accion")
- *   sessionTime â€“ language-neutral duration string, e.g. "3-6 min"
+ *   id          Ã¢â‚¬â€œ unique slug, used as the component registry key
+ *   image       Ã¢â‚¬â€œ imported SVG asset
+ *   category    Ã¢â‚¬â€œ Spanish key used internally for filtering  (no accents, e.g. "Accion")
+ *   sessionTime Ã¢â‚¬â€œ language-neutral duration string, e.g. "3-6 min"
  *
  * LOCALIZED FIELDS (add both es and _en versions)
- *   title / title_en               â€“ game name (often the same)
- *   tagline / tagline_en           â€“ one-liner shown on the card
- *   description / description_en   â€“ paragraph shown in the launch modal
- *   highlights / highlights_en     â€“ bullet list of key features
- *   difficulty / difficulty_en     â€“ difficulty label
- *   multiplayer / multiplayer_en   â€“ mode label (Solo / Solo vs AI â€¦)
- *   viability / viability_en       â€“ technical viability note
- *   visualStyle / visualStyle_en   â€“ art-direction note
- *   techFocus / techFocus_en       â€“ tech note
- *   objective_es / objective_en    â€“ 1-2 sentence goal statement (shown in modal)
- *   howToPlay_es / howToPlay_en    â€“ brief control summary (shown in modal)
+ *   title / title_en               Ã¢â‚¬â€œ game name (often the same)
+ *   tagline / tagline_en           Ã¢â‚¬â€œ one-liner shown on the card
+ *   description / description_en   Ã¢â‚¬â€œ paragraph shown in the launch modal
+ *   highlights / highlights_en     Ã¢â‚¬â€œ bullet list of key features
+ *   difficulty / difficulty_en     Ã¢â‚¬â€œ difficulty label
+ *   multiplayer / multiplayer_en   Ã¢â‚¬â€œ mode label (Solo / Solo vs AI Ã¢â‚¬Â¦)
+ *   viability / viability_en       Ã¢â‚¬â€œ technical viability note
+ *   visualStyle / visualStyle_en   Ã¢â‚¬â€œ art-direction note
+ *   techFocus / techFocus_en       Ã¢â‚¬â€œ tech note
+ *   objective_es / objective_en    Ã¢â‚¬â€œ 1-2 sentence goal statement (shown in modal)
+ *   howToPlay_es / howToPlay_en    Ã¢â‚¬â€œ brief control summary (shown in modal)
  */
 export const games = [
 
@@ -132,18 +132,18 @@ export const games = [
     howToPlay_es: "A/D o flechas para moverte, W/arriba/espacio para saltar, F activa el power-up de fuego. Springs, corrientes de viento y checkpoints forman parte de la ruta.",
     highlights: [
       "Pool de 132 sectores con biomas forestales, tormenta, toxicos, crepusculares, celestiales, aurora, reef, void, ember y clockwork.",
-      "Ruta de 8 sectores por run con layouts side-scroll, verticales e hÃ­bridos.",
+      "Ruta de 8 sectores por run con layouts side-scroll, verticales e hÃƒÂ­bridos.",
       "Varios encuentros de jefe por partida con barra de vida, variantes nuevas y jefe final nuevo.",
-      "FÃ­sica arcade consistente con coyote time y jump buffer.",
+      "FÃƒÂ­sica arcade consistente con coyote time y jump buffer.",
       "IA enemiga de patrulla, jumper y jefes con perfiles ofensivos distintos.",
       "Checkpoints, springs, viento, hazards, gemas, time shards y escudos visualmente telegrafiados.",
       "Power-up de fuego y objetos de recuperacion para rutas avanzadas.",
-      "Estado QA exportado para automatizaciÃ³n de pruebas.",
+      "Estado QA exportado para automatizaciÃƒÂ³n de pruebas.",
     ],
     difficulty: "Media-Alta",
     multiplayer: "Solo",
     viability: "Alta: motor modular Canvas con game loop fijo y colisiones por tiles.",
-    visualStyle: "Pixel-art retro con parallax multicapa, biomas nuevos, overlays ambientales y HUD tÃ¡ctico integrado.",
+    visualStyle: "Pixel-art retro con parallax multicapa, biomas nuevos, overlays ambientales y HUD tÃƒÂ¡ctico integrado.",
     techFocus: "Arquitectura modular con 132 sectores, reachability reforzada, bosses por variante y telemetria de entorno.",
 
     category_en: "Arcade",
@@ -170,49 +170,49 @@ export const games = [
   },
 
 
-  // â”€â”€ Arcade â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Arcade Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   {
     id: "arcade-pacman-maze-protocol",
     image: pacmanMazeProtocolImage,
     sessionTime: "4-9 min",
 
-    title: "Pac-Man Maze Protocol",
+    title: "Lumen Relay",
     category: "Arcade",
-    tagline: "Laberinto de puntos y fantasmas: recoge todo y usa poderes para contraatacar.",
+    tagline: "Explora nodos, activa la sobrecarga y esquiva centinelas geometricos.",
     description:
-      "VersiÃ³n completa de Pac-Man con mapa por tiles, tÃºneles laterales, 4 fantasmas con comportamientos diferenciados, sistema de vidas/puntuaciÃ³n/niveles y modo debug para validar IA y colisiones.",
-    objective_es: "Recoge todos los pellets del laberinto sin ser atrapado por los fantasmas. Usa power pellets para revertir los roles.",
-    howToPlay_es: "WASD o flechas para moverte. Enter/Espacio para empezar, P/Esc para pausa, R reinicia, M activa el sonido.",
+      "Arcade de exploracion en laberinto: guia una sonda de luz por la red, recoge todos los nodos del mapa y aprovecha los nodos especiales para entrar en sobrecarga y dejar vulnerables a los centinelas durante unos segundos.",
+    objective_es: "Activa todos los nodos del sector sin perder todas las vidas. Los nodos especiales activan la sobrecarga y frenan a los centinelas.",
+    howToPlay_es: "WASD o flechas mueven la sonda. Enter/Espacio empieza la partida, P/Esc pausa, R reinicia, M activa o desactiva el sonido y G muestra el debug.",
     highlights: [
-      "Fantasmas con estados distintos: persecucion, huida y vuelta a casa.",
-      "Targeting fiel: Blinky/Pinky/Inky/Clyde con reglas distintas.",
-      "Power pellets con bonus de fantasmas encadenado (200/400/800/1600).",
+      "Recorre la red para limpiar todos los nodos y abrir el sector.",
+      "Los nodos especiales activan sobrecarga y dejan expuestos a los centinelas.",
+      "Cuatro centinelas geometricos con patrulla, intercepcion, retirada y recalibracion.",
       "Loop fijo 60 ticks + render Canvas y puente QA render_game_to_text.",
-      "HUD con score, high score persistente, vidas, nivel y mÃ©tricas de frame.",
+      "HUD con score, high score persistente, vidas, nivel y metricas de frame.",
     ],
     difficulty: "Media-Alta",
     multiplayer: "Solo",
     viability: "Alta: motor Canvas 2D desacoplado con IA por estados y pathfinding BFS.",
-    visualStyle: "Laberinto neÃ³n oscuro con lectura clara de rutas, pellets y estados de fantasmas.",
+    visualStyle: "Red tecnologica bioluminiscente con bloques minerales, nodos cuadrados y sondas angulares.",
     techFocus: "Arquitectura modular engine/world/entities/ai/state + HUD React desacoplado.",
 
     category_en: "Arcade",
-    tagline_en: "A maze of dots and ghosts: collect everything and use powers to fight back.",
+    tagline_en: "Explore nodes, trigger overload, and evade geometric sentinels.",
     description_en:
-      "Full Pac-Man with tile map, side tunnels, 4 ghosts with distinct behaviors, lives/score/levels system and debug mode to validate AI and collisions.",
-    objective_en: "Collect all pellets in the maze without being caught by ghosts. Use power pellets to reverse roles.",
-    howToPlay_en: "WASD or arrows to move. Enter/Space to start, P/Esc to pause, R restart, M toggle sound.",
+      "A maze-exploration arcade: guide a light probe through the network, clear every node on the map, and use special nodes to trigger overload so sentinels become vulnerable for a short time.",
+    objective_en: "Activate every node in the sector without losing all lives. Special nodes trigger overload and slow the sentinels.",
+    howToPlay_en: "Use WASD or arrows to move the probe. Enter/Space starts the run, P/Esc pauses, R restarts, M toggles sound, and G shows debug.",
     highlights_en: [
-      "Ghost FSM with scatter, chase, frightened and eaten modes.",
-      "Faithful targeting: Blinky/Pinky/Inky/Clyde with distinct rules.",
-      "Power pellets with chained ghost bonus (200/400/800/1600).",
+      "Traverse the network to clear every node and unlock the sector.",
+      "Special nodes trigger overload and expose the sentinels.",
+      "Four geometric sentinels with patrol, interception, retreat and recalibration states.",
       "Fixed 60-tick loop, Canvas render and QA bridge render_game_to_text.",
       "HUD with score, persistent high score, lives, level and frame metrics.",
     ],
     difficulty_en: "Medium-High",
     multiplayer_en: "Solo",
     viability_en: "High: decoupled 2D Canvas engine with FSM AI and BFS pathfinding.",
-    visualStyle_en: "Dark neon maze with clear route, pellet and ghost-state readability.",
+    visualStyle_en: "Bioluminescent technology network with mineral blocks, square nodes, and angular probes.",
     techFocus_en: "Modular engine/world/entities/ai/state architecture + decoupled React HUD.",
   },
 
@@ -278,7 +278,7 @@ export const games = [
     objective_es:
       "Supera 12 niveles encestando la pelota en el cubo antes de quedarte sin vidas. Usa el comodin de forma tactica cuando el camino se cierre.",
     howToPlay_es:
-      "Touch/raton: desliza en la direccion que deseas lanzar y suelta para disparar â€” la velocidad del deslizamiento determina la fuerza. Teclado: flechas o A/D ajustan angulo, W/S potencia, Enter/Espacio lanza, B comodin, R reinicia, P pausa.",
+      "Touch/raton: desliza en la direccion que deseas lanzar y suelta para disparar Ã¢â‚¬â€ la velocidad del deslizamiento determina la fuerza. Teclado: flechas o A/D ajustan angulo, W/S potencia, Enter/Espacio lanza, B comodin, R reinicia, P pausa.",
     highlights: [
       "Control de deslizamiento intuitivo: la direccion y velocidad del swipe definen angulo y fuerza.",
       "Fisica realista con gravedad, rebotes energeticos en paredes, plataformas y cubos.",
@@ -316,7 +316,7 @@ export const games = [
     objective_en:
       "Clear 12 levels by sinking the ball into the cup before running out of lives. Use the wildcard tactically when a lane closes down.",
     howToPlay_en:
-      "Touch/mouse: swipe in the throw direction and release to shoot â€” swipe speed sets the power. Keyboard: arrows or A/D adjust angle, W/S power, Enter/Space fires, B wildcard, R restart, P pause.",
+      "Touch/mouse: swipe in the throw direction and release to shoot Ã¢â‚¬â€ swipe speed sets the power. Keyboard: arrows or A/D adjust angle, W/S power, Enter/Space fires, B wildcard, R restart, P pause.",
     highlights_en: [
       "Intuitive swipe control: swipe direction and speed set angle and launch power.",
       "Realistic physics with gravity, high-energy wall/platform/cup rebounds.",
@@ -462,7 +462,7 @@ export const games = [
     difficulty: "Media-Alta",
     multiplayer: "Solo vs IA",
     viability: "Alta: canvas 2D con reglas discretas, IA heuristica y simulacion determinista.",
-    visualStyle: "Mesa de club con madera barnizada, paÃ±o verde profundo, guia de tiro y HUD de match.",
+    visualStyle: "Mesa de club con madera barnizada, paÃƒÂ±o verde profundo, guia de tiro y HUD de match.",
     techFocus: "Fisica de billar, evaluacion de faltas, estados de rack/match y automatizacion QA.",
 
     category_en: "Sports",
@@ -610,7 +610,7 @@ export const games = [
     difficulty: "Media-Alta",
     multiplayer: "Solo / Competitivo asincrono",
     viability: "Alta: motor Canvas puro, estado serializable y backend ligero sin dependencias.",
-    visualStyle: "Opera espacial neon con nebulosas, HUD tactico, bosses geomÃ©tricos y portada editorial propia.",
+    visualStyle: "Opera espacial neon con nebulosas, HUD tactico, bosses geomÃƒÂ©tricos y portada editorial propia.",
     techFocus: "Motor 2D deterministic-step + IA de persecucion/disparo + persistencia remota/local de runs.",
 
     category_en: "Arcade",
@@ -753,36 +753,36 @@ export const games = [
     category: "Arcade",
     tagline: "Pinball arcade: mant\u00e9n la bola viva y encadena objetivos.",
     description:
-      "Mesa de pinball 2D con motor de fÃ­sica propio: bola de cromo con gravedad y fricciÃ³n de aire, flippers con velocidad angular real que transfieren energÃ­a a la bola, tres bumpers pop de expulsiÃ³n elÃ¡stica, cinco drop-targets con reset de multiplicador, dos slingshots laterales y tres rollover lanes en la parte superior. El plunger de resorte se carga manteniendo Espacio â€” la potencia determina el alcance inicial de la bola.",
+      "Mesa de pinball 2D con motor de fÃƒÂ­sica propio: bola de cromo con gravedad y fricciÃƒÂ³n de aire, flippers con velocidad angular real que transfieren energÃƒÂ­a a la bola, tres bumpers pop de expulsiÃƒÂ³n elÃƒÂ¡stica, cinco drop-targets con reset de multiplicador, dos slingshots laterales y tres rollover lanes en la parte superior. El plunger de resorte se carga manteniendo Espacio Ã¢â‚¬â€ la potencia determina el alcance inicial de la bola.",
     objective_es:
-      "MantÃ©n la bola en juego el mayor tiempo posible, derriba todos los targets para subir el multiplicador y encadena golpes a bumpers para obtener combos.",
+      "MantÃƒÂ©n la bola en juego el mayor tiempo posible, derriba todos los targets para subir el multiplicador y encadena golpes a bumpers para obtener combos.",
     howToPlay_es:
-      "Z o flecha izquierda activa el flipper izquierdo, X o flecha derecha el derecho. MantÃ©n Espacio para cargar el plunger y suÃ©ltalo para lanzar. Derriba los 5 targets para aumentar el multiplicador (hasta Ã—6). Ilumina las 3 lanes superiores para +5000 puntos.",
+      "Z o flecha izquierda activa el flipper izquierdo, X o flecha derecha el derecho. MantÃƒÂ©n Espacio para cargar el plunger y suÃƒÂ©ltalo para lanzar. Derriba los 5 targets para aumentar el multiplicador (hasta Ãƒâ€”6). Ilumina las 3 lanes superiores para +5000 puntos.",
     highlights: [
-      "Flippers con velocidad angular real: la bola gana energÃ­a del flipper en movimiento.",
+      "Flippers con velocidad angular real: la bola gana energÃƒÂ­a del flipper en movimiento.",
       "Motor de sub-stepping (4 pasos/frame) para colisiones precisas a cualquier velocidad.",
       "3 bumpers pop con combo encadenado: el multiplicador de puntos escala con hits consecutivos.",
       "5 drop-targets: derribarlos todos incrementa el multiplicador global y resetea los objetivos.",
-      "2 slingshots laterales con boost de velocidad y efecto elÃ¡stico.",
-      "3 rollover lanes en la parte superior con bonificaciÃ³n de 5000 al completar el set.",
+      "2 slingshots laterales con boost de velocidad y efecto elÃƒÂ¡stico.",
+      "3 rollover lanes en la parte superior con bonificaciÃƒÂ³n de 5000 al completar el set.",
       "Audio procedural completo via Web Audio API: bumpers, targets, slings, lanzamiento y drain.",
-      "Plunger con barra de carga visual y velocidad mÃ­nima/mÃ¡xima configurable.",
-      "RÃ©cord persistente en localStorage.",
+      "Plunger con barra de carga visual y velocidad mÃƒÂ­nima/mÃƒÂ¡xima configurable.",
+      "RÃƒÂ©cord persistente en localStorage.",
     ],
     difficulty: "Media",
     multiplayer: "Solo",
     viability: "Alta: motor Canvas puro, estado serializable, sin dependencias externas.",
-    visualStyle: "Neon noir: mesa oscura con felt, paredes metÃ¡licas, bumpers magenta, targets cyan y bola cromada con gradiente.",
-    techFocus: "FÃ­sica real de flipper con omega angular + sub-stepping + colisiÃ³n cÃ¡psula-segmento + bumper elÃ¡stico + audio procedural.",
+    visualStyle: "Neon noir: mesa oscura con felt, paredes metÃƒÂ¡licas, bumpers magenta, targets cyan y bola cromada con gradiente.",
+    techFocus: "FÃƒÂ­sica real de flipper con omega angular + sub-stepping + colisiÃƒÂ³n cÃƒÂ¡psula-segmento + bumper elÃƒÂ¡stico + audio procedural.",
 
     category_en: "Arcade",
     tagline_en: "Arcade pinball: keep the ball alive and chain targets.",
     description_en:
-      "A 2D pinball table with a custom physics engine: chrome ball with gravity and air friction, flippers with real angular velocity that transfer energy to the ball, three elastically ejecting pop bumpers, five resetting drop targets, two lateral slingshots, and three top rollover lanes. The spring plunger charges while Space is held â€” release power determines initial ball speed.",
+      "A 2D pinball table with a custom physics engine: chrome ball with gravity and air friction, flippers with real angular velocity that transfer energy to the ball, three elastically ejecting pop bumpers, five resetting drop targets, two lateral slingshots, and three top rollover lanes. The spring plunger charges while Space is held Ã¢â‚¬â€ release power determines initial ball speed.",
     objective_en:
       "Keep the ball alive as long as possible, knock down all targets to raise the multiplier, and chain bumper hits for combo bonuses.",
     howToPlay_en:
-      "Z or left arrow activates the left flipper, X or right arrow the right one. Hold Space to charge the plunger and release to launch. Knock down all 5 targets to raise the multiplier (up to Ã—6). Light all 3 top lanes for a +5000 bonus.",
+      "Z or left arrow activates the left flipper, X or right arrow the right one. Hold Space to charge the plunger and release to launch. Knock down all 5 targets to raise the multiplier (up to Ãƒâ€”6). Light all 3 top lanes for a +5000 bonus.",
     highlights_en: [
       "Flippers with real angular velocity: ball gains energy from a swinging flipper.",
       "4-substep physics per frame for accurate high-speed collisions.",
@@ -810,43 +810,43 @@ export const games = [
     category: "Arcade",
     tagline: "Dispara burbujas y une tres iguales para limpiar el tablero.",
     description:
-      "Bubble Storm es un juego de disparo de burbujas estilo Bust-a-Move con rejilla hexagonal real, trayectoria con rebote en paredes y lÃ³gica de caÃ­da de burbujas aisladas. El caÃ±Ã³n central apunta siguiendo el ratÃ³n; la lÃ­nea de ayuda punteada muestra la trayectoria exacta antes de disparar. Cada niveles aÃ±ade colores adicionales a la rejilla. Cada N disparos aparece una nueva fila en la parte superior que empuja todo hacia abajo â€” si las burbujas cruzan la lÃ­nea de peligro, es game over.",
+      "Bubble Storm es un juego de disparo de burbujas estilo Bust-a-Move con rejilla hexagonal real, trayectoria con rebote en paredes y lÃƒÂ³gica de caÃƒÂ­da de burbujas aisladas. El caÃƒÂ±ÃƒÂ³n central apunta siguiendo el ratÃƒÂ³n; la lÃƒÂ­nea de ayuda punteada muestra la trayectoria exacta antes de disparar. Cada niveles aÃƒÂ±ade colores adicionales a la rejilla. Cada N disparos aparece una nueva fila en la parte superior que empuja todo hacia abajo Ã¢â‚¬â€ si las burbujas cruzan la lÃƒÂ­nea de peligro, es game over.",
     objective_es:
-      "Elimina todas las burbujas de la rejilla antes de que alcancen la zona de peligro. Provoca caÃ­das en cadena para maximizar el score.",
+      "Elimina todas las burbujas de la rejilla antes de que alcancen la zona de peligro. Provoca caÃƒÂ­das en cadena para maximizar el score.",
     howToPlay_es:
-      "Mueve el ratÃ³n para apuntar. Haz clic (o pulsa Espacio) para disparar. Tab o S cambia la burbuja siguiente con la actual. Agrupa 3 o mÃ¡s burbujas del mismo color para hacerlas explotar. Las burbujas que quedan flotando sin conexiÃ³n con el techo caen automÃ¡ticamente.",
+      "Mueve el ratÃƒÂ³n para apuntar. Haz clic (o pulsa Espacio) para disparar. Tab o S cambia la burbuja siguiente con la actual. Agrupa 3 o mÃƒÂ¡s burbujas del mismo color para hacerlas explotar. Las burbujas que quedan flotando sin conexiÃƒÂ³n con el techo caen automÃƒÂ¡ticamente.",
     highlights: [
-      "Rejilla hexagonal real con 11 columnas desfasadas â€” la burbuja encaja en el hueco mÃ¡s cercano al punto de impacto.",
+      "Rejilla hexagonal real con 11 columnas desfasadas Ã¢â‚¬â€ la burbuja encaja en el hueco mÃƒÂ¡s cercano al punto de impacto.",
       "Trayectoria de ayuda con rebote en paredes calculada en tiempo real.",
-      "DetecciÃ³n de grupos por BFS flood-fill sobre el grafo de vecinos hexagonales.",
-      "CaÃ­da de burbujas aisladas: BFS desde el techo, todo lo que no cuelga cae con fÃ­sica de gravedad.",
+      "DetecciÃƒÂ³n de grupos por BFS flood-fill sobre el grafo de vecinos hexagonales.",
+      "CaÃƒÂ­da de burbujas aisladas: BFS desde el techo, todo lo que no cuelga cae con fÃƒÂ­sica de gravedad.",
       "Swap de burbujas: intercambia actual y siguiente para preparar jugadas.",
-      "Color de siguiente burbuja siempre entre los colores presentes â€” nunca colores sin posiciÃ³n.",
+      "Color de siguiente burbuja siempre entre los colores presentes Ã¢â‚¬â€ nunca colores sin posiciÃƒÂ³n.",
       "Push de nueva fila animado suavemente cada N disparos.",
-      "ProgresiÃ³n por niveles: al limpiar el tablero se aÃ±aden mÃ¡s filas y mÃ¡s colores.",
+      "ProgresiÃƒÂ³n por niveles: al limpiar el tablero se aÃƒÂ±aden mÃƒÂ¡s filas y mÃƒÂ¡s colores.",
       "Audio procedural via Web Audio API. Hi-score persistente en localStorage.",
     ],
     difficulty: "Media",
     multiplayer: "Solo",
-    viability: "Alta: Canvas 2D puro, sin librerÃ­as externas, estado serializable.",
-    visualStyle: "Neon oscuro: fondo #080b14 con vignette, burbujas brillantes con gradiente radial 3D y glow de color, partÃ­culas al explotar.",
+    viability: "Alta: Canvas 2D puro, sin librerÃƒÂ­as externas, estado serializable.",
+    visualStyle: "Neon oscuro: fondo #080b14 con vignette, burbujas brillantes con gradiente radial 3D y glow de color, partÃƒÂ­culas al explotar.",
     techFocus: "Rejilla hexagonal offset con BFS match + BFS flood-fill de aislamiento + snap-to-nearest-empty + trayectoria con rebotes.",
 
     category_en: "Arcade",
     tagline_en: "Shoot bubbles and match three of a kind to clear the board.",
     description_en:
-      "Bubble Storm is a Bust-a-Move-style bubble shooter with a true hexagonal grid, wall-bouncing trajectory, and isolated-bubble drop logic. The central cannon aims with the mouse; a dotted guide line shows the exact trajectory before shooting. Each level adds more colours to the grid. Every N shots a new row pushes in from the top â€” if bubbles cross the danger line, it's game over.",
+      "Bubble Storm is a Bust-a-Move-style bubble shooter with a true hexagonal grid, wall-bouncing trajectory, and isolated-bubble drop logic. The central cannon aims with the mouse; a dotted guide line shows the exact trajectory before shooting. Each level adds more colours to the grid. Every N shots a new row pushes in from the top Ã¢â‚¬â€ if bubbles cross the danger line, it's game over.",
     objective_en:
       "Clear all bubbles from the grid before they reach the danger zone. Trigger cascade drops to maximise your score.",
     howToPlay_en:
       "Move the mouse to aim. Click (or press Space) to shoot. Tab or S swaps the next bubble with the current one. Group 3 or more same-colour bubbles to pop them. Bubbles that have no path to the ceiling fall automatically.",
     highlights_en: [
-      "True hexagonal grid with 11 staggered columns â€” the bubble snaps to the empty slot closest to the impact point.",
+      "True hexagonal grid with 11 staggered columns Ã¢â‚¬â€ the bubble snaps to the empty slot closest to the impact point.",
       "Real-time aim guide with wall-bounce trajectory preview.",
       "Group detection via BFS flood-fill over the hex neighbour graph.",
       "Isolated-bubble drop: BFS from ceiling; anything not hanging falls under gravity.",
       "Bubble swap: exchange current and next bubbles to plan ahead.",
-      "Next bubble always chosen from colours present in the grid â€” no unshootable orphans.",
+      "Next bubble always chosen from colours present in the grid Ã¢â‚¬â€ no unshootable orphans.",
       "Smooth animated new-row push every N shots.",
       "Level progression: clearing the board adds more rows and colours.",
       "Procedural audio via Web Audio API. Persistent hi-score in localStorage.",
@@ -867,26 +867,26 @@ export const games = [
     category: "Arcade",
     tagline: "Curling: lanza, barre y coloca piedras cerca del centro.",
     description:
-      "Ice Strike Pro es un simulador de curling 2D con fÃ­sica autÃ©ntica: las piedras curvan segÃºn la rotaciÃ³n aplicada, el rozamiento reduce la velocidad, y barrer con la escoba (tecla S) disminuye la fricciÃ³n en pleno vuelo. La IA planifica tiros de draw, guardas y takeouts. Cada partida dura 6 ends con 4 piedras por equipo y fin.",
+      "Ice Strike Pro es un simulador de curling 2D con fÃƒÂ­sica autÃƒÂ©ntica: las piedras curvan segÃƒÂºn la rotaciÃƒÂ³n aplicada, el rozamiento reduce la velocidad, y barrer con la escoba (tecla S) disminuye la fricciÃƒÂ³n en pleno vuelo. La IA planifica tiros de draw, guardas y takeouts. Cada partida dura 6 ends con 4 piedras por equipo y fin.",
     objective_es:
-      "Acumula mÃ¡s puntos que la CPU despuÃ©s de 6 ends. Cada end suma los puntos de la piedra mÃ¡s cercana al centro del house; sÃ³lo puntÃºa el equipo cuya piedra quede mÃ¡s pegada al botÃ³n.",
+      "Acumula mÃƒÂ¡s puntos que la CPU despuÃƒÂ©s de 6 ends. Cada end suma los puntos de la piedra mÃƒÂ¡s cercana al centro del house; sÃƒÂ³lo puntÃƒÂºa el equipo cuya piedra quede mÃƒÂ¡s pegada al botÃƒÂ³n.",
     howToPlay_es:
-      "Usa â† â†’ o A/D para apuntar, W sube la potencia, Q selecciona giro interior y E giro exterior. Pulsa Espacio para lanzar. MantÃ©n S para barrer durante el vuelo y reducir la curva. R reinicia la partida, Esc vuelve al menÃº.",
+      "Usa Ã¢â€ Â Ã¢â€ â€™ o A/D para apuntar, W sube la potencia, Q selecciona giro interior y E giro exterior. Pulsa Espacio para lanzar. MantÃƒÂ©n S para barrer durante el vuelo y reducir la curva. R reinicia la partida, Esc vuelve al menÃƒÂº.",
     highlights: [
-      "FÃ­sica de curl real: la piedra curva segÃºn la rotaciÃ³n y la velocidad hacia adelante.",
-      "Barrido en tiempo real con tecla S â€” reduce fricciÃ³n un 28 % y limita la curvatura.",
-      "IA con tres estrategias adaptativas: draw al botÃ³n, guarda frente al house y takeout.",
-      "Colisiones elÃ¡sticas entre piedras con correcciÃ³n posicional (COR 0.90).",
-      "LÃ­nea de trayectoria predictiva con curva simulada y piedra fantasma en el destino.",
-      "6 ends completos con marcador por end, historial de resultados y lÃ³gica de hammer.",
-      "PuntuaciÃ³n en vivo mostrando quiÃ©n puntÃºa en el end actual antes de terminar.",
-      "Canvas 2D nativo â€” sin librerÃ­as externas.",
+      "FÃƒÂ­sica de curl real: la piedra curva segÃƒÂºn la rotaciÃƒÂ³n y la velocidad hacia adelante.",
+      "Barrido en tiempo real con tecla S Ã¢â‚¬â€ reduce fricciÃƒÂ³n un 28 % y limita la curvatura.",
+      "IA con tres estrategias adaptativas: draw al botÃƒÂ³n, guarda frente al house y takeout.",
+      "Colisiones elÃƒÂ¡sticas entre piedras con correcciÃƒÂ³n posicional (COR 0.90).",
+      "LÃƒÂ­nea de trayectoria predictiva con curva simulada y piedra fantasma en el destino.",
+      "6 ends completos con marcador por end, historial de resultados y lÃƒÂ³gica de hammer.",
+      "PuntuaciÃƒÂ³n en vivo mostrando quiÃƒÂ©n puntÃƒÂºa en el end actual antes de terminar.",
+      "Canvas 2D nativo Ã¢â‚¬â€ sin librerÃƒÂ­as externas.",
     ],
     difficulty: "Media",
     multiplayer: "Solo vs IA",
-    viability: "Alta: Canvas 2D puro, fÃ­sica determinista, sin dependencias externas.",
+    viability: "Alta: Canvas 2D puro, fÃƒÂ­sica determinista, sin dependencias externas.",
     visualStyle: "Azul hielo: hoja de curling con textura de pebble, anillos de casa en rojo y blanco, HUD lateral oscuro con panel de info.",
-    techFocus: "FÃ­sica de curl con velocidad lateral proporcional a la velocidad frontal + collisiones elÃ¡sticas multi-piedra + predicciÃ³n de trayectoria en tiempo real.",
+    techFocus: "FÃƒÂ­sica de curl con velocidad lateral proporcional a la velocidad frontal + collisiones elÃƒÂ¡sticas multi-piedra + predicciÃƒÂ³n de trayectoria en tiempo real.",
 
     category_en: "Arcade",
     tagline_en: "Curling: throw, sweep and place stones near the center.",
@@ -895,16 +895,16 @@ export const games = [
     objective_en:
       "Outscore the CPU after 6 ends. Each end awards points to the team whose stone sits closest to the button; only the leading team scores, counting all stones closer than the opponent's nearest.",
     howToPlay_en:
-      "Use â† â†’ or A/D to aim, W raises power, Q selects in-turn and E out-turn. Press Space to deliver. Hold S to sweep mid-flight and reduce the curl. R restarts the match, Esc returns to the menu.",
+      "Use Ã¢â€ Â Ã¢â€ â€™ or A/D to aim, W raises power, Q selects in-turn and E out-turn. Press Space to deliver. Hold S to sweep mid-flight and reduce the curl. R restarts the match, Esc returns to the menu.",
     highlights_en: [
       "Real curl physics: the stone bends according to rotation and forward speed.",
-      "Live sweeping with the S key â€” cuts friction by 28% and limits the curve.",
+      "Live sweeping with the S key Ã¢â‚¬â€ cuts friction by 28% and limits the curve.",
       "Adaptive AI with three strategies: draw to the button, guard in front of the house, and takeout.",
       "Elastic stone-on-stone collisions with positional correction (COR 0.90).",
       "Predictive aim line with simulated curl and a ghost stone at the projected destination.",
       "6 complete ends with per-end scoring, end-log history, and hammer logic.",
       "Live score preview showing who is scoring in the current end before it concludes.",
-      "Native Canvas 2D â€” no external libraries.",
+      "Native Canvas 2D Ã¢â‚¬â€ no external libraries.",
     ],
     difficulty_en: "Medium",
     multiplayer_en: "Solo vs AI",
@@ -922,44 +922,44 @@ export const games = [
     category: "Arcade",
     tagline: "Mazmorra arcade: combate con espada, esquiva y sobrevive a oleadas.",
     description:
-      "Neon Crypt es un arena dungeon crawler top-down por oleadas. MuÃ©vete con WASD, apunta con el ratÃ³n y ataca con un arco de espada de 86Â°. El dash te da invencibilidad breve para esquivar proyectiles. Cada oleada incluye Grunts que cargan, Arqueros que mantienen distancia y disparan, Brutos lentos pero demoledores, y Jefes cada 5 oleadas con ataques en rÃ¡faga de 8 proyectiles. Recoge orbes verdes de los enemigos caÃ­dos para recuperar vida.",
+      "Neon Crypt es un arena dungeon crawler top-down por oleadas. MuÃƒÂ©vete con WASD, apunta con el ratÃƒÂ³n y ataca con un arco de espada de 86Ã‚Â°. El dash te da invencibilidad breve para esquivar proyectiles. Cada oleada incluye Grunts que cargan, Arqueros que mantienen distancia y disparan, Brutos lentos pero demoledores, y Jefes cada 5 oleadas con ataques en rÃƒÂ¡faga de 8 proyectiles. Recoge orbes verdes de los enemigos caÃƒÂ­dos para recuperar vida.",
     objective_es:
-      "Sobrevivir el mayor nÃºmero de oleadas posible y acumular la puntuaciÃ³n mÃ¡s alta. Las oleadas aumentan en dificultad: mÃ¡s enemigos, mÃ¡s tipos simultÃ¡neos y jefes con ataques en rÃ¡faga.",
+      "Sobrevivir el mayor nÃƒÂºmero de oleadas posible y acumular la puntuaciÃƒÂ³n mÃƒÂ¡s alta. Las oleadas aumentan en dificultad: mÃƒÂ¡s enemigos, mÃƒÂ¡s tipos simultÃƒÂ¡neos y jefes con ataques en rÃƒÂ¡faga.",
     howToPlay_es:
-      "WASD o flechas para moverte, ratÃ³n para apuntar, Click o Espacio para atacar con la espada. Shift o E activa el dash â€” te hace invencible brevemente y te reposiciona. Los orbes verdes restauran 1 punto de vida. R reinicia, Esc vuelve al menÃº.",
+      "WASD o flechas para moverte, ratÃƒÂ³n para apuntar, Click o Espacio para atacar con la espada. Shift o E activa el dash Ã¢â‚¬â€ te hace invencible brevemente y te reposiciona. Los orbes verdes restauran 1 punto de vida. R reinicia, Esc vuelve al menÃƒÂº.",
     highlights: [
       "3 tipos de enemigos con comportamientos distintos: Grunt (carga), Archer (distancia + proyectil), Brute (tanque lento).",
-      "Jefe cada 5 oleadas: melee + rÃ¡faga de 8 proyectiles en patrÃ³n circular.",
-      "Dash con invencibilidad temporal â€” esencial para esquivar rÃ¡fagas de jefe.",
-      "Arco de espada de 86Â° con detecciÃ³n precisa de Ã¡ngulo; rebote visual de fallo.",
-      "Orbes de vida con drop aleatorio (35%) y recogida automÃ¡tica por proximidad.",
-      "SeparaciÃ³n dinÃ¡mica entre enemigos para evitar apilamiento; arqueros con strafe lateral.",
-      "PartÃ­culas procedurales: impacto, muerte, dash trail, spark de espada.",
-      "Canvas 2D nativo â€” sin librerÃ­as externas.",
+      "Jefe cada 5 oleadas: melee + rÃƒÂ¡faga de 8 proyectiles en patrÃƒÂ³n circular.",
+      "Dash con invencibilidad temporal Ã¢â‚¬â€ esencial para esquivar rÃƒÂ¡fagas de jefe.",
+      "Arco de espada de 86Ã‚Â° con detecciÃƒÂ³n precisa de ÃƒÂ¡ngulo; rebote visual de fallo.",
+      "Orbes de vida con drop aleatorio (35%) y recogida automÃƒÂ¡tica por proximidad.",
+      "SeparaciÃƒÂ³n dinÃƒÂ¡mica entre enemigos para evitar apilamiento; arqueros con strafe lateral.",
+      "PartÃƒÂ­culas procedurales: impacto, muerte, dash trail, spark de espada.",
+      "Canvas 2D nativo Ã¢â‚¬â€ sin librerÃƒÂ­as externas.",
     ],
     difficulty: "Progresiva",
     multiplayer: "Solo",
-    viability: "Alta: Canvas 2D puro, fÃ­sica de steer + colisiones circulares, sin dependencias externas.",
-    visualStyle: "EstÃ©tica neon gÃ³tica: suelo con rejilla oscura y puntos de textura, pilares de piedra con brillo de borde, enemigos con formas distintas (cÃ­rculo, diamante, cuadrado, estrella) y aura neon.",
-    techFocus: "Steering behavior con separaciÃ³n dinÃ¡mica + colisiones circulares + arco de hitbox angular + sistema de partÃ­culas procedural + proyectiles con trail de elipse.",
+    viability: "Alta: Canvas 2D puro, fÃƒÂ­sica de steer + colisiones circulares, sin dependencias externas.",
+    visualStyle: "EstÃƒÂ©tica neon gÃƒÂ³tica: suelo con rejilla oscura y puntos de textura, pilares de piedra con brillo de borde, enemigos con formas distintas (cÃƒÂ­rculo, diamante, cuadrado, estrella) y aura neon.",
+    techFocus: "Steering behavior con separaciÃƒÂ³n dinÃƒÂ¡mica + colisiones circulares + arco de hitbox angular + sistema de partÃƒÂ­culas procedural + proyectiles con trail de elipse.",
 
     category_en: "Arcade",
     tagline_en: "Arcade dungeon: fight with a sword, dodge and survive waves.",
     description_en:
-      "Neon Crypt is a top-down arena dungeon crawler with wave-based combat. Move with WASD, aim with the mouse, and attack with an 86Â° sword arc. The dash grants brief invincibility to dodge projectiles. Each wave includes Grunts that charge, Archers who keep distance and shoot, slow-but-hard-hitting Brutes, and a Boss every 5 waves firing an 8-projectile circular burst. Collect green orbs from fallen enemies to restore HP.",
+      "Neon Crypt is a top-down arena dungeon crawler with wave-based combat. Move with WASD, aim with the mouse, and attack with an 86Ã‚Â° sword arc. The dash grants brief invincibility to dodge projectiles. Each wave includes Grunts that charge, Archers who keep distance and shoot, slow-but-hard-hitting Brutes, and a Boss every 5 waves firing an 8-projectile circular burst. Collect green orbs from fallen enemies to restore HP.",
     objective_en:
       "Survive as many waves as possible and reach the highest score. Waves scale in difficulty: more enemies, more types simultaneously, and bosses with burst attacks.",
     howToPlay_en:
-      "WASD or arrows to move, mouse to aim, Click or Space to swing your sword. Shift or E activates the dash â€” grants brief invincibility and repositions you. Green orbs restore 1 HP. R restarts, Esc returns to the menu.",
+      "WASD or arrows to move, mouse to aim, Click or Space to swing your sword. Shift or E activates the dash Ã¢â‚¬â€ grants brief invincibility and repositions you. Green orbs restore 1 HP. R restarts, Esc returns to the menu.",
     highlights_en: [
       "3 enemy types with distinct behaviors: Grunt (rushes), Archer (keeps distance + shoots), Brute (slow tank).",
       "Boss every 5 waves: melee attacks + 8-projectile circular burst.",
-      "Dash with temporary invincibility â€” essential for dodging boss bursts.",
-      "86Â° sword arc with precise angle detection; visual spark on miss.",
+      "Dash with temporary invincibility Ã¢â‚¬â€ essential for dodging boss bursts.",
+      "86Ã‚Â° sword arc with precise angle detection; visual spark on miss.",
       "HP orbs with random drop (35%) and auto-pickup by proximity.",
       "Dynamic enemy separation prevents stacking; Archers strafe laterally.",
       "Procedural particles: hit, death, dash trail, sword spark.",
-      "Native Canvas 2D â€” no external libraries.",
+      "Native Canvas 2D Ã¢â‚¬â€ no external libraries.",
     ],
     difficulty_en: "Progressive",
     multiplayer_en: "Solo",
@@ -1032,21 +1032,21 @@ export const games = [
     category: "Arcade",
     tagline: "Pong contra la IA: devuelve la bola y busca el hueco.",
     description:
-      "VersiÃ³n avanzada del Pong original con fÃ­sica realista de spin (english), IA adaptativa con tres perfiles de juego, sistema de puntuaciÃ³n por tiempo o marcador, efectos de partÃ­culas y audio generado por Web Audio API.",
-    objective_es: "Alcanza 9 puntos antes que la IA o consigue la mayor puntuaciÃ³n cuando expire el tiempo. Usa el Ã¡ngulo de golpe para engaÃ±ar a la CPU.",
-    howToPlay_es: "W/S o flechas arriba/abajo para mover la raqueta. RatÃ³n sobre el canvas tambiÃ©n funciona. Enter/Espacio para empezar, P pausa, R reinicia, M sonido, F pantalla completa. Pulsa el botÃ³n de dificultad para ciclar entre Rookie, Arcade y Pro.",
+      "VersiÃƒÂ³n avanzada del Pong original con fÃƒÂ­sica realista de spin (english), IA adaptativa con tres perfiles de juego, sistema de puntuaciÃƒÂ³n por tiempo o marcador, efectos de partÃƒÂ­culas y audio generado por Web Audio API.",
+    objective_es: "Alcanza 9 puntos antes que la IA o consigue la mayor puntuaciÃƒÂ³n cuando expire el tiempo. Usa el ÃƒÂ¡ngulo de golpe para engaÃƒÂ±ar a la CPU.",
+    howToPlay_es: "W/S o flechas arriba/abajo para mover la raqueta. RatÃƒÂ³n sobre el canvas tambiÃƒÂ©n funciona. Enter/Espacio para empezar, P pausa, R reinicia, M sonido, F pantalla completa. Pulsa el botÃƒÂ³n de dificultad para ciclar entre Rookie, Arcade y Pro.",
     highlights: [
-      "FÃ­sica de english (spin) segÃºn zona de impacto en la raqueta.",
+      "FÃƒÂ­sica de english (spin) segÃƒÂºn zona de impacto en la raqueta.",
       "IA con tres perfiles: BAL (equilibrado), AGR (agresivo), DEF (defensivo).",
-      "Loop de fÃ­sica a 120 Hz desacoplado del render para precisiÃ³n mÃ¡xima.",
+      "Loop de fÃƒÂ­sica a 120 Hz desacoplado del render para precisiÃƒÂ³n mÃƒÂ¡xima.",
       "Audio procedural con Web Audio API: golpes, paredes, goles y victoria.",
-      "Rally tracker, rÃ©cord persistente y sistema de victorias acumulado.",
+      "Rally tracker, rÃƒÂ©cord persistente y sistema de victorias acumulado.",
     ],
     difficulty: "Media",
     multiplayer: "Solo vs IA",
-    viability: "Alta: motor Canvas 2D puro con fÃ­sica determinista y sin dependencias externas.",
-    visualStyle: "NeÃ³n oscuro con raquetas cyan/Ã¡mbar, partÃ­culas de impacto y trail de balÃ³n.",
-    techFocus: "Loop fijo 120Hz + render RAF, IA con dificultad dinÃ¡mica y Web Audio API procedural.",
+    viability: "Alta: motor Canvas 2D puro con fÃƒÂ­sica determinista y sin dependencias externas.",
+    visualStyle: "NeÃƒÂ³n oscuro con raquetas cyan/ÃƒÂ¡mbar, partÃƒÂ­culas de impacto y trail de balÃƒÂ³n.",
+    techFocus: "Loop fijo 120Hz + render RAF, IA con dificultad dinÃƒÂ¡mica y Web Audio API procedural.",
 
     category_en: "Arcade",
     tagline_en: "Pong against AI: return the ball and find the opening.",
@@ -1118,7 +1118,7 @@ export const games = [
     techFocus_en: "Safe mine generation, empty-cell flood fill and tiered AI solver.",
   },
 
-  // â”€â”€ Sports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Sports Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   {
     id: "sports-head-soccer-arena",
     image: headSoccerArenaImage,
@@ -1174,21 +1174,21 @@ export const games = [
     category: "Deportes",
     tagline: "Carrera 2D: traza bien, adelanta y cruza la meta primero.",
     description:
-      "Juego de carreras 2D con motor Canvas nativo. Incluye 6 circuitos rediseÃ±ados desde cero con una metodologÃ­a de tramos rectos y curvas enlazadas, procedimiento de salida tipo parrilla con cinco luces y estrategia de carrera por vueltas.",
-    objective_es: "Termina la carrera en primera posiciÃ³n superando a todos los rivales antes de que completen sus vueltas.",
-    howToPlay_es: "Arriba/abajo para acelerar y frenar, izquierda/derecha para girar. En mÃ³vil: joystick tÃ¡ctil izquierdo + botones derecha. R reinicia la carrera.",
+      "Juego de carreras 2D con motor Canvas nativo. Incluye 6 circuitos rediseÃƒÂ±ados desde cero con una metodologÃƒÂ­a de tramos rectos y curvas enlazadas, procedimiento de salida tipo parrilla con cinco luces y estrategia de carrera por vueltas.",
+    objective_es: "Termina la carrera en primera posiciÃƒÂ³n superando a todos los rivales antes de que completen sus vueltas.",
+    howToPlay_es: "Arriba/abajo para acelerar y frenar, izquierda/derecha para girar. En mÃƒÂ³vil: joystick tÃƒÂ¡ctil izquierdo + botones derecha. R reinicia la carrera.",
     highlights: [
-      "6 circuitos inÃ©ditos generados a partir de planos de rectas y curvas, cada uno con longitud, anchura y perfil propios.",
-      "Procedimiento de salida reconstruido con boxes de parrilla, cinco luces y liberaciÃ³n sincronizada.",
-      "IA de carrera con gestiÃ³n de trazada, ritmo y adelantamientos sobre formato por vueltas.",
-      "Colisiones entre coches, escapatorias y lÃ­mites de pista con agarre por entorno.",
-      "Joystick tÃ¡ctil para mÃ³vil y teclado en escritorio.",
+      "6 circuitos inÃƒÂ©ditos generados a partir de planos de rectas y curvas, cada uno con longitud, anchura y perfil propios.",
+      "Procedimiento de salida reconstruido con boxes de parrilla, cinco luces y liberaciÃƒÂ³n sincronizada.",
+      "IA de carrera con gestiÃƒÂ³n de trazada, ritmo y adelantamientos sobre formato por vueltas.",
+      "Colisiones entre coches, escapatorias y lÃƒÂ­mites de pista con agarre por entorno.",
+      "Joystick tÃƒÂ¡ctil para mÃƒÂ³vil y teclado en escritorio.",
     ],
     difficulty: "Media",
     multiplayer: "Solo vs IA",
     viability: "Alta: motor Canvas 2D nativo, sin dependencias externas de juego.",
     visualStyle: "Circuito 2D cenital con entornos diferenciados, boxes de salida y HUD de fin de semana.",
-    techFocus: "Canvas 2D, fÃ­sica de vehÃ­culo, procedimiento de salida, trazado procedural por segmentos.",
+    techFocus: "Canvas 2D, fÃƒÂ­sica de vehÃƒÂ­culo, procedimiento de salida, trazado procedural por segmentos.",
 
     category_en: "Sports",
     tagline_en: "2D racing: drive clean lines, overtake and finish first.",
@@ -1266,20 +1266,20 @@ export const games = [
     category: "Conocimiento",
     tagline: "Preguntas de cultura general: responde r\u00e1pido antes de que acabe el tiempo.",
     description:
-      "Juego de preguntas por bloques temÃ¡ticos con feedback inmediato. Combina rapidez y precisiÃ³n para acumular puntos y cerrar la sesiÃ³n con rango experto.",
-    objective_es: "Responde el mayor nÃºmero de preguntas correctamente dentro del tiempo lÃ­mite para alcanzar el rango experto.",
-    howToPlay_es: "Selecciona la respuesta pulsando el botÃ³n correspondiente y avanza al bloquear la pregunta.",
+      "Juego de preguntas por bloques temÃƒÂ¡ticos con feedback inmediato. Combina rapidez y precisiÃƒÂ³n para acumular puntos y cerrar la sesiÃƒÂ³n con rango experto.",
+    objective_es: "Responde el mayor nÃƒÂºmero de preguntas correctamente dentro del tiempo lÃƒÂ­mite para alcanzar el rango experto.",
+    howToPlay_es: "Selecciona la respuesta pulsando el botÃƒÂ³n correspondiente y avanza al bloquear la pregunta.",
     highlights: [
       "Banco de preguntas reutilizable y ampliable (>10k).",
-      "Cambio automÃ¡tico de idioma: navegador es â†’ espaÃ±ol; resto â†’ inglÃ©s.",
-      "Temporizador por ronda para aumentar desafÃ­o.",
-      "Sistema de puntuaciÃ³n y ranking final.",
+      "Cambio automÃƒÂ¡tico de idioma: navegador es Ã¢â€ â€™ espaÃƒÂ±ol; resto Ã¢â€ â€™ inglÃƒÂ©s.",
+      "Temporizador por ronda para aumentar desafÃƒÂ­o.",
+      "Sistema de puntuaciÃƒÂ³n y ranking final.",
     ],
     difficulty: "Baja-Media",
     multiplayer: "Solo",
     viability: "Alta: banco masivo local con i18n por idioma de navegador.",
-    visualStyle: "Panel quiz premium con identidad neÃ³n y lectura rÃ¡pida de feedback.",
-    techFocus: "SelecciÃ³n balanceada por tÃ³picos, i18n es/en y puntuaciÃ³n por racha.",
+    visualStyle: "Panel quiz premium con identidad neÃƒÂ³n y lectura rÃƒÂ¡pida de feedback.",
+    techFocus: "SelecciÃƒÂ³n balanceada por tÃƒÂ³picos, i18n es/en y puntuaciÃƒÂ³n por racha.",
 
     category_en: "Knowledge",
     tagline_en: "General knowledge questions: answer quickly before time runs out.",
@@ -1289,7 +1289,7 @@ export const games = [
     howToPlay_en: "Select an answer by clicking its button and advance after locking the question.",
     highlights_en: [
       "Reusable and expandable question bank (>10k).",
-      "Automatic language switch: browser es â†’ Spanish; other â†’ English.",
+      "Automatic language switch: browser es Ã¢â€ â€™ Spanish; other Ã¢â€ â€™ English.",
       "Per-round timer to increase challenge.",
       "Scoring system and final ranking.",
     ],
@@ -1464,20 +1464,20 @@ export const games = [
     category: "Conocimiento",
     tagline: "Sudoku r\u00e1pido 4x4: completa la cuadr\u00edcula con l\u00f3gica.",
     description:
-      "Modo de agilidad mental en formato Sudoku 4x4. Rellena celdas sin repetir nÃºmeros y completa el tablero con cero conflictos.",
-    objective_es: "Rellena el tablero Sudoku 4x4 sin repetir nÃºmeros en filas, columnas ni bloques.",
+      "Modo de agilidad mental en formato Sudoku 4x4. Rellena celdas sin repetir nÃƒÂºmeros y completa el tablero con cero conflictos.",
+    objective_es: "Rellena el tablero Sudoku 4x4 sin repetir nÃƒÂºmeros en filas, columnas ni bloques.",
     howToPlay_es: "Flechas para navegar celdas, teclas 1-4 o A/S/D/F para rellenar, Backspace/Delete para borrar, R para nueva partida aleatoria.",
     highlights: [
-      "SelecciÃ³n de celda por ratÃ³n o flechas.",
-      "Entrada numÃ©rica por teclas 1-4 y atajos A/S/D/F.",
-      "DetecciÃ³n de conflictos en tiempo real.",
-      "Payload QA con tablero, selecciÃ³n y estado de resoluciÃ³n.",
+      "SelecciÃƒÂ³n de celda por ratÃƒÂ³n o flechas.",
+      "Entrada numÃƒÂ©rica por teclas 1-4 y atajos A/S/D/F.",
+      "DetecciÃƒÂ³n de conflictos en tiempo real.",
+      "Payload QA con tablero, selecciÃƒÂ³n y estado de resoluciÃƒÂ³n.",
     ],
     difficulty: "Media",
     multiplayer: "Solo",
-    viability: "Alta: lÃ³gica determinista y estado compacto 100% cliente.",
+    viability: "Alta: lÃƒÂ³gica determinista y estado compacto 100% cliente.",
     visualStyle: "Panel oscuro premium con rejilla 4x4 y feedback de conflictos.",
-    techFocus: "ValidaciÃ³n de fila/columna/bloque + bridge QA de estado serializable.",
+    techFocus: "ValidaciÃƒÂ³n de fila/columna/bloque + bridge QA de estado serializable.",
 
     category_en: "Knowledge",
     tagline_en: "Fast 4x4 Sudoku: complete the grid with logic.",
@@ -1498,7 +1498,7 @@ export const games = [
     techFocus_en: "Row/column/block validation + serializable QA state bridge.",
   },
 
-  // â”€â”€ Strategy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Strategy Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   {
     id: "knowledge-domino-chain",
     image: knowledgeDominoImage,
@@ -1543,7 +1543,7 @@ export const games = [
     visualStyle_en: "Felt table with top/side opponents, serpentine chain and tactical team HUD.",
     techFocus_en: "Rule-accurate 4-seat round engine, blockage detection and team AI decisioning.",
   },
-  // â”€â”€ Knowledge (continued) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Knowledge (continued) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   {
     id: "knowledge-ahorcado-flash",
     image: knowledgeAhorcadoImage,
@@ -1555,20 +1555,20 @@ export const games = [
     category: "Conocimiento",
     tagline: "Ahorcado con pistas: adivina la palabra antes de agotar intentos.",
     description:
-      "Juego clÃ¡sico de palabras: usa las pistas y acierta letras antes de perder todos los intentos disponibles.",
+      "Juego clÃƒÂ¡sico de palabras: usa las pistas y acierta letras antes de perder todos los intentos disponibles.",
     objective_es: "Adivina la palabra oculta letra a letra antes de agotar todos los intentos disponibles.",
-    howToPlay_es: "Escribe letras para adivinar la palabra. Cuando termines, pulsa Enter o el botÃ³n de partida aleatoria para una nueva palabra.",
+    howToPlay_es: "Escribe letras para adivinar la palabra. Cuando termines, pulsa Enter o el botÃƒÂ³n de partida aleatoria para una nueva palabra.",
     highlights: [
-      "Diccionario temÃ¡tico orientado a conocimiento general.",
-      "Teclado virtual + input fÃ­sico.",
+      "Diccionario temÃƒÂ¡tico orientado a conocimiento general.",
+      "Teclado virtual + input fÃƒÂ­sico.",
       "Cambio de palabra al reiniciar para variar partidas.",
-      "Bridge QA con mÃ¡scara, letras usadas e intentos restantes.",
+      "Bridge QA con mÃƒÂ¡scara, letras usadas e intentos restantes.",
     ],
     difficulty: "Baja-Media",
     multiplayer: "Solo",
     viability: "Alta: conjunto acotado de palabras, flujo simple y rejugable.",
-    visualStyle: "Interfaz neÃ³n con barra de progreso de errores y teclado virtual.",
-    techFocus: "Entrada por teclado global, mÃ¡scara de palabra y gestiÃ³n de intentos.",
+    visualStyle: "Interfaz neÃƒÂ³n con barra de progreso de errores y teclado virtual.",
+    techFocus: "Entrada por teclado global, mÃƒÂ¡scara de palabra y gestiÃƒÂ³n de intentos.",
 
     category_en: "Knowledge",
     tagline_en: "Hangman with clues: guess the word before attempts run out.",
@@ -1599,20 +1599,20 @@ export const games = [
     category: "Conocimiento",
     tagline: "Solitario Klondike completo: 52 cartas, 7 columnas y 4 fundaciones.",
     description:
-      "Paciencia clÃ¡sica con la normativa Klondike: baraja francesa de 52 cartas, 7 columnas escalonadas, mazo y descarte con reciclado, y cuatro fundaciones por palo de As a Rey. Mueve secuencias completas en orden descendente y color alternado.",
+      "Paciencia clÃƒÂ¡sica con la normativa Klondike: baraja francesa de 52 cartas, 7 columnas escalonadas, mazo y descarte con reciclado, y cuatro fundaciones por palo de As a Rey. Mueve secuencias completas en orden descendente y color alternado.",
     objective_es: "Construye las cuatro fundaciones de As a Rey, una por palo, organizando el tableau con secuencias descendentes de color alternado.",
-    howToPlay_es: "Arrastra cartas o pilas para moverlas, haz doble click para enviar a fundaciÃ³n, pulsa el mazo para robar (recicla cuando se vacÃ­a). Atajos: D robar/reciclar, F auto-fundaciÃ³n, P nueva partida, Esc deselecciona.",
+    howToPlay_es: "Arrastra cartas o pilas para moverlas, haz doble click para enviar a fundaciÃƒÂ³n, pulsa el mazo para robar (recicla cuando se vacÃƒÂ­a). Atajos: D robar/reciclar, F auto-fundaciÃƒÂ³n, P nueva partida, Esc deselecciona.",
     highlights: [
       "Reglas Klondike completas: 52 cartas, 4 palos, fundaciones de A a K.",
-      "Movimiento de secuencias completas con validaciÃ³n estricta.",
-      "Drag & drop unificado y tap-tap nativo en mÃ³vil/tablet.",
+      "Movimiento de secuencias completas con validaciÃƒÂ³n estricta.",
+      "Drag & drop unificado y tap-tap nativo en mÃƒÂ³vil/tablet.",
       "Cronometro en vivo y mejor marca persistente (movimientos y tiempo).",
-      "Auto-fundaciÃ³n y reciclado de mazo ilimitado (Draw 1).",
+      "Auto-fundaciÃƒÂ³n y reciclado de mazo ilimitado (Draw 1).",
     ],
     difficulty: "Media-Alta",
     multiplayer: "Solo",
     viability: "Alta: motor de reglas Klondike sin dependencias externas.",
-    visualStyle: "Mesa verde con cartas blancas, dorso degradado y resaltado de selecciÃ³n.",
+    visualStyle: "Mesa verde con cartas blancas, dorso degradado y resaltado de selecciÃƒÂ³n.",
     techFocus: "Pointer Events unificados, layout responsive y persistencia local de mejor marca.",
 
     category_en: "Knowledge",
@@ -1645,20 +1645,20 @@ export const games = [
     title_en: "Sliding Puzzle 8",
     category: "Conocimiento",
     tagline: "Puzzle deslizante: mueve el hueco y ordena las piezas.",
-    description: "Puzzle numÃ©rico clÃ¡sico de 8 piezas. Mueve las fichas adyacentes para ordenar la secuencia completa.",
-    objective_es: "Ordena las fichas del 1 al 8 deslizando el espacio vacÃ­o para completar la secuencia.",
+    description: "Puzzle numÃƒÂ©rico clÃƒÂ¡sico de 8 piezas. Mueve las fichas adyacentes para ordenar la secuencia completa.",
+    objective_es: "Ordena las fichas del 1 al 8 deslizando el espacio vacÃƒÂ­o para completar la secuencia.",
     howToPlay_es: "Usa las flechas para mover el hueco o pulsa fichas adyacentes directamente. R carga una nueva partida aleatoria.",
     highlights: [
-      "Control dual: teclado y ratÃ³n.",
+      "Control dual: teclado y ratÃƒÂ³n.",
       "Conteo de movimientos por partida.",
-      "FinalizaciÃ³n automÃ¡tica al detectar secuencia correcta.",
-      "Payload QA con posiciÃ³n exacta de cada ficha.",
+      "FinalizaciÃƒÂ³n automÃƒÂ¡tica al detectar secuencia correcta.",
+      "Payload QA con posiciÃƒÂ³n exacta de cada ficha.",
     ],
     difficulty: "Media",
     multiplayer: "Solo",
     viability: "Alta: algoritmo de swap simple y estado totalmente determinista.",
-    visualStyle: "Grid 3x3 limpio con foco en legibilidad y ritmo rÃ¡pido.",
-    techFocus: "Movimientos por flechas/click y verificaciÃ³n instantÃ¡nea de soluciÃ³n.",
+    visualStyle: "Grid 3x3 limpio con foco en legibilidad y ritmo rÃƒÂ¡pido.",
+    techFocus: "Movimientos por flechas/click y verificaciÃƒÂ³n instantÃƒÂ¡nea de soluciÃƒÂ³n.",
 
     category_en: "Knowledge",
     tagline_en: "Sliding puzzle: move the empty space and order the tiles.",
@@ -1700,9 +1700,9 @@ export const games = [
     ],
     difficulty: "Media",
     multiplayer: "Solo",
-    viability: "Alta: rejilla fija de bajo coste y validaciÃ³n por comparaciÃ³n directa.",
+    viability: "Alta: rejilla fija de bajo coste y validaciÃƒÂ³n por comparaciÃƒÂ³n directa.",
     visualStyle: "Panel de letras con celdas bloqueadas y listado de pistas lateral.",
-    techFocus: "EdiciÃ³n celda a celda, navegaciÃ³n por flechas y comprobaciÃ³n de soluciÃ³n.",
+    techFocus: "EdiciÃƒÂ³n celda a celda, navegaciÃƒÂ³n por flechas y comprobaciÃƒÂ³n de soluciÃƒÂ³n.",
 
     category_en: "Knowledge",
     tagline_en: "Crossword: solve clues and cross words to complete the board.",
@@ -1782,21 +1782,21 @@ export const games = [
     category: "Conocimiento",
     tagline: "Sopa de letras: encuentra palabras ocultas en varias direcciones.",
     description:
-      "Encuentra palabras de conocimiento general dentro de una rejilla grande. Cada partida cambia de forma determinista y permite localizar palabras en horizontal, vertical o diagonal, tanto en sentido normal como al revÃ©s.",
+      "Encuentra palabras de conocimiento general dentro de una rejilla grande. Cada partida cambia de forma determinista y permite localizar palabras en horizontal, vertical o diagonal, tanto en sentido normal como al revÃƒÂ©s.",
     objective_es: "Encuentra todas las palabras ocultas en la rejilla 20x20 en horizontal, vertical o diagonal.",
-    howToPlay_es: "Arrastra o marca inicio-fin para seleccionar palabras en horizontal, vertical o diagonal (tambiÃ©n al revÃ©s). R carga una nueva partida aleatoria.",
+    howToPlay_es: "Arrastra o marca inicio-fin para seleccionar palabras en horizontal, vertical o diagonal (tambiÃƒÂ©n al revÃƒÂ©s). R carga una nueva partida aleatoria.",
     highlights: [
-      "Tablero grande 20x20 para sesiones de bÃºsqueda mÃ¡s largas.",
-      "10.000 combinaciones por idioma (es/en) segÃºn locale del navegador.",
-      "SelecciÃ³n por arrastre o click inicio-fin con soporte de direcciÃ³n inversa.",
+      "Tablero grande 20x20 para sesiones de bÃƒÂºsqueda mÃƒÂ¡s largas.",
+      "10.000 combinaciones por idioma (es/en) segÃƒÂºn locale del navegador.",
+      "SelecciÃƒÂ³n por arrastre o click inicio-fin con soporte de direcciÃƒÂ³n inversa.",
       "Palabras reales de ciencia, historia, lenguaje, salud y cultura.",
       "Bridge QA con estado serializado de progreso y palabras pendientes.",
     ],
     difficulty: "Media",
     multiplayer: "Solo",
-    viability: "Alta: generador determinista por semilla, estado ligero y validaciÃ³n directa por trazado.",
+    viability: "Alta: generador determinista por semilla, estado ligero y validaciÃƒÂ³n directa por trazado.",
     visualStyle: "Panel premium de letras con rejilla amplia, trazado en vivo y listado de objetivos.",
-    techFocus: "GeneraciÃ³n procedural bilingÃ¼e de 10k partidas + detecciÃ³n de lÃ­neas (horizontal/reversa/vertical/diagonal).",
+    techFocus: "GeneraciÃƒÂ³n procedural bilingÃƒÂ¼e de 10k partidas + detecciÃƒÂ³n de lÃƒÂ­neas (horizontal/reversa/vertical/diagonal).",
 
     category_en: "Knowledge",
     tagline_en: "Word search: find hidden words in several directions.",
@@ -2321,21 +2321,21 @@ export const games = [
     category: "Estrategia",
     tagline: "Ajedrez completo: protege tu rey y busca el jaque mate.",
     description:
-      "ImplementaciÃ³n profesional de ajedrez para web: valida legalidad de cada movimiento, incluye capturas al paso, enroque corto/largo, promociones completas y detecciÃ³n de jaque, mate, ahogado y tablas por repeticiÃ³n/material.",
+      "ImplementaciÃƒÂ³n profesional de ajedrez para web: valida legalidad de cada movimiento, incluye capturas al paso, enroque corto/largo, promociones completas y detecciÃƒÂ³n de jaque, mate, ahogado y tablas por repeticiÃƒÂ³n/material.",
     objective_es: "Pon en jaque mate al rey rival o logra tablas ventajosas aplicando todas las reglas FIDE del ajedrez.",
     howToPlay_es: "Haz clic en una pieza y luego en el destino para mover. U para deshacer, D para reclamar tablas, F alterna pantalla completa.",
     highlights: [
       "IA por dificultad seleccionable al iniciar (Principiante, Intermedio, Avanzado y Experto).",
-      "NotaciÃ³n algebraica en histÃ³rico de jugadas y resaltado de Ãºltimo movimiento.",
-      "Reglas FIDE clave: enroque, captura al paso, promociÃ³n y control de jaque legal.",
-      "Tablas por material insuficiente, triple/quÃ­ntuple repeticiÃ³n y regla 50/75 movimientos.",
+      "NotaciÃƒÂ³n algebraica en histÃƒÂ³rico de jugadas y resaltado de ÃƒÂºltimo movimiento.",
+      "Reglas FIDE clave: enroque, captura al paso, promociÃƒÂ³n y control de jaque legal.",
+      "Tablas por material insuficiente, triple/quÃƒÂ­ntuple repeticiÃƒÂ³n y regla 50/75 movimientos.",
       "Puente de QA con render_game_to_text y avance de tiempo determinista.",
     ],
     difficulty: "Variable (4 niveles IA)",
     multiplayer: "Solo vs IA",
-    viability: "Alta: motor determinÃ­stico con validaciÃ³n legal por posiciÃ³n y bridge QA.",
+    viability: "Alta: motor determinÃƒÂ­stico con validaciÃƒÂ³n legal por posiciÃƒÂ³n y bridge QA.",
     visualStyle: "Tablero elegante tipo torneo con panel de jugadas, piezas limpias y foco en legibilidad.",
-    techFocus: "GeneraciÃ³n de movimientos legales, SAN en espaÃ±ol, IA minimax y reglas FIDE de tablas.",
+    techFocus: "GeneraciÃƒÂ³n de movimientos legales, SAN en espaÃƒÂ±ol, IA minimax y reglas FIDE de tablas.",
 
     category_en: "Strategy",
     tagline_en: "Full chess: protect your king and aim for checkmate.",
@@ -2660,7 +2660,7 @@ export const games = [
     techFocus_en: "Event-driven inference engine (refutes, no-refutes, hints) plus contextual bluff/risk AI policy.",
   },
 
-  // â”€â”€ RPG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Ã¢â€â‚¬Ã¢â€â‚¬ RPG Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   {
     id: "arcade-retro-snake-classic",
@@ -2669,7 +2669,7 @@ export const games = [
     title: "Snake",
     category: "Arcade",
     tagline: "Snake cl\u00e1sico: come, crece y evita chocar contigo mismo.",
-    description: "Relectura visual de Snake con tablero glow, fondo dinÃ¡mico y sprites mÃ¡s legibles. Mantiene control preciso por rejilla, progresiÃ³n por nivel y sesiones cortas con sensaciÃ³n de arcade actual.",
+    description: "Relectura visual de Snake con tablero glow, fondo dinÃƒÂ¡mico y sprites mÃƒÂ¡s legibles. Mantiene control preciso por rejilla, progresiÃƒÂ³n por nivel y sesiones cortas con sensaciÃƒÂ³n de arcade actual.",
     objective_es: "Come frutos para crecer y supera el objetivo de cada nivel sin chocar con muros ni con tu cola.",
     howToPlay_es: "Flechas o WASD para girar. Enter/Espacio inicia, P pausa, R reinicia y F pantalla completa.",
     highlights: [
@@ -2681,7 +2681,7 @@ export const games = [
     difficulty: "Media",
     multiplayer: "Solo",
     viability: "Alta: motor discreto, estado ligero y bucle de 60Hz.",
-    visualStyle: "Neon-cyber con gradientes, bloom suave y jerarquÃ­a visual moderna de tablero.",
+    visualStyle: "Neon-cyber con gradientes, bloom suave y jerarquÃƒÂ­a visual moderna de tablero.",
     techFocus: "Control por eventos, colisiones de rejilla y progresion de dificultad estable.",
     category_en: "Arcade",
     tagline_en: "Classic Snake: eat, grow and avoid crashing into yourself.",
@@ -2704,33 +2704,33 @@ export const games = [
     id: "arcade-retro-breakout-1986",
     image: arcadeRetroBreakout1986Image,
     sessionTime: "3-7 min",
-    title: "Breakout",
+    title: "Chromatic Tether",
     category: "Arcade",
-    tagline: "Rompebloques: mant\u00e9n la bola viva y limpia ladrillos.",
-    description: "Breakout reinterpretado con escenario de cabina, trazas de bola, glow de impactos y lectura visual profesional. Conserva las capas de resistencia, el control fino de rebote y el power-up tÃ¡ctico de pala.",
-    objective_es: "Destruye todos los bloques del muro sin perder tus vidas.",
-    howToPlay_es: "A/D o flechas izquierda/derecha para mover pala. Espacio lanza bola. P pausa, R reinicia y F pantalla completa.",
+    tagline: "Desvia el pulso, rompe paneles y evita perder la pelota.",
+    description: "Arcade tipo breakout: mueve un emisor horizontal para mantener el pulso de energia en juego, rebotalo contra la camara orbital y destruye todos los paneles cromaticos antes de perder la carga.",
+    objective_es: "Destruye todos los paneles antes de quedarte sin pulso. Algunos paneles resisten varios impactos y los refuerzos amplian el emisor.",
+    howToPlay_es: "A/D o flechas izquierda/derecha mueven el emisor. Espacio lanza el pulso cuando esta listo y tambien lo vuelve a poner en juego tras un reinicio de punto. P pausa, R reinicia y F pantalla completa.",
     highlights: [
-      "Filas con distinta dureza para un pacing de riesgo claro.",
-      "Power-up de pala extendida con temporizador.",
-      "Ritmo creciente por nivel con bolas mas rapidas.",
-      "Puntuacion por rotura, bonus y limpieza de muro.",
+      "Filas de paneles con distinta dureza para un ritmo de riesgo claro.",
+      "Refuerzos temporales que amplian el emisor y facilitan el control.",
+      "La velocidad del pulso crece por nivel para subir la presion.",
+      "Puntuacion por rotura, bonus y limpieza total del tablero.",
     ],
     difficulty: "Media-Alta",
     multiplayer: "Solo",
     viability: "Alta: fisica simple con colisiones circulo-rectangulo.",
-    visualStyle: "Cabina arcade contemporÃ¡nea con materiales brillantes y contraste cinematogrÃ¡fico.",
+    visualStyle: "Cabina arcade contemporanea con materiales brillantes y contraste cinematografico.",
     techFocus: "Deteccion de colisiones, control de angulo en pala y progresion por olas de bloques.",
     category_en: "Arcade",
-    tagline_en: "Brick breaker: keep the ball alive and clear bricks.",
-    description_en: "A redesigned Breakout featuring cabinet-like presentation, ball trails, impact glow, and professional readability while preserving layered brick durability, paddle-angle control, and tactical width boosts.",
-    objective_en: "Destroy every brick wall before losing all lives.",
-    howToPlay_en: "Use A/D or left/right arrows to move paddle. Space launches ball. P pauses, R restarts, F toggles fullscreen.",
+    tagline_en: "Keep the pulse in play, break panels, and avoid dropping the ball.",
+    description_en: "A breakout-style arcade: move a horizontal emitter to keep the energy pulse alive, bounce it around the orbital chamber, and destroy every chromatic panel before the charge is lost.",
+    objective_en: "Destroy every panel before you run out of pulse. Some panels take multiple hits and boosts widen the emitter.",
+    howToPlay_en: "Use A/D or left/right arrows to move the emitter. Space launches the pulse when it is ready and serves it again after a point reset. P pauses, R restarts, and F toggles fullscreen.",
     highlights_en: [
-      "Multi-durability rows for clearer risk pacing.",
-      "Timed extended-paddle power-up.",
-      "Faster balls and pressure per level.",
-      "Scoring on breaks, boosts, and full clears.",
+      "Panel rows with different durability for clear pacing.",
+      "Timed boosts that widen the emitter and help control the run.",
+      "Pulse speed increases by level to raise the pressure.",
+      "Scoring for breaks, bonuses, and full board clears.",
     ],
     difficulty_en: "Medium-High",
     multiplayer_en: "Solo",
@@ -2745,7 +2745,7 @@ export const games = [
     title: "Space Invaders Core",
     category: "Arcade",
     tagline: "Defensa espacial: dispara invasores antes de que desciendan.",
-    description: "Shooter arcade inspirado en Space Invaders con direcciÃ³n artÃ­stica renovada: naves mÃ¡s definidas, disparos luminosos, atmÃ³sfera espacial dinÃ¡mica y HUD claro para sesiones intensas por oleadas.",
+    description: "Shooter arcade inspirado en Space Invaders con direcciÃƒÂ³n artÃƒÂ­stica renovada: naves mÃƒÂ¡s definidas, disparos luminosos, atmÃƒÂ³sfera espacial dinÃƒÂ¡mica y HUD claro para sesiones intensas por oleadas.",
     objective_es: "Elimina todas las naves invasoras antes de que alcancen tu base.",
     howToPlay_es: "A/D o flechas para moverte y Espacio para disparar. P pausa, R reinicia, F pantalla completa.",
     highlights: [
@@ -2821,7 +2821,7 @@ export const games = [
     title: "Frogger Crossing DX",
     category: "Arcade",
     tagline: "Cruza carretera y r\u00edo esquivando coches y usando troncos.",
-    description: "Arcade inspirado en Frogger con actualizaciÃ³n estÃ©tica completa: carretera y rÃ­o con mÃ¡s profundidad, vehÃ­culos y troncos mÃ¡s expresivos, y una lectura de timing mÃ¡s clara en todo el recorrido.",
+    description: "Arcade inspirado en Frogger con actualizaciÃƒÂ³n estÃƒÂ©tica completa: carretera y rÃƒÂ­o con mÃƒÂ¡s profundidad, vehÃƒÂ­culos y troncos mÃƒÂ¡s expresivos, y una lectura de timing mÃƒÂ¡s clara en todo el recorrido.",
     objective_es: "Llega a todas las guaridas superiores sin ser atropellado ni caer al agua.",
     howToPlay_es: "Flechas o WASD para saltar en rejilla. P pausa, R reinicia y F pantalla completa.",
     highlights: [
@@ -2833,7 +2833,7 @@ export const games = [
     difficulty: "Media-Alta",
     multiplayer: "Solo",
     viability: "Alta: simulacion por carriles con colisiones discretas.",
-    visualStyle: "Arcade colorista contemporÃ¡neo con capas de escenario y animaciÃ³n ambiental.",
+    visualStyle: "Arcade colorista contemporÃƒÂ¡neo con capas de escenario y animaciÃƒÂ³n ambiental.",
     techFocus: "Movimiento por casillas, deteccion por lane y progresion por slots objetivo.",
     category_en: "Arcade",
     tagline_en: "Cross road and river by dodging cars and riding logs.",
@@ -2856,31 +2856,31 @@ export const games = [
     id: "arcade-retro-bomber-grid",
     image: arcadeRetroBomberGridImage,
     sessionTime: "4-10 min",
-    title: "Bomber",
+    title: "Pulse Garden",
     category: "Arcade",
-    tagline: "Bomber de laberinto: pon bombas, abre caminos y atrapa rivales.",
-    description: "Arcade de laberinto tipo bomber con rediseÃ±o visual profundo: tiles con materiales diferenciados, bombas y llamas mÃ¡s legibles, y feedback visual reforzado para jugar rÃ¡pido sin perder precisiÃ³n.",
-    objective_es: "Elimina todas las patrullas del laberinto sin quedar atrapado por tus explosiones.",
-    howToPlay_es: "Flechas/WASD para moverte y Espacio para colocar bomba. P pausa, R reinicia y F pantalla completa.",
+    tagline: "Coloca balizas, abre vetas y limpia el jardin sin caer en tu propia explosion.",
+    description: "Arcade de laberinto por celdas: mueve al explorador por una colonia mineral, coloca balizas de pulso para romper paredes y abrir rutas, elimina patrullas y recoge mejoras de alcance y capacidad.",
+    objective_es: "Elimina a todos los organismos y limpia la colonia sin quedarte dentro de la explosion de una baliza propia.",
+    howToPlay_es: "WASD o flechas mueven al explorador casilla a casilla. Espacio o Enter colocan una baliza de pulso; explota a los pocos segundos en cruz. P pausa, R reinicia y F pantalla completa.",
     highlights: [
-      "Mapa con muros fijos y bloques destruibles por explosion.",
-      "Power-ups de rango y capacidad de bomba.",
+      "Mapa de colonia con muros fijos, pasillos cerrados y bloques destruibles por explosion.",
+      "Balizas con alcance y capacidad mejorables.",
       "Patrullas con movimiento semialeatorio por celdas.",
       "Presion de tiempo por ronda en cada sector.",
     ],
     difficulty: "Alta",
     multiplayer: "Solo",
     viability: "Alta: simulacion por celdas y explosion en cruz determinista.",
-    visualStyle: "Maze neo-arcade con texturas, brillos de explosiÃ³n y contraste competitivo.",
+    visualStyle: "Maze neo-arcade con texturas, brillos de explosion y contraste competitivo.",
     techFocus: "Pathing por celdas, detonacion radial en cruz y sistema de mejoras.",
     category_en: "Arcade",
-    tagline_en: "Bomber maze: place bombs, open paths and trap rivals.",
-    description_en: "Bomber-style maze arcade with major visual upgrades: differentiated tile materials, clearer bomb/flame readability, and stronger impact feedback for fast, precise play.",
-    objective_en: "Eliminate every maze patrol without trapping yourself in your own blast path.",
-    howToPlay_en: "Use arrows/WASD to move and Space to plant bombs. P pauses, R restarts, F toggles fullscreen.",
+    tagline_en: "Place beacons, open veins, and clear the garden without taking your own blast.",
+    description_en: "A grid-based maze arcade: move an explorer through a mineral colony, place pulse beacons to break walls and open routes, eliminate patrols, and collect range/capacity upgrades.",
+    objective_en: "Eliminate every organism and clear the colony without standing inside the blast of your own beacon.",
+    howToPlay_en: "Use WASD or arrows to move tile by tile. Space or Enter places a pulse beacon, which explodes after a few seconds in a cross. P pauses, R restarts, and F toggles fullscreen.",
     highlights_en: [
-      "Fixed-wall maze plus blast-breakable blocks.",
-      "Bomb range and capacity power-up system.",
+      "Colony map with fixed walls, closed corridors, and blast-breakable blocks.",
+      "Beacons with upgradeable range and capacity.",
       "Cell-based semi-random patrol movement.",
       "Per-sector round timer pressure.",
     ],
@@ -2973,7 +2973,7 @@ export const games = [
     title: "Lunar Lander Orbit",
     category: "Arcade",
     tagline: "Aterrizaje lunar: controla empuje, velocidad y combustible.",
-    description: "Lander clÃ¡sico reconstruido con presentaciÃ³n moderna. Controla angulo, velocidad horizontal/vertical y combustible para aterrizar de forma segura.",
+    description: "Lander clÃƒÂ¡sico reconstruido con presentaciÃƒÂ³n moderna. Controla angulo, velocidad horizontal/vertical y combustible para aterrizar de forma segura.",
     objective_es: "Aterriza sobre la plataforma cumpliendo limites de velocidad y angulo.",
     howToPlay_es: "A/D rota, W activa propulsor. P pausa, R reinicia y F pantalla completa.",
     highlights: [
@@ -3011,7 +3011,7 @@ export const games = [
     title: "Centipede Circuit",
     category: "Arcade",
     tagline: "Shooter fijo: rompe enjambres segmentados antes de ser rodeado.",
-    description: "Actualizacion visual de Centipede con cuadricula clara y lectura de amenazas por capas. Defiende la base disparando a segmentos y unidades de caÃ­da.",
+    description: "Actualizacion visual de Centipede con cuadricula clara y lectura de amenazas por capas. Defiende la base disparando a segmentos y unidades de caÃƒÂ­da.",
     objective_es: "Elimina todos los segmentos centipede antes de que alcancen la base.",
     howToPlay_es: "Flechas/WASD para moverte en la zona inferior y Espacio para disparar. P pausa, R reinicia y F pantalla completa.",
     highlights: [
@@ -3049,11 +3049,11 @@ export const games = [
     title: "River Raid Neon",
     category: "Arcade",
     tagline: "Raid a\u00e9reo: esquiva, dispara y recoge combustible.",
-    description: "Inspirado en River Raid: avanza por un caÃ±on vivo, esquiva colisiones, destruye objetivos y recoge combustible para sostener la carrera.",
+    description: "Inspirado en River Raid: avanza por un caÃƒÂ±on vivo, esquiva colisiones, destruye objetivos y recoge combustible para sostener la carrera.",
     objective_es: "Completa la distancia objetivo sin chocar y sin quedarte sin combustible.",
     howToPlay_es: "A/D maniobra, W acelera, S frena, Espacio dispara. P pausa, R reinicia y F pantalla completa.",
     highlights: [
-      "CaÃ±on procedural con anchura variable.",
+      "CaÃƒÂ±on procedural con anchura variable.",
       "Objetivos hostiles y pickups de fuel en ruta.",
       "Control de ritmo via aceleracion/frenado.",
       "Progresion por distancia con riesgo acumulativo.",
@@ -3125,7 +3125,7 @@ export const games = [
     title: "Road Fighter Synth",
     category: "Arcade",
     tagline: "Carrera vertical: cambia de carril y sobrevive al tr\u00e1fico.",
-    description: "Relectura de Road Fighter con enfoque competitivo: cambia carril al milisegundo, controla ritmo y supera tramos de trÃ¡fico creciente.",
+    description: "Relectura de Road Fighter con enfoque competitivo: cambia carril al milisegundo, controla ritmo y supera tramos de trÃƒÂ¡fico creciente.",
     objective_es: "Completa la distancia objetivo sin colisionar con el trafico.",
     howToPlay_es: "A/D cambia carril, W acelera, S frena. P pausa, R reinicia y F pantalla completa.",
     highlights: [
@@ -3265,39 +3265,39 @@ export const games = [
     category: "Deportes",
     tagline: "Tiro de baloncesto: ajusta fuerza y direcci\u00f3n para anotar.",
     description:
-      "Juego de baloncesto de entrenamiento donde cada ronda recorre las 6 posiciones reglamentarias: tiro libre, media distancia, triple esquina izquierda, triple esquina derecha, triple lateral izquierdo y triple central. El jugador ajusta el Ã¡ngulo de arco (38-66Â°), la potencia y la desviaciÃ³n lateral antes de cada lanzamiento. La bola sigue una trayectoria balÃ­stica real con gravedad y drag aerodinÃ¡mico, rebota fÃ­sicamente en el aro y la tabla, y la cÃ¡mara 3D se posiciona detrÃ¡s del tirador en cada posiciÃ³n para mostrar el pabellÃ³n de entrenamiento desde su perspectiva.",
+      "Juego de baloncesto de entrenamiento donde cada ronda recorre las 6 posiciones reglamentarias: tiro libre, media distancia, triple esquina izquierda, triple esquina derecha, triple lateral izquierdo y triple central. El jugador ajusta el ÃƒÂ¡ngulo de arco (38-66Ã‚Â°), la potencia y la desviaciÃƒÂ³n lateral antes de cada lanzamiento. La bola sigue una trayectoria balÃƒÂ­stica real con gravedad y drag aerodinÃƒÂ¡mico, rebota fÃƒÂ­sicamente en el aro y la tabla, y la cÃƒÂ¡mara 3D se posiciona detrÃƒÂ¡s del tirador en cada posiciÃƒÂ³n para mostrar el pabellÃƒÂ³n de entrenamiento desde su perspectiva.",
     objective_es:
-      "Encestar el mÃ¡ximo de los 6 tiros posibles en cada ronda para acumular puntos y batir tu rÃ©cord (mÃ¡ximo 15 puntos: 1+2+3+3+3+3).",
+      "Encestar el mÃƒÂ¡ximo de los 6 tiros posibles en cada ronda para acumular puntos y batir tu rÃƒÂ©cord (mÃƒÂ¡ximo 15 puntos: 1+2+3+3+3+3).",
     howToPlay_es:
-      "Arriba/abajo ajustan el arco del lanzamiento, izquierda/derecha la desviaciÃ³n lateral y W/S la potencia. Space o Enter lanza. Los indicadores de color en los controles muestran cuÃ¡ndo los parÃ¡metros se acercan al Ã¡ngulo y potencia ideales para cada posiciÃ³n. P pausa, R nueva ronda y F pantalla completa.",
+      "Arriba/abajo ajustan el arco del lanzamiento, izquierda/derecha la desviaciÃƒÂ³n lateral y W/S la potencia. Space o Enter lanza. Los indicadores de color en los controles muestran cuÃƒÂ¡ndo los parÃƒÂ¡metros se acercan al ÃƒÂ¡ngulo y potencia ideales para cada posiciÃƒÂ³n. P pausa, R nueva ronda y F pantalla completa.",
     highlights: [
       "6 posiciones reglamentarias FIBA: tiro libre (1 pt), media distancia (2 pts) y cuatro triples (3 pts c/u).",
-      "FÃ­sica balÃ­stica 3D completa: gravedad 9.82 m/sÂ², drag aerodinÃ¡mico y colisiÃ³n elÃ¡stica con el aro (16 puntos de contacto).",
+      "FÃƒÂ­sica balÃƒÂ­stica 3D completa: gravedad 9.82 m/sÃ‚Â², drag aerodinÃƒÂ¡mico y colisiÃƒÂ³n elÃƒÂ¡stica con el aro (16 puntos de contacto).",
       "Rebotes realistas en el aro y la tabla trasera: los balls cercanos pueden entrar por carambola.",
-      "CÃ¡mara 3D perspectiva detrÃ¡s del tirador que cambia de posiciÃ³n para cada tiro.",
-      "PabellÃ³n de entrenamiento detallado: suelo de parquÃ© con vetas, lÃ­neas FIBA, zona de pintura, arco de triple, tablero con caja de tiro y red animada.",
+      "CÃƒÂ¡mara 3D perspectiva detrÃƒÂ¡s del tirador que cambia de posiciÃƒÂ³n para cada tiro.",
+      "PabellÃƒÂ³n de entrenamiento detallado: suelo de parquÃƒÂ© con vetas, lÃƒÂ­neas FIBA, zona de pintura, arco de triple, tablero con caja de tiro y red animada.",
       "Preview de trayectoria en tiempo real antes del lanzamiento.",
-      "Vista de pÃ¡jaro del aro (rim view) para leer la desviaciÃ³n lateral antes de disparar.",
-      "Gauges de color (arco, potencia, lateral) que indican la distancia al parÃ¡metro ideal de cada posiciÃ³n.",
-      "RÃ©cord persistente en localStorage.",
+      "Vista de pÃƒÂ¡jaro del aro (rim view) para leer la desviaciÃƒÂ³n lateral antes de disparar.",
+      "Gauges de color (arco, potencia, lateral) que indican la distancia al parÃƒÂ¡metro ideal de cada posiciÃƒÂ³n.",
+      "RÃƒÂ©cord persistente en localStorage.",
     ],
     difficulty: "Media",
     multiplayer: "Solo",
-    viability: "Alta: motor Canvas determinista, fÃ­sica balÃ­stica exacta y estado serializable.",
-    visualStyle: "PabellÃ³n de entrenamiento NBA/FIBA con suelo de parquÃ©, iluminaciÃ³n cenital y basket reglamentario en perspectiva 3D.",
-    techFocus: "ProyecciÃ³n perspectiva 3D custom, fÃ­sica balÃ­stica con substep, colisiÃ³n esfÃ©rica aro + tabla y preview de trayectoria en tiempo real.",
+    viability: "Alta: motor Canvas determinista, fÃƒÂ­sica balÃƒÂ­stica exacta y estado serializable.",
+    visualStyle: "PabellÃƒÂ³n de entrenamiento NBA/FIBA con suelo de parquÃƒÂ©, iluminaciÃƒÂ³n cenital y basket reglamentario en perspectiva 3D.",
+    techFocus: "ProyecciÃƒÂ³n perspectiva 3D custom, fÃƒÂ­sica balÃƒÂ­stica con substep, colisiÃƒÂ³n esfÃƒÂ©rica aro + tabla y preview de trayectoria en tiempo real.",
 
     category_en: "Sports",
     tagline_en: "Basketball shooting: adjust power and direction to score.",
     description_en:
-      "A basketball training game where each round cycles through 6 regulation positions: free throw, mid-range, left corner 3, right corner 3, left wing 3, and center 3. Players tune arc angle (38-66Â°), power, and lateral deviation before each shot. The ball follows a real ballistic trajectory with gravity and aerodynamic drag, physically bounces off the rim and backboard, and the 3D camera repositions behind the shooter at each spot to show the gymnasium from their perspective.",
+      "A basketball training game where each round cycles through 6 regulation positions: free throw, mid-range, left corner 3, right corner 3, left wing 3, and center 3. Players tune arc angle (38-66Ã‚Â°), power, and lateral deviation before each shot. The ball follows a real ballistic trajectory with gravity and aerodynamic drag, physically bounces off the rim and backboard, and the 3D camera repositions behind the shooter at each spot to show the gymnasium from their perspective.",
     objective_en:
       "Score as many of the 6 shots as possible each round and beat your record (maximum 15 points: 1+2+3+3+3+3).",
     howToPlay_en:
       "Up/down keys tune arc, left/right lateral deviation, and W/S power. Space or Enter shoots. Colour-coded gauges show when each parameter is close to the ideal for that position. P pauses, R starts a new round, and F toggles fullscreen.",
     highlights_en: [
       "6 FIBA regulation spots: free throw (1 pt), mid-range (2 pts), and four three-pointers (3 pts each).",
-      "Full 3D ballistic physics: 9.82 m/sÂ² gravity, aerodynamic drag, and elastic collision with the rim (16 contact points).",
+      "Full 3D ballistic physics: 9.82 m/sÃ‚Â² gravity, aerodynamic drag, and elastic collision with the rim (16 contact points).",
       "Realistic rim and backboard bounces: close shots can still go in off the iron.",
       "3D perspective camera repositions behind the shooter for each new position.",
       "Detailed training gymnasium: hardwood floor with wood-grain, full FIBA markings, paint zone, three-point arc, backboard with shooting box, and animated net.",
@@ -3321,51 +3321,51 @@ export const games = [
     title: "Ascenso a la Cumbre",
     title_en: "Summit Ascent",
     category: "Juegos",
-    tagline: "Escalada vertical 2D: gestiona estamina, cuevas y meteorología hasta plantar la bandera.",
+    tagline: "Escalada vertical 2D: gestiona estamina, cuevas y meteorologÃ­a hasta plantar la bandera.",
     description:
-      "Un juego de escalada vertical 2D con un mundo de 16.000 px de altura partido en 8 bandas climáticas (campo base, bosque, roca calma, viento, niebla, tormenta, nieve y cumbre). El escalador articulado tiene cuatro extremidades animadas con un ciclo real de planteo y empuje, casco rojo con gafas, mochila con esterilla, arnés con cuerda visible al último anclaje y dos piolets que se clavan al colocar un anclaje (Espacio). La estamina baja con cada metro escalado y se acelera en bandas hostiles; el clima además recorta el grip lateral. Tres prototipos de montaña — Pico Volcán Negro, Crestas de Hielo Azul y Torre de Granito Dorado — generan paletas, cielo y partículas únicas (cenizas, nieve, lluvia, aurora, magma). Seis cuevas estratégicas reparten comida y agua a lo largo de la subida; si la estamina llega a 0 te sueltas y caes en picado, y solo la cuerda al último anclaje puede salvarte (con penalización).",
+      "Un juego de escalada vertical 2D con un mundo de 16.000 px de altura partido en 8 bandas climÃ¡ticas (campo base, bosque, roca calma, viento, niebla, tormenta, nieve y cumbre). El escalador articulado tiene cuatro extremidades animadas con un ciclo real de planteo y empuje, casco rojo con gafas, mochila con esterilla, arnÃ©s con cuerda visible al Ãºltimo anclaje y dos piolets que se clavan al colocar un anclaje (Espacio). La estamina baja con cada metro escalado y se acelera en bandas hostiles; el clima ademÃ¡s recorta el grip lateral. Tres prototipos de montaÃ±a â€” Pico VolcÃ¡n Negro, Crestas de Hielo Azul y Torre de Granito Dorado â€” generan paletas, cielo y partÃ­culas Ãºnicas (cenizas, nieve, lluvia, aurora, magma). Seis cuevas estratÃ©gicas reparten comida y agua a lo largo de la subida; si la estamina llega a 0 te sueltas y caes en picado, y solo la cuerda al Ãºltimo anclaje puede salvarte (con penalizaciÃ³n).",
     objective_es:
       "Sube desde el campo base hasta la bandera de la cumbre (4350 m). Reparte fuerzas entre cuevas: come, bebe agua y planta anclajes para que la cuerda te frene si te sueltas.",
     howToPlay_es:
-      "↑/W escala, ↓/S baja, ←→/A D mueve lateral por la pared. Espacio planta un anclaje (piolet) que se convierte en el siguiente seguro de la cuerda; mientras subes se autoplantan cada cierta distancia. Q bebe una cantimplora y devuelve estamina; E entra en una cueva si estás en su lado y altura. Dentro de la cueva canjeas comida (+stamina) o coges cantimploras extras y sales con E/Esc.",
+      "â†‘/W escala, â†“/S baja, â†â†’/A D mueve lateral por la pared. Espacio planta un anclaje (piolet) que se convierte en el siguiente seguro de la cuerda; mientras subes se autoplantan cada cierta distancia. Q bebe una cantimplora y devuelve estamina; E entra en una cueva si estÃ¡s en su lado y altura. Dentro de la cueva canjeas comida (+stamina) o coges cantimploras extras y sales con E/Esc.",
     highlights: [
-      "Mundo vertical de 16.000 px con 8 bandas climáticas y cámara que sigue al escalador con suavizado.",
-      "3 prototipos de montaña con paletas, cielo, partículas y silueta procedural distintas (volcán/hielo/granito).",
-      "Escalador rigeado: 4 extremidades con ciclo de planteo (pares opuestos), arnés con cuerda real al anclaje, piolets cruzados, casco con gafas y mochila con esterilla.",
+      "Mundo vertical de 16.000 px con 8 bandas climÃ¡ticas y cÃ¡mara que sigue al escalador con suavizado.",
+      "3 prototipos de montaÃ±a con paletas, cielo, partÃ­culas y silueta procedural distintas (volcÃ¡n/hielo/granito).",
+      "Escalador rigeado: 4 extremidades con ciclo de planteo (pares opuestos), arnÃ©s con cuerda real al anclaje, piolets cruzados, casco con gafas y mochila con esterilla.",
       "Sistema de stamina con drenes diferenciados: idle, escalada, lateral, descenso y modificadores por viento, niebla, lluvia y nieve.",
-      "Anclajes manuales con Espacio + auto-anclaje cada 180 px de subida; la cuerda dibuja un sag físico entre escalador y anclaje.",
-      "Mecánica de caída: si te quedas sin estamina te sueltas, gravedad 1450 px/s²; la cuerda te puede frenar si llegas al final del rope length (con −28 stamina).",
-      "Ráfagas de viento que oscilan lateralmente al escalador en bandas tormentosas y de viento.",
-      "6 cuevas estratégicamente distribuidas con menú de canje: 3 platos por cueva (sopa, cecina, barras, té...) más cantimploras de bonus.",
-      "Partículas climáticas reales: lluvia direccional, copos a la deriva, cenizas volcánicas, streaks de viento y bandas de niebla móviles.",
-      "Selector inicial con 3 cards de prototipo (mini ilustración, nombre, descripción) navegable con flechas o ratón/touch.",
-      "HUD vertical con barra de stamina, agua, altímetro y minimapa de banda actual; toast de mensajes y récord de altitud persistente.",
+      "Anclajes manuales con Espacio + auto-anclaje cada 180 px de subida; la cuerda dibuja un sag fÃ­sico entre escalador y anclaje.",
+      "MecÃ¡nica de caÃ­da: si te quedas sin estamina te sueltas, gravedad 1450 px/sÂ²; la cuerda te puede frenar si llegas al final del rope length (con âˆ’28 stamina).",
+      "RÃ¡fagas de viento que oscilan lateralmente al escalador en bandas tormentosas y de viento.",
+      "6 cuevas estratÃ©gicamente distribuidas con menÃº de canje: 3 platos por cueva (sopa, cecina, barras, tÃ©...) mÃ¡s cantimploras de bonus.",
+      "PartÃ­culas climÃ¡ticas reales: lluvia direccional, copos a la deriva, cenizas volcÃ¡nicas, streaks de viento y bandas de niebla mÃ³viles.",
+      "Selector inicial con 3 cards de prototipo (mini ilustraciÃ³n, nombre, descripciÃ³n) navegable con flechas o ratÃ³n/touch.",
+      "HUD vertical con barra de stamina, agua, altÃ­metro y minimapa de banda actual; toast de mensajes y rÃ©cord de altitud persistente.",
       "Audio procedural via Web Audio API: anclaje, beber, hit de cuerda, victoria.",
-      "Pad táctil direccional + acciones (anclaje, agua, cueva) para móvil.",
+      "Pad tÃ¡ctil direccional + acciones (anclaje, agua, cueva) para mÃ³vil.",
     ],
     difficulty: "Media-alta",
     multiplayer: "Solo",
     viability: "Alta: Canvas 2D puro, runtime separado del render, estado serializable, sin dependencias externas.",
-    visualStyle: "Pintura digital realista: cielo gradiente por banda, parallax de cordilleras lejanas, pared con strata, cuevas con glow cálido, escalador estilo cómic.",
-    techFocus: "Mundo vertical con cámara suavizada, escalador rigeado por extremidades con phase reach, física de caída + cuerda con catch, generación procedural seedeada y partículas climáticas por banda.",
+    visualStyle: "Pintura digital realista: cielo gradiente por banda, parallax de cordilleras lejanas, pared con strata, cuevas con glow cÃ¡lido, escalador estilo cÃ³mic.",
+    techFocus: "Mundo vertical con cÃ¡mara suavizada, escalador rigeado por extremidades con phase reach, fÃ­sica de caÃ­da + cuerda con catch, generaciÃ³n procedural seedeada y partÃ­culas climÃ¡ticas por banda.",
 
     category_en: "Games",
     tagline_en: "Vertical 2D climbing: manage stamina, caves, and weather to plant the summit flag.",
     description_en:
-      "A vertical 2D climbing game with a 16,000 px world split into 8 weather bands (base camp, forest, calm rock, wind, fog, storm, snow, summit). The rigged climber has four animated limbs with a real plant-and-push cycle, red helmet with goggles, backpack with bedroll, harness with a visible rope to the last anchor, and twin ice axes that strike whenever an anchor is planted (Space). Stamina drains with each metre climbed and accelerates in hostile bands; weather also reduces lateral grip. Three mountain prototypes — Black Volcano Peak, Blue Ice Ridges, and Golden Granite Tower — generate unique palettes, skies, and particles (ash, snow, rain, aurora, magma). Six strategically placed caves serve food and water; if your stamina hits zero you slip and fall, and only the rope to your last anchor can save you (with a penalty).",
+      "A vertical 2D climbing game with a 16,000 px world split into 8 weather bands (base camp, forest, calm rock, wind, fog, storm, snow, summit). The rigged climber has four animated limbs with a real plant-and-push cycle, red helmet with goggles, backpack with bedroll, harness with a visible rope to the last anchor, and twin ice axes that strike whenever an anchor is planted (Space). Stamina drains with each metre climbed and accelerates in hostile bands; weather also reduces lateral grip. Three mountain prototypes â€” Black Volcano Peak, Blue Ice Ridges, and Golden Granite Tower â€” generate unique palettes, skies, and particles (ash, snow, rain, aurora, magma). Six strategically placed caves serve food and water; if your stamina hits zero you slip and fall, and only the rope to your last anchor can save you (with a penalty).",
     objective_en:
       "Climb from base camp to the summit flag (4350 m). Pace yourself between caves: eat, drink water, and plant anchors so the rope catches you if you slip.",
     howToPlay_en:
-      "↑/W climbs, ↓/S descends, ←→/A D moves laterally on the wall. Space plants an anchor (ice axe) that becomes your next rope safety; auto-anchors drop every so often as you climb. Q drinks a water bottle for stamina; E enters a cave if you are at the right side and height. Inside the cave you trade food (+stamina) or grab extra bottles and leave with E/Esc.",
+      "â†‘/W climbs, â†“/S descends, â†â†’/A D moves laterally on the wall. Space plants an anchor (ice axe) that becomes your next rope safety; auto-anchors drop every so often as you climb. Q drinks a water bottle for stamina; E enters a cave if you are at the right side and height. Inside the cave you trade food (+stamina) or grab extra bottles and leave with E/Esc.",
     highlights_en: [
       "16,000 px vertical world with 8 weather bands and a smooth-following camera.",
       "3 mountain prototypes with distinct palettes, skies, particles, and procedural silhouettes (volcano / ice / granite).",
       "Rigged climber: 4 limbs with paired plant cycles, harness with a live rope to the anchor, twin ice axes, helmeted head with goggles, backpack with bedroll.",
       "Stamina system with separate drains: idle, climbing, lateral, descending, plus modifiers for wind, fog, rain, and snow.",
       "Manual anchors with Space + auto-anchors every 180 px climbed; the rope renders with a physical sag between climber and anchor.",
-      "Fall mechanic: if stamina hits zero you slip, gravity 1450 px/s²; the rope catches you when you reach rope length (with −28 stamina).",
+      "Fall mechanic: if stamina hits zero you slip, gravity 1450 px/sÂ²; the rope catches you when you reach rope length (with âˆ’28 stamina).",
       "Wind gusts laterally sway the climber in stormy and windy bands.",
-      "6 strategically placed caves with a trade menu: 3 dishes per cave (soup, jerky, bars, tea…) plus bonus water bottles.",
+      "6 strategically placed caves with a trade menu: 3 dishes per cave (soup, jerky, bars, teaâ€¦) plus bonus water bottles.",
       "Real weather particles: directional rain, drifting flakes, volcanic ash, wind streaks, moving fog bands.",
       "Start menu with 3 prototype cards (mini illustration, name, blurb) navigable with arrows or mouse/touch.",
       "Vertical HUD with stamina bar, water, altimeter, and current-band minimap; toast messages and persistent altitude record.",

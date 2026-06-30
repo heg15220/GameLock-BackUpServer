@@ -61,10 +61,10 @@ const DEFINITIONS = {
     lives: 3,
   },
   "breakout-1986": {
-    title: { es: "Breakout 1986 Remix", en: "Breakout 1986 Remix" },
-    objective: { es: "Limpia todos los bloques.", en: "Clear all bricks." },
-    controls: { es: "A/D o flechas, Espacio lanza.", en: "A/D or arrows, Space launches." },
-    accent: "#f59e0b",
+    title: { es: "Chromatic Tether", en: "Chromatic Tether" },
+    objective: { es: "Sincroniza todos los paneles orbitales.", en: "Synchronize every orbital panel." },
+    controls: { es: "A/D o flechas guían el emisor; Espacio libera el pulso.", en: "A/D or arrows guide the emitter; Space releases the pulse." },
+    accent: "#5eead4",
     lives: 3,
   },
   "space-invaders": {
@@ -89,10 +89,10 @@ const DEFINITIONS = {
     lives: 3,
   },
   "bomber-grid": {
-    title: { es: "Bomber Grid 1989", en: "Bomber Grid 1989" },
-    objective: { es: "Elimina enemigos con bombas.", en: "Eliminate enemies with bombs." },
-    controls: { es: "Flechas/WASD mover, Espacio bomba.", en: "Arrows/WASD move, Space bomb." },
-    accent: "#f43f5e",
+    title: { es: "Pulse Garden", en: "Pulse Garden" },
+    objective: { es: "Limpia la colonia con balizas de pulso.", en: "Cleanse the colony with pulse beacons." },
+    controls: { es: "Flechas/WASD mover, Espacio despliega una baliza.", en: "Arrows/WASD move, Space deploys a beacon." },
+    accent: "#a7f3d0",
     lives: 3,
   },
   "galaga-quantum": {
@@ -2420,31 +2420,31 @@ function drawBreakout(ctx, state) {
   const playH = HEIGHT - 132;
   drawRoundedRect(ctx, playX, playY, playW, playH, 18);
   const bg = ctx.createLinearGradient(playX, playY, playX, playY + playH);
-  bg.addColorStop(0, "#1a0f24");
-  bg.addColorStop(1, "#0f172a");
+  bg.addColorStop(0, "#072c3a");
+  bg.addColorStop(1, "#24143f");
   ctx.fillStyle = bg;
   ctx.fill();
   ctx.strokeStyle = "rgba(248, 250, 252, 0.2)";
   ctx.stroke();
 
   const paddleY = HEIGHT - 64;
-  drawGlow(ctx, g.paddleX + g.paddleW * 0.5, paddleY + 8, 58, "#f59e0b", 0.34);
+  drawGlow(ctx, g.paddleX + g.paddleW * 0.5, paddleY + 8, 58, "#5eead4", 0.34);
   const paddleGrad = ctx.createLinearGradient(g.paddleX, paddleY, g.paddleX, paddleY + 16);
-  paddleGrad.addColorStop(0, "#fde68a");
-  paddleGrad.addColorStop(1, "#f59e0b");
-  drawRoundedRect(ctx, g.paddleX, paddleY, g.paddleW, 16, 6);
+  paddleGrad.addColorStop(0, "#a5f3fc");
+  paddleGrad.addColorStop(1, "#8b5cf6");
+  drawRoundedRect(ctx, g.paddleX, paddleY, g.paddleW, 12, 2);
   ctx.fillStyle = paddleGrad;
   ctx.fill();
 
   const trailX = g.ball.x - g.ball.vx * 0.018;
   const trailY = g.ball.y - g.ball.vy * 0.018;
-  ctx.strokeStyle = "rgba(251, 191, 36, 0.32)";
+  ctx.strokeStyle = "rgba(94, 234, 212, 0.38)";
   ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(g.ball.x, g.ball.y);
   ctx.lineTo(trailX, trailY);
   ctx.stroke();
-  drawGlow(ctx, g.ball.x, g.ball.y, 24, "#fde68a", 0.44);
+  drawGlow(ctx, g.ball.x, g.ball.y, 24, "#c084fc", 0.44);
   ctx.fillStyle = "#f8fafc";
   ctx.beginPath();
   ctx.arc(g.ball.x, g.ball.y, g.ball.r, 0, Math.PI * 2);
@@ -2452,11 +2452,18 @@ function drawBreakout(ctx, state) {
 
   for (const brick of g.bricks) {
     if (brick.hp <= 0) continue;
-    const hue = brick.boost ? 318 : brick.hp === 2 ? 140 : 36;
+    const hue = brick.boost ? 322 : brick.hp === 2 ? 184 : 258;
     const brickGrad = ctx.createLinearGradient(brick.x, brick.y, brick.x, brick.y + brick.h);
     brickGrad.addColorStop(0, `hsl(${hue} 94% 72%)`);
     brickGrad.addColorStop(1, `hsl(${hue} 78% 48%)`);
-    drawRoundedRect(ctx, brick.x, brick.y, brick.w, brick.h, 5);
+    ctx.beginPath();
+    ctx.moveTo(brick.x + 8, brick.y);
+    ctx.lineTo(brick.x + brick.w - 8, brick.y);
+    ctx.lineTo(brick.x + brick.w, brick.y + brick.h * 0.5);
+    ctx.lineTo(brick.x + brick.w - 8, brick.y + brick.h);
+    ctx.lineTo(brick.x + 8, brick.y + brick.h);
+    ctx.lineTo(brick.x, brick.y + brick.h * 0.5);
+    ctx.closePath();
     ctx.fillStyle = brickGrad;
     ctx.fill();
     if (brick.hp > 1) {
@@ -2916,8 +2923,16 @@ function drawBomber(ctx, state) {
   for (const bomb of g.bombs) {
     const bx = x0 + bomb.x * cell + 17;
     const by = y0 + bomb.y * cell + 17;
-    drawGlow(ctx, bx, by, 26, "#f97316", 0.22);
-    ctx.fillStyle = "#e2e8f0";
+    drawGlow(ctx, bx, by, 26, "#a7f3d0", 0.22);
+    ctx.fillStyle = "#a7f3d0";
+    ctx.save();
+    ctx.translate(bx, by);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-9, -9, 18, 18);
+    ctx.strokeStyle = "#064e3b";
+    ctx.strokeRect(-5, -5, 10, 10);
+    ctx.restore();
+    /*
     ctx.beginPath();
     ctx.arc(bx, by, 10, 0, Math.PI * 2);
     ctx.fill();
@@ -2927,38 +2942,42 @@ function drawBomber(ctx, state) {
     ctx.moveTo(bx, by - 11);
     ctx.lineTo(bx + Math.cos(spark) * 7, by - 17 + Math.sin(spark) * 2);
     ctx.stroke();
+    */
   }
   for (const flame of g.flames) {
     const fx = x0 + flame.x * cell + 17;
     const fy = y0 + flame.y * cell + 17;
     drawGlow(ctx, fx, fy, 28, "#fb923c", 0.28);
-    const flameGrad = ctx.createRadialGradient(fx, fy, 1, fx, fy, 14);
-    flameGrad.addColorStop(0, "rgba(254, 215, 170, 0.95)");
-    flameGrad.addColorStop(0.38, "rgba(251, 146, 60, 0.9)");
-    flameGrad.addColorStop(1, "rgba(239, 68, 68, 0.18)");
-    ctx.fillStyle = flameGrad;
-    ctx.beginPath();
-    ctx.arc(fx, fy, 13, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = "rgba(167, 243, 208, 0.78)";
+    ctx.fillRect(fx - 13, fy - 5, 26, 10);
+    ctx.fillRect(fx - 5, fy - 13, 10, 26);
+    ctx.strokeStyle = "#ecfdf5";
+    ctx.strokeRect(fx - 9, fy - 9, 18, 18);
   }
   for (const enemy of g.enemies) {
     const ex = x0 + enemy.x * cell + 7;
     const ey = y0 + enemy.y * cell + 7;
-    drawRoundedRect(ctx, ex, ey, 20, 20, 6);
     ctx.fillStyle = "#fb7185";
+    ctx.beginPath();
+    ctx.moveTo(ex + 10, ey);
+    ctx.lineTo(ex + 20, ey + 18);
+    ctx.lineTo(ex, ey + 18);
+    ctx.closePath();
     ctx.fill();
-    ctx.fillStyle = "#7f1d1d";
-    ctx.fillRect(ex + 4, ey + 5, 4, 4);
-    ctx.fillRect(ex + 12, ey + 5, 4, 4);
   }
   const px = x0 + g.player.x * cell + 7;
   const py = y0 + g.player.y * cell + 7;
   drawGlow(ctx, px + 10, py + 10, 24, "#22c55e", 0.26);
-  drawRoundedRect(ctx, px, py, 20, 20, 6);
   ctx.fillStyle = "#4ade80";
+  ctx.beginPath();
+  for (let i = 0; i < 6; i += 1) {
+    const angle = (Math.PI * 2 * i) / 6;
+    const x = px + 10 + Math.cos(angle) * 11;
+    const y = py + 10 + Math.sin(angle) * 11;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
   ctx.fill();
-  ctx.fillStyle = "#14532d";
-  ctx.fillRect(px + 4, py + 4, 12, 3);
 }
 
 function drawLander(ctx, state) {

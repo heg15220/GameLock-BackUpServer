@@ -110,8 +110,8 @@ function resolveRetroProfile(gameId, locale) {
     case "arcade-retro-breakout-1986":
       return {
         layout: "split",
-        heading: t(locale, "Pala", "Paddle"),
-        hint: t(locale, "Mueve la pala y lanza la bola.", "Move the paddle and launch the ball."),
+        heading: t(locale, "Emisor", "Emitter"),
+        hint: t(locale, "Mueve el emisor y libera el pulso.", "Move the emitter and release the pulse."),
         leftPad: [
           control("left", "◀", { inputs: [input("ArrowLeft", "ArrowLeft")] }),
           control("right", "▶", { inputs: [input("ArrowRight", "ArrowRight")] }),
@@ -175,8 +175,8 @@ function resolveRetroProfile(gameId, locale) {
     case "arcade-retro-bomber-grid":
       return {
         layout: "split",
-        heading: t(locale, "Bomba", "Bomb"),
-        hint: t(locale, "Muévete y planta bombas.", "Move and plant bombs."),
+        heading: t(locale, "Baliza", "Beacon"),
+        hint: t(locale, "Muévete y despliega balizas.", "Move and deploy beacons."),
         leftPad: directionalPad(locale, {
           up: input("ArrowUp", "ArrowUp"),
           left: input("ArrowLeft", "ArrowLeft"),
@@ -1084,7 +1084,7 @@ export function getMobileControlProfile(game, locale = "es") {
     case "arcade-pacman-maze-protocol":
       return {
         layout: "split",
-        heading: "Pac-Man",
+        heading: "Lumen Relay",
         hint: t(locale, "Muévete con la cruceta. Start inicia o reanuda.", "Use the D-pad to move. Start begins or resumes."),
         leftPad: directionalPad(locale, {
           up: input("ArrowUp", "ArrowUp"),

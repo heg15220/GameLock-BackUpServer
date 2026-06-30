@@ -13,7 +13,7 @@ import Clyde from "./entities/Clyde";
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-const PACMAN_ANGLE = {
+const RELAY_ANGLE = {
   right: 0,
   left: Math.PI,
   up: -Math.PI * 0.5,
@@ -113,7 +113,7 @@ export default class PacmanRuntime {
 
     return {
       ...state,
-      variant: "pacman",
+      variant: "lumen_relay",
       coordinates: "origin_top_left_x_right_y_down_tile_centers",
       pelletsRemaining: this.tileMap?.remainingPellets ?? 0,
       frightenedRemaining: Number((this.fsm?.frightenedTimer ?? 0).toFixed(2)),
@@ -315,7 +315,7 @@ export default class PacmanRuntime {
         ghost.markEaten();
         const bonus = this.fsm.registerGhostEaten();
         this.gameState.addScore(bonus);
-        this.gameState.message = `Ghost eaten +${bonus}`;
+        this.gameState.message = `Sentinel disrupted +${bonus}`;
         this.audio.play("ghost");
         continue;
       }
@@ -428,7 +428,11 @@ export default class PacmanRuntime {
     const ctx = this.ctx;
     const tileSize = this.tileMap.tileSize;
 
-    ctx.fillStyle = "#020617";
+    const gradient = ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+    gradient.addColorStop(0, "#071a24");
+    gradient.addColorStop(0.55, "#10283a");
+    gradient.addColorStop(1, "#1b1638");
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.tileMap.forEachTile((tile, row, col) => {
@@ -436,10 +440,12 @@ export default class PacmanRuntime {
       const y = row * tileSize;
 
       if (tile === "#") {
-        ctx.fillStyle = "#1d4ed8";
-        ctx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
-        ctx.strokeStyle = "rgba(125, 211, 252, 0.26)";
-        ctx.strokeRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+        ctx.fillStyle = (row + col) % 2 ? "#21485a" : "#28566a";
+        ctx.beginPath();
+        ctx.roundRect(x + 2, y + 2, tileSize - 4, tileSize - 4, 4);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(124, 244, 220, 0.2)";
+        ctx.stroke();
         return;
       }
 
@@ -454,13 +460,11 @@ export default class PacmanRuntime {
       }
 
       if (tile === ".") {
-        ctx.fillStyle = "#f8fafc";
-        ctx.beginPath();
-        ctx.arc(x + tileSize * 0.5, y + tileSize * 0.5, tileSize * 0.1, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = "#7cf4dc";
+        ctx.fillRect(x + tileSize * 0.42, y + tileSize * 0.42, tileSize * 0.16, tileSize * 0.16);
       } else if (tile === "o") {
         const pulse = 0.14 + Math.abs(Math.sin(performance.now() * 0.008)) * 0.1;
-        ctx.fillStyle = "#fde68a";
+        ctx.fillStyle = "#ff8e6e";
         ctx.beginPath();
         ctx.arc(x + tileSize * 0.5, y + tileSize * 0.5, tileSize * pulse, 0, Math.PI * 2);
         ctx.fill();
@@ -470,21 +474,23 @@ export default class PacmanRuntime {
 
   drawPacman() {
     const ctx = this.ctx;
-    const angle = PACMAN_ANGLE[this.pacman.direction] ?? 0;
-    const mouth = 0.2 + Math.abs(Math.sin(this.pacman.mouthPhase)) * 0.24;
-
-    ctx.fillStyle = "#facc15";
+    const angle = RELAY_ANGLE[this.pacman.direction] ?? 0;
+    const pulse = 0.82 + Math.abs(Math.sin(this.pacman.mouthPhase)) * 0.18;
+    ctx.save();
+    ctx.translate(this.pacman.x, this.pacman.y);
+    ctx.rotate(angle);
+    ctx.scale(pulse, pulse);
+    ctx.shadowColor = "#7cf4dc";
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = "#7cf4dc";
     ctx.beginPath();
-    ctx.moveTo(this.pacman.x, this.pacman.y);
-    ctx.arc(
-      this.pacman.x,
-      this.pacman.y,
-      this.pacman.radius,
-      angle + mouth,
-      angle - mouth + Math.PI * 2
-    );
+    ctx.moveTo(this.pacman.radius, 0);
+    ctx.lineTo(-this.pacman.radius * 0.72, -this.pacman.radius * 0.72);
+    ctx.lineTo(-this.pacman.radius * 0.35, 0);
+    ctx.lineTo(-this.pacman.radius * 0.72, this.pacman.radius * 0.72);
     ctx.closePath();
     ctx.fill();
+    ctx.restore();
   }
 
   drawGhost(ghost) {
@@ -501,6 +507,22 @@ export default class PacmanRuntime {
     if (eaten) {
       bodyColor = "rgba(15, 23, 42, 0.4)";
     }
+
+    ctx.save();
+    ctx.translate(ghost.x, ghost.y);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillStyle = bodyColor;
+    ctx.shadowColor = bodyColor;
+    ctx.shadowBlur = frightened ? 14 : 7;
+    ctx.fillRect(-radius * 0.72, -radius * 0.72, radius * 1.44, radius * 1.44);
+    ctx.strokeStyle = "#f4fbff";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-radius * 0.4, -radius * 0.4, radius * 0.8, radius * 0.8);
+    ctx.rotate(-Math.PI / 4);
+    ctx.fillStyle = "#071a24";
+    ctx.fillRect(-radius * 0.5, -2, radius, 4);
+    ctx.restore();
+    return;
 
     const top = ghost.y - radius;
     const left = ghost.x - radius;
@@ -589,12 +611,12 @@ export default class PacmanRuntime {
     const mode = this.gameState.mode;
     let text = "";
 
-    if (mode === "menu") text = "PRESS START";
+    if (mode === "menu") text = "ACTIVATE RELAY";
     else if (mode === "paused") text = "PAUSED";
-    else if (mode === "gameover") text = "GAME OVER";
-    else if (mode === "win") text = "YOU WIN";
-    else if (mode === "lifeLost") text = "READY";
-    else if (mode === "levelTransition") text = `LEVEL ${this.gameState.level} CLEAR`;
+    else if (mode === "gameover") text = "SIGNAL LOST";
+    else if (mode === "win") text = "NETWORK STABLE";
+    else if (mode === "lifeLost") text = "RECALIBRATING";
+    else if (mode === "levelTransition") text = `SECTOR ${this.gameState.level} STABLE`;
 
     if (!text) return;
 

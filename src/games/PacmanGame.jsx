@@ -6,7 +6,7 @@ import PacmanPauseOverlay from "../ui/PacmanPauseOverlay";
 import PacmanEndOverlay from "../ui/PacmanEndOverlay";
 
 const createDefaultSnapshot = () => ({
-  variant: "pacman",
+  variant: "lumen_relay",
   coordinates: "origin_top_left_x_right_y_down_tile_centers",
   score: 0,
   highScore: 0,
@@ -71,7 +71,7 @@ function PacmanGame() {
   }, []);
 
   const buildTextPayload = useCallback((state) => ({
-    mode: "pacman_arcade",
+    mode: "lumen_relay",
     coordinates: state.coordinates,
     status: state.mode,
     score: state.score,
@@ -119,9 +119,9 @@ function PacmanGame() {
     <div className="mini-game pacman-game pacman-game--sky-runner sky-runner-dx-game">
       <div className="mini-head sky-runner-dx-head">
         <div>
-          <p className="sky-runner-dx-world">Maze Route</p>
-          <h4>Pac-Man Maze Protocol</h4>
-          <p>Arcade chase con FSM de fantasmas, pellets, power mode, vidas y progresion por nivel.</p>
+          <p className="sky-runner-dx-world">Luminous Network</p>
+          <h4>Lumen Relay</h4>
+          <p>Guía una sonda de luz, enlaza nodos de energía y evita a los centinelas geométricos.</p>
         </div>
         <div className="sky-runner-dx-actions">
           <button type="button" onClick={startGame}>
@@ -160,7 +160,7 @@ function PacmanGame() {
                 <strong>{snapshot.level}/{snapshot.maxLevel}</strong>
               </div>
               <div>
-                <span>Pellets</span>
+                <span>Nodos</span>
                 <strong>{snapshot.pelletsRemaining}</strong>
               </div>
               <div>
@@ -180,11 +180,11 @@ function PacmanGame() {
 
           <section className="sky-runner-dx-panel sky-runner-dx-panel-settings">
             <div className="sky-runner-dx-settings-head">
-              <strong>Pac-Man Controls</strong>
+              <strong>Controles de la sonda</strong>
               <p>WASD/flechas mueven, Enter/Espacio inicia, P/Esc pausa, R reinicia.</p>
             </div>
             <ul className="sky-runner-dx-hints">
-              <li>Frightened restante: {snapshot.frightenedRemaining.toFixed(1)}s.</li>
+              <li>Sobrecarga restante: {snapshot.frightenedRemaining.toFixed(1)}s.</li>
               <li>Modo runtime: {snapshot.mode}.</li>
               <li>Debug: {snapshot.debug ? "enabled" : "disabled"}.</li>
             </ul>
@@ -208,12 +208,12 @@ function PacmanGame() {
         <div className="sky-runner-dx-stage-wrap pacman-stage-wrap--sky">
           <div className="sky-runner-dx-stage-head">
             <div>
-              <strong>Maze {snapshot.level}</strong>
+              <strong>Sector {snapshot.level}</strong>
               <p>{statusMessage}</p>
             </div>
             <div className="sky-runner-dx-stage-chips">
               <span>Status {snapshot.mode}</span>
-              <span>Ghosts {snapshot.ghosts.length}</span>
+              <span>Centinelas {snapshot.ghosts.length}</span>
               <span>Lives {snapshot.lives}</span>
             </div>
           </div>
@@ -222,7 +222,7 @@ function PacmanGame() {
             <canvas
               ref={canvasRef}
               className="sky-runner-dx-canvas pacman-canvas"
-              aria-label="Pac-Man game canvas"
+              aria-label="Lumen Relay game canvas"
             />
 
             {showMenu ? <PacmanMenu onStart={startGame} onToggleSound={toggleSound} soundEnabled={snapshot.soundEnabled} /> : null}
@@ -233,11 +233,11 @@ function PacmanGame() {
           <div className="sky-runner-dx-stage-footer">
             <p>{statusMessage}</p>
             <p className="sky-runner-dx-callout">
-              Pac-Man ({snapshot.pacman?.row ?? "-"}, {snapshot.pacman?.col ?? "-"}) | Pellets {snapshot.pelletsRemaining}
+              Sonda ({snapshot.pacman?.row ?? "-"}, {snapshot.pacman?.col ?? "-"}) | Nodos {snapshot.pelletsRemaining}
             </p>
           </div>
 
-          <div className="sky-runner-dx-touch-controls pacman-touch-controls" role="group" aria-label="Pac-Man touch controls">
+          <div className="sky-runner-dx-touch-controls pacman-touch-controls" role="group" aria-label="Lumen Relay touch controls">
             <button
               type="button"
               onMouseDown={() => setVirtualDirection("up")}

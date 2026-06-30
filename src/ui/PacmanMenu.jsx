@@ -2,9 +2,9 @@ import React from "react";
 
 function PacmanMenu({ onStart, onToggleSound, soundEnabled }) {
   return (
-    <div className="pacman-overlay-card" role="dialog" aria-label="Pac-Man menu">
-      <h5>Pac-Man Maze Protocol</h5>
-      <p>Eat all pellets, trigger power mode, and survive the ghosts.</p>
+    <div className="pacman-overlay-card" role="dialog" aria-label="Lumen Relay menu">
+      <h5>Lumen Relay</h5>
+      <p>Link every energy node, trigger overload pulses, and evade the sentinels.</p>
       <ul>
         <li>Move: arrows or WASD</li>
         <li>Pause: P or Esc</li>

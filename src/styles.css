@@ -5172,6 +5172,29 @@ body {
   line-height: 1.36;
 }
 
+.maps-legal-footer {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.28);
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.maps-legal-footer a {
+  color: #93c5fd;
+  text-decoration: underline;
+  text-decoration-color: rgba(147, 197, 253, 0.5);
+  text-underline-offset: 2px;
+}
+
+.maps-legal-footer a:hover,
+.maps-legal-footer a:focus-visible {
+  color: #dbeafe;
+  text-decoration-color: currentColor;
+}
+
 .maps-shortest-legend {
   display: flex;
   flex-wrap: wrap;
@@ -18009,6 +18032,40 @@ button.brisca-card.playable:disabled {
 
 .baraja-mode-active strong {
   color: #7c2d12;
+}
+
+.baraja-legal-footer {
+  display: grid;
+  gap: 0.42rem;
+  padding: 0.62rem 0.72rem;
+  border-top: 1px solid rgba(120, 53, 15, 0.22);
+  color: #57534e;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.baraja-legal-footer p {
+  margin: 0;
+}
+
+.baraja-legal-footer nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem 0.75rem;
+  flex-wrap: wrap;
+}
+
+.baraja-legal-footer a {
+  color: #0f766e;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.baraja-legal-footer a:hover,
+.baraja-legal-footer a:focus-visible {
+  color: #9a3412;
 }
 
 .strategy-baraja-modes .strategy-brisca-game.brisca-arena {

@@ -8,7 +8,6 @@ const NEXT_TURN_DELAY_MS = 1100;
 const DRAW_FX_MS = 900;
 const AI_THINK_EXTRA_MS = 450;
 
-const SPANISH_CARD_SOURCE = "https://github.com/mcmd/playingcards.io-spanish.playing.cards";
 const BACK_IMAGE = "/assets/cards/spanish/reverso.png";
 
 const VARIANTS = {
@@ -64,8 +63,6 @@ const TEXT = {
     seatMate: "Companero",
     seatRival: "Rival",
     promptTitle: "Prompt estrategico Brisca/Tute",
-    assets: "Assets baraja espanola",
-    assetsLink: "Repositorio",
   },
   en: {
     title: "Brisca/Tute AI Table",
@@ -106,8 +103,6 @@ const TEXT = {
     seatMate: "Teammate",
     seatRival: "Opponent",
     promptTitle: "Brisca/Tute strategy prompt",
-    assets: "Spanish deck assets",
-    assetsLink: "Repository",
   },
 };
 
@@ -1009,7 +1004,6 @@ function StrategyBriscaDeckGame({ locale: localeOverride }) {
       </div>
 
       <details className="brisca-rules"><summary>{t.promptTitle}</summary><pre>{RULES[locale] || RULES.en}</pre></details>
-      {s.deckId === "spanish" ? <p className="brisca-source">{t.assets}: <a href={SPANISH_CARD_SOURCE} target="_blank" rel="noreferrer">{t.assetsLink}</a></p> : null}
     </div>
   );
 }

@@ -1,28 +1,41 @@
 import TileMap, { TILE_SYMBOLS } from "../world/TileMap";
 
-const BASE_LEVEL_MAP = [
-  "#####################",
-  "#o........#........o#",
-  "#.###.###.#.###.###.#",
-  "#.....#...#...#.....#",
-  "###.#.#.#####.#.#.###",
-  "#...#.#.......#.#...#",
-  "#.###.###.#.###.###.#",
-  "#.......#...#.......#",
-  "#.###.#.##=##.#.###.#",
-  "#.....#.#BYI#.#.....#",
-  "#.###.#.#CH# # ###..#",
-  "#.....#.#   #.#.....#",
-  "###.#.#.#####.#.#.###",
-  "#...#.#.......#.#...#",
-  "#.###.###.#.###.###.#",
-  "#o....#...P...#....o#",
-  "#.##.#.#.###.#.#.##.#",
-  "#....#...# #...#....#",
-  "###.###.#.#.#.###.###",
-  ".....................",
-  "#####################"
-];
+const buildRelayMap = (level) => {
+  const size = 21;
+  const grid = Array.from({ length: size }, (_, row) =>
+    Array.from({ length: size }, (_, col) =>
+      row === 0 || row === size - 1 || col === 0 || col === size - 1 ? "#" : "."
+    )
+  );
+
+  // Sparse circuit islands keep every node reachable while avoiding the
+  // characteristic symmetrical maze and central enclosure of the reference.
+  const offset = (Math.max(1, Number(level) || 1) - 1) % 3;
+  const islands = [
+    [3, 3], [3, 9], [3, 15],
+    [7, 6], [7, 13],
+    [11, 3], [11, 9], [11, 16],
+    [15, 6], [15, 13],
+  ];
+  for (const [baseRow, baseCol] of islands) {
+    const row = Math.min(size - 3, baseRow + (baseCol % 2 ? offset : 0));
+    const col = Math.min(size - 3, baseCol + (baseRow % 2 ? 0 : offset));
+    grid[row][col] = "#";
+    grid[row][col + 1] = "#";
+    grid[row + 1][col] = "#";
+  }
+
+  grid[10][0] = ".";
+  grid[10][size - 1] = ".";
+  [[1, 1], [1, 19], [19, 1], [19, 19]].forEach(([row, col]) => { grid[row][col] = "o"; });
+  grid[18][10] = "P";
+  grid[2][2] = "B";
+  grid[2][18] = "Y";
+  grid[18][2] = "I";
+  grid[18][18] = "C";
+  grid[10][10] = "H";
+  return grid.map((row) => row.join(""));
+};
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -51,7 +64,7 @@ export default class LevelManager {
 
   createLevel(level) {
     const config = this.getLevelConfig(level);
-    const tileMap = TileMap.fromRows(BASE_LEVEL_MAP, { tileSize: config.tileSize });
+    const tileMap = TileMap.fromRows(buildRelayMap(level), { tileSize: config.tileSize });
 
     const pacmanSpawn = tileMap.getSpawnTile(TILE_SYMBOLS.PACMAN_SPAWN, { row: 15, col: 10 });
     const homeTile = tileMap.getSpawnTile(TILE_SYMBOLS.GHOST_HOME, { row: 10, col: 10 });

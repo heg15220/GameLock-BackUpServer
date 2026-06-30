@@ -4,8 +4,8 @@ export const gameCatalogDescriptions = {
     en: "A platformer with jumps, enemies and bosses: clear the route before losing all lives.",
   },
   "arcade-pacman-maze-protocol": {
-    es: "Laberinto de puntos y fantasmas: recoge todo y usa poderes para contraatacar.",
-    en: "A maze of dots and ghosts: collect everything and use powers to fight back.",
+    es: "Red luminosa de nodos y centinelas: recoge todos los nodos y entra en sobrecarga para dejar vulnerables a los guardianes.",
+    en: "A luminous network of nodes and sentinels: clear every node and trigger overload to expose the guardians.",
   },
   "arcade-stick-brawl-showdown": {
     es: "Lucha 1 contra 1: bloquea, golpea y gana rounds contra la IA.",
@@ -208,8 +208,8 @@ export const gameCatalogDescriptions = {
     en: "Classic Snake: eat, grow and avoid crashing into yourself.",
   },
   "arcade-retro-breakout-1986": {
-    es: "Rompebloques: mant\u00e9n la bola viva y limpia ladrillos.",
-    en: "Brick breaker: keep the ball alive and clear bricks.",
+    es: "Breakout cromatico: mueve el emisor, rebota el pulso y rompe todos los paneles.",
+    en: "Chromatic breakout: move the emitter, keep the pulse alive and break every panel.",
   },
   "arcade-retro-space-invaders": {
     es: "Defensa espacial: dispara invasores antes de que desciendan.",
@@ -224,8 +224,8 @@ export const gameCatalogDescriptions = {
     en: "Cross road and river by dodging cars and riding logs.",
   },
   "arcade-retro-bomber-grid": {
-    es: "Bomber de laberinto: pon bombas, abre caminos y atrapa rivales.",
-    en: "Bomber maze: place bombs, open paths and trap rivals.",
+    es: "Laberinto de balizas: coloca pulsos, abre rutas y limpia la colonia sin tocar tu propia explosion.",
+    en: "Beacon maze: place pulses, open routes and clear the colony without touching your own blast.",
   },
   "arcade-retro-galaga-quantum": {
     es: "Shooter de naves: esquiva patrones y supera oleadas.",

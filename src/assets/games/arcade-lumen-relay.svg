@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Lumen Relay">
+  <defs><linearGradient id="lr-bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071a24"/><stop offset=".55" stop-color="#102f3c"/><stop offset="1" stop-color="#251840"/></linearGradient></defs>
+  <rect width="640" height="360" rx="28" fill="url(#lr-bg)"/>
+  <g fill="none" stroke="#28566a" stroke-width="18" stroke-linecap="round">
+    <path d="M68 76h132v70h102v-70h264M68 250h166v-62h172v62h160"/>
+    <path d="M122 76v174M510 76v174"/>
+  </g>
+  <g fill="#7cf4dc"><rect x="184" y="68" width="12" height="12"/><rect x="294" y="138" width="12" height="12"/><rect x="398" y="180" width="12" height="12"/><rect x="502" y="242" width="12" height="12"/></g>
+  <path d="M336 196 306 174v16h-34v12h34v16Z" fill="#7cf4dc"/>
+  <g transform="translate(450 92) rotate(45)"><rect width="30" height="30" rx="3" fill="#ff8e6e"/><rect x="8" y="8" width="14" height="14" fill="none" stroke="#fff" stroke-width="3"/></g>
+  <g transform="translate(96 198) rotate(45)"><rect width="30" height="30" rx="3" fill="#c084fc"/><rect x="8" y="8" width="14" height="14" fill="none" stroke="#fff" stroke-width="3"/></g>
+  <text x="42" y="330" fill="#ecfeff" font-size="38" font-family="Segoe UI,sans-serif" font-weight="800">LUMEN RELAY</text>
+</svg>

@@ -23,6 +23,7 @@ import {
   getMapSilhouetteThemeSync,
   useMapSilhouetteThemes
 } from "./mapsSilhouettesData";
+import MapDataLegalFooter from "./MapDataLegalFooter";
 
 const COPY_BY_LOCALE = {
   es: {
@@ -786,6 +787,7 @@ function MapsKnowledgeGame() {
       </section>
 
       <p className="game-message">{state.message}</p>
+      <MapDataLegalFooter locale={locale} />
     </div>
   );
 }

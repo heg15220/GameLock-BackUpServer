@@ -10,7 +10,7 @@ function PacmanHUD({ snapshot, onPause, onRestart, onToggleSound, onToggleDebug 
         <span>Level: <strong>{snapshot.level}</strong></span>
       </div>
       <div className="pacman-hud-row">
-        <span>Pellets: <strong>{snapshot.pelletsRemaining}</strong></span>
+        <span>Nodes: <strong>{snapshot.pelletsRemaining}</strong></span>
         <span>Mode: <strong>{snapshot.phaseMode}</strong></span>
         <span>FPS: <strong>{Math.round(snapshot.fps)}</strong></span>
         <span>Frame: <strong>{snapshot.frameTime.toFixed(1)}ms</strong></span>

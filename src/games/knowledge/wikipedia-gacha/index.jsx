@@ -3524,10 +3524,25 @@ export default function WikipediaGachaGame() {
       ) : null}
 
       <footer className="wg-footer">
+        <p className="wg-footer-note">
+          {es
+            ? "Los títulos y extractos proceden de artículos de Wikipedia. Cada carta incluye un enlace a su artículo de origen, cuyo historial identifica a sus colaboradores."
+            : "Titles and excerpts come from Wikipedia articles. Each card links to its source article, whose history identifies its contributors."}
+        </p>
         <p className="wg-footer-subnote">
           {es
-            ? "Servicio no oficial y no afiliado con Wikipedia."
-            : "This service is unofficial and not affiliated with Wikipedia."}
+            ? "Los extractos se muestran de forma abreviada y se redistribuyen bajo CC BY-SA 4.0. Las imágenes pueden tener licencias independientes: consulta la página de origen antes de reutilizarlas."
+            : "Excerpts are displayed in abridged form and redistributed under CC BY-SA 4.0. Images may use separate licenses: check the source page before reusing them."}
+        </p>
+        <div className="wg-footer-links">
+          <a href="https://es.wikipedia.org/" target="_blank" rel="noreferrer">{es ? "Fuente: Wikipedia" : "Source: Wikipedia"}</a>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>
+          <a href="https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use/es" target="_blank" rel="noreferrer">{es ? "Términos de Wikimedia" : "Wikimedia Terms"}</a>
+        </div>
+        <p className="wg-footer-disclaimer">
+          {es
+            ? "Wikipedia Gacha es un proyecto independiente, no oficial, no afiliado ni respaldado por la Fundación Wikimedia. Wikipedia y Wikimedia son marcas de sus respectivos titulares."
+            : "Wikipedia Gacha is an independent, unofficial project and is not affiliated with or endorsed by the Wikimedia Foundation. Wikipedia and Wikimedia are trademarks of their respective owners."}
         </p>
       </footer>
 

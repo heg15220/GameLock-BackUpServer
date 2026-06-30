@@ -17,6 +17,13 @@ const TEXT = {
     helper: "Selecciona modalidad de baraja",
     modeLabel: "Modo",
     activeMode: "Activo",
+    legal:
+      "Ilustraciones de la baraja espanola: Basquetteur, «Baraja de 40 cartas», Wikimedia Commons, bajo CC BY-SA 3.0. Recortadas y adaptadas para este juego; las adaptaciones se ofrecen bajo la misma licencia. Repositorio intermediario: mcmd/playingcards.io-spanish.playing.cards (GPL-3.0).",
+    author: "Autor",
+    original: "Obra original",
+    license: "CC BY-SA 3.0",
+    repository: "Repositorio",
+    repositoryLicense: "GPL-3.0",
   },
   en: {
     brisca: "Brisca/Tute",
@@ -25,6 +32,13 @@ const TEXT = {
     helper: "Select card mode",
     modeLabel: "Mode",
     activeMode: "Active",
+    legal:
+      "Spanish-deck illustrations: Basquetteur, “Baraja de 40 cartas”, Wikimedia Commons, under CC BY-SA 3.0. Cropped and adapted for this game; adaptations are offered under the same license. Intermediate repository: mcmd/playingcards.io-spanish.playing.cards (GPL-3.0).",
+    author: "Author",
+    original: "Original work",
+    license: "CC BY-SA 3.0",
+    repository: "Repository",
+    repositoryLicense: "GPL-3.0",
   },
 };
 
@@ -70,6 +84,26 @@ function StrategyBarajaModesGame({ locale: localeOverride }) {
       ) : (
         <StrategyBriscaDeckGame locale={locale} />
       )}
+      <footer className="baraja-legal-footer">
+        <p>{t.legal}</p>
+        <nav aria-label={t.legal}>
+          <a href="https://commons.wikimedia.org/wiki/User:Basquetteur" target="_blank" rel="noreferrer">
+            {t.author}: Basquetteur
+          </a>
+          <a href="https://commons.wikimedia.org/wiki/File:Baraja_de_40_cartas.png" target="_blank" rel="noreferrer">
+            {t.original}
+          </a>
+          <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="license noreferrer">
+            {t.license}
+          </a>
+          <a href="https://github.com/mcmd/playingcards.io-spanish.playing.cards" target="_blank" rel="noreferrer">
+            {t.repository}
+          </a>
+          <a href="https://github.com/mcmd/playingcards.io-spanish.playing.cards/blob/master/LICENSE" target="_blank" rel="license noreferrer">
+            {t.repositoryLicense}
+          </a>
+        </nav>
+      </footer>
     </div>
   );
 }

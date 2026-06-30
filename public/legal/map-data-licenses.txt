@@ -1,0 +1,75 @@
+MAP DATA SOURCES AND THIRD-PARTY LICENSE NOTICES
+================================================
+
+This application uses and transforms geographic data from the following sources.
+The resulting game data may be used in a commercial, advertising-supported
+application subject to the terms below.
+
+
+1. COUNTRY BOUNDARIES
+---------------------
+
+Source: datasets/geo-countries
+Repository: https://github.com/datasets/geo-countries
+Data license: Open Data Commons Public Domain Dedication and License 1.0
+License: https://opendatacommons.org/licenses/pddl/1-0/
+
+The source repository states that its data is licensed under PDDL 1.0 and that
+the original Natural Earth data is public domain.
+
+
+2. PROVINCES AND OTHER ADMINISTRATIVE SUBDIVISIONS
+--------------------------------------------------
+
+Source: Click That 'Hood
+Repository: https://github.com/codeforgermany/click_that_hood
+
+MIT License
+
+Copyright (c) 2013-2021 Code for America
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+3. COUNTRY NAMES, TRANSLATIONS AND REGIONS
+------------------------------------------
+
+Contains information from mledoze/countries:
+https://github.com/mledoze/countries
+
+The database is made available under the Open Database License (ODbL) 1.0:
+https://opendatacommons.org/licenses/odbl/1-0/
+
+The transformed country metadata is available in machine-readable form at:
+/legal/map-country-metadata-odbl.json
+
+The database rights in the portions derived from mledoze/countries remain
+available under ODbL 1.0. This notice does not place the application's software
+code or independently sourced content under ODbL.
+
+
+4. CITY DATA
+------------
+
+Source: Natural Earth
+Repository: https://github.com/nvkelso/natural-earth-vector
+Terms: https://www.naturalearthdata.com/about/terms-of-use/
+
+Natural Earth vector and raster map data is in the public domain. Attribution
+is not required. Suggested credit: "Made with Natural Earth."
