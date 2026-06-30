@@ -65,13 +65,11 @@ const ES_SECTIONS = [
       { type: "h4", text: "2.2.1 ¿Quién es el responsable del tratamiento?" },
       { type: "p", text: "Los datos identificativos del Responsable del Tratamiento aparecen en el apartado 1." },
       { type: "h4", text: "2.2.2 ¿Qué información recopilamos y tratamos del usuario a través de la página web?" },
-      { type: "p", text: "Los datos que se recaban se refieren a la categoría de datos identificativos, como pueden ser: Nombre y Apellidos, Correo electrónico, así como la dirección IP desde donde accede al formulario de recogida de datos." },
+      { type: "p", text: "Los datos que se recaban se refieren a la categoría de datos identificativos, como pueden ser: nombre de usuario y correo electrónico, en el supuesto de registro de personas usuarias." },
       {
         type: "list",
         items: [
-          "A través del formulario Contacto. En nuestra página web el usuario encontrará la opción de escribirnos para aclarar todas las dudas que tenga en relación con el funcionamiento de nuestros productos/servicios o cualquier otra cosa que necesite. Para contestar, contactaremos con el usuario a través del correo electrónico o número de teléfono, si nos lo hubiera indicado.",
           "A través de nuestro email corporativo. A través de nuestro correo electrónico gamelockweb@gmail.com el usuario podrá escribirnos y/o requerir la información que considere necesaria para aclarar las dudas relacionadas con nuestros servicios.",
-          "A través de los comentarios en el blog. También podremos visualizar datos del usuario por comentarios que pueda escribir en los artículos de nuestro blog. Para poder realizar un comentario solicitaremos un nombre y un correo electrónico.",
           "A través de los Mini juegos interactivos. En determinados mini juegos se pueden solicitar datos de identificación (nombre o alias) y, en su caso, dirección de correo electrónico, con el fin de registrar la participación, guardar puntuaciones o mostrar resultados. Estos datos podrán utilizarse para elaborar clasificaciones internas y mostrar rankings, siempre que el usuario haya aceptado las condiciones de participación.",
           "A través de Encuestas, quizzes y rankings. En encuestas, cuestionarios o quizzes que generan rankings de usuarios, se puede recopilar información como nombre o alias, dirección de correo electrónico (si se requiere registro), respuestas aportadas y resultados obtenidos. Estos datos se emplean exclusivamente para fines estadísticos, elaboración de clasificaciones y mejora de la experiencia del usuario en el sitio.",
         ],
@@ -79,11 +77,11 @@ const ES_SECTIONS = [
       { type: "p", text: "En el caso de que el usuario nos facilite datos de terceros, asumirá la responsabilidad de haberle informado previamente y tener su consentimiento para ello, conforme al artículo 14 del RGPD." },
       { type: "h4", text: "2.2.3 ¿Con qué finalidad tratamos los datos personales del usuario?" },
       { type: "p", text: "GameLock realiza un tratamiento de datos personales con las finalidades que se exponen a continuación, en función del motivo para el que hayan sido facilitados:" },
-      { type: "list", items: ["Contactar, tramitar, gestionar y dar respuesta a la petición, solicitud, incidencia o consulta del usuario (ya sea a través de correo electrónico, formulario de contacto o teléfono).", "Gestionar, en su caso, el envío de información sobre novedades asociadas a GameLock por medios electrónicos y/o convencionales."] },
+      { type: "list", items: ["Contactar, tramitar, gestionar y dar respuesta a la petición, solicitud, incidencia o consulta del usuario (ya sea a través de correo electrónico, formulario de contacto o teléfono).", "Gestionar la relación con los usuarios de la plataforma, incluyendo la prestación de los servicios ofrecidos, el mantenimiento de cuentas de usuario y la atención al usuario cuando resulte aplicable."] },
       { type: "h4", text: "2.2.4 ¿Cuál es la legitimación del tratamiento de los datos del usuario?" },
-      { type: "list", items: ["Para poder aprovechar los servicios ofertados a través de la página web, así como el registro de usuario, la legitimación es la relación contractual con GameLock y la aceptación de sus condiciones de uso, por ello, el tratamiento de datos se realiza en base al artículo 6.1,b del RGPD.", "En lo que respecta al envío de información sobre productos, servicios y novedades asociadas a GameLock, la base legal para el tratamiento de los datos personales facilitados es el consentimiento que otorga el usuario de forma expresa, tal y como establece el artículo 6.1,a) del RGPD."] },
+      { type: "list", items: ["Para poder aprovechar los servicios ofertados a través de la página web, así como el registro de usuario, la legitimación es la relación contractual con GameLock y la aceptación de sus condiciones de uso, por ello, el tratamiento de datos se realiza en base al artículo 6.1,b del RGPD."] },
       { type: "h4", text: "2.2.5 ¿Durante cuánto tiempo se tratarán los datos personales del usuario?" },
-      { type: "list", items: ["Los datos de los usuarios registrados, gestión de consultas y solicitudes se conservarán durante el tiempo necesario para dar respuesta a los mismos, y en su caso, mientras el interesado no solicite la retirada de su consentimiento para enviarle información relacionada con su consulta.", "Los datos para el envío de información asociada a las novedades de GameLock serán conservados mientras el usuario no revoque su consentimiento."] },
+      { type: "list", items: ["Los datos de los usuarios registrados, gestión de consultas y solicitudes se conservarán durante el tiempo necesario para dar respuesta a los mismos, y en su caso, mientras el interesado no solicite la retirada de su consentimiento para enviarle información relacionada con su consulta.", "Los datos asociados a la cuenta de usuario se conservarán mientras esta permanezca activa y durante el tiempo necesario para la prestación de los servicios ofrecidos por GameLock. Una vez solicitada la baja de la cuenta o finalizada la relación con el usuario, los datos podrán mantenerse bloqueados durante los plazos legalmente exigibles para atender posibles responsabilidades legales."] },
       { type: "h4", text: "2.2.6 ¿A qué destinatarios se comunicarán los datos personales del usuario?" },
       { type: "p", text: "Como regla general, sus datos no serán cedidos a terceros salvo que existe una obligación legal o sea necesario para llevar a cabo la prestación del servicio. Teniendo esto en cuenta:" },
       { type: "list", items: ["Únicamente en casos necesarios legalmente, los datos serán comunicados a las Fuerzas y Cuerpos de Seguridad del Estado.", "También podrían ser comunicados a las Administraciones Públicas competentes en los casos previstos por la Ley.", "En su caso, también serán comunicados a los Encargados del Tratamiento de GameLock para la correcta prestación del servicio."] },
@@ -92,7 +90,15 @@ const ES_SECTIONS = [
       { type: "p", text: "Estos derechos se caracterizan por lo siguiente:" },
       { type: "list", items: ["Su ejercicio es gratuito, salvo que se trate de solicitudes manifiestamente infundadas o excesivas (p. ej., carácter repetitivo), en cuyo caso GameLock podrá cobrar un canon proporcional a los costes administrativos soportados o negarse a actuar.", "Puede ejercer los derechos directamente o por medio de su representante legal o voluntario.", "Debemos responder a su solicitud en el plazo de un mes, aunque, si se tiene en cuenta la complejidad y número de solicitudes, se puede prorrogar el plazo en otros dos meses más.", "Tenemos la obligación de informarle sobre los medios para ejercitar estos derechos, los cuales deben ser accesibles y sin poder denegarle el ejercicio del derecho por el solo motivo de optar por otro medio. Si la solicitud se presenta por medios electrónicos, la información se facilitará por estos medios cuando sea posible, salvo que nos solicite que sea de otro modo.", "Si GameLock no da curso a la solicitud, le informará, a más tardar en un mes, de las razones de su no actuación y la posibilidad de reclamar ante una Autoridad de Control."] },
       { type: "p", text: "A fin de facilitar su ejercicio, le facilitamos los enlaces al formulario de solicitud de cada uno de los derechos:" },
-      { type: "list", items: ["Formulario de ejercicio del derecho de acceso", "Formulario de ejercicio del derecho de rectificación", "Formulario de ejercicio del derecho de oposición", "Formulario de ejercicio del derecho de supresión (derecho “al olvido”)", "Formulario de ejercicio del derecho a la limitación del tratamiento", "Formulario de ejercicio del derecho a la portabilidad", "Formulario de ejercicio a no ser objeto de decisiones individuales automatizadas"] },
+      { type: "list", items: [
+        { text: "Formulario de ejercicio del derecho de acceso", href: "https://www.aepd.es/documento/formulario-derecho-de-acceso.pdf" },
+        { text: "Formulario de ejercicio del derecho de rectificación", href: "https://www.aepd.es/documento/formulario-derecho-de-rectificacion.pdf" },
+        { text: "Formulario de ejercicio del derecho de oposición", href: "https://www.aepd.es/documento/formulario-derecho-de-oposicion.pdf" },
+        { text: "Formulario de ejercicio del derecho de supresión (derecho “al olvido”)", href: "https://www.aepd.es/documento/formulario-derecho-de-supresion.pdf" },
+        { text: "Formulario de ejercicio del derecho a la limitación del tratamiento", href: "https://www.aepd.es/documento/formulario-derecho-de-limitacion.pdf" },
+        { text: "Formulario de ejercicio del derecho a la portabilidad", href: "https://www.aepd.es/documento/formulario-derecho-de-portabilidad.pdf" },
+        { text: "Formulario de ejercicio a no ser objeto de decisiones individuales automatizadas", href: "https://www.aepd.es/documento/formulario-derecho-de-oposicion-decisiones-automatizadas.pdf" },
+      ] },
       { type: "p", text: "Para ejercer sus derechos GameLock pone a su disposición los siguientes medios:" },
       { type: "list", items: ["Mediante solicitud escrita y firmada dirigida a GameLock. Ref. Ejercicio de Derechos LOPD.", "Enviando formulario escaneado y firmado a la dirección de correo electrónico gamelockweb@gmail.com indicando en el asunto Ejercicio de Derechos LOPD."] },
       { type: "p", text: "Asimismo, y especialmente si considera que no ha obtenido satisfacción plena en el ejercicio de sus derechos, le informamos que podrá presentar una reclamación ante la autoridad nacional de control dirigiéndose a estos efectos a la Agencia Española de Protección de Datos (AEPD), C/ Jorge Juan, 6 – 28001 Madrid (www.aepd.es)." },
@@ -116,12 +122,13 @@ const ES_SECTIONS = [
     id: "es-propiedad",
     title: "3. PROPIEDAD INTELECTUAL E INDUSTRIAL",
     blocks: [
-      { type: "p", text: "Le advertimos que GameLock es titular de todos los derechos de la propiedad intelectual e industrial de la página web, así como todos sus elementos (a título enunciativo: imágenes, sonido, audio, video, software o textos; marcas o logotipos, combinaciones de colores, estructura y diseño, selección de materiales usados, programas de ordenador necesarios para su funcionamiento, acceso y uso, etc.)." },
-      { type: "p", text: "La página web de GameLock contiene textos que pretenden informar a sus usuarios. Cualquier error u omisión en el contenido generado no hará responsable en ningún caso GameLock." },
-      { type: "p", text: "Las marcas, logotipos, emblemas, nombres comerciales y demás signos distintivos de Fórmula 1/F1, FIA, escuderías, pilotos y patrocinadores mencionados en esta web son propiedad exclusiva de sus respectivos titulares. Su uso en GameLock tiene únicamente fines informativos y descriptivos, para identificar a los sujetos y eventos comentados." },
-      { type: "p", text: "Este sitio web no es oficial y no está asociado de ninguna manera con las empresas de Fórmula 1. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX y las marcas relacionadas son marcas comerciales de Formula One Licensing B.V." },
-      { type: "p", text: "Las imágenes y vídeos usados son propios, con licencia o proceden de fuentes que permiten su uso editorial; en caso contrario se indicará su procedencia y titularidad. No se autoriza la descarga ni reutilización de material protegido salvo lo permitido por la ley." },
-      { type: "p", text: "El acceso a GameLock no implica cesión de derechos de propiedad intelectual o industrial. Si considera que algún contenido vulnera sus derechos, puede solicitar su retirada escribiendo a gamelockweb@gmail.com con prueba de titularidad y la URL del contenido." },
+      { type: "p", text: "Le informamos de que GameLock es titular o dispone de las autorizaciones necesarias para utilizar los derechos de propiedad intelectual e industrial asociados a esta página web, su plataforma de minijuegos y todos los elementos que la integran, incluyendo, a título meramente enunciativo, textos, diseños, interfaces, imágenes, ilustraciones, gráficos, animaciones, sonidos, música, vídeos, software, código fuente, bases de datos, nombres comerciales, marcas, logotipos y demás contenidos accesibles a través del sitio web." },
+      { type: "p", text: "Los juegos, funcionalidades y contenidos disponibles en la plataforma tienen carácter original o se utilizan conforme a las correspondientes licencias, autorizaciones o condiciones de uso aplicables. La mera inspiración en géneros o mecánicas de juego conocidas no implica necesariamente la existencia de una relación con los titulares de otros videojuegos, marcas o productos de entretenimiento." },
+      { type: "p", text: "El acceso, navegación y utilización de GameLock no implica en ningún caso la cesión, transmisión, licencia o renuncia de derechos de propiedad intelectual o industrial por parte de GameLock o de terceros titulares de derechos." },
+      { type: "p", text: "Queda prohibida la reproducción, distribución, comunicación pública, transformación, extracción, reutilización o explotación, total o parcial, de los contenidos de la plataforma sin la autorización previa y por escrito de sus legítimos titulares, salvo en los casos expresamente permitidos por la legislación vigente." },
+      { type: "p", text: "Las marcas, nombres comerciales, logotipos, personajes, títulos de videojuegos y demás signos distintivos que pudieran aparecer mencionados en la plataforma pertenecen a sus respectivos titulares. Su utilización tendrá, en su caso, una finalidad exclusivamente descriptiva, informativa o de referencia, sin que ello implique asociación, patrocinio, licencia o vinculación alguna con dichos titulares." },
+      { type: "p", text: "Los usuarios se comprometen a respetar los derechos de propiedad intelectual e industrial de GameLock y de terceros, absteniéndose de realizar cualquier actividad que pueda suponer una vulneración de los mismos." },
+      { type: "p", text: "Si cualquier persona o entidad considera que algún contenido disponible en la plataforma vulnera sus derechos de propiedad intelectual o industrial, podrá solicitar su revisión o retirada mediante comunicación dirigida a gamelockweb@gmail.com, indicando sus datos identificativos, acreditando debidamente la titularidad de los derechos invocados e identificando de forma precisa el contenido afectado y su ubicación en la plataforma." },
     ],
   },
   {
@@ -141,7 +148,13 @@ const ES_SECTIONS = [
       { type: "table", head: ["Nombre", "Dominio", "Objetivo/Finalidad", "Duración", "Tipo (propias/terceros)"], rows: COOKIE_ROWS_ES },
       { type: "h3", text: "4.3 ¿Cómo desinstalar las cookies?" },
       { type: "p", text: "Si un usuario desea desinstalar las cookies utilizadas en www.gamelock.es de su navegador, a continuación, le dejamos las instrucciones para distintos navegadores:" },
-      { type: "list", items: ["Para más información sobre Internet Explorer pulse aquí.", "Para más información sobre Microsoft Edge pulse aquí.", "Para más información sobre Firefox pulse aquí.", "Para más información sobre Chrome pulse aquí.", "Para más información sobre Safari pulse aquí."] },
+      { type: "list", items: [
+        { before: "Para más información sobre Internet Explorer pulse ", linkLabel: "aquí", after: ".", href: "https://support.microsoft.com/es-ES/edge/manage-cookies-in-microsoft-edge-view-allow-block-delete-and-use#ie=%22ie-10%22" },
+        { before: "Para más información sobre Microsoft Edge pulse ", linkLabel: "aquí", after: ".", href: "https://support.microsoft.com/es-ES/edge/microsoft-edge-browsing-data-and-privacy" },
+        { before: "Para más información sobre Firefox pulse ", linkLabel: "aquí", after: ".", href: "https://support.mozilla.org/es/kb/Borrar%20cookies" },
+        { before: "Para más información sobre Chrome pulse ", linkLabel: "aquí", after: ".", href: "https://support.google.com/chrome/answer/95647?hl=%22es%22" },
+        { before: "Para más información sobre Safari pulse ", linkLabel: "aquí", after: ".", href: "http://www.apple.com/es/privacy/use-of-cookies/" },
+      ] },
     ],
   },
   {
@@ -229,13 +242,11 @@ const EN_SECTIONS = [
       { type: "h4", text: "2.2.1 Who is the data controller?" },
       { type: "p", text: "The identifying details of the Data Controller appear in section 1." },
       { type: "h4", text: "2.2.2 What information do we collect and process from the user through the website?" },
-      { type: "p", text: "The data collected belongs to the category of identifying data, such as first name and surname, email address, and the IP address from which the user accesses the data collection form." },
+      { type: "p", text: "The data collected belongs to the category of identifying data, such as username and email address, where users register." },
       {
         type: "list",
         items: [
-          "Through the Contact form. On our website, users can write to us to clarify any questions about how our products or services work or anything else they may need. To reply, we will contact the user by email or by telephone if they have provided it.",
           "Through our corporate email. Through gamelockweb@gmail.com, users may write to us and/or request the information they consider necessary to clarify questions related to our services.",
-          "Through blog comments. We may also view user data through comments that users write on our blog articles. To comment, we will request a name and an email address.",
           "Through interactive mini-games. In certain mini-games, identifying data such as a name or alias and, where applicable, an email address may be requested to register participation, save scores or display results. These data may be used to create internal classifications and show rankings, provided that the user has accepted the participation conditions.",
           "Through surveys, quizzes and rankings. In surveys, questionnaires or quizzes that generate user rankings, information such as name or alias, email address if registration is required, answers provided and results obtained may be collected. These data are used exclusively for statistical purposes, creation of rankings and improvement of the user experience on the site.",
         ],
@@ -243,11 +254,11 @@ const EN_SECTIONS = [
       { type: "p", text: "If the user provides data relating to third parties, they assume responsibility for having previously informed those third parties and for having obtained their consent, in accordance with article 14 GDPR." },
       { type: "h4", text: "2.2.3 For what purposes do we process the user's personal data?" },
       { type: "p", text: "GameLock processes personal data for the purposes set out below, depending on the reason for which the data were provided:" },
-      { type: "list", items: ["To contact, process, manage and respond to the user's request, application, incident or query, whether by email, contact form or telephone.", "To manage, where applicable, the sending of information about news related to GameLock by electronic and/or conventional means."] },
+      { type: "list", items: ["To contact, process, manage and respond to the user's request, application, incident or query, whether by email, contact form or telephone.", "To manage the relationship with platform users, including the provision of the services offered, the maintenance of user accounts and user support where applicable."] },
       { type: "h4", text: "2.2.4 What is the legal basis for processing the user's data?" },
-      { type: "list", items: ["In order to use the services offered through the website, as well as user registration, the legal basis is the contractual relationship with GameLock and the acceptance of its terms of use. Processing is therefore based on article 6.1(b) GDPR.", "With regard to the sending of information about products, services and news related to GameLock, the legal basis for processing the personal data provided is the consent expressly granted by the user, as established in article 6.1(a) GDPR."] },
+      { type: "list", items: ["In order to use the services offered through the website, as well as user registration, the legal basis is the contractual relationship with GameLock and the acceptance of its terms of use. Processing is therefore based on article 6.1(b) GDPR."] },
       { type: "h4", text: "2.2.5 How long will the user's personal data be processed?" },
-      { type: "list", items: ["Data relating to registered users and the management of queries and requests will be kept for the time necessary to respond to them and, where applicable, while the data subject does not request withdrawal of consent to receive information related to their query.", "Data used to send information about GameLock news will be kept while the user does not revoke their consent."] },
+      { type: "list", items: ["Data relating to registered users and the management of queries and requests will be kept for the time necessary to respond to them and, where applicable, while the data subject does not request withdrawal of consent to receive information related to their query.", "Data associated with the user account will be kept while it remains active and for the time necessary to provide the services offered by GameLock. Once account deletion is requested or the relationship with the user ends, the data may be kept blocked during the legally required periods to address possible legal liabilities."] },
       { type: "h4", text: "2.2.6 To which recipients will the user's personal data be disclosed?" },
       { type: "p", text: "As a general rule, data will not be transferred to third parties unless there is a legal obligation or it is necessary to provide the service. Taking this into account:" },
       { type: "list", items: ["Only where legally necessary, data will be disclosed to the Spanish law enforcement authorities.", "Data may also be disclosed to competent public authorities in the cases provided by law.", "Where applicable, data will also be disclosed to GameLock's processors for the proper provision of the service."] },
@@ -256,7 +267,15 @@ const EN_SECTIONS = [
       { type: "p", text: "These rights are characterised by the following:" },
       { type: "list", items: ["They may be exercised free of charge, unless requests are manifestly unfounded or excessive, for example because they are repetitive. In that case, GameLock may charge a fee proportional to the administrative costs incurred or refuse to act.", "Users may exercise their rights directly or through a legal or voluntary representative.", "We must respond to the request within one month, although this period may be extended by a further two months depending on the complexity and number of requests.", "We are obliged to inform users about the means for exercising these rights. These means must be accessible and we may not refuse the exercise of a right solely because the user chooses another means. If the request is submitted electronically, the information will be provided electronically where possible, unless the user requests otherwise.", "If GameLock does not act on the request, it will inform the user within one month at the latest of the reasons for not acting and of the possibility of lodging a complaint with a supervisory authority."] },
       { type: "p", text: "To facilitate the exercise of rights, we provide the links to the request form for each right:" },
-      { type: "list", items: ["Form for exercising the right of access", "Form for exercising the right of rectification", "Form for exercising the right to object", "Form for exercising the right of erasure, also known as the right to be forgotten", "Form for exercising the right to restriction of processing", "Form for exercising the right to data portability", "Form for exercising the right not to be subject to automated individual decisions"] },
+      { type: "list", items: [
+        { text: "Form for exercising the right of access", href: "https://www.aepd.es/documento/formulario-derecho-de-acceso.pdf" },
+        { text: "Form for exercising the right of rectification", href: "https://www.aepd.es/documento/formulario-derecho-de-rectificacion.pdf" },
+        { text: "Form for exercising the right to object", href: "https://www.aepd.es/documento/formulario-derecho-de-oposicion.pdf" },
+        { text: "Form for exercising the right of erasure, also known as the right to be forgotten", href: "https://www.aepd.es/documento/formulario-derecho-de-supresion.pdf" },
+        { text: "Form for exercising the right to restriction of processing", href: "https://www.aepd.es/documento/formulario-derecho-de-limitacion.pdf" },
+        { text: "Form for exercising the right to data portability", href: "https://www.aepd.es/documento/formulario-derecho-de-portabilidad.pdf" },
+        { text: "Form for exercising the right not to be subject to automated individual decisions", href: "https://www.aepd.es/documento/formulario-derecho-de-oposicion-decisiones-automatizadas.pdf" },
+      ] },
       { type: "p", text: "To exercise their rights, GameLock makes the following means available:" },
       { type: "list", items: ["By written and signed request addressed to GameLock. Ref. Exercise of LOPD Rights.", "By sending the scanned and signed form to gamelockweb@gmail.com, indicating Exercise of LOPD Rights in the subject line."] },
       { type: "p", text: "Likewise, and especially if users consider that they have not obtained full satisfaction in the exercise of their rights, they may lodge a complaint with the national supervisory authority, the Spanish Data Protection Agency (AEPD), C/ Jorge Juan, 6 - 28001 Madrid (www.aepd.es)." },
@@ -280,12 +299,13 @@ const EN_SECTIONS = [
     id: "en-ip",
     title: "3. INTELLECTUAL AND INDUSTRIAL PROPERTY",
     blocks: [
-      { type: "p", text: "GameLock is the owner of all intellectual and industrial property rights in the website and all its elements, including, by way of example, images, sound, audio, video, software or texts, trademarks or logos, colour combinations, structure and design, selection of materials used, and computer programs necessary for its operation, access and use." },
-      { type: "p", text: "The GameLock website contains texts intended to inform its users. Any error or omission in the generated content will not make GameLock liable under any circumstances." },
-      { type: "p", text: "The trademarks, logos, emblems, trade names and other distinctive signs of Formula 1/F1, FIA, teams, drivers and sponsors mentioned on this website are the exclusive property of their respective owners. Their use on GameLock is solely for informational and descriptive purposes, to identify the subjects and events discussed." },
-      { type: "p", text: "This website is unofficial and is not associated in any way with Formula 1 companies. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and related marks are trademarks of Formula One Licensing B.V." },
-      { type: "p", text: "The images and videos used are owned, licensed or come from sources that allow editorial use; otherwise, their source and ownership will be indicated. Downloading or reusing protected material is not authorised except as permitted by law." },
-      { type: "p", text: "Access to GameLock does not imply any assignment of intellectual or industrial property rights. If users consider that any content infringes their rights, they may request its removal by writing to gamelockweb@gmail.com with proof of ownership and the URL of the content." },
+      { type: "p", text: "GameLock owns or has the necessary authorisations to use the intellectual and industrial property rights associated with this website, its mini-game platform and all the elements that comprise it, including, by way of example only, texts, designs, interfaces, images, illustrations, graphics, animations, sounds, music, videos, software, source code, databases, trade names, trademarks, logos and other content accessible through the website." },
+      { type: "p", text: "The games, functionalities and content available on the platform are original or are used in accordance with the corresponding licences, authorisations or applicable terms of use. Mere inspiration from known game genres or mechanics does not necessarily imply the existence of a relationship with the owners of other video games, trademarks or entertainment products." },
+      { type: "p", text: "Access to, browsing of and use of GameLock does not in any case imply the assignment, transfer, licensing or waiver of intellectual or industrial property rights by GameLock or by third-party rights holders." },
+      { type: "p", text: "The reproduction, distribution, public communication, transformation, extraction, reuse or exploitation, in whole or in part, of the platform's content without the prior written authorisation of its legitimate owners is prohibited, except in the cases expressly permitted by current legislation." },
+      { type: "p", text: "The trademarks, trade names, logos, characters, video game titles and other distinctive signs that may appear mentioned on the platform belong to their respective owners. Their use will, where applicable, have an exclusively descriptive, informational or reference purpose, without implying any association, sponsorship, licence or link with those owners." },
+      { type: "p", text: "Users undertake to respect the intellectual and industrial property rights of GameLock and of third parties, refraining from carrying out any activity that may constitute an infringement of them." },
+      { type: "p", text: "If any person or entity considers that any content available on the platform infringes their intellectual or industrial property rights, they may request its review or removal by communication addressed to gamelockweb@gmail.com, providing their identifying details, duly accrediting ownership of the rights invoked and precisely identifying the affected content and its location on the platform." },
     ],
   },
   {
@@ -305,7 +325,13 @@ const EN_SECTIONS = [
       { type: "table", head: ["Name", "Domain", "Purpose", "Duration", "Type (first-party/third-party)"], rows: COOKIE_ROWS_EN },
       { type: "h3", text: "4.3 How to uninstall cookies" },
       { type: "p", text: "If a user wishes to uninstall the cookies used on www.gamelock.es from their browser, below are instructions for different browsers:" },
-      { type: "list", items: ["For more information about Internet Explorer click here.", "For more information about Microsoft Edge click here.", "For more information about Firefox click here.", "For more information about Chrome click here.", "For more information about Safari click here."] },
+      { type: "list", items: [
+        { before: "For more information about Internet Explorer click ", linkLabel: "here", after: ".", href: "https://support.microsoft.com/es-ES/edge/manage-cookies-in-microsoft-edge-view-allow-block-delete-and-use#ie=%22ie-10%22" },
+        { before: "For more information about Microsoft Edge click ", linkLabel: "here", after: ".", href: "https://support.microsoft.com/es-ES/edge/microsoft-edge-browsing-data-and-privacy" },
+        { before: "For more information about Firefox click ", linkLabel: "here", after: ".", href: "https://support.mozilla.org/es/kb/Borrar%20cookies" },
+        { before: "For more information about Chrome click ", linkLabel: "here", after: ".", href: "https://support.google.com/chrome/answer/95647?hl=%22es%22" },
+        { before: "For more information about Safari click ", linkLabel: "here", after: ".", href: "http://www.apple.com/es/privacy/use-of-cookies/" },
+      ] },
     ],
   },
   {
@@ -388,9 +414,29 @@ function LegalBlock({ block }) {
   if (block.type === "list") {
     return (
       <ul>
-        {block.items.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
+        {block.items.map((item, index) => {
+          if (typeof item === "string") {
+            return <li key={index}>{item}</li>;
+          }
+          if (item.linkLabel) {
+            return (
+              <li key={index}>
+                {item.before}
+                <a href={item.href} target="_blank" rel="noopener noreferrer">
+                  {item.linkLabel}
+                </a>
+                {item.after}
+              </li>
+            );
+          }
+          return (
+            <li key={index}>
+              <a href={item.href} target="_blank" rel="noopener noreferrer">
+                {item.text}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     );
   }
