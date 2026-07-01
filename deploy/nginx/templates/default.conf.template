@@ -18,7 +18,7 @@ limit_req_zone $binary_remote_addr zone=open_pack_per_ip:10m rate=120r/m;
 
 server {
   listen 80;
-  server_name ${DOMAIN};
+  server_name ${DOMAIN} www.${DOMAIN};
 
   location /.well-known/acme-challenge/ {
     root /var/www/certbot;
@@ -38,7 +38,7 @@ server {
 server {
   listen 443 ssl;
   http2 on;
-  server_name ${DOMAIN};
+  server_name ${DOMAIN} www.${DOMAIN};
 
   ssl_certificate /etc/nginx/runtime-certs/fullchain.pem;
   ssl_certificate_key /etc/nginx/runtime-certs/privkey.pem;

@@ -3,7 +3,7 @@
 FROM node:22-bookworm-slim AS build
 WORKDIR /app
 
-ARG SITE_URL=https://plataforma-juegos.example
+ARG SITE_URL=https://www.game-lock.com
 ENV NODE_ENV=production
 ENV SITE_URL=${SITE_URL}
 ENV VITE_SITE_URL=${SITE_URL}

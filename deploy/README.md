@@ -39,7 +39,7 @@ Esta proteccion no puede mantener la web disponible si el proveedor suspende o a
 
 ## Emitir el certificado real
 
-Con el DNS apuntando al servidor y los puertos `80` y `443` abiertos:
+Con el DNS de `game-lock.com` y `www.game-lock.com` apuntando al servidor y los puertos `80` y `443` abiertos:
 
 ```bash
 DOMAIN="$(sed -n 's/^DOMAIN=//p' deploy/.env)"
@@ -50,12 +50,15 @@ docker compose --env-file deploy/.env -f deploy/docker-compose.yml run --rm cert
   -w /var/www/certbot \
   --cert-name "$DOMAIN" \
   -d "$DOMAIN" \
+  -d "www.$DOMAIN" \
   --email "$LETSENCRYPT_EMAIL" \
   --agree-tos \
   --no-eff-email
 
 docker compose --env-file deploy/.env -f deploy/docker-compose.yml restart web
 ```
+
+El certificado se emite con el nombre `$DOMAIN` (apex) y cubre tanto `game-lock.com` como `www.game-lock.com` mediante SAN. Nginx sirve ambos hosts (`server_name ${DOMAIN} www.${DOMAIN}`) y el origen canónico para SEO es `SITE_URL` (`https://www.game-lock.com`).
 
 ## Notas
 

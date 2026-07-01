@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-# Set SITE_URL or VITE_SITE_URL before building to publish an absolute Sitemap URL.
+Sitemap: https://www.game-lock.com/sitemap.xml
