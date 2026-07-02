@@ -1,3 +1,9 @@
+-- Single global sequence for all application-generated row ids. Using one
+-- sequence (instead of GREATEST(MAX(id)+1)) makes id allocation atomic and
+-- collision-free across profiles and tables. Seeded above the current global
+-- max at startup (see initializeSchema) so it never overlaps legacy ids.
+CREATE SEQUENCE IF NOT EXISTS wgc_entity_id_seq;
+
 CREATE TABLE IF NOT EXISTS user_state (
   browser_token TEXT PRIMARY KEY,
   data_json BYTEA NOT NULL DEFAULT ''::bytea,

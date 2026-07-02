@@ -441,14 +441,23 @@ function buildEmptyState() {
 }
 
 function buildNextIds(state) {
+  // Ids are namespaced per browser token: each profile owns a 1M-wide id range
+  // starting at its own `id` (== createTokenScopedIdBase in service.mjs, and
+  // == what openPackIncremental seeds from). Seed every per-table counter from
+  // that base so a table that is currently EMPTY for this profile resumes
+  // inside the token namespace instead of restarting at 1. Restarting at 1 is
+  // what produced colliding primary keys across tokens on reload — and the
+  // resulting divergent ids then tripped the UNIQUE(profile, ...) indexes.
+  const profileBase = Math.max(0, ...state.browserProfiles.map((entry) => Number(entry.id) || 0));
+  const nextFrom = (ids) => Math.max(profileBase, 0, ...ids) + 1;
   return {
-    profile: Math.max(0, ...state.browserProfiles.map((entry) => Number(entry.id) || 0)) + 1,
-    collection: Math.max(0, ...state.browserCollection.map((entry) => Number(entry.id) || 0)) + 1,
-    packOpening: Math.max(0, ...state.packOpenings.map((entry) => Number(entry.id) || 0)) + 1,
-    browserMission: Math.max(0, ...state.browserMissions.map((entry) => Number(entry.id) || 0)) + 1,
-    browserTrophy: Math.max(0, ...state.browserTrophies.map((entry) => Number(entry.id) || 0)) + 1,
-    rewardEvent: Math.max(0, ...state.rewardEvents.map((entry) => Number(entry.id) || 0)) + 1,
-    dailyStat: Math.max(0, ...state.dailyBrowserStats.map((entry) => Number(entry.id) || 0)) + 1,
+    profile: profileBase + 1,
+    collection: nextFrom(state.browserCollection.map((entry) => Number(entry.id) || 0)),
+    packOpening: nextFrom(state.packOpenings.map((entry) => Number(entry.id) || 0)),
+    browserMission: nextFrom(state.browserMissions.map((entry) => Number(entry.id) || 0)),
+    browserTrophy: nextFrom(state.browserTrophies.map((entry) => Number(entry.id) || 0)),
+    rewardEvent: nextFrom(state.rewardEvents.map((entry) => Number(entry.id) || 0)),
+    dailyStat: nextFrom(state.dailyBrowserStats.map((entry) => Number(entry.id) || 0)),
   };
 }
 

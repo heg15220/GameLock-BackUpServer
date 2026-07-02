@@ -107,6 +107,23 @@ async function initializeSchema(pool) {
       [POSTGRES_SCHEMA_LOCK_NAMESPACE, POSTGRES_SCHEMA_LOCK_ID]
     );
     await client.query(SCHEMA_SQL);
+    // Advance the id sequence above the current global max across every table
+    // that draws from it, without ever moving it backwards (safe across
+    // restarts and replicas). GREATEST includes the sequence's own value so a
+    // reseed can only raise it.
+    await client.query(
+      `SELECT setval('wgc_entity_id_seq', GREATEST(
+         (SELECT last_value FROM wgc_entity_id_seq),
+         (SELECT COALESCE(MAX(id), 0) FROM browser_profiles),
+         (SELECT COALESCE(MAX(id), 0) FROM browser_collection),
+         (SELECT COALESCE(MAX(id), 0) FROM pack_openings),
+         (SELECT COALESCE(MAX(id), 0) FROM browser_missions),
+         (SELECT COALESCE(MAX(id), 0) FROM browser_trophies),
+         (SELECT COALESCE(MAX(id), 0) FROM reward_events),
+         (SELECT COALESCE(MAX(id), 0) FROM daily_browser_stats),
+         1
+       ), true)`
+    );
     await client.query("COMMIT");
   } catch (error) {
     try {

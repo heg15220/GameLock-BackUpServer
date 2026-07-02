@@ -274,12 +274,23 @@ export function createPostgresStore({ db }) {
         if (!dirtyStates.size) return;
         const batch = Array.from(dirtyStates.entries());
         dirtyStates.clear();
-        await Promise.all(
-          batch.map(([browserToken, payload]) =>
-            writeRaw(browserToken, payload.nextState, payload.previousState)
-          )
-        );
-      }).catch(() => {});
+        // Sequential: one transaction (one pooled connection) at a time.
+        // Firing the whole batch with Promise.all opened as many concurrent
+        // transactions as there were dirty tokens, exhausting the connection
+        // pool under load and surfacing as backend 502s.
+        for (const [browserToken, payload] of batch) {
+          try {
+            await writeRaw(browserToken, payload.nextState, payload.previousState);
+          } catch (error) {
+            // One bad write must not drop the rest of the batch — but a
+            // dropped deferred flush is invisible data loss, so surface it
+            // instead of swallowing silently.
+            console.error(`[storage.postgres] deferred flush failed for ${browserToken}:`, error);
+          }
+        }
+      }).catch((error) => {
+        console.error("[storage.postgres] deferred flush batch error:", error);
+      });
     }, FLUSH_DEBOUNCE_MS);
     if (typeof flushTimer.unref === "function") {
       flushTimer.unref();
@@ -298,11 +309,14 @@ export function createPostgresStore({ db }) {
       if (!dirtyStates.size) return;
       const batch = Array.from(dirtyStates.entries());
       dirtyStates.clear();
-      await Promise.all(
-        batch.map(([browserToken, payload]) =>
-          writeRaw(browserToken, payload.nextState, payload.previousState)
-        )
-      );
+      // Sequential to avoid connection-pool exhaustion (see scheduleFlush).
+      for (const [browserToken, payload] of batch) {
+        try {
+          await writeRaw(browserToken, payload.nextState, payload.previousState);
+        } catch (error) {
+          console.error(`[storage.postgres] flush failed for ${browserToken}:`, error);
+        }
+      }
     });
     await flushPromise;
   }
@@ -616,88 +630,156 @@ export function createPostgresStore({ db }) {
       return;
     }
     const storageToken = profile.browserToken ?? browserToken;
+    const previousProfile = (previousClean?.browserProfiles ?? []).find(
+      (entry) => entry.browserToken === storageToken || entry.browserToken === browserToken
+    ) ?? ((previousClean?.browserProfiles ?? []).length === 1 ? previousClean.browserProfiles[0] : null);
 
-    const profileId = Number(profile.id) || 0;
+    // The in-memory profile id is derived from the browser token hash
+    // (createTokenScopedIdBase). After token rotation, or when a profile is
+    // re-materialized fresh while a row already exists, that id diverges from
+    // the id actually stored in the DB for this token. Writing the diverged id
+    // then violates the browser_token UNIQUE (ON CONFLICT(id) cannot catch a
+    // token collision) and orphans child FKs — this was the "duplicate key ...
+    // browser_profiles_browser_token_key" crash. Reconcile: keep filtering the
+    // in-memory rows by their own (memory) profile id, but write everything
+    // under the id already persisted for this token.
+    const memProfileId = Number(profile.id) || 0;
+    const persistedProfileRow = await db.get(
+      "SELECT id FROM browser_profiles WHERE browser_token = ?",
+      [storageToken]
+    );
+    const profileId = persistedProfileRow
+      ? Number(persistedProfileRow.id) || memProfileId
+      : memProfileId;
     const collectionRows = (clean.browserCollection ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const openingRows = (clean.packOpenings ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const missionRows = (clean.browserMissions ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const trophyRows = (clean.browserTrophies ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const rewardRows = (clean.rewardEvents ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const dailyRows = (clean.dailyBrowserStats ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const previousCollectionRows = (previousClean?.browserCollection ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const previousOpeningRows = (previousClean?.packOpenings ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const previousMissionRows = (previousClean?.browserMissions ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const previousTrophyRows = (previousClean?.browserTrophies ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const previousRewardRows = (previousClean?.rewardEvents ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
     const previousDailyRows = (previousClean?.dailyBrowserStats ?? []).filter(
-      (entry) => Number(entry.browserProfileId) === profileId
+      (entry) => Number(entry.browserProfileId) === memProfileId
     );
 
     await db.transaction(async (tx) => {
+      // Serialize against openPackIncremental (which also takes FOR UPDATE on
+      // this row) so the two id allocators never run concurrently for the same
+      // profile. No-op on first write when the profile does not exist yet — the
+      // UPSERT below creates it.
       await tx.run(
-        `INSERT INTO browser_profiles (
-           id, browser_token, display_name, preferred_language, packs_available,
-           max_packs, last_pack_regen_at, gems, shards, trophies_points,
-           total_pack_opens, pity_counter, created_at, updated_at, last_seen_at,
-           last_pack_opened_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON CONFLICT(browser_token) DO UPDATE SET
-           browser_token = excluded.browser_token,
-           display_name = excluded.display_name,
-           preferred_language = excluded.preferred_language,
-           packs_available = excluded.packs_available,
-           max_packs = excluded.max_packs,
-           last_pack_regen_at = excluded.last_pack_regen_at,
-           gems = excluded.gems,
-           shards = excluded.shards,
-           trophies_points = excluded.trophies_points,
-           total_pack_opens = excluded.total_pack_opens,
-           pity_counter = excluded.pity_counter,
-           created_at = excluded.created_at,
-           updated_at = excluded.updated_at,
-           last_seen_at = excluded.last_seen_at,
-           last_pack_opened_at = excluded.last_pack_opened_at`,
-        [
-          profileId,
-          storageToken,
-          profile.displayName ?? null,
-          profile.preferredLanguage ?? null,
-          Number(profile.packsAvailable) || 0,
-          Number(profile.maxPacks) || 0,
-          profile.lastPackRegenAt ?? null,
-          Number(profile.gems) || 0,
-          Number(profile.shards) || 0,
-          Number(profile.trophiesPoints) || 0,
-          Number(profile.totalPackOpens) || 0,
-          Number(profile.pityCounter) || 0,
-          profile.createdAt ?? null,
-          profile.updatedAt ?? null,
-          profile.lastSeenAt ?? null,
-          profile.lastPackOpenedAt ?? null,
-        ]
+        "SELECT id FROM browser_profiles WHERE browser_token = ? FOR UPDATE",
+        [storageToken]
       );
+      // Update ONLY the profile fields this mutation actually changed (diff vs
+      // previousState). A read-mostly writer (getSessionMe: regen / last_seen)
+      // must not overwrite pack-progress fields (total_pack_opens,
+      // packs_available, gems, shards, pity_counter, …) that openPackIncremental
+      // advanced concurrently — that unconditional clobber was resetting the
+      // frontend counter and missions to zero while the pack openings, cards and
+      // daily stats themselves persisted correctly.
+      const profileFieldDefs = [
+        ["display_name", profile.displayName ?? null, previousProfile?.displayName ?? null],
+        ["preferred_language", profile.preferredLanguage ?? null, previousProfile?.preferredLanguage ?? null],
+        ["packs_available", Number(profile.packsAvailable) || 0, Number(previousProfile?.packsAvailable) || 0],
+        ["max_packs", Number(profile.maxPacks) || 0, Number(previousProfile?.maxPacks) || 0],
+        ["last_pack_regen_at", profile.lastPackRegenAt ?? null, previousProfile?.lastPackRegenAt ?? null],
+        ["gems", Number(profile.gems) || 0, Number(previousProfile?.gems) || 0],
+        ["shards", Number(profile.shards) || 0, Number(previousProfile?.shards) || 0],
+        ["trophies_points", Number(profile.trophiesPoints) || 0, Number(previousProfile?.trophiesPoints) || 0],
+        ["total_pack_opens", Number(profile.totalPackOpens) || 0, Number(previousProfile?.totalPackOpens) || 0],
+        ["pity_counter", Number(profile.pityCounter) || 0, Number(previousProfile?.pityCounter) || 0],
+        ["created_at", profile.createdAt ?? null, previousProfile?.createdAt ?? null],
+        ["updated_at", profile.updatedAt ?? null, previousProfile?.updatedAt ?? null],
+        ["last_seen_at", profile.lastSeenAt ?? null, previousProfile?.lastSeenAt ?? null],
+        ["last_pack_opened_at", profile.lastPackOpenedAt ?? null, previousProfile?.lastPackOpenedAt ?? null],
+      ];
+      if (persistedProfileRow) {
+        // Existing row → UPDATE only changed columns. With no previous snapshot
+        // to diff against (previousProfile == null, e.g. a full write()), write
+        // every field.
+        const setCols = ["browser_token = ?"];
+        const setParams = [storageToken];
+        for (const [col, value, prevValue] of profileFieldDefs) {
+          if (!previousProfile || value !== prevValue) {
+            setCols.push(`${col} = ?`);
+            setParams.push(value);
+          }
+        }
+        await tx.run(
+          `UPDATE browser_profiles SET ${setCols.join(", ")} WHERE id = ?`,
+          [...setParams, profileId]
+        );
+      } else {
+        await tx.run(
+          `INSERT INTO browser_profiles (
+             id, browser_token, display_name, preferred_language, packs_available,
+             max_packs, last_pack_regen_at, gems, shards, trophies_points,
+             total_pack_opens, pity_counter, created_at, updated_at, last_seen_at,
+             last_pack_opened_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             browser_token = excluded.browser_token,
+             display_name = excluded.display_name,
+             preferred_language = excluded.preferred_language,
+             packs_available = excluded.packs_available,
+             max_packs = excluded.max_packs,
+             last_pack_regen_at = excluded.last_pack_regen_at,
+             gems = excluded.gems,
+             shards = excluded.shards,
+             trophies_points = excluded.trophies_points,
+             total_pack_opens = excluded.total_pack_opens,
+             pity_counter = excluded.pity_counter,
+             created_at = excluded.created_at,
+             updated_at = excluded.updated_at,
+             last_seen_at = excluded.last_seen_at,
+             last_pack_opened_at = excluded.last_pack_opened_at`,
+          [
+            profileId,
+            storageToken,
+            profile.displayName ?? null,
+            profile.preferredLanguage ?? null,
+            Number(profile.packsAvailable) || 0,
+            Number(profile.maxPacks) || 0,
+            profile.lastPackRegenAt ?? null,
+            Number(profile.gems) || 0,
+            Number(profile.shards) || 0,
+            Number(profile.trophiesPoints) || 0,
+            Number(profile.totalPackOpens) || 0,
+            Number(profile.pityCounter) || 0,
+            profile.createdAt ?? null,
+            profile.updatedAt ?? null,
+            profile.lastSeenAt ?? null,
+            profile.lastPackOpenedAt ?? null,
+          ]
+        );
+      }
 
       const previousCollectionById = new Map(
         previousCollectionRows.map((entry) => [Number(entry.id) || 0, entry])
@@ -744,7 +826,7 @@ export function createPostgresStore({ db }) {
           "topic_group",
         ],
         changedCollectionRows,
-        `ON CONFLICT(id) DO UPDATE SET
+        `ON CONFLICT(browser_profile_id, article_id) DO UPDATE SET
           browser_profile_id = excluded.browser_profile_id,
           article_id = excluded.article_id,
           copies = excluded.copies,
@@ -945,7 +1027,7 @@ export function createPostgresStore({ db }) {
           "updated_at",
         ],
         changedMissionRows,
-        `ON CONFLICT(id) DO UPDATE SET
+        `ON CONFLICT(browser_profile_id, mission_id, reset_date) DO UPDATE SET
           browser_profile_id = excluded.browser_profile_id,
           mission_id = excluded.mission_id,
           progress_value = excluded.progress_value,
@@ -986,7 +1068,7 @@ export function createPostgresStore({ db }) {
         "browser_trophies",
         ["id", "browser_profile_id", "trophy_id", "unlocked_at"],
         changedTrophyRows,
-        `ON CONFLICT(id) DO UPDATE SET
+        `ON CONFLICT(browser_profile_id, trophy_id) DO UPDATE SET
           browser_profile_id = excluded.browser_profile_id,
           trophy_id = excluded.trophy_id,
           unlocked_at = excluded.unlocked_at`
@@ -1095,7 +1177,7 @@ export function createPostgresStore({ db }) {
           "topic_counts_json",
         ],
         changedDailyRows,
-        `ON CONFLICT(id) DO UPDATE SET
+        `ON CONFLICT(browser_profile_id, stat_date) DO UPDATE SET
           browser_profile_id = excluded.browser_profile_id,
           stat_date = excluded.stat_date,
           packs_opened = excluded.packs_opened,
@@ -1499,7 +1581,16 @@ export function createPostgresStore({ db }) {
     };
   }
 
-  async function openPackIncremental(browserToken, {
+  // Serialize pack opens through the SAME per-token queue as forToken().update
+  // (getSessionMe, getPackStatus, …). Without this, those cached/deferred-write
+  // endpoints run concurrently with the direct-to-DB open: they can read the
+  // stale pre-open state and even flush a deferred write that clobbers the open,
+  // so the frontend's packs counter and trophies never update.
+  function openPackIncremental(browserToken, options = {}) {
+    return enqueue(browserToken, () => openPackIncrementalImpl(browserToken, options));
+  }
+
+  async function openPackIncrementalImpl(browserToken, {
     preferredLanguage = null,
     nowIso,
     statDate,
@@ -1508,7 +1599,23 @@ export function createPostgresStore({ db }) {
     finalizeProgress,
   } = {}) {
     const resolvedToken = await resolvePersistedToken(browserToken);
-    return db.transaction(async (tx) => {
+    // openPackIncremental writes straight to the DB, bypassing the in-memory
+    // state cache and the deferred-write buffer. Flush any pending deferred
+    // write for this token FIRST so the open builds on the latest state and a
+    // late flush cannot revert the just-opened pack. Non-fatal: a failed flush
+    // must never abort the pack open itself.
+    for (const token of new Set([browserToken, resolvedToken])) {
+      const pending = dirtyStates.get(token);
+      if (pending) {
+        dirtyStates.delete(token);
+        try {
+          await writeRaw(token, pending.nextState, pending.previousState);
+        } catch (error) {
+          console.error(`[storage.postgres] pre-open flush failed for ${token}:`, error);
+        }
+      }
+    }
+    const result = await db.transaction(async (tx) => {
       const profile = normalizeProfileRow(await tx.get(
         `SELECT
            id,
@@ -1580,23 +1687,14 @@ export function createPostgresStore({ db }) {
         return new Map(ids.map((id) => [id, collectionCache.get(id) ?? null]));
       }
 
-      const nextIdRow = await tx.get(
-        `SELECT GREATEST(
-           ?::bigint,
-           COALESCE((SELECT MAX(id) FROM browser_collection WHERE browser_profile_id = ?), 0),
-           COALESCE((SELECT MAX(id) FROM pack_openings WHERE browser_profile_id = ?), 0),
-           COALESCE((SELECT MAX(id) FROM browser_missions WHERE browser_profile_id = ?), 0),
-           COALESCE((SELECT MAX(id) FROM browser_trophies WHERE browser_profile_id = ?), 0),
-           COALESCE((SELECT MAX(id) FROM reward_events WHERE browser_profile_id = ?), 0),
-           COALESCE((SELECT MAX(id) FROM daily_browser_stats WHERE browser_profile_id = ?), 0)
-         ) + 1 AS "nextId"`,
-        [profile.id, profile.id, profile.id, profile.id, profile.id, profile.id, profile.id]
-      );
-      let nextId = Number(nextIdRow?.nextId) || (profile.id + 1);
-      const allocateId = () => {
-        const id = nextId;
-        nextId += 1;
-        return id;
+      // Allocate ids from the global sequence: atomic and collision-free across
+      // profiles and tables. The previous GREATEST(MAX(id) WHERE
+      // browser_profile_id = ?) computed a PER-PROFILE max over a GLOBAL primary
+      // key, so it handed out ids already used by other profiles → the
+      // "duplicate key ... browser_collection_pkey" crash on pack open.
+      const allocateId = async () => {
+        const row = await tx.get("SELECT nextval('wgc_entity_id_seq') AS id");
+        return Number(row?.id) || 0;
       };
 
       const mutation = await buildMutation(profile, {
@@ -1694,7 +1792,7 @@ export function createPostgresStore({ db }) {
             ]
           );
         } else {
-          const id = allocateId();
+          const id = await allocateId();
           entry.id = id;
           await tx.run(
             `INSERT INTO browser_collection (
@@ -1716,7 +1814,7 @@ export function createPostgresStore({ db }) {
         }
       }
 
-      const openingId = allocateId();
+      const openingId = await allocateId();
       await tx.run(
         `INSERT INTO pack_openings (
            id, browser_profile_id, opened_at, guaranteed_sr_plus, pack_type, result_summary
@@ -1842,7 +1940,7 @@ export function createPostgresStore({ db }) {
              shards_earned, topic_counts_json
            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
-            allocateId(),
+            await allocateId(),
             profile.id,
             statDate,
             dailyValues.packsOpened,
@@ -1866,7 +1964,7 @@ export function createPostgresStore({ db }) {
              created_at, metadata_json
            ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
           [
-            allocateId(),
+            await allocateId(),
             profile.id,
             mutation.rewardEvent.rewardSource,
             mutation.rewardEvent.rewardType,
@@ -1962,7 +2060,7 @@ export function createPostgresStore({ db }) {
              id, browser_profile_id, trophy_id, unlocked_at
            ) VALUES (?, ?, ?, ?)
            ON CONFLICT(browser_profile_id, trophy_id) DO NOTHING`,
-          [allocateId(), profile.id, trophy.trophyId, trophy.unlockedAt]
+          [await allocateId(), profile.id, trophy.trophyId, trophy.unlockedAt]
         );
         addedTrophyPoints += Number(trophy.points) || 0;
       }
@@ -2006,7 +2104,7 @@ export function createPostgresStore({ db }) {
                claimed, reset_date, created_at, updated_at
              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-              allocateId(),
+              await allocateId(),
               profile.id,
               mission.missionId,
               mission.progressValue,
@@ -2030,6 +2128,14 @@ export function createPostgresStore({ db }) {
         packStatus: progress.packStatus,
       };
     });
+    // The commit above never touched the read cache; without this, readRaw /
+    // readProfileOnly keep serving the stale pre-open profile, so the frontend's
+    // packs counter, missions and trophies appear not to update.
+    if (result) {
+      stateCache.delete(browserToken);
+      stateCache.delete(resolvedToken);
+    }
+    return result;
   }
 
   function forToken(browserToken) {

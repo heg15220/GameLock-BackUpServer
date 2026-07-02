@@ -1994,9 +1994,16 @@ export function createWikipediaGachaService({
       if (changed) {
         profile.updatedAt = isoDate(now);
       }
+      // Read-only endpoint: recompute regen / missions / trophies for the
+      // RESPONSE, but never persist. Persisting the full state here (via
+      // writeRaw) overwrites the pack-open progress that openPackIncremental
+      // writes directly to the DB — resetting the packs counter, mission
+      // progress and daily stats back to their pre-open values. Same rationale
+      // as getPackStatus's lean read: the next real write path (openPack,
+      // claim, …) recomputes and persists this correctly.
       return {
         state: draft,
-        persist: changed && hasPersistedProgress(draft, profile),
+        persist: false,
       };
     });
     const profile = state.browserProfiles.find(
