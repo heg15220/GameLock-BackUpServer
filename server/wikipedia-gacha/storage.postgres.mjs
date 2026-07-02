@@ -323,7 +323,7 @@ export function createPostgresStore({ db }) {
 
   async function resolvePersistedToken(browserToken) {
     const row = await db.get(
-      "SELECT current_token AS currentToken FROM token_aliases WHERE legacy_token = ?",
+      `SELECT current_token AS "currentToken" FROM token_aliases WHERE legacy_token = ?`,
       [browserToken]
     );
     return row?.currentToken ?? browserToken;
@@ -334,21 +334,21 @@ export function createPostgresStore({ db }) {
     const profile = await db.get(
       `SELECT
          id,
-         browser_token AS browserToken,
-         display_name AS displayName,
-         preferred_language AS preferredLanguage,
-         packs_available AS packsAvailable,
-         max_packs AS maxPacks,
-         last_pack_regen_at AS lastPackRegenAt,
+         browser_token AS "browserToken",
+         display_name AS "displayName",
+         preferred_language AS "preferredLanguage",
+         packs_available AS "packsAvailable",
+         max_packs AS "maxPacks",
+         last_pack_regen_at AS "lastPackRegenAt",
          gems,
          shards,
-         trophies_points AS trophiesPoints,
-         total_pack_opens AS totalPackOpens,
-         pity_counter AS pityCounter,
-         created_at AS createdAt,
-         updated_at AS updatedAt,
-         last_seen_at AS lastSeenAt,
-         last_pack_opened_at AS lastPackOpenedAt
+         trophies_points AS "trophiesPoints",
+         total_pack_opens AS "totalPackOpens",
+         pity_counter AS "pityCounter",
+         created_at AS "createdAt",
+         updated_at AS "updatedAt",
+         last_seen_at AS "lastSeenAt",
+         last_pack_opened_at AS "lastPackOpenedAt"
        FROM browser_profiles
        WHERE browser_token = ?`,
       [resolvedToken]
@@ -373,14 +373,14 @@ export function createPostgresStore({ db }) {
       db.all(
         `SELECT
            id,
-           browser_profile_id AS browserProfileId,
-           article_id AS articleId,
+           browser_profile_id AS "browserProfileId",
+           article_id AS "articleId",
            copies,
-           first_obtained_at AS firstObtainedAt,
-           last_obtained_at AS lastObtainedAt,
+           first_obtained_at AS "firstObtainedAt",
+           last_obtained_at AS "lastObtainedAt",
            favorite,
-           best_rarity_code AS bestRarityCode,
-           topic_group AS topicGroup
+           best_rarity_code AS "bestRarityCode",
+           topic_group AS "topicGroup"
          FROM browser_collection
          WHERE browser_profile_id = ?
          ORDER BY id ASC`,
@@ -389,11 +389,11 @@ export function createPostgresStore({ db }) {
       db.all(
         `SELECT
            id,
-           browser_profile_id AS browserProfileId,
-           opened_at AS openedAt,
-           guaranteed_sr_plus AS guaranteedSrPlus,
-           pack_type AS packType,
-           result_summary AS resultSummary
+           browser_profile_id AS "browserProfileId",
+           opened_at AS "openedAt",
+           guaranteed_sr_plus AS "guaranteedSrPlus",
+           pack_type AS "packType",
+           result_summary AS "resultSummary"
          FROM pack_openings
          WHERE browser_profile_id = ?
          ORDER BY id ASC`,
@@ -430,14 +430,14 @@ export function createPostgresStore({ db }) {
       db.all(
         `SELECT
            id,
-           browser_profile_id AS browserProfileId,
-           mission_id AS missionId,
-           progress_value AS progressValue,
+           browser_profile_id AS "browserProfileId",
+           mission_id AS "missionId",
+           progress_value AS "progressValue",
            completed,
            claimed,
-           reset_date AS resetDate,
-           created_at AS createdAt,
-           updated_at AS updatedAt
+           reset_date AS "resetDate",
+           created_at AS "createdAt",
+           updated_at AS "updatedAt"
          FROM browser_missions
          WHERE browser_profile_id = ?
          ORDER BY id ASC`,
@@ -446,9 +446,9 @@ export function createPostgresStore({ db }) {
       db.all(
         `SELECT
            id,
-           browser_profile_id AS browserProfileId,
-           trophy_id AS trophyId,
-           unlocked_at AS unlockedAt
+           browser_profile_id AS "browserProfileId",
+           trophy_id AS "trophyId",
+           unlocked_at AS "unlockedAt"
          FROM browser_trophies
          WHERE browser_profile_id = ?
          ORDER BY id ASC`,
@@ -457,12 +457,12 @@ export function createPostgresStore({ db }) {
       db.all(
         `SELECT
            id,
-           browser_profile_id AS browserProfileId,
-           reward_source AS rewardSource,
-           reward_type AS rewardType,
-           reward_amount AS rewardAmount,
-           created_at AS createdAt,
-           metadata_json AS metadataJson
+           browser_profile_id AS "browserProfileId",
+           reward_source AS "rewardSource",
+           reward_type AS "rewardType",
+           reward_amount AS "rewardAmount",
+           created_at AS "createdAt",
+           metadata_json AS "metadataJson"
          FROM reward_events
          WHERE browser_profile_id = ?
          ORDER BY id ASC`,
@@ -471,18 +471,18 @@ export function createPostgresStore({ db }) {
       db.all(
         `SELECT
            id,
-           browser_profile_id AS browserProfileId,
-           stat_date AS statDate,
-           packs_opened AS packsOpened,
-           cards_obtained AS cardsObtained,
-           new_cards_obtained AS newCardsObtained,
-           duplicate_cards_obtained AS duplicateCardsObtained,
-           sr_or_higher_count AS srOrHigherCount,
-           ssr_or_higher_count AS ssrOrHigherCount,
-           ur_or_higher_count AS urOrHigherCount,
-           wikipedia_clicks AS wikipediaClicks,
-           shards_earned AS shardsEarned,
-           topic_counts_json AS topicCountsJson
+           browser_profile_id AS "browserProfileId",
+           stat_date AS "statDate",
+           packs_opened AS "packsOpened",
+           cards_obtained AS "cardsObtained",
+           new_cards_obtained AS "newCardsObtained",
+           duplicate_cards_obtained AS "duplicateCardsObtained",
+           sr_or_higher_count AS "srOrHigherCount",
+           ssr_or_higher_count AS "ssrOrHigherCount",
+           ur_or_higher_count AS "urOrHigherCount",
+           wikipedia_clicks AS "wikipediaClicks",
+           shards_earned AS "shardsEarned",
+           topic_counts_json AS "topicCountsJson"
          FROM daily_browser_stats
          WHERE browser_profile_id = ?
          ORDER BY id ASC`,
@@ -1253,21 +1253,21 @@ export function createPostgresStore({ db }) {
     const profile = await db.get(
       `SELECT
          id,
-         browser_token AS browserToken,
-         display_name AS displayName,
-         preferred_language AS preferredLanguage,
-         packs_available AS packsAvailable,
-         max_packs AS maxPacks,
-         last_pack_regen_at AS lastPackRegenAt,
+         browser_token AS "browserToken",
+         display_name AS "displayName",
+         preferred_language AS "preferredLanguage",
+         packs_available AS "packsAvailable",
+         max_packs AS "maxPacks",
+         last_pack_regen_at AS "lastPackRegenAt",
          gems,
          shards,
-         trophies_points AS trophiesPoints,
-         total_pack_opens AS totalPackOpens,
-         pity_counter AS pityCounter,
-         created_at AS createdAt,
-         updated_at AS updatedAt,
-         last_seen_at AS lastSeenAt,
-         last_pack_opened_at AS lastPackOpenedAt
+         trophies_points AS "trophiesPoints",
+         total_pack_opens AS "totalPackOpens",
+         pity_counter AS "pityCounter",
+         created_at AS "createdAt",
+         updated_at AS "updatedAt",
+         last_seen_at AS "lastSeenAt",
+         last_pack_opened_at AS "lastPackOpenedAt"
        FROM browser_profiles
        WHERE browser_token = ?`,
       [resolvedToken]
