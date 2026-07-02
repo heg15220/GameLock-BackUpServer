@@ -1055,7 +1055,7 @@
   function collectDeposit(run, deposit) {
     const staminaRatio = run.stamina / Math.max(1, currentMaxStamina(run));
     if (run.stamina <= 0) {
-      run.guidanceArrow = "â†‘";
+      run.guidanceArrow = "↑";
       run.guidanceTitle = t("Sin estamina", "No stamina");
       run.guidanceCopy = canAccessOutpost(run)
         ? t("Estas en superficie. Abre el puesto y recarga estamina.", "You are at the surface. Open the outpost and recharge stamina.")
@@ -1065,7 +1065,7 @@
     }
 
     if (staminaRatio <= STAMINA_LOW_RATIO) {
-      run.guidanceArrow = "â†‘";
+      run.guidanceArrow = "↑";
       run.guidanceTitle = t("Estamina baja", "Low stamina");
       run.guidanceCopy = canAccessOutpost(run)
         ? t("Recarga estamina en el puesto antes de seguir cavando.", "Recharge stamina at the outpost before digging more.")
@@ -2434,9 +2434,11 @@
   function onKeyDown(event) {
     if (event.repeat && ["Enter","KeyE","KeyM","KeyP","KeyR","KeyF","KeyT","KeyB"].includes(event.code)) return;
     state.keys[event.code] = true;
-    if (event.code === "Digit1") selectWorld("jungle");
-    if (event.code === "Digit2") selectWorld("desert");
-    if (event.code === "Digit3") selectWorld("urban");
+    if (state.screen === "world_select") {
+      if (event.code === "Digit1") selectWorld("jungle");
+      if (event.code === "Digit2") selectWorld("desert");
+      if (event.code === "Digit3") selectWorld("urban");
+    }
     if (event.code === "Enter" || event.code === "KeyE") { event.preventDefault(); interact(); return; }
     if (event.code === "KeyM") { event.preventDefault(); if (state.run && state.screen === "running") handleSurfaceAction(); return; }
     if (event.code === "KeyT") { event.preventDefault(); if (state.run && state.screen === "running") useJetpack(); return; }

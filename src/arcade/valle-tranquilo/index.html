@@ -85,8 +85,8 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
 .is:hover{border-color:#f0c030;background:rgba(240,190,40,.08)}
 .is.e{opacity:.25;cursor:default}
 .is.e:hover{border-color:#4a2c0c;background:rgba(255,255,255,.03)}
-.iq{position:absolute;bottom:1px;right:3px;font-family:'VT323';font-size:12px;color:#f0c030;line-height:1}
-.il{font-family:'VT323';font-size:9px;color:#706050;line-height:1;margin-top:1px}
+.iq{position:absolute;top:1px;right:3px;font-family:'VT323';font-size:12px;color:#f0c030;line-height:1;text-shadow:0 1px 2px #000,0 0 2px #000;pointer-events:none}
+.il{font-family:'VT323';font-size:9px;color:#706050;line-height:1;margin-top:1px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;padding:0 2px}
 #logb{width:190px;padding:7px 10px;border-right:2px solid #3a2008;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;overflow:hidden}
 .ll{font-family:'VT323';font-size:13px;line-height:1.3;color:#806040}
 .ll.f{color:#b0d870}
@@ -208,7 +208,7 @@ body.winter #stag{color:#90c8f0;border-color:#90c8f0;background:rgba(80,120,200,
   font-size:calc(18px * var(--ui-scale) * var(--inventory-scale));
 }
 .iq{
-  bottom:calc(1px * var(--ui-scale) * var(--inventory-scale));
+  top:calc(1px * var(--ui-scale) * var(--inventory-scale));
   right:calc(3px * var(--ui-scale) * var(--inventory-scale));
   font-size:calc(12px * var(--ui-scale) * var(--inventory-scale));
 }
@@ -494,7 +494,7 @@ html.mobile-shell-embed.mobile-shell-portrait #kb-help-btn{
 
 <script>
 const SEASONS=['spring','summer','autumn','winter'];
-const SN={spring:'Primavera',summer:'Verano',autumn:'OtoÃ±o',winter:'Invierno'};
+const SN={spring:'Primavera',summer:'Verano',autumn:'Otoño',winter:'Invierno'};
 const SN_EN={spring:'Spring',summer:'Summer',autumn:'Autumn',winter:'Winter'};
 const IS_ES=(navigator.language||'es').toLowerCase().startsWith('es');
 const LANG=IS_ES?'es':'en';
@@ -584,16 +584,16 @@ const EN_TEXT_REPLACEMENTS=[
   ['Acercate a un vecino (E).','Move closer to a neighbor (E).'],['No hay camino hasta ese punto.','No path to that point.'],
   ['No puedes llegar a ese vecino desde aqui.','You cannot reach that neighbor from here.'],
   ['Agua bloquea el paso. Usa clic derecho para rodear.','Water blocks the way. Use right click to route around.'],
-  ['Sin energÃ­a. Â¡Duerme!','No energy. Sleep!'],['Sin energía. ¡Duerme!','No energy. Sleep!'],
+  ['Sin energía. ¡Duerme!','No energy. Sleep!'],['Sin energía. ¡Duerme!','No energy. Sleep!'],
   ['En la mina usa el pico para extraer vetas.','Use the pickaxe in the mine to extract veins.'],
   ['Solo puedes labrar hierba.','You can only till grass.'],['Labras la tierra.','You till the soil.'],
   ['Aqui no se riega. Explora y mina materiales raros.','You cannot water here. Explore and mine rare materials.'],
-  ['Nada que regar aquÃ­.','Nothing to water here.'],['Nada que regar aquí.','Nothing to water here.'],
+  ['Nada que regar aquí.','Nothing to water here.'],['Nada que regar aquí.','Nothing to water here.'],
   ['Las semillas solo se plantan en la superficie.','Seeds can only be planted on the surface.'],
   ['No hay cultivos en la mina. Busca vetas brillantes.','No crops in the mine. Look for glowing veins.'],
-  ['No estÃ¡ listo todavÃ­a.','Not ready yet.'],['No está listo todavía.','Not ready yet.'],
+  ['No está listo todavía.','Not ready yet.'],['No está listo todavía.','Not ready yet.'],
   ['No hay arboles talables en esta caverna.','No chop-ready trees in this cave.'],
-  ['No hay Ã¡rbol aquÃ­.','No tree here.'],['No hay árbol aquí.','No tree here.'],
+  ['No hay árbol aquí.','No tree here.'],['No hay árbol aquí.','No tree here.'],
   ['Prueba en rocas o vetas raras de la mina.','Try rocks or rare veins in the mine.'],
   ['No puedes pescar en esta zona subterranea.','You cannot fish in this underground zone.'],
   ['En mina no puedes colocar caminos.','You cannot place paths in the mine.'],
@@ -752,7 +752,7 @@ const QUESTS=[
   {id:'q7',npcId:'bruno',tEs:'Forjar 2 lingotes de acero',tEn:'Forge 2 steel ingots',ic:'⚒️',r:340,req:{steel_ingot:2},track:'inventory',consume:true,offerOnTalk:true,active:false,recommended:false,done:false},
   {id:'q8',npcId:'ines',tEs:'Entregar 4 mazorcas de maiz',tEn:'Deliver 4 corn cobs',ic:'🌽',r:280,req:{corn:4},track:'inventory',consume:true,offerOnTalk:true,active:false,recommended:false,done:false},
   {id:'q9',npcId:'teo',tEs:'Llevar 6 ladrillos de obra',tEn:'Bring 6 building bricks',ic:'🧱',r:420,req:{brick:6},track:'inventory',consume:true,offerOnTalk:true,active:false,recommended:false,done:false},
-  {id:'q10',npcId:'sara',tEs:'Preparar 3 cajas de fruta',tEn:'Prepare 3 fruit crates',ic:'🍇',r:360,req:{grape:2,strawberry:1},track:'inventory',consume:true,offerOnTalk:true,active:false,recommended:false,done:false},
+  {id:'q10',npcId:'sara',tEs:'Preparar una caja de fruta (2 uvas + 1 fresa)',tEn:'Prepare a fruit crate (2 grapes + 1 strawberry)',ic:'🍇',r:360,req:{grape:2,strawberry:1},track:'inventory',consume:true,offerOnTalk:true,active:false,recommended:false,done:false},
 ];
 const UPGRADES=[
   {id:'irig',ic:'💧',n:'Riego Automatico',p:500, d:'Riega cultivos cada dia'},
@@ -803,6 +803,11 @@ function itemName(k){
   const base=LANG==='es'?NAMES:NAMES_EN;
   if(CROPS[k]) return LANG==='es'?CROPS[k].n:(CROP_NAME_EN[k]||CROPS[k].n);
   if(SAPLINGS[k]) return LANG==='es'?SAPLINGS[k].n:SAPLINGS[k].nEn;
+  if(k.startsWith('seeds_')){
+    const crop=k.slice(6);
+    const cn=CROPS[crop]?(LANG==='es'?CROPS[crop].n:(CROP_NAME_EN[crop]||CROPS[crop].n)):crop;
+    return LANG==='es'?`Semillas de ${cn}`:`${cn} seeds`;
+  }
   return base[k]||NAMES[k]||NAMES_EN[k]||k.replace('seeds_','');
 }
 function itemIcon(k){
@@ -2349,8 +2354,9 @@ function inDangerousDarkness(){
 function damagePlayer(amount,reason=''){
   const prev=G.health;
   G.health=Math.max(0,Math.min(G.maxH,G.health-amount));
-  if(prev!==G.health&&reason) notify(reason,'info');
+  if(prev!==G.health&&reason) notify(reason,'info');if(prev>0&&G.health<=0) faint();
 }
+function faint(){const penalty=Math.min(G.gold,Math.round(G.gold*0.1));G.gold-=penalty;G.health=Math.max(G.health,Math.round(G.maxH*0.3));notify(IS_ES?`😵 Te desmayas de agotamiento. Pierdes 🪙${penalty}.`:`😵 You faint from exhaustion. You lose 🪙${penalty}.`,'ev');lg(IS_ES?'Te llevan a descansar tras el desmayo.':'You are carried off to rest after fainting.');doSleep();}
 function healPlayer(amount){
   G.health=Math.max(0,Math.min(G.maxH,G.health+amount));
 }
@@ -2370,7 +2376,9 @@ function toggleTorch(){
 }
 function openEatMenu(){
   const edible=Object.entries(G.inv).filter(([k,q])=>q>0&&FOOD_ITEMS[k]);
-  let h=`<div style="font-family:'VT323';font-size:15px;color:#d7c39f">${IS_ES?'La vida solo se recupera comiendo. Dormir ya no rellena la salud.':'Health only returns by eating. Sleeping no longer restores it.'}</div>`;
+  let h='';
+  h+=`<div class="db"><div class="dn">${IS_ES?'CÓMO FUNCIONA COMER':'HOW EATING WORKS'}</div><div style="font-family:'VT323';font-size:15px;line-height:1.55;color:#e6d0aa">${IS_ES?'Tu salud ❤️ solo se recupera comiendo. Dormir 🌙 rellena la energía ⚡ para el día siguiente, pero ya no cura la vida, así que conviene llevar siempre algo de comida en la mochila. Al tocar un alimento te lo comes al momento: se gasta 1 unidad de tu inventario y recuperas los ❤️ que indica. Cuanto más elaborado es el plato, más vida devuelve.':'Your health ❤️ only recovers by eating. Sleeping 🌙 refills your energy ⚡ for the next day, but it no longer heals health, so it is wise to always keep some food in your backpack. Tapping a food eats it instantly: it uses 1 unit from your inventory and restores the ❤️ shown. The more elaborate the dish, the more health it restores.'}</div></div>`;
+  h+=`<div class="qi"><div class="qt">${IS_ES?'Cómo conseguir comida':'How to get food'}</div><div class="qm" style="line-height:1.7">${IS_ES?'🥕 <strong>Hortalizas</strong>: compra semillas en la 🏪 Tienda (tecla B), labra la tierra ⛏️, planta 🌱, riega 🚿 y, cuando maduren, cosecha 🧺. Las semillas no se comen: primero hay que cultivarlas.<br>🍎 <strong>Fruta</strong>: desbloquea la parcela del huerto, planta plantones (se compran en la Tienda) y recoge la fruta madura del árbol.<br>🐟 <strong>Pescado</strong>: usa la caña 🎣 Pescar en zonas de agua.<br>🥚 <strong>Huevos</strong>: compra la mejora Gallinero en la Tienda; cada mañana recoges huevos.<br>🍞 <strong>Comida cocinada</strong>: en tu casa, el 🪵 Banco de taller y el 🔥 Horno combinan ingredientes (por ejemplo harina + carbón = pan) en pan, guisos, mermelada o pescado asado, que curan mucha más vida.<br>💡 Si necesitas curarte rápido, también puedes comprar 🍞 pan directamente en la Tienda.':'🥕 <strong>Vegetables</strong>: buy seeds at the 🏪 Shop (key B), till the soil ⛏️, plant 🌱, water 🚿 and, once ripe, harvest 🧺. Seeds cannot be eaten: you must grow them first.<br>🍎 <strong>Fruit</strong>: unlock the orchard plot, plant saplings (bought at the Shop) and gather ripe fruit from the tree.<br>🐟 <strong>Fish</strong>: use the 🎣 Fish rod in water areas.<br>🥚 <strong>Eggs</strong>: buy the Coop upgrade at the Shop; collect eggs every morning.<br>🍞 <strong>Cooked food</strong>: at home, the 🪵 Workshop bench and 🔥 Furnace combine ingredients (for example flour + coal = bread) into bread, stews, jam or grilled fish, which restore far more health.<br>💡 If you need a quick heal, you can also buy 🍞 bread directly at the Shop.'}</div></div>`;
   if(!edible.length){
     h+=`<div class="qi"><div class="qt">${IS_ES?'Sin comida':'No food'}</div><div class="qm">${IS_ES?'Guarda pan, fruta, pescado o guisos en tu mochila.':'Carry bread, fruit, fish, or stews in your backpack.'}</div></div>`;
   }
@@ -2412,7 +2420,7 @@ function updateNpcWorld(){
   });
 }
 
-const TW=56, TH=56;      // tile footprint â€” bigger = sharper detail
+const TW=56, TH=56;      // tile footprint — bigger = sharper detail
 const ISO_Y=26;          // how much the "top face" is squished (oblique factor)
 const WALL_H=22;         // visible front face height of blocks
 let vp,cw,ch,sCtx,gCtx,fCtx,ox,oy,targetOx,targetOy,mapFade=0,mapLabelAlpha=0,renderDpr=1,perfLite=false,skyCacheFrame=-1;
@@ -4526,6 +4534,7 @@ function setupKeyboard(){
     if(key==='Escape'){closeM();return;}
     if(!GAME_STARTED&& !document.getElementById('mb').classList.contains('on')) return;
     if(document.getElementById('mb').classList.contains('on')) return;
+    if(document.getElementById('ss').classList.contains('on'))return;
     KEYS[key]=true;
     if(TOOL_KEYS[key]){T(TOOL_KEYS[key]);showKbHint(document.getElementById('ctool').textContent);updateContextHint();return;}
     if(key==='q'){cycleTool(-1);return;}
@@ -4659,7 +4668,7 @@ function handleCell(idx){
     notify(IS_ES?'Dentro de casa usa E sobre cofres, banco de taller u horno.':'Inside the house, use E on chests, the workshop bench or the furnace.','info');
     return;
   }
-  if(G.energy<=0){notify('Sin energÃ­a. Â¡Duerme!','info');return;}
+  if(G.energy<=0){notify('Sin energía. ¡Duerme!','info');return;}
   switch(G.tool){
     case 'hoe':
       if(inMine()){notify('En la mina usa el pico para extraer vetas.','info');break;}
@@ -4668,8 +4677,8 @@ function handleCell(idx){
     case 'water':
       if(inMine()){notify('Aqui no se riega. Explora y mina materiales raros.','info');break;}
       if(cell.t==='S'||cell.crop){if(sp(3)){cell.wet=true;guideMark('watered',1);lg(tr('logWaterCare'));sxp('farming',3);tick(3);reAll();}}
-      else if(cell.t==='W'||cell.t==='D') notify('ðŸŽ£ Usa pescar para el agua.','info');
-      else notify('Nada que regar aquÃ­.','info'); break;
+      else if(cell.t==='W'||cell.t==='D') notify(IS_ES?'🎣 Usa pescar para el agua.':'🎣 Use the fishing rod on water.','info');
+      else notify('Nada que regar aquí.','info'); break;
     case 'plant':
       if(inMine()){notify('Las semillas solo se plantan en la superficie.','info');break;}
       if(SAPLINGS[G.selCrop]){
@@ -4698,7 +4707,7 @@ function handleCell(idx){
         const cropName=LANG==='es'?cr.n:(CROP_NAME_EN[G.selCrop]||cr.n);
         if(!G.bought.ghs&&!cr.ss.includes(sn)){notify(IS_ES?`${cropName} no crece en ${seasonName(sn)}.`:`${cropName} does not grow in ${seasonName(sn)}.`,'info');return;}
         if(sp(2)){cell.crop=G.selCrop;cell.gp=0;G.inv[sk]--;guideMark('planted',1);lg(IS_ES?`Plantas ${cropName}.`:`You plant ${cropName}.`);sxp('farming',8);tick(4);reAll();}
-      } else if(!cell.crop) notify('Primero labra (â›ï¸).','info'); break;
+      } else if(!cell.crop) notify(IS_ES?'Primero labra (⛏️).':'Till first (⛏️).','info'); break;
     case 'harvest':
       if(inMine()){notify('No hay cultivos en la mina. Busca vetas brillantes.','info');break;}
       if(cell.treeCrop){
@@ -4717,9 +4726,9 @@ function handleCell(idx){
         } else notify(IS_ES?'Ese arbol aun no tiene fruta lista.':'That tree does not have ripe fruit yet.','info');
         break;
       }
-      if(cell.crop){const cr=CROPS[cell.crop];
-        if(cell.gp>=cr.d){if(sp(2)){addInv(cell.crop,1);addQP(cell.crop,1);lg(`Â¡Cosechas ${cr.n}! ${cr.ic}`);sxp('farming',15);fxp(10);cell.crop=null;cell.t='S';cell.wet=false;cell.gp=0;tick(3);reAll();notify(`+1 ${cr.ic} ${cr.n}`,'good');}}
-        else notify('No estÃ¡ listo todavÃ­a.','info');}
+      if(cell.crop){const cr=CROPS[cell.crop];const cn=LANG==='es'?cr.n:(CROP_NAME_EN[cell.crop]||cr.n);
+        if(cell.gp>=cr.d){if(sp(2)){addInv(cell.crop,1);addQP(cell.crop,1);lg(IS_ES?`¡Cosechas ${cn}! ${cr.ic}`:`Harvested ${cn}! ${cr.ic}`);sxp('farming',15);fxp(10);cell.crop=null;cell.t='S';cell.wet=false;cell.gp=0;tick(3);reAll();notify(`+1 ${cr.ic} ${cn}`,'good');}}
+        else notify('No está listo todavía.','info');}
       else notify('Nada que cosechar.','info'); break;
     case 'axe':
       if(inMine()){notify('No hay arboles talables en esta caverna.','info');break;}
@@ -4738,8 +4747,8 @@ function handleCell(idx){
         }
         break;
       }
-      if(cell.t==='T'){if(sp(6)){const n=rn(1,3)+(G.toolTier>1?1:0);addInv('wood',n);cell.t='G';lg(`Talas Ã¡rbol. +${n}ðŸªµ`);sxp('foraging',12);addQP('wood',n);tick(8);reAll();notify(`+${n}ðŸªµ Madera`,'good');}}
-      else notify('No hay Ã¡rbol aquÃ­.','info'); break;
+      if(cell.t==='T'){if(sp(6)){const n=rn(1,3)+(G.toolTier>1?1:0);addInv('wood',n);cell.t='G';lg(IS_ES?`Talas árbol. +${n}🪵`:`You chop a tree. +${n}🪵`);sxp('foraging',12);addQP('wood',n);tick(8);reAll();notify(IS_ES?`+${n}🪵 Madera`:`+${n}🪵 Wood`,'good');}}
+      else notify('No hay árbol aquí.','info'); break;
     case 'pickaxe':
       if(inMine()){
         if(!sp(5)) break;
@@ -4850,7 +4859,7 @@ function beginFishingCast(target,opt={}){
 
 function sp(n){
   const cost=Math.max(1,n-(G.toolTier>1?1:0));
-  if(G.energy<cost){notify('EnergÃ­a insuficiente.','info');return false;}
+  if(G.energy<cost){notify('Energía insuficiente.','info');return false;}
   G.energy=Math.max(0,G.energy-cost);
   return true;
 }
@@ -4864,8 +4873,8 @@ function tick(m){
 function addInv(k,n){G.inv[k]=(G.inv[k]||0)+n;}
 function addQP(k,n){G.qProg[k]=(G.qProg[k]||0)+n;}
 function rn(a,b){return a+Math.floor(Math.random()*(b-a+1));}
-function sxp(s,x){G.skXP[s]=(G.skXP[s]||0)+x;const lv=Math.floor(G.skXP[s]/100)+1;if(lv>Math.floor((G.skXP[s]-x)/100)+1)notify(`Â¡${s} â†’ Lv${lv}!`,'ev');}
-function fxp(x){G.farmXP+=x;const lv=Math.floor(G.farmXP/200)+1;if(lv>G.farmLv){G.farmLv=lv;notify(`ðŸŒŸ Â¡Granja Nivel ${lv}!`,'ev');}}
+function sxp(s,x){G.skXP[s]=(G.skXP[s]||0)+x;const lv=Math.floor(G.skXP[s]/100)+1;if(lv>Math.floor((G.skXP[s]-x)/100)+1){const sl=(IS_ES?{farming:'Granja',fishing:'Pesca',mining:'Minería',foraging:'Recolección',social:'Social'}:{farming:'Farming',fishing:'Fishing',mining:'Mining',foraging:'Foraging',social:'Social'})[s]||s;notify(IS_ES?`¡${sl} → Nivel ${lv}!`:`${sl} → Level ${lv}!`,'ev')};}
+function fxp(x){G.farmXP+=x;const lv=Math.floor(G.farmXP/200)+1;if(lv>G.farmLv){G.farmLv=lv;notify(IS_ES?`🌟 ¡Granja Nivel ${lv}!`:`🌟 Farm Level ${lv}!`,'ev');}}
 function TOD(){if(G.hr>=5&&G.hr<9)return'morning';if(G.hr>=9&&G.hr<18)return'day';if(G.hr>=18&&G.hr<21)return'evening';return'night';}
 
 function blendColor(c1,c2,a){
@@ -4886,7 +4895,7 @@ function blendCSS(c1, tint, a) {
   }catch{return c1;}
 }
 
-function doSleep(){
+function doSleep(){if(document.getElementById('ss').classList.contains('on'))return;
   clearAutoMove();
   fishingCast=null;
   fishingFx=null;
@@ -4935,7 +4944,7 @@ function newDay(){
   });
   if(G.weather==='rainy') farmCells.forEach(c=>{if(c.t==='S'||c.crop)c.wet=true;});
   if(G.bought.irig) farmCells.forEach(c=>{if(c.crop)c.wet=true;});
-  if(G.bought.coop&&G.chickens>0){addInv('egg',G.chickens);lg(`Gallinas: +${G.chickens}ðŸ¥š`);}
+  if(G.bought.coop&&G.chickens>0){addInv('egg',G.chickens);lg(IS_ES?`Gallinas: +${G.chickens}🥚`:`Chickens: +${G.chickens}🥚`);}
   progressPropertyProjects();
   regenerateMineExcavation(false);
   refreshQuestRecommendations();
@@ -4944,9 +4953,9 @@ function newDay(){
   reAll();
 }
 function chkEvent(){
-  const EV={spring:{15:'Festival de Flores ðŸŒ¸',28:'Feria de Primavera ðŸ£'},summer:{14:'Solsticio ðŸŽ†',20:'Fest. Pesca ðŸŒŠ'},autumn:{10:'Cosecha ðŸŽƒ',24:'Fiesta Noche ðŸ‚'},winter:{7:'Mercado â›„',25:'Regalos ðŸŽ'}};
+  const EV=IS_ES?{spring:{15:'Festival de Flores 🌸',28:'Feria de Primavera 🐣'},summer:{14:'Solsticio 🎆',20:'Fest. Pesca 🌊'},autumn:{10:'Cosecha 🎃',24:'Fiesta Noche 🍂'},winter:{7:'Mercado ⛄',25:'Regalos 🎁'}}:{spring:{15:'Flower Festival 🌸',28:'Spring Fair 🐣'},summer:{14:'Solstice 🎆',20:'Fishing Fest 🌊'},autumn:{10:'Harvest 🎃',24:'Night Feast 🍂'},winter:{7:'Market ⛄',25:'Gifts 🎁'}};
   const nm=EV[SEASONS[G.sIdx]]?.[G.sDay];
-  if(nm){G.gold+=50;notify(`ðŸŽ‰ Â¡Hoy: ${nm}! +50ðŸª™`,'ev');lg(`Â¡${nm}! +50ðŸª™`);}
+  if(nm){G.gold+=50;notify(IS_ES?`🎉 ¡Hoy: ${nm}! +50🪙`:`🎉 Today: ${nm}! +50🪙`,'ev');lg(IS_ES?`¡${nm}! +50🪙`:`${nm}! +50🪙`);}
 }
 
 function T(t){
@@ -5820,11 +5829,11 @@ function reAll(){
     if(shown>=SLOTS)return;
     const s=document.createElement('div');s.className='is';
     s.innerHTML=`${itemIcon(k)}<span class="iq">${q}</span><span class="il">${itemName(k)}</span>`;
-    s.title=`${itemName(k)} Ã—${q} (${IS_ES?'clic=vender':'click=sell'})`;
+    s.title=`${itemName(k)} ×${q} (${IS_ES?'clic=vender':'click=sell'})`;
     s.onclick=()=>{G.gold+=sellP(k);G.inv[k]--;guideMark('sold',1);lg(IS_ES?`Vendes ${itemIcon(k)} +🪙${sellP(k)}`:`Sold ${itemIcon(k)} +🪙${sellP(k)}`);reAll();};
     iw.appendChild(s);shown++;
   });
-  for(let i=shown;i<SLOTS;i++){const s=document.createElement('div');s.className='is e';s.innerHTML='Â·';iw.appendChild(s);}
+  for(let i=shown;i<SLOTS;i++){const s=document.createElement('div');s.className='is e';s.innerHTML='·';iw.appendChild(s);}
   const fishCancel=document.getElementById('fish-cancel-btn');
   if(fishCancel){
     fishCancel.classList.toggle('on',!!fishingCast);
