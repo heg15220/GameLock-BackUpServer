@@ -18,7 +18,6 @@ web_game_playwright_client*.mjs
 _web_game_playwright_client*.mjs
 
 tests
-src/bench
 **/*.test.js
 **/*.test.jsx
 **/*.test.mjs

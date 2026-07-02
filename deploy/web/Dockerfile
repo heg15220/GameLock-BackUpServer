@@ -18,7 +18,9 @@ ENV VITE_PENALTY_SHOOTOUT_BACKEND_URL=${PENALTY_SHOOTOUT_BACKEND_URL}
 ENV VITE_COSMIC_VANGUARD_BACKEND_URL=${COSMIC_VANGUARD_BACKEND_URL}
 
 COPY package.json package-lock.json ./
-RUN npm ci --legacy-peer-deps
+# --include=dev es obligatorio: NODE_ENV=production (arriba) haria que npm ci
+# omitiera las devDependencies, y vite/cross-env viven ahi -> el build falla 127.
+RUN npm ci --legacy-peer-deps --include=dev
 
 COPY index.html vite.config.js ./
 COPY public ./public

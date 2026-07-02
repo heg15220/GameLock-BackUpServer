@@ -663,7 +663,7 @@ export function createPostgresStore({ db }) {
            total_pack_opens, pity_counter, created_at, updated_at, last_seen_at,
            last_pack_opened_at
          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON CONFLICT(browser_token) DO UPDATE SET
+         ON CONFLICT(id) DO UPDATE SET
            browser_token = excluded.browser_token,
            display_name = excluded.display_name,
            preferred_language = excluded.preferred_language,

@@ -28,3 +28,7 @@ server/data/wikipedia-gacha/catalog.ndjson
 server/data/wikipedia-gacha/catalog.ndjson
 server/data/wikipedia-gacha/catalog.ndjson
 server/data/wikipedia-gacha/catalog.ndjson
+
+# Local production secrets
+.env
+deploy/.env
