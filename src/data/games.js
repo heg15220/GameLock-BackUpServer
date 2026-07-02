@@ -3160,7 +3160,7 @@ export const games = [
     id: "arcade-dig-hole-treasure",
     image: arcadeDigHoleTreasureImage,
     sessionTime: "8-18 min",
-    title: "Dig The Hole",
+    title: "Excava el Hoyo",
     category: "Juegos",
     tagline: "Excavaci\u00f3n: cava, encuentra materiales y recupera tesoros.",
     description:
@@ -3184,6 +3184,7 @@ export const games = [
     techFocus: "Subsuelo continuo, rasterizacion del terreno por mascara, distribucion de hallazgos por profundidad y loop ligero de mercado.",
 
     category_en: "Games",
+    title_en: "Dig The Hole",
     tagline_en: "Digging adventure: excavate, find materials and recover treasures.",
     description_en:
       "A 2D digging game with a faceless stick-figure miner, continuous-looking terrain, and embedded resources that appear as you carve the wall. Jungle and urban worlds are mostly dirt below the surface, while the desert starts with sand-heavy upper layers. Gather finds, sell them at the surface, upgrade shovel or storage, and reach the main buried relic.",

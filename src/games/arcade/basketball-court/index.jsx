@@ -960,7 +960,7 @@ class BasketballRuntime {
       const subFont = tightMenu ? 8 : compactMenu ? 9 : 11;
       const bodyFont = tightMenu ? 7 : compactMenu ? 8 : 11;
       const buttonFont = tightMenu ? 10 : 12;
-      const bodyLineGap = compactMenu ? 10 : 18;
+      const bodyLineGap = compactMenu ? 10 : 14;
       const buttonH = compactMenu ? 26 : 30;
       const buttonY = y + h - (compactMenu ? 34 : 40);
       const textWidth = w - 26;
@@ -980,7 +980,7 @@ class BasketballRuntime {
       visibleLines.forEach((ln, i) => {
         if (i > 0 && compactMenu && lineY >= buttonY - 8) return;
         ctx.fillStyle = "#486080"; ctx.font = `${bodyFont}px Arial, sans-serif`;
-        lineY = wrapText(ctx, ln, cx2, lineY, textWidth, bodyLineGap) + (compactMenu ? 4 : 6);
+        lineY = wrapText(ctx, ln, cx2, lineY, textWidth, bodyLineGap) + bodyLineGap;
       });
       const by2 = buttonY, bw2 = w - 24;
       const btnG = ctx.createLinearGradient(x + 12, by2, x + 12, by2 + buttonH);

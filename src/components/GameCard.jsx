@@ -28,7 +28,6 @@ function GameCard({ game, index, locale, onLaunch, t, promoNote = null }) {
         <p className="catalog-description">{lg.catalogDescription}</p>
 
         <div className="card-meta">
-          <span>{t("difficulty")}: {lg.difficulty}</span>
           <span>{lg.multiplayer}</span>
         </div>
 
