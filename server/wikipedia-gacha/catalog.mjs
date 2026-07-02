@@ -212,9 +212,13 @@ export function createWikipediaGachaCatalog(options = {}) {
   }
 
   function _seedStatic() {
-    if (languageCode !== "en") {
-      return;
-    }
+    // Seed the hardcoded static articles for EVERY language so the pool is
+    // never empty — even when the live Wikipedia fill is unavailable (e.g. the
+    // API rate-limits us with HTTP 429). Previously this bailed out for any
+    // non-English language, leaving the "es" pool at 0 articles whenever the
+    // background fetch failed, which broke pack opening (and, downstream, the
+    // counter, missions, trophies and saved progress). The seeds are famous
+    // topics; localized live articles are layered on top by the background fill.
     for (const article of ARTICLES) _add(clone(article));
   }
 

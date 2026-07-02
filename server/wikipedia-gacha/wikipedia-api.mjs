@@ -14,20 +14,47 @@
  */
 
 import https from "node:https";
+import process from "node:process";
 
 const WIKIPEDIA_API_PATH = "/w/api.php";
+
+// Wikimedia's User-Agent policy (https://meta.wikimedia.org/wiki/User-Agent_policy)
+// REQUIRES a contact URL or email. A generic agent without one gets rate-limited
+// (HTTP 429) aggressively. Override via WIKIPEDIA_GACHA_USER_AGENT to set a real
+// contact for this deployment.
 const USER_AGENT =
-  "WikipediaGachaGame/1.0 (educational non-commercial project)";
+  process.env.WIKIPEDIA_GACHA_USER_AGENT ||
+  "WikipediaGachaGame/1.0 (https://www.game-lock.com; contact: wikipedia-gacha@game-lock.com)";
 
 /** Minimum milliseconds between consecutive Wikipedia API requests. */
 const REQUEST_INTERVAL_MS = 200;
+/** Fallback cool-off when a 429/503 arrives without a usable Retry-After. */
+const DEFAULT_BACKOFF_MS = 60_000;
+/** Never honor a Retry-After longer than this (guards against absurd values). */
+const MAX_BACKOFF_MS = 10 * 60 * 1000;
 
 let _lastRequestAt = 0;
+/** Epoch ms until which all requests must pause after a rate-limit response. */
+let _cooldownUntil = 0;
 
 async function _throttle() {
-  const wait = _lastRequestAt + REQUEST_INTERVAL_MS - Date.now();
+  const now = Date.now();
+  // Respect an active rate-limit cool-off before the normal inter-request gap.
+  const cooldownWait = Math.max(0, _cooldownUntil - now);
+  const gapWait = Math.max(0, _lastRequestAt + REQUEST_INTERVAL_MS - now);
+  const wait = Math.max(cooldownWait, gapWait);
   if (wait > 0) await new Promise((r) => setTimeout(r, wait));
   _lastRequestAt = Date.now();
+}
+
+/** Parse a Retry-After header (seconds or HTTP-date) into milliseconds. */
+function parseRetryAfterMs(headerValue) {
+  if (!headerValue) return null;
+  const seconds = Number(headerValue);
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
+  const dateMs = Date.parse(headerValue);
+  if (Number.isFinite(dateMs)) return Math.max(0, dateMs - Date.now());
+  return null;
 }
 
 function normalizeLanguage(value) {
@@ -55,6 +82,23 @@ function httpsGetJson(path, languageCode = "en", timeoutMs = 20_000) {
         const chunks = [];
         res.on("data", (c) => chunks.push(c));
         res.on("end", () => {
+          // On a rate-limit / overload response, arm a global cool-off so the
+          // background refill stops hammering Wikipedia (which is what earns a
+          // longer ban). _throttle() will pause all callers until it clears.
+          if (res.statusCode === 429 || res.statusCode === 503) {
+            const retryMs = parseRetryAfterMs(res.headers["retry-after"]);
+            const backoffMs = Math.min(
+              MAX_BACKOFF_MS,
+              retryMs ?? DEFAULT_BACKOFF_MS,
+            );
+            _cooldownUntil = Date.now() + backoffMs;
+            reject(
+              new Error(
+                `Wikipedia API HTTP ${res.statusCode} — backing off ${Math.round(backoffMs / 1000)}s`,
+              ),
+            );
+            return;
+          }
           if (res.statusCode < 200 || res.statusCode >= 300) {
             reject(new Error(`Wikipedia API HTTP ${res.statusCode}`));
             return;
