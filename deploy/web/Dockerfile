@@ -4,9 +4,18 @@ FROM node:22-bookworm-slim AS build
 WORKDIR /app
 
 ARG SITE_URL=https://www.game-lock.com
+# URLs de los backends de juego. Vacio por defecto = rutas relativas (same-origin)
+# que nginx proxya a /api/<juego>/. NO poner host:puerto: esos puertos no se
+# publican en produccion (solo 80/443).
+ARG WIKIPEDIA_GACHA_BACKEND_URL=
+ARG PENALTY_SHOOTOUT_BACKEND_URL=
+ARG COSMIC_VANGUARD_BACKEND_URL=
 ENV NODE_ENV=production
 ENV SITE_URL=${SITE_URL}
 ENV VITE_SITE_URL=${SITE_URL}
+ENV VITE_WIKIPEDIA_GACHA_BACKEND_URL=${WIKIPEDIA_GACHA_BACKEND_URL}
+ENV VITE_PENALTY_SHOOTOUT_BACKEND_URL=${PENALTY_SHOOTOUT_BACKEND_URL}
+ENV VITE_COSMIC_VANGUARD_BACKEND_URL=${COSMIC_VANGUARD_BACKEND_URL}
 
 COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps

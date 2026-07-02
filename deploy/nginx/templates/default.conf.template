@@ -15,6 +15,20 @@ upstream cosmic_vanguard_backend {
 
 limit_req_zone $binary_remote_addr zone=api_per_ip:10m rate=300r/m;
 limit_req_zone $binary_remote_addr zone=open_pack_per_ip:10m rate=120r/m;
+# Limite global para TODO (SPA + estaticos), no solo /api. 10 req/s por IP con
+# burst amplio: absorbe la rafaga de una carga de pagina pero corta floods.
+limit_req_zone $binary_remote_addr zone=global_per_ip:10m rate=600r/m;
+# Conexiones concurrentes por IP: mata slow-loris y abre-conexiones.
+limit_conn_zone $binary_remote_addr zone=conn_per_ip:10m;
+
+# Solo se permiten metodos usados por la app; el resto se rechaza sin tocar
+# backend. $bad_method=1 => 405.
+map $request_method $bad_method {
+  default        1;
+  GET            0;
+  HEAD           0;
+  POST           0;
+}
 
 server {
   listen 80;
@@ -55,13 +69,36 @@ server {
   root /usr/share/nginx/html;
   index index.html;
 
+  # ── Defensa L7 a nivel de servidor ─────────────────────────────────────────
+  # Tope de conexiones concurrentes por IP (20 es holgado para un navegador,
+  # estrecho para un atacante que abre cientos).
+  limit_conn conn_per_ip 20;
+  limit_conn_status 429;
+  # Rechazar metodos no usados por la app antes de llegar a cualquier backend.
+  if ($bad_method) {
+    return 405;
+  }
+
   location = /health {
     access_log off;
     add_header Content-Type text/plain;
     return 200 "ok\n";
   }
 
+  # index.html nunca se cachea: los deploys se ven al instante.
+  # Se repiten los headers de seguridad porque add_header en un location NO
+  # hereda los del server (nginx los reemplaza, no los acumula).
+  location = /index.html {
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header Cache-Control "no-cache" always;
+  }
+
   location ~* \.(js|css|woff2?|svg|png|jpg|jpeg|webp|avif|ico)$ {
+    limit_req zone=global_per_ip burst=100 nodelay;
+    limit_req_status 429;
     try_files $uri =404;
     expires 30d;
     add_header Cache-Control "public, max-age=2592000, immutable";
@@ -130,6 +167,8 @@ server {
   }
 
   location / {
+    limit_req zone=global_per_ip burst=100 nodelay;
+    limit_req_status 429;
     try_files $uri $uri/ /index.html;
   }
 }

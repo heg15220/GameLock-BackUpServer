@@ -6,13 +6,13 @@ export const SUPPORTED_LOCALES = ["en", "es"];
 
 export const SITE_COPY = {
   es: {
-    homeTitle: "Juegos online gratis e instantaneos | GameLock",
+    homeTitle: "GameLock | Juegos online gratis e instantaneos",
     homeDescription:
       "Juega online gratis en GameLock: arcade, puzzles, estrategia, deportes, carreras, accion, RPG y juegos de conocimiento sin registro.",
     playAction: "Jugar ahora",
   },
   en: {
-    homeTitle: "Free instant browser games | GameLock",
+    homeTitle: "GameLock | Free instant browser games",
     homeDescription:
       "Play free browser games on GameLock: arcade, puzzles, strategy, sports, racing, action, RPG and knowledge games with no sign-up.",
     playAction: "Play now",

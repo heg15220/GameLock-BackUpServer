@@ -158,7 +158,21 @@ services:
       dockerfile: deploy/web/Dockerfile
       args:
         SITE_URL: ${SITE_URL}
+        # Vacio => el frontend llama a /api/<juego>/ en el mismo origen y nginx
+        # lo proxya al backend interno. Solo se sobreescriben si algun backend
+        # vive en otro host.
+        WIKIPEDIA_GACHA_BACKEND_URL: ${WIKIPEDIA_GACHA_BACKEND_URL:-}
+        PENALTY_SHOOTOUT_BACKEND_URL: ${PENALTY_SHOOTOUT_BACKEND_URL:-}
+        COSMIC_VANGUARD_BACKEND_URL: ${COSMIC_VANGUARD_BACKEND_URL:-}
     container_name: plataforma-juegos-web
+    # Respaldar worker_rlimit_nofile 65535 de nginx dentro del contenedor.
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    # somaxconn namespaced: encola mejor las rafagas de conexiones nuevas.
+    sysctls:
+      net.core.somaxconn: 1024
     environment:
       TZ: ${TZ}
       DOMAIN: ${DOMAIN}
