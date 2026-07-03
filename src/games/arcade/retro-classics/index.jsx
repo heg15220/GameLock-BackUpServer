@@ -54,7 +54,7 @@ const UI = {
 
 const DEFINITIONS = {
   "snake-classic": {
-    title: { es: "Snake Classico 1977", en: "Classic Snake 1977" },
+    title: { es: "Snake", en: "Snake" },
     objective: { es: "Come frutos y crece sin chocar.", en: "Eat fruits and grow without crashing." },
     controls: { es: "Flechas o WASD.", en: "Arrows or WASD." },
     accent: "#22d3ee",
@@ -2146,7 +2146,7 @@ function updateGame(state, input, dt) {
 }
 
 const VISUAL_THEME = {
-  "snake-classic": { accent: "#2dd4bf", accentSoft: "#22d3ee", panel: "#083344" },
+  "snake-classic": { accent: "#4ade80", accentSoft: "#a3e635", panel: "#052e2b" },
   "breakout-1986": { accent: "#f59e0b", accentSoft: "#fb7185", panel: "#451a03" },
   "space-invaders": { accent: "#a3e635", accentSoft: "#38bdf8", panel: "#365314" },
   "tetris-blockfall": { accent: "#34d399", accentSoft: "#a78bfa", panel: "#052e2b" },
@@ -2314,6 +2314,21 @@ function drawHeader(ctx, state, locale) {
   if (kpi) ctx.fillText(kpi, WIDTH - 28, 47);
   ctx.textAlign = "left";
 }
+// Snake's own identity: a continuous glossy serpent whose skin shifts hue from
+// head to tail, with a flicking forked tongue and a tapered tail — same neon-dark
+// arcade family as its siblings, but a creature none of them have.
+const SNAKE_HEAD_RGB = [163, 230, 53];  // lime
+const SNAKE_MID_RGB = [34, 197, 94];    // emerald
+const SNAKE_TAIL_RGB = [13, 148, 136];  // teal
+
+function snakeSkinColor(fraction) {
+  const lerp = (a, b, t) => Math.round(a + (b - a) * t);
+  const [from, to, t] = fraction < 0.5
+    ? [SNAKE_HEAD_RGB, SNAKE_MID_RGB, fraction / 0.5]
+    : [SNAKE_MID_RGB, SNAKE_TAIL_RGB, (fraction - 0.5) / 0.5];
+  return `rgb(${lerp(from[0], to[0], t)}, ${lerp(from[1], to[1], t)}, ${lerp(from[2], to[2], t)})`;
+}
+
 function drawSnake(ctx, state) {
   const g = state.game;
   const x0 = 150;
@@ -2322,22 +2337,39 @@ function drawSnake(ctx, state) {
   const boardW = g.cols * cell;
   const boardH = g.rows * cell;
   const pulse = 0.5 + 0.5 * Math.sin(state.elapsedMs * 0.01);
+  const cx = (seg) => x0 + seg.x * cell + cell * 0.5;
+  const cy = (seg) => y0 + seg.y * cell + cell * 0.5;
 
-  drawRoundedRect(ctx, x0 - 14, y0 - 14, boardW + 28, boardH + 28, 20);
-  ctx.fillStyle = "rgba(2, 6, 23, 0.84)";
+  // — vivarium panel: double neon frame + deep green field ──────────────────
+  drawRoundedRect(ctx, x0 - 16, y0 - 16, boardW + 32, boardH + 32, 22);
+  ctx.fillStyle = "rgba(2, 10, 8, 0.9)";
   ctx.fill();
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
+  ctx.strokeStyle = "rgba(163, 230, 53, 0.16)";
+  ctx.lineWidth = 6;
   ctx.stroke();
+  ctx.strokeStyle = "rgba(74, 222, 128, 0.6)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.lineWidth = 1;
 
   const field = ctx.createLinearGradient(x0, y0, x0, y0 + boardH);
-  field.addColorStop(0, "#052a34");
-  field.addColorStop(1, "#0f172a");
+  field.addColorStop(0, "#04231d");
+  field.addColorStop(1, "#05141d");
   ctx.fillStyle = field;
   ctx.fillRect(x0, y0, boardW, boardH);
 
+  const inner = ctx.createRadialGradient(
+    x0 + boardW * 0.5, y0 + boardH * 0.5, 40,
+    x0 + boardW * 0.5, y0 + boardH * 0.5, boardW * 0.62
+  );
+  inner.addColorStop(0, "rgba(34, 197, 94, 0.12)");
+  inner.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = inner;
+  ctx.fillRect(x0, y0, boardW, boardH);
+
   ctx.save();
-  ctx.globalAlpha = 0.18;
-  ctx.strokeStyle = "#38bdf8";
+  ctx.globalAlpha = 0.13;
+  ctx.strokeStyle = "#4ade80";
   for (let row = 0; row <= g.rows; row += 1) {
     const y = y0 + row * cell + 0.5;
     ctx.beginPath();
@@ -2354,40 +2386,109 @@ function drawSnake(ctx, state) {
   }
   ctx.restore();
 
+  // — food: glossy apple with a leaf ───────────────────────────────────────
   const foodX = x0 + g.food.x * cell + cell * 0.5;
   const foodY = y0 + g.food.y * cell + cell * 0.5;
-  drawGlow(ctx, foodX, foodY, 28 + pulse * 8, "#fb7185", 0.42);
-  ctx.fillStyle = "#f97316";
+  drawGlow(ctx, foodX, foodY, 22 + pulse * 8, "#ef4444", 0.4);
+  const apple = ctx.createRadialGradient(foodX - 2.5, foodY - 3, 1, foodX, foodY, 8.5 + pulse);
+  apple.addColorStop(0, "#fecaca");
+  apple.addColorStop(0.5, "#ef4444");
+  apple.addColorStop(1, "#b91c1c");
+  ctx.fillStyle = apple;
   ctx.beginPath();
-  ctx.arc(foodX, foodY, 6 + pulse * 2, 0, Math.PI * 2);
+  ctx.arc(foodX, foodY, 7 + pulse, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = "rgba(251, 146, 60, 0.58)";
-  ctx.lineWidth = 2;
+  ctx.fillStyle = "#4ade80";
+  ctx.save();
+  ctx.translate(foodX + 3, foodY - 6.5);
+  ctx.rotate(-0.7);
   ctx.beginPath();
-  ctx.arc(foodX, foodY, 10 + pulse * 4, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.ellipse(0, 0, 3.6, 1.9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.beginPath();
+  ctx.arc(foodX - 2.4, foodY - 2.6, 1.7, 0, Math.PI * 2);
+  ctx.fill();
 
-  for (let i = 0; i < g.snake.length; i += 1) {
-    const segment = g.snake[i];
-    const sx = x0 + segment.x * cell + 2;
-    const sy = y0 + segment.y * cell + 2;
-    const tint = i === 0 ? "#2dd4bf" : "#67e8f9";
-    const body = ctx.createLinearGradient(sx, sy, sx + cell, sy + cell);
-    body.addColorStop(0, tint);
-    body.addColorStop(1, i === 0 ? "#0ea5e9" : "#0891b2");
-    drawRoundedRect(ctx, sx, sy, cell - 4, cell - 4, 5);
-    ctx.fillStyle = body;
+  // — serpent: continuous body, tail → head so the head sits on top ─────────
+  const len = g.snake.length;
+  const head = g.snake[0];
+  drawGlow(ctx, cx(head), cy(head), 26, "#4ade80", 0.26);
+
+  for (let i = len - 1; i >= 0; i -= 1) {
+    const seg = g.snake[i];
+    const px = cx(seg);
+    const py = cy(seg);
+    const fraction = len <= 1 ? 0 : i / (len - 1);
+    // taper the last few segments into a tail; the head is a touch larger
+    const tailSpan = 4;
+    const taper = i > len - 1 - tailSpan
+      ? 0.6 + 0.4 * ((len - i) / tailSpan)
+      : 1;
+    const radius = cell * 0.52 * (i === 0 ? 1.08 : taper);
+
+    ctx.fillStyle = snakeSkinColor(fraction);
+    ctx.beginPath();
+    ctx.arc(px, py, radius, 0, Math.PI * 2);
     ctx.fill();
-    if (i === 0) {
-      const eyeDX = g.dir.x === 0 ? 5 : g.dir.x > 0 ? 8 : 3;
-      const eyeDY = g.dir.y === 0 ? 5 : g.dir.y > 0 ? 8 : 3;
-      ctx.fillStyle = "#e2e8f0";
+
+    // darker belly ring for scaly depth
+    if (i !== 0) {
+      ctx.fillStyle = "rgba(4, 30, 22, 0.24)";
       ctx.beginPath();
-      ctx.arc(sx + eyeDX, sy + eyeDY, 1.8, 0, Math.PI * 2);
-      ctx.arc(sx + cell - 6 - (g.dir.x < 0 ? 5 : 0), sy + cell - 6 - (g.dir.y < 0 ? 5 : 0), 1.8, 0, Math.PI * 2);
+      ctx.arc(px, py, radius * 0.52, 0, Math.PI * 2);
       ctx.fill();
     }
+
+    // top-left sheen
+    ctx.fillStyle = "rgba(255, 255, 255, 0.16)";
+    ctx.beginPath();
+    ctx.arc(px - radius * 0.28, py - radius * 0.32, radius * 0.33, 0, Math.PI * 2);
+    ctx.fill();
   }
+
+  // — head details: forked tongue + eyes ───────────────────────────────────
+  const hx = cx(head);
+  const hy = cy(head);
+  const dx = g.dir?.x ?? 1;
+  const dy = g.dir?.y ?? 0;
+  const perpX = -dy;
+  const perpY = dx;
+
+  if (state.phase === "playing") {
+    const flick = 4 + Math.abs(Math.sin(state.elapsedMs * 0.02)) * 7;
+    const mouthX = hx + dx * cell * 0.5;
+    const mouthY = hy + dy * cell * 0.5;
+    const tipX = mouthX + dx * flick;
+    const tipY = mouthY + dy * flick;
+    ctx.strokeStyle = "#f43f5e";
+    ctx.lineWidth = 1.6;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(mouthX, mouthY);
+    ctx.lineTo(tipX, tipY);
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(tipX + dx * 2 + perpX * 2.4, tipY + dy * 2 + perpY * 2.4);
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(tipX + dx * 2 - perpX * 2.4, tipY + dy * 2 - perpY * 2.4);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    ctx.lineCap = "butt";
+  }
+
+  const eyeFwd = 2.5;
+  const eyeSide = 4;
+  ctx.fillStyle = "#f8fafc";
+  ctx.beginPath();
+  ctx.arc(hx + dx * eyeFwd + perpX * eyeSide, hy + dy * eyeFwd + perpY * eyeSide, 2.3, 0, Math.PI * 2);
+  ctx.arc(hx + dx * eyeFwd - perpX * eyeSide, hy + dy * eyeFwd - perpY * eyeSide, 2.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#0b132b";
+  ctx.beginPath();
+  ctx.arc(hx + dx * (eyeFwd + 0.9) + perpX * eyeSide, hy + dy * (eyeFwd + 0.9) + perpY * eyeSide, 1.1, 0, Math.PI * 2);
+  ctx.arc(hx + dx * (eyeFwd + 0.9) - perpX * eyeSide, hy + dy * (eyeFwd + 0.9) - perpY * eyeSide, 1.1, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function drawPong(ctx, state) {

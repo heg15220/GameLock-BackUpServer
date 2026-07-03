@@ -218,19 +218,26 @@ function resolveRetroProfile(gameId, locale) {
         utilities: utilityRow(locale),
       };
     case "arcade-retro-lunar-lander-orbit":
+      // Two-thumb layout: attitude (rotate) on the left, thrust on the right.
+      // The lander's rotation is momentum-based, so a single analog joystick can't
+      // give the fine, held rotation the physics expects — discrete buttons match
+      // the keyboard scheme the game is tuned around.
       return {
         layout: "split",
+        leftPadMode: "buttons",
         heading: t(locale, "Aterrizaje", "Landing"),
-        hint: t(locale, "Rota y usa el propulsor.", "Rotate and use thrust."),
-        leftPad: directionalPad(locale, {
-          up: input("KeyW", "w"),
-          left: input("KeyA", "a"),
-          right: input("KeyD", "d"),
-          down: input("KeyS", "s"),
-          upLabel: t(locale, "Thrust", "Thrust"),
-          downLabel: t(locale, "Brake", "Brake"),
-        }),
-        rightPad: [],
+        hint: t(locale, "Gira con ◀ ▶ y mantén el propulsor para frenar la caída.", "Turn with ◀ ▶ and hold thrust to slow your descent."),
+        leftPad: [
+          control("rotate-left", "◀", { type: "hold", inputs: [input("KeyA", "a")] }),
+          control("rotate-right", "▶", { type: "hold", inputs: [input("KeyD", "d")] }),
+        ],
+        rightPad: [
+          control("thrust", t(locale, "Propulsor", "Thrust"), {
+            type: "hold",
+            tone: "primary",
+            inputs: [input("KeyW", "w")],
+          }),
+        ],
         utilities: utilityRow(locale),
       };
     default:
@@ -1119,7 +1126,14 @@ export function getMobileControlProfile(game, locale = "es") {
             inputs: [input("Enter", "Enter")],
           }),
         ],
-        utilities: utilityRow(locale),
+        utilities: [
+          ...utilityRow(locale),
+          control("ai-difficulty", t(locale, "IA", "AI"), {
+            type: "tap",
+            tone: "utility",
+            inputs: [input("KeyI", "i")],
+          }),
+        ],
       };
     case "arcade-stick-brawl-showdown":
       return {

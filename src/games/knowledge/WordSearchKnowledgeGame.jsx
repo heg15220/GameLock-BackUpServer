@@ -10,7 +10,8 @@ import {
 import {
   buildWordSearchPath,
   buildWordSearchPathKey,
-  createWordSearchMatch
+  createWordSearchMatch,
+  resolveWordSearchDragSelection
 } from "./wordSearchGenerator";
 
 const COPY_BY_LOCALE = {
@@ -128,6 +129,7 @@ function WordSearchKnowledgeGame() {
   const boardRef = useRef(null);
   const selectingRef = useRef(false);
   const selectingPointerIdRef = useRef(null);
+  const reanchorCandidateRef = useRef(null);
   const [state, setState] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const wordsearchCellSize = useMemo(() => {
@@ -144,6 +146,7 @@ function WordSearchKnowledgeGame() {
   const loadMatch = useCallback((matchId) => {
     selectingRef.current = false;
     selectingPointerIdRef.current = null;
+    reanchorCandidateRef.current = null;
     setIsLoading(true);
     setState(null);
     return createWordSearchMatch(matchId, locale).then((match) => {
@@ -194,12 +197,22 @@ function WordSearchKnowledgeGame() {
       }
 
       const end = { row, col };
-      const path = buildWordSearchPath(previous.selectionStart, end);
+      const { start, reanchored, previewPath } = resolveWordSearchDragSelection(
+        previous.selectionStart,
+        end,
+        reanchorCandidateRef.current
+      );
+      if (reanchored) {
+        // The pointer dragged away from where it was pressed: a fresh selection began,
+        // so discard the stale start-cell anchor left over from a previous tap.
+        reanchorCandidateRef.current = null;
+      }
       return {
         ...previous,
+        selectionStart: start,
         selectionEnd: end,
         cursor: end,
-        previewPath: path.length ? path : [previous.selectionStart]
+        previewPath
       };
     });
   }, []);
@@ -324,6 +337,7 @@ function WordSearchKnowledgeGame() {
       const explicitEnd = updateSelectionFromPointer(event);
       selectingRef.current = false;
       selectingPointerIdRef.current = null;
+      reanchorCandidateRef.current = null;
       finishSelection(explicitEnd || null);
     };
 
@@ -629,9 +643,16 @@ function WordSearchKnowledgeGame() {
                         }
                         selectingRef.current = true;
                         if (state.selectionStart && state.previewPath.length === 1) {
+                          // A start cell was already anchored by a previous tap. This press is
+                          // ambiguous: releasing without moving completes the start-end selection,
+                          // but dragging means the user is starting a brand-new selection here.
+                          // Remember the pressed cell so the first drag movement re-anchors to it
+                          // instead of tracing from the stale anchor across the board.
+                          reanchorCandidateRef.current = { row: rowIndex, col: colIndex };
                           updateSelection(rowIndex, colIndex);
                           return;
                         }
+                        reanchorCandidateRef.current = null;
                         startSelection(rowIndex, colIndex, false);
                       }}
                       onPointerEnter={(event) => {

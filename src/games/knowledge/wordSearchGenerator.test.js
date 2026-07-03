@@ -6,7 +6,8 @@ import {
   WORD_SEARCH_META,
   buildWordSearchPath,
   buildWordSearchPathKey,
-  createWordSearchMatch
+  createWordSearchMatch,
+  resolveWordSearchDragSelection
 } from "./wordSearchGenerator";
 
 const assertWordPlacement = (match, placement) => {
@@ -54,6 +55,55 @@ describe("wordSearchGenerator", () => {
     expect(labels.has("horizontal-forward")).toBe(true);
     expect(labels.has("horizontal-reverse")).toBe(true);
     expect(groups).toEqual(new Set(["horizontal", "vertical", "diagonal"]));
+  });
+
+  describe("resolveWordSearchDragSelection", () => {
+    it("extiende desde el ancla cuando no hay celda candidata (modo inicio-fin)", () => {
+      const selectionStart = { row: 2, col: 2 };
+      const result = resolveWordSearchDragSelection(selectionStart, { row: 2, col: 5 }, null);
+      expect(result.start).toEqual({ row: 2, col: 2 });
+      expect(result.previewPath).toEqual([
+        { row: 2, col: 2 },
+        { row: 2, col: 3 },
+        { row: 2, col: 4 },
+        { row: 2, col: 5 }
+      ]);
+    });
+
+    it("re-ancla al pulsar en otra zona y arrastrar hacia una celda distinta", () => {
+      // Ancla vieja lejana (letra pulsada antes) en (2,2); el nuevo arrastre empieza en (10,4)
+      const oldAnchor = { row: 2, col: 2 };
+      const pressedCell = { row: 10, col: 4 };
+      const draggedTo = { row: 10, col: 7 };
+      const result = resolveWordSearchDragSelection(oldAnchor, draggedTo, pressedCell);
+      // El origen debe ser la celda pulsada, no el ancla vieja
+      expect(result.start).toEqual({ row: 10, col: 4 });
+      expect(result.previewPath).toEqual([
+        { row: 10, col: 4 },
+        { row: 10, col: 5 },
+        { row: 10, col: 6 },
+        { row: 10, col: 7 }
+      ]);
+    });
+
+    it("mantiene el ancla vieja mientras el puntero sigue sobre la celda pulsada", () => {
+      const oldAnchor = { row: 2, col: 2 };
+      const pressedCell = { row: 2, col: 5 };
+      // El puntero todavia esta sobre la celda pulsada (posible tap de cierre inicio-fin)
+      const result = resolveWordSearchDragSelection(oldAnchor, { row: 2, col: 5 }, pressedCell);
+      expect(result.start).toEqual({ row: 2, col: 2 });
+      expect(result.previewPath).toEqual([
+        { row: 2, col: 2 },
+        { row: 2, col: 3 },
+        { row: 2, col: 4 },
+        { row: 2, col: 5 }
+      ]);
+    });
+
+    it("colapsa a la celda de origen cuando el trazo no es una linea recta", () => {
+      const result = resolveWordSearchDragSelection({ row: 0, col: 0 }, { row: 3, col: 7 }, null);
+      expect(result.previewPath).toEqual([{ row: 0, col: 0 }]);
+    });
   });
 
   it("genera las 10.000 partidas validas por idioma", async () => {

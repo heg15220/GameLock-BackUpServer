@@ -369,6 +369,11 @@ export default class PongRuntime {
       return;
     }
 
+    if (code === "KeyI") {
+      this.cycleDifficulty();
+      return;
+    }
+
     if (code === "Digit1") {
       this.setDifficulty("rookie");
       return;

@@ -450,6 +450,23 @@ export const buildWordSearchPath = (start, end) => {
   return cells;
 };
 
+export const resolveWordSearchDragSelection = (
+  selectionStart,
+  target,
+  reanchorCandidate = null
+) => {
+  const movedOffCandidate =
+    reanchorCandidate &&
+    (reanchorCandidate.row !== target.row || reanchorCandidate.col !== target.col);
+  const start = movedOffCandidate ? reanchorCandidate : selectionStart;
+  const path = buildWordSearchPath(start, target);
+  return {
+    start,
+    reanchored: Boolean(movedOffCandidate),
+    previewPath: path.length ? path : [start]
+  };
+};
+
 export const buildWordSearchPathKey = (cells) => {
   const list = Array.isArray(cells) ? cells : [];
   if (!list.length) return "";
