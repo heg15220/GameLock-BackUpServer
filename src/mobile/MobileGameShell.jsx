@@ -13,6 +13,11 @@ import {
   getResponsiveMobileShellMode,
 } from "./mobileGameProfiles";
 import { getMobileStageSelectors } from "./mobileStageProfiles";
+import {
+  isIosLikeDevice,
+  shouldUsePseudoFullscreen,
+  supportsNativeElementFullscreen,
+} from "./mobileFullscreenStrategy";
 import useMobileRuntimeSnapshot from "./useMobileRuntimeSnapshot";
 import MobileStageAdOverlay from "./MobileStageAdOverlay";
 import "./mobile-game-shell.css";
@@ -187,6 +192,15 @@ export default function MobileGameShell({
   const [pseudoFullscreen, setPseudoFullscreen] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const clearTransitionRafRef = useRef(null);
+  const transitionTimeoutRef = useRef(null);
+  // On iOS (and any environment without a reliable element Fullscreen API) the
+  // native fullscreen request never fires `fullscreenchange`, so we route those
+  // devices through the CSS pseudo fullscreen overlay instead. Computed after
+  // mount so it stays SSR-safe.
+  const [fullscreenCapabilities, setFullscreenCapabilities] = useState({
+    iosLike: false,
+    nativeFullscreenSupported: true,
+  });
   const shellMode = useMemo(
     () => getResponsiveMobileShellMode(game, viewport),
     [game, viewport]
@@ -212,8 +226,12 @@ export default function MobileGameShell({
   const isTouchStage = shellMode === "mobile-first" && shellTheme === "default";
   const isPortrait = viewport.orientation === "portrait";
   const viewportFormFactor = viewport.formFactor ?? "desktop";
-  const usePseudoFullscreen =
-    viewportFormFactor === "tablet" && !isPortrait;
+  const usePseudoFullscreen = shouldUsePseudoFullscreen({
+    formFactor: viewportFormFactor,
+    isPortrait,
+    iosLike: fullscreenCapabilities.iosLike,
+    nativeFullscreenSupported: fullscreenCapabilities.nativeFullscreenSupported,
+  });
   const skipFullscreenTransition = usePseudoFullscreen;
   const showFullscreenLayout = isFullscreen || pseudoFullscreen;
   const categoryKey = String(game?.category ?? "").toLowerCase();
@@ -325,6 +343,13 @@ export default function MobileGameShell({
   }, [stageSelectors, stageViewportNode]);
 
   useEffect(() => {
+    setFullscreenCapabilities({
+      iosLike: isIosLikeDevice(),
+      nativeFullscreenSupported: supportsNativeElementFullscreen(shellRef.current),
+    });
+  }, []);
+
+  useEffect(() => {
     const syncFullscreen = () => {
       const currentShell = shellRef.current;
       setIsFullscreen(
@@ -334,6 +359,10 @@ export default function MobileGameShell({
             || document.webkitFullscreenElement === currentShell)
         )
       );
+      if (transitionTimeoutRef.current != null) {
+        clearTimeout(transitionTimeoutRef.current);
+        transitionTimeoutRef.current = null;
+      }
       if (clearTransitionRafRef.current != null) {
         cancelAnimationFrame(clearTransitionRafRef.current);
       }
@@ -354,6 +383,10 @@ export default function MobileGameShell({
       document.removeEventListener("webkitfullscreenchange", syncFullscreen);
       if (clearTransitionRafRef.current != null) {
         cancelAnimationFrame(clearTransitionRafRef.current);
+      }
+      if (transitionTimeoutRef.current != null) {
+        clearTimeout(transitionTimeoutRef.current);
+        transitionTimeoutRef.current = null;
       }
     };
   }, []);
@@ -378,6 +411,16 @@ export default function MobileGameShell({
     try {
       if (!skipFullscreenTransition) {
         setIsTransitioning(true);
+        // Defense-in-depth: if the browser silently ignores the request and
+        // never fires `fullscreenchange`, force-clear the transition so the
+        // game surface can never get stuck at opacity:0 (blank screen).
+        if (transitionTimeoutRef.current != null) {
+          clearTimeout(transitionTimeoutRef.current);
+        }
+        transitionTimeoutRef.current = setTimeout(() => {
+          setIsTransitioning(false);
+          transitionTimeoutRef.current = null;
+        }, 700);
       }
       if (document.fullscreenElement || document.webkitFullscreenElement) {
         if (document.exitFullscreen) {
@@ -394,6 +437,10 @@ export default function MobileGameShell({
       }
     } catch {
       // Ignore fullscreen failures in embedded browsers.
+      if (transitionTimeoutRef.current != null) {
+        clearTimeout(transitionTimeoutRef.current);
+        transitionTimeoutRef.current = null;
+      }
       setIsTransitioning(false);
     }
   };
