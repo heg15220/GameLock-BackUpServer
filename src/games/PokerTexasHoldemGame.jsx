@@ -53,6 +53,9 @@ const AI_LEVEL_LABELS = {
   es: { rookie: "Basica", tactical: "Tactica", expert: "Experta" },
   en: { rookie: "Basic", tactical: "Tactical", expert: "Expert" }
 };
+// `exploit` (0..1) marca cuanto se desvia el nivel del GTO base para explotar
+// las lecturas del rival (ReBeL-lite): Basica y Tactica juegan solido/no
+// explotador; Experta activa la explotacion de fugas + muestreo mas profundo.
 const AI_STRATEGY_PROFILES = {
   rookie: {
     equitySamples: 64,
@@ -65,7 +68,8 @@ const AI_STRATEGY_PROFILES = {
     valueRaiseThreshold: 0.7,
     jamThreshold: 0.86,
     shortStackBb: 6,
-    speculativeCallMax: 0.12
+    speculativeCallMax: 0.12,
+    exploit: 0
   },
   tactical: {
     equitySamples: 140,
@@ -78,7 +82,8 @@ const AI_STRATEGY_PROFILES = {
     valueRaiseThreshold: 0.62,
     jamThreshold: 0.79,
     shortStackBb: 8,
-    speculativeCallMax: 0.2
+    speculativeCallMax: 0.2,
+    exploit: 0
   },
   expert: {
     equitySamples: 220,
@@ -91,7 +96,8 @@ const AI_STRATEGY_PROFILES = {
     valueRaiseThreshold: 0.57,
     jamThreshold: 0.74,
     shortStackBb: 11,
-    speculativeCallMax: 0.28
+    speculativeCallMax: 0.28,
+    exploit: 1
   }
 };
 const RULES_PROMPT = {
@@ -764,31 +770,83 @@ const resolveEquitySamples = (style, opponentCount) => {
   const divider = Math.max(1, Math.sqrt(Math.max(1, opponentCount)));
   return Math.max(48, Math.round(style.equitySamples / divider));
 };
-const estimateWinRateVsField = (state, seat, sampleCount, actorEval) => {
+// GTO "information abstraction": los rivales que siguen invirtiendo NO tienen
+// manos uniformemente aleatorias (eso sobrevalora la mano propia, sobre todo
+// heads-up). Modelamos un rango de continuacion con un "suelo de fuerza"
+// (percentil handStrengthScore) que sube con la presion de apuesta y la calle.
+const HAND_STRENGTH_PAIR = 0.1; // handStrengthScore de una pareja base
+const opponentContinueFloor = (state) => {
+  const bb = Math.max(1, state.bigBlind);
+  const betBb = state.currentBet / bb;
+  const potBb = state.pot / bb;
+  const streetBase = state.phase === "post-bet" ? 0.14 : 0.06;
+  // Dos fuentes de presion aprietan el rango de continuacion:
+  // (1) la apuesta pendiente de esta calle, y (2) el TAMANO DEL BOTE acumulado
+  // (clave en post-bet, donde las apuestas se resetean a 0 pero un bote grande
+  // ya implica que los rivales tienen manos fuertes). Sin (2), una pareja
+  // volvia a sobrevalorarse en botes hinchados y la IA se comprometia de mas.
+  const betPressure = clamp01(betBb / 8) * 0.20;
+  const potPressure = clamp01(potBb / 30) * 0.14;
+  return clamp01(Math.min(0.34, streetBase + betPressure + potPressure));
+};
+// Reparte una mano de rival respetando el suelo de rango: intenta hasta
+// `maxTries` y se queda con la mejor mano probada que alcance el suelo (o la
+// mas fuerte encontrada si ninguna llega), sesgando hacia manos "jugables".
+const drawRangedOpponentHand = (pool, floor, maxTries) => {
+  let best = null;
+  let bestScore = -1;
+  for (let attempt = 0; attempt < Math.max(1, maxTries); attempt += 1) {
+    const hand = drawRandomCards(pool, HAND_CARDS);
+    if (hand.length < HAND_CARDS) return best ? best.hand : null;
+    const score = handStrengthScore(evalFive(hand));
+    if (score > bestScore) {
+      bestScore = score;
+      best = { hand, score };
+    }
+    if (score >= floor) return { hand, score };
+  }
+  return best;
+};
+const estimateWinRateVsField = (state, seat, sampleCount, actorEval, strengthFloor = 0) => {
   const actor = state.players[seat];
   if (!actor || actor.folded || actor.busted || !actor.hand?.length) return 0;
   const opponents = activeOpponentSeats(state, seat);
   if (!opponents.length) return 1;
   const deck = deckWithoutCards(actor.hand);
-  const drawsPerSample = opponents.length * HAND_CARDS;
   const samples = Math.max(24, Math.floor(Number(sampleCount) || 0));
   const baseEval = actorEval || evalFive(actor.hand);
+  const floor = clamp01(strengthFloor);
+  const tries = floor > 0.2 ? 6 : floor > 0 ? 4 : 1;
   let equity = 0;
+  let taken = 0;
   for (let sample = 0; sample < samples; sample += 1) {
-    const draw = drawRandomCards(deck, drawsPerSample);
-    if (draw.length < drawsPerSample) break;
+    let pool = deck;
     const evals = [baseEval];
-    for (let offset = 0; offset < drawsPerSample; offset += HAND_CARDS) {
-      evals.push(evalFive(draw.slice(offset, offset + HAND_CARDS)));
+    let complete = true;
+    for (let index = 0; index < opponents.length; index += 1) {
+      if (pool.length < HAND_CARDS) {
+        complete = false;
+        break;
+      }
+      const drawn = drawRangedOpponentHand(pool, floor, tries);
+      if (!drawn) {
+        complete = false;
+        break;
+      }
+      const usedIds = new Set(drawn.hand.map((card) => card.id));
+      pool = pool.filter((card) => !usedIds.has(card.id));
+      evals.push(evalFive(drawn.hand));
     }
+    if (!complete) break;
     let best = evals[0];
     for (const value of evals.slice(1)) {
       if (compareEval(value, best) > 0) best = value;
     }
     const winners = evals.filter((value) => compareEval(value, best) === 0).length;
     if (compareEval(evals[0], best) === 0) equity += 1 / Math.max(1, winners);
+    taken += 1;
   }
-  return clamp01(equity / samples);
+  return clamp01(equity / Math.max(1, taken));
 };
 const estimateDiscardPlanStrength = (hand, discardIndices, sampleCount) => {
   const baseDeck = deckWithoutCards(hand);
@@ -866,7 +924,8 @@ const buildAiBetContext = (state, seat, handValue, style) => {
   const toCall = Math.max(0, state.currentBet - actor.currentBet);
   const potOdds = computePotOdds(state.pot, toCall);
   const drawPotential = state.phase === "pre-bet" ? estimateDrawPotential(actor.hand, handValue) : 0;
-  const winRate = estimateWinRateVsField(state, seat, resolveEquitySamples(style, opponents.length), handValue);
+  const rangeFloor = opponentContinueFloor(state);
+  const winRate = estimateWinRateVsField(state, seat, resolveEquitySamples(style, opponents.length), handValue, rangeFloor);
   const pendingActors = state.turnQueue.slice(1).filter((candidate) => canActBet(state.players[candidate])).length;
   const totalRivalsInQueue = Math.max(1, state.turnQueue.filter((candidate) => canActBet(state.players[candidate])).length - 1);
   const positionAdvantage = clamp01(1 - pendingActors / totalRivalsInQueue);
@@ -879,15 +938,20 @@ const buildAiBetContext = (state, seat, handValue, style) => {
     (opponents.length <= 2 ? 0.12 : 0) +
     positionAdvantage * 0.16 -
     pressure * 0.1;
-  const readAdjustment =
+  // Capa de explotacion (ReBeL-lite): las desviaciones por lectura del rival
+  // solo se aplican segun el peso `exploit` del nivel. Tactica (exploit=0) juega
+  // el GTO base sin desviarse; Experta (exploit=1) explota las fugas detectadas.
+  const exploit = clamp01(style.exploit ?? 0);
+  const readAdjustment = exploit * (
     opponentReads.foldToRaise * 0.26 -
     opponentReads.looseness * 0.14 -
     opponentReads.aggression * 0.12 +
-    opponentReads.stealRate * 0.08;
+    opponentReads.stealRate * 0.08
+  );
   const perceivedFoldEquity = clamp01(
     baselineFoldEquity + readAdjustment
   );
-  const bluffCatchBonus = clamp01(
+  const bluffCatchBonus = exploit * clamp01(
     opponentReads.stealRate * 0.28 +
     opponentReads.aggression * 0.14 -
     opponentReads.showdownStrength * 0.09
@@ -920,58 +984,91 @@ const buildAiBetContext = (state, seat, handValue, style) => {
     phase: state.phase
   };
 };
+// GTO "abstraccion de acciones": en lugar de sumar componentes sin techo (que
+// produce subidas de 7x la ciega), elegimos un tamano discreto como fraccion
+// del bote (medio bote / tres cuartos / bote) y aplicamos una GUARDA DE
+// COMPROMISO: una sola subida no compromete todo el stack salvo con manos
+// de calidad nuez. Esto evita que la IA "apueste todas las fichas" tras un fold.
 const resolveRaiseAmount = (state, actor, context, style, mode = "value") => {
-  const minRaise = Math.max(1, state.bigBlind);
+  const bb = Math.max(1, state.bigBlind);
+  const minRaise = bb;
   const maxRaise = actor.chips - context.toCall;
   if (maxRaise < minRaise) return null;
-  const potFactor = mode === "bluff" ? 0.34 : mode === "semi" ? 0.44 : 0.58;
-  const potComponent = Math.floor(state.pot * potFactor);
-  const equityComponent = Math.floor(Math.max(0, context.winRate - 0.5) * state.bigBlind * 10);
-  const positionComponent = Math.floor(context.positionAdvantage * state.bigBlind * (mode === "value" ? 2.2 : 1.4));
-  const riskComponent = Math.floor(state.bigBlind * style.riskTolerance * (mode === "value" ? 2.6 : 1.5));
-  let raise = minRaise + potComponent + equityComponent + positionComponent + riskComponent;
-  if (mode === "bluff") raise = Math.floor(raise * (0.68 + style.riskTolerance * 0.32));
-  else if (mode === "semi") raise = Math.floor(raise * (0.8 + style.riskTolerance * 0.26));
-  raise = Math.max(minRaise, Math.min(maxRaise, raise));
-  return raise;
+  const effStack = actor.chips + actor.currentBet;
+  const potAfterCall = state.pot + context.toCall;
+  // Fraccion de bote segun intencion; subidas de valor mas fuertes con equity alta.
+  const fraction = mode === "bluff"
+    ? 0.5
+    : mode === "semi"
+      ? 0.6
+      : context.winRate >= 0.8
+        ? 0.9
+        : 0.66;
+  // Redondeo a incrementos de ciega grande (tamanos "limpios").
+  let raise = Math.round((potAfterCall * fraction) / bb) * bb;
+  raise = Math.max(minRaise, raise);
+  // Guarda de compromiso: sin mano nuez, una subida no mete mas de ~la mitad
+  // del stack efectivo (deja margen para no comprometerse en una sola calle).
+  const nutHand = context.handValue.cat >= 5 || context.winRate >= 0.85;
+  const commitFraction = nutHand ? 1 : mode === "value" ? 0.6 : 0.45;
+  const commitCap = Math.max(minRaise, Math.floor(effStack * commitFraction) - context.toCall);
+  raise = Math.min(raise, commitCap, maxRaise);
+  return Math.max(minRaise, raise);
 };
+// Frecuencia de farol balanceada (GTO): con una apuesta de medio bote el rival
+// recibe pot-odds alpha = 0.5/(1+0.5) = 1/3, luego una mezcla no explotable
+// farolea ~1/3 de las veces respecto al valor. Anclamos aqui esa base.
+const BALANCED_HALF_POT_ALPHA = 1 / 3;
 const shouldOpenBluff = (context, style) => {
   if (context.toCall > 0) return false;
   if (context.handValue.cat >= 2 || context.drawPotential >= 0.2) return false;
   if (context.activeOpponents > 3 || context.stackBb < 7) return false;
-  if (context.opponentReads.aggression > 0.72 && context.opponentReads.foldToRaise < 0.38) return false;
-  const chance = style.bluffBase
-    * (0.65 + context.positionAdvantage * 0.7)
-    * (context.phase === "post-bet" ? 1.25 : 0.75)
-    * (0.7 + context.opponentReads.foldToRaise * 0.9)
-    * (1.08 - context.opponentReads.looseness * 0.3)
-    * (1 + context.perceivedFoldEquity * 0.5);
-  return Math.random() < clamp01(chance);
+  const exploit = clamp01(style.exploit ?? 0);
+  // La Experta evita farolear a un rival pegajoso que paga demasiado.
+  if (exploit > 0 && context.opponentReads.aggression > 0.72 && context.opponentReads.foldToRaise < 0.38) return false;
+  const multiway = context.activeOpponents <= 1 ? 1 : 1 / context.activeOpponents;
+  const positional = 0.55 + context.positionAdvantage * 0.6;
+  const streetFactor = context.phase === "post-bet" ? 1.15 : 0.7;
+  // Base balanceada por pot-odds; perceivedFoldEquity ya viene escalado por
+  // `exploit`, asi que la Tactica farolea a ritmo balanceado y la Experta
+  // ajusta ese ritmo segun cuanto se retire el rival.
+  const chance = BALANCED_HALF_POT_ALPHA * multiway * positional * streetFactor
+    * (0.7 + context.perceivedFoldEquity * 0.9);
+  return Math.random() < clamp01(Math.min(0.5, chance));
 };
 const shouldSemiBluff = (context, style) => {
   if (context.phase !== "pre-bet") return false;
   if (context.handValue.cat >= 4 || context.drawPotential < 0.18) return false;
+  // foldToRaise efectivo neutralizado por nivel: Tactica usa 0.5 (sin lectura).
+  const exploit = clamp01(style.exploit ?? 0);
+  const effFoldToRaise = 0.5 + exploit * (context.opponentReads.foldToRaise - 0.5);
   const chance = style.semiBluffRate
     * (0.7 + context.positionAdvantage * 0.6)
     * (0.75 + context.drawPotential)
-    * (0.82 + context.opponentReads.foldToRaise * 0.42);
+    * (0.82 + effFoldToRaise * 0.42);
   return Math.random() < clamp01(chance);
 };
 const shouldRebluff = (state, context, style) => {
   if (style.rebluffRate <= 0 || context.toCall <= 0) return false;
   if (context.activeOpponents > 2 || context.handValue.cat >= 2) return false;
   if (context.toCall > Math.max(state.bigBlind * 2, context.actorChips * 0.18)) return false;
-  if (context.opponentReads.foldToRaise < 0.28) return false;
+  const exploit = clamp01(style.exploit ?? 0);
+  const effFoldToRaise = 0.5 + exploit * (context.opponentReads.foldToRaise - 0.5);
+  // La Experta no re-farolea contra un rival que casi nunca se retira.
+  if (exploit > 0 && context.opponentReads.foldToRaise < 0.28) return false;
   const chance = style.rebluffRate
     * (0.62 + context.perceivedFoldEquity)
-    * (0.75 + context.opponentReads.foldToRaise * 0.55)
+    * (0.75 + effFoldToRaise * 0.55)
     * (context.positionAdvantage > 0.55 ? 1.2 : 0.9);
   return Math.random() < clamp01(chance);
 };
 const shouldValueJam = (context, style) => {
-  const monsterHand = context.handValue.cat >= 6 || context.winRate >= style.jamThreshold;
+  // Solo con calidad nuez real (frente a un RANGO, no a manos aleatorias):
+  // full+ hecho, o equity muy alta vs el rango de continuacion.
+  const monsterHand = context.handValue.cat >= 6 || context.winRate >= Math.max(style.jamThreshold, 0.85);
   if (!monsterHand) return false;
-  return context.stackBb <= style.shortStackBb || context.potRatio >= 0.48 || context.potCommitment >= 0.34;
+  // Y ademas que tenga sentido de tamano: stack corto o ya comprometido / bote enorme.
+  return context.stackBb <= style.shortStackBb || context.potCommitment >= 0.5 || context.potRatio >= 0.9;
 };
 const shouldDesperationJam = (context, style) => {
   if (context.stackBb > style.shortStackBb) return false;
@@ -1374,6 +1471,20 @@ const decideAi = (state, seat) => {
   }
 
   if (canAllIn && shouldValueJam(context, style)) return { type: "all-in", note: "All-in por valor." };
+
+  // Guarda de compromiso pre-descarte: antes del cambio de cartas las manos son
+  // especulativas, asi que no apilamos gran parte del stack sin una mano hecha
+  // premium (trio+) ni equity muy alta. Es la clave para que, tras retirarse el
+  // humano, las IAs no hinchen el bote hasta cerrar la partida en una mano.
+  if (
+    state.phase === "pre-bet" &&
+    context.potCommitment > 0.3 &&
+    context.handValue.cat < 3 &&
+    context.winRate < 0.72 &&
+    canFold
+  ) {
+    return { type: "fold", note: "No comprometo el stack antes del descarte." };
+  }
 
   const expertMathEdge = level.id === "expert"
     ? Math.max(context.drawHitRateExact, context.drawHitRateRule2, context.drawHitRateRule4 * 0.55) + style.callMargin * 0.25

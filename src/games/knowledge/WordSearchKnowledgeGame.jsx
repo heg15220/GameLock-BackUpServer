@@ -20,6 +20,8 @@ const COPY_BY_LOCALE = {
     subtitle:
       "Tablero grande con 10.000 combinaciones ES/EN. Selecciona palabras en horizontal, vertical o diagonal, normal o al reves.",
     restart: "Partida aleatoria",
+    revealWords: "Revelar palabras",
+    hideWords: "Ocultar palabras",
     match: "Partida",
     board: "Tablero",
     progress: "Encontradas",
@@ -42,6 +44,8 @@ const COPY_BY_LOCALE = {
     subtitle:
       "Large board with 10,000 ES/EN combinations. Select words horizontally, vertically, or diagonally, forward or reverse.",
     restart: "Random match",
+    revealWords: "Reveal words",
+    hideWords: "Hide words",
     match: "Match",
     board: "Board",
     progress: "Found",
@@ -132,6 +136,7 @@ function WordSearchKnowledgeGame() {
   const reanchorCandidateRef = useRef(null);
   const [state, setState] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [revealSolution, setRevealSolution] = useState(false);
   const wordsearchCellSize = useMemo(() => {
     if (!state) {
       return viewport.isMobile ? 18 : 28;
@@ -147,6 +152,7 @@ function WordSearchKnowledgeGame() {
     selectingRef.current = false;
     selectingPointerIdRef.current = null;
     reanchorCandidateRef.current = null;
+    setRevealSolution(false);
     setIsLoading(true);
     setState(null);
     return createWordSearchMatch(matchId, locale).then((match) => {
@@ -317,9 +323,12 @@ function WordSearchKnowledgeGame() {
   }, [clearSelection, copy]);
 
   useEffect(() => {
-    if (!state) {
-      return undefined;
-    }
+    // NOTE: these window-level listeners must NOT be gated on `state`. The
+    // handlers only touch refs and stable callbacks, so attaching them once
+    // on mount is safe. Gating on `state` while it is absent from the
+    // dependency array meant the effect bailed out on the first (loading)
+    // render and never re-ran once the match loaded, so pointerup never
+    // finalized a selection and found words were never marked.
     const onPointerMove = (event) => {
       if (!selectingRef.current) return;
       updateSelectionFromPointer(event);
@@ -472,6 +481,20 @@ function WordSearchKnowledgeGame() {
     return cells;
   }, [state]);
 
+  // When the player asks for a hint, light up the board cells that spell the
+  // words still left to find. Already-found words keep their "found" style.
+  const revealedCellSet = useMemo(() => {
+    const cells = new Set();
+    if (!revealSolution || !state) {
+      return cells;
+    }
+    state.words.forEach((word) => {
+      if (foundWordIdsSet.has(word.id)) return;
+      word.cells.forEach((cell) => cells.add(cellKey(cell.row, cell.col)));
+    });
+    return cells;
+  }, [revealSolution, state, foundWordIdsSet]);
+
   const anchorCellKey = state?.selectionStart
     ? cellKey(state.selectionStart.row, state.selectionStart.col)
     : null;
@@ -572,7 +595,17 @@ function WordSearchKnowledgeGame() {
           <h4>{copy.title}</h4>
           <p>{copy.subtitle}</p>
         </div>
-        <button type="button" onClick={restart}>{copy.restart}</button>
+        <div className="wordsearch-head-actions">
+          <button
+            type="button"
+            className={`wordsearch-reveal-toggle ${revealSolution ? "is-active" : ""}`.trim()}
+            aria-pressed={revealSolution}
+            onClick={() => setRevealSolution((previous) => !previous)}
+          >
+            {revealSolution ? copy.hideWords : copy.revealWords}
+          </button>
+          <button type="button" onClick={restart}>{copy.restart}</button>
+        </div>
       </div>
 
       <section
@@ -612,9 +645,11 @@ function WordSearchKnowledgeGame() {
                   const isPreview = previewCellSet.has(id);
                   const isAnchor = anchorCellKey === id;
                   const isCursor = state.cursor.row === rowIndex && state.cursor.col === colIndex;
+                  const isRevealed = !isFound && revealedCellSet.has(id);
                   const className = [
                     "wordsearch-cell",
                     isFound ? "found" : "",
+                    isRevealed ? "revealed" : "",
                     isPreview ? "preview" : "",
                     isAnchor ? "anchor" : "",
                     isCursor ? "cursor" : ""
