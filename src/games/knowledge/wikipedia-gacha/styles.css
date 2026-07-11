@@ -23,7 +23,11 @@
     radial-gradient(circle at 20% 110%, rgba(70, 203, 106, 0.12), transparent 30%),
     linear-gradient(180deg, var(--wg-bg-0) 0%, var(--wg-bg-1) 40%, var(--wg-bg-2) 100%);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
-  contain: layout paint style;
+  /* NOTE: do not use `contain: layout/paint` here. It turns .wg-shell into the
+     containing block for position:fixed descendants, which anchors the card
+     detail modal (.wg-modal-backdrop) to the top of the (very tall) shell
+     instead of the viewport. After scrolling down the collection to click a
+     card, the modal would render far above the viewport and appear missing. */
 }
 
 .wg-shell::before,
