@@ -153,6 +153,85 @@ function serializePackCardSqlRow(row) {
   };
 }
 
+// Ascending rarity order and tracked topics — mirrors RARITY_ORDER /
+// TRACKED_TOPIC_GROUPS in the service. Kept local to match the existing
+// hardcoded shape in readCollectionPage (this file avoids importing constants).
+const PG_RARITY_ORDER = ["C", "UC", "R", "SR", "SSR", "UR", "LR"];
+const PG_TRACKED_TOPIC_GROUPS = [
+  "Science",
+  "Mathematics",
+  "History",
+  "Geography",
+  "Technology",
+  "Art",
+  "Culture",
+  "Society",
+];
+
+/**
+ * Build the collection-aggregates object (same shape as the service's
+ * computeCollectionAggregates) from two SQL GROUP BY result sets:
+ *   summaryRows: { rarity, count, copies, favorites } grouped by rarity
+ *   topicRows:   { topic, count } grouped by topic
+ * All the derived values (duplicateCopies, highestRarity, srPlus/ssrPlus) come
+ * from the rarity breakdown, so no per-row data is needed.
+ *
+ * Parity note: SQL groups by COALESCE(best_rarity_code, a.rarity_code, 'C'), so
+ * a card with no rarity anywhere counts as "C" here, whereas the monolithic path
+ * treats unknown rarity as null for highest/SR+/SSR+. In Postgres the articles
+ * table almost always supplies a rarity, so this only differs for cards with no
+ * persisted article at all — and never inflates SR+/SSR+ (C is below SR).
+ */
+export function buildCollectionAggregatesFromSqlRows(summaryRows, topicRows) {
+  const rarityBreakdown = Object.fromEntries(
+    PG_RARITY_ORDER.map((rarity) => [rarity, 0])
+  );
+  let uniqueCards = 0;
+  let totalCopies = 0;
+  let favorites = 0;
+  for (const row of summaryRows) {
+    const rarity = row.rarity || "C";
+    const count = Number(row.count) || 0;
+    rarityBreakdown[rarity] = (rarityBreakdown[rarity] ?? 0) + count;
+    uniqueCards += count;
+    totalCopies += Number(row.copies) || 0;
+    favorites += Number(row.favorites) || 0;
+  }
+
+  const topicBreakdown = Object.fromEntries(
+    PG_TRACKED_TOPIC_GROUPS.map((topic) => [topic, 0])
+  );
+  for (const row of topicRows) {
+    if (row.topic && topicBreakdown[row.topic] !== undefined) {
+      topicBreakdown[row.topic] = Number(row.count) || 0;
+    }
+  }
+
+  const srIndex = PG_RARITY_ORDER.indexOf("SR");
+  const ssrIndex = PG_RARITY_ORDER.indexOf("SSR");
+  let highestRarity = null;
+  let srPlusCount = 0;
+  let ssrPlusCount = 0;
+  PG_RARITY_ORDER.forEach((rarity, index) => {
+    const count = rarityBreakdown[rarity] || 0;
+    if (count > 0) highestRarity = rarity; // ascending order → last non-zero wins
+    if (index >= srIndex) srPlusCount += count;
+    if (index >= ssrIndex) ssrPlusCount += count;
+  });
+
+  return {
+    uniqueCards,
+    totalCopies,
+    duplicateCopies: totalCopies - uniqueCards,
+    favorites,
+    rarityBreakdown,
+    topicBreakdown,
+    highestRarity,
+    srPlusCount,
+    ssrPlusCount,
+  };
+}
+
 function normalizeProfileRow(profile) {
   if (!profile) return null;
   return {
@@ -329,7 +408,7 @@ export function createPostgresStore({ db }) {
     return row?.currentToken ?? browserToken;
   }
 
-  async function readNormalizedRaw(browserToken) {
+  async function readNormalizedRaw(browserToken, { collectionMode = "full" } = {}) {
     const resolvedToken = await resolvePersistedToken(browserToken);
     const profile = await db.get(
       `SELECT
@@ -361,6 +440,16 @@ export function createPostgresStore({ db }) {
     cachePersistedStatePresence(browserToken, true);
     cachePersistedStatePresence(resolvedToken, true);
 
+    // "aggregates" mode powers the read-only dashboard (getSessionMe): it skips
+    // the potentially huge browser_collection SELECT and computes the summary /
+    // trophy / mission numbers with SQL GROUP BY instead, keeping RAM flat for
+    // users with hundreds of thousands of cards.
+    const aggregatesMode = collectionMode === "aggregates";
+    const language = String(profile.preferredLanguage || "en")
+      .toLowerCase()
+      .startsWith("es")
+      ? "es"
+      : "en";
     const [
       collectionRows,
       openingRows,
@@ -369,23 +458,26 @@ export function createPostgresStore({ db }) {
       trophyRows,
       rewardRows,
       dailyRows,
+      collectionAggregates,
     ] = await Promise.all([
-      db.all(
-        `SELECT
-           id,
-           browser_profile_id AS "browserProfileId",
-           article_id AS "articleId",
-           copies,
-           first_obtained_at AS "firstObtainedAt",
-           last_obtained_at AS "lastObtainedAt",
-           favorite,
-           best_rarity_code AS "bestRarityCode",
-           topic_group AS "topicGroup"
-         FROM browser_collection
-         WHERE browser_profile_id = ?
-         ORDER BY id ASC`,
-        [profile.id]
-      ),
+      aggregatesMode
+        ? Promise.resolve([])
+        : db.all(
+            `SELECT
+               id,
+               browser_profile_id AS "browserProfileId",
+               article_id AS "articleId",
+               copies,
+               first_obtained_at AS "firstObtainedAt",
+               last_obtained_at AS "lastObtainedAt",
+               favorite,
+               best_rarity_code AS "bestRarityCode",
+               topic_group AS "topicGroup"
+             FROM browser_collection
+             WHERE browser_profile_id = ?
+             ORDER BY id ASC`,
+            [profile.id]
+          ),
       db.all(
         `SELECT
            id,
@@ -488,6 +580,9 @@ export function createPostgresStore({ db }) {
          ORDER BY id ASC`,
         [profile.id]
       ),
+      aggregatesMode
+        ? computeAggregatesForProfile(profile.id, language)
+        : Promise.resolve(null),
     ]);
 
     const cardsByOpeningId = new Map();
@@ -579,6 +674,13 @@ export function createPostgresStore({ db }) {
     };
 
     state.nextIds = buildNextIds(state);
+    if (aggregatesMode) {
+      // Ephemeral dashboard read: attach the aggregates and do NOT populate the
+      // shared state cache. This state intentionally omits the collection rows,
+      // so it must never be served to the monolithic (full-collection) path.
+      state.__collectionAggregates = collectionAggregates;
+      return state;
+    }
     touchState(resolvedToken, state);
     return touchState(browserToken, state);
   }
@@ -589,6 +691,14 @@ export function createPostgresStore({ db }) {
       return cachedState;
     }
     return (await readNormalizedRaw(browserToken)) ?? touchState(browserToken, createEmptyState());
+  }
+
+  // Read-only dashboard state for getSessionMe: profile + auxiliary tables +
+  // collection aggregates, WITHOUT the collection rows. Never cached (the
+  // omitted collection would corrupt the monolithic read path if reused).
+  async function readDashboardState(browserToken, preferredLanguage = null) {
+    void preferredLanguage; // language derives from the persisted profile
+    return readNormalizedRaw(browserToken, { collectionMode: "aggregates" });
   }
 
   async function hasPersistedState(browserToken) {
@@ -2138,6 +2248,183 @@ export function createPostgresStore({ db }) {
     return result;
   }
 
+  // Collection aggregates via SQL GROUP BY — replaces loading the whole
+  // collection into RAM just to compute the dashboard summary / trophy
+  // conditions / mission favorites counter in getSessionMe. Shared by
+  // readCollectionAggregates and readNormalizedRaw's "aggregates" mode.
+  async function computeAggregatesForProfile(profileId, language) {
+    const fromSql = `FROM browser_collection c
+      LEFT JOIN LATERAL (
+        SELECT *
+        FROM articles candidate
+        WHERE candidate.article_id = c.article_id
+        ORDER BY CASE WHEN candidate.language = ? THEN 0 ELSE 1 END
+        LIMIT 1
+      ) a ON TRUE`;
+    const [summaryRows, topicRows] = await Promise.all([
+      db.all(
+        `SELECT
+           COALESCE(c.best_rarity_code, a.rarity_code, 'C') AS rarity,
+           COUNT(*) AS count,
+           SUM(c.copies) AS copies,
+           SUM(CASE WHEN c.favorite THEN 1 ELSE 0 END) AS favorites
+         ${fromSql}
+         WHERE c.browser_profile_id = ?
+         GROUP BY COALESCE(c.best_rarity_code, a.rarity_code, 'C')`,
+        [language, profileId]
+      ),
+      db.all(
+        `SELECT
+           COALESCE(c.topic_group, a.topic_group) AS topic,
+           COUNT(*) AS count
+         ${fromSql}
+         WHERE c.browser_profile_id = ?
+           AND COALESCE(c.topic_group, a.topic_group) IS NOT NULL
+         GROUP BY COALESCE(c.topic_group, a.topic_group)`,
+        [language, profileId]
+      ),
+    ]);
+    return buildCollectionAggregatesFromSqlRows(summaryRows, topicRows);
+  }
+
+  async function readCollectionAggregates(browserToken, preferredLanguage = null) {
+    const resolvedToken = await resolvePersistedToken(browserToken);
+    const profile = await readProfileOnly(resolvedToken);
+    if (!profile) {
+      return null;
+    }
+    const language = String(preferredLanguage || profile.preferredLanguage || "en")
+      .toLowerCase()
+      .startsWith("es")
+      ? "es"
+      : "en";
+    return {
+      browserToken: profile.browserToken,
+      preferredLanguage: profile.preferredLanguage,
+      aggregates: await computeAggregatesForProfile(profile.id, language),
+    };
+  }
+
+  function toggleFavoriteDirect(browserToken, articleId, favorite, preferredLanguage = null) {
+    return enqueue(browserToken, () =>
+      toggleFavoriteDirectImpl(browserToken, articleId, favorite, preferredLanguage)
+    );
+  }
+
+  async function toggleFavoriteDirectImpl(browserToken, articleId, favorite, preferredLanguage) {
+    const resolvedToken = await resolvePersistedToken(browserToken);
+    // Flush any pending deferred write first so we mutate the latest state and a
+    // late flush cannot revert the toggle (same rationale as openPackIncremental).
+    for (const token of new Set([browserToken, resolvedToken])) {
+      const pending = dirtyStates.get(token);
+      if (pending) {
+        dirtyStates.delete(token);
+        try {
+          await writeRaw(token, pending.nextState, pending.previousState);
+        } catch (error) {
+          console.error(`[storage.postgres] pre-favorite flush failed for ${token}:`, error);
+        }
+      }
+    }
+    const target = Number(articleId) || 0;
+    const nextFavorite = typeof favorite === "boolean" ? favorite : null;
+    const result = await db.transaction(async (tx) => {
+      const profile = normalizeProfileRow(await tx.get(
+        `SELECT
+           id,
+           browser_token AS "browserToken",
+           preferred_language AS "preferredLanguage"
+         FROM browser_profiles
+         WHERE browser_token = ?
+         FOR UPDATE`,
+        [resolvedToken]
+      ));
+      if (!profile) {
+        return { profile: null };
+      }
+      const updatedRow = await tx.get(
+        nextFavorite === null
+          ? `UPDATE browser_collection
+               SET favorite = NOT favorite
+             WHERE browser_profile_id = ? AND article_id = ?
+             RETURNING id`
+          : `UPDATE browser_collection
+               SET favorite = ?
+             WHERE browser_profile_id = ? AND article_id = ?
+             RETURNING id`,
+        nextFavorite === null
+          ? [profile.id, target]
+          : [nextFavorite, profile.id, target]
+      );
+      if (!updatedRow) {
+        return { profile, item: null };
+      }
+      const language = String(preferredLanguage || profile.preferredLanguage || "en")
+        .toLowerCase()
+        .startsWith("es")
+        ? "es"
+        : "en";
+      const row = await tx.get(
+        `SELECT
+           c.id,
+           c.article_id AS "articleId",
+           c.copies,
+           c.first_obtained_at AS "firstObtainedAt",
+           c.last_obtained_at AS "lastObtainedAt",
+           c.favorite,
+           c.best_rarity_code AS "bestRarityCode",
+           COALESCE(c.topic_group, a.topic_group) AS "topicGroup",
+           COALESCE(NULLIF(a.title, ''), 'Article #' || c.article_id::text) AS "title",
+           COALESCE(c.best_rarity_code, a.rarity_code, 'C') AS "rarity",
+           a.quality_score AS "qualityScore",
+           a.atk,
+           a.def_stat AS "defStat",
+           a.image_url AS "imageUrl",
+           a.extract_text AS "extractText",
+           a.long_extract_text AS "longExtractText",
+           a.flavor_text AS "flavorText",
+           a.source_url AS "sourceUrl"
+         FROM browser_collection c
+         LEFT JOIN LATERAL (
+           SELECT *
+           FROM articles candidate
+           WHERE candidate.article_id = c.article_id
+           ORDER BY CASE WHEN candidate.language = ? THEN 0 ELSE 1 END
+           LIMIT 1
+         ) a ON TRUE
+         WHERE c.browser_profile_id = ? AND c.article_id = ?
+         LIMIT 1`,
+        [language, profile.id, target]
+      );
+      const favoritesRow = await tx.get(
+        `SELECT COUNT(*) AS favorites
+         FROM browser_collection
+         WHERE browser_profile_id = ? AND favorite = TRUE`,
+        [profile.id]
+      );
+      return {
+        profile,
+        item: row ? serializeCollectionSqlRow(row) : null,
+        favoritesMarked: Number(favoritesRow?.favorites) || 0,
+      };
+    });
+    // Direct write bypassed the read cache; drop it so later reads see the new
+    // favorite state (same as openPackIncremental).
+    if (result?.profile) {
+      stateCache.delete(browserToken);
+      stateCache.delete(resolvedToken);
+    }
+    if (!result?.profile) {
+      return null; // invalid token
+    }
+    return {
+      browserToken: result.profile.browserToken,
+      preferredLanguage: result.profile.preferredLanguage,
+      item: result.item, // null → card not in collection (service raises 404)
+      favoritesMarked: result.favoritesMarked ?? 0,
+    };
+  }
+
   function forToken(browserToken) {
     async function read() {
       return readRaw(browserToken);
@@ -2231,8 +2518,11 @@ export function createPostgresStore({ db }) {
     readProfileOnly,
     readCollectionPage,
     readCollectionItem,
+    readCollectionAggregates,
+    readDashboardState,
     readPackHistory,
     openPackIncremental,
+    toggleFavoriteDirect,
     findRecovery,
     flush,
     hasPersistedState,

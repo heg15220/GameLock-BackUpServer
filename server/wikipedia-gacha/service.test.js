@@ -4,9 +4,35 @@ import { access, unlink, writeFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import {
   applyPackRegeneration,
+  computeCollectionAggregates,
   createWikipediaGachaService,
+  findCollectedArticleSnapshot,
   getSecondsUntilNextPack,
 } from "./service.mjs";
+import { buildCollectionAggregatesFromSqlRows } from "./storage.postgres.mjs";
+
+// Minimal in-memory article catalog for deterministic tests — mirrors the
+// interface of createWikipediaGachaCatalog but never touches the network.
+// `forget()` drops an article to simulate a server restart / pool eviction.
+function createMockCatalog(articles) {
+  const byId = new Map(articles.map((a) => [a.id, a]));
+  const buckets = {};
+  for (const a of articles) (buckets[a.rarityCode] ??= []).push(a.id);
+  const firstId = articles[0]?.id ?? null;
+  return {
+    ready: async () => {},
+    close: async () => {},
+    getMode: () => "mock",
+    getBucketIdsForRarity: (rarity) => buckets[rarity] ?? [],
+    pickArticleIdForRarity: (rarity) => buckets[rarity]?.[0] ?? firstId,
+    getRarityForArticleId: (id) => byId.get(id)?.rarityCode ?? null,
+    getTopicGroupForArticleId: (id) => byId.get(id)?.topicGroup ?? null,
+    getArticleById: async (id) => byId.get(id) ?? null,
+    searchArticles: async () => [],
+    listCatalog: async () => [...byId.values()],
+    forget: (id) => byId.delete(id),
+  };
+}
 
 describe("wikipedia gacha service", () => {
   it("regenerates packs minute by minute up to the cap", () => {
@@ -290,5 +316,175 @@ describe("wikipedia gacha service", () => {
     const afterSpecial = await service.getSessionMe(currentToken);
     expect(afterSpecial.packStatus.packsAvailable).toBe(0);
     expect(afterSpecial.packStatus.nextPackGuaranteedSrPlus).toBe(false);
+  });
+
+  it("serves collected-card detail from persisted pack history when the pool no longer has the article", async () => {
+    const now = new Date("2026-05-01T10:00:00.000Z");
+    const dbPath = path.join(
+      os.tmpdir(),
+      `wiki-gacha-restart-${Date.now()}-${Math.round(Math.random() * 9999)}.db`
+    );
+
+    const testArticle = {
+      id: 770001,
+      wikipediaTitle: "Restart Test Article",
+      slug: "Restart_Test_Article",
+      rarityCode: "C",
+      qualityScore: 12,
+      atk: 340,
+      defStat: 210,
+      imageUrl: "https://example.org/restart.png",
+      extractText: "Short extract for the restart test.",
+      longExtractText: "Longer extract body for the restart test article.",
+      flavorText: null,
+      sourceUrl: "https://en.wikipedia.org/wiki/Restart_Test_Article",
+      topicGroup: "Science",
+      categories: ["Testing"],
+      languageCode: "en",
+    };
+    // Instance 1 — the live pool has the article; open a pack and persist it.
+    const service = createWikipediaGachaService({
+      dbPath,
+      nowFn: () => now,
+      randomFn: () => 0,
+      createArticleCatalog: () => createMockCatalog([testArticle]),
+    });
+    let token;
+    try {
+      const session = await service.bootstrapSession();
+      token = session.browserToken;
+      const opened = await service.openPack(token);
+      token = opened.browserToken ?? token;
+      expect(opened.cards.some((card) => card.articleId === testArticle.id)).toBe(true);
+
+      const before = await service.getArticle(testArticle.id, token, "en");
+      expect(before.title).toBe("Restart Test Article");
+    } finally {
+      await service.close();
+    }
+
+    // Instance 2 — simulate a server restart: a fresh in-memory pool that does
+    // NOT contain the previously collected article. Detail must still resolve
+    // from persisted state instead of throwing 404 "Article not found."
+    const restarted = createWikipediaGachaService({
+      dbPath,
+      nowFn: () => now,
+      randomFn: () => 0,
+      createArticleCatalog: () => createMockCatalog([]),
+    });
+    try {
+      const after = await restarted.getArticle(testArticle.id, token, "en");
+      expect(after.articleId ?? after.id).toBe(testArticle.id);
+      expect(after.title).toBe("Restart Test Article");
+      expect(after.extractText).toContain("restart test");
+      expect(after.imageUrl).toBe("https://example.org/restart.png");
+      expect(after.copies).toBeGreaterThanOrEqual(1);
+      expect(after.inCollection).toBe(true);
+    } finally {
+      await restarted.close();
+    }
+  });
+
+  it("computeCollectionAggregates matches a hand-computed collection", () => {
+    const state = {
+      browserCollection: [
+        { browserProfileId: 1, articleId: 1, copies: 3, favorite: true, bestRarityCode: "C", topicGroup: "Science" },
+        { browserProfileId: 1, articleId: 2, copies: 1, favorite: false, bestRarityCode: "SR", topicGroup: "History" },
+        { browserProfileId: 1, articleId: 3, copies: 2, favorite: true, bestRarityCode: "SSR", topicGroup: "Science" },
+        // Different profile — must be ignored.
+        { browserProfileId: 2, articleId: 9, copies: 5, favorite: true, bestRarityCode: "UR", topicGroup: "Art" },
+      ],
+    };
+    const agg = computeCollectionAggregates(state, 1, () => null, () => null);
+    expect(agg.uniqueCards).toBe(3);
+    expect(agg.totalCopies).toBe(6);
+    expect(agg.duplicateCopies).toBe(3);
+    expect(agg.favorites).toBe(2);
+    expect(agg.rarityBreakdown.C).toBe(1);
+    expect(agg.rarityBreakdown.SR).toBe(1);
+    expect(agg.rarityBreakdown.SSR).toBe(1);
+    expect(agg.rarityBreakdown.UR).toBe(0);
+    expect(agg.topicBreakdown.Science).toBe(2);
+    expect(agg.topicBreakdown.History).toBe(1);
+    expect(agg.highestRarity).toBe("SSR");
+    expect(agg.srPlusCount).toBe(2);
+    expect(agg.ssrPlusCount).toBe(1);
+  });
+
+  it("Postgres SQL aggregation matches the monolithic computeCollectionAggregates", () => {
+    // Guarantees the optimized (Postgres GROUP BY) path and the monolithic path
+    // produce identical numbers for the dashboard summary / trophies / missions.
+    const state = {
+      browserCollection: [
+        { browserProfileId: 1, articleId: 1, copies: 3, favorite: true, bestRarityCode: "C", topicGroup: "Science" },
+        { browserProfileId: 1, articleId: 2, copies: 1, favorite: false, bestRarityCode: "SR", topicGroup: "History" },
+        { browserProfileId: 1, articleId: 3, copies: 2, favorite: true, bestRarityCode: "SSR", topicGroup: "Science" },
+      ],
+    };
+    const monolithic = computeCollectionAggregates(state, 1, () => null, () => null);
+    // The exact shape the SQL GROUP BY queries return.
+    const summaryRows = [
+      { rarity: "C", count: 1, copies: 3, favorites: 1 },
+      { rarity: "SR", count: 1, copies: 1, favorites: 0 },
+      { rarity: "SSR", count: 1, copies: 2, favorites: 1 },
+    ];
+    const topicRows = [
+      { topic: "Science", count: 2 },
+      { topic: "History", count: 1 },
+    ];
+    const sqlDerived = buildCollectionAggregatesFromSqlRows(summaryRows, topicRows);
+    expect(sqlDerived).toEqual(monolithic);
+  });
+
+  it("computeCollectionAggregates falls back to the article catalog for missing rarity/topic", () => {
+    const state = {
+      browserCollection: [
+        { browserProfileId: 1, articleId: 1, copies: 1, favorite: false, bestRarityCode: null, topicGroup: null },
+      ],
+    };
+    const agg = computeCollectionAggregates(
+      state,
+      1,
+      (id) => (id === 1 ? "SR" : null),
+      (id) => (id === 1 ? "Science" : null)
+    );
+    expect(agg.rarityBreakdown.SR).toBe(1);
+    expect(agg.srPlusCount).toBe(1);
+    expect(agg.highestRarity).toBe("SR");
+    expect(agg.topicBreakdown.Science).toBe(1);
+  });
+
+  it("findCollectedArticleSnapshot reconstructs an article from pack history", () => {
+    const state = {
+      packOpenings: [
+        {
+          browserProfileId: 1,
+          openedAt: "2026-05-01T10:00:00.000Z",
+          cards: [
+            {
+              articleId: 555,
+              title: "History Card",
+              rarity: "SR",
+              qualityScore: 61,
+              atk: 900,
+              def: 640,
+              imageUrl: "https://example.org/h.png",
+              extractText: "Body text.",
+              longExtractText: "Longer body text.",
+              sourceUrl: "https://en.wikipedia.org/wiki/History_Card",
+              topicGroup: "History",
+            },
+          ],
+        },
+      ],
+    };
+
+    const snapshot = findCollectedArticleSnapshot(state, 1, 555);
+    expect(snapshot).not.toBeNull();
+    expect(snapshot.title).toBe("History Card");
+    expect(snapshot.rarity).toBe("SR");
+    expect(snapshot.def).toBe(640);
+    expect(findCollectedArticleSnapshot(state, 1, 999)).toBeNull();
+    expect(findCollectedArticleSnapshot(state, 2, 555)).toBeNull();
   });
 });

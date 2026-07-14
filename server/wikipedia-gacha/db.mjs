@@ -99,6 +99,7 @@ const SCHEMA_SQL = `
     pack_opening_id INTEGER NOT NULL,
     slot_number INTEGER NOT NULL,
     article_id INTEGER NOT NULL,
+    title TEXT NULL,
     rarity TEXT NULL,
     quality_score INTEGER NOT NULL DEFAULT 0,
     atk INTEGER NOT NULL DEFAULT 0,
@@ -270,7 +271,19 @@ export function openStateDb(dbPath = DEFAULT_DB_PATH) {
     });
   }
 
-  const ready = exec(SCHEMA_SQL);
+  // Lightweight, idempotent column migrations for databases created by an
+  // earlier schema version (CREATE TABLE IF NOT EXISTS never adds new columns).
+  async function migrate() {
+    const cols = await all("PRAGMA table_info(pack_opening_cards)");
+    if (!cols.some((col) => col.name === "title")) {
+      // Persist the article title with each pulled card so a collected card's
+      // detail can be re-served after the in-memory Wikipedia pool loses it
+      // (server restart / rarity-bucket eviction).
+      await run("ALTER TABLE pack_opening_cards ADD COLUMN title TEXT NULL");
+    }
+  }
+
+  const ready = exec(SCHEMA_SQL).then(migrate);
 
   return { run, get, all, exec, close, ready };
 }

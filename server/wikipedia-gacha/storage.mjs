@@ -683,6 +683,7 @@ export function createSqliteStore({ db }) {
         `SELECT
            card.pack_opening_id AS packOpeningId,
            card.article_id AS articleId,
+           card.title,
            card.rarity,
            card.quality_score AS qualityScore,
            card.atk,
@@ -770,6 +771,7 @@ export function createSqliteStore({ db }) {
       const list = cardsByOpeningId.get(row.packOpeningId) ?? [];
       list.push({
         articleId: Number(row.articleId) || 0,
+        title: row.title ?? null,
         rarity: row.rarity ?? null,
         qualityScore: Number(row.qualityScore) || 0,
         atk: Number(row.atk) || 0,
@@ -1076,15 +1078,16 @@ export function createSqliteStore({ db }) {
         for (const [index, card] of (opening.cards ?? []).entries()) {
           await db.run(
             `INSERT INTO pack_opening_cards (
-               pack_opening_id, slot_number, article_id, rarity, quality_score,
+               pack_opening_id, slot_number, article_id, title, rarity, quality_score,
                atk, def_stat, image_url, extract_text, long_extract_text,
                flavor_text, was_new, copies_after_pull, shards_earned,
                source_url, topic_group
-             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               openingId,
               index + 1,
               Number(card.articleId) || 0,
+              card.title ?? null,
               card.rarity ?? null,
               Number(card.qualityScore) || 0,
               Number(card.atk) || 0,

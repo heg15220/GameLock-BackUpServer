@@ -586,13 +586,30 @@ function serializePackCardResult(article, collectionEntry, packCard) {
 }
 
 function serializeStoredPackCardResult(article, collectionEntry, packCard, language) {
+  // Persist the full article snapshot alongside the per-pull state. The
+  // compact pack-card codec already reserves these positions; keeping them
+  // populated means a collected card's detail can be re-served after a server
+  // restart or pool eviction (the in-memory Wikipedia pool is volatile and the
+  // normalized `articles` table only exists on the Postgres driver). Without
+  // this, SQLite deployments persist nothing about the article body and opening
+  // a collected card fails with "Article not found." once it leaves the pool.
   return {
     articleId: article.id,
     language: language ?? "en",
+    title: article.wikipediaTitle,
+    rarity: article.rarityCode,
+    qualityScore: article.qualityScore,
+    atk: article.atk,
+    def: article.defStat,
+    imageUrl: article.imageUrl,
+    extractText: article.extractText,
+    longExtractText: article.longExtractText ?? article.extractText,
+    flavorText: article.flavorText,
+    sourceUrl: article.sourceUrl,
+    topicGroup: article.topicGroup,
     wasNew: packCard.wasNew,
     copiesAfterPull: collectionEntry.copies,
     shardsEarned: packCard.shardsEarned,
-    rarity: article.rarityCode,
   };
 }
 
@@ -625,6 +642,92 @@ function pushPendingArticle(state, article, language) {
   }
 }
 
+/**
+ * Reconstruct an article from persisted state when the in-memory Wikipedia pool
+ * no longer contains it (server restart regenerates the random pool, and busy
+ * rarity buckets evict their oldest entries). The pack-opening history persists
+ * a full per-card snapshot (title, extract, image, stats…) keyed by articleId,
+ * so a card the user actually owns can always be re-served from there instead of
+ * returning a 404 "Article not found." Returns an article-shaped object (both
+ * legacy `wikipediaTitle`/`rarityCode`/`defStat` and client `title`/`rarity`/`def`
+ * keys) or null when no snapshot exists in the user's history.
+ */
+export function findCollectedArticleSnapshot(state, profileId, articleId) {
+  const targetId = Number(articleId);
+  if (!state || !Number.isFinite(targetId) || !Array.isArray(state.packOpenings)) {
+    return null;
+  }
+
+  let bestCard = null;
+  let bestOpenedAt = "";
+  for (const opening of state.packOpenings) {
+    if (profileId != null && opening.browserProfileId !== profileId) continue;
+    for (const card of opening.cards ?? []) {
+      if (Number(card.articleId) !== targetId) continue;
+      const openedAt = opening.openedAt ?? "";
+      // Prefer the most recent snapshot (freshest stats / localized copy).
+      if (!bestCard || openedAt >= bestOpenedAt) {
+        bestCard = card;
+        bestOpenedAt = openedAt;
+      }
+    }
+  }
+  if (!bestCard) return null;
+
+  const rarity = bestCard.rarity ?? "C";
+  const atk = Number(bestCard.atk) || 0;
+  const def = Number(bestCard.def ?? bestCard.defStat) || 0;
+  const extractText = normalizeArticleText(bestCard.extractText) || "";
+  return {
+    id: targetId,
+    articleId: targetId,
+    wikipediaTitle: bestCard.title ?? `Article #${targetId}`,
+    title: bestCard.title ?? `Article #${targetId}`,
+    rarityCode: rarity,
+    rarity,
+    qualityScore: Number(bestCard.qualityScore) || 0,
+    atk,
+    defStat: def,
+    def,
+    imageUrl: bestCard.imageUrl ?? null,
+    extractText,
+    longExtractText: normalizeArticleText(bestCard.longExtractText) || extractText,
+    flavorText: bestCard.flavorText ?? null,
+    sourceUrl: bestCard.sourceUrl ?? null,
+    topicGroup: bestCard.topicGroup ?? "General",
+    categories: [],
+  };
+}
+
+/**
+ * Last-resort article-shaped placeholder built from the collection entry alone,
+ * used when a card is owned but neither the pool nor the pack history can supply
+ * its snapshot (e.g. history pruned). Still preferable to a 404 for an owned card.
+ */
+function buildPlaceholderArticleFromEntry(entry, articleId) {
+  const targetId = Number(articleId);
+  const rarity = entry?.bestRarityCode ?? "C";
+  return {
+    id: targetId,
+    articleId: targetId,
+    wikipediaTitle: `Article #${targetId}`,
+    title: `Article #${targetId}`,
+    rarityCode: rarity,
+    rarity,
+    qualityScore: 0,
+    atk: 0,
+    defStat: 0,
+    def: 0,
+    imageUrl: null,
+    extractText: "",
+    longExtractText: "",
+    flavorText: null,
+    sourceUrl: null,
+    topicGroup: entry?.topicGroup ?? "General",
+    categories: [],
+  };
+}
+
 function serializePackHistoryEntry(opening) {
   const normalizedCards = (opening.cards ?? []).map((card) => ({
     ...card,
@@ -650,31 +753,97 @@ function serializePackHistoryEntry(opening) {
   };
 }
 
-function getCollectionSummary(state, profileId, getRarityForArticleId) {
+/**
+ * Compute every collection-derived aggregate the dashboard needs (summary,
+ * mission favorites counter, trophy conditions) in a SINGLE pass over the
+ * profile's collection. This is the monolithic path used by SQLite and as the
+ * fallback; the Postgres path obtains the same shape from
+ * `store.readCollectionAggregates` (SQL GROUP BY) WITHOUT loading the rows into
+ * RAM. Both must return the same fields so downstream consumers are agnostic to
+ * where the numbers came from.
+ */
+export function computeCollectionAggregates(
+  state,
+  profileId,
+  getRarityForArticleId,
+  getTopicGroupForArticleId
+) {
   const entries = getProfileCollections(state, profileId);
-  const uniqueCards = entries.length;
-  const totalCopies = entries.reduce(
-    (sum, entry) => sum + entry.copies,
-    0
-  );
-  const favorites = entries.filter((entry) => entry.favorite).length;
   const rarityBreakdown = RARITY_ORDER.reduce((accumulator, rarity) => {
     accumulator[rarity] = 0;
     return accumulator;
   }, {});
+  const topicBreakdown = TRACKED_TOPIC_GROUPS.reduce((accumulator, topic) => {
+    accumulator[topic] = 0;
+    return accumulator;
+  }, {});
+
+  let totalCopies = 0;
+  let duplicateCopies = 0;
+  let favorites = 0;
+  let highestRarity = null;
+  let srPlusCount = 0;
+  let ssrPlusCount = 0;
 
   for (const entry of entries) {
-    const rarityCode =
-      entry.bestRarityCode || getRarityForArticleId(entry.articleId) || "C";
-    rarityBreakdown[rarityCode] = (rarityBreakdown[rarityCode] ?? 0) + 1;
+    const copies = Number(entry.copies) || 0;
+    totalCopies += copies;
+    duplicateCopies += Math.max(0, copies - 1);
+    if (entry.favorite) favorites += 1;
+
+    // Breakdown counts fall back to "C" (matches getCollectionSummary).
+    const rarityForBreakdown =
+      entry.bestRarityCode || getRarityForArticleId?.(entry.articleId) || "C";
+    rarityBreakdown[rarityForBreakdown] =
+      (rarityBreakdown[rarityForBreakdown] ?? 0) + 1;
+
+    // Highest/SR+/SSR+ use the raw rarity WITHOUT the "C" fallback (matches
+    // getTrophyConditions), so a card with unknown rarity is not counted.
+    const rarityStrict =
+      entry.bestRarityCode || getRarityForArticleId?.(entry.articleId);
+    if (rarityStrict) {
+      if (!highestRarity || compareRarity(rarityStrict, highestRarity) > 0) {
+        highestRarity = rarityStrict;
+      }
+      if (rarityAtLeast(rarityStrict, "SR")) srPlusCount += 1;
+      if (rarityAtLeast(rarityStrict, "SSR")) ssrPlusCount += 1;
+    }
+
+    const topic =
+      entry.topicGroup || getTopicGroupForArticleId?.(entry.articleId);
+    if (topic && topicBreakdown[topic] !== undefined) {
+      topicBreakdown[topic] += 1;
+    }
   }
 
   return {
-    uniqueCards,
+    uniqueCards: entries.length,
     totalCopies,
+    duplicateCopies,
     favorites,
     rarityBreakdown,
+    topicBreakdown,
+    highestRarity,
+    srPlusCount,
+    ssrPlusCount,
   };
+}
+
+/** Derive the client-facing collection summary from a collection-aggregates object. */
+function buildCollectionSummaryFromAggregates(aggregates) {
+  return {
+    uniqueCards: aggregates.uniqueCards,
+    totalCopies: aggregates.totalCopies,
+    favorites: aggregates.favorites,
+    rarityBreakdown: aggregates.rarityBreakdown,
+  };
+}
+
+function getCollectionSummary(state, profileId, getRarityForArticleId, aggregates = null) {
+  const agg =
+    aggregates ??
+    computeCollectionAggregates(state, profileId, getRarityForArticleId);
+  return buildCollectionSummaryFromAggregates(agg);
 }
 
 function ensureDailyMissions(state, profile, now) {
@@ -710,12 +879,17 @@ function ensureDailyMissions(state, profile, now) {
   );
 }
 
-function recomputeMissionProgress(state, profile, now) {
+function recomputeMissionProgress(state, profile, now, options = {}) {
   const todaysStats = getTodaysStats(state, profile.id, now);
   const entries = ensureDailyMissions(state, profile, now);
   let changed = false;
-  const collection = getProfileCollections(state, profile.id);
-  const favoritesMarked = collection.filter((entry) => entry.favorite).length;
+  // `favoritesMarked` is the only collection-derived metric missions need. The
+  // optimized (Postgres) path injects it as a COUNT so the full collection is
+  // never loaded; the monolithic path computes it in RAM as before.
+  const favoritesMarked =
+    options.favoritesMarked ??
+    getProfileCollections(state, profile.id).filter((entry) => entry.favorite)
+      .length;
   const metrics = {
     packs_opened: todaysStats.packsOpened,
     cards_obtained: todaysStats.cardsObtained,
@@ -830,41 +1004,28 @@ function getTrophyConditions(
   state,
   profile,
   getTopicGroupForArticleId,
-  getRarityForArticleId
+  getRarityForArticleId,
+  aggregates = null
 ) {
-  const collection = getProfileCollections(state, profile.id);
-  const uniqueCount = collection.length;
-  const totalCopies = collection.reduce((sum, entry) => sum + entry.copies, 0);
-  const duplicateCopies = collection.reduce(
-    (sum, entry) => sum + Math.max(0, entry.copies - 1),
-    0
-  );
-  const favoritesCount = collection.filter((entry) => entry.favorite).length;
-  const topicCounts = TRACKED_TOPIC_GROUPS.reduce((accumulator, topicGroup) => {
-    accumulator[topicGroup] = collection.filter((entry) => {
-      const topic = entry.topicGroup || getTopicGroupForArticleId(entry.articleId);
-      return topic === topicGroup;
-    }).length;
-    return accumulator;
-  }, {});
+  const agg =
+    aggregates ??
+    computeCollectionAggregates(
+      state,
+      profile.id,
+      getRarityForArticleId,
+      getTopicGroupForArticleId
+    );
+  const uniqueCount = agg.uniqueCards;
+  const totalCopies = agg.totalCopies;
+  const duplicateCopies = agg.duplicateCopies;
+  const favoritesCount = agg.favorites;
+  const topicCounts = agg.topicBreakdown;
   const discoveredTopicVariety = Object.values(topicCounts).filter(
     (count) => count > 0
   ).length;
-  const highestRarity = collection.reduce((best, entry) => {
-    const rarityCode =
-      entry.bestRarityCode || getRarityForArticleId(entry.articleId);
-    if (!rarityCode) return best;
-    if (!best || compareRarity(rarityCode, best) > 0) {
-      return rarityCode;
-    }
-    return best;
-  }, null);
-  const srPlusCount = collection.filter((entry) =>
-    rarityAtLeast(entry.bestRarityCode || getRarityForArticleId(entry.articleId), "SR")
-  ).length;
-  const ssrPlusCount = collection.filter((entry) =>
-    rarityAtLeast(entry.bestRarityCode || getRarityForArticleId(entry.articleId), "SSR")
-  ).length;
+  const highestRarity = agg.highestRarity;
+  const srPlusCount = agg.srPlusCount;
+  const ssrPlusCount = agg.ssrPlusCount;
   const totalWikipediaClicks = state.dailyBrowserStats
     .filter((entry) => entry.browserProfileId === profile.id)
     .reduce((sum, entry) => sum + normalizeStatCount(entry.wikipediaClicks), 0);
@@ -922,7 +1083,8 @@ function ensureTrophiesUnlocked(
   profile,
   now,
   getTopicGroupForArticleId,
-  getRarityForArticleId
+  getRarityForArticleId,
+  aggregates = null
 ) {
   const unlocked = state.browserTrophies.filter(
     (entry) => entry.browserProfileId === profile.id
@@ -934,7 +1096,8 @@ function ensureTrophiesUnlocked(
     state,
     profile,
     getTopicGroupForArticleId,
-    getRarityForArticleId
+    getRarityForArticleId,
+    aggregates
   );
 
   let changed = false;
@@ -1557,6 +1720,7 @@ export function createWikipediaGachaService({
   nowFn = () => new Date(),
   randomBytesFn = crypto.randomBytes,
   cache: cacheOverride = null,
+  createArticleCatalog = createWikipediaGachaCatalog,
 } = {}) {
   // SQLite-backed store — per-user write queues, no global serial bottleneck.
   const { db, store } = createWikipediaGachaPersistence({
@@ -1612,7 +1776,7 @@ export function createWikipediaGachaService({
     const normalizedLanguage = resolvePreferredLanguage(language);
     let catalog = articleCatalogs.get(normalizedLanguage);
     if (!catalog) {
-      catalog = createWikipediaGachaCatalog({ language: normalizedLanguage });
+      catalog = createArticleCatalog({ language: normalizedLanguage });
       articleCatalogs.set(normalizedLanguage, catalog);
     }
     return catalog;
@@ -1931,6 +2095,92 @@ export function createWikipediaGachaService({
         recentPackHistory: [],
         recentRewardEvents: [],
       };
+    }
+    // Optimized path (Postgres): build the dashboard from a state that carries
+    // the auxiliary tables + SQL collection AGGREGATES instead of the collection
+    // rows. This endpoint is read-only (never persists), so recomputing missions
+    // / trophies on this ephemeral state is safe — the next real write persists.
+    if (typeof store.readDashboardState === "function") {
+      const dashState = await store.readDashboardState(browserToken, preferredLanguage);
+      if (dashState && dashState.browserProfiles?.length) {
+        const profile = dashState.browserProfiles[0];
+        syncProfilePreferredLanguage(profile, preferredLanguage, now);
+        applyPackRegeneration(profile, now);
+        if (shouldTouchLastSeen(profile, now)) {
+          profile.lastSeenAt = isoDate(now);
+        }
+        const aggregates =
+          dashState.__collectionAggregates ??
+          computeCollectionAggregates(dashState, profile.id);
+        recomputeMissionProgress(dashState, profile, now, {
+          favoritesMarked: aggregates.favorites,
+        });
+        const optHasCollection = aggregates.uniqueCards > 0;
+        const optHasPackHistory = hasProfilePackOpenings(dashState, profile.id);
+
+        let optCollectionSummary;
+        const skipExpensive =
+          !optHasCollection && shouldSkipExpensiveTrophyRecompute(dashState, profile);
+        if (skipExpensive) {
+          optCollectionSummary = buildEmptyCollectionSummary();
+        } else {
+          const articleCatalog = getArticleCatalog(profile.preferredLanguage);
+          await articleCatalog.ready();
+          ensureTrophiesUnlocked(
+            dashState,
+            profile,
+            now,
+            articleCatalog.getTopicGroupForArticleId,
+            articleCatalog.getRarityForArticleId,
+            aggregates
+          );
+          optCollectionSummary = optHasCollection
+            ? getCollectionSummary(
+                dashState,
+                profile.id,
+                articleCatalog.getRarityForArticleId,
+                aggregates
+              )
+            : buildEmptyCollectionSummary();
+        }
+        const optMissionEntries = ensureDailyMissions(dashState, profile, now);
+        const optMissionSummary = {
+          total: optMissionEntries.length,
+          completed: optMissionEntries.filter((entry) => entry.completed).length,
+          claimable: optMissionEntries.filter(
+            (entry) => entry.completed && !entry.claimed
+          ).length,
+        };
+        const optTrophySummary = {
+          total: TROPHIES.length,
+          unlocked: dashState.browserTrophies.filter(
+            (entry) => entry.browserProfileId === profile.id
+          ).length,
+          points: profile.trophiesPoints,
+        };
+        if (!(optHasCollection || optHasPackHistory)) {
+          return {
+            browserToken: profile.browserToken,
+            profile: serializeProfile(profile),
+            packStatus: serializePackStatus(profile, now),
+            collectionSummary: optCollectionSummary ?? buildEmptyCollectionSummary(),
+            missionSummary: optMissionSummary,
+            trophySummary: optTrophySummary,
+            recentPackHistory: [],
+            recentRewardEvents: getRecentRewardEvents(dashState, profile.id),
+          };
+        }
+        const optCatalog = await ensureCatalogReady(profile.preferredLanguage);
+        return hydrateDashboard(
+          await buildDashboard(dashState, profile, now, optCatalog, {
+            collectionSummary: optCollectionSummary,
+            missionSummary: optMissionSummary,
+            trophySummary: optTrophySummary,
+          }),
+          optCatalog
+        );
+      }
+      // dashState null → fall through to the monolithic path below.
     }
     let collectionSummary = null;
     let missionSummary = null;
@@ -2378,6 +2628,38 @@ export function createWikipediaGachaService({
 
   async function toggleFavorite(browserToken, articleId, favorite, preferredLanguage = null) {
     const now = nowFn();
+    // Optimized path (Postgres): a single targeted UPDATE + COUNT, never loading
+    // the collection into RAM. Mission progress for the "mark favorites" mission
+    // is NOT recomputed here — it is refreshed on the next getSessionMe (which
+    // now recomputes from the SQL favorites count) and persisted by the next real
+    // write, matching the existing ephemeral-recompute pattern.
+    if (typeof store.toggleFavoriteDirect === "function") {
+      const direct = await store.toggleFavoriteDirect(
+        browserToken,
+        articleId,
+        favorite,
+        preferredLanguage
+      );
+      if (!direct) {
+        const error = new Error("Browser profile not found.");
+        error.statusCode = 401;
+        error.code = "invalid_browser_token";
+        throw error;
+      }
+      if (!direct.item) {
+        const error = new Error("Collection card not found.");
+        error.statusCode = 404;
+        error.code = "collection_item_not_found";
+        throw error;
+      }
+      const articleCatalog = await ensureCatalogReady(
+        preferredLanguage ?? direct.preferredLanguage
+      );
+      return {
+        browserToken: direct.browserToken,
+        ...(await hydrateCardLike(direct.item, articleCatalog)),
+      };
+    }
     const state = await store.forToken(browserToken).update((draft) => {
       const profile = ensureProfile(draft, browserToken);
       syncProfilePreferredLanguage(profile, preferredLanguage, now);
@@ -2417,6 +2699,42 @@ export function createWikipediaGachaService({
   }
 
   async function getArticle(articleId, browserToken = null, preferredLanguage = null) {
+    // Optimized path (Postgres): resolve a collected card via a single targeted
+    // SELECT joined to the persisted `articles` table — no full-collection load,
+    // and it survives pool eviction / server restart natively (the article body
+    // lives in `articles`, not only the volatile in-memory pool).
+    if (browserToken && typeof store.readCollectionItem === "function") {
+      const direct = await store.readCollectionItem(
+        browserToken,
+        articleId,
+        preferredLanguage
+      );
+      if (!direct) {
+        const error = new Error("Browser profile not found.");
+        error.statusCode = 401;
+        error.code = "invalid_browser_token";
+        throw error;
+      }
+      const catalog = await ensureCatalogReady(
+        preferredLanguage ?? direct.preferredLanguage
+      );
+      if (direct.item) {
+        return hydrateCardLike({ ...direct.item, inCollection: true }, catalog);
+      }
+      // Not in the collection: serve a preview from the live pool, else 404.
+      const poolArticle = await catalog.getArticleById(articleId);
+      if (!poolArticle) {
+        const error = new Error("Article not found.");
+        error.statusCode = 404;
+        error.code = "article_not_found";
+        throw error;
+      }
+      return hydrateCardLike(
+        { ...clone(poolArticle), inCollection: false, copies: 0, favorite: false },
+        catalog
+      );
+    }
+
     let articleCatalog = await ensureCatalogReady(preferredLanguage);
     let profile = null;
 
@@ -2442,14 +2760,15 @@ export function createWikipediaGachaService({
     }
 
     const article = await articleCatalog.getArticleById(articleId);
-    if (!article) {
-      const error = new Error("Article not found.");
-      error.statusCode = 404;
-      error.code = "article_not_found";
-      throw error;
-    }
 
+    // Without a session we can only serve from the live pool.
     if (!browserToken) {
+      if (!article) {
+        const error = new Error("Article not found.");
+        error.statusCode = 404;
+        error.code = "article_not_found";
+        throw error;
+      }
       return hydrateCardLike(clone(article), articleCatalog);
     }
 
@@ -2461,8 +2780,28 @@ export function createWikipediaGachaService({
         )
       : null;
 
+    // Resolve the article body. The in-memory Wikipedia pool is volatile — it is
+    // regenerated with different random articles on every server restart and
+    // evicts the oldest entries from busy rarity buckets — so an owned card's
+    // articleId is frequently absent from it. Fall back to the persisted
+    // pack-opening snapshot (and finally the collection entry) so opening a
+    // collected card never surfaces "Article not found".
+    let baseArticle = article
+      ? clone(article)
+      : findCollectedArticleSnapshot(state, profile?.id, articleId);
+
+    if (!baseArticle) {
+      if (!collectionEntry) {
+        const error = new Error("Article not found.");
+        error.statusCode = 404;
+        error.code = "article_not_found";
+        throw error;
+      }
+      baseArticle = buildPlaceholderArticleFromEntry(collectionEntry, articleId);
+    }
+
     return hydrateCardLike({
-      ...clone(article),
+      ...baseArticle,
       inCollection: Boolean(collectionEntry),
       copies: collectionEntry?.copies ?? 0,
       favorite: collectionEntry?.favorite ?? false,

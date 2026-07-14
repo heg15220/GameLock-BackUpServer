@@ -32,6 +32,12 @@ const PIECE_LABEL = {
   [PIECES.KNIGHT]: "C",
   [PIECES.PAWN]: "P"
 };
+const PROMOTION_LABEL = {
+  [PIECES.QUEEN]: "Dama",
+  [PIECES.ROOK]: "Torre",
+  [PIECES.BISHOP]: "Alfil",
+  [PIECES.KNIGHT]: "Caballo"
+};
 const PIECE_GLYPH = {
   [WHITE]: {
     [PIECES.KING]: "♚",
@@ -768,27 +774,45 @@ function ChessGame() {
             </div>
           </div>
         ) : null}
-      </div>
 
-      {pendingPromotion ? (
-        <div className="chess-promotion-overlay" role="dialog" aria-label="Elegir promocion">
-          <p>Elige pieza de promocion</p>
-          <div className="chess-promotion-options">
-            {[PIECES.QUEEN, PIECES.ROOK, PIECES.BISHOP, PIECES.KNIGHT].map((pieceType) => (
-              <button
-                key={pieceType}
-                type="button"
-                onClick={() => choosePromotion(pieceType)}
-              >
-                {PIECE_GLYPH[playerColor]?.[pieceType] || PIECE_LABEL[pieceType]}
+        {/* Vive dentro del tablero: el shell movil aisla la rama del escenario y
+            oculta a sus hermanos, asi que un dialogo fuera de aqui seria invisible
+            y dejaria la partida bloqueada esperando una eleccion imposible. */}
+        {pendingPromotion ? (
+          <div
+            className="chess-promotion-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Elegir promocion"
+            data-mobile-stage-overlay="true"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setPendingPromotion(null);
+              }
+            }}
+          >
+            <div className="chess-promotion-card">
+              <p>Elige pieza de promocion</p>
+              <div className="chess-promotion-options">
+                {[PIECES.QUEEN, PIECES.ROOK, PIECES.BISHOP, PIECES.KNIGHT].map((pieceType) => (
+                  <button
+                    key={pieceType}
+                    type="button"
+                    onClick={() => choosePromotion(pieceType)}
+                    aria-label={PROMOTION_LABEL[pieceType]}
+                    title={PROMOTION_LABEL[pieceType]}
+                  >
+                    {PIECE_GLYPH[playerColor]?.[pieceType] || PIECE_LABEL[pieceType]}
+                  </button>
+                ))}
+              </div>
+              <button type="button" className="cancel" onClick={() => setPendingPromotion(null)}>
+                Cancelar
               </button>
-            ))}
+            </div>
           </div>
-          <button type="button" className="cancel" onClick={() => setPendingPromotion(null)}>
-            Cancelar
-          </button>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       <div className="chess-footer-actions">
         <button type="button" onClick={claimDrawIfAvailable} disabled={!drawClaimAvailable || aiThinking}>

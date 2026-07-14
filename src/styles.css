@@ -14911,11 +14911,24 @@ body {
 }
 
 .chess-promotion-overlay {
-  margin-top: 0.64rem;
+  position: absolute;
+  inset: 0.58rem;
+  z-index: 9;
+  display: grid;
+  place-items: center;
+  padding: 0.6rem;
+  border-radius: 10px;
+  background: rgba(26, 19, 13, 0.62);
+  animation: chess-end-fade-in 220ms ease forwards;
+}
+
+.chess-promotion-card {
+  width: min(320px, 100%);
   border: 1px solid rgba(98, 74, 44, 0.45);
   border-radius: 11px;
-  background: rgba(255, 248, 234, 0.96);
-  padding: 0.56rem 0.64rem;
+  background: rgba(255, 248, 234, 0.98);
+  box-shadow: 0 14px 34px rgba(20, 14, 8, 0.42);
+  padding: 0.66rem 0.72rem;
   display: grid;
   gap: 0.46rem;
 }
