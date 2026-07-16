@@ -151,6 +151,10 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
     "launch-game-area",
     hasDesktopAdRails ? "launch-game-area--with-ads" : "",
     hasTabletLandscapeAdRails ? "launch-game-area--with-tablet-ads" : "",
+    // The rails reserve their space whether or not ads are live, so the layout
+    // never jumps when monetisation is switched on. A game that would rather
+    // use that space until there is something to put in it can key off this.
+    adPreviewEnabled ? "launch-game-area--ads-live" : "",
     useMobileGameShell ? "launch-game-area--mobile-shell" : "",
     useMobileGameShell ? `launch-game-area--device-${viewportFormFactor}` : "",
   ]

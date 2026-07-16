@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none">
+  <defs>
+    <radialGradient id="sg-spot" cx="50%" cy="34%" r="62%">
+      <stop offset="0%" stop-color="#ffd68f" stop-opacity="0.24"/>
+      <stop offset="55%" stop-color="#ffd08a" stop-opacity="0.09"/>
+      <stop offset="100%" stop-color="#ffd08a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sg-felt" cx="50%" cy="72%" r="78%">
+      <stop offset="0%" stop-color="#176349"/>
+      <stop offset="60%" stop-color="#0b3b2c"/>
+      <stop offset="100%" stop-color="#062017"/>
+    </radialGradient>
+    <linearGradient id="sg-cup" x1="0%" y1="0%" x2="100%" y2="60%">
+      <stop offset="0%" stop-color="#f0714f"/>
+      <stop offset="34%" stop-color="#c8402f"/>
+      <stop offset="100%" stop-color="#6d1d15"/>
+    </linearGradient>
+    <linearGradient id="sg-cup-lift" x1="0%" y1="0%" x2="100%" y2="60%">
+      <stop offset="0%" stop-color="#f88a67"/>
+      <stop offset="34%" stop-color="#d64a37"/>
+      <stop offset="100%" stop-color="#7d2419"/>
+    </linearGradient>
+    <radialGradient id="sg-ball" cx="36%" cy="34%" r="72%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="45%" stop-color="#fbf6e9"/>
+      <stop offset="100%" stop-color="#c9b48c"/>
+    </radialGradient>
+    <linearGradient id="sg-rail" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6b432a"/>
+      <stop offset="100%" stop-color="#3b2415"/>
+    </linearGradient>
+    <radialGradient id="sg-vig" cx="50%" cy="55%" r="76%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Backdrop and the lamp's pool of light -->
+  <rect width="200" height="140" fill="#070d18"/>
+  <rect width="200" height="140" fill="url(#sg-spot)"/>
+
+  <!-- Felt -->
+  <rect x="0" y="60" width="200" height="70" fill="url(#sg-felt)"/>
+  <!-- Front rail -->
+  <rect x="0" y="130" width="200" height="10" fill="url(#sg-rail)"/>
+  <rect x="0" y="130" width="200" height="1" fill="#000000" opacity="0.35"/>
+
+  <!-- Cast shadows on the felt -->
+  <ellipse cx="46" cy="112" rx="21" ry="6" fill="#020c08" opacity="0.45"/>
+  <ellipse cx="100" cy="112" rx="21" ry="6" fill="#020c08" opacity="0.45"/>
+  <ellipse cx="154" cy="105" rx="24" ry="6" fill="#020c08" opacity="0.28"/>
+
+  <!-- Left cup, down -->
+  <path d="M31 112 C31.5 100 36 90 40 84 A9 3 0 0 1 58 84 C62 90 66.5 100 67 112 A18 5.4 0 0 1 31 112 Z" fill="url(#sg-cup)"/>
+  <path d="M36 106 C36 96 39 89 41.5 85 L45 86 C42.5 91 40 98 40 107 Z" fill="#ffffff" opacity="0.30"/>
+  <ellipse cx="49" cy="105" rx="17.5" ry="5.2" fill="none" stroke="#ffe2cd" stroke-width="0.7" opacity="0.45"/>
+  <ellipse cx="49" cy="112" rx="18" ry="5.4" fill="#030e0a" opacity="0.30"/>
+
+  <!-- Centre cup, down -->
+  <path d="M82 112 C82.5 100 87 90 91 84 A9 3 0 0 1 109 84 C113 90 117.5 100 118 112 A18 5.4 0 0 1 82 112 Z" fill="url(#sg-cup)"/>
+  <path d="M87 106 C87 96 90 89 92.5 85 L96 86 C93.5 91 91 98 91 107 Z" fill="#ffffff" opacity="0.30"/>
+  <ellipse cx="100" cy="105" rx="17.5" ry="5.2" fill="none" stroke="#ffe2cd" stroke-width="0.7" opacity="0.45"/>
+  <ellipse cx="100" cy="112" rx="18" ry="5.4" fill="#030e0a" opacity="0.30"/>
+
+  <!-- Right cup, raised: the reveal, with the ball beneath it -->
+  <ellipse cx="154" cy="112" rx="6" ry="2" fill="#020c08" opacity="0.5"/>
+  <circle cx="154" cy="107" r="5" fill="url(#sg-ball)"/>
+  <path d="M136 100 C136.5 88 141 78 145 72 A9 3 0 0 1 163 72 C167 78 171.5 88 172 100 A18 5.4 0 0 1 136 100 Z" fill="url(#sg-cup-lift)"/>
+  <path d="M141 94 C141 84 144 77 146.5 73 L150 74 C147.5 79 145 86 145 95 Z" fill="#ffffff" opacity="0.32"/>
+  <ellipse cx="154" cy="93" rx="17.5" ry="5.2" fill="none" stroke="#ffe2cd" stroke-width="0.7" opacity="0.45"/>
+  <ellipse cx="154" cy="100" rx="18" ry="5.4" fill="#06120e" opacity="0.85"/>
+
+  <!-- Motion arc: a cup crossing -->
+  <path d="M49 78 C70 60 90 60 100 78" stroke="#ffd166" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.55" fill="none"/>
+  <path d="M96 74 L100 78 L94.5 79.5 Z" fill="#ffd166" opacity="0.75"/>
+
+  <rect width="200" height="140" fill="url(#sg-vig)"/>
+</svg>

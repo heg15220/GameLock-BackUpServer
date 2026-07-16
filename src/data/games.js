@@ -20,6 +20,8 @@ import arcadeDigHoleTreasureImage from "../assets/games/arcade-dig-hole-treasure
 import arcadeValleTranquiloImage from "../assets/games/arcade-valle-tranquilo-catalog.png";
 import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-showdown.svg";
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
+import sportsPingPongArenaImage from "../assets/games/sports-ping-pong-arena.svg";
+import arcadeShellGameImage from "../assets/games/arcade-shell-game.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
 import arcadeTerritoryWarImage from "../assets/games/arcade-territory-war.svg";
@@ -3312,6 +3314,116 @@ export const games = [
     viability_en: "High: deterministic Canvas engine, exact ballistic physics, and serialisable state.",
     visualStyle_en: "NBA/FIBA training gymnasium with hardwood floor, overhead lighting, and regulation basket in custom 3D perspective.",
     techFocus_en: "Custom 3D perspective projection, ballistic physics with sub-stepping, spherical rim + backboard collision, and real-time trajectory preview.",
+  },
+
+  {
+    id: "sports-ping-pong-arena",
+    image: sportsPingPongArenaImage,
+    sessionTime: "4-10 min",
+
+    title: "Ping Pong Arena",
+    category: "Deportes",
+    tagline: "Tenis de mesa en primera persona: la pala es tu dedo.",
+    description:
+      "Tenis de mesa en perspectiva de primera persona, renderizado en pseudo-3D sobre Canvas 2D. La pala se controla con el dedo (movil y tablet) o el raton (escritorio) y se mueve por la mesa como si fuera tu mano: no apuntas, empujas. Lanzarla hacia delante golpea o saca, y la velocidad con que la lanzas define la potencia y la trayectoria (cuanto mas fuerte, mas raso; suave, mas bombeado); cruzarla en diagonal abre la bola. La CPU lee el vuelo de la bola y se desliza hasta el punto de corte con un movimiento suave y continuo.",
+    objective_es:
+      "Ganar el partido al mejor de 1, 3 o 5 sets. Cada set se juega a 11 puntos con diferencia de 2.",
+    howToPlay_es:
+      "Mueve la pala con el dedo o el raton: es tu mano en la mesa. Empujala hacia delante para golpear y para sacar; cuanto mas rapido la lances, mas potente y raso sale el golpe. Teclado: flechas mueven la pala, Espacio saca. P pausa, R reinicia y F pantalla completa.",
+    highlights: [
+      "Vista en primera persona pseudo-3D con proyeccion en perspectiva propia sobre Canvas 2D.",
+      "Touch stage: la pala es el dedo en movil y tablet, y el raton en escritorio.",
+      "La pala es tu mano: se mueve por el plano de la mesa y golpear es empujarla hacia delante, no pulsar un boton.",
+      "Golpe acoplado al gesto: la velocidad del empuje fija la potencia (60-90) y de ella sale el angulo de salida, asi que pegar fuerte sale raso y suave sale bombeado.",
+      "Bola de vuelo parabolico que se relanza en cada bote desde el punto de contacto, con rebote vivo sobre la mesa y muerto en el suelo.",
+      "Colision continua con la red para que una bola rapida no la atraviese.",
+      "IA rival que lee la deriva de la bola y se desliza al punto de corte con una interpolacion suavizada, en 3 niveles (Facil/Medio/Dificil).",
+      "Formato de partido al mejor de 1, 3 o 5 sets a 11 con diferencia de 2 y rotacion de saque reglamentaria.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo vs IA",
+    viability: "Alta: motor Canvas determinista, fisica pura testeada y estado serializable.",
+    visualStyle: "Pabellon con mesa azul reglamentaria, red de rejilla, bola amarilla y pala roja sobre gradas oscuras, en perspectiva de primera persona.",
+    techFocus: "Proyeccion perspectiva 3D custom, vuelo parabolico relanzado en cada bote, colision continua de red, IA por extrapolacion lineal con glide suavizado y reglas de tenis de mesa.",
+
+    title_en: "Table Tennis Arena",
+    category_en: "Sports",
+    tagline_en: "First-person table tennis: your finger is the paddle.",
+    description_en:
+      "First-person table tennis rendered in pseudo-3D on a 2D canvas. The bat is controlled with your finger (mobile and tablet) or the mouse (desktop) and moves across the table like your own hand: you do not aim, you push. Driving it forward hits the ball or serves it, and how fast you drive it sets both the power and the trajectory — hard comes out flat, gentle loops — while cutting across it sends the ball wide. The CPU reads the ball's drift and glides to the interception point in one smooth, continuous move.",
+    objective_en:
+      "Win the match, best of 1, 3, or 5 sets. Each set is played to 11 points, win by 2.",
+    howToPlay_en:
+      "Move the bat with your finger or mouse — it is your hand on the table. Push it forward to hit and to serve; the harder you drive it, the faster and flatter the shot. Keyboard: arrows move the bat, Space serves. P pauses, R restarts, and F toggles fullscreen.",
+    highlights_en: [
+      "First-person pseudo-3D view with a custom perspective projection on a 2D canvas.",
+      "Touch stage: the bat is your finger on mobile and tablet, and the mouse on desktop.",
+      "The bat is your hand: it moves across the table's plane and hitting means driving it forward, not pressing a button.",
+      "Swing-coupled shots: the speed of the drive sets the power (60-90) and the launch angle falls out of it, so hitting hard comes out flat and easing through it loops.",
+      "Parabolic ball flight re-launched from the contact point on every bounce, lively off the table and dead on the floor.",
+      "Continuous net collision so a fast ball never tunnels through the net.",
+      "Rival AI that reads the ball's drift and glides to the interception point on an eased tween, across three levels (Easy/Medium/Hard).",
+      "Match format best of 1, 3, or 5 sets to 11, win by 2, with regulation serve rotation.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo vs AI",
+    viability_en: "High: deterministic Canvas engine, pure tested physics, and serialisable state.",
+    visualStyle_en: "Arena with a regulation blue table, mesh net, yellow ball, and red paddle over dark stands, in first-person perspective.",
+    techFocus_en: "Custom 3D perspective projection, parabolic flight re-launched at every bounce, continuous net collision, AI by linear extrapolation with an eased glide, and table-tennis rules.",
+  },
+
+  {
+    id: "arcade-shell-game",
+    image: arcadeShellGameImage,
+    sessionTime: "3-8 min",
+
+    title: "Trilero",
+    title_en: "Shell Game",
+    category: "Arcade",
+    tagline: "Sigue la bola. Solo tienes que no perderla de vista.",
+    description:
+      "El juego de los vasos, sin trampa. Se levanta un vaso, se te ensena la bola debajo y empieza la mezcla: los vasos cruzan, se deslizan y rotan, y tu tienes que senalar donde acabo la bola. La bola va siempre debajo de su vaso, asi que quien sigue el vaso correcto acierta el 100% de las veces: la dificultad sale de la velocidad y del cruce, nunca de mentir. Cada acierto sube el nivel y la mezcla se endurece por fases (mas rapida, mas cruces, de 3 a 5 vasos y movimientos nuevos); tres fallos y se acaba.",
+    objective_es:
+      "Encadenar la racha mas larga posible acertando el vaso que esconde la bola. Tres fallos terminan la partida.",
+    howToPlay_es:
+      "Toca o haz clic en el vaso que crees que esconde la bola. Teclas 1-5 eligen vaso. P pausa, R reinicia y F pantalla completa.",
+    highlights: [
+      "Juego limpio y verificable: la bola va siempre bajo su vaso, y quien lo sigue con la vista acierta siempre.",
+      "La mezcla se genera entera por adelantado como datos puros y el motor solo la reproduce, asi que una ronda es determinista y reproducible con su semilla.",
+      "Curva por fases: cada tramo introduce un movimiento nuevo (deslizamiento, cruce en diagonal, rotacion de tres y dobles simultaneos) y consolida los anteriores.",
+      "De 3 vasos para empezar a 5 en los niveles altos, con la probabilidad a ciegas cayendo del 33% al 20%.",
+      "Cruces con profundidad real: en cada intercambio un vaso pasa por delante y otro por detras, con escala, sombra y orden de pintado acoplados.",
+      "Vasos, bola, fieltro y foco dibujados por procedimiento sobre Canvas: sin bitmaps que cargar ni escalar.",
+      "Racha, vidas y puntuacion escalada por nivel y numero de vasos, con mejor racha persistida.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Un jugador",
+    viability: "Alta: coreografia pura y testeada, motor Canvas determinista y estado serializable.",
+    visualStyle: "Mesa de fieltro verde bajo un foco calido, vasos de plastico bermellon con brillo especular y bola de marfil, sobre fondo azul noche.",
+    techFocus: "Coreografia generada como datos puros con invariantes testables (la bola acaba donde el juego dice, y dos cruces simultaneos nunca comparten vaso), render procedural con profundidad y orden de pintor.",
+
+    category_en: "Arcade",
+    tagline_en: "Follow the ball. All you have to do is not lose it.",
+    description_en:
+      "The cups game, played straight. A cup lifts, you are shown the ball underneath, and the shuffle begins: cups cross, slide and rotate, and you point to where the ball ended up. The ball always rides under its own cup, so following the right cup wins 100% of the time — the difficulty comes from speed and crossing, never from lying to you. Every hit climbs a level and tightens the shuffle in phases (faster, more crosses, three to five cups, new moves); three misses and you are out.",
+    objective_en:
+      "Build the longest streak you can by picking the cup hiding the ball. Three misses end the game.",
+    howToPlay_en:
+      "Tap or click the cup you think hides the ball. Keys 1-5 pick a cup. P pauses, R restarts, and F toggles fullscreen.",
+    highlights_en: [
+      "Provably fair: the ball always rides under its own cup, so anyone who tracks it with their eyes is never wrong.",
+      "The shuffle is generated up front as pure data and merely played back, making a round deterministic and replayable from its seed.",
+      "Phased curve: each band introduces one new move (slide, diagonal cross, three-cup rotation, simultaneous doubles) and consolidates the last.",
+      "Three cups to start and five at the top, with blind odds falling from 33% to 20%.",
+      "Crosses with real depth: on every exchange one cup passes in front and the other behind, with scale, shadow and paint order moving together.",
+      "Cups, ball, felt and spotlight drawn procedurally on Canvas — no bitmaps to load or scale.",
+      "Streak, lives and scoring scaled by level and cup count, with a persisted best streak.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Single player",
+    viability_en: "High: pure tested choreography, deterministic Canvas engine, and serialisable state.",
+    visualStyle_en: "Green felt table under a warm spotlight, vermilion plastic cups with specular highlights and an ivory ball, over a night-blue backdrop.",
+    techFocus_en: "Choreography generated as pure data with testable invariants (the ball ends where the game says, and simultaneous crosses never share a cup), plus procedural rendering with depth and painter's ordering.",
   },
 
   {

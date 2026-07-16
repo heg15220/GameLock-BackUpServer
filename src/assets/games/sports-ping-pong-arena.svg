@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none">
+  <!-- Arena background -->
+  <rect width="200" height="140" fill="#0b1526"/>
+  <rect y="0" width="200" height="52" fill="#0e1a2c"/>
+  <!-- Crowd dots -->
+  <g fill="rgba(120,150,190,0.30)">
+    <circle cx="30" cy="20" r="2"/><circle cx="46" cy="18" r="2"/><circle cx="62" cy="21" r="2"/>
+    <circle cx="80" cy="18" r="2"/><circle cx="98" cy="20" r="2"/><circle cx="116" cy="18" r="2"/>
+    <circle cx="134" cy="21" r="2"/><circle cx="152" cy="18" r="2"/><circle cx="170" cy="20" r="2"/>
+    <circle cx="38" cy="30" r="2"/><circle cx="56" cy="32" r="2"/><circle cx="74" cy="30" r="2"/>
+    <circle cx="92" cy="32" r="2"/><circle cx="110" cy="30" r="2"/><circle cx="128" cy="32" r="2"/>
+    <circle cx="146" cy="30" r="2"/><circle cx="164" cy="32" r="2"/>
+  </g>
+  <!-- Overhead spotlight glow -->
+  <ellipse cx="100" cy="10" rx="120" ry="60" fill="rgba(120,170,255,0.10)"/>
+  <!-- Floor -->
+  <rect x="0" y="52" width="200" height="88" fill="#101f34"/>
+  <!-- Table (first-person perspective trapezoid, narrows to the back) -->
+  <polygon points="30,126 170,126 130,58 70,58" fill="#284088"/>
+  <polygon points="36,124 164,124 128,60 72,60" fill="#24529b"/>
+  <!-- Table thickness -->
+  <polygon points="30,126 170,126 170,131 30,131" fill="#0d1f45"/>
+  <!-- White boundary lines -->
+  <polygon points="30,126 36,124 72,60 70,58" fill="#eef2ff"/>
+  <polygon points="170,126 164,124 128,60 130,58" fill="#eef2ff"/>
+  <polygon points="70,58 130,58 130,60 70,60" fill="#eef2ff"/>
+  <!-- Centre line -->
+  <polygon points="99,124 101,124 100.5,60 99.5,60" fill="rgba(238,242,255,0.7)"/>
+  <!-- Net -->
+  <polygon points="52,92 148,92 143,84 57,84" fill="rgba(226,236,255,0.18)" stroke="#f4f7ff" stroke-width="1"/>
+  <g stroke="rgba(226,236,255,0.55)" stroke-width="0.5">
+    <line x1="62" y1="85" x2="61" y2="91"/><line x1="74" y1="85" x2="73" y2="91"/>
+    <line x1="86" y1="85" x2="86" y2="91"/><line x1="100" y1="84.5" x2="100" y2="91.5"/>
+    <line x1="114" y1="85" x2="114" y2="91"/><line x1="126" y1="85" x2="127" y2="91"/>
+    <line x1="138" y1="85" x2="139" y2="91"/>
+  </g>
+  <!-- Ball -->
+  <circle cx="118" cy="78" r="5" fill="#ffd740" stroke="#ffc400" stroke-width="1"/>
+  <circle cx="116.4" cy="76.4" r="1.6" fill="#fff3b0"/>
+  <!-- Foreground paddle (red blade, orange handle) -->
+  <g transform="rotate(-18 46 108)">
+    <rect x="42" y="112" width="8" height="24" rx="3" fill="#e6a23c"/>
+    <ellipse cx="46" cy="104" rx="18" ry="20" fill="#c0182a" stroke="#0c0e12" stroke-width="1.5"/>
+    <ellipse cx="40" cy="98" rx="7" ry="8" fill="rgba(255,255,255,0.12)"/>
+  </g>
+</svg>

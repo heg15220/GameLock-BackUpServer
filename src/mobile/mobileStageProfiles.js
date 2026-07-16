@@ -29,6 +29,8 @@ const GAME_STAGE_SELECTORS = {
     ".head-soccer-pro-stage",
   ],
   "sports-basketball-court": [".basketball-court-stage"],
+  "sports-ping-pong-arena": [".ping-pong-arena-stage"],
+  "arcade-shell-game": [".shell-game-stage"],
   "arcade-golf-tour-2d": [
     ".golf-tour-canvas-shell",
     ".golf-tour-stage-wrap",

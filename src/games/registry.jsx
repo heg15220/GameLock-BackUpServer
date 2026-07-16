@@ -58,6 +58,8 @@ const ArcheryHorizonGame = lazy(() => import("./arcade/archery-horizon"));
 const PinballWizardGame = lazy(() => import("./arcade/pinball-wizard"));
 const BubbleStormGame = lazy(() => import("./arcade/bubble-storm"));
 const BasketballCourtGame = lazy(() => import("./arcade/basketball-court"));
+const PingPongArenaGame = lazy(() => import("./arcade/ping-pong-arena"));
+const ShellGameGame = lazy(() => import("./arcade/shell-game"));
 const IceStrikeProGame = lazy(() => import("./arcade/ice-strike-pro"));
 const StickBrawlShowdownGame = lazy(() => import("./arcade/stick-brawl-showdown"));
 const NeonCryptGame = lazy(() => import("./arcade/neon-crypt"));
@@ -160,6 +162,8 @@ export const GAME_REGISTRY = {
   "arcade-summit-ascent":        SummitAscentGame,
   "arcade-valle-tranquilo":      ValleTranquiloGame,
   "sports-basketball-court":     BasketballCourtGame,
+  "sports-ping-pong-arena":      PingPongArenaGame,
+  "arcade-shell-game":           ShellGameGame,
   "arcade-pong-neon-arena":      PongGame,
   "arcade-buscaminas-classic":   MinesweeperGame,
   "arcade-retro-snake-classic":  ArcadeSnakeClassicGame,
@@ -242,6 +246,8 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-valle-tranquilo":      "Sandbox de granja pixel-art: WASD/flechas mueven, 1-9 cambian herramienta, Espacio usa herramienta, E habla con NPC, B tienda, Z dormir y M mina. Click tambien interactua por casilla.",
     "arcade-stick-brawl-showdown": "Fighter arcade avanzado: A/D o flechas mover, W/arriba saltar, S/abajo bloquear, G/espacio jab, H/enter cross, J/K patadas, F proyectil, B super, P pausa y R reinicia.",
     "sports-basketball-court":     "Baloncesto 6 posiciones: arriba/abajo ajustan arco, izq/der la desviación lateral y W/S la potencia. Space o Enter lanza. P pausa, R nueva ronda y F pantalla completa.",
+    "sports-ping-pong-arena":      "Tenis de mesa en primera persona: la pala es tu dedo o el ratón y se mueve por la mesa como tu mano. Empújala hacia delante para golpear o sacar; cuanto más rápido la lances, más potente y raso sale el golpe, y cruzarla en diagonal abre la bola. Teclado: flechas mueven, Espacio saca. En el menú elige dificultad y formato. P pausa, R reinicia y F pantalla completa.",
+    "arcade-shell-game":           "Toca o haz clic en el vaso que esconde la bola. La bola va siempre debajo de su vaso: si no lo pierdes de vista, aciertas. Cada acierto sube el nivel y la mezcla se endurece (más rápida, más cruces y hasta 5 vasos); tres fallos y se acaba. Teclas 1-5 eligen vaso, P pausa, R reinicia y F pantalla completa.",
     "arcade-pacman-maze-protocol": "WASD/flechas mover, Enter/Espacio empezar, P/Esc pausa, R reinicia, M sonido.",
     "arcade-pong-neon-arena":      "W/S o flechas arriba/abajo para mover vertical. A/D o flechas izq/der para avanzar o retroceder (sin cruzar el centro). Ratón también controla vertical. Enter/Espacio empezar, P pausa, R reinicia, M sonido, F pantalla completa.",
     "arcade-buscaminas-classic":   "Click izq abre, click der o pulsación larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA y R reinicia. En competitivo puntúan celdas y tiempo.",
@@ -318,6 +324,8 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-valle-tranquilo":      "Pixel-art farming sandbox: WASD/arrows move, 1-9 swaps tools, Space uses the current tool, E talks to villagers, B opens the shop, Z sleeps, and M enters the mine. Mouse click also interacts per tile.",
     "arcade-stick-brawl-showdown": "Advanced arcade fighter: A/D or arrows move, W/up jump, S/down block, G/space jab, H/enter cross, J/K kicks, F projectile, B super, P pause, R restart.",
     "sports-basketball-court":     "Basketball 6 positions: up/down tune arc, left/right lateral aim, W/S power. Space or Enter shoots. P pauses, R starts a new round, and F toggles fullscreen.",
+    "sports-ping-pong-arena":      "First-person table tennis: the bat is your finger or the mouse and moves across the table like your hand. Push it forward to hit or serve; the harder you drive it, the faster and flatter the shot, and cutting across it sends the ball wide. Keyboard: arrows move, Space serves. Pick difficulty and format in the menu. P pauses, R restarts, and F toggles fullscreen.",
+    "arcade-shell-game":           "Tap or click the cup hiding the ball. The ball always rides under its own cup: keep your eye on it and you cannot be wrong. Every hit climbs a level and tightens the shuffle (faster, more crosses, up to 5 cups); three misses and you are out. Keys 1-5 pick a cup, P pauses, R restarts, and F toggles fullscreen.",
     "arcade-pacman-maze-protocol": "WASD/arrows move, Enter/Space start, P/Esc pause, R restart, M sound.",
     "arcade-pong-neon-arena":      "W/S or up/down arrows for vertical. A/D or left/right arrows to advance or retreat (cannot cross centre line). Mouse also controls vertical. Enter/Space start, P pause, R restart, M sound, F fullscreen.",
     "arcade-buscaminas-classic":   "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells and time.",

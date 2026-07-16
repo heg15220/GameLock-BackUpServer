@@ -1,6 +1,10 @@
 import { getMobileShellMode } from "../utils/mobileShellProfile";
 
 const DIRECT_TOUCH_GAME_IDS = new Set([
+  "sports-ping-pong-arena",
+  // The cups are the buttons: you point at the one you mean, so a virtual pad
+  // would only get between the finger and the table.
+  "arcade-shell-game",
   "arcade-orchard-match-blast",
   "arcade-reactor-toss",
   "arcade-golf-tour-2d",
@@ -608,6 +612,30 @@ export function getMobileControlProfile(game, locale = "es") {
           control("shoot", t(locale, "Lanza", "Shoot"), {
             type: "tap",
             tone: "primary",
+            inputs: [input("Enter", "Enter")],
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
+    case "sports-ping-pong-arena":
+      return {
+        layout: "split",
+        heading: t(locale, "Ping pong", "Ping pong"),
+        hint: t(
+          locale,
+          "La pala es tu dedo: muévela sobre el escenario y desliza rápido al golpear. Desliza hacia delante para sacar.",
+          "The paddle is your finger: move it on the stage and flick as you hit. Flick forward to serve.",
+        ),
+        leftPad: [],
+        rightPad: [
+          control("serve", t(locale, "Saca", "Serve"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Space", " ")],
+          }),
+          control("start", "Start", {
+            type: "tap",
+            tone: "accent",
             inputs: [input("Enter", "Enter")],
           }),
         ],

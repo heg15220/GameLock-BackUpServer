@@ -48,6 +48,7 @@ const ArcheryHorizonGame = lazy(() => import("../games/arcade/archery-horizon"))
 const PinballWizardGame = lazy(() => import("../games/arcade/pinball-wizard"));
 const BubbleStormGame = lazy(() => import("../games/arcade/bubble-storm"));
 const BasketballCourtGame = lazy(() => import("../games/arcade/basketball-court"));
+const PingPongArenaGame = lazy(() => import("../games/arcade/ping-pong-arena"));
 const IceStrikeProGame = lazy(() => import("../games/arcade/ice-strike-pro"));
 const StickBrawlShowdownGame = lazy(() => import("../games/arcade/stick-brawl-showdown"));
 const DigHoleTreasureGame = lazy(() => import("../games/arcade/dig-hole-treasure"));
@@ -122,6 +123,7 @@ const GAME_COMPONENTS = {
   "arcade-summit-ascent": SummitAscentGame,
   "arcade-valle-tranquilo": ValleTranquiloGame,
   "sports-basketball-court":   BasketballCourtGame,
+  "sports-ping-pong-arena":    PingPongArenaGame,
   "arcade-buscaminas-classic": MinesweeperGame,
   "racing-race2dpro": RaceGame2DPro,
   "racing-sunset-slipstream": SunsetSlipstream,
@@ -179,6 +181,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-summit-ascent": "Escalada vertical 2D: ↑/W escala, ↓/S baja, ←→/A D mueve lateral, J esquiva escombros, Espacio planta anclaje con piolet, Q bebe agua (+12 stamina), E entra/sale de cueva. Elige montaña entre 3 prototipos.",
     "arcade-valle-tranquilo": "Sandbox de granja pixel-art: WASD/flechas mueven, 1-9 cambian herramienta, Espacio usa la herramienta activa, E habla con vecinos, B abre tienda, Z duerme y M entra a la mina.",
     "sports-basketball-court": "Baloncesto 6 posiciones: arriba/abajo ajustan arco, izq/der desviacion lateral, W/S potencia, Space/Enter lanza. P pausa, R nueva ronda y F pantalla completa.",
+    "sports-ping-pong-arena": "Tenis de mesa en primera persona: la pala es tu dedo o el raton. Mueve la pala para interceptar y desliza rapido al golpear para dar potencia y direccion; hacia arriba liftado, hacia abajo cortado. Desliza hacia delante o Espacio para sacar. Teclado: flechas mueven, W liftado / S cortado. En el menu elige dificultad y formato. P pausa, R reinicia y F pantalla completa.",
     "arcade-pacman-maze-protocol": "WASD o flechas para guiar la sonda, Enter/Espacio activa el relé, P/Esc pausa, R reinicia, M sonido y G debug.",
     "arcade-buscaminas-classic": "Click izq abre, click der o pulsacion larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA, R reinicia. En competitivo puntuan celdas + tiempo.",
     "racing-race2dpro": "Arriba/abajo acelerar/frenar, izq/der girar. Móvil: joystick táctil izq. + botones der. R reinicia.",
@@ -235,6 +238,7 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-summit-ascent": "Vertical 2D climbing: ↑/W climbs, ↓/S descends, ←→/A D lateral move, J dodges debris, Space plants an ice-axe anchor, Q drinks water (+12 stamina), E enters/leaves a cave. Pick from 3 mountain prototypes.",
     "arcade-valle-tranquilo": "Pixel-art farming sandbox: WASD/arrows move, 1-9 swaps tools, Space uses the active tool, E talks to villagers, B opens the shop, Z sleeps, and M enters the mine.",
     "sports-basketball-court": "Basketball 6 spots: up/down tune arc, left/right lateral aim, W/S power, Space/Enter shoots. P pauses, R starts a new round, and F toggles fullscreen.",
+    "sports-ping-pong-arena": "First-person table tennis: the paddle is your finger or the mouse. Move the paddle to intercept and flick quickly as you hit to set power and direction; up gives topspin, down backspin. Flick forward or Space to serve. Keyboard: arrows move, W topspin / S backspin. Pick difficulty and format in the menu. P pauses, R restarts, and F toggles fullscreen.",
     "arcade-pacman-maze-protocol": "Use arrows or WASD to guide the probe, Enter/Space activates the relay, P/Esc pauses, R restarts, M sound and G debug.",
     "arcade-buscaminas-classic": "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells + time.",
     "racing-race2dpro": "Up/down throttle/brake, left/right steer. Mobile: left touch joystick + right buttons. R restart.",

@@ -907,6 +907,87 @@
   margin: 0 !important;
 }
 
+/* Ping Pong Arena fills its stage on mobile and tablet rather than sitting in a
+   16/9 letterbox with dead space under it. The camera solves its focal length
+   and height from the canvas size, so any aspect ratio still frames the table
+   with the reference's proportions — there is nothing to preserve by locking it. */
+/* The game root has to stretch first: percentage heights below it resolve
+   against it, so while it sits at content height the stage and canvas collapse
+   to the canvas's own 16/9 box and leave dead space under the table. */
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].ping-pong-arena-game {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  [data-mobile-stage-target="true"].ping-pong-arena-stage {
+  display: flex;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .ping-pong-arena-canvas {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  min-height: 0;
+  flex: 1;
+}
+
+/* Trilero fills its stage on mobile and tablet instead of sitting in a 16/9
+   letterbox with dead felt under it. layoutFor() sizes the cups from whichever
+   dimension binds and keys the lamp and the felt horizon off them, so a tall
+   portrait stage frames the table properly rather than stranding small cups in a
+   big empty frame — there is no ratio worth locking. */
+/* As with ping-pong, the game root has to stretch first: the percentage heights
+   below it resolve against it, so while it sits at content height the stage and
+   canvas collapse back to the canvas's own 16/9 box. */
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].shell-game {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  [data-mobile-stage-target="true"].shell-game-stage {
+  display: flex;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .shell-game-canvas {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  min-height: 0;
+  flex: 1;
+}
+
+/* Portrait keeps a band free under the stage for the touch-stage ad vignette.
+   MobileStageAdOverlay places its card in the gap it measures between the stage
+   element and the viewport, so a stage at a flat 100% leaves it nowhere to go.
+   The band is sized from that overlay's own thresholds so the card lands at full
+   size instead of squeezed: phone caps the card at maxWidth * 0.9 = 79px plus
+   8px padding top and bottom; tablet at 128 * 0.9 = 115px plus 12px each side.
+   Landscape is left alone — the overlay prefers the side strips there. */
+.mobile-game-shell--portrait
+  .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].shell-game {
+  box-sizing: border-box;
+  padding-bottom: 96px;
+}
+
+.mobile-game-shell--portrait.mobile-game-shell--device-tablet
+  .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].shell-game {
+  padding-bottom: 140px;
+}
+
 .mobile-game-shell__stage-viewport [data-mobile-stage-overlay="true"] {
   z-index: 14;
 }
