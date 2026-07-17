@@ -366,6 +366,12 @@ function formatClock(seconds) {
 
 const HEAD_SOCCER_AUDIO_MUTED_KEY = "headSoccerAudioMuted";
 
+// Was 0.18, which put a lone bounce near -44 dBFS — below what laptop speakers
+// reproduce, so the cue fired but nobody heard it. Raised with a limiter behind
+// it (see ensure) rather than by re-balancing every cue, so the mix the game
+// already had is preserved and only its level changes.
+const HEAD_SOCCER_MASTER_VOLUME = 0.55;
+
 function readStoredHeadSoccerMuted() {
   if (typeof window === "undefined") return false;
   return window.localStorage.getItem(HEAD_SOCCER_AUDIO_MUTED_KEY) === "1";
@@ -374,6 +380,7 @@ function readStoredHeadSoccerMuted() {
 function createHeadSoccerAudio(initialMuted = false) {
   let ctx = null;
   let master = null;
+  let limiter = null;
   let unlocked = false;
   let lastEvent = null;
   let eventCount = 0;
@@ -381,7 +388,7 @@ function createHeadSoccerAudio(initialMuted = false) {
 
   const applyMuteState = () => {
     if (master) {
-      master.gain.value = muted ? 0 : 0.18;
+      master.gain.value = muted ? 0 : HEAD_SOCCER_MASTER_VOLUME;
     }
   };
 
@@ -397,7 +404,19 @@ function createHeadSoccerAudio(initialMuted = false) {
       ctx = new AudioContextClass();
       master = ctx.createGain();
       applyMuteState();
-      master.connect(ctx.destination);
+      // Safety limiter. Cues stack freely here — a kick, a wall hit and a bounce
+      // can land within a few frames — and the old fix for that was keeping the
+      // master so low nothing could ever clip, which also made it inaudible.
+      // A fast, high-ratio limiter catches pile-ups instead, so single cues can
+      // sit at a sane level.
+      limiter = ctx.createDynamicsCompressor();
+      limiter.threshold.value = -8;
+      limiter.knee.value = 6;
+      limiter.ratio.value = 12;
+      limiter.attack.value = 0.002;
+      limiter.release.value = 0.12;
+      master.connect(limiter);
+      limiter.connect(ctx.destination);
     }
     return ctx;
   };
@@ -500,7 +519,12 @@ function createHeadSoccerAudio(initialMuted = false) {
         noise(now, 0.05, { gain: 0.035, filter: 1800 });
         break;
       case "bounce":
-        tone(now, 130 + Math.min(160, (options.power || 0) * 8), 0.07, { type: "triangle", gain: 0.035, to: 90, filter: 800 });
+        // The low thud carries the weight of the ball, but on laptop speakers —
+        // which roll off below ~200 Hz — it was the entire cue, so the bounce
+        // vanished. The short noise transient rides on top to give it presence
+        // on small speakers; the thud still does the work on decent ones.
+        tone(now, 130 + Math.min(160, (options.power || 0) * 8), 0.07, { type: "triangle", gain: 0.085, to: 90, filter: 800 });
+        noise(now, 0.03, { gain: 0.04 + Math.min(0.05, (options.power || 0) * 0.004), filter: 1500, q: 1.1 });
         break;
       case "wall":
         noise(now, 0.07, { gain: 0.045, filter: 650, q: 1.2 });
@@ -574,6 +598,7 @@ function createHeadSoccerAudio(initialMuted = false) {
       }
       ctx = null;
       master = null;
+      limiter = null;
     },
   };
 }

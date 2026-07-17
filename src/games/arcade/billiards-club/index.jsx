@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
+import { createBilliardsAudio, readStoredBilliardsMuted } from "./audio";
 
 const TABLE_WIDTH = 960;
 const TABLE_HEIGHT = 540;
@@ -191,6 +192,10 @@ const UI_COPY = {
     nextRack: "Siguiente rack",
     restartRack: "Repetir rack",
     newMatch: "Nuevo match",
+    soundOn: "Sonido ON",
+    soundOff: "Sonido OFF",
+    soundEnable: "Activar sonido",
+    soundDisable: "Silenciar sonido",
     fullscreen: "Pantalla completa",
     orientationHorizontal: "Mesa horizontal",
     orientationVertical: "Mesa vertical",
@@ -285,6 +290,10 @@ const UI_COPY = {
     nextRack: "Next rack",
     restartRack: "Replay rack",
     newMatch: "New match",
+    soundOn: "Sound ON",
+    soundOff: "Sound OFF",
+    soundEnable: "Enable sound",
+    soundDisable: "Mute sound",
     fullscreen: "Fullscreen",
     orientationHorizontal: "Horizontal table",
     orientationVertical: "Vertical table",
@@ -1452,6 +1461,8 @@ function startShot(state, angle, power, options = {}) {
   const speed = lerp(300, state.breakShot ? 1700 : 1460, clamp(power, 0.18, 1));
   cueBall.vx = Math.cos(angle) * speed;
   cueBall.vy = Math.sin(angle) * speed;
+  // Past every rejection guard above, so a refused shot stays silent.
+  state.audio?.playCueStrike(clamp(power, 0.18, 1));
   state.phase = "moving";
   state.shotCount += 1;
   state.shot = createShotContext(state, state.currentPlayer, {
@@ -2109,6 +2120,10 @@ function updatePhysics(state, dt) {
 
       const relativeVelocity = (ballB.vx - ballA.vx) * nx + (ballB.vy - ballA.vy) * ny;
       if (relativeVelocity < 0) {
+        // Negative means the pair is closing, so its magnitude is the impact
+        // speed. Queued rather than played: a break lands dozens of these across
+        // a few ticks, and flushBallHits keeps only the loudest of each tick.
+        state.audio?.queueBallHit(-relativeVelocity);
         const impulse = -(1 + RESTITUTION) * relativeVelocity * 0.5;
         ballA.vx -= impulse * nx;
         ballA.vy -= impulse * ny;
@@ -2148,6 +2163,10 @@ function updatePhysics(state, dt) {
     ball.vx *= ratio;
     ball.vy *= ratio;
   });
+
+  // One flush per physics tick, after every pair has been resolved, so the cap
+  // picks the loudest impacts of the whole tick rather than the earliest.
+  state.audio?.flushBallHits();
 
   const allStopped = state.balls.every((ball) => ball.pocketed || Math.hypot(ball.vx, ball.vy) <= STOP_SPEED);
   if (allStopped) {
@@ -2267,6 +2286,7 @@ function executeAiShot(state, routine) {
   const speed = lerp(280, state.breakShot ? 1700 : 1460, clamp(routine.targetPower, 0.18, 1));
   cueBall.vx = Math.cos(routine.targetAngle) * speed;
   cueBall.vy = Math.sin(routine.targetAngle) * speed;
+  state.audio?.playCueStrike(clamp(routine.targetPower, 0.18, 1));
   state.phase = "moving";
   state.shotCount += 1;
   state.shot = createShotContext(state, state.currentPlayer, {
@@ -2744,6 +2764,9 @@ function buildSnapshot(state) {
     difficultyKey: state.difficultyKey,
     difficultyLabel: difficultyLabel(state.difficultyKey, locale),
     raceTo: state.raceTo,
+    // Null for the menu placeholder snapshot, which is built from a bare state
+    // that never gets an audio handle attached.
+    audio: state.audio?.snapshot?.() ?? null,
     currentPlayer: state.currentPlayer,
     currentPlayerName: localizePlayerName(state.players[state.currentPlayer]?.name ?? "-", locale),
     breakerIndex: state.breakerIndex,
@@ -2898,13 +2921,26 @@ function isInsideMobileGameShell(node) {
 
 function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated = () => false, locale = resolveLocale() }) {
   const ctx = canvas.getContext("2d");
+  const audio = createBilliardsAudio(readStoredBilliardsMuted());
+  const initialState = createRuntimeState("eight-ball", "club", locale, 2);
+  initialState.audio = audio;
   const runtime = {
     canvas,
     ctx,
-    state: createRuntimeState("eight-ball", "club", locale, 2),
+    audio,
+    state: initialState,
     pointer: { x: TABLE_CENTER_X, y: TABLE_CENTER_Y, active: false },
     lastFrame: 0,
     rafId: 0,
+    // Every rack and mode change builds a fresh state object. The audio handle
+    // lives on the runtime and is carried across here, so it survives; attaching
+    // it at each replacement site instead would go silent the first time someone
+    // adds a fifth one.
+    adoptState(nextState) {
+      nextState.audio = this.audio;
+      this.state = nextState;
+      return nextState;
+    },
     publish() {
       onSnapshot(buildSnapshot(this.state));
     },
@@ -2927,10 +2963,13 @@ function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated
       this.draw();
     },
     resetToMenu(modeKey = this.state.modeKey, difficultyKey = this.state.difficultyKey, participantCount = this.state.participantCount ?? 2) {
-      this.state = createRuntimeState(modeKey, difficultyKey, this.state.locale ?? locale, participantCount);
+      this.adoptState(createRuntimeState(modeKey, difficultyKey, this.state.locale ?? locale, participantCount));
       this.refresh();
     },
     startMatch() {
+      // This click is the gesture the context needs. Matters when the AI breaks:
+      // its cue strike fires from the raf loop, with no gesture of its own.
+      this.audio.unlock();
       const nextState = createRuntimeState(
         this.state.modeKey,
         this.state.difficultyKey,
@@ -2938,7 +2977,7 @@ function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated
         this.state.participantCount ?? 2
       );
       startRack(nextState, PLAYER_HUMAN);
-      this.state = nextState;
+      this.adoptState(nextState);
       this.refresh();
     },
     restartRack() {
@@ -2957,7 +2996,7 @@ function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated
         player.racksWon = wins[index];
       });
       startRack(nextState, this.state.breakerIndex);
-      this.state = nextState;
+      this.adoptState(nextState);
       this.refresh();
     },
     nextRack() {
@@ -2977,7 +3016,7 @@ function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated
         player.racksWon = wins[index];
       });
       startRack(nextState, this.state.nextBreaker);
-      this.state = nextState;
+      this.adoptState(nextState);
       this.refresh();
     },
     setMode(modeKey) {
@@ -3271,6 +3310,7 @@ function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated
         this.setPointer(worldPoint);
       };
       const down = (event) => {
+        this.audio.unlock();
         const worldPoint = eventToWorld(canvas, event, { rotateTable: isTableRotated() });
         this.placeCueFromPointer(worldPoint);
       };
@@ -3294,8 +3334,15 @@ function createRuntime({ canvas, onSnapshot, onFullscreenRequest, isTableRotated
       this.refresh();
       this.rafId = requestAnimationFrame(this.frame);
     },
+    toggleAudioMuted() {
+      this.audio.unlock();
+      const muted = this.audio.toggleMuted();
+      this.publish();
+      return muted;
+    },
     destroy() {
       cancelAnimationFrame(this.rafId);
+      this.audio.dispose();
       if (!this._listeners) return;
       canvas.removeEventListener("mousemove", this._listeners.move);
       canvas.removeEventListener("touchmove", this._listeners.move);
@@ -3323,6 +3370,7 @@ function BilliardsClubGame() {
   const [embeddedInMobileShell, setEmbeddedInMobileShell] = useState(false);
   const [preferVerticalTable, setPreferVerticalTable] = useState(true);
   const [modeIntro, setModeIntro] = useState(() => ({ modeKey: "eight-ball", key: "initial-eight-ball" }));
+  const [audioMuted, setAudioMuted] = useState(readStoredBilliardsMuted);
   const previousModeRef = useRef("eight-ball");
   const forceHorizontalTable = mobileViewport.isMobile && embeddedInMobileShell;
   const useVerticalTable =
@@ -3416,6 +3464,10 @@ function BilliardsClubGame() {
   const restartRack = useCallback(() => runtimeRef.current?.restartRack(), []);
   const nextRack = useCallback(() => runtimeRef.current?.nextRack(), []);
   const resetMatch = useCallback(() => runtimeRef.current?.resetToMenu(), []);
+  const toggleAudioMuted = useCallback(() => {
+    const muted = runtimeRef.current?.toggleAudioMuted();
+    setAudioMuted(Boolean(muted));
+  }, []);
   const setMode = useCallback((modeKey) => runtimeRef.current?.setMode(modeKey), []);
   const setDifficulty = useCallback((difficultyKey) => runtimeRef.current?.setDifficulty(difficultyKey), []);
   const setParticipantCount = useCallback((participantCount) => runtimeRef.current?.setParticipantCount(participantCount), []);
@@ -3496,6 +3548,15 @@ function BilliardsClubGame() {
           {snapshot.status === "rack-over" ? <button id="billiards-next-rack-btn" type="button" onClick={nextRack}>{ui.nextRack}</button> : null}
           <button type="button" onClick={restartRack}>{ui.restartRack}</button>
           <button id="billiards-new-match-btn" type="button" onClick={resetMatch}>{ui.newMatch}</button>
+          <button
+            id="billiards-sound-btn"
+            type="button"
+            onClick={toggleAudioMuted}
+            aria-pressed={!audioMuted}
+            title={audioMuted ? ui.soundEnable : ui.soundDisable}
+          >
+            {audioMuted ? ui.soundOff : ui.soundOn}
+          </button>
           {mobileViewport.isMobile && mobileViewport.isPortrait && !forceHorizontalTable ? (
             <button id="billiards-orientation-btn" type="button" onClick={() => setPreferVerticalTable((previous) => !previous)}>
               {useVerticalTable ? ui.orientationHorizontal : ui.orientationVertical}

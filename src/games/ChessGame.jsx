@@ -20,6 +20,7 @@ import {
   chooseAIMove,
   getAiLevelById
 } from "./chess/chessAI";
+import { createChessAudio, readStoredChessMuted } from "./chess/chessAudio";
 
 const WHITE = COLORS.WHITE;
 const BLACK = COLORS.BLACK;
@@ -163,7 +164,9 @@ function ChessGame() {
   const [fullscreen, setFullscreen] = useState(false);
   const [logs, setLogs] = useState(["Configura tu color y dificultad, luego inicia la partida."]);
   const [undoStack, setUndoStack] = useState([]);
+  const [audioMuted, setAudioMuted] = useState(readStoredChessMuted);
 
+  const audioRef = useRef(null);
   const gameStateRef = useRef(gameState);
   const playerColorRef = useRef(playerColor);
   const difficultyRef = useRef(difficultyId);
@@ -189,6 +192,23 @@ function ChessGame() {
   useEffect(() => {
     startedRef.current = started;
   }, [started]);
+
+  // Mount-only: the initial mute state is read once at construction, and every
+  // later change goes through toggleAudioMuted so the context is never rebuilt.
+  useEffect(() => {
+    audioRef.current = createChessAudio(audioMuted);
+    return () => {
+      audioRef.current?.dispose?.();
+      audioRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toggleAudioMuted = useCallback(() => {
+    audioRef.current?.unlock?.();
+    const nextMuted = audioRef.current?.toggleMuted?.();
+    setAudioMuted(Boolean(nextMuted));
+  }, []);
 
   const pushLog = useCallback((text) => {
     setLogs((previous) => [text, ...previous].slice(0, 10));
@@ -251,6 +271,12 @@ function ChessGame() {
       return false;
     }
 
+    // After the rejection guard, so an illegal move stays silent. lastMove is the
+    // engine's normalized record, which folds en passant in as a capture.
+    audioRef.current?.play(
+      next.lastMove?.capture || next.lastMove?.isEnPassant ? "capture" : "move",
+    );
+
     commitGameState(next, { pushUndo: true });
     clearSelection();
 
@@ -265,6 +291,9 @@ function ChessGame() {
   }, [clearSelection, commitGameState, pushLog]);
 
   const startMatch = useCallback(() => {
+    // This click is the gesture the context needs. Matters when the player takes
+    // black: the AI moves first, from a timer, with no gesture of its own to ride.
+    audioRef.current?.unlock?.();
     const resolvedPlayerColor = resolvePlayerColor(sideOption);
     const initial = createInitialChessState();
 
@@ -565,8 +594,9 @@ function ChessGame() {
     selectedSquare,
     pendingPromotion,
     capturedSummary,
+    audioMuted,
     gameState
-  }), [started, playerColor, difficultyId, aiThinking, selectedSquare, pendingPromotion, capturedSummary, gameState]);
+  }), [started, playerColor, difficultyId, aiThinking, selectedSquare, pendingPromotion, capturedSummary, audioMuted, gameState]);
 
   const payloadBuilder = useCallback((snapshot) => {
     const boardPieces = [];
@@ -611,6 +641,7 @@ function ChessGame() {
         white: (snapshot.capturedSummary?.w || []).map((piece) => formatCapturedLabel(piece, WHITE)),
         black: (snapshot.capturedSummary?.b || []).map((piece) => formatCapturedLabel(piece, BLACK)),
       },
+      audio: audioRef.current?.snapshot?.() || null,
       boardPieces
     };
   }, []);
@@ -630,6 +661,14 @@ function ChessGame() {
           </button>
           <button type="button" onClick={undoLastMove} disabled={!undoStack.length || aiThinking}>
             Deshacer
+          </button>
+          <button
+            type="button"
+            onClick={toggleAudioMuted}
+            aria-pressed={!audioMuted}
+            title={audioMuted ? "Activar sonido" : "Silenciar sonido"}
+          >
+            {audioMuted ? "Sonido OFF" : "Sonido ON"}
           </button>
           <button type="button" onClick={toggleFullscreen}>
             {fullscreen ? "Salir pantalla completa" : "Pantalla completa"}
