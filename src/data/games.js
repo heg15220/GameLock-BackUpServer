@@ -117,6 +117,60 @@ import arcadeSummitAscentImage from "../assets/games/arcade-summit-ascent-gamepl
  *   howToPlay_es / howToPlay_en    Ã¢â‚¬â€œ brief control summary (shown in modal)
  */
 export const games = [
+{
+    id: "arcade-shell-game",
+    image: arcadeShellGameImage,
+    sessionTime: "3-8 min",
+
+    title: "Trilero",
+    title_en: "Shell Game",
+    category: "Arcade",
+    tagline: "Sigue la bola. Solo tienes que no perderla de vista.",
+    description:
+      "El juego de los vasos, sin trampa. Se levanta un vaso, se te ensena la bola debajo y empieza la mezcla: los vasos cruzan, se deslizan y rotan, y tu tienes que senalar donde acabo la bola. La bola va siempre debajo de su vaso, asi que quien sigue el vaso correcto acierta el 100% de las veces: la dificultad sale de la velocidad y del cruce, nunca de mentir. Cada acierto sube el nivel y la mezcla se endurece por fases (mas rapida, mas cruces, de 3 a 5 vasos y movimientos nuevos); tres fallos y se acaba.",
+    objective_es:
+      "Encadenar la racha mas larga posible acertando el vaso que esconde la bola. Tres fallos terminan la partida.",
+    howToPlay_es:
+      "Toca o haz clic en el vaso que crees que esconde la bola. Teclas 1-5 eligen vaso. P pausa, R reinicia y F pantalla completa.",
+    highlights: [
+      "Juego limpio y verificable: la bola va siempre bajo su vaso, y quien lo sigue con la vista acierta siempre.",
+      "La mezcla se genera entera por adelantado como datos puros y el motor solo la reproduce, asi que una ronda es determinista y reproducible con su semilla.",
+      "Curva por fases: cada tramo introduce un movimiento nuevo (deslizamiento, cruce en diagonal, rotacion de tres y dobles simultaneos) y consolida los anteriores.",
+      "De 3 vasos para empezar a 5 en los niveles altos, con la probabilidad a ciegas cayendo del 33% al 20%.",
+      "Cruces con profundidad real: en cada intercambio un vaso pasa por delante y otro por detras, con escala, sombra y orden de pintado acoplados.",
+      "Vasos, bola, fieltro y foco dibujados por procedimiento sobre Canvas: sin bitmaps que cargar ni escalar.",
+      "Racha, vidas y puntuacion escalada por nivel y numero de vasos, con mejor racha persistida.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Un jugador",
+    viability: "Alta: coreografia pura y testeada, motor Canvas determinista y estado serializable.",
+    visualStyle: "Mesa de fieltro verde bajo un foco calido, vasos de plastico bermellon con brillo especular y bola de marfil, sobre fondo azul noche.",
+    techFocus: "Coreografia generada como datos puros con invariantes testables (la bola acaba donde el juego dice, y dos cruces simultaneos nunca comparten vaso), render procedural con profundidad y orden de pintor.",
+
+    category_en: "Arcade",
+    tagline_en: "Follow the ball. All you have to do is not lose it.",
+    description_en:
+      "The cups game, played straight. A cup lifts, you are shown the ball underneath, and the shuffle begins: cups cross, slide and rotate, and you point to where the ball ended up. The ball always rides under its own cup, so following the right cup wins 100% of the time — the difficulty comes from speed and crossing, never from lying to you. Every hit climbs a level and tightens the shuffle in phases (faster, more crosses, three to five cups, new moves); three misses and you are out.",
+    objective_en:
+      "Build the longest streak you can by picking the cup hiding the ball. Three misses end the game.",
+    howToPlay_en:
+      "Tap or click the cup you think hides the ball. Keys 1-5 pick a cup. P pauses, R restarts, and F toggles fullscreen.",
+    highlights_en: [
+      "Provably fair: the ball always rides under its own cup, so anyone who tracks it with their eyes is never wrong.",
+      "The shuffle is generated up front as pure data and merely played back, making a round deterministic and replayable from its seed.",
+      "Phased curve: each band introduces one new move (slide, diagonal cross, three-cup rotation, simultaneous doubles) and consolidates the last.",
+      "Three cups to start and five at the top, with blind odds falling from 33% to 20%.",
+      "Crosses with real depth: on every exchange one cup passes in front and the other behind, with scale, shadow and paint order moving together.",
+      "Cups, ball, felt and spotlight drawn procedurally on Canvas — no bitmaps to load or scale.",
+      "Streak, lives and scoring scaled by level and cup count, with a persisted best streak.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Single player",
+    viability_en: "High: pure tested choreography, deterministic Canvas engine, and serialisable state.",
+    visualStyle_en: "Green felt table under a warm spotlight, vermilion plastic cups with specular highlights and an ivory ball, over a night-blue backdrop.",
+    techFocus_en: "Choreography generated as pure data with testable invariants (the ball ends where the game says, and simultaneous crosses never share a cup), plus procedural rendering with depth and painter's ordering.",
+  },
+
 
 
   // Arcade (platformer)
@@ -1257,6 +1311,59 @@ export const games = [
     visualStyle_en: "Sunset highway with urban horizon, centred asphalt, roadside lights, and bold arcade cars.",
     techFocus_en: "Vertical scroll, inertia handling, deterministic spawns, near-miss scoring, and light bullet-time.",
   },
+{
+    id: "knowledge-cronologia-maestra",
+    image: knowledgeCronologiaImage,
+    image_en: knowledgeCronologiaImageEn,
+    sessionTime: "6-16 min",
+
+    title: "Cronologia Maestra",
+    title_en: "Master Timeline",
+    category: "Conocimiento",
+    tagline: "Cronolog\u00eda: ordena eventos hist\u00f3ricos de m\u00e1s antiguo a m\u00e1s moderno.",
+    description:
+      "Juego de conocimiento historico orientado a precision cronologica. En cada ronda recibes eventos reales mezclados, un evento ancla y recursos limitados de Intel para pedir pistas. La idea es ordenarlos de mas antiguo a mas moderno, construir la linea temporal correcta y sostener consistencia a lo largo de toda la mision.",
+    objective_es:
+      "Ordena correctamente los eventos de cada ronda para maximizar puntuacion, racha y rango final de mision.",
+    howToPlay_es:
+      "Coloca cartas por clic o con teclas 1-9, elimina la ultima con Backspace y valida con Enter. Usa H/J/K para pistas (rango, fecha exacta, relacion con ancla), N para avanzar ronda ya revisada y R para nueva mision.",
+    highlights: [
+      "Motor determinista de misiones por semilla con 4 modos: mix, ciencia, geopolitica y cultura.",
+      "Tres dificultades con distinto numero de rondas, tiempo e Intel inicial.",
+      "Sistema de evaluacion profesional: precision, consistencia temporal, inversiones y error total.",
+      "Economia de pistas con coste de Intel y recompensa por rondas perfectas.",
+      "Informe detallado por ronda con orden correcto, orden enviado y metricas comparables.",
+      "Bridge QA serializable con estado completo de ronda, cartas visibles y telemetria.",
+    ],
+    difficulty: "Variable (Analista/Experto/Maestro)",
+    multiplayer: "Solo",
+    viability: "Alta: dataset local, reglas discretas y evaluacion reproducible sin dependencias externas.",
+    visualStyle: "Panel tactico de inteligencia historica con cards, timeline y tablero de analitica.",
+    techFocus: "Generacion procedural por semilla + evaluacion de orden + sistema de pistas y scoring avanzado.",
+
+    category_en: "Knowledge",
+    tagline_en: "Timeline: order historical events from oldest to newest.",
+    description_en:
+      "Historical-knowledge game focused on chronology accuracy. Every round gives mixed real events, one anchor event, and limited Intel resources for hints. The idea is to order them from oldest to newest, build the correct timeline, and keep consistency across the entire mission.",
+    objective_en:
+      "Sort each round's events correctly to maximize score, streak, and final mission rank.",
+    howToPlay_en:
+      "Place cards with clicks or keys 1-9, remove the latest card with Backspace, and validate with Enter. Use H/J/K for hints (range, exact year, anchor relation), N to advance reviewed rounds, and R for a new mission.",
+    highlights_en: [
+      "Deterministic seed-driven mission engine with 4 modes: mix, science, geopolitics, and culture.",
+      "Three difficulty tiers with different round count, timer pressure, and initial Intel.",
+      "Professional evaluation metrics: accuracy, chronology consistency, inversion count, and total error.",
+      "Hint economy with Intel costs and perfect-round rewards.",
+      "Detailed round report with correct order, submitted order, and comparable metrics.",
+      "Serializable QA bridge exposing full round state, visible cards, and telemetry.",
+    ],
+    difficulty_en: "Variable (Analyst/Expert/Master)",
+    multiplayer_en: "Solo",
+    viability_en: "High: local dataset, discrete rules, and reproducible scoring without external dependencies.",
+    visualStyle_en: "Historical intelligence board with tactical cards, timeline track, and analytics panel.",
+    techFocus_en: "Seed-based procedural mission generation + ordering evaluation + advanced hint economy.",
+  },
+
   {
     id: "knowledge-quiz-nexus",
     image: wordBlitzImage,
@@ -2211,61 +2318,7 @@ export const games = [
     visualStyle_en: "Dual tray/target board with translucent silhouette and high-contrast chromatic pieces.",
     techFocus_en: "Convex polygon geometry + SAT overlap detection + orientation-aware snapping.",
   },
-
-  {
-    id: "knowledge-cronologia-maestra",
-    image: knowledgeCronologiaImage,
-    image_en: knowledgeCronologiaImageEn,
-    sessionTime: "6-16 min",
-
-    title: "Cronologia Maestra",
-    title_en: "Master Timeline",
-    category: "Conocimiento",
-    tagline: "Cronolog\u00eda: ordena eventos hist\u00f3ricos de m\u00e1s antiguo a m\u00e1s moderno.",
-    description:
-      "Juego de conocimiento historico orientado a precision cronologica. En cada ronda recibes eventos reales mezclados, un evento ancla y recursos limitados de Intel para pedir pistas. La idea es ordenarlos de mas antiguo a mas moderno, construir la linea temporal correcta y sostener consistencia a lo largo de toda la mision.",
-    objective_es:
-      "Ordena correctamente los eventos de cada ronda para maximizar puntuacion, racha y rango final de mision.",
-    howToPlay_es:
-      "Coloca cartas por clic o con teclas 1-9, elimina la ultima con Backspace y valida con Enter. Usa H/J/K para pistas (rango, fecha exacta, relacion con ancla), N para avanzar ronda ya revisada y R para nueva mision.",
-    highlights: [
-      "Motor determinista de misiones por semilla con 4 modos: mix, ciencia, geopolitica y cultura.",
-      "Tres dificultades con distinto numero de rondas, tiempo e Intel inicial.",
-      "Sistema de evaluacion profesional: precision, consistencia temporal, inversiones y error total.",
-      "Economia de pistas con coste de Intel y recompensa por rondas perfectas.",
-      "Informe detallado por ronda con orden correcto, orden enviado y metricas comparables.",
-      "Bridge QA serializable con estado completo de ronda, cartas visibles y telemetria.",
-    ],
-    difficulty: "Variable (Analista/Experto/Maestro)",
-    multiplayer: "Solo",
-    viability: "Alta: dataset local, reglas discretas y evaluacion reproducible sin dependencias externas.",
-    visualStyle: "Panel tactico de inteligencia historica con cards, timeline y tablero de analitica.",
-    techFocus: "Generacion procedural por semilla + evaluacion de orden + sistema de pistas y scoring avanzado.",
-
-    category_en: "Knowledge",
-    tagline_en: "Timeline: order historical events from oldest to newest.",
-    description_en:
-      "Historical-knowledge game focused on chronology accuracy. Every round gives mixed real events, one anchor event, and limited Intel resources for hints. The idea is to order them from oldest to newest, build the correct timeline, and keep consistency across the entire mission.",
-    objective_en:
-      "Sort each round's events correctly to maximize score, streak, and final mission rank.",
-    howToPlay_en:
-      "Place cards with clicks or keys 1-9, remove the latest card with Backspace, and validate with Enter. Use H/J/K for hints (range, exact year, anchor relation), N to advance reviewed rounds, and R for a new mission.",
-    highlights_en: [
-      "Deterministic seed-driven mission engine with 4 modes: mix, science, geopolitics, and culture.",
-      "Three difficulty tiers with different round count, timer pressure, and initial Intel.",
-      "Professional evaluation metrics: accuracy, chronology consistency, inversion count, and total error.",
-      "Hint economy with Intel costs and perfect-round rewards.",
-      "Detailed round report with correct order, submitted order, and comparable metrics.",
-      "Serializable QA bridge exposing full round state, visible cards, and telemetry.",
-    ],
-    difficulty_en: "Variable (Analyst/Expert/Master)",
-    multiplayer_en: "Solo",
-    viability_en: "High: local dataset, discrete rules, and reproducible scoring without external dependencies.",
-    visualStyle_en: "Historical intelligence board with tactical cards, timeline track, and analytics panel.",
-    techFocus_en: "Seed-based procedural mission generation + ordering evaluation + advanced hint economy.",
-  },
-
-  {
+{
     id: "strategy-sudoku-tecnicas",
     image: strategySudokuTecnicasImage,
     image_en: strategySudokuTecnicasImageEn,
@@ -3371,62 +3424,7 @@ export const games = [
     visualStyle_en: "Arena with a regulation blue table, mesh net, yellow ball, and red paddle over dark stands, in first-person perspective.",
     techFocus_en: "Custom 3D perspective projection, parabolic flight re-launched at every bounce, continuous net collision, AI by linear extrapolation with an eased glide, and table-tennis rules.",
   },
-
-  {
-    id: "arcade-shell-game",
-    image: arcadeShellGameImage,
-    sessionTime: "3-8 min",
-
-    title: "Trilero",
-    title_en: "Shell Game",
-    category: "Arcade",
-    tagline: "Sigue la bola. Solo tienes que no perderla de vista.",
-    description:
-      "El juego de los vasos, sin trampa. Se levanta un vaso, se te ensena la bola debajo y empieza la mezcla: los vasos cruzan, se deslizan y rotan, y tu tienes que senalar donde acabo la bola. La bola va siempre debajo de su vaso, asi que quien sigue el vaso correcto acierta el 100% de las veces: la dificultad sale de la velocidad y del cruce, nunca de mentir. Cada acierto sube el nivel y la mezcla se endurece por fases (mas rapida, mas cruces, de 3 a 5 vasos y movimientos nuevos); tres fallos y se acaba.",
-    objective_es:
-      "Encadenar la racha mas larga posible acertando el vaso que esconde la bola. Tres fallos terminan la partida.",
-    howToPlay_es:
-      "Toca o haz clic en el vaso que crees que esconde la bola. Teclas 1-5 eligen vaso. P pausa, R reinicia y F pantalla completa.",
-    highlights: [
-      "Juego limpio y verificable: la bola va siempre bajo su vaso, y quien lo sigue con la vista acierta siempre.",
-      "La mezcla se genera entera por adelantado como datos puros y el motor solo la reproduce, asi que una ronda es determinista y reproducible con su semilla.",
-      "Curva por fases: cada tramo introduce un movimiento nuevo (deslizamiento, cruce en diagonal, rotacion de tres y dobles simultaneos) y consolida los anteriores.",
-      "De 3 vasos para empezar a 5 en los niveles altos, con la probabilidad a ciegas cayendo del 33% al 20%.",
-      "Cruces con profundidad real: en cada intercambio un vaso pasa por delante y otro por detras, con escala, sombra y orden de pintado acoplados.",
-      "Vasos, bola, fieltro y foco dibujados por procedimiento sobre Canvas: sin bitmaps que cargar ni escalar.",
-      "Racha, vidas y puntuacion escalada por nivel y numero de vasos, con mejor racha persistida.",
-    ],
-    difficulty: "Media",
-    multiplayer: "Un jugador",
-    viability: "Alta: coreografia pura y testeada, motor Canvas determinista y estado serializable.",
-    visualStyle: "Mesa de fieltro verde bajo un foco calido, vasos de plastico bermellon con brillo especular y bola de marfil, sobre fondo azul noche.",
-    techFocus: "Coreografia generada como datos puros con invariantes testables (la bola acaba donde el juego dice, y dos cruces simultaneos nunca comparten vaso), render procedural con profundidad y orden de pintor.",
-
-    category_en: "Arcade",
-    tagline_en: "Follow the ball. All you have to do is not lose it.",
-    description_en:
-      "The cups game, played straight. A cup lifts, you are shown the ball underneath, and the shuffle begins: cups cross, slide and rotate, and you point to where the ball ended up. The ball always rides under its own cup, so following the right cup wins 100% of the time — the difficulty comes from speed and crossing, never from lying to you. Every hit climbs a level and tightens the shuffle in phases (faster, more crosses, three to five cups, new moves); three misses and you are out.",
-    objective_en:
-      "Build the longest streak you can by picking the cup hiding the ball. Three misses end the game.",
-    howToPlay_en:
-      "Tap or click the cup you think hides the ball. Keys 1-5 pick a cup. P pauses, R restarts, and F toggles fullscreen.",
-    highlights_en: [
-      "Provably fair: the ball always rides under its own cup, so anyone who tracks it with their eyes is never wrong.",
-      "The shuffle is generated up front as pure data and merely played back, making a round deterministic and replayable from its seed.",
-      "Phased curve: each band introduces one new move (slide, diagonal cross, three-cup rotation, simultaneous doubles) and consolidates the last.",
-      "Three cups to start and five at the top, with blind odds falling from 33% to 20%.",
-      "Crosses with real depth: on every exchange one cup passes in front and the other behind, with scale, shadow and paint order moving together.",
-      "Cups, ball, felt and spotlight drawn procedurally on Canvas — no bitmaps to load or scale.",
-      "Streak, lives and scoring scaled by level and cup count, with a persisted best streak.",
-    ],
-    difficulty_en: "Medium",
-    multiplayer_en: "Single player",
-    viability_en: "High: pure tested choreography, deterministic Canvas engine, and serialisable state.",
-    visualStyle_en: "Green felt table under a warm spotlight, vermilion plastic cups with specular highlights and an ivory ball, over a night-blue backdrop.",
-    techFocus_en: "Choreography generated as pure data with testable invariants (the ball ends where the game says, and simultaneous crosses never share a cup), plus procedural rendering with depth and painter's ordering.",
-  },
-
-  {
+{
     id: "arcade-summit-ascent",
     image: arcadeSummitAscentImage,
     sessionTime: "15-25 min",
