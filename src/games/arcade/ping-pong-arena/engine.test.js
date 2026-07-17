@@ -244,6 +244,68 @@ describe("ping-pong runtime — the CPU's return", () => {
   });
 });
 
+// Entering fullscreen on a *element* (index.jsx calls el.requestFullscreen())
+// resizes the canvas box without necessarily firing a window resize, and on the
+// mobile shell the stage is resized with no window resize at all. The camera is
+// built from the box size (createCamera(viewW, viewH)), so a camera left over
+// from the old box unprojects the pointer to the wrong place and the bat stops
+// tracking the finger.
+describe("ping-pong runtime — viewport changes without a window resize", () => {
+  function makeResizableRuntime() {
+    const rect = { left: 0, top: 0, width: 960, height: 540 };
+    const ctx = stubCtx();
+    const canvas = {
+      clientWidth: 960,
+      clientHeight: 540,
+      width: 960,
+      height: 540,
+      style: {},
+      getContext: () => ctx,
+      getBoundingClientRect: () => ({ ...rect }),
+      addEventListener() {},
+      removeEventListener() {},
+    };
+    const rt = new PingPongRuntime({
+      canvas,
+      locale: "en",
+      onSnapshot() {},
+      onFullscreen() {},
+    });
+    return { rt, rect, canvas };
+  }
+
+  it("maps the centre of the canvas to the centre of the table before resizing", () => {
+    const { rt } = makeResizableRuntime();
+    expect(rt.pointerToWorld(480, 400).x).toBeCloseTo(0, 6);
+  });
+
+  it("still maps the centre of the canvas to the centre of the table after the box grows", () => {
+    const { rt, rect } = makeResizableRuntime();
+    expect(rt.pointerToWorld(480, 400).x).toBeCloseTo(0, 6);
+
+    // Fullscreen on mobile: the box doubles, no window resize event is fired.
+    rect.width = 1920;
+    rect.height = 1080;
+
+    // Pointing at the middle of the new box must still be the middle of the table.
+    expect(rt.pointerToWorld(960, 800).x).toBeCloseTo(0, 6);
+  });
+
+  it("tracks a pointer across the new box instead of compressing it into the old one", () => {
+    const { rt, rect } = makeResizableRuntime();
+    rect.width = 1920;
+    rect.height = 1080;
+
+    // The right edge of the box must reach the right end of the bat's travel,
+    // not stop a quarter of the way across because the camera thinks it is 960 wide.
+    const right = rt.pointerToWorld(1900, 800).x;
+    const left = rt.pointerToWorld(20, 800).x;
+    expect(right).toBeGreaterThan(0);
+    expect(left).toBeLessThan(0);
+    expect(right).toBeCloseTo(-left, 4);
+  });
+});
+
 describe("ping-pong runtime — snapshots", () => {
   it("reports difficulty and format to the UI", () => {
     const { rt, snapshots } = makeRuntime();

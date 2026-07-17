@@ -112,6 +112,10 @@ export class PingPongRuntime {
     this.vW = canvas.clientWidth || 960;
     this.vH = canvas.clientHeight || 540;
     this.cam = createCamera(this.vW, this.vH);
+    // Tracked so syncViewport can tell a real box change from a no-op, and so a
+    // device-pixel-ratio change (dragging to another monitor) still re-renders.
+    this.dpr = null;
+    this.resizeObserver = null;
 
     this.rng = makeRng((Date.now() & 0xffffffff) >>> 0);
     this.match = createMatchState(this.bestOf, "player");
@@ -156,6 +160,14 @@ export class PingPongRuntime {
     this.running = true;
     this.handleResize();
     window.addEventListener("resize", this._onResize);
+    // index.jsx puts the *element* into fullscreen, which resizes the canvas box
+    // without the window necessarily changing size — and the mobile shell resizes
+    // the stage with no window resize at all. Watching the canvas is what keeps
+    // the backing store and the camera matched to the box actually on screen.
+    if (typeof ResizeObserver === "function") {
+      this.resizeObserver = new ResizeObserver(this._onResize);
+      this.resizeObserver.observe(this.canvas);
+    }
     window.addEventListener("keydown", this._onKD);
     window.addEventListener("keyup", this._onKU);
     this.canvas.addEventListener("pointerdown", this._onPointerDown);
@@ -171,6 +183,8 @@ export class PingPongRuntime {
   destroy() {
     this.running = false;
     if (this.raf) cancelAnimationFrame(this.raf);
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
     window.removeEventListener("resize", this._onResize);
     window.removeEventListener("keydown", this._onKD);
     window.removeEventListener("keyup", this._onKU);
@@ -196,17 +210,31 @@ export class PingPongRuntime {
     this.setAudioEnabled(!this.audio.getEnabled());
   }
 
-  handleResize() {
-    const dpr = clamp(window.devicePixelRatio || 1, 1, 2);
-    const rect = this.canvas.getBoundingClientRect();
+  // Rebuild everything derived from the canvas box: the backing store, the
+  // viewport size, and the camera. Returns true when something actually changed.
+  //
+  // Split out of handleResize so the pointer path can call it too. The camera is
+  // built from the box size, so any moment where the box has changed and the
+  // camera has not is a moment where the bat sits somewhere other than under the
+  // finger.
+  syncViewport(rect = this.canvas.getBoundingClientRect()) {
     const w = rect.width || 960;
     const h = rect.height || 540;
-    this.canvas.width = Math.round(w * dpr);
-    this.canvas.height = Math.round(h * dpr);
+    const dpr = typeof window !== "undefined" ? clamp(window.devicePixelRatio || 1, 1, 2) : 1;
+    if (w === this.vW && h === this.vH && dpr === this.dpr) return false;
+
+    this.dpr = dpr;
     this.vW = w;
     this.vH = h;
     this.cam = createCamera(w, h);
+    this.canvas.width = Math.round(w * dpr);
+    this.canvas.height = Math.round(h * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return true;
+  }
+
+  handleResize() {
+    this.syncViewport();
     this.render();
   }
 
@@ -620,6 +648,13 @@ export class PingPongRuntime {
   // via projection.get3dPosition(), then fitToCourt().
   pointerToWorld(clientX, clientY, pointerType = "mouse") {
     const rect = this.canvas.getBoundingClientRect();
+    // sx/sy are measured against *this* rect, so the camera has to describe the
+    // same rect. The box can change with no window resize — element fullscreen,
+    // rotation, the mobile shell reserving the ad band — and a ResizeObserver
+    // callback is delivered asynchronously, so a pointer event can legitimately
+    // arrive first. Reconciling here means the bat is never unprojected through
+    // a camera built for a box that no longer exists.
+    this.syncViewport(rect);
     const sx = clientX - rect.left;
     const sy = clientY - rect.top - this.pointerLift(pointerType);
     const w = unproject(this.cam, sx, sy, BAT_REST_Y);
