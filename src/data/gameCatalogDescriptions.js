@@ -268,12 +268,12 @@ export const gameCatalogDescriptions = {
     en: "Mountain climbing: manage stamina, water and anchors to reach the summit.",
   },
   "sports-ping-pong-arena": {
-    es: "Tenis de mesa en primera persona: la pala es tu dedo, desliza para golpear con potencia y efecto y gana el partido a la CPU.",
-    en: "First-person table tennis: your finger is the paddle — flick to hit with power and spin and beat the CPU.",
+    es: "Tenis de mesa en primera persona: desliza el dedo y gana a la CPU.",
+    en: "First-person table tennis: flick your finger and beat the CPU.",
   },
   "arcade-shell-game": {
-    es: "El juego de los vasos, sin trampa: sigue la bola mientras los vasos cruzan cada vez más rápido y señala dónde acabó.",
-    en: "The cups game, played straight: follow the ball as the cups cross faster and faster, then call where it ended up.",
+    es: "El juego de los vasos: sigue la bola mientras cruzan más rápido.",
+    en: "The cups game: follow the ball as the cups cross ever faster.",
   },
   "sports-basketball-court": {
     es: "Tiro de baloncesto: ajusta fuerza y direcci\u00f3n para anotar.",
