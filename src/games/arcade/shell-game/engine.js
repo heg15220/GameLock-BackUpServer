@@ -4,6 +4,7 @@
 // runtime contract: { canvas, locale, onSnapshot, onFullscreen }, start/destroy,
 // advanceTime, setVirtualKey, pressVirtualKey.
 
+import { createShellGameAudio, readStoredShellMuted } from "./audio.js";
 import { cupSlotAt, makeRng, planShuffle } from "./choreography.js";
 import { MOVES, levelConfig } from "./levels.js";
 import { createGameState, registerGuess } from "./rules.js";
@@ -66,6 +67,11 @@ export class ShellGameRuntime {
     this.rng = makeRng(seed ?? ((Date.now() & 0xffffffff) >>> 0));
     this.state = createGameState(readBest());
     this.plan = null;
+    this.audio = createShellGameAudio(readStoredShellMuted());
+    // Crosses fire their swish once, when the phase clock passes their start.
+    // Tracked by id rather than by comparing against last frame's clock, so an
+    // advanceTime() jump replays the round's cues exactly once each.
+    this.firedSwaps = new Set();
 
     this.screen = "menu"; // menu | place | shuffle | pick | reveal | over
     this.paused = false;
@@ -116,6 +122,7 @@ export class ShellGameRuntime {
 
   destroy() {
     this.running = false;
+    this.audio.dispose();
     if (this.raf) cancelAnimationFrame(this.raf);
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
@@ -154,13 +161,24 @@ export class ShellGameRuntime {
       paused: this.paused,
       over: s.over,
       lastResult: s.lastResult,
+      audio: this.audio.snapshot(),
     });
   }
 
   // ── Lifecycle ───────────────────────────────────────────────────────
   startGame() {
+    // Reached from a click or a keypress, which is the gesture the context needs:
+    // the shuffle's cues fire from the raf loop and have no gesture of their own.
+    this.audio.unlock();
     this.state = createGameState(this.state.bestStreak);
     this.beginRound();
+  }
+
+  toggleAudioMuted() {
+    this.audio.unlock();
+    const muted = this.audio.toggleMuted();
+    this.emit();
+    return muted;
   }
 
   restart() {
@@ -180,6 +198,9 @@ export class ShellGameRuntime {
     this.layout = layoutFor(this.vW, this.vH, this.plan.cups);
     this.screen = "place";
     this.phaseT = 0;
+    // New plan, new ids: without this the second round's crosses would be taken
+    // for already-played ones and shuffle in silence.
+    this.firedSwaps.clear();
     this.pickedSlot = -1;
     this.pickCorrect = null;
     this.hoverSlot = -1;
@@ -228,6 +249,19 @@ export class ShellGameRuntime {
       return;
     }
 
+    if (this.screen === "shuffle" && this.plan) {
+      // Sorted by `at`, so this stops at the first cross still in the future.
+      for (const swap of this.plan.swaps) {
+        if (swap.at > this.phaseT) break;
+        if (this.firedSwaps.has(swap.id)) continue;
+        this.firedSwaps.add(swap.id);
+        this.audio.playSwish(swap);
+      }
+      // A DOUBLE puts two crosses on the same timestamp; the tick boundary is
+      // what lets the cue cap treat them as one move rather than two.
+      this.audio.endTick();
+    }
+
     if (this.screen === "shuffle" && this.phaseT >= this.plan.totalDuration + SETTLE) {
       this.screen = "pick";
       this.phaseT = 0;
@@ -260,6 +294,8 @@ export class ShellGameRuntime {
     this.pickedSlot = slot;
     this.pickCorrect = correct;
     this.state = registerGuess(this.state, { correct, cups: this.plan.cups });
+    if (correct) this.audio.playWin();
+    else this.audio.playLose();
     if (this.state.bestStreak > 0) writeBest(this.state.bestStreak);
     this.screen = "reveal";
     this.phaseT = 0;
@@ -272,6 +308,7 @@ export class ShellGameRuntime {
   }
 
   onPointerDown(e) {
+    this.audio.unlock();
     if (this.screen === "menu") {
       this.startGame();
       return;
@@ -293,6 +330,7 @@ export class ShellGameRuntime {
     if (["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Space", "Enter"].includes(code)) {
       e.preventDefault?.();
     }
+    this.audio.unlock();
 
     if (code === "KeyF") return void this.onFullscreen?.();
     if (code === "KeyP") return void this.togglePause();

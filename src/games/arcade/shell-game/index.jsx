@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useGameRuntimeBridge from "../../../utils/useGameRuntimeBridge";
 import resolveBrowserLanguage from "../../../utils/resolveBrowserLanguage";
+import { readStoredShellMuted } from "./audio.js";
 import { ShellGameRuntime } from "./engine.js";
 import { getCopy } from "./copy.js";
 
@@ -42,8 +43,13 @@ export default function ShellGameGame() {
 
   const press = useCallback((code) => rtRef.current?.pressVirtualKey(code), []);
   const startGame = useCallback(() => rtRef.current?.startGame(), []);
+  const toggleSound = useCallback(() => rtRef.current?.toggleAudioMuted(), []);
 
   const screen = snap?.screen ?? "menu";
+  // The runtime owns the mute state and republishes it, so the button reads from
+  // the snapshot instead of keeping a second copy in React. The fallback only
+  // covers the first paint, before the runtime's initial emit lands.
+  const audioMuted = snap?.audio?.muted ?? readStoredShellMuted();
 
   return (
     <div ref={rootRef} className="mini-game shell-game">
@@ -60,6 +66,15 @@ export default function ShellGameGame() {
           ) : null}
           <button type="button" onClick={() => press("KeyR")}>
             {copy.restart}
+          </button>
+          <button
+            id="shell-game-sound-btn"
+            type="button"
+            onClick={toggleSound}
+            aria-pressed={!audioMuted}
+            title={audioMuted ? copy.soundEnable : copy.soundDisable}
+          >
+            {audioMuted ? copy.soundOff : copy.soundOn}
           </button>
           <button type="button" onClick={handleFS}>
             {copy.fullscreen}
