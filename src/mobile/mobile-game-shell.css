@@ -937,6 +937,13 @@
   flex: 1;
 }
 
+/* Brilé gives its gameplay a bit more vertical room on the mobile shell. The
+   canvas resizes to its CSS box via ResizeObserver, so a taller clamp than the
+   default (44vh) just grows the playfield the runtime draws into. */
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .brile-canvas {
+  height: clamp(280px, 52vh, 520px);
+}
+
 /* Trilero fills its stage on mobile and tablet instead of sitting in a 16/9
    letterbox with dead felt under it. layoutFor() sizes the cups from whichever
    dimension binds and keys the lamp and the felt horizon off them, so a tall
@@ -985,6 +992,42 @@
 .mobile-game-shell--portrait.mobile-game-shell--device-tablet
   .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
   > [data-mobile-stage-branch="true"].shell-game {
+  padding-bottom: 140px;
+}
+
+/* Pulso Exacto fills its stage on mobile instead of sitting in a 16/9 letterbox
+   that clips the clock and the stop button and leaves dead space beneath. The
+   root has to stretch first so the percentage heights below resolve against the
+   full stage rather than the game's content height. */
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].pulso-exacto {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  [data-mobile-stage-target="true"].pulso-stage {
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+/* Portrait leaves a band under the stage for the touch-stage ad vignette, the
+   same way Trilero does — the overlay drops its card into the gap it measures
+   between the stage element and the viewport (phone ~79px card + 8px padding,
+   tablet ~115px + 12px). */
+.mobile-game-shell--portrait
+  .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].pulso-exacto {
+  box-sizing: border-box;
+  padding-bottom: 96px;
+}
+
+.mobile-game-shell--portrait.mobile-game-shell--device-tablet
+  .mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].pulso-exacto {
   padding-bottom: 140px;
 }
 

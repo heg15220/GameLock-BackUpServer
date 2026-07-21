@@ -59,7 +59,13 @@ const PinballWizardGame = lazy(() => import("./arcade/pinball-wizard"));
 const BubbleStormGame = lazy(() => import("./arcade/bubble-storm"));
 const BasketballCourtGame = lazy(() => import("./arcade/basketball-court"));
 const PingPongArenaGame = lazy(() => import("./arcade/ping-pong-arena"));
+const PadelArenaGame = lazy(() => import("./sports/padel-arena"));
 const ShellGameGame = lazy(() => import("./arcade/shell-game"));
+const PulsoExactoGame = lazy(() => import("./arcade/pulso-exacto"));
+const DistanciaJustaGame = lazy(() => import("./arcade/distancia-justa"));
+const TerrorZombiGame = lazy(() => import("./arcade/terror-zombi"));
+const BrileGame = lazy(() => import("./arcade/brile"));
+const ToposMazazosGame = lazy(() => import("./arcade/topos-mazazos"));
 const IceStrikeProGame = lazy(() => import("./arcade/ice-strike-pro"));
 const StickBrawlShowdownGame = lazy(() => import("./arcade/stick-brawl-showdown"));
 const NeonCryptGame = lazy(() => import("./arcade/neon-crypt"));
@@ -163,7 +169,13 @@ export const GAME_REGISTRY = {
   "arcade-valle-tranquilo":      ValleTranquiloGame,
   "sports-basketball-court":     BasketballCourtGame,
   "sports-ping-pong-arena":      PingPongArenaGame,
+  "sports-padel-arena":          PadelArenaGame,
   "arcade-shell-game":           ShellGameGame,
+  "arcade-pulso-exacto":         PulsoExactoGame,
+  "arcade-distancia-justa":      DistanciaJustaGame,
+  "arcade-terror-zombi":         TerrorZombiGame,
+  "arcade-brile":                BrileGame,
+  "arcade-topos-mazazos":        ToposMazazosGame,
   "arcade-pong-neon-arena":      PongGame,
   "arcade-buscaminas-classic":   MinesweeperGame,
   "arcade-retro-snake-classic":  ArcadeSnakeClassicGame,
@@ -247,7 +259,13 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-stick-brawl-showdown": "Fighter arcade avanzado: A/D o flechas mover, W/arriba saltar, S/abajo bloquear, G/espacio jab, H/enter cross, J/K patadas, F proyectil, B super, P pausa y R reinicia.",
     "sports-basketball-court":     "Baloncesto 6 posiciones: arriba/abajo ajustan arco, izq/der la desviación lateral y W/S la potencia. Space o Enter lanza. P pausa, R nueva ronda y F pantalla completa.",
     "sports-ping-pong-arena":      "Tenis de mesa en primera persona: la pala es tu dedo o el ratón y se mueve por la mesa como tu mano. Empújala hacia delante para golpear o sacar; cuanto más rápido la lances, más potente y raso sale el golpe, y cruzarla en diagonal abre la bola. Teclado: flechas mueven, Espacio saca. En el menú elige dificultad y formato. P pausa, R reinicia y F pantalla completa.",
+    "sports-padel-arena":          "Pádel por parejas (2v2) en pseudo-3D con vista broadcast. Controlas al jugador de tu pareja más cercano a la bola: flechas/WASD o joystick mueven; elige golpe con F volea/ataque, G revés, H globo, J dejada (Espacio también ataca), y marca dirección para colocar. Mantén pulsado el golpe (tecla, botón o dedo) para cargar potencia: la barra sobre tu figura la marca, y a tope la bola va más al fondo y más rápida a cambio de algo de precisión. El timing y la calidad del contacto definen profundidad y efecto (liftado pica bajo, cortado se sienta). Tras botar, la bola puede rebotar en el cristal y seguir en juego; saca cruzado por debajo. Puntuación reglamentaria (15/30/40, juegos y sets con tie-break). En el menú elige dificultad y formato. P pausa, R reinicia y M sonido.",
     "arcade-shell-game":           "Toca o haz clic en el vaso que esconde la bola. La bola va siempre debajo de su vaso: si no lo pierdes de vista, aciertas. Cada acierto sube el nivel y la mezcla se endurece (más rápida, más cruces y hasta 5 vasos); tres fallos y se acaba. Teclas 1-5 eligen vaso, P pausa, R reinicia y F pantalla completa.",
+    "arcade-pulso-exacto":         "Aparece un tiempo objetivo (hasta 60 s). El cronómetro se ve solo los 2 primeros segundos como guía y luego se oculta; párale con Espacio, clic o toque en cualquier zona lo más cerca del objetivo. Cuanto menor la diferencia, más puntos; 5 rondas por partida. P pausa, R reinicia, M sonido y F pantalla completa.",
+    "arcade-distancia-justa":      "Camina la distancia anunciada: mantén Avanzar (D/→/Espacio o toque en la pista) y Atrás (A/←), y pulsa Confirmar (Enter) para fijar tu posición. Solo hay marcas los primeros 30 m; el resto a ojo. Compites contra 3 IAs (dificultad elegible) en 5 rondas con puntos por puesto. P pausa, R reinicia, M sonido y F pantalla completa.",
+    "arcade-terror-zombi":         "Huye de los zombis en un cementerio vallado: WASD/flechas mueven en 8 direcciones (o arrastra sobre el tablero / cruceta en móvil). Si un zombi te toca, te conviertes y pasas a cazar; el último humano en pie gana. La horda acelera con el tiempo. Enter/Espacio empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
+    "arcade-brile":                "Balón prisionero 6v6 en un cementerio vallado. Manejas a un jugador del equipo azul: WASD/flechas mueven (o arrastra / cruceta en móvil), Espacio/J lanza al rival más peligroso y K/Mayús atrapa (púlsalo al vuelo para brilar al lanzador). Da a un rival antes de que bote y va al cementerio; desde ahí sigue lanzando y vuelve si acierta. Gana quien vacía el campo rival. Enter empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
+    "arcade-topos-mazazos":        "Whack-a-mole con desplazamiento en un jardín vallado: flechas/WASD (o joystick en móvil) te llevan hasta el agujero y Espacio o el botón Golpear suelta un mazazo de área que alcanza todo lo asomado a tu alrededor. Topo marrón = 1 punto, dorado = 3, y el topo bomba resta 2 y te aturde. Rodea los barriles y compite con 3 IAs: gana quien más puntúe en 30 s. Enter empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
     "arcade-pacman-maze-protocol": "WASD/flechas mover, Enter/Espacio empezar, P/Esc pausa, R reinicia, M sonido.",
     "arcade-pong-neon-arena":      "W/S o flechas arriba/abajo para mover vertical. A/D o flechas izq/der para avanzar o retroceder (sin cruzar el centro). Ratón también controla vertical. Enter/Espacio empezar, P pausa, R reinicia, M sonido, F pantalla completa.",
     "arcade-buscaminas-classic":   "Click izq abre, click der o pulsación larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA y R reinicia. En competitivo puntúan celdas y tiempo.",
@@ -325,7 +343,13 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-stick-brawl-showdown": "Advanced arcade fighter: A/D or arrows move, W/up jump, S/down block, G/space jab, H/enter cross, J/K kicks, F projectile, B super, P pause, R restart.",
     "sports-basketball-court":     "Basketball 6 positions: up/down tune arc, left/right lateral aim, W/S power. Space or Enter shoots. P pauses, R starts a new round, and F toggles fullscreen.",
     "sports-ping-pong-arena":      "First-person table tennis: the bat is your finger or the mouse and moves across the table like your hand. Push it forward to hit or serve; the harder you drive it, the faster and flatter the shot, and cutting across it sends the ball wide. Keyboard: arrows move, Space serves. Pick difficulty and format in the menu. P pauses, R restarts, and F toggles fullscreen.",
+    "sports-padel-arena":          "Pseudo-3D doubles padel (2v2) with a broadcast camera. You control whichever of your pair is closest to the ball: arrows/WASD or the joystick move; pick your shot with F volley/attack, G backhand, H lob, J drop (Space also attacks), and hold a direction to place it. Hold the shot down (key, button or finger) to charge power: the bar above your figure shows it, and fully charged the ball goes deeper and faster at some cost in accuracy. Timing and contact quality set depth and spin (topspin skids low, backspin sits up). After a floor bounce the ball can rebound off the glass and stay in play; serve cross-court, underhand. Regulation scoring (15/30/40, games and sets with tie-break). Pick difficulty and format in the menu. P pauses, R restarts, and M sound.",
     "arcade-shell-game":           "Tap or click the cup hiding the ball. The ball always rides under its own cup: keep your eye on it and you cannot be wrong. Every hit climbs a level and tightens the shuffle (faster, more crosses, up to 5 cups); three misses and you are out. Keys 1-5 pick a cup, P pauses, R restarts, and F toggles fullscreen.",
+    "arcade-pulso-exacto":         "A target time appears (up to 60s). The clock is only shown for the first 2 seconds as a guide, then hides; stop it with Space, click or a tap anywhere as close to the target as you can. The smaller the gap, the more points; 5 rounds per game. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    "arcade-distancia-justa":      "Walk the announced distance: hold Advance (D/→/Space or a tap on the track) and Back (A/←), and press Confirm (Enter) to lock your position. Signs only cover the first 30 m; the rest is by feel. You face 3 AIs (selectable difficulty) across 5 rounds with placement points. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    "arcade-terror-zombi":         "Flee the zombies in a fenced graveyard: WASD/arrows move in 8 directions (or drag on the field / D-pad on mobile). Touch a zombie and you turn and start hunting; the last human standing wins. The horde speeds up over time. Enter/Space starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
+    "arcade-brile":                "6v6 dodgeball in a fenced graveyard. You control one blue-team player: WASD/arrows move (or drag / D-pad on mobile), Space/J throws at the most dangerous rival and K/Shift catches (snatch it midair to send the thrower out). Hit a rival before it bounces and they go to the graveyard; from there they keep throwing and return on a hit. Empty the enemy court to win. Enter starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
+    "arcade-topos-mazazos":        "Whack-a-mole on the move in a fenced garden: arrows/WASD (or the joystick on mobile) walk you to the hole and Space or the Whack button swings an area blow that hits everything popped up around you. Brown mole = 1 point, gold = 3, and the bomb mole costs 2 and stuns you. Weave around the barrels and race 3 AIs: most points in 30s wins. Enter starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
     "arcade-pacman-maze-protocol": "WASD/arrows move, Enter/Space start, P/Esc pause, R restart, M sound.",
     "arcade-pong-neon-arena":      "W/S or up/down arrows for vertical. A/D or left/right arrows to advance or retreat (cannot cross centre line). Mouse also controls vertical. Enter/Space start, P pause, R restart, M sound, F fullscreen.",
     "arcade-buscaminas-classic":   "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells and time.",

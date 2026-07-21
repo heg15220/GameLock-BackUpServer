@@ -30142,6 +30142,337 @@ button.brisca-card.playable:disabled {
   }
 }
 
+/* ── Pádel Pro Arena ──────────────────────────────────────────────────────── */
+/* Shares the arcade sports shell with ping-pong, but carries the padel court's
+   own green-and-orange accent (glass court over dark stands). */
+
+.padel-arena-game {
+  background:
+    radial-gradient(circle at 12% -20%, rgba(255, 122, 61, 0.14), transparent 38%),
+    radial-gradient(circle at 100% 0%, rgba(47, 125, 91, 0.2), transparent 34%),
+    linear-gradient(165deg, #07130f 0%, #0c1f18 56%, #060c0a 100%);
+  border-color: rgba(120, 190, 150, 0.24);
+  color: #e2e8f0;
+}
+
+.padel-arena-game .mini-head h4 {
+  color: #ffd9b8;
+}
+
+.padel-arena-game .mini-head p {
+  color: #cbd5e1;
+}
+
+.padel-arena-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.padel-arena-actions button,
+.padel-arena-controls button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(9, 24, 18, 0.78);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.52rem 0.78rem;
+  cursor: pointer;
+}
+
+.padel-arena-actions button:hover,
+.padel-arena-controls button:hover {
+  border-color: rgba(255, 122, 61, 0.45);
+}
+
+.padel-arena-actions button.is-on {
+  border-color: rgba(61, 155, 255, 0.5);
+}
+
+.padel-arena-stage {
+  border: 1px solid rgba(120, 190, 150, 0.18);
+  border-radius: 24px;
+  overflow: hidden;
+  background: #060c0a;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  touch-action: none;
+}
+
+.padel-arena-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 320px;
+  touch-action: none;
+}
+
+.padel-arena-controls {
+  margin-top: 0.72rem;
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid rgba(120, 190, 150, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 100% -10%, rgba(255, 122, 61, 0.1), transparent 42%),
+    rgba(7, 22, 16, 0.84);
+  padding: 0.78rem;
+}
+
+.padel-arena-menu {
+  gap: 0.9rem;
+}
+
+.padel-arena-choice {
+  display: grid;
+  gap: 0.46rem;
+}
+
+.padel-arena-choice-label {
+  color: #9fc7b3;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Segmented control: clearly grouped, large touch targets, obvious selection. */
+.padel-arena-seg {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.3rem;
+  border-radius: 16px;
+  background: rgba(4, 12, 9, 0.5);
+  border: 1px solid rgba(120, 190, 150, 0.14);
+}
+
+.padel-arena-seg--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.padel-arena-seg--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.padel-arena-seg-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.14rem;
+  min-height: 60px;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  background: rgba(12, 26, 20, 0.6) !important;
+  color: #dbe7e0 !important;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.padel-arena-seg-btn:hover {
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+.padel-arena-seg-btn:active {
+  transform: scale(0.97);
+}
+
+.padel-arena-seg-dot {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.padel-arena-seg-name {
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
+.padel-arena-seg-sub {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #93b7a5;
+}
+
+.padel-arena-seg-btn.is-on {
+  background: linear-gradient(135deg, #34d17f, #10a057) !important;
+  border-color: #4ee39a !important;
+  color: #06140d !important;
+  box-shadow: 0 4px 14px rgba(18, 163, 90, 0.34);
+}
+
+.padel-arena-seg-btn.is-on .padel-arena-seg-sub {
+  color: rgba(6, 20, 13, 0.7);
+}
+
+.padel-arena-choice-desc {
+  margin: 0;
+  min-height: 1.1rem;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Prominent start button. */
+.padel-arena-start {
+  width: 100%;
+  min-height: 58px;
+  border: none !important;
+  border-radius: 16px !important;
+  background: linear-gradient(135deg, #ffb347, #f9631f) !important;
+  color: #1a0f06 !important;
+  font-weight: 900 !important;
+  font-size: 1.05rem !important;
+  letter-spacing: 0.01em;
+  box-shadow: 0 6px 18px rgba(249, 99, 31, 0.32);
+  transition: transform 0.08s ease, box-shadow 0.15s ease;
+}
+
+.padel-arena-start:hover {
+  box-shadow: 0 8px 22px rgba(249, 99, 31, 0.42);
+}
+
+.padel-arena-start:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* Collapsible help keeps the menu tidy. */
+.padel-arena-help {
+  border-radius: 12px;
+  background: rgba(4, 12, 9, 0.4);
+  border: 1px solid rgba(120, 190, 150, 0.12);
+  padding: 0.1rem 0.7rem;
+}
+
+.padel-arena-help summary {
+  cursor: pointer;
+  padding: 0.55rem 0;
+  color: #9fc7b3;
+  font-size: 0.8rem;
+  font-weight: 700;
+  list-style: none;
+}
+
+.padel-arena-help summary::-webkit-details-marker {
+  display: none;
+}
+
+.padel-arena-help summary::before {
+  content: "▸ ";
+  color: #6fae8c;
+}
+
+.padel-arena-help[open] summary::before {
+  content: "▾ ";
+}
+
+/* In-game status line above the action buttons. */
+.padel-arena-status {
+  margin: 0 0 0.1rem;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.padel-arena-status.is-you {
+  color: #ffd9b8;
+}
+
+.padel-arena-action-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.padel-arena-action-strip button {
+  flex: 1 1 0;
+  min-height: 56px;
+  font-weight: 800;
+}
+
+.padel-arena-action-strip .padel-arena-primary {
+  flex: 2 1 0;
+  border: none !important;
+  background: linear-gradient(135deg, #ffb347, #f9631f) !important;
+  color: #1a0f06 !important;
+  font-size: 1.02rem !important;
+  box-shadow: 0 5px 16px rgba(249, 99, 31, 0.3);
+}
+
+/* Botonera de golpes: cuatro opciones grandes (Volea/Revés/Globo/Dejada). */
+.padel-arena-shots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.44rem;
+  margin-bottom: 0.5rem;
+}
+
+.padel-arena-shot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.16rem;
+  min-height: 58px;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 13px !important;
+  background: rgba(12, 26, 20, 0.68) !important;
+  color: #eaf3ee !important;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.padel-arena-shot:hover {
+  border-color: rgba(255, 138, 61, 0.5) !important;
+}
+
+.padel-arena-shot:active {
+  transform: scale(0.96);
+}
+
+.padel-arena-shot--primary {
+  background: linear-gradient(135deg, #ffb347, #f9631f) !important;
+  color: #1a0f06 !important;
+  border-color: transparent !important;
+}
+
+.padel-arena-shot-name {
+  font-size: 0.86rem;
+}
+
+.padel-arena-shot-key {
+  font-size: 0.62rem;
+  font-weight: 700;
+  opacity: 0.7;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0 0.28rem;
+  line-height: 1.3;
+}
+
+@media (max-width: 720px) {
+  .padel-arena-shots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.padel-arena-hint {
+  margin: 0.4rem 0 0.55rem;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .padel-arena-seg-btn {
+    min-height: 66px;
+  }
+
+  .padel-arena-action-strip {
+    flex-direction: column;
+  }
+}
+
 /* ── Trilero / Shell Game ─────────────────────────────────────────────────── */
 /* Follows the arcade shell used by ping-pong, but carries the game's own warm
    felt-and-lamp accent instead of the blue one. */
@@ -31142,4 +31473,1760 @@ button.brisca-card.playable:disabled {
   .summit-touch-controls {
     display: flex;
   }
+}
+
+/* ── Pulso Exacto / Exact Pulse ───────────────────────────────────────────── */
+/* Same arcade shell as the other minis, with a cool cyan-indigo stopwatch
+   accent and an orange target cue. The stage itself is one big STOP target. */
+
+.pulso-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.pulso-actions button,
+.pulso-controls button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.78);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.52rem 0.78rem;
+  cursor: pointer;
+}
+
+.pulso-actions button:hover {
+  border-color: rgba(103, 232, 249, 0.5);
+}
+
+.pulso-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+  aspect-ratio: 16 / 9;
+  padding: 1.1rem;
+  border: 1px solid rgba(129, 140, 248, 0.22);
+  border-radius: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(34, 211, 238, 0.16), transparent 58%),
+    linear-gradient(165deg, #0b1220 0%, #060a14 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  touch-action: manipulation;
+}
+
+.pulso-stage--running {
+  cursor: pointer;
+  border-color: rgba(103, 232, 249, 0.4);
+}
+
+.pulso-stage.is-live {
+  border-color: rgba(103, 232, 249, 0.6);
+}
+
+.pulso-panel {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  text-align: center;
+  width: 100%;
+  max-width: 460px;
+}
+
+.pulso-lead {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.pulso-target-label {
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pulso-target-value {
+  color: #f8fafc;
+  font-family: "Courier New", monospace;
+  font-size: clamp(2.6rem, 9vw, 4rem);
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 0 22px rgba(249, 115, 22, 0.35);
+}
+
+.pulso-target-value em {
+  font-size: 0.42em;
+  font-style: normal;
+  color: #f97316;
+  margin-left: 0.15em;
+}
+
+.pulso-clock {
+  font-family: "Courier New", monospace;
+  font-size: clamp(3rem, 13vw, 5.4rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #67e8f9;
+}
+
+.pulso-clock.is-live {
+  text-shadow: 0 0 26px rgba(103, 232, 249, 0.5);
+}
+
+.pulso-clock.is-hidden {
+  color: #475569;
+  letter-spacing: 0.14em;
+  animation: pulso-breathe 1.4s ease-in-out infinite;
+}
+
+@keyframes pulso-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.95; }
+}
+
+.pulso-primary {
+  border: 1px solid #67e8f9;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #67e8f9, #818cf8);
+  color: #0b1220;
+  font: inherit;
+  font-weight: 800;
+  min-height: 54px;
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+}
+
+.pulso-primary.pulso-stop {
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  border-color: #fb923c;
+  color: #111827;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  min-width: 60%;
+}
+
+.pulso-perfect {
+  color: #fde047;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 18px rgba(253, 224, 71, 0.5);
+}
+
+/* End-of-round reveal (animated) */
+.pulso-reveal {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  /* Quality drives one accent variable that every animated part reads. */
+  --pulso-accent: #67e8f9;
+  --pulso-accent-soft: rgba(103, 232, 249, 0.28);
+}
+
+.pulso-reveal--good {
+  --pulso-accent: #67e8f9;
+  --pulso-accent-soft: rgba(103, 232, 249, 0.28);
+}
+
+.pulso-reveal--perfect {
+  --pulso-accent: #fde047;
+  --pulso-accent-soft: rgba(253, 224, 71, 0.32);
+}
+
+.pulso-reveal--miss {
+  --pulso-accent: #f87171;
+  --pulso-accent-soft: rgba(248, 113, 113, 0.28);
+}
+
+.pulso-reveal-clock {
+  font-family: "Courier New", monospace;
+  font-size: clamp(2.6rem, 11vw, 4.4rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--pulso-accent);
+  text-shadow: 0 0 26px var(--pulso-accent-soft);
+}
+
+.pulso-reveal-clock em {
+  font-size: 0.34em;
+  font-style: normal;
+  margin-left: 0.14em;
+  opacity: 0.75;
+}
+
+.pulso-track {
+  position: relative;
+  width: 100%;
+  height: 46px;
+  margin: 0.6rem 0;
+  border-radius: 999px;
+  background: rgba(10, 18, 32, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.pulso-track-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.35), var(--pulso-accent));
+  box-shadow: 0 0 18px var(--pulso-accent-soft);
+  transition: width 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The scoring gap between the player's stop and the target. */
+.pulso-track-gap {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 6px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--pulso-accent-soft),
+    var(--pulso-accent-soft) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease 0.6s;
+}
+
+.pulso-reveal.is-animate .pulso-track-gap {
+  opacity: 1;
+}
+
+/* Target mark: a fixed orange pin the sweep is measured against. */
+.pulso-track-target {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  width: 3px;
+  transform: translateX(-50%) scaleY(0.4);
+  transform-origin: center bottom;
+  background: #fb923c;
+  border-radius: 3px;
+  box-shadow: 0 0 12px rgba(251, 146, 60, 0.6);
+  opacity: 0;
+  transition: opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s;
+}
+
+.pulso-reveal.is-animate .pulso-track-target {
+  opacity: 1;
+  transform: translateX(-50%) scaleY(1);
+}
+
+/* Player mark: a dot that rides the front of the sweeping fill. */
+.pulso-track-you {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--pulso-accent);
+  box-shadow: 0 0 14px var(--pulso-accent);
+  transition: left 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pulso-flag {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.1rem 0.34rem;
+  border-radius: 8px;
+}
+
+.pulso-flag--target {
+  bottom: calc(100% + 4px);
+  color: #fdba74;
+  background: rgba(251, 146, 60, 0.14);
+}
+
+.pulso-flag--you {
+  top: calc(100% + 8px);
+  color: var(--pulso-accent);
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.pulso-reveal-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.pulso-reveal-error {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.pulso-reveal-error strong {
+  color: #e2e8f0;
+  font-family: "Courier New", monospace;
+}
+
+.pulso-reveal-error em {
+  font-style: normal;
+  opacity: 0.8;
+}
+
+.pulso-reveal-points {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--pulso-accent);
+  text-shadow: 0 0 18px var(--pulso-accent-soft);
+  transform: scale(0.5);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.2, 1.5, 0.4, 1) 0.55s, opacity 0.35s ease 0.55s;
+}
+
+.pulso-reveal.is-animate .pulso-reveal-points {
+  transform: scale(1);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulso-track-fill,
+  .pulso-track-you,
+  .pulso-track-target,
+  .pulso-track-gap,
+  .pulso-reveal-points {
+    transition-duration: 0.01ms;
+  }
+}
+
+.pulso-final-score {
+  color: #67e8f9;
+  font-family: "Courier New", monospace;
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 0 26px rgba(103, 232, 249, 0.45);
+}
+
+.pulso-rating {
+  color: #fde047;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.pulso-controls {
+  margin-top: 0.72rem;
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 100% -10%, rgba(129, 140, 248, 0.14), transparent 42%),
+    rgba(7, 17, 31, 0.84);
+  padding: 0.78rem;
+}
+
+.pulso-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.pulso-stats span {
+  display: grid;
+  gap: 0.16rem;
+  justify-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.6);
+  padding: 0.42rem 0.3rem;
+  color: #9fb3cc;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.pulso-stats strong {
+  color: #67e8f9;
+  font-size: 1rem;
+}
+
+.pulso-hint {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .pulso-flag {
+    font-size: 0.6rem;
+  }
+  .pulso-reveal-meta {
+    gap: 0.3rem 0.7rem;
+  }
+}
+
+/* ── Distancia Justa / Right Distance ─────────────────────────────────────── */
+/* Arcade shell with a sunny-field canvas of four stacked lanes; the HUD and the
+   round/standings panels overlay the canvas, and hold-to-walk controls sit in
+   the deck below. */
+
+.dj-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.dj-actions button,
+.dj-controls button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.78);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.52rem 0.78rem;
+  cursor: pointer;
+}
+
+.dj-actions button:hover {
+  border-color: rgba(103, 232, 249, 0.5);
+}
+
+.dj-stage {
+  position: relative;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  overflow: hidden;
+  background: #060a14;
+}
+
+.dj-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 10 / 7;
+  min-height: 340px;
+  touch-action: none;
+  cursor: pointer;
+}
+
+/* Run HUD */
+.dj-hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  pointer-events: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.dj-hud-target strong {
+  color: #fde047;
+}
+
+.dj-hud-time {
+  background: rgba(7, 17, 31, 0.66);
+  border-radius: 10px;
+  padding: 0.16rem 0.5rem;
+}
+
+.dj-hud-time.is-low strong {
+  color: #f87171;
+}
+
+.dj-waiting {
+  position: absolute;
+  top: 2.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.34rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(7, 17, 31, 0.82);
+  border: 1px solid rgba(103, 232, 249, 0.4);
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.dj-waiting-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #67e8f9;
+  animation: dj-blink 0.9s ease-in-out infinite;
+}
+
+@keyframes dj-blink {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Overlays */
+.dj-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: radial-gradient(circle at 50% 40%, rgba(6, 10, 20, 0.55), rgba(6, 10, 20, 0.82));
+}
+
+.dj-overlay--paused {
+  background: rgba(6, 10, 20, 0.6);
+}
+
+.dj-panel {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  background: rgba(7, 17, 31, 0.9);
+}
+
+.dj-lead {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.dj-choose {
+  color: #94a3b8;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dj-diff-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.dj-diff {
+  display: grid;
+  gap: 0.24rem;
+  padding: 0.7rem 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.7);
+  color: #e2e8f0;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.dj-diff:hover {
+  transform: translateY(-2px);
+}
+
+.dj-diff strong {
+  font-size: 1rem;
+}
+
+.dj-diff em {
+  font-style: normal;
+  font-size: 0.68rem;
+  color: #9fb3cc;
+  line-height: 1.3;
+}
+
+.dj-diff--facil:hover { border-color: #a3e635; }
+.dj-diff--normal:hover { border-color: #67e8f9; }
+.dj-diff--dificil:hover { border-color: #f87171; }
+
+/* Announcement */
+.dj-announce {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  animation: dj-pop 0.35s ease;
+}
+
+.dj-announce-lead {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.dj-announce-big {
+  font-family: "Bricolage Grotesque", "Segoe UI", sans-serif;
+  font-size: clamp(2.2rem, 8vw, 3.6rem);
+  font-weight: 800;
+  color: #fde047;
+  text-shadow: 0 0 26px rgba(253, 224, 71, 0.35);
+}
+
+@keyframes dj-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Results / standings */
+.dj-result-title {
+  color: #e2e8f0;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.dj-result-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.34rem;
+  width: 100%;
+}
+
+.dj-result-list li {
+  display: grid;
+  grid-template-columns: 2.1rem 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(10, 18, 32, 0.6);
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: dj-row-in 0.4s ease forwards;
+}
+
+@keyframes dj-row-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dj-result-list li.is-player {
+  border-color: var(--dj-c, #67e8f9);
+  background: rgba(103, 232, 249, 0.08);
+}
+
+/* Podium tint for the top three. */
+.dj-result-list li.dj-rank-0 { box-shadow: inset 0 0 0 1px rgba(253, 224, 71, 0.45); }
+.dj-result-list li.dj-rank-1 { box-shadow: inset 0 0 0 1px rgba(203, 213, 225, 0.35); }
+.dj-result-list li.dj-rank-2 { box-shadow: inset 0 0 0 1px rgba(217, 149, 88, 0.35); }
+
+.dj-medal {
+  font-size: 1.1rem;
+  text-align: center;
+  font-weight: 800;
+  color: #cbd5e1;
+}
+
+.dj-row-main {
+  display: grid;
+  gap: 0.24rem;
+  min-width: 0;
+}
+
+.dj-row-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dj-name {
+  text-align: left;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dj-meters {
+  font-family: "Courier New", monospace;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.dj-meters em {
+  font-style: normal;
+  color: #94a3b8;
+  font-size: 0.9em;
+}
+
+.dj-bar {
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.18);
+  overflow: hidden;
+}
+
+.dj-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  width: 0;
+  animation: dj-bar-grow 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes dj-bar-grow {
+  from { width: 0; }
+}
+
+.dj-standings li {
+  grid-template-columns: 2.1rem 1fr auto;
+}
+
+.dj-pts {
+  font-weight: 800;
+  color: var(--dj-c, #67e8f9);
+}
+
+.dj-champion {
+  color: #fde047;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.dj-primary {
+  border: 1px solid #67e8f9;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #67e8f9, #818cf8);
+  color: #0b1220;
+  font: inherit;
+  font-weight: 800;
+  min-height: 50px;
+  padding: 0.55rem 1.3rem;
+  cursor: pointer;
+}
+
+.dj-over-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.dj-over-actions button:not(.dj-primary) {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.78);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+}
+
+.dj-paused {
+  color: #f8fafc;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+/* Controls deck */
+.dj-controls {
+  margin-top: 0.72rem;
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0% -10%, rgba(103, 232, 249, 0.12), transparent 42%),
+    rgba(7, 17, 31, 0.84);
+  padding: 0.78rem;
+}
+
+.dj-move-deck {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1.2fr;
+  gap: 0.5rem;
+}
+
+.dj-hold {
+  min-height: 60px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 18, 32, 0.8);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.dj-hold:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dj-hold--fwd {
+  background: linear-gradient(135deg, #67e8f9, #38bdf8);
+  color: #0b1220;
+  border-color: #67e8f9;
+}
+
+.dj-hold--confirm {
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  color: #111827;
+  border-color: #fb923c;
+}
+
+.dj-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.dj-stats span {
+  display: grid;
+  gap: 0.16rem;
+  justify-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.6);
+  padding: 0.42rem 0.3rem;
+  color: #9fb3cc;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.dj-stats strong {
+  color: #67e8f9;
+  font-size: 1rem;
+}
+
+.dj-hint {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .dj-diff-row {
+    grid-template-columns: 1fr;
+  }
+  .dj-result-list li {
+    font-size: 0.76rem;
+  }
+}
+
+/* Terror Zombi — a top-down night graveyard canvas with an overlaid HUD, a
+   menu/result panel, and an 8-direction D-pad in the controls deck below. */
+
+.tz-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.tz-actions button,
+.tz-controls button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.78);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.52rem 0.78rem;
+  cursor: pointer;
+}
+
+.tz-actions button:hover {
+  border-color: rgba(143, 174, 122, 0.5);
+}
+
+.tz-stage {
+  position: relative;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  overflow: hidden;
+  background: #2e3a2f;
+}
+
+.tz-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 10 / 7;
+  min-height: 340px;
+  touch-action: none;
+  cursor: pointer;
+}
+
+/* Run HUD */
+.tz-hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  pointer-events: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.tz-hud-time strong {
+  color: #fde047;
+}
+
+.tz-hud-count {
+  background: rgba(7, 17, 31, 0.6);
+  border-radius: 10px;
+  padding: 0.16rem 0.5rem;
+}
+
+.tz-hud-zombies strong {
+  color: #8fae7a;
+}
+
+.tz-grace,
+.tz-infected {
+  position: absolute;
+  top: 2.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.34rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.tz-grace {
+  background: rgba(7, 17, 31, 0.82);
+  border: 1px solid rgba(143, 174, 122, 0.5);
+  color: #d9f99d;
+  animation: tz-blink 0.9s ease-in-out infinite;
+}
+
+.tz-infected {
+  background: rgba(76, 12, 12, 0.85);
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  color: #fecaca;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes tz-blink {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Overlays */
+.tz-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: radial-gradient(circle at 50% 40%, rgba(4, 6, 12, 0.6), rgba(4, 6, 12, 0.85));
+}
+
+.tz-overlay--paused {
+  background: rgba(4, 6, 12, 0.65);
+}
+
+.tz-panel {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  background: rgba(7, 17, 31, 0.92);
+}
+
+.tz-lead {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.tz-choose {
+  color: #94a3b8;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Graveyard + difficulty picks live in the toolbar (like Restart/Sound) so they
+   stay reachable in the mobile shell. They share the .tz-actions button base;
+   these rules add the map's held-selection highlight, the difficulty accents and
+   the replay button's emphasis. Grouped so map/difficulty each wrap as a unit. */
+.tz-act-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.tz-actions .tz-act-map.is-selected {
+  border-color: #86efac;
+  background: rgba(22, 40, 30, 0.9);
+  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.4), 0 0 16px rgba(74, 222, 128, 0.16);
+  color: #ecfdf5;
+}
+
+.tz-actions .tz-act-diff--facil:hover { border-color: #a3e635; }
+.tz-actions .tz-act-diff--normal:hover { border-color: #fbbf24; }
+.tz-actions .tz-act-diff--dificil:hover { border-color: #f87171; }
+
+.tz-actions .tz-act-primary {
+  border-color: rgba(134, 239, 172, 0.55);
+  background: rgba(22, 44, 30, 0.9);
+}
+
+.tz-prompt {
+  color: #9fb3cc;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+/* Result */
+.tz-result-title {
+  color: #fecaca;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.tz-result-title.is-win {
+  color: #fde047;
+  text-shadow: 0 0 22px rgba(253, 224, 71, 0.3);
+}
+
+.tz-result-sub {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+}
+
+.tz-result-sub strong {
+  color: #e2e8f0;
+}
+
+.tz-result-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.34rem;
+  width: 100%;
+}
+
+.tz-result-list li {
+  display: grid;
+  grid-template-columns: 2.1rem 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(10, 18, 32, 0.6);
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: tz-row-in 0.4s ease forwards;
+}
+
+@keyframes tz-row-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tz-result-list li.is-player {
+  border-color: #8fae7a;
+  background: rgba(143, 174, 122, 0.1);
+}
+
+.tz-result-list li.tz-rank-0 { box-shadow: inset 0 0 0 1px rgba(253, 224, 71, 0.45); }
+.tz-result-list li.tz-rank-1 { box-shadow: inset 0 0 0 1px rgba(203, 213, 225, 0.35); }
+.tz-result-list li.tz-rank-2 { box-shadow: inset 0 0 0 1px rgba(217, 149, 88, 0.35); }
+
+.tz-medal {
+  font-size: 1.1rem;
+  text-align: center;
+  font-weight: 800;
+  color: #cbd5e1;
+}
+
+.tz-name {
+  text-align: left;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tz-time {
+  font-family: "Courier New", monospace;
+  color: #94a3b8;
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+
+.tz-paused {
+  color: #f8fafc;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+/* Controls deck */
+.tz-controls {
+  margin-top: 0.72rem;
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0% -10%, rgba(143, 174, 122, 0.12), transparent 42%),
+    rgba(7, 17, 31, 0.84);
+  padding: 0.78rem;
+}
+
+/* A compact 3x3 D-pad: up/down centred, left/right on the flanks. */
+.tz-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-areas:
+    ". up ."
+    "left . right"
+    ". down .";
+  gap: 0.4rem;
+  max-width: 240px;
+  margin: 0 auto;
+}
+
+.tz-dir {
+  min-height: 54px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 18, 32, 0.8);
+  color: #f8fafc;
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.tz-dir:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tz-dir--up { grid-area: up; }
+.tz-dir--down { grid-area: down; }
+.tz-dir--left { grid-area: left; }
+.tz-dir--right { grid-area: right; }
+
+.tz-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.tz-stats span {
+  display: grid;
+  gap: 0.16rem;
+  justify-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.6);
+  padding: 0.42rem 0.3rem;
+  color: #9fb3cc;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.tz-stats strong {
+  color: #a3e635;
+  font-size: 1rem;
+}
+
+.tz-hint {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .tz-result-list li {
+    font-size: 0.76rem;
+  }
+}
+
+/* Brilé — graveyard dodgeball: a wide top-down court canvas with an overlaid HUD,
+   a menu/result panel, and a move D-pad plus Throw/Catch buttons below. Shares
+   the twilight-panel language of Terror Zombi. Difficulty and result actions live
+   in the header toolbar (like Restart/Sound) so they surface in the mobile shell. */
+.brile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.brile-actions button,
+.brile-controls button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(10, 18, 32, 0.78);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.52rem 0.78rem;
+  cursor: pointer;
+}
+
+.brile-actions button:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.brile-act-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.brile-actions .brile-act-diff--facil:hover { border-color: #a3e635; }
+.brile-actions .brile-act-diff--normal:hover { border-color: #fbbf24; }
+.brile-actions .brile-act-diff--dificil:hover { border-color: #f87171; }
+
+.brile-actions .brile-act-primary {
+  border-color: rgba(56, 189, 248, 0.55);
+  background: rgba(12, 34, 52, 0.9);
+}
+
+.brile-stage {
+  position: relative;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  overflow: hidden;
+  background: #2e3a2f;
+}
+
+.brile-canvas {
+  display: block;
+  width: 100%;
+  height: clamp(240px, 44vh, 460px);
+  touch-action: none;
+}
+
+/* HUD */
+.brile-hud {
+  position: absolute;
+  top: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(7, 17, 31, 0.72);
+  color: #e2e8f0;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.brile-hud-team strong { font-size: 1rem; }
+.brile-hud-team--you strong { color: #67e8f9; }
+.brile-hud-team--rival strong { color: #fda4af; }
+.brile-hud-clock {
+  color: #cbd5e1;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.brile-grace,
+.brile-incoming,
+.brile-prison,
+.brile-throwcue {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.brile-grace {
+  top: 42%;
+  background: rgba(7, 17, 31, 0.8);
+  color: #f8fafc;
+  font-size: 1.05rem;
+}
+
+.brile-incoming {
+  top: 2.6rem;
+  background: rgba(127, 29, 29, 0.85);
+  color: #fecaca;
+  animation: brile-flash 0.5s ease-in-out infinite;
+}
+
+@keyframes brile-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.brile-prison {
+  bottom: 0.7rem;
+  background: rgba(64, 45, 20, 0.85);
+  color: #fde68a;
+  font-size: 0.78rem;
+}
+
+.brile-throwcue {
+  bottom: 0.7rem;
+  background: rgba(12, 34, 52, 0.85);
+  color: #7dd3fc;
+  font-size: 0.78rem;
+}
+.brile-stage:has(.brile-prison) .brile-throwcue { bottom: 2.4rem; }
+
+/* Overlays */
+.brile-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(4, 10, 20, 0.55);
+}
+
+.brile-overlay--paused {
+  background: rgba(4, 10, 20, 0.72);
+}
+
+.brile-panel {
+  display: grid;
+  justify-items: center;
+  gap: 0.62rem;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  background: rgba(7, 17, 31, 0.92);
+}
+
+.brile-lead {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.brile-choose {
+  color: #94a3b8;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.brile-diff-hints {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.28rem;
+  width: 100%;
+}
+
+.brile-diff-hints li {
+  color: #9fb3cc;
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.brile-diff-hints strong { color: #e2e8f0; }
+
+.brile-prompt {
+  color: #9fb3cc;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.brile-result-title {
+  color: #fecaca;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.brile-result-title.is-win {
+  color: #7dd3fc;
+  text-shadow: 0 0 22px rgba(56, 189, 248, 0.3);
+}
+
+.brile-result-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.32rem;
+  width: 100%;
+  max-width: 260px;
+}
+
+.brile-result-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.34rem 0.7rem;
+  border-radius: 12px;
+  background: rgba(10, 18, 32, 0.7);
+  color: #cbd5e1;
+  font-size: 0.82rem;
+}
+
+.brile-result-list strong { color: #f8fafc; }
+
+.brile-paused {
+  color: #f8fafc;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+/* Controls deck (desktop; hidden by the mobile shell's stage isolation) */
+.brile-controls {
+  margin-top: 0.72rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem 1rem;
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0% -10%, rgba(56, 189, 248, 0.12), transparent 42%),
+    rgba(7, 17, 31, 0.84);
+  padding: 0.8rem;
+}
+
+.brile-dpad {
+  position: relative;
+  width: 118px;
+  height: 118px;
+}
+
+.brile-dir {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+}
+
+.brile-dir--up { top: 0; left: 39px; }
+.brile-dir--left { top: 39px; left: 0; }
+.brile-dir--right { top: 39px; right: 0; }
+.brile-dir--down { bottom: 0; left: 39px; }
+
+.brile-action-cluster {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.brile-big {
+  min-width: 92px;
+  min-height: 56px;
+  border-radius: 16px !important;
+  font-size: 0.95rem;
+  font-weight: 800 !important;
+}
+
+.brile-big--throw {
+  border-color: rgba(56, 189, 248, 0.4) !important;
+}
+.brile-big--throw.is-ready {
+  background: linear-gradient(135deg, #38bdf8, #0284c7) !important;
+  color: #04121f !important;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
+}
+.brile-big--catch.is-armed {
+  background: linear-gradient(135deg, #86efac, #22c55e) !important;
+  color: #052e16 !important;
+  box-shadow: 0 0 18px rgba(34, 197, 94, 0.35);
+}
+
+.brile-stats {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+}
+.brile-stats strong { color: #f8fafc; }
+
+.brile-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .brile-action-cluster { justify-self: start; }
+  .brile-result-list li { font-size: 0.78rem; }
+}
+
+
+/* Topos a Mazazos — the canvas draws its own HUD, countdown and result podium,
+   so the DOM around it only carries the toolbar, the menu (difficulty + start)
+   and the in-run action strip.
+
+   Unlike the graveyard games, this one is a sunny midday garden, so the chrome
+   stays light: a warm garden panel over .mini-game's cream shell, deep-green ink
+   for text and the lawn greens as the accent. Anything light-on-dark here would
+   be invisible — .mini-game's background is cream (#fffef8), not navy. */
+
+.topos-game {
+  border-color: #bfe0cb;
+  background:
+    radial-gradient(circle at 88% -18%, rgba(89, 195, 154, 0.22), transparent 46%),
+    radial-gradient(circle at 6% 120%, rgba(255, 215, 94, 0.16), transparent 44%),
+    linear-gradient(165deg, #fbfef9 0%, #eef8f0 100%);
+}
+
+.topos-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.topos-actions button,
+.topos-controls button {
+  border: 1px solid #bfe0cb;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #14432f;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.52rem 0.78rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.topos-actions button:hover,
+.topos-controls button:hover {
+  border-color: #2f8f68;
+  background: #ffffff;
+}
+
+.topos-actions button:focus-visible,
+.topos-controls button:focus-visible {
+  outline: 2px solid #2f8f68;
+  outline-offset: 2px;
+}
+
+.topos-actions button.is-on {
+  border-color: #2f8f68;
+  color: #0d5a3c;
+}
+
+.topos-stage {
+  position: relative;
+  border: 1px solid #a8d5bd;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #4fb187;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 18px rgba(24, 78, 56, 0.14);
+}
+
+.topos-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 340px;
+  touch-action: none;
+}
+
+/* Controls deck (desktop; the mobile shell isolates .topos-stage and renders
+   its own joystick + Whack pad instead). */
+.topos-controls {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+  padding: 0.8rem;
+  border: 1px solid #cfe8d6;
+  border-radius: 20px;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.9), rgba(233, 248, 239, 0.9));
+}
+
+.topos-menu {
+  justify-items: center;
+  text-align: center;
+}
+
+.topos-choice {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+}
+
+.topos-choice-label {
+  color: #3d6b53;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Segmented difficulty picker: one row of three, the active one filled with the
+   lawn green so the choice is readable at a glance. */
+.topos-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.3rem;
+  border: 1px solid #cfe8d6;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.topos-controls .topos-seg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border-color: transparent;
+  color: #3d6b53;
+  padding: 0.42rem 0.8rem;
+}
+
+.topos-controls .topos-seg-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: #a8d5bd;
+}
+
+.topos-controls .topos-seg-btn.is-on {
+  background: linear-gradient(165deg, #59c39a, #2f8f68);
+  border-color: #2f8f68;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(47, 143, 104, 0.32);
+}
+
+.topos-seg-dot {
+  font-size: 0.72rem;
+}
+
+.topos-choice-desc {
+  margin: 0;
+  color: #3d6b53;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.topos-best {
+  margin: 0;
+  color: #8a6104;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.topos-controls .topos-start,
+.topos-controls .topos-primary {
+  background: linear-gradient(165deg, #59c39a, #2f8f68);
+  border-color: #2f8f68;
+  color: #ffffff;
+  font-weight: 800;
+  padding: 0.62rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(47, 143, 104, 0.3);
+}
+
+.topos-controls .topos-start:hover,
+.topos-controls .topos-primary:hover {
+  background: linear-gradient(165deg, #6ad0a8, #35a077);
+  border-color: #2f8f68;
+  box-shadow: 0 6px 18px rgba(47, 143, 104, 0.38);
+}
+
+.topos-action-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.topos-help {
+  color: #3d6b53;
+  font-size: 0.8rem;
+  max-width: 60ch;
+}
+
+.topos-help summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #14432f;
+}
+
+.topos-hint {
+  margin: 0.4rem 0 0;
+  color: #3d6b53;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .topos-canvas { min-height: 280px; }
+  .topos-seg { width: 100%; justify-content: center; }
 }

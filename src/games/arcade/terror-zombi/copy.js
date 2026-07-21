@@ -1,0 +1,108 @@
+// Bilingual UI copy for Terror Zombi (Zombie Terror).
+
+export const COPY = {
+  es: {
+    title: "Terror Zombi",
+    subtitle: "Huye de los zombis en el cementerio. El último humano en pie gana.",
+    chooseDifficulty: "Elige dificultad",
+    difficulties: { facil: "Fácil", normal: "Normal", dificil: "Difícil" },
+    difficultyHints: {
+      facil: "1 zombi lento y horda que tarda en acelerar.",
+      normal: "2 zombis y horda que acelera a buen ritmo.",
+      dificil: "3 zombis rápidos que anticipan tu carrera.",
+    },
+    chooseMap: "Cementerio",
+    maps: {
+      cementerio: { name: "Cementerio", hint: "Pequeño · 4 humanos" },
+      camposanto: { name: "Camposanto", hint: "Mediano · 6 humanos, +1 zombi" },
+      necropolis: { name: "Necrópolis", hint: "Enorme · 8 humanos, +2 zombis" },
+    },
+    menuPrompt: "Elige cementerio y dificultad en los botones del panel. La dificultad empieza la partida.",
+    overPrompt: "Usa «Otra vez» o «Cambiar» en los botones del panel.",
+    menuLead:
+      "Humanos sin cara sueltos en un cementerio vallado con los zombis en el centro. Muévete en 8 direcciones para esquivarlos: si un zombi te toca, te conviertes y pasas a perseguir. Sobrevive más que tus rivales; el último humano en pie gana. La horda acelera con el tiempo, así que la ronda siempre se resuelve. Elige un camposanto más grande para más supervivientes y más horda.",
+    survived: "Sobrevivido",
+    humansLeft: "Humanos",
+    zombies: "Zombis",
+    best: "Mejor",
+    you: "Tú",
+    grace: "¡Dispersaos!",
+    infectedBanner: "¡Te han mordido! Ahora persigue a los demás.",
+    move: "Mover",
+    result: "Resultado",
+    youWin: "¡Sobreviviste!",
+    youLose: "Te convertiste en zombi",
+    rankLabel: "Tu puesto",
+    winnerLabel: "Superviviente",
+    rankSuffix: "º",
+    seconds: "s",
+    again: "Otra vez",
+    changeDifficulty: "Cambiar dificultad",
+    restart: "Reiniciar",
+    fullscreen: "Pantalla completa",
+    soundOn: "Sonido ON",
+    soundOff: "Sonido OFF",
+    soundEnable: "Activar sonido",
+    soundDisable: "Silenciar sonido",
+    pause: "Pausa",
+    resume: "Reanudar",
+    paused: "En pausa",
+    hint:
+      "Muévete con WASD o las flechas (arrastra en el tablero o usa la cruceta en móvil) para esquivar a los zombis. Si te tocan, te conviertes y ayudas a cazar al resto; el último humano en pie gana. La horda acelera con el tiempo. Enter/Espacio empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
+  },
+  en: {
+    title: "Zombie Terror",
+    subtitle: "Flee the zombies in the graveyard. The last human standing wins.",
+    chooseDifficulty: "Choose difficulty",
+    difficulties: { facil: "Easy", normal: "Normal", dificil: "Hard" },
+    difficultyHints: {
+      facil: "1 slow zombie and a horde that ramps up gently.",
+      normal: "2 zombies and a horde that speeds up steadily.",
+      dificil: "3 fast zombies that anticipate your run.",
+    },
+    chooseMap: "Graveyard",
+    maps: {
+      cementerio: { name: "Graveyard", hint: "Small · 4 humans" },
+      camposanto: { name: "Churchyard", hint: "Medium · 6 humans, +1 zombie" },
+      necropolis: { name: "Necropolis", hint: "Huge · 8 humans, +2 zombies" },
+    },
+    menuPrompt: "Pick the graveyard and difficulty from the panel buttons. Difficulty starts the round.",
+    overPrompt: "Use «Again» or «Change» from the panel buttons.",
+    menuLead:
+      "Faceless humans loose in a fenced graveyard with the zombies in the centre. Move in 8 directions to dodge them: touch a zombie and you turn, then you chase. Outlast your rivals; the last human standing wins. The horde speeds up over time, so a round always resolves. Pick a larger graveyard for more survivors and more horde.",
+    survived: "Survived",
+    humansLeft: "Humans",
+    zombies: "Zombies",
+    best: "Best",
+    you: "You",
+    grace: "Spread out!",
+    infectedBanner: "You've been bitten! Now chase the others.",
+    move: "Move",
+    result: "Result",
+    youWin: "You survived!",
+    youLose: "You turned into a zombie",
+    rankLabel: "You placed",
+    winnerLabel: "Survivor",
+    rankSuffix: "",
+    seconds: "s",
+    again: "Again",
+    changeDifficulty: "Change difficulty",
+    restart: "Restart",
+    fullscreen: "Fullscreen",
+    soundOn: "Sound ON",
+    soundOff: "Sound OFF",
+    soundEnable: "Enable sound",
+    soundDisable: "Mute sound",
+    pause: "Pause",
+    resume: "Resume",
+    paused: "Paused",
+    hint:
+      "Move with WASD or the arrows (drag on the field or use the D-pad on mobile) to dodge the zombies. If they touch you, you turn and help hunt the rest; the last human standing wins. The horde speeds up over time. Enter/Space starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
+  },
+};
+
+export function getCopy(locale) {
+  return COPY[locale] ?? COPY.en;
+}
+
+export default getCopy;

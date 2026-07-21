@@ -35,6 +35,25 @@ describe("shell game levels — the curve only ever climbs", () => {
     expect(levelConfig(500).cups).toBe(5);
   });
 
+  it("puts five cups within reach of a real game", () => {
+    // With three lives, a fifth cup that only appears at level 15 is content
+    // almost nobody ever sees. It arrives at 10, still after the full four-cup
+    // curve has been played through.
+    expect(levelConfig(9).cups).toBe(4);
+    expect(levelConfig(10).cups).toBe(5);
+  });
+
+  it("adds the fifth cup on its own, changing nothing else with it", () => {
+    // The band rule: one new thing at a time. The cup is the new thing, so the
+    // round it debuts in runs at the speed and length of the one before it.
+    const last4 = levelConfig(9);
+    const first5 = levelConfig(10);
+    expect(first5.cups).toBe(last4.cups + 1);
+    expect(first5.swapCount).toBe(last4.swapCount);
+    expect(first5.swapDuration).toBeCloseTo(last4.swapDuration, 6);
+    expect(first5.moves).toEqual(last4.moves);
+  });
+
   it("settles instead of drifting into the impossible", () => {
     // Past the top the numbers hold, so level 60 is hard, not a blur.
     expect(levelConfig(200)).toEqual({ ...levelConfig(25), level: 200 });

@@ -21,7 +21,13 @@ import arcadeValleTranquiloImage from "../assets/games/arcade-valle-tranquilo-ca
 import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-showdown.svg";
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
 import sportsPingPongArenaImage from "../assets/games/sports-ping-pong-arena.svg";
+import sportsPadelArenaImage from "../assets/games/sports-padel-arena.svg";
 import arcadeShellGameImage from "../assets/games/arcade-shell-game.svg";
+import arcadePulsoExactoImage from "../assets/games/arcade-pulso-exacto.svg";
+import arcadeDistanciaJustaImage from "../assets/games/arcade-distancia-justa.svg";
+import arcadeTerrorZombiImage from "../assets/games/arcade-terror-zombi.svg";
+import arcadeBrileImage from "../assets/games/arcade-brile.svg";
+import arcadeToposMazazosImage from "../assets/games/arcade-topos-mazazos.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
 import arcadeTerritoryWarImage from "../assets/games/arcade-territory-war.svg";
@@ -169,6 +175,266 @@ export const games = [
     viability_en: "High: pure tested choreography, deterministic Canvas engine, and serialisable state.",
     visualStyle_en: "Green felt table under a warm spotlight, vermilion plastic cups with specular highlights and an ivory ball, over a night-blue backdrop.",
     techFocus_en: "Choreography generated as pure data with testable invariants (the ball ends where the game says, and simultaneous crosses never share a cup), plus procedural rendering with depth and painter's ordering.",
+  },
+
+  {
+    id: "arcade-pulso-exacto",
+    image: arcadePulsoExactoImage,
+    sessionTime: "2-5 min",
+
+    title: "Pulso Exacto",
+    title_en: "Exact Pulse",
+    category: "Arcade",
+    tagline: "Para el cronometro justo en el tiempo objetivo.",
+    description:
+      "Juego de intuicion temporal inspirado en el Cronometro Mental de Wii Party. Aparece un tiempo objetivo aleatorio de hasta 60 segundos y el cronometro corre visible solo los dos primeros segundos como guia de ritmo antes de ocultarse. A partir de ahi cuentas de memoria y paras lo mas cerca posible del objetivo: cuanto menor sea la diferencia, mas puntos. Cinco rondas por partida, cada una con un objetivo nuevo generado al azar, y una valoracion final segun tu precision acumulada.",
+    objective_es:
+      "Detener el cronometro lo mas cerca posible del tiempo objetivo en cada una de las 5 rondas para sumar la mayor puntuacion total.",
+    howToPlay_es:
+      "Memoriza el objetivo y pulsa para arrancar el cronometro. Se ve 2 segundos y luego se oculta; para con Espacio, clic o toque cuando creas que llego al objetivo. P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Tiempo objetivo aleatorio de 5 a 60 segundos, cuantizado a decimas y reproducible por semilla.",
+      "Guia de ritmo de 2 segundos visible y luego ocultacion total: la dificultad esta en tu conteo mental, no en trampas.",
+      "Puntuacion por cercania con ventana de 3 segundos y bonus de acierto perfecto (±0,10 s).",
+      "5 rondas por partida con valoracion final y mejor puntuacion persistida en local.",
+      "Control universal: Espacio, clic o toque en cualquier zona detienen el cronometro.",
+      "Motor determinista dirigido por advanceTime con bridge QA render_game_to_text.",
+    ],
+    difficulty: "Facil-Media",
+    multiplayer: "Un jugador",
+    viability: "Alta: runtime ligero sin canvas, tiempo controlado por advanceTime, estado serializable y cero dependencias extra.",
+    visualStyle: "Cronometro neon sobre fondo azul noche, digitos grandes tipo display y acento cian-indigo con marca naranja del objetivo.",
+    techFocus: "Estado dirigido por tiempo determinista, generacion aleatoria sembrada, puntuacion por error absoluto y HUD React desacoplado.",
+
+    category_en: "Arcade",
+    tagline_en: "Stop the clock right on the target time.",
+    description_en:
+      "A time-intuition game inspired by Wii Party's Stop Watchers. A random target time of up to 60 seconds appears and the clock only runs visibly for the first two seconds as a pacing guide before hiding. From there you count in your head and stop as close to the target as you can: the smaller the gap, the more points. Five rounds per game, each with a fresh randomly generated target, and a final rating based on your accumulated accuracy.",
+    objective_en:
+      "Stop the clock as close as possible to the target time across all 5 rounds to build the highest total score.",
+    howToPlay_en:
+      "Memorise the target and press to start the clock. It shows for 2 seconds then hides; stop with Space, click or tap when you think it reached the target. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "Random target time from 5 to 60 seconds, quantised to tenths and reproducible from a seed.",
+      "A 2-second visible pacing guide then a full blackout: the challenge is your mental count, never a trick.",
+      "Closeness scoring across a 3-second window with a perfect-stop bonus (within ±0.10s).",
+      "5 rounds per game with a final rating and a best score persisted locally.",
+      "Universal input: Space, click or a tap anywhere stops the clock.",
+      "Deterministic advanceTime-driven engine with a render_game_to_text QA bridge.",
+    ],
+    difficulty_en: "Easy-Medium",
+    multiplayer_en: "Single player",
+    viability_en: "High: lightweight canvas-free runtime, advanceTime-controlled clock, serialisable state, and no extra dependencies.",
+    visualStyle_en: "Neon stopwatch over a night-blue backdrop, large display-style digits, and a cyan-indigo accent with an orange target marker.",
+    techFocus_en: "Deterministic time-driven state, seeded random generation, absolute-error scoring, and a decoupled React HUD.",
+  },
+
+  {
+    id: "arcade-distancia-justa",
+    image: arcadeDistanciaJustaImage,
+    sessionTime: "3-6 min",
+
+    title: "Distancia Justa",
+    title_en: "Right Distance",
+    category: "Arcade",
+    tagline: "Camina la distancia exacta contra 3 rivales.",
+    description:
+      "Juego de estimacion espacial inspirado en La Distancia Justa de Wii Party. Se anuncia una distancia objetivo y caminas a la derecha con tu monigote sin cara, pero los carteles de referencia solo llegan a los 30 metros: a partir de ahi avanzas a ojo hasta que crees haber llegado y confirmas tu posicion. Compites en cuatro carriles simultaneos contra 3 IAs cuya precision escoges (facil, normal o dificil). Cada ronda se clasifica por cercania y reparte puntos por puesto; tras 5 rondas se corona al campeon.",
+    objective_es:
+      "Detener tu monigote lo mas cerca posible de la distancia objetivo cada ronda y sumar mas puntos por puesto que las 3 IAs a lo largo de 5 rondas.",
+    howToPlay_es:
+      "Manten Avanzar (D, flecha derecha, Espacio o toque en la pista) para caminar y Atras (A, flecha izquierda) para retroceder; pulsa Confirmar (Enter) para fijar tu posicion. Solo hay marcas los primeros 30 m. 30 s por ronda. P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Distancia objetivo aleatoria de 40 a 180 m, con marcas de referencia solo hasta 30 m y el resto a estimacion pura.",
+      "Cuatro carriles apilados con scroll independiente: ves avanzar en vivo a tu monigote y a las 3 IAs a la vez.",
+      "Dificultad elegible (facil/normal/dificil) que ajusta la precision de los rivales, con matiz distinto entre los tres.",
+      "5 rondas con puntos por puesto (5/3/2/1) y campeon final; mejor puntuacion persistida en local.",
+      "Control universal de mantener pulsado: teclado, boton en pantalla o toque en la propia pista.",
+      "Corredores sin cara dibujados por procedimiento sobre Canvas y motor determinista con bridge QA.",
+    ],
+    difficulty: "Facil-Media",
+    multiplayer: "Un jugador vs 3 IA",
+    viability: "Alta: runtime Canvas 2D ligero, tiempo e IA deterministas por semilla, estado serializable y sin dependencias extra.",
+    visualStyle: "Campo soleado con arboledas, cuatro carriles apilados estilo Wii y monigotes sin cara de colores sobre pista de tierra.",
+    techFocus: "Estado dirigido por advanceTime, IA de error gaussiano escalado por dificultad, puntuacion por puesto y render procedural por carriles.",
+
+    category_en: "Arcade",
+    tagline_en: "Walk the exact distance against 3 rivals.",
+    description_en:
+      "A spatial-estimation game inspired by Wii Party's Walk the Plank / distance minigame. A target distance is announced and you walk your faceless runner to the right, but the reference signs only reach 30 metres: from there you go by feel until you think you have arrived and confirm your position. You race in four simultaneous lanes against 3 AIs whose precision you choose (easy, normal or hard). Every round is ranked by closeness and hands out placement points; after 5 rounds a champion is crowned.",
+    objective_en:
+      "Stop your runner as close as possible to the target distance each round and out-score the 3 AIs on placement points across 5 rounds.",
+    howToPlay_en:
+      "Hold Advance (D, right arrow, Space or a tap on the track) to walk and Back (A, left arrow) to step back; press Confirm (Enter) to lock your position. Signs only cover the first 30 m. 30s per round. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "Random target distance from 40 to 180 m, with reference signs only up to 30 m and the rest pure estimation.",
+      "Four stacked, independently scrolled lanes: watch your runner and the 3 AIs advance live at once.",
+      "Selectable difficulty (easy/normal/hard) tuning rival precision, each of the three with its own nuance.",
+      "5 rounds with placement points (5/3/2/1) and a final champion; best score persisted locally.",
+      "Universal hold-to-walk control: keyboard, on-screen button, or a tap on the track itself.",
+      "Faceless runners drawn procedurally on Canvas and a deterministic engine with a QA bridge.",
+    ],
+    difficulty_en: "Easy-Medium",
+    multiplayer_en: "Single player vs 3 AI",
+    viability_en: "High: lightweight Canvas 2D runtime, seed-deterministic time and AI, serialisable state, and no extra dependencies.",
+    visualStyle_en: "Sunny field with tree rows, four stacked Wii-style lanes, and colourful faceless runners on a dirt track.",
+    techFocus_en: "advanceTime-driven state, Gaussian-error AI scaled by difficulty, placement scoring, and per-lane procedural rendering.",
+  },
+
+  {
+    id: "arcade-terror-zombi",
+    image: arcadeTerrorZombiImage,
+    sessionTime: "1-3 min",
+
+    title: "Terror Zombi",
+    title_en: "Zombie Terror",
+    category: "Arcade",
+    tagline: "Huye de los zombis; el ultimo humano en pie gana.",
+    description:
+      "Juego de persecucion cenital inspirado en el Terror Zombi de Wii Party. Cuatro humanos sin cara aparecen en las esquinas de un cementerio nocturno vallado con los zombis en el centro. Te mueves en ocho direcciones esquivando lapidas para escapar de la horda; si un zombi te toca te conviertes y pasas a perseguir al resto. La ronda termina cuando queda un solo humano en pie: si eres tu, ganas. La horda acelera con el tiempo, asi que cada ronda se resuelve y la tension no para de crecer.",
+    objective_es:
+      "Sobrevivir mas que los otros 3 humanos esquivando a los zombis; ser el ultimo humano en pie para ganar la ronda.",
+    howToPlay_es:
+      "WASD o las flechas mueven en 8 direcciones; en pantalla puedes arrastrar sobre el tablero o usar la cruceta. Si un zombi te toca te conviertes y ayudas a cazar. Enter/Espacio empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Persecucion cenital 4 jugadores (tu + 3 IAs) en un cementerio vallado con lapidas que bloquean el paso.",
+      "Mecanica de contagio: al ser tocado te conviertes en zombi y pasas a perseguir, como el pilla-pilla original.",
+      "Horda que acelera con el tiempo hasta superar a los humanos, garantizando que cada ronda se resuelva.",
+      "Tres dificultades que cambian numero, velocidad y anticipacion de los zombis; mejor tiempo persistido en local.",
+      "Control 8 direcciones universal: teclado, cruceta en pantalla o joystick de arrastre sobre el propio tablero.",
+      "Escena nocturna dibujada por procedimiento sobre Canvas y motor determinista dirigido por advanceTime con bridge QA.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Un jugador vs 3 IA",
+    viability: "Alta: runtime Canvas 2D ligero, IA y tiempo deterministas por semilla, estado serializable y sin dependencias extra.",
+    visualStyle: "Cementerio nocturno con luna, arboles pelados, niebla y lapidas; monigotes sin cara de colores y zombis verdes con brazos extendidos.",
+    techFocus: "Estado dirigido por advanceTime, IA de huida/persecucion con anticipacion, contagio por proximidad y render cenital procedural con orden por profundidad.",
+
+    category_en: "Arcade",
+    tagline_en: "Flee the zombies; the last human standing wins.",
+    description_en:
+      "A top-down tag game inspired by Wii Party's Zombie Tag. Four faceless humans spawn in the corners of a fenced night graveyard with the zombies in the centre. You move in eight directions, dodging tombstones to escape the horde; touch a zombie and you turn, then chase the rest. The round ends when a single human is left standing: if that's you, you win. The horde speeds up over time, so every round resolves and the tension keeps rising.",
+    objective_en:
+      "Outlast the other 3 humans by dodging the zombies; be the last human standing to win the round.",
+    howToPlay_en:
+      "WASD or the arrows move in 8 directions; on-screen you can drag on the field or use the D-pad. Touch a zombie and you turn and help hunt. Enter/Space starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "Top-down 4-player tag (you + 3 AIs) in a fenced graveyard with tombstones that block the way.",
+      "Infection mechanic: once touched you turn into a zombie and start chasing, like the original tag.",
+      "A horde that speeds up over time until it out-runs the humans, so every round resolves.",
+      "Three difficulties changing zombie count, speed and lead-aim; best survival time persisted locally.",
+      "Universal 8-direction control: keyboard, an on-screen D-pad, or a drag-joystick on the field itself.",
+      "Procedurally drawn night scene on Canvas and a deterministic advanceTime-driven engine with a QA bridge.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Single player vs 3 AI",
+    viability_en: "High: lightweight Canvas 2D runtime, seed-deterministic AI and time, serialisable state, and no extra dependencies.",
+    visualStyle_en: "Night graveyard with a moon, bare trees, fog and tombstones; colourful faceless humans and green zombies with reaching arms.",
+    techFocus_en: "advanceTime-driven state, flee/chase AI with lead-aim, proximity infection, and depth-sorted procedural top-down rendering.",
+  },
+
+  {
+    id: "arcade-brile",
+    image: arcadeBrileImage,
+    sessionTime: "1-3 min",
+
+    title: "Brilé",
+    title_en: "Dodgeball",
+    category: "Arcade",
+    tagline: "Balon prisionero en el cementerio: brila y vacia el campo rival.",
+    description:
+      "Balon prisionero (brile) cenital 6 contra 6 en un cementerio vallado partido por la linea central. Manejas a un jugador del equipo azul y el resto son IA. Con el balon lanzas al rival mas peligroso; si le das antes de que bote queda brilado y pasa al cementerio detras de su campo, desde donde sigue lanzando y vuelve si acierta. Atrapa un balon al vuelo para mandar al lanzador al cementerio, o esquiva moviéndote. Gana el equipo que deja al rival sin nadie en su campo. Una rampa de presion tensa la partida con el tiempo para que siempre se resuelva.",
+    objective_es:
+      "Brilar a todos los rivales para vaciar su campo, atrapando balones al vuelo y volviendo del cementerio con tus aciertos.",
+    howToPlay_es:
+      "WASD o flechas mueven (arrastra sobre el tablero o cruceta en movil). Espacio/J lanza al rival mas peligroso; K/Mayus atrapa (pulsalo justo cuando te llega para cazarlo y brilar al lanzador). No cruces la linea central. Enter empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Balon prisionero 6v6 (tu + IAs) en cementerio vallado con dos zonas de brilados y linea central infranqueable.",
+      "Auto-target al lanzar y ventana de atrapada con timing: cazar al vuelo manda al lanzador al cementerio.",
+      "Presos que lanzan desde el cementerio y regresan al campo en cuanto brilan a un rival, como el brile real.",
+      "Dos balones en juego y feed automatico de balones perdidos hacia los presos para que la accion no pare.",
+      "Tres dificultades que ajustan punteria, reflejos y cadencia de la IA; mejor tiempo de victoria en local.",
+      "Motor determinista dirigido por advanceTime con rampa de presion que garantiza que cada partida se resuelve.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Un jugador vs 11 IA",
+    viability: "Alta: runtime Canvas 2D ligero, IA y tiempo deterministas por semilla, estado serializable y sin dependencias extra.",
+    visualStyle: "Cementerio nocturno vallado con dos canchas de cesped, linea central y franjas de lapidas; monigotes sin cara azules y rojos y balones de goma.",
+    techFocus: "Estado dirigido por advanceTime, IA de lanzar/atrapar/esquivar con anticipacion, resolucion de impacto barrido y rampa de presion para terminacion garantizada.",
+
+    category_en: "Arcade",
+    tagline_en: "Graveyard dodgeball: strike out the rivals and empty their court.",
+    description_en:
+      "Top-down 6-a-side dodgeball in a fenced graveyard split by a centre line. You control one blue-team player and the rest are AI. Holding the ball you throw at the most dangerous rival; hit them before it bounces and they're out, sent to the graveyard behind their court, from where they keep throwing and return on a hit. Catch a ball midair to send the thrower out instead, or dodge by moving. A team wins when the other has nobody left in its court. A pressure ramp tightens the match over time so it always resolves.",
+    objective_en:
+      "Strike out every rival to empty their court, catching balls midair and returning from the graveyard on your hits.",
+    howToPlay_en:
+      "WASD or arrows move (drag on the field or use the D-pad on mobile). Space/J throws at the most dangerous rival; K/Shift catches (press it right as a ball reaches you to snatch it and send the thrower out). Don't cross the centre line. Enter starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "6v6 dodgeball (you + AIs) in a fenced graveyard with two prisoner zones and an uncrossable centre line.",
+      "Auto-target throwing and a timing-based catch window: snatching midair sends the thrower to the graveyard.",
+      "Prisoners throw from the graveyard and return to court the instant they land a hit, like real dodgeball.",
+      "Two balls in play and automatic feeding of stray balls to the prisoners so the action never stalls.",
+      "Three difficulties tuning AI aim, reflexes and throw cadence; best winning time persisted locally.",
+      "Deterministic advanceTime-driven engine with a pressure ramp that guarantees every match resolves.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Single player vs 11 AI",
+    viability_en: "High: lightweight Canvas 2D runtime, seed-deterministic AI and time, serialisable state, and no extra dependencies.",
+    visualStyle_en: "Fenced night graveyard with two grass courts, a centre line and headstone strips; faceless blue and red figures and rubber balls.",
+    techFocus_en: "advanceTime-driven state, throw/catch/dodge AI with lead-aim, swept hit resolution, and a pressure ramp for guaranteed termination.",
+  },
+
+  {
+    id: "arcade-topos-mazazos",
+    image: arcadeToposMazazosImage,
+    sessionTime: "1-2 min",
+
+    title: "Topos a Mazazos",
+    title_en: "Mallet Moles",
+    category: "Arcade",
+    tagline: "Whack-a-mole en el jardin: corre, colocate y da mazazos.",
+    description:
+      "Whack-a-mole en movimiento inspirado en el Topate topo de Wii Party. En un jardin vallado con dieciseis agujeros en rejilla, tu y tres rivales corren mazo en mano mientras los topos asoman y se esconden. No apuntas con el cursor: te desplazas hasta el agujero y sueltas un mazazo de area que golpea todo lo que este asomado a tu alcance. El topo marron vale 1 punto y el dorado 3, pero entre ellos aparece el topo bomba, que resta puntos y te deja aturdido unos instantes mientras los rivales siguen puntuando. Los topos salen cada vez mas seguidos y duran menos conforme avanza la ronda, y unos barriles fijos te obligan a rodear. Gana quien mas puntue en 30 segundos.",
+    objective_es:
+      "Sumar mas puntos que los 3 rivales en 30 segundos golpeando topos marrones (1) y dorados (3) y evitando el topo bomba.",
+    howToPlay_es:
+      "Flechas o WASD (joystick en movil) para colocarte junto a un agujero; Espacio o el boton Golpear da un mazazo de area. Marron = 1 punto, dorado = 3, bomba = -2 y aturdimiento. Rodea los barriles. P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Whack-a-mole con desplazamiento: no apuntas con el raton, corres hasta el agujero y golpeas por area.",
+      "Tres tipos de topo con lectura instantanea: marron (1), dorado (3) y bomba (-2 y aturdimiento).",
+      "Cuatro mascotas simultaneas (tu + 3 IAs) compitiendo por los mismos agujeros en tiempo real.",
+      "Rampa de dificultad dentro de la ronda: mas topos a la vez y menos tiempo asomados segun avanzan los 30 s.",
+      "Tres dificultades que cambian velocidad, reaccion y punteria de los rivales; record persistido en local.",
+      "Vista 3/4 pseudo-3D dibujada por procedimiento en Canvas con proyeccion propia y orden por profundidad.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Un jugador vs 3 IA",
+    viability: "Alta: runtime Canvas 2D ligero, tiempo e IA deterministas por semilla, estado serializable y sin dependencias extra.",
+    visualStyle: "Jardin soleado a cuadros verdes con seto perimetral y topiarios, agujeros en rejilla, barriles azules y monigotes sin cara con mazo rojo.",
+    techFocus: "Estado dirigido por advanceTime, proyeccion pinhole propia con painter's algorithm, mazazo de area por radio e IA de seleccion de objetivo con error escalado.",
+
+    category_en: "Arcade",
+    tagline_en: "Garden whack-a-mole: run, line up and swing.",
+    description_en:
+      "A whack-a-mole on the move inspired by Wii Party's Whack-a-Mole. In a fenced garden with sixteen holes in a grid, you and three rivals run around mallet in hand while the moles pop up and duck back. You don't aim with a cursor: you walk to the hole and swing an area blow that hits everything popped up within reach. The brown mole is worth 1 point and the gold one 3, but the bomb mole is mixed in — it costs points and leaves you stunned for a moment while the rivals keep scoring. Moles appear faster and stay up less as the round goes on, and fixed barrels force you to go around. Whoever scores most in 30 seconds wins.",
+    objective_en:
+      "Out-score the 3 rivals in 30 seconds by whacking brown (1) and gold (3) moles while avoiding the bomb mole.",
+    howToPlay_en:
+      "Arrows or WASD (joystick on mobile) to line up next to a hole; Space or the Whack button swings an area blow. Brown = 1 point, gold = 3, bomb = -2 and a stun. Weave around the barrels. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "Whack-a-mole with movement: no mouse aiming — you run to the hole and swing by area.",
+      "Three instantly readable mole types: brown (1), gold (3) and bomb (-2 plus a stun).",
+      "Four mascots at once (you + 3 AIs) competing over the same holes in real time.",
+      "In-round difficulty ramp: more moles at once and shorter pop-ups as the 30s tick down.",
+      "Three difficulties tuning rival speed, reaction and accuracy; best score persisted locally.",
+      "Pseudo-3D 3/4 view rendered procedurally on Canvas with a custom projection and depth sorting.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Single player vs 3 AI",
+    viability_en: "High: lightweight Canvas 2D runtime, seed-deterministic time and AI, serialisable state, and no extra dependencies.",
+    visualStyle_en: "Sunny checkered green garden with a perimeter hedge and topiaries, a grid of holes, blue barrels and faceless figures with red mallets.",
+    techFocus_en: "advanceTime-driven state, a custom pinhole projection with painter's algorithm, radius-based area whacking, and target-selection AI with scaled error.",
   },
 
 
@@ -3424,7 +3690,66 @@ export const games = [
     visualStyle_en: "Arena with a regulation blue table, mesh net, yellow ball, and red paddle over dark stands, in first-person perspective.",
     techFocus_en: "Custom 3D perspective projection, parabolic flight re-launched at every bounce, continuous net collision, AI by linear extrapolation with an eased glide, and table-tennis rules.",
   },
-{
+
+  {
+    id: "sports-padel-arena",
+    image: sportsPadelArenaImage,
+    sessionTime: "6-15 min",
+
+    title: "Pádel Pro Arena",
+    category: "Deportes",
+    tagline: "Pádel por parejas en pseudo-3D: coloca, golpea y juega las paredes de cristal.",
+    description:
+      "Pádel por parejas (2v2) renderizado en pseudo-3D sobre Canvas 2D con una cámara broadcast elevada por detrás de tu pareja, mirando hacia la red y el fondo rival. La pista reglamentaria (10×20 m) está cerrada por cristales y vallas metálicas; la red parte el campo por el centro. Controlas al jugador de tu pareja más cercano a la bola —el juego lo auto-conmuta— con flechas/WASD o joystick, y golpeas con Espacio: el timing respecto a la llegada de la bola y la dirección definen la colocación y el tipo de golpe (raso, globo o remate). La regla más distintiva del pádel está modelada: tras botar en el suelo, la pelota puede rebotar en el cristal y seguir en juego, pero clavarla en la pared antes de botar es falta. Tu pareja y los dos rivales son IA que predicen el punto de corte, se reparten la pista y eligen el golpe según la zona, en tres niveles.",
+    objective_es:
+      "Ganar el partido al mejor de 1 o 3 sets con puntuación reglamentaria: puntos 15/30/40/ventaja, juegos a 6 con diferencia de 2 y tie-break a 6-6.",
+    howToPlay_es:
+      "Flechas/WASD o joystick mueven a tu jugador activo. Elige golpe con las teclas o botones: F volea/ataque (remate si la bola llega alta a la red), G revés, H globo, J dejada (Espacio también ataca); marca dirección al golpear para colocar. El timing y la calidad del contacto fijan profundidad y efecto. Saca cruzado por debajo. Tras botar en el suelo puedes jugar la pared de cristal. P pausa, R reinicia, M sonido y el botón de pantalla completa.",
+    highlights: [
+      "Vista broadcast pseudo-3D con proyección en perspectiva propia sobre Canvas 2D.",
+      "Pista reglamentaria 10×20 m cerrada por cristales semitransparentes y vallas metálicas de rejilla.",
+      "Regla distintiva del pádel modelada: rebote de cristal válido tras botar en el suelo; clavarla directa a la pared es falta.",
+      "Física de pelota de baja presión: vuelo con gravedad y drag, botes de suelo amortiguados y rebotes de cristal vivos.",
+      "Golpe acoplado al timing y la dirección: raso, globo, bandeja y remate según la ventana de contacto y la posición.",
+      "Dobles reales: controlas al jugador activo (auto-conmutado al más cercano al bote) con tu pareja IA cubriendo la zona.",
+      "IA de las tres figuras que predice el punto de corte, se reparte la pista y elige golpe por zona, en 3 niveles (Fácil/Medio/Difícil).",
+      "Puntuación reglamentaria completa: 15/30/40/ventaja, juegos a 6 con diferencia de 2 y tie-break a 7, al mejor de 1 o 3 sets.",
+      "Monigotes sin cara con palas perforadas sin cuerdas, sombras y animación de carrera y golpe.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo vs IA (dobles)",
+    viability: "Alta: motor Canvas determinista, física y reglas puras testeadas y estado serializable.",
+    visualStyle: "Pista de césped artificial verde cerrada por cristales y vallas, red central, pelota amarilla y palas perforadas rojas, en cámara broadcast sobre gradas oscuras.",
+    techFocus: "Proyección perspectiva pseudo-3D custom, física de proyectil con rebotes de suelo y cristal, IA de posicionamiento y elección de golpe en dobles, y reglas reglamentarias de pádel con tie-break.",
+
+    title_en: "Padel Pro Arena",
+    category_en: "Sports",
+    tagline_en: "Pseudo-3D doubles padel: position, strike and play the glass walls.",
+    description_en:
+      "Doubles padel (2v2) rendered in pseudo-3D on a 2D canvas with a broadcast camera raised behind your pair, looking toward the net and the rival back wall. The regulation court (10×20 m) is enclosed by glass and metal fencing, with the net splitting it down the middle. You control whichever of your pair is closest to the ball —the game auto-switches— with arrows/WASD or a joystick, and hit with Space: the timing against the ball's arrival and the direction set placement and shot type (flat, lob, or smash). Padel's signature rule is modelled: after bouncing on the floor the ball can rebound off the glass and stay in play, but driving it straight into the wall before it bounces is a fault. Your partner and the two rivals are AI that read the interception point, split the court, and choose their shot by zone, across three levels.",
+    objective_en:
+      "Win the match, best of 1 or 3 sets, with regulation scoring: 15/30/40/advantage points, games to 6 by two, and a tie-break at 6-6.",
+    howToPlay_en:
+      "Arrows/WASD or the joystick move your active player. Pick your shot with the keys or buttons: F volley/attack (a smash if the ball comes high at the net), G backhand, H lob, J drop (Space also attacks); hold a direction as you hit to place it. Timing and contact quality set depth and spin. Serve cross-court, underhand. After a floor bounce you can play the glass wall. P pauses, R restarts, M sound, and the fullscreen button.",
+    highlights_en: [
+      "Broadcast pseudo-3D view with a custom perspective projection on a 2D canvas.",
+      "Regulation 10×20 m court enclosed by semi-transparent glass and metal mesh fencing.",
+      "Padel's signature rule modelled: a glass rebound is legal after the floor bounce; driving it straight into the wall is a fault.",
+      "Low-pressure ball physics: gravity-and-drag flight, damped floor bounces, and lively glass rebounds.",
+      "Timing- and direction-coupled shots: flat, lob, bandeja, and smash from the contact window and position.",
+      "Real doubles: you control the active player (auto-switched to the nearest to the bounce) with your AI partner covering the zone.",
+      "AI on all three figures that predicts the interception point, splits the court, and picks its shot by zone across 3 levels (Easy/Medium/Hard).",
+      "Full regulation scoring: 15/30/40/advantage, games to 6 by two, and a tie-break to 7, best of 1 or 3 sets.",
+      "Faceless mannequins with perforated, stringless paddles, shadows, and run/swing animation.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo vs AI (doubles)",
+    viability_en: "High: deterministic Canvas engine, pure tested physics and rules, and serialisable state.",
+    visualStyle_en: "Green artificial-grass court enclosed by glass and fencing, a central net, a yellow ball, and red perforated paddles, in a broadcast camera over dark stands.",
+    techFocus_en: "Custom pseudo-3D perspective projection, projectile physics with floor and glass rebounds, doubles AI for positioning and shot selection, and regulation padel rules with a tie-break.",
+  },
+
+  {
     id: "arcade-summit-ascent",
     image: arcadeSummitAscentImage,
     sessionTime: "15-25 min",

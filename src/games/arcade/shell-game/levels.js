@@ -33,20 +33,31 @@ const BANDS = [
     from: 4,
     cups: 4,
     swaps: [5, 7],
-    duration: [0.52, 0.4],
+    duration: [0.52, 0.42],
     moves: [MOVES.SLIDE, MOVES.ARC],
   },
   {
-    from: 9,
+    from: 7,
     cups: 4,
-    swaps: [8, 10],
-    duration: [0.38, 0.28],
+    swaps: [7, 9],
+    duration: [0.4, 0.32],
+    moves: [MOVES.SLIDE, MOVES.ARC, MOVES.CIRCLE],
+  },
+  // The fifth cup is this band's one new thing, so nothing else moves with it:
+  // it opens on exactly the speed and length the previous band closed at. It
+  // used to arrive at level 15, which with three lives meant almost nobody ever
+  // saw it — the hardest cup in the game was effectively dead content.
+  {
+    from: 10,
+    cups: 5,
+    swaps: [9, 11],
+    duration: [0.32, 0.26],
     moves: [MOVES.SLIDE, MOVES.ARC, MOVES.CIRCLE],
   },
   {
-    from: 15,
+    from: 14,
     cups: 5,
-    swaps: [10, 14],
+    swaps: [11, 14],
     duration: [0.26, 0.16],
     moves: [MOVES.SLIDE, MOVES.ARC, MOVES.CIRCLE, MOVES.DOUBLE],
   },

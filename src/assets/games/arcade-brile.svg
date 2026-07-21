@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none">
+  <defs>
+    <linearGradient id="br-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b4a52"/>
+      <stop offset="55%" stop-color="#465049"/>
+      <stop offset="100%" stop-color="#2e3a2f"/>
+    </linearGradient>
+    <radialGradient id="br-moon" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(226,232,240,0.45)"/>
+      <stop offset="100%" stop-color="rgba(226,232,240,0)"/>
+    </radialGradient>
+    <radialGradient id="br-head" cx="66%" cy="34%" r="70%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.28)"/>
+      <stop offset="55%" stop-color="rgba(255,255,255,0)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.22)"/>
+    </radialGradient>
+    <radialGradient id="br-ball" cx="38%" cy="34%" r="70%">
+      <stop offset="0%" stop-color="#fff1c9"/>
+      <stop offset="50%" stop-color="#f6b73c"/>
+      <stop offset="100%" stop-color="#c9761a"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="200" height="140" fill="url(#br-sky)"/>
+  <rect x="120" y="0" width="80" height="60" fill="url(#br-moon)"/>
+  <circle cx="170" cy="18" r="8" fill="#e8edf2"/>
+
+  <!-- court frame -->
+  <rect x="12" y="30" width="176" height="90" rx="8" fill="#39352b"/>
+  <!-- two grass courts -->
+  <rect x="34" y="30" width="66" height="90" fill="#66744a"/>
+  <rect x="100" y="30" width="66" height="90" fill="#66744a"/>
+  <rect x="34" y="30" width="66" height="90" fill="rgba(56,189,248,0.10)"/>
+  <rect x="100" y="30" width="66" height="90" fill="rgba(244,63,94,0.10)"/>
+
+  <!-- back-line + centre line -->
+  <g stroke="rgba(230,235,240,0.4)" stroke-width="1.4">
+    <line x1="34" y1="30" x2="34" y2="120"/>
+    <line x1="166" y1="30" x2="166" y2="120"/>
+  </g>
+  <line x1="100" y1="30" x2="100" y2="120" stroke="#f8fafc" stroke-width="2" stroke-dasharray="5 4"/>
+
+  <!-- fence -->
+  <rect x="12" y="30" width="176" height="90" rx="8" fill="none" stroke="#171c18" stroke-width="2"/>
+
+  <!-- headstone strips -->
+  <g>
+    <g transform="translate(22,52)"><ellipse cx="0" cy="8" rx="6" ry="1.8" fill="rgba(15,22,16,0.4)"/><path d="M-5 8 v-8 a5 5 0 0 1 10 0 v8 z" fill="#9aa0a6"/></g>
+    <g transform="translate(23,92)"><ellipse cx="0" cy="8" rx="6" ry="1.8" fill="rgba(15,22,16,0.4)"/><path d="M-5 8 v-8 a5 5 0 0 1 10 0 v8 z" fill="#b7bcc2"/></g>
+    <g transform="translate(178,52)"><ellipse cx="0" cy="8" rx="6" ry="1.8" fill="rgba(15,22,16,0.4)"/><path d="M-5 8 v-8 a5 5 0 0 1 10 0 v8 z" fill="#9aa0a6"/></g>
+    <g transform="translate(177,92)"><ellipse cx="0" cy="8" rx="6" ry="1.8" fill="rgba(15,22,16,0.4)"/><path d="M-5 8 v-8 a5 5 0 0 1 10 0 v8 z" fill="#b7bcc2"/></g>
+  </g>
+
+  <!-- blue team (you side) -->
+  <g transform="translate(58,62)">
+    <ellipse cx="0" cy="11" rx="6.5" ry="2.2" fill="rgba(15,22,16,0.36)"/>
+    <line x1="-2.2" y1="4" x2="-3" y2="11" stroke="#28324c" stroke-width="2" stroke-linecap="round"/>
+    <line x1="2.2" y1="4" x2="3" y2="11" stroke="#28324c" stroke-width="2" stroke-linecap="round"/>
+    <rect x="-4.2" y="-2" width="8.4" height="7.5" rx="3" fill="#38bdf8"/>
+    <rect x="-4.2" y="-2" width="4" height="7.5" rx="3" fill="rgba(0,0,0,0.22)"/>
+    <circle cx="0" cy="-6" r="4.4" fill="#f2c9a0"/>
+    <circle cx="0" cy="-6" r="4.4" fill="url(#br-head)"/>
+    <path d="M-4.4 -7 a4.4 4.4 0 0 1 8.8 -0.6" fill="#3a2a1a"/>
+    <ellipse cx="0" cy="0" rx="8.5" ry="2.8" fill="none" stroke="#e2f2ff" stroke-width="1"/>
+    <path d="M0 -13 l-2.4 -3.4 h4.8 z" fill="#f8fafc"/>
+  </g>
+  <g transform="translate(80,98)">
+    <ellipse cx="0" cy="11" rx="6.5" ry="2.2" fill="rgba(15,22,16,0.36)"/>
+    <line x1="-2.2" y1="4" x2="-3" y2="11" stroke="#28324c" stroke-width="2" stroke-linecap="round"/>
+    <line x1="2.2" y1="4" x2="3" y2="11" stroke="#28324c" stroke-width="2" stroke-linecap="round"/>
+    <rect x="-4.2" y="-2" width="8.4" height="7.5" rx="3" fill="#38bdf8"/>
+    <rect x="-4.2" y="-2" width="4" height="7.5" rx="3" fill="rgba(0,0,0,0.22)"/>
+    <circle cx="0" cy="-6" r="4.4" fill="#e0a878"/>
+    <circle cx="0" cy="-6" r="4.4" fill="url(#br-head)"/>
+    <path d="M-4.4 -7 a4.4 4.4 0 0 1 8.8 -0.6" fill="#2a2a30"/>
+  </g>
+
+  <!-- red team (rivals) -->
+  <g transform="translate(126,54)">
+    <ellipse cx="0" cy="11" rx="6.5" ry="2.2" fill="rgba(15,22,16,0.36)"/>
+    <line x1="-2.2" y1="4" x2="-3" y2="11" stroke="#28324c" stroke-width="2" stroke-linecap="round"/>
+    <line x1="2.2" y1="4" x2="3" y2="11" stroke="#28324c" stroke-width="2" stroke-linecap="round"/>
+    <rect x="-4.2" y="-2" width="8.4" height="7.5" rx="3" fill="#f43f5e"/>
+    <rect x="-4.2" y="-2" width="4" height="7.5" rx="3" fill="rgba(0,0,0,0.22)"/>
+    <circle cx="0" cy="-6" r="4.4" fill="#c98a5e"/>
+    <circle cx="0" cy="-6" r="4.4" fill="url(#br-head)"/>
+    <path d="M-4.4 -7 a4.4 4.4 0 0 1 8.8 -0.6" fill="#7c4a24"/>
+  </g>
+  <g transform="translate(144,96)">
+    <ellipse cx="0" cy="11" rx="6.5" ry="2.2" fill="rgba(15,22,16,0.36)"/>
+    <line x1="-2.2" y1="4" x2="-3" y2="11" stroke="#28324c" stroke-width="2" stroke-linecap="round"/>
+    <line x1="2.2" y1="4" x2="3" y2="11" stroke="#28324c" stroke-width="2" stroke-linecap="round"/>
+    <rect x="-4.2" y="-2" width="8.4" height="7.5" rx="3" fill="#f43f5e"/>
+    <rect x="-4.2" y="-2" width="4" height="7.5" rx="3" fill="rgba(0,0,0,0.22)"/>
+    <circle cx="0" cy="-6" r="4.4" fill="#efc49a"/>
+    <circle cx="0" cy="-6" r="4.4" fill="url(#br-head)"/>
+    <path d="M-4.4 -7 a4.4 4.4 0 0 1 8.8 -0.6" fill="#1f2937"/>
+  </g>
+
+  <!-- ball in flight across the centre line -->
+  <circle cx="104" cy="72" r="4.6" fill="url(#br-ball)"/>
+  <circle cx="104" cy="72" r="4.6" fill="none" stroke="rgba(90,50,10,0.5)" stroke-width="0.7"/>
+  <circle cx="104" cy="72" r="7.4" fill="none" stroke="rgba(255,241,201,0.5)" stroke-width="1"/>
+
+  <rect x="6" y="8" width="26" height="10" rx="3" fill="rgba(7,17,31,0.72)"/>
+  <text x="19" y="15.6" font-family="'Segoe UI', sans-serif" font-size="6" font-weight="700" fill="#67e8f9" text-anchor="middle">TÚ</text>
+</svg>

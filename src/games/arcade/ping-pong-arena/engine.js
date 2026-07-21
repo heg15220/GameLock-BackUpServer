@@ -19,6 +19,8 @@ import {
   BOARD_HALF_WIDTH,
   BOARD_Z,
   BOARD_END,
+  SERVE_ANGLE,
+  TIME,
   BOARD_HALF_LENGTH,
   NET_Z,
   TABLE_TOP_Y,
@@ -68,6 +70,32 @@ const OPP_REACH_X = BAT_HALF_WIDTH;
 // pixels. A physical quantity — the size of a fingertip — so it is a constant,
 // not a fraction of the canvas.
 const TOUCH_LIFT_PX = 24;
+
+// ─── Serve ───────────────────────────────────────────────────────────────────
+// How hard the bat must be driven forward for the push to count as a serve.
+// batVel.dz is a per-frame delta divided by DT, so this is ~2 world units of bat
+// travel in one frame.
+export const SERVE_TRIGGER_DZ = 120;
+// Velocity band that keeps the serve on the table. Measured against the ball
+// model: v=60 first bounces in the far court at z≈700, v=88 at z≈1107, and the
+// table ends at BOARD_END=1120. Stopping at 85 leaves real margin for the
+// lateral drift and the bounce angle instead of grazing the edge.
+export const SERVE_V_MIN = 62;
+export const SERVE_V_MAX = 85;
+// Ceiling on the serve's lateral drift, so a cut still reads as a cut. The
+// actual cap is worked out per serve (serveDriftCap): stepBall moves x by
+// vx*10 every step regardless of speed, so a soft serve is in the air for far
+// more steps and drifts much further — a fixed cap that behaved at full power
+// wandered 151 units off at minimum power.
+export const SERVE_MAX_DRIFT = 0.26;
+// Keep this much clear of the sideline when budgeting the drift.
+export const SERVE_SIDE_SAFETY = 10;
+// The bat may travel BOUNDARY_PADDING beyond the table edge, and the ball is
+// put into play from wherever it stands. Served from out there the ball starts
+// off the table and travels straight out, so a perfectly good push was a fault
+// decided by where the player happened to be standing. The serve is launched
+// from over the table instead, with room for the drift to bend without leaving.
+export const SERVE_EDGE_MARGIN = 40;
 
 const AUDIO_KEY = "gamelock.ping-pong-arena.audio";
 
@@ -290,6 +318,42 @@ export class PingPongRuntime {
     return { velocity, sideAngle, upAngle };
   }
 
+  // Serve parameters. A serve is a placement, not a coin flip, so the whole
+  // gesture has to land on the table — the flick chooses how deep, never
+  // whether it is in.
+  //
+  // The rally mapping cannot do that. It runs velocity 60..90, and a serve
+  // struck at 89+ lands past the far edge (measured: v=88 bounces at z=1107,
+  // v=90 at z=1143, table ends at 1120). Since dz is a per-frame delta scaled by
+  // 60, any brisk flick saturates MAX_MOVE_VELOCITY and comes out at exactly 90
+  // — so the natural way to serve was a guaranteed fault. SERVE_V_MIN/MAX are
+  // the measured band that lands between roughly z=730 and z=1040, leaving the
+  // far third of the opponent's court as margin.
+  // Where the served ball is launched from: the bat's x, held over the table.
+  serveOriginX() {
+    const limit = BOARD_HALF_WIDTH - SERVE_EDGE_MARGIN;
+    return clamp(this.playerBat.x, -limit, limit);
+  }
+
+  // How much lateral the serve can afford: the room left to the sideline,
+  // spread over the number of steps the ball needs to cross the table at this
+  // speed. Serving from the middle at pace buys the full cut; serving softly
+  // from the edge buys almost none, which is the truth of the geometry.
+  serveDriftCap(velocity) {
+    const room = Math.max(0, BOARD_HALF_WIDTH - Math.abs(this.serveOriginX()) - SERVE_SIDE_SAFETY);
+    const vz = Math.abs(velocity * Math.cos(SERVE_ANGLE));
+    const steps = (BOARD_END - BOARD_Z) / Math.max(1, vz * TIME);
+    return Math.min(SERVE_MAX_DRIFT, room / (steps * 10));
+  }
+
+  serveShotParams() {
+    const { sideAngle } = this.batShotParams();
+    const dz = clamp(this.batVel.dz, SERVE_TRIGGER_DZ, MAX_MOVE_VELOCITY);
+    const t = (dz - SERVE_TRIGGER_DZ) / (MAX_MOVE_VELOCITY - SERVE_TRIGGER_DZ);
+    const velocity = SERVE_V_MIN + t * (SERVE_V_MAX - SERVE_V_MIN);
+    return { velocity, sideAngle };
+  }
+
   startMatch() {
     this.opp = createOpponent(this.difficulty);
     this.match = createMatchState(this.bestOf, "player");
@@ -323,6 +387,12 @@ export class PingPongRuntime {
     this.serveTimer = server === "opponent" ? 0.9 : 0;
     this.pointResult = null;
     this.oppGlide = null;
+    // Drop the bat speed carried over from the last rally. Without this, a
+    // player still following through when the point closed served the next one
+    // instantly, at whatever speed the previous shot happened to end on.
+    this.batVel = { dz: 0, dx: 0 };
+    this.playerBat.prevX = this.playerBat.x;
+    this.playerBat.prevZ = this.playerBat.z;
     // Hold the ball at the server's bat. The opponent picks a random x across
     // the table, as in Opponent.setPosition().
     if (server === "player") {
@@ -337,11 +407,12 @@ export class PingPongRuntime {
 
   serveBall(server) {
     if (server === "player") {
-      const { velocity, sideAngle } = this.batShotParams();
+      const { velocity, sideAngle } = this.serveShotParams();
       this.ball = serveBallShot(
-        createBall({ x: this.playerBat.x, y: BAT_REST_Y, z: BOARD_Z }),
+        createBall({ x: this.serveOriginX(), y: BAT_REST_Y, z: BOARD_Z }),
         velocity,
         sideAngle,
+        this.serveDriftCap(velocity),
       );
     } else {
       // Opponent.serve(): fixed VELOCITY, negative so it comes toward the human.
@@ -404,12 +475,13 @@ export class PingPongRuntime {
 
     if (this.screen === "serve") {
       if (this.match.server === "player") {
-        // Ball sits at the bat until it is struck forward.
-        this.ball.x = this.playerBat.x;
+        // Ball sits at the bat until it is struck forward — held over the table
+        // if the bat has wandered past the edge, which is where it launches from.
+        this.ball.x = this.serveOriginX();
         this.ball.y = BAT_REST_Y;
         this.ball.z = BOARD_Z;
         // A forward drive through the ball serves it, as in game.js serveBall().
-        if (this.batVel.dz > 120) this.serveBall("player");
+        if (this.batVel.dz > SERVE_TRIGGER_DZ) this.serveBall("player");
       } else {
         this.serveTimer -= dt;
         if (this.serveTimer <= 0) this.serveBall("opponent");

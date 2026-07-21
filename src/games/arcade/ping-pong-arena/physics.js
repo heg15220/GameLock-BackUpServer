@@ -266,8 +266,15 @@ export function hitBall(ball, { side, velocity, sideAngle = 0, upAngle = UP_ANGL
 
 // Serve. Mirrors Ball.serve(): fixed SERVE_ANGLE, sign of `velocity` gives the
 // direction. A negative velocity serves toward the human.
-export function serveBallShot(ball, velocity, sideAngle = 0) {
-  const vx = sideAngle ? (sideAngle > 0 ? Math.cos(sideAngle) : -Math.cos(sideAngle)) : 0;
+//
+// `maxDrift` caps the lateral component. The rally model lets vx run the full
+// ±cos(sideAngle) and that is kept as is, but a serve is struck from a standing
+// ball with the bat still moving sideways, so an uncapped vx walked the ball off
+// the table before it ever reached the far half: a measured cut of vx=0.32
+// already peaked at |x|=411 against a table half-width of 400.
+export function serveBallShot(ball, velocity, sideAngle = 0, maxDrift = 1) {
+  const raw = sideAngle ? (sideAngle > 0 ? Math.cos(sideAngle) : -Math.cos(sideAngle)) : 0;
+  const vx = clamp(raw, -Math.abs(maxDrift), Math.abs(maxDrift));
   return {
     ...ball,
     initialVel: Math.abs(velocity),

@@ -271,9 +271,33 @@ export const gameCatalogDescriptions = {
     es: "Tenis de mesa en primera persona: desliza el dedo y gana a la CPU.",
     en: "First-person table tennis: flick your finger and beat the CPU.",
   },
+  "sports-padel-arena": {
+    es: "Pádel por parejas en pseudo-3D: coloca, remata y juega las paredes de cristal.",
+    en: "Pseudo-3D doubles padel: position, smash and play the glass walls.",
+  },
   "arcade-shell-game": {
     es: "El juego de los vasos: sigue la bola mientras cruzan más rápido.",
     en: "The cups game: follow the ball as the cups cross ever faster.",
+  },
+  "arcade-pulso-exacto": {
+    es: "Para el cronómetro justo en el tiempo objetivo, de memoria.",
+    en: "Stop the clock right on the target time, from memory.",
+  },
+  "arcade-distancia-justa": {
+    es: "Camina la distancia justa, a ojo, contra 3 rivales.",
+    en: "Walk the exact distance by feel against 3 rivals.",
+  },
+  "arcade-terror-zombi": {
+    es: "Huye de los zombis; el último humano en pie gana.",
+    en: "Flee the zombies; the last human standing wins.",
+  },
+  "arcade-brile": {
+    es: "Balón prisionero 6v6: brila a los rivales y vacía su campo.",
+    en: "6v6 dodgeball: strike out rivals and empty their court.",
+  },
+  "arcade-topos-mazazos": {
+    es: "Corre, colócate y da mazazos: topos dorados valen 3, la bomba resta.",
+    en: "Run, line up and swing: gold moles score 3, the bomb costs you.",
   },
   "sports-basketball-court": {
     es: "Tiro de baloncesto: ajusta fuerza y direcci\u00f3n para anotar.",

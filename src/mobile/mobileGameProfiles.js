@@ -5,6 +5,9 @@ const DIRECT_TOUCH_GAME_IDS = new Set([
   // The cups are the buttons: you point at the one you mean, so a virtual pad
   // would only get between the finger and the table.
   "arcade-shell-game",
+  // The whole stage is one big STOP button, so a virtual pad would only sit
+  // between the finger and the tap that stops the clock.
+  "arcade-pulso-exacto",
   "arcade-orchard-match-blast",
   "arcade-reactor-toss",
   "arcade-golf-tour-2d",
@@ -564,6 +567,173 @@ export function getMobileControlProfile(game, locale = "es") {
   }
 
   switch (gameId) {
+    case "sports-padel-arena":
+      return {
+        layout: "split",
+        heading: t(locale, "Pádel", "Padel"),
+        hint: t(
+          locale,
+          "Mueve el joystick y elige golpe: Volea (ataque; remata si la bola llega alta), Revés, Globo o Dejada. Mantén el botón pulsado para cargar potencia: la barra sobre tu figura dice cuánta llevas. Marca dirección con el joystick al golpear para colocar. El globo pasa por encima de los de la red y, tras botar, puedes jugar la pared. En el saque, cualquier botón saca cruzado. Dificultad y formato en el menú.",
+          "Move the joystick and pick a shot: Volley (attack; smashes a high ball), Backhand, Lob or Drop. Hold the button to charge power — the bar above your figure shows how much. Hold a joystick direction as you hit to place it. The lob clears the net players and, after a bounce, you can play the wall. On serve, any button serves cross-court. Difficulty and format in the menu.",
+        ),
+        // A four-way pad renders as an analog joystick to move the active player.
+        leftPad: directionalPad(locale, {
+          up: input("ArrowUp", "ArrowUp"),
+          left: input("ArrowLeft", "ArrowLeft"),
+          right: input("ArrowRight", "ArrowRight"),
+          down: input("ArrowDown", "ArrowDown"),
+        }),
+        // Cuatro golpes a elegir (y el saque con cualquiera de ellos): Volea es el
+        // ataque natural (remate si la bola llega alta a la red), más revés, globo y
+        // dejada. Reflejan las teclas F / G / H / J del teclado.
+        //
+        // Son de tipo "hold", no "tap": mantener pulsado carga la potencia del
+        // golpe, igual que mantener la tecla en el ordenador. El deck emite
+        // keydown al apoyar el dedo y keyup al levantarlo, así que el motor no
+        // distingue de dónde viene el gesto.
+        rightPad: [
+          control("volea", t(locale, "Volea", "Volley"), {
+            type: "hold",
+            tone: "primary",
+            inputs: [input("KeyF", "f")],
+          }),
+          control("reves", t(locale, "Revés", "Backhand"), {
+            type: "hold",
+            inputs: [input("KeyG", "g")],
+          }),
+          control("globo", t(locale, "Globo", "Lob"), {
+            type: "hold",
+            inputs: [input("KeyH", "h")],
+          }),
+          control("dejada", t(locale, "Dejada", "Drop"), {
+            type: "hold",
+            inputs: [input("KeyJ", "j")],
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
+    case "arcade-terror-zombi":
+      return {
+        layout: "split",
+        heading: t(locale, "Cementerio", "Graveyard"),
+        hint: t(
+          locale,
+          "Mueve el joystick para huir de los zombis en 8 direcciones. Si te tocan, cazas al resto. Elige cementerio, dificultad y «Otra vez»/«Cambiar» en los botones del panel.",
+          "Push the joystick to flee the zombies in 8 directions. If they touch you, hunt the rest. Pick the graveyard, difficulty and «Again»/«Change» from the panel buttons.",
+        ),
+        // A full four-way pad renders as an analog joystick, so dodging is a
+        // thumb push in any direction rather than tapping buttons.
+        leftPad: directionalPad(locale, {
+          up: input("ArrowUp", "ArrowUp"),
+          left: input("ArrowLeft", "ArrowLeft"),
+          right: input("ArrowRight", "ArrowRight"),
+          down: input("ArrowDown", "ArrowDown"),
+        }),
+        // Map/difficulty/result actions live in the game's own header toolbar
+        // (.tz-actions), which stays visible in the mobile shell — so the deck
+        // only carries the joystick and the shared utilities.
+        rightPad: [],
+        utilities: utilityRow(locale),
+      };
+    case "arcade-brile":
+      return {
+        layout: "split",
+        heading: t(locale, "Brilé", "Dodgeball"),
+        hint: t(
+          locale,
+          "Mueve el joystick para colocarte y esquivar. Con el balón, Lanzar apunta solo al rival más peligroso; Atrapar cázalo justo cuando te llega para brilar al lanzador. Dificultad y «Otra vez»/«Cambiar» en los botones del panel.",
+          "Move the joystick to reposition and dodge. Holding the ball, Throw auto-aims at the most dangerous rival; Catch it right as it reaches you to send the thrower out. Difficulty and «Again»/«Change» are in the panel buttons.",
+        ),
+        // Joystick to move; two big action taps mirror the keyboard throw/catch.
+        leftPad: directionalPad(locale, {
+          up: input("ArrowUp", "ArrowUp"),
+          left: input("ArrowLeft", "ArrowLeft"),
+          right: input("ArrowRight", "ArrowRight"),
+          down: input("ArrowDown", "ArrowDown"),
+        }),
+        rightPad: [
+          control("catch", t(locale, "Atrapar", "Catch"), {
+            type: "tap",
+            inputs: [input("KeyK", "k")],
+          }),
+          control("throw", t(locale, "Lanzar", "Throw"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Space", " ")],
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
+    case "arcade-topos-mazazos":
+      return {
+        layout: "split",
+        heading: t(locale, "Jardín", "Garden"),
+        hint: t(
+          locale,
+          "Mueve el joystick para colocarte junto a un agujero y pulsa Golpear: el mazazo alcanza todo lo que asome a tu alrededor. Marrón 1, dorado 3, bomba -2 y aturdimiento. Dificultad y «¡A jugar!»/«Otra vez» en los botones del panel.",
+          "Push the joystick to line up next to a hole and tap Whack: the swing hits everything popped up around you. Brown 1, gold 3, bomb -2 and a stun. Difficulty and «Play!»/«Again» are in the panel buttons.",
+        ),
+        // A full four-way pad renders as an analog joystick, so repositioning
+        // between holes is a thumb push rather than tapping buttons.
+        leftPad: directionalPad(locale, {
+          up: input("ArrowUp", "ArrowUp"),
+          left: input("ArrowLeft", "ArrowLeft"),
+          right: input("ArrowRight", "ArrowRight"),
+          down: input("ArrowDown", "ArrowDown"),
+        }),
+        rightPad: [
+          control("whack", t(locale, "Golpear", "Whack"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Space", " ")],
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
+    case "arcade-distancia-justa":
+      return {
+        layout: "split",
+        heading: t(locale, "Distancia", "Distance"),
+        hint: t(
+          locale,
+          "Mueve el joystick a la derecha para avanzar y a la izquierda para retroceder; confirma tu posición. En el menú, elige la dificultad aquí abajo.",
+          "Push the joystick right to advance and left to step back; confirm your position. On the menu, pick the difficulty down here.",
+        ),
+        // A left/right directional pair renders as an analog joystick, so walking
+        // is a thumb push instead of tapping buttons.
+        leftPad: [
+          control("moveLeft", "◀", { type: "hold", inputs: [input("ArrowLeft", "ArrowLeft")] }),
+          control("moveRight", "▶", { type: "hold", inputs: [input("ArrowRight", "ArrowRight")] }),
+        ],
+        // Difficulty taps click the on-screen menu cards and auto-hide once the
+        // match starts (their targets disappear); Confirm stays for the run.
+        rightPad: [
+          control("diffEasy", t(locale, "Fácil", "Easy"), {
+            type: "tap",
+            action: "click-target",
+            targetSelector: ".dj-diff--facil",
+            hideWhenUnavailable: true,
+          }),
+          control("diffNormal", t(locale, "Normal", "Normal"), {
+            type: "tap",
+            action: "click-target",
+            targetSelector: ".dj-diff--normal",
+            hideWhenUnavailable: true,
+          }),
+          control("diffHard", t(locale, "Difícil", "Hard"), {
+            type: "tap",
+            action: "click-target",
+            targetSelector: ".dj-diff--dificil",
+            hideWhenUnavailable: true,
+          }),
+          control("confirm", t(locale, "✓ Confirmar", "✓ Confirm"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
     case "sports-head-soccer-arena":
       return {
         layout: "split",

@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none">
+  <defs>
+    <linearGradient id="pad-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1a24"/><stop offset="1" stop-color="#04090d"/>
+    </linearGradient>
+    <linearGradient id="pad-court" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#256b4c"/><stop offset="1" stop-color="#3a9d6f"/>
+    </linearGradient>
+    <linearGradient id="pad-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="rgba(220,245,255,0.5)"/>
+      <stop offset="0.25" stop-color="rgba(150,205,230,0.12)"/>
+      <stop offset="1" stop-color="rgba(120,175,205,0.05)"/>
+    </linearGradient>
+    <radialGradient id="pad-spot" cx="0.5" cy="0.05" r="0.75">
+      <stop offset="0" stop-color="rgba(150,210,235,0.14)"/><stop offset="1" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+    <radialGradient id="pad-ball" cx="0.38" cy="0.34" r="0.72">
+      <stop offset="0" stop-color="#f8ffc0"/><stop offset="0.6" stop-color="#e2ff3d"/><stop offset="1" stop-color="#a9cc00"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky + stands -->
+  <rect width="200" height="140" fill="url(#pad-sky)"/>
+  <rect width="200" height="30" fill="#0c1922"/>
+  <g fill="rgba(150,180,205,0.22)">
+    <circle cx="34" cy="14" r="1.5"/><circle cx="54" cy="12" r="1.5"/><circle cx="74" cy="15" r="1.5"/>
+    <circle cx="96" cy="12" r="1.5"/><circle cx="118" cy="14" r="1.5"/><circle cx="140" cy="12" r="1.5"/>
+    <circle cx="162" cy="15" r="1.5"/><circle cx="44" cy="23" r="1.5"/><circle cx="66" cy="21" r="1.5"/>
+    <circle cx="88" cy="23" r="1.5"/><circle cx="110" cy="21" r="1.5"/><circle cx="132" cy="23" r="1.5"/><circle cx="154" cy="21" r="1.5"/>
+  </g>
+
+  <!-- Court floor (broadcast trapezoid) -->
+  <polygon points="16,133 184,133 138,44 62,44" fill="url(#pad-court)"/>
+  <!-- Court lines -->
+  <g fill="#f2f8f4">
+    <polygon points="62,44 138,44 138,45.6 62,45.6"/>
+    <polygon points="16,131 184,131 184,133 16,133"/>
+    <polygon points="72,64 128,64 128,65.4 72,65.4"/>
+    <polygon points="88,104 112,104 112,106 88,106"/>
+    <polygon points="99.3,64 100.7,64 100.7,105 99.3,105" fill="rgba(242,248,244,0.75)"/>
+    <polygon points="62,44 63.4,44 34,131 30,131"/>
+    <polygon points="138,44 136.6,44 166,131 170,131"/>
+  </g>
+
+  <!-- Back + side glass -->
+  <polygon points="62,44 138,44 138,30 62,30" fill="url(#pad-glass)" stroke="#9db4c2" stroke-width="1"/>
+  <polygon points="62,44 62,30 40,33 16,133 16,120" fill="url(#pad-glass)" stroke="#9db4c2" stroke-width="0.5"/>
+  <polygon points="138,44 138,30 160,33 184,133 184,120" fill="url(#pad-glass)" stroke="#9db4c2" stroke-width="0.5"/>
+  <!-- Glass mullions -->
+  <g stroke="#c3d2dc" stroke-width="0.7">
+    <line x1="62" y1="44" x2="62" y2="30"/><line x1="81" y1="44" x2="81" y2="30"/>
+    <line x1="100" y1="44" x2="100" y2="30"/><line x1="119" y1="44" x2="119" y2="30"/><line x1="138" y1="44" x2="138" y2="30"/>
+  </g>
+  <line x1="62" y1="37" x2="138" y2="37" stroke="rgba(180,210,225,0.3)" stroke-width="0.6"/>
+  <!-- Diamond fence mesh above back glass -->
+  <g stroke="rgba(150,172,192,0.45)" stroke-width="0.4">
+    <line x1="62" y1="30" x2="70" y2="22"/><line x1="70" y1="30" x2="78" y2="22"/><line x1="78" y1="30" x2="86" y2="22"/>
+    <line x1="86" y1="30" x2="94" y2="22"/><line x1="94" y1="30" x2="102" y2="22"/><line x1="102" y1="30" x2="110" y2="22"/>
+    <line x1="110" y1="30" x2="118" y2="22"/><line x1="118" y1="30" x2="126" y2="22"/><line x1="126" y1="30" x2="134" y2="22"/>
+    <line x1="70" y1="30" x2="62" y2="22"/><line x1="78" y1="30" x2="70" y2="22"/><line x1="86" y1="30" x2="78" y2="22"/>
+    <line x1="94" y1="30" x2="86" y2="22"/><line x1="102" y1="30" x2="94" y2="22"/><line x1="110" y1="30" x2="102" y2="22"/>
+    <line x1="118" y1="30" x2="110" y2="22"/><line x1="126" y1="30" x2="118" y2="22"/><line x1="134" y1="30" x2="126" y2="22"/>
+    <line x1="62" y1="22" x2="138" y2="22"/>
+  </g>
+
+  <!-- Far players (faceless, blue, shaded) -->
+  <g>
+    <ellipse cx="82" cy="60" rx="5" ry="1.7" fill="rgba(4,12,9,0.36)"/>
+    <path d="M79 60 L85 60 L84 50 L80 50 Z" fill="#4aa3ff"/>
+    <path d="M80 50 L82 50 L81.4 60 L79.6 60 Z" fill="#1f5bc0"/>
+    <line x1="80.4" y1="51" x2="79" y2="60" stroke="#1b2530" stroke-width="1"/>
+    <line x1="83.6" y1="51" x2="85" y2="60" stroke="#1b2530" stroke-width="1"/>
+    <circle cx="82" cy="47.4" r="2.3" fill="#d0b393"/>
+    <path d="M79.7 47 a2.3 2.3 0 0 1 4.6 0 a2.3 1.4 0 0 0 -4.6 0 Z" fill="#2a2018"/>
+    <ellipse cx="88" cy="52" rx="2.3" ry="2.9" fill="#3d7bff" stroke="#1b1f27" stroke-width="0.5"/>
+
+    <ellipse cx="118" cy="60" rx="5" ry="1.7" fill="rgba(4,12,9,0.36)"/>
+    <path d="M115 60 L121 60 L120 50 L116 50 Z" fill="#4aa3ff"/>
+    <path d="M116 50 L118 50 L117.4 60 L115.6 60 Z" fill="#1f5bc0"/>
+    <circle cx="118" cy="47.4" r="2.3" fill="#d0b393"/>
+    <path d="M115.7 47 a2.3 2.3 0 0 1 4.6 0 a2.3 1.4 0 0 0 -4.6 0 Z" fill="#2a2018"/>
+    <ellipse cx="112" cy="52" rx="2.3" ry="2.9" fill="#3d7bff" stroke="#1b1f27" stroke-width="0.5"/>
+  </g>
+
+  <!-- Net -->
+  <g stroke="rgba(232,240,250,0.5)" stroke-width="0.4">
+    <line x1="70" y1="88" x2="69" y2="94"/><line x1="84" y1="88" x2="83" y2="94"/>
+    <line x1="100" y1="87.5" x2="100" y2="94.5"/><line x1="116" y1="88" x2="117" y2="94"/><line x1="130" y1="88" x2="131" y2="94"/>
+    <line x1="66" y1="90" x2="134" y2="90"/>
+  </g>
+  <polygon points="60,88 140,88 133,86 67,86" fill="#f6faff"/>
+  <line x1="60" y1="94" x2="60" y2="85" stroke="#cdd8e0" stroke-width="1.4"/>
+  <line x1="140" y1="94" x2="140" y2="85" stroke="#cdd8e0" stroke-width="1.4"/>
+  <line x1="100" y1="94" x2="100" y2="86" stroke="#dfe8f2" stroke-width="0.8"/>
+
+  <!-- Ball with soft shadow -->
+  <ellipse cx="104" cy="113" rx="4" ry="1.4" fill="rgba(4,12,9,0.36)"/>
+  <circle cx="106" cy="96" r="4.6" fill="url(#pad-ball)"/>
+  <path d="M102.4 94 a4.6 4.6 0 0 1 6.8 1.4" stroke="rgba(255,255,255,0.5)" stroke-width="0.7" fill="none"/>
+
+  <!-- Near players (faceless, orange, shaded) -->
+  <g>
+    <ellipse cx="66" cy="128" rx="8" ry="2.6" fill="rgba(4,12,9,0.38)"/>
+    <path d="M61 128 L71 128 L69 108 L63 108 Z" fill="#ff8a3d"/>
+    <path d="M63 108 L66 108 L65 128 L62.5 128 Z" fill="#ffb27a" opacity="0.6"/>
+    <path d="M66 108 L69 108 L69.5 128 L66 128 Z" fill="#c14e1c"/>
+    <rect x="61.5" y="118" width="9" height="5" fill="#1b2530"/>
+    <line x1="63" y1="123" x2="61.5" y2="128" stroke="#1b2530" stroke-width="1.6"/>
+    <line x1="69" y1="123" x2="70.5" y2="128" stroke="#1b2530" stroke-width="1.6"/>
+    <circle cx="66" cy="104.4" r="3.6" fill="#d0b393"/>
+    <path d="M62.4 104 a3.6 3.6 0 0 1 7.2 0 a3.6 2.2 0 0 0 -7.2 0 Z" fill="#2a2018"/>
+    <g transform="translate(78 111) rotate(24)">
+      <ellipse cx="0" cy="0" rx="4" ry="5" fill="#ff5a3c" stroke="#1b1f27" stroke-width="0.7"/>
+      <ellipse cx="-1.2" cy="-1.6" rx="1.4" ry="1.8" fill="rgba(255,255,255,0.18)"/>
+      <g fill="rgba(16,20,28,0.72)"><circle cx="-1.2" cy="0" r="0.55"/><circle cx="1.2" cy="0" r="0.55"/><circle cx="0" cy="-1.8" r="0.55"/><circle cx="0" cy="1.8" r="0.55"/></g>
+    </g>
+
+    <ellipse cx="134" cy="128" rx="8" ry="2.6" fill="rgba(4,12,9,0.38)"/>
+    <path d="M129 128 L139 128 L137 108 L131 108 Z" fill="#ff8a3d"/>
+    <path d="M131 108 L134 108 L133 128 L130.5 128 Z" fill="#ffb27a" opacity="0.6"/>
+    <path d="M134 108 L137 108 L137.5 128 L134 128 Z" fill="#c14e1c"/>
+    <rect x="129.5" y="118" width="9" height="5" fill="#1b2530"/>
+    <line x1="131" y1="123" x2="129.5" y2="128" stroke="#1b2530" stroke-width="1.6"/>
+    <line x1="137" y1="123" x2="138.5" y2="128" stroke="#1b2530" stroke-width="1.6"/>
+    <circle cx="134" cy="104.4" r="3.6" fill="#d0b393"/>
+    <path d="M130.4 104 a3.6 3.6 0 0 1 7.2 0 a3.6 2.2 0 0 0 -7.2 0 Z" fill="#2a2018"/>
+    <g transform="translate(122 111) rotate(-24)">
+      <ellipse cx="0" cy="0" rx="4" ry="5" fill="#ff5a3c" stroke="#1b1f27" stroke-width="0.7"/>
+      <ellipse cx="-1.2" cy="-1.6" rx="1.4" ry="1.8" fill="rgba(255,255,255,0.18)"/>
+      <g fill="rgba(16,20,28,0.72)"><circle cx="-1.2" cy="0" r="0.55"/><circle cx="1.2" cy="0" r="0.55"/><circle cx="0" cy="-1.8" r="0.55"/><circle cx="0" cy="1.8" r="0.55"/></g>
+    </g>
+  </g>
+
+  <!-- Overhead spotlight -->
+  <rect width="200" height="140" fill="url(#pad-spot)"/>
+</svg>

@@ -30,7 +30,13 @@ const GAME_STAGE_SELECTORS = {
   ],
   "sports-basketball-court": [".basketball-court-stage"],
   "sports-ping-pong-arena": [".ping-pong-arena-stage"],
+  "sports-padel-arena": [".padel-arena-stage"],
   "arcade-shell-game": [".shell-game-stage"],
+  "arcade-pulso-exacto": [".pulso-stage"],
+  "arcade-distancia-justa": [".dj-stage"],
+  "arcade-terror-zombi": [".tz-stage"],
+  "arcade-brile": [".brile-stage"],
+  "arcade-topos-mazazos": [".topos-stage"],
   "arcade-golf-tour-2d": [
     ".golf-tour-canvas-shell",
     ".golf-tour-stage-wrap",

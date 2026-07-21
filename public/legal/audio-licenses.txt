@@ -1,0 +1,115 @@
+AUDIO SOURCES AND THIRD-PARTY LICENSE NOTICES
+=============================================
+
+This application bundles the audio files listed below. All of them may be used
+in a commercial, advertising-supported application subject to the terms stated
+for each source.
+
+Files are re-encoded for web delivery (mono, reduced bitrate, loudness
+normalised) and cut down to the single gesture each one is used for. CC0 places
+no restriction on modification or redistribution, so the edited copies carry the
+same terms as the originals.
+
+
+1. TERROR ZOMBI — ZOMBIE CUES AND GRAVEYARD ATMOSPHERE
+------------------------------------------------------
+
+Source:  BigSoundBank
+Site:    https://bigsoundbank.com/
+Author:  Joseph SARDIN
+License: CC0 1.0 Universal (Public Domain Dedication)
+         https://creativecommons.org/publicdomain/zero/1.0/
+
+BigSoundBank states for these sounds: "CC0 (public domain): Free and
+royalty-free. You can use this sound in any project, including commercial ones,
+anywhere in the world, without paying a license fee." Attribution is not
+required; it is recorded here anyway as good practice.
+
+Path: src/games/arcade/terror-zombi/assets/sounds/
+
+  File                      Original                Ref     Edit
+  ------------------------- ----------------------- ------- ------------------
+  zombie-bite.mp3           Zombie #6               s2111   0.0-1.0 s
+  zombie-snarl.mp3          Zombie #7               s2112   0.0-1.5 s
+  zombie-infect.mp3         Zombie #5               s2110   0.0-1.8 s
+  zombie-roar.mp3           Zombie #4               s2109   0.0-2.6 s
+  zombie-groan.mp3          Zombie #2               s2107   0.0-3.0 s
+  zombie-horde.mp3          Zombie #1               s2106   3.5-7.5 s
+  tombstone-open.mp3        Tombstone: Opening      s0580   0.0-1.6 s
+  owl-barn.mp3              Barn Owl #1             s1400   0.0-2.2 s
+  owl-tawny.mp3             Tawny Owl #1            s1763   0.0-2.2 s
+  graveyard-night-bed.mp3   Mountain, evening #2    s3204   12.0-36.0 s
+
+Original pages: https://bigsoundbank.com/<slug>-s<ref>.html
+Direct files:   https://bigsoundbank.com/UPLOAD/mp3/<ref>.mp3
+
+Cut points were chosen by measuring each recording's energy envelope, not by
+ear-free guesswork: the sources run 12-24 s of continuous material, and the owl
+recordings are discrete calls separated by true silence, so an arbitrary window
+would have played nothing at all. Each file now holds one gesture, with a fade
+out and a re-run of loudness normalisation after the cut.
+
+Note on graveyard-night-bed.mp3: BigSoundBank has no cemetery ambience as such.
+This is a 24-second excerpt of a rural evening soundscape (wind and night
+insects), which is what a graveyard bed is made of in practice. It is an
+excerpt, not a seam-checked loop — see the game's audio module for how it is
+looped at playback.
+
+
+2. PADEL ARENA — RALLY MECHANICS AND CROWD
+-------------------------------------------
+
+Source:  BigSoundBank
+Site:    https://bigsoundbank.com/
+Authors: Joseph SARDIN and contributors
+License: CC0 1.0 Universal (Public Domain Dedication)
+         https://creativecommons.org/publicdomain/zero/1.0/
+
+Same terms as section 1: free for commercial use worldwide, no attribution
+required, recorded here as good practice.
+
+Path: src/games/sports/padel-arena/assets/sounds/
+
+  File              Original                Ref     Edit
+  ----------------- ----------------------- ------- --------------------------
+  paddle.mp3        Tennis Ball: Bounce     s0584   1.64-1.94 s
+  smash.mp3         Tennis Ball: Bounce     s0584   3.36-3.72 s
+  floor.mp3         Tennis Ball: Bounce     s0584   10.48-10.78 s
+  glass.mp3         Knock on a Glass Door#1 s0319   0.352-0.532 s
+  clap.mp3          Applause #1             s2363   0.15-1.75 s
+  whistle.mp3       Plastic Whistle #1      s1017   0.00-0.85 s
+
+The three impacts come from one 37-second recording of a tennis ball bouncing
+until it settles. Individual strikes were located with silence detection rather
+than picked by eye — the impacts sit at 1.67 s, 3.38 s, 10.51 s and so on — and
+each was cut with its own decay. They are the same ball at different energies,
+which is what a paddle strike, a smash and a court bounce actually are.
+
+glass.mp3 is one knock on a glass door. In padel the ball coming off the glass
+wall is the sound that identifies the sport, and no oscillator gets near it. The
+source is a knock-knock-knock — three strikes at 0.36 s, 0.54 s and 0.72 s — so
+only the first is kept, cut at 0.18 s where its decay ends and before the second
+begins. A single bounce has to sound like a single bounce.
+
+clap.mp3 is "several people applauding indoors", chosen because it is applause
+and nothing else. Recordings that mix in cheering, shouting or bar noise were
+rejected: the crowd acknowledges the point, it does not celebrate it.
+
+The net cue stays synthesized: a dead, muffled thud has no good CC0 recording,
+and synthesis does that particular job well.
+
+
+3. SOUNDS NOT YET DOCUMENTED
+-----------------------------
+
+The following audio files predate this registry and their licences have not been
+verified here. src/games/arcade/shell-game/audio.js states that win.mp3 and
+lose.mp3 come from Kenney "Interface Sounds" (CC0), but that claim has not been
+checked against the source.
+
+  src/games/arcade/ping-pong-arena/assets/sounds/*.mp3
+  src/games/arcade/reactor-toss/assets/*.mp3
+  src/games/arcade/shell-game/assets/sounds/*.mp3
+  src/games/chess/assets/sounds/*.mp3
+
+Before shipping commercially, confirm each of these and add it above.
