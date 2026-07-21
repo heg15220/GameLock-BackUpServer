@@ -343,7 +343,7 @@ export default function DistanciaJustaGame() {
                 <button type="button" className="dj-primary" onClick={() => press("Enter")}>
                   ▶ {copy.again}
                 </button>
-                <button type="button" onClick={() => rtRef.current?.backToMenu()}>
+                <button type="button" className="dj-act-back" onClick={() => rtRef.current?.backToMenu()}>
                   {copy.changeDifficulty}
                 </button>
               </div>

@@ -1,5 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { holdInputs, releaseAllInputs, repeatInputs, tapInputs } from "./mobileInputBridge";
+import {
+  isSelectedTarget,
+  resolveBilliardsPhase,
+  resolveRuntimeButton,
+} from "./mobileDeckRuntime";
 
 function getEmbeddedStandaloneRoots(scopeElement) {
   if (!scopeElement) {
@@ -133,58 +138,11 @@ function invokeFrameAction(button, scopeElement) {
   return invoked;
 }
 
-function resolveBilliardsPhase(snapshot) {
-  const status = String(snapshot?.status ?? "").toLowerCase();
-  if (status === "rack-over") {
-    return "rack-over";
+function isTargetSelected(button, scopeElement) {
+  if (!button?.targetSelector) {
+    return false;
   }
-  if (status === "match-over") {
-    return "match-over";
-  }
-  return "play";
-}
-
-function evaluateVisibility(button, snapshot) {
-  const rule = button?.visibility;
-  if (!rule) {
-    return true;
-  }
-
-  if (Array.isArray(rule.billiardsPhases) && rule.billiardsPhases.length > 0) {
-    const phase = resolveBilliardsPhase(snapshot);
-    if (!phase || !rule.billiardsPhases.includes(phase)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function resolveRuntimeButton(button, snapshot) {
-  if (!evaluateVisibility(button, snapshot)) {
-    return { ...button, hiddenRuntime: true };
-  }
-
-  if (button.action !== "valle-travel-context") {
-    return button;
-  }
-
-  const shortcut = snapshot?.travelShortcut;
-  if (!shortcut?.state) {
-    return {
-      ...button,
-      hiddenRuntime: true,
-    };
-  }
-
-  return {
-    ...button,
-    action: "invoke-frame",
-    frameFunction: "useTravelShortcut",
-    frameGuard: null,
-    hiddenRuntime: false,
-    label: button.stateLabels?.[shortcut.state] ?? button.label,
-  };
+  return isSelectedTarget(resolveActionTarget(button, scopeElement));
 }
 
 function MobileControlButton({
@@ -633,6 +591,9 @@ export default function MobileControlDeck({
 
   const isButtonActive = (button) => {
     if (tappedId === button.id) {
+      return true;
+    }
+    if (isTargetSelected(button, scopeElement)) {
       return true;
     }
     return button.inputs?.some((entry) => activeMap.has(entry.code));

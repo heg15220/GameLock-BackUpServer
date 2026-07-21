@@ -134,7 +134,7 @@ export default function PadelArenaGame() {
                 <button
                   key={d.id}
                   type="button"
-                  className={`padel-arena-seg-btn${difficulty === d.id ? " is-on" : ""}`}
+                  className={`padel-arena-seg-btn padel-arena-seg-btn--${d.id}${difficulty === d.id ? " is-on" : ""}`}
                   aria-pressed={difficulty === d.id}
                   onClick={() => setDifficulty(d.id)}
                 >
@@ -153,7 +153,7 @@ export default function PadelArenaGame() {
                 <button
                   key={f.n}
                   type="button"
-                  className={`padel-arena-seg-btn${bestOf === f.n ? " is-on" : ""}`}
+                  className={`padel-arena-seg-btn padel-arena-seg-btn--best${f.n}${bestOf === f.n ? " is-on" : ""}`}
                   aria-pressed={bestOf === f.n}
                   onClick={() => setFormat(f.n)}
                 >

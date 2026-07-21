@@ -5,9 +5,6 @@ const DIRECT_TOUCH_GAME_IDS = new Set([
   // The cups are the buttons: you point at the one you mean, so a virtual pad
   // would only get between the finger and the table.
   "arcade-shell-game",
-  // The whole stage is one big STOP button, so a virtual pad would only sit
-  // between the finger and the tap that stops the clock.
-  "arcade-pulso-exacto",
   "arcade-orchard-match-blast",
   "arcade-reactor-toss",
   "arcade-golf-tour-2d",
@@ -82,9 +79,35 @@ function control(id, label, options = {}) {
     frameFunction: options.frameFunction ?? null,
     frameGuard: options.frameGuard ?? null,
     stateLabels: options.stateLabels ?? null,
+    screenLabels: options.screenLabels ?? null,
     visibility: options.visibility ?? null,
     extraClassName: options.extraClassName ?? null,
   };
+}
+
+// Setup and result buttons of the newer arcade/sports games live in the game's
+// own toolbar or menu panel, which the mobile shell hides when it isolates the
+// stage. `click-any-target` reaches them anyway, so the deck becomes the place
+// where those buttons exist on a phone, with their real names.
+function menuTap(id, label, targetSelector, options = {}) {
+  return control(id, label, {
+    type: "tap",
+    action: "click-any-target",
+    targetSelector,
+    hideWhenUnavailable: true,
+    ...options,
+  });
+}
+
+// Difficulty pickers share the same three ids across these games.
+function difficultyTaps(locale, prefix, selectorFor, options = {}) {
+  return [
+    ["facil", t(locale, "Fácil", "Easy")],
+    ["normal", t(locale, "Normal", "Normal")],
+    ["dificil", t(locale, "Difícil", "Hard")],
+  ].map(([key, label]) =>
+    menuTap(`${prefix}-${key}`, label, selectorFor(key), options)
+  );
 }
 
 function utilityRow(locale, extra = []) {
@@ -573,8 +596,8 @@ export function getMobileControlProfile(game, locale = "es") {
         heading: t(locale, "Pádel", "Padel"),
         hint: t(
           locale,
-          "Mueve el joystick y elige golpe: Volea (ataque; remata si la bola llega alta), Revés, Globo o Dejada. Mantén el botón pulsado para cargar potencia: la barra sobre tu figura dice cuánta llevas. Marca dirección con el joystick al golpear para colocar. El globo pasa por encima de los de la red y, tras botar, puedes jugar la pared. En el saque, cualquier botón saca cruzado. Dificultad y formato en el menú.",
-          "Move the joystick and pick a shot: Volley (attack; smashes a high ball), Backhand, Lob or Drop. Hold the button to charge power — the bar above your figure shows how much. Hold a joystick direction as you hit to place it. The lob clears the net players and, after a bounce, you can play the wall. On serve, any button serves cross-court. Difficulty and format in the menu.",
+          "Mueve el joystick y elige golpe: Volea (ataque; remata si la bola llega alta), Revés, Globo o Dejada. Mantén el botón pulsado para cargar potencia: la barra sobre tu figura dice cuánta llevas. Marca dirección con el joystick al golpear para colocar. El globo pasa por encima de los de la red y, tras botar, puedes jugar la pared. En el saque, cualquier botón saca cruzado. Dificultad, formato y «Empezar partido» están aquí abajo.",
+          "Move the joystick and pick a shot: Volley (attack; smashes a high ball), Backhand, Lob or Drop. Hold the button to charge power — the bar above your figure shows how much. Hold a joystick direction as you hit to place it. The lob clears the net players and, after a bounce, you can play the wall. On serve, any button serves cross-court. Difficulty, format and «Start match» are down here.",
         ),
         // A four-way pad renders as an analog joystick to move the active player.
         leftPad: directionalPad(locale, {
@@ -592,22 +615,48 @@ export function getMobileControlProfile(game, locale = "es") {
         // keydown al apoyar el dedo y keyup al levantarlo, así que el motor no
         // distingue de dónde viene el gesto.
         rightPad: [
+          // Pre-match setup: the menu panel with difficulty, format and start is
+          // outside the isolated stage, so on a phone the deck is where it lives.
+          menuTap("diffEasy", t(locale, "Fácil", "Easy"), ".padel-arena-seg-btn--easy"),
+          menuTap("diffMedium", t(locale, "Medio", "Medium"), ".padel-arena-seg-btn--medium"),
+          menuTap("diffHard", t(locale, "Difícil", "Hard"), ".padel-arena-seg-btn--hard"),
+          menuTap("format1", t(locale, "1 set", "1 set"), ".padel-arena-seg-btn--best1"),
+          menuTap("format3", t(locale, "Al mejor de 3", "Best of 3"), ".padel-arena-seg-btn--best3"),
+          menuTap("startMatch", t(locale, "▶ Empezar partido", "▶ Start match"), ".padel-arena-start", {
+            tone: "primary",
+          }),
+          control("saca", t(locale, "🎾 Sacar", "🎾 Serve"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("KeyF", "f")],
+            visibility: { screens: ["serve"] },
+          }),
           control("volea", t(locale, "Volea", "Volley"), {
             type: "hold",
             tone: "primary",
             inputs: [input("KeyF", "f")],
+            visibility: { screens: ["serve", "rally", "point"] },
           }),
           control("reves", t(locale, "Revés", "Backhand"), {
             type: "hold",
             inputs: [input("KeyG", "g")],
+            visibility: { screens: ["serve", "rally", "point"] },
           }),
           control("globo", t(locale, "Globo", "Lob"), {
             type: "hold",
             inputs: [input("KeyH", "h")],
+            visibility: { screens: ["serve", "rally", "point"] },
           }),
           control("dejada", t(locale, "Dejada", "Drop"), {
             type: "hold",
             inputs: [input("KeyJ", "j")],
+            visibility: { screens: ["serve", "rally", "point"] },
+          }),
+          control("again", t(locale, "▶ Otra vez", "▶ Again"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+            visibility: { screens: ["over"] },
           }),
         ],
         utilities: utilityRow(locale),
@@ -629,10 +678,24 @@ export function getMobileControlProfile(game, locale = "es") {
           right: input("ArrowRight", "ArrowRight"),
           down: input("ArrowDown", "ArrowDown"),
         }),
-        // Map/difficulty/result actions live in the game's own header toolbar
-        // (.tz-actions), which stays visible in the mobile shell — so the deck
-        // only carries the joystick and the shared utilities.
-        rightPad: [],
+        // Map, difficulty and result actions live in the game's own header
+        // toolbar (.tz-actions), which the shell hides when it isolates the
+        // stage — the deck re-exposes them by name, phase by phase.
+        rightPad: [
+          menuTap("mapCementerio", t(locale, "Cementerio", "Graveyard"), ".tz-act-map--cementerio"),
+          menuTap("mapCamposanto", t(locale, "Camposanto", "Churchyard"), ".tz-act-map--camposanto"),
+          menuTap("mapNecropolis", t(locale, "Necrópolis", "Necropolis"), ".tz-act-map--necropolis"),
+          ...difficultyTaps(locale, "diff", (key) => `.tz-act-diff--${key}`, { tone: "primary" }),
+          control("again", t(locale, "▶ Otra vez", "▶ Again"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+            visibility: { screens: ["over"] },
+          }),
+          menuTap("changeSetup", t(locale, "Cambiar", "Change"), ".tz-act-back", {
+            tone: "accent",
+          }),
+        ],
         utilities: utilityRow(locale),
       };
     case "arcade-brile":
@@ -652,14 +715,28 @@ export function getMobileControlProfile(game, locale = "es") {
           down: input("ArrowDown", "ArrowDown"),
         }),
         rightPad: [
+          // Difficulty starts the match, so the three setup taps are the whole
+          // pre-game menu; they vanish once the round is running.
+          ...difficultyTaps(locale, "diff", (key) => `.brile-act-diff--${key}`, { tone: "primary" }),
           control("catch", t(locale, "Atrapar", "Catch"), {
             type: "tap",
             inputs: [input("KeyK", "k")],
+            visibility: { screens: ["playing"] },
           }),
           control("throw", t(locale, "Lanzar", "Throw"), {
             type: "tap",
             tone: "primary",
             inputs: [input("Space", " ")],
+            visibility: { screens: ["playing"] },
+          }),
+          control("again", t(locale, "▶ Otra vez", "▶ Again"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+            visibility: { screens: ["over"] },
+          }),
+          menuTap("changeSetup", t(locale, "Cambiar dificultad", "Change difficulty"), ".brile-act-back", {
+            tone: "accent",
           }),
         ],
         utilities: utilityRow(locale),
@@ -682,10 +759,54 @@ export function getMobileControlProfile(game, locale = "es") {
           down: input("ArrowDown", "ArrowDown"),
         }),
         rightPad: [
+          // The difficulty segment and «¡A jugar!» sit in the menu section the
+          // shell hides, so the deck carries them until the match begins.
+          menuTap("diffEasy", t(locale, "Fácil", "Easy"), ".topos-seg-btn--easy"),
+          menuTap("diffMedium", t(locale, "Medio", "Medium"), ".topos-seg-btn--medium"),
+          menuTap("diffHard", t(locale, "Difícil", "Hard"), ".topos-seg-btn--hard"),
+          menuTap("startMatch", t(locale, "▶ ¡A jugar!", "▶ Play!"), ".topos-start", {
+            tone: "primary",
+          }),
           control("whack", t(locale, "Golpear", "Whack"), {
             type: "tap",
             tone: "primary",
             inputs: [input("Space", " ")],
+            visibility: { screens: ["countdown", "play"] },
+          }),
+          control("again", t(locale, "▶ Otra vez", "▶ Again"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+            visibility: { screens: ["over"] },
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
+    case "arcade-pulso-exacto":
+      // The stage stays one big STOP surface — the deck doesn't take that away,
+      // it adds the named action for each screen plus pause/restart, which live
+      // in the toolbar the shell hides.
+      return {
+        layout: "split",
+        heading: t(locale, "Cronómetro", "Stopwatch"),
+        hint: t(
+          locale,
+          "Toca el escenario o el botón grande para arrancar y parar el cronómetro. El botón dice siempre qué hace en cada pantalla.",
+          "Tap the stage or the big button to start and stop the clock. The button always says what it does on each screen.",
+        ),
+        leftPad: [],
+        rightPad: [
+          control("primary", t(locale, "Empezar", "Start"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Space", " ")],
+            screenLabels: {
+              menu: t(locale, "▶ Empezar", "▶ Start"),
+              ready: t(locale, "▶ Comenzar ronda", "▶ Start round"),
+              running: t(locale, "¡PARAR!", "STOP!"),
+              result: t(locale, "▶ Siguiente", "▶ Next"),
+              gameover: t(locale, "▶ Otra vez", "▶ Again"),
+            },
           }),
         ],
         utilities: utilityRow(locale),
@@ -706,30 +827,27 @@ export function getMobileControlProfile(game, locale = "es") {
           control("moveRight", "▶", { type: "hold", inputs: [input("ArrowRight", "ArrowRight")] }),
         ],
         // Difficulty taps click the on-screen menu cards and auto-hide once the
-        // match starts (their targets disappear); Confirm stays for the run.
+        // match starts (their targets disappear); the rest follows the screen.
         rightPad: [
-          control("diffEasy", t(locale, "Fácil", "Easy"), {
-            type: "tap",
-            action: "click-target",
-            targetSelector: ".dj-diff--facil",
-            hideWhenUnavailable: true,
-          }),
-          control("diffNormal", t(locale, "Normal", "Normal"), {
-            type: "tap",
-            action: "click-target",
-            targetSelector: ".dj-diff--normal",
-            hideWhenUnavailable: true,
-          }),
-          control("diffHard", t(locale, "Difícil", "Hard"), {
-            type: "tap",
-            action: "click-target",
-            targetSelector: ".dj-diff--dificil",
-            hideWhenUnavailable: true,
-          }),
+          ...difficultyTaps(locale, "diff", (key) => `.dj-diff--${key}`),
           control("confirm", t(locale, "✓ Confirmar", "✓ Confirm"), {
             type: "tap",
             tone: "primary",
             inputs: [input("Enter", "Enter")],
+            visibility: { screens: ["run"] },
+          }),
+          control("advance", t(locale, "▶ Continuar", "▶ Continue"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+            visibility: { screens: ["announce", "reveal", "gameover"] },
+            screenLabels: {
+              reveal: t(locale, "▶ Siguiente", "▶ Next"),
+              gameover: t(locale, "▶ Otra vez", "▶ Again"),
+            },
+          }),
+          menuTap("changeSetup", t(locale, "Cambiar dificultad", "Change difficulty"), ".dj-act-back", {
+            tone: "accent",
           }),
         ],
         utilities: utilityRow(locale),

@@ -96,7 +96,7 @@ export default function ToposMazazosGame() {
                 <button
                   key={d.id}
                   type="button"
-                  className={`topos-seg-btn${difficulty === d.id ? " is-on" : ""}`}
+                  className={`topos-seg-btn topos-seg-btn--${d.id}${difficulty === d.id ? " is-on" : ""}`}
                   aria-pressed={difficulty === d.id}
                   onClick={() => setDifficulty(d.id)}
                 >

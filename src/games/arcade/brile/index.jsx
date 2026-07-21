@@ -214,7 +214,7 @@ export default function BrileGame() {
               <button type="button" className="brile-act-primary" onClick={() => press("Enter")}>
                 ▶ {copy.again}
               </button>
-              <button type="button" onClick={() => rtRef.current?.backToMenu()}>
+              <button type="button" className="brile-act-back" onClick={() => rtRef.current?.backToMenu()}>
                 {copy.changeDifficulty}
               </button>
             </>

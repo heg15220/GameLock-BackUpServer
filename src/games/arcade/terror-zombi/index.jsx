@@ -219,7 +219,7 @@ export default function TerrorZombiGame() {
                   <button
                     key={id}
                     type="button"
-                    className={`tz-act-map${(snap?.mapId ?? MAP_ORDER[0]) === id ? " is-selected" : ""}`}
+                    className={`tz-act-map tz-act-map--${id}${(snap?.mapId ?? MAP_ORDER[0]) === id ? " is-selected" : ""}`}
                     aria-pressed={(snap?.mapId ?? MAP_ORDER[0]) === id}
                     title={copy.maps[id].hint}
                     onClick={() => rtRef.current?.setMap(id)}
@@ -249,7 +249,7 @@ export default function TerrorZombiGame() {
               <button type="button" className="tz-act-primary" onClick={() => press("Enter")}>
                 ▶ {copy.again}
               </button>
-              <button type="button" onClick={() => rtRef.current?.backToMenu()}>
+              <button type="button" className="tz-act-back" onClick={() => rtRef.current?.backToMenu()}>
                 {copy.changeDifficulty}
               </button>
             </>
