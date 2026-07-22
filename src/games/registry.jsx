@@ -65,7 +65,7 @@ const PulsoExactoGame = lazy(() => import("./arcade/pulso-exacto"));
 const DistanciaJustaGame = lazy(() => import("./arcade/distancia-justa"));
 const TerrorZombiGame = lazy(() => import("./arcade/terror-zombi"));
 const BrileGame = lazy(() => import("./arcade/brile"));
-const ToposMazazosGame = lazy(() => import("./arcade/topos-mazazos"));
+const SaltosSelvaticosGame = lazy(() => import("./arcade/saltos-selvaticos"));
 const IceStrikeProGame = lazy(() => import("./arcade/ice-strike-pro"));
 const StickBrawlShowdownGame = lazy(() => import("./arcade/stick-brawl-showdown"));
 const NeonCryptGame = lazy(() => import("./arcade/neon-crypt"));
@@ -175,7 +175,7 @@ export const GAME_REGISTRY = {
   "arcade-distancia-justa":      DistanciaJustaGame,
   "arcade-terror-zombi":         TerrorZombiGame,
   "arcade-brile":                BrileGame,
-  "arcade-topos-mazazos":        ToposMazazosGame,
+  "arcade-saltos-selvaticos":    SaltosSelvaticosGame,
   "arcade-pong-neon-arena":      PongGame,
   "arcade-buscaminas-classic":   MinesweeperGame,
   "arcade-retro-snake-classic":  ArcadeSnakeClassicGame,
@@ -265,7 +265,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-distancia-justa":      "Camina la distancia anunciada: mantén Avanzar (D/→/Espacio o toque en la pista) y Atrás (A/←), y pulsa Confirmar (Enter) para fijar tu posición. Solo hay marcas los primeros 30 m; el resto a ojo. Compites contra 3 IAs (dificultad elegible) en 5 rondas con puntos por puesto. P pausa, R reinicia, M sonido y F pantalla completa.",
     "arcade-terror-zombi":         "Huye de los zombis en un cementerio vallado: WASD/flechas mueven en 8 direcciones (o arrastra sobre el tablero / cruceta en móvil). Si un zombi te toca, te conviertes y pasas a cazar; el último humano en pie gana. La horda acelera con el tiempo. Enter/Espacio empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
     "arcade-brile":                "Balón prisionero 6v6 en un cementerio vallado. Manejas a un jugador del equipo azul: WASD/flechas mueven (o arrastra / cruceta en móvil), Espacio/J lanza al rival más peligroso y K/Mayús atrapa (púlsalo al vuelo para brilar al lanzador). Da a un rival antes de que bote y va al cementerio; desde ahí sigue lanzando y vuelve si acierta. Gana quien vacía el campo rival. Enter empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
-    "arcade-topos-mazazos":        "Whack-a-mole con desplazamiento en un jardín vallado: flechas/WASD (o joystick en móvil) te llevan hasta el agujero y Espacio o el botón Golpear suelta un mazazo de área que alcanza todo lo asomado a tu alrededor. Topo marrón = 1 punto, dorado = 3, y el topo bomba resta 2 y te aturde. Rodea los barriles y compite con 3 IAs: gana quien más puntúe en 30 s. Enter empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
+    "arcade-saltos-selvaticos":    "Salto de liana con péndulo real: Espacio (o el botón Impulsar, o un toque en el claro) impulsa el balanceo, pero solo suma si lo haces al pasar por el punto más bajo del arco; en los extremos frena. Enter o J te suelta, y la marca amarilla indica la altura de la plataforma, que es donde sale el mejor salto. Puedes balancearte todo lo que quieras, pero la liana es una cuerda: pasada la horizontal se destensa y te tira, así que el impulso que te lleva ahí te obliga a saltar en ese mismo balanceo. 3 rondas contra 3 IAs con puntos por puesto. P pausa, R reinicia, M sonido y F pantalla completa.",
     "arcade-pacman-maze-protocol": "WASD/flechas mover, Enter/Espacio empezar, P/Esc pausa, R reinicia, M sonido.",
     "arcade-pong-neon-arena":      "W/S o flechas arriba/abajo para mover vertical. A/D o flechas izq/der para avanzar o retroceder (sin cruzar el centro). Ratón también controla vertical. Enter/Espacio empezar, P pausa, R reinicia, M sonido, F pantalla completa.",
     "arcade-buscaminas-classic":   "Click izq abre, click der o pulsación larga marca bandera. Flechas mueven cursor, Enter/Espacio abre, F marca, H sugiere IA, A ejecuta IA y R reinicia. En competitivo puntúan celdas y tiempo.",
@@ -349,7 +349,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "arcade-distancia-justa":      "Walk the announced distance: hold Advance (D/→/Space or a tap on the track) and Back (A/←), and press Confirm (Enter) to lock your position. Signs only cover the first 30 m; the rest is by feel. You face 3 AIs (selectable difficulty) across 5 rounds with placement points. P pauses, R restarts, M sound, and F toggles fullscreen.",
     "arcade-terror-zombi":         "Flee the zombies in a fenced graveyard: WASD/arrows move in 8 directions (or drag on the field / D-pad on mobile). Touch a zombie and you turn and start hunting; the last human standing wins. The horde speeds up over time. Enter/Space starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
     "arcade-brile":                "6v6 dodgeball in a fenced graveyard. You control one blue-team player: WASD/arrows move (or drag / D-pad on mobile), Space/J throws at the most dangerous rival and K/Shift catches (snatch it midair to send the thrower out). Hit a rival before it bounces and they go to the graveyard; from there they keep throwing and return on a hit. Empty the enemy court to win. Enter starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
-    "arcade-topos-mazazos":        "Whack-a-mole on the move in a fenced garden: arrows/WASD (or the joystick on mobile) walk you to the hole and Space or the Whack button swings an area blow that hits everything popped up around you. Brown mole = 1 point, gold = 3, and the bomb mole costs 2 and stuns you. Weave around the barrels and race 3 AIs: most points in 30s wins. Enter starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
+    "arcade-saltos-selvaticos":    "A vine jump on a real pendulum: Space (or the Pump button, or a tap on the clearing) drives the swing, but only feeds it when you hit the bottom of the arc — at the ends it kills your speed. Enter or J lets go, and the yellow marker shows the platform's height, which is where the best jump comes from. Swing as long as you like, but a vine is a rope: past horizontal it goes slack and drops you, so the pump that takes you there commits you to jumping on that same swing. 3 rounds against 3 AIs with placement points. P pauses, R restarts, M sound, and F toggles fullscreen.",
     "arcade-pacman-maze-protocol": "WASD/arrows move, Enter/Space start, P/Esc pause, R restart, M sound.",
     "arcade-pong-neon-arena":      "W/S or up/down arrows for vertical. A/D or left/right arrows to advance or retreat (cannot cross centre line). Mouse also controls vertical. Enter/Space start, P pause, R restart, M sound, F fullscreen.",
     "arcade-buscaminas-classic":   "Left click reveals, right click or long press marks. Arrows move cursor, Enter/Space reveals, F marks, H asks AI hint, A runs AI move, R restarts. Competitive mode scores cells and time.",

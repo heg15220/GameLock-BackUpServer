@@ -27,7 +27,7 @@ import arcadePulsoExactoImage from "../assets/games/arcade-pulso-exacto.svg";
 import arcadeDistanciaJustaImage from "../assets/games/arcade-distancia-justa.svg";
 import arcadeTerrorZombiImage from "../assets/games/arcade-terror-zombi.svg";
 import arcadeBrileImage from "../assets/games/arcade-brile.svg";
-import arcadeToposMazazosImage from "../assets/games/arcade-topos-mazazos.svg";
+import arcadeSaltosSelvaticosImage from "../assets/games/arcade-saltos-selvaticos.svg";
 import arcadeOrchardMatchBlastImage from "../assets/games/arcade-orchard-match-blast.svg";
 import arcadeReactorTossImage from "../assets/games/arcade-reactor-toss.svg";
 import arcadeTerritoryWarImage from "../assets/games/arcade-territory-war.svg";
@@ -386,55 +386,55 @@ export const games = [
   },
 
   {
-    id: "arcade-topos-mazazos",
-    image: arcadeToposMazazosImage,
-    sessionTime: "1-2 min",
+    id: "arcade-saltos-selvaticos",
+    image: arcadeSaltosSelvaticosImage,
+    sessionTime: "1-3 min",
 
-    title: "Topos a Mazazos",
-    title_en: "Mallet Moles",
+    title: "Saltos Selváticos",
+    title_en: "Jungle Jaunt",
     category: "Arcade",
-    tagline: "Whack-a-mole en el jardin: corre, colocate y da mazazos.",
+    tagline: "Balanceate en la liana y sueltate en el instante exacto.",
     description:
-      "Whack-a-mole en movimiento inspirado en el Topate topo de Wii Party. En un jardin vallado con dieciseis agujeros en rejilla, tu y tres rivales corren mazo en mano mientras los topos asoman y se esconden. No apuntas con el cursor: te desplazas hasta el agujero y sueltas un mazazo de area que golpea todo lo que este asomado a tu alcance. El topo marron vale 1 punto y el dorado 3, pero entre ellos aparece el topo bomba, que resta puntos y te deja aturdido unos instantes mientras los rivales siguen puntuando. Los topos salen cada vez mas seguidos y duran menos conforme avanza la ronda, y unos barriles fijos te obligan a rodear. Gana quien mas puntue en 30 segundos.",
+      "Salto de liana inspirado en el Saltos selvaticos de Wii Party. Cuelgas de una liana sobre un claro soleado de la selva y compites contra tres rivales. No hay boton de fuerza ni tope de balanceo: es un pendulo de verdad y cada impulso mete energia, pero solo cuenta si lo das al pasar por el punto mas bajo del arco; en los extremos frena. Cuando te sueltas, la velocidad de la liana se convierte en un tiro parabolico y el mejor salto sale al cruzar la altura de la plataforma de madera subiendo hacia delante. Lo que te frena no es un limite inventado sino la propia liana: es una cuerda, y pasada la horizontal no puede tirar de ti, se destensa y te deja caer. Asi que el impulso que te lleva ahi te obliga a saltar en ese mismo balanceo. Camara que sigue el vuelo, saltos de hasta 150 m, banderas donde cae cada rival y tres rondas con puntos por puesto.",
     objective_es:
-      "Sumar mas puntos que los 3 rivales en 30 segundos golpeando topos marrones (1) y dorados (3) y evitando el topo bomba.",
+      "Saltar mas lejos que los 3 rivales acumulando balanceo y soltandote a la altura de la plataforma, en 3 rondas.",
     howToPlay_es:
-      "Flechas o WASD (joystick en movil) para colocarte junto a un agujero; Espacio o el boton Golpear da un mazazo de area. Marron = 1 punto, dorado = 3, bomba = -2 y aturdimiento. Rodea los barriles. P pausa, R reinicia, M sonido y F pantalla completa.",
+      "Espacio (o toque en el claro / boton Impulsar) impulsa el balanceo, solo suma si lo haces al pasar por abajo. Enter o J para soltarte. El indicador amarillo marca la altura de la plataforma: ahi sale el mejor salto. P pausa, R reinicia, M sonido y F pantalla completa.",
     highlights: [
-      "Whack-a-mole con desplazamiento: no apuntas con el raton, corres hasta el agujero y golpeas por area.",
-      "Tres tipos de topo con lectura instantanea: marron (1), dorado (3) y bomba (-2 y aturdimiento).",
-      "Cuatro mascotas simultaneas (tu + 3 IAs) compitiendo por los mismos agujeros en tiempo real.",
-      "Rampa de dificultad dentro de la ronda: mas topos a la vez y menos tiempo asomados segun avanzan los 30 s.",
-      "Tres dificultades que cambian velocidad, reaccion y punteria de los rivales; record persistido en local.",
-      "Vista 3/4 pseudo-3D dibujada por procedimiento en Canvas con proyeccion propia y orden por profundidad.",
+      "Pendulo rigido real: el impulso solo entra si aciertas el ritmo del arco, y en los extremos resta energia.",
+      "Salto balistico honesto: la velocidad tangencial de la liana se convierte en parabola con altura de suelta incluida.",
+      "La pista del juego original hecha mecanica: soltarte a la altura de la plataforma esta a menos de medio metro del optimo.",
+      "Sin tope artificial: el unico limite es que la liana se destensa pasada la horizontal y te tira, asi que pasarse cuesta la ronda.",
+      "Camara que sigue el vuelo sobre una selva soleada en cuatro capas de parallax, con banderas de aterrizaje de los rivales.",
+      "Tres dificultades que ajustan el balanceo y la precision de suelta de los rivales; mejor salto guardado en local.",
     ],
     difficulty: "Media",
     multiplayer: "Un jugador vs 3 IA",
-    viability: "Alta: runtime Canvas 2D ligero, tiempo e IA deterministas por semilla, estado serializable y sin dependencias extra.",
-    visualStyle: "Jardin soleado a cuadros verdes con seto perimetral y topiarios, agujeros en rejilla, barriles azules y monigotes sin cara con mazo rojo.",
-    techFocus: "Estado dirigido por advanceTime, proyeccion pinhole propia con painter's algorithm, mazazo de area por radio e IA de seleccion de objetivo con error escalado.",
+    viability: "Alta: runtime Canvas 2D ligero, fisica y IA deterministas por semilla, estado serializable y sin dependencias extra.",
+    visualStyle: "Claro de selva soleado de perfil: cielo azul con nubes, cuatro capas de arboles y palmeras que se difuminan en bruma, hierba clara, arbol con plataforma de madera y escala de cuerda, y monigote sin cara con cinta de hojas.",
+    techFocus: "Estado dirigido por advanceTime con subpasos fijos, pendulo semi-implicito con arrastre, impulso por energia, deteccion de tension nula de la cuerda, tiro parabolico analitico y camara de seguimiento con parallax.",
 
     category_en: "Arcade",
-    tagline_en: "Garden whack-a-mole: run, line up and swing.",
+    tagline_en: "Swing on the vine and let go at the exact instant.",
     description_en:
-      "A whack-a-mole on the move inspired by Wii Party's Whack-a-Mole. In a fenced garden with sixteen holes in a grid, you and three rivals run around mallet in hand while the moles pop up and duck back. You don't aim with a cursor: you walk to the hole and swing an area blow that hits everything popped up within reach. The brown mole is worth 1 point and the gold one 3, but the bomb mole is mixed in — it costs points and leaves you stunned for a moment while the rivals keep scoring. Moles appear faster and stay up less as the round goes on, and fixed barrels force you to go around. Whoever scores most in 30 seconds wins.",
+      "A vine jump inspired by Wii Party's Jungle Jaunt. You hang from a vine over a sunny jungle clearing and race three rivals. There's no power meter and no cap on the swing: it's an honest pendulum and every pump adds energy, but only if you hit it as you sweep the bottom of the arc — out at the ends it kills your speed. When you let go, the vine's speed becomes a real projectile, and the best jump comes from crossing the wooden platform's height on the way up and forward. What stops you isn't an invented limit but the vine itself: it's a rope, and past horizontal it cannot pull you round, so it goes slack and drops you. The pump that takes you there commits you to jumping on that very swing. A camera that tracks the flight, jumps of up to 150 m, a flag where each rival lands, and three rounds of placement points.",
     objective_en:
-      "Out-score the 3 rivals in 30 seconds by whacking brown (1) and gold (3) moles while avoiding the bomb mole.",
+      "Out-jump the 3 rivals by building momentum and releasing at the platform's height, across 3 rounds.",
     howToPlay_en:
-      "Arrows or WASD (joystick on mobile) to line up next to a hole; Space or the Whack button swings an area blow. Brown = 1 point, gold = 3, bomb = -2 and a stun. Weave around the barrels. P pauses, R restarts, M sound, and F toggles fullscreen.",
+      "Space (or a tap on the clearing / the Pump button) drives the swing, and only feeds it when you hit the bottom of the arc. Enter or J lets go. The yellow marker shows the platform's height: that's where the best jump comes from. P pauses, R restarts, M sound, and F toggles fullscreen.",
     highlights_en: [
-      "Whack-a-mole with movement: no mouse aiming — you run to the hole and swing by area.",
-      "Three instantly readable mole types: brown (1), gold (3) and bomb (-2 plus a stun).",
-      "Four mascots at once (you + 3 AIs) competing over the same holes in real time.",
-      "In-round difficulty ramp: more moles at once and shorter pop-ups as the 30s tick down.",
-      "Three difficulties tuning rival speed, reaction and accuracy; best score persisted locally.",
-      "Pseudo-3D 3/4 view rendered procedurally on Canvas with a custom projection and depth sorting.",
+      "A real rigid pendulum: pumping only counts when it matches the arc's rhythm, and costs energy at the ends.",
+      "Honest ballistic jump: the vine's tangential speed becomes a projectile, launch height included.",
+      "The original guide's tip turned into mechanics: the platform-height release is within half a metre of optimal.",
+      "No artificial cap: the only limit is the vine going slack past horizontal and dropping you, so overcooking it costs the round.",
+      "A camera tracking the flight over a sunny jungle in four parallax bands, with the rivals' landing flags down the strip.",
+      "Three difficulties tuning rival swing and release precision; best jump persisted locally.",
     ],
     difficulty_en: "Medium",
     multiplayer_en: "Single player vs 3 AI",
-    viability_en: "High: lightweight Canvas 2D runtime, seed-deterministic time and AI, serialisable state, and no extra dependencies.",
-    visualStyle_en: "Sunny checkered green garden with a perimeter hedge and topiaries, a grid of holes, blue barrels and faceless figures with red mallets.",
-    techFocus_en: "advanceTime-driven state, a custom pinhole projection with painter's algorithm, radius-based area whacking, and target-selection AI with scaled error.",
+    viability_en: "High: lightweight Canvas 2D runtime, seed-deterministic physics and AI, serialisable state, and no extra dependencies.",
+    visualStyle_en: "Sunny side-on jungle clearing: blue sky with clouds, four bands of trees and palms fading into haze, bright grass, a tree with a wooden platform and rope ladder, and a faceless figure in a leaf headband.",
+    techFocus_en: "advanceTime-driven state with fixed substeps, a semi-implicit damped pendulum, energy-based pumping, rope-tension slack detection, an analytic projectile and a tracking parallax camera.",
   },
 
 

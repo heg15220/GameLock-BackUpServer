@@ -295,9 +295,9 @@ export const gameCatalogDescriptions = {
     es: "Balón prisionero 6v6: brila a los rivales y vacía su campo.",
     en: "6v6 dodgeball: strike out rivals and empty their court.",
   },
-  "arcade-topos-mazazos": {
-    es: "Corre, colócate y da mazazos: topos dorados valen 3, la bomba resta.",
-    en: "Run, line up and swing: gold moles score 3, the bomb costs you.",
+  "arcade-saltos-selvaticos": {
+    es: "Balánceate en la liana y suéltate justo a tiempo para llegar más lejos.",
+    en: "Swing on the vine and let go at the right instant to fly farthest.",
   },
   "sports-basketball-court": {
     es: "Tiro de baloncesto: ajusta fuerza y direcci\u00f3n para anotar.",

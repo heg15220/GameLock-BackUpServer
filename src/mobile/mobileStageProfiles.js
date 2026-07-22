@@ -36,7 +36,7 @@ const GAME_STAGE_SELECTORS = {
   "arcade-distancia-justa": [".dj-stage"],
   "arcade-terror-zombi": [".tz-stage"],
   "arcade-brile": [".brile-stage"],
-  "arcade-topos-mazazos": [".topos-stage"],
+  "arcade-saltos-selvaticos": [".ss-stage"],
   "arcade-golf-tour-2d": [
     ".golf-tour-canvas-shell",
     ".golf-tour-stage-wrap",

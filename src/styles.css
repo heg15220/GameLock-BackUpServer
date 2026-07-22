@@ -33028,205 +33028,727 @@ button.brisca-card.playable:disabled {
 }
 
 
-/* Topos a Mazazos — the canvas draws its own HUD, countdown and result podium,
-   so the DOM around it only carries the toolbar, the menu (difficulty + start)
-   and the in-run action strip.
+/* ── Saltos Selváticos / Jungle Jaunt ─────────────────────────────────────── */
+/* Arcade shell around a canvas jungle clearing: the HUD, the momentum gauge and
+   the round/standings panels overlay the canvas, and the two-action deck (pump
+   the vine, let go) sits below. Dark chrome, like the other canvas arcades, with
+   a jungle-green/amber accent instead of the cyan used by Distancia Justa. */
 
-   Unlike the graveyard games, this one is a sunny midday garden, so the chrome
-   stays light: a warm garden panel over .mini-game's cream shell, deep-green ink
-   for text and the lawn greens as the accent. Anything light-on-dark here would
-   be invisible — .mini-game's background is cream (#fffef8), not navy. */
-
-.topos-game {
-  border-color: #bfe0cb;
-  background:
-    radial-gradient(circle at 88% -18%, rgba(89, 195, 154, 0.22), transparent 46%),
-    radial-gradient(circle at 6% 120%, rgba(255, 215, 94, 0.16), transparent 44%),
-    linear-gradient(165deg, #fbfef9 0%, #eef8f0 100%);
-}
-
-.topos-actions {
+.ss-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.46rem;
 }
 
-.topos-actions button,
-.topos-controls button {
-  border: 1px solid #bfe0cb;
+.ss-actions button,
+.ss-controls button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.86);
-  color: #14432f;
+  background: rgba(10, 24, 16, 0.78);
+  color: #f8fafc;
   font: inherit;
   font-weight: 700;
   padding: 0.52rem 0.78rem;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
-.topos-actions button:hover,
-.topos-controls button:hover {
-  border-color: #2f8f68;
-  background: #ffffff;
+.ss-actions button:hover {
+  border-color: rgba(163, 230, 53, 0.55);
 }
 
-.topos-actions button:focus-visible,
-.topos-controls button:focus-visible {
-  outline: 2px solid #2f8f68;
-  outline-offset: 2px;
-}
-
-.topos-actions button.is-on {
-  border-color: #2f8f68;
-  color: #0d5a3c;
-}
-
-.topos-stage {
+.ss-stage {
   position: relative;
-  border: 1px solid #a8d5bd;
+  border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 22px;
   overflow: hidden;
-  background: #4fb187;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 18px rgba(24, 78, 56, 0.14);
+  background: #0a1a10;
 }
 
-.topos-canvas {
+.ss-canvas {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  min-height: 340px;
+  aspect-ratio: 16 / 9;
+  min-height: 300px;
   touch-action: none;
+  cursor: pointer;
 }
 
-/* Controls deck (desktop; the mobile shell isolates .topos-stage and renders
-   its own joystick + Whack pad instead). */
-.topos-controls {
+/* Scoreboard — one card per jumper, top left, and the record top right, the
+   way the original lays its HUD out over the jungle. */
+.ss-board {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
-  gap: 0.7rem;
-  margin-top: 0.7rem;
-  padding: 0.8rem;
-  border: 1px solid #cfe8d6;
-  border-radius: 20px;
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.9), rgba(233, 248, 239, 0.9));
+  gap: 0.22rem;
+  pointer-events: none;
 }
 
-.topos-menu {
-  justify-items: center;
-  text-align: center;
-}
-
-.topos-choice {
+.ss-board-row {
   display: grid;
-  justify-items: center;
+  grid-template-columns: 0.6rem minmax(2.6rem, auto) auto;
+  align-items: center;
   gap: 0.4rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.82);
+  color: #1f3b12;
+  font-size: 0.74rem;
+  font-weight: 800;
+  box-shadow: 0 1px 4px rgba(20, 45, 12, 0.25);
 }
 
-.topos-choice-label {
-  color: #3d6b53;
-  font-size: 0.74rem;
+.ss-board-row.is-player {
+  border-color: var(--ss-c, #22d3ee);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.ss-board-row.is-done .ss-board-dist {
+  color: #15803d;
+}
+
+.ss-board-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--ss-c, #22d3ee);
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.9);
+}
+
+.ss-board-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ss-board-dist {
+  font-family: "Courier New", monospace;
+  text-align: right;
+  min-width: 3.1rem;
+}
+
+.ss-record {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.82);
+  color: #1f3b12;
+  font-size: 0.76rem;
+  font-weight: 800;
+  font-family: "Courier New", monospace;
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(20, 45, 12, 0.25);
+}
+
+/* Run HUD */
+.ss-hud {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #1f3b12;
+}
+
+.ss-hud-round,
+.ss-hud-time {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  white-space: nowrap;
+}
+
+.ss-hud-time.is-low strong {
+  color: #dc2626;
+}
+
+/* Momentum gauge — how much of the legal swing is built up. */
+.ss-gauge {
+  position: absolute;
+  left: 50%;
+  bottom: 0.7rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: min(340px, 82%);
+  padding: 0.34rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(7, 24, 15, 0.78);
+  border: 1px solid rgba(163, 230, 53, 0.3);
+  pointer-events: none;
+}
+
+.ss-gauge-label,
+.ss-gauge-num {
+  color: #cbe6c0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ss-gauge-num {
+  font-family: "Courier New", monospace;
+  min-width: 2.6rem;
+  text-align: right;
+}
+
+.ss-gauge-track {
+  position: relative;
+  flex: 1;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.2);
+  overflow: hidden;
+}
+
+.ss-gauge-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4ade80, #a3e635 55%, #fbbf24);
+  transition: width 0.12s linear;
+}
+
+/* The rope's breaking point sits at the very top of the gauge: the last sliver
+   is a gamble, not a wall. */
+.ss-gauge-limit {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  right: 0;
+  width: 3px;
+  background: repeating-linear-gradient(180deg, #ef4444 0 3px, transparent 3px 6px);
+}
+
+.ss-gauge.is-risk {
+  border-color: rgba(248, 113, 113, 0.85);
+  background: rgba(60, 12, 12, 0.82);
+}
+
+.ss-gauge.is-risk .ss-gauge-fill {
+  background: linear-gradient(90deg, #fbbf24, #ef4444);
+}
+
+.ss-gauge.is-risk .ss-gauge-num {
+  color: #fca5a5;
+}
+
+/* The vine is about to let go — the loudest thing on screen. */
+.ss-risk-cue,
+.ss-slack-cue {
+  position: absolute;
+  top: 2.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(220, 38, 38, 0.95);
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(120, 10, 10, 0.5);
+  animation: ss-cue 0.35s ease-in-out infinite alternate;
+}
+
+.ss-slack-cue {
+  background: rgba(120, 53, 15, 0.95);
+  animation: none;
+}
+
+/* Threw your weight against the arc — a quieter nudge than the vine giving. */
+.ss-wrong-cue {
+  position: absolute;
+  top: 2.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.24rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(180, 83, 9, 0.92);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* The release window: the one moment that decides the jump. */
+.ss-window-cue {
+  position: absolute;
+  top: 2.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(253, 224, 71, 0.94);
+  color: #1a2e05;
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  white-space: nowrap;
+  animation: ss-cue 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes ss-cue {
+  from { transform: translateX(-50%) scale(1); }
+  to { transform: translateX(-50%) scale(1.08); }
+}
+
+.ss-waiting {
+  position: absolute;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.34rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(7, 24, 15, 0.84);
+  border: 1px solid rgba(163, 230, 53, 0.4);
+  color: #e6f2e0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.ss-waiting-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a3e635;
+  animation: ss-blink 0.9s ease-in-out infinite;
+}
+
+@keyframes ss-blink {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Overlays */
+.ss-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: radial-gradient(circle at 50% 40%, rgba(4, 16, 9, 0.55), rgba(4, 16, 9, 0.85));
+}
+
+.ss-overlay--paused,
+.ss-overlay--intro {
+  background: rgba(4, 16, 9, 0.58);
+}
+
+.ss-panel {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  background: rgba(7, 24, 15, 0.92);
+}
+
+.ss-lead {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.ss-choose {
+  color: #9fbf8f;
+  font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-/* Segmented difficulty picker: one row of three, the active one filled with the
-   lawn green so the choice is readable at a glance. */
-.topos-seg {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0.3rem;
-  border: 1px solid #cfe8d6;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.75);
+.ss-diff-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
 }
 
-.topos-controls .topos-seg-btn {
-  display: inline-flex;
+.ss-diff {
+  display: grid;
+  gap: 0.24rem;
+  padding: 0.7rem 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 14px;
+  background: rgba(10, 24, 16, 0.72);
+  color: #e2e8f0;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.ss-diff:hover {
+  transform: translateY(-2px);
+}
+
+.ss-diff strong {
+  font-size: 1rem;
+}
+
+.ss-diff em {
+  font-style: normal;
+  font-size: 0.68rem;
+  color: #a7bfa0;
+  line-height: 1.3;
+}
+
+.ss-diff--facil:hover { border-color: #a3e635; }
+.ss-diff--normal:hover { border-color: #34d399; }
+.ss-diff--dificil:hover { border-color: #f87171; }
+
+/* Round announcement */
+.ss-announce {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  animation: ss-pop 0.35s ease;
+}
+
+.ss-announce-lead {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.ss-announce-big {
+  font-family: "Bricolage Grotesque", "Segoe UI", sans-serif;
+  font-size: clamp(2rem, 7vw, 3.2rem);
+  font-weight: 800;
+  color: #fde047;
+  text-shadow: 0 0 26px rgba(253, 224, 71, 0.35);
+}
+
+@keyframes ss-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Results / standings */
+.ss-result-title {
+  color: #e2e8f0;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.ss-result-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.34rem;
+  width: 100%;
+}
+
+.ss-result-list li {
+  display: grid;
+  grid-template-columns: 2.1rem 1fr auto;
   align-items: center;
-  gap: 0.4rem;
-  background: transparent;
-  border-color: transparent;
-  color: #3d6b53;
-  padding: 0.42rem 0.8rem;
-}
-
-.topos-controls .topos-seg-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: #a8d5bd;
-}
-
-.topos-controls .topos-seg-btn.is-on {
-  background: linear-gradient(165deg, #59c39a, #2f8f68);
-  border-color: #2f8f68;
-  color: #ffffff;
-  box-shadow: 0 2px 10px rgba(47, 143, 104, 0.32);
-}
-
-.topos-seg-dot {
-  font-size: 0.72rem;
-}
-
-.topos-choice-desc {
-  margin: 0;
-  color: #3d6b53;
-  font-size: 0.8rem;
-  line-height: 1.45;
-}
-
-.topos-best {
-  margin: 0;
-  color: #8a6104;
+  gap: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(10, 24, 16, 0.62);
   font-size: 0.82rem;
+  color: #cbd5e1;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: ss-row-in 0.4s ease forwards;
+}
+
+@keyframes ss-row-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ss-result-list li.is-player {
+  border-color: var(--ss-c, #22d3ee);
+  background: rgba(34, 211, 238, 0.08);
+}
+
+/* Podium tint for the top three. */
+.ss-result-list li.ss-rank-0 { box-shadow: inset 0 0 0 1px rgba(253, 224, 71, 0.45); }
+.ss-result-list li.ss-rank-1 { box-shadow: inset 0 0 0 1px rgba(203, 213, 225, 0.35); }
+.ss-result-list li.ss-rank-2 { box-shadow: inset 0 0 0 1px rgba(217, 149, 88, 0.35); }
+
+.ss-medal {
+  font-size: 1.1rem;
+  text-align: center;
   font-weight: 800;
+  color: #cbd5e1;
 }
 
-.topos-controls .topos-start,
-.topos-controls .topos-primary {
-  background: linear-gradient(165deg, #59c39a, #2f8f68);
-  border-color: #2f8f68;
-  color: #ffffff;
-  font-weight: 800;
-  padding: 0.62rem 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(47, 143, 104, 0.3);
+.ss-row-main {
+  display: grid;
+  gap: 0.24rem;
+  min-width: 0;
 }
 
-.topos-controls .topos-start:hover,
-.topos-controls .topos-primary:hover {
-  background: linear-gradient(165deg, #6ad0a8, #35a077);
-  border-color: #2f8f68;
-  box-shadow: 0 6px 18px rgba(47, 143, 104, 0.38);
-}
-
-.topos-action-strip {
+.ss-row-top {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 0.5rem;
 }
 
-.topos-help {
-  color: #3d6b53;
-  font-size: 0.8rem;
-  max-width: 60ch;
-}
-
-.topos-help summary {
-  cursor: pointer;
+.ss-name {
+  text-align: left;
   font-weight: 700;
-  color: #14432f;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.topos-hint {
-  margin: 0.4rem 0 0;
-  color: #3d6b53;
+.ss-dist {
+  font-family: "Courier New", monospace;
+  color: #e2e8f0;
+  text-align: right;
+}
+
+.ss-dist em {
+  font-style: normal;
+  color: #94a3b8;
+  font-size: 0.86em;
+}
+
+.ss-bar {
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.18);
+  overflow: hidden;
+}
+
+.ss-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  width: 0;
+  animation: ss-bar-grow 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes ss-bar-grow {
+  from { width: 0; }
+}
+
+.ss-standings li {
+  grid-template-columns: 2.1rem 1fr auto;
+}
+
+.ss-pts {
+  font-weight: 800;
+  color: var(--ss-c, #a3e635);
+}
+
+.ss-champion {
+  color: #fde047;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.ss-primary {
+  border: 1px solid #a3e635;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #a3e635, #34d399);
+  color: #0b1a0f;
+  font: inherit;
+  font-weight: 800;
+  min-height: 50px;
+  padding: 0.55rem 1.3rem;
+  cursor: pointer;
+}
+
+.ss-over-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.ss-over-actions button:not(.ss-primary) {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(10, 24, 16, 0.8);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+}
+
+.ss-paused {
+  color: #f8fafc;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+/* Controls deck */
+.ss-controls {
+  margin-top: 0.72rem;
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0% -10%, rgba(163, 230, 53, 0.12), transparent 42%),
+    rgba(7, 24, 15, 0.86);
+  padding: 0.78rem;
+}
+
+.ss-move-deck {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.15fr;
+  gap: 0.5rem;
+}
+
+.ss-act {
+  min-height: 62px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 24, 16, 0.82);
+  color: #f8fafc;
+  font: inherit;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.ss-act:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* The shake is a two-way motion: one button per direction, and the one that
+   currently matches the swing lights up so the rhythm is learnable. */
+.ss-act--pump {
+  background: linear-gradient(135deg, #4ade80, #16a34a);
+  color: #06210f;
+  border-color: #4ade80;
+  font-size: 0.92rem;
+}
+
+.ss-act--pump-back {
+  background: linear-gradient(135deg, #5eead4, #0d9488);
+  border-color: #5eead4;
+  color: #042f2a;
+}
+
+.ss-act--pump.is-cued {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55);
+  filter: brightness(1.14);
+}
+
+/* Sweeping the bottom: same button, but this is where it pays most. */
+.ss-act--pump.is-sweet {
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.9);
+  filter: brightness(1.3);
+  transform: scale(1.03);
+}
+
+.ss-act--pump:not(.is-cued) {
+  filter: saturate(0.6) brightness(0.9);
+}
+
+.ss-act--jump {
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  color: #2a1503;
+  border-color: #fbbf24;
+}
+
+/* The jump button lights up while the vine sweeps the release window. */
+.ss-act--jump.is-cued {
+  background: linear-gradient(135deg, #fde047, #fbbf24);
+  box-shadow: 0 0 0 3px rgba(253, 224, 71, 0.35);
+  animation: ss-cue-btn 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes ss-cue-btn {
+  from { transform: scale(1); }
+  to { transform: scale(1.03); }
+}
+
+.ss-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.ss-stats span {
+  display: grid;
+  gap: 0.16rem;
+  justify-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(10, 24, 16, 0.62);
+  padding: 0.42rem 0.3rem;
+  color: #9fbf8f;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.ss-stats strong {
+  color: #a3e635;
+  font-size: 1rem;
+}
+
+.ss-hint {
+  margin: 0;
+  color: #cbd5e1;
   font-size: 0.78rem;
   line-height: 1.45;
-  text-align: center;
 }
 
 @media (max-width: 720px) {
-  .topos-canvas { min-height: 280px; }
-  .topos-seg { width: 100%; justify-content: center; }
+  .ss-diff-row {
+    grid-template-columns: 1fr;
+  }
+  .ss-result-list li {
+    font-size: 0.76rem;
+  }
+  .ss-canvas {
+    min-height: 240px;
+  }
+  .ss-dist {
+    font-size: 0.72rem;
+  }
+  .ss-board-row {
+    font-size: 0.66rem;
+    padding: 0.14rem 0.4rem;
+  }
+  .ss-board-dist {
+    min-width: 2.7rem;
+  }
+  .ss-gauge {
+    width: min(300px, 90%);
+  }
 }

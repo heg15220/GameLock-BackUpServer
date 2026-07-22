@@ -741,43 +741,53 @@ export function getMobileControlProfile(game, locale = "es") {
         ],
         utilities: utilityRow(locale),
       };
-    case "arcade-topos-mazazos":
+    case "arcade-saltos-selvaticos":
       return {
         layout: "split",
-        heading: t(locale, "Jardín", "Garden"),
+        heading: t(locale, "Liana", "Vine"),
         hint: t(
           locale,
-          "Mueve el joystick para colocarte junto a un agujero y pulsa Golpear: el mazazo alcanza todo lo que asome a tu alrededor. Marrón 1, dorado 3, bomba -2 y aturdimiento. Dificultad y «¡A jugar!»/«Otra vez» en los botones del panel.",
-          "Push the joystick to line up next to a hole and tap Whack: the swing hits everything popped up around you. Brown 1, gold 3, bomb -2 and a stun. Difficulty and «Play!»/«Again» are in the panel buttons.",
+          "Alterna ◀ y ▶ al ritmo del vaivén: se enciende el que toca en cada pasada por abajo. Cuando lleves impulso, ¡Saltar! justo al cruzar la marca amarilla (la altura de la plataforma). La dificultad está aquí abajo.",
+          "Alternate ◀ and ▶ in time with the swing: the right one lights up on each pass through the bottom. Once you've built momentum, hit Jump! as you cross the yellow marker (the platform's height). Difficulty is down here.",
         ),
-        // A full four-way pad renders as an analog joystick, so repositioning
-        // between holes is a thumb push rather than tapping buttons.
-        leftPad: directionalPad(locale, {
-          up: input("ArrowUp", "ArrowUp"),
-          left: input("ArrowLeft", "ArrowLeft"),
-          right: input("ArrowRight", "ArrowRight"),
-          down: input("ArrowDown", "ArrowDown"),
-        }),
-        rightPad: [
-          // The difficulty segment and «¡A jugar!» sit in the menu section the
-          // shell hides, so the deck carries them until the match begins.
-          menuTap("diffEasy", t(locale, "Fácil", "Easy"), ".topos-seg-btn--easy"),
-          menuTap("diffMedium", t(locale, "Medio", "Medium"), ".topos-seg-btn--medium"),
-          menuTap("diffHard", t(locale, "Difícil", "Hard"), ".topos-seg-btn--hard"),
-          menuTap("startMatch", t(locale, "▶ ¡A jugar!", "▶ Play!"), ".topos-start", {
-            tone: "primary",
-          }),
-          control("whack", t(locale, "Golpear", "Whack"), {
+        // The shake is a two-way motion, so it gets two buttons under the left
+        // thumb; the right thumb only ever commits to the jump.
+        leftPad: [
+          control("pumpBack", t(locale, "◀ Atrás", "◀ Back"), {
             type: "tap",
-            tone: "primary",
-            inputs: [input("Space", " ")],
-            visibility: { screens: ["countdown", "play"] },
+            inputs: [input("ArrowLeft", "ArrowLeft")],
+            visibility: { screens: ["swing"] },
           }),
-          control("again", t(locale, "▶ Otra vez", "▶ Again"), {
+          control("pumpFwd", t(locale, "Alante ▶", "Forward ▶"), {
+            type: "tap",
+            inputs: [input("ArrowRight", "ArrowRight")],
+            visibility: { screens: ["swing"] },
+          }),
+        ],
+        // Two taps, not a joystick: the alternation *is* the mechanic.
+        leftPadMode: "buttons",
+        // Difficulty taps click the on-screen menu cards and auto-hide once the
+        // match starts (their targets disappear); the rest follows the screen.
+        rightPad: [
+          ...difficultyTaps(locale, "diff", (key) => `.ss-diff--${key}`),
+          control("jump", t(locale, "🐒 ¡Saltar!", "🐒 Jump!"), {
             type: "tap",
             tone: "primary",
             inputs: [input("Enter", "Enter")],
-            visibility: { screens: ["over"] },
+            visibility: { screens: ["swing"] },
+          }),
+          control("advance", t(locale, "▶ Continuar", "▶ Continue"), {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("Enter", "Enter")],
+            visibility: { screens: ["intro", "reveal", "gameover"] },
+            screenLabels: {
+              reveal: t(locale, "▶ Siguiente", "▶ Next"),
+              gameover: t(locale, "▶ Otra vez", "▶ Again"),
+            },
+          }),
+          menuTap("changeSetup", t(locale, "Cambiar dificultad", "Change difficulty"), ".ss-act-back", {
+            tone: "accent",
           }),
         ],
         utilities: utilityRow(locale),

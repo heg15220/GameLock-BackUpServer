@@ -26,10 +26,10 @@ const SETUP_BUTTONS = {
     ["diff-dificil", ".dj-diff--dificil"],
     ["changeSetup", ".dj-act-back"],
   ],
-  "arcade-topos-mazazos": [
-    ["diffEasy", ".topos-seg-btn--easy"],
-    ["diffHard", ".topos-seg-btn--hard"],
-    ["startMatch", ".topos-start"],
+  "arcade-saltos-selvaticos": [
+    ["diff-facil", ".ss-diff--facil"],
+    ["diff-dificil", ".ss-diff--dificil"],
+    ["changeSetup", ".ss-act-back"],
   ],
   "sports-padel-arena": [
     ["diffEasy", ".padel-arena-seg-btn--easy"],
