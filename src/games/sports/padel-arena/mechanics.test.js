@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { PadelRuntime } from "./engine.js";
+import { predictLanding } from "./ai.js";
 import {
   HALF_W,
   NET_Z,
@@ -62,6 +63,26 @@ describe("serve formation", () => {
       expect(p.z).toBeGreaterThanOrEqual(NEAR_Z);
       expect(p.z).toBeLessThanOrEqual(FAR_Z);
     }
+    rt.destroy();
+  });
+
+  // El saque de pádel es reglamentariamente cruzado: el sacador golpea desde su
+  // cuadro y la bola debe caer en el cuadro diagonal, en la mitad de pista
+  // opuesta (nunca en paralelo). Se comprueba para ambos equipos y ambos cuadros.
+  it.each([
+    { server: "home", points: 0, court: "right" },
+    { server: "home", points: 1, court: "left" },
+    { server: "away", points: 0, court: "right" },
+    { server: "away", points: 1, court: "left" },
+  ])("serves cross-court ($server, $court)", ({ server, points }) => {
+    const rt = newRuntime();
+    rt.match = { ...rt.match, server, homePoints: points, awayPoints: 0 };
+    rt.beginServe();
+    const serverX = rt.players[rt.serverIndex].x;
+    rt.executeServe();
+    const landing = predictLanding(rt.ball);
+    // La bola debe cruzar a la mitad opuesta a la del sacador (saque diagonal).
+    expect(Math.sign(landing.x)).toBe(-Math.sign(serverX));
     rt.destroy();
   });
 

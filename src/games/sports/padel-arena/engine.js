@@ -314,9 +314,13 @@ export class PadelRuntime {
   executeServe() {
     const server = this.match.server;
     const court = serveCourt(this.match);
-    // Cuadro diagonal del receptor.
-    const toFar = server === "home";
-    const targetX = court === "right" ? -HALF_W * 0.5 : HALF_W * 0.5;
+    const homeSide = server === "home";
+    const toFar = homeSide;
+    // Cuadro diagonal del receptor. El saque es cruzado, así que cae en la mitad
+    // opuesta al lado desde el que saca el sacador. `sx` es el signo lateral del
+    // sacador (idéntico al de beginServe); el objetivo va al signo contrario.
+    const sx = homeSide ? (court === "right" ? 1 : -1) : court === "right" ? -1 : 1;
+    const targetX = -sx * HALF_W * 0.5;
     const boxZ = toFar
       ? NET_Z + (SERVICE_LINE_FAR - NET_Z) * 0.7
       : NET_Z - (NET_Z - SERVICE_LINE_NEAR) * 0.7;
