@@ -39,6 +39,7 @@ import {
   stepToward,
   chooseShot,
   predictLanding,
+  PARTNER,
 } from "./ai.js";
 import { createMatchState, registerPoint, serveCourt, pointLabels } from "./rules.js";
 import { drawWorld } from "./scene.js";
@@ -538,8 +539,8 @@ export class PadelRuntime {
       // gana la mano y el usuario puede rematar el punto.
       if (!freeze && this.ball.live && this.ballComingTo(p.team) && p.readHitId !== this.ballHitId) {
         p.readHitId = this.ballHitId;
-        p.reactMs = this.aiConfig.reactionMs;
-        p.readErrX = (this.rng() * 2 - 1) * this.aiConfig.readError;
+        p.reactMs = this.configFor(p).reactionMs;
+        p.readErrX = (this.rng() * 2 - 1) * this.configFor(p).readError;
       }
 
       let target;
@@ -547,13 +548,13 @@ export class PadelRuntime {
         p.reactMs -= dt * 1000;
         target = { x: p.commitX ?? p.x, z: p.commitZ ?? p.z }; // aún no persigue
       } else {
-        const raw = desiredPosition(p, this.ball, this.aiConfig);
+        const raw = desiredPosition(p, this.ball, this.configFor(p));
         target = { x: raw.x + (p.readErrX || 0), z: raw.z };
         p.commitX = target.x;
         p.commitZ = target.z;
       }
 
-      const speed = p.team === "away" ? this.aiConfig.speed : this.aiConfig.speed * 0.92;
+      const speed = this.configFor(p).speed;
       const next = stepToward({ x: p.x, z: p.z }, target, freeze ? speed * 0.4 : speed, dt);
       p.x = clamp(next.x, -HALF_W + 6, HALF_W - 6);
       const zMin = p.team === "home" ? NEAR_Z + 6 : NET_Z + 10;
@@ -572,6 +573,12 @@ export class PadelRuntime {
         if (this.ball.owner !== p.team) this.aiHit(i);
       }
     }
+  }
+
+  // Perfil de IA de una figura: los rivales llevan el nivel elegido, tu pareja un
+  // perfil intermedio fijo (ver PARTNER en ai.js).
+  configFor(p) {
+    return p.team === "away" ? this.aiConfig : PARTNER;
   }
 
   ballComingTo(team) {
@@ -702,17 +709,32 @@ export class PadelRuntime {
   aiHit(index) {
     const p = this.players[index];
     const opponents = this.players.filter((o) => o.team !== p.team).map((o) => ({ x: o.x, z: o.z }));
-    // Fallo ocasional: devuelve a la red o fuera.
-    if (this.rng() < this.aiConfig.faultChance) {
-      const targetX = this.ball.x;
-      const targetZ = p.team === "away" ? NET_Z - 12 : NET_Z + 12; // a la red → falta
-      this.strike(index, { targetX, targetZ, flight: SHOT_FLIGHT.drive, team: p.team });
+    // Fallo ocasional, con las dos faltas que de verdad se ven en una pista: o la
+    // estrella en la cinta, o se le va larga contra el cristal del fondo rival sin
+    // botar. La de red necesita `clearNet: false`, porque si no launchToTarget le
+    // levanta el arco y la salva — que es justo lo que no queremos aquí.
+    if (this.rng() < this.configFor(p).faultChance) {
+      const toFar = p.team === "home";
+      const long = this.rng() < 0.45;
+      const targetZ = long
+        ? (toFar ? FAR_Z + 220 : NEAR_Z - 220) // larga: se pasa del fondo sin botar
+        : (toFar ? NET_Z + 6 : NET_Z - 6); // corta: muere en la cinta
+      this.strike(index, {
+        targetX: clamp(this.ball.x, -HALF_W + 12, HALF_W - 12),
+        targetZ,
+        // La larga sale flotada y sin liftar: es la bola que se va, no una liftada
+        // que picaría dentro. La corta va liftada, que es como se estrella en la red.
+        flight: long ? 1.05 : SHOT_FLIGHT.drive,
+        team: p.team,
+        spin: long ? -0.15 : SHOT_SPIN.drive,
+        clearNet: long,
+      });
       this.audio.paddle();
       return;
     }
     const nearNet = p.team === "away" ? p.z < NET_Z + 120 : p.z > NET_Z - 120;
     const partner = this.players.find((o) => o.team === p.team && o !== p);
-    const shot = chooseShot(this.aiConfig, this.rng, {
+    const shot = chooseShot(this.configFor(p), this.rng, {
       hitter: { x: p.x, z: p.z },
       partner: partner ? { x: partner.x, z: partner.z } : null,
       ballY: this.ball.y,
@@ -749,15 +771,22 @@ export class PadelRuntime {
 
     // Red (test de segmento).
     if (crossesNet(prev, b)) {
-      // Un tiro que no pasa la red: falta del que golpeó.
       this.audio.net();
       this.ball = bounceNet(b);
-      return this.endPoint(OTHER_TEAM[b.owner ?? "home"], "net");
+      // La cinta sólo es falta del que golpeó si el tiro aún no había botado
+      // dentro. Si ya había botado, el golpe fue bueno y esto es la bola que
+      // vuelve del cristal de fondo sin que el rival la devolviera: punto suyo.
+      const owner = b.owner ?? "home";
+      return b.landedIn
+        ? this.endPoint(owner, "no-return")
+        : this.endPoint(OTHER_TEAM[owner], "net");
     }
 
     // Suelo.
     if (b.y <= BALL_R && b.vy < 0) {
       b = bounceFloor(b);
+      // ¿Botó en el campo del receptor? Entonces el golpe queda cumplido.
+      if (sideOfZ(b.z) === HALF_OF[OTHER_TEAM[b.owner ?? "home"]]) b.landedIn = true;
       this.audio.floor();
     }
 
@@ -780,21 +809,23 @@ export class PadelRuntime {
   resolveWalls(b, prev) {
     const owner = b.owner ?? "home";
     const receiver = OTHER_TEAM[owner];
+    // El criterio es siempre el mismo, en las cuatro paredes: mientras el golpe no
+    // haya botado dentro (`landedIn`), cualquier desenlace es falta del que golpeó;
+    // una vez ha botado dentro el golpe ya está cumplido, así que salirse del
+    // recinto es cosa del que no supo devolverlo.
+    const blame = (why) => {
+      this.endPoint(b.landedIn ? owner : receiver, why);
+      this.pointEnded = true;
+      return b;
+    };
+
     // Lateral izquierdo/derecho.
     for (const wallX of [-HALF_W, HALF_W]) {
       const crossed = (wallX < 0 && b.x <= wallX) || (wallX > 0 && b.x >= wallX);
       if (!crossed) continue;
-      if (b.y > FENCE_HEIGHT) {
-        this.endPoint(receiver, "out-side");
-        this.pointEnded = true;
-        return b;
-      }
-      if (b.y > GLASS_HEIGHT) {
-        // Valla metálica → out del que golpeó.
-        this.endPoint(receiver, "fence-side");
-        this.pointEnded = true;
-        return b;
-      }
+      if (b.y > FENCE_HEIGHT) return blame("out-side");
+      // Valla metálica por encima del cristal → fuera.
+      if (b.y > GLASS_HEIGHT) return blame("fence-side");
       // Cristal: válido solo si ya botó en el suelo del lado receptor.
       if (b.floorBounces >= 1) {
         this.audio.glass();
@@ -802,9 +833,7 @@ export class PadelRuntime {
       }
       // Directo a la pared sin botar → falta del que golpeó.
       this.audio.glass();
-      this.endPoint(receiver, "wall-direct-side");
-      this.pointEnded = true;
-      return b;
+      return blame("wall-direct-side");
     }
 
     // Fondos (near / far).
@@ -815,27 +844,16 @@ export class PadelRuntime {
     for (const w of backWalls) {
       const crossed = w.side === "near" ? b.z <= w.z : b.z >= w.z;
       if (!crossed) continue;
-      const wallIsReceiver = HALF_OF[receiver] === w.side;
-      if (b.y > FENCE_HEIGHT) {
-        this.endPoint(wallIsReceiver ? owner : receiver, "out-back");
-        this.pointEnded = true;
-        return b;
-      }
-      if (b.y > GLASS_HEIGHT) {
-        this.endPoint(wallIsReceiver ? owner : receiver, "fence-back");
-        this.pointEnded = true;
-        return b;
-      }
+      if (b.y > FENCE_HEIGHT) return blame("out-back");
+      if (b.y > GLASS_HEIGHT) return blame("fence-back");
       if (b.floorBounces >= 1) {
         this.audio.glass();
         return bounceGlass(b, "z", w.z);
       }
-      // Sin bote previo: si es la pared del receptor, es falta del que golpeó
-      // (la clavó en el cristal); si es su propia pared, falta suya.
+      // Sin bote previo, sea el cristal del receptor (la clavó) o el suyo propio
+      // (se le fue hacia atrás), el golpe no cumplió: falta del que golpeó.
       this.audio.glass();
-      this.endPoint(wallIsReceiver ? owner : receiver, "wall-direct-back");
-      this.pointEnded = true;
-      return b;
+      return blame("wall-direct-back");
     }
     return b;
   }

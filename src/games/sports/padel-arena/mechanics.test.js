@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { PadelRuntime } from "./engine.js";
-import { predictLanding } from "./ai.js";
+import { predictLanding, DIFFICULTIES } from "./ai.js";
 import {
   HALF_W,
   NET_Z,
@@ -289,5 +289,152 @@ describe("glass rebound stays in play", () => {
     expect(rt.screen).toBe("rally");
     expect(sideOfZ(rt.ball.z)).toBe("near");
     rt.destroy();
+  });
+});
+
+// Un golpe sólo es falta del que lo pegó mientras la bola no haya botado en el
+// campo receptor. Una vez ha botado dentro, el golpe fue bueno: lo que ocurra
+// después (rebotes de cristal, la bola que vuelve y muere en la red, la bola que
+// se va del recinto) es responsabilidad del que no supo devolverla.
+describe("point attribution once the ball has landed in", () => {
+  // Deja la bola botada legalmente en el campo rival y devuelve el runtime listo
+  // para la segunda fase del punto.
+  function bounceItIn(rt) {
+    rt.startMatch();
+    rt.screen = "rally";
+    rt.ball = {
+      ...rt.ball,
+      live: true, owner: "home", x: 0, y: 30, z: 700,
+      vx: 0, vy: -200, vz: 200, spin: 0, floorBounces: 0, glassHits: 0,
+    };
+    for (let i = 0; i < 60 && rt.ball.floorBounces === 0; i++) rt.updateBall(1 / 60);
+    expect(rt.ball.floorBounces).toBe(1);
+    expect(sideOfZ(rt.ball.z)).toBe("far"); // botó dentro del campo receptor
+    expect(rt.screen).toBe("rally");
+    return rt;
+  }
+
+  it("gives the point to the striker when a ball that landed in dies in the net", () => {
+    const rt = bounceItIn(newRuntime());
+    // El rival no llega; la bola vuelve del cristal de fondo y muere en la cinta.
+    rt.ball = { ...rt.ball, x: 0, y: 20, z: 460, vx: 0, vy: -30, vz: -900 };
+    for (let i = 0; i < 60 && rt.screen === "rally"; i++) rt.updateBall(1 / 60);
+    expect(rt.screen).not.toBe("rally");
+    expect(rt.pointFor).toBe("home");
+    rt.destroy();
+  });
+
+  it("still faults the striker when the shot never cleared the net", () => {
+    const rt = newRuntime();
+    rt.startMatch();
+    rt.screen = "rally";
+    // Golpe de home que se queda corto: cruza el plano de red por debajo de la cinta.
+    rt.ball = { ...rt.ball, live: true, owner: "home", x: 0, y: 20, z: 380, vx: 0, vy: -10, vz: 600, floorBounces: 0 };
+    for (let i = 0; i < 60 && rt.screen === "rally"; i++) rt.updateBall(1 / 60);
+    expect(rt.screen).not.toBe("rally");
+    expect(rt.pointFor).toBe("away");
+    expect(rt.pointReason).toBe("net");
+    rt.destroy();
+  });
+
+  it("faults the striker when the ball hits the receiver's back glass before bouncing", () => {
+    const rt = newRuntime();
+    rt.startMatch();
+    rt.screen = "rally";
+    // Home la clava en el cristal del fondo rival sin que bote antes: falta suya.
+    rt.ball = { ...rt.ball, live: true, owner: "home", x: 0, y: 60, z: 780, vx: 0, vy: 0, vz: 600, floorBounces: 0 };
+    for (let i = 0; i < 60 && rt.screen === "rally"; i++) rt.updateBall(1 / 60);
+    expect(rt.screen).not.toBe("rally");
+    expect(rt.pointFor).toBe("away");
+    rt.destroy();
+  });
+
+  it("faults the striker when the ball leaves the court over the receiver's fence", () => {
+    const rt = newRuntime();
+    rt.startMatch();
+    rt.screen = "rally";
+    // Se va larga por encima del cerramiento del fondo rival, sin botar: fuera.
+    rt.ball = { ...rt.ball, live: true, owner: "home", x: 0, y: 200, z: 780, vx: 0, vy: 0, vz: 600, floorBounces: 0 };
+    for (let i = 0; i < 60 && rt.screen === "rally"; i++) rt.updateBall(1 / 60);
+    expect(rt.screen).not.toBe("rally");
+    expect(rt.pointFor).toBe("away");
+    rt.destroy();
+  });
+
+  it("gives the point to the striker when a ball that landed in leaves over the fence", () => {
+    const rt = bounceItIn(newRuntime());
+    // Tras botar dentro, el rebote se va por encima del cerramiento: no la devolvió.
+    rt.ball = { ...rt.ball, x: 0, y: 200, z: 780, vx: 0, vy: 40, vz: 600 };
+    for (let i = 0; i < 60 && rt.screen === "rally"; i++) rt.updateBall(1 / 60);
+    expect(rt.screen).not.toBe("rally");
+    expect(rt.pointFor).toBe("home");
+    rt.destroy();
+  });
+});
+
+describe("the CPU's deliberate miss is really its own fault", () => {
+  it("always loses the point for the team that missed", () => {
+    const rt = newRuntime();
+    rt.startMatch();
+    rt.aiConfig.faultChance = 1; // que falle siempre
+    rt.updatePlayers = () => {};
+    rt.updateActivePlayer = () => {};
+    const scorers = new Set();
+    const reasons = new Set();
+    for (let k = 0; k < 120; k++) {
+      rt.screen = "rally";
+      rt.pointEnded = false;
+      rt.players[2].x = 0;
+      rt.players[2].z = 620;
+      rt.ball = {
+        ...rt.ball, live: true, owner: "home", x: 0, z: 620,
+        y: NET_HEIGHT * (0.6 + rt.rng() * 2), vx: 0, vy: 0, vz: 0, floorBounces: 1, landedIn: true,
+      };
+      rt.aiHit(2);
+      for (let f = 0; f < 600 && rt.screen === "rally"; f++) rt.advanceTime(1000 / 60);
+      scorers.add(rt.pointFor);
+      reasons.add(rt.pointReason);
+    }
+    // El punto SIEMPRE es del rival del que falló, y se resuelve por una falta
+    // legible: o la estrella en la red, o se le va larga contra el cristal.
+    expect([...scorers]).toEqual(["home"]);
+    for (const r of reasons) expect(["net", "wall-direct-back", "fence-back", "out-back"]).toContain(r);
+    rt.destroy();
+  });
+});
+
+describe("difficulty describes the rivals, not your partner", () => {
+  it("keeps the partner profile fixed while the rivals scale", () => {
+    const rt = newRuntime();
+    const partnerAt = (level) => {
+      rt.setDifficulty(level);
+      return { ...rt.configFor(rt.players[0]) };
+    };
+    const easyMate = partnerAt("easy");
+    const hardMate = partnerAt("hard");
+    expect(hardMate).toEqual(easyMate);
+    // Y los rivales sí cambian: en difícil corren más y leen mejor.
+    rt.setDifficulty("easy");
+    const easyFoe = { ...rt.configFor(rt.players[2]) };
+    rt.setDifficulty("hard");
+    const hardFoe = { ...rt.configFor(rt.players[2]) };
+    expect(hardFoe.speed).toBeGreaterThan(easyFoe.speed);
+    expect(hardFoe.readError).toBeLessThan(easyFoe.readError);
+    rt.destroy();
+  });
+
+  it("never lets the rivals outrun the human player", () => {
+    // Si la IA corre más que tú no hay hueco que abrir: ningún golpe tuyo podría
+    // ser ganador, y el punto sólo moriría por fallo suyo.
+    for (const level of ["easy", "medium", "hard"]) {
+      expect(DIFFICULTIES[level].speed).toBeLessThan(262);
+    }
+  });
+
+  it("keeps every read error above the hitting reach, so winners are possible", () => {
+    // readError por debajo del alcance (58 px) = la IA llega siempre.
+    for (const level of ["easy", "medium", "hard"]) {
+      expect(DIFFICULTIES[level].readError).toBeGreaterThan(58);
+    }
   });
 });

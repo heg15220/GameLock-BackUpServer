@@ -12,6 +12,7 @@ import {
   recoveryTarget,
   serveX,
 } from "./ai.js";
+import { BAT_HALF_WIDTH } from "./physics.js";
 import {
   BOARD_END,
   BOARD_HALF_WIDTH,
@@ -106,6 +107,20 @@ describe("ping-pong AI — difficulty ladder", () => {
   it("keeps easy on the reference's flat, placement-free return", () => {
     expect(DIFFICULTIES.easy.placement).toBe(0);
     expect(DIFFICULTIES.easy.recovery).toBe(0);
+  });
+
+  it("keeps every read error wider than the bat, so winners stay possible", () => {
+    // aimError se lee contra el alcance de la pala: por debajo de él la CPU tapa
+    // su propio error con la pala y llega a todo, con lo que ningún golpe tuyo
+    // puede ser ganador y el punto sólo puede morir por un fallo suyo.
+    for (const level of ["easy", "medium", "hard"]) {
+      expect(DIFFICULTIES[level].aimError).toBeGreaterThan(BAT_HALF_WIDTH);
+    }
+  });
+
+  it("keeps the read error ordered across the ladder", () => {
+    expect(DIFFICULTIES.easy.aimError).toBeGreaterThan(DIFFICULTIES.medium.aimError);
+    expect(DIFFICULTIES.medium.aimError).toBeGreaterThan(DIFFICULTIES.hard.aimError);
   });
 
   it("defaults to medium for an unknown id", () => {

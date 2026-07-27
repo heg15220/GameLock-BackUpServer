@@ -58,6 +58,11 @@ export const sign = (v) => (v < 0 ? -1 : v > 0 ? 1 : 0);
 // `glassHits` cuántas paredes ha tocado desde el último bote de suelo (para el
 // límite reglamentario de una sola pared antes de volver a botar), `phase` el
 // estado del punto de vista físico.
+//
+// `landedIn` marca que el golpe actual YA botó en el campo del receptor, es decir
+// que fue un golpe válido. Es la frontera que decide de quién es la falta: antes
+// del bote, cualquier desenlace (red, cristal, fuera) es culpa del que golpeó;
+// después, el golpe está cumplido y quien pierde el punto es el que no lo devolvió.
 export function createBall(overrides = {}) {
   return {
     x: 0,
@@ -70,6 +75,7 @@ export function createBall(overrides = {}) {
     owner: null,
     floorBounces: 0,
     glassHits: 0,
+    landedIn: false,
     live: false,
     ...overrides,
   };
@@ -199,7 +205,7 @@ function solveLaunch(ball, targetX, targetZ, T, team) {
   const vz = (targetZ - ball.z) / T;
   // y(T) = 0  =>  vy = (0.5 g T² − y0) / T   (aterriza a ras de suelo)
   const vy = (0.5 * GRAVITY * T * T - ball.y) / T;
-  return { ...ball, vx, vy, vz, owner: team, floorBounces: 0, glassHits: 0, live: true };
+  return { ...ball, vx, vy, vz, owner: team, floorBounces: 0, glassHits: 0, landedIn: false, live: true };
 }
 
 // Altura de la parábola (que aterriza en targetZ en tiempo T) al cruzar el plano de
@@ -218,13 +224,16 @@ function heightAtNet(ball, targetZ, T) {
 // que aterriza en el objetivo pasaría por debajo de la cinta al cruzarla, eleva el
 // arco (aumenta el tiempo de vuelo) hasta despejarla. Así la IA y el jugador nunca
 // estrellan un golpe válido contra la red por geometría. Puro.
-export function launchToTarget(ball, { targetX, targetZ, flight, team, spin = 0 }) {
+//
+// `clearNet: false` desactiva esa garantía, para los golpes que SÍ quieren fallar:
+// es la única forma de que la IA estrelle una bola en la cinta a propósito.
+export function launchToTarget(ball, { targetX, targetZ, flight, team, spin = 0, clearNet = true }) {
   const crossesNetPlane = (ball.z - NET_Z) * (targetZ - NET_Z) < 0;
   let T = Math.max(0.18, flight);
   // Un golpe liftado baja antes por el Magnus, así que exige más margen sobre la
   // cinta para que la elevación del arco lo compense y no lo estrelle en la red.
   const topspinPenalty = Math.max(0, spin) * 14;
-  if (crossesNetPlane) {
+  if (crossesNetPlane && clearNet) {
     for (let i = 0; i < 12; i++) {
       if (heightAtNet(ball, targetZ, T) >= NET_HEIGHT + NET_CLEARANCE + topspinPenalty) break;
       T *= 1.13; // eleva el arco manteniendo el punto de caída

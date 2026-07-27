@@ -22,6 +22,7 @@ import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-sh
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
 import sportsPingPongArenaImage from "../assets/games/sports-ping-pong-arena.svg";
 import sportsPadelArenaImage from "../assets/games/sports-padel-arena.svg";
+import sportsNbaLegendsDraftImage from "../assets/games/sports-nba-legends-draft.svg";
 import arcadeShellGameImage from "../assets/games/arcade-shell-game.svg";
 import arcadePulsoExactoImage from "../assets/games/arcade-pulso-exacto.svg";
 import arcadeDistanciaJustaImage from "../assets/games/arcade-distancia-justa.svg";
@@ -3747,6 +3748,62 @@ export const games = [
     viability_en: "High: deterministic Canvas engine, pure tested physics and rules, and serialisable state.",
     visualStyle_en: "Green artificial-grass court enclosed by glass and fencing, a central net, a yellow ball, and red perforated paddles, in a broadcast camera over dark stands.",
     techFocus_en: "Custom pseudo-3D perspective projection, projectile physics with floor and glass rebounds, doubles AI for positioning and shot selection, and regulation padel rules with a tie-break.",
+  },
+
+  {
+    id: "sports-nba-legends-draft",
+    image: sportsNbaLegendsDraftImage,
+    sessionTime: "15-30 min",
+
+    title: "Draft de Leyendas NBA",
+    category: "Deportes",
+    tagline: "Draftea leyendas de cada década por dados y conquista el anillo simulando la temporada + playoffs NBA.",
+    description:
+      "Un juego de cartas y simulación de baloncesto construido sobre estadísticas reales de la NBA (miles de jugadores agregados de su box score histórico). Cada leyenda es una carta con una MEDIA de 50 a 99 calculada con un Game Score (que pondera puntos, tiros, rebotes, robos, asistencias, tapones, faltas y pérdidas) sobre una curva absoluta que reserva el 99 a una élite mínima —solo un puñado de jugadores lo alcanzan— y la mayoría son roleros, como en la vida real; más siete atributos derivados de sus números (anotación, tiro de 3, pase, rebote, defensa interior y exterior, tiro libre) y un rol (Base, Escolta, Alero, Ala-Pívot, Pívot). El draft es por décadas y sobre una cancha visual: tiras un dado que revela una década al azar, te salen 7 cartas aleatorias de esa época y eliges una rellenando los huecos por posición y el banquillo; repites 8 veces y fijas tu quinteto titular (5 de tus 8). Luego disputas una temporada regular a una vuelta contra 15 equipos REALES de temporadas históricas reales —con su nombre y plantilla auténticos, elegidos al azar del histórico (p.ej. los Chicago Bulls 1995-96 con Jordan, Pippen y Rodman)—, repartidos en dos conferencias de ocho, y a continuación los playoffs formato NBA con series al mejor de 7 sembradas por récord hasta la final. El motor resuelve cada partido por posesiones (unas 100 por equipo) comparando por probabilidad los atributos del atacante contra la defensa rival, con rebotes, pérdidas, tapones, tiros libres y rotación con fatiga del banquillo, y lo narra jugada a jugada con marcador en vivo. Todo se juega con ratón o toque.",
+    objective_es:
+      "Draftear 8 leyendas, elegir tu quinteto y ganar la temporada regular para sembrar bien de cara a los playoffs NBA, avanzando serie a serie al mejor de 7 hasta levantar el trofeo.",
+    howToPlay_es:
+      "En el menú pon el nombre de tu equipo y pulsa Jugar. Tira el dado para revelar una década, toca 1 de las 7 cartas y repite hasta tener 8. Marca 5 titulares y confirma. En la temporada, juega tus 15 partidos: ‘Ver’ los narra jugada a jugada (velocidad ×1/×2 o ‘Ir al final’) y ‘Simular’ los resuelve al instante; consulta la clasificación de ambas conferencias. Al terminar, empieza los playoffs y disputa tus series al mejor de 7 (ver o simular cada partido); las series rivales se simulan solas. Revisa el box score tras cada partido. Cambia idioma ES/EN arriba. Solo ratón/tacto.",
+    highlights: [
+      "Cartas generadas de estadísticas REALES de la NBA: miles de jugadores con media 50-99 y 7 atributos derivados de su box score histórico.",
+      "Medias en curva absoluta (Game Score): el 99 queda reservado a una élite mínima (solo un puñado) y la mayoría son roleros, como en la realidad.",
+      "Draft por dados sobre una cancha visual: tira → década → 7 cartas → eliges 1 (×8) rellenando huecos por posición y banquillo; luego fijas tu quinteto.",
+      "Rivales REALES: 15 equipos de temporadas históricas auténticas (nombre y plantilla reales, al azar), en dos conferencias de ocho.",
+      "Playoffs formato NBA: cuadro sembrado por récord con series al mejor de 7 hasta la final.",
+      "Motor por posesiones (~100/equipo) con probabilidad ponderada atacante-vs-defensa, rebotes, pérdidas, tapones, tiros libres y rotación con fatiga.",
+      "Partido narrado jugada a jugada con marcador en vivo (×1/×2 o ir al final) y box score completo por jugador al terminar.",
+      "Motor puro y determinista (semilla reproducible) con física de reglas testeada; interfaz self-contained bilingüe ES/EN.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Solo vs CPU (torneo)",
+    viability: "Alta: motor de simulación puro y testeado, caché de cartas precomputado y estado serializable.",
+    visualStyle: "Pabellón nocturno con parqué de madera, marcador de retransmisión, cartas coleccionables con media dorada y un dado de década.",
+    techFocus: "Pipeline de datos en Python que agrega el histórico NBA a un caché de cartas (media por curva absoluta de Game Score) y a un catálogo de plantillas reales por temporada, motor de simulación por posesiones con probabilidad ponderada, draft por décadas sobre cancha y bracket de playoffs NBA al mejor de 7.",
+
+    title_en: "NBA Legends Draft",
+    category_en: "Sports",
+    tagline_en: "Draft legends from every decade by dice roll and chase the ring by simulating the NBA season + playoffs.",
+    description_en:
+      "A basketball card-and-simulation game built on real NBA statistics (thousands of players aggregated from their historical box scores). Each legend is a card with an OVERALL from 50 to 99 computed from a Game Score (weighting points, shooting, rebounds, steals, assists, blocks, fouls and turnovers) on an absolute curve that reserves 99 for a tiny elite —only a handful reach it— with most players being role players, just like real life; plus seven attributes derived from their numbers (scoring, three-point, passing, rebounding, interior and perimeter defense, free throws) and a role (PG, SG, SF, PF, C). The draft is by decade and on a visual court: you roll a die that reveals a random decade, seven random cards from that era appear and you pick one, filling the position slots and the bench; repeat eight times and set your starting five (5 of your 8). Then you play a single round-robin regular season against 15 REAL teams from real historical seasons —with their authentic names and rosters, drawn at random from history (e.g. the 1995-96 Chicago Bulls with Jordan, Pippen and Rodman)—, split into two conferences of eight, followed by NBA-format playoffs with best-of-7 series seeded by record up to the finals. The engine resolves each game possession by possession (around 100 per team) comparing, by probability, the attacker's attributes against the defense, with rebounds, turnovers, blocks, free throws and bench rotation with fatigue, narrated play-by-play with a live score. Everything is played with mouse or touch.",
+    objective_en:
+      "Draft 8 legends, pick your starting five and win the regular season to seed well for the NBA playoffs, advancing best-of-7 series until you lift the trophy.",
+    howToPlay_en:
+      "In the menu name your team and press Play. Roll the die to reveal a decade, tap 1 of the 7 cards and repeat until you have 8. Mark 5 starters and confirm. In the season, play your 15 games: ‘Watch’ narrates them play-by-play (speed ×1/×2 or ‘Skip to end’) and ‘Sim’ resolves them instantly; check both conference standings. When done, start the playoffs and play your best-of-7 series (watch or sim each game); rival series auto-simulate. Review the box score after every game. Switch ES/EN language at the top. Mouse/touch only.",
+    highlights_en: [
+      "Cards generated from REAL NBA stats: thousands of players with a 50-99 overall and 7 attributes derived from their historical box score.",
+      "Overalls on an absolute Game Score curve: 99 is reserved for a tiny elite (only a handful) and most players are role players, like real life.",
+      "Dice-roll draft on a visual court: roll → decade → 7 cards → pick 1 (×8), filling position slots and the bench, then set your starting five.",
+      "REAL rivals: 15 teams from authentic historical seasons (real names and rosters, at random), in two conferences of eight.",
+      "NBA-format playoffs: a bracket seeded by record with best-of-7 series up to the finals.",
+      "Possession engine (~100/team) with weighted attacker-vs-defense probability, rebounds, turnovers, blocks, free throws and fatigue rotation.",
+      "Play-by-play narration with a live score (×1/×2 or skip to end) and a full per-player box score afterwards.",
+      "Pure, deterministic engine (reproducible seed) with tested rule logic; self-contained bilingual ES/EN interface.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Solo vs CPU (tournament)",
+    viability_en: "High: pure tested simulation engine, precomputed card cache, and serialisable state.",
+    visualStyle_en: "A night arena with a wooden parquet floor, a broadcast scoreboard, collectible cards with a gold overall, and a decade die.",
+    techFocus_en: "A Python data pipeline that aggregates NBA history into a card cache (overall via an absolute Game Score curve) and a catalog of real per-season rosters, a possession-based simulation engine with weighted probability, a decade draft on a court, and an NBA best-of-7 playoff bracket.",
   },
 
   {

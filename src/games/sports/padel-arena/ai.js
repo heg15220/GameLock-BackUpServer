@@ -24,37 +24,61 @@ import {
 // error lateral (px) con que la IA lee dónde caerá la bola. Juntos abren huecos: una
 // bola rápida o bien colocada llega antes de que la IA reaccione y cubra, así que el
 // usuario puede ganar puntos por mérito propio (no solo por fallos de la IA).
+// `readError` es la palanca que decide si un golpe tuyo puede ser ganador: se
+// compara contra REACH_XZ (58 px, el alcance de golpeo). Por debajo de ese umbral
+// la IA llega SIEMPRE a la bola por bien colocada que esté, el punto sólo puede
+// morir por un fallo suyo y los peloteos se eternizan. Por eso los tres niveles se
+// mantienen por encima de 58, y lo que cambia entre ellos es cuánto.
 export const DIFFICULTIES = {
   easy: {
     id: "easy",
-    speed: 165, // más lento que el jugador (262)
-    reactionMs: 420,
+    speed: 170, // más lento que el jugador (262)
+    reactionMs: 400,
     aimError: 46, // error en la colocación de sus propios golpes
-    readError: 96, // lee mal dónde cae la bola → falla coberturas
+    readError: 100, // lee mal dónde cae la bola → falla coberturas
     aggression: 0.18,
     lobChance: 0.15,
-    faultChance: 0.17,
+    faultChance: 0.15,
   },
   medium: {
     id: "medium",
     speed: 225,
     reactionMs: 240,
-    aimError: 34,
-    readError: 54,
-    aggression: 0.45,
+    aimError: 30,
+    readError: 68,
+    aggression: 0.5,
     lobChance: 0.3,
-    faultChance: 0.09,
+    faultChance: 0.07,
   },
   hard: {
     id: "hard",
-    speed: 292,
-    reactionMs: 135,
-    aimError: 18,
-    readError: 26,
-    aggression: 0.74,
+    // Por debajo de la velocidad del jugador (262) a propósito: si la IA corre más
+    // que tú no hay hueco que abrir y ningún golpe tuyo puede ser ganador, por bien
+    // colocado que esté. Su ventaja tiene que venir de leer y reaccionar antes, no
+    // de llegar a lo que es físicamente inalcanzable.
+    speed: 252,
+    reactionMs: 160,
+    aimError: 14,
+    readError: 62,
+    aggression: 0.8,
     lobChance: 0.4,
-    faultChance: 0.04,
+    faultChance: 0.03,
   },
+};
+
+// Tu pareja NO escala con la dificultad. La dificultad describe a quién te
+// enfrentas, no con quién juegas: si tu compañero también mejorase en difícil, el
+// nivel se compensaría solo y la escalera dejaría de significar nada. Se queda en
+// un nivel intermedio fijo, competente pero falible.
+export const PARTNER = {
+  id: "partner",
+  speed: 218,
+  reactionMs: 250,
+  aimError: 32,
+  readError: 74,
+  aggression: 0.45,
+  lobChance: 0.28,
+  faultChance: 0.08,
 };
 
 export function createAiConfig(difficulty = "medium") {

@@ -14,7 +14,7 @@ const {
 // necesita un canvas para instanciarse y lo que se está fijando aquí es el
 // mapeo gesto → saque, no la clase.
 function serveParams(dz, dx) {
-  const sideAngle = dx !== 0 ? Math.atan(dz / dx) : 0;
+  const sideAngle = dx !== 0 ? Math.atan(dz / dx) : Math.PI / 2;
   const d = clamp(dz, SERVE_TRIGGER_DZ, MAX_MOVE_VELOCITY);
   const t = (d - SERVE_TRIGGER_DZ) / (MAX_MOVE_VELOCITY - SERVE_TRIGGER_DZ);
   return { velocity: SERVE_V_MIN + t * (SERVE_V_MAX - SERVE_V_MIN), sideAngle };

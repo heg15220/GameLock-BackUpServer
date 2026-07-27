@@ -317,3 +317,45 @@ describe("ping-pong runtime — snapshots", () => {
     expect(last.mode).toBe("sports-ping-pong-arena");
   });
 });
+
+// El desvío lateral del golpe sale del ángulo del swing, y hitBall lo traduce con
+// ±cos(sideAngle). Ese mapeo tiene un agujero justo en el gesto más frecuente del
+// teclado —empujar de frente sin tocar izquierda ni derecha—, y ahí es donde se
+// nota: la bola salía cerrada a la izquierda y se iba de la mesa.
+describe("ping-pong — lateral control of the player's shot", () => {
+  function driveWith(dz, dx) {
+    const { rt } = makeRuntime();
+    rt.startMatch();
+    rt.screen = "rally";
+    rt.ball = createBall({ x: 0, y: BAT_REST_Y, z: PLAYER_Z + 20 });
+    rt.possession = {
+      hitter: "opponent", receiver: "player", serve: false,
+      serveBounceDone: true, receiverBounces: 1, age: 0,
+    };
+    rt.playerBat.x = 0;
+    rt.playerBat.z = PLAYER_Z;
+    rt.batVel = { dz, dx };
+    rt.playerHit();
+    return rt.ball;
+  }
+
+  it("sends the ball straight when the bat is driven straight forward", () => {
+    expect(Math.abs(driveWith(900, 0).vx)).toBeLessThan(0.02);
+  });
+
+  it("keeps the drift continuous either side of a straight drive", () => {
+    // El límite por ambos lados es 0: una pizca de lateral no puede dar un
+    // resultado radicalmente distinto de no mover nada.
+    const straight = driveWith(900, 0).vx;
+    expect(driveWith(900, 1).vx).toBeCloseTo(straight, 2);
+    expect(driveWith(900, -1).vx).toBeCloseTo(straight, 2);
+  });
+
+  it("still steers with the swing, and to both sides", () => {
+    const right = driveWith(900, 900).vx;
+    const left = driveWith(900, -900).vx;
+    expect(right).toBeGreaterThan(0.2);
+    expect(left).toBeLessThan(-0.2);
+    expect(right).toBeCloseTo(-left, 5);
+  });
+})

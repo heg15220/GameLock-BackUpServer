@@ -41,6 +41,14 @@ import {
 // The rest are *offensive*, and are ours: they decide how hard the CPU works the
 // human across the table. `easy` sets them to zero, which is exactly the
 // reference's flat, down-the-line return.
+//
+// `aimError` has to be read against the bat's own reach (BAT_HALF_WIDTH, 62px):
+// it is what decides whether a well-placed shot of yours can ever be a winner.
+// Below ~62 the CPU covers its read error with the bat and gets to everything —
+// measured: at aimError 15 it reached 400 of 400 corner-seeking shots, so the
+// only way to score was waiting for its own 2% fault. The miss rate lands near
+// 1 - 62/aimError, so these are set from the winner rate each level should
+// concede: ~12% on hard, ~30% on medium, ~59% on easy.
 export const DIFFICULTIES = {
   easy: {
     id: "easy",
@@ -57,7 +65,7 @@ export const DIFFICULTIES = {
   medium: {
     id: "medium",
     easeMs: 1500, // the reference's own tween duration
-    aimError: 60,
+    aimError: 92,
     faultChance: 0.07,
     velocityJitter: 6,
     placement: 0.45,
@@ -69,7 +77,7 @@ export const DIFFICULTIES = {
   hard: {
     id: "hard",
     easeMs: 900,
-    aimError: 15,
+    aimError: 70,
     faultChance: 0.02,
     velocityJitter: 3,
     placement: 0.92,

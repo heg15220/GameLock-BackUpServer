@@ -308,10 +308,18 @@ export class PingPongRuntime {
   // driven forward in z sets the shot velocity (60..90), and the launch angle
   // falls as the velocity rises (120 - velocity), so a hard flick comes out flat
   // and a gentle push loops. sideAngle comes from the diagonal of the swing.
+  //
+  // El caso dx = 0 hay que tomarlo como límite, no como cero. hitBall traduce el
+  // ángulo con ±cos(sideAngle), y atan(dz/dx) tiende a ±90° por ambos lados según
+  // dx → 0, o sea cos → 0: bola recta. Escribir 0 ahí da cos(0) = 1, el desvío
+  // MÁXIMO — y justo en el gesto más común del teclado, empujar de frente sin
+  // tocar los laterales. Con ratón (que es lo único que tenía la referencia) dx
+  // casi nunca cae exactamente en 0 y el agujero no se veía; con teclado es el
+  // caso normal, así que la bola salía cerrada a la izquierda y fuera de la mesa.
   batShotParams() {
     const dz = this.batVel.dz;
     const dx = this.batVel.dx;
-    const sideAngle = dx !== 0 ? Math.atan(dz / dx) : 0;
+    const sideAngle = dx !== 0 ? Math.atan(dz / dx) : Math.PI / 2;
     const v = clamp(dz, 0, MAX_MOVE_VELOCITY);
     const velocity = (v + 2400) / 40;
     const upAngle = 120 - velocity;

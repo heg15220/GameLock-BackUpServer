@@ -2,6 +2,9 @@ import { getMobileShellMode } from "../utils/mobileShellProfile";
 
 const DIRECT_TOUCH_GAME_IDS = new Set([
   "sports-ping-pong-arena",
+  // Fully DOM-driven (dice, cards, buttons): tapping the cards and controls
+  // directly is the whole game, so a virtual pad would only be in the way.
+  "sports-nba-legends-draft",
   // The cups are the buttons: you point at the one you mean, so a virtual pad
   // would only get between the finger and the table.
   "arcade-shell-game",
