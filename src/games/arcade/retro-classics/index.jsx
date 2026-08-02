@@ -68,7 +68,7 @@ const DEFINITIONS = {
     lives: 3,
   },
   "space-invaders": {
-    title: { es: "Space Invaders Core", en: "Space Invaders Core" },
+    title: { es: "Aegis Meridian", en: "Aegis Meridian" },
     objective: { es: "Elimina la formacion invasora.", en: "Destroy the invader formation." },
     controls: { es: "A/D mover, Espacio disparar.", en: "A/D move, Space shoot." },
     accent: "#a3e635",

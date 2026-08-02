@@ -3064,10 +3064,10 @@ export const games = [
     id: "arcade-retro-space-invaders",
     image: arcadeRetroSpaceInvadersImage,
     sessionTime: "3-8 min",
-    title: "Space Invaders Core",
+    title: "Aegis Meridian",
     category: "Arcade",
     tagline: "Defensa espacial: dispara invasores antes de que desciendan.",
-    description: "Shooter arcade inspirado en Space Invaders con direcciÃƒÂ³n artÃƒÂ­stica renovada: naves mÃƒÂ¡s definidas, disparos luminosos, atmÃƒÂ³sfera espacial dinÃƒÂ¡mica y HUD claro para sesiones intensas por oleadas.",
+    description: "Shooter arcade de defensa orbital con direccion artistica propia: naves mas definidas, disparos luminosos, atmosfera espacial dinamica y HUD claro para sesiones intensas por oleadas.",
     objective_es: "Elimina todas las naves invasoras antes de que alcancen tu base.",
     howToPlay_es: "A/D o flechas para moverte y Espacio para disparar. P pausa, R reinicia, F pantalla completa.",
     highlights: [
@@ -3083,7 +3083,7 @@ export const games = [
     techFocus: "Gestor de oleadas, colisiones bala-hitbox e IA de fuego por escuadron.",
     category_en: "Arcade",
     tagline_en: "Space defense: shoot invaders before they descend.",
-    description_en: "Space Invaders-inspired shooter with a refreshed visual direction: cleaner ships, luminous fire lines, dynamic backdrop atmosphere, and a polished HUD for wave-based pressure.",
+    description_en: "Orbital defense shooter with its own visual direction: cleaner ships, luminous fire lines, dynamic backdrop atmosphere, and a polished HUD for wave-based pressure.",
     objective_en: "Destroy all invader ships before they reach your base line.",
     howToPlay_en: "Move with A/D or arrows and shoot with Space. P pauses, R restarts, F toggles fullscreen.",
     highlights_en: [
