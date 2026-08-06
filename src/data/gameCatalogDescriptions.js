@@ -275,6 +275,10 @@ export const gameCatalogDescriptions = {
     es: "Pádel por parejas en pseudo-3D: coloca, remata y juega las paredes de cristal.",
     en: "Pseudo-3D doubles padel: position, smash and play the glass walls.",
   },
+  "sports-trayectoria": {
+    es: "Carrera de futbolista de los 16 a los 40: elige club, decide y dispara en las finales.",
+    en: "A footballer's career from 16 to 40: pick clubs, decide, and take the shot in the finals.",
+  },
   "arcade-shell-game": {
     es: "El juego de los vasos: sigue la bola mientras cruzan más rápido.",
     en: "The cups game: follow the ball as the cups cross ever faster.",

@@ -29,13 +29,21 @@ describe("shell game module wiring", () => {
     expect(getGameComponent("arcade-shell-game")).toBeTruthy();
   });
 
-  it("is listed in the catalog under Arcade, in both locales", async () => {
-    const { games } = await import("../../../data/games.js");
-    const game = games.find((g) => g.id === "arcade-shell-game");
-    expect(game).toBeTruthy();
-    expect(game.category).toBe("Arcade");
-    expect(game.title).toBe("Trilero");
-    expect(game.title_en).toBe("Shell Game");
-    expect(game.image).toBeTruthy();
-  });
+  // games.js pulls in an asset import per catalogue entry, so this dynamic import is
+  // slow and gets slower with every game added. Under a full parallel run it was
+  // tripping the default 5s budget intermittently; the assertions are instant, so give
+  // the import room rather than let an unrelated new game turn this red.
+  it(
+    "is listed in the catalog under Arcade, in both locales",
+    async () => {
+      const { games } = await import("../../../data/games.js");
+      const game = games.find((g) => g.id === "arcade-shell-game");
+      expect(game).toBeTruthy();
+      expect(game.category).toBe("Arcade");
+      expect(game.title).toBe("Trilero");
+      expect(game.title_en).toBe("Shell Game");
+      expect(game.image).toBeTruthy();
+    },
+    20000,
+  );
 });

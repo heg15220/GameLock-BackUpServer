@@ -1,0 +1,7 @@
+# Real club crests, league marks and flags fetched by scripts/fetch-football-crests.py.
+# Club crests and league logos are trademarks of their owners: kept local for development,
+# never committed. Re-fetch with: python scripts/fetch-football-crests.py
+crests/
+competitions/
+flags/
+manifest.json

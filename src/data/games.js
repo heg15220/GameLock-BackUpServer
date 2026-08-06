@@ -22,6 +22,7 @@ import arcadeStickBrawlShowdownImage from "../assets/games/arcade-stick-brawl-sh
 import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.svg";
 import sportsPingPongArenaImage from "../assets/games/sports-ping-pong-arena.svg";
 import sportsPadelArenaImage from "../assets/games/sports-padel-arena.svg";
+import sportsTrayectoriaImage from "../assets/games/sports-trayectoria.svg";
 import arcadeShellGameImage from "../assets/games/arcade-shell-game.svg";
 import arcadePulsoExactoImage from "../assets/games/arcade-pulso-exacto.svg";
 import arcadeDistanciaJustaImage from "../assets/games/arcade-distancia-justa.svg";
@@ -3747,6 +3748,90 @@ export const games = [
     viability_en: "High: deterministic Canvas engine, pure tested physics and rules, and serialisable state.",
     visualStyle_en: "Green artificial-grass court enclosed by glass and fencing, a central net, a yellow ball, and red perforated paddles, in a broadcast camera over dark stands.",
     techFocus_en: "Custom pseudo-3D perspective projection, projectile physics with floor and glass rebounds, doubles AI for positioning and shot selection, and regulation padel rules with a tie-break.",
+  },
+
+  {
+    id: "sports-trayectoria",
+    image: sportsTrayectoriaImage,
+    sessionTime: "10-20 min",
+
+    title: "Trayectoria",
+    category: "Deportes",
+    tagline: "Simulador de carrera futbolistica: de los 16 a los 40, decision a decision.",
+    description:
+      "Un simulador de carrera de futbolista en el que solo juegas los momentos que deciden algo. Creas la ficha —apellido, dorsal, pie, posicion, seleccion y ritmo—, firmas por uno de los tres clubes que te quieren a los 16 y a partir de ahi tomas tres tipos de decision: que carta respondes cada ciclo, con quien firmas cada verano y donde colocas el disparo en los tres partidos que deciden cada temporada. Todo lo demas lo resuelve un modelo determinista que se sostiene sobre un unico numero, la distancia entre tu OVR y el nivel de la plantilla que te rodea: esa distancia decide tu rol, tus minutos, tus goles, tus titulos y si tu seleccion te llama. Frente a ella tira la idolatria, que solo crece quedandote: el juego te cobra la vitrina en aficion y la aficion en vitrina. La temporada no se te devuelve como una tabla sino como la portada de un diario deportivo, con el titular que ese ano habria llevado. Y al fondo corre una sombra, un delantero nacido tu mismo ano que atraviesa el mismo modelo tomando decisiones sensatas, para que al retirarte sepas si tu carrera fue buena o solo fue tuya.",
+    objective_es:
+      "Llegar a los 40 y ver que queda en la vitrina. No hay victoria: hay una carrera, y la tesis del juego es que se puede elegir bien, jugar bien y retirarse sin nada.",
+    howToPlay_es:
+      "Todo con raton o dedo, sin teclado. Rellena la ficha y firma por uno de los tres clubes de tu pais. Cada ciclo aparece una carta de decision con sus probabilidades impresas —y las probabilidades impresas son las que se tiran—, eliges opcion y despues juegas los tres partidos grandes de cada temporada: eliges donde pones el disparo entre tres colocaciones, se revela donde estaba el hueco y ahi mismo se decide el titulo, el ascenso o la permanencia. Lees la portada de cada ano y pasas al mercado de verano, donde cada oferta se dibuja sobre el medidor de distancia: elegir club es elegir en que banda de rol caes. Antes de firmar, el aviso de desarrollo te dice a que edad apunta el proximo ciclo y si estas en riesgo de la doble tirada.",
+    highlights: [
+      "Los tres partidos que deciden cada temporada se juegan a mano: final de Champions, Mundial, ascenso, permanencia, semifinal o clasico.",
+      "Un disparo por partido con tres colocaciones: el hueco se sortea antes de elegir y se revela despues, asi que es una apuesta de verdad.",
+      "Tu OVR compra lectura: a partir de cierto nivel una de las tres opciones sale tachada porque el portero ya la ha cubierto.",
+      "Marcar o fallar cambia el rumbo: el titulo, el ascenso o el descenso se resuelven ahi, no en una tirada oculta.",
+      "El reparto esta medido: un disparo sustituye parte de la temporada en vez de sumarse, asi que decides muchas mas temporadas sin ganar mas titulos.",
+      "Mundo real de 574 clubes en 35 competiciones de 211 paises, con escudos, logos de liga y banderas.",
+      "Un solo numero manda: tu OVR menos el nivel de la plantilla decide rol, minutos, goles, titulos y convocatorias.",
+      "Medidor de distancia en cada oferta: ves la banda de rol en la que caerias antes de firmar, no despues.",
+      "Idolatria por club en cinco escalones: se construye quedandote y se gasta yendote, y el coste exacto va impreso en la oferta antes de firmar.",
+      "Sin ganar un titulo con un club hay un techo de afición: se puede pasar veinte años en el mismo sitio y quedarse a las puertas de la estatua.",
+      "46 cartas de decision en ocho temas —incluidos el despacho y el vestuario— con las probabilidades impresas en la carta, y la carta nunca miente.",
+      "Cada fichaje se negocia: dos peticiones con el director deportivo, cada una con su probabilidad impresa, y una firma con tu apellido trazandose sobre el contrato.",
+      "Contratos de cuatro terminos que atan al modelo: anos, ficha, promesa de rol y clausula. Ninguno es decorado.",
+      "La ficha se cotiza como un rol, no como una cifra: si cobras de titular y juegas de suplente, la grada te lo cobra cada temporada.",
+      "Mientras el contrato corra, el club no puede echarte y siempre tienes la opcion de seguir; romperlo antes de tiempo lo paga la aficion.",
+      "La baraja se reordena con tu carrera: el peso de cada carta depende de tu edad, tu rol, tu club y si juegas fuera de tu pais.",
+      "Ciclos de desarrollo de dos anos con doble tirada a partir de los 24 si no juegas, avisada por adelantado.",
+      "La temporada se lee como una portada: titulares escritos por reglas sobre lo que de verdad paso, nunca inventados.",
+      "Vitrina honesta: distingue los titulos ganados jugando de los titulos a los que solo asististe.",
+      "Una sombra corre tu misma carrera con criterio sensato y te espera en la comparativa final.",
+      "Carrera determinista por semilla: misma semilla y mismas decisiones, misma carrera.",
+      "Tres ritmos (Intensa, Normal, Expres) que cambian cada cuantas temporadas te toca decidir.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Un jugador",
+    viability: "Alta: motor puro sin canvas ni fisica, estado serializable y una carrera completa simulable en milisegundos.",
+    visualStyle: "Prensa deportiva: panel oscuro para lo que decides y papel de periodico crema para lo que ya paso, con titulares en condensada y tinta roja reservada al filete de cabecera y al marcador de distancia.",
+    techFocus: "Motor de simulacion determinista por semilla con flujos RNG independientes, maquina de fases pura como reductor, generador de titulares por reglas y un rival simulado con el mismo motor.",
+
+    title_en: "Trayectoria",
+    category_en: "Sports",
+    tagline_en: "A football career simulator: from 16 to 40, one decision at a time.",
+    description_en:
+      "A football career simulator where the only football you play is the football that decides something. You fill in the registration card — surname, number, foot, position, nation and pace — sign for one of the three clubs that want you at 16, and from there you make three kinds of decision: which card you answer each cycle, who you sign for each summer, and where you put the shot in the three matches that decide each season. Everything else is resolved by a deterministic model resting on a single number, the distance between your OVR and the level of the squad around you: that distance decides your role, your minutes, your goals, your trophies and whether your country calls you up. Pulling the other way is idolatry, which only grows by staying: the game charges you the cabinet in devotion, and devotion in the cabinet. The season does not come back as a table but as the front page of a sports daily, carrying the headline that year would really have run. And a shadow runs alongside you — a striker born the same year, put through the same model making sensible decisions — so that when you retire you know whether your career was good or merely yours.",
+    objective_en:
+      "Reach 40 and see what is left in the cabinet. There is no winning: there is a career, and the game's thesis is that you can choose well, play well, and retire with nothing.",
+    howToPlay_en:
+      "All mouse or finger, no keyboard. Fill in the card and sign for one of the three clubs in your country. Each cycle a decision card appears with its odds printed on it — and the printed odds are the odds that get rolled — you pick an option, and then you play each season's three big matches: choose one of three placements, see where the gap actually was, and watch the title, the promotion or the survival settle right there. You read each year's front page and move to the summer market, where every offer is drawn on the distance meter: choosing a club is choosing which role band you land in. Before you sign, the development notice tells you which age the next cycle targets and whether you are at risk of the double roll.",
+    highlights_en: [
+      "The three matches that decide each season are played by hand: a continental final, a World Cup final, a promotion play-off, a survival decider, a semi-final or the derby.",
+      "One shot per match across three placements: the gap is drawn before you choose and revealed after, so it is a real bet.",
+      "OVR buys you the read: above a certain level one of the three options is struck out, because the keeper has it covered.",
+      "Scoring or missing changes the career: the title, the promotion or the drop settles there, not in a hidden roll.",
+      "The split is measured: a shot replaces part of a season rather than being added to it, so you decide far more seasons without winning more trophies.",
+      "A real world of 574 clubs across 35 competitions in 211 countries, with crests, league logos and flags.",
+      "One number rules: your OVR minus the squad's level sets role, minutes, goals, trophies and call-ups.",
+      "A distance meter on every offer: you see the role band you would land in before signing, not after.",
+      "Per-club idolatry across five rungs: built by staying and spent by leaving, with the exact cost printed on the offer before you sign.",
+      "Win nothing at a club and your standing hits a ceiling: twenty years in one place can still stop short of the statue.",
+      "46 decision cards across eight themes — the boardroom and the dressing room among them — with the odds printed on the card, and the card never lies.",
+      "Every signing is negotiated: two asks across the table from the sporting director, each with its odds printed, and a signature that writes your surname onto the contract.",
+      "Four-term contracts that bind the model: years, wage, role promise and buy-out. None of them is decoration.",
+      "A wage is quoted as a role, not a figure: sign as a starter and play as a substitute and the crowd charges you for it every season.",
+      "While the deal runs the club cannot push you out and staying is always on the table; tearing it up early is paid to the stand.",
+      "The deck reshuffles itself around your career: each card is weighted by your age, role, club and whether you are playing abroad.",
+      "Two-year development cycles with a double roll from 24 if you are not playing, warned in advance.",
+      "The season reads as a front page: headlines written by rules about what actually happened, never invented.",
+      "An honest cabinet: it separates trophies won on the pitch from trophies you merely attended.",
+      "A shadow runs your career with sensible judgement and waits for you in the closing comparison.",
+      "Seed-deterministic: the same seed and the same decisions give the same career.",
+      "Three paces (Intense, Normal, Express) that change how often you get to decide.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "Single player",
+    viability_en: "High: a pure engine with no canvas or physics, serialisable state, and a full career simulable in milliseconds.",
+    visualStyle_en: "Sports press: a dark panel for what you decide in and cream newsprint for what already happened, with condensed headlines and red ink reserved for the masthead rule and the distance marker.",
+    techFocus_en: "A seed-deterministic simulation engine with independent RNG streams, a pure phase machine as a reducer, a rule-based headline generator, and a rival simulated through the same engine.",
   },
 
   {

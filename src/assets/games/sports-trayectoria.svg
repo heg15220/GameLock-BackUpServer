@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none">
+  <defs>
+    <linearGradient id="tra-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0c10"/><stop offset="1" stop-color="#12151d"/>
+    </linearGradient>
+    <linearGradient id="tra-paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#efeade"/><stop offset="1" stop-color="#ddd6c6"/>
+    </linearGradient>
+    <radialGradient id="tra-glow" cx="0.85" cy="0.06" r="0.7">
+      <stop offset="0" stop-color="rgba(232,17,45,0.22)"/><stop offset="1" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="200" height="140" fill="url(#tra-bg)"/>
+  <rect width="200" height="140" fill="url(#tra-glow)"/>
+
+  <!-- The season report is a front page, so the card is one. -->
+  <g transform="rotate(-3 100 62)">
+    <rect x="26" y="14" width="148" height="88" rx="2" fill="rgba(0,0,0,0.45)" transform="translate(3 5)"/>
+    <rect x="26" y="14" width="148" height="88" rx="2" fill="url(#tra-paper)"/>
+
+    <!-- Masthead and its red rule -->
+    <rect x="34" y="22" width="34" height="5" rx="1" fill="#12130f"/>
+    <rect x="140" y="23" width="26" height="3" rx="1" fill="#8b8676"/>
+    <rect x="34" y="31" width="132" height="2" fill="#e8112d"/>
+
+    <!-- Headline, in the condensed capitals the game screams in -->
+    <rect x="34" y="39" width="118" height="13" rx="1" fill="#12130f"/>
+    <rect x="34" y="55" width="76" height="13" rx="1" fill="#12130f"/>
+
+    <!-- Body column -->
+    <rect x="34" y="74" width="130" height="2.4" rx="1" fill="#7d7a6c"/>
+    <rect x="34" y="80" width="122" height="2.4" rx="1" fill="#7d7a6c"/>
+    <rect x="34" y="86" width="96" height="2.4" rx="1" fill="#7d7a6c"/>
+    <rect x="34" y="92" width="112" height="2.4" rx="1" fill="#7d7a6c"/>
+  </g>
+
+  <!-- The delta meter: your OVR against the level of the squad around you. -->
+  <g>
+    <rect x="26" y="115" width="148" height="7" rx="2" fill="rgba(146,162,190,0.14)"/>
+    <rect x="26" y="115" width="42" height="7" fill="rgba(232,17,45,0.35)"/>
+    <rect x="68" y="115" width="30" height="7" fill="rgba(242,183,5,0.35)"/>
+    <rect x="98" y="115" width="26" height="7" fill="rgba(53,196,106,0.32)"/>
+    <rect x="124" y="115" width="50" height="7" rx="2" fill="rgba(53,196,106,0.62)"/>
+    <rect x="123" y="111" width="2" height="15" fill="#eef1f7" opacity="0.65"/>
+    <rect x="132" y="110" width="26" height="17" rx="2" fill="#e8112d"/>
+    <rect x="137" y="117" width="16" height="3" rx="1.5" fill="#ffffff"/>
+  </g>
+</svg>
