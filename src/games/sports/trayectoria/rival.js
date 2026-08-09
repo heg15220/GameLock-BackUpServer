@@ -120,6 +120,60 @@ export function shadowSeasonAt(shadow, age) {
   return shadow.seasons.find((season) => season.age === age) ?? null;
 }
 
+/**
+ * Where the two of you stand, right now.
+ *
+ * The retirement screen has always ended on a comparison against the shadow, and until
+ * now the player met him twice: in a footnote on the season page, and then in the verdict
+ * on the last screen of his career. Being measured against somebody you were never told
+ * about is not a rivalry, it is a scoreboard produced at the end.
+ *
+ * This is the running version: what he has to today, against what you have, in the three
+ * currencies the ending is actually judged in. Everything is `null` before he has played
+ * a season, so the panel simply is not there in the first summer.
+ */
+export function shadowStanding(shadow, state, throughAge) {
+  if (!shadow) return null;
+  const seasons = shadow.seasons.filter((season) => season.age <= throughAge);
+  if (!seasons.length) return null;
+
+  const theirs = seasons.reduce(
+    (totals, season) => ({
+      goals: totals.goals + season.goals,
+      titles: totals.titles + season.titles.length + (season.national?.titles?.length ?? 0),
+      awards: totals.awards + season.awards.length,
+      ovr: Math.max(totals.ovr, season.ovr),
+    }),
+    { goals: 0, titles: 0, awards: 0, ovr: 0 },
+  );
+
+  const mine = state.history.reduce(
+    (totals, season) => ({
+      goals: totals.goals + season.goals,
+      titles: totals.titles + season.titles.length + (season.national?.titles?.length ?? 0),
+      awards: totals.awards + season.awards.length,
+      ovr: Math.max(totals.ovr, season.ovr),
+    }),
+    { goals: 0, titles: 0, awards: 0, ovr: state.ovr },
+  );
+
+  const last = seasons[seasons.length - 1];
+  return {
+    surname: shadow.surname,
+    clubId: last.clubId,
+    theirs,
+    mine,
+    // Positive means you are ahead. The panel colours off this and nothing else.
+    lead: {
+      goals: mine.goals - theirs.goals,
+      titles: mine.titles - theirs.titles,
+      ovr: mine.ovr - theirs.ovr,
+    },
+    // One word for the whole thing, which is what a player actually wants at a glance.
+    ahead: mine.titles + mine.awards * 2 >= theirs.titles + theirs.awards * 2,
+  };
+}
+
 export function shadowComparison(shadow, playerSummary) {
   if (!shadow) return null;
   const theirs = shadow.summary;

@@ -47,6 +47,102 @@ import {
 export const DRAMA = 0.45;
 export const MATCHES_PER_SEASON = 3;
 
+/**
+ * What your shot is worth to the result - and, crucially, what it is not.
+ *
+ * A decider used to settle its trophy outright in both directions: score and the cup was
+ * yours, miss and it was gone. That reads as decisive and plays as a coin flip deciding a
+ * whole season, and it is not how football works. Eleven other players are on the pitch;
+ * a striker who misses the big chance watches his team win it anyway often enough that
+ * the moment is remembered precisely because it so nearly cost them.
+ *
+ * So the shot now moves the odds hard rather than closing them. Score and the side wins
+ * it four times in five; miss and they still take it about a quarter of the time. It is
+ * the largest single swing in the model by a distance, which is what makes it the moment
+ * of the season without making it the whole of it.
+ *
+ * The split arithmetic absorbs this without any other change: what the decider is worth
+ * against the season's budget is simply the blend of the two, `stakeFor`, and the same
+ * `reach x stake + (1 - reach) x residual = base` invariant holds.
+ */
+export const DECIDES = {
+  scored: 0.82,
+  missed: 0.24,
+  /**
+   * And the third outcome, which football has and the model did not: the ball never came
+   * to him. A final he played and never got a sight of is not a miss - the other ten are
+   * still out there - so it settles near the middle and the night belongs to somebody
+   * else. It is also the only outcome he cannot be blamed for, which is the point.
+   */
+  absent: 0.5,
+};
+
+/**
+ * How many sights of goal a decider gives him.
+ *
+ * A match is not one chance. Some nights three fall to you and some nights the game goes
+ * past you entirely, and a decider that always served up exactly one was the last place
+ * this simulation was still visibly a slot machine.
+ *
+ * The count is drawn at FIXTURE time, from the seed, before anything is played - which is
+ * what lets `stakeFor` price the moment exactly rather than on average. The tilt is the
+ * number the rest of the game runs on: a side that depends on you works the ball to you.
+ */
+export const CHANCE_WEIGHTS = [
+  { chances: 0, weight: 12 },
+  { chances: 1, weight: 46 },
+  { chances: 2, weight: 28 },
+  { chances: 3, weight: 11 },
+  { chances: 4, weight: 3 },
+];
+/**
+ * How hard delta tilts the table, per point, as an exponential tilt on the weights.
+ *
+ * Multiplicative rather than additive so the shape is preserved: subtracting a flat amount
+ * drove the busy end of the table negative for a fringe player and clamped three chances
+ * and four to the same floor, which said a passenger is as likely to get four sights of
+ * goal as three. An exponential tilt cannot reorder anything.
+ */
+export const CHANCE_TILT = 0.1;
+/** The count the tilt pivots around: above it a good player gains, below it he loses. */
+const TILT_PIVOT = 1.3;
+
+export function chancesFor(seed, season, fixtureId, delta = 0) {
+  const reach = Math.max(-10, Math.min(10, delta));
+  const weighted = CHANCE_WEIGHTS.map(({ chances, weight }) => ({
+    chances,
+    // Fewer sights of goal for a passenger, more for the man they play through.
+    weight: weight * Math.exp(reach * CHANCE_TILT * (chances - TILT_PIVOT)),
+  }));
+  const total = weighted.reduce((sum, row) => sum + row.weight, 0);
+  let target = createStream(seed, "chances", fixtureId, season)() * total;
+  for (const row of weighted) {
+    target -= row.weight;
+    if (target <= 0) return row.chances;
+  }
+  return 1;
+}
+
+/** The odds he converts at least one of `n` sights of goal. */
+export const convertsOneOf = (rate, n) => (n <= 0 ? 0 : 1 - (1 - rate) ** n);
+
+/**
+ * What a decider is worth against the budget, given how many chances it will actually
+ * give him. `n === 0` is the absent case and does not touch the scored/missed axis at all.
+ */
+export function stakeFor(rate, n = 1) {
+  if (n <= 0) return DECIDES.absent;
+  const converts = convertsOneOf(rate, n);
+  return converts * DECIDES.scored + (1 - converts) * DECIDES.missed;
+}
+
+/** The same, for an outcome the shot PREVENTS: survival is the drop not happening. */
+export function dropStakeFor(rate, n = 1) {
+  if (n <= 0) return 1 - DECIDES.absent;
+  const converts = convertsOneOf(rate, n);
+  return converts * (1 - DECIDES.scored) + (1 - converts) * (1 - DECIDES.missed);
+}
+
 /** The read: OVR buys you a hint that removes one wrong option. */
 export const HINT_FROM_OVR = (ovr) => Math.max(0, Math.min(0.6, (ovr - 62) * 0.02));
 /** The bailout: at the top you sometimes score having guessed wrong. */
@@ -64,6 +160,61 @@ export function shotScoringRate(ovr) {
   const hint = HINT_FROM_OVR(ovr);
   const gap = hint * (1 / 2) + (1 - hint) * (1 / 3);
   return gap + (1 - gap) * NAILED_FROM_OVR(ovr);
+}
+
+/**
+ * How many shots the model's own estimate is worth, before what actually happened starts
+ * to outweigh it.
+ *
+ * A career takes at most ~70 of these and has taken none at all in its first summer, so
+ * an empirical rate on its own would be noise: one lucky penalty at seventeen would tell
+ * the season planner this player converts everything. Twelve is roughly a third of a
+ * career's worth of shots - enough that the prior still runs the early years, little
+ * enough that by thirty the record has taken over.
+ */
+export const CONVERSION_PRIOR = 12;
+
+/**
+ * What this player converts a decisive chance at - the number the whole season split is
+ * built on, and the one thing in the model that has to be true rather than assumed.
+ *
+ * `shotScoringRate` is an a priori estimate, and it is only correct while the player has
+ * no information the model has not given him: it assumes he guesses blind among the
+ * placements he is offered. The moment the moment becomes something he can be GOOD at -
+ * a minigame, a read he learns, anything with skill in it - that assumption breaks, and
+ * it breaks in the one direction that matters. `splitSeason` hands the decider a slice of
+ * the season's budget priced at this rate; convert above it and the player collects more
+ * silverware than the model believes it is handing out, every season, for a whole career.
+ *
+ * So the rate is measured instead of assumed. A Beta-Binomial posterior over what he has
+ * actually done, shrunk towards the model's estimate by `CONVERSION_PRIOR` pseudo-shots:
+ *
+ *     rate = (k·p0 + scored) / (k + taken)
+ *
+ * Two properties are what make this the right tool. It starts at exactly the old value,
+ * so nothing changes for a career that has not taken a shot yet; and it can never run
+ * away, because every observation moves it by at most 1/(k + n). The budget identity is
+ * untouched - `splitSeason` simply gets told the truth about what it is buying.
+ */
+export function conversionRate(ovr, record = null) {
+  const prior = shotScoringRate(ovr);
+  const taken = record?.taken ?? 0;
+  if (taken <= 0) return prior;
+  const scored = Math.max(0, Math.min(taken, record.scored ?? 0));
+  return Math.max(0, Math.min(1, (CONVERSION_PRIOR * prior + scored) / (CONVERSION_PRIOR + taken)));
+}
+
+/** The record itself, for the panel that prints it. */
+export function conversionRecord(record = null, ovr = 0) {
+  const taken = record?.taken ?? 0;
+  const scored = record?.scored ?? 0;
+  return {
+    taken,
+    scored,
+    observed: taken ? scored / taken : null,
+    expected: shotScoringRate(ovr),
+    rate: conversionRate(ovr, record),
+  };
 }
 
 /**
@@ -191,11 +342,13 @@ export function seasonFixtures({
   calledUp = false,
   rivals = [],
   titleMultipliers = {},
+  conversion = null,
 }) {
   const modifiers = { titleMultipliers: {}, nationalMultipliers: {} };
   if (!club) return { fixtures: [], modifiers };
 
-  const rate = shotScoringRate(ovr);
+  // What he actually converts, not what the model guessed he would. See `conversionRate`.
+  const rate = conversionRate(ovr, conversion);
   // The budget being split has to be the odds the engine will actually roll: the delta
   // multiplier, and whatever the decision card already did to this season. Split the raw
   // odds instead and a player above the level of his squad quietly loses the part of the
@@ -227,50 +380,105 @@ export function seasonFixtures({
 
   /**
    * One decider: roll whether the season comes down to it, and scale the roll it did not
-   * replace. `stake` is what the player's shot is worth against the budget - the odds of
-   * scoring, except for survival, where what he is buying is the miss not happening.
+   * replace.
+   *
+   * `stake` is what the shot is worth against the budget - the blend of the two outcomes,
+   * not the odds of scoring. `settle` is what the two outcomes leave the trophy on, as a
+   * multiplier on its own base so the engine can keep rolling it the way it rolls
+   * everything else. Both are scaled against `settleBase`, which is the budget except for
+   * the World Cup, where qualifying and winning are two separate rolls.
    */
-  const contest = (decides, kind, base, stake, key, extra = {}) => {
+  const contest = (decides, kind, base, stake, key, extra = {}, outcomes = DECIDES, settleBase = base) => {
     const scale = (value) => (base > 0 ? value / base : 1);
+    const scaleSettle = (value) => (settleBase > 0 ? value / settleBase : 1);
     const split = splitSeason(base, [stake]);
     if (chance(createStream(seed, "fixture", key, season), split.reach[0])) {
-      push(kind, { ...extra, offstage: { decides, value: scale(stake) } });
+      push(kind, {
+        ...extra,
+        offstage: { decides, value: scale(stake) },
+        settle: {
+          scored: scaleSettle(outcomes.scored),
+          missed: scaleSettle(outcomes.missed),
+          absent: scaleSettle(outcomes.absent),
+        },
+      });
       return true;
     }
     assign(decides, scale(split.residual));
     return false;
   };
 
+  /**
+   * How many sights of goal each decider gives him, and therefore exactly what it is
+   * worth. Drawn per fixture rather than per season: a career can have a final he barely
+   * touched and a play-off he had three cracks at, in the same May.
+   */
+  const chancesAt = (key) => chancesFor(seed, season, key, delta);
+  const stakeAt = (key) => stakeFor(rate, chancesAt(key));
+
   // ── Club trophies ───────────────────────────────────────────────────────────
   // The continental has two stages: the final, and failing that a semi whose winner has
   // the final played for him. Everything else is a single decider.
   const continentalBase = clubOdds("continental_a", "continental");
-  const continental = splitSeason(continentalBase, [rate, rate * rate]);
+  const finalChances = chancesAt("continental");
+  const finalStake = stakeFor(rate, finalChances);
+  const semiChances = chancesAt("semi");
+  // A semi is worth the final it leads to: win it and the final is played at the ordinary
+  // stake, lose it and the run is over - that one really is settled on the night.
+  const semiStake = stakeFor(rate, semiChances) * finalStake;
+  const continental = splitSeason(continentalBase, [finalStake, semiStake]);
   const scaleContinental = (value) => (continentalBase > 0 ? value / continentalBase : 1);
   if (chance(createStream(seed, "fixture", "continental", season), continental.reach[0])) {
-    push("final_continental", { offstage: { decides: "continental_a", value: scaleContinental(rate) } });
+    push("final_continental", {
+      chances: finalChances,
+      offstage: { decides: "continental_a", value: scaleContinental(finalStake) },
+      settle: {
+        scored: scaleContinental(DECIDES.scored),
+        missed: scaleContinental(DECIDES.missed),
+        absent: scaleContinental(DECIDES.absent),
+      },
+    });
   } else if (chance(createStream(seed, "fixture", "semi", season), continental.reach[1])) {
     push("semifinal_continental", {
-      offstage: { decides: "continental_a", value: scaleContinental(rate * rate) },
-      multipliers: {
-        scored: { continental_a: scaleContinental(rate) },
-        missed: { continental_a: 0 },
+      chances: semiChances,
+      offstage: { decides: "continental_a", value: scaleContinental(semiStake) },
+      // Reaching the final is itself the blend, so even a missed semi leaves a way through.
+      settle: {
+        scored: scaleContinental(DECIDES.scored * finalStake),
+        missed: scaleContinental(DECIDES.missed * finalStake),
+        absent: scaleContinental(DECIDES.absent * finalStake),
       },
     });
   } else {
     assign("continental_a", scaleContinental(continental.residual));
   }
 
-  contest("cup", "final_copa", clubOdds("cup", "domestic"), rate, "cup");
-  contest("league", "titulo_liga", clubOdds("league", "domestic"), rate, "league");
+  contest("cup", "final_copa", clubOdds("cup", "domestic"), stakeAt("cup"), "cup", {
+    chances: chancesAt("cup"),
+  });
+  contest("league", "titulo_liga", clubOdds("league", "domestic"), stakeAt("league"), "league", {
+    chances: chancesAt("league"),
+  });
 
   // ── The two ends of the table, the only places a season is ever really decided ──
   if (competition?.tier === 2) {
-    contest("promotion", "ascenso", tableLookup(PROMOTION_ODDS, ovr).odds, rate, "promo");
+    contest("promotion", "ascenso", tableLookup(PROMOTION_ODDS, ovr).odds, stakeAt("promo"), "promo", {
+      chances: chancesAt("promo"),
+    });
   } else if (effectiveReputation("domestic") === 0) {
     // Going down is what the shot prevents, so the budget being split is the drop itself
-    // and the decider only pays it back when the shot is missed.
-    contest("survival", "salvacion", relegationOdds(ovr), 1 - rate, "drop");
+    // and both outcomes are read the other way up: score and you probably stay, miss and
+    // you probably do not - but neither is certain, which is the whole point.
+    const dropChances = chancesAt("drop");
+    contest(
+      "survival",
+      "salvacion",
+      relegationOdds(ovr),
+      dropStakeFor(rate, dropChances),
+      "drop",
+      { chances: dropChances },
+      { scored: 1 - DECIDES.scored, missed: 1 - DECIDES.missed, absent: 1 - DECIDES.absent },
+    );
   }
 
   // ── National team finals, on their real cycles ───────────────────────────────
@@ -278,20 +486,38 @@ export function seasonFixtures({
     if (WORLD_CUP_CYCLE(age)) {
       const reputation = country.fifa_reputation ?? 0;
       // The model qualifies you first and only then plays the final, so the budget being
-      // split is the product of the two.
-      const base = (WORLD_CUP_QUALIFY[reputation] ?? 0) * (WORLD_CUP_WIN[reputation] ?? 0);
-      contest("world_cup", "final_mundial", base, rate, "wc");
+      // split is the product of the two - but the settle only touches the final, because
+      // standing in one means you already qualified. `nationalReached` says so.
+      const win = WORLD_CUP_WIN[reputation] ?? 0;
+      const base = (WORLD_CUP_QUALIFY[reputation] ?? 0) * win;
+      contest(
+        "world_cup",
+        "final_mundial",
+        base,
+        stakeAt("wc"),
+        "wc",
+        { reached: "world_cup", chances: chancesAt("wc") },
+        DECIDES,
+        win,
+      );
     }
     if (CONTINENTAL_CYCLE(age)) {
       const base = CONTINENTAL_WIN[country.continental_reputation ?? 0] ?? 0;
-      contest("continental_nt", "final_continental_nt", base, rate, "ct");
+      contest("continental_nt", "final_continental_nt", base, stakeAt("ct"), "ct", {
+        chances: chancesAt("ct"),
+      });
     }
   }
 
   // The derby always exists. It decides nothing and everyone remembers it.
   if (rivals.length) {
     const derby = createStream(seed, "fixture", "derby", season);
-    push("clasico", { opponentId: rivals[Math.floor(derby() * rivals.length)] });
+    push("clasico", {
+      opponentId: rivals[Math.floor(derby() * rivals.length)],
+      // A derby you never got a kick in is the most derby thing there is, so it draws its
+      // chances like everything else.
+      chances: chancesAt("derby"),
+    });
   }
 
   const ordered = candidates.sort(
@@ -308,6 +534,7 @@ export function seasonFixtures({
   const fixtures = ordered.slice(0, MATCHES_PER_SEASON).map((fixture, index) => ({
     ...fixture,
     id: `${season}-${fixture.kind}`,
+    chances: fixture.chances ?? 1,
     index,
     decides: FIXTURE_KINDS[fixture.kind].decides,
     national: Boolean(FIXTURE_KINDS[fixture.kind].national),
@@ -369,47 +596,51 @@ export function matchEffects(results = []) {
   const effects = {
     bonusGoals: 0,
     derbyGoals: 0,
-    guaranteedTitles: [],
-    deniedTitles: [],
-    guaranteedNationalTitles: [],
-    deniedNationalTitles: [],
+    // Which trophies came down to a match the player stood in. They are still rolled -
+    // see DECIDES - but the cabinet remembers that this one was settled on the night.
+    decidedTrophies: [],
     titleMultipliers: {},
-    forcePromotion: null,
-    forceRelegation: null,
+    nationalMultipliers: {},
+    nationalReached: [],
   };
 
   for (const result of results) {
-    if (result.scored) effects.bonusGoals += 1;
+    // Every chance he put away is a goal, and a decider can be worth several.
+    effects.bonusGoals += result.converted ?? (result.scored ? 1 : 0);
+    // Whatever the outcome, the shot leaves the trophy on the odds the draw worked out
+    // for it. Nothing here decides anything outright any more - and a night the ball
+    // never came to him is its own outcome, neither his fault nor his doing.
+    const outcome = result.absent ? "absent" : result.scored ? "scored" : "missed";
+    const settle = result.settle?.[outcome];
 
     switch (result.decides) {
       case "league":
       case "cup":
       case "continental_a":
-        if (result.scored) effects.guaranteedTitles.push(result.decides);
-        else effects.deniedTitles.push(result.decides);
+      case "semifinal":
+        if (settle != null) {
+          const trophy = result.decides === "semifinal" ? "continental_a" : result.decides;
+          effects.titleMultipliers[trophy] = settle;
+          effects.decidedTrophies.push(trophy);
+        }
         break;
       case "world_cup":
       case "continental_nt":
-        if (result.scored) effects.guaranteedNationalTitles.push(result.decides);
-        else effects.deniedNationalTitles.push(result.decides);
-        break;
-      case "semifinal":
-        // A semi does not hand you the cup, it puts you in the final - which the model
-        // then plays, at the rate this player's shots go in. Both multipliers were worked
-        // out against the real odds when the fixture was drawn.
-        Object.assign(
-          effects.titleMultipliers,
-          (result.scored ? result.multipliers?.scored : result.multipliers?.missed) ?? {},
-        );
+        if (settle != null) {
+          effects.nationalMultipliers[result.decides] = settle;
+          effects.decidedTrophies.push(result.decides);
+        }
+        // Standing in the final means the qualifying already happened.
+        if (result.reached) effects.nationalReached.push(result.reached);
         break;
       case "promotion":
-        effects.forcePromotion = result.scored;
+        if (settle != null) effects.promotionMultiplier = settle;
         break;
       case "survival":
-        effects.forceRelegation = !result.scored;
+        if (settle != null) effects.relegationMultiplier = settle;
         break;
       case "derby":
-        if (result.scored) effects.derbyGoals += 1;
+        effects.derbyGoals += result.converted ?? (result.scored ? 1 : 0);
         break;
       default:
         break;

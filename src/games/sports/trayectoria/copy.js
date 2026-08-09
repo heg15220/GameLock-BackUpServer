@@ -90,7 +90,7 @@ export const IDOLATRY_LABELS = {
 export const FIXTURE_LABELS = {
   es: {
     final_mundial: "Final del Mundial",
-    final_continental_nt: "Final continental de selecciones",
+    final_continental_nt: "Final continental",
     final_continental: "Final continental",
     ascenso: "Play-off de ascenso",
     salvacion: "Final por la permanencia",
@@ -101,7 +101,7 @@ export const FIXTURE_LABELS = {
   },
   en: {
     final_mundial: "World Cup final",
-    final_continental_nt: "Continental final (national team)",
+    final_continental_nt: "Continental final",
     final_continental: "Continental final",
     ascenso: "Promotion play-off",
     salvacion: "Survival decider",
@@ -109,6 +109,30 @@ export const FIXTURE_LABELS = {
     final_copa: "Cup final",
     semifinal_continental: "Continental semi-final",
     clasico: "The derby",
+  },
+};
+
+/**
+ * The national-team tournament a confederation actually plays, so a final is named after
+ * the cup being lifted rather than after the category it belongs to. "Final continental"
+ * is a taxonomy; "Final de la Eurocopa" is a match.
+ */
+export const NT_TOURNAMENT = {
+  es: {
+    UEFA: "la Eurocopa",
+    CONMEBOL: "la Copa América",
+    CONCACAF: "la Copa Oro",
+    AFC: "la Copa de Asia",
+    CAF: "la Copa África",
+    OFC: "la Copa de Naciones OFC",
+  },
+  en: {
+    UEFA: "Euro",
+    CONMEBOL: "Copa América",
+    CONCACAF: "Gold Cup",
+    AFC: "Asian Cup",
+    CAF: "Africa Cup of Nations",
+    OFC: "OFC Nations Cup",
   },
 };
 
@@ -175,7 +199,9 @@ export const REASON_LABELS = {
   es: {
     young: "Eres joven: te atan largo",
     veteran: "A tu edad nadie firma largo",
-    bigClub: "Club grande: ata a los suyos",
+    firstDeal: "Primer contrato: una temporada y a demostrar",
+    contender: "Pelea por títulos: firma a largo",
+    yearToYear: "Aquí se va año a año",
     needed: "Te necesitan: te firman para jugar",
     squadFiller: "Vas de recambio: se cubren",
     secondTier: "Segunda división",
@@ -188,7 +214,9 @@ export const REASON_LABELS = {
   en: {
     young: "You are young: they tie you down",
     veteran: "Nobody signs long at your age",
-    bigClub: "A big club, and big clubs tie people up",
+    firstDeal: "A first deal: one season, then prove it",
+    contender: "Fighting for titles: they sign long",
+    yearToYear: "Here it is year to year",
     needed: "They need you: signed to play",
     squadFiller: "Squad cover: they hedge",
     secondTier: "Second division",
@@ -337,6 +365,114 @@ const COPY = {
     match: {
       eyebrow: "El partido",
       counter: "Ocasión {n} de {total}",
+      /* Los dos modos. Ver matchmode.js: cuál te toca depende de cuánto depende de ti. */
+      modeSkill: "Tu momento",
+      modeWatch: "En directo",
+      chancePrompt: {
+        sweep: "Para el marcador dentro del hueco",
+        window: "Espera. Golpea antes de que se cierre",
+        bend: "Primero la potencia, luego la rosca",
+      },
+      chanceGate: "Toque {n} de {total}",
+      chanceHint: "Pulsa en cualquier sitio para golpear",
+      skip: "Adelantar",
+      waiting: "El partido sigue…",
+      ofChances: "Ocasión {n} de {total}",
+      opponent: "El rival",
+      /* Varias formas de contar cada cosa. narration.js trae un `variant` sacado de la
+         semilla, así que el mismo partido se narra igual dos veces y dos partidos
+         parecidos no. Ninguna línea inventa un hecho: ver la cabecera de narration.js. */
+      beats: {
+        kickoff: [
+          "Rueda el balón.",
+          "Empieza el partido.",
+          "Pitido inicial. Se juega.",
+          "Ya está en marcha.",
+          "Arranca, y el campo no cabe en sí.",
+        ],
+        goalUs: [
+          "¡Gol del {us}!",
+          "¡La mete el {us}! Se viene abajo el estadio.",
+          "Marca el {us}. Golpe encima de la mesa.",
+          "¡Dentro! El {us} se pone por delante.",
+          "Cae la del {us}. Justo cuando hacía falta.",
+        ],
+        goalThem: [
+          "Marca el {them}.",
+          "Gol del {them}. Silencio.",
+          "La mete el {them} y hay que remar.",
+          "El {them} encuentra el hueco. Mal asunto.",
+          "El {them} sabe perfectamente lo que hace.",
+        ],
+        tight: [
+          "No se abre. Se juega en el barro del centro del campo.",
+          "Ni una. Dos equipos con más miedo a perder que ganas de ganar.",
+          "Partido cerrado, de los que se deciden en una.",
+          "Todo el mundo detrás del balón. No hay espacios.",
+          "Se está jugando a no perderlo.",
+        ],
+        halfTime: [
+          "Descanso.",
+          "Al vestuario.",
+          "Se acaba la primera parte.",
+          "Queda una segunda parte entera.",
+        ],
+        pressing: [
+          "El {us} echa el equipo arriba.",
+          "El {us} adelanta líneas y el partido se estira.",
+          "Ahora sí: el {us} vive en campo contrario.",
+          "El {us} aprieta y el {them} se mete atrás.",
+          "Se juega en un pañuelo delante del área del {them}.",
+        ],
+        chasing: [
+          "El {us} necesita el partido y se va a por él.",
+          "El {us} se lanza sin red. Lo que salga.",
+          "No queda otra: el {us} vuelca el campo.",
+          "El {us} se juega la temporada en veinte minutos.",
+          "Todo el {us} arriba. Atrás no queda nadie.",
+        ],
+        chance: [
+          "Y te cae a ti.",
+          "El balón te busca a ti.",
+          "Te la dejan. Es tuya.",
+          "Se abre, y estás tú.",
+          "La jugada acaba en tus pies.",
+          "Te queda franca. Ahora.",
+        ],
+        scored: [
+          "¡Dentro! La metes tú.",
+          "¡Gol tuyo! No hay portero para eso.",
+          "La clavas. Estadio en pie.",
+          "¡Dentro! Y sabías que iba a entrar.",
+          "La mandas al fondo. Se acabó la duda.",
+        ],
+        missed: [
+          "No entra. Se queda a nada.",
+          "La saca el portero. Increíble.",
+          "Fuera. Te llevas las manos a la cabeza.",
+          "Al palo. El estadio se levanta y se vuelve a sentar.",
+          "No la coges bien. Se marcha alta.",
+        ],
+        untouched: [
+          "Y el partido pasa de largo. No te llega ni una.",
+          "Noventa minutos y ni un balón franco.",
+          "El fútbol te esquiva. Hoy deciden otros.",
+          "Ni la hueles. Hay noches así.",
+        ],
+        bystander: [
+          "El partido se juega lejos de ti.",
+          "Te mueves, pides, y el balón no aparece.",
+          "Corres mucho y tocas poco.",
+        ],
+        fullTime: [
+          "Final del partido.",
+          "Pitido final.",
+          "Se acabó.",
+          "Y hasta aquí.",
+        ],
+      },
+      ntFinal: "Final de {cup}",
+      record: "En partidos decisivos: {scored} de {taken} · el modelo te da un {rate}%",
       versus: "Contra",
       lede: "Todo lo demás lo juega el modelo. Esto lo juegas tú.",
       choose: "Elige dónde la pones",
@@ -380,7 +516,6 @@ const COPY = {
       titles: "Títulos",
       awards: "Premios",
       development: "Desarrollo",
-      developmentRange: "Rango del ciclo",
       doubled: "Doble tirada: se queda la peor por no jugar",
       attended: "asistido",
       earned: "ganado",
@@ -392,6 +527,9 @@ const COPY = {
 
       ficha: "La ficha",
       honours: "Palmarés del año",
+      /* La noche, antes de la crónica de la mañana siguiente. Ver trophies.jsx. */
+      ceremony: "Lo levantaste",
+      ceremonySkip: "Pulsa para continuar",
       perMatch: "Goles por partido",
       nationalTeam: "Selección",
       nationalCaps: "{caps} partidos internacionales",
@@ -400,9 +538,30 @@ const COPY = {
       careerToDate: "La carrera hasta aquí",
       newClub: "Debut en el club",
       vsLast: "respecto al año anterior",
-      developmentApplied: "Aplicado este año: {applied} OVR",
       idolatry: "Idolatría",
       idolatryAt: "Idolatría en el {club}",
+
+      /* El año que tuvo dentro del año que tuvo el club. Ver fortune.js. */
+      form: "Estado de forma",
+      formBand: {
+        inspirado: "Inspirado todo el año",
+        fino: "Fino",
+        normal: "Su temporada de siempre",
+        espeso: "Espeso",
+        gris: "Nunca arrancó",
+      },
+      /* Por qué el ciclo de desarrollo cundió lo que cundió. */
+      developmentShare: "{range} este año · ritmo {percent}%",
+      growthDriver: {
+        minutesLow: "Le faltan partidos.",
+        minutesHigh: "Juega todo lo que hay que jugar.",
+        challengeLow: "Nadie le exige: es demasiado bueno para este vestuario.",
+        challengeHigh: "Le queda grande justo lo suficiente.",
+        environmentLow: "El club no da para más.",
+        environmentHigh: "Le entrenan bien.",
+      },
+      demoted: "Jugó en segunda",
+      promotedTo: "Sube a primera",
     },
 
     market: {
@@ -412,14 +571,34 @@ const COPY = {
       sign: "Firmar",
       current: "Tu club",
       wantsOut: "El club no cuenta contigo. No hay opción de seguir.",
-      outlookHeading: "Antes de elegir",
-      outlookBody: "El próximo ciclo de desarrollo apunta a los {age} años, con un rango de {range} OVR.",
+      locked:
+        "Tienes contrato en vigor: te quedan {years} temporadas. Este verano no puedes firmar por nadie — solo saldrías si un club paga tu cláusula.",
+      /* La franja de arriba: qué viene, cuándo, y cuánto de ello estás recogiendo.
+         Antes eran tres frases seguidas antes de llegar a la única decisión de la
+         pantalla; ahora es una fila de celdas con el mismo idioma que el encabezado. */
+      outlookHeading: "Próximo salto",
+      outlookAge: "{age} años",
+      outlookCycle: "Rango del ciclo",
+      outlookRate: "A tu ritmo",
+      outlookRiskShort: "Riesgo: doble tirada",
       outlookRisk:
         "Aviso: si terminas el ciclo en rotación baja o en el banquillo, se tira dos veces y se queda la peor.",
-      exitCost: "Dejas el {club}",
+      /* Los dos veredictos de la carta, en el mismo sitio en todas. Una palabra cada
+         uno: la carta se compara de un vistazo o no se compara. */
+      growth: "Creces",
+      growthBand: { thriving: "MEJORAS", neutral: "IGUAL", stalled: "TE FRENA" },
+      /* Alguien ha pagado la cláusula. Ver OUR CALL #8 en contract.js. */
+      clauseHeading: "Han pagado tu cláusula",
+      clauseBody: "El {club} ha depositado los {fee}. El contrato queda saldado: si te vas, te vas limpio, sin la penalización por romperlo.",
+      clauseAccept: "Escuchar al {club}",
+      clauseRefuse: "No me muevo de aquí",
+      clauseRefused: "Dijiste que no. La grada del {club} lo ha oído.",
+      clauseFree: "Sin penalización por ruptura",
+      exitCost: "Dejar el {club}",
+      exitFree: "GRATIS",
       exitDemotes: "{from} → {to}",
+      exitBetrayalShort: "Rival de liga",
       exitBetrayal: "Es tu rival de liga. La grada no lo olvida.",
-      loyaltyHint: "Quedarte no da minutos, da afición. Es la otra moneda.",
       nationality: "Cambio de selección",
       nationalityLede: "Un pasaporte nuevo reescribe tu umbral de convocatoria. Solo se ofrece una vez.",
       keepNationality: "Seguir con la tuya",
@@ -465,11 +644,24 @@ const COPY = {
       cancel: "Volver",
     },
 
+    /* La barra de estado del encabezado: las cuatro cifras sobre las que gira el juego,
+       visibles en todas las pantallas. Etiquetas cortas a propósito — se leen de reojo. */
+    hud: {
+      delta: "Distancia",
+      deal: "Contrato",
+      years: "años",
+      free: "libre",
+      crowd: "Afición",
+      secondTier: "2ª",
+    },
+
     context: {
       heading: "Dónde estás",
       deal: "Tu contrato",
       crowd: "La grada",
       cabinet: "La vitrina",
+      cabinetEmpty: "Aún vacía.",
+      rival: "La sombra",
       freeAgent: "Sin contrato en vigor: este verano sales gratis.",
       noClub: "Sin club",
       titles: "títulos",
@@ -598,6 +790,114 @@ const COPY = {
     match: {
       eyebrow: "The match",
       counter: "Chance {n} of {total}",
+      /* The two modes. See matchmode.js: which one you get is how much they need you. */
+      modeSkill: "Your moment",
+      modeWatch: "Live",
+      chancePrompt: {
+        sweep: "Stop the marker inside the gap",
+        window: "Wait. Hit it before it closes",
+        bend: "Power first, then the curl",
+      },
+      chanceGate: "Touch {n} of {total}",
+      chanceHint: "Press anywhere to strike",
+      skip: "Skip ahead",
+      waiting: "The match is still going…",
+      ofChances: "Chance {n} of {total}",
+      opponent: "The opposition",
+      /* Several ways of saying each thing. narration.js carries a seed-drawn `variant`,
+         so one match reads the same way twice and two similar matches do not. No line
+         invents a fact - see the header of narration.js. */
+      beats: {
+        kickoff: [
+          "We are under way.",
+          "The whistle goes.",
+          "Kick-off.",
+          "And they are off.",
+          "It starts, and the ground is up already.",
+        ],
+        goalUs: [
+          "{us} score!",
+          "{us} find it! The place comes apart.",
+          "{us} strike first. A statement.",
+          "In! {us} are in front.",
+          "{us} get one, and at the right time.",
+        ],
+        goalThem: [
+          "{them} score.",
+          "{them} get one. Silence.",
+          "{them} find the gap and now there is work to do.",
+          "A goal for {them}. This is a problem.",
+          "{them} know exactly what they are doing.",
+        ],
+        tight: [
+          "Nothing in it. The game is being fought in midfield.",
+          "Not a chance between them. Two sides afraid of losing.",
+          "A tight one, the kind decided by a single moment.",
+          "Everybody behind the ball. No room anywhere.",
+          "This is being played not to lose.",
+        ],
+        halfTime: [
+          "Half time.",
+          "In they go.",
+          "The first half is done.",
+          "A whole second half still to come.",
+        ],
+        pressing: [
+          "{us} push the whole side forward.",
+          "{us} step up and the game stretches.",
+          "{us} are living in the other half now.",
+          "{us} press and {them} drop deeper.",
+          "It is all happening on the edge of the {them} box.",
+        ],
+        chasing: [
+          "{us} need this one and they go after it.",
+          "{us} throw everything at it.",
+          "No choice left: {us} tip the pitch.",
+          "{us} have twenty minutes to save a season.",
+          "Everyone forward. Nobody left at the back.",
+        ],
+        chance: [
+          "And it falls to you.",
+          "The ball finds you.",
+          "They lay it off. It is yours.",
+          "It opens up, and there you are.",
+          "The move ends at your feet.",
+          "It sits up for you. Now.",
+        ],
+        scored: [
+          "In! You take it.",
+          "You score! No keeper stops that.",
+          "You bury it. The ground is on its feet.",
+          "In - and you knew it was going in.",
+          "Into the back of it. No argument.",
+        ],
+        missed: [
+          "Not this time. Inches away.",
+          "The keeper gets to it. Somehow.",
+          "Wide. Your hands go to your head.",
+          "Off the post. The ground stands up and sits back down.",
+          "You do not catch it properly. Over the bar.",
+        ],
+        untouched: [
+          "And the game goes past you. Not one sight of it.",
+          "Ninety minutes and never a clean look.",
+          "The football avoids you. Tonight belongs to somebody else.",
+          "Nothing. Some nights are like that.",
+        ],
+        bystander: [
+          "It is all happening a long way from you.",
+          "You move, you call for it, and it never comes.",
+          "Plenty of running, hardly a touch.",
+        ],
+        fullTime: [
+          "Full time.",
+          "The final whistle.",
+          "That is that.",
+          "And there it ends.",
+        ],
+      },
+      ntFinal: "{cup} final",
+      record: "In deciders: {scored} of {taken} · the model rates you at {rate}%",
       versus: "Against",
       lede: "The model plays everything else. This one you play.",
       choose: "Choose where you put it",
@@ -638,7 +938,6 @@ const COPY = {
       titles: "Trophies",
       awards: "Awards",
       development: "Development",
-      developmentRange: "Cycle range",
       doubled: "Double roll: the worse one stands, for not playing",
       attended: "attended",
       earned: "earned",
@@ -650,6 +949,9 @@ const COPY = {
 
       ficha: "The card",
       honours: "Won this year",
+      /* The night itself, before the morning's write-up. See trophies.jsx. */
+      ceremony: "You lifted it",
+      ceremonySkip: "Press to continue",
       perMatch: "Goals per match",
       nationalTeam: "National team",
       nationalCaps: "{caps} international matches",
@@ -658,9 +960,30 @@ const COPY = {
       careerToDate: "The career so far",
       newClub: "First season at the club",
       vsLast: "on last season",
-      developmentApplied: "Applied this year: {applied} OVR",
       idolatry: "Idolatry",
       idolatryAt: "Idolatry at {club}",
+
+      /* The year he had inside the year the club had. See fortune.js. */
+      form: "Form",
+      formBand: {
+        inspirado: "On it all year",
+        fino: "Sharp",
+        normal: "His usual season",
+        espeso: "Heavy-legged",
+        gris: "Never got going",
+      },
+      /* Why the development cycle paid out what it paid out. */
+      developmentShare: "{range} this year · rate {percent}%",
+      growthDriver: {
+        minutesLow: "He needs matches.",
+        minutesHigh: "He plays everything there is to play.",
+        challengeLow: "Nobody asks anything of him: he is too good for this dressing room.",
+        challengeHigh: "It is just far enough over his head.",
+        environmentLow: "The club cannot give him more.",
+        environmentHigh: "They coach him well.",
+      },
+      demoted: "Played in the second tier",
+      promotedTo: "Up to the top flight",
     },
 
     market: {
@@ -670,14 +993,34 @@ const COPY = {
       sign: "Sign",
       current: "Your club",
       wantsOut: "The club is done with you. There is no option to stay.",
-      outlookHeading: "Before you choose",
-      outlookBody: "The next development cycle targets {age}, with a range of {range} OVR.",
+      locked:
+        "Your deal is still running: {years} seasons left. You cannot sign for anybody this summer — the only way out is a club meeting your buy-out.",
+      /* The strip up top: what is coming, when, and how much of it he is collecting.
+         It used to be three sentences standing between the player and the only decision
+         on the screen; it is now a row of cells in the header's own language. */
+      outlookHeading: "Next jump",
+      outlookAge: "age {age}",
+      outlookCycle: "Cycle range",
+      outlookRate: "At your rate",
+      outlookRiskShort: "Risk: double roll",
       outlookRisk:
         "Warning: finish the cycle on the fringe or on the bench and it rolls twice, keeping the worse.",
-      exitCost: "You leave {club}",
+      /* The card's two verdicts, in the same place on every card. One word each: either
+         a card can be compared at a glance or it cannot be compared at all. */
+      growth: "You grow",
+      growthBand: { thriving: "IMPROVE", neutral: "FLAT", stalled: "STALL" },
+      exitFree: "FREE",
+      exitBetrayalShort: "League rival",
+      /* Somebody met the buy-out. See OUR CALL #8 in contract.js. */
+      clauseHeading: "Your buy-out has been paid",
+      clauseBody: "{club} have deposited the {fee}. The contract is settled: if you go, you go clean, with no penalty for breaking it.",
+      clauseAccept: "Hear {club} out",
+      clauseRefuse: "I am not going anywhere",
+      clauseRefused: "You said no, and the {club} stand heard it.",
+      clauseFree: "No breach penalty",
+      exitCost: "Leaving {club}",
       exitDemotes: "{from} → {to}",
       exitBetrayal: "A league rival. The stand does not forget that one.",
-      loyaltyHint: "Staying buys you no minutes. It buys you a crowd.",
       nationality: "Switch nation",
       nationalityLede: "A new passport rewrites your call-up threshold. It is offered once.",
       keepNationality: "Keep your own",
@@ -723,11 +1066,24 @@ const COPY = {
       cancel: "Back",
     },
 
+    /* The header status rail: the four numbers the game turns on, on every screen.
+       Labels are short on purpose — they are read out of the corner of the eye. */
+    hud: {
+      delta: "Distance",
+      deal: "Contract",
+      years: "years",
+      free: "free",
+      crowd: "Crowd",
+      secondTier: "2nd",
+    },
+
     context: {
       heading: "Where you stand",
       deal: "Your contract",
       crowd: "The stand",
       cabinet: "The cabinet",
+      cabinetEmpty: "Still empty.",
+      rival: "The shadow",
       freeAgent: "No contract running: you leave for nothing this summer.",
       noClub: "No club",
       titles: "trophies",

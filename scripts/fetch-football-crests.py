@@ -16,7 +16,12 @@ public/assets/football/.gitignore.
 Usage
   python scripts/fetch-football-crests.py            # fetch everything, skip existing
   python scripts/fetch-football-crests.py --only clubs
+  python scripts/fetch-football-crests.py --only trophies
   python scripts/fetch-football-crests.py --force    # re-fetch even if present
+
+After a trophies run, re-run scripts/build-trayectoria-world.mjs so world.data.json picks
+up the paths - the game reads them from there, and falls back to its own silhouettes for
+everything that was not mirrored.
 """
 
 import argparse
@@ -259,9 +264,184 @@ def fetch_flag(country, out_dir, force):
         return {"name": country["name_en"], "status": "error", "error": str(err)}
 
 
+"""
+Trophies.
+
+`media.copero.com.ar` is the same CDN the competition records already carry their league
+marks from, and it publishes the silverware itself at a path that is entirely predictable
+once you know the three shapes it uses:
+
+    /trophies/football/national/{FIFA}/{league-slug}.png     <- already in the data as
+                                                                `league_trophy_url`
+    /trophies/football/national/{FIFA}/{cup-slug}.png        <- the domestic cup id with
+                                                                its country prefix removed
+    /trophies/football/international/{CONFED}/{slug}.png     <- verified per confederation
+
+Coverage is real but partial: leagues and most domestic cups, UEFA, CONMEBOL, CONCACAF's
+and the AFC's club competitions, and both FIFA trophies. There is nothing for CAF, for
+OFC, or for any national-team tournament except the Copa América. That is why the game
+draws its own silhouettes and treats these as enrichment - see trophies.jsx - and why a
+miss here is logged rather than retried.
+"""
+
+COPERO = "https://media.copero.com.ar/trophies/football"
+
+# Probed against the CDN one slug at a time, not guessed. The three individual awards are
+# filed under confederations rather than in any awards folder of their own - the Golden
+# Boot lives under UEFA and the Ballon d'Or and Golden Glove under FIFA - which is why
+# they were missed the first time round.
+COPERO_INTERNATIONAL = {
+    "UEFA/champions-league",
+    "UEFA/europa-league",
+    "UEFA/golden-boot",
+    "CONMEBOL/libertadores",
+    "CONMEBOL/copa-sudamericana",
+    "CONMEBOL/copa-america",
+    "CONCACAF/concachampions",
+    "AFC/champions-league-elite",
+    "OFC/nations-cup",
+    "FIFA/world-cup",
+    "FIFA/club-world-cup",
+    "FIFA/ballon-dor",
+    "FIFA/golden-glove",
+}
+
+"""
+The second source.
+
+Copero stops well short of the whole world: it has no European Championship, no Gold Cup,
+no Asian Cup, no Africa Cup of Nations, nothing for CAF or OFC at club level, and it is
+missing a fair number of the smaller leagues and domestic cups. The game can award every
+one of those, so they need a picture from somewhere.
+
+Wikipedia is that somewhere, and the machinery is already here - `fetch_entity` is what
+pulls club crests and league marks out of an infobox. What comes back is the competition's
+mark rather than a photograph of its trophy, which for a league or a cup is arguably the
+more recognisable image anyway.
+
+Ordered queries, most specific first, because "Primera División" on its own lands on a
+disambiguation page for about fifteen different countries.
+"""
+
+WIKI_INTERNATIONAL = {
+    "UEFA/euro": ["UEFA European Championship", "UEFA Euro"],
+    "CONCACAF/gold-cup": ["CONCACAF Gold Cup"],
+    "AFC/asian-cup": ["AFC Asian Cup"],
+    "CAF/africa-cup-of-nations": ["Africa Cup of Nations"],
+    "OFC/nations-cup": ["OFC Nations Cup"],
+    "CONCACAF/champions-cup": ["CONCACAF Champions Cup", "CONCACAF Champions League"],
+    "CONCACAF/central-american-cup": ["CONCACAF Central American Cup"],
+    "CAF/champions-league": ["CAF Champions League"],
+    "CAF/confederation-cup": ["CAF Confederation Cup"],
+    "OFC/champions-league": ["OFC Champions League"],
+    "AFC/champions-league-two": ["AFC Champions League Two", "AFC Cup"],
+}
+
+
+def deslug(slug):
+    """`taca-de-portugal` -> `taca de portugal`, which is enough for Wikipedia's search."""
+    return slug.replace("-", " ").strip()
+
+
+# The handful whose slug is not a searchable name. Everything else resolves from `deslug`.
+WIKI_OVERRIDES = {
+    "league/liga-nacional-guatemala": ["Liga Nacional de Fútbol de Guatemala"],
+    "cup/slv-copa-presidente": ["Copa El Salvador", "Copa Presidente El Salvador"],
+    "cup/copa-primera-de-nicaragua": ["Copa de Nicaragua"],
+    "cup/supercopa-guatemala": ["Supercopa de Guatemala", "Copa de Guatemala"],
+}
+
+
+def cup_slug(cup_id, fifa):
+    """`esp-copa-del-rey` -> `copa-del-rey`. Copero drops the country prefix; we must too."""
+    prefix = f"{fifa.lower()}-"
+    return cup_id[len(prefix):] if cup_id.lower().startswith(prefix) else cup_id
+
+
+def fetch_trophy(key, url, out_dir, force):
+    """
+    Mirror one trophy. A 403 from this CDN means 'not published', not 'try again'.
+
+    Copero is not consistent about the format - most trophies are png, a handful are webp
+    - and the URL in the data is only authoritative for the leagues, where it is published
+    verbatim. Everything else is a path we built, so both extensions are tried before the
+    trophy is written off.
+    """
+    stem, ext = os.path.splitext(url)
+    candidates = [url] + [f"{stem}{alt}" for alt in (".webp", ".png") if alt != ext]
+
+    for candidate in candidates:
+        name = key.replace("/", "__") + (os.path.splitext(candidate)[1] or ".png")
+        path = os.path.join(out_dir, name)
+        if os.path.exists(path) and not force:
+            return {"name": key, "file": name, "status": "cached"}
+        try:
+            blob = http_bytes(candidate, tries=2)
+        except Exception:  # noqa: BLE001
+            blob = None
+        if blob:
+            with open(path, "wb") as handle:
+                handle.write(blob)
+            return {"name": key, "file": name, "status": "ok", "bytes": len(blob)}
+    return {"name": key, "status": "missing"}
+
+
+def trophy_jobs(competitions):
+    """Every trophy worth asking copero for, as (manifest key, url) pairs."""
+    jobs = {}
+    for comp in competitions:
+        fifa = comp["country_fifa_code"]
+        league_url = comp.get("league_trophy_url")
+        if league_url:
+            jobs[f"league/{comp['id']}"] = league_url
+        cup_id = comp.get("domestic_cup_id")
+        if cup_id:
+            slug = cup_slug(cup_id, fifa)
+            jobs[f"cup/{cup_id}"] = f"{COPERO}/national/{fifa}/{slug}.png"
+    for slug in sorted(COPERO_INTERNATIONAL):
+        jobs[f"international/{slug}"] = f"{COPERO}/international/{slug}.png"
+    return jobs
+
+
+def wiki_trophy_jobs(competitions, by_fifa, done):
+    """
+    What Wikipedia has to cover: everything copero could not, plus the international
+    competitions it never had. Returns (manifest key, name, queries, slug) tuples.
+    """
+    jobs = []
+    for comp in competitions:
+        place = by_fifa.get(comp["country_fifa_code"], {}).get("name_en", "")
+
+        key = f"league/{comp['id']}"
+        if key not in done:
+            jobs.append((key, comp["name"], WIKI_OVERRIDES.get(key) or [
+                f"{comp['name']} {place} football league".strip(),
+                f"{comp['name']} {place}".strip(),
+            ], key.replace("/", "__")))
+
+        cup_id = comp.get("domestic_cup_id")
+        key = f"cup/{cup_id}" if cup_id else None
+        # One cup can be shared by two divisions of the same country, so guard the dupe.
+        if cup_id and key not in done and not any(j[0] == key for j in jobs):
+            name = deslug(cup_slug(cup_id, comp["country_fifa_code"]))
+            jobs.append((key, name, WIKI_OVERRIDES.get(key) or [
+                f"{name} {place} football cup".strip(),
+                f"{name} football".strip(),
+                name,
+            ], key.replace("/", "__")))
+
+    for slug, queries in WIKI_INTERNATIONAL.items():
+        key = f"international/{slug}"
+        if key not in done:
+            jobs.append((key, slug, queries, key.replace("/", "__")))
+    return jobs
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--only", choices=["clubs", "competitions", "flags"], default=None)
+    parser.add_argument(
+        "--only", choices=["clubs", "competitions", "flags", "trophies"], default=None
+    )
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--workers", type=int, default=4)
     args = parser.parse_args()
@@ -274,13 +454,47 @@ def main():
     )
     by_fifa = {c["fifa_code"]: c for c in countries}
 
-    for sub in ("crests", "competitions", "flags"):
+    for sub in ("crests", "competitions", "flags", "trophies"):
         os.makedirs(os.path.join(OUT, sub), exist_ok=True)
 
-    manifest = {"clubs": {}, "competitions": {}, "flags": {}}
+    manifest = {"clubs": {}, "competitions": {}, "flags": {}, "trophies": {}}
     manifest_path = os.path.join(OUT, "manifest.json")
     if os.path.exists(manifest_path):
         manifest.update(json.load(open(manifest_path, encoding="utf-8")))
+    manifest.setdefault("trophies", {})
+
+    if args.only in (None, "trophies"):
+        out_dir = os.path.join(OUT, "trophies")
+
+        # Pass one: copero, which has the real silverware where it has anything at all.
+        wanted = trophy_jobs(competitions)
+        log(f"trophies: {len(wanted)} to try from copero")
+        with ThreadPoolExecutor(max_workers=args.workers) as pool:
+            results = pool.map(
+                lambda item: (item[0], fetch_trophy(item[0], item[1], out_dir, args.force)),
+                wanted.items(),
+            )
+            for key, record in results:
+                manifest["trophies"][key] = record
+
+        # Pass two: Wikipedia for the gaps. A competition mark is not a photograph of a
+        # cup, but it names the trophy just as well and the game can award all of these.
+        done = {
+            key
+            for key, record in manifest["trophies"].items()
+            if record.get("status") in ("ok", "cached")
+        }
+        gaps = wiki_trophy_jobs(competitions, by_fifa, done)
+        log(f"trophies: {len(gaps)} gaps to try on wikipedia")
+        with ThreadPoolExecutor(max_workers=args.workers) as pool:
+            results = pool.map(
+                lambda job: (job[0], fetch_entity(job[1], job[2], out_dir, job[3], args.force)),
+                gaps,
+            )
+            for key, record in results:
+                # Never let a Wikipedia miss overwrite a copero hit.
+                if record.get("status") in ("ok", "cached") or key not in manifest["trophies"]:
+                    manifest["trophies"][key] = {**record, "source_site": "wikipedia"}
 
     jobs = []
 
@@ -341,7 +555,7 @@ def main():
     with open(manifest_path, "w", encoding="utf-8") as handle:
         json.dump(manifest, handle, ensure_ascii=False, indent=1)
 
-    for bucket in ("clubs", "competitions", "flags"):
+    for bucket in ("clubs", "competitions", "flags", "trophies"):
         records = manifest[bucket].values()
         ok = sum(1 for r in records if r["status"] in ("ok", "cached"))
         log(f"{bucket}: {ok}/{len(manifest[bucket])} resolved")

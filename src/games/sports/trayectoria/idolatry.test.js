@@ -8,6 +8,7 @@ import {
   exitPreview,
   idolatryAt,
   levelOf,
+  patienceFor,
   peakIdolatry,
   seasonIdolatry,
 } from "./idolatry.js";
@@ -184,5 +185,36 @@ describe("the price of leaving", () => {
     expect(shallow.from).toBe("referente");
     expect(shallow.to).toBe("referente");
     expect(shallow.demotes).toBe(false);
+  });
+});
+
+/**
+ * Job security, after OUR CALL #8 took it out of the paperwork.
+ *
+ * While deals ran four years the contract was what stopped a club moving you on after one
+ * quiet season. Year-to-year, that shield is gone, so it moves to the stand - where it has
+ * to be earned rather than signed for.
+ */
+describe("what the crowd's regard buys you in patience", () => {
+  it("gives a newcomer none and a favourite more", () => {
+    expect(patienceFor(0)).toBe(0);
+    expect(patienceFor(39)).toBe(0);
+    expect(patienceFor(IDOLATRY.patienceStep)).toBe(1);
+    expect(patienceFor(79)).toBe(1);
+    expect(patienceFor(80)).toBe(2);
+  });
+
+  it("is capped, so no crowd keeps a player forever", () => {
+    expect(patienceFor(100)).toBe(IDOLATRY.maxPatience);
+    expect(patienceFor(1000)).toBe(IDOLATRY.maxPatience);
+  });
+
+  it("never goes backwards or negative", () => {
+    expect(patienceFor(-50)).toBe(0);
+    let last = -1;
+    for (let value = 0; value <= 100; value += 1) {
+      expect(patienceFor(value)).toBeGreaterThanOrEqual(last);
+      last = patienceFor(value);
+    }
   });
 });

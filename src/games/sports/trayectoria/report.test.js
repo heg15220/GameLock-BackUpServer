@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   careerToDate,
+  formBand,
   gridLines,
+  growthReport,
   ovrSeries,
   peakSeason,
   projectPoint,
@@ -10,6 +12,7 @@ import {
   seriesBounds,
   seriesPath,
 } from "./report.js";
+import { GROWTH } from "./tables.js";
 
 const season = (overrides = {}) => ({
   season: 0,
@@ -203,5 +206,106 @@ describe("the career curve", () => {
   it("finds the peak season", () => {
     expect(peakSeason(history).ovr).toBe(74);
     expect(peakSeason([])).toBeNull();
+  });
+});
+
+/** The two read-outs the new season model added. See fortune.js and OUR CALL #6. */
+describe("what the front page can now say about a season", () => {
+  const withFortune = (form, extra = {}) =>
+    season({ fortune: { latent: 0, form }, ...extra });
+
+  it("names the form the season was scored at, and only when it is worth naming", () => {
+    expect(seasonReport(withFortune(1.35)).form).toBe("inspirado");
+    expect(seasonReport(withFortune(1.0)).form).toBe("normal");
+    expect(seasonReport(withFortune(0.62)).form).toBe("gris");
+    // A record from before the change, or a season nobody drew a form for.
+    expect(seasonReport(season()).form).toBeNull();
+  });
+
+  it("bands the whole range without leaving a gap", () => {
+    for (let form = 0.3; form <= 2; form += 0.01) {
+      expect(typeof formBand(form)).toBe("string");
+    }
+  });
+
+  it("says how much of the development cycle the season actually collected", () => {
+    const report = seasonReport(
+      season({
+        development: { range: [2, 10], applied: 2.4, doubled: false },
+        growth: { factor: 0.8, minutes: 0.72, challenge: 1.1, environment: 1.0 },
+      }),
+    );
+    expect(report.development.growth.factor).toBe(0.8);
+    expect(report.development.growth.stalled).toBe(true);
+    expect(report.development.growth.thriving).toBe(false);
+  });
+
+  it("names the term that decided it, largest departure from neutral first", () => {
+    const starved = growthReport({ factor: 0.75, minutes: 0.6, challenge: 1.05, environment: 1.0 });
+    expect(starved.drivers[0].key).toBe("minutes");
+
+    // The delta-farmer: playing every week, learning nothing, and the panel says which.
+    const unchallenged = growthReport({
+      factor: 0.82, minutes: 1.02, challenge: 0.74, environment: 0.94,
+    });
+    expect(unchallenged.drivers[0].key).toBe("challenge");
+  });
+
+  it("stays quiet about growth for a record that has none", () => {
+    expect(growthReport(null)).toBeNull();
+    expect(seasonReport(season()).development).toBeNull();
+  });
+
+  it("carries the division the season was really played in", () => {
+    const report = seasonReport(season({ division: { tier: 2, shift: -1, demoted: true } }));
+    expect(report.division.demoted).toBe(true);
+    expect(seasonReport(season()).division).toBeNull();
+  });
+
+  it("agrees with the thresholds the offer cards are drawn from", () => {
+    expect(growthReport({ factor: GROWTH.stallBelow, minutes: 1, challenge: 1, environment: 1 }).stalled).toBe(true);
+    expect(growthReport({ factor: GROWTH.thrivingFrom, minutes: 1, challenge: 1, environment: 1 }).thriving).toBe(true);
+  });
+});
+
+/**
+ * The season panel printed "3 / 14 posible · 118% recogido" beside a gain of +2.3 OVR:
+ * a two-year cycle range set against one season's share of it, and a rate above 1
+ * described as a portion collected. Both halves of that are checked here.
+ */
+describe("the development panel says what it means", () => {
+  const cycle = (overrides = {}) =>
+    season({
+      development: { range: [3, 14], applied: 2.3, doubled: false, scale: 1.18, ...overrides },
+    });
+
+  it("reports the season's own range, not the two-year cycle's", () => {
+    const report = seasonReport(cycle());
+    expect(report.development.range).toEqual([3, 14]);
+    // Half of the cycle lands each season, so this is the range the gain sits inside.
+    expect(report.development.seasonRange).toEqual([1.5, 7]);
+    expect(report.development.applied).toBeGreaterThan(report.development.seasonRange[0]);
+    expect(report.development.applied).toBeLessThan(report.development.seasonRange[1]);
+  });
+
+  it("carries the rate as a rate, which is allowed past 1", () => {
+    expect(seasonReport(cycle()).development.rate).toBe(1.18);
+    expect(seasonReport(cycle({ scale: 0.74 })).development.rate).toBe(0.74);
+  });
+
+  it("reports the factor that actually applied in a year of decline", () => {
+    // A well-looked-after veteran declines slower: the draw is scaled by 0.8, and saying
+    // "rate 120%" in a season his rating fell would be the wrong number twice over.
+    const declining = seasonReport(
+      season({ development: { range: [-5, -1], applied: -1.2, doubled: false, scale: 0.8 } }),
+    );
+    expect(declining.rate).toBeUndefined();
+    expect(declining.development.rate).toBe(0.8);
+    expect(declining.development.seasonRange).toEqual([-2.5, -0.5]);
+  });
+
+  it("falls back to a neutral rate for a record drawn before the factor existed", () => {
+    const old = seasonReport(season({ development: { range: [3, 14], applied: 4, doubled: false } }));
+    expect(old.development.rate).toBe(1);
   });
 });

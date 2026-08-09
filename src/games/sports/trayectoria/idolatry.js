@@ -65,6 +65,31 @@ export const IDOLATRY = {
   /** On top of the exit, per season still left on the contract you tore up. */
   perBreachYear: -3.5,
   maxBreach: -14,
+  /**
+   * Turning down a club that has already paid your buy-out.
+   *
+   * The single loudest thing a player can say to a stand, and the only line in this table
+   * that is paid for doing nothing. It is worth more than a season and less than a trophy,
+   * because that is roughly where a crowd files it.
+   */
+  refusedClause: 9,
+
+  /**
+   * Seasons of patience a crowd's favourite is given before the club moves him on.
+   *
+   * This is the counterweight to OUR CALL #8. When most contracts ran four years, the deal
+   * itself was what stopped a club binning you after one quiet season - `clubWantsOut` is
+   * suppressed while a contract runs, and in `normal` mode a single season on the bench
+   * sets it. Cut the deals to one year and that shield disappears with them: measured over
+   * 220 always-renew careers, Leyenda fell from 12.8% to 0.9%, because nobody was allowed
+   * to stay anywhere long enough to become one.
+   *
+   * So the shield moves from the paperwork to the stand, which is where it belongs and
+   * where it has to be earned. A club does not sell a man the ground sings about over one
+   * bad year. One extra season of rope at `referente`, two at `ídolo` and above.
+   */
+  patienceStep: 40,
+  maxPatience: 2,
   /** Leaving for another club in the same league, once the crowd had adopted you. */
   leavingToRival: -22,
   betrayalFrom: 75,
@@ -160,6 +185,10 @@ export function seasonIdolatry({
   return change;
 }
 
+/** How many extra seasons out of the side this crowd's regard buys you. */
+export const patienceFor = (idolatry = 0) =>
+  Math.min(IDOLATRY.maxPatience, Math.floor(Math.max(0, idolatry) / IDOLATRY.patienceStep));
+
 /**
  * The price of leaving, worked out before the player commits.
  *
@@ -173,11 +202,19 @@ export function exitCost({
   sameCompetition = false,
   idolatryHere = 0,
   breachYears = 0,
+  clausePaid = false,
 }) {
   // Years still on the deal are charged on top of everything else. A free agent leaving
   // at the end of his contract pays nothing for this line, which is exactly why the
   // length of a deal is a term worth arguing about.
-  const breach = Math.max(IDOLATRY.maxBreach, breachYears * IDOLATRY.perBreachYear);
+  //
+  // A buy-out that has been met is not a deal being torn up: the club named a price and
+  // was paid it, so there is no breach to charge. That is the whole return on arguing the
+  // clause down at the table - not a discount, an exit that costs you only the ordinary
+  // price of leaving.
+  const breach = clausePaid
+    ? 0
+    : Math.max(IDOLATRY.maxBreach, breachYears * IDOLATRY.perBreachYear);
 
   if (sameCompetition && idolatryHere >= IDOLATRY.betrayalFrom) {
     return { change: IDOLATRY.leavingToRival + breach, breach, betrayal: true };
@@ -200,6 +237,7 @@ export function exitPreview({
   seasonsAtClub,
   sameCompetition,
   breachYears = 0,
+  clausePaid = false,
 }) {
   const current = idolatryAt(idolatry, clubId);
   if (!clubId || current <= 0) return null;
@@ -208,6 +246,7 @@ export function exitPreview({
     sameCompetition,
     idolatryHere: current,
     breachYears,
+    clausePaid,
   });
   const after = Math.max(0, current + change);
   return {
@@ -217,6 +256,7 @@ export function exitPreview({
     breachYears,
     after,
     betrayal,
+    clausePaid,
     from: levelOf(current).key,
     to: levelOf(after).key,
     demotes: levelOf(after).key !== levelOf(current).key,

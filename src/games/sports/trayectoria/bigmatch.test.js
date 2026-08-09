@@ -2,17 +2,23 @@ import { describe, expect, it } from "vitest";
 
 import {
   FIXTURE_KINDS,
+  CONVERSION_PRIOR,
+  DECIDES,
   HINT_FROM_OVR,
   MATCHES_PER_SEASON,
   NAILED_FROM_OVR,
   SHOT_TYPES,
+  chancesFor,
+  conversionRate,
   derbyRivals,
+  dropStakeFor,
   matchEffects,
   resolveShot,
   seasonFixtures,
   shotFor,
   shotScoringRate,
   splitSeason,
+  stakeFor,
 } from "./bigmatch.js";
 import { effectiveReputation, simulateSeason } from "./engine.js";
 import { createStream } from "./rng.js";
@@ -139,17 +145,28 @@ describe("which matches a season is about", () => {
     }
   });
 
-  it("scales the roll UP for a giant, whose league one shot could never carry", () => {
-    // Winning the league seven years in ten is more than a 40% shot is worth, so the
-    // seasons that do not come down to a match have to be likelier than they ever were.
-    const scaled = [];
-    for (let season = 0; season < 12; season += 1) {
+  it("scales the roll the other way to whatever the decider took", () => {
+    /*
+     * This used to assert the multiplier is always above 1 for a giant, on the reasoning
+     * that one shot could never carry a 70% league. That stopped being true when a
+     * decider started being worth however many chances it gives him: three sights of goal
+     * are worth more than the league is, and then the ordinary roll has to come DOWN.
+     *
+     * What holds either way is the identity, so that is what is checked - the residual is
+     * exactly what makes the two halves add back to the odds the model always had.
+     */
+    let above = 0;
+    let below = 0;
+    for (let season = 0; season < 60; season += 1) {
       const { fixtures, modifiers } = seasonFixtures(context(giant, { season, ovr: 86 }));
       if (fixtures.some((fixture) => fixture.decides === "league")) continue;
-      scaled.push(modifiers.titleMultipliers.league);
+      const multiplier = modifiers.titleMultipliers.league;
+      expect(multiplier).toBeGreaterThan(0);
+      if (multiplier > 1) above += 1;
+      else below += 1;
     }
-    expect(scaled.length).toBeGreaterThan(0);
-    for (const multiplier of scaled) expect(multiplier).toBeGreaterThan(1);
+    // Both directions really do happen, which is the point of the change.
+    expect(above + below).toBeGreaterThan(0);
   });
 
   it("plays for promotion in the second tier and for survival at the bottom of the first", () => {
@@ -262,16 +279,35 @@ describe("resolving a shot", () => {
 });
 
 describe("what the shots do to the season", () => {
-  const shotOn = (decides, scored) => ({ decides, scored });
+  /** A decider carries the odds its two outcomes leave the trophy on. See DECIDES. */
+  const shotOn = (decides, scored, settle = { scored: 3, missed: 0.5 }) => ({
+    decides,
+    scored,
+    settle,
+  });
 
-  it("hands over a trophy that was scored and denies one that was not", () => {
+  it("moves the odds hard in both directions without closing them", () => {
+    // The change this replaced: scoring handed the cup over and missing took it away, so
+    // one guess decided a whole season. Now it is the biggest swing in the model and
+    // still only a swing - a miss leaves a way through.
     const won = matchEffects([shotOn("league", true)]);
-    expect(won.guaranteedTitles).toContain("league");
-    expect(won.deniedTitles).toEqual([]);
+    expect(won.titleMultipliers.league).toBe(3);
+    expect(won.decidedTrophies).toContain("league");
 
     const lost = matchEffects([shotOn("continental_a", false)]);
-    expect(lost.deniedTitles).toContain("continental_a");
-    expect(lost.guaranteedTitles).toEqual([]);
+    expect(lost.titleMultipliers.continental_a).toBe(0.5);
+    expect(lost.titleMultipliers.continental_a).toBeGreaterThan(0);
+    expect(lost.decidedTrophies).toContain("continental_a");
+  });
+
+  it("never leaves a missed decider on zero, whatever the trophy", () => {
+    for (const decides of ["league", "cup", "continental_a", "semifinal"]) {
+      const effects = matchEffects([shotOn(decides, false)]);
+      const trophy = decides === "semifinal" ? "continental_a" : decides;
+      expect(effects.titleMultipliers[trophy]).toBeGreaterThan(0);
+    }
+    expect(matchEffects([shotOn("world_cup", false)]).nationalMultipliers.world_cup).toBeGreaterThan(0);
+    expect(matchEffects([shotOn("promotion", false)]).promotionMultiplier).toBeGreaterThan(0);
   });
 
   it("counts every goal, and the derby's twice over so the press can tell them apart", () => {
@@ -280,34 +316,36 @@ describe("what the shots do to the season", () => {
     expect(effects.derbyGoals).toBe(1);
   });
 
-  it("puts a semi-final into the odds rather than into the cabinet", () => {
-    const multipliers = { scored: { continental_a: 4 }, missed: { continental_a: 0 } };
-    const through = matchEffects([{ ...shotOn("semifinal", true), multipliers }]);
-    expect(through.guaranteedTitles).toEqual([]);
+  it("puts a semi-final into the odds of the final, not into the cabinet", () => {
+    const through = matchEffects([shotOn("semifinal", true, { scored: 4, missed: 0.6 })]);
     expect(through.titleMultipliers.continental_a).toBe(4);
-
-    const out = matchEffects([{ ...shotOn("semifinal", false), multipliers }]);
-    expect(out.titleMultipliers.continental_a).toBe(0);
+    const out = matchEffects([shotOn("semifinal", false, { scored: 4, missed: 0.6 })]);
+    expect(out.titleMultipliers.continental_a).toBe(0.6);
   });
 
-  it("settles a national final in both directions, so a miss is not a free reroll", () => {
-    expect(matchEffects([shotOn("world_cup", true)]).guaranteedNationalTitles).toContain("world_cup");
-    expect(matchEffects([shotOn("world_cup", false)]).deniedNationalTitles).toContain("world_cup");
+  it("grants the qualifying a player standing in a final has obviously already done", () => {
+    const played = matchEffects([{ ...shotOn("world_cup", false), reached: "world_cup" }]);
+    expect(played.nationalReached).toContain("world_cup");
+    // He lost the final; he still played the tournament.
+    expect(played.nationalMultipliers.world_cup).toBeGreaterThan(0);
   });
 
-  it("settles promotion and relegation outright", () => {
-    expect(matchEffects([shotOn("promotion", true)]).forcePromotion).toBe(true);
-    expect(matchEffects([shotOn("promotion", false)]).forcePromotion).toBe(false);
-    expect(matchEffects([shotOn("survival", true)]).forceRelegation).toBe(false);
-    expect(matchEffects([shotOn("survival", false)]).forceRelegation).toBe(true);
+  it("reads survival the other way up", () => {
+    // The multiplier is on the DROP, so scoring has to lower it and missing raise it.
+    const stayed = matchEffects([shotOn("survival", true, { scored: 0.2, missed: 2.5 })]);
+    const went = matchEffects([shotOn("survival", false, { scored: 0.2, missed: 2.5 })]);
+    expect(stayed.relegationMultiplier).toBe(0.2);
+    expect(went.relegationMultiplier).toBe(2.5);
+    expect(stayed.relegationMultiplier).toBeLessThan(went.relegationMultiplier);
   });
 
   it("leaves a season with no big matches exactly as it was", () => {
     const effects = matchEffects([]);
-    expect(effects.guaranteedTitles).toEqual([]);
-    expect(effects.deniedTitles).toEqual([]);
-    expect(effects.forcePromotion).toBeNull();
-    expect(effects.forceRelegation).toBeNull();
+    expect(effects.decidedTrophies).toEqual([]);
+    expect(effects.titleMultipliers).toEqual({});
+    expect(effects.nationalMultipliers).toEqual({});
+    expect(effects.promotionMultiplier).toBeUndefined();
+    expect(effects.relegationMultiplier).toBeUndefined();
     expect(effects.bonusGoals).toBe(0);
   });
 });
@@ -345,19 +383,43 @@ describe("the engine honours what happened on the pitch", () => {
     retired: false,
   });
 
+  /** A scored decider leaves the trophy on odds it is very hard to miss from. */
+  const settled = (decides, scored) =>
+    matchEffects([{ decides, scored, settle: { scored: 40, missed: 0.02 } }]);
+
   it("puts a trophy decided on the pitch in the cabinet, marked as such", () => {
-    const modifiers = { titleMultipliers: {}, ...matchEffects([{ decides: "cup", scored: true }]) };
+    const modifiers = { titleMultipliers: {}, ...settled("cup", true) };
     const { record } = simulateSeason(stateAt(giant, modifiers), world, { season: 6 });
     const cup = record.titles.find((title) => title.trophy === "cup");
     expect(cup).toBeTruthy();
     expect(cup.decidedOnThePitch).toBe(true);
+    // Never "attended", whatever role he was playing that year: he took the shot.
     expect(cup.earned).toBe(true);
   });
 
-  it("keeps a trophy off the shelf when the shot was saved", () => {
-    const modifiers = { titleMultipliers: {}, ...matchEffects([{ decides: "cup", scored: false }]) };
+  it("makes a trophy very unlikely when the shot was saved, without making it impossible", () => {
+    const modifiers = { titleMultipliers: {}, ...settled("cup", false) };
     const { record } = simulateSeason(stateAt(giant, modifiers), world, { season: 6 });
     expect(record.titles.some((title) => title.trophy === "cup")).toBe(false);
+
+    // And over many seasons at the real odds, a miss still leaves a way through - which
+    // is the whole point of DECIDES over the old outright verdict.
+    let won = 0;
+    for (let season = 0; season < 400; season += 1) {
+      const missed = {
+        titleMultipliers: {},
+        ...matchEffects([
+          { decides: "cup", scored: false, settle: { scored: 2.2, missed: 0.65 } },
+        ]),
+      };
+      const { record: r } = simulateSeason(
+        stateAt(giant, missed, `miss-${season}`),
+        world,
+        { season },
+      );
+      if (r.titles.some((title) => title.trophy === "cup")) won += 1;
+    }
+    expect(won).toBeGreaterThan(0);
   });
 
   it("adds the goals from the big matches to the season", () => {
@@ -392,13 +454,27 @@ describe("the engine honours what happened on the pitch", () => {
     expect(record.titles).toEqual([]);
   });
 
-  it("sends a club down when the survival match was lost", () => {
-    const modifiers = {
-      titleMultipliers: {},
-      ...matchEffects([{ decides: "survival", scored: false }]),
+  it("makes the drop far likelier when the survival match was lost, and rarer when it was won", () => {
+    const drop = (scored) => {
+      let down = 0;
+      for (let season = 0; season < 400; season += 1) {
+        const modifiers = {
+          titleMultipliers: {},
+          ...matchEffects([
+            { decides: "survival", scored, settle: { scored: 0.22, missed: 3.2 } },
+          ]),
+        };
+        const state = { ...stateAt(minnow, modifiers, `drop-${season}`), ovr: 62 };
+        if (simulateSeason(state, world, { season }).record.relegated) down += 1;
+      }
+      return down / 400;
     };
-    const state = { ...stateAt(minnow, modifiers), ovr: 62 };
-    expect(simulateSeason(state, world, { season: 6 }).record.relegated).toBe(true);
+    const lost = drop(false);
+    const saved = drop(true);
+    expect(lost).toBeGreaterThan(saved * 3);
+    // Neither outcome is a verdict: you can go down having scored, and stay up having missed.
+    expect(lost).toBeLessThan(1);
+    expect(saved).toBeGreaterThan(0);
   });
 });
 
@@ -442,17 +518,35 @@ describe("big matches do not hand out silverware", () => {
     retired: false,
   });
 
-  /** A player with no information the model has not given him: he guesses. */
+  /**
+   * A player with no information the model has not given him: he guesses, once per sight
+   * of goal the fixture owes him.
+   *
+   * Mirrors career.takeShot plus `outcomeOf`. Hand-rolling a subset of that shape has now
+   * broken this harness twice - first when the shot stopped settling trophies outright,
+   * then when a fixture stopped being worth exactly one chance - and both times it showed
+   * up as a silent trophy drift rather than as an obvious failure.
+   */
   const guess = (seed, season, fixture, ovr) => {
     const shot = shotFor({ seed, season, fixture, ovr });
-    const live = shot.options.filter((_, index) => index !== shot.ruledOut);
-    const stream = createStream(seed, "guess", fixture.id);
-    const pick = live[Math.floor(stream() * live.length)];
+    const total = fixture.chances ?? 1;
+    let converted = 0;
+    for (let attempt = 0; attempt < total; attempt += 1) {
+      const live = shot.options.filter((_, index) => index !== shot.ruledOut);
+      const stream = createStream(seed, "guess", fixture.id, attempt);
+      const pick = live[Math.floor(stream() * live.length)];
+      if (resolveShot(shot, pick).scored) converted += 1;
+    }
     return {
-      ...resolveShot(shot, pick),
+      ...shot,
+      scored: converted > 0,
+      absent: total === 0,
+      taken: total,
+      converted,
       decides: fixture.decides,
       national: fixture.national,
-      multipliers: fixture.multipliers ?? null,
+      settle: fixture.settle ?? null,
+      reached: fixture.reached ?? null,
     };
   };
 
@@ -481,13 +575,21 @@ describe("big matches do not hand out silverware", () => {
         tally.scored += results.filter((result) => result.scored).length;
 
         const effects = matchEffects(results);
-        const multipliers = {};
-        for (const source of [plan.modifiers.titleMultipliers, effects.titleMultipliers]) {
-          for (const [trophy, value] of Object.entries(source ?? {})) {
-            multipliers[trophy] = (multipliers[trophy] ?? 1) * value;
+        const compound = (key) => {
+          const merged = {};
+          for (const source of [plan.modifiers[key], effects[key]]) {
+            for (const [trophy, value] of Object.entries(source ?? {})) {
+              merged[trophy] = (merged[trophy] ?? 1) * value;
+            }
           }
-        }
-        modifiers = { ...plan.modifiers, ...effects, titleMultipliers: multipliers };
+          return merged;
+        };
+        modifiers = {
+          ...plan.modifiers,
+          ...effects,
+          titleMultipliers: compound("titleMultipliers"),
+          nationalMultipliers: compound("nationalMultipliers"),
+        };
       }
 
       const { record } = simulateSeason(stateFor(club, modifiers, seed, ovr), world, { season });
@@ -531,5 +633,179 @@ describe("big matches do not hand out silverware", () => {
     const tally = measure(mid, 80, { withMatches: true });
     expect(tally.shots).toBeGreaterThan(SEASONS);
     expect(tally.scored / tally.shots).toBeCloseTo(shotScoringRate(80), 1);
+  });
+});
+
+/**
+ * Recalibration.
+ *
+ * `splitSeason` buys a slice of the season's budget at whatever rate it is told the
+ * player converts. `shotScoringRate` is only right while he guesses blind; the moment the
+ * moment has skill in it, converting above that rate prints silverware the model does not
+ * think it is handing out. Measured, a player converting 90% against a 48% assumption
+ * took 54% more trophies. Recalibrated, he takes the same as everybody else.
+ */
+describe("pricing the decider off what the player actually converts", () => {
+  const OVR = 84;
+  const prior = shotScoringRate(OVR);
+
+  it("starts at exactly the model's estimate, so a first season is unchanged", () => {
+    expect(conversionRate(OVR, null)).toBe(prior);
+    expect(conversionRate(OVR, { taken: 0, scored: 0 })).toBe(prior);
+  });
+
+  it("barely moves on one shot and converges on a career of them", () => {
+    const oneHit = conversionRate(OVR, { taken: 1, scored: 1 });
+    expect(oneHit).toBeGreaterThan(prior);
+    expect(oneHit - prior).toBeLessThan(0.05);
+
+    // A whole career of converting nine in ten: the estimate follows, but shrinkage keeps
+    // it short of the raw rate, which is the point of the prior.
+    const career = conversionRate(OVR, { taken: 60, scored: 54 });
+    expect(career).toBeGreaterThan(0.78);
+    expect(career).toBeLessThan(0.9);
+  });
+
+  it("moves both ways, and never further than one observation is worth", () => {
+    const cold = conversionRate(OVR, { taken: 20, scored: 1 });
+    expect(cold).toBeLessThan(prior);
+    for (let taken = 1; taken <= 80; taken += 1) {
+      const step = Math.abs(
+        conversionRate(OVR, { taken, scored: taken }) -
+          conversionRate(OVR, { taken: taken - 1, scored: taken - 1 }),
+      );
+      expect(step).toBeLessThanOrEqual(1 / (CONVERSION_PRIOR + taken) + 1e-9);
+    }
+  });
+
+  it("stays a probability whatever nonsense it is handed", () => {
+    for (const record of [
+      { taken: 10, scored: 30 },
+      { taken: 10, scored: -5 },
+      { taken: -3, scored: 2 },
+      { taken: 500, scored: 500 },
+      { taken: 500, scored: 0 },
+    ]) {
+      const rate = conversionRate(OVR, record);
+      expect(rate).toBeGreaterThanOrEqual(0);
+      expect(rate).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("keeps the budget identity at the recalibrated rate, which is the whole point", () => {
+    for (const record of [null, { taken: 30, scored: 27 }, { taken: 30, scored: 3 }]) {
+      const rate = conversionRate(OVR, record);
+      const stake = stakeFor(rate);
+      for (const budget of [0.05, 0.25, 0.7]) {
+        const { reach, residual } = splitSeason(budget, [stake]);
+        expect(reach[0] * stake + (1 - reach[0]) * residual).toBeCloseTo(budget, 10);
+      }
+    }
+  });
+
+  it("prices a better finisher's decider higher, so he plays fewer of them", () => {
+    // Self-limiting, and correct: if the shot is nearly a goal, the season cannot afford
+    // to come down to one very often without giving trophies away.
+    const sharp = splitSeason(0.25, [stakeFor(conversionRate(OVR, { taken: 40, scored: 36 }))]);
+    const blunt = splitSeason(0.25, [stakeFor(conversionRate(OVR, { taken: 40, scored: 4 }))]);
+    expect(sharp.reach[0]).toBeLessThan(blunt.reach[0]);
+  });
+
+  it("is what seasonFixtures actually uses", () => {
+    const sharpshooter = { taken: 40, scored: 38 };
+    const withRecord = seasonFixtures(context(giant, { ovr: OVR, conversion: sharpshooter }));
+    const without = seasonFixtures(context(giant, { ovr: OVR }));
+    // Same seed, same club: only the record differs, and it has to change the plan.
+    expect(JSON.stringify(withRecord.modifiers)).not.toBe(JSON.stringify(without.modifiers));
+  });
+});
+
+/**
+ * How many sights of goal a decider gives him.
+ *
+ * The count is drawn at fixture time so `stakeFor` can price the moment exactly - which is
+ * the whole reason the budget survives a night worth three chances and a night worth none.
+ */
+describe("a match is not one chance", () => {
+  const spread = (delta) => {
+    const hist = [0, 0, 0, 0, 0];
+    for (let i = 0; i < 6000; i += 1) hist[chancesFor(`c-${i}`, 1, "f", delta)] += 1;
+    return hist.map((count) => count / 6000);
+  };
+
+  it("serves up none, one, two or more", () => {
+    const at = spread(0);
+    for (let n = 0; n <= 3; n += 1) expect(at[n], `never ${n} chances`).toBeGreaterThan(0.02);
+  });
+
+  it("works the ball to the man the side depends on", () => {
+    const passenger = spread(-9);
+    const star = spread(9);
+    expect(passenger[0]).toBeGreaterThan(star[0] * 3);
+    const mean = (h) => h.reduce((sum, p, n) => sum + p * n, 0);
+    expect(mean(star)).toBeGreaterThan(mean(passenger) * 2);
+  });
+
+  it("never says four is likelier than three, at any delta", () => {
+    // The additive tilt used to clamp both ends to the same floor and do exactly that.
+    for (const delta of [-10, -6, -2, 0, 2, 6, 10]) {
+      const at = spread(delta);
+      expect(at[3], `delta ${delta}`).toBeGreaterThanOrEqual(at[4]);
+    }
+  });
+
+  it("is a pure function of the fixture", () => {
+    expect(chancesFor("s", 2, "f", 3)).toBe(chancesFor("s", 2, "f", 3));
+    const perFixture = new Set(["a", "b", "c", "d"].map((id) => chancesFor("s", 2, id, 3)));
+    expect(perFixture.size).toBeGreaterThan(0);
+  });
+
+  it("prices more chances higher, and none of them at the missed rate", () => {
+    const rate = 0.45;
+    expect(stakeFor(rate, 0)).toBe(DECIDES.absent);
+    // A night the ball never came is not a miss: it sits above one and below a goal.
+    expect(stakeFor(rate, 0)).toBeGreaterThan(DECIDES.missed);
+    expect(stakeFor(rate, 0)).toBeLessThan(DECIDES.scored);
+    let last = 0;
+    for (let n = 1; n <= 5; n += 1) {
+      const stake = stakeFor(rate, n);
+      expect(stake).toBeGreaterThan(last);
+      expect(stake).toBeLessThan(DECIDES.scored);
+      last = stake;
+    }
+  });
+
+  it("keeps the budget identity at every chance count", () => {
+    for (const n of [0, 1, 2, 3, 4]) {
+      const stake = stakeFor(0.45, n);
+      for (const budget of [0.02, 0.1, 0.3, 0.7]) {
+        const { reach, residual } = splitSeason(budget, [stake]);
+        expect(reach[0] * stake + (1 - reach[0]) * residual).toBeCloseTo(budget, 10);
+      }
+    }
+  });
+
+  it("reads survival the other way up at every count too", () => {
+    for (let n = 0; n <= 4; n += 1) {
+      expect(dropStakeFor(0.45, n)).toBeCloseTo(1 - stakeFor(0.45, n), 10);
+    }
+  });
+
+  it("settles an untouched decider between the two outcomes he could have caused", () => {
+    const settle = { scored: 4, missed: 0.5, absent: 2 };
+    const effects = matchEffects([
+      { decides: "league", scored: false, absent: true, taken: 0, converted: 0, settle },
+    ]);
+    expect(effects.titleMultipliers.league).toBe(2);
+    expect(effects.bonusGoals).toBe(0);
+  });
+
+  it("counts every chance he put away as a goal", () => {
+    const settle = { scored: 4, missed: 0.5, absent: 2 };
+    const effects = matchEffects([
+      { decides: "cup", scored: true, taken: 3, converted: 2, settle },
+    ]);
+    expect(effects.bonusGoals).toBe(2);
+    expect(effects.titleMultipliers.cup).toBe(4);
   });
 });

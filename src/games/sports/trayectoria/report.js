@@ -13,11 +13,53 @@
  * All pure and all view-agnostic: no labels, no locale, no DOM. Numbers only.
  */
 
+import { GROWTH } from "./tables.js";
+
 /** Change between two seasons, or null when there is nothing to compare against. */
 function movement(current, previous, key) {
   if (!previous) return null;
   const change = current[key] - previous[key];
   return change === 0 ? null : change;
+}
+
+/**
+ * The season's form, as a band rather than a number.
+ *
+ * Form is the multiplicative factor the goals were counted around (fortune.js). It is
+ * worth printing even though the player could not act on it, because without it a season
+ * of 9 goals after a season of 18 reads as decline when it was very often just a year -
+ * and the whole point of a newspaper is to tell you which of the two it was.
+ */
+export const FORM_BANDS = [
+  { min: 1.22, key: "inspirado" },
+  { min: 1.07, key: "fino" },
+  { min: 0.93, key: "normal" },
+  { min: 0.8, key: "espeso" },
+  { min: 0, key: "gris" },
+];
+
+export const formBand = (form) =>
+  (FORM_BANDS.find((band) => form >= band.min) ?? FORM_BANDS[FORM_BANDS.length - 1]).key;
+
+/**
+ * Whether this was a season that made him better, worse, or neither - the read-out for
+ * OUR CALL #6. `factor` is what the development draw was scaled by, so 1 is a season that
+ * collected exactly what the tables promised for his age.
+ */
+export function growthReport(growth) {
+  if (!growth) return null;
+  return {
+    factor: growth.factor,
+    stalled: growth.factor <= GROWTH.stallBelow,
+    thriving: growth.factor >= GROWTH.thrivingFrom,
+    // Which of the three terms is doing the damage, so the panel can say why and not
+    // just that. Ranked by distance from neutral, largest first.
+    drivers: [
+      { key: "minutes", value: growth.minutes },
+      { key: "challenge", value: growth.challenge },
+      { key: "environment", value: growth.environment },
+    ].sort((a, b) => Math.abs(b.value - 1) - Math.abs(a.value - 1)),
+  };
 }
 
 /**
@@ -44,8 +86,18 @@ export function seasonReport(record, previous = null) {
   const development = record.development?.range?.some((bound) => bound !== 0)
     ? {
         range: record.development.range,
+        // The cycle runs two years and half of it lands each season, so the published
+        // range is not the range this season was drawn against. Printing the cycle beside
+        // a single season's gain invites the reader to compare two different units and
+        // conclude the number is wrong.
+        seasonRange: record.development.range.map((bound) => bound / 2),
         applied: record.development.applied ?? 0,
+        // What the draw was actually multiplied by. A rate, not a share: it runs past 1
+        // for a player in the right place, so "collected 118%" was never the right way
+        // to say it.
+        rate: record.development.scale ?? 1,
         doubled: Boolean(record.development.doubled),
+        growth: growthReport(record.growth),
       }
     : null;
 
@@ -62,6 +114,10 @@ export function seasonReport(record, previous = null) {
     national: record.national?.calledUp ? record.national : null,
     development,
     honours,
+    // The year the club had, and the year he had inside it. Both come off the one latent
+    // the season was drawn from, which is why they tend to agree.
+    form: record.fortune ? formBand(record.fortune.form) : null,
+    division: record.division ?? null,
     movedClub: Boolean(previous && previous.clubId !== record.clubId),
   };
 }

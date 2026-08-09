@@ -160,28 +160,256 @@
   border-radius: 4px;
 }
 
-.tr-header__club {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.tr-header__club > div { display: flex; flex-direction: column; }
-.tr-header__club b { font-size: 15px; font-weight: 600; }
-.tr-header__club small { font-size: 11px; color: var(--tr-muted); }
+/* ── The status rail ─────────────────────────────────────────────────────────
+   Four readings that used to be scattered across a side panel shown on one phase
+   in eight. Every cell has the same three parts — label, number, word — so the
+   whole rail is read in one sweep, and the offer cards and the market strip below
+   are built from the same parts on purpose.                                    */
 
-.tr-header__ovr {
+.tr-rail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 0;
+  margin-left: auto;
+}
+/* The vitrina takes its own line so it never squeezes the four readings above it. */
+.tr-rail > .tr-shelf {
+  flex: 1 0 100%;
+  justify-content: flex-end;
+  margin: 11px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--tr-line);
+}
+
+/* ── The rating, as a card ───────────────────────────────────────────────────
+   The one place this interface borrows a convention from the genre wholesale,
+   because the convention is doing real work: the other three readings in the rail
+   describe a situation that changes every summer, and this one describes the
+   player. A card says that without a word.
+
+   Drawn in the game's own materials, though - the dark panel, with the metal only
+   in the edge, the rating and the clipped corner. Red is still reserved for the
+   masthead rule and the delta marker, so the top tier is gold with a sheen across
+   it rather than a colour of its own.                                          */
+
+.tr-pcard {
+  --tr-tier: var(--tr-muted);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4px 12px;
+  gap: 1px;
+  flex: none;
+  width: 62px;
+  padding: 9px 6px 7px;
+  color: var(--tr-tier);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.07), transparent 46%),
+    linear-gradient(180deg, var(--tr-panel-2), var(--tr-panel));
+  border: 1px solid var(--tr-tier);
+  border-radius: 4px;
+  /* `overflow` rather than a clip-path: a clip would take the shadow and the elite ring
+     with it, and both are doing more for the card-ness here than a notched corner would
+     at 62 pixels wide. */
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* The foil strip along the top edge - the one flourish that says "card" at this size. */
+.tr-pcard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--tr-tier), transparent);
+  opacity: 0.9;
+}
+
+.tr-pcard__rating {
+  font-family: var(--tr-display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--tr-tier);
+}
+.tr-pcard__pos {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--tr-tier);
+  opacity: 0.85;
+}
+.tr-pcard__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid currentcolor;
+  opacity: 0.9;
+}
+
+.tr-pcard.is-bronce { --tr-tier: #b07d4f; }
+.tr-pcard.is-plata { --tr-tier: #b9c2d0; }
+.tr-pcard.is-oro { --tr-tier: var(--tr-gold); }
+.tr-pcard.is-elite { --tr-tier: #ffdf6e; }
+
+/* Only the top tier gets the sheen, so reaching it is visible rather than announced. */
+.tr-pcard.is-elite {
+  background:
+    linear-gradient(150deg, rgba(255, 223, 110, 0.22), transparent 44%),
+    linear-gradient(180deg, #241f10, var(--tr-panel));
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 223, 110, 0.28);
+}
+.tr-pcard.is-elite::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.16) 50%, transparent 62%);
+  background-size: 260% 100%;
+  animation: tr-sheen 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes tr-sheen {
+  0%, 62% { background-position: 130% 0; }
+  100% { background-position: -30% 0; }
+}
+
+/* A rating that moved is the one number in this game worth interrupting for. */
+.tr-pcard.is-changed .tr-pcard__rating {
+  display: inline-block;
+  animation: tr-pulse 900ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.tr-rail__club {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 16px;
+  min-width: 0;
+}
+.tr-rail__club > div { display: flex; flex-direction: column; min-width: 0; }
+.tr-rail__club b {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tr-rail__club small {
+  font-size: 11px;
+  color: var(--tr-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr-rail__cells { display: flex; align-items: stretch; }
+
+.tr-rail__cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-width: 74px;
+  padding: 4px 13px 7px;
   border-left: 1px solid var(--tr-line);
 }
-.tr-header__ovr span {
-  font-size: 10px;
+.tr-rail__label {
+  font-size: 9px;
+  font-weight: 700;
   letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--tr-muted);
 }
-.tr-header__ovr b { font-family: var(--tr-display); font-size: 30px; line-height: 1; }
+.tr-rail__value {
+  font-family: var(--tr-display);
+  font-size: 27px;
+  font-weight: 400;
+  line-height: 1;
+}
+.tr-rail__note {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  white-space: nowrap;
+}
+
+/* The one reading that is a position on a scale rather than a quantity. */
+.tr-rail__fill {
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(146, 162, 190, 0.18);
+  overflow: hidden;
+}
+.tr-rail__fill i {
+  display: block;
+  width: var(--fill, 0%);
+  height: 100%;
+  background: currentcolor;
+  transition: width 520ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* The role the distance buys, coloured the same way the meter colours its bands, so
+   the header and the offer card never disagree about what a number means. */
+.tr-rail__cell.is-role-titular { color: var(--tr-green); }
+.tr-rail__cell.is-role-rotacion_alta { color: var(--tr-green); }
+.tr-rail__cell.is-role-rotacion_baja { color: var(--tr-gold); }
+.tr-rail__cell.is-role-suplente { color: var(--tr-ink-red); }
+.tr-rail__cell.is-role-titular .tr-rail__value,
+.tr-rail__cell.is-role-rotacion_alta .tr-rail__value,
+.tr-rail__cell.is-role-rotacion_baja .tr-rail__value,
+.tr-rail__cell.is-role-suplente .tr-rail__value,
+.tr-rail__cell.is-role-titular .tr-rail__note,
+.tr-rail__cell.is-role-rotacion_alta .tr-rail__note,
+.tr-rail__cell.is-role-rotacion_baja .tr-rail__note,
+.tr-rail__cell.is-role-suplente .tr-rail__note { color: currentcolor; }
+
+.tr-rail__cell.is-warn .tr-rail__note { color: var(--tr-gold); }
+.tr-rail__cell.is-idol-leyenda { color: var(--tr-gold); }
+.tr-rail__cell.is-idol-idolo { color: #ff9d3d; }
+.tr-rail__cell.is-idol-referente { color: var(--tr-green); }
+.tr-rail__cell.is-idol-querido,
+.tr-rail__cell.is-idol-recien_llegado { color: var(--tr-muted); }
+.tr-rail__cell[class*="is-idol-"] .tr-rail__note { color: currentcolor; }
+
+/* A number that moved is worth noticing without having to remember the old one. */
+@keyframes tr-pulse {
+  0% { transform: none; }
+  30% { transform: translateY(-3px) scale(1.06); }
+  100% { transform: none; }
+}
+.tr-rail__cell.is-changed .tr-rail__value {
+  display: inline-block;
+  animation: tr-pulse 900ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.tr-rail__cell.is-changed::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: currentcolor;
+  opacity: 0;
+  animation: tr-flash 900ms ease-out;
+  pointer-events: none;
+}
+@keyframes tr-flash {
+  0% { opacity: 0.16; }
+  100% { opacity: 0; }
+}
 
 /* ── Age spine ───────────────────────────────────────────────────────────── */
 
@@ -229,8 +457,25 @@
   border-radius: 50%;
   background: inherit;
 }
-/* The current year outranks any mark on it: last, so it wins the tie on equal weight. */
-.tr-spine__tick.is-now { height: 22px; background: var(--tr-ink-red); }
+/* The current year outranks any mark on it: last, so it wins the tie on equal weight.
+   It is the only thing on the spine that moves, which is what makes it read as a clock
+   rather than a chart of what has already happened. */
+.tr-spine__tick.is-now {
+  height: 22px;
+  background: var(--tr-ink-red);
+  transition: height 320ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.tr-spine__tick.is-now::before {
+  content: "";
+  position: absolute;
+  inset: -3px -2px;
+  border-radius: 3px;
+  background: var(--tr-ink-red);
+  opacity: 0.25;
+  animation: tr-breathe 2.4s ease-in-out infinite;
+}
+/* Past seasons fill in behind it as the career runs. */
+.tr-spine__tick { transition: background 320ms ease, height 320ms ease; }
 
 /* ── Stage ───────────────────────────────────────────────────────────────── */
 
@@ -463,7 +708,26 @@
   gap: 10px;
   font-size: 11px;
 }
-.tr-delta__squad { letter-spacing: 0.1em; text-transform: uppercase; color: var(--tr-muted); }
+.tr-delta__squad {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+
+/* The club's stature, on the same line as the squad level it sets. It used to be its
+   own row above the meter, which made the card read as two separate measurements of
+   the same thing. */
+.tr-delta__rep { display: inline-flex; gap: 2px; }
+.tr-delta__rep i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(146, 162, 190, 0.25);
+}
+.tr-delta__rep i.is-on { background: var(--tr-muted); }
 .tr-delta__role { font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .tr-delta__role--titular { color: var(--tr-green); }
 .tr-delta__role--rotacion_alta { color: var(--tr-green); }
@@ -532,6 +796,87 @@
 .tr-front__card .tr-idol__level--idolo { color: #a8501a; }
 .tr-front__card .tr-idol__fill--idolo { background: #c2661f; }
 
+/* ── The two verdicts on an offer ────────────────────────────────────────────
+   Whether that club still makes you better, and what leaving this one costs. Two
+   fixed slots in the same place on every card, in the rail's label/value language,
+   so three offers are compared by reading down a column instead of across three
+   differently-shaped paragraphs.                                               */
+
+.tr-verdicts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tr-verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px 9px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--tr-muted);
+  min-width: 0;
+}
+.tr-verdict__label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tr-verdict__value {
+  font-family: var(--tr-display);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: currentcolor;
+}
+.tr-verdict__detail {
+  font-size: 10px;
+  color: var(--tr-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tr-verdict__bar {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+.tr-verdict__bar i {
+  display: block;
+  width: var(--fill, 0%);
+  height: 100%;
+  border-radius: 2px;
+  background: currentcolor;
+  /* Grows into place as the card arrives, so the comparison animates rather than
+     appearing already made. */
+  animation: tr-fill 620ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms + 260ms);
+}
+@keyframes tr-fill {
+  from { width: 0; }
+}
+
+.tr-verdict.is-thriving { color: var(--tr-green); border-color: rgba(53, 196, 106, 0.32); }
+.tr-verdict.is-stalled { color: var(--tr-ink-red); border-color: rgba(232, 17, 45, 0.32); }
+.tr-verdict.is-neutral { color: var(--tr-ink); }
+.tr-verdict.is-free { color: var(--tr-green); }
+.tr-verdict.is-cost { color: var(--tr-gold); border-color: rgba(242, 183, 5, 0.32); }
+.tr-verdict.is-betrayal {
+  color: var(--tr-ink-red);
+  border-color: rgba(232, 17, 45, 0.45);
+  background: rgba(232, 17, 45, 0.08);
+}
+
 /* The price of leaving, printed on the offer. */
 .tr-exit {
   display: flex;
@@ -555,16 +900,199 @@
 .tr-exit.is-betrayal { border-color: rgba(232, 17, 45, 0.45); background: rgba(232, 17, 45, 0.08); }
 .tr-exit.is-betrayal .tr-exit__head b { color: var(--tr-ink-red); }
 
-.tr-loyalty {
+/* ── The ceremony ────────────────────────────────────────────────────────────
+   Played over the season report, because the report is a newspaper and a
+   newspaper is printed the morning after. This is the night: the cups land one at
+   a time out of the dark, and then you read about them.
+
+   Gold on near-black and nothing else - no crest, no club colour, no confetti. The
+   silhouette is the whole image, which is what makes three of them at once read as
+   a sweep rather than as a row of logos.                                       */
+
+.tr-ceremony {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 42%, rgba(28, 24, 8, 0.94), rgba(6, 7, 10, 0.97) 62%);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: tr-fade-in 260ms ease-out;
+}
+@keyframes tr-fade-in {
+  from { opacity: 0; }
+}
+
+.tr-ceremony__inner { text-align: center; max-width: 100%; }
+.tr-ceremony__eyebrow {
+  margin: 0 0 clamp(14px, 3vw, 26px);
+  font-family: var(--tr-display);
+  font-size: clamp(20px, 4vw, 34px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tr-gold);
+  animation: tr-rise 460ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+}
+
+.tr-ceremony__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(18px, 5vw, 54px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tr-ceremony__item {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px;
-  background: var(--tr-panel);
-  border: 1px solid var(--tr-line);
+  align-items: center;
+  gap: 12px;
+  /* Each cup waits its turn: the stagger is what turns three trophies into three
+     moments instead of one crowded picture. */
+  animation: tr-lift 720ms cubic-bezier(0.16, 1.05, 0.3, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 620ms + 220ms);
+}
+.tr-ceremony__item b {
+  font-family: var(--tr-display);
+  font-size: clamp(12px, 1.7vw, 16px);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--tr-ink);
+}
+
+/* Rises out of the dark and settles, the way a cup is actually lifted. */
+@keyframes tr-lift {
+  0% { opacity: 0; transform: translateY(46px) scale(0.72); }
+  62% { opacity: 1; transform: translateY(-8px) scale(1.04); }
+  100% { opacity: 1; transform: none; }
+}
+
+.tr-ceremony__cup {
+  position: relative;
+  display: block;
+  color: var(--tr-gold);
+  filter: drop-shadow(0 10px 22px rgba(242, 183, 5, 0.3));
+}
+/* The flash of the moment it lands. */
+.tr-ceremony__cup::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 226, 138, 0.5), transparent 66%);
+  opacity: 0;
+  animation: tr-flare 900ms ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 620ms + 480ms);
+  pointer-events: none;
+}
+@keyframes tr-flare {
+  0% { opacity: 0.85; transform: scale(0.5); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+
+/* An individual award is not a cup, and should not be gold like one. */
+.tr-ceremony__item--award .tr-ceremony__cup { color: var(--tr-ink); }
+.tr-ceremony__item--award .tr-ceremony__cup { filter: drop-shadow(0 10px 22px rgba(238, 241, 247, 0.22)); }
+
+.tr-ceremony__skip {
+  margin: clamp(20px, 4vw, 34px) 0 0;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  animation: tr-fade-in 400ms ease-out backwards;
+  animation-delay: 900ms;
+}
+
+/* The stage has to be the positioning context, or the overlay escapes to the page. */
+.tr-stage { position: relative; }
+
+/* ── The shelf ───────────────────────────────────────────────────────────────
+   The career-mode profile: the cabinet as it fills rather than a count of it. It
+   sits in the panel the player reads while deciding, so what he has already won is
+   in front of him when he chooses where to go next.                            */
+
+.tr-shelf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 8px 0 6px;
+  padding: 0;
+  list-style: none;
+}
+.tr-shelf__item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--tr-gold);
+  background: rgba(242, 183, 5, 0.09);
+  border: 1px solid rgba(242, 183, 5, 0.3);
+  border-radius: 6px;
+  animation: tr-stamp 320ms cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+/* A cup won with your country is a different colour of memory. */
+.tr-shelf__item.is-national {
+  color: var(--tr-ink);
+  background: rgba(238, 241, 247, 0.07);
+  border-color: rgba(238, 241, 247, 0.22);
+}
+.tr-shelf__item b {
+  position: absolute;
+  right: -3px;
+  bottom: -4px;
+  min-width: 15px;
+  padding: 0 3px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+  color: var(--tr-black);
+  background: currentcolor;
   border-radius: 8px;
 }
-.tr-loyalty p { margin: 0; font-size: 13px; color: var(--tr-muted); }
+.tr-shelf__item.is-national b { color: var(--tr-black); }
+
+/* ── The shadow, while the career is still running ───────────────────────────
+   The retirement screen has always ended on a comparison against him. Being
+   measured at the end against somebody you were never told about is a scoreboard;
+   this is what turns it into a rivalry you can feel losing.                    */
+
+.tr-rival__id { display: flex; align-items: center; gap: 8px; margin: 6px 0 8px; }
+.tr-rival__id b { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; }
+
+.tr-rival__grid { display: flex; gap: 10px; margin: 0; }
+.tr-rival__grid > div { flex: 1; min-width: 0; }
+.tr-rival__grid dt {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+.tr-rival__grid dd {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin: 2px 0 0;
+}
+.tr-rival__grid dd b { font-family: var(--tr-display); font-size: 17px; line-height: 1; }
+/* His number, always in the muted grey - the loud one is yours, whichever way it went. */
+.tr-rival__grid dd span { font-size: 11px; color: var(--tr-muted); }
+.tr-rival__grid dd span::before { content: "/ "; }
+.tr-rival__grid .is-up dd b { color: var(--tr-green); }
+.tr-rival__grid .is-down dd b { color: var(--tr-ink-red); }
+
+.tr-rival.is-behind .tr-rival__id b { color: var(--tr-ink-red); }
+.tr-rival.is-ahead .tr-rival__id b { color: var(--tr-green); }
 
 /* The crowds you leave behind, on the retirement screen. */
 .tr-crowds ul { margin: 14px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
@@ -617,31 +1145,34 @@
 }
 
 .tr-offer {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 15px;
   padding: 16px;
   background: var(--tr-panel);
   border: 1px solid var(--tr-line);
   border-radius: 10px;
   transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
-.tr-offer:hover {
+.tr-offer:hover,
+.tr-offer:focus-within {
   border-color: rgba(232, 17, 45, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.38);
+}
+/* The card you are already at, marked down its edge rather than with another badge. */
+.tr-offer.is-stay::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+  left: -1px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--tr-gold);
 }
 
-/* Club reputation: five rungs, filled to where this side sits. It is what sets the
-   squad level, so it reads directly above the meter that measures against it. */
-.tr-offer__rep { display: flex; gap: 3px; }
-.tr-offer__rep span {
-  flex: 1;
-  height: 3px;
-  border-radius: 2px;
-  background: rgba(146, 162, 190, 0.2);
-}
-.tr-offer__rep span.is-on { background: var(--tr-muted); }
 .tr-offer__head { display: flex; align-items: center; gap: 12px; }
 .tr-offer__id { min-width: 0; flex: 1; }
 .tr-offer__id h3 { margin: 0; font-size: 16px; font-weight: 700; }
@@ -1120,6 +1651,262 @@
 .tr-match__head { position: relative; }
 .tr-match .tr-display { margin: 10px 0 0; }
 
+/* The season's three deciders as pips: which one you are on, and how the earlier ones
+   went. A counter reading "2 de 3" says the first half of that and hides the half the
+   player is actually thinking about. */
+/* ── The moment, when it is yours ────────────────────────────────────────────
+   One track, three mechanics. The target is always drawn: this is a test of
+   timing and nerve, never of guessing where the goal is - the guessing lives in
+   the other mode, where the keeper is hidden behind three placements.        */
+
+.tr-chance { margin-top: 18px; }
+.tr-chance__prompt {
+  margin: 0 0 10px;
+  font-family: var(--tr-display);
+  font-size: clamp(15px, 2.4vw, 20px);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--tr-ink);
+}
+
+.tr-chance__track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 58px;
+  padding: 0;
+  cursor: pointer;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.25));
+  border: 1px solid var(--tr-line);
+  border-radius: 10px;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+.tr-chance__track:active { border-color: rgba(232, 17, 45, 0.6); }
+
+/* Where it has to land. Green because it is the only thing on screen you want. */
+.tr-chance__target {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--from, 0%);
+  width: var(--size, 10%);
+  background: linear-gradient(180deg, rgba(53, 196, 106, 0.34), rgba(53, 196, 106, 0.14));
+  border-left: 1px solid rgba(53, 196, 106, 0.7);
+  border-right: 1px solid rgba(53, 196, 106, 0.7);
+}
+/* A window shrinks towards its own close, so the wait is visible as well as felt. */
+.tr-chance__track.is-window .tr-chance__target {
+  background: linear-gradient(180deg, rgba(242, 183, 5, 0.34), rgba(242, 183, 5, 0.12));
+  border-color: rgba(242, 183, 5, 0.75);
+}
+
+.tr-chance__marker {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: var(--at, 0%);
+  width: 3px;
+  margin-left: -1.5px;
+  background: var(--tr-ink);
+  box-shadow: 0 0 14px rgba(238, 241, 247, 0.75);
+}
+.tr-chance__locked {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: var(--at, 0%);
+  width: 2px;
+  margin-left: -1px;
+  background: var(--tr-ink-red);
+  opacity: 0.85;
+}
+
+.tr-chance__hint {
+  margin: 10px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--tr-muted);
+}
+
+/* ── The ninety minutes, when they are not ───────────────────────────────────
+   A live feed rather than a wall of text: the score sits still at the top and
+   the beats arrive underneath, one at a time, on the clock.                  */
+
+.tr-live {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--tr-line);
+  border-radius: 10px;
+}
+.tr-live__scoreline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--tr-line);
+}
+.tr-live__scoreline b {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+.tr-live__scoreline b:last-child { text-align: right; }
+.tr-live__score {
+  font-family: var(--tr-display);
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+/* The clock. The one thing on the page that is actually running. */
+.tr-live__clock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+}
+.tr-live__minute {
+  font-family: var(--tr-display);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  color: var(--tr-muted);
+  font-variant-numeric: tabular-nums;
+}
+.tr-live__minute.is-running { color: var(--tr-ink-red); }
+.tr-live__minute.is-running::after {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 7px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: currentcolor;
+  animation: tr-breathe 1.1s ease-in-out infinite;
+}
+.tr-live__skip {
+  padding: 4px 11px;
+  font-family: var(--tr-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  background: none;
+  border: 1px solid var(--tr-line);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.tr-live__skip:hover { color: var(--tr-ink); border-color: var(--tr-ink); }
+
+/* How many sights of goal this one owes him, when it owes more than one. */
+.tr-match__tally {
+  margin: 18px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--tr-gold);
+}
+
+.tr-match__waiting {
+  margin: 20px 0 0;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--tr-muted);
+}
+
+.tr-live__feed {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  /* Tall enough for the whole build-up, so the feed never jumps as beats land. */
+  min-height: 132px;
+}
+.tr-live__beat {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  color: #c3cbd9;
+  animation: tr-rise 300ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+}
+.tr-live__beat i {
+  flex: none;
+  width: 30px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--tr-muted);
+  font-variant-numeric: tabular-nums;
+}
+.tr-live__beat.is-us span { color: var(--tr-green); font-weight: 600; }
+.tr-live__beat.is-them span { color: var(--tr-ink-red); }
+.tr-live__beat.is-decisive span { color: var(--tr-ink); font-weight: 700; }
+
+/* Which way this one is being played, said once, next to the kind of chance. */
+.tr-match__mode {
+  margin-left: auto;
+  padding: 3px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  border: 1px solid var(--tr-line);
+  border-radius: 999px;
+}
+
+/* His record in these, above the placements. The number the season split is priced off. */
+.tr-match__record {
+  margin: 14px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+
+.tr-match__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tr-match__pips { display: inline-flex; gap: 6px; }
+.tr-match__pips i {
+  width: 22px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(146, 162, 190, 0.22);
+  transition: background 220ms ease, transform 220ms ease;
+}
+.tr-match__pips i.is-scored { background: var(--tr-green); }
+.tr-match__pips i.is-saved { background: var(--tr-ink-red); }
+.tr-match__pips i.is-now {
+  background: var(--tr-ink);
+  transform: scaleY(1.6);
+  animation: tr-breathe 1.9s ease-in-out infinite;
+}
+@keyframes tr-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
 .tr-match__teams {
   display: flex;
   flex-wrap: wrap;
@@ -1345,6 +2132,7 @@
 /* ── The front page ──────────────────────────────────────────────────────── */
 
 .tr-front {
+  position: relative;
   padding: clamp(20px, 3.5vw, 34px);
   color: var(--tr-paper-ink);
   background:
@@ -1384,6 +2172,30 @@
 }
 .tr-front__logo { font-family: var(--tr-display); font-size: 16px; letter-spacing: 0.06em; }
 .tr-front__dateline { color: #6a6c60; text-align: right; }
+
+/* The season's form, stamped on the stock the way a paper overprints a late edition.
+   Only at the two extremes, and never as a panel: it explains a tally, it is not a
+   result in its own right. */
+.tr-front__form {
+  position: absolute;
+  top: clamp(46px, 6vw, 70px);
+  right: clamp(14px, 3vw, 30px);
+  z-index: 2;
+  padding: 5px 11px;
+  font-family: var(--tr-display);
+  font-size: clamp(12px, 1.6vw, 15px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid currentcolor;
+  border-radius: 2px;
+  transform: rotate(-7deg);
+  opacity: 0.82;
+  animation: tr-stamp 420ms cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 220ms + 520ms);
+  pointer-events: none;
+}
+.tr-front__form.is-inspirado { color: #1d7a3d; }
+.tr-front__form.is-gris { color: #8a2b1c; }
 
 /* Lead: the story takes the wide column, the record sits in the rail beside it. */
 .tr-front__lead {
@@ -1527,7 +2339,7 @@
 }
 .tr-honour {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 7px;
   padding: 7px 11px;
   font-size: 13px;
@@ -1595,6 +2407,13 @@
 .tr-front__note p { margin: 6px 0 0; font-size: 13px; line-height: 1.45; color: #3c3e35; }
 .tr-front__note small { display: block; margin-top: 4px; font-size: 11px; color: #6a6c60; }
 .tr-front__note.is-warned p { color: #8a6b00; font-weight: 600; }
+/* The note leads with the number that landed; everything else in it is the footnote. */
+.tr-front__note-big {
+  font-family: var(--tr-display);
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
 .tr-front__note--shadow { border-left: 2px solid var(--tr-ink-red); padding-left: 12px; }
 
 .tr-front__foot {
@@ -1621,9 +2440,44 @@
   border: 1px solid var(--tr-line);
   border-radius: 8px;
 }
-.tr-outlook p { margin: 6px 0 0; font-size: 14px; color: #c3cbd9; }
+/* One strip of cells rather than three stacked sentences, in the rail's own language:
+   what is coming, when, and how much of it he is currently collecting. */
+.tr-outlook {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 28px;
+}
+.tr-outlook__cell { display: flex; flex-direction: column; gap: 3px; }
+.tr-outlook__cell small {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+.tr-outlook__cell b {
+  font-family: var(--tr-display);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1;
+}
+/* The number he can actually change by signing somewhere else is the loud one. */
+.tr-outlook__cell.is-rate b { color: var(--tr-green); }
+
 .tr-outlook.is-risk { border-color: rgba(242, 183, 5, 0.5); background: rgba(242, 183, 5, 0.07); }
-.tr-outlook__risk { color: var(--tr-gold); font-weight: 600; }
+.tr-outlook__risk {
+  margin-left: auto;
+  padding: 5px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tr-gold);
+  border: 1px solid rgba(242, 183, 5, 0.5);
+  border-radius: 999px;
+  cursor: help;
+}
 
 .tr-nationality__row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 
@@ -1635,6 +2489,53 @@
   color: var(--tr-ink-red);
   background: rgba(232, 17, 45, 0.08);
   border-left: 3px solid var(--tr-ink-red);
+}
+.tr-notice--locked {
+  color: var(--tr-gold);
+  background: rgba(242, 183, 5, 0.08);
+  border-left-color: var(--tr-gold);
+}
+.tr-notice--good {
+  color: var(--tr-green);
+  background: rgba(53, 196, 106, 0.08);
+  border-left-color: var(--tr-green);
+}
+
+/* ── Somebody paid the buy-out ───────────────────────────────────────────────
+   Deliberately not a fourth card in the grid. The grid is three clubs asking; this
+   is one that has already paid and is standing there waiting for an answer, so it
+   gets the gold, the width and the only two-button choice in the market.        */
+
+.tr-clause {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 24px;
+  padding: 18px 20px;
+  background:
+    linear-gradient(120deg, rgba(242, 183, 5, 0.12), transparent 58%),
+    var(--tr-panel);
+  border: 1px solid rgba(242, 183, 5, 0.5);
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+}
+.tr-clause__body { flex: 1 1 320px; min-width: 0; }
+.tr-clause__club { display: flex; align-items: center; gap: 13px; margin: 10px 0 8px; }
+.tr-clause__club h3 { margin: 0; }
+.tr-clause__text { margin: 0; font-size: 14px; line-height: 1.5; color: #c3cbd9; }
+.tr-clause__free {
+  margin: 9px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tr-green);
+}
+.tr-clause__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 0 1 240px;
 }
 
 /* ── Retirement ──────────────────────────────────────────────────────────── */
@@ -1752,6 +2653,8 @@
   animation: tr-stamp 380ms cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
   animation-delay: calc(var(--i, 0) * 90ms + 200ms);
 }
+.tr-cabinet li { align-items: center; }
+.tr-cabinet li .tr-sil { color: var(--tr-gold); flex: none; }
 .tr-cabinet li b { font-family: var(--tr-display); font-size: 22px; }
 .tr-cabinet li span { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tr-muted); }
 .tr-cabinet li.is-award { border-color: var(--tr-gold); }
@@ -1796,6 +2699,28 @@
   .tr-talks { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 900px) {
+  /* The status rail stops being a right-hand column and becomes its own band under the
+     name, full width, with the club on its own line above the four readings. Squeezing
+     five things into a shared row is what made the old header unreadable on a phone. */
+  .tr-rail {
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    border-top: 1px solid var(--tr-line);
+  }
+  /* The card and the crest keep the first line; the numbers take the second. */
+  .tr-rail__club { flex: 1 1 auto; padding: 0 0 0 14px; }
+  .tr-rail__cells { flex: 1 0 100%; margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--tr-line); }
+  .tr-rail > .tr-shelf { justify-content: flex-start; }
+  .tr-rail__cell { flex: 1; min-width: 0; padding: 4px 6px 7px; }
+  .tr-rail__cell:first-child { border-left: 0; padding-left: 0; }
+  .tr-rail__value { font-size: 23px; }
+  .tr-rail__fill { left: 6px; right: 6px; }
+  .tr-rail__cell:first-child .tr-rail__fill { left: 0; }
+}
+
 @media (max-width: 860px) {
   /* The rail cannot hold a meter and two vitals under this width, so it becomes a band
      across the bottom of the lead rather than a squeezed column. */
@@ -1818,10 +2743,14 @@
   .tr-field--choice { grid-column: span 2; }
   .tr-modes__row { grid-template-columns: 1fr; }
   .tr-header { gap: 10px; }
-  .tr-header__club { width: 100%; justify-content: space-between; }
   .tr-spine__tick i { display: none; }
   .tr-spine__tick.is-now i { display: block; }
   .tr-offers { grid-template-columns: 1fr; }
+  /* Two verdicts side by side still fit at this width and must stay side by side: the
+     whole point of the row is that the same two answers are in the same two places. */
+  .tr-verdict__label { letter-spacing: 0.08em; }
+  .tr-outlook { gap: 10px 18px; }
+  .tr-outlook__risk { margin-left: 0; }
   .tr-compare table { font-size: 13px; }
   .tr-crowds li { flex-wrap: wrap; }
   .tr-crowds__id { flex: 1 1 auto; }

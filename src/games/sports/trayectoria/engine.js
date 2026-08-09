@@ -10,6 +10,13 @@
  *   -> awards -> development -> market value -> offers
  */
 
+import {
+  formFactor,
+  fortunateChance,
+  poisson,
+  standardNormal,
+  unfortunateChance,
+} from "./fortune.js";
 import { chance, createStream, pickWeighted, randInt } from "./rng.js";
 import {
   AWARD_ELIGIBLE_ROLES,
@@ -29,6 +36,8 @@ import {
   DOUBLE_ROLL_ROLES,
   EARNED_TITLE_ROLES,
   ELITE_OVR,
+  FORM_SIGMA,
+  GROWTH,
   GOLDEN_BOOT,
   KEEPER_ROLE_BANDS,
   LEAGUE_STRENGTH_WEIGHT,
@@ -40,6 +49,7 @@ import {
   PROMOTION_ODDS,
   RETIREMENT_AGE,
   ROLE_BANDS,
+  SEASON_COHESION,
   SQUAD_LEVEL,
   START_AGE,
   START_OVR,
@@ -82,6 +92,96 @@ export function effectiveReputation(club, ovr, key = "international") {
 
 export function squadLevelFor(club, ovr) {
   return SQUAD_LEVEL[effectiveReputation(club, ovr, "international")] ?? SQUAD_LEVEL[0];
+}
+
+/* ── Where a club sits, once the career has moved it ──────────────────────────── */
+
+/**
+ * OUR CALL #7: going up and going down are things that happened, not things that were
+ * announced.
+ *
+ * `world.data.json` is a photograph: 574 clubs, each pinned to one competition forever.
+ * So the model rolled promotion every year for a second-division side and relegation
+ * every year for a small top-flight one, and neither outcome changed anything. Measured
+ * over 600 careers, one career was promoted with the same club four times and another was
+ * relegated six times - the second division it went down to did not exist, so it was
+ * still a first-division club the following August. Promotion was a repeatable ten points
+ * of idolatría and relegation was a repeatable trophy-wipe.
+ *
+ * The world stays immutable - it is shared by every career on the device and half the UI
+ * reads it directly. What moves is a per-career overlay: one integer per club, in
+ * {-1, 0, +1}, for where this career has left it relative to the photograph. Everything
+ * else falls out of that one number:
+ *
+ *     effective tier = clamp(base tier - shift, 1, 2)
+ *
+ * which makes a promoted side top-flight (and therefore no longer promotable, and now
+ * with something to lose), a relegated one second-tier (and therefore no longer
+ * relegatable, and now with something to play for), and the yo-yo club a real arc rather
+ * than the same roll over and over.
+ */
+export const TIERS = { top: 1, second: 2 };
+
+const divisionOf = (divisions, clubId) => divisions?.[clubId] ?? 0;
+
+/** Competitions of a country by tier, computed once per world. */
+const TIER_INDEX = new WeakMap();
+
+function tierIndex(world) {
+  let index = TIER_INDEX.get(world);
+  if (index) return index;
+  index = new Map();
+  for (const competition of Object.values(world.competitions ?? {})) {
+    index.set(`${competition.country_fifa_code}:${competition.tier}`, competition);
+  }
+  TIER_INDEX.set(world, index);
+  return index;
+}
+
+/**
+ * The club and the competition as this career has left them.
+ *
+ * Where the world models the division the club has moved into - every second tier in the
+ * data has a top flight above it, so promotion always resolves - the club really changes
+ * league. Where it does not, the tier moves and the badge on the fixture list does not,
+ * and `demoted` says so rather than the UI inventing a league that was never in the data.
+ */
+export function clubStanding(world, club, divisions = {}) {
+  const competition = club ? world.competitions[club.competitionId] ?? null : null;
+  const shift = club ? divisionOf(divisions, club.id) : 0;
+  if (!club || !shift) {
+    return { club, competition, shift: 0, tier: competition?.tier ?? 1, moved: false, demoted: false };
+  }
+
+  const baseTier = competition?.tier ?? 1;
+  const tier = Math.max(TIERS.top, Math.min(TIERS.second, baseTier - shift));
+  const destination =
+    tier === baseTier
+      ? competition
+      : tierIndex(world).get(`${competition?.country_fifa_code}:${tier}`) ?? null;
+
+  return {
+    club: {
+      ...club,
+      domestic_reputation: Math.max(0, Math.min(5, (club.domestic_reputation ?? 0) + shift)),
+      competitionId: destination?.id ?? club.competitionId,
+    },
+    // A competition really at this tier if the world has one, otherwise the old badge with
+    // the truth about the division written over it.
+    competition: destination ?? (competition ? { ...competition, tier } : null),
+    shift,
+    tier,
+    moved: Boolean(destination) && destination !== competition,
+    demoted: shift < 0,
+  };
+}
+
+/** Fold a season's promotion or relegation into the overlay. Clamped: one rung either way. */
+export function shiftDivision(divisions = {}, clubId, { promoted = false, relegated = false }) {
+  if (!clubId || (!promoted && !relegated)) return divisions;
+  const next = Math.max(-1, Math.min(1, divisionOf(divisions, clubId) + (promoted ? 1 : -1)));
+  if (next === divisionOf(divisions, clubId)) return divisions;
+  return { ...divisions, [clubId]: next };
 }
 
 /** Delta -> role. Keepers use their own thresholds: you are the keeper or you are not. */
@@ -132,12 +232,47 @@ export function developmentCycleFor(age) {
 }
 
 /**
+ * How much of a development cycle a season of this kind actually collects.
+ *
+ * See OUR CALL #6 in tables.js for why this exists and what the three terms are. The
+ * whole thing is a pure function of the season's shape, so the market screen can run it
+ * on an offer and print what signing there would do to you - which is the same promise
+ * the delta meter and the exit cost already make. A ceiling you can see coming is a
+ * decision; one you cannot is a gotcha.
+ */
+export function growthFactor({ matches = 0, delta = 0, reputation = 0 } = {}) {
+  const load = Math.min(GROWTH.minutesCap, Math.max(0, matches) / GROWTH.fullSeason);
+  const minutes = GROWTH.minutesFloor + GROWTH.minutesSpan * load ** GROWTH.minutesCurve;
+
+  // An inverted U: too far below and you never get on, too far above and nothing asks a
+  // question of you. The peak sits just above your head, where football says it is.
+  const off = (delta - GROWTH.challengeAt) / GROWTH.challengeWidth;
+  const challenge = Math.max(GROWTH.challengeFloor, GROWTH.challengePeak - GROWTH.challengeFall * off * off);
+
+  const environment = GROWTH.environment[Math.max(0, Math.min(5, reputation))] ?? 1;
+
+  const raw = minutes * challenge * environment * GROWTH.normaliser;
+  const factor = Math.max(GROWTH.min, Math.min(GROWTH.max, raw));
+  return { factor, minutes, challenge, environment };
+}
+
+/** The same factor read backwards, for the half of a career that goes down instead of up. */
+export const declineFactor = (growth) =>
+  Math.max(GROWTH.declineMin, Math.min(GROWTH.declineMax, 2 - growth));
+
+/**
  * OVR change for a cycle. Returns the range and the roll so the UI can show both -
  * this is the transparency half of the double-roll rule.
+ *
+ * `growth` is what the season just played is worth (see `growthFactor`). It scales what
+ * lands, never the published range: `total` is still the honest draw the panel prints,
+ * and `perSeason` is what the player earned of it.
  */
-export function developmentFor(seed, profile, targetAge, role, age) {
+export function developmentFor(seed, profile, targetAge, role, age, growth = 1) {
   const range = DEVELOPMENT[profile]?.[targetAge];
-  if (!range) return { range: [0, 0], total: 0, doubled: false };
+  if (!range) {
+    return { range: [0, 0], total: 0, doubled: false, growth: 1, scale: 1, perSeason: 0 };
+  }
 
   const next = createStream(seed, "development", targetAge);
   const draw = () => range[0] + next() * (range[1] - range[0]);
@@ -145,20 +280,41 @@ export function developmentFor(seed, profile, targetAge, role, age) {
   const doubled = targetAge >= DOUBLE_ROLL_FROM_AGE && DOUBLE_ROLL_ROLES.includes(role);
   const total = doubled ? Math.min(draw(), draw()) : draw();
 
+  // Growing and declining are the same rule read in opposite directions: minutes buy you
+  // more of the rise, and they buy you less of the fall. `scale` is the one that actually
+  // applied, which is the only one worth printing - in a decline year the growth factor
+  // and the number that scaled the draw are not the same, and showing the wrong one
+  // tells the reader his best season made him worse.
+  const scale = total >= 0 ? growth : declineFactor(growth);
+
   // The cycle spans two seasons, so half lands now and half next year.
-  return { range, total, doubled, perSeason: total / 2, age };
+  return { range, total, doubled, growth, scale, perSeason: (total / 2) * scale, age };
 }
 
-/** What the player is told before choosing a club - the warning that was missing. */
-export function developmentOutlook(state) {
+/**
+ * What the player is told before choosing a club - the warning that was missing.
+ *
+ * `growth` here is the season he has just played, i.e. what the next instalment of the
+ * cycle is currently worth to him. The market screen recomputes it per offer with
+ * `growthFactor` so the two can be read side by side.
+ */
+export function developmentOutlook(state, growth = null) {
   const target = developmentCycleFor(state.age + 1);
   if (!target) return null;
   const range = DEVELOPMENT[state.profile]?.[target];
   if (!range) return null;
+  const rising = range[1] > 0;
   return {
     targetAge: target,
     range,
     atRisk: target >= DOUBLE_ROLL_FROM_AGE && DOUBLE_ROLL_ROLES.includes(state.lastRole),
+    rising,
+    growth,
+    // What the range becomes at the growth the last season earned, which is the number
+    // the player is really choosing between when he reads the offers.
+    effective: growth
+      ? range.map((bound) => bound * (bound >= 0 ? growth : declineFactor(growth)))
+      : range,
   };
 }
 
@@ -169,16 +325,22 @@ export function matchesFor(next, role, club, ovr) {
   return Math.round(base * (CLUB_MATCH_MULTIPLIER[domestic] ?? 1));
 }
 
-export function outputFor(next, { group, delta, club, ovr, matches, kind }) {
+/**
+ * A season's goals or assists.
+ *
+ * `form` is the season's multiplicative form factor (mean 1, drawn once and shared with
+ * everything else that happened that year - see fortune.js). The count around it is
+ * Poisson, so the spread of a tally falls with its size the way a real one does, and both
+ * the form and the count are unbiased: the expectation is exactly the rate table.
+ */
+export function outputFor(next, { group, delta, club, ovr, matches, kind, form = 1 }) {
   const table = kind === "goals" ? GOAL_RATE : ASSIST_RATE;
   const rate = table[group]?.[deltaBand(delta)] ?? 0;
   if (rate <= 0 || matches <= 0) return 0;
 
   const strength = CLUB_OUTPUT_MULTIPLIER[effectiveReputation(club, ovr, "domestic")] ?? 1;
   const expected = rate * matches * strength * qualityMultiplier(ovr);
-  // Spread the season around its expectation rather than returning the mean flat.
-  const variance = 0.75 + next() * 0.5;
-  return Math.max(0, Math.round(expected * variance));
+  return poisson(next, expected * Math.max(0, form));
 }
 
 export function titleOddsFor({ trophy, club, ovr, delta, confederation, modifiers = {} }) {
@@ -198,34 +360,20 @@ export function titleOddsFor({ trophy, club, ovr, delta, confederation, modifier
 }
 
 function rollTitles(seed, season, context) {
-  const { club, competition, ovr, delta, role, modifiers } = context;
+  const { club, competition, ovr, delta, role, modifiers, latent = 0 } = context;
   const won = [];
   if (modifiers.suspended) return won;
 
   const trophies = ["league", "cup", "continental_a", "continental_b"];
   if (CLUB_WORLD_CUP_CYCLE(context.age)) trophies.push("club_world_cup");
 
-  // Trophies settled by a big match are not rolled again: the player already took the
-  // shot, and rolling on top of that would make the moment decorative.
-  const guaranteed = modifiers.guaranteedTitles ?? [];
-  const denied = modifiers.deniedTitles ?? [];
+  // A trophy the player took a decider in is still rolled - his shot moved the odds a
+  // long way but did not close them, which is what `DECIDES` is for. What the list gives
+  // us is the right to say afterwards that this one came down to a night he was on.
+  const decided = modifiers.decidedTrophies ?? [];
 
   let wonContinentalA = false;
   for (const trophy of trophies) {
-    if (denied.includes(trophy) && !guaranteed.includes(trophy)) continue;
-    if (guaranteed.includes(trophy)) {
-      if (trophy === "continental_a") wonContinentalA = true;
-      won.push({
-        trophy,
-        competitionId: competition?.id ?? null,
-        clubId: club.id,
-        season,
-        age: context.age,
-        earned: true,
-        decidedOnThePitch: true,
-      });
-      continue;
-    }
     // A side in the main continental cup is not also contesting the second one.
     if (trophy === "continental_b" && (wonContinentalA || context.wonContinentalALastSeason)) {
       continue;
@@ -239,16 +387,21 @@ function rollTitles(seed, season, context) {
       modifiers,
     });
     const next = createStream(seed, "title", trophy, season);
-    if (chance(next, odds)) {
+    // Exactly `odds`, but in sympathy with the rest of the club's year: this is where
+    // doubles come from, and where a barren season stays barren.
+    if (fortunateChance(next, odds, latent, SEASON_COHESION[trophy] ?? 0)) {
       if (trophy === "continental_a") wonContinentalA = true;
+      const onThePitch = decided.includes(trophy);
       won.push({
         trophy,
         competitionId: competition?.id ?? null,
         clubId: club.id,
         season,
         age: context.age,
-        // OUR CALL: the cabinet distinguishes what you won from what you attended.
-        earned: EARNED_TITLE_ROLES.includes(role.role),
+        // OUR CALL: the cabinet distinguishes what you won from what you attended - and
+        // a trophy you took the decisive shot in was never attended.
+        earned: onThePitch || EARNED_TITLE_ROLES.includes(role.role),
+        decidedOnThePitch: onThePitch,
       });
     }
   }
@@ -270,28 +423,39 @@ function rollNationalTeam(seed, season, context) {
 
   const continentalRep = country.continental_reputation ?? 0;
   const fifaRep = country.fifa_reputation ?? 0;
-  // A final the player took is not rolled again, in either direction. The roll it stood
-  // in for was already scaled away when the fixture was drawn.
-  const decided = modifiers.guaranteedNationalTitles ?? [];
-  const denied = modifiers.deniedNationalTitles ?? [];
-  const oddsOf = (trophy, base) =>
-    denied.includes(trophy) ? 0 : base * (modifiers.nationalMultipliers?.[trophy] ?? 1);
+  // A final the player took is still played out - the shot moved the odds, it did not end
+  // the argument. What standing in one does settle is that he got there.
+  const decided = modifiers.decidedTrophies ?? [];
+  const reached = modifiers.nationalReached ?? [];
+  const oddsOf = (trophy, base) => base * (modifiers.nationalMultipliers?.[trophy] ?? 1);
 
   if (CONTINENTAL_CYCLE(age)) {
     const next = createStream(seed, "national", "continental", season);
     const odds = oddsOf("continental_nt", CONTINENTAL_WIN[continentalRep] ?? 0);
-    if (decided.includes("continental_nt") || chance(next, odds)) {
-      result.titles.push({ trophy: "continental_nt", season, age, earned: true });
+    if (chance(next, odds)) {
+      result.titles.push({
+        trophy: "continental_nt",
+        season,
+        age,
+        earned: true,
+        decidedOnThePitch: decided.includes("continental_nt"),
+      });
     }
   }
   if (WORLD_CUP_CYCLE(age)) {
     const qualify = createStream(seed, "national", "qualify", season);
-    if (decided.includes("world_cup") || chance(qualify, WORLD_CUP_QUALIFY[fifaRep] ?? 0)) {
+    if (reached.includes("world_cup") || chance(qualify, WORLD_CUP_QUALIFY[fifaRep] ?? 0)) {
       result.playedWorldCup = true;
       const next = createStream(seed, "national", "world-cup", season);
       const odds = oddsOf("world_cup", WORLD_CUP_WIN[fifaRep] ?? 0);
-      if (decided.includes("world_cup") || chance(next, odds)) {
-        result.titles.push({ trophy: "world_cup", season, age, earned: true });
+      if (chance(next, odds)) {
+        result.titles.push({
+          trophy: "world_cup",
+          season,
+          age,
+          earned: true,
+          decidedOnThePitch: decided.includes("world_cup"),
+        });
       }
     }
   }
@@ -344,8 +508,10 @@ export function buildOffers(seed, season, state, world, count = 3) {
   const radius = marketRadius(state.ovr);
   if (!radius.sameCountry && !radius.sameConfederation && !radius.global) return [];
 
-  const current = world.clubs[state.clubId];
-  const currentCompetition = current ? world.competitions[current.competitionId] : null;
+  // The club you would be staying at is the one the career left, division and all.
+  const currentStandingHere = clubStanding(world, world.clubs[state.clubId], state.divisions);
+  const current = currentStandingHere.club;
+  const currentCompetition = currentStandingHere.competition;
   const homeCountry = state.country;
   const homeConfederation = world.countries[homeCountry]?.confederation;
 
@@ -452,6 +618,13 @@ export function createCareer({
     value: START_VALUE,
     clubId: null,
     lastRole: null,
+    /** Where this career has left each club it moved: -1 down, +1 up. See `clubStanding`. */
+    divisions: {},
+    /**
+     * Every decisive chance he has had, and how many went in. The season planner prices
+     * its deciders off this rather than off an assumption - see `conversionRate`.
+     */
+    conversion: { taken: 0, scored: 0 },
     /** The deal you are on: years, wage, role promise and buy-out. See contract.js. */
     contract: null,
     /** Idolatría by club id, plus the clubs that will never forgive the way you left. */
@@ -478,9 +651,12 @@ export function createCareer({
  * a record of what happened. Pure: same state in, same season out.
  */
 export function simulateSeason(state, world, { season }) {
-  const club = world.clubs[state.clubId];
-  if (!club) throw new Error(`simulateSeason: unknown club ${state.clubId}`);
-  const competition = world.competitions[club.competitionId];
+  const registered = world.clubs[state.clubId];
+  if (!registered) throw new Error(`simulateSeason: unknown club ${state.clubId}`);
+  // Not the club the data describes - the club this career has left behind it.
+  const standing = clubStanding(world, registered, state.divisions);
+  const club = standing.club;
+  const competition = standing.competition;
   const country = world.countries[state.country];
   const modifiers = state.modifiers ?? { titleMultipliers: {} };
   const keeper = isKeeper(state.position);
@@ -512,6 +688,13 @@ export function simulateSeason(state, world, { season }) {
     ? 0
     : Math.max(0, matchesFor(matchStream, role, club, effectiveOvr) + (modifiers.matchesDelta ?? 0));
 
+  // How the year went for everybody at this club, drawn once. Low is good. Every outcome
+  // below leans on it by its own amount, which is what makes a season a season instead of
+  // a handful of unrelated coins - and none of it moves a single average. See fortune.js.
+  const fortuneStream = createStream(state.seed, "fortune", season);
+  const latent = standardNormal(fortuneStream);
+  const form = formFactor(latent, fortuneStream, FORM_SIGMA, SEASON_COHESION.form);
+
   const goalStream = createStream(state.seed, "goals", season);
   const assistStream = createStream(state.seed, "assists", season);
   // Goals scored in the big matches are goals. They are counted on top of the rolled
@@ -519,14 +702,14 @@ export function simulateSeason(state, world, { season }) {
   const bigMatchGoals = modifiers.suspended ? 0 : modifiers.bonusGoals ?? 0;
   const goals =
     outputFor(goalStream, {
-      group: state.group, delta, club, ovr: effectiveOvr, matches, kind: "goals",
+      group: state.group, delta, club, ovr: effectiveOvr, matches, kind: "goals", form,
     }) + bigMatchGoals;
   const assists = outputFor(assistStream, {
-    group: state.group, delta, club, ovr: effectiveOvr, matches, kind: "assists",
+    group: state.group, delta, club, ovr: effectiveOvr, matches, kind: "assists", form,
   });
 
   const context = {
-    club, competition, country, ovr: effectiveOvr, delta, role, modifiers,
+    club, competition, country, ovr: effectiveOvr, delta, role, modifiers, latent,
     age: state.age, group: state.group, goals,
     wonContinentalALastSeason: state.wonContinentalALastSeason,
   };
@@ -545,20 +728,40 @@ export function simulateSeason(state, world, { season }) {
       tableLookup(PROMOTION_ODDS, effectiveOvr).odds * (modifiers.promotionMultiplier ?? 1);
     promoted =
       modifiers.forcePromotion ??
-      chance(createStream(state.seed, "promotion", season), odds);
+      fortunateChance(
+        createStream(state.seed, "promotion", season),
+        odds,
+        latent,
+        SEASON_COHESION.promotion,
+      );
   } else if (effectiveReputation(club, effectiveOvr, "domestic") === 0) {
     const odds = relegationOdds(effectiveOvr) * (modifiers.relegationMultiplier ?? 1);
+    // The one outcome the season's fortune should make LESS likely: a side having its
+    // best year in a decade does not go down with it.
     relegated =
-      modifiers.forceRelegation ?? chance(createStream(state.seed, "relegation", season), odds);
+      modifiers.forceRelegation ??
+      unfortunateChance(
+        createStream(state.seed, "relegation", season),
+        odds,
+        latent,
+        SEASON_COHESION.relegation,
+      );
   }
   // Going down wipes the club silverware won on the way.
   const keptTitles = relegated ? [] : titles;
 
-  // Development: half of the two-year cycle lands each season.
+  // Development: half of the two-year cycle lands each season, scaled by the season that
+  // was actually played. A year on the bench at a giant no longer develops you the same
+  // as a year carrying a side that needed you.
+  const growth = growthFactor({
+    matches,
+    delta,
+    reputation: effectiveReputation(club, effectiveOvr, "international"),
+  });
   const targetAge = developmentCycleFor(state.age);
   const development = targetAge
-    ? developmentFor(state.seed, state.profile, targetAge, role.role, state.age)
-    : { perSeason: 0, doubled: false, range: [0, 0] };
+    ? developmentFor(state.seed, state.profile, targetAge, role.role, state.age, growth.factor)
+    : { perSeason: 0, doubled: false, range: [0, 0], growth: growth.factor };
 
   const nextOvr = clampOvr(state.ovr + (development.perSeason ?? 0) + (state.pendingOvr ?? 0));
 
@@ -579,8 +782,14 @@ export function simulateSeason(state, world, { season }) {
     national,
     promoted,
     relegated,
+    // Which division this was actually played in, which is not always the one on the badge.
+    division: { tier: standing.tier, shift: standing.shift, demoted: standing.demoted },
     suspended: Boolean(modifiers.suspended),
     value: marketValue(effectiveOvr, state.age),
+    // How the year went for the club, and how the player felt in it. Kept on the record
+    // so the report and the press can say so instead of only printing the tally.
+    fortune: { latent, form },
+    growth,
     development: { ...development, applied: development.perSeason ?? 0 },
   };
 
@@ -598,6 +807,9 @@ export function simulateSeason(state, world, { season }) {
     lowRotationStreak,
     seasonsAtClub: state.seasonsAtClub + 1,
     wonContinentalALastSeason: keptTitles.some((t) => t.trophy === "continental_a"),
+    // Where the club now is. A side that just went up is not promotable again next
+    // August, and one that just went down has a season to play its way back.
+    divisions: shiftDivision(state.divisions, club.id, { promoted, relegated }),
     clubWantsOut:
       benchStreak >= limits.benchLimit || lowRotationStreak >= limits.lowRotationLimit,
     value: marketValue(nextOvr, state.age + 1),

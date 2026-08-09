@@ -78,6 +78,73 @@ export const DOUBLE_ROLL_FROM_AGE = 24;
 export const DEVELOPMENT_WARNING_AGE = 22;
 export const DOUBLE_ROLL_ROLES = ["rotacion_baja", "suplente"];
 
+/**
+ * OUR CALL #6: the season you played is the coaching you got.
+ *
+ * The double-roll above was the model's only link between a career and how good the
+ * player became, and measurement showed it does almost nothing. Over 400 careers on
+ * identical seeds, a policy that always signed for the biggest badge available spent 35%
+ * of its career as a substitute and peaked at 79.1 OVR; a policy that always signed where
+ * it would start spent 86% of its career in the XI and peaked at 80.0. Nine tenths of an
+ * OVR point - a fifth of a standard deviation - separated a career of football from a
+ * career of watching it. The growth curve was a property of the seed, and every club
+ * decision the game asked you to agonise over was decoration as far as it was concerned.
+ *
+ * `growthFactor` scales the development draw by the season that was actually played. It
+ * reads three things, and they are deliberately orthogonal:
+ *
+ *   minutes      - what you did. The dominant term, with diminishing returns: the fortieth
+ *                  match of a season teaches less than the tenth.
+ *   challenge    - who you did it against. An inverted U in delta, peaked just above your
+ *                  head. This is the term that matters most to the design, because it is
+ *                  the first force in the game that pushes back on delta-farming for a
+ *                  football reason rather than a sentimental one: being the best player at
+ *                  a small club pays in goals and costs you the ceiling you might have had.
+ *   environment  - where. Small on purpose. Better clubs coach better, but not nearly as
+ *                  much as playing does, and a game that said otherwise would be lying.
+ *
+ * `GROWTH_NORMALISER` is calibrated, not chosen: it is set so that a competent career -
+ * the policy the shadow rival plays - peaks where it always did. The spread around that
+ * is the new information; the centre is the old balance, deliberately preserved.
+ */
+export const GROWTH = {
+  /** Matches that count as a full season's work, before diminishing returns. */
+  fullSeason: 34,
+  /** A season of nothing is still worth this much: you trained, you were sixteen. */
+  minutesFloor: 0.48,
+  minutesSpan: 0.52,
+  /** Below 1: the marginal match is worth less than the one before it. */
+  minutesCurve: 0.7,
+  /** Load past a full season still counts, but only this far. */
+  minutesCap: 1.25,
+
+  /** The delta you learn most at - just out of your depth, and still on the pitch. */
+  challengeAt: -2,
+  challengePeak: 1.12,
+  challengeFall: 0.32,
+  challengeWidth: 10,
+  challengeFloor: 0.74,
+
+  /** By club international reputation. Deliberately the smallest of the three terms. */
+  environment: [0.94, 0.97, 1.0, 1.03, 1.06, 1.09],
+
+  min: 0.68,
+  max: 1.3,
+  /** Calibrated, not chosen. See the note above and `__measure` in the git history. */
+  normaliser: 1.136,
+
+  /**
+   * Decline is the same rule read backwards. A veteran still playing every week holds on;
+   * one who stopped playing falls off a cliff, which is the true and cruel version.
+   */
+  declineMin: 0.8,
+  declineMax: 1.3,
+
+  /** Where the report stops calling a season ordinary and starts naming it. */
+  stallBelow: 0.86,
+  thrivingFrom: 1.1,
+};
+
 /** OVR the squad around you is assumed to have, by club international reputation. */
 export const SQUAD_LEVEL = [58, 68, 75, 80, 84, 88];
 
@@ -133,6 +200,42 @@ export const ASSIST_RATE = {
 
 /** Strong sides attack more, so the same player scores more in them. */
 export const CLUB_OUTPUT_MULTIPLIER = [0.55, 0.68, 0.80, 0.92, 1.06, 1.20];
+
+/**
+ * OUR CALL #5: one season, one fortune.
+ *
+ * The mathematics lives in fortune.js; these are the two dials it reads, and both were
+ * chosen so that *no average in this file moves*. A Poisson count is unbiased and the
+ * form factor averages exactly 1, so the goal rates above still mean what they say; the
+ * copula reproduces each trophy's marginal exactly, so TITLE_ODDS still means what it
+ * says. What changes is the joint distribution - the thing the old model got wrong.
+ *
+ * `FORM_SIGMA` is the year-to-year spread of a player at a fixed expectation. At 0.20 a
+ * striker expected to score 18 lands with sd ~5.6 instead of the old 2.6, which is what
+ * a real 18-goal striker's career actually looks like; a fringe player expected to score
+ * 1.7 now blanks about one year in six instead of never.
+ */
+export const FORM_SIGMA = 0.2;
+
+/**
+ * How much of each outcome is "how the season went for the club" rather than its own
+ * luck, as the latent correlation of a Gaussian copula. Zero is the old independent coin.
+ *
+ * The two domestic trophies are mostly the same squad playing the same year, so they are
+ * tied hardest. A continental run turns on two-legged knockouts against sides from other
+ * leagues, so it keeps more of its own luck. The player's form is tied loosely: a striker
+ * carries a bad team often enough that we will not make him a passenger of the table.
+ */
+export const SEASON_COHESION = {
+  league: 0.55,
+  cup: 0.5,
+  continental_a: 0.35,
+  continental_b: 0.35,
+  club_world_cup: 0.3,
+  promotion: 0.5,
+  relegation: 0.5,
+  form: 0.3,
+};
 
 /** Absolute quality still counts for something, from x0.60 at 65 to x1.10 at 95. */
 export function qualityMultiplier(ovr) {

@@ -51,6 +51,36 @@ const assetPath = (bucket, key, record) => {
 };
 
 /**
+ * A mirrored trophy, if the fetch actually got one.
+ *
+ * Unlike the other buckets this is keyed by the manifest rather than by what is on disk:
+ * the files are named after a slash-separated key (`league/laliga` -> `league__laliga.png`)
+ * so a plain readdir cannot tell which competition a file belongs to. A key with no record,
+ * or a record that came back `missing`, resolves to null and the game falls back to its
+ * own silhouette - which is the case for CAF, OFC and almost every national-team cup.
+ */
+const trophyPath = (key) => {
+  const record = manifest.trophies?.[key];
+  if (!record?.file || !["ok", "cached"].includes(record.status)) return null;
+  return `/assets/football/trophies/${record.file}`;
+};
+
+/**
+ * The continental and world trophies, which belong to a confederation rather than to any
+ * one competition and so have nowhere else to live.
+ *
+ * Emitted as a map of exactly what was mirrored, rather than as a table the client keeps
+ * its own copy of. Copero's coverage is not stable - CONCACAF's club trophy answered once
+ * and has 403'd since - and a hard-coded list on the far side drifts silently, because a
+ * wrong path just falls back to the silhouette and nobody ever finds out.
+ */
+const internationalTrophies = Object.fromEntries(
+  Object.entries(manifest.trophies ?? {})
+    .filter(([key, record]) => key.startsWith("international/") && ["ok", "cached"].includes(record.status))
+    .map(([key, record]) => [key, `/assets/football/trophies/${record.file}`]),
+);
+
+/**
  * League strength 0-5, from the mean international reputation of its clubs. It scales
  * the Golden Boot so that goals in a weak league still count, just for less.
  */
@@ -74,6 +104,11 @@ for (const comp of competitionsRaw) {
     strength: strengthOf(comp.teams ?? []),
     domesticCupId: comp.domestic_cup_id ?? null,
     logo: assetPath("competitions", comp.id, manifest.competitions?.[comp.id]),
+    // The real silverware, where `--only trophies` managed to mirror it. Null is the
+    // ordinary case - the game draws its own silhouettes and only reaches for these when
+    // they exist. See src/games/sports/trayectoria/trophies.jsx.
+    trophy: trophyPath(`league/${comp.id}`),
+    cupTrophy: comp.domestic_cup_id ? trophyPath(`cup/${comp.domestic_cup_id}`) : null,
   };
 
   for (const team of comp.teams ?? []) {
@@ -113,7 +148,7 @@ for (const country of countriesRaw) {
   };
 }
 
-const world = { competitions, clubs, countries };
+const world = { competitions, clubs, countries, trophies: internationalTrophies };
 fs.writeFileSync(OUT, `${JSON.stringify(world)}\n`, "utf8");
 
 const withCrest = Object.values(clubs).filter((c) => c.crest).length;

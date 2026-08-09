@@ -61,6 +61,30 @@ export const CONTRACT = {
   clauseMultiple: [6, 8, 10, 14, 18, 25],
   /** Asking for a shorter deal is the one thing that costs the club almost nothing. */
   maxAsks: 2,
+  /** What a granted clause ask takes off the buy-out. */
+  clauseCut: 0.55,
+
+  /**
+   * The stature at which a first-division club starts behaving like one with something to
+   * protect. Below it, football is year to year.
+   *
+   * OUR CALL #8: length is a privilege of the clubs that have something to lose.
+   *
+   * The old model handed out length by age and then nudged it, and the result was upside
+   * down: measured over 4,000 offers, 58% of all contracts ran four or five years, 8% ran
+   * one, and a bottom-of-the-table first-division side offered LONGER deals (4.1 years on
+   * average) than a genuine title contender (3.3). Every career was a sequence of long
+   * deals nobody had a reason to give, which made `years` - the term that decides whether
+   * the club can push you out and what walking away costs the crowd - a number the player
+   * never had to think about.
+   *
+   * Now the default is one season, everywhere, for everyone. A multi-year deal is a thing
+   * a club does when it is contending for something and wants you for the run at it, and
+   * that is the only place it happens. `TITLE_ODDS.league` gives a reputation-3 side a 25%
+   * shot at its division and a reputation-2 side 5%, so 3 is where "contender" starts
+   * meaning something in the model rather than in the fiction.
+   */
+  contenderFrom: 3,
   /**
    * The window in which a club promises the shirt without being asked.
    *
@@ -182,6 +206,7 @@ export function openingTerms({
   seasonsAtClub = 0,
   idolatryHere = 0,
   stay = false,
+  youth = false,
 }) {
   const next = createStream(seed, "contract", clubId, season);
   const pay = { reputation, strength, tier };
@@ -190,31 +215,62 @@ export function openingTerms({
   const note = (id) => reasons.push(id);
 
   /* ── Years ──────────────────────────────────────────────────────────────── */
-  let years = age <= 19 ? 5 : age <= 27 ? 4 : age <= 30 ? 3 : age <= 33 ? 2 : 1;
-  if (age <= 21) note("young");
-  else if (age >= 34) note("veteran");
+  // See OUR CALL #8. One season is the default and the overwhelming majority; length is
+  // something only a first-division side with a title to chase has a reason to offer.
+  const contender = tier === 1 && reputation >= CONTRACT.contenderFrom;
+  let years = 1;
 
-  if (reputation >= 4) {
-    years += 1;
-    note("bigClub");
+  /*
+   * The first one is always a single season, wherever it is signed.
+   *
+   * Nobody knows anything yet - not the club, and not the player, who at sixteen has a
+   * rating drawn from a table and no evidence behind it. It is also the first thing this
+   * game teaches: leverage is the delta plus what the crowd thinks of you, and at sixteen
+   * both are nothing, so the first deal is the one you have least say in. Tying a
+   * seventeen-year-old to a giant for five years on the strength of a youth-team draw
+   * would hand him the whole career before he had played a match of it.
+   */
+  if (youth) {
+    note("firstDeal");
+  } else if (contender) {
+    note("contender");
+    // How long the run at it is worth: a giant plans in cycles, a fringe contender in
+    // seasons. This is the whole of the base - everything else adjusts it by one.
+    years = reputation >= 5 ? 4 : reputation >= 4 ? 3 : 2;
+
+    if (age <= 21) {
+      years += 1;
+      note("young");
+    } else if (age >= 33) {
+      years -= 1;
+      note("veteran");
+    }
+    if (projectedDelta >= 5) {
+      years += 1;
+      note("needed");
+    } else if (projectedDelta <= -5) {
+      years -= 1;
+      note("squadFiller");
+    }
+    if (stay && idolatryHere >= 50) {
+      years += 1;
+      note("idol");
+    }
+    // A little give, so two identical situations are not two identical contracts.
+    if (next() < 0.25) years += 1;
+  } else {
+    note("yearToYear");
+    if (tier === 2) note("secondTier");
+    // The two reasons a club with nothing to protect still commits to a second year: a
+    // teenager it wants to keep hold of, and a player it is signing to build around.
+    if (age <= 21 && projectedDelta >= -2 && next() < 0.45) {
+      years = 2;
+      note("young");
+    } else if (projectedDelta >= 8 && next() < 0.4) {
+      years = 2;
+      note("needed");
+    }
   }
-  if (projectedDelta >= 5) {
-    years += 1;
-    note("needed");
-  } else if (projectedDelta <= -5) {
-    years -= 1;
-    note("squadFiller");
-  }
-  if (tier === 2) {
-    years -= 1;
-    note("secondTier");
-  }
-  if (stay && idolatryHere >= 50) {
-    years += 1;
-    note("idol");
-  }
-  // A little give, so two identical situations are not two identical contracts.
-  if (next() < 0.3) years += 1;
   years = Math.max(CONTRACT.minYears, Math.min(CONTRACT.maxYears, years));
 
   /* ── Wage ───────────────────────────────────────────────────────────────── */
@@ -306,28 +362,84 @@ export const ASKS = [
     id: "role",
     cost: 0.58,
     icon: "role",
+    /**
+     * Only where there is a rung above him to be promised.
+     *
+     * `titular` is the top of the ladder and it starts at delta 0, so `promiseRole` hands
+     * a player who is already projected there the role he was getting anyway. The club has
+     * always known that - `CONTRACT.promiseWindow` is why it never volunteers the term
+     * above delta 0 - but the ASK was never gated the same way, so a delta +3 player was
+     * shown "the shirt, 95%", spent the biggest slice of leverage in the office on it, was
+     * granted it, and got a floor identical to his ceiling. The signing screen then listed
+     * it under what he had won, which is the game telling him a plain untruth.
+     *
+     * Also off the table once the club has already volunteered the same promise: asking
+     * for a thing you have been handed is not a negotiation.
+     */
+    available: (terms) => {
+      const lift = promiseRole(terms.projectedRole);
+      return lift !== terms.projectedRole && lift !== terms.rolePromise;
+    },
     apply: (terms) => ({ ...terms, rolePromise: promiseRole(terms.projectedRole) }),
   },
   {
     id: "clause",
     cost: 0.36,
     icon: "clause",
-    apply: (terms) => ({ ...terms, clause: Math.round(terms.clause * 0.55) }),
+    /**
+     * The escape hatch, and the only term that is worth arguing over precisely because the
+     * deal is long. On a one-year deal there is nothing to escape from - you are free in
+     * ten months - so the ask does not appear at all; on a four-year deal at a giant it is
+     * the difference between a career you steer and one you wait out.
+     */
+    available: (terms) => terms.years > 1,
+    apply: (terms) => ({ ...terms, clause: Math.round(terms.clause * CONTRACT.clauseCut) }),
   },
   {
     id: "short",
     cost: 0.14,
     icon: "years",
+    /** Nothing to shorten at the minimum, and the club will not sign for half a season. */
+    available: (terms) => terms.years > CONTRACT.minYears,
     apply: (terms) => ({ ...terms, years: Math.max(CONTRACT.minYears, terms.years - 1) }),
   },
 ];
 
 export const ASKS_BY_ID = Object.fromEntries(ASKS.map((ask) => [ask.id, ask]));
 
-/** The odds this ask is granted. Printed on the button, and the number that gets rolled. */
-export function askOdds(ask, leverage) {
+/** Whether this ask is on the table at all, given what is being offered. */
+export const askAvailable = (ask, terms) => (ask.available ? ask.available(terms) : true);
+
+/**
+ * The odds this ask is granted. Printed on the button, and the number that gets rolled.
+ *
+ * The clause is the one ask where the club's own circumstances speak as loudly as the
+ * player's leverage - "si el club lo considera oportuno". A side that is stretching to
+ * sign someone it needs will write a reachable buy-out to get the signature; a giant
+ * protecting an asset it did not have to fight for will not, whatever the player says.
+ */
+export function askOdds(ask, leverage, terms = null) {
   if (ask.id === "role" && leverage < 0.25) return 0;
-  return Math.max(0, Math.min(0.95, leverage / ask.cost));
+  if (terms && !askAvailable(ask, terms)) return 0;
+
+  let odds = leverage / ask.cost;
+  if (ask.id === "clause" && terms) {
+    odds *= clauseWillingness(terms);
+  }
+  return Math.max(0, Math.min(0.95, odds));
+}
+
+/**
+ * How open the club is to writing a lower buy-out. Multiplies the ordinary odds, so the
+ * player's leverage still matters - this decides how far it gets him.
+ */
+export function clauseWillingness({ reputation = 0, projectedDelta = 0, stay = false }) {
+  // They need you more than they need the protection.
+  const need = projectedDelta >= 5 ? 1.3 : projectedDelta >= 0 ? 1.05 : 0.8;
+  // The bigger the club, the less it has to concede to get a signature.
+  const stature = reputation >= 5 ? 0.55 : reputation >= 4 ? 0.75 : 1;
+  // Renewing, they already have you; there is nothing to win by making you cheaper.
+  return need * stature * (stay ? 0.8 : 1);
 }
 
 /**
@@ -336,8 +448,8 @@ export function askOdds(ask, leverage) {
  */
 export function negotiate({ seed, clubId, round, terms, leverage, askId }) {
   const ask = ASKS_BY_ID[askId];
-  if (!ask) return null;
-  const odds = askOdds(ask, leverage);
+  if (!ask || !askAvailable(ask, terms)) return null;
+  const odds = askOdds(ask, leverage, terms);
   const granted = chance(createStream(seed, "negotiate", clubId, askId, round), odds);
   return {
     askId,
@@ -404,4 +516,58 @@ export function wagePressure(contract, playedRole, pay) {
 /** Breaking a deal that still had years to run. Paid to the crowd, never to the club. */
 export function breachYears(contract, clubId) {
   return isUnderContract(contract, clubId) ? contract.yearsLeft : 0;
+}
+
+/* ── Somebody pays the buy-out ────────────────────────────────────────────────
+   The other half of OUR CALL #8, and the reason a long deal is a decision rather
+   than a sentence.
+
+   A buy-out used to do exactly one thing: set how many clubs came looking next
+   summer. That made the clause ask a quiet little bonus rather than a lever, and it
+   left a four-year deal at a giant with no story in it at all - you either sat out
+   the years or tore the contract up and paid the crowd for it.
+
+   Now the number is a price, and it can be met. Argue it down at the table and you
+   are not buying a discount, you are buying the odds that somebody triggers it - and
+   when they do, the contract is settled in full, so the crowd charges you the
+   ordinary cost of leaving and not a season of breach on top. Leave the clause where
+   they wrote it and nobody comes near it, which is exactly what the club paid for.
+
+   And it is still a decision when it happens: the money changing hands does not move
+   the player. Turning it down is the loudest thing he can say to a stand.          */
+
+export const CLAUSE = {
+  /** At or under this multiple of market value, a buy-out is simply a price. */
+  cheap: 1.4,
+  /** Past this it is a wall, and the club has bought the years it paid for. */
+  steep: 5,
+  /** The most likely this can ever be in one summer. A career is not an auction. */
+  maxOdds: 0.45,
+  /** Below this rating nobody is triggering anybody's release. */
+  wantedFrom: 70,
+  wantedFull: 88,
+};
+
+/**
+ * The odds a club pays it this summer.
+ *
+ * Two independent things have to be true: the number has to be reachable, and the player
+ * has to be worth reaching for. The first is the clause against his market value on a log
+ * scale - the difference between 1.4x and 2.8x matters far more than between 8x and 16x,
+ * both of which are simply "no". The second is that nobody triggers a release for a squad
+ * player, however cheap he is.
+ */
+export function clauseOdds({ clause, value, ovr = 0 }) {
+  if (!(clause > 0) || !(value > 0)) return 0;
+  const ratio = clause / value;
+  if (ratio >= CLAUSE.steep) return 0;
+
+  const top = Math.log(CLAUSE.steep);
+  const bottom = Math.log(CLAUSE.cheap);
+  const reachable = (top - Math.log(Math.max(ratio, CLAUSE.cheap))) / (top - bottom);
+  const wanted = Math.max(
+    0,
+    Math.min(1, (ovr - CLAUSE.wantedFrom) / (CLAUSE.wantedFull - CLAUSE.wantedFrom)),
+  );
+  return Math.max(0, Math.min(CLAUSE.maxOdds, reachable * wanted * CLAUSE.maxOdds));
 }

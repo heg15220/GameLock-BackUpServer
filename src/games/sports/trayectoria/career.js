@@ -28,16 +28,22 @@
  */
 
 import {
+  conversionRate,
   derbyRivals,
   matchEffects,
   resolveShot,
   seasonFixtures,
   shotFor,
 } from "./bigmatch.js";
+import { MODES, modeFor } from "./matchmode.js";
+import { buildChance, judgeChance } from "./minigames.js";
+import { narrateFinish, narrateMatch } from "./narration.js";
 import {
   ASKS,
   CONTRACT,
+  askAvailable,
   askOdds,
+  clauseOdds,
   contractModifiers,
   isUnderContract,
   leverageFor,
@@ -50,26 +56,36 @@ import {
 import {
   buildOffers,
   careerSummary,
+  clubStanding,
   createCareer,
   developmentOutlook,
   effectiveReputation,
+  growthFactor,
+  roleFor,
   simulateSeason,
   squadLevelFor,
   youthOffers,
 } from "./engine.js";
 import { EVENTS, MAX_INJURIES, applyEffects, drawEvent, drawInjury } from "./events.js";
 import {
+  IDOLATRY,
   applyIdolatry,
   exitPreview,
   idolatryAt,
   levelOf,
+  patienceFor,
   peakIdolatry,
   seasonIdolatry,
 } from "./idolatry.js";
 import { headlineFor, retirementVerdict, shadowNoteFor } from "./press.js";
-import { createStream, pickWeighted } from "./rng.js";
+import { chance, createStream, pickWeighted } from "./rng.js";
 import { shadowComparison, simulateShadowCareer } from "./rival.js";
-import { CALLUP_THRESHOLD, CAREER_MODES, RETIREMENT_AGE } from "./tables.js";
+import {
+  CALLUP_THRESHOLD,
+  CAREER_MODES,
+  CLUB_MATCH_MULTIPLIER,
+  RETIREMENT_AGE,
+} from "./tables.js";
 
 export const PHASES = {
   YOUTH: "youth",
@@ -87,6 +103,14 @@ const PERSONAL_COOLDOWN_STEPS = 2;
 const NATIONALITY_CHOICES = 3;
 
 const modeOf = (mode) => CAREER_MODES[mode] ?? CAREER_MODES.intensa;
+
+/**
+ * The club as this run has left it, not as the data pinned it. Everything in this file
+ * that asks "which club, which league" goes through here, so a side the player took up
+ * or sent down stays up or down for the rest of the career.
+ */
+const standingOf = (run, clubId = run.state.clubId) =>
+  clubStanding(run.world, run.world.clubs[clubId] ?? null, run.state.divisions);
 
 /**
  * Everything the draw is not allowed to offer this step: what has already been used,
@@ -116,8 +140,7 @@ function blockedEventIds(run) {
  */
 export function eventContext(run) {
   const { state, world } = run;
-  const club = world.clubs[state.clubId] ?? null;
-  const competition = club ? world.competitions[club.competitionId] ?? null : null;
+  const { club, competition } = standingOf(run);
   const country = world.countries[state.country] ?? null;
   const squadLevel = club ? squadLevelFor(club, state.ovr) : state.ovr;
   const callupThreshold = CALLUP_THRESHOLD[country?.international_reputation ?? 0] ?? 99;
@@ -171,6 +194,8 @@ function openStep(run) {
     matchday: null,
     deal: null,
     signing: null,
+    clauseOffer: null,
+    refusedClause: null,
   };
 }
 
@@ -207,6 +232,8 @@ function openNegotiation(run, clubId, { youth = false } = {}) {
     seasonsAtClub: stay ? run.state.seasonsAtClub : 0,
     idolatryHere,
     stay,
+    // The first deal a career signs is always a single season. See openingTerms.
+    youth,
   });
 
   return {
@@ -217,6 +244,10 @@ function openNegotiation(run, clubId, { youth = false } = {}) {
       stay,
       youth,
       exit: offer.exit ?? null,
+      // Carried to the signing, where it is the difference between an ordinary departure
+      // and one the crowd charges a season of breach for.
+      clausePaid: Boolean(offer.clausePaid),
+      fee: offer.fee ?? null,
       opening: terms,
       terms,
       leverage: leverageFor({
@@ -232,15 +263,23 @@ function openNegotiation(run, clubId, { youth = false } = {}) {
   };
 }
 
-/** Every ask still on the table, with the odds it is granted printed on it. */
+/**
+ * Every ask still on the table, with the odds it is granted printed on it.
+ *
+ * An ask that cannot apply to this deal is not shown at all rather than shown at zero: on
+ * a one-year contract there is no shorter deal to sign and no buy-out worth arguing over,
+ * and offering both anyway taught the player that half the office is decoration.
+ */
 export function availableAsks(run) {
   const deal = run.deal;
   if (!deal || deal.round >= CONTRACT.maxAsks) return [];
-  return ASKS.filter((ask) => !deal.used.includes(ask.id)).map((ask) => ({
-    id: ask.id,
-    icon: ask.icon,
-    odds: askOdds(ask, deal.leverage),
-  }));
+  return ASKS.filter((ask) => !deal.used.includes(ask.id) && askAvailable(ask, deal.terms)).map(
+    (ask) => ({
+      id: ask.id,
+      icon: ask.icon,
+      odds: askOdds(ask, deal.leverage, deal.terms),
+    }),
+  );
 }
 
 /**
@@ -312,6 +351,8 @@ export function startCareer({ seed, surname, number, foot, country, position, mo
     matchday: null,
     deal: null,
     signing: null,
+    clauseOffer: null,
+    refusedClause: null,
     nationalityChoices: null,
     summary: null,
     comparison: null,
@@ -379,8 +420,7 @@ export function resolveEvent(run, optionId, locale = "es") {
  */
 function fixtureContext(run) {
   const { state, world } = run;
-  const club = world.clubs[state.clubId] ?? null;
-  const competition = club ? world.competitions[club.competitionId] ?? null : null;
+  const { club, competition } = standingOf(run);
   const country = world.countries[state.country] ?? null;
   const threshold = CALLUP_THRESHOLD[country?.international_reputation ?? 0] ?? 99;
   // The same OVR the season will be simulated at, temporary modifiers included, so the
@@ -399,19 +439,59 @@ function fixtureContext(run) {
     effectiveReputation: (key) => (club ? effectiveReputation(club, ovr, key) : 0),
     calledUp: state.ovr >= threshold,
     rivals: club ? derbyRivals(world, club.id) : [],
+    // What he has actually converted so far. Without this the split prices every decider
+    // at what a blind guess is worth, and any skill above that quietly prints trophies.
+    conversion: state.conversion,
     // Whatever the card the player just took did to this season's odds. It is already in
     // `state.modifiers`, and the split has to be made against the odds it left behind.
     titleMultipliers: state.modifiers?.titleMultipliers ?? {},
   };
 }
 
-const shotAt = (run, fixtures, index) =>
-  shotFor({
+/**
+ * Set up one decider: the shot itself, then how it is going to be played.
+ *
+ * The mode is decided here rather than in `bigmatch.js` because it needs the shot type -
+ * somebody takes the penalties - and because it changes nothing about the model. Both
+ * ways out produce the same `scored`, and `conversionRate` measures whichever mix of the
+ * two this career actually ended up playing.
+ */
+function shotAt(run, fixtures, index) {
+  const fixture = fixtures[index];
+  const shot = shotFor({
     seed: run.state.seed,
     season: run.season,
-    fixture: fixtures[index],
+    fixture,
     ovr: run.state.ovr,
   });
+
+  const { club } = standingOf(run);
+  const delta = club ? run.state.ovr - squadLevelFor(club, run.state.ovr) : 0;
+  const mode = modeFor({
+    seed: run.state.seed,
+    season: run.season,
+    fixtureId: fixture.id,
+    delta,
+    role: run.state.lastRole,
+    shotType: shot.type,
+  });
+
+  return {
+    ...shot,
+    mode,
+    // Only built for the mode that needs it, so a watched match costs nothing to set up.
+    chance:
+      mode === MODES.SKILL
+        ? buildChance({
+            seed: run.state.seed,
+            season: run.season,
+            fixtureId: fixture.id,
+            shotType: shot.type,
+            ovr: run.state.ovr,
+          })
+        : null,
+  };
+}
 
 /**
  * Fold the fixture plan and the shots into the season's modifiers.
@@ -423,13 +503,30 @@ const shotAt = (run, fixtures, index) =>
  */
 function withMatchEffects(modifiers = {}, plan = {}, results = []) {
   const effects = results.length ? matchEffects(results) : {};
-  const multipliers = { ...(modifiers.titleMultipliers ?? {}) };
-  for (const source of [plan.titleMultipliers, effects.titleMultipliers]) {
-    for (const [trophy, value] of Object.entries(source ?? {})) {
-      multipliers[trophy] = (multipliers[trophy] ?? 1) * value;
+
+  /**
+   * Both multiplier maps have to COMPOUND rather than overwrite, and both have to survive
+   * the spread below. `matchEffects` always returns the two keys - empty when no decider
+   * of that kind fired - so a plain spread would wipe the residual scaling the draw put
+   * on every trophy nobody played for, and hand those seasons their raw odds back.
+   */
+  const compound = (key) => {
+    const merged = { ...(modifiers[key] ?? {}) };
+    for (const source of [plan[key], effects[key]]) {
+      for (const [trophy, value] of Object.entries(source ?? {})) {
+        merged[trophy] = (merged[trophy] ?? 1) * value;
+      }
     }
-  }
-  return { ...modifiers, ...plan, ...effects, titleMultipliers: multipliers };
+    return merged;
+  };
+
+  return {
+    ...modifiers,
+    ...plan,
+    ...effects,
+    titleMultipliers: compound("titleMultipliers"),
+    nationalMultipliers: compound("nationalMultipliers"),
+  };
 }
 
 /**
@@ -475,6 +572,17 @@ function playSeason(run, plan, matchResults, locale) {
   });
 
   record.idolatry = { before, after, change: after - before, level: levelOf(after).key };
+
+  // Whether the club has had enough. `simulateSeason` decides this from the bench streaks
+  // alone, because it does not know what the stand thinks; it is re-decided here, where we
+  // do. A crowd's favourite is given more rope than a squad player - see `patienceFor`,
+  // and OUR CALL #8 for why the shield had to move here from the contract.
+  const limits = CAREER_MODES[state.mode] ?? CAREER_MODES.intensa;
+  const patience = patienceFor(after);
+  const clubWantsOut =
+    nextState.benchStreak >= limits.benchLimit + patience ||
+    nextState.lowRotationStreak >= limits.lowRotationLimit + patience;
+  record.patience = patience;
   // The record is already in `nextState.history` by reference, so the season keeps the
   // shots that decided it - and what the wage cost it - wherever it is read from later.
   record.bigMatches = matchResults;
@@ -493,10 +601,25 @@ function playSeason(run, plan, matchResults, locale) {
     }),
   };
 
+  // Every chance he stood over this season, and how many he put away. Counted here rather
+  // than in the engine because the engine never sees a shot - it is handed the result.
+  // Counted per CHANCE, not per fixture: one decider can be worth three sights of goal
+  // or none at all, and `conversionRate` is a rate over chances.
+  const conversion = matchResults.reduce(
+    (totals, result) => ({
+      taken: totals.taken + (result.taken ?? 1),
+      scored: totals.scored + (result.converted ?? (result.scored ? 1 : 0)),
+    }),
+    { taken: state.conversion?.taken ?? 0, scored: state.conversion?.scored ?? 0 },
+  );
+  record.conversion = conversion;
+
   return {
     ...run,
     state: {
       ...nextState,
+      conversion,
+      clubWantsOut,
       // A season off the deal. At zero you are a free agent still wearing the shirt.
       contract: tickContract(nextState.contract),
       idolatry: { ...nextState.idolatry, [record.clubId]: after },
@@ -533,7 +656,9 @@ function openMatchday(run, locale = "es") {
       : seasonFixtures(fixtureContext(current));
 
     if (plan.fixtures.length) {
-      return {
+      // `settleIfUntouched` because the very first fixture of a season can be one that
+      // gives him no sight of goal, and then there is no input to wait for.
+      return settleIfUntouched({
         ...current,
         phase: PHASES.MATCH,
         matchday: {
@@ -542,10 +667,13 @@ function openMatchday(run, locale = "es") {
           plan: plan.modifiers,
           index: 0,
           results: [],
+          attempts: [],
+          lastAttempt: null,
           shot: shotAt(current, plan.fixtures, 0),
+          broadcast: null,
           last: null,
         },
-      };
+      });
     }
     current = playSeason(current, plan.modifiers, [], locale);
   }
@@ -559,26 +687,161 @@ function openMatchday(run, locale = "es") {
  * The result is held rather than applied: the keeper's position is only revealed once you
  * cannot change your mind, and the player gets to read it before the next fixture opens.
  */
+/**
+ * A decider that gives him no sight of goal at all decides itself.
+ *
+ * There is nothing to press, so the screen would otherwise sit there waiting for an input
+ * that can never come. The night still happened and the trophy still resolves - at
+ * `DECIDES.absent`, which is neither his fault nor his doing.
+ */
+function settleIfUntouched(run) {
+  const matchday = run.matchday;
+  if (!matchday || matchday.last) return run;
+  if ((matchday.fixtures[matchday.index]?.chances ?? 1) > 0) return run;
+  return { ...run, matchday: { ...matchday, last: outcomeOf(run, []) } };
+}
+
 export function takeShot(run, choice) {
   if (run.phase !== PHASES.MATCH || !run.matchday || run.matchday.last) return run;
-  const { fixtures, index, shot } = run.matchday;
+  const { shot, broadcast } = run.matchday;
+  if (shot.mode === MODES.SKILL) return run;
   if (!shot.options.includes(choice)) return run;
 
-  const fixture = fixtures[index];
+  const next = recordAttempt(run, resolveShot(shot, choice));
+  // The match only carries on to full time once he has had every chance it owed him.
+  if (!next.matchday.last || !broadcast) return next;
   return {
-    ...run,
+    ...next,
     matchday: {
-      ...run.matchday,
-      last: {
-        ...resolveShot(shot, choice),
-        decides: fixture.decides,
-        national: fixture.national,
-        opponentId: fixture.opponentId ?? null,
-        // A semi-final carries the odds its two outcomes leave the final on.
-        multipliers: fixture.multipliers ?? null,
+      ...next.matchday,
+      broadcast: {
+        ...broadcast,
+        finish: narrateFinish(broadcast, next.matchday.last.attempts.map((a) => a.scored)),
       },
     },
   };
+}
+
+/**
+ * Resolve a chance the player actually played, rather than guessed at.
+ *
+ * `inputs` is where he stopped the marker - see minigames.js. The verdict comes back in
+ * the same shape `resolveShot` returns, so everything downstream is identical: the model
+ * never learns which way the moment was decided, and it must not, because the season's
+ * budget was priced off how often he converts and not off how he does it.
+ */
+export function playChance(run, inputs) {
+  if (run.phase !== PHASES.MATCH || !run.matchday || run.matchday.last) return run;
+  const { shot } = run.matchday;
+  if (shot.mode !== MODES.SKILL || !shot.chance) return run;
+
+  const judged = judgeChance(shot.chance, inputs);
+  return recordAttempt(run, {
+    ...shot,
+    ...judged,
+    // The blind shot reports which placement was chosen; a played one reports where the
+    // ball actually went, so the report can name it either way.
+    choice: shot.options[Math.min(shot.options.length - 1, Math.floor(judged.accuracy * shot.options.length))],
+    foundGap: judged.clean,
+  });
+}
+
+/**
+ * Fold one attempt into the fixture, and close the fixture once he has had them all.
+ *
+ * A decider is worth `fixture.chances` sights of goal - drawn before anything is played,
+ * which is what let `stakeFor` price it exactly. He takes every one of them: converting
+ * the first of three does not end the match, it just means the rest are for the score.
+ * The fixture is decided by whether ANY of them went in, which is the same question
+ * `convertsOneOf` answered when the season was budgeted.
+ */
+function recordAttempt(run, resolved) {
+  const { fixtures, index, attempts = [] } = run.matchday;
+  const fixture = fixtures[index];
+  const played = [...attempts, resolved];
+  const total = fixture.chances ?? 1;
+
+  if (played.length < total) {
+    return { ...run, matchday: { ...run.matchday, attempts: played, lastAttempt: resolved } };
+  }
+  return {
+    ...run,
+    matchday: { ...run.matchday, attempts: played, lastAttempt: resolved, last: outcomeOf(run, played) },
+  };
+}
+
+/** Everything the season needs from a decider, whichever way it was resolved. */
+function outcomeOf(run, attempts) {
+  const { fixtures, index } = run.matchday;
+  const fixture = fixtures[index];
+  const taken = attempts.length;
+  const converted = attempts.filter((attempt) => attempt.scored).length;
+  const last = attempts[attempts.length - 1] ?? {};
+
+  return {
+    ...last,
+    // The fixture went in if any of them did. Nothing about the number of chances reaches
+    // the model beyond this - the budget already knew how many there would be.
+    scored: converted > 0,
+    // A night the ball never came to him is its own outcome, and it is not a miss.
+    absent: taken === 0,
+    attempts,
+    taken,
+    converted,
+    decides: fixture.decides,
+    national: fixture.national,
+    opponentId: fixture.opponentId ?? null,
+    // What the three outcomes leave the trophy on. None of them is a verdict.
+    settle: fixture.settle ?? null,
+    reached: fixture.reached ?? null,
+  };
+}
+
+/**
+ * Kick off a decider that is being played out rather than shot.
+ *
+ * Builds the ninety minutes up to the chance and nothing past it - the placements still
+ * decide the end of it, so the narration is the match around the moment rather than a
+ * replacement for it.
+ */
+export function watchMatch(run, locale = "es") {
+  if (run.phase !== PHASES.MATCH || !run.matchday || run.matchday.broadcast) return run;
+  const { fixtures, index, shot } = run.matchday;
+  if (shot.mode !== MODES.MATCH) return run;
+
+  const fixture = fixtures[index];
+  const { club } = standingOf(run);
+  const opponent = fixture.opponentId ? run.world.clubs[fixture.opponentId] : null;
+  const country = run.world.countries[run.state.country] ?? null;
+  const ourName = fixture.national
+    ? (locale === "en" ? country?.name_en : country?.name_es) ?? ""
+    : club?.shortName ?? club?.name ?? "";
+
+  // A night that gives him nothing still has to reach full time on its own, or the clock
+  // stops on a chance that never comes and the screen waits for an input it cannot get.
+  const owed = fixture.chances ?? 1;
+  const built = narrateMatch({
+    seed: run.state.seed,
+    season: run.season,
+    fixtureId: fixture.id,
+    kind: fixture.kind,
+    chances: owed,
+    national: Boolean(fixture.national),
+    ourName,
+    theirName: opponent?.shortName ?? opponent?.name ?? "",
+  });
+
+  // `settleIfUntouched` again, not only at the fixture's open: a night worth no sight of
+  // goal has to arrive already decided from every direction, or the clock stops on a
+  // chance that never comes and the screen waits for an input it cannot get. That deadlock
+  // has happened once; it is cheap to make it unreachable.
+  return settleIfUntouched({
+    ...run,
+    matchday: {
+      ...run.matchday,
+      broadcast: owed > 0 ? built : { ...built, finish: narrateFinish(built, []) },
+    },
+  });
 }
 
 /**
@@ -591,16 +854,19 @@ export function nextFixture(run, locale = "es") {
   const played = [...results, last];
 
   if (index + 1 < fixtures.length) {
-    return {
+    return settleIfUntouched({
       ...run,
       matchday: {
         ...run.matchday,
         index: index + 1,
         results: played,
+        attempts: [],
+        lastAttempt: null,
         shot: shotAt(run, fixtures, index + 1),
+        broadcast: null,
         last: null,
       },
-    };
+    });
   }
   return openMatchday(playSeason(run, run.matchday.plan, played, locale), locale);
 }
@@ -657,6 +923,35 @@ function offersWithFallback(run) {
   // or you walked out on it. A contract still running answers the first one - that is what
   // the years on it are for - but not the second, because you were the one who left.
   const locked = isUnderContract(run.state.contract, run.state.clubId);
+
+  /*
+   * A deal that is still running is the whole of the summer.
+   *
+   * This is what `years` is FOR, and until now it was only half enforced: the club could
+   * not push you out, but you could still walk into any other club's office and sign,
+   * paying the crowd a breach fee on the way. That made a four-year contract a price
+   * rather than a commitment, and it made the buy-out - the term the player argues down
+   * at the table precisely so that somebody CAN come for him - almost pointless, because
+   * he could leave without one.
+   *
+   * So while the deal runs there is exactly one card on the table: stay. The two ways out
+   * are somebody meeting the buy-out (`clauseOfferFor`, its own panel) and a decision card
+   * that tears the contract up (`forceTransfer`), which is the one path that still charges
+   * `IDOLATRY.perBreachYear`.
+   */
+  if (locked && !run.state.forceTransfer) {
+    const { club, competition } = standingOf(run);
+    if (!club) return [];
+    return [
+      {
+        clubId: club.id,
+        competitionId: competition?.id ?? null,
+        stay: true,
+        projectedDelta: run.state.ovr - squadLevelFor(club, run.state.ovr),
+      },
+    ];
+  }
+
   const marketState = {
     ...run.state,
     clubWantsOut: Boolean(run.state.forceTransfer) || (!locked && run.state.clubWantsOut),
@@ -680,12 +975,69 @@ function offersWithFallback(run) {
 }
 
 /**
+ * Somebody meets the buy-out.
+ *
+ * Only ever while a deal is still running - once it expires the player walks for nothing
+ * and there is no clause to trigger. The club that does it is not drawn from the ordinary
+ * market: a side that pays a release is a side that has decided, so it is the biggest one
+ * that could plausibly want him. That is the fantasy the term is there to buy.
+ *
+ * Returns the offer, or null for the overwhelming majority of summers.
+ */
+function clauseOfferFor(run) {
+  const contract = run.state.contract;
+  if (!isUnderContract(contract, run.state.clubId)) return null;
+
+  const odds = clauseOdds({
+    clause: contract.clause,
+    value: run.state.value,
+    ovr: run.state.ovr,
+  });
+  if (!chanceOf(run, "clause", odds)) return null;
+
+  const current = run.world.clubs[run.state.clubId] ?? null;
+  const candidates = Object.values(run.world.clubs).filter((club) => {
+    if (club.id === run.state.clubId) return false;
+    // Somebody who would actually play him, and who is worth the fee they just paid.
+    const gap = run.state.ovr - (squadLevelFor(club, run.state.ovr) ?? 58);
+    return gap >= -10 && gap <= 14 && (club.international_reputation ?? 0) >= 2;
+  });
+  if (!candidates.length) return null;
+
+  const next = createStream(run.state.seed, "clause", "suitor", run.season);
+  const club = pickWeighted(next, candidates, (c) => (c.international_reputation ?? 0) ** 3 + 1);
+  if (!club) return null;
+
+  const competition = run.world.competitions[club.competitionId] ?? null;
+  return {
+    clubId: club.id,
+    competitionId: competition?.id ?? null,
+    projectedDelta: run.state.ovr - squadLevelFor(club, run.state.ovr),
+    clausePaid: true,
+    fee: contract.clause,
+    exit: exitPreview({
+      idolatry: run.state.idolatry,
+      clubId: run.state.clubId,
+      seasonsAtClub: run.state.seasonsAtClub,
+      sameCompetition: Boolean(current) && competition?.id === current.competitionId,
+      // The price was named by the club and it was met. There is no deal being torn up.
+      breachYears: 0,
+      clausePaid: true,
+    }),
+  };
+}
+
+/** One roll, keyed so that re-reading the market never rerolls it. */
+const chanceOf = (run, key, odds) =>
+  chance(createStream(run.state.seed, key, run.season), odds);
+
+/**
  * Attach what signing each offer would cost you in idolatría. This is the half of the
  * system the genre normally hides: a loyalty tax you cannot see before you pay it is a
  * gotcha, and the rest of this game is built on telling you the number first.
  */
 function withExitCost(run, offers) {
-  const current = run.world.clubs[run.state.clubId] ?? null;
+  const current = standingOf(run).club;
   return offers.map((offer) => {
     if (offer.stay || offer.clubId === run.state.clubId) return offer;
     return {
@@ -705,15 +1057,93 @@ function withExitCost(run, offers) {
   });
 }
 
+/**
+ * What signing each offer would do to the player, not just to his role.
+ *
+ * The exit cost is already printed on the card, and the delta meter already draws the
+ * minutes. This adds the third thing a club decides for you and the one the game used to
+ * keep to itself: whether you carry on getting better there. It is projected from the
+ * same `growthFactor` the season will actually be scored with, so it is a promise the
+ * engine keeps rather than a hint.
+ */
+function withGrowthPreview(run, offers) {
+  const keeper = run.state.position === "POR";
+  return offers.map((offer) => {
+    // Through the overlay, so the club you are being asked to stay at is the one you took
+    // up last May rather than the one the data froze in place.
+    const { club } = standingOf(run, offer.clubId);
+    if (!club) return offer;
+    const delta = offer.projectedDelta ?? 0;
+    const role = roleFor(delta, keeper);
+    const [min, max] = role.matches;
+    // The role's midpoint, scaled the way the season will scale it. Good enough to rank
+    // three offers, which is all this has to do.
+    const matches =
+      ((min + max) / 2) *
+      (CLUB_MATCH_MULTIPLIER[effectiveReputation(club, run.state.ovr, "domestic")] ?? 1);
+    return {
+      ...offer,
+      growth: growthFactor({
+        matches,
+        delta,
+        reputation: effectiveReputation(club, run.state.ovr, "international"),
+      }),
+    };
+  });
+}
+
 /** Close the step: either the career is over, or the summer market opens. */
 export function openMarket(run, locale = "es") {
   if (run.state.retired || run.state.age >= RETIREMENT_AGE) return retire(run, locale);
+  const last = run.state.history[run.state.history.length - 1] ?? null;
+  // Refused once, it does not come back the same summer - the club was told no.
+  const clauseOffer = run.state.refusedClauseSeason === run.season ? null : clauseOfferFor(run);
   return {
     ...run,
     phase: PHASES.MARKET,
-    offers: withExitCost(run, offersWithFallback(run)),
-    outlook: developmentOutlook(run.state),
+    offers: withGrowthPreview(run, withExitCost(run, offersWithFallback(run))),
+    clauseOffer: clauseOffer ? withGrowthPreview(run, [clauseOffer])[0] : null,
+    outlook: developmentOutlook(run.state, last?.growth?.factor ?? null),
     nationalityChoices: run.state.pendingCountryChange ? nationalityChoicesFor(run) : null,
+  };
+}
+
+/**
+ * Take the call. The buy-out has been met, so this is an ordinary signing from here - it
+ * simply happens in a summer the contract said it could not.
+ */
+export function acceptClause(run) {
+  if (run.phase !== PHASES.MARKET || !run.clauseOffer) return run;
+  // The offer has to be in the list `openNegotiation` reads, and it is not one of the
+  // three the market drew: this is a fourth door that opened on its own.
+  const offers = [...run.offers.filter((o) => o.clubId !== run.clauseOffer.clubId), run.clauseOffer];
+  return openNegotiation({ ...run, offers }, run.clauseOffer.clubId);
+}
+
+/**
+ * Say no to a club that has already paid.
+ *
+ * Nothing in the model makes him go - the money went between two clubs and he was never
+ * asked. So the only thing that happens is the thing that should: the stand hears about
+ * it. This is the single largest gift in `IDOLATRY` that is not a trophy.
+ */
+export function refuseClause(run) {
+  if (run.phase !== PHASES.MARKET || !run.clauseOffer) return run;
+  const clubId = run.state.clubId;
+  const before = idolatryAt(run.state.idolatry, clubId);
+  const after = applyIdolatry(before, IDOLATRY.refusedClause, {
+    wonTitleHere: Boolean(run.state.titleClubs?.[clubId]),
+    betrayed: Boolean(run.state.betrayed?.[clubId]),
+  });
+  return {
+    ...run,
+    clauseOffer: null,
+    refusedClause: { clubId: run.clauseOffer.clubId, before, after, change: after - before },
+    state: {
+      ...run.state,
+      idolatry: { ...run.state.idolatry, [clubId]: after },
+      refusedClauseSeason: run.season,
+    },
   };
 }
 
@@ -774,8 +1204,17 @@ export function completeSigning(run) {
     clubWantsOut: false,
     forceTransfer: false,
     pendingCountryChange: false,
+    refusedClauseSeason: null,
   };
-  return openStep({ ...run, state, step: run.step + 1, offers: [], outlook: null });
+  return openStep({
+    ...run,
+    state,
+    step: run.step + 1,
+    offers: [],
+    outlook: null,
+    clauseOffer: null,
+    refusedClause: null,
+  });
 }
 
 export function retire(run, locale = "es") {
@@ -813,16 +1252,21 @@ export function retire(run, locale = "es") {
  * What the header shows: who you are right now, in the terms the game is played in.
  */
 export function currentStanding(run) {
-  const club = run.world.clubs[run.state.clubId] ?? null;
-  const competition = club ? run.world.competitions[club.competitionId] ?? null : null;
+  const { club, competition, tier, shift, demoted } = standingOf(run);
   const idolatry = idolatryAt(run.state.idolatry, run.state.clubId);
   const contract = run.state.contract?.clubId === run.state.clubId ? run.state.contract : null;
+  const last = run.state.history[run.state.history.length - 1] ?? null;
   return {
     club,
     competition,
+    // Where the club actually is, which is only the same as the badge until it moves.
+    division: club ? { tier, shift, demoted } : null,
     country: run.world.countries[run.state.country] ?? null,
     squadLevel: club ? squadLevelFor(club, run.state.ovr) : null,
     delta: club ? run.state.ovr - squadLevelFor(club, run.state.ovr) : null,
+    // What the last season was worth to his development, so the header can say whether
+    // he is in a place that is still making him better.
+    growth: last?.growth ?? null,
     seasonsLeft: Math.max(0, RETIREMENT_AGE - run.state.age),
     idolatry: club ? { value: Math.round(idolatry), level: levelOf(idolatry).key } : null,
     contract,

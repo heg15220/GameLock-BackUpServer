@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ASKS,
   ASKS_BY_ID,
+  CLAUSE,
   CONTRACT,
   ROLE_WAGE,
   askOdds,
   breachYears,
+  clauseOdds,
   contractModifiers,
   isUnderContract,
   leverageFor,
@@ -202,7 +205,10 @@ describe("the deal reads the circumstances", () => {
   });
 
   it("ties players up at a big club and lets a small one price to sell", () => {
-    expect(terms({ reputation: 5 }).reasons).toContain("bigClub");
+    // The tag is `contender` now: length is a thing clubs with a title to chase do, not a
+    // thing big clubs do. A reputation-5 side is both, so it still ties people down.
+    expect(terms({ reputation: 5 }).reasons).toContain("contender");
+    expect(terms({ reputation: 5 }).years).toBeGreaterThan(1);
     expect(terms({ reputation: 5, value: 40_000_000 }).clause).toBeGreaterThan(
       terms({ reputation: 1, value: 40_000_000, strength: 0 }).clause,
     );
@@ -421,5 +427,227 @@ describe("the engine honours a promised role", () => {
       { season: 2 },
     );
     expect(record.role).toBe("titular");
+  });
+});
+
+/**
+ * OUR CALL #8. Length is a privilege of the clubs with something to protect, and the
+ * buy-out is the way out of it. Both halves are measured here, because the old model had
+ * a bottom-half side handing out longer deals than a title contender.
+ */
+describe("how long a club ties you down", () => {
+  /** Sweep a realistic spread of clubs and ages rather than assert one lucky seed. */
+  const sweep = (make) => {
+    const out = [];
+    for (let i = 0; i < 600; i += 1) {
+      out.push(
+        make({
+          seed: `sweep-${i}`,
+          age: 17 + (i % 20),
+          projectedDelta: -8 + (i % 17),
+        }),
+      );
+    }
+    return out;
+  };
+
+  const yearsAt = (fixed) =>
+    sweep(({ seed, age, projectedDelta }) =>
+      openingTerms({
+        seed, season: 1, clubId: "c", age, projectedDelta, value: 5_000_000, ...fixed,
+      }).years,
+    );
+
+  const share = (xs, predicate) => xs.filter(predicate).length / xs.length;
+
+  it("makes one season the overwhelming default away from the contenders", () => {
+    for (const reputation of [0, 1, 2]) {
+      const years = yearsAt({ reputation, tier: 1 });
+      expect(share(years, (y) => y === 1)).toBeGreaterThan(0.6);
+    }
+  });
+
+  it("keeps the second tier year to year whatever the club's stature", () => {
+    const years = yearsAt({ reputation: 4, tier: 2 });
+    expect(share(years, (y) => y === 1)).toBeGreaterThan(0.6);
+    expect(terms({ reputation: 4, tier: 2 }).reasons).toContain("yearToYear");
+  });
+
+  it("signs long only where there is a title to chase, and longer the bigger the chase", () => {
+    const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
+    const fringe = mean(yearsAt({ reputation: CONTRACT.contenderFrom, tier: 1 }));
+    const giant = mean(yearsAt({ reputation: 5, tier: 1 }));
+    const nobody = mean(yearsAt({ reputation: 1, tier: 1 }));
+
+    expect(nobody).toBeLessThan(1.6);
+    expect(fringe).toBeGreaterThan(nobody);
+    expect(giant).toBeGreaterThan(fringe);
+    // The defect this replaced: a bottom-half side offered 4.1 years and a contender 3.3.
+    expect(giant).toBeGreaterThan(nobody + 1);
+  });
+
+  it("still lets a small club commit to a teenager it wants to keep", () => {
+    const young = yearsAt({ reputation: 1, tier: 1 });
+    expect(share(young, (y) => y > 1)).toBeGreaterThan(0.05);
+  });
+});
+
+describe("arguing the buy-out down", () => {
+  const clause = ASKS_BY_ID.clause;
+
+  it("is not on the table at all on a one-year deal", () => {
+    // Nothing to escape from: he is free in ten months either way.
+    expect(clause.available({ years: 1 })).toBe(false);
+    expect(clause.available({ years: 3 })).toBe(true);
+    expect(askOdds(clause, 0.9, { years: 1, reputation: 3, projectedDelta: 0 })).toBe(0);
+  });
+
+  it("is refused flat by a negotiate() call that should never have been made", () => {
+    const result = negotiate({
+      seed: "no", clubId: "c", round: 0, leverage: 1, askId: "clause",
+      terms: terms({ reputation: 1, tier: 1 , age: 30 }),
+    });
+    // A one-year deal at a non-contender: the ask does not exist, so nothing moves.
+    expect(result).toBeNull();
+  });
+
+  it("reads the club's circumstances and not only the player's leverage", () => {
+    const desperate = { years: 3, reputation: 3, projectedDelta: 8, stay: false };
+    const giant = { years: 3, reputation: 5, projectedDelta: -2, stay: false };
+    expect(askOdds(clause, 0.4, desperate)).toBeGreaterThan(askOdds(clause, 0.4, giant));
+  });
+
+  it("takes a real bite out of the number when it is granted", () => {
+    const long = terms({ reputation: 5, age: 22 });
+    expect(long.years).toBeGreaterThan(1);
+    expect(clause.apply(long).clause).toBeCloseTo(
+      Math.round(long.clause * CONTRACT.clauseCut),
+      0,
+    );
+  });
+
+  it("leaves the shorter-deal ask off a deal that is already at the minimum", () => {
+    expect(ASKS_BY_ID.short.available({ years: CONTRACT.minYears })).toBe(false);
+    expect(ASKS_BY_ID.short.available({ years: 2 })).toBe(true);
+  });
+});
+
+describe("somebody paying it", () => {
+  const odds = (ratio, ovr = 86) => clauseOdds({ clause: ratio * 1e7, value: 1e7, ovr });
+
+  it("gets likelier the more reachable the number is", () => {
+    expect(odds(1.3)).toBeGreaterThan(odds(2.4));
+    expect(odds(2.4)).toBeGreaterThan(odds(4));
+  });
+
+  it("is a wall past the point the club paid for", () => {
+    expect(odds(CLAUSE.steep)).toBe(0);
+    expect(odds(9)).toBe(0);
+  });
+
+  it("never fires for a player nobody wants, however cheap he is", () => {
+    expect(odds(1, 60)).toBe(0);
+    expect(odds(1, CLAUSE.wantedFrom)).toBe(0);
+    expect(odds(1, 90)).toBeGreaterThan(0);
+  });
+
+  it("is rationed: a career is not an auction", () => {
+    for (const ovr of [70, 80, 90, 99]) {
+      for (const ratio of [0.2, 1, 2, 4.9]) {
+        const value = odds(ratio, ovr);
+        expect(value).toBeGreaterThanOrEqual(0);
+        expect(value).toBeLessThanOrEqual(CLAUSE.maxOdds);
+      }
+    }
+  });
+
+  it("roughly doubles the way out when the clause was argued down at signing", () => {
+    // The return on the ask is not a discount, it is the odds of the door opening.
+    expect(odds(2.4 * CONTRACT.clauseCut)).toBeGreaterThan(odds(2.4) * 1.5);
+  });
+
+  it("returns nothing for a player with no clause or no value", () => {
+    expect(clauseOdds({ clause: 0, value: 1e7, ovr: 90 })).toBe(0);
+    expect(clauseOdds({ clause: 1e7, value: 0, ovr: 90 })).toBe(0);
+  });
+});
+
+describe("a buy-out that was met is not a contract that was broken", () => {
+  it("charges no breach when the price was paid", () => {
+    const broken = exitCost({ seasonsAtClub: 4, breachYears: 3, idolatryHere: 40 });
+    const paid = exitCost({ seasonsAtClub: 4, breachYears: 3, idolatryHere: 40, clausePaid: true });
+    expect(broken.breach).toBeLessThan(0);
+    expect(paid.breach).toBe(0);
+    expect(paid.change).toBeGreaterThan(broken.change);
+    // The ordinary price of leaving is still charged in full - he did still leave.
+    expect(paid.change).toBe(IDOLATRY.leaving);
+  });
+
+  it("still brands a move to a league rival, paid or not", () => {
+    const paid = exitCost({
+      seasonsAtClub: 6, sameCompetition: true, idolatryHere: 90, breachYears: 2, clausePaid: true,
+    });
+    expect(paid.betrayal).toBe(true);
+    expect(paid.breach).toBe(0);
+  });
+});
+
+/**
+ * The office must never charge for nothing.
+ *
+ * Every ask spends leverage and prints its odds, so an ask that is granted and changes no
+ * term is the game lying twice: once on the button and once on the signing sheet, which
+ * lists it under what you won. `clause` and `short` were already gated; `role` was not.
+ */
+describe("no ask is offered that cannot change the deal", () => {
+  const roleAsk = ASKS_BY_ID.role;
+
+  it("does not offer the shirt to a player who already has it", () => {
+    // delta >= 0 is `titular`, the top of the ladder: there is no rung above to promise.
+    const deal = terms({ projectedDelta: 3 });
+    expect(deal.projectedRole).toBe("titular");
+    expect(promiseRole("titular")).toBe("titular");
+    expect(roleAsk.available(deal)).toBe(false);
+    expect(askOdds(roleAsk, 0.95, deal)).toBe(0);
+    expect(negotiate({ seed: "n", clubId: "c", round: 0, terms: deal, leverage: 1, askId: "role" }))
+      .toBeNull();
+  });
+
+  it("does offer it to a player who is a rung below", () => {
+    const deal = terms({ projectedDelta: -3, reputation: 5 });
+    expect(deal.projectedRole).toBe("rotacion_alta");
+    expect(roleAsk.available(deal)).toBe(true);
+    expect(askOdds(roleAsk, 0.9, deal)).toBeGreaterThan(0);
+    expect(roleAsk.apply(deal).rolePromise).toBe("titular");
+  });
+
+  it("does not offer it twice when the club already volunteered it", () => {
+    const volunteered = terms({ projectedDelta: -3, reputation: 2 });
+    expect(volunteered.rolePromise).toBe("titular");
+    expect(roleAsk.available(volunteered)).toBe(false);
+  });
+
+  /** The property, over every deal the game can put on a table. */
+  it("changes at least one term whenever it is granted", () => {
+    for (const reputation of [0, 2, 3, 5]) {
+      for (const tier of [1, 2]) {
+        for (const projectedDelta of [-11, -7, -3, -1, 0, 2, 6, 10]) {
+          for (const age of [17, 22, 27, 33, 38]) {
+            const deal = terms({ reputation, tier, projectedDelta, age });
+            for (const ask of ASKS) {
+              if (!ask.available?.(deal) && ask.available) continue;
+              const after = ask.apply(deal);
+              const moved = ["years", "wage", "wageRole", "rolePromise", "clause"].some(
+                (key) => after[key] !== deal[key],
+              );
+              expect(
+                moved,
+                `ask "${ask.id}" changed nothing at rep ${reputation} tier ${tier} delta ${projectedDelta} age ${age}`,
+              ).toBe(true);
+            }
+          }
+        }
+      }
+    }
   });
 });

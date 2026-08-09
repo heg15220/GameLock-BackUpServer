@@ -1,7 +1,11 @@
-# Real club crests, league marks and flags fetched by scripts/fetch-football-crests.py.
-# Club crests and league logos are trademarks of their owners: kept local for development,
-# never committed. Re-fetch with: python scripts/fetch-football-crests.py
+# Real club crests, league marks, flags and trophies fetched by
+# scripts/fetch-football-crests.py. All of them are trademarks of their owners: kept local
+# for development, never committed. Re-fetch with:
+#   python scripts/fetch-football-crests.py
+# The trophies come from media.copero.com.ar and cover only part of the world, which is
+# why the game draws its own silhouettes and treats these as enrichment (trophies.jsx).
 crests/
 competitions/
 flags/
+trophies/
 manifest.json

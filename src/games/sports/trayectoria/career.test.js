@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   PHASES,
+  acceptClause,
   acceptOffer,
   agreeTerms,
   askFor,
@@ -12,16 +13,20 @@ import {
   eventContext,
   nextFixture,
   openMarket,
+  playChance,
+  refuseClause,
   resolveEvent,
   signYouthClub,
   startCareer,
   switchNationality,
   takeShot,
+  watchMatch,
 } from "./career.js";
 import { EVENTS_BY_ID, MAX_INJURIES, drawEvent, weightOf } from "./events.js";
 import { IDOLATRY } from "./idolatry.js";
+import { shadowStanding } from "./rival.js";
 import { CONTRACT } from "./contract.js";
-import { CAREER_MODES, RETIREMENT_AGE, START_AGE } from "./tables.js";
+import { CAREER_MODES, GROWTH, RETIREMENT_AGE, START_AGE } from "./tables.js";
 import { world } from "./world.js";
 
 const start = (overrides = {}) =>
@@ -50,12 +55,42 @@ const takeOffer = (run, clubId) => completeSigning(agreeTerms(acceptOffer(run, c
  * Take every shot the step puts in front of you, always going for the first placement.
  * A step can open the phase once per season, so this drains it rather than assuming one.
  */
+/**
+ * Resolve whichever kind of decider is on screen.
+ *
+ * A moment is either yours to take (a minigame) or a call inside a match that is being
+ * narrated around you - see matchmode.js. `hit` says whether to convert it; the caller
+ * does not have to know which mode came up, which is the point.
+ */
+function resolveMoment(run, hit = true, locale = "es") {
+  let current = run;
+  let guard = 0;
+  // A fixture can owe him none, one or several sights of goal; drain the lot so callers
+  // still deal in whole fixtures.
+  while (current.phase === PHASES.MATCH && !current.matchday.last && guard < 10) {
+    guard += 1;
+    const { shot } = current.matchday;
+    if (shot.mode === "skill") {
+      const aim = shot.chance.gates ?? [shot.chance.target];
+      // Dead on the target converts; a whole tolerance off the mark cannot.
+      const inputs = aim.map((value) =>
+        hit ? value : Math.min(1, value + shot.chance.tolerance * 4 + 0.3),
+      );
+      current = playChance(current, shot.chance.gates ? inputs : inputs[0]);
+    } else {
+      const index = hit ? shot.gap : (shot.gap + 1) % shot.options.length;
+      current = takeShot(watchMatch(current, locale), shot.options[index]);
+    }
+  }
+  return current;
+}
+
 function playMatches(run, locale = "es") {
   let current = run;
   let guard = 0;
   while (current.phase === PHASES.MATCH && guard < 40) {
     guard += 1;
-    current = takeShot(current, current.matchday.shot.options[0]);
+    current = resolveMoment(current, true, locale);
     current = nextFixture(current, locale);
   }
   expect(guard).toBeLessThan(40);
@@ -262,10 +297,20 @@ describe("the contract, across seasons", () => {
   });
 
   it("keeps a stay option on the table while the deal runs, however badly it goes", () => {
-    let run = signThrough(start(), start().offers[0].clubId);
+    let run = start();
+    run = signThrough(run, run.offers[0].clubId);
     run = playMatches(resolveEvent(run, run.event.es.options[0].id));
-    // The club has had enough - but it signed for three years and cannot say so yet.
-    run = { ...run, state: { ...run.state, clubWantsOut: true } };
+    // The club has had enough - but it is tied in and cannot say so yet. The deal is set
+    // explicitly because a FIRST contract is always one season and would have expired by
+    // now; this is about what a multi-year one buys.
+    run = {
+      ...run,
+      state: {
+        ...run.state,
+        clubWantsOut: true,
+        contract: { ...run.state.contract, years: 3, yearsLeft: 2 },
+      },
+    };
     run = openMarket(run);
     expect(run.state.contract.yearsLeft).toBeGreaterThan(0);
     expect(run.offers.some((offer) => offer.stay)).toBe(true);
@@ -323,7 +368,7 @@ describe("the three matches", () => {
       while (run.phase === PHASES.MATCH && guard < 40) {
         guard += 1;
         if (run.matchday.index === 0 && !run.matchday.results.length) matchdays += 1;
-        run = nextFixture(takeShot(run, run.matchday.shot.options[0]));
+        run = nextFixture(resolveMoment(run, true));
       }
       expect(matchdays).toBe(CAREER_MODES[mode].seasonsPerStep);
       expect(run.seasonResults.every((result) => result.record.bigMatches.length > 0)).toBe(true);
@@ -372,18 +417,32 @@ describe("the three matches", () => {
   });
 
   it("changes the career: the same seed, different shots, different trophies", () => {
-    const play = (aim) => {
-      let run = atFirstShot({ seed: "shots" });
+    const play = (seed, hit) => {
+      let run = atFirstShot({ seed });
       let guard = 0;
       while (run.phase === PHASES.MATCH && guard < 40) {
         guard += 1;
-        const { shot } = run.matchday;
-        run = nextFixture(takeShot(run, aim(shot)));
+        run = nextFixture(resolveMoment(run, hit));
       }
       return run.seasonResults[0].record;
     };
-    const hit = play((shot) => shot.options[shot.gap]);
-    const miss = play((shot) => shot.options[(shot.gap + 1) % shot.options.length]);
+
+    /*
+     * A season can now give him no sight of goal at all - see `chancesFor` - and then
+     * there is nothing to play differently and both runs are identical, correctly. The
+     * test is about what happens when he DOES get a chance, so it finds a season that
+     * offers one rather than assuming every season does.
+     */
+    let hit = null;
+    let miss = null;
+    for (let i = 0; i < 20 && !hit; i += 1) {
+      const seed = `shots-${i}`;
+      const played = play(seed, true);
+      if (!played.bigMatches.some((match) => match.taken > 0)) continue;
+      hit = played;
+      miss = play(seed, false);
+    }
+    expect(hit, "no seed gave him a chance in its first season").toBeTruthy();
 
     expect(hit.goals).toBeGreaterThan(miss.goals);
     expect(hit.bigMatches.map((m) => m.scored)).not.toEqual(miss.bigMatches.map((m) => m.scored));
@@ -395,7 +454,7 @@ describe("the three matches", () => {
       let guard = 0;
       while (run.phase === PHASES.MATCH && guard < 40) {
         guard += 1;
-        run = nextFixture(takeShot(run, run.matchday.shot.options[0]));
+        run = nextFixture(resolveMoment(run, true));
       }
       return run;
     };
@@ -670,5 +729,499 @@ describe("standing", () => {
     expect(standing.club.id).toBe(run.state.clubId);
     expect(standing.delta).toBe(run.state.ovr - standing.squadLevel);
     expect(standing.seasonsLeft).toBe(RETIREMENT_AGE - START_AGE);
+  });
+});
+
+/**
+ * The two things the summer market now tells you that it used to keep to itself, and the
+ * one thing the career now remembers about a club after it has moved it.
+ */
+describe("what the market screen knows", () => {
+  it("prices what each club would do to your development, not just to your role", () => {
+    let run = playToRetirement(start({ seed: "growth-market" }), {
+      pickOffer: (current) => {
+        for (const offer of current.offers) {
+          expect(offer.growth).toBeTruthy();
+          expect(offer.growth.factor).toBeGreaterThan(0);
+          // The forecast has to be a number the player can rank three clubs by.
+          expect(Number.isFinite(offer.growth.factor)).toBe(true);
+        }
+        return current.offers[0];
+      },
+    });
+    expect(run.phase).toBe(PHASES.RETIRED);
+  });
+
+  it("keeps every projection inside the bounds the meter is drawn against", () => {
+    let run = start({ seed: "growth-rank" });
+    run = signThrough(run, run.offers[0].clubId);
+    run = resolveEvent(run, run.event.es.options[0].id);
+    run = playMatches(run);
+    run = openMarket(run);
+
+    const rated = run.offers
+      .filter((offer) => offer.growth)
+      .map((offer) => ({
+        delta: offer.projectedDelta,
+        factor: offer.growth.factor,
+      }));
+    expect(rated.length).toBeGreaterThan(0);
+    // Nothing in the projection may fall outside the bounds the meter is drawn against.
+    for (const entry of rated) {
+      expect(entry.factor).toBeGreaterThanOrEqual(GROWTH.min);
+      expect(entry.factor).toBeLessThanOrEqual(GROWTH.max);
+    }
+  });
+
+  it("reads the cycle at the rate the last season actually collected it", () => {
+    let run = start({ seed: "outlook-effective" });
+    run = signThrough(run, run.offers[0].clubId);
+    run = resolveEvent(run, run.event.es.options[0].id);
+    run = playMatches(run);
+    run = openMarket(run);
+    if (!run.outlook) return;
+    expect(run.outlook.growth).toBeGreaterThan(0);
+    expect(run.outlook.effective).toHaveLength(2);
+  });
+});
+
+describe("a club the career moved stays moved", () => {
+  it("carries the division overlay through the whole reducer", () => {
+    const run = playToRetirement(start({ seed: "division-run" }));
+    // Whatever happened, the overlay is a per-club integer in {-1, 0, 1} and nothing else.
+    for (const [, shift] of Object.entries(run.state.divisions ?? {})) {
+      expect([-1, 0, 1]).toContain(shift);
+    }
+    // Every season the player was promoted or relegated left the club somewhere new.
+    for (const season of run.state.history) {
+      if (season.promoted || season.relegated) {
+        expect(run.state.divisions).toHaveProperty(season.clubId);
+      }
+    }
+  });
+
+  it("shows the header the division the club is really in", () => {
+    let run = start({ seed: "division-header" });
+    run = signThrough(run, run.offers[0].clubId);
+    run = resolveEvent(run, run.event.es.options[0].id);
+    run = playMatches(run);
+    const standing = currentStanding(run);
+    expect(standing.division.tier).toBe(standing.competition.tier);
+    expect(standing.growth).toBeTruthy();
+  });
+
+  it("never promotes the same club twice running", () => {
+    const run = playToRetirement(start({ seed: "no-double-promotion" }));
+    const promotedAt = run.state.history.filter((season) => season.promoted);
+    for (let i = 1; i < promotedAt.length; i += 1) {
+      const previous = promotedAt[i - 1];
+      const current = promotedAt[i];
+      // Same club twice is only legitimate if it went back down in between.
+      if (previous.clubId === current.clubId) {
+        const between = run.state.history.filter(
+          (season) =>
+            season.season > previous.season &&
+            season.season < current.season &&
+            season.clubId === current.clubId &&
+            season.relegated,
+        );
+        expect(between.length).toBeGreaterThan(0);
+      }
+    }
+  });
+});
+
+/**
+ * The other half of OUR CALL #8: a long deal is a decision because it can be bought out,
+ * and being bought out is itself a decision because the money never asked the player.
+ */
+describe("when somebody pays the buy-out", () => {
+  /** Force the offer: a running deal with a buy-out anyone could meet, and a wanted player. */
+  const withPaidClause = (run, { clause = 1_000 } = {}) => ({
+    ...run,
+    state: {
+      ...run.state,
+      ovr: 92,
+      value: 60_000_000,
+      seasonsAtClub: 4,
+      idolatry: { ...run.state.idolatry, [run.state.clubId]: 60 },
+      contract: {
+        ...(run.state.contract ?? {}),
+        clubId: run.state.clubId,
+        years: 4,
+        yearsLeft: 3,
+        clause,
+        wage: 4_000_000,
+        wageRole: "titular",
+        pay: { reputation: 3, strength: 3, tier: 1 },
+      },
+    },
+  });
+
+  const marketWithClause = (seed) => {
+    let run = start({ seed });
+    run = signThrough(run, run.offers[0].clubId);
+    run = resolveEvent(run, run.event.es.options[0].id);
+    run = playMatches(run);
+    return openMarket(withPaidClause(run));
+  };
+
+  /** Seeds differ in whether the roll fires, so find one that did. */
+  const firstWithOffer = () => {
+    for (let i = 0; i < 40; i += 1) {
+      const run = marketWithClause(`clause-${i}`);
+      if (run.clauseOffer) return run;
+    }
+    return null;
+  };
+
+  it("opens the door on a reachable buy-out and never on a wall", () => {
+    const opened = firstWithOffer();
+    expect(opened).not.toBeNull();
+    expect(opened.clauseOffer.clausePaid).toBe(true);
+    expect(opened.clauseOffer.clubId).not.toBe(opened.state.clubId);
+    expect(opened.clauseOffer.fee).toBe(1_000);
+
+    // The same careers, with the buy-out priced where the club meant it to be.
+    for (let i = 0; i < 12; i += 1) {
+      let run = start({ seed: `wall-${i}` });
+      run = signThrough(run, run.offers[0].clubId);
+      run = resolveEvent(run, run.event.es.options[0].id);
+      run = playMatches(run);
+      expect(openMarket(withPaidClause(run, { clause: 900_000_000 })).clauseOffer).toBeNull();
+    }
+  });
+
+  it("charges the ordinary price of leaving and not a season of breach", () => {
+    const run = firstWithOffer();
+    const exit = run.clauseOffer.exit;
+    expect(exit.clausePaid).toBe(true);
+    expect(exit.breach).toBe(0);
+    // Three years were still to run: torn up, that would have cost on top.
+    expect(exit.change).toBe(IDOLATRY.leaving);
+  });
+
+  it("takes the player to the table, where it is an ordinary signing", () => {
+    const run = acceptClause(firstWithOffer());
+    expect(run.phase).toBe(PHASES.NEGOTIATION);
+    expect(run.deal.clausePaid).toBe(true);
+    expect(run.deal.exit.breach).toBe(0);
+  });
+
+  it("pays the stand for turning it down, and the club is not asked twice", () => {
+    const offered = firstWithOffer();
+    const before = offered.state.idolatry[offered.state.clubId];
+    const refused = refuseClause(offered);
+
+    expect(refused.clauseOffer).toBeNull();
+    expect(refused.phase).toBe(PHASES.MARKET);
+    expect(refused.state.clubId).toBe(offered.state.clubId);
+    expect(refused.state.idolatry[offered.state.clubId]).toBeGreaterThan(before);
+    expect(refused.refusedClause.change).toBeGreaterThan(0);
+
+    // Re-opening the same summer does not put it back on the table.
+    expect(openMarket(refused).clauseOffer).toBeNull();
+  });
+
+  it("does nothing at all outside the market, or with no offer standing", () => {
+    const offered = firstWithOffer();
+    expect(refuseClause({ ...offered, phase: PHASES.EVENT })).toEqual({
+      ...offered,
+      phase: PHASES.EVENT,
+    });
+    expect(acceptClause({ ...offered, clauseOffer: null }).phase).toBe(PHASES.MARKET);
+  });
+
+  it("never fires for a player whose deal has run out - he is leaving for nothing anyway", () => {
+    for (let i = 0; i < 12; i += 1) {
+      let run = start({ seed: `free-${i}` });
+      run = signThrough(run, run.offers[0].clubId);
+      run = resolveEvent(run, run.event.es.options[0].id);
+      run = playMatches(run);
+      const expired = withPaidClause(run);
+      expired.state.contract.yearsLeft = 0;
+      expect(openMarket(expired).clauseOffer).toBeNull();
+    }
+  });
+});
+
+describe("the office only offers asks that mean something", () => {
+  it("hides the buy-out argument on a one-year deal and shows it on a long one", () => {
+    let run = start({ seed: "asks" });
+    run = signYouthClub(run, run.offers[0].clubId);
+    const ids = () => availableAsks(run).map((ask) => ask.id);
+
+    if (run.deal.terms.years === 1) {
+      expect(ids()).not.toContain("clause");
+      expect(ids()).not.toContain("short");
+    } else {
+      expect(ids()).toContain("clause");
+    }
+    // Whatever the deal, there is always something worth asking for.
+    expect(ids().length).toBeGreaterThan(0);
+  });
+});
+
+describe("the crowd keeps you in the building", () => {
+  /** Drive one season at a club with a given standing and see whether they bin him. */
+  const seasonAt = (idolatry) => {
+    let run = start({ seed: "patience", mode: "normal" });
+    run = signThrough(run, run.offers[0].clubId);
+    // Far enough below the squad to be out of the side, which is what sets the streak.
+    run = {
+      ...run,
+      state: {
+        ...run.state,
+        ovr: 40,
+        benchStreak: 0,
+        idolatry: { ...run.state.idolatry, [run.state.clubId]: idolatry },
+      },
+    };
+    run = resolveEvent(run, run.event.es.options[0].id);
+    return playMatches(run);
+  };
+
+  it("bins a newcomer for a season out of the side and keeps a favourite", () => {
+    const newcomer = seasonAt(0);
+    const favourite = seasonAt(95);
+    expect(newcomer.state.history[0].role).toBe("suplente");
+    expect(favourite.state.history[0].role).toBe("suplente");
+    // Same season, same streak, different standing - and only one of them is being moved on.
+    expect(newcomer.state.clubWantsOut).toBe(true);
+    expect(favourite.state.clubWantsOut).toBe(false);
+  });
+
+  it("records the rope it gave him, so the season can say why he is still there", () => {
+    expect(seasonAt(95).state.history[0].patience).toBe(IDOLATRY.maxPatience);
+    expect(seasonAt(0).state.history[0].patience).toBe(0);
+  });
+});
+
+/**
+ * The shadow, while the career is still running. The ending has always compared the two
+ * of you; being told about it only on the last screen made it a scoreboard rather than a
+ * rivalry, so `shadowStanding` is what the decision panel reads every step.
+ */
+describe("knowing who you are being measured against", () => {
+  it("says nothing before he has played a season", () => {
+    const run = start({ seed: "rival-start" });
+    expect(shadowStanding(run.shadow, run.state, run.state.age - 1)).toBeNull();
+  });
+
+  it("totals both careers in the currencies the ending is judged in", () => {
+    let run = start({ seed: "rival-run" });
+    run = signThrough(run, run.offers[0].clubId);
+    for (let step = 0; step < 6 && run.phase !== PHASES.RETIRED; step += 1) {
+      run = resolveEvent(run, run.event.es.options[0].id);
+      run = playMatches(run);
+      run = openMarket(run);
+      if (run.phase === PHASES.RETIRED) break;
+      run = takeOffer(run, (run.offers.find((o) => o.stay) ?? run.offers[0]).clubId);
+    }
+    const standing = shadowStanding(run.shadow, run.state, run.state.age - 1);
+    expect(standing).toBeTruthy();
+    expect(standing.surname).toBe(run.shadow.surname);
+    expect(standing.mine.goals).toBe(
+      run.state.history.reduce((sum, season) => sum + season.goals, 0),
+    );
+    expect(standing.lead.goals).toBe(standing.mine.goals - standing.theirs.goals);
+    expect(typeof standing.ahead).toBe("boolean");
+    // Only what he had done by then - the panel must never leak his future.
+    expect(standing.theirs.goals).toBeLessThanOrEqual(
+      run.shadow.seasons.reduce((sum, season) => sum + season.goals, 0),
+    );
+  });
+
+  it("never counts a season the shadow has not played yet", () => {
+    const run = start({ seed: "rival-clip" });
+    const early = shadowStanding(run.shadow, { ...run.state, history: [] }, 20);
+    const late = shadowStanding(run.shadow, { ...run.state, history: [] }, 34);
+    if (early && late) expect(early.theirs.goals).toBeLessThanOrEqual(late.theirs.goals);
+  });
+});
+
+describe("the career keeps the shooting record the season planner prices off", () => {
+  it("counts every chance and every goal, and carries them into the next season's plan", () => {
+    let run = start({ seed: "conv" });
+    expect(run.state.conversion).toEqual({ taken: 0, scored: 0 });
+
+    run = signThrough(run, run.offers[0].clubId);
+    let shots = 0;
+    let goals = 0;
+    for (let step = 0; step < 8 && run.phase !== PHASES.RETIRED; step += 1) {
+      run = resolveEvent(run, run.event.es.options[0].id);
+      while (run.phase === PHASES.MATCH) {
+        run = resolveMoment(run, true);
+        // A fixture can be worth any number of chances, including none at all.
+        shots += run.matchday.last.taken;
+        goals += run.matchday.last.converted;
+        run = nextFixture(run);
+      }
+      run = openMarket(run);
+      if (run.phase === PHASES.RETIRED) break;
+      run = takeOffer(run, (run.offers.find((o) => o.stay) ?? run.offers[0]).clubId);
+    }
+
+    expect(shots).toBeGreaterThan(0);
+    expect(run.state.conversion.taken).toBe(shots);
+    expect(run.state.conversion.scored).toBe(goals);
+    expect(run.state.conversion.scored).toBeLessThanOrEqual(run.state.conversion.taken);
+  });
+
+  it("puts the running record on every season it played matches in", () => {
+    let run = start({ seed: "conv-record" });
+    run = signThrough(run, run.offers[0].clubId);
+    run = resolveEvent(run, run.event.es.options[0].id);
+    run = playMatches(run);
+    const season = run.state.history[run.state.history.length - 1];
+    expect(season.conversion.taken).toBeGreaterThanOrEqual(0);
+    expect(season.conversion).toEqual(run.state.conversion);
+  });
+});
+
+/**
+ * The constraint the `years` term exists to impose.
+ *
+ * Half of it was already enforced - a running deal stopped the club pushing you out - but
+ * the other half was not: the player could walk into any office and sign, paying the crowd
+ * a breach fee. That made a four-year contract a price rather than a commitment, and made
+ * the buy-out nearly pointless, since he could leave without anyone meeting it.
+ */
+describe("a contract that is still running is the whole of the summer", () => {
+  /** A career sitting in the market on a deal with `yearsLeft` still to run. */
+  const inMarketWith = (yearsLeft, seed = "locked", extra = {}) => {
+    let run = start({ seed });
+    run = signThrough(run, run.offers[0].clubId);
+    run = resolveEvent(run, run.event.es.options[0].id);
+    run = playMatches(run);
+    run = {
+      ...run,
+      state: {
+        ...run.state,
+        ...extra,
+        contract: {
+          ...(run.state.contract ?? {}),
+          clubId: run.state.clubId,
+          years: Math.max(1, yearsLeft),
+          yearsLeft,
+          wage: 2_000_000,
+          wageRole: "titular",
+          clause: 900_000_000,
+          pay: { reputation: 3, strength: 3, tier: 1 },
+        },
+      },
+    };
+    return openMarket(run);
+  };
+
+  it("puts exactly one card on the table: stay", () => {
+    for (const yearsLeft of [1, 2, 3, 4]) {
+      const run = inMarketWith(yearsLeft, `lock-${yearsLeft}`);
+      expect(run.offers).toHaveLength(1);
+      expect(run.offers[0].stay).toBe(true);
+      expect(run.offers[0].clubId).toBe(run.state.clubId);
+    }
+  });
+
+  it("refuses to open talks with anybody else, even asked directly", () => {
+    const run = inMarketWith(3);
+    const elsewhere = Object.keys(world.clubs).find((id) => id !== run.state.clubId);
+    // `acceptOffer` only opens talks over an offer that is on the table, and none is.
+    const tried = acceptOffer(run, elsewhere);
+    expect(tried.phase).toBe(PHASES.MARKET);
+    expect(tried.deal).toBeFalsy();
+  });
+
+  it("opens the market again the summer the deal runs out", () => {
+    const free = inMarketWith(0, "free");
+    expect(free.offers.length).toBeGreaterThan(1);
+    expect(free.offers.some((offer) => !offer.stay)).toBe(true);
+  });
+
+  it("still lets a buy-out take him, which is the point of arguing it down", () => {
+    // A reachable clause and a wanted player: the one door a running deal leaves open.
+    let run = start({ seed: "lock-clause" });
+    run = signThrough(run, run.offers[0].clubId);
+    run = resolveEvent(run, run.event.es.options[0].id);
+    run = playMatches(run);
+    const withClause = {
+      ...run,
+      state: {
+        ...run.state,
+        ovr: 92,
+        value: 60_000_000,
+        contract: {
+          ...(run.state.contract ?? {}),
+          clubId: run.state.clubId,
+          years: 4,
+          yearsLeft: 3,
+          clause: 1_000,
+          wage: 4_000_000,
+          wageRole: "titular",
+          pay: { reputation: 3, strength: 3, tier: 1 },
+        },
+      },
+    };
+    let opened = openMarket(withClause);
+    for (let i = 0; i < 40 && !opened.clauseOffer; i += 1) {
+      opened = openMarket({ ...withClause, season: withClause.season + i + 1 });
+    }
+    expect(opened.clauseOffer, "no summer produced a paid buy-out").toBeTruthy();
+    // One card in the grid, and a separate door that somebody else opened.
+    expect(opened.offers).toHaveLength(1);
+    expect(acceptClause(opened).phase).toBe(PHASES.NEGOTIATION);
+  });
+
+  it("lets a decision card tear the deal up, and that is the path that pays the breach", () => {
+    const forced = inMarketWith(3, "forced", { forceTransfer: true });
+    expect(forced.offers.length).toBeGreaterThan(1);
+    const leaving = forced.offers.find((offer) => !offer.stay);
+    expect(leaving).toBeTruthy();
+    // Torn up rather than bought out, so the years still to run are charged in full.
+    expect(leaving.exit?.breachYears ?? 0).toBeGreaterThan(0);
+    expect(leaving.exit.breach).toBeLessThan(0);
+  });
+
+  it("never charges a breach on a move the deal allowed", () => {
+    // Once it has expired there is nothing left to break.
+    const free = inMarketWith(0, "no-breach");
+    for (const offer of free.offers) {
+      if (offer.stay || !offer.exit) continue;
+      expect(offer.exit.breachYears).toBe(0);
+      expect(Math.abs(offer.exit.breach)).toBe(0);
+    }
+  });
+});
+
+describe("the first contract of a career", () => {
+  it("is one season, at every club that could offer it", () => {
+    for (let i = 0; i < 30; i += 1) {
+      let run = start({ seed: `first-${i}` });
+      for (const offer of run.offers) {
+        const opened = signYouthClub(run, offer.clubId);
+        expect(opened.deal.terms.years, `club ${offer.clubId}`).toBe(1);
+        expect(opened.deal.terms.reasons).toContain("firstDeal");
+      }
+    }
+  });
+
+  it("leaves nothing to ask for about its length, and no buy-out to argue", () => {
+    let run = start({ seed: "first-asks" });
+    run = signYouthClub(run, run.offers[0].clubId);
+    const ids = availableAsks(run).map((ask) => ask.id);
+    expect(ids).not.toContain("short");
+    expect(ids).not.toContain("clause");
+    expect(ids.length).toBeGreaterThan(0);
+  });
+
+  it("means the second summer is always a real market", () => {
+    let run = start({ seed: "first-free" });
+    run = signThrough(run, run.offers[0].clubId);
+    run = resolveEvent(run, run.event.es.options[0].id);
+    run = playMatches(run);
+    run = openMarket(run);
+    // One season signed, one season played: he is out of contract and free to choose.
+    expect(run.state.contract.yearsLeft).toBe(0);
+    expect(run.offers.length).toBeGreaterThan(1);
   });
 });

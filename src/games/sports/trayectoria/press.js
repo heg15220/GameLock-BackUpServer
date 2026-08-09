@@ -10,6 +10,7 @@
  */
 
 import { shadowSeasonAt } from "./rival.js";
+import { GROWTH } from "./tables.js";
 
 const TROPHY_NAMES = {
   es: {
@@ -115,6 +116,20 @@ const RULES = [
     es: { head: "CAMPEONES DEL MUNDO", body: "{surname}, {age} años, vuelve a casa con la copa. Se acabó la discusión sobre su carrera." },
     en: { head: "WORLD CHAMPIONS", body: "{surname}, {age}, comes home with the cup. The argument about his career is over." },
   },
+  // A club's trophies are drawn off one shared season now, so they arrive together or
+  // not at all. When they arrive together that is the story, above any one of them.
+  {
+    id: "treble",
+    when: (s) => s.titles.length >= 3,
+    es: { head: "EL AÑO PERFECTO", body: "Tres títulos para {club} en una sola temporada. {surname}, {goals} goles, estuvo en todos." },
+    en: { head: "THE PERFECT YEAR", body: "Three trophies for {club} in one season. {surname}, {goals} goals, was in all of them." },
+  },
+  {
+    id: "double",
+    when: (s) => s.titles.length === 2,
+    es: { head: "DOBLETE", body: "{club} se lleva dos. {surname} {roleLine}: {matches} partidos, {goals} goles, y un año que no se repite." },
+    en: { head: "THE DOUBLE", body: "{club} take two. {surname} {roleLine}: {matches} matches, {goals} goals, and a year that does not come round twice." },
+  },
   {
     id: "continental-club",
     when: (s) => s.titles.some((t) => t.trophy === "continental_a"),
@@ -162,6 +177,18 @@ const RULES = [
     when: (s) => s.role === "suplente",
     es: { head: "SIN SITIO", body: "{matches} partidos en todo el año. {surname} entrena, viaja y mira. A los {age} eso cuesta caro." },
     en: { head: "NO PLACE", body: "{matches} matches all year. {surname} trains, travels and watches. At {age} that is expensive." },
+  },
+  // The one warning the model used to keep to itself. A player can be playing, scoring,
+  // perfectly content - and standing still, because nothing at this club is asking him a
+  // question. It is worth a headline precisely because nothing visible went wrong.
+  {
+    id: "stalled",
+    when: (s) =>
+      s.growth?.factor <= GROWTH.stallBelow &&
+      s.development?.range?.[1] > 0 &&
+      s.matches > 0,
+    es: { head: "SE HA PARADO", body: "{age} años y el mismo futbolista que en agosto. En {club} nadie le pide nada que no sepa hacer ya." },
+    en: { head: "HE HAS STOPPED", body: "{age} years old and the same player he was in August. Nobody at {club} asks him anything he cannot already do." },
   },
   {
     id: "called-up",

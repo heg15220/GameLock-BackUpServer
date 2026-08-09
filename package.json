@@ -41,6 +41,7 @@
   "devDependencies": {
     "@playwright/test": "^1.59.1",
     "cross-env": "^7.0.3",
+    "jsdom": "^30.0.1",
     "playwright": "^1.44.1",
     "vite": "^4.5.14",
     "vitest": "^0.34.6"

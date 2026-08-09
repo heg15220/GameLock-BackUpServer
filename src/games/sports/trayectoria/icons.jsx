@@ -109,6 +109,16 @@ const PATHS = {
     </>
   ),
 
+  // The shadow: the other career, running alongside yours the whole way.
+  rival: (
+    <>
+      <circle cx="8" cy="7" r="3" />
+      <path d="M3 20v-1.5A4.5 4.5 0 0 1 7.5 14h1A4.5 4.5 0 0 1 13 18.5V20" />
+      <path d="M16 8.5a2.5 2.5 0 1 0 0-.001" opacity=".55" />
+      <path d="M14 20v-1a3.5 3.5 0 0 1 3.5-3.5h1A3.5 3.5 0 0 1 22 19v1" opacity=".55" />
+    </>
+  ),
+
   /* ── What is on the line ─────────────────────────────────────────────────── */
   trophy: (
     <>
