@@ -9,6 +9,7 @@
  * that happened and report that. Nothing here invents facts.
  */
 
+import { PRODUCES } from "./bigmatch.js";
 import { shadowSeasonAt } from "./rival.js";
 import { GROWTH } from "./tables.js";
 
@@ -52,7 +53,7 @@ const FIXTURE_NAMES = {
     titulo_liga: "la final de liga",
     final_copa: "la final de copa",
     semifinal_continental: "la semifinal continental",
-    clasico: "el clásico",
+    clasico: "el partido de la temporada",
   },
   en: {
     final_mundial: "the World Cup final",
@@ -63,16 +64,27 @@ const FIXTURE_NAMES = {
     titulo_liga: "the title decider",
     final_copa: "the cup final",
     semifinal_continental: "the continental semi-final",
-    clasico: "the derby",
+    clasico: "the match of the season",
   },
 };
 
 /** What a shot has to settle for the paper to lead with it. A derby settles nothing. */
 const DECISIVE = ["league", "cup", "continental_a", "world_cup", "continental_nt", "promotion", "survival"];
 
-const decisiveShot = (record, scored) =>
-  record.bigMatches?.find((match) => match.scored === scored && DECISIVE.includes(match.decides)) ??
-  null;
+/**
+ * The shot the paper leads with. A decider the ball never reached him in is deliberately
+ * not one: `scored` is false there because nothing went in, not because he missed, and a
+ * back page reading "HE MISSED IT" over a night he never got a kick is the one accusation
+ * the model explicitly refuses to make (see DECIDES.absent).
+ */
+const decisiveShot = (record, scored, produces = PRODUCES.GOAL) =>
+  record.bigMatches?.find(
+    (match) =>
+      !match.absent &&
+      match.scored === scored &&
+      (match.produces ?? PRODUCES.GOAL) === produces &&
+      DECISIVE.includes(match.decides),
+  ) ?? null;
 
 const capitalise = (text) => (text ? text.charAt(0).toUpperCase() + text.slice(1) : text);
 
@@ -91,12 +103,27 @@ const RULES = [
     en: { head: "A YEAR OUT", body: "{surname} is suspended for the full season. Not one match, not one trophy, not one line in the table." },
   },
   // A season the player decided himself outranks anything the model handed him, in both
-  // directions: the paper leads with the shot that went in, and with the one that did not.
+  // directions: the paper leads with the moment that came off, and with the one that did
+  // not. Which moment it was depends on where he plays - a paper does not write "the
+  // keeper read him" about the keeper - so each direction has a stopper's variant, ranked
+  // first because `decisiveShot` is asked for that one specifically.
+  {
+    id: "stopped-it",
+    when: (s) => Boolean(decisiveShot(s, true, PRODUCES.STOP)),
+    es: { head: "LA PARÓ ÉL", body: "{fixture}, la última que llegó, y ahí estaba {surname}. {club} no la gana sin esa mano." },
+    en: { head: "HE STOPPED IT", body: "{fixture}, the last one that arrived, and {surname} was there. {club} do not win it without that hand." },
+  },
   {
     id: "decided-it",
     when: (s) => Boolean(decisiveShot(s, true)),
     es: { head: "LA DECIDIÓ ÉL", body: "{fixture}, el balón en los pies de {surname}, y dentro. {club} no la gana sin ese segundo." },
     en: { head: "HE DECIDED IT", body: "{fixture}, the ball at {surname}'s feet, and in. {club} do not win it without that second." },
+  },
+  {
+    id: "let-it-in",
+    when: (s) => Boolean(decisiveShot(s, false, PRODUCES.STOP)),
+    es: { head: "SE LE FUE", body: "{fixture} y la que decidía se le escapó a {surname} por un palmo. Nadie va a preguntar por el resto del año." },
+    en: { head: "IT GOT PAST HIM", body: "{fixture}, and the one that decided it beat {surname} by a hand. Nobody is going to ask about the rest of the year." },
   },
   {
     id: "missed-it",
@@ -226,10 +253,15 @@ export function headlineFor({ record, previous, state, world, locale = "es" }) {
 
   const trophy = record.titles[0]?.trophy;
   const award = record.awards[0]?.award;
-  const shot =
-    rule.id === "decided-it" || rule.id === "missed-it"
-      ? decisiveShot(record, rule.id === "decided-it")
-      : null;
+  // The four shot-led rules each need the very match they matched on, or `{fixture}` is
+  // filled from a different night than the one the headline is about.
+  const SHOT_RULES = {
+    "decided-it": [true, PRODUCES.GOAL],
+    "missed-it": [false, PRODUCES.GOAL],
+    "stopped-it": [true, PRODUCES.STOP],
+    "let-it-in": [false, PRODUCES.STOP],
+  };
+  const shot = SHOT_RULES[rule.id] ? decisiveShot(record, ...SHOT_RULES[rule.id]) : null;
   const values = {
     surname: state.surname,
     club: club?.shortName ?? club?.name ?? "",

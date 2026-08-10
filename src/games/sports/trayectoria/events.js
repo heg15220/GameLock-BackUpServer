@@ -930,6 +930,9 @@ export const EVENTS = [
     id: "el-grupito",
     weight: (c) => (c.seasonsAtClub <= 2 ? 90 : 35),
     theme: "vestuario",
+    // `out` is "ask to leave the club" on every other card and "eat with the kids" on this
+    // one, so this one says so rather than wearing the wrong glyph.
+    icons: { out: "personal" },
     es: {
       title: "Los de siempre",
       body: "En el vestuario hay un grupo que decide dónde se come, quién habla en las reuniones y a quién se le pasa el balón. Te han hecho sitio.",

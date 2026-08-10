@@ -222,7 +222,69 @@ export const SHOT_ICONS = {
   cabezazo: "cabezazo",
   falta: "falta",
   volea: "volea",
+  // The repertoires that stop it and the one that supplies it borrow the glyph of the
+  // chance they are answering: a saved penalty is still a penalty, and an interception is
+  // a cross that never arrived. Drawing eight more marks would say less, not more.
+  parada_penal: "penal",
+  salida_mano_a_mano: "mano_a_mano",
+  tiro_lejano: "volea",
+  centro_lateral: "cabezazo",
+  despeje: "volea",
+  entrada: "mano_a_mano",
+  anticipo: "cabezazo",
+  pase_gol: "falta",
 };
+
+/**
+ * Which glyph goes on each answer to a decision card.
+ *
+ * Keyed by the OPTION ID, which is the one part of an option that both languages share -
+ * the label and the detail are written twice, once per locale, and an icon stored beside
+ * them would be two things that have to agree and eventually would not.
+ *
+ * The mapping is deliberately at the level of what KIND of answer it is rather than what
+ * the answer is about: a card offers you a way of committing, a way of refusing, a way of
+ * holding your ground or a way of saying something, and forty-six cards' worth of fiction
+ * collapses onto that. `up` is the one you take, `down` is the one you turn down,
+ * `shield` is the one where you do not move, `chat` is the one you say out loud.
+ *
+ * Where an id genuinely means two different things in two different cards, the card names
+ * its own glyph - see `icons` in events.js and `optionIcon` below.
+ */
+export const OPTION_ICONS = {
+  // Take it, push for it, go.
+  accept: "up", ask: "up", compete: "up", fight: "up", force: "up", go: "up",
+  high: "up", play: "up", switch: "up", take: "up",
+  // Turn it down, stop, walk away.
+  against: "down", cut: "down", decline: "down", leave: "down", low: "down",
+  none: "down", off: "down", out: "down", refuse: "down", rest: "down",
+  // Do not move.
+  endure: "shield", half: "shield", hold: "shield", home: "shield", keep: "shield",
+  quiet: "shield", resist: "shield", silent: "shield", stay: "shield", watch: "shield",
+  // Say it.
+  answer: "chat", apologise: "chat", back: "chat", explain: "chat", listen: "chat",
+  message: "chat", talk: "chat",
+  // Sign it, or take it to a lawyer.
+  deal: "pen", sign: "pen", sue: "pen",
+  // The people in it.
+  family: "personal", mentor: "personal", send: "personal",
+  in: "vestuario", join: "vestuario", split: "vestuario",
+  club: "directiva",
+  // What is actually being played for.
+  continental: "trophy", league: "trophy",
+  // The rest name themselves.
+  adapt: "tactic", nutrition: "sport", with: "sport", work: "sport",
+  push: "wage", wait: "clock", sing: "crowd", study: "story",
+  left: "penal", right: "penal",
+};
+
+/**
+ * The glyph for one answer: what the card asked for, else what the id usually means, else
+ * the theme of the card - so a new option can never render a button with a hole in it.
+ */
+export function optionIcon(event, optionId) {
+  return event?.icons?.[optionId] ?? OPTION_ICONS[optionId] ?? event?.theme ?? "ball";
+}
 
 /** Which glyph names a fixture, so the match screen and the report agree. */
 export const FIXTURE_ICONS = {

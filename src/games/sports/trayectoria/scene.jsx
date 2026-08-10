@@ -47,6 +47,16 @@ export const PLACEMENTS = {
   abajo: [0.28, 0.88],
   escuadra: [0.87, 0.1],
   cruzada: [0.75, 0.55],
+  // Where the man stopping it goes, rather than where the ball does. Same frame, same
+  // units - the goal mouth is the goal mouth from either side of it.
+  achique: [0.5, 0.75],
+  "palo-corto": [0.22, 0.6],
+  salida: [0.5, 0.3],
+  adelantarse: [0.35, 0.7],
+  aguantar: [0.55, 0.65],
+  cerrar: [0.72, 0.72],
+  // And where the pass is put.
+  "al-hueco": [0.6, 0.5],
 };
 
 /**
@@ -62,6 +72,26 @@ export const SITUATIONS = {
   cabezazo: { from: [62, 76], bend: 0.3, keeper: [0.46, 0.6] },
   falta: { from: [70, 112], bend: 0.42, keeper: [0.34, 0.62] },
   volea: { from: [116, 106], bend: 0.16, keeper: [0.55, 0.6] },
+  pase_gol: { from: [86, 104], bend: 0.24, keeper: [0.5, 0.6] },
+
+  /**
+   * The same drawing from the other side of it.
+   *
+   * `stops: true` swaps the two moving parts and nothing else: the ball flies to the GAP,
+   * because the gap is where the opponent actually put it, and the figure in the goal
+   * follows the player's CHOICE, because the choice is where he went. Landing on the same
+   * point is the save. It needs no second SVG - the picture was always "a ball, a goal
+   * and a man"; only which of them the player controls has changed.
+   */
+  parada_penal: { from: [100, 102], bend: 0.06, keeper: [0.5, 0.62], stops: true },
+  salida_mano_a_mano: {
+    from: [95, 92], bend: 0.1, keeper: [0.5, 0.68], advance: 16, scale: 1.35, stops: true,
+  },
+  tiro_lejano: { from: [104, 112], bend: 0.14, keeper: [0.5, 0.6], stops: true },
+  centro_lateral: { from: [26, 88], bend: 0.36, keeper: [0.42, 0.55], stops: true },
+  despeje: { from: [78, 84], bend: 0.2, keeper: [0.5, 0.6], stops: true },
+  entrada: { from: [92, 96], bend: 0.08, keeper: [0.5, 0.66], advance: 12, scale: 1.2, stops: true },
+  anticipo: { from: [34, 86], bend: 0.32, keeper: [0.48, 0.58], stops: true },
 };
 
 /** A flight from the ball to a point in the goal, bent by however much the strike bends. */
@@ -136,10 +166,11 @@ function Furniture({ type }) {
       </g>
     );
   }
-  if (type === "cabezazo") {
+  // The cross that put the ball there, so the header has something to be a header of -
+  // and the same delivery for the two chances that are about meeting one before he does.
+  if (type === "cabezazo" || type === "centro_lateral" || type === "anticipo") {
     return (
       <g className="tr-scene__prop">
-        {/* The cross that put the ball there, so the header has something to be a header of. */}
         <path d="M 12 104 Q 34 66 60 74" className="tr-scene__cross" />
         <path d="M 55 71 L 62 76 L 54 78" className="tr-scene__cross" />
       </g>
@@ -166,21 +197,39 @@ function Furniture({ type }) {
  */
 export default function ShotScene({ type, options = [], gap = null, result = null }) {
   const situation = SITUATIONS[type] ?? SITUATIONS.penal;
-  const gapPoint = gap != null && options[gap] ? at(...PLACEMENTS[options[gap]]) : null;
 
-  // Where the keeper ended up: on the shot if he saved it, off it if he did not.
+  // A night the ball never came to him has a result but no shot in it, so the drawing stays
+  // the situation it always was: no flight, no dive, and above all no gap ringed - the gap
+  // is where a keeper was not, and no keeper was ever asked anything.
+  const shot = result && !result.absent ? result : null;
+  // On a chance the player is STOPPING, the gap is where the opponent put it - so it is
+  // the ball's destination and not a ring drawn beside it.
+  const stops = Boolean(situation.stops);
+  const gapAt = gap != null && options[gap] ? at(...PLACEMENTS[options[gap]]) : null;
+  const gapPoint = shot && !stops ? gapAt : null;
+
+  // Who moves where. Shooting: the ball goes to his choice and the keeper covers it or is
+  // beaten by it. Stopping: the ball goes to the gap and the figure in the goal is HIM,
+  // going where he chose - the two landing on the same point is the save.
   let keeperSpot = situation.keeper;
-  if (result) {
-    const beaten = options.findIndex((option, index) => index !== gap);
-    const covered = result.scored ? beaten : result.picked;
-    if (options[covered]) keeperSpot = PLACEMENTS[options[covered]];
+  let target = null;
+  if (shot) {
+    if (stops) {
+      if (options[shot.picked]) keeperSpot = PLACEMENTS[options[shot.picked]];
+      target = gapAt;
+    } else {
+      const beaten = options.findIndex((option, index) => index !== gap);
+      const covered = shot.scored ? beaten : shot.picked;
+      if (options[covered]) keeperSpot = PLACEMENTS[options[covered]];
+      if (options[shot.picked]) target = at(...PLACEMENTS[options[shot.picked]]);
+    }
   }
-
-  const target = result && options[result.picked] ? at(...PLACEMENTS[options[result.picked]]) : null;
 
   return (
     <svg
-      className={`tr-scene${result ? (result.scored ? " is-scored" : " is-saved") : ""}`}
+      className={`tr-scene${
+        result ? (result.absent ? " is-absent" : result.scored ? " is-scored" : " is-saved") : ""
+      }`}
       viewBox="0 0 200 120"
       role="img"
       aria-hidden="true"
@@ -192,13 +241,14 @@ export default function ShotScene({ type, options = [], gap = null, result = nul
       <Keeper
         u={keeperSpot[0]}
         v={keeperSpot[1]}
-        spread={result ? 1.5 : 1}
-        advance={result ? 0 : situation.advance ?? 0}
-        scale={result ? 1 : situation.scale ?? 1}
+        spread={shot ? 1.5 : 1}
+        advance={shot ? 0 : situation.advance ?? 0}
+        scale={shot ? 1 : situation.scale ?? 1}
       />
 
-      {/* The ball, on the spot the situation strikes from. */}
-      {!result ? <circle cx={situation.from[0]} cy={situation.from[1]} r="3" className="tr-scene__ball" /> : null}
+      {/* The ball, on the spot the situation strikes from - and still there on a night it
+          never got struck. */}
+      {!shot ? <circle cx={situation.from[0]} cy={situation.from[1]} r="3" className="tr-scene__ball" /> : null}
 
       {target ? (
         <>
@@ -211,7 +261,7 @@ export default function ShotScene({ type, options = [], gap = null, result = nul
         </>
       ) : null}
 
-      {result && gapPoint ? (
+      {gapPoint ? (
         <circle cx={gapPoint.x} cy={gapPoint.y} r="7.5" className="tr-scene__gap" />
       ) : null}
     </svg>

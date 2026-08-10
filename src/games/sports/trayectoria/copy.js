@@ -97,7 +97,7 @@ export const FIXTURE_LABELS = {
     titulo_liga: "Partido por el título de liga",
     final_copa: "Final de copa",
     semifinal_continental: "Semifinal continental",
-    clasico: "El clásico",
+    clasico: "El partido de la temporada",
   },
   en: {
     final_mundial: "World Cup final",
@@ -108,7 +108,7 @@ export const FIXTURE_LABELS = {
     titulo_liga: "Title decider",
     final_copa: "Cup final",
     semifinal_continental: "Continental semi-final",
-    clasico: "The derby",
+    clasico: "The match of the season",
   },
 };
 
@@ -144,6 +144,14 @@ export const SHOT_LABELS = {
     cabezazo: "Cabezazo al área",
     falta: "Falta directa",
     volea: "Volea desde la frontal",
+    parada_penal: "Penalti en contra",
+    salida_mano_a_mano: "Se te va solo",
+    tiro_lejano: "Disparo desde la frontal",
+    centro_lateral: "El centro al área",
+    despeje: "Despeje bajo palos",
+    entrada: "La entrada",
+    anticipo: "El anticipo",
+    pase_gol: "El último pase",
   },
   en: {
     penal: "Penalty",
@@ -151,6 +159,14 @@ export const SHOT_LABELS = {
     cabezazo: "Header in the box",
     falta: "Free kick",
     volea: "Volley from the edge",
+    parada_penal: "Penalty against you",
+    salida_mano_a_mano: "He is through on you",
+    tiro_lejano: "Shot from the edge",
+    centro_lateral: "The cross",
+    despeje: "Clearance off the line",
+    entrada: "The tackle",
+    anticipo: "The interception",
+    pase_gol: "The final ball",
   },
 };
 
@@ -171,6 +187,15 @@ export const PLACEMENT_LABELS = {
     abajo: "Abajo, a ras de hierba",
     escuadra: "A la escuadra",
     cruzada: "Cruzada al otro palo",
+    // Adonde vas tú, no adonde va el balón.
+    achique: "Achicar y hacerte grande",
+    "palo-corto": "Cerrar el palo corto",
+    salida: "Salir a por él",
+    adelantarse: "Adelantarte a la jugada",
+    aguantar: "Aguantar de pie",
+    cerrar: "Cerrarle la diagonal",
+    // Y adonde pones el pase.
+    "al-hueco": "Al hueco, entre líneas",
   },
   en: {
     izquierda: "To his left",
@@ -187,6 +212,13 @@ export const PLACEMENT_LABELS = {
     abajo: "Low, along the grass",
     escuadra: "Into the top corner",
     cruzada: "Across to the far post",
+    achique: "Come out and stand tall",
+    "palo-corto": "Cover the near post",
+    salida: "Come and claim it",
+    adelantarse: "Read it early",
+    aguantar: "Stay on your feet",
+    cerrar: "Close the angle",
+    "al-hueco": "Into the space, between the lines",
   },
 };
 
@@ -474,34 +506,82 @@ const COPY = {
       ntFinal: "Final de {cup}",
       record: "En partidos decisivos: {scored} de {taken} · el modelo te da un {rate}%",
       versus: "Contra",
+      /** Cuando la final cae contra el eterno rival, la final ES el partido de la temporada. */
+      alsoDerby: "Y además es el partido de la temporada.",
       lede: "Todo lo demás lo juega el modelo. Esto lo juegas tú.",
       choose: "Elige dónde la pones",
       read: "Te da tiempo a leerle: por ahí no va.",
       gapWas: "El hueco: {placement}",
       scored: "GOL",
       saved: "LA PARÓ",
+      /**
+       * Convertir no siempre es marcar. El trofeo se resuelve igual - ver PRODUCES - pero
+       * el veredicto tiene que decir lo que de verdad pasó en el área.
+       */
+      verdicts: {
+        goal: { won: "GOL", lost: "LA PARÓ", gap: "El hueco: {placement}" },
+        stop: { won: "LA SACAS", lost: "GOL EN CONTRA", gap: "La puso: {placement}" },
+        assist: { won: "ASISTENCIA", lost: "NO LLEGA", gap: "El hueco estaba: {placement}" },
+      },
+      /**
+       * El tercer desenlace. Ni gol ni parada: el balón no pasó por él, y el partido no se
+       * lo puede cobrar. Es el único que no admite ni mérito ni culpa - ver DECIDES.absent.
+       */
+      absent: "NO TE LLEGÓ",
+      absentNote: "Ni una. El partido se resolvió sin pasar por tus botas.",
       nailed: "Adivinó el lado y no llegó igual.",
       next: "Seguir",
       summary: "Los partidos del año",
+      /**
+       * `none` es la noche que no le llegó ninguna. No puede afirmar un resultado: el
+       * trofeo queda en DECIDES.absent, a medio camino, y se resuelve fuera de escena.
+       */
       decides: {
-        league: { yes: "La liga se gana aquí.", no: "La liga se pierde aquí." },
-        cup: { yes: "La copa es vuestra.", no: "La copa se queda en el otro vestuario." },
+        league: {
+          yes: "La liga se gana aquí.",
+          no: "La liga se pierde aquí.",
+          none: "La liga se decide sin que te llegue una.",
+        },
+        cup: {
+          yes: "La copa es vuestra.",
+          no: "La copa se queda en el otro vestuario.",
+          none: "La copa se juega sin pasar por ti.",
+        },
         continental_a: {
           yes: "Campeones de Europa —o de lo que toque—.",
           no: "La final se pierde y no habrá otra igual.",
+          none: "La final se resuelve lejos de tus botas.",
         },
-        world_cup: { yes: "Campeón del mundo.", no: "No entró. La copa se decide sin tu firma." },
+        world_cup: {
+          yes: "Campeón del mundo.",
+          no: "No entró. La copa se decide sin tu firma.",
+          none: "El Mundial se decide sin que la toques.",
+        },
         continental_nt: {
           yes: "Continental para tu selección.",
           no: "No entró. El torneo sigue sin ti.",
+          none: "El torneo se decide contigo dentro y fuera del partido.",
         },
         semifinal: {
           yes: "A la final, y de tu mano.",
           no: "La eliminatoria queda cuesta arriba.",
+          none: "La eliminatoria sigue su curso, y no la firmas tú.",
         },
-        promotion: { yes: "Ascenso.", no: "Un año más en la misma categoría." },
-        survival: { yes: "Permanencia salvada.", no: "El equipo baja." },
-        derby: { yes: "El clásico no da títulos. Se recuerda igual.", no: "El clásico se pierde." },
+        promotion: {
+          yes: "Ascenso.",
+          no: "Un año más en la misma categoría.",
+          none: "El ascenso se juega sin tu nombre en él.",
+        },
+        survival: {
+          yes: "Permanencia salvada.",
+          no: "El equipo baja.",
+          none: "La permanencia se pelea sin que te llegue una.",
+        },
+        derby: {
+          yes: "El partido de la temporada no da títulos. Se recuerda igual.",
+          no: "El partido de la temporada se pierde.",
+          none: "El partido de la temporada se juega sin ti.",
+        },
       },
     },
 
@@ -899,31 +979,73 @@ const COPY = {
       ntFinal: "{cup} final",
       record: "In deciders: {scored} of {taken} · the model rates you at {rate}%",
       versus: "Against",
+      /** When the final falls against the old enemy, the final IS the match of the season. */
+      alsoDerby: "And it is the match of the season, too.",
       lede: "The model plays everything else. This one you play.",
       choose: "Choose where you put it",
       read: "You get long enough to read him: not that side.",
       gapWas: "The gap: {placement}",
       scored: "GOAL",
       saved: "SAVED",
+      /** Coming through is not always scoring. See PRODUCES. */
+      verdicts: {
+        goal: { won: "GOAL", lost: "SAVED", gap: "The gap: {placement}" },
+        stop: { won: "YOU GET THERE", lost: "HE SCORES", gap: "He put it: {placement}" },
+        assist: { won: "ASSIST", lost: "IT DOES NOT COME OFF", gap: "The space was: {placement}" },
+      },
+      /** The third outcome: neither goal nor save, and the only one he cannot be blamed for. */
+      absent: "NEVER CAME",
+      absentNote: "Not one. The match settled itself without passing through your boots.",
       nailed: "He read it and still could not reach it.",
       next: "Continue",
       summary: "The matches that mattered",
+      /** `none` is the night nothing came to him: it settles at DECIDES.absent, off-stage. */
       decides: {
-        league: { yes: "The league is won here.", no: "The league is lost here." },
-        cup: { yes: "The cup is yours.", no: "The cup stays in the other dressing room." },
+        league: {
+          yes: "The league is won here.",
+          no: "The league is lost here.",
+          none: "The league is decided without a ball reaching you.",
+        },
+        cup: {
+          yes: "The cup is yours.",
+          no: "The cup stays in the other dressing room.",
+          none: "The cup is played out without passing through you.",
+        },
         continental_a: {
           yes: "Continental champions.",
           no: "The final is lost, and there is never another like it.",
+          none: "The final settles far from your boots.",
         },
-        world_cup: { yes: "World champion.", no: "No goal. The cup is decided without you." },
+        world_cup: {
+          yes: "World champion.",
+          no: "No goal. The cup is decided without you.",
+          none: "The World Cup is decided without you touching it.",
+        },
         continental_nt: {
           yes: "A continental title for your nation.",
           no: "No goal. The tournament carries on without you.",
+          none: "The tournament is decided with you on the pitch and out of it.",
         },
-        semifinal: { yes: "Into the final, and by your foot.", no: "The tie is uphill now." },
-        promotion: { yes: "Promoted.", no: "Another year in the same division." },
-        survival: { yes: "Survival secured.", no: "The club goes down." },
-        derby: { yes: "A derby wins nothing. It is remembered anyway.", no: "The derby is lost." },
+        semifinal: {
+          yes: "Into the final, and by your foot.",
+          no: "The tie is uphill now.",
+          none: "The tie runs its course, and not by your foot.",
+        },
+        promotion: {
+          yes: "Promoted.",
+          no: "Another year in the same division.",
+          none: "Promotion is played out without your name on it.",
+        },
+        survival: {
+          yes: "Survival secured.",
+          no: "The club goes down.",
+          none: "Survival is fought for without a ball reaching you.",
+        },
+        derby: {
+          yes: "The match of the season wins nothing. It is remembered anyway.",
+          no: "The match of the season is lost.",
+          none: "The match of the season is played out without you.",
+        },
       },
     },
 

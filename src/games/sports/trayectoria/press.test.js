@@ -78,6 +78,53 @@ describe("a season that swept", () => {
     ).toBe("decided-it");
   });
 
+  it("does not accuse him of missing a shot he was never given", () => {
+    // An absent decider is not a miss - it settles at DECIDES.absent and the ball never
+    // came to him - so the paper must not lead with "LA FALLÓ ÉL" over it. It also has no
+    // `kind`, so the headline it used to write had a hole where the fixture should be.
+    const line = headlineFor({
+      record: record({ bigMatches: [{ decides: "league", scored: false, absent: true }] }),
+      previous: null,
+      state,
+      world,
+      locale: "es",
+    });
+    expect(line.id).not.toBe("missed-it");
+    expect(line.body).not.toMatch(/\{\w+\}/);
+  });
+
+  it("does not write 'the keeper read him' about the keeper", () => {
+    // A save is not a shot. Before the repertoires existed the paper had one verb for
+    // coming through and it was "finished", which read as nonsense on a keeper's season.
+    const won = headlineFor({
+      record: record({
+        bigMatches: [{ decides: "league", scored: true, produces: "stop", kind: "titulo_liga" }],
+      }),
+      previous: null, state, world, locale: "es",
+    });
+    expect(won.id).toBe("stopped-it");
+    expect(won.body).not.toMatch(/\{\w+\}/);
+    expect(won.body).toContain("MOLINA");
+
+    const lost = headlineFor({
+      record: record({
+        bigMatches: [{ decides: "league", scored: false, produces: "stop", kind: "titulo_liga" }],
+      }),
+      previous: null, state, world, locale: "en",
+    });
+    expect(lost.id).toBe("let-it-in");
+    expect(lost.body).not.toMatch(/\{\w+\}/);
+  });
+
+  it("still leads a striker's season with the shot, not with the save", () => {
+    expect(
+      head({ bigMatches: [{ decides: "league", scored: true, produces: "goal", kind: "titulo_liga" }] }),
+    ).toBe("decided-it");
+    expect(
+      head({ bigMatches: [{ decides: "league", scored: false, produces: "goal", kind: "titulo_liga" }] }),
+    ).toBe("missed-it");
+  });
+
   it("does not outrank the Ballon d'Or or a World Cup", () => {
     expect(head({ titles: [title("league"), title("cup")], awards: [{ award: "ballon_dor" }] })).toBe(
       "ballon",

@@ -28,6 +28,7 @@
  */
 
 import {
+  PRODUCES,
   conversionRate,
   derbyRivals,
   matchEffects,
@@ -430,6 +431,8 @@ function fixtureContext(run) {
   return {
     seed: state.seed,
     season: run.season,
+    // The fixture list now draws opponents as well as fixtures, so it needs the clubs.
+    world,
     club,
     competition,
     country,
@@ -463,6 +466,9 @@ function shotAt(run, fixtures, index) {
     season: run.season,
     fixture,
     ovr: run.state.ovr,
+    // Which repertoire the night can draw from: a keeper is not handed one-on-ones to
+    // finish, and a centre-back's decisive moment is mostly the one he stops.
+    group: run.state.group,
   });
 
   const { club } = standingOf(run);
@@ -772,13 +778,22 @@ function recordAttempt(run, resolved) {
 
 /** Everything the season needs from a decider, whichever way it was resolved. */
 function outcomeOf(run, attempts) {
-  const { fixtures, index } = run.matchday;
+  const { fixtures, index, shot } = run.matchday;
   const fixture = fixtures[index];
   const taken = attempts.length;
   const converted = attempts.filter((attempt) => attempt.scored).length;
   const last = attempts[attempts.length - 1] ?? {};
 
   return {
+    // Which match this was, before anything that happened in it. An absent night has no
+    // attempt to inherit these from, and the season front page names its fixtures off
+    // them - so they come from the shot that was set up, which exists either way.
+    fixtureId: shot?.fixtureId ?? fixture.id,
+    kind: shot?.kind ?? fixture.kind,
+    type: shot?.type ?? null,
+    // Whether coming through here would have been a goal, an assist or a save. The season
+    // totals and every verdict printed downstream read it.
+    produces: shot?.produces ?? PRODUCES.GOAL,
     ...last,
     // The fixture went in if any of them did. Nothing about the number of chances reaches
     // the model beyond this - the budget already knew how many there would be.

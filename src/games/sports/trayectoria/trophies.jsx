@@ -19,9 +19,12 @@
  *     can never be the thing the feature rests on, only the thing that makes it richer
  *     where it happens to reach.
  *
- * That is the same arrangement `Crest` already has with `crestFallback`, for the same
- * reason: `public/assets/football/` is gitignored and populated by a script, so on a fresh
- * clone none of it exists and every screen still has to be right.
+ * `Crest` faces the same problem and answers it the other way round: a club with no crest
+ * file draws nothing and lets its name carry the row, because an invented badge says less
+ * than a name does. A trophy has no such fallback - the cabinet is the picture - so here
+ * the silhouette is drawn rather than omitted. Same cause either way:
+ * `public/assets/football/` is gitignored and populated by a script, so on a fresh clone
+ * none of it exists and every screen still has to be right.
  */
 
 import React, { useState } from "react";

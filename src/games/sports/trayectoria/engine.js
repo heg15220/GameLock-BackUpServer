@@ -697,16 +697,20 @@ export function simulateSeason(state, world, { season }) {
 
   const goalStream = createStream(state.seed, "goals", season);
   const assistStream = createStream(state.seed, "assists", season);
-  // Goals scored in the big matches are goals. They are counted on top of the rolled
-  // season rather than inside it, because the player put them there by hand.
+  // Goals scored in the big matches are goals, and the last pass that won a final is an
+  // assist. Both are counted on top of the rolled season rather than inside it, because
+  // the player put them there by hand. A decisive SAVE adds to neither - it is already
+  // paid for in the trophy the shot settled, and a keeper's scoring rate is zero.
   const bigMatchGoals = modifiers.suspended ? 0 : modifiers.bonusGoals ?? 0;
+  const bigMatchAssists = modifiers.suspended ? 0 : modifiers.bonusAssists ?? 0;
   const goals =
     outputFor(goalStream, {
       group: state.group, delta, club, ovr: effectiveOvr, matches, kind: "goals", form,
     }) + bigMatchGoals;
-  const assists = outputFor(assistStream, {
-    group: state.group, delta, club, ovr: effectiveOvr, matches, kind: "assists", form,
-  });
+  const assists =
+    outputFor(assistStream, {
+      group: state.group, delta, club, ovr: effectiveOvr, matches, kind: "assists", form,
+    }) + bigMatchAssists;
 
   const context = {
     club, competition, country, ovr: effectiveOvr, delta, role, modifiers, latent,

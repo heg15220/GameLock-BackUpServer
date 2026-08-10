@@ -13,6 +13,11 @@ import {
   derbyRivals,
   dropStakeFor,
   matchEffects,
+  opponentFor,
+  opponentPool,
+  PRODUCES,
+  REPERTOIRE,
+  SHOT_PRODUCES,
   resolveShot,
   seasonFixtures,
   shotFor,
@@ -47,6 +52,8 @@ const context = (club, overrides = {}) => ({
   effectiveReputation: (key) => effectiveReputation(club, overrides.ovr ?? 78, key),
   calledUp: false,
   rivals: derbyRivals(world, club.id),
+  // The fixture list draws opponents as well as fixtures, so it needs the clubs.
+  world,
   ...overrides,
 });
 
@@ -73,6 +80,198 @@ describe("the world has derbies even though the data does not", () => {
 
   it("returns nothing for a club that is not in the world", () => {
     expect(derbyRivals(world, "no-such-club")).toEqual([]);
+  });
+});
+
+/**
+ * Every decider used to be played against nobody: the crest slot was empty and the live
+ * commentary called the other side "el rival". The opponent is now drawn like everything
+ * else here - off the seed, from a pool that fits what is being played for.
+ */
+describe("who a decider is against", () => {
+  const comp = (club) => world.competitions[club.competitionId] ?? null;
+
+  it("draws a domestic decider from your own division, never yourself", () => {
+    for (const kind of ["final_copa", "titulo_liga", "salvacion", "ascenso"]) {
+      const pool = opponentPool(world, giant, comp(giant), kind);
+      expect(pool.length, kind).toBeGreaterThan(0);
+      for (const id of pool) {
+        expect(id).not.toBe(giant.id);
+        expect(world.clubs[id].competitionId).toBe(giant.competitionId);
+      }
+    }
+  });
+
+  it("plays the last day of the league against whoever is up there or down there with you", () => {
+    const standing = (id) => world.clubs[id].domestic_reputation ?? 0;
+    const top = opponentPool(world, giant, comp(giant), "titulo_liga").map(standing);
+    const bottom = opponentPool(world, giant, comp(giant), "salvacion").map(standing);
+    expect(Math.min(...top)).toBeGreaterThanOrEqual(Math.max(...bottom));
+  });
+
+  it("keeps a continental night inside your confederation", () => {
+    const confederation = comp(giant)?.confederation;
+    const pool = opponentPool(world, giant, comp(giant), "final_continental");
+    expect(pool.length).toBeGreaterThan(0);
+    for (const id of pool) {
+      expect(world.competitions[world.clubs[id].competitionId]?.confederation).toBe(confederation);
+    }
+  });
+
+  it("has no pool for a national final, which is not played against a club", () => {
+    expect(opponentPool(world, giant, comp(giant), "final_mundial")).toEqual([]);
+    expect(opponentPool(world, giant, comp(giant), "clasico")).toEqual([]);
+  });
+
+  it("draws the same opponent for the same seed and season, and not always the same one", () => {
+    const draw = (season) =>
+      opponentFor({ seed: "op", season, world, club: giant, competition: comp(giant), kind: "final_copa" });
+    expect(draw(3)).toBe(draw(3));
+    const seen = new Set(Array.from({ length: 30 }, (_, season) => draw(season)));
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it("gives every club fixture of a season a real opponent", () => {
+    for (let season = 0; season < 20; season += 1) {
+      const { fixtures } = seasonFixtures(
+        context(giant, { season, calledUp: true, ovr: 88, age: 22 + (season % 8) }),
+      );
+      for (const fixture of fixtures) {
+        if (fixture.national) continue;
+        expect(world.clubs[fixture.opponentId], `${fixture.kind} has no opponent`).toBeTruthy();
+        expect(fixture.opponentId).not.toBe(giant.id);
+      }
+    }
+  });
+});
+
+/**
+ * The exception the ordering rule needs: a classic is a fixture, not a date.
+ */
+describe("a final drawn against the club the derby was going to be against", () => {
+  /** A season where the collision actually happened, searched across seeds. */
+  const collision = () => {
+    for (let i = 0; i < 400; i += 1) {
+      for (const club of [giant, minnow, secondTier]) {
+        const { fixtures } = seasonFixtures(
+          context(club, { seed: `derby-${i}`, season: i % 12, calledUp: true, ovr: 84 }),
+        );
+        const host = fixtures.find((fixture) => fixture.derby);
+        if (host) return { fixtures, host, club };
+      }
+    }
+    return null;
+  };
+
+  it("happens at all, without the bombo being rigged for it", () => {
+    expect(collision(), "no seed ever collided the derby with a final").toBeTruthy();
+  });
+
+  it("is that match, so the derby is not also staged on its own", () => {
+    const found = collision();
+    expect(found.host.kind).not.toBe("clasico");
+    expect(found.fixtures.filter((fixture) => fixture.kind === "clasico")).toEqual([]);
+    // It is played on the final's date, which is the whole exception.
+    expect(FIXTURE_KINDS[found.host.kind].when).toBeGreaterThan(FIXTURE_KINDS.clasico.when);
+  });
+
+  it("still settles its own trophy - being the derby is a layer on top", () => {
+    const found = collision();
+    expect(found.host.decides).toBe(FIXTURE_KINDS[found.host.kind].decides);
+    expect(found.host.decides).not.toBe("derby");
+    expect(found.host.opponentId).toBeTruthy();
+  });
+
+  it("marks every other fixture as not the derby", () => {
+    const { fixtures } = seasonFixtures(context(giant, { calledUp: true, ovr: 88 }));
+    for (const fixture of fixtures) expect(typeof fixture.derby).toBe("boolean");
+  });
+});
+
+/**
+ * The deciders used to hand every position the same five shots, so a goalkeeper career
+ * finished one-on-ones for a living while `GOAL_RATE.keeper` insisted he scores nothing.
+ */
+describe("what each position is actually asked to do", () => {
+  const fixture = { id: "s4-final_copa", kind: "final_copa" };
+  const draw = (group, season) => shotFor({ seed: "rep", season, fixture, ovr: 80, group });
+
+  it("only ever offers a position the chances its repertoire contains", () => {
+    for (const [group, pool] of Object.entries(REPERTOIRE)) {
+      for (let season = 0; season < 40; season += 1) {
+        expect(pool, `${group} was handed the wrong kind`).toContain(draw(group, season).type);
+      }
+    }
+  });
+
+  it("never asks a goalkeeper to finish, nor a striker to save", () => {
+    const keeper = new Set(Array.from({ length: 60 }, (_, s) => draw("keeper", s).type));
+    const forward = new Set(Array.from({ length: 60 }, (_, s) => draw("forward", s).type));
+    for (const type of keeper) expect(SHOT_PRODUCES[type]).toBe(PRODUCES.STOP);
+    for (const type of forward) expect(SHOT_PRODUCES[type]).toBe(PRODUCES.GOAL);
+    expect([...keeper].some((type) => forward.has(type))).toBe(false);
+  });
+
+  it("leaves a centre-back the corner he wins finals with", () => {
+    const seen = new Set(Array.from({ length: 80 }, (_, s) => draw("defensive", s).type));
+    expect(seen).toContain("cabezazo");
+    expect([...seen].filter((type) => SHOT_PRODUCES[type] === PRODUCES.STOP).length).toBeGreaterThan(0);
+  });
+
+  it("keeps the striker's five exactly as they were", () => {
+    expect(REPERTOIRE.forward).toEqual(["penal", "mano_a_mano", "cabezazo", "falta", "volea"]);
+  });
+
+  it("gives every chance in every repertoire three options and a verdict", () => {
+    for (const pool of Object.values(REPERTOIRE)) {
+      for (const type of pool) {
+        expect(SHOT_TYPES[type], `${type} has no options`).toHaveLength(3);
+        expect(Object.values(PRODUCES)).toContain(SHOT_PRODUCES[type]);
+      }
+    }
+  });
+
+  it("tells the caller what coming through would be worth", () => {
+    expect(draw("keeper", 1).produces).toBe(PRODUCES.STOP);
+    expect(draw("forward", 1).produces).toBe(PRODUCES.GOAL);
+    expect(shotFor({ seed: "x", season: 0, fixture, ovr: 80, group: "creator" }).produces).toBe(
+      SHOT_PRODUCES[shotFor({ seed: "x", season: 0, fixture, ovr: 80, group: "creator" }).type],
+    );
+  });
+
+  it("defaults to the striker's repertoire for a group it does not know", () => {
+    expect(REPERTOIRE.forward).toContain(draw("no-such-group", 3).type);
+  });
+});
+
+/** The one place the repertoires touch the model: what a converted chance is worth. */
+describe("what converting is worth on the scoresheet", () => {
+  const result = (type, converted) => ({
+    type, converted, scored: converted > 0, decides: "cup", settle: { scored: 1, missed: 1, absent: 1 },
+  });
+
+  it("counts a finished chance as a goal, as it always did", () => {
+    expect(matchEffects([result("penal", 2)]).bonusGoals).toBe(2);
+    expect(matchEffects([result("penal", 2)]).bonusAssists).toBe(0);
+  });
+
+  it("counts the last pass as an assist and not as a goal", () => {
+    const effects = matchEffects([result("pase_gol", 1)]);
+    expect(effects.bonusAssists).toBe(1);
+    expect(effects.bonusGoals).toBe(0);
+  });
+
+  it("does not put a saved penalty on a goalkeeper's scoring record", () => {
+    const effects = matchEffects([result("parada_penal", 1), result("despeje", 2)]);
+    expect(effects.bonusGoals).toBe(0);
+    expect(effects.bonusAssists).toBe(0);
+  });
+
+  it("still settles the trophy whichever it was - that is the whole point", () => {
+    for (const type of ["penal", "pase_gol", "parada_penal"]) {
+      expect(matchEffects([result(type, 1)]).titleMultipliers.cup).toBe(1);
+      expect(matchEffects([result(type, 1)]).decidedTrophies).toContain("cup");
+    }
   });
 });
 
@@ -114,14 +313,47 @@ describe("splitting a season between the player and the model", () => {
 });
 
 describe("which matches a season is about", () => {
-  it("never opens more than three, in order of what is at stake", () => {
-    const { fixtures } = seasonFixtures(context(giant, { calledUp: true, ovr: 88 }));
-    expect(fixtures.length).toBeLessThanOrEqual(MATCHES_PER_SEASON);
-    for (let i = 1; i < fixtures.length; i += 1) {
-      expect(FIXTURE_KINDS[fixtures[i - 1].kind].weight).toBeGreaterThanOrEqual(
-        FIXTURE_KINDS[fixtures[i].kind].weight,
+  it("never opens more than three, and plays them in the order the calendar plays them", () => {
+    // Importance chooses which three; the calendar orders them. They used to be the same
+    // number, which put the November derby after the cup final and the last day of May.
+    for (let season = 0; season < 20; season += 1) {
+      const { fixtures } = seasonFixtures(
+        context(giant, { season, calledUp: true, ovr: 88, age: 22 + (season % 8) }),
       );
+      expect(fixtures.length).toBeLessThanOrEqual(MATCHES_PER_SEASON);
+      for (let i = 1; i < fixtures.length; i += 1) {
+        expect(FIXTURE_KINDS[fixtures[i].kind].when).toBeGreaterThan(
+          FIXTURE_KINDS[fixtures[i - 1].kind].when,
+        );
+      }
     }
+  });
+
+  it("never plays the derby after a final, a play-off or the last day of the league", () => {
+    // The whole point: unless the final IS the derby, in which case it is that match's
+    // date that stands, not the derby's.
+    const later = ["final_copa", "titulo_liga", "salvacion", "final_continental", "ascenso",
+      "semifinal_continental", "final_continental_nt", "final_mundial"];
+    for (const club of [giant, minnow, secondTier]) {
+      for (let season = 0; season < 20; season += 1) {
+        const { fixtures } = seasonFixtures(
+          context(club, { season, calledUp: true, ovr: 84, age: 22 + (season % 8) }),
+        );
+        const derby = fixtures.findIndex((fixture) => fixture.kind === "clasico");
+        if (derby < 0) continue;
+        for (let i = 0; i < derby; i += 1) {
+          expect(later, `${fixtures[i].kind} played before the derby`).not.toContain(
+            fixtures[i].kind,
+          );
+        }
+      }
+    }
+  });
+
+  it("gives every kind a calendar slot of its own", () => {
+    const slots = Object.values(FIXTURE_KINDS).map((kind) => kind.when);
+    expect(slots.every((slot) => Number.isFinite(slot))).toBe(true);
+    expect(new Set(slots).size).toBe(slots.length);
   });
 
   it("gives every fixture the trophy it settles and its place in the order", () => {

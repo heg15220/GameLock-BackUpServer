@@ -33,13 +33,31 @@ import { NAILED_FROM_OVR } from "./bigmatch.js";
 
 export const MECHANICS = { SWEEP: "sweep", WINDOW: "window", BEND: "bend" };
 
-/** Which mechanic each kind of chance is played with, and how it is dressed. */
+/**
+ * Which mechanic each kind of chance is played with, and how it is dressed.
+ *
+ * The defensive and goalkeeping chances reuse the same three without adding a fourth,
+ * which is the whole thesis above: stopping a marker inside the gap the keeper left and
+ * stopping it on the corner the striker picked are the same act of reading and timing,
+ * and a player who has learned one has learned the other.
+ */
 export const CHANCE_MECHANIC = {
   penal: MECHANICS.SWEEP,
   volea: MECHANICS.SWEEP,
   mano_a_mano: MECHANICS.WINDOW,
   cabezazo: MECHANICS.WINDOW,
   falta: MECHANICS.BEND,
+  // Keeper: a penalty and a shot from distance are read, a one-on-one and a cross are timed.
+  parada_penal: MECHANICS.SWEEP,
+  tiro_lejano: MECHANICS.SWEEP,
+  salida_mano_a_mano: MECHANICS.WINDOW,
+  centro_lateral: MECHANICS.WINDOW,
+  // Defender: the clearance is a read, the tackle and the interception are timing.
+  despeje: MECHANICS.SWEEP,
+  entrada: MECHANICS.WINDOW,
+  anticipo: MECHANICS.WINDOW,
+  // Midfield: the weight of the pass is the same two calls a free kick is.
+  pase_gol: MECHANICS.BEND,
 };
 
 export const TUNING = {

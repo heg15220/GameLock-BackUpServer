@@ -22,6 +22,7 @@ import {
   takeShot,
   watchMatch,
 } from "./career.js";
+import { PRODUCES, REPERTOIRE } from "./bigmatch.js";
 import { EVENTS_BY_ID, MAX_INJURIES, drawEvent, weightOf } from "./events.js";
 import { IDOLATRY } from "./idolatry.js";
 import { shadowStanding } from "./rival.js";
@@ -1223,5 +1224,76 @@ describe("the first contract of a career", () => {
     // One season signed, one season played: he is out of contract and free to choose.
     expect(run.state.contract.yearsLeft).toBe(0);
     expect(run.offers.length).toBeGreaterThan(1);
+  });
+});
+
+/**
+ * A whole career per position, played through the deciders rather than asserted on the
+ * tables. The tables can be right and the career still wrong: what a keeper is HANDED is
+ * decided in bigmatch.js, what it is WORTH is decided in engine.js, and the two only meet
+ * here.
+ */
+describe("a career is played from the position it is played in", () => {
+  const careerAs = (position, seed) =>
+    playToRetirement(start({ position, seed: `${seed}-${position}` }));
+
+  it("never asks a goalkeeper to score, and never credits him with one", () => {
+    const run = careerAs("POR", "repertoire");
+    const decisive = run.state.history.flatMap((record) => record.bigMatches ?? []);
+    expect(decisive.length, "the career never played a decider").toBeGreaterThan(0);
+    for (const match of decisive) {
+      expect(REPERTOIRE.keeper, `keeper handed ${match.type}`).toContain(match.type);
+      expect(match.produces).toBe(PRODUCES.STOP);
+    }
+    // Converting every one of them, all career, still leaves the scoring rate at zero.
+    expect(run.state.history.reduce((sum, record) => sum + record.goals, 0)).toBe(0);
+  });
+
+  it("gives a centre-back defending to do and a corner to win it with", () => {
+    const run = careerAs("DFC", "repertoire");
+    const matches = run.state.history.flatMap((record) => record.bigMatches ?? []);
+    const types = new Set(matches.map((match) => match.type));
+    expect(types.size).toBeGreaterThan(0);
+    for (const type of types) expect(REPERTOIRE.defensive).toContain(type);
+
+    // Both halves of the repertoire have to actually pay out the way they claim to: a
+    // headed corner is a goal on his sheet, everything else he does is not.
+    const headers = matches.filter((match) => match.type === "cabezazo" && match.scored);
+    const stops = matches.filter((match) => match.produces === PRODUCES.STOP && match.scored);
+    expect(headers.length, "a whole career without a decisive corner").toBeGreaterThan(0);
+    expect(stops.length, "a whole career without a decisive stop").toBeGreaterThan(0);
+    for (const match of headers) expect(match.produces).toBe(PRODUCES.GOAL);
+    expect(run.state.history.reduce((sum, record) => sum + record.goals, 0)).toBeGreaterThanOrEqual(
+      headers.reduce((sum, match) => sum + (match.converted ?? 1), 0),
+    );
+  });
+
+  it("lets a midfielder's last pass show up as an assist rather than a goal", () => {
+    const run = careerAs("MCO", "repertoire");
+    const passes = run.state.history
+      .flatMap((record) => record.bigMatches ?? [])
+      .filter((match) => match.type === "pase_gol" && match.scored);
+    expect(passes.length, "no decisive final ball in a whole career").toBeGreaterThan(0);
+    for (const match of passes) expect(match.produces).toBe(PRODUCES.ASSIST);
+  });
+
+  it("leaves the striker's career exactly as it was", () => {
+    const run = careerAs("DC", "repertoire");
+    for (const match of run.state.history.flatMap((record) => record.bigMatches ?? [])) {
+      expect(REPERTOIRE.forward).toContain(match.type);
+      expect(match.produces).toBe(PRODUCES.GOAL);
+    }
+    expect(run.state.history.reduce((sum, record) => sum + record.goals, 0)).toBeGreaterThan(0);
+  });
+
+  it("prices every position's deciders off the same conversion record", () => {
+    // The budget identity does not care which repertoire it bought: `taken` counts
+    // chances, and a save is a chance he came through on.
+    for (const position of ["POR", "DFC", "MCO", "DC"]) {
+      const run = careerAs(position, "conversion");
+      const { taken, scored } = run.state.conversion;
+      expect(taken, position).toBeGreaterThan(0);
+      expect(scored).toBeLessThanOrEqual(taken);
+    }
   });
 });

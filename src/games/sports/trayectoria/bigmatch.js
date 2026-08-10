@@ -249,31 +249,103 @@ export function splitSeason(budget, stages) {
 }
 
 /**
- * Shot archetypes. Three placements each, because two is a coin flip and four makes the
- * read worthless. The ids are labelled in copy.js.
+ * Chance archetypes. Three placements each, because two is a coin flip and four makes the
+ * read worthless. The ids are labelled in copy.js and drawn in scene.jsx.
+ *
+ * The first five are a striker's. The rest were added when the deciders stopped being the
+ * same five shots for everybody: a centre-back's final is not decided by his penalty, and
+ * a goalkeeper was being handed one-on-ones to finish while `GOAL_RATE.keeper` insisted he
+ * scores nothing. See REPERTOIRE.
  */
 export const SHOT_TYPES = {
+  // Striker.
   penal: ["izquierda", "centro", "derecha"],
   mano_a_mano: ["cruzado", "primer-palo", "picadita"],
   cabezazo: ["primer-palo", "segundo-palo", "atras"],
   falta: ["barrera", "palo-largo", "rasa"],
   volea: ["abajo", "escuadra", "cruzada"],
+  // Goalkeeper. The three options are where HE goes, not where the ball does.
+  parada_penal: ["izquierda", "centro", "derecha"],
+  salida_mano_a_mano: ["achique", "palo-corto", "abajo"],
+  tiro_lejano: ["escuadra", "abajo", "cruzada"],
+  centro_lateral: ["salida", "primer-palo", "segundo-palo"],
+  // Defender.
+  despeje: ["primer-palo", "centro", "segundo-palo"],
+  entrada: ["adelantarse", "aguantar", "cerrar"],
+  anticipo: ["primer-palo", "atras", "cruzado"],
+  // Midfield.
+  pase_gol: ["al-hueco", "atras", "cruzado"],
 };
 
 /**
- * What can be on the line, most important first. `weight` only orders the fixtures when
- * more than three qualify - it is not a probability.
+ * What converting one is worth on the scoresheet - and, for half of them, nothing at all.
+ *
+ * This is the only place the new repertoires touch the model. A converted chance settles
+ * its trophy identically whichever it is, because `stakeFor` prices a decider off how
+ * often the player comes through and not off what coming through looks like. But a saved
+ * penalty is not a goal, and the season totals have to say so.
+ */
+export const PRODUCES = { GOAL: "goal", ASSIST: "assist", STOP: "stop" };
+
+export const SHOT_PRODUCES = {
+  penal: PRODUCES.GOAL,
+  mano_a_mano: PRODUCES.GOAL,
+  cabezazo: PRODUCES.GOAL,
+  falta: PRODUCES.GOAL,
+  volea: PRODUCES.GOAL,
+  parada_penal: PRODUCES.STOP,
+  salida_mano_a_mano: PRODUCES.STOP,
+  tiro_lejano: PRODUCES.STOP,
+  centro_lateral: PRODUCES.STOP,
+  despeje: PRODUCES.STOP,
+  entrada: PRODUCES.STOP,
+  anticipo: PRODUCES.STOP,
+  pase_gol: PRODUCES.ASSIST,
+};
+
+/**
+ * Which chances a season can actually put in front of this player.
+ *
+ * Keyed by the position group `engine.js` already derives, so the eleven playable
+ * positions collapse to the four the football does: the man in the goal, the man stopping
+ * it, the man supplying it and the man finishing it.
+ *
+ * A defender gets three defensive moments and a corner, which is exactly the shape of a
+ * real centre-back's decisive night - he saves it three times and wins it once with his
+ * head. A midfielder's is the last pass and the shot from distance. The striker's list is
+ * the original five, unchanged, so nothing about an existing forward career moves.
+ */
+export const REPERTOIRE = {
+  keeper: ["parada_penal", "salida_mano_a_mano", "tiro_lejano", "centro_lateral"],
+  defensive: ["despeje", "entrada", "anticipo", "cabezazo"],
+  support: ["pase_gol", "falta", "volea", "mano_a_mano"],
+  creator: ["pase_gol", "falta", "volea", "mano_a_mano"],
+  forward: ["penal", "mano_a_mano", "cabezazo", "falta", "volea"],
+};
+
+/**
+ * What can be on the line, and when.
+ *
+ * The two numbers do different jobs and used to be the same one, which is how a season
+ * ended up playing its derby AFTER the cup final and the last day of the league:
+ *
+ *  - `weight` decides which three matter when more than three qualify. It is a ranking of
+ *    importance, not a probability.
+ *  - `when` decides the order they are actually played in, and it is the calendar. A
+ *    league derby is a Sunday in November; a promotion play-off is the middle of June.
+ *    Nothing about the model reads it - it is chronology, and chronology is the one thing
+ *    a career simulation cannot get wrong without the player noticing immediately.
  */
 export const FIXTURE_KINDS = {
-  final_mundial: { weight: 100, shots: ["penal", "mano_a_mano", "volea"], decides: "world_cup", national: true },
-  final_continental_nt: { weight: 95, shots: ["penal", "cabezazo", "mano_a_mano"], decides: "continental_nt", national: true },
-  final_continental: { weight: 90, shots: ["mano_a_mano", "volea", "penal"], decides: "continental_a" },
-  ascenso: { weight: 86, shots: ["cabezazo", "falta", "mano_a_mano"], decides: "promotion" },
-  salvacion: { weight: 85, shots: ["penal", "cabezazo", "mano_a_mano"], decides: "survival" },
-  titulo_liga: { weight: 80, shots: ["mano_a_mano", "cabezazo", "volea"], decides: "league" },
-  final_copa: { weight: 70, shots: ["falta", "penal", "mano_a_mano"], decides: "cup" },
-  semifinal_continental: { weight: 60, shots: ["volea", "mano_a_mano", "falta"], decides: "semifinal" },
-  clasico: { weight: 40, shots: ["cabezazo", "volea", "falta", "mano_a_mano"], decides: "derby" },
+  final_mundial: { weight: 100, when: 9, shots: ["penal", "mano_a_mano", "volea"], decides: "world_cup", national: true },
+  final_continental_nt: { weight: 95, when: 8, shots: ["penal", "cabezazo", "mano_a_mano"], decides: "continental_nt", national: true },
+  final_continental: { weight: 90, when: 6, shots: ["mano_a_mano", "volea", "penal"], decides: "continental_a" },
+  ascenso: { weight: 86, when: 7, shots: ["cabezazo", "falta", "mano_a_mano"], decides: "promotion" },
+  salvacion: { weight: 85, when: 5, shots: ["penal", "cabezazo", "mano_a_mano"], decides: "survival" },
+  titulo_liga: { weight: 80, when: 4, shots: ["mano_a_mano", "cabezazo", "volea"], decides: "league" },
+  final_copa: { weight: 70, when: 3, shots: ["falta", "penal", "mano_a_mano"], decides: "cup" },
+  semifinal_continental: { weight: 60, when: 2, shots: ["volea", "mano_a_mano", "falta"], decides: "semifinal" },
+  clasico: { weight: 40, when: 1, shots: ["cabezazo", "volea", "falta", "mano_a_mano"], decides: "derby" },
 };
 
 const oddsFor = (trophy, reputation) => TITLE_ODDS[trophy]?.odds?.[reputation] ?? 0;
@@ -317,6 +389,91 @@ export function derbyRivals(world, clubId, limit = 3) {
 }
 
 /**
+ * Who each kind of decider is against.
+ *
+ * Only the derby ever had an opponent, so the biggest nights of a career were played
+ * against the words "el rival" and a blank badge. The pool is what the fixture would
+ * really be drawn from, which is also what makes the derby exception below possible:
+ *
+ *  - `contenders` / `strugglers` - the last day of a league is played against whoever is
+ *    up there or down there with you, not against a random mid-table side.
+ *  - `domestic` - a cup final or a play-off is anyone in your division, nearest in
+ *    stature first, which is the same ordering `derbyRivals` uses.
+ *  - `continental` - your confederation, and your own league is in the bombo. Two clubs
+ *    from the same city have met in a European final inside living memory.
+ */
+export const OPPONENT_POOLS = {
+  titulo_liga: "contenders",
+  salvacion: "strugglers",
+  final_copa: "domestic",
+  ascenso: "domestic",
+  final_continental: "continental",
+  semifinal_continental: "continental",
+};
+
+/** How many clubs a draw picks from. Wide enough to surprise, narrow enough to be credible. */
+const POOL_SIZE = { contenders: 6, strugglers: 6, domestic: 10, continental: 24 };
+
+/** Same shape as RIVAL_CACHE: the pools are pure functions of the world, so derive once. */
+const POOL_CACHE = new WeakMap();
+
+export function opponentPool(world, club, competition, kind) {
+  const pool = OPPONENT_POOLS[kind];
+  if (!pool || !world?.clubs || !club) return [];
+
+  let cache = POOL_CACHE.get(world);
+  if (!cache) {
+    cache = new Map();
+    POOL_CACHE.set(world, cache);
+  }
+  const key = `${club.id}:${pool}`;
+  const hit = cache.get(key);
+  if (hit) return hit;
+
+  const others = Object.values(world.clubs).filter((other) => other.id !== club.id);
+  // Every sort breaks its ties by id, so a pool is the same list in every career.
+  const byId = (a, b) => String(a.id).localeCompare(String(b.id));
+  let ranked;
+
+  if (pool === "continental") {
+    const confederation = competition?.confederation;
+    ranked = others
+      .filter((other) => world.competitions[other.competitionId]?.confederation === confederation)
+      .sort(
+        (a, b) =>
+          (b.continental_reputation ?? 0) - (a.continental_reputation ?? 0) || byId(a, b),
+      );
+  } else {
+    const sameLeague = others.filter((other) => other.competitionId === club.competitionId);
+    const standing = (other) => other.domestic_reputation ?? 0;
+    if (pool === "contenders") {
+      ranked = sameLeague.sort((a, b) => standing(b) - standing(a) || byId(a, b));
+    } else if (pool === "strugglers") {
+      ranked = sameLeague.sort((a, b) => standing(a) - standing(b) || byId(a, b));
+    } else {
+      const stature = club.international_reputation ?? 0;
+      ranked = sameLeague.sort(
+        (a, b) =>
+          Math.abs((a.international_reputation ?? 0) - stature) -
+            Math.abs((b.international_reputation ?? 0) - stature) || byId(a, b),
+      );
+    }
+  }
+
+  const drawn = ranked.slice(0, POOL_SIZE[pool]).map((other) => other.id);
+  cache.set(key, drawn);
+  return drawn;
+}
+
+/** One draw from that pool, off the seed, so a career replays the same opponents. */
+export function opponentFor({ seed, season, world, club, competition, kind }) {
+  const pool = opponentPool(world, club, competition, kind);
+  if (!pool.length) return null;
+  const stream = createStream(seed, "opponent", kind, season);
+  return pool[Math.floor(stream() * pool.length)];
+}
+
+/**
  * Which of the season's matches actually mattered, in the order they are played, plus the
  * modifiers that keep the rest of the season honest about them.
  *
@@ -332,6 +489,7 @@ export function derbyRivals(world, clubId, limit = 3) {
 export function seasonFixtures({
   seed,
   season,
+  world,
   club,
   competition,
   country,
@@ -520,25 +678,62 @@ export function seasonFixtures({
     });
   }
 
-  const ordered = candidates.sort(
+  // Ranked by what is at stake, which is what the cut to three is made on.
+  const ranked = candidates.sort(
     (a, b) => FIXTURE_KINDS[b.kind].weight - FIXTURE_KINDS[a.kind].weight,
   );
+
+  // Everybody he is playing. The derby drew its own opponent above; the rest draw here.
+  for (const fixture of ranked) {
+    if (fixture.opponentId || FIXTURE_KINDS[fixture.kind].national) continue;
+    fixture.opponentId = opponentFor({ seed, season, world, club, competition, kind: fixture.kind });
+  }
+
+  /**
+   * The one case where the derby is not the first match of the year.
+   *
+   * A classic is a fixture, not a date: if the cup final or the last day of the league
+   * happens to be against the same club the derby was going to be against, that match IS
+   * the derby, and it is played when a final is played rather than in November. So the
+   * derby is not staged separately - it is folded into the match it collided with, and
+   * the slot it vacates goes to the decider that had been crowded out of the three.
+   */
+  const derbyFixture = ranked.find((fixture) => fixture.kind === "clasico");
+  let staged = ranked;
+  if (derbyFixture?.opponentId) {
+    const others = ranked.filter((fixture) => fixture !== derbyFixture);
+    // Only a match that is actually going to be played can absorb it.
+    const host = others
+      .slice(0, MATCHES_PER_SEASON)
+      .find((fixture) => fixture.opponentId === derbyFixture.opponentId);
+    if (host) {
+      host.derby = true;
+      staged = others;
+    }
+  }
 
   // Only three fit. A decider reached and then crowded out - which happens to a great
   // player in a World Cup year - is played by the model at the rate his shot would have
   // scored at, so being busy costs him nothing.
-  for (const fixture of ordered.slice(MATCHES_PER_SEASON)) {
+  for (const fixture of staged.slice(MATCHES_PER_SEASON)) {
     if (fixture.offstage) assign(fixture.offstage.decides, fixture.offstage.value);
   }
 
-  const fixtures = ordered.slice(0, MATCHES_PER_SEASON).map((fixture, index) => ({
-    ...fixture,
-    id: `${season}-${fixture.kind}`,
-    chances: fixture.chances ?? 1,
-    index,
-    decides: FIXTURE_KINDS[fixture.kind].decides,
-    national: Boolean(FIXTURE_KINDS[fixture.kind].national),
-  }));
+  // And now, and only now, they are put in the order they are played in. Importance chose
+  // them; the calendar sorts them.
+  const fixtures = staged
+    .slice(0, MATCHES_PER_SEASON)
+    .sort((a, b) => FIXTURE_KINDS[a.kind].when - FIXTURE_KINDS[b.kind].when)
+    .map((fixture, index) => ({
+      ...fixture,
+      id: `${season}-${fixture.kind}`,
+      chances: fixture.chances ?? 1,
+      index,
+      decides: FIXTURE_KINDS[fixture.kind].decides,
+      national: Boolean(FIXTURE_KINDS[fixture.kind].national),
+      // It still settles its own trophy. Being the derby as well is a layer on top.
+      derby: Boolean(fixture.derby),
+    }));
 
   return { fixtures, modifiers };
 }
@@ -547,10 +742,27 @@ export function seasonFixtures({
  * Set up one shot. The gap is where the keeper is not; it is drawn now and only revealed
  * once the player has committed.
  */
-export function shotFor({ seed, season, fixture, ovr }) {
+export function shotFor({ seed, season, fixture, ovr, group = "forward" }) {
   const spec = FIXTURE_KINDS[fixture.kind];
   const typeStream = createStream(seed, "shot", "type", fixture.id, season);
-  const type = spec.shots[Math.floor(typeStream() * spec.shots.length)];
+
+  // What this player's position can be handed, weighted towards what this fixture is
+  // known for - a World Cup final leans on the penalty spot, a cup final on a free kick.
+  // The preference degrades to a flat draw for a position whose repertoire it names none
+  // of, which is every position but the striker's.
+  const pool = REPERTOIRE[group] ?? REPERTOIRE.forward;
+  const preferred = new Set(spec.shots ?? []);
+  const weights = pool.map((entry) => (preferred.has(entry) ? 2 : 1));
+  const total = weights.reduce((sum, weight) => sum + weight, 0);
+  let target = typeStream() * total;
+  let type = pool[pool.length - 1];
+  for (let i = 0; i < pool.length; i += 1) {
+    target -= weights[i];
+    if (target <= 0) {
+      type = pool[i];
+      break;
+    }
+  }
   const options = SHOT_TYPES[type];
 
   const gapStream = createStream(seed, "shot", "gap", fixture.id, season);
@@ -567,7 +779,16 @@ export function shotFor({ seed, season, fixture, ovr }) {
     ruledOut = wrong[Math.floor(hintStream() * wrong.length)];
   }
 
-  return { fixtureId: fixture.id, kind: fixture.kind, type, options, gap, nailed, ruledOut };
+  return {
+    fixtureId: fixture.id,
+    kind: fixture.kind,
+    type,
+    produces: SHOT_PRODUCES[type] ?? PRODUCES.GOAL,
+    options,
+    gap,
+    nailed,
+    ruledOut,
+  };
 }
 
 /** Commit to a placement. Scoring means finding the gap - or being good enough not to need it. */
@@ -595,6 +816,9 @@ export function resolveShot(shot, choice) {
 export function matchEffects(results = []) {
   const effects = {
     bonusGoals: 0,
+    // A converted chance is not always a goal. A keeper who guesses the corner has saved
+    // the final, not scored in it, and `GOAL_RATE.keeper` is zero for a reason.
+    bonusAssists: 0,
     derbyGoals: 0,
     // Which trophies came down to a match the player stood in. They are still rolled -
     // see DECIDES - but the cabinet remembers that this one was settled on the night.
@@ -605,8 +829,12 @@ export function matchEffects(results = []) {
   };
 
   for (const result of results) {
-    // Every chance he put away is a goal, and a decider can be worth several.
-    effects.bonusGoals += result.converted ?? (result.scored ? 1 : 0);
+    // Every chance he came through on, and what coming through was worth on the sheet.
+    // A stop is worth nothing here and everything to the trophy, which is the point.
+    const came = result.converted ?? (result.scored ? 1 : 0);
+    const produces = SHOT_PRODUCES[result.type] ?? PRODUCES.GOAL;
+    if (produces === PRODUCES.GOAL) effects.bonusGoals += came;
+    else if (produces === PRODUCES.ASSIST) effects.bonusAssists += came;
     // Whatever the outcome, the shot leaves the trophy on the odds the draw worked out
     // for it. Nothing here decides anything outright any more - and a night the ball
     // never came to him is its own outcome, neither his fault nor his doing.
@@ -640,7 +868,7 @@ export function matchEffects(results = []) {
         if (settle != null) effects.relegationMultiplier = settle;
         break;
       case "derby":
-        effects.derbyGoals += result.converted ?? (result.scored ? 1 : 0);
+        if (produces === PRODUCES.GOAL) effects.derbyGoals += came;
         break;
       default:
         break;

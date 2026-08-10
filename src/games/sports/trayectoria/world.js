@@ -6,7 +6,7 @@
  *
  * Crest, league-logo and flag paths point at /assets/football/, which is populated
  * locally by scripts/fetch-football-crests.py and is not committed. Any of them can be
- * null, so every consumer must fall back to `crestFallback()`.
+ * null, and a club with no crest simply draws no badge - see `Crest` in index.jsx.
  */
 
 import data from "./world.data.json";
@@ -42,20 +42,7 @@ export function countryOfClub(clubId) {
   return competition ? data.countries[competition.country_fifa_code] ?? null : null;
 }
 
-/**
- * A club's colours as a two-stop pair, used to draw a placeholder badge when the crest
- * image is missing. Deterministic, so a club always looks the same.
- */
-export function crestFallback(club) {
-  const base = club?.color ?? "#1f2937";
-  return {
-    initials: (club?.abbreviation ?? club?.name ?? "??").slice(0, 3).toUpperCase(),
-    background: base,
-    // Dark colours get a light label and vice versa.
-    foreground: readableOn(base),
-  };
-}
-
+/** Which of black or white reads on a given colour. Rec. 709 luma, nothing cleverer. */
 export function readableOn(hex) {
   const value = String(hex).replace("#", "");
   if (value.length !== 6) return "#ffffff";

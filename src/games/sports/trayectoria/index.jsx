@@ -33,7 +33,7 @@ import {
 } from "./career.js";
 import { CONTRACT, wagePremium } from "./contract.js";
 import { roleFor, roleLadder } from "./engine.js";
-import Icon, { FIXTURE_ICONS, SHOT_ICONS } from "./icons.jsx";
+import Icon, { FIXTURE_ICONS, SHOT_ICONS, optionIcon } from "./icons.jsx";
 import ShotScene, { PlacementDiagram } from "./scene.jsx";
 import { conversionRecord } from "./bigmatch.js";
 import { MODES } from "./matchmode.js";
@@ -71,7 +71,7 @@ import {
   seriesPath,
 } from "./report.js";
 import { GROWTH, POSITIONS, RETIREMENT_AGE, START_AGE } from "./tables.js";
-import { crestFallback, playableCountries, world } from "./world.js";
+import { playableCountries, world } from "./world.js";
 import "./styles.css";
 
 const randomSeed = () => Math.random().toString(36).slice(2, 9).toUpperCase();
@@ -156,27 +156,22 @@ function StatValue({ value, change, delay = 0, format }) {
 
 /* ── Small pieces ─────────────────────────────────────────────────────────── */
 
-/** Crest images are fetched locally and are not committed, so the badge must stand alone. */
+/**
+ * A club's badge, or nothing at all.
+ *
+ * Crest images are fetched locally and are not committed, so a club without one is the
+ * normal case rather than the exception. It used to draw a coloured tile with the club's
+ * initials in it, which reads as a badge from a distance and is not one - a wall of
+ * invented shields says less than the names alone do. So a missing crest renders nothing
+ * and the name beside it carries the row on its own; every caller pairs the two.
+ */
 function Crest({ club, size = 44 }) {
   const [failed, setFailed] = useState(false);
-  const fallback = crestFallback(club);
-  const style = { width: size, height: size };
-
-  if (!club?.crest || failed) {
-    return (
-      <span
-        className="tr-crest tr-crest--fallback"
-        style={{ ...style, background: fallback.background, color: fallback.foreground }}
-        aria-hidden="true"
-      >
-        {fallback.initials}
-      </span>
-    );
-  }
+  if (!club?.crest || failed) return null;
   return (
     <img
       className="tr-crest"
-      style={style}
+      style={{ width: size, height: size }}
       src={club.crest}
       alt=""
       loading="lazy"
@@ -637,17 +632,6 @@ function SetupScreen({ locale, onStart }) {
           </select>
         </label>
 
-        <label className="tr-field">
-          <span>{copy.setup.country}</span>
-          <select value={form.country} onChange={(event) => set("country", event.target.value)}>
-            {countries.map((country) => (
-              <option key={country.fifa} value={country.fifa}>
-                {locale === "es" ? country.name_es : country.name_en}
-              </option>
-            ))}
-          </select>
-        </label>
-
         <fieldset className="tr-field tr-field--choice">
           <legend>{copy.setup.foot}</legend>
           <div className="tr-choice">
@@ -662,6 +646,32 @@ function SetupScreen({ locale, onStart }) {
                 {copy.setup[foot]}
               </button>
             ))}
+          </div>
+        </fieldset>
+
+        {/* The country you play for, picked by its flag.
+            It was a <select>, and a native option cannot carry an image - so the one
+            field on this screen that is about where you are from was the one field with
+            nothing to look at. Twenty-nine of them fit in a scroll box, and a flag is
+            read faster than a name in either language. */}
+        <fieldset className="tr-field tr-field--full">
+          <legend>{copy.setup.country}</legend>
+          <div className="tr-flags">
+            {countries.map((country) => {
+              const on = form.country === country.fifa;
+              return (
+                <button
+                  key={country.fifa}
+                  type="button"
+                  className={`tr-flagpick${on ? " is-on" : ""}`}
+                  aria-pressed={on}
+                  onClick={() => set("country", country.fifa)}
+                >
+                  <Flag country={country} size={20} />
+                  <span>{locale === "es" ? country.name_es : country.name_en}</span>
+                </button>
+              );
+            })}
           </div>
         </fieldset>
 
@@ -907,8 +917,16 @@ function EventScreen({ run, locale, onResolve }) {
                 style={{ "--i": index }}
                 onClick={() => onResolve(option.id)}
               >
-                <b>{option.label}</b>
-                <small>{option.detail}</small>
+                {/* What kind of answer this is, before you have read which one it is:
+                    take it, turn it down, stand still, say something. Three cards deep
+                    into a career the glyph is faster than the sentence. */}
+                <span className="tr-option__mark">
+                  <Icon name={optionIcon(event, option.id)} size={17} />
+                </span>
+                <span className="tr-option__text">
+                  <b>{option.label}</b>
+                  <small>{option.detail}</small>
+                </span>
               </button>
             ))}
           </div>
@@ -1609,8 +1627,15 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
   const country = world.countries[run.state.country] ?? null;
   const opponent = fixture.opponentId ? world.clubs[fixture.opponentId] ?? null : null;
   const placement = (id) => PLACEMENT_LABELS[locale][id] ?? id;
-  const outcome = last ? copy.match.decides[last.decides]?.[last.scored ? "yes" : "no"] ?? "" : "";
+  // A decider has three endings, not two. `absent` - the ball never came to him - settles
+  // its trophy at DECIDES.absent and is neither his doing nor his fault, so it gets its own
+  // verdict rather than borrowing the keeper's.
+  const verdict = last ? (last.absent ? "none" : last.scored ? "yes" : "no") : null;
+  const mark = last ? (last.absent ? "absent" : last.scored ? "scored" : "saved") : null;
+  const outcome = verdict ? copy.match.decides[last.decides]?.[verdict] ?? "" : "";
   const record = conversionRecord(run.state.conversion, run.state.ovr);
+  // What coming through meant here. A keeper who guessed the corner did not score.
+  const verdicts = copy.match.verdicts[shot.produces] ?? copy.match.verdicts.goal;
 
   // A narrated decider builds its build-up on arrival, once per fixture.
   useEffect(() => {
@@ -1650,7 +1675,7 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
 
   return (
     <section className="tr-stage tr-stage--narrow">
-      <article className={`tr-match${last ? (last.scored ? " is-scored" : " is-saved") : ""}`}>
+      <article className={`tr-match${mark ? ` is-${mark}` : ""}`}>
         <header className="tr-match__head">
           <div className="tr-match__bar">
             <p className="tr-eyebrow tr-eyebrow--alert">
@@ -1670,7 +1695,15 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             >
               {fixtures.map((entry, pip) => {
                 const played = pip < index ? matchday.results[pip] : pip === index ? last : null;
-                const state = played ? (played.scored ? "scored" : "saved") : pip === index ? "now" : "next";
+                const state = played
+                  ? played.absent
+                    ? "absent"
+                    : played.scored
+                      ? "scored"
+                      : "saved"
+                  : pip === index
+                    ? "now"
+                    : "next";
                 return <i key={entry.id} className={`is-${state}`} />;
               })}
             </span>
@@ -1710,6 +1743,15 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
               </>
             ) : null}
           </div>
+
+          {/* A final drawn against the club the derby was going to be against is both
+              things at once, and the second one is why the stadium sold out. */}
+          {fixture.derby ? (
+            <p className="tr-match__alsoderby">
+              <Icon name={FIXTURE_ICONS.clasico ?? "ball"} size={13} />
+              {copy.match.alsoDerby}
+            </p>
+          ) : null}
         </header>
 
         <p className="tr-match__type">
@@ -1739,10 +1781,15 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
         {last && atEnd ? (
           <div className="tr-match__result">
             <p className="tr-match__verdict">
-              {last.scored ? copy.match.scored : copy.match.saved}
+              {last.absent ? copy.match.absent : last.scored ? verdicts.won : verdicts.lost}
             </p>
-            <p className="tr-match__gap">
-              {fillTemplate(copy.match.gapWas, { placement: placement(shot.options[shot.gap]) })}
+            {/* The gap is only worth naming if somebody shot at it. Printing where the
+                keeper was not, on a night no shot was taken, reads as a verdict on a
+                moment the match has just spent ninety minutes saying never happened. */}
+            <p className={last.absent ? "tr-match__untouched" : "tr-match__gap"}>
+              {last.absent
+                ? copy.match.absentNote
+                : fillTemplate(verdicts.gap, { placement: placement(shot.options[shot.gap]) })}
             </p>
             {last.nailedIt ? <p className="tr-match__nailed">{copy.match.nailed}</p> : null}
             <p className="tr-match__decides">{outcome}</p>
@@ -2069,20 +2116,31 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
         <section className="tr-front__section">
           <p className="tr-front__label">{copy.match.summary}</p>
           <ul className="tr-front__matches">
-            {record.bigMatches.map((match, matchIndex) => (
-              <li
-                key={match.fixtureId}
-                className={`tr-front__match${match.scored ? " is-scored" : ""}`}
-                style={{ "--i": matchIndex }}
-              >
-                <b>
-                  <Icon name={FIXTURE_ICONS[match.kind] ?? "ball"} size={14} />
-                  {FIXTURE_LABELS[locale][match.kind]}
-                </b>
-                <span>{PLACEMENT_LABELS[locale][match.choice] ?? match.choice}</span>
-                <em>{match.scored ? copy.match.scored : copy.match.saved}</em>
-              </li>
-            ))}
+            {record.bigMatches.map((match, matchIndex) => {
+              // The same three-way verdict the match screen printed, kept in step with it.
+              const said = copy.match.verdicts[match.produces] ?? copy.match.verdicts.goal;
+              return (
+                <li
+                  key={match.fixtureId}
+                  className={`tr-front__match${
+                    match.absent ? " is-absent" : match.scored ? " is-scored" : ""
+                  }`}
+                  style={{ "--i": matchIndex }}
+                >
+                  <b>
+                    <Icon name={FIXTURE_ICONS[match.kind] ?? "ball"} size={14} />
+                    {FIXTURE_LABELS[locale][match.kind]}
+                  </b>
+                  {/* Where he put it - and on a night he never got one, nothing to put. */}
+                  <span>
+                    {match.absent ? "" : PLACEMENT_LABELS[locale][match.choice] ?? match.choice}
+                  </span>
+                  <em>
+                    {match.absent ? copy.match.absent : match.scored ? said.won : said.lost}
+                  </em>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ) : null}
