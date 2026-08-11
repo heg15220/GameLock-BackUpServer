@@ -70,6 +70,14 @@ const PATHS = {
       <path d="M8 3 4 5.5 6 10l2-1v11h8V9l2 1 2-4.5L16 3l-2 2h-4z" />
     </>
   ),
+  // Prensa: the microphone on the table, which is the whole room.
+  prensa: (
+    <>
+      <rect x="9" y="3" width="6" height="10" rx="3" />
+      <path d="M6 11a6 6 0 0 0 12 0" />
+      <path d="M12 17v3M8.5 20.5h7" />
+    </>
+  ),
 
   /* ── Contract terms ──────────────────────────────────────────────────────── */
   // Years: a calendar.
@@ -255,27 +263,36 @@ export const OPTION_ICONS = {
   // Take it, push for it, go.
   accept: "up", ask: "up", compete: "up", fight: "up", force: "up", go: "up",
   high: "up", play: "up", switch: "up", take: "up",
+  challenge: "up", claim: "up", open: "up", yes: "up",
   // Turn it down, stop, walk away.
   against: "down", cut: "down", decline: "down", leave: "down", low: "down",
   none: "down", off: "down", out: "down", refuse: "down", rest: "down",
+  ignore: "down", no: "down", skip: "down",
   // Do not move.
   endure: "shield", half: "shield", hold: "shield", home: "shield", keep: "shield",
   quiet: "shield", resist: "shield", silent: "shield", stay: "shield", watch: "shield",
+  commit: "shield", defend: "shield", deflect: "shield", dodge: "shield",
+  humble: "shield", limited: "shield", loyal: "shield", measured: "shield",
+  neutral: "shield", nothing: "shield", own: "shield",
   // Say it.
   answer: "chat", apologise: "chat", back: "chat", explain: "chat", listen: "chat",
   message: "chat", talk: "chat",
+  brief: "chat", deny: "chat", honest: "chat", joke: "chat", praise: "chat",
+  promise: "chat", speak: "chat", tell: "chat",
   // Sign it, or take it to a lawyer.
   deal: "pen", sign: "pen", sue: "pen",
   // The people in it.
   family: "personal", mentor: "personal", send: "personal",
-  in: "vestuario", join: "vestuario", split: "vestuario",
+  help: "personal",
+  in: "vestuario", join: "vestuario", split: "vestuario", group: "vestuario",
   club: "directiva",
   // What is actually being played for.
   continental: "trophy", league: "trophy",
   // The rest name themselves.
   adapt: "tactic", nutrition: "sport", with: "sport", work: "sport",
-  push: "wage", wait: "clock", sing: "crowd", study: "story",
-  left: "penal", right: "penal",
+  push: "wage", money: "wage", wait: "clock", time: "clock", minutes: "clock",
+  sing: "crowd", study: "story", explode: "pressure",
+  left: "penal", right: "penal", penalty: "penal", pass: "handshake",
 };
 
 /**

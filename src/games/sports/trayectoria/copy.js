@@ -59,12 +59,12 @@ export const THEME_LABELS = {
   es: {
     sport: "Deporte", tactic: "Táctica", pressure: "Presión",
     personal: "Personal", moral: "Moral", story: "Historia",
-    directiva: "Despacho", vestuario: "Vestuario",
+    directiva: "Despacho", vestuario: "Vestuario", prensa: "Sala de prensa",
   },
   en: {
     sport: "Sport", tactic: "Tactics", pressure: "Pressure",
     personal: "Personal", moral: "Moral", story: "Story",
-    directiva: "The office", vestuario: "Dressing room",
+    directiva: "The office", vestuario: "Dressing room", prensa: "Press room",
   },
 };
 
@@ -400,6 +400,10 @@ const COPY = {
       /* Los dos modos. Ver matchmode.js: cuál te toca depende de cuánto depende de ti. */
       modeSkill: "Tu momento",
       modeWatch: "En directo",
+      /* Lo que ocupa el sitio del tipo de remate mientras el partido todavía va por el
+         minuto veinte. Ver `revealShot` en index.jsx: en directo el nombre de la ocasión
+         no aparece hasta que la narración llega a ella. */
+      shotPending: "Aún por llegar",
       chancePrompt: {
         sweep: "Para el marcador dentro del hueco",
         window: "Espera. Golpea antes de que se cierre",
@@ -607,9 +611,21 @@ const COPY = {
 
       ficha: "La ficha",
       honours: "Palmarés del año",
+      /* Cabecera de la tabla de resultados. Un periódico rotula sus columnas: sin esto,
+         "Al segundo palo" junto a "GOL" no dice cuál es la elección y cuál el desenlace. */
+      resultsCols: { fixture: "Partido", choice: "Dónde la puso", outcome: "Desenlace" },
+      /* Cuando no hubo remate no hay nada que rotular, y la columna no puede quedarse en
+         blanco: una casilla vacía se lee como un dato que falta. */
+      noChoice: "—",
       /* La noche, antes de la crónica de la mañana siguiente. Ver trophies.jsx. */
       ceremony: "Lo levantaste",
       ceremonySkip: "Pulsa para continuar",
+      /* La otra noche. Ver `RelegationDrop` en index.jsx: la ceremonía sube una copa y
+         esto cae por debajo de una línea, que es exactamente lo que ha pasado. En segunda
+         persona del plural porque bajas con ellos: no es tu descenso, es el del equipo, y
+         estabas dentro. */
+      relegationEyebrow: "Bajáis",
+      relegationNote: "El {club} jugará una división más abajo.",
       perMatch: "Goles por partido",
       nationalTeam: "Selección",
       nationalCaps: "{caps} partidos internacionales",
@@ -873,6 +889,7 @@ const COPY = {
       /* The two modes. See matchmode.js: which one you get is how much they need you. */
       modeSkill: "Your moment",
       modeWatch: "Live",
+      shotPending: "Yet to come",
       chancePrompt: {
         sweep: "Stop the marker inside the gap",
         window: "Wait. Hit it before it closes",
@@ -1071,9 +1088,13 @@ const COPY = {
 
       ficha: "The card",
       honours: "Won this year",
+      resultsCols: { fixture: "Match", choice: "Where he put it", outcome: "Outcome" },
+      noChoice: "—",
       /* The night itself, before the morning's write-up. See trophies.jsx. */
       ceremony: "You lifted it",
       ceremonySkip: "Press to continue",
+      relegationEyebrow: "Down you go",
+      relegationNote: "{club} will play a division lower.",
       perMatch: "Goals per match",
       nationalTeam: "National team",
       nationalCaps: "{caps} international matches",

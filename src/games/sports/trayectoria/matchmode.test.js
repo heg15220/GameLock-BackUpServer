@@ -63,6 +63,28 @@ describe("who takes the important ones", () => {
     expect(kinds.size).toBeGreaterThan(0);
   });
 
+  it("watches a night that owes him nothing, however good he is", () => {
+    // "Tu momento" on a fixture with no sight of goal is a mode with no content: nothing
+    // to press, and no narration either, because the ninety minutes are only built for
+    // the other one. The screen used to sit there naming a penalty that never came.
+    for (let i = 0; i < 200; i += 1) {
+      const args = {
+        seed: `none-${i}`, season: 1, fixtureId: `f${i}`,
+        // Everything that pushes hardest towards SKILL, so the roll is not what is
+        // carrying this test.
+        delta: 10, role: "titular", shotType: "penal",
+      };
+      expect(modeFor({ ...args, chances: 0 })).toBe(MODES.MATCH);
+    }
+    // And it is only the zero that does it - one chance still rolls both ways.
+    const rolled = new Set(
+      Array.from({ length: 200 }, (_, i) =>
+        modeFor({ seed: `some-${i}`, season: 1, fixtureId: "f", delta: 0, role: "titular", shotType: "volea", chances: 1 }),
+      ),
+    );
+    expect(rolled.has(MODES.SKILL)).toBe(true);
+  });
+
   it("fires at about the rate it prints", () => {
     let skill = 0;
     const n = 4000;

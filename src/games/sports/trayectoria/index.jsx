@@ -1663,6 +1663,20 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
 
   const atChance = !live || reached.chance;
   const atEnd = !live || reached.end;
+  /*
+   * Whether the chance is allowed to be named yet.
+   *
+   * The placements already waited for the clock, but the things that say WHICH chance it
+   * is did not: the type strip, the drawing of the situation and the "ocasión 1 de 2"
+   * tally all rendered from kick-off. So the screen announced a header in the box - and
+   * drew the cross coming in for it - above a feed still reading "se juega", which tells
+   * the player both that the ball is coming and what it will be before the match has got
+   * there. In live mode the narration is the only thing allowed to break that news.
+   *
+   * `last` reopens it because a settled moment is not a spoiler: a night the ball never
+   * came to him is decided on arrival and has a verdict to draw straight away.
+   */
+  const revealShot = !live || reached.chance || Boolean(last);
 
   // A continental final is the Eurocopa or the Copa América, never "the continental" -
   // the fixture is named after the cup that is actually being lifted.
@@ -1754,9 +1768,12 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
           ) : null}
         </header>
 
-        <p className="tr-match__type">
-          <Icon name={SHOT_ICONS[shot.type] ?? "ball"} size={22} />
-          {SHOT_LABELS[locale][shot.type]}
+        {/* The mode is never a secret - it is why the screen looks the way it does - but
+            the chance is, until the match reaches it. A plain ball holds the slot: the
+            shot's own glyph names it as loudly as the words do. */}
+        <p className={`tr-match__type${revealShot ? "" : " is-pending"}`}>
+          <Icon name={revealShot ? SHOT_ICONS[shot.type] ?? "ball" : "ball"} size={22} />
+          {revealShot ? SHOT_LABELS[locale][shot.type] : copy.match.shotPending}
           <span className="tr-match__mode">
             {shot.mode === MODES.SKILL ? copy.match.modeSkill : copy.match.modeWatch}
           </span>
@@ -1775,8 +1792,12 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
         ) : null}
 
         {/* The situation itself. Before the shot it shows the chance and nothing else -
-            drawing the flight in advance would give away the guess. */}
-        <ShotScene type={shot.type} options={shot.options} gap={shot.gap} result={last} />
+            drawing the flight in advance would give away the guess - and in live mode it
+            does not exist at all until the match has reached the chance it is a picture
+            of, because the furniture alone says which one it is. */}
+        {revealShot ? (
+          <ShotScene type={shot.type} options={shot.options} gap={shot.gap} result={last} />
+        ) : null}
 
         {last && atEnd ? (
           <div className="tr-match__result">
@@ -1818,7 +1839,7 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             ) : null}
             {/* The ball is at his feet: no placements, no guess, just the track and how
                 steady his hand is. */}
-            {owed > 1 ? (
+            {owed > 1 && revealShot ? (
               <p className="tr-match__tally">
                 {fillTemplate(copy.match.ofChances, { n: attempt + 1, total: owed })}
               </p>
@@ -1957,6 +1978,66 @@ function TrophyCeremony({ honours, locale, onDone }) {
   );
 }
 
+/* ── The other night ──────────────────────────────────────────────────────────
+   Going down was one red word on the front page, in the same strip that says a
+   suspension was served. It is the biggest thing that can happen to a club in a
+   season and it read like a footnote, so it gets the screen the way a trophy does.
+
+   The ceremony's inverse, deliberately: gold to red, and where a cup rises out of
+   the dark and settles, this holds the club above a line and drops it through.
+   That is the whole image, because it is literally what happened - the club was on
+   one side of a line and now it is on the other. No destination league is named:
+   the world does not always model the division below, and `clubStanding` is careful
+   not to invent one (see engine.js), so neither does this.                       */
+
+/** How long the drop holds the screen before it hands over to the front page. */
+const DROP_HOLD = 3200;
+
+function RelegationDrop({ club, locale, onDone }) {
+  const copy = getCopy(locale);
+  const reduced = usePrefersReducedMotion();
+  const name = club?.shortName ?? club?.name ?? "";
+
+  // Unlike the trophy ceremony, reduced motion does not skip this outright. That
+  // preference asks for no movement, not for less information, and this screen exists to
+  // tell you something - so it is shown still, and still dismisses itself.
+  useEffect(() => {
+    const timer = setTimeout(onDone, reduced ? DROP_HOLD - 1200 : DROP_HOLD);
+    return () => clearTimeout(timer);
+  }, [onDone, reduced]);
+
+  useEffect(() => {
+    const skip = () => onDone();
+    window.addEventListener("keydown", skip);
+    return () => window.removeEventListener("keydown", skip);
+  }, [onDone]);
+
+  return (
+    <div
+      className={`tr-drop${reduced ? " is-still" : ""}`}
+      role="dialog"
+      aria-label={copy.season.relegated}
+      onClick={onDone}
+    >
+      <div className="tr-drop__inner">
+        <p className="tr-drop__eyebrow">{copy.season.relegationEyebrow}</p>
+
+        <div className="tr-drop__stage">
+          <span className="tr-drop__line" aria-hidden="true" />
+          <div className="tr-drop__club">
+            <Crest club={club} size={64} />
+            <b>{name}</b>
+          </div>
+        </div>
+
+        <p className="tr-drop__word">{copy.season.relegated}</p>
+        <p className="tr-drop__note">{fillTemplate(copy.season.relegationNote, { club: name })}</p>
+        <p className="tr-ceremony__skip">{copy.season.ceremonySkip}</p>
+      </div>
+    </div>
+  );
+}
+
 /** One honour, stamped onto the page the way a paper prints a result. */
 function Honour({ honour, locale, index }) {
   const copy = getCopy(locale);
@@ -1993,12 +2074,19 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
   const competition = world.competitions[record.competitionId] ?? null;
   const report = seasonReport(record, previous);
 
+  /*
+   * The season's line. Three counts and a rate, and the rate is not one of the counts -
+   * it is derived from two of them, so it is set apart rather than given a mark of its
+   * own. Marking all four identically was the whole problem: "0.00" read as a fourth
+   * thing that happened rather than as the arithmetic on the two beside it.
+   */
   const stats = [
-    { key: "matches", label: copy.season.matches, value: record.matches, change: report.changes.matches },
-    { key: "goals", label: copy.season.goals, value: record.goals, change: report.changes.goals },
-    { key: "assists", label: copy.season.assists, value: record.assists, change: report.changes.assists },
+    { key: "matches", icon: "clock", label: copy.season.matches, value: record.matches, change: report.changes.matches },
+    { key: "goals", icon: "ball", label: copy.season.goals, value: record.goals, change: report.changes.goals },
+    { key: "assists", icon: "handshake", label: copy.season.assists, value: record.assists, change: report.changes.assists },
     {
       key: "perMatch",
+      rate: true,
       label: copy.season.perMatch,
       value: report.perMatch.toFixed(2),
     },
@@ -2030,8 +2118,11 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
 
           <dl className="tr-front__stats">
             {stats.map((stat, statIndex) => (
-              <div key={stat.key}>
-                <dt>{stat.label}</dt>
+              <div key={stat.key} className={stat.rate ? "is-rate" : undefined}>
+                <dt>
+                  {stat.icon ? <Icon name={stat.icon} size={13} strokeWidth={1.7} /> : null}
+                  {stat.label}
+                </dt>
                 <dd>
                   <StatValue value={stat.value} change={stat.change} delay={statIndex * 90} />
                 </dd>
@@ -2098,7 +2189,10 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
 
       {report.honours.length ? (
         <section className="tr-front__section">
-          <p className="tr-front__label">{copy.season.honours}</p>
+          <p className="tr-front__label">
+            <Icon name="trophy" size={13} strokeWidth={1.7} />
+            {copy.season.honours}
+          </p>
           <ul className="tr-front__honours">
             {report.honours.map((honour, honourIndex) => (
               <Honour
@@ -2114,7 +2208,19 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
 
       {record.bigMatches?.length ? (
         <section className="tr-front__section">
-          <p className="tr-front__label">{copy.match.summary}</p>
+          <p className="tr-front__label">
+            <Icon name="ball" size={13} strokeWidth={1.7} />
+            {copy.match.summary}
+          </p>
+          {/* Column heads, because a results table without them is three unlabelled
+              columns: "Al segundo palo" beside "GOL" never said which was the call and
+              which was what came of it. Hidden from screen readers - the list items name
+              their own fields below. */}
+          <div className="tr-front__matchhead" aria-hidden="true">
+            <span>{copy.season.resultsCols.fixture}</span>
+            <span>{copy.season.resultsCols.choice}</span>
+            <span>{copy.season.resultsCols.outcome}</span>
+          </div>
           <ul className="tr-front__matches">
             {record.bigMatches.map((match, matchIndex) => {
               // The same three-way verdict the match screen printed, kept in step with it.
@@ -2131,9 +2237,12 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
                     <Icon name={FIXTURE_ICONS[match.kind] ?? "ball"} size={14} />
                     {FIXTURE_LABELS[locale][match.kind]}
                   </b>
-                  {/* Where he put it - and on a night he never got one, nothing to put. */}
+                  {/* Where he put it - and on a night he never got one, a rule rather than
+                      a blank, which reads as a missing figure instead of an absent shot. */}
                   <span>
-                    {match.absent ? "" : PLACEMENT_LABELS[locale][match.choice] ?? match.choice}
+                    {match.absent
+                      ? copy.season.noChoice
+                      : PLACEMENT_LABELS[locale][match.choice] ?? match.choice}
                   </span>
                   <em>
                     {match.absent ? copy.match.absent : match.scored ? said.won : said.lost}
@@ -2148,7 +2257,10 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
       <div className="tr-front__notes">
         {report.national ? (
           <section className="tr-front__note">
-            <p className="tr-front__label">{copy.season.nationalTeam}</p>
+            <p className="tr-front__label">
+              <Icon name="shield" size={13} strokeWidth={1.7} />
+              {copy.season.nationalTeam}
+            </p>
             <p>{fillTemplate(copy.season.nationalCaps, { caps: report.national.caps })}</p>
             {report.national.playedWorldCup ? <small>{copy.season.playedWorldCup}</small> : null}
             {report.national.forced ? <small>{copy.season.forcedCallup}</small> : null}
@@ -2165,7 +2277,10 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
               report.development.doubled || report.development.growth?.stalled ? " is-warned" : ""
             }`}
           >
-            <p className="tr-front__label">{copy.season.development}</p>
+            <p className="tr-front__label">
+              <Icon name="sport" size={13} strokeWidth={1.7} />
+              {copy.season.development}
+            </p>
             <p className="tr-front__note-big">{signedOvr(report.development.applied)} OVR</p>
             <small>
               {fillTemplate(copy.season.developmentShare, {
@@ -2182,20 +2297,40 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
 
         {shadowNote ? (
           <section className="tr-front__note tr-front__note--shadow">
-            <p className="tr-front__label">{copy.season.shadow}</p>
+            <p className="tr-front__label">
+              <Icon name="story" size={13} strokeWidth={1.7} />
+              {copy.season.shadow}
+            </p>
             <p>{shadowNote}</p>
           </section>
         ) : null}
       </div>
 
+      {/* The folio. It used to be one sentence built by lower-casing four headings and
+          joining them with dots, which reads as "1 temporadas" in Spanish and as a run-on
+          in both languages. The same four figures, set as the label/number pairs the rest
+          of the page already uses - and the labels stay in the case they were written in,
+          so nothing has to be true about their grammar. */}
       <footer className="tr-front__foot">
         <span className="tr-front__label">{copy.season.careerToDate}</span>
-        <span>
-          {careerTotals.seasons} {copy.retired.seasons.toLowerCase()} · {careerTotals.matches}{" "}
-          {copy.season.matches.toLowerCase()} · {careerTotals.goals}{" "}
-          {copy.season.goals.toLowerCase()} · {careerTotals.titles}{" "}
-          {copy.season.titles.toLowerCase()}
-        </span>
+        <dl className="tr-front__career">
+          <div>
+            <dt>{copy.retired.seasons}</dt>
+            <dd>{careerTotals.seasons}</dd>
+          </div>
+          <div>
+            <dt>{copy.season.matches}</dt>
+            <dd>{careerTotals.matches}</dd>
+          </div>
+          <div>
+            <dt>{copy.season.goals}</dt>
+            <dd>{careerTotals.goals}</dd>
+          </div>
+          <div>
+            <dt>{copy.season.titles}</dt>
+            <dd>{careerTotals.titles}</dd>
+          </div>
+        </dl>
       </footer>
     </article>
   );
@@ -2214,15 +2349,37 @@ function SeasonScreen({ run, locale, onNext }) {
     () => run.seasonResults.flatMap((result) => honoursOf(result.record, country)),
     [run.seasonResults, country],
   );
+  // The season the club went down, if one of them did. A step can be three seasons long,
+  // and a club can only be relegated once in any of them, so the first is the one.
+  const relegation = useMemo(
+    () => run.seasonResults.find((result) => result.record.relegated) ?? null,
+    [run.seasonResults],
+  );
+
   // Mounts fresh every time the phase opens, so the ceremony plays once per step and the
   // player is never shown last year's cups again.
   const [celebrated, setCelebrated] = useState(false);
   const finish = useCallback(() => setCelebrated(true), []);
+  const [dropped, setDropped] = useState(false);
+  const finishDrop = useCallback(() => setDropped(true), []);
+
+  // Both can happen in one step - a cup in May and the drop in June is a real season. They
+  // queue rather than overlap, and the cups go first: that is the order they happened in,
+  // and ending on the drop is the note the front page then picks up.
+  const ceremonyOpen = Boolean(won.length) && !celebrated;
+  const dropOpen = Boolean(relegation) && !ceremonyOpen && !dropped;
 
   return (
     <section className="tr-stage">
-      {won.length && !celebrated ? (
+      {ceremonyOpen ? (
         <TrophyCeremony honours={won} locale={locale} onDone={finish} />
+      ) : null}
+      {dropOpen ? (
+        <RelegationDrop
+          club={world.clubs[relegation.record.clubId] ?? null}
+          locale={locale}
+          onDone={finishDrop}
+        />
       ) : null}
       {run.seasonResults.map((result, index) => {
         const previous = index === 0 ? before[before.length - 1] ?? null : run.seasonResults[index - 1].record;

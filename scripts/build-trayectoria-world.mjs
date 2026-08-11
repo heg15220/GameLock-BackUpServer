@@ -8,6 +8,7 @@
  *   node scripts/build-trayectoria-world.mjs
  */
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -27,6 +28,32 @@ const countriesRaw = readJson(path.join(DATA, "football-world.countries.json"), 
 const manifest = readJson(path.join(ASSETS, "manifest.json"), { clubs: {}, competitions: {}, flags: {} });
 
 /**
+ * Files that are on disk but are not the crest, mark or trophy they are named after: a
+ * "no free logo" tile, or the lead photograph of the article about the city the club is
+ * named after. Either one in the badge slot is worse than an empty slot - the game draws
+ * nothing for a club without a crest precisely so the name carries the row. Newer fetches
+ * refuse to write these, but an older mirror still has them, so the build checks rather
+ * than trusting the filesystem. See scripts/data/football-asset-rejects.json.
+ */
+const rejects = readJson(path.join(DATA, "football-asset-rejects.json"), {});
+const NEVER = new Set(Object.keys(rejects.sha256 ?? {}));
+const MISFILED = rejects.misfiled ?? {};
+
+const digestOf = (file) =>
+  crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+
+/**
+ * `bucket` and `file` rather than a path, because half the answer is WHERE the file is:
+ * the El Salvador league mark is the right image under competitions and the wrong one
+ * under a club that merely plays in it, and both are the same bytes.
+ */
+const isReject = (bucket, file) => {
+  const digest = digestOf(path.join(ASSETS, bucket, file));
+  if (NEVER.has(digest)) return true;
+  return MISFILED[`${bucket}/${path.parse(file).name}`]?.sha256 === digest;
+};
+
+/**
  * Index what is actually on disk, by basename. The manifest is only written when a fetch
  * run finishes, so trusting it alone would drop every crest from an interrupted or
  * still-running download.
@@ -35,7 +62,10 @@ const indexBucket = (bucket) => {
   const dir = path.join(ASSETS, bucket);
   if (!fs.existsSync(dir)) return {};
   return Object.fromEntries(
-    fs.readdirSync(dir).filter((f) => !f.startsWith(".")).map((f) => [path.parse(f).name, f]),
+    fs
+      .readdirSync(dir)
+      .filter((f) => !f.startsWith(".") && !isReject(bucket, f))
+      .map((f) => [path.parse(f).name, f]),
   );
 };
 
@@ -46,8 +76,12 @@ const onDisk = {
 };
 
 const assetPath = (bucket, key, record) => {
+  // The manifest is the fallback, not the authority - and it happily names a file the
+  // sweep above just dropped, so a name it supplies has to be checked too.
   const file = onDisk[bucket][key] ?? record?.file;
-  return file ? `/assets/football/${bucket}/${file}` : null;
+  if (!file) return null;
+  if (fs.existsSync(path.join(ASSETS, bucket, file)) && isReject(bucket, file)) return null;
+  return `/assets/football/${bucket}/${file}`;
 };
 
 /**
@@ -62,6 +96,8 @@ const assetPath = (bucket, key, record) => {
 const trophyPath = (key) => {
   const record = manifest.trophies?.[key];
   if (!record?.file || !["ok", "cached"].includes(record.status)) return null;
+  if (fs.existsSync(path.join(ASSETS, "trophies", record.file)) && isReject("trophies", record.file))
+    return null;
   return `/assets/football/trophies/${record.file}`;
 };
 

@@ -87,8 +87,18 @@ export function skillOdds({ delta = 0, role = null, shotType = null } = {}) {
  * Roll it. Keyed off the fixture rather than the season, so the three deciders of one year
  * are decided independently and a career can have a final it plays and a final it watches
  * in the same May.
+ *
+ * `chances` is not part of the odds - it is the one case where there are no odds. A
+ * decider worth no sight of goal has no moment to hand him, so SKILL there is a mode with
+ * nothing in it: no placements, because the night is already settled, and no ninety
+ * minutes either, because those are only built for the other mode. What the player got
+ * was a screen naming a penalty that never happened and a verdict saying so, with nothing
+ * in between. There is no "your moment" in a night the ball never came to you, so those
+ * are watched - which is also the only version of that night worth having, since the
+ * narration is the entire account of it.
  */
-export function modeFor({ seed, season, fixtureId, delta, role, shotType }) {
+export function modeFor({ seed, season, fixtureId, delta, role, shotType, chances = 1 }) {
+  if (chances <= 0) return MODES.MATCH;
   const odds = skillOdds({ delta, role, shotType });
   const next = createStream(seed, "mode", fixtureId, season);
   return next() < odds ? MODES.SKILL : MODES.MATCH;

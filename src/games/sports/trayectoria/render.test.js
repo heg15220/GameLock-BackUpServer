@@ -34,7 +34,7 @@ import {
   takeShot,
   watchMatch,
 } from "./career.js";
-import { getCopy } from "./copy.js";
+import { SHOT_LABELS, getCopy } from "./copy.js";
 import { SCREENS } from "./index.jsx";
 import { playableCountries, world } from "./world.js";
 
@@ -217,8 +217,8 @@ describe("every screen renders", () => {
     }
   });
 
-  /** A career sat on a decider that gives him no sight of goal, in the mode asked for. */
-  const untouchedRun = (mode) => {
+  /** A career sat on a decider that gives him no sight of goal. */
+  const untouchedRun = () => {
     for (let i = 0; i < 60; i += 1) {
       let run = start(`none-${i}`);
       run = completeSigning(agreeTerms(signYouthClub(run, run.offers[0].clubId)));
@@ -230,23 +230,30 @@ describe("every screen renders", () => {
       }
       if (run.phase !== PHASES.MATCH) continue;
       if ((run.matchday.fixtures[run.matchday.index].chances ?? 1) !== 0) continue;
-      if (run.matchday.shot.mode !== mode) continue;
-      return run.matchday.shot.mode === "match" ? watchMatch(run, "es") : run;
+      return watchMatch(run, "es");
     }
     return null;
   };
 
-  it("renders a decider that never gives him a sight of goal", () => {
-    // The 0-chance fixture used to wait for an input that could not come, in both the
-    // mode where the ball is at his feet and the one where the match plays out around him.
-    for (const mode of ["skill", "match"]) {
-      const run = untouchedRun(mode);
-      expect(run, `no seed produced a ${mode} fixture with no chances`).toBeTruthy();
-      // It settles itself, so the screen has a result to draw straight away.
-      expect(run.matchday.last).toBeTruthy();
-      expect(run.matchday.last.absent).toBe(true);
-      expect(draw(PHASES.MATCH, run).length).toBeGreaterThan(200);
-    }
+  it("plays out a decider that never gives him a sight of goal", () => {
+    // Such a night is always the watched mode - see modeFor. It used to be able to come up
+    // as "tu momento", which is a mode with nothing in it: the fixture settles itself so
+    // there is nothing to press, and the ninety minutes are only built for the other mode,
+    // so there was nothing to read either. The screen named a chance that never came and
+    // printed a verdict, with nothing in between.
+    const run = untouchedRun();
+    expect(run, "no seed produced a fixture with no chances").toBeTruthy();
+    expect(run.matchday.shot.mode).toBe("match");
+    // It settles on arrival - the clock must never stop on a chance that cannot come.
+    expect(run.matchday.last).toBeTruthy();
+    expect(run.matchday.last.absent).toBe(true);
+    // And it has ninety minutes to show, already carried through to full time.
+    expect(run.matchday.broadcast).toBeTruthy();
+    expect(run.matchday.broadcast.finish).toBeTruthy();
+
+    const html = draw(PHASES.MATCH, run);
+    expect(html).toContain("tr-live__feed");
+    expect(html).toContain(getCopy("es").match.modeWatch);
   });
 
   it("prints a goalkeeper's verdict as a save rather than as a goal", () => {
@@ -284,28 +291,183 @@ describe("every screen renders", () => {
     throw new Error("no seed produced a playable goalkeeper decider");
   });
 
-  it("calls a night the ball never came to him neither a goal nor a save", () => {
-    // It used to print the keeper's verdict and reveal the gap of a shot nobody took,
-    // which contradicts the narration the same screen has just finished reading out.
-    // Checked on the played mode, because that one draws its result without waiting on a
-    // clock - the markup below is the same on both.
-    const run = untouchedRun("skill");
-    expect(run, "no seed produced a skill fixture with no chances").toBeTruthy();
+  /**
+   * A live decider that still owes him at least one chance, sat exactly where the screen
+   * opens: the clock at kick-off, nothing reached yet. `renderToStaticMarkup` runs no
+   * effects, so `reached` stays false and this is the first frame the player sees.
+   */
+  const pendingLiveRun = () => {
+    for (let i = 0; i < 80; i += 1) {
+      let run = start(`live-${i}`);
+      run = completeSigning(agreeTerms(signYouthClub(run, run.offers[0].clubId)));
+      let guard = 0;
+      while (run.phase !== PHASES.MATCH && run.phase !== PHASES.RETIRED && guard < 10) {
+        guard += 1;
+        if (run.phase === PHASES.EVENT) run = resolveEvent(run, run.event.es.options[0].id);
+        else break;
+      }
+      if (run.phase !== PHASES.MATCH) continue;
+      if (run.matchday.shot.mode !== "match") continue;
+      if ((run.matchday.fixtures[run.matchday.index].chances ?? 1) < 1) continue;
+      run = watchMatch(run, "es");
+      if (run.matchday.last) continue;
+      return run;
+    }
+    return null;
+  };
+
+  it("never names the chance before the broadcast reaches it", () => {
+    // The whole point of the live mode is that the match happens to you in order. The
+    // screen used to print "Cabezazo al área" - and draw the cross coming in for it -
+    // above a feed still sitting on the kick-off, so you knew you were getting a header
+    // in the box before a ball had been kicked.
+    const run = pendingLiveRun();
+    expect(run, "no seed produced a live decider that owes him a chance").toBeTruthy();
+    const { shot } = run.matchday;
 
     for (const locale of ["es", "en"]) {
       const copy = getCopy(locale);
       const html = draw(PHASES.MATCH, run, { locale });
-      expect(html).toContain(copy.match.absent);
+
+      expect(html).not.toContain(SHOT_LABELS[locale][shot.type]);
+      // Nor drawn: the wall, the spot and the cross say which chance it is without words.
+      expect(html).not.toContain("tr-scene");
+      // Nor counted: "Ocasión 1 de 2" gives away that the ball is coming at all. Checked
+      // by class, because the pips in the header carry the same words about a different
+      // thing - which of the season's three deciders this is - and those are no secret.
+      expect(html).not.toContain("tr-match__tally");
+
+      // What is left still has to read as a live match with something pending.
+      expect(html).toContain(copy.match.modeWatch);
+      expect(html).toContain(copy.match.shotPending);
+      expect(html).toContain(copy.match.waiting);
+    }
+  });
+
+  it("names the chance straight away when the ball is at his feet", () => {
+    // The gate above is for the live mode only. In the played mode the shot type IS the
+    // question being asked, so hiding it would leave the screen with nothing on it.
+    for (let i = 0; i < 60; i += 1) {
+      let run = start(`feet-${i}`);
+      run = completeSigning(agreeTerms(signYouthClub(run, run.offers[0].clubId)));
+      if (run.phase === PHASES.EVENT) run = resolveEvent(run, run.event.es.options[0].id);
+      if (run.phase !== PHASES.MATCH) continue;
+      const { shot } = run.matchday;
+      if (shot.mode !== "skill") continue;
+      if ((run.matchday.fixtures[run.matchday.index].chances ?? 1) < 1) continue;
+
+      const html = draw(PHASES.MATCH, run);
+      expect(html).toContain(SHOT_LABELS.es[shot.type]);
+      expect(html).toContain("tr-scene");
+      expect(html).not.toContain(getCopy("es").match.shotPending);
+      return;
+    }
+    throw new Error("no seed produced a playable skill decider");
+  });
+
+  /**
+   * A real career sat on its first season page.
+   *
+   * The engine only relegates a top-flight club whose effective domestic reputation has
+   * reached zero (see `rollSeason`), which a career that keeps climbing may never be, so
+   * driving seeds until one goes down is not a test, it is a wait. The screen's contract
+   * is `record.relegated`, so that is what gets set: whether the engine produces the flag
+   * is engine.test.js's business, and what the report does with it is this file's.
+   */
+  const seasonRun = (seed = "down") => {
+    let run = start(seed);
+    run = completeSigning(agreeTerms(signYouthClub(run, run.offers[0].clubId)));
+    let guard = 0;
+    while (run.phase !== PHASES.SEASON && run.phase !== PHASES.RETIRED && guard < 400) {
+      guard += 1;
+      if (run.phase === PHASES.EVENT) {
+        run = resolveEvent(run, run.event.es.options[0].id);
+      } else if (run.phase === PHASES.MATCH) {
+        const { shot } = run.matchday;
+        if (shot.mode === "match" && !run.matchday.broadcast) run = watchMatch(run, "es");
+        if (run.matchday.last) run = nextFixture(run, "es");
+        else if (shot.mode === "skill") {
+          const aim = shot.chance.gates ?? [shot.chance.target];
+          run = playChance(run, shot.chance.gates ? aim : aim[0]);
+        } else run = takeShot(run, shot.options[0]);
+        if (run.phase === PHASES.MATCH && run.matchday.last) run = nextFixture(run, "es");
+      } else break;
+    }
+    return run;
+  };
+
+  const withRelegation = (run) => ({
+    ...run,
+    seasonResults: run.seasonResults.map((result, i) =>
+      i === 0 ? { ...result, record: { ...result.record, relegated: true } } : result,
+    ),
+  });
+
+  it("gives the drop the screen when the club goes down", () => {
+    // Going down was one red word in the same strip that reports a served suspension.
+    // It is the biggest thing that can happen to a club in a season, so it gets the
+    // screen the way a trophy does - before the front page, not inside it.
+    const base = seasonRun();
+    expect(base.phase).toBe(PHASES.SEASON);
+    const run = withRelegation(base);
+    const club = world.clubs[run.seasonResults[0].record.clubId];
+
+    for (const locale of ["es", "en"]) {
+      const copy = getCopy(locale);
+      const html = draw(PHASES.SEASON, run, { locale });
+      // A step that also won something queues the cups first; the drop is still coming.
+      if (html.includes("tr-ceremony")) continue;
+
+      expect(html).toContain("tr-drop");
+      expect(html).toContain(copy.season.relegationEyebrow);
+      expect(html).toContain(copy.season.relegated);
+      expect(html).toContain(club.shortName ?? club.name);
+      // The line it falls through is the whole image; without it this is just a word.
+      expect(html).toContain("tr-drop__line");
+    }
+  });
+
+  it("keeps the drop off a season the club survived", () => {
+    // The overlay is absolutely positioned over the stage, so one that renders when it
+    // should not does not merely look wrong - it covers the report underneath it.
+    const run = seasonRun("survived");
+    expect(run.phase).toBe(PHASES.SEASON);
+    expect(run.seasonResults.some((result) => result.record.relegated)).toBe(false);
+    expect(draw(PHASES.SEASON, run)).not.toContain("tr-drop");
+  });
+
+  it("calls a night the ball never came to him neither a goal nor a save", () => {
+    // It used to print the keeper's verdict and reveal the gap of a shot nobody took,
+    // which contradicts the narration the same screen has just finished reading out.
+    //
+    // The half of this that used to be markup is now behind the clock: such a night is
+    // always watched, so its verdict waits for full time and `renderToStaticMarkup` runs
+    // no effects and never gets there. What the verdict WILL say is checked on the copy
+    // the screen reaches for, which is where a renamed or missing key would break; what
+    // must never appear at all is still checked on the markup, and "never" includes the
+    // ninety minutes before the verdict lands.
+    const run = untouchedRun();
+    expect(run, "no seed produced a fixture with no chances").toBeTruthy();
+
+    for (const locale of ["es", "en"]) {
+      const copy = getCopy(locale);
+      const html = draw(PHASES.MATCH, run, { locale });
+
+      // Neither won nor lost by him: the trophy settles at DECIDES.absent, and that is
+      // the branch the screen will take, because `last.absent` is what picks it.
+      expect(run.matchday.last.absent).toBe(true);
+      const verdicts = copy.match.decides[run.matchday.last.decides];
+      expect(verdicts.none).toBeTruthy();
+      expect(copy.match.absent).toBeTruthy();
+      expect(copy.match.absentNote).toBeTruthy();
+
       expect(html).not.toContain(copy.match.saved);
       expect(html).not.toContain(copy.match.scored);
+      expect(html).not.toContain(verdicts.yes);
+      expect(html).not.toContain(verdicts.no);
       // No gap named and none ringed, because there was no shot to have missed it.
       expect(html).not.toContain(copy.match.gapWas.split("{")[0]);
       expect(html).not.toContain("tr-scene__gap");
-      // Neither won nor lost by him: the trophy settles at DECIDES.absent.
-      const verdicts = copy.match.decides[run.matchday.last.decides];
-      expect(html).toContain(verdicts.none);
-      expect(html).not.toContain(verdicts.yes);
-      expect(html).not.toContain(verdicts.no);
       // And the card is marked as its own state, not as a miss.
       expect(html).toContain("is-absent");
       expect(html).not.toContain("is-saved");

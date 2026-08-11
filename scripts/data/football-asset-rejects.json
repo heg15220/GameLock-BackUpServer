@@ -1,0 +1,48 @@
+{
+  "_note": [
+    "Images the fetch mirrored that are not the badge they are filed under. Keyed by",
+    "SHA-256 of the bytes, because the same wrong image comes back byte-identical on every",
+    "re-run and its filename says nothing about what is inside it.",
+    "",
+    "`sha256` is for images that are never anybody's badge. Either Wikipedia has no free",
+    "crest and its infobox holds a generic placeholder tile, or `resolve_title` lands on",
+    "the article about the PLACE instead of the club - 'Burgos' the city, 'Bahia' the",
+    "state - and the lead photograph is a skyline, a cathedral or a stadium. Both are worse",
+    "than nothing: the game draws no badge for a club without a crest so that the name",
+    "carries the row, and a photograph in that slot takes the decision away from it.",
+    "",
+    "`misfiled` is for the other kind, and it is why this file is not just a list of",
+    "digests. A real mark can be the right image somewhere and the wrong one here: Club",
+    "Municipal Limeno mirrored the El Salvador Primera Division logo, which is byte-for-byte",
+    "the file the Primera Division itself correctly uses. Rejecting those bytes everywhere",
+    "would take the league's own mark away from it, so these are keyed by bucket and slug",
+    "AND digest - a later fetch that finds a different image for the same slug is kept.",
+    "",
+    "Curated by eye. `scripts/audit-football-crests.py` finds the candidates - a photograph",
+    "has no flat region and a badge is nothing but flat regions - but only a person can say",
+    "whether a logo is the RIGHT logo, which is how the entry under `misfiled` got here.",
+    "",
+    "Read by scripts/fetch-football-crests.py, which refuses to write these, and by",
+    "scripts/build-trayectoria-world.mjs, which skips them if an older mirror already has",
+    "them on disk. See `Crest` in src/games/sports/trayectoria/index.jsx for what the game",
+    "does with the resulting null."
+  ],
+  "sha256": {
+    "b0f3eca518df8f6d503003a1a63d32d31225e5e409c1c2cb38c99f506add5397": "Wikipedia's 'no free logo' infobox tile - 14 Central-American clubs, the Bolivian league and its cup",
+    "e5ee49a436b3148530f30d320f0b2b025b0f1eb9f5e2b1422fa387ea8fe5663b": "burgos - the city of Burgos seen from above, not the club",
+    "cdef1a6c15e5d27cc88ea6069739c3d08385b703ccbca573c95edadee1f20393": "cordoba - the inside of the Mezquita",
+    "16f8ba3e18eeef7dd7c8d6b610f13f3b02512086f736da0e1a683cfa9b981c3c": "bahia - the Salvador waterfront",
+    "b3261167e27097e9882e28b9522198ad42c539fbc03a98817347aed7379648da": "inter-san-carlos - a tourist photo montage of San Carlos",
+    "e71eb14dada4e253cf725bf5194699c873b8c1d9a4d164e38bc3eb3c928871f1": "los-angeles-galaxy - the Los Angeles skyline",
+    "4a22824e99aefa851f714653b60ae5a6cd6116cdd7a3377bcfd2bc16cea66a65": "san-jose-earthquakes - rescue workers in earthquake rubble, from the wrong San Jose article entirely",
+    "35385644e13e8577dde1b67d190572277013e7edc353032868126db7a067c6e9": "colon-santa-fe - the SANTA FE letter sign by the bridge",
+    "e55424ea3356acb5f12e9a4b146509a933999ec0e1267419590d57f60ada1452": "gaziantep - the stadium, from the province article",
+    "dbde13068dde863bc57a45e107aaa6130da1b4b32cf5e826bce8ea1180b73f17": "liverpool-montevideo - a portrait of Luis Suarez"
+  },
+  "misfiled": {
+    "crests/municipal-limeno": {
+      "sha256": "d05ca134715e7e4d62e881b26fb2231816b141a1617b2f90925ab8f64ba06689",
+      "why": "the El Salvador Primera Division mark - a real logo, and the right one for the competition, but not this club's crest"
+    }
+  }
+}

@@ -25,6 +25,7 @@ everything that was not mirrored.
 """
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -51,6 +52,41 @@ NOISE = re.compile(
     r"red_pog|blue_pog|stadium|estadio|aerial|panorama|_by_|\d{4}-\d{2}-\d{2})",
     re.I,
 )
+
+# Images that pass every filter above and still are not the badge: a placeholder tile where
+# the club has no free logo, or the lead photograph of the article about the city the club
+# is named after. Writing one is worse than writing nothing - the game deliberately draws no
+# badge for a club without a crest - and neither is catchable by filename, so they are kept
+# by digest. See scripts/data/football-asset-rejects.json.
+with open(os.path.join(DATA, "football-asset-rejects.json"), encoding="utf-8") as _handle:
+    _rejects = json.load(_handle)
+# Never anybody's badge, wherever it turns up.
+NEVER_DIGESTS = set(_rejects["sha256"])
+# A real mark filed under the wrong entity, so it is only wrong at this one key. Keyed
+# "bucket/slug" -> digest; a later fetch that finds something else for that slug is kept.
+MISFILED = {key: value["sha256"] for key, value in _rejects.get("misfiled", {}).items()}
+
+
+def is_reject(blob, key=None):
+    digest = hashlib.sha256(blob).hexdigest()
+    return digest in NEVER_DIGESTS or (key is not None and MISFILED.get(key) == digest)
+
+
+def prune_reject(path, key=None):
+    """Delete `path` if an earlier run mirrored a known-bad image into it. True if it went.
+
+    Without this a re-run reports every one of them as `cached` and the wrong image
+    survives forever, since the cache check only ever looked at whether a file existed.
+    """
+    try:
+        with open(path, "rb") as handle:
+            if not is_reject(handle.read(), key):
+                return False
+        os.remove(path)
+        return True
+    except OSError:
+        return False
+
 
 FLAG_BASE = "https://raw.githubusercontent.com/lipis/flag-icons/main/flags/4x3/{}.svg"
 
@@ -196,8 +232,12 @@ def fetch_entity(name, queries, out_dir, slug, force):
     `queries` is tried in order: the first that lands on an article with a usable infobox
     image wins. Later queries are progressively less specific.
     """
+    # How this entity is named in the reject list: which bucket it belongs to and which
+    # slug inside it, because a misfiled mark is only wrong at its own key.
+    key = f"{os.path.basename(out_dir)}/{slug}"
     existing = [
-        f for f in os.listdir(out_dir) if os.path.splitext(f)[0] == slug
+        f for f in os.listdir(out_dir)
+        if os.path.splitext(f)[0] == slug and not prune_reject(os.path.join(out_dir, f), key)
     ] if os.path.isdir(out_dir) else []
     if existing and not force:
         return {"name": name, "file": existing[0], "status": "cached"}
@@ -223,6 +263,13 @@ def fetch_entity(name, queries, out_dir, slug, force):
                     continue
                 if not blob or len(blob) < 200:
                     continue
+                # A known-bad image: the "no free logo" tile, or a photograph of the city
+                # this article turned out to be about. Every candidate size of it is the
+                # same picture, so the whole query is a dead end and not just this one URL
+                # - fall through to the next, less specific query instead.
+                if is_reject(blob, key):
+                    last = {"name": name, "status": "rejected", "page": title, "query": query}
+                    break
                 path = os.path.join(out_dir, slug + ext)
                 with open(path, "wb") as handle:
                     handle.write(blob)
@@ -234,7 +281,10 @@ def fetch_entity(name, queries, out_dir, slug, force):
                     "source": url,
                     "bytes": len(blob),
                 }
-            last = {"name": name, "status": "empty", "page": title, "query": query}
+            else:
+                # Only when no candidate broke out above; the rejected case has already
+                # said something more useful than "empty".
+                last = {"name": name, "status": "empty", "page": title, "query": query}
         except Exception as err:  # noqa: BLE001 - report and keep going
             last = {"name": name, "status": "error", "error": str(err), "query": query}
     return last
@@ -373,12 +423,17 @@ def fetch_trophy(key, url, out_dir, force):
     for candidate in candidates:
         name = key.replace("/", "__") + (os.path.splitext(candidate)[1] or ".png")
         path = os.path.join(out_dir, name)
-        if os.path.exists(path) and not force:
+        reject_key = f"trophies/{os.path.splitext(name)[0]}"
+        if os.path.exists(path) and not prune_reject(path, reject_key) and not force:
             return {"name": key, "file": name, "status": "cached"}
         try:
             blob = http_bytes(candidate, tries=2)
         except Exception:  # noqa: BLE001
             blob = None
+        if blob and is_reject(blob, reject_key):
+            # The Wikipedia fallback path can hand back the same "no free image" tile a
+            # crest lookup gets. Treat it as nothing found and let the silhouette stand.
+            return {"name": key, "status": "rejected"}
         if blob:
             with open(path, "wb") as handle:
                 handle.write(blob)

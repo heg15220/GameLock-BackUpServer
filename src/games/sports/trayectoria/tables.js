@@ -381,9 +381,22 @@ export const VALUE_AGE_MULTIPLIER = {
 
 /** How long a club tolerates you not playing before it lets you go. */
 export const CAREER_MODES = {
-  intensa: { seasonsPerStep: 1, personalEvents: [6, 7], benchLimit: 2, lowRotationLimit: 3 },
-  normal: { seasonsPerStep: 2, personalEvents: [3, 4], benchLimit: 1, lowRotationLimit: 2 },
-  expres: { seasonsPerStep: 3, personalEvents: [2, 3], benchLimit: 1, lowRotationLimit: 2 },
+  /*
+   * `eventsPerStep` is `seasonsPerStep`, and that is the point rather than a coincidence:
+   * a step deals one decision per season it covers, so every mode asks a career the same
+   * ~24 questions. It used to deal one card whatever the step was worth, which meant an
+   * exprés career - three seasons a step - was offered eight decisions in twenty-four
+   * years and saw an eighth of the catalogue. The mode is meant to change how fast the
+   * career runs, not how much of the game you are shown.
+   *
+   * `personalEvents` is uniform for the same reason. It was scaled to how many cards a
+   * mode used to deal; now they all deal the same number, so a per-mode budget would make
+   * the personal cards three times rarer in exprés than in intensa for no reason anybody
+   * chose.
+   */
+  intensa: { seasonsPerStep: 1, eventsPerStep: 1, personalEvents: [6, 7], benchLimit: 2, lowRotationLimit: 3 },
+  normal: { seasonsPerStep: 2, eventsPerStep: 2, personalEvents: [6, 7], benchLimit: 1, lowRotationLimit: 2 },
+  expres: { seasonsPerStep: 3, eventsPerStep: 3, personalEvents: [6, 7], benchLimit: 1, lowRotationLimit: 2 },
 };
 
 export function tableLookup(table, value, key = "maxOvr") {

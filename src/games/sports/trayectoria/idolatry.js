@@ -155,10 +155,13 @@ export function seasonIdolatry({
   abroad = false,
   debut = false,
   wagePressure = 0,
+  fromEvents = 0,
 }) {
   if (!record) return 0;
-  // A ban is not a season: you were not there.
-  if (record.suspended) return 0;
+  // A ban is not a season: you were not there. What you SAID in July still happened,
+  // though - a suspension wipes the football, not the sentence you gave to a microphone -
+  // so the decisions are the one thing that survives it.
+  if (record.suspended) return fromEvents;
 
   const veteran = seasonsAtClub >= IDOLATRY.veteranFrom;
   let change = veteran ? IDOLATRY.perSeasonVeteran : IDOLATRY.perSeason;
@@ -182,7 +185,10 @@ export function seasonIdolatry({
   // What you cost, measured against what you turned out to be. Applied after the foreign
   // factor because the wage is judged in full wherever you are playing.
   change -= wagePressure * IDOLATRY.perWageStep;
-  return change;
+  // Outside the foreign factor on purpose: what you said lands where you said it, at full
+  // weight. A press conference in a country that is not yours is not half a press
+  // conference.
+  return change + fromEvents;
 }
 
 /** How many extra seasons out of the side this crowd's regard buys you. */

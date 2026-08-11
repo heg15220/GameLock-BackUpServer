@@ -25,6 +25,10 @@
   --tr-green: #35c46a;
   --tr-paper: #e9e4d8;
   --tr-paper-ink: #12130f;
+  /* Secondary ink for newsprint. The page set every caption and column head in #6a6c60,
+     which is 4.2:1 on this stock - under AA at the 10-11px those labels are actually set
+     at. This clears 5.3:1 and still reads as the quieter of the two inks. */
+  --tr-paper-mute: #5a5c50;
 
   --tr-display: "Anton", "Archivo Narrow", "Arial Narrow", sans-serif;
   --tr-body: "Archivo", "Segoe UI", system-ui, sans-serif;
@@ -1058,6 +1062,123 @@
   animation-delay: 900ms;
 }
 
+/* ── The drop ────────────────────────────────────────────────────────────────
+   The ceremony's inverse, and it borrows its bones on purpose: same overlay, same
+   dismissal, same "this happened before you read about it" slot. What changes is
+   the direction and the colour. A cup rises out of the dark in gold; a club falls
+   through a line in red. The line is the whole idea - you were above it, and the
+   drop is you crossing it - so nothing else on this screen moves.              */
+
+.tr-drop {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 44%, rgba(46, 8, 12, 0.94), rgba(6, 7, 10, 0.97) 64%);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: tr-fade-in 260ms ease-out;
+}
+.tr-drop__inner { text-align: center; max-width: 100%; }
+
+.tr-drop__eyebrow {
+  margin: 0 0 clamp(10px, 2vw, 18px);
+  font-family: var(--tr-display);
+  font-size: clamp(20px, 4vw, 34px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tr-ink-red);
+  animation: tr-rise 460ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+}
+
+/* Fixed height, because the club travels through it and the line has to stay put. Tall
+   enough to hold the club twice over - it has to fit entirely above the line and then
+   entirely below it - and clipped, so a long club name can never spill onto the word
+   above instead of overflowing the stage. */
+.tr-drop__stage {
+  position: relative;
+  height: clamp(236px, 34vw, 292px);
+  overflow: hidden;
+}
+.tr-drop__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: var(--tr-ink-red);
+  transform-origin: center;
+  animation:
+    tr-drop-line 420ms cubic-bezier(0.2, 0.8, 0.2, 1) 180ms backwards,
+    /* The moment it is crossed, and only that moment. */
+    tr-drop-flash 460ms ease-out 1180ms backwards;
+}
+.tr-drop__club {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--tr-ink);
+  animation: tr-drop-fall 1500ms cubic-bezier(0.35, 0, 0.4, 1) 320ms backwards;
+}
+.tr-drop__club b {
+  font-family: var(--tr-display);
+  font-size: clamp(20px, 3.4vw, 30px);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Held above the line, then let go. The pause is what makes it a fall rather than a
+   slide: you get long enough to see where the club is before it stops being there.
+   The travel is a percentage of the club's own height, not a pixel count, so "resting
+   just above the line" stays true whether the crest loaded or the name is carrying the
+   block on its own. -100% puts its bottom edge exactly on the line. */
+@keyframes tr-drop-fall {
+  0% { opacity: 0; transform: translateY(calc(-100% - 26px)); }
+  14% { opacity: 1; transform: translateY(calc(-100% - 14px)); }
+  42% { opacity: 1; transform: translateY(calc(-100% - 14px)); }
+  84% { transform: translateY(28px); }
+  100% { transform: translateY(20px); }
+}
+@keyframes tr-drop-line {
+  from { transform: scaleX(0); }
+}
+@keyframes tr-drop-flash {
+  0% { box-shadow: 0 0 0 0 rgba(232, 17, 45, 0); }
+  22% { box-shadow: 0 0 26px 5px rgba(232, 17, 45, 0.62); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 17, 45, 0); }
+}
+
+.tr-drop__word {
+  margin: clamp(6px, 1.6vw, 12px) 0 0;
+  font-family: var(--tr-display);
+  font-size: clamp(38px, 9vw, 76px);
+  line-height: 0.94;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tr-ink-red);
+  animation: tr-stamp 420ms cubic-bezier(0.2, 1.3, 0.4, 1) 1320ms backwards;
+}
+.tr-drop__note {
+  margin: 10px 0 0;
+  font-size: clamp(13px, 1.7vw, 15px);
+  color: var(--tr-muted);
+  animation: tr-fade-in 420ms ease-out 1620ms backwards;
+}
+
+/* Reduced motion gets the same screen with nothing moving on it - the message is the
+   point, and withholding it would be reading the preference as "show me less". */
+.tr-drop.is-still,
+.tr-drop.is-still * { animation: none !important; }
+.tr-drop.is-still .tr-drop__club { transform: translateY(20px); }
+
 /* The stage has to be the positioning context, or the overlay escapes to the page. */
 .tr-stage { position: relative; }
 
@@ -1254,6 +1375,9 @@
 .tr-card--story { border-top-color: var(--tr-green); }
 .tr-card--directiva { border-top-color: #c9a227; }
 .tr-card--vestuario { border-top-color: #58c8d6; }
+/* The press room gets the newsprint cream the season report is printed on - the one card
+   family whose consequences you read about the next morning. */
+.tr-card--prensa { border-top-color: var(--tr-paper); }
 /* The eyebrow icon carries the theme colour, so the accent reads twice on the card. */
 .tr-card--moral .tr-eyebrow { color: var(--tr-ink-red); }
 .tr-card--pressure .tr-eyebrow { color: var(--tr-gold); }
@@ -1261,6 +1385,7 @@
 .tr-card--story .tr-eyebrow { color: var(--tr-green); }
 .tr-card--directiva .tr-eyebrow { color: #c9a227; }
 .tr-card--vestuario .tr-eyebrow { color: #58c8d6; }
+.tr-card--prensa .tr-eyebrow { color: var(--tr-paper); }
 
 .tr-card .tr-display { margin: 10px 0 0; }
 .tr-card__body {
@@ -2056,6 +2181,12 @@
 }
 .tr-match__type .tr-icon { color: var(--tr-ink-red); }
 
+/* The slot before the match has reached the chance. It has to hold its place - the strip
+   is what the drawing and the placements grow out of - without reading as a fact, so it
+   goes quiet and drops the red. See `revealShot` in index.jsx. */
+.tr-match__type.is-pending { color: var(--tr-muted); }
+.tr-match__type.is-pending .tr-icon { color: var(--tr-muted); opacity: 0.7; }
+
 /* ── The drawing ─────────────────────────────────────────────────────────────
    The goal is one drawing reused at two sizes: full width above the options, and
    as a thumbnail on each of them. See scene.jsx — everything here is stroke.   */
@@ -2267,7 +2398,7 @@
   animation-delay: calc(var(--i, 0) * 220ms + 120ms);
 }
 .tr-front__logo { font-family: var(--tr-display); font-size: 16px; letter-spacing: 0.06em; }
-.tr-front__dateline { color: #6a6c60; text-align: right; }
+.tr-front__dateline { color: var(--tr-paper-mute); text-align: right; }
 
 /* The season's form, stamped on the stock the way a paper overprints a late edition.
    Only at the two extremes, and never as a panel: it explains a tally, it is not a
@@ -2301,7 +2432,9 @@
   align-items: start;
 }
 .tr-front__story { min-width: 0; }
-.tr-front__head { color: var(--tr-paper-ink); }
+/* Display type breaks badly on its own: a headline this size drops one short word onto a
+   line of its own often enough to be the first thing you notice about the page. */
+.tr-front__head { color: var(--tr-paper-ink); text-wrap: balance; }
 
 .tr-front__body {
   margin: 14px 0 0;
@@ -2309,6 +2442,8 @@
   font-size: 17px;
   line-height: 1.52;
   color: #2a2c25;
+  /* Same problem, quieter: no orphan on the last line of the standfirst. */
+  text-wrap: pretty;
 }
 /* A drop cap: the one flourish the page gets, and it is what a portada actually does. */
 .tr-front__body::first-letter {
@@ -2330,12 +2465,17 @@
 }
 .tr-front__stats > div { padding: 11px 13px; background: var(--tr-paper); }
 .tr-front__stats dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #6a6c60;
+  color: var(--tr-paper-mute);
 }
+/* The glyph labels the row; it must never compete with the figure under it. */
+.tr-front__stats dt .tr-icon { opacity: 0.72; }
 .tr-front__stats dd {
   display: flex;
   align-items: baseline;
@@ -2345,6 +2485,12 @@
   font-size: 26px;
   line-height: 1;
 }
+
+/* Goals per match is not a fourth thing that happened - it is the arithmetic on two of
+   the three beside it. Set on the tinted half of the stock and without a glyph of its
+   own, so the eye reads three counts and a rate instead of four counts. */
+.tr-front__stats > div.is-rate { background: rgba(18, 19, 15, 0.05); }
+.tr-front__stats > div.is-rate dd { font-size: 22px; color: #3c3e35; }
 
 /* Movement against last season. Reads as an annotation, never as the number itself. */
 .tr-move {
@@ -2423,7 +2569,22 @@
 .tr-front__flag--good { color: #17692f; }
 .tr-front__flag--bad { color: var(--tr-ink-red); }
 
+/* Every caption on the stock, one step darker than the ink the rest of the app uses for
+   the same job. Scoped to the front page so the signing sheet and the dark context panel,
+   which borrow this class onto other grounds, keep theirs. */
+.tr-front .tr-front__label { color: var(--tr-paper-mute); }
+.tr-front .tr-front__label .tr-icon { opacity: 0.72; }
+
 .tr-front__section { margin-top: 20px; }
+/* A section head that runs a hairline out to the margin - what a portada actually does
+   with a standing head, and it is the device that says where one section stops. Only on
+   the section heads: the notes and the folio are inside a column already. */
+.tr-front__section > .tr-front__label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(18, 19, 15, 0.22);
+}
 
 .tr-front__honours {
   display: flex;
@@ -2462,36 +2623,77 @@
 }
 .tr-honour--national { border-color: var(--tr-ink-red); color: var(--tr-ink-red); }
 
-/* The three matches, printed back as a results column the way a paper would run them. */
-.tr-front__matches {
-  margin: 10px 0 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid rgba(18, 19, 15, 0.18);
-}
+/* The three matches, printed back as a results column the way a paper would run them.
+   One grid, shared by the column heads and the rows under them, so the two can never
+   drift apart. */
+.tr-front__matchhead,
 .tr-front__match {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, auto);
   align-items: baseline;
   gap: 12px;
-  padding: 8px 0;
+}
+.tr-front__matchhead {
+  margin-top: 10px;
+  padding-bottom: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-paper-mute);
+}
+/* The last two columns are read against figures set hard right under them. */
+.tr-front__matchhead span:nth-child(2),
+.tr-front__matchhead span:nth-child(3) { text-align: right; }
+
+.tr-front__matches {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgba(18, 19, 15, 0.28);
+}
+.tr-front__match {
+  padding: 9px 0;
   font-size: 13px;
   border-bottom: 1px solid rgba(18, 19, 15, 0.12);
   animation: tr-rise 340ms ease backwards;
   animation-delay: calc(var(--i, 0) * 90ms + 420ms);
 }
-.tr-front__match b { font-weight: 700; }
-.tr-front__match span { font-size: 11px; color: #6a6c60; }
+.tr-front__match b { display: flex; align-items: center; gap: 7px; font-weight: 700; }
+.tr-front__match b .tr-icon { opacity: 0.72; }
+.tr-front__match span { font-size: 11px; color: var(--tr-paper-mute); text-align: right; }
 .tr-front__match em {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
   font-style: normal;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #6a6c60;
+  color: #8a2b1c;
+}
+/* The verdict as a mark as well as a word: filled for one that went in, hollow for one
+   the keeper reached, a rule for a night that never asked him. Three states you can tell
+   apart down the column without reading any of them. */
+.tr-front__match em::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid currentcolor;
+  border-radius: 50%;
 }
 .tr-front__match.is-scored em { color: #17692f; }
-.tr-front__match.is-absent em { color: #9a9c90; }
+.tr-front__match.is-scored em::before { background: currentcolor; }
+.tr-front__match.is-absent em { color: #6f7165; }
+.tr-front__match.is-absent em::before {
+  width: 9px;
+  height: 0;
+  border-width: 0 0 1.5px;
+  border-radius: 0;
+}
 
 .tr-front__notes {
   display: grid;
@@ -2502,7 +2704,13 @@
   border-top: 1px solid rgba(18, 19, 15, 0.22);
 }
 .tr-front__note p { margin: 6px 0 0; font-size: 13px; line-height: 1.45; color: #3c3e35; }
-.tr-front__note small { display: block; margin-top: 4px; font-size: 11px; color: #6a6c60; }
+.tr-front__note small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--tr-paper-mute);
+}
 .tr-front__note.is-warned p { color: #8a6b00; font-weight: 600; }
 /* The note leads with the number that landed; everything else in it is the footnote. */
 .tr-front__note-big {
@@ -2513,17 +2721,36 @@
 }
 .tr-front__note--shadow { border-left: 2px solid var(--tr-ink-red); padding-left: 12px; }
 
+/* The folio: the running career total, set as the same label/number pairs as the season's
+   own line so the two read as the small and the large of one thing. */
 .tr-front__foot {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 6px 12px;
+  gap: 8px 18px;
   margin-top: 20px;
   padding-top: 12px;
-  border-top: 1px solid rgba(18, 19, 15, 0.22);
-  font-size: 12px;
-  font-weight: 600;
-  color: #4c4e44;
+  border-top: 2px solid rgba(18, 19, 15, 0.28);
+}
+.tr-front__career {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 0;
+}
+.tr-front__career dt {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-paper-mute);
+}
+.tr-front__career dd {
+  margin: 2px 0 0;
+  font-family: var(--tr-display);
+  font-size: 19px;
+  line-height: 1;
+  color: var(--tr-paper-ink);
 }
 
 .tr-front--final .tr-front__body { font-size: 18px; }
@@ -2834,6 +3061,13 @@
   .tr-front__dateline { text-align: left; }
   .tr-front__notes { grid-template-columns: 1fr; gap: 14px; }
   .tr-front__vitals { gap: 16px; }
+  /* Three columns and a fixture name do not fit on a phone. The match takes its own line
+     and the call and the outcome share the one under it - and the column heads go, since
+     there are no longer three columns for them to head. */
+  .tr-front__matchhead { display: none; }
+  .tr-front__match { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
+  .tr-front__match b { grid-column: 1 / -1; }
+  .tr-front__match span { text-align: left; }
   .tr-setup__grid { grid-template-columns: repeat(2, 1fr); }
   .tr-field--wide { grid-column: span 2; }
   .tr-field--narrow { grid-column: span 1; }

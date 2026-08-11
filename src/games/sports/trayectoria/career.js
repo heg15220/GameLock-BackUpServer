@@ -167,29 +167,49 @@ export function eventContext(run) {
 }
 
 /**
- * Open the next decision: one card, plus an injury if this is the year it happens.
+ * Draw one card for a given slot of the step.
  *
  * A long career in `intensa` can outlast the catalogue, and state-dependent weights can
  * empty the pool on their own. Rather than end the game early we relax the blocklist a
  * rung at a time - first the personal budget, then repeats - so the last seasons still
  * ask you something.
  */
-function openStep(run) {
+function drawFor(run, slot) {
   const context = eventContext(run);
-  const event =
-    drawEvent(run.state.seed, run.step, blockedEventIds(run), context) ??
-    drawEvent(run.state.seed, run.step, run.usedEventIds, context) ??
-    drawEvent(run.state.seed, run.step, [], context) ??
+  return (
+    drawEvent(run.state.seed, run.step, blockedEventIds(run), context, slot) ??
+    drawEvent(run.state.seed, run.step, run.usedEventIds, context, slot) ??
+    drawEvent(run.state.seed, run.step, [], context, slot) ??
     // Last resort: ignore the weights entirely. Reachable only if every card in the
     // catalogue gated itself out, which the fixed-weight cards make unlikely - but a
     // career must always have something to ask.
-    EVENTS[Math.floor(createStream(run.state.seed, "event", "fallback", run.step)() * EVENTS.length)];
+    EVENTS[
+      Math.floor(
+        createStream(run.state.seed, "event", "fallback", run.step, slot)() * EVENTS.length,
+      )
+    ]
+  );
+}
+
+/**
+ * Open the next decision, plus an injury if this is the year it happens.
+ *
+ * The step owes as many cards as it covers seasons (see CAREER_MODES). They are dealt one
+ * at a time rather than up front, because what the next card is allowed to be depends on
+ * what you have just been asked: the blocklist reads `usedEventIds`, the personal budget
+ * and the personal cooldown, and all three move as each card is answered. Drawing three
+ * at once would let a step hand you two personal cards in a row, which is the one thing
+ * the cooldown exists to prevent.
+ */
+function openStep(run) {
   const injury =
     run.injuries.length < MAX_INJURIES ? drawInjury(run.state.seed, run.step) : null;
   return {
     ...run,
     phase: PHASES.EVENT,
-    event,
+    event: drawFor(run, 0),
+    // How many more this step still owes after the one on screen.
+    eventsLeft: Math.max(0, (modeOf(run.state.mode).eventsPerStep ?? 1) - 1),
     injury,
     seasonResults: [],
     matchday: null,
@@ -396,18 +416,33 @@ export function resolveEvent(run, optionId, locale = "es") {
   // market. It is kept as its own flag rather than folded into `clubWantsOut`, which
   // simulateSeason recomputes from the bench streaks and would therefore forget.
 
-  return openMatchday(
-    {
-      ...run,
-      state,
-      usedEventIds: [...run.usedEventIds, event.id],
-      personalEventsSeen: run.personalEventsSeen + (event.theme === "personal" ? 1 : 0),
-      lastPersonalStep: event.theme === "personal" ? run.step : run.lastPersonalStep,
-      injuries: run.injury ? [...run.injuries, { ...run.injury, step: run.step }] : run.injuries,
-      lastChoice: { eventId: event.id, optionId, outcome },
-    },
-    locale,
-  );
+  const answered = {
+    ...run,
+    state,
+    usedEventIds: [...run.usedEventIds, event.id],
+    personalEventsSeen: run.personalEventsSeen + (event.theme === "personal" ? 1 : 0),
+    lastPersonalStep: event.theme === "personal" ? run.step : run.lastPersonalStep,
+    injuries: run.injury ? [...run.injuries, { ...run.injury, step: run.step }] : run.injuries,
+    // Applied above, alongside the first answer of the step. It is one injury per step,
+    // not one per card, so it is cleared as soon as it has landed.
+    injury: null,
+    lastChoice: { eventId: event.id, optionId, outcome },
+  };
+
+  // The step is not over until it has asked everything it owes. The next card is drawn
+  // now rather than earlier, so it can see what this one just did.
+  const left = run.eventsLeft ?? 0;
+  if (left > 0) {
+    const perStep = modeOf(run.state.mode).eventsPerStep ?? 1;
+    return {
+      ...answered,
+      phase: PHASES.EVENT,
+      event: drawFor(answered, perStep - left),
+      eventsLeft: left - 1,
+    };
+  }
+
+  return openMatchday({ ...answered, eventsLeft: 0 }, locale);
 }
 
 /* ── The three matches ────────────────────────────────────────────────────── */
@@ -480,6 +515,9 @@ function shotAt(run, fixtures, index) {
     delta,
     role: run.state.lastRole,
     shotType: shot.type,
+    // A night worth no sight of goal is watched whatever the roll would have said; there
+    // is no moment to hand him. See modeFor.
+    chances: fixture.chances ?? 1,
   });
 
   return {
@@ -571,6 +609,10 @@ function playSeason(run, plan, matchResults, locale) {
     abroad: Boolean(competition && competition.country_fifa_code !== state.country),
     debut: state.seasonsAtClub === 0,
     wagePressure: pressure,
+    // What the decisions of this step were worth to this stand. `state` is still the
+    // pre-season one here, so the modifiers the cards wrote are readable; simulateSeason
+    // has already cleared them on its way out.
+    fromEvents: state.modifiers?.idolatry ?? 0,
   });
   const after = applyIdolatry(before, gained, {
     wonTitleHere,

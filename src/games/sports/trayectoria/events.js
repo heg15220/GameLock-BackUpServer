@@ -23,6 +23,11 @@
  *   wageFactor      multiply the running contract's wage - and with it what the crowd expects
  *   yearsDelta      add or remove years from the running contract
  *   clauseFactor    multiply the buy-out, which is how many clubs come looking next summer
+ *   idolatry        move this club's stand directly, in the units idolatry.js counts in
+ *
+ * That last one is what the fourth family below spends. Until it existed every card had to
+ * pay in OVR, minutes or trophy odds, so a card about what you SAID had to pretend saying
+ * it made you a worse footballer. It does not. It costs you the stand, and now it can.
  */
 
 import { chance, createStream } from "./rng.js";
@@ -39,6 +44,12 @@ export const EVENT_THEMES = [
   "directiva",
   /** The dressing room: the only place in the game with other players in it. */
   "vestuario",
+  /**
+   * The press room. The one family where the question is what you SAY, not what you do -
+   * so it almost never moves the football. It moves who is on your side: the stand, the
+   * dressing room, the man who picks the eleven. See the `idolatry` effect.
+   */
+  "prensa",
 ];
 
 /**
@@ -1322,6 +1333,693 @@ export const EVENTS = [
         : { effects: {}, outcome: "sent" };
     },
   },
+
+  /* ── The press room ─────────────────────────────────────────────────────────
+     A fourth family, and the first one where the question is what you say.
+
+     Every card above this line asks what you do, and pays in the currency of doing:
+     rating, minutes, trophy odds. Saying something costs none of those, which is
+     why the two press-shaped cards the game already had (`microfono-abierto`, `la
+     portada`) both had to charge you minutes for a sentence - the only lever that
+     existed. These charge the stand instead, and that changes what the family is
+     for: not "did that make you better" but "who is on your side in March".
+
+     A scale to read the numbers by: an ordinary season at a club is worth about
+     +2.2 idolatría, a trophy you played for +9, and the rungs sit at 25/50/75/95.
+     So ±5 here is two seasons of quiet service, spent or earned in one sentence.
+
+     The weights in this family are deliberately above the catalogue's average -
+     roughly 1.7x what a comparable card elsewhere carries. Ten cards out of sixty-six
+     drawn at par is one press conference every five seasons, which is not what a
+     footballer's life looks like and is not enough to make the family readable as a
+     family. At these weights it is about three in ten of the cards a career is dealt.
+     If that ever feels like too much, this paragraph is the knob.                    */
+
+  {
+    id: "rueda-de-presentacion",
+    // Only ever on arrival, and it matters more the bigger the room.
+    weight: (c) => (c.seasonsAtClub > 0 ? 0 : c.clubReputation >= 3 ? 250 : 185),
+    theme: "prensa",
+    /*
+     * The one card in the family that has to be worth nothing on average, and it is the
+     * gate that says why: it is the only press card keyed to ARRIVING somewhere. A career
+     * that signs for a new club every summer sees it every summer, so any positive
+     * expectation here is a standing bonus for touring - which is the exact thesis
+     * idolatría exists to push back on. `career.test.js` caught it paying a tourer 95
+     * against his own loyal twin's 80.
+     *
+     * So the promise is a true coin: +6 or -6. You can buy a stand's goodwill on day one,
+     * and you can lose the same amount, and doing it eight times in a career earns you
+     * nothing. What actually accrues is being there, which is the point.
+     */
+    es: {
+      title: "El día de la presentación",
+      body: "Camiseta en la mano, cincuenta fotógrafos y la primera pregunta: ¿a qué vienes exactamente?",
+      options: [
+        { id: "promise", label: "Prometer títulos", detail: "50% +6 idolatría · 50% −6 idolatría" },
+        { id: "measured", label: "Ir con pies de plomo", detail: "+2 idolatría" },
+        { id: "group", label: "Hablar del grupo", detail: "+1 idolatría · ×1,1 en títulos" },
+      ],
+    },
+    en: {
+      title: "Presentation day",
+      body: "Shirt in hand, fifty photographers, and the first question: what exactly have you come here to do?",
+      options: [
+        { id: "promise", label: "Promise trophies", detail: "50% +6 idolatry · 50% −6 idolatry" },
+        { id: "measured", label: "Keep your feet down", detail: "+2 idolatry" },
+        { id: "group", label: "Talk about the group", detail: "+1 idolatry · ×1.1 on trophies" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "promise") {
+        return chance(next, 0.5)
+          ? { effects: { idolatry: 6 }, outcome: "landed" }
+          : { effects: { idolatry: -6 }, outcome: "hollow" };
+      }
+      if (option === "group") {
+        return { effects: { idolatry: 1, titleMultiplier: { all: 1.1 } }, outcome: "group" };
+      }
+      return { effects: { idolatry: 2 }, outcome: "measured" };
+    },
+  },
+  {
+    id: "preguntan-por-el-rival",
+    // The shadow is only worth a question once both of you are worth asking about.
+    weight: (c) => (c.ovr >= 68 ? 170 : 50),
+    theme: "prensa",
+    es: {
+      title: "Te preguntan por él",
+      body: "Lleváis media carrera comparados en la misma frase. Hoy alguien te pide, delante de todos, que digas cuál de los dos es mejor.",
+      options: [
+        { id: "praise", label: "\"Ahora mismo, él\"", detail: "+4 idolatría" },
+        { id: "compete", label: "\"Voy a por él\"", detail: "50% +6 idolatría · 50% −4 idolatría" },
+        { id: "deflect", label: "\"Yo no juego contra él\"", detail: "+1 idolatría" },
+      ],
+    },
+    en: {
+      title: "They ask about him",
+      body: "You have spent half a career inside the same sentence. Today somebody asks you, in front of everyone, to say which of you is better.",
+      options: [
+        { id: "praise", label: "\"Right now, him\"", detail: "+4 idolatry" },
+        { id: "compete", label: "\"I am coming for him\"", detail: "50% +6 idolatry · 50% −4 idolatry" },
+        { id: "deflect", label: "\"I do not play against him\"", detail: "+1 idolatry" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "compete") {
+        return chance(next, 0.5)
+          ? { effects: { idolatry: 6 }, outcome: "backed" }
+          : { effects: { idolatry: -4 }, outcome: "arrogant" };
+      }
+      if (option === "praise") return { effects: { idolatry: 4 }, outcome: "honest" };
+      return { effects: { idolatry: 1 }, outcome: "deflected" };
+    },
+  },
+  {
+    id: "preguntan-por-el-entrenador",
+    weight: (c) => (c.role === "suplente" || c.role === "rotacion_baja" ? 205 : 120),
+    theme: "prensa",
+    es: {
+      title: "¿Sigue siendo el hombre adecuado?",
+      body: "Cuatro derrotas seguidas. La pregunta no es sobre ti, y por eso es la más peligrosa de la sala: cualquier cosa que digas la va a leer él.",
+      options: [
+        { id: "back", label: "Cerrar filas", detail: "+1 idolatría · ×1,2 en títulos" },
+        { id: "honest", label: "Decir lo que piensas", detail: "+5 idolatría · bajas un escalón" },
+        { id: "nothing", label: "No entrar", detail: "Sin efecto" },
+      ],
+    },
+    en: {
+      title: "Is he still the right man?",
+      body: "Four defeats running. The question is not about you, which is what makes it the most dangerous one in the room: whatever you say, he reads it.",
+      options: [
+        { id: "back", label: "Close ranks", detail: "+1 idolatry · ×1.2 on trophies" },
+        { id: "honest", label: "Say what you think", detail: "+5 idolatry · one rung down" },
+        { id: "nothing", label: "Stay out of it", detail: "No effect" },
+      ],
+    },
+    resolve(_next, option) {
+      if (option === "back") {
+        return { effects: { idolatry: 1, titleMultiplier: { all: 1.2 } }, outcome: "backed" };
+      }
+      if (option === "honest") {
+        return { effects: { idolatry: 5, roleShift: -1 }, outcome: "honest" };
+      }
+      return { effects: {}, outcome: "quiet" };
+    },
+  },
+  {
+    id: "la-pregunta-por-el-companero",
+    weight: 155,
+    theme: "prensa",
+    es: {
+      title: "La pregunta por el compañero",
+      body: "Te preguntan si es verdad que el capitán ya ha firmado con otro. Lo es, te lo contó él en el autobús, y en la sala lo sabe todo el mundo menos los que escriben.",
+      options: [
+        { id: "loyal", label: "Tragar y callar", detail: "×1,15 en títulos" },
+        { id: "tell", label: "Confirmarlo", detail: "+4 idolatría · ×0,9 en títulos" },
+        { id: "joke", label: "Salir por la tangente", detail: "+1 idolatría" },
+      ],
+    },
+    en: {
+      title: "The question about a team-mate",
+      body: "They ask whether the captain has already signed elsewhere. He has — he told you on the bus — and everyone in the room knows it except the people writing it down.",
+      options: [
+        { id: "loyal", label: "Swallow it", detail: "×1.15 on trophies" },
+        { id: "tell", label: "Confirm it", detail: "+4 idolatry · ×0.9 on trophies" },
+        { id: "joke", label: "Laugh it off", detail: "+1 idolatry" },
+      ],
+    },
+    resolve(_next, option) {
+      if (option === "tell") {
+        return { effects: { idolatry: 4, titleMultiplier: { all: 0.9 } }, outcome: "told" };
+      }
+      if (option === "loyal") {
+        return { effects: { titleMultiplier: { all: 1.15 } }, outcome: "loyal" };
+      }
+      return { effects: { idolatry: 1 }, outcome: "dodged" };
+    },
+  },
+  {
+    id: "preguntan-por-tu-futuro",
+    // There has to be a deal to be asked about, and somebody who would actually come.
+    weight: (c) => (c.contractYearsLeft > 0 ? (c.ovr >= 72 && c.seasonsAtClub >= 2 ? 205 : 60) : 0),
+    theme: "prensa",
+    es: {
+      title: "¿Te vas en junio?",
+      body: "Queda un año de contrato y en la sala hay tres periodistas que ya han escrito que te vas. Te lo preguntan de frente para poder titular con tu cara.",
+      options: [
+        { id: "commit", label: "\"Me quedo\"", detail: "+7 idolatría · cláusula ×0,9" },
+        { id: "open", label: "\"Escucharé lo que llegue\"", detail: "−5 idolatría · cláusula ×1,2" },
+        { id: "dodge", label: "\"Eso lo lleva mi agente\"", detail: "−2 idolatría" },
+      ],
+    },
+    en: {
+      title: "Are you leaving in June?",
+      body: "A year left on the deal, and three of the reporters in the room have already written that you are going. They ask you straight so they can run it with your face on it.",
+      options: [
+        { id: "commit", label: "\"I am staying\"", detail: "+7 idolatry · buy-out ×0.9" },
+        { id: "open", label: "\"I will listen\"", detail: "−5 idolatry · buy-out ×1.2" },
+        { id: "dodge", label: "\"My agent handles that\"", detail: "−2 idolatry" },
+      ],
+    },
+    resolve(_next, option) {
+      if (option === "commit") {
+        return { effects: { idolatry: 7, clauseFactor: 0.9 }, outcome: "stayed" };
+      }
+      if (option === "open") {
+        return { effects: { idolatry: -5, clauseFactor: 1.2 }, outcome: "open" };
+      }
+      return { effects: { idolatry: -2 }, outcome: "dodged" };
+    },
+  },
+  {
+    id: "la-grada-silbo",
+    weight: (c) => (c.idolatry < 45 ? 185 : 95),
+    theme: "prensa",
+    es: {
+      title: "El campo silbó",
+      body: "Se fueron pitando al descanso y ahora quieren que digas si te pareció justo. Tu respuesta llega a la grada antes que a los periódicos.",
+      options: [
+        { id: "defend", label: "Darles la razón", detail: "+5 idolatría" },
+        { id: "challenge", label: "Pedirles que empujen", detail: "50% +6 idolatría · 50% −7 idolatría" },
+        { id: "neutral", label: "No mojarte", detail: "−1 idolatría" },
+      ],
+    },
+    en: {
+      title: "The ground whistled",
+      body: "They booed the side off at half time, and now they want to know whether you thought it was fair. Your answer reaches the stand before it reaches the papers.",
+      options: [
+        { id: "defend", label: "Say they were right", detail: "+5 idolatry" },
+        { id: "challenge", label: "Ask them to push", detail: "50% +6 idolatry · 50% −7 idolatry" },
+        { id: "neutral", label: "Stay off it", detail: "−1 idolatry" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "challenge") {
+        return chance(next, 0.5)
+          ? { effects: { idolatry: 6 }, outcome: "rallied" }
+          : { effects: { idolatry: -7 }, outcome: "backfired" };
+      }
+      if (option === "defend") return { effects: { idolatry: 5 }, outcome: "defended" };
+      return { effects: { idolatry: -1 }, outcome: "neutral" };
+    },
+  },
+  {
+    id: "el-arbitro-de-ayer",
+    weight: 160,
+    theme: "prensa",
+    es: {
+      title: "Te preguntan por el árbitro",
+      body: "La jugada se ha visto cuatrocientas veces desde ocho ángulos y todos dicen lo mismo. Nadie de la sala te va a defender si contestas lo que estás pensando.",
+      options: [
+        { id: "explode", label: "Decirlo todo", detail: "+4 idolatría · 40% −4 partidos" },
+        { id: "measured", label: "Contestar medido", detail: "+1 idolatría" },
+        { id: "refuse", label: "\"No hablo de árbitros\"", detail: "Sin efecto" },
+      ],
+    },
+    en: {
+      title: "They ask about the referee",
+      body: "The incident has been shown four hundred times from eight angles and they all say the same thing. Nobody in the room will defend you if you answer what you are actually thinking.",
+      options: [
+        { id: "explode", label: "Say all of it", detail: "+4 idolatry · 40% −4 matches" },
+        { id: "measured", label: "Answer carefully", detail: "+1 idolatry" },
+        { id: "refuse", label: "\"I do not discuss referees\"", detail: "No effect" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "explode") {
+        return chance(next, 0.4)
+          ? { effects: { idolatry: 4, matchesDelta: -4 }, outcome: "banned" }
+          : { effects: { idolatry: 4 }, outcome: "unpunished" };
+      }
+      if (option === "measured") return { effects: { idolatry: 1 }, outcome: "measured" };
+      return { effects: {}, outcome: "refused" };
+    },
+  },
+  {
+    id: "la-frase-que-no-dijiste",
+    weight: (c) => (c.ovr >= 70 ? 155 : 70),
+    theme: "prensa",
+    es: {
+      title: "La frase que no dijiste",
+      body: "La portada te atribuye algo que no has dicho. La grabación existe y te da la razón. Publicarla deja en evidencia a quien te la ha hecho, y ese vuelve mañana.",
+      options: [
+        { id: "deny", label: "Sacar la grabación", detail: "+2 idolatría" },
+        { id: "own", label: "Asumirla como tuya", detail: "+6 idolatría · bajas un escalón" },
+        { id: "ignore", label: "Dejarlo pasar", detail: "Sin efecto" },
+      ],
+    },
+    en: {
+      title: "The quote you never gave",
+      body: "The front page has you saying something you did not say. The recording exists and it backs you. Publishing it humiliates the man who wrote it, and he is back tomorrow.",
+      options: [
+        { id: "deny", label: "Release the recording", detail: "+2 idolatry" },
+        { id: "own", label: "Own it anyway", detail: "+6 idolatry · one rung down" },
+        { id: "ignore", label: "Let it go", detail: "No effect" },
+      ],
+    },
+    resolve(_next, option) {
+      if (option === "own") return { effects: { idolatry: 6, roleShift: -1 }, outcome: "owned" };
+      if (option === "deny") return { effects: { idolatry: 2 }, outcome: "denied" };
+      return { effects: {}, outcome: "ignored" };
+    },
+  },
+  {
+    id: "preguntan-por-la-seleccion",
+    weight: (c) => (c.ovr >= 74 ? 185 : 45),
+    theme: "prensa",
+    es: {
+      title: "¿Mereces ir?",
+      body: "La lista sale el jueves y tú no has estado nunca. Te preguntan, con el micrófono a un palmo, si crees que te la has ganado.",
+      options: [
+        { id: "claim", label: "\"Sí\"", detail: "50% convocatoria segura · 50% −4 idolatría" },
+        { id: "humble", label: "\"Eso lo decide él\"", detail: "+2 idolatría" },
+        { id: "club", label: "\"Solo pienso en el club\"", detail: "+4 idolatría" },
+      ],
+    },
+    en: {
+      title: "Do you deserve it?",
+      body: "The squad is named on Thursday and you have never been in it. They ask you, microphone a hand away, whether you think you have earned it.",
+      options: [
+        { id: "claim", label: "\"Yes\"", detail: "50% call-up guaranteed · 50% −4 idolatry" },
+        { id: "humble", label: "\"That is his call\"", detail: "+2 idolatry" },
+        { id: "club", label: "\"I only think about the club\"", detail: "+4 idolatry" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "claim") {
+        return chance(next, 0.5)
+          ? { effects: { forceCallup: true }, outcome: "called" }
+          : { effects: { idolatry: -4 }, outcome: "arrogant" };
+      }
+      if (option === "club") return { effects: { idolatry: 4 }, outcome: "club" };
+      return { effects: { idolatry: 2 }, outcome: "humble" };
+    },
+  },
+  {
+    id: "el-nino-de-la-ultima-fila",
+    weight: 135,
+    theme: "prensa",
+    es: {
+      title: "La última pregunta",
+      body: "El jefe de prensa da por terminada la rueda y desde el fondo insiste un crío con una acreditación de la radio del colegio. Nadie más va a esperar.",
+      options: [
+        { id: "time", label: "Sentarte otra vez", detail: "+5 idolatría · −1 partido" },
+        { id: "brief", label: "Contestarle de pie", detail: "+1 idolatría" },
+        { id: "skip", label: "Salir de la sala", detail: "−4 idolatría" },
+      ],
+    },
+    en: {
+      title: "The last question",
+      body: "The press officer calls it a wrap and a kid at the back with a school-radio pass keeps his hand up. Nobody else is going to wait.",
+      options: [
+        { id: "time", label: "Sit back down", detail: "+5 idolatry · −1 match" },
+        { id: "brief", label: "Answer on your feet", detail: "+1 idolatry" },
+        { id: "skip", label: "Walk out", detail: "−4 idolatry" },
+      ],
+    },
+    resolve(_next, option) {
+      if (option === "time") {
+        return { effects: { idolatry: 5, matchesDelta: -1 }, outcome: "sat" };
+      }
+      if (option === "brief") return { effects: { idolatry: 1 }, outcome: "brief" };
+      return { effects: { idolatry: -4 }, outcome: "left" };
+    },
+  },
+
+  /* ── More of the four families ──────────────────────────────────────────────
+     Filling the thin themes. `moral` had three cards in a twenty-four-year career,
+     which meant the family that carries the game's argument almost never came up. */
+
+  {
+    id: "la-gira-de-pretemporada",
+    weight: (c) => (c.clubReputation >= 3 ? 110 : 45),
+    theme: "sport",
+    es: {
+      title: "La gira",
+      body: "Doce días, cuatro husos horarios y tres amistosos que no decide nadie. El club vende camisetas; tú pierdes la pretemporada entera.",
+      options: [
+        { id: "go", label: "Ir y jugarlo todo", detail: "+6 idolatría · 50% −2 OVR" },
+        { id: "minutes", label: "Ir y dosificarte", detail: "+2 idolatría" },
+        { id: "stay", label: "Quedarte a entrenar", detail: "70% +3 OVR (temporal) · −4 idolatría" },
+      ],
+    },
+    en: {
+      title: "The tour",
+      body: "Twelve days, four time zones and three friendlies that settle nothing. The club sells shirts; you lose the whole pre-season.",
+      options: [
+        { id: "go", label: "Go and play it all", detail: "+6 idolatry · 50% −2 OVR" },
+        { id: "minutes", label: "Go and ration yourself", detail: "+2 idolatry" },
+        { id: "stay", label: "Stay and train", detail: "70% +3 OVR (temporary) · −4 idolatry" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "go") {
+        return chance(next, 0.5)
+          ? { effects: { idolatry: 6, ovr: -2 }, outcome: "worn" }
+          : { effects: { idolatry: 6 }, outcome: "toured" };
+      }
+      if (option === "stay") {
+        return chance(next, 0.7)
+          ? { effects: { ovrTemp: 3, idolatry: -4 }, outcome: "sharp" }
+          : { effects: { idolatry: -4 }, outcome: "wasted" };
+      }
+      return { effects: { idolatry: 2 }, outcome: "rationed" };
+    },
+  },
+  {
+    id: "el-cambio-de-sistema",
+    weight: (c) => (c.role === "titular" ? 110 : 60),
+    theme: "tactic",
+    es: {
+      title: "El sistema nuevo",
+      body: "El entrenador cambia de dibujo en enero. En el nuevo hay un puesto menos, y el que sobra es exactamente el tuyo.",
+      options: [
+        { id: "adapt", label: "Aprender el puesto nuevo", detail: "60% +2 OVR · 40% −3 partidos" },
+        { id: "fight", label: "Pelear por el tuyo", detail: "50% subes un escalón · 50% bajas uno" },
+        { id: "wait", label: "Esperar a que se le pase", detail: "Sin efecto" },
+      ],
+    },
+    en: {
+      title: "The new shape",
+      body: "The manager changes formation in January. The new one has a place fewer in it, and the place it is missing is exactly yours.",
+      options: [
+        { id: "adapt", label: "Learn the new role", detail: "60% +2 OVR · 40% −3 matches" },
+        { id: "fight", label: "Fight for your own", detail: "50% one rung up · 50% one rung down" },
+        { id: "wait", label: "Wait for it to pass", detail: "No effect" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "adapt") {
+        return chance(next, 0.6)
+          ? { effects: { ovr: 2 }, outcome: "adapted" }
+          : { effects: { matchesDelta: -3 }, outcome: "lost" };
+      }
+      if (option === "fight") {
+        return chance(next, 0.5)
+          ? { effects: { roleShift: 1 }, outcome: "won" }
+          : { effects: { roleShift: -1 }, outcome: "lost" };
+      }
+      return { effects: {}, outcome: "waited" };
+    },
+  },
+  {
+    id: "marcar-al-mejor",
+    weight: 90,
+    theme: "tactic",
+    es: {
+      title: "El encargo",
+      body: "El míster te aparta el viernes: el domingo no juegas tu partido, juegas el de otro. Si sale bien no lo verá nadie, y si sale mal lo verá todo el mundo.",
+      options: [
+        { id: "accept", label: "Aceptar el encargo", detail: "×1,25 en títulos · −2 idolatría" },
+        { id: "refuse", label: "Decirle que no eres eso", detail: "Bajas un escalón · +2 idolatría" },
+      ],
+    },
+    en: {
+      title: "The job",
+      body: "The manager pulls you aside on Friday: on Sunday you are not playing your game, you are playing somebody else's. If it works nobody sees it, and if it fails everybody does.",
+      options: [
+        { id: "accept", label: "Take the job", detail: "×1.25 on trophies · −2 idolatry" },
+        { id: "refuse", label: "Tell him that is not you", detail: "One rung down · +2 idolatry" },
+      ],
+    },
+    resolve(_next, option) {
+      if (option === "accept") {
+        return { effects: { titleMultiplier: { all: 1.25 }, idolatry: -2 }, outcome: "accepted" };
+      }
+      return { effects: { roleShift: -1, idolatry: 2 }, outcome: "refused" };
+    },
+  },
+  {
+    id: "el-brazalete",
+    weight: (c) => (c.seasonsAtClub >= 3 && c.idolatry >= 45 ? 130 : 0),
+    theme: "vestuario",
+    es: {
+      title: "El brazalete",
+      body: "Se fue el capitán y el vestuario ha votado. No es un premio: es hablar tú cuando las cosas van mal y dar la cara por decisiones que no has tomado.",
+      options: [
+        { id: "take", label: "Aceptarlo", detail: "+8 idolatría · ×1,1 en títulos · −1 OVR" },
+        { id: "refuse", label: "Que lo lleve otro", detail: "−3 idolatría" },
+      ],
+    },
+    en: {
+      title: "The armband",
+      body: "The captain has gone and the dressing room has voted. It is not a prize: it is you speaking when things go badly, and fronting up for decisions you did not take.",
+      options: [
+        { id: "take", label: "Take it", detail: "+8 idolatry · ×1.1 on trophies · −1 OVR" },
+        { id: "refuse", label: "Let somebody else", detail: "−3 idolatry" },
+      ],
+    },
+    resolve(_next, option) {
+      if (option === "take") {
+        return {
+          effects: { idolatry: 8, titleMultiplier: { all: 1.1 }, ovr: -1 },
+          outcome: "captain",
+        };
+      }
+      return { effects: { idolatry: -3 }, outcome: "refused" };
+    },
+  },
+  {
+    id: "el-fichaje-estrella",
+    // Deliberately not `competencia-por-el-puesto`, which is the same premise as a coin
+    // flip with no decision in it. That card is a signing you compete with; this one is a
+    // signing you cannot compete with, because what he cost has already decided it.
+    weight: (c) => (c.clubReputation >= 3 ? 115 : 45),
+    theme: "vestuario",
+    es: {
+      title: "El fichaje estrella",
+      body: "Cobra cuatro veces lo que tú y lo presentaron en el palco con la bufanda. Nadie ha dicho que juegue por ti, pero un club no paga eso para sentarlo.",
+      options: [
+        { id: "compete", label: "Ganártelo en el campo", detail: "55% subes un escalón · 45% bajas uno" },
+        { id: "help", label: "Ayudarle a instalarse", detail: "+4 idolatría · ×1,15 en títulos" },
+        { id: "force", label: "Pedir salir", detail: "Fuerza el traspaso · −6 idolatría" },
+      ],
+    },
+    en: {
+      title: "The marquee signing",
+      body: "He earns four times what you do and they presented him from the directors' box holding the scarf. Nobody has said he plays instead of you, but a club does not pay that to sit him down.",
+      options: [
+        { id: "compete", label: "Beat him on the pitch", detail: "55% one rung up · 45% one rung down" },
+        { id: "help", label: "Help him settle", detail: "+4 idolatry · ×1.15 on trophies" },
+        { id: "force", label: "Ask to leave", detail: "Forces the transfer · −6 idolatry" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "compete") {
+        return chance(next, 0.55)
+          ? { effects: { roleShift: 1 }, outcome: "won" }
+          : { effects: { roleShift: -1 }, outcome: "lost" };
+      }
+      if (option === "help") {
+        return { effects: { idolatry: 4, titleMultiplier: { all: 1.15 } }, outcome: "helped" };
+      }
+      return { effects: { forceTransfer: true, idolatry: -6 }, outcome: "out" };
+    },
+  },
+  {
+    id: "la-cena-del-presidente",
+    weight: (c) => (c.contractYearsLeft > 0 ? 85 : 30),
+    theme: "directiva",
+    es: {
+      title: "La cena",
+      body: "El presidente te invita a cenar sin el agente y sin el entrenador. A los postres saca una servilleta y te pide que le firmes dos años más ahí mismo.",
+      options: [
+        { id: "sign", label: "Firmar en la servilleta", detail: "+2 años · ficha ×0,9 · +5 idolatría" },
+        { id: "wait", label: "\"Que lo vea mi agente\"", detail: "−2 idolatría" },
+        { id: "push", label: "Pedir más y ahora", detail: "45% ficha ×1,4 · 55% −5 idolatría" },
+      ],
+    },
+    en: {
+      title: "The dinner",
+      body: "The president invites you to dinner without your agent and without the manager. Over dessert he produces a napkin and asks you to sign two more years on it.",
+      options: [
+        { id: "sign", label: "Sign the napkin", detail: "+2 years · wage ×0.9 · +5 idolatry" },
+        { id: "wait", label: "\"My agent should see it\"", detail: "−2 idolatry" },
+        { id: "push", label: "Ask for more, now", detail: "45% wage ×1.4 · 55% −5 idolatry" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "sign") {
+        return { effects: { yearsDelta: 2, wageFactor: 0.9, idolatry: 5 }, outcome: "signed" };
+      }
+      if (option === "push") {
+        return chance(next, 0.45)
+          ? { effects: { wageFactor: 1.4 }, outcome: "paid" }
+          : { effects: { idolatry: -5 }, outcome: "greedy" };
+      }
+      return { effects: { idolatry: -2 }, outcome: "waited" };
+    },
+  },
+  {
+    id: "la-marca-incomoda",
+    weight: (c) => (c.ovr >= 72 ? 90 : 30),
+    theme: "moral",
+    es: {
+      title: "El contrato de imagen",
+      body: "La marca paga más que tu ficha entera. También es la que salió el mes pasado en un reportaje sobre las fábricas donde cose.",
+      options: [
+        { id: "sign", label: "Firmar", detail: "Ficha ×1,3 · −7 idolatría" },
+        { id: "refuse", label: "Decir que no y decir por qué", detail: "+7 idolatría" },
+        { id: "quiet", label: "Decir que no en privado", detail: "+1 idolatría" },
+      ],
+    },
+    en: {
+      title: "The image deal",
+      body: "The brand pays more than your entire wage. It is also the one that was in a documentary last month about the factories where it sews.",
+      options: [
+        { id: "sign", label: "Sign", detail: "Wage ×1.3 · −7 idolatry" },
+        { id: "refuse", label: "Say no, and say why", detail: "+7 idolatry" },
+        { id: "quiet", label: "Say no quietly", detail: "+1 idolatry" },
+      ],
+    },
+    resolve(_next, option) {
+      if (option === "sign") return { effects: { wageFactor: 1.3, idolatry: -7 }, outcome: "signed" };
+      if (option === "refuse") return { effects: { idolatry: 7 }, outcome: "refused" };
+      return { effects: { idolatry: 1 }, outcome: "quiet" };
+    },
+  },
+  {
+    id: "el-companero-que-no-juega",
+    weight: 85,
+    theme: "moral",
+    es: {
+      title: "El que no juega",
+      body: "Tu compañero de habitación lleva dos años sin entrar en una convocatoria y el club le ha dicho que se busque equipo. Te pide que hables por él con el entrenador.",
+      options: [
+        { id: "speak", label: "Hablar con el entrenador", detail: "+4 idolatría · 45% bajas un escalón" },
+        { id: "money", label: "Ayudarle a colocarse fuera", detail: "+2 idolatría" },
+        { id: "none", label: "No meterte", detail: "Sin efecto" },
+      ],
+    },
+    en: {
+      title: "The one who does not play",
+      body: "Your room-mate has not made a squad in two years and the club have told him to find somewhere else. He asks you to speak to the manager for him.",
+      options: [
+        { id: "speak", label: "Speak to the manager", detail: "+4 idolatry · 45% one rung down" },
+        { id: "money", label: "Help him find a club", detail: "+2 idolatry" },
+        { id: "none", label: "Stay out of it", detail: "No effect" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "speak") {
+        return chance(next, 0.45)
+          ? { effects: { idolatry: 4, roleShift: -1 }, outcome: "cost" }
+          : { effects: { idolatry: 4 }, outcome: "helped" };
+      }
+      if (option === "money") return { effects: { idolatry: 2 }, outcome: "placed" };
+      return { effects: {}, outcome: "none" };
+    },
+  },
+  {
+    id: "el-documental",
+    weight: (c) => (c.ovr >= 75 ? 95 : 25),
+    theme: "story",
+    es: {
+      title: "El documental",
+      body: "Quieren seguirte una temporada entera con cámaras dentro del vestuario. Pagan bien y el montaje final no lo apruebas tú.",
+      options: [
+        { id: "yes", label: "Abrir la puerta", detail: "Ficha ×1,2 · +5 idolatría · ×0,9 en títulos" },
+        { id: "limited", label: "Solo fuera del vestuario", detail: "+2 idolatría" },
+        { id: "no", label: "No", detail: "Sin efecto" },
+      ],
+    },
+    en: {
+      title: "The documentary",
+      body: "They want to follow you for a whole season with cameras inside the dressing room. It pays well and you do not get final cut.",
+      options: [
+        { id: "yes", label: "Open the door", detail: "Wage ×1.2 · +5 idolatry · ×0.9 on trophies" },
+        { id: "limited", label: "Outside the dressing room only", detail: "+2 idolatry" },
+        { id: "no", label: "No", detail: "No effect" },
+      ],
+    },
+    resolve(_next, option) {
+      if (option === "yes") {
+        return {
+          effects: { wageFactor: 1.2, idolatry: 5, titleMultiplier: { all: 0.9 } },
+          outcome: "filmed",
+        };
+      }
+      if (option === "limited") return { effects: { idolatry: 2 }, outcome: "limited" };
+      return { effects: {}, outcome: "refused" };
+    },
+  },
+  {
+    id: "la-racha-sin-marcar",
+    weight: (c) => (c.role === "titular" || c.role === "rotacion_alta" ? 100 : 40),
+    theme: "pressure",
+    es: {
+      title: "Once partidos",
+      body: "Once sin marcar. No estás jugando mal y eso es lo peor: no hay nada que arreglar, solo que entre una.",
+      options: [
+        { id: "penalty", label: "Pedir el próximo penalti", detail: "55% +5 idolatría · 45% −6 idolatría" },
+        { id: "work", label: "Quedarte a rematar solo", detail: "65% +2 OVR · 35% sin efecto" },
+        { id: "pass", label: "Dejar de buscarlo", detail: "×1,15 en títulos · −2 idolatría" },
+      ],
+    },
+    en: {
+      title: "Eleven matches",
+      body: "Eleven without scoring. You are not playing badly, which is the worst part: there is nothing to fix, one just has to go in.",
+      options: [
+        { id: "penalty", label: "Ask for the next penalty", detail: "55% +5 idolatry · 45% −6 idolatry" },
+        { id: "work", label: "Stay behind and finish", detail: "65% +2 OVR · 35% no effect" },
+        { id: "pass", label: "Stop looking for it", detail: "×1.15 on trophies · −2 idolatry" },
+      ],
+    },
+    resolve(next, option) {
+      if (option === "penalty") {
+        return chance(next, 0.55)
+          ? { effects: { idolatry: 5 }, outcome: "scored" }
+          : { effects: { idolatry: -6 }, outcome: "missed" };
+      }
+      if (option === "work") {
+        return chance(next, 0.65)
+          ? { effects: { ovr: 2 }, outcome: "found" }
+          : { effects: {}, outcome: "nothing" };
+      }
+      return { effects: { titleMultiplier: { all: 1.15 }, idolatry: -2 }, outcome: "unselfish" };
+    },
+  },
 ];
 
 export const EVENTS_BY_ID = Object.fromEntries(EVENTS.map((event) => [event.id, event]));
@@ -1353,7 +2051,7 @@ export function weightOf(event, context = {}) {
  * With state-dependent weights the pool can legitimately come out empty - a seventeen
  * year old is not eligible for half the catalogue - so the caller has to handle null.
  */
-export function drawEvent(seed, step, usedIds = [], context = {}) {
+export function drawEvent(seed, step, usedIds = [], context = {}, slot = 0) {
   const pool = EVENTS.filter((event) => !usedIds.includes(event.id)).map((event) => ({
     event,
     weight: weightOf(event, context),
@@ -1361,7 +2059,9 @@ export function drawEvent(seed, step, usedIds = [], context = {}) {
   const total = pool.reduce((sum, entry) => sum + entry.weight, 0);
   if (total <= 0) return null;
 
-  const next = createStream(seed, "event", step);
+  // A step deals as many cards as it covers seasons, so the key carries which one this
+  // is. Without the slot every card in a three-season step would be the same draw.
+  const next = createStream(seed, "event", step, slot);
   let target = next() * total;
   for (const entry of pool) {
     if (entry.weight <= 0) continue;
@@ -1389,6 +2089,9 @@ export function applyEffects(state, effects = {}) {
     modifiers.matchesDelta = (modifiers.matchesDelta ?? 0) + effects.matchesDelta;
   }
   if (effects.roleShift) modifiers.roleShift = (modifiers.roleShift ?? 0) + effects.roleShift;
+  // Banked until the season is folded up, where career.js knows which club's stand this
+  // is and what the football was worth to it. See `seasonIdolatry`.
+  if (effects.idolatry) modifiers.idolatry = (modifiers.idolatry ?? 0) + effects.idolatry;
   if (effects.forceRole) modifiers.forceRole = effects.forceRole;
   if (effects.suspended) modifiers.suspended = true;
   if (effects.forceCallup) modifiers.forceCallup = true;
