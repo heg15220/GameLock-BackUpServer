@@ -466,6 +466,41 @@ export function rollTitle(seed, season, trophy, context) {
 export const seasonLatent = (seed, season) =>
   standardNormal(createStream(seed, "fortune", season));
 
+/**
+ * The two competitions a COUNTRY plays, and where their odds actually live.
+ *
+ * `rollTitle` above reads `TITLE_ODDS`, which is a table of club competitions and has no row
+ * for either of these - a country's chance comes off its own reputation, not off the badge
+ * of whoever pays its striker. Asking that table about a World Cup returns zero, and zero
+ * odds is not a long shot, it is a tournament that cannot be won.
+ *
+ * That is exactly what `settleFinal` was doing when it answered a national final: every one
+ * of them was narrated as a defeat, and then `rollNationalTeam` - which had never been
+ * taught to honour a settled final in the first place - rolled the trophy again at the end
+ * of the season and handed it over in the ceremony. The player watched his country lose 2-3
+ * and lifted the cup ten seconds later.
+ *
+ * So both sides read this, and only this. Same stream, same odds, same answer as the season
+ * would have produced on its own - the club path's rule, applied to the country.
+ */
+export function rollNationalTitle(seed, season, trophy, { country, modifiers = {} } = {}) {
+  if (!country) return false;
+
+  const base =
+    trophy === "world_cup"
+      ? WORLD_CUP_WIN[country.fifa_reputation ?? 0] ?? 0
+      : trophy === "continental_nt"
+        ? CONTINENTAL_WIN[country.continental_reputation ?? 0] ?? 0
+        : 0;
+  // The same key the season uses, so asking early and asking late are the same question.
+  const key = trophy === "world_cup" ? "world-cup" : "continental";
+  const next = createStream(seed, "national", key, season);
+  return chance(next, base * (modifiers.nationalMultipliers?.[trophy] ?? 1));
+}
+
+/** Which trophies belong to the country rather than to the club. */
+export const NATIONAL_TROPHIES = ["world_cup", "continental_nt"];
+
 function rollTitles(seed, season, context) {
   const { club, competition, role, modifiers, latent = 0 } = context;
   const won = [];
@@ -518,51 +553,59 @@ function rollNationalTeam(seed, season, context) {
   const { country, ovr, age, modifiers } = context;
   if (!country || modifiers.suspended) return null;
 
+  const settled = modifiers.settledTitles ?? {};
+  /*
+   * A national final that was played out on screen is proof of a call-up, whichever way it
+   * went. Without this the threshold below could still throw the whole tournament away - a
+   * card that costs him a couple of points on the night is enough - and the player would
+   * have watched his country win a World Cup that never reaches the cabinet.
+   */
+  const played = NATIONAL_TROPHIES.some((trophy) => settled[trophy] !== undefined);
+
   const reputation = country.international_reputation ?? 0;
   const threshold = CALLUP_THRESHOLD[reputation] ?? 99;
   const forced = Boolean(modifiers.forceCallup);
-  if (ovr < threshold && !forced) return null;
+  if (ovr < threshold && !forced && !played) return null;
 
   const result = { calledUp: true, forced, caps: 0, titles: [] };
   const capsStream = createStream(seed, "national", "caps", season);
   result.caps = randInt(capsStream, 4, 12);
 
-  const continentalRep = country.continental_reputation ?? 0;
   const fifaRep = country.fifa_reputation ?? 0;
   // A final the player took is still played out - the shot moved the odds, it did not end
   // the argument. What standing in one does settle is that he got there.
   const decided = modifiers.decidedTrophies ?? [];
   const reached = modifiers.nationalReached ?? [];
-  const oddsOf = (trophy, base) => base * (modifiers.nationalMultipliers?.[trophy] ?? 1);
+
+  /*
+   * A final that was played out on screen has already been answered, and the answer is the
+   * scoreboard the player watched - the same rule `rollTitles` follows for a club cup. This
+   * is the half of it that was missing: the country's two trophies were re-rolled here no
+   * matter what the narration had just shown, so a final lost 2-3 still played the ceremony.
+   */
+  const takes = (trophy) =>
+    settled[trophy] === undefined
+      ? rollNationalTitle(seed, season, trophy, { country, modifiers })
+      : settled[trophy];
+
+  const lift = (trophy) => {
+    result.titles.push({
+      trophy,
+      season,
+      age,
+      earned: true,
+      decidedOnThePitch: decided.includes(trophy),
+    });
+  };
 
   if (CONTINENTAL_CYCLE(age)) {
-    const next = createStream(seed, "national", "continental", season);
-    const odds = oddsOf("continental_nt", CONTINENTAL_WIN[continentalRep] ?? 0);
-    if (chance(next, odds)) {
-      result.titles.push({
-        trophy: "continental_nt",
-        season,
-        age,
-        earned: true,
-        decidedOnThePitch: decided.includes("continental_nt"),
-      });
-    }
+    if (takes("continental_nt")) lift("continental_nt");
   }
   if (WORLD_CUP_CYCLE(age)) {
     const qualify = createStream(seed, "national", "qualify", season);
     if (reached.includes("world_cup") || chance(qualify, WORLD_CUP_QUALIFY[fifaRep] ?? 0)) {
       result.playedWorldCup = true;
-      const next = createStream(seed, "national", "world-cup", season);
-      const odds = oddsOf("world_cup", WORLD_CUP_WIN[fifaRep] ?? 0);
-      if (chance(next, odds)) {
-        result.titles.push({
-          trophy: "world_cup",
-          season,
-          age,
-          earned: true,
-          decidedOnThePitch: decided.includes("world_cup"),
-        });
-      }
+      if (takes("world_cup")) lift("world_cup");
     }
   }
   return result;

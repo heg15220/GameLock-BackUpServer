@@ -1458,16 +1458,21 @@ describe("a final and its trophy", () => {
   };
 
   /*
-   * KNOWN BROKEN, ON PURPOSE. `it.fails` passes while the bug is present and starts
-   * failing the day it is fixed, so the suite stays honest in both directions.
+   * THE OTHER PATH, now closed.
    *
-   * `settleFinal` closes the main route - a final played out and shot at - and the sample
-   * it was written against went from two contradictions in five to none. But at least one
-   * other path reaches a closed final broadcast without passing through it, and on that
-   * path the cup is still rolled apart from the scoreline: measured, a final narrated 0-0
-   * with the cup in the cabinet. The fix is incomplete and this says so.
+   * This was `it.fails` for a while, and the note on it was right: `settleFinal` closed the
+   * main route - a final played out and shot at - but something else was reaching a closed
+   * final broadcast without ever being told what the night had decided, and on that path the
+   * cup was still rolled apart from the scoreline. The measurement quoted here was a final
+   * narrated 0-0 with the cup in the cabinet.
+   *
+   * It was `watchMatch`, on a fixture worth no sight of goal. Those settle themselves the
+   * moment they open, one step ahead of the screen, so by the time the broadcast is built
+   * `matchday.last` is set and the `settleIfUntouched` inside `watchMatch` returns without
+   * doing anything - leaving the feed to be written by a `narrateFinish` call that was
+   * passed neither the answer nor the right to break a tie. Both are handed to it now.
    */
-  it.fails("never lifts a cup it just lost on the scoreboard", () => {
+  it("never lifts a cup it just lost on the scoreboard", () => {
     const finals = [];
     for (let i = 0; i < 30; i += 1) finals.push(...finalsOf(`cupfinal-${i}`, i % 2 === 0));
     expect(finals.length, "no cup final was ever narrated").toBeGreaterThan(0);
@@ -1476,13 +1481,13 @@ describe("a final and its trophy", () => {
       const score = `${finish.final.home}-${finish.final.away}`;
       // The one thing that must never happen, in either direction.
       expect(cup, `narrado ${score} y la copa en la vitrina`).toBe(finish.won);
-      /*
-       * NOT YET GUARDED, and it should be: a final can still come out level on the
-       * scoreboard. `settleFinal` breaks the tie wherever it runs, so the remaining draws
-       * are coming from a path that does not reach it. Left un-asserted rather than
-       * asserted-and-skipped so nobody reads this file as saying the case is covered.
-       */
+
+      // And the case the old note left un-asserted: a cup final is never a draw. It is
+      // settled in ninety minutes, late, or from twelve yards.
+      const decided =
+        finish.final.home !== finish.final.away ||
+        finish.beats.some((beat) => beat.id === "shootoutWon" || beat.id === "shootoutLost");
+      expect(decided, `final sin resolver: ${score}`).toBe(true);
     }
   });
-
 });

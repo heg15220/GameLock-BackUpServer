@@ -62,7 +62,9 @@ import {
   developmentOutlook,
   effectiveReputation,
   growthFactor,
+  NATIONAL_TROPHIES,
   roleFor,
+  rollNationalTitle,
   rollTitle,
   seasonLatent,
   simulateSeason,
@@ -854,12 +856,29 @@ function settleFinal(run, fixture, outcome) {
   const trophy = fixture.decides;
   if (!trophy) return null;
 
-  const { club, competition } = standingOf(run);
-  if (!club) return null;
-
   // The same modifiers the season would have rolled this with: the step's plan, the cards
   // it already answered, and what this very night did to the odds.
   const modifiers = withMatchEffects(run.state.modifiers ?? {}, run.matchday.plan ?? {}, [outcome]);
+
+  /*
+   * A World Cup or a continental final belongs to the country, and its odds are not in the
+   * club table at all - see `rollNationalTitle`. Rolled through `rollTitle` it came back
+   * zero every single time, so every national final the player watched was narrated as a
+   * defeat and then contradicted by the ceremony that followed it.
+   */
+  if (NATIONAL_TROPHIES.includes(trophy)) {
+    return {
+      trophy,
+      won: rollNationalTitle(run.state.seed, run.season, trophy, {
+        country: run.world.countries[run.state.country] ?? null,
+        modifiers,
+      }),
+    };
+  }
+
+  const { club, competition } = standingOf(run);
+  if (!club) return null;
+
   const ovr = clampToOvr(run.state.ovr + (modifiers.ovrTemp ?? 0));
   return {
     trophy,
@@ -992,16 +1011,36 @@ export function watchMatch(run, locale = "es") {
     theirName: opponent?.shortName ?? opponent?.name ?? "",
   });
 
-  // `settleIfUntouched` again, not only at the fixture's open: a night worth no sight of
-  // goal has to arrive already decided from every direction, or the clock stops on a
-  // chance that never comes and the screen waits for an input it cannot get. That deadlock
-  // has happened once; it is cheap to make it unreachable.
+  /*
+   * A night worth no sight of goal has to reach full time on its own - the clock cannot stop
+   * on a chance that never comes - and it has to reach it KNOWING WHAT THE NIGHT DECIDED.
+   *
+   * The fixture settled its own trophy when it opened, one step ahead of this: `nextFixture`
+   * runs `settleIfUntouched` before the screen ever asks for a broadcast, so by the time we
+   * get here `matchday.last` is already set and the `settleIfUntouched` below returns without
+   * touching anything. Which left this line as the only thing writing the feed - and it was
+   * writing it blind. No `won`, so the verdict came off a scoreline narration.js had made up;
+   * no `shootout`, so a cup final was allowed to end level.
+   *
+   * That is the whole of the contradiction on a night the ball never came to him: the feed
+   * said 0-1, or 2-2 and nothing, and the ceremony lifted the cup ten seconds later - the two
+   * halves were answering different questions. Now the feed is told the same answer the
+   * cabinet was given, which is the rule everywhere else in this file.
+   */
+  const settled = run.matchday.last?.settledTitle ?? null;
+  const closing = {
+    ...built,
+    finish: narrateFinish(built, [], {
+      won: settled ? settled.won : null,
+      shootout: goesToPenalties(fixture),
+    }),
+  };
+
+  // Still called, for the one order this does not cover: a broadcast opened before the
+  // fixture had settled itself. It writes the same finish from the same answer.
   return settleIfUntouched({
     ...run,
-    matchday: {
-      ...run.matchday,
-      broadcast: owed > 0 ? built : { ...built, finish: narrateFinish(built, []) },
-    },
+    matchday: { ...run.matchday, broadcast: owed > 0 ? built : closing },
   });
 }
 

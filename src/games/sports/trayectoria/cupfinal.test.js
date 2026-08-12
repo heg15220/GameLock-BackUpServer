@@ -36,7 +36,7 @@ import { world } from "./world.js";
  * multipliers `contest()` would have written, so the trophy is rolled exactly as it would
  * be on a real one.
  */
-function atCupFinal(seed = "cupfinal", chances = 1) {
+function careerAtMatch(seed) {
   let run = startCareer(
     { seed, surname: "MOLINA", number: 9, foot: "left", country: "ESP", position: "DC", mode: "intensa" },
     world,
@@ -48,21 +48,28 @@ function atCupFinal(seed = "cupfinal", chances = 1) {
     run = resolveEvent(run, run.event.es.options[0].id);
   }
   expect(run.phase).toBe(PHASES.MATCH);
+  return run;
+}
 
+/** The forced cup final itself, as `contest()` would have stored it. */
+const cupFinalFixture = (base, chances) => ({
+  ...base,
+  id: "forced-final-copa",
+  kind: "final_copa",
+  decides: "cup",
+  national: false,
+  chances,
+  index: 0,
+  // What `contest` stores, scaled against the club's own odds so the engine can keep
+  // rolling the cup the way it rolls everything.
+  settle: { scored: DECIDES.scored, missed: DECIDES.missed, absent: DECIDES.absent },
+});
+
+function atCupFinal(seed = "cupfinal", chances = 1) {
+  const run = careerAtMatch(seed);
   const { fixtures, index, shot } = run.matchday;
   const base = fixtures[index];
-  const only = {
-    ...base,
-    id: "forced-final-copa",
-    kind: "final_copa",
-    decides: "cup",
-    national: false,
-    chances,
-    index: 0,
-    // What `contest` stores, scaled against the club's own odds so the engine can keep
-    // rolling the cup the way it rolls everything.
-    settle: { scored: DECIDES.scored, missed: DECIDES.missed, absent: DECIDES.absent },
-  };
+  const only = cupFinalFixture(base, chances);
 
   return watchMatch(
     {
@@ -164,6 +171,86 @@ describe("a final that his own goal leaves level", () => {
         expect(decided, `final sin resolver tras marcar: ${score}`).toBe(true);
       }
     }
+  });
+});
+
+/**
+ * The final the ball never came to.
+ *
+ * A decider is worth however many sights of goal the draw gave it, and sometimes that is
+ * none: the player is on the pitch for the biggest night of the year and the game simply
+ * goes past him. There is nothing to press, so the fixture settles itself the moment it
+ * opens - and that is the ORDER this exists to pin down. `nextFixture` settles it first and
+ * only then does the screen ask for a broadcast, so by the time `watchMatch` runs the trophy
+ * has already been decided and the feed has to be told the answer rather than invent one.
+ *
+ * It was not being told. Measured over 180 careers, twenty-four narrated finals ended in a
+ * defeat on screen - or level, with no shootout - and were lifted in the ceremony seconds
+ * later, all of them nights he never got a touch in. The cases above cannot see it, because
+ * they hand `watchMatch` a fixture that has not settled yet and so take the other path.
+ */
+describe("a final he never got a touch in", () => {
+  /**
+   * Two fixtures: one to play, and then the final that owes him nothing. Going through
+   * `nextFixture` is the whole point - it is what settles the trophy before the screen ever
+   * opens the broadcast, which is the order the real game runs in.
+   */
+  const atUntouchedFinal = (seed) => {
+    const run = careerAtMatch(seed);
+    const { fixtures, index, shot } = run.matchday;
+    const first = { ...fixtures[index], id: "opener", index: 0, chances: 1, decides: null };
+    const final = { ...cupFinalFixture(fixtures[index], 0), index: 1 };
+
+    let staged = {
+      ...run,
+      matchday: {
+        ...run.matchday,
+        fixtures: [first, final],
+        index: 0,
+        shot: { ...shot, fixtureId: first.id, mode: "skill", chance: null },
+        attempts: [],
+        results: [],
+        last: null,
+        broadcast: null,
+      },
+    };
+    // Play the opener however it goes, then step onto the final.
+    staged = takeShot(
+      { ...staged, matchday: { ...staged.matchday, shot: { ...staged.matchday.shot, mode: "match" } } },
+      shot.options[0],
+    );
+    const onFinal = nextFixture(staged);
+    expect(onFinal.matchday.index).toBe(1);
+    // The fixture arrives already decided, with no broadcast yet: exactly the state the
+    // screen finds it in.
+    expect(onFinal.matchday.last, "a night with no chances must settle itself").toBeTruthy();
+    expect(onFinal.matchday.broadcast).toBeNull();
+    return watchMatch({ ...onFinal, matchday: { ...onFinal.matchday, shot: { ...onFinal.matchday.shot, mode: "match" } } }, "es");
+  };
+
+  it("reaches full time, settled, and agrees with the cabinet", () => {
+    let played = 0;
+    for (let i = 0; i < 30; i += 1) {
+      const run = atUntouchedFinal(`untouched-${i}`);
+      const finish = run.matchday.broadcast?.finish ?? null;
+      expect(finish, "the feed was never written").toBeTruthy();
+      expect(finish.closed, "the feed never reached full time").toBe(true);
+      played += 1;
+
+      // A knockout is settled in ninety minutes, late, or from twelve yards - never drawn.
+      const score = `${finish.final.home}-${finish.final.away}`;
+      const decided =
+        finish.final.home !== finish.final.away ||
+        finish.beats.some((beat) => beat.id === "shootoutWon" || beat.id === "shootoutLost");
+      expect(decided, `final sin resolver: ${score}`).toBe(true);
+
+      // And the verdict is the one the trophy was actually given, not one read off a
+      // scoreline the narration made up.
+      const settled = run.matchday.last?.settledTitle ?? null;
+      expect(settled, "an untouched final still settles its trophy").toBeTruthy();
+      expect(finish.won, `narrado ${score} y copa=${settled.won}`).toBe(settled.won);
+    }
+    expect(played).toBe(30);
   });
 });
 
