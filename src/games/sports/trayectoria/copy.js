@@ -657,6 +657,8 @@ const COPY = {
 
     season: {
       eyebrow: "Temporada",
+      /** Dónde acabó el club. Desde la temporada que viene, también por qué juega Europa. */
+      position: "{at}º en liga",
       matches: "Partidos",
       goals: "Goles",
       assists: "Asistencias",
@@ -1212,6 +1214,8 @@ const COPY = {
 
     season: {
       eyebrow: "Season",
+      /** Where the club finished. From next season, also why it is or is not in Europe. */
+      position: "{at}th in the league",
       matches: "Matches",
       goals: "Goals",
       assists: "Assists",

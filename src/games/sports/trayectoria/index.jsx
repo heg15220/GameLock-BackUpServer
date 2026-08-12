@@ -2174,6 +2174,17 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
         <span className="tr-front__dateline">
           {copy.season.eyebrow} · {copy.common.age} {record.age} ·{" "}
           {competition?.name ?? club?.name ?? ""}
+          {/* Where the club finished. It belongs on the dateline rather than among the
+              player's tallies because it is a fact about the season, not about him - and
+              from next summer it is also the reason he is or is not in Europe. */}
+          {record.position ? (
+            <>
+              {" · "}
+              <b className="tr-front__place">
+                {fillTemplate(copy.season.position, { at: record.position })}
+              </b>
+            </>
+          ) : null}
         </span>
       </header>
 

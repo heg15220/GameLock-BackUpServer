@@ -329,6 +329,59 @@ export function developmentOutlook(state, growth = null) {
   };
 }
 
+/**
+ * Where the club finished.
+ *
+ * THE ONE THING A SEASON NEVER SAID. A record has told us for a long time whether the league
+ * was won, whether the club went up and whether it went down, and nothing in between - so
+ * "finish in the top four" was not a rule the game could evaluate, it was a question about a
+ * number that did not exist. Continental football was therefore drawn from reputation alone,
+ * and a small club that won its league had exactly the same chance of a European campaign as
+ * one that finished last.
+ *
+ * Derived rather than rolled. Everything here already decided the season: the level of the
+ * squad, the player's distance from it, and the latent that makes a club's year hang
+ * together (LOW IS A GOOD YEAR - see fortune.js). Adding a fresh die would let the table
+ * disagree with the trophies it is supposed to explain; reading the same ones means the
+ * position is simply the shape those numbers already had, given a name.
+ *
+ * Three anchors keep it honest, and they are checks on the model rather than decoration:
+ * champions finish first, relegated sides finish in the drop, and a promoted side came up.
+ * Anything that contradicts those is not a table, it is noise with a number on it.
+ */
+export function leaguePosition({
+  club,
+  ovr = 70,
+  delta = 0,
+  latent = 0,
+  wonLeague = false,
+  relegated = false,
+  promoted = false,
+  size = 20,
+}) {
+  if (wonLeague) return 1;
+
+  const reputation = club ? effectiveReputation(club, ovr, "domestic") : 0;
+  // Where a side of this standing finishes in an ordinary year, as a fraction of the table.
+  const EXPECTED = [0.82, 0.66, 0.5, 0.34, 0.18, 0.08];
+  const base = EXPECTED[reputation] ?? 0.5;
+
+  // A player well above the squad drags it up the table, and one well below does not.
+  const lift = Math.max(-0.08, Math.min(0.08, delta / 250));
+  // The club's own year. A whole standard deviation is worth about a fifth of the table.
+  const year = Math.max(-0.22, Math.min(0.22, latent * 0.2));
+
+  const spot = Math.round((base - lift + year) * (size - 1)) + 1;
+  const placed = Math.max(1, Math.min(size, spot));
+
+  // A side that went down finished in the drop, whatever the arithmetic said; one that came
+  // up won its division or was right behind whoever did.
+  if (relegated) return Math.max(size - 2, placed);
+  if (promoted) return Math.min(2, placed);
+  // Only the champion is first.
+  return Math.max(2, placed);
+}
+
 export function matchesFor(next, role, club, ovr) {
   const [min, max] = role.matches;
   const base = randInt(next, min, max);
@@ -855,6 +908,21 @@ export function simulateSeason(state, world, { season }) {
     national,
     promoted,
     relegated,
+    /*
+     * Where the club finished. Derived from the same numbers that decided everything above
+     * it - see `leaguePosition` - so the table cannot contradict the trophies it explains,
+     * and recorded here because the summer after this one has to read it: a Champions League
+     * place is a finishing position, not a reputation.
+     */
+    position: leaguePosition({
+      club,
+      ovr: effectiveOvr,
+      delta,
+      latent,
+      wonLeague: keptTitles.some((title) => title.trophy === "league"),
+      relegated,
+      promoted,
+    }),
     // Which division this was actually played in, which is not always the one on the badge.
     division: { tier: standing.tier, shift: standing.shift, demoted: standing.demoted },
     suspended: Boolean(modifiers.suspended),
