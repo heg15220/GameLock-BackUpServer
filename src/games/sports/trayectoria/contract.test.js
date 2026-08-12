@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  PHASES, acceptOffer, agreeTerms, completeSigning, nextFixture, openMarket,
+  playChance, resolveEvent, signYouthClub, startCareer, takeShot, watchMatch,
+} from "./career.js";
+
+import {
   ASKS,
   ASKS_BY_ID,
   CLAUSE,
@@ -649,5 +654,72 @@ describe("no ask is offered that cannot change the deal", () => {
         }
       }
     }
+  });
+});
+
+/**
+ * A running deal is not re-signed every summer.
+ *
+ * The market offers one card while the contract runs - stay - and taking it used to go
+ * through the table and the signature like any transfer, writing a NEW deal over the old
+ * one. So a player with three years left was made to re-sign every June, and the years he
+ * argued for at the table were replaced by whatever the club felt like offering now. The
+ * years on a contract exist precisely so that neither side can reopen them.
+ */
+describe("staying put while the deal runs", () => {
+  const atMarketUnderContract = (yearsLeft = 3) => {
+    let run = startCareer(
+      { seed: "stay", surname: "MOLINA", number: 9, foot: "left", country: "ESP", position: "DC", mode: "intensa" },
+      world,
+    );
+    run = completeSigning(agreeTerms(signYouthClub(run, run.offers[0].clubId)));
+    let guard = 0;
+    while (run.phase === PHASES.EVENT && guard < 10) {
+      guard += 1;
+      run = resolveEvent(run, run.event.es.options[0].id);
+    }
+    guard = 0;
+    while (run.phase === PHASES.MATCH && guard < 40) {
+      guard += 1;
+      const shot = run.matchday.shot;
+      if (!run.matchday.last) {
+        run = shot.mode === "skill"
+          ? playChance(run, (shot.chance.gates ?? [shot.chance.spot ?? shot.chance.target])[0])
+          : takeShot(watchMatch(run, "es"), shot.options[shot.gap]);
+      }
+      run = nextFixture(run);
+    }
+    // A deal with room left on it, whatever the season did to the real one.
+    const held = { ...run.state.contract, clubId: run.state.clubId, yearsLeft };
+    return openMarket({ ...run, state: { ...run.state, contract: held } });
+  };
+
+  it("offers nothing but staying", () => {
+    const run = atMarketUnderContract();
+    expect(run.phase).toBe(PHASES.MARKET);
+    expect(run.offers).toHaveLength(1);
+    expect(run.offers[0].stay).toBe(true);
+    expect(run.offers[0].clubId).toBe(run.state.clubId);
+  });
+
+  it("does not send him to the table, and does not touch the deal he has", () => {
+    const run = atMarketUnderContract(3);
+    const before = run.state.contract;
+    const after = acceptOffer(run, run.state.clubId);
+
+    // Straight on with the career: no negotiation, no signature.
+    expect(after.phase, "lo manda a firmar otra vez").not.toBe(PHASES.NEGOTIATION);
+    expect(after.phase).not.toBe(PHASES.SIGNING);
+    // And the deal is the same deal, year for year.
+    expect(after.state.contract.yearsLeft).toBe(before.yearsLeft);
+    expect(after.state.contract.wage).toBe(before.wage);
+    expect(after.state.contract.clause).toBe(before.clause);
+  });
+
+  it("still goes to the table once the deal has run out", () => {
+    const run = atMarketUnderContract(0);
+    const after = acceptOffer(run, run.offers[0].clubId);
+    // Nothing in force any more: staying is a new deal, and it is argued for.
+    expect(after.phase).toBe(PHASES.NEGOTIATION);
   });
 });

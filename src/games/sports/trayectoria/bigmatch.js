@@ -819,6 +819,21 @@ export function matchEffects(results = []) {
     // A converted chance is not always a goal. A keeper who guesses the corner has saved
     // the final, not scored in it, and `GOAL_RATE.keeper` is zero for a reason.
     bonusAssists: 0,
+    /*
+     * How many deciders he was handed and how many he came through, whatever they produced.
+     *
+     * The two counters above only see the ones that end in the tally. A keeper's whole
+     * season of big nights is invisible to them by design - which left `seasonBand` with
+     * nothing at all to mark a goalkeeper's year against, since his goal expectation is
+     * zero too. This is the one record of it.
+     */
+    deciders: { taken: 0, converted: 0 },
+    /*
+     * Finals answered on the night they were played - see `settleFinal` in career.js. The
+     * season honours these instead of rolling them again, which is what stops a cup being
+     * lost 0-1 on the scoreboard and lifted in the ceremony a moment later.
+     */
+    settledTitles: {},
     derbyGoals: 0,
     // Which trophies came down to a match the player stood in. They are still rolled -
     // see DECIDES - but the cabinet remembers that this one was settled on the night.
@@ -835,6 +850,13 @@ export function matchEffects(results = []) {
     const produces = SHOT_PRODUCES[result.type] ?? PRODUCES.GOAL;
     if (produces === PRODUCES.GOAL) effects.bonusGoals += came;
     else if (produces === PRODUCES.ASSIST) effects.bonusAssists += came;
+    // A night the ball never came to him is not a chance he was handed, so it is not one
+    // he can be marked down for - see `absent` in outcomeOf.
+    effects.deciders.taken += result.taken ?? (result.absent ? 0 : 1);
+    effects.deciders.converted += came;
+    if (result.settledTitle) {
+      effects.settledTitles[result.settledTitle.trophy] = result.settledTitle.won;
+    }
     // Whatever the outcome, the shot leaves the trophy on the odds the draw worked out
     // for it. Nothing here decides anything outright any more - and a night the ball
     // never came to him is its own outcome, neither his fault nor his doing.

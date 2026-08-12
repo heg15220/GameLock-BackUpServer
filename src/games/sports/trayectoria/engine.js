@@ -17,6 +17,9 @@ import {
   standardNormal,
   unfortunateChance,
 } from "./fortune.js";
+// The model's own a priori estimate of what this player converts in a decider. Only used
+// to price a keeper's season, whose year the goal tables cannot see at all.
+import { shotScoringRate } from "./bigmatch.js";
 import { chance, createStream, pickWeighted, randInt } from "./rng.js";
 import {
   AWARD_ELIGIBLE_ROLES,
@@ -306,6 +309,14 @@ export function developmentOutlook(state, growth = null) {
   const rising = range[1] > 0;
   return {
     targetAge: target,
+    /*
+     * The two seasons the cycle actually covers, because the landing age on its own reads
+     * as next year and is not. A cycle runs two years and is named after the one it ends
+     * on, so a player of 18 is entering the cycle that lands at 20 - and the panel, showing
+     * "20" beside a heading that says "next", was telling him he would be twenty next
+     * season. It also held the same number two years running, which no "next year" does.
+     */
+    covers: [target - 1, target],
     range,
     atRisk: target >= DOUBLE_ROLL_FROM_AGE && DOUBLE_ROLL_ROLES.includes(state.lastRole),
     rising,
@@ -333,13 +344,27 @@ export function matchesFor(next, role, club, ovr) {
  * Poisson, so the spread of a tally falls with its size the way a real one does, and both
  * the form and the count are unbiased: the expectation is exactly the rate table.
  */
-export function outputFor(next, { group, delta, club, ovr, matches, kind, form = 1 }) {
+/**
+ * What the season asked of him, before the dice.
+ *
+ * Pulled out of `outputFor` and exported because this number is the yardstick the season
+ * gets marked against: `seasonBand` in report.js reads what he actually did against what
+ * was expected of a player in that role, at that club, over that many matches. It used to
+ * be computed here, used once and thrown away, which is why the form stamp had nothing to
+ * compare a tally to and could only report the dice.
+ */
+export function expectedOutput({ group, delta, club, ovr, matches, kind }) {
   const table = kind === "goals" ? GOAL_RATE : ASSIST_RATE;
   const rate = table[group]?.[deltaBand(delta)] ?? 0;
   if (rate <= 0 || matches <= 0) return 0;
 
   const strength = CLUB_OUTPUT_MULTIPLIER[effectiveReputation(club, ovr, "domestic")] ?? 1;
-  const expected = rate * matches * strength * qualityMultiplier(ovr);
+  return rate * matches * strength * qualityMultiplier(ovr);
+}
+
+export function outputFor(next, { form = 1, ...spec }) {
+  const expected = expectedOutput(spec);
+  if (expected <= 0) return 0;
   return poisson(next, expected * Math.max(0, form));
 }
 
@@ -359,8 +384,37 @@ export function titleOddsFor({ trophy, club, ovr, delta, confederation, modifier
   return Math.max(0, Math.min(1, base));
 }
 
+/**
+ * One trophy, rolled.
+ *
+ * Pulled out so that a FINAL can be resolved the moment it is played instead of at the end
+ * of the season - see `settleFinal` in career.js. The narration prints a scoreline for that
+ * match, and a scoreline is a claim about the trophy: a cup final that ends 0-1 on screen
+ * and then appears in the cabinet is the game contradicting itself in the two places the
+ * player is looking. Same stream, same odds, same answer - only asked earlier.
+ */
+export function rollTitle(seed, season, trophy, context) {
+  const { club, competition, ovr, delta, modifiers, latent = 0 } = context;
+  const odds = titleOddsFor({
+    trophy,
+    club,
+    ovr,
+    delta,
+    confederation: competition?.confederation,
+    modifiers,
+  });
+  const next = createStream(seed, "title", trophy, season);
+  // Exactly `odds`, but in sympathy with the rest of the club's year: this is where
+  // doubles come from, and where a barren season stays barren.
+  return fortunateChance(next, odds, latent, SEASON_COHESION[trophy] ?? 0);
+}
+
+/** What the year the club is having looks like, before anything in it is rolled. */
+export const seasonLatent = (seed, season) =>
+  standardNormal(createStream(seed, "fortune", season));
+
 function rollTitles(seed, season, context) {
-  const { club, competition, ovr, delta, role, modifiers, latent = 0 } = context;
+  const { club, competition, role, modifiers, latent = 0 } = context;
   const won = [];
   if (modifiers.suspended) return won;
 
@@ -378,18 +432,17 @@ function rollTitles(seed, season, context) {
     if (trophy === "continental_b" && (wonContinentalA || context.wonContinentalALastSeason)) {
       continue;
     }
-    const odds = titleOddsFor({
-      trophy,
-      club,
-      ovr,
-      delta,
-      confederation: competition?.confederation,
-      modifiers,
-    });
-    const next = createStream(seed, "title", trophy, season);
-    // Exactly `odds`, but in sympathy with the rest of the club's year: this is where
-    // doubles come from, and where a barren season stays barren.
-    if (fortunateChance(next, odds, latent, SEASON_COHESION[trophy] ?? 0)) {
+    /*
+     * A final that was played out on screen has already been answered, and the answer is
+     * on the scoreboard the player watched. Re-rolling it here is what let a cup be lost
+     * 0-1 in the narration and lifted in the ceremony ten seconds later.
+     */
+    const settled = modifiers.settledTitles?.[trophy];
+    const takes =
+      settled === undefined
+        ? rollTitle(seed, season, trophy, { ...context, latent })
+        : settled;
+    if (takes) {
       if (trophy === "continental_a") wonContinentalA = true;
       const onThePitch = decided.includes(trophy);
       won.push({
@@ -703,14 +756,30 @@ export function simulateSeason(state, world, { season }) {
   // paid for in the trophy the shot settled, and a keeper's scoring rate is zero.
   const bigMatchGoals = modifiers.suspended ? 0 : modifiers.bonusGoals ?? 0;
   const bigMatchAssists = modifiers.suspended ? 0 : modifiers.bonusAssists ?? 0;
-  const goals =
-    outputFor(goalStream, {
-      group: state.group, delta, club, ovr: effectiveOvr, matches, kind: "goals", form,
-    }) + bigMatchGoals;
-  const assists =
-    outputFor(assistStream, {
-      group: state.group, delta, club, ovr: effectiveOvr, matches, kind: "assists", form,
-    }) + bigMatchAssists;
+  const spec = { group: state.group, delta, club, ovr: effectiveOvr, matches };
+  const goals = outputFor(goalStream, { ...spec, kind: "goals", form }) + bigMatchGoals;
+  const assists = outputFor(assistStream, { ...spec, kind: "assists", form }) + bigMatchAssists;
+
+  /*
+   * What the year asked of him, kept beside what he did with it.
+   *
+   * This is the whole of the form read-out now (see `seasonBand`). The big-match goals are
+   * NOT in here on purpose: they are the ones he put in himself, so leaving them out of the
+   * expectation and in the tally is exactly what makes converting a final read as a season
+   * above what was asked. A keeper has no expectation at all - `GOAL_RATE.keeper` is zero -
+   * so his year is measured on the deciders he came through instead, and those are priced
+   * off the model's own estimate of him before this season's went into it.
+   */
+  const expected = {
+    goals: expectedOutput({ ...spec, kind: "goals" }),
+    assists: expectedOutput({ ...spec, kind: "assists" }),
+  };
+  const taken = modifiers.suspended ? 0 : modifiers.deciders?.taken ?? 0;
+  const deciders = {
+    taken,
+    converted: modifiers.suspended ? 0 : modifiers.deciders?.converted ?? 0,
+    expected: taken * shotScoringRate(effectiveOvr),
+  };
 
   const context = {
     club, competition, country, ovr: effectiveOvr, delta, role, modifiers, latent,
@@ -793,6 +862,10 @@ export function simulateSeason(state, world, { season }) {
     // How the year went for the club, and how the player felt in it. Kept on the record
     // so the report and the press can say so instead of only printing the tally.
     fortune: { latent, form },
+    // What was asked of him, and the deciders he was handed. `seasonBand` marks the season
+    // against these; nothing in the model reads them.
+    expected,
+    deciders,
     growth,
     development: { ...development, applied: development.perSeason ?? 0 },
   };

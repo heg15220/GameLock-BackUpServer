@@ -7285,3 +7285,233 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ── Trayectoria on a phone stage ─────────────────────────────────────────────
+   This game is a DOCUMENT, not a canvas, and that is the whole of the problem.
+   Its screens are a newspaper front page, a market of four offers, a season
+   report, a signed contract - several of them are taller than any phone by
+   design, because that is what they are imitating. The stage viewport is
+   `height: 100%; overflow: hidden`, and the game's own root grows with its
+   content and never asked to scroll, so everything under the fold of the stage
+   was not merely cramped: it was CLIPPED, with no way to reach it. A market
+   whose fourth offer cannot be seen is a market you cannot play.
+
+   So the game's root becomes the scroll container inside the stage, and the
+   furniture around the content gives up whatever it can. The tightening is
+   repeated here rather than shared with the `max-height` rules in the game's own
+   stylesheet on purpose: those key off the VIEWPORT, and inside this shell the
+   viewport is the whole phone while the stage is a box a fraction of its height.
+   A media query cannot see the box, so it never fired here.                   */
+
+/* THE STAGE GETS THE WHOLE BODY IN PORTRAIT. Measured on a 390x664 phone, the shell had
+   590px to give and the stage was taking 361 of it: a fixed 143px band underneath was
+   explaining that this is a touch game you play by pressing the screen. For a career that is
+   already several stage-fulls deep, spending 40% of the playing area on that sentence is the
+   worst trade on the page - and the knowledge games reached the same conclusion first, which
+   is the rule this copies. 361px becomes ~504px, and the tallest screen goes from 3.7 stage
+   heights to 2.6. */
+.mobile-game-shell--portrait[data-game-id="sports-trayectoria"].mobile-game-shell--touch-native
+  .mobile-game-shell__body {
+  grid-template-rows: minmax(0, 1fr);
+}
+.mobile-game-shell--portrait[data-game-id="sports-trayectoria"].mobile-game-shell--touch-native
+  .mobile-game-shell__touch-copy {
+  display: none;
+}
+
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport > .tr-shell {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  /* Inside a device frame the game's own frame is a second bezel around the
+     first, and both of them cost width the content needs. */
+  padding: 12px 12px 22px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* THE MASTHEAD WAS THE WHOLE FIRST SCREENFUL. Measured: 241px of header plus 36px
+   of age spine on a 515px stage, so a player opening the negotiation saw his own
+   identity card - number, name, rating, contract, twenty-four season ticks - and
+   the screen he had come for started at the bottom edge. His profile is reference
+   material; the screen he is on is the content, and on a box this size the
+   reference has to earn its pixels. Three stacked bands become two tight rows. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-header {
+  gap: 8px;
+  padding-bottom: 8px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-header__player {
+  flex: 1 1 150px;
+  gap: 9px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-header__number {
+  width: 34px;
+  height: 34px;
+  font-size: 19px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-header__player h1 {
+  font-size: 22px;
+}
+/* The descriptor is four facts joined by dots and it wrapped to three lines. It is
+   the least urgent thing in the header, so it gets one line and an ellipsis. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-header__player p {
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The card and the crest ride on the name's line instead of claiming their own. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail {
+  width: auto;
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-top: 0;
+  border-top: 0;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-pcard {
+  width: 44px;
+  padding: 5px 4px 4px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-pcard__rating { font-size: 19px; }
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-pcard__badge { display: none; }
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail__club { display: none; }
+
+/* The three readings are the numbers the game turns on, so they stay - as a thin
+   strip across the bottom of the header rather than a band with its own borders. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail__cells {
+  flex: 1 0 100%;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail__value {
+  font-size: 17px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail__cell {
+  padding: 2px 5px 5px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail > .tr-shelf__case {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail .tr-shelf,
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail .tr-shelf__named {
+  justify-content: flex-start;
+}
+
+/* Between the screens, and inside them. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-stage { gap: 12px; }
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-main { padding-top: 12px; }
+
+/* The signature and the live match were already given a short-screen pass; this
+   is that pass, in the one place it is needed most and could not reach. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-sign {
+  padding: 16px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-sign__name {
+  font-size: clamp(30px, 11vw, 44px);
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-sign__flourish { height: 20px; }
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-sign__paper {
+  margin: 10px 0 12px;
+  padding-top: 16px;
+}
+
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-match.is-live .tr-match__emblem {
+  width: 34px;
+  height: 34px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-match.is-live .tr-display--lg {
+  font-size: clamp(20px, 5.6vw, 26px);
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-live__feed {
+  min-height: 84px;
+  max-height: 34vh;
+}
+
+/* Every one of these is a finger target, and a finger is not a cursor. The
+   placements, the decision options and the offers all sit at or above the 44px
+   the platform guidelines ask for; the trophy silhouettes are the one row that
+   was under it, and they are now buttons. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-shelf__item {
+  width: 36px;
+  height: 36px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-btn { min-height: 44px; }
+
+/* The one surface that must NOT scroll the page under the finger: a chance is
+   played by dragging on it, and a drag that scrolls the document instead is a
+   chance the player cannot take. The game already declares this per mechanic;
+   here it goes on all of them, because the page behind them now scrolls. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-chance__track {
+  touch-action: none;
+}
+
+/* Finger targets the audit found under the 44px minimum: the foot chips at 34,
+   the country pickers at 36 and the skip pill at 21. The flag list scrolls inside
+   its own box, so taller rows cost the page nothing. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-chip,
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-flagpick,
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-live__skip {
+  min-height: 44px;
+}
+
+/* Viewport units are a lie inside this shell. `vh` measures the phone - 664px -
+   while the stage the game actually lives in is 515, so a feed capped at "34vh"
+   was claiming 226px of a box two thirds that size. Percentages of the stage, or
+   nothing. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-live__feed {
+  max-height: 168px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-chance__track.is-aim {
+  width: min(100%, 260px);
+}
+
+/* The card was landing on a line of its own with dead space beside it, because the
+   name block takes the first line and the rail wraps under it whole. Card and the
+   three readings share that second line instead: readings left, card right. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail {
+  align-items: center;
+  gap: 10px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail__cells {
+  flex: 1 1 auto;
+  order: 1;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-pcard { order: 2; }
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-rail > .tr-shelf__case {
+  order: 3;
+  flex: 1 0 100%;
+}
+
+/* Twenty-four seasons as ticks: at this width each one is a dozen pixels and the
+   band around them costs more than the ticks do. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-spine {
+  margin: 9px 0 10px;
+  padding-bottom: 11px;
+}
+
+/* "GOLES POR PARTIDO" was setting itself three words deep in a 94px column, so a
+   four-cell row of season figures ended in a tower of one-word lines. Two columns
+   at this width, and the labels get room to be one line each. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-front__stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-front__stats > div {
+  padding: 8px 10px;
+}
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-front__stats dd {
+  font-size: 22px;
+}
+
+/* The feed keeps its height so beats do not make the page jump as they land, but on
+   a stage this size an empty box the height of a third of the screen is just a hole
+   in the first minute of the match. */
+[data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-live__feed {
+  min-height: 76px;
+}

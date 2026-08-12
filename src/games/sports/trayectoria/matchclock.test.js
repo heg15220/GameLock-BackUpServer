@@ -199,6 +199,53 @@ describe("the live clock", () => {
     view.unmount();
   });
 
+  /**
+   * The feed has to say what just happened, on the minute it happened.
+   *
+   * It used to narrate every chance in one batch at full time, because that is when
+   * `narrateFinish` was called. On a night worth three, the player took the first one and
+   * the match simply carried on: no line saying whether it went in, and a scoreboard still
+   * reading what it read before he shot. He was being asked for the second one without
+   * being told how the first had gone.
+   */
+  it("tells him how each chance went, on the spot", () => {
+    const view = show(narratedDecider(3));
+    const said = () => view.container.querySelector(".tr-live__feed")?.textContent ?? "";
+    const score = () => view.container.querySelector(".tr-live__score")?.textContent ?? "";
+
+    runClock();
+    const before = { feed: said(), score: score() };
+    shoot(view.container);
+
+    // Something was said about it, and it was said before the next one is asked for.
+    const told = [...copy.match.beats.scored, ...copy.match.beats.missed].some((line) =>
+      said().includes(line.replace(/\{\w+\}/g, "")),
+    );
+    expect(told, `nothing was said about the first chance: ${said()}`).toBe(true);
+    expect(said()).not.toBe(before.feed);
+
+    // And the verdict for the whole fixture is still not out - the match is still running.
+    expect(view.text()).not.toContain(copy.match.next);
+    view.unmount();
+  });
+
+  it("puts a chance that goes in on the scoreboard straight away", () => {
+    const run = narratedDecider(3);
+    const view = show(run);
+    const score = () => view.container.querySelector(".tr-live__score")?.textContent ?? "";
+
+    runClock();
+    const before = score();
+    // The placement the keeper is not at: this one goes in, so the board has to move.
+    const buttons = [...view.container.querySelectorAll("button.tr-shot")];
+    const gap = buttons[run.matchday.shot.gap];
+    expect(gap?.disabled, "the gap is not on offer").toBeFalsy();
+    act(() => gap.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
+
+    expect(score(), `board stuck on ${before}`).not.toBe(before);
+    view.unmount();
+  });
+
   it("runs three chances end to end without ever stalling", () => {
     const view = show(narratedDecider(3));
     for (let n = 1; n <= 3; n += 1) {
@@ -316,6 +363,167 @@ describe("the chance track", () => {
     runClock(200);
     strike(view.container);
     expect(view.text()).toContain(copy.match.next);
+    view.unmount();
+  });
+
+  /**
+   * The four verbs that are not a tap.
+   *
+   * A hold, a drag and a two-beat all commit through pointer handlers, and a pointer
+   * handler that never fires is a chance the player cannot play at all - the screen simply
+   * sits there while the season waits. The tap games have been mounted since the first
+   * version; these had nothing starting them, so this is where they get started.
+   */
+  describe("the held ones", () => {
+    const surface = (container) => {
+      const el = container.querySelector("button.tr-chance__track");
+      expect(el, "no surface to play").toBeTruthy();
+      return el;
+    };
+
+    /** jsdom has no PointerEvent, and React only cares about the event's type. */
+    const point = (el, type, x = 0.5, y = 0.5) =>
+      act(() =>
+        el.dispatchEvent(new window.MouseEvent(type, { bubbles: true, clientX: x, clientY: y })),
+      );
+
+    const play = (shotType) => {
+      const view = mount(
+        React.createElement(SkillHarness, { initial: skillDecider(1, shotType, `hold-${shotType}`) }),
+      );
+      return view;
+    };
+
+    it("settles a charge when the hold is released", () => {
+      const view = play("volea");
+      const el = surface(view.container);
+      point(el, "pointerdown");
+      runClock(300);
+      expect(view.text(), "settled before it was let go").not.toContain(copy.match.next);
+      point(el, "pointerup");
+      expect(view.text()).toContain(copy.match.next);
+      view.unmount();
+    });
+
+    it("takes a charge away from anyone who never lets go", () => {
+      const view = play("volea");
+      point(surface(view.container), "pointerdown");
+      // Past the top of the bar: over it, and the fixture resolves without a release.
+      runClock(4000);
+      expect(view.text()).toContain(copy.match.next);
+      view.unmount();
+    });
+
+    it("settles an aim where the drag is released", () => {
+      const view = play("cabezazo");
+      const el = surface(view.container);
+      point(el, "pointerdown", 0.3, 0.4);
+      point(el, "pointermove", 0.6, 0.5);
+      runClock(120);
+      expect(view.text()).not.toContain(copy.match.next);
+      point(el, "pointerup", 0.6, 0.5);
+      expect(view.text()).toContain(copy.match.next);
+      view.unmount();
+    });
+
+    it("moves the aim target while it is being tracked", () => {
+      const view = play("cabezazo");
+      const spot = () =>
+        view.container.querySelector(".tr-chance__spot")?.getAttribute("style") ?? "";
+      const before = spot();
+      runClock(300);
+      expect(spot(), "the target is standing still").not.toBe(before);
+      view.unmount();
+    });
+
+    it("takes the aim away from anyone who never goes for it", () => {
+      const view = play("cabezazo");
+      surface(view.container);
+      // The run finishes with nobody on it: the ball went through and he was not there.
+      runClock(4000);
+      expect(view.text()).toContain(copy.match.next);
+      view.unmount();
+    });
+
+    it("settles a dive on the side the swipe ended", () => {
+      const view = play("parada_penal");
+      const el = surface(view.container);
+      runClock(200);
+      point(el, "pointerdown", 0.2, 0.5);
+      point(el, "pointermove", 0.8, 0.5);
+      expect(view.text()).not.toContain(copy.match.next);
+      point(el, "pointerup", 0.8, 0.5);
+      expect(view.text()).toContain(copy.match.next);
+      view.unmount();
+    });
+
+    it("takes the dive away from a keeper who never goes", () => {
+      const view = play("parada_penal");
+      surface(view.container);
+      runClock(4000);
+      expect(view.text()).toContain(copy.match.next);
+      view.unmount();
+    });
+
+    it("measures a feint by the beat between the two touches", () => {
+      const view = play("mano_a_mano");
+      const el = surface(view.container);
+      act(() => el.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
+      // The dummy is sold; the prompt changes and nothing has been decided yet.
+      expect(view.text()).toContain(copy.match.chanceGo);
+      expect(view.text()).not.toContain(copy.match.next);
+      runClock(400);
+      act(() => el.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
+      expect(view.text()).toContain(copy.match.next);
+      view.unmount();
+    });
+
+    it("takes the feint away from anyone who never goes", () => {
+      const view = play("mano_a_mano");
+      act(() =>
+        surface(view.container).dispatchEvent(new window.MouseEvent("click", { bubbles: true })),
+      );
+      runClock(4000);
+      expect(view.text()).toContain(copy.match.next);
+      view.unmount();
+    });
+  });
+});
+
+/**
+ * The drawing has to be a drawing of the shot that was just taken.
+ *
+ * It was keyed to the FIXTURE outcome, whose `scored` means "any of them went in". On a
+ * night worth two that put the goal on the wrong moment in both directions: score the first
+ * and nothing was drawn at all, because the fixture was not closed yet; then miss the second
+ * and the ball flew in green, because the first one had gone in.
+ */
+describe("the scene under a multi-chance decider", () => {
+  const sceneClass = (container) =>
+    container.querySelector(".tr-scene")?.getAttribute("class") ?? "";
+
+  it("draws the goal on the chance that went in, and the miss on the one that did not", () => {
+    const view = show(narratedDecider(2));
+
+    runClock();
+    // Convert the first: the placement the keeper is not at.
+    const first = [...view.container.querySelectorAll("button.tr-shot")];
+    const run = narratedDecider(2);
+    act(() =>
+      first[run.matchday.shot.gap].dispatchEvent(new window.MouseEvent("click", { bubbles: true })),
+    );
+    expect(sceneClass(view.container), "no drawing after a goal").toContain("is-scored");
+
+    // Miss the second.
+    runClock();
+    const second = [...view.container.querySelectorAll("button.tr-shot")].filter((b) => !b.disabled);
+    const wrong = second.find((_, i) => i !== run.matchday.shot.gap) ?? second[0];
+    act(() => wrong.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
+    runClock();
+
+    // The fixture went in - one of them did - but the picture is of the shot that missed.
+    expect(view.text()).toContain(copy.match.next);
+    expect(sceneClass(view.container), "a goal drawn over a miss").not.toContain("is-scored");
     view.unmount();
   });
 });

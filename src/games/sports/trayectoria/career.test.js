@@ -27,6 +27,7 @@ import { EVENTS_BY_ID, MAX_INJURIES, drawEvent, weightOf } from "./events.js";
 import { IDOLATRY } from "./idolatry.js";
 import { shadowStanding } from "./rival.js";
 import { CONTRACT } from "./contract.js";
+import { seasonBand } from "./report.js";
 import { CAREER_MODES, GROWTH, RETIREMENT_AGE, START_AGE } from "./tables.js";
 import { world } from "./world.js";
 
@@ -105,12 +106,12 @@ function answerEvents(run, locale = "es") {
   return current;
 }
 
-function playMatches(run, locale = "es") {
+function playMatches(run, locale = "es", hit = true) {
   let current = run;
   let guard = 0;
   while (current.phase === PHASES.MATCH && guard < 40) {
     guard += 1;
-    current = resolveMoment(current, true, locale);
+    current = resolveMoment(current, hit, locale);
     current = nextFixture(current, locale);
   }
   expect(guard).toBeLessThan(40);
@@ -118,7 +119,7 @@ function playMatches(run, locale = "es") {
 }
 
 /** Drive a whole career, always taking the first option and the first offer. */
-function playToRetirement(run, { locale = "es", pickOffer } = {}) {
+function playToRetirement(run, { locale = "es", pickOffer, hit = true } = {}) {
   let current = run;
   let guard = 0;
   current = signThrough(current, current.offers[0].clubId);
@@ -126,7 +127,7 @@ function playToRetirement(run, { locale = "es", pickOffer } = {}) {
   while (current.phase !== PHASES.RETIRED && guard < 200) {
     guard += 1;
     current = answerEvents(current);
-    current = playMatches(current, locale);
+    current = playMatches(current, locale, hit);
     current = openMarket(current, locale);
     if (current.phase === PHASES.RETIRED) break;
     const offer = pickOffer ? pickOffer(current) : current.offers[0];
@@ -1331,4 +1332,157 @@ describe("a career is played from the position it is played in", () => {
       expect(scored).toBeLessThanOrEqual(taken);
     }
   });
+});
+
+/**
+ * The form stamp, over whole careers.
+ *
+ * `report.test.js` checks the arithmetic on a hand-built record. This checks the thing the
+ * arithmetic exists for, which only shows up in bulk: how OFTEN each verdict comes up, and
+ * whether it comes up for the right reasons. Both were calibrated by measurement rather than
+ * by argument, and both are cheap to break by nudging a constant - so they are pinned here.
+ */
+describe("how often the season gets a verdict", () => {
+  const bandsOf = (position, seed, hit) => {
+    const run = playToRetirement(start({ position, seed: `${seed}-${position}` }), { hit });
+    return run.state.history.map((record) => seasonBand(record)).filter(Boolean);
+  };
+
+  const shareOf = (bands, key) => bands.filter((band) => band === key).length / bands.length;
+
+  it("keeps the two extremes about as rare as they have always been", () => {
+    const bands = [];
+    for (const position of ["DC", "MC", "DFC", "POR"]) {
+      for (let i = 0; i < 8; i += 1) bands.push(...bandsOf(position, `bands-${i}`, i % 2 === 0));
+    }
+    expect(bands.length).toBeGreaterThan(200);
+    // The old read-out printed these at 13.7% and 15.5%. A stamp that shows up in a third
+    // of all seasons is not a stamp, and one that never shows up is not a feature.
+    expect(shareOf(bands, "inspirado")).toBeGreaterThan(0.06);
+    expect(shareOf(bands, "inspirado")).toBeLessThan(0.24);
+    expect(shareOf(bands, "gris")).toBeGreaterThan(0.06);
+    expect(shareOf(bands, "gris")).toBeLessThan(0.26);
+    // And the middle is still where most seasons live.
+    expect(shareOf(bands, "normal")).toBeGreaterThan(0.15);
+  });
+
+  /**
+   * The whole point of the change. What the player does in the deciders - by hand, in the
+   * minigames - has to be able to move the verdict, which the old form stamp could not do
+   * because it was drawn before the season started.
+   */
+  it("says more about a player who comes through than one who does not", () => {
+    const came = [];
+    const did_not = [];
+    for (const position of ["DC", "MC", "POR"]) {
+      for (let i = 0; i < 6; i += 1) {
+        came.push(...bandsOf(position, `through-${i}`, true));
+        did_not.push(...bandsOf(position, `through-${i}`, false));
+      }
+    }
+    expect(shareOf(came, "inspirado")).toBeGreaterThan(shareOf(did_not, "inspirado") * 1.8);
+    expect(shareOf(did_not, "gris")).toBeGreaterThan(shareOf(came, "gris"));
+  });
+
+  /**
+   * A striker is asked for eighteen goals and a centre-back for two, so raw ratios hand the
+   * defender three times as many extreme verdicts - the stamp would be measuring how much
+   * evidence his position generates rather than how his year went. See `FORM_PRIOR`.
+   */
+  it("does not decide the verdict by the position that was picked", () => {
+    const extremes = {};
+    for (const position of ["DC", "MC", "DFC", "POR"]) {
+      const bands = [];
+      for (let i = 0; i < 8; i += 1) bands.push(...bandsOf(position, `even-${i}`, i % 2 === 0));
+      extremes[position] = shareOf(bands, "inspirado") + shareOf(bands, "gris");
+    }
+    const values = Object.values(extremes);
+    const report = Object.entries(extremes)
+      .map(([position, share]) => `${position} ${(share * 100).toFixed(0)}%`)
+      .join(", ");
+    expect(Math.max(...values) / Math.min(...values), report).toBeLessThan(2.5);
+  });
+});
+
+/**
+ * The night the cup is decided, and what the cabinet is allowed to say about it.
+ *
+ * A final that is played out on screen prints a scoreline, and on a night that IS the
+ * trophy, a scoreline is a claim about the cabinet. The two used to be rolled apart: the
+ * broadcast invented a score and the season rolled the cup somewhere else entirely, so a
+ * final could read 0-1 at full time and the ceremony play a moment later. Measured before
+ * the fix, two in five of the finals a player missed came out that way.
+ *
+ * `settleFinal` answers the fixture's own trophy on the night, with the same stream and the
+ * same odds the season would have used, and `rollTitles` honours the answer. So the two
+ * guards here are: the screen never contradicts the cabinet, and DECIDES still means what
+ * it says - miss the final and the side still lifts it about a quarter of the time.
+ */
+describe("a final and its trophy", () => {
+  /** Play a career, watching every decider and always missing, and collect the finals. */
+  const finalsOf = (seed, hit) => {
+    const out = [];
+    let run = signThrough(start({ seed }), start({ seed }).offers[0].clubId);
+    let guard = 0;
+    while (run.phase !== PHASES.RETIRED && guard < 200) {
+      guard += 1;
+      run = answerEvents(run);
+
+      let inner = 0;
+      while (run.phase === PHASES.MATCH && inner < 40) {
+        inner += 1;
+        const { fixtures, index } = run.matchday;
+        const fixture = fixtures[index];
+        const watched = fixture.kind === "final_copa";
+        if (watched && !run.matchday.broadcast) run = watchMatch(run, "es");
+        run = resolveMoment(run, hit);
+        if (watched && run.matchday.broadcast?.finish?.closed) {
+          out.push({ finish: run.matchday.broadcast.finish, last: run.matchday.last });
+        }
+        run = nextFixture(run);
+      }
+
+      const record = run.state.history[run.state.history.length - 1];
+      for (const entry of out) {
+        if (entry.cup === undefined && entry.season === undefined) {
+          entry.season = record?.season;
+          entry.cup = Boolean(record?.titles?.some((t) => t.trophy === "cup"));
+        }
+      }
+      run = openMarket(run);
+      if (run.phase === PHASES.RETIRED) break;
+      const stay = run.offers.find((offer) => offer.stay);
+      run = takeOffer(run, (stay ?? run.offers[0]).clubId);
+    }
+    return out;
+  };
+
+  /*
+   * KNOWN BROKEN, ON PURPOSE. `it.fails` passes while the bug is present and starts
+   * failing the day it is fixed, so the suite stays honest in both directions.
+   *
+   * `settleFinal` closes the main route - a final played out and shot at - and the sample
+   * it was written against went from two contradictions in five to none. But at least one
+   * other path reaches a closed final broadcast without passing through it, and on that
+   * path the cup is still rolled apart from the scoreline: measured, a final narrated 0-0
+   * with the cup in the cabinet. The fix is incomplete and this says so.
+   */
+  it.fails("never lifts a cup it just lost on the scoreboard", () => {
+    const finals = [];
+    for (let i = 0; i < 30; i += 1) finals.push(...finalsOf(`cupfinal-${i}`, i % 2 === 0));
+    expect(finals.length, "no cup final was ever narrated").toBeGreaterThan(0);
+
+    for (const { finish, cup } of finals) {
+      const score = `${finish.final.home}-${finish.final.away}`;
+      // The one thing that must never happen, in either direction.
+      expect(cup, `narrado ${score} y la copa en la vitrina`).toBe(finish.won);
+      /*
+       * NOT YET GUARDED, and it should be: a final can still come out level on the
+       * scoreboard. `settleFinal` breaks the tie wherever it runs, so the remaining draws
+       * are coming from a path that does not reach it. Left un-asserted rather than
+       * asserted-and-skipped so nobody reads this file as saying the case is covered.
+       */
+    }
+  });
+
 });

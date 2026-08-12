@@ -63,6 +63,8 @@ import {
   effectiveReputation,
   growthFactor,
   roleFor,
+  rollTitle,
+  seasonLatent,
   simulateSeason,
   squadLevelFor,
   youthOffers,
@@ -746,28 +748,41 @@ function settleIfUntouched(run) {
   const matchday = run.matchday;
   if (!matchday || matchday.last) return run;
   if ((matchday.fixtures[matchday.index]?.chances ?? 1) > 0) return run;
-  return { ...run, matchday: { ...matchday, last: outcomeOf(run, []) } };
+
+  /*
+   * This path never goes through `recordAttempt`, because there was no attempt - and that
+   * is exactly how a cup final could still end 1-1 on screen after the rest of this was
+   * fixed. A night he never touched is still a final, and a final still has a winner.
+   */
+  const outcome = outcomeOf(run, []);
+  const settled = settleFinal(run, matchday.fixtures[matchday.index], outcome);
+  if (settled) outcome.settledTitle = settled;
+  const broadcast = matchday.broadcast;
+
+  return {
+    ...run,
+    matchday: {
+      ...matchday,
+      last: outcome,
+      broadcast: broadcast
+        ? { ...broadcast, finish: narrateFinish(broadcast, [], {
+              won: settled ? settled.won : null,
+              shootout: goesToPenalties(matchday.fixtures[matchday.index]),
+            }) }
+        : broadcast,
+    },
+  };
 }
 
 export function takeShot(run, choice) {
   if (run.phase !== PHASES.MATCH || !run.matchday || run.matchday.last) return run;
-  const { shot, broadcast } = run.matchday;
+  const { shot } = run.matchday;
   if (shot.mode === MODES.SKILL) return run;
   if (!shot.options.includes(choice)) return run;
 
-  const next = recordAttempt(run, resolveShot(shot, choice));
-  // The match only carries on to full time once he has had every chance it owed him.
-  if (!next.matchday.last || !broadcast) return next;
-  return {
-    ...next,
-    matchday: {
-      ...next.matchday,
-      broadcast: {
-        ...broadcast,
-        finish: narrateFinish(broadcast, next.matchday.last.attempts.map((a) => a.scored)),
-      },
-    },
-  };
+  // The narration of it - and the whistle, once this was the last one - is `recordAttempt`,
+  // which both ways of resolving a chance go through.
+  return recordAttempt(run, resolveShot(shot, choice));
 }
 
 /**
@@ -803,18 +818,107 @@ export function playChance(run, inputs) {
  * The fixture is decided by whether ANY of them went in, which is the same question
  * `convertsOneOf` answered when the season was budgeted.
  */
+/**
+ * A final, answered on the night it is played.
+ *
+ * The trophies of a season are rolled together at the end of it, which is right for every
+ * one of them EXCEPT the one whose final the player has just watched: that match printed a
+ * scoreline, and on a night that is the trophy, a scoreline is a claim about the cabinet.
+ * Left apart, the two disagreed - a cup final read 0-1 at full time and the ceremony played
+ * anyway, two times in five across a measured sample.
+ *
+ * So the fixture's own trophy is rolled HERE, with the same stream and the same odds the
+ * season would have used: every multiplier is already known, because a step answers all its
+ * cards before it plays a ball. `rollTitles` then honours the answer instead of asking
+ * again, so nothing about how often a cup is won has moved - only when the question is put.
+ *
+ * Returns null for a fixture that decides nothing on its own, which is most of them: a
+ * league is not settled by one match, and a semi-final is not the cup.
+ */
+const FINALS = new Set(["final_copa", "final_continental", "final_mundial", "final_continental_nt"]);
+
+/**
+ * What a level scoreline MEANS at ninety minutes.
+ *
+ * In a league, promotion or survival match a draw is a result: the table takes it and the
+ * season carries on. Everywhere else it is a question, and football has always answered it
+ * the same way. So a knockout that finishes square goes to penalties - which is also what
+ * stops a cup final sitting on screen reading 1-1 with a trophy in the cabinet.
+ */
+const LEVEL_IS_A_RESULT = new Set(["league", "promotion", "survival", "derby"]);
+const goesToPenalties = (fixture) =>
+  Boolean(fixture?.decides) && !LEVEL_IS_A_RESULT.has(fixture.decides);
+
+function settleFinal(run, fixture, outcome) {
+  if (!FINALS.has(fixture.kind)) return null;
+  const trophy = fixture.decides;
+  if (!trophy) return null;
+
+  const { club, competition } = standingOf(run);
+  if (!club) return null;
+
+  // The same modifiers the season would have rolled this with: the step's plan, the cards
+  // it already answered, and what this very night did to the odds.
+  const modifiers = withMatchEffects(run.state.modifiers ?? {}, run.matchday.plan ?? {}, [outcome]);
+  const ovr = clampToOvr(run.state.ovr + (modifiers.ovrTemp ?? 0));
+  return {
+    trophy,
+    won: rollTitle(run.state.seed, run.season, trophy, {
+      club,
+      competition,
+      ovr,
+      delta: ovr - squadLevelFor(club, ovr),
+      modifiers,
+      latent: seasonLatent(run.state.seed, run.season),
+    }),
+  };
+}
+
+/** The same clamp the engine applies before it prices anything off a rating. */
+const clampToOvr = (value) => Math.max(1, Math.min(99, Math.round(value)));
+
 function recordAttempt(run, resolved) {
-  const { fixtures, index, attempts = [] } = run.matchday;
+  const { fixtures, index, attempts = [], broadcast } = run.matchday;
   const fixture = fixtures[index];
   const played = [...attempts, resolved];
   const total = fixture.chances ?? 1;
+  const closed = played.length >= total;
 
-  if (played.length < total) {
-    return { ...run, matchday: { ...run.matchday, attempts: played, lastAttempt: resolved } };
-  }
+  // A closed fixture knows what it produced; a closed FINAL also knows what it settled.
+  const outcome = closed ? outcomeOf(run, played) : null;
+  const settled = outcome ? settleFinal(run, fixture, outcome) : null;
+  if (settled) outcome.settledTitle = settled;
+
   return {
     ...run,
-    matchday: { ...run.matchday, attempts: played, lastAttempt: resolved, last: outcomeOf(run, played) },
+    matchday: {
+      ...run.matchday,
+      attempts: played,
+      lastAttempt: resolved,
+      last: outcome,
+      /*
+       * Narrate it NOW, not at full time.
+       *
+       * On a night worth more than one, the feed used to say nothing at all between the
+       * chances: whether the first went in was only written when the last had been taken.
+       * So the match asked for the second one with no line about the first and a scoreboard
+       * that had not moved. Every attempt gets its beat on the minute it happened; only the
+       * one that closes the fixture is allowed to reach full time.
+       *
+       * A final also carries its answer by then, so the last minutes can tell the truth
+       * about the cup instead of inventing a scoreline the ceremony will contradict.
+       */
+      broadcast: broadcast
+        ? {
+            ...broadcast,
+            finish: narrateFinish(broadcast, played.map((attempt) => attempt.scored), {
+              closed,
+              won: settled ? settled.won : null,
+              shootout: goesToPenalties(fixture),
+            }),
+          }
+        : broadcast,
+    },
   };
 }
 
@@ -1217,6 +1321,26 @@ export function switchNationality(run, fifa) {
 /** Take an offer to the table. Nothing is signed until the terms are agreed. */
 export function acceptOffer(run, clubId) {
   if (run.phase !== PHASES.MARKET) return run;
+
+  /*
+   * A DEAL THAT IS STILL RUNNING IS NOT RE-SIGNED EVERY SUMMER.
+   *
+   * While the contract runs the market offers exactly one card - stay - and taking it went
+   * through the table and the signature like any transfer, which wrote a NEW deal over the
+   * old one. So a player with three years left was made to re-sign every June, and the years
+   * he had argued for at the table were quietly replaced by whatever the club offered now.
+   * That is the opposite of what a contract is: the whole point of the years is that neither
+   * side gets to reopen them.
+   *
+   * Staying put under a running deal is therefore not a transaction at all. Nothing is
+   * signed, nothing is renegotiated, and the season simply starts - the contract ticks down
+   * on its own in `playSeason`, which is the only place it ever should.
+   */
+  const staying = clubId === run.state.clubId;
+  if (staying && isUnderContract(run.state.contract, run.state.clubId)) {
+    return openStep({ ...run, offers: [], deal: null, clauseOffer: null });
+  }
+
   return openNegotiation(run, clubId);
 }
 

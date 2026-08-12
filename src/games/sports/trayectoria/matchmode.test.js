@@ -10,9 +10,9 @@ import { describe, expect, it } from "vitest";
 
 import { MODES, MODE_ODDS, modeFor, skillOdds } from "./matchmode.js";
 import { CHANCE_MECHANIC, MECHANICS, buildChance, judgeChance, skillOf } from "./minigames.js";
-import { FULL_TIME, MOMENT_WINDOW, narrateFinish, narrateMatch } from "./narration.js";
+import { FULL_TIME, MOMENT_WINDOW, narrateFinish, narrateMatch, withStandings } from "./narration.js";
 import { SHOT_TYPES } from "./bigmatch.js";
-import { getCopy } from "./copy.js";
+import { beatLines, getCopy } from "./copy.js";
 
 describe("who takes the important ones", () => {
   it("hands the ball to the player the side depends on", () => {
@@ -313,12 +313,71 @@ describe("the ninety minutes", () => {
     expect(ids.size).toBeGreaterThan(8);
     for (const locale of ["es", "en"]) {
       for (const id of ids) {
-        const lines = getCopy(locale).match.beats[id];
-        expect(lines, `no ${locale} line for beat "${id}"`).toBeTruthy();
-        // Every id carries several ways of saying it, and none of them is blank.
-        const list = Array.isArray(lines) ? lines : [lines];
-        expect(list.length, `only one ${locale} line for "${id}"`).toBeGreaterThan(2);
-        for (const line of list) expect(line.trim().length).toBeGreaterThan(0);
+        // Whatever the match is doing, the id has to have something to say about it.
+        for (const state of ["ahead", "level", "behind"]) {
+          const list = beatLines(getCopy(locale), id, state);
+          expect(list.length, `only one ${locale} line for "${id}" (${state})`).toBeGreaterThan(2);
+          for (const line of list) expect(line.trim().length).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  /**
+   * The other half of the same defect. The build-up is laid out before the player takes
+   * anything, so a beat late in the match carries the score the MODEL produced and knows
+   * nothing about the goal he scored at 58'. Read straight off the beats, the scoreboard
+   * jumped back as the clock passed his goal, and a model equaliser after it could still
+   * reach for the line about going in front.
+   */
+  it("counts his goals into everything that happens after them", () => {
+    for (let i = 0; i < 120; i += 1) {
+      const match = narrateMatch({
+        seed: `merge-${i}`, season: 2, fixtureId: "f", kind: "titulo_liga",
+        chances: 2, ourName: "Nos", theirName: "Ellos",
+      });
+      // Both of them in, so every later beat is two goals behind if nothing re-counts.
+      const finish = narrateFinish(match, [true, true]);
+      const told = withStandings([...match.beats, ...finish.beats]);
+
+      let home = 0;
+      let away = 0;
+      let minute = -1;
+      for (const beat of told) {
+        if (beat.id === "goalUs" || beat.id === "scored") home += 1;
+        if (beat.id === "goalThem") away += 1;
+        expect(beat.minute, "the merged feed is out of order").toBeGreaterThanOrEqual(minute);
+        minute = beat.minute;
+        // The board never goes backwards, and it never forgets one of his.
+        expect(beat.home, `at ${beat.minute}' after ${beat.id}`).toBe(home);
+        expect(beat.away).toBe(away);
+        expect(beat.state).toBe(home > away ? "ahead" : home < away ? "behind" : "level");
+      }
+      expect(home).toBe(finish.final.home);
+      expect(away).toBe(finish.final.away);
+    }
+  });
+
+  /**
+   * The bug this guards: at 0-1, our equaliser was narrated as "el Albacete se pone por
+   * delante" - the line was picked from the seed alone, with the scoreline the beat was
+   * carrying ignored. A line that claims a lead is only allowed on a beat that has one.
+   */
+  it("never claims a lead the scoreline does not have", () => {
+    const claimsLead = { es: /por delante/i, en: /in front|the lead/i };
+    for (let i = 0; i < 200; i += 1) {
+      const match = narrateMatch({
+        seed: `lead-${i}`, season: 3, fixtureId: "f", kind: "titulo_liga",
+        chances: 1, ourName: "Albacete", theirName: "Ceuta",
+      });
+      for (const beat of match.beats) {
+        for (const locale of ["es", "en"]) {
+          for (const line of beatLines(getCopy(locale), beat.id, beat.state)) {
+            if (claimsLead[locale].test(line)) {
+              expect(beat.home, `"${line}" at ${beat.home}-${beat.away}`).toBeGreaterThan(beat.away);
+            }
+          }
+        }
       }
     }
   });

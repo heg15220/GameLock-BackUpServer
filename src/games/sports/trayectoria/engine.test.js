@@ -702,3 +702,35 @@ describe("world data", () => {
     }
   });
 });
+
+/**
+ * "Próximo salto", and the year it is talking about.
+ *
+ * The panel printed the age the development cycle LANDS on, under a heading that reads as
+ * next season - so a player of eighteen was told "20 años" when next season he is nineteen.
+ * The number was right and the label was not: a cycle runs two years and is named after the
+ * one it ends on, which is also why the field held the same value two years running, and no
+ * "next year" does that. It shows the span now, and the span has to contain next season.
+ */
+describe("what the development panel says is coming", () => {
+  it("always covers the season about to be played", () => {
+    for (let age = 16; age < RETIREMENT_AGE; age += 1) {
+      const outlook = developmentOutlook({ age, profile: "normal", lastRole: "titular" });
+      if (!outlook) continue;
+      const next = age + 1;
+      expect(outlook.covers[0], `a los ${age}`).toBeLessThanOrEqual(next);
+      expect(outlook.covers[1], `a los ${age}`).toBeGreaterThanOrEqual(next);
+      // Two seasons, named after the one it ends on.
+      expect(outlook.covers[1] - outlook.covers[0]).toBe(1);
+      expect(outlook.covers[1]).toBe(outlook.targetAge);
+    }
+  });
+
+  it("never claims a jump the player has already passed", () => {
+    for (let age = 16; age < RETIREMENT_AGE; age += 1) {
+      const outlook = developmentOutlook({ age, profile: "normal", lastRole: "titular" });
+      if (!outlook) continue;
+      expect(outlook.targetAge, `a los ${age}`).toBeGreaterThan(age);
+    }
+  });
+});

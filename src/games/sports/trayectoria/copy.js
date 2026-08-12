@@ -338,6 +338,7 @@ const COPY = {
       expectationNote:
         "Tu ficha equivale a {role}. Cada temporada la grada compara eso con el rol que jugaste de verdad: por encima, perdona menos; por debajo, perdona casi todo.",
       breach: "Rompes {years} temporadas de contrato",
+      breachOne: "Rompes una temporada de contrato",
     },
 
     talks: {
@@ -404,13 +405,31 @@ const COPY = {
          minuto veinte. Ver `revealShot` en index.jsx: en directo el nombre de la ocasión
          no aparece hasta que la narración llega a ella. */
       shotPending: "Aún por llegar",
+      /* Las siete formas de jugar una ocasión. Cada una es un verbo distinto en la mano
+         -ver la cabecera de chancegames.jsx-, así que el enunciado dice QUÉ se pide y la
+         pista dice CÓMO se hace. Ninguna de las dos se puede omitir: la primera vez que te
+         sale una, es lo único que tienes. */
       chancePrompt: {
         sweep: "Para el marcador dentro del hueco",
         window: "Espera. Golpea antes de que se cierre",
         bend: "Primero la potencia, luego la rosca",
+        charge: "Carga el golpeo y suéltalo en la banda",
+        aim: "Va en movimiento. Suéltala donde va a estar",
+        dive: "Adivina el lado. Y el momento",
+        feint: "Amaga primero. Luego vete",
       },
       chanceGate: "Toque {n} de {total}",
-      chanceHint: "Pulsa en cualquier sitio para golpear",
+      /** El segundo tiempo del amago: ya has vendido la finta, ahora es cuándo sales. */
+      chanceGo: "Ahora",
+      chanceHint: {
+        sweep: "Pulsa en cualquier sitio para golpear",
+        window: "Pulsa en cualquier sitio para golpear",
+        bend: "Pulsa en cualquier sitio para golpear",
+        charge: "Mantén pulsado y suelta",
+        aim: "Arrastra la mira y suelta encima",
+        dive: "Arrastra hacia el lado y suelta",
+        feint: "Dos toques: el amago y el disparo",
+      },
       skip: "Adelantar",
       waiting: "El partido sigue…",
       ofChances: "Ocasión {n} de {total}",
@@ -426,20 +445,50 @@ const COPY = {
           "Ya está en marcha.",
           "Arranca, y el campo no cabe en sí.",
         ],
-        goalUs: [
-          "¡Gol del {us}!",
-          "¡La mete el {us}! Se viene abajo el estadio.",
-          "Marca el {us}. Golpe encima de la mesa.",
-          "¡Dentro! El {us} se pone por delante.",
-          "Cae la del {us}. Justo cuando hacía falta.",
-        ],
-        goalThem: [
-          "Marca el {them}.",
-          "Gol del {them}. Silencio.",
-          "La mete el {them} y hay que remar.",
-          "El {them} encuentra el hueco. Mal asunto.",
-          "El {them} sabe perfectamente lo que hace.",
-        ],
+        /* Un gol dice algo del marcador, y el marcador ya está decidido antes de buscarle
+           palabras. `any` es lo que vale con cualquier resultado; lo demás va por cómo queda
+           el partido después del gol. Ver `beatLines` aquí abajo y `standingOf` en
+           narration.js: un empate a uno no se puede narrar como ponerse por delante. */
+        goalUs: {
+          any: [
+            "¡Gol del {us}!",
+            "¡Marca el {us}! Se viene abajo el estadio.",
+            "Marca el {us}. Golpe encima de la mesa.",
+            "Cae la del {us}. Justo cuando hacía falta.",
+          ],
+          ahead: [
+            "¡Dentro! El {us} se pone por delante.",
+            "La mete el {us} y manda en el marcador.",
+          ],
+          level: [
+            "¡Dentro! El {us} empata el partido.",
+            "La empata el {us}. Vuelve a estar todo por decidir.",
+          ],
+          behind: [
+            "Marca el {us} y se mete otra vez en el partido.",
+            "Acorta el {us}. Todavía hay a qué agarrarse.",
+          ],
+        },
+        goalThem: {
+          any: [
+            "Marca el {them}.",
+            "Gol del {them}. Silencio.",
+            "El {them} encuentra el hueco.",
+            "El {them} sabe perfectamente lo que hace.",
+          ],
+          behind: [
+            "Marca el {them} y hay que remar.",
+            "Gol del {them}. Toca remontar.",
+          ],
+          level: [
+            "Empata el {them}. Se borra lo hecho.",
+            "El {them} iguala y hay que volver a empezar.",
+          ],
+          ahead: [
+            "Recorta el {them}. Se aprieta el marcador.",
+            "Marca el {them}, pero el {us} sigue por delante.",
+          ],
+        },
         tight: [
           "No se abre. Se juega en el barro del centro del campo.",
           "Ni una. Dos equipos con más miedo a perder que ganas de ganar.",
@@ -506,6 +555,23 @@ const COPY = {
           "Se acabó.",
           "Y hasta aquí.",
         ],
+        /* Una eliminatoria no puede acabar en tablas. La tanda no vuelve a sortear nada
+           -el trofeo ya está decidido, ver `settleFinal`-, solo cuenta cómo fue. */
+        shootout: [
+          "Noventa minutos y nada. Penaltis.",
+          "Se acaba igualado. A la tanda.",
+          "No ha bastado. Desde los once metros.",
+        ],
+        shootoutWon: [
+          "Y la tanda es vuestra.",
+          "La última la mete el {us}. Se acabó.",
+          "Gana el {us} en los penaltis.",
+        ],
+        shootoutLost: [
+          "La tanda se la lleva el {them}.",
+          "Falla el {us} el último. Y hasta aquí.",
+          "Pierde el {us} desde los once metros.",
+        ],
       },
       ntFinal: "Final de {cup}",
       record: "En partidos decisivos: {scored} de {taken} · el modelo te da un {rate}%",
@@ -542,8 +608,8 @@ const COPY = {
        */
       decides: {
         league: {
-          yes: "La liga se gana aquí.",
-          no: "La liga se pierde aquí.",
+          yes: "Un paso enorme hacia la liga.",
+          no: "La liga se complica. Aún no está perdida.",
           none: "La liga se decide sin que te llegue una.",
         },
         cup: {
@@ -572,13 +638,13 @@ const COPY = {
           none: "La eliminatoria sigue su curso, y no la firmas tú.",
         },
         promotion: {
-          yes: "Ascenso.",
-          no: "Un año más en la misma categoría.",
+          yes: "Un pie en la categoría de arriba.",
+          no: "El ascenso se pone cuesta arriba.",
           none: "El ascenso se juega sin tu nombre en él.",
         },
         survival: {
-          yes: "Permanencia salvada.",
-          no: "El equipo baja.",
+          yes: "Un paso hacia la permanencia.",
+          no: "La permanencia se pone fea.",
           none: "La permanencia se pelea sin que te llegue una.",
         },
         derby: {
@@ -620,6 +686,11 @@ const COPY = {
       /* La noche, antes de la crónica de la mañana siguiente. Ver trophies.jsx. */
       ceremony: "Lo levantaste",
       ceremonySkip: "Pulsa para continuar",
+      /* Lo que el año le hizo a él, entre la portada y el mercado. Es el número contra el
+         que se van a tasar todas las ofertas de la pantalla siguiente, así que se dice en
+         alto. Bajar no es una pantalla de fracaso: hay años que te quitan algo. */
+      growthHeading: "Tu progreso",
+      growthFlat: "Sin cambios",
       /* La otra noche. Ver `RelegationDrop` en index.jsx: la ceremonía sube una copa y
          esto cae por debajo de una línea, que es exactamente lo que ha pasado. En segunda
          persona del plural porque bajas con ellos: no es tu descenso, es el del equipo, y
@@ -669,11 +740,15 @@ const COPY = {
       wantsOut: "El club no cuenta contigo. No hay opción de seguir.",
       locked:
         "Tienes contrato en vigor: te quedan {years} temporadas. Este verano no puedes firmar por nadie — solo saldrías si un club paga tu cláusula.",
+      lockedOne:
+        "Tienes contrato en vigor: te queda una temporada. Este verano no puedes firmar por nadie — solo saldrías si un club paga tu cláusula.",
       /* La franja de arriba: qué viene, cuándo, y cuánto de ello estás recogiendo.
          Antes eran tres frases seguidas antes de llegar a la única decisión de la
          pantalla; ahora es una fila de celdas con el mismo idioma que el encabezado. */
       outlookHeading: "Próximo salto",
-      outlookAge: "{age} años",
+      /* El tramo, no la edad de llegada: el ciclo dura dos temporadas y se nombra por la
+         que lo cierra, así que "20" a los 18 años se leía como "el año que viene". */
+      outlookAge: "{from}-{to} años",
       outlookCycle: "Rango del ciclo",
       outlookRate: "A tu ritmo",
       outlookRiskShort: "Riesgo: doble tirada",
@@ -749,6 +824,9 @@ const COPY = {
       free: "libre",
       crowd: "Afición",
       secondTier: "2ª",
+      /** Cuántas veces la ha levantado, al pulsar una copa de la vitrina. */
+      wonTimes: "{n} vez",
+      wonTimesPlural: "{n} veces",
     },
 
     context: {
@@ -827,6 +905,7 @@ const COPY = {
       expectationNote:
         "Your wage is {role}. Every season the crowd sets that against the role you actually played: above it they forgive less, below it they forgive almost anything.",
       breach: "You tear up {years} seasons of contract",
+      breachOne: "You tear up a season of contract",
     },
 
     talks: {
@@ -890,13 +969,31 @@ const COPY = {
       modeSkill: "Your moment",
       modeWatch: "Live",
       shotPending: "Yet to come",
+      /* The seven ways a chance is played. Each is a different verb in the hand - see the
+         header of chancegames.jsx - so the prompt says WHAT is being asked and the hint says
+         HOW it is done. Neither can be dropped: the first time one of these comes up, it is
+         all the player has. */
       chancePrompt: {
         sweep: "Stop the marker inside the gap",
         window: "Wait. Hit it before it closes",
         bend: "Power first, then the curl",
+        charge: "Load the strike, let go on the band",
+        aim: "It is moving. Release where it will be",
+        dive: "Pick your side. And your moment",
+        feint: "Sell it first. Then go",
       },
       chanceGate: "Touch {n} of {total}",
-      chanceHint: "Press anywhere to strike",
+      /** The second half of a feint: the dummy is sold, now it is when you go. */
+      chanceGo: "Now",
+      chanceHint: {
+        sweep: "Press anywhere to strike",
+        window: "Press anywhere to strike",
+        bend: "Press anywhere to strike",
+        charge: "Hold, then release",
+        aim: "Drag the crosshair and release on it",
+        dive: "Drag to a side and release",
+        feint: "Two touches: the dummy and the shot",
+      },
       skip: "Skip ahead",
       waiting: "The match is still going…",
       ofChances: "Chance {n} of {total}",
@@ -912,20 +1009,50 @@ const COPY = {
           "And they are off.",
           "It starts, and the ground is up already.",
         ],
-        goalUs: [
-          "{us} score!",
-          "{us} find it! The place comes apart.",
-          "{us} strike first. A statement.",
-          "In! {us} are in front.",
-          "{us} get one, and at the right time.",
-        ],
-        goalThem: [
-          "{them} score.",
-          "{them} get one. Silence.",
-          "{them} find the gap and now there is work to do.",
-          "A goal for {them}. This is a problem.",
-          "{them} know exactly what they are doing.",
-        ],
+        /* A goal is a claim about the scoreline, and the scoreline is settled before anyone
+           goes looking for words for it. `any` holds whatever is true at any score; the rest
+           is keyed on how the match stands after the goal. See `beatLines` below and
+           `standingOf` in narration.js. */
+        goalUs: {
+          any: [
+            "{us} score!",
+            "{us} find it! The place comes apart.",
+            "{us} strike. A statement.",
+            "{us} get one, and at the right time.",
+          ],
+          ahead: [
+            "In! {us} are in front.",
+            "{us} score and take the lead.",
+          ],
+          level: [
+            "In! {us} are level.",
+            "{us} pull it back. All square again.",
+          ],
+          behind: [
+            "{us} get one back. There is a way in.",
+            "{us} score, and it is a match again.",
+          ],
+        },
+        goalThem: {
+          any: [
+            "{them} score.",
+            "{them} get one. Silence.",
+            "{them} find the gap.",
+            "{them} know exactly what they are doing.",
+          ],
+          behind: [
+            "{them} score and now there is work to do.",
+            "A goal for {them}. This is a problem.",
+          ],
+          level: [
+            "{them} level it. Back to nothing.",
+            "{them} pull it back. All square.",
+          ],
+          ahead: [
+            "{them} get one back. It tightens.",
+            "{them} score, but {us} are still in front.",
+          ],
+        },
         tight: [
           "Nothing in it. The game is being fought in midfield.",
           "Not a chance between them. Two sides afraid of losing.",
@@ -992,6 +1119,23 @@ const COPY = {
           "That is that.",
           "And there it ends.",
         ],
+        /* A knockout cannot end level. The shootout re-rolls nothing - the trophy is
+           already decided, see `settleFinal` - it only says how it went. */
+        shootout: [
+          "Ninety minutes and nothing in it. Penalties.",
+          "Level at the end. To the shootout.",
+          "It was not enough. From twelve yards.",
+        ],
+        shootoutWon: [
+          "And the shootout is theirs.",
+          "{us} put the last one away. That is that.",
+          "{us} win it on penalties.",
+        ],
+        shootoutLost: [
+          "{them} take the shootout.",
+          "{us} miss the last one. And that is that.",
+          "{us} lose it from twelve yards.",
+        ],
       },
       ntFinal: "{cup} final",
       record: "In deciders: {scored} of {taken} · the model rates you at {rate}%",
@@ -1019,8 +1163,8 @@ const COPY = {
       /** `none` is the night nothing came to him: it settles at DECIDES.absent, off-stage. */
       decides: {
         league: {
-          yes: "The league is won here.",
-          no: "The league is lost here.",
+          yes: "A huge step towards the league.",
+          no: "The league gets harder. It is not gone.",
           none: "The league is decided without a ball reaching you.",
         },
         cup: {
@@ -1049,13 +1193,13 @@ const COPY = {
           none: "The tie runs its course, and not by your foot.",
         },
         promotion: {
-          yes: "Promoted.",
-          no: "Another year in the same division.",
+          yes: "One foot in the division above.",
+          no: "Going up just got harder.",
           none: "Promotion is played out without your name on it.",
         },
         survival: {
-          yes: "Survival secured.",
-          no: "The club goes down.",
+          yes: "A step towards staying up.",
+          no: "Staying up just got ugly.",
           none: "Survival is fought for without a ball reaching you.",
         },
         derby: {
@@ -1093,6 +1237,11 @@ const COPY = {
       /* The night itself, before the morning's write-up. See trophies.jsx. */
       ceremony: "You lifted it",
       ceremonySkip: "Press to continue",
+      /* What the year did to him, between the front page and the market. It is the number
+         every offer on the next screen is priced against, so it gets said out loud. Down is
+         not a failure screen: some years take something off you. */
+      growthHeading: "Your progress",
+      growthFlat: "No change",
       relegationEyebrow: "Down you go",
       relegationNote: "{club} will play a division lower.",
       perMatch: "Goals per match",
@@ -1138,11 +1287,15 @@ const COPY = {
       wantsOut: "The club is done with you. There is no option to stay.",
       locked:
         "Your deal is still running: {years} seasons left. You cannot sign for anybody this summer — the only way out is a club meeting your buy-out.",
+      lockedOne:
+        "Your deal is still running: one season left. You cannot sign for anybody this summer — the only way out is a club meeting your buy-out.",
       /* The strip up top: what is coming, when, and how much of it he is collecting.
          It used to be three sentences standing between the player and the only decision
          on the screen; it is now a row of cells in the header's own language. */
       outlookHeading: "Next jump",
-      outlookAge: "age {age}",
+      /* The span, not the landing age: a cycle runs two seasons and is named after the
+         one it ends on, so "20" at eighteen read as next year. */
+      outlookAge: "ages {from}-{to}",
       outlookCycle: "Cycle range",
       outlookRate: "At your rate",
       outlookRiskShort: "Risk: double roll",
@@ -1218,6 +1371,9 @@ const COPY = {
       free: "free",
       crowd: "Crowd",
       secondTier: "2nd",
+      /** How many times he has lifted it, when a cup on the shelf is pressed. */
+      wonTimes: "{n} time",
+      wonTimesPlural: "{n} times",
     },
 
     context: {
@@ -1242,6 +1398,38 @@ const COPY = {
 };
 
 export const getCopy = (locale) => COPY[locale] ?? COPY.es;
+
+/**
+ * The lines a beat is allowed to use.
+ *
+ * A beat id holds either a flat list - things that are true whatever the match is doing -
+ * or a list split by how the night stands after it (`state` in narration.js), in which case
+ * only `any` plus the branch that actually happened are on the table.
+ *
+ * This is the whole point: "se pone por delante" is a fact about the scoreline, and the
+ * scoreline is built before the copy is chosen. A goal that only made it 1-1 must not be
+ * able to reach that line. See rule 2 in the header of narration.js.
+ */
+export function beatLines(copy, id, state = "level") {
+  const lines = copy?.match?.beats?.[id];
+  if (!lines) return [];
+  if (Array.isArray(lines)) return lines;
+  if (typeof lines === "string") return [lines];
+  return [...(lines.any ?? []), ...(lines[state] ?? [])];
+}
+
+/**
+ * Singular or plural, picked by the number that is about to go into the line.
+ *
+ * The contract sheet had been doing this by hand since the first version - `yearsOne` next
+ * to `yearsValue` - and everything written afterwards forgot, so the market told a player
+ * with one year left that he had "1 temporadas". A game this careful about its numbers
+ * cannot be careless about the words attached to them.
+ *
+ * Deliberately two whole strings rather than a suffix rule: Spanish and English agree here
+ * by luck, and the next language will not.
+ */
+export const countOf = (one, many, n) => (Math.abs(n) === 1 ? one : many);
 
 export const fillTemplate = (template, values) =>
   String(template).replace(/\{(\w+)\}/g, (_match, key) => String(values[key] ?? ""));

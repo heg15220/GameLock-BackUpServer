@@ -8,6 +8,7 @@ import {
   ovrSeries,
   peakSeason,
   projectPoint,
+  seasonMark,
   seasonReport,
   seriesBounds,
   seriesPath,
@@ -211,15 +212,86 @@ describe("the career curve", () => {
 
 /** The two read-outs the new season model added. See fortune.js and OUR CALL #6. */
 describe("what the front page can now say about a season", () => {
-  const withFortune = (form, extra = {}) =>
-    season({ fortune: { latent: 0, form }, ...extra });
+  /** A season that asked for `asked` between goals and assists, and got `got`. */
+  const marked = (asked, got, extra = {}) =>
+    season({
+      goals: got,
+      assists: 0,
+      expected: { goals: asked, assists: 0 },
+      growth: { factor: 1 },
+      ...extra,
+    });
 
-  it("names the form the season was scored at, and only when it is worth naming", () => {
-    expect(seasonReport(withFortune(1.35)).form).toBe("inspirado");
-    expect(seasonReport(withFortune(1.0)).form).toBe("normal");
-    expect(seasonReport(withFortune(0.62)).form).toBe("gris");
-    // A record from before the change, or a season nobody drew a form for.
+  it("marks the season against what was asked of him, not against the dice", () => {
+    // The same tally is a different year depending on what the year wanted.
+    expect(seasonReport(marked(18, 30)).form).toBe("inspirado");
+    expect(seasonReport(marked(18, 18)).form).toBe("normal");
+    expect(seasonReport(marked(18, 6)).form).toBe("gris");
+    // Nine goals after eighteen is not a collapse if nine is what the season asked for.
+    expect(seasonReport(marked(9, 9)).form).toBe("normal");
+  });
+
+  it("ignores the form the season was drawn at", () => {
+    // The old read-out was exactly this number. It must no longer be able to move the band.
+    const inspired = marked(18, 18, { fortune: { latent: 0, form: 1.6 } });
+    const flat = marked(18, 18, { fortune: { latent: 0, form: 0.5 } });
+    expect(seasonReport(inspired).form).toBe(seasonReport(flat).form);
+  });
+
+  /**
+   * The point of the change. Deciders are converted by hand in the minigames and land in the
+   * tally without landing in the expectation, so coming through them is a season above what
+   * was asked - which the old read-out could not express, because it was drawn first.
+   */
+  it("lets what he did in the deciders move the verdict", () => {
+    const quiet = seasonMark(marked(12, 12));
+    const delivered = seasonMark(marked(12, 15));
+    expect(delivered).toBeGreaterThan(quiet);
+  });
+
+  it("marks a keeper on the big nights, since the sheet records nothing else for him", () => {
+    const keeper = (taken, converted) =>
+      season({
+        goals: 0, assists: 0,
+        expected: { goals: 0, assists: 0 },
+        deciders: { taken, converted, expected: taken * 0.45 },
+        growth: { factor: 1 },
+      });
+    expect(seasonMark(keeper(3, 3))).toBeGreaterThan(seasonMark(keeper(3, 0)));
+    expect(seasonReport(keeper(3, 3)).form).toBe("inspirado");
+  });
+
+  it("falls back to what he grew when the season asked nothing at all", () => {
+    // Injured, suspended, or never off the bench: no tally, no deciders, still a year.
+    const idle = season({
+      goals: 0, assists: 0,
+      expected: { goals: 0, assists: 0 },
+      deciders: { taken: 0, converted: 0, expected: 0 },
+      growth: { factor: 1.4 },
+    });
+    expect(seasonMark(idle)).toBe(1.4);
+    expect(seasonReport(idle).form).toBe("inspirado");
+    // And a record from before any of this existed says nothing rather than guessing.
     expect(seasonReport(season()).form).toBeNull();
+  });
+
+  /**
+   * WITHOUT THE PRIOR THIS IS A NOISE METER. A striker asked for 18 goals and a centre-back
+   * asked for 2 have wildly different Poisson spread, so marked raw the defender's verdict is
+   * a coin: measured, the extremes came up three times as often for him. The shrinkage in
+   * `FORM_PRIOR` is what stops the position you picked deciding how often the game calls
+   * your year inspired.
+   */
+  it("does not hand a louder verdict to whoever was asked for less", () => {
+    const spread = (asked) => {
+      // Same relative overperformance, very different amounts of evidence for it.
+      const high = seasonMark(marked(asked, asked * 1.5));
+      const low = seasonMark(marked(asked, asked * 0.5));
+      return high - low;
+    };
+    // A season worth two goals cannot swing the verdict as far as a season worth twenty.
+    expect(spread(2)).toBeLessThan(spread(20));
+    expect(spread(2)).toBeGreaterThan(0);
   });
 
   it("bands the whole range without leaving a gap", () => {

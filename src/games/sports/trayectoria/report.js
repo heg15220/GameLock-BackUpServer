@@ -25,21 +25,116 @@ function movement(current, previous, key) {
 /**
  * The season's form, as a band rather than a number.
  *
- * Form is the multiplicative factor the goals were counted around (fortune.js). It is
- * worth printing even though the player could not act on it, because without it a season
- * of 9 goals after a season of 18 reads as decline when it was very often just a year -
- * and the whole point of a newspaper is to tell you which of the two it was.
+ * WHAT THIS MEASURES, AND WHAT IT USED TO. The band was `fortune.form`: the multiplier the
+ * goals were counted around, drawn before a ball was kicked. That made the stamp a peek at
+ * the dice, and it had one consequence nobody could defend - what the PLAYER did could not
+ * move it. He could convert all three deciders by hand in the minigames and still be told
+ * he never got going, because the verdict predated the season.
+ *
+ * So it is marked after the fact, out of two ratios the record already carries:
+ *
+ *   PERFORMANCE  what he did over what was asked of him. The denominator is `expected` -
+ *                his role, his club, his matches, before form and before the dice - and the
+ *                numerator includes the big-match goals, which are the ones he put in
+ *                himself. That asymmetry is the point: a converted final is a season above
+ *                what the model asked for, and now it reads as one.
+ *   PROGRESS     `growth.factor`, where 1 is having collected exactly what the development
+ *                tables promised for his age.
+ *
+ * Weighted towards performance, because performance is the season and development is the
+ * cycle it sits in.
+ *
+ * `fortune.form` is untouched and still drives the goals. All that changed is that the
+ * stamp stopped reporting the cause and started marking the result.
+ */
+export const FORM_WEIGHTS = { performance: 0.7, progress: 0.3 };
+
+/**
+ * The cuts, re-measured against the new quantity.
+ *
+ * They cannot be the old ones. Form was a lognormal with sd 0.2; a realised ratio carries
+ * that spread PLUS the Poisson noise of the count itself, which for a striker asked for 18
+ * is another 0.23 - so the old 1.22 would have printed "inspirado" about one year in three,
+ * and a stamp that common says nothing. Chosen so the two extremes stay about as rare as
+ * they have always been, and held there by `report.test.js`.
  */
 export const FORM_BANDS = [
-  { min: 1.22, key: "inspirado" },
-  { min: 1.07, key: "fino" },
-  { min: 0.93, key: "normal" },
-  { min: 0.8, key: "espeso" },
+  { min: 1.147, key: "inspirado" },
+  { min: 1.044, key: "fino" },
+  { min: 0.937, key: "normal" },
+  { min: 0.835, key: "espeso" },
   { min: 0, key: "gris" },
 ];
 
 export const formBand = (form) =>
   (FORM_BANDS.find((band) => form >= band.min) ?? FORM_BANDS[FORM_BANDS.length - 1]).key;
+
+/**
+ * How much evidence a season has to produce before the verdict believes it, in the units of
+ * whatever is being counted.
+ *
+ * WITHOUT THIS THE STAMP MEASURES NOISE, and it does it unevenly, which is worse. A striker
+ * asked for 18 goals carries Poisson noise of about ±23%; a centre-back asked for 2 carries
+ * ±71%, and a goalkeeper's year is one to three deciders, where 0 of 1 is zero and 1 of 1 is
+ * more than double. Marked raw, a striker's ratio is a season and a defender's is a coin -
+ * measured, the extremes came up 16% of the time for a striker and 48% for a keeper. Which
+ * position you picked would decide how often the game called your year inspired.
+ *
+ * So the ratio is shrunk towards 1 by a prior, exactly as `conversionRate` in bigmatch.js
+ * already shrinks a player's decisive record towards what the model expected of him. Small
+ * evidence moves the verdict a little, a whole striker's season moves it a lot, and neither
+ * gets a louder headline than it earned. The two numbers are in different units - goals plus
+ * assists, and deciders - so there are two of them.
+ */
+export const FORM_PRIOR = { output: 9, deciders: 4.4 };
+
+/**
+ * What he did over what was asked of him, or null when the season asked nothing measurable.
+ *
+ * A goalkeeper is the case the second branch exists for. `GOAL_RATE.keeper` is zero and so
+ * are his assists, so there is no tally to mark him against - and he is the one player whose
+ * big nights the sheet deliberately does not record, because a save is paid for in the
+ * trophy it settled. His deciders are therefore his season, priced off `shotScoringRate`:
+ * the model's own estimate of him, taken before this year's went into his record so the
+ * measure cannot chase itself.
+ *
+ * A year with no matches, no deciders and nothing asked - injured, suspended, benched all
+ * season - returns null, and the band falls back to what he grew.
+ */
+export function performanceRatio(record) {
+  const asked = (record.expected?.goals ?? 0) + (record.expected?.assists ?? 0);
+  if (asked > 0) {
+    const prior = FORM_PRIOR.output;
+    return (prior + record.goals + record.assists) / (prior + asked);
+  }
+
+  const deciders = record.deciders;
+  if (deciders?.expected > 0) {
+    const prior = FORM_PRIOR.deciders;
+    return (prior + deciders.converted) / (prior + deciders.expected);
+  }
+  return null;
+}
+
+/**
+ * The season, marked. Returns the number the band is cut from, so a test can measure how
+ * often each verdict comes up rather than take this file's word for it.
+ */
+export function seasonMark(record) {
+  const performance = performanceRatio(record);
+  const progress = record.growth?.factor ?? null;
+
+  if (performance == null && progress == null) return null;
+  // Whichever half exists carries the whole season when the other one cannot speak.
+  if (performance == null) return progress;
+  if (progress == null) return performance;
+  return FORM_WEIGHTS.performance * performance + FORM_WEIGHTS.progress * progress;
+}
+
+export function seasonBand(record) {
+  const mark = seasonMark(record);
+  return mark == null ? null : formBand(mark);
+}
 
 /**
  * Whether this was a season that made him better, worse, or neither - the read-out for
@@ -114,9 +209,9 @@ export function seasonReport(record, previous = null) {
     national: record.national?.calledUp ? record.national : null,
     development,
     honours,
-    // The year the club had, and the year he had inside it. Both come off the one latent
-    // the season was drawn from, which is why they tend to agree.
-    form: record.fortune ? formBand(record.fortune.form) : null,
+    // The year he had, marked against what was asked of him and what he grew. Not the dice
+    // he was dealt - see the header of `FORM_BANDS`.
+    form: seasonBand(record),
     division: record.division ?? null,
     movedClub: Boolean(previous && previous.clubId !== record.clubId),
   };

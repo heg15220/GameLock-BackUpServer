@@ -179,13 +179,15 @@
   margin-left: auto;
 }
 /* The vitrina takes its own line so it never squeezes the four readings above it. */
-.tr-rail > .tr-shelf {
+/* The cabinet takes the whole width under the readings. It is the case rather than the
+   shelf itself because pressing a cup names it on a second line inside the same block. */
+.tr-rail > .tr-shelf__case {
   flex: 1 0 100%;
-  justify-content: flex-end;
   margin: 11px 0 0;
   padding-top: 10px;
   border-top: 1px solid var(--tr-line);
 }
+.tr-rail .tr-shelf { justify-content: flex-end; }
 
 /* ── The rating, as a card ───────────────────────────────────────────────────
    The one place this interface borrows a convention from the genre wholesale,
@@ -1201,12 +1203,49 @@
   place-items: center;
   width: 30px;
   height: 30px;
+  padding: 0;
+  cursor: pointer;
   color: var(--tr-gold);
   background: rgba(242, 183, 5, 0.09);
   border: 1px solid rgba(242, 183, 5, 0.3);
   border-radius: 6px;
   animation: tr-stamp 320ms cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
   animation-delay: calc(var(--i, 0) * 60ms);
+}
+.tr-shelf__item:hover { background: rgba(242, 183, 5, 0.16); }
+/* The one being asked about, lit rather than outlined: the shelf is small and a thicker
+   border on a 30px square just reads as a wobble. */
+.tr-shelf__item.is-open {
+  background: rgba(242, 183, 5, 0.26);
+  border-color: var(--tr-gold);
+}
+.tr-shelf__item.is-national:hover { background: rgba(238, 241, 247, 0.13); }
+.tr-shelf__item.is-national.is-open {
+  background: rgba(238, 241, 247, 0.2);
+  border-color: rgba(238, 241, 247, 0.6);
+}
+
+/* The answer, on its own line under the row. */
+.tr-shelf__named {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: var(--tr-gold);
+  animation: tr-rise 240ms ease backwards;
+}
+.tr-shelf__named.is-national { color: var(--tr-ink); }
+.tr-shelf__named span {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.tr-shelf__named b {
+  font-weight: 600;
+  color: var(--tr-muted);
+  white-space: nowrap;
 }
 /* A cup won with your country is a different colour of memory. */
 .tr-shelf__item.is-national {
@@ -1720,21 +1759,62 @@
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.4);
   animation: tr-print 520ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
 }
-.tr-sign__head { padding-bottom: 16px; border-bottom: 2px solid var(--tr-ink-red); }
-.tr-sign__club { display: flex; align-items: center; gap: 13px; margin-top: 12px; }
-.tr-sign__club p { margin: 4px 0 0; font-size: 12px; color: #6a6c60; }
-.tr-sign .tr-terms { margin-top: 18px; }
-.tr-sign .tr-term { border-bottom-color: rgba(18, 19, 15, 0.16); }
+.tr-sign__head { padding-bottom: 11px; border-bottom: 2px solid var(--tr-ink-red); }
+.tr-sign__club { display: flex; align-items: center; gap: 12px; }
+.tr-sign__club > div { min-width: 0; }
+.tr-sign__club .tr-front__cardhead { margin-bottom: 3px; }
+/* The competition rides on the far end of the same line the club is on. */
+.tr-sign__comp {
+  margin: 0 0 0 auto;
+  padding-left: 12px;
+  font-size: 12px;
+  text-align: right;
+  white-space: nowrap;
+  color: #6a6c60;
+}
+.tr-sign .tr-why { margin: 12px 0 0; }
+
+/* The four terms as a sheet of four cells rather than four rows.
+   Label over value, two to a line: the labels are two words at most and the values are
+   short, so a full-width row per term was buying nothing and costing the screen - the
+   signature and the button below it were ending up under the fold. */
+.tr-sign .tr-terms {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin-top: 10px;
+}
+.tr-sign .tr-term {
+  display: block;
+  padding: 9px 0 8px;
+  border-bottom-color: rgba(18, 19, 15, 0.16);
+}
+.tr-sign .tr-term:nth-child(odd) {
+  padding-right: 18px;
+  border-right: 1px solid rgba(18, 19, 15, 0.16);
+}
+.tr-sign .tr-term:nth-child(even) { padding-left: 18px; }
+/* Two cells share the bottom line, so both of them have to give it up. */
+.tr-sign .tr-term:nth-last-child(-n + 2) { border-bottom: 0; }
+.tr-sign .tr-term dt { margin-bottom: 3px; }
+.tr-sign .tr-term dd b { font-size: 14px; }
 .tr-sign .tr-term dt,
 .tr-sign .tr-term dd small { color: #6a6c60; }
 .tr-sign .tr-term.is-muted dd b { color: #6a6c60; }
 
-.tr-sign__gained { margin-top: 18px; }
+/* Label and stamps on one line: the heading is three words and the chips are short. */
+.tr-sign__gained {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+  margin-top: 12px;
+}
 .tr-sign__gained ul {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 9px 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -1742,7 +1822,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 11px;
+  padding: 5px 10px;
   font-size: 12px;
   font-weight: 700;
   color: #17692f;
@@ -1751,19 +1831,27 @@
   animation: tr-stamp 360ms cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
   animation-delay: 700ms;
 }
-.tr-sign__none { margin: 8px 0 0; font-size: 13px; color: #6a6c60; }
+.tr-sign__none { margin: 0; font-size: 13px; color: #6a6c60; }
 
 /* The name is written rather than typed: a wipe left to right, then the flourish
-   draws under it. A traced glyph would depend on font metrics we do not control. */
+   draws under it. A traced glyph would depend on font metrics we do not control.
+
+   The season used to sit under the flourish on a line of its own. It is a date, so it
+   goes where a date goes on a signed sheet: out to the right of the signature, on the
+   same block, which gives the card back a whole line. */
 .tr-sign__paper {
   position: relative;
-  margin: 26px 0 22px;
-  padding: 22px 0 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: 16px;
+  margin: 14px 0 16px;
+  padding: 19px 0 2px;
   border-top: 1px solid rgba(18, 19, 15, 0.2);
 }
 .tr-sign__by {
   position: absolute;
-  top: 8px;
+  top: 6px;
   left: 0;
   font-size: 9px;
   font-weight: 700;
@@ -1773,8 +1861,9 @@
 }
 .tr-sign__name {
   display: block;
+  grid-column: 1;
   font-family: var(--tr-display);
-  font-size: clamp(38px, 9vw, 68px);
+  font-size: clamp(34px, 7.4vw, 54px);
   line-height: 1;
   text-transform: uppercase;
   transform: skewX(-11deg);
@@ -1783,8 +1872,9 @@
 }
 .tr-sign__flourish {
   display: block;
-  width: min(100%, 300px);
-  height: 34px;
+  grid-column: 1;
+  width: min(100%, 260px);
+  height: 26px;
   margin-top: -4px;
   color: var(--tr-ink-red);
 }
@@ -1795,10 +1885,15 @@
 }
 .tr-sign__season {
   display: block;
-  margin-top: 4px;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: end;
+  padding-bottom: 6px;
   font-size: 11px;
   letter-spacing: 0.12em;
+  text-align: right;
   text-transform: uppercase;
+  white-space: nowrap;
   color: #6a6c60;
 }
 .tr-sign.is-still .tr-sign__name,
@@ -1935,37 +2030,204 @@
   color: var(--tr-muted);
 }
 
+/* ── The four that are not a tap ─────────────────────────────────────────────
+   Same frame, same green target, four different verbs. Each one has to LOOK
+   like the thing it asks for before it is read: a bar that fills is a hold, a
+   field with a ring in it is a place, a run-up across the top is a clock you
+   are racing. Nothing here is decoration - if a mark moves, it is because the
+   player is being judged on where it was when he let go.
+   The dragged ones take `touch-action: none`, or the phone scrolls the page
+   instead of playing the chance.                                             */
+
+.tr-chance__track.is-charge,
+.tr-chance__track.is-feint { touch-action: none; }
+.tr-chance__track.is-dive {
+  height: clamp(150px, 34vw, 210px);
+  touch-action: none;
+}
+/* AIM is the one that is judged in two dimensions, and the judge measures a circle in
+   0..1 on BOTH axes. On a wide box that circle is an ellipse in pixels, so the ring on
+   screen would be pointing at a target that is not there. Square, and they agree. */
+.tr-chance__track.is-aim {
+  width: min(100%, 340px);
+  height: auto;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  touch-action: none;
+}
+
+/* CHARGE. Fills from the left and does not come back; live it goes red, because
+   what you are watching is something you have to let go of. */
+.tr-chance__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--at, 0%);
+  background: linear-gradient(90deg, rgba(238, 241, 247, 0.16), rgba(238, 241, 247, 0.38));
+  border-right: 3px solid var(--tr-ink);
+  box-shadow: 0 0 16px rgba(238, 241, 247, 0.5);
+}
+.tr-chance__fill.is-live {
+  background: linear-gradient(90deg, rgba(232, 17, 45, 0.2), rgba(232, 17, 45, 0.42));
+  border-right-color: var(--tr-ink-red);
+  box-shadow: 0 0 18px rgba(232, 17, 45, 0.55);
+}
+
+/* AIM. The only two-dimensional one, so the target is a ring rather than a band and
+   the field gets the faint grid that says "this is a space, not a line". */
+.tr-chance__track.is-aim {
+  background:
+    linear-gradient(90deg, rgba(238, 241, 247, 0.05) 1px, transparent 1px) 0 0 / 25% 100%,
+    linear-gradient(180deg, rgba(238, 241, 247, 0.05) 1px, transparent 1px) 0 0 / 100% 25%,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.25));
+}
+/* The disc, exactly the size the judge uses: `--r` is the tolerance, and on a square box
+   the same percentage on both axes is the same number of pixels. It travels. */
+.tr-chance__spot {
+  position: absolute;
+  left: var(--x, 50%);
+  top: var(--y, 50%);
+  width: calc(var(--r, 10%) * 2);
+  height: calc(var(--r, 10%) * 2);
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(53, 196, 106, 0.75);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(53, 196, 106, 0.26), rgba(53, 196, 106, 0.06) 70%);
+}
+/* A crosshair rather than a dot: on a phone the thumb sits exactly on the point being
+   aimed with, and the lines carry on either side of it. */
+.tr-chance__reticle {
+  position: absolute;
+  left: var(--x, 50%);
+  top: var(--y, 50%);
+  width: 18px;
+  height: 18px;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--tr-ink);
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(238, 241, 247, 0.7);
+}
+.tr-chance__reticle::before,
+.tr-chance__reticle::after {
+  content: "";
+  position: absolute;
+  background: rgba(238, 241, 247, 0.55);
+}
+.tr-chance__reticle::before {
+  left: 50%;
+  top: -100vmax;
+  bottom: -100vmax;
+  width: 1px;
+  margin-left: -0.5px;
+}
+.tr-chance__reticle::after {
+  top: 50%;
+  left: -100vmax;
+  right: -100vmax;
+  height: 1px;
+  margin-top: -0.5px;
+}
+
+/* DIVE. The side runs across the goal and the run-up runs across the top: two calls,
+   two marks, both on screen at once because you make them in one movement. */
+.tr-chance__track.is-dive .tr-chance__target { top: 34px; }
+.tr-chance__run {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 22px;
+  border-bottom: 1px solid var(--tr-line);
+  background:
+    linear-gradient(90deg, transparent var(--from, 0%), rgba(242, 183, 5, 0.3) var(--from, 0%),
+      rgba(242, 183, 5, 0.3) calc(var(--from, 0%) + var(--size, 10%)), transparent calc(var(--from, 0%) + var(--size, 10%)));
+}
+.tr-chance__run::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--at, 0%);
+  width: 3px;
+  margin-left: -1.5px;
+  background: var(--tr-ink-red);
+  box-shadow: 0 0 12px rgba(232, 17, 45, 0.7);
+}
+.tr-chance__keeper {
+  position: absolute;
+  bottom: 14px;
+  left: var(--at, 50%);
+  width: 16px;
+  height: 34px;
+  margin-left: -8px;
+  border-radius: 8px 8px 3px 3px;
+  background: var(--tr-ink);
+  box-shadow: 0 0 16px rgba(238, 241, 247, 0.45);
+  transition: left 90ms linear;
+}
+/* Gone. Committed, and leaning where he committed - a keeper on the floor is not
+   standing up again, which is the whole point of this one. */
+.tr-chance__keeper.is-gone {
+  height: 16px;
+  width: 34px;
+  margin-left: -17px;
+  border-radius: 8px;
+  background: var(--tr-ink-red);
+}
+
+/* FEINT. The bar is the beat, not a position, so it fills rather than sweeps and the
+   band is where the second touch has to land. */
+.tr-chance__beat {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 0;
+  width: var(--at, 0%);
+  background: linear-gradient(90deg, rgba(238, 241, 247, 0.06), rgba(238, 241, 247, 0.3));
+  border-right: 3px solid var(--tr-ink);
+}
+.tr-chance__beat.is-live { border-right-color: var(--tr-gold); }
+
 /* ── The ninety minutes, when they are not ───────────────────────────────────
    A live feed rather than a wall of text: the score sits still at the top and
    the beats arrive underneath, one at a time, on the clock.                  */
 
 .tr-live {
-  margin-top: 16px;
-  padding: 14px 16px;
+  margin-top: 12px;
+  padding: 12px 14px;
   background: rgba(0, 0, 0, 0.28);
   border: 1px solid var(--tr-line);
   border-radius: 10px;
 }
 .tr-live__scoreline {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding-bottom: 12px;
+  gap: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--tr-line);
 }
-.tr-live__scoreline b {
-  flex: 1;
+/* Badge and name, the way a score bug carries them: crest outside, name towards the
+   middle, so the two clubs read inwards to the score between them. */
+.tr-live__side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--tr-muted);
 }
-.tr-live__scoreline b:last-child { text-align: right; }
+.tr-live__side span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tr-live__side--away { justify-content: flex-end; text-align: right; }
+.tr-live__side .tr-crest,
+.tr-live__side .tr-flag { flex: none; }
 .tr-live__score {
   font-family: var(--tr-display);
-  font-size: 30px;
+  font-size: 28px;
   line-height: 1;
   letter-spacing: 0.04em;
 }
@@ -1976,7 +2238,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 .tr-live__minute {
   font-family: var(--tr-display);
@@ -2035,17 +2297,24 @@
 .tr-live__feed {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  margin: 12px 0 0;
+  gap: 6px;
+  margin: 10px 0 0;
   padding: 0;
   list-style: none;
-  /* Tall enough for the whole build-up, so the feed never jumps as beats land. */
-  min-height: 132px;
+  /* Tall enough for the build-up so the feed never jumps as beats land, and capped so a
+     match that runs to a dozen beats does not push the placements off the screen. The
+     newest line is scrolled into view - see `feed` in Broadcast. */
+  min-height: 104px;
+  max-height: clamp(150px, 26vh, 260px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 .tr-live__beat {
   display: flex;
   gap: 10px;
   font-size: 13px;
+  line-height: 1.35;
   color: #c3cbd9;
   animation: tr-rise 300ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
 }
@@ -2165,6 +2434,26 @@
   background: rgba(146, 162, 190, 0.1);
   border-color: var(--tr-line);
 }
+
+/* ── Live, the whole match on one screen ─────────────────────────────────────
+   A narrated decider is the tallest thing in the game: a header, a scoreboard, a
+   feed that grows for ninety minutes, and then the three placements it all exists
+   to ask about. The furniture gives up its height first - the emblem, the title
+   and the type strip say the same things smaller - because the one thing that
+   must not go under the fold is the question.                                  */
+
+.tr-match.is-live .tr-match__emblem { width: 40px; height: 40px; }
+.tr-match.is-live .tr-match__emblem .tr-icon { width: 24px; height: 24px; }
+.tr-match.is-live .tr-match__title { gap: 12px; margin-top: 8px; }
+.tr-match.is-live .tr-display--lg { margin-top: 0; font-size: clamp(22px, 3.6vw, 32px); }
+.tr-match.is-live .tr-match__alsoderby { margin-top: 7px; }
+.tr-match.is-live .tr-match__type {
+  margin-top: 12px;
+  padding-bottom: 8px;
+  font-size: clamp(17px, 2.8vw, 22px);
+}
+.tr-match.is-live .tr-match__waiting { margin: 12px 0 0; }
+.tr-match.is-live .tr-match__foot { margin-top: 12px; }
 
 .tr-match__type {
   position: relative;
@@ -2445,7 +2734,11 @@
   /* Same problem, quieter: no orphan on the last line of the standfirst. */
   text-wrap: pretty;
 }
-/* A drop cap: the one flourish the page gets, and it is what a portada actually does. */
+/* A drop cap: the one flourish the page gets, and it is what a portada actually does.
+   Not on a paragraph that opens on a figure, though - see `dropCapSafe` in index.jsx.
+   `::first-letter` would take the "1" out of "12 partidos" and set it at 52px, and the
+   reader would come away with the wrong number. */
+.tr-front__body.is-plain::first-letter { float: none; margin: 0; font: inherit; color: inherit; }
 .tr-front__body::first-letter {
   float: left;
   margin: 6px 8px 0 0;
@@ -3037,7 +3330,8 @@
   /* The card and the crest keep the first line; the numbers take the second. */
   .tr-rail__club { flex: 1 1 auto; padding: 0 0 0 14px; }
   .tr-rail__cells { flex: 1 0 100%; margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--tr-line); }
-  .tr-rail > .tr-shelf { justify-content: flex-start; }
+  .tr-rail .tr-shelf { justify-content: flex-start; }
+  .tr-rail .tr-shelf__named { justify-content: flex-start; }
   .tr-rail__cell { flex: 1; min-width: 0; padding: 4px 6px 7px; }
   .tr-rail__cell:first-child { border-left: 0; padding-left: 0; }
   .tr-rail__value { font-size: 23px; }
@@ -3089,8 +3383,176 @@
   .tr-crowds li { flex-wrap: wrap; }
   .tr-crowds__id { flex: 1 1 auto; }
   .tr-crowds__bar { flex: 1 1 100%; }
+  /* A competition name can be four words. On a phone it takes the line under the club
+     instead of fighting the crest for the first one. */
+  .tr-sign__club { flex-wrap: wrap; }
+  .tr-sign__comp {
+    flex: 1 0 100%;
+    margin-left: 0;
+    padding-left: 0;
+    text-align: left;
+    white-space: normal;
+  }
+}
+
+/* Under this the two term cells stop being readable and go back to one per line: a
+   contract you cannot read is worse than a contract you have to scroll. */
+@media (max-width: 380px) {
+  .tr-sign .tr-terms { grid-template-columns: 1fr; }
+  .tr-sign .tr-term:nth-child(odd) { padding-right: 0; border-right: 0; }
+  .tr-sign .tr-term:nth-child(even) { padding-left: 0; }
+  .tr-sign .tr-term:nth-last-child(-n + 2) { border-bottom: 1px solid rgba(18, 19, 15, 0.16); }
+  .tr-sign .tr-term:last-child { border-bottom: 0; }
+}
+
+/* A laptop in a browser window is a SHORT screen, not a narrow one, and this card is the
+   one place in the game where everything has to be visible at once - you are being asked
+   to accept it. So the ceremony gives up height before the terms do. */
+@media (max-height: 760px) {
+  .tr-sign { padding: clamp(16px, 2.6vw, 24px); }
+  .tr-sign__name { font-size: clamp(30px, 6vw, 42px); }
+  .tr-sign__flourish { height: 20px; }
+  .tr-sign__paper { margin: 10px 0 12px; padding-top: 16px; }
+  .tr-sign .tr-term { padding: 7px 0 6px; }
+
+  /* Same trade on the live match: the feed keeps as much as the window can hold and the
+     furniture around it gets out of the way. */
+  .tr-match.is-live { padding: clamp(16px, 2.6vw, 22px); }
+  .tr-match.is-live .tr-match__emblem { width: 34px; height: 34px; }
+  .tr-match.is-live .tr-display--lg { font-size: clamp(20px, 3vw, 26px); }
+  .tr-match.is-live .tr-match__type { margin-top: 10px; font-size: clamp(16px, 2.4vw, 20px); }
+  .tr-live { margin-top: 10px; padding: 10px 12px; }
+  .tr-live__score { font-size: 24px; }
+  .tr-live__feed { min-height: 84px; max-height: clamp(120px, 22vh, 200px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tr-shell * { transition: none !important; animation: none !important; }
+}
+
+/* ── What the year did to him ────────────────────────────────────────────────
+   The third between-screens beat, built from the same parts as the other two: a
+   full-bleed hold over the stage, one reading, and a press to carry on. Where
+   the ceremony is gold and the drop is red, this one takes its colour from the
+   answer - and the down case is deliberately the same weight as the up, because
+   a career that only stops to celebrate is lying about what a career is.      */
+
+.tr-growth {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 42%, rgba(12, 16, 22, 0.94), rgba(6, 7, 10, 0.97) 66%);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+.tr-growth.is-up { background: radial-gradient(circle at 50% 42%, rgba(8, 40, 22, 0.94), rgba(6, 7, 10, 0.97) 66%); }
+.tr-growth.is-down { background: radial-gradient(circle at 50% 42%, rgba(44, 10, 14, 0.94), rgba(6, 7, 10, 0.97) 66%); }
+
+.tr-growth__inner { text-align: center; max-width: 100%; }
+.tr-growth__eyebrow {
+  margin: 0 0 clamp(12px, 2.4vw, 22px);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  animation: tr-rise 420ms ease backwards;
+}
+
+/* The old number, the way, and the new one. The arrow carries the verdict so the
+   figures do not have to shout it. */
+.tr-growth__reading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2.6vw, 20px);
+}
+.tr-growth__from {
+  font-family: var(--tr-display);
+  font-size: clamp(30px, 7vw, 48px);
+  line-height: 1;
+  color: var(--tr-muted);
+  opacity: 0.75;
+}
+.tr-growth__to {
+  font-family: var(--tr-display);
+  font-size: clamp(52px, 15vw, 108px);
+  line-height: 1;
+  color: var(--tr-ink);
+  animation: tr-stamp 460ms cubic-bezier(0.2, 1.3, 0.4, 1) 380ms backwards;
+}
+.tr-growth.is-up .tr-growth__to { color: var(--tr-green); }
+.tr-growth.is-down .tr-growth__to { color: var(--tr-ink-red); }
+
+.tr-growth__arrow { display: grid; place-items: center; color: var(--tr-muted); }
+.tr-growth.is-up .tr-growth__arrow { color: var(--tr-green); }
+.tr-growth.is-down .tr-growth__arrow { color: var(--tr-ink-red); }
+.tr-growth.is-up .tr-growth__arrow,
+.tr-growth.is-down .tr-growth__arrow {
+  animation: tr-rise 520ms cubic-bezier(0.2, 0.7, 0.3, 1) 220ms backwards;
+}
+
+.tr-growth__move {
+  margin: clamp(8px, 1.8vw, 14px) 0 0;
+  font-family: var(--tr-display);
+  font-size: clamp(16px, 3.4vw, 24px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+.tr-growth.is-up .tr-growth__move { color: var(--tr-green); }
+.tr-growth.is-down .tr-growth__move { color: var(--tr-ink-red); }
+
+.tr-growth.is-still .tr-growth__to,
+.tr-growth.is-still .tr-growth__arrow,
+.tr-growth.is-still .tr-growth__eyebrow { animation: none; }
+
+/* ── The shootout, kick by kick ──────────────────────────────────────────────
+   Two rows of marks that fill in the order the penalties were taken: green in,
+   red saved, hollow for the ones nobody has walked up to yet. The running score
+   sits between them, because that is the number the stadium is watching.      */
+
+.tr-shootout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--tr-line);
+}
+.tr-shootout__row { display: flex; flex-wrap: wrap; gap: 4px; }
+.tr-shootout__row--them { justify-content: flex-end; }
+.tr-shootout__score {
+  font-family: var(--tr-display);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--tr-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One penalty. Hollow until it is taken, then it is one of two things and never
+   anything else - which is the whole reason this reads at a glance. */
+.tr-kick {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid var(--tr-line);
+  background: none;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.tr-kick.is-in {
+  background: var(--tr-green);
+  border-color: var(--tr-green);
+  animation: tr-stamp 300ms cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
+}
+.tr-kick.is-out {
+  background: var(--tr-ink-red);
+  border-color: var(--tr-ink-red);
+  animation: tr-stamp 300ms cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
 }

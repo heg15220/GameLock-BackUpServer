@@ -6,17 +6,32 @@
  * tolerances and the verdict - with no React in it, so the whole thing is testable and the
  * screen only has to animate a number.
  *
- * THREE MECHANICS, FIVE CHANCES. Not five minigames: the icon set, the delta meter and the
- * verdict chips all work because the game keeps re-using one vocabulary, and a player who
- * has learned to read a sweeping marker should not have to learn a second one because the
- * ball arrived from a corner instead of the spot.
+ * SEVEN MECHANICS. This file used to argue for three, on the grounds that one vocabulary is
+ * what makes the game readable and nobody should have to learn a second marker because the
+ * ball arrived from a corner instead of the spot. That was right about the vocabulary and
+ * wrong about the count, and the arithmetic is what settles it: the repertoire is filtered
+ * by position (see REPERTOIRE in bigmatch.js), so a career is four or five kinds of chance,
+ * not thirteen. Under three mechanics a goalkeeper played TWO games - a dozen sweeps and a
+ * dozen windows across fifteen seasons - and so did a centre-back. Seven puts four or five
+ * in front of every position, which is still three or four sightings of each per career:
+ * enough to learn one, which was the real point all along.
  *
- *   SWEEP  a marker runs across the goalmouth; stop it inside the gap the keeper left.
- *          The keeper's position is still drawn before you look, so it is a read and not
- *          just a reflex. Penalty and volley.
- *   WINDOW a chance that closes - the keeper advancing, the defender arriving. Hit it late
- *          and it is worth more, hit it too late and it is gone. One-on-one and header.
- *   BEND   two calls in sequence: how hard, then how much curl. Free kick.
+ * Each of them is one verb, and no two share it:
+ *
+ *   SWEEP  ONE TOUCH. A marker runs across the goalmouth; stop it inside the gap the keeper
+ *          left. The gap is drawn before you look, so it is a read and not just a reflex.
+ *   WINDOW ONE TOUCH. A chance that closes - the keeper advancing, the defender arriving.
+ *          Late is worth more; too late is gone.
+ *   BEND   TWO TOUCHES. How hard, then how much curl.
+ *   CHARGE HOLD AND RELEASE. A bar climbs while you hold it and does not come back. Let go
+ *          inside the band; hold past it and it is over the bar.
+ *   AIM    DRAG AND RELEASE, on something that is MOVING. The only one in two dimensions:
+ *          the ball is going somewhere and so is the man, and you have to be where it ends
+ *          up rather than where it is.
+ *   DIVE   ONE COMMITTED GESTURE, judged twice - which way you went and when you went. You
+ *          cannot take it back, because that is what diving is.
+ *   FEINT  TWO TOUCHES, and what is measured is the BEAT between them, not where they land.
+ *          Sell it, then go.
  *
  * ── The one thing that had to be got right ────────────────────────────────────
  *
@@ -31,34 +46,56 @@
 import { createStream, randInt } from "./rng.js";
 import { NAILED_FROM_OVR } from "./bigmatch.js";
 
-export const MECHANICS = { SWEEP: "sweep", WINDOW: "window", BEND: "bend" };
+export const MECHANICS = {
+  SWEEP: "sweep",
+  WINDOW: "window",
+  BEND: "bend",
+  CHARGE: "charge",
+  AIM: "aim",
+  DIVE: "dive",
+  FEINT: "feint",
+};
 
 /**
- * Which mechanic each kind of chance is played with, and how it is dressed.
+ * Which mechanic each kind of chance is played with.
  *
- * The defensive and goalkeeping chances reuse the same three without adding a fourth,
- * which is the whole thesis above: stopping a marker inside the gap the keeper left and
- * stopping it on the corner the striker picked are the same act of reading and timing,
- * and a player who has learned one has learned the other.
+ * Assigned so that no position's repertoire repeats itself: every group in REPERTOIRE
+ * comes out with four or five different games rather than the two it used to have.
+ * `minigames.test.js` holds that, so this table cannot quietly collapse again.
+ *
+ * The pairings are not arbitrary - each chance is given the verb it actually is. You do not
+ * time a header, you place it. You do not place a clearance, you hit it. A dive is the one
+ * thing on a football pitch you genuinely cannot take back.
  */
 export const CHANCE_MECHANIC = {
+  // Striker. The penalty stays a sweep: it is the game's signature and the first one
+  // anybody plays.
   penal: MECHANICS.SWEEP,
-  volea: MECHANICS.SWEEP,
-  mano_a_mano: MECHANICS.WINDOW,
-  cabezazo: MECHANICS.WINDOW,
+  mano_a_mano: MECHANICS.FEINT,
+  cabezazo: MECHANICS.AIM,
   falta: MECHANICS.BEND,
-  // Keeper: a penalty and a shot from distance are read, a one-on-one and a cross are timed.
-  parada_penal: MECHANICS.SWEEP,
-  tiro_lejano: MECHANICS.SWEEP,
+  volea: MECHANICS.CHARGE,
+  // Keeper. The penalty is the dive; coming for a cross is how far you are willing to go.
+  parada_penal: MECHANICS.DIVE,
   salida_mano_a_mano: MECHANICS.WINDOW,
-  centro_lateral: MECHANICS.WINDOW,
-  // Defender: the clearance is a read, the tackle and the interception are timing.
-  despeje: MECHANICS.SWEEP,
+  tiro_lejano: MECHANICS.SWEEP,
+  centro_lateral: MECHANICS.CHARGE,
+  // Defender. A clearance is struck, a tackle is timed, an interception is a held nerve.
+  despeje: MECHANICS.CHARGE,
   entrada: MECHANICS.WINDOW,
-  anticipo: MECHANICS.WINDOW,
-  // Midfield: the weight of the pass is the same two calls a free kick is.
-  pase_gol: MECHANICS.BEND,
+  anticipo: MECHANICS.FEINT,
+  // Midfield. The through ball is the one pass where WHERE is the whole question.
+  pase_gol: MECHANICS.AIM,
 };
+
+/**
+ * A disc that is as easy to hit blind as a band of half-width `t` is on a line.
+ *
+ * The flat mechanics convert on `2t` of a unit line; a disc covers `pi r^2` of a unit
+ * square. Derived rather than typed so the two-dimensional game cannot drift into being the
+ * generous one the day somebody nudges a number - see the second guard in the test file.
+ */
+const discFor = (t) => Math.sqrt((2 * t) / Math.PI);
 
 export const TUNING = {
   /**
@@ -68,8 +105,20 @@ export const TUNING = {
   sweep: { at60: 0.085, at95: 0.155, speedAt60: 1.35, speedAt95: 0.95 },
   /** The window's width in the same units, and how fast it closes. */
   window: { at60: 0.1, at95: 0.19, closeAt60: 1.4, closeAt95: 1.0 },
-  /** Two gates, each narrower than a sweep because there are two of them. */
+  /** Two gates, wider each because both of them have to land. */
   bend: { at60: 0.11, at95: 0.2 },
+  /**
+   * The band on a climbing bar, and the seconds it takes to fill. Better players get a
+   * SLOWER bar: a charge cannot be waited out like a sweep can, so composure here is time
+   * to think rather than a second pass.
+   */
+  charge: { at60: 0.085, at95: 0.155, fillAt60: 1.15, fillAt95: 1.7 },
+  /** The radius of the disc, area-matched to the sweep band, and the seconds of the run. */
+  aim: { at60: discFor(0.085), at95: discFor(0.155), runAt60: 1.6, runAt95: 2.2 },
+  /** Two calls out of one gesture, so it is priced like the other two-call game. */
+  dive: { at60: 0.11, at95: 0.2, runAt60: 1.5, runAt95: 1.9 },
+  /** The beat between two touches, and the length of the bar that beat is measured on. */
+  feint: { at60: 0.085, at95: 0.155, beatAt60: 1.2, beatAt95: 1.6 },
   /** Below this the chance is simply harder than the player is good. */
   floorOvr: 60,
   ceilOvr: 95,
@@ -126,6 +175,64 @@ export function buildChance({ seed, season, fixtureId, shotType, ovr }) {
     };
   }
 
+  if (mechanic === MECHANICS.CHARGE) {
+    return {
+      ...base,
+      // Never in the first third: a band you hit by letting go immediately is not a hold.
+      target: 0.34 + next() * 0.5,
+      tolerance: lerp(TUNING.charge.at60, TUNING.charge.at95, skill),
+      // Seconds to fill the bar once, and there is no second pass.
+      period: lerp(TUNING.charge.fillAt60, TUNING.charge.fillAt95, skill),
+    };
+  }
+
+  if (mechanic === MECHANICS.AIM) {
+    const radius = lerp(TUNING.aim.at60, TUNING.aim.at95, skill);
+    /*
+     * The whole run stays inside the field. Two reasons, and the second is the important
+     * one: a disc hanging half off the edge is a smaller target than the same disc in the
+     * middle, so where the model happened to put it would decide how hard the chance was -
+     * and the parity this file promises is measured on the area of that disc.
+     */
+    const inside = () => radius + next() * (1 - 2 * radius);
+    const from = { x: inside(), y: inside() };
+    const to = { x: inside(), y: inside() };
+
+    return {
+      ...base,
+      // A point that TRAVELS - the run being made, the cross coming across - rather than a
+      // coordinate sitting still. `spotAt` says where it is at a given moment, and the only
+      // place in this file where the error is not one-dimensional measures against that.
+      spot: { x: from.x, y: from.y, travel: { x: to.x - from.x, y: to.y - from.y } },
+      tolerance: radius,
+      // Seconds for the run. It happens once: miss it and the ball has gone.
+      period: lerp(TUNING.aim.runAt60, TUNING.aim.runAt95, skill),
+    };
+  }
+
+  if (mechanic === MECHANICS.DIVE) {
+    return {
+      ...base,
+      // One gesture, two questions: which way, and when. The second gate sits late because
+      // a keeper who goes early has told the taker everything.
+      gates: [place(), 0.45 + next() * 0.4],
+      tolerance: lerp(TUNING.dive.at60, TUNING.dive.at95, skill),
+      period: lerp(TUNING.dive.runAt60, TUNING.dive.runAt95, skill),
+    };
+  }
+
+  if (mechanic === MECHANICS.FEINT) {
+    return {
+      ...base,
+      // The beat, as a fraction of the bar below. Never so short that both touches are one
+      // tap, never so long that the defender has gone by.
+      target: 0.3 + next() * 0.45,
+      tolerance: lerp(TUNING.feint.at60, TUNING.feint.at95, skill),
+      // Seconds the beat is measured against, so the input is a duration read as 0..1.
+      period: lerp(TUNING.feint.beatAt60, TUNING.feint.beatAt95, skill),
+    };
+  }
+
   return {
     ...base,
     gates: [place(), place()],
@@ -135,20 +242,53 @@ export function buildChance({ seed, season, fixtureId, shotType, ovr }) {
 }
 
 /**
+ * What this chance is asking for: one number, two numbers, or one point. Every mechanic
+ * reduces to this, which is what keeps a single judge below and a single verdict above.
+ */
+export const targetsOf = (chance) => chance.gates ?? [chance.spot ?? chance.target];
+
+/**
+ * Where a travelling target is at `t` - 0 when the run starts, 1 when it is over. A target
+ * that does not travel is wherever it always was, so this is safe to ask of any of them.
+ */
+export function spotAt(target, t = 1) {
+  const travel = target?.travel;
+  if (!travel) return target;
+  const at = Math.max(0, Math.min(1, Number.isFinite(t) ? t : 1));
+  return { x: target.x + travel.x * at, y: target.y + travel.y * at };
+}
+
+/**
+ * How far off one call was. A missing input is the worst answer available, not a free pass.
+ *
+ * A two-dimensional input carries WHEN it was committed as well as where, because the thing
+ * it is measured against has moved by then. That is one call, not two: you do not choose
+ * the moment and the place separately when you are trying to meet a ball.
+ */
+function missBy(target, value) {
+  if (typeof target === "number") {
+    return Math.abs((typeof value === "number" ? value : 1) - target);
+  }
+  const at = spotAt(target, value?.t);
+  return Math.hypot((value?.x ?? 1) - at.x, (value?.y ?? 1) - at.y);
+}
+
+/**
  * Judge it.
  *
- * `inputs` is where the player stopped the marker - one value for a sweep or a window,
- * two for a bend. Everything is in the same 0..1 track units, so one comparison covers
- * all three mechanics.
+ * `inputs` is what the player committed - where the marker stopped, how long the bar was
+ * held, the beat between two touches, or the point a drag was released at. One value for
+ * the single-call mechanics, two for a bend or a dive, a `{x, y}` for an aim. All of it is
+ * in the same 0..1 units, so one comparison covers all seven.
  *
  * Returns the same shape `resolveShot` does, because the rest of the game already knows
  * how to read that and a decider must not care which way it was played.
  */
 export function judgeChance(chance, inputs) {
   const values = Array.isArray(inputs) ? inputs : [inputs];
-  const targets = chance.gates ?? [chance.target];
+  const targets = targetsOf(chance);
 
-  const errors = targets.map((target, index) => Math.abs((values[index] ?? 1) - target));
+  const errors = targets.map((target, index) => missBy(target, values[index]));
   const worst = errors.length ? Math.max(...errors) : 1;
   const clean = errors.every((error) => error <= chance.tolerance);
 

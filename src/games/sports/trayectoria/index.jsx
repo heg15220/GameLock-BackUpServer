@@ -37,8 +37,9 @@ import Icon, { FIXTURE_ICONS, SHOT_ICONS, optionIcon } from "./icons.jsx";
 import ShotScene, { PlacementDiagram } from "./scene.jsx";
 import { conversionRecord } from "./bigmatch.js";
 import { MODES } from "./matchmode.js";
-import { MECHANICS } from "./minigames.js";
-import { FULL_TIME } from "./narration.js";
+import ChanceGame from "./chancegames.jsx";
+import usePrefersReducedMotion from "./motion.js";
+import { FULL_TIME, withStandings } from "./narration.js";
 import { shadowStanding } from "./rival.js";
 import Trophy, { TrophySilhouette } from "./trophies.jsx";
 import {
@@ -55,6 +56,8 @@ import {
   THEME_LABELS,
   TROPHY_LABELS,
   WAGE_ROLE_LABELS,
+  beatLines,
+  countOf,
   fillTemplate,
   formatDelta,
   formatValue,
@@ -85,25 +88,18 @@ const DELTA_MAX = 12;
 const deltaToPercent = (delta) =>
   ((Math.max(DELTA_MIN, Math.min(DELTA_MAX, delta)) - DELTA_MIN) / (DELTA_MAX - DELTA_MIN)) * 100;
 
-/* ── Motion ───────────────────────────────────────────────────────────────── */
-
 /**
- * Motion here is never decoration: the delta marker travels out from zero because that is
- * the measurement being made, and the numbers count because a season is an accumulation.
- * Anyone who has asked not to see that gets the final value immediately.
+ * Whether a paragraph can carry the drop cap the front page gives it.
+ *
+ * `::first-letter` takes the first CHARACTER, and several of the press bodies open on a
+ * figure - "{goals} goles en {matches} partidos". So a season of twelve matches was being
+ * set as a 52px red "1" followed by "2 partidos", which does not read as a flourish, it
+ * reads as a different number. In a game whose whole claim is that the figures are honest,
+ * a piece of typography that misquotes them is worse than a plain paragraph.
  */
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const query = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    if (!query) return undefined;
-    setReduced(query.matches);
-    const onChange = (event) => setReduced(event.matches);
-    query.addEventListener?.("change", onChange);
-    return () => query.removeEventListener?.("change", onChange);
-  }, []);
-  return reduced;
-}
+export const dropCapSafe = (text) => /^\p{L}/u.test(String(text ?? "").trim());
+
+/* ── Motion ───────────────────────────────────────────────────────────────── */
 
 /** Count a number up on arrival. Eased out, so it lands rather than stops. */
 function useCountUp(target, { duration = 900, delay = 0, enabled = true } = {}) {
@@ -406,6 +402,15 @@ function PlayerCard({ ovr, position, country, locale, size = "sm" }) {
  * screen - what he has actually won does not depend on which phase he is in.
  */
 function TrophyShelf({ trophies, locale, size = 20 }) {
+  const copy = getCopy(locale);
+  /*
+   * Which one he is looking at. The shelf is a row of silhouettes with a number on the
+   * corner, which is legible once you already know what they are - and the `title` that
+   * named them only exists for a mouse, so on a phone the cabinet was a row of unlabelled
+   * shapes. Pressing one names it underneath, in full, with the count spelled out.
+   */
+  const [picked, setPicked] = useState(null);
+
   const shelf = useMemo(() => {
     const byTrophy = new Map();
     for (const trophy of trophies) {
@@ -425,22 +430,48 @@ function TrophyShelf({ trophies, locale, size = 20 }) {
   }, [trophies]);
 
   if (!shelf.length) return null;
+
+  const nameOf = (entry) => TROPHY_LABELS[locale][entry.trophy] ?? entry.trophy;
+  // Read back off the shelf rather than held as an object, so a cup won since it was
+  // pressed shows its new count and one that cannot be there any more simply closes.
+  const open = shelf.find((entry) => entry.key === picked) ?? null;
+
   return (
-    <ul className="tr-shelf">
-      {shelf.map((entry, index) => (
-        <li
-          key={entry.key}
-          className={`tr-shelf__item${entry.national ? " is-national" : ""}`}
-          style={{ "--i": index }}
-          title={`${TROPHY_LABELS[locale][entry.trophy] ?? entry.trophy}${
-            entry.count > 1 ? ` ×${entry.count}` : ""
-          }`}
-        >
-          <TrophySilhouette id={entry.trophy} size={size} />
-          {entry.count > 1 ? <b>{entry.count}</b> : null}
-        </li>
-      ))}
-    </ul>
+    <div className="tr-shelf__case">
+      <ul className="tr-shelf">
+        {shelf.map((entry, index) => (
+          <li key={entry.key} style={{ "--i": index }}>
+            <button
+              type="button"
+              className={`tr-shelf__item${entry.national ? " is-national" : ""}${
+                open?.key === entry.key ? " is-open" : ""
+              }`}
+              // Still there for a mouse, which gets the answer without a press.
+              title={`${nameOf(entry)} ×${entry.count}`}
+              aria-pressed={open?.key === entry.key}
+              aria-label={`${nameOf(entry)} ×${entry.count}`}
+              onClick={() => setPicked((was) => (was === entry.key ? null : entry.key))}
+            >
+              <TrophySilhouette id={entry.trophy} size={size} />
+              {entry.count > 1 ? <b>{entry.count}</b> : null}
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      {/* Named underneath rather than over the shelf: a popover on the row would cover the
+          cups either side of the one being asked about. */}
+      {open ? (
+        <p className={`tr-shelf__named${open.national ? " is-national" : ""}`} aria-live="polite">
+          <span>{nameOf(open)}</span>
+          <b>
+            {fillTemplate(open.count === 1 ? copy.hud.wonTimes : copy.hud.wonTimesPlural, {
+              n: open.count,
+            })}
+          </b>
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -1146,7 +1177,10 @@ function NegotiationScreen({ run, locale, onAsk, onAgree, onBack }) {
             </span>
             {deal.exit.breachYears ? (
               <small>
-                {fillTemplate(copy.contract.breach, { years: deal.exit.breachYears })}
+                {fillTemplate(
+                  countOf(copy.contract.breachOne, copy.contract.breach, deal.exit.breachYears),
+                  { years: deal.exit.breachYears },
+                )}
               </small>
             ) : null}
           </div>
@@ -1179,14 +1213,16 @@ function SigningScreen({ run, locale, onDone }) {
   return (
     <section className="tr-stage tr-stage--narrow">
       <article className={`tr-sign${reduced ? " is-still" : ""}`}>
+        {/* Eyebrow beside the crest rather than over it: the word "Firma" does not need a
+            line of its own on a card that has to fit on one screen. */}
         <header className="tr-sign__head">
-          <p className="tr-front__cardhead">{copy.signing.eyebrow}</p>
           <div className="tr-sign__club">
-            <Crest club={club} size={46} />
+            <Crest club={club} size={40} />
             <div>
+              <p className="tr-front__cardhead">{copy.signing.eyebrow}</p>
               <h2 className="tr-display tr-display--lg">{club?.shortName ?? club?.name}</h2>
-              <p>{competition?.name ?? "—"}</p>
             </div>
+            <p className="tr-sign__comp">{competition?.name ?? "—"}</p>
           </div>
         </header>
 
@@ -1375,107 +1411,79 @@ function ContextPanel({ run, locale }) {
   );
 }
 
-/* ── The moments that are yours ───────────────────────────────────────────────
-   `matchmode.js` decides whether the ball is at your feet or the match is playing
-   out around you. These draw the first case: one moving marker, one track, and a
-   target you can only hit by looking. Three mechanics share the component because
-   they share the geometry - see minigames.js for why that matters.            */
-
-/**
- * A marker sweeping a track, stopped by the player.
- *
- * `mode` changes what the track means, not how it behaves: a sweep runs back and forth
- * across the goalmouth, a window runs once and closes. Both come down to a position in
- * 0..1 at the instant of the press, which is the only thing `judgeChance` wants.
- */
-function ChanceTrack({ chance, locale, onSettle }) {
-  const copy = getCopy(locale);
-  const reduced = usePrefersReducedMotion();
-  const [position, setPosition] = useState(0);
-  const [gate, setGate] = useState(0);
-  const [locked, setLocked] = useState([]);
-  const frame = useRef({ start: 0, raf: 0 });
-
-  const gates = chance.gates ?? [chance.target];
-  const closing = chance.mechanic === MECHANICS.WINDOW;
-
-  useEffect(() => {
-    // Reduced motion gets a still track and a tap: the same decision without the chase.
-    if (reduced) return undefined;
-    frame.current.start = performance.now();
-    let raf = 0;
-    const step = (now) => {
-      const elapsed = ((now - frame.current.start) / 1000) % chance.period;
-      const phase = elapsed / chance.period;
-      // A sweep bounces; a window runs once and is gone.
-      setPosition(closing ? phase : phase < 0.5 ? phase * 2 : 2 - phase * 2);
-      raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [chance.period, closing, reduced, gate]);
-
-  const settle = useCallback(
-    (value) => {
-      const next = [...locked, value];
-      if (next.length >= gates.length) {
-        onSettle(gates.length > 1 ? next : next[0]);
-        return;
-      }
-      setLocked(next);
-      setGate(next.length);
-      frame.current.start = performance.now();
-    },
-    [gates.length, locked, onSettle],
-  );
-
-  return (
-    <div className="tr-chance">
-      <p className="tr-chance__prompt">
-        {gates.length > 1
-          ? fillTemplate(copy.match.chanceGate, { n: gate + 1, total: gates.length })
-          : copy.match.chancePrompt[chance.mechanic]}
-      </p>
-
-      <button
-        type="button"
-        className={`tr-chance__track is-${chance.mechanic}`}
-        onClick={() => settle(reduced ? gates[gate] : position)}
-        aria-label={copy.match.chancePrompt[chance.mechanic]}
-      >
-        {/* The target is drawn: this is a test of timing, never of guessing where. */}
-        <span
-          className="tr-chance__target"
-          style={{
-            "--from": `${Math.max(0, gates[gate] - chance.tolerance) * 100}%`,
-            "--size": `${chance.tolerance * 200}%`,
-          }}
-        />
-        <span
-          className="tr-chance__marker"
-          style={{ "--at": `${(reduced ? gates[gate] : position) * 100}%` }}
-        />
-        {locked.map((value, i) => (
-          <span key={i} className="tr-chance__locked" style={{ "--at": `${value * 100}%` }} />
-        ))}
-      </button>
-
-      <p className="tr-chance__hint">{copy.match.chanceHint}</p>
-    </div>
-  );
-}
-
 /**
  * One beat's line. Every id now carries several ways of saying it (copy.js) and the beat
  * arrives with a seed-drawn `variant`, so a match reads the same way twice and two similar
  * matches do not.
  */
 function beatLine(beat, copy) {
-  const lines = copy.match.beats[beat.id];
-  if (!lines) return "";
-  const list = Array.isArray(lines) ? lines : [lines];
+  // Only the lines the scoreline allows: a goal that made it 1-1 cannot reach for the one
+  // about going in front. See `beatLines` in copy.js.
+  const list = beatLines(copy, beat.id, beat.state);
+  if (!list.length) return "";
   const text = list[(beat.variant ?? 0) % list.length];
   return fillTemplate(text, { us: beat.ourName, them: beat.theirName || copy.match.opponent });
+}
+
+/**
+ * The tie, from twelve yards, one kick at a time.
+ *
+ * A line saying "and the shootout is theirs" is a report; a shootout is a sequence, and the
+ * whole of its drama is that you find out in order. So the kicks arrive one by one - green
+ * for in, red for saved - and the two rows fill alternately the way they are actually taken.
+ *
+ * The result is already settled before the first player walks up: `shootoutFor` produced the
+ * sequence and the cup was decided before that. Nothing here rolls anything; this is the
+ * telling of it, which is the one thing the feed was missing.
+ */
+const KICK_STEP = 520;
+
+function Shootout({ kicks, copy }) {
+  const reduced = usePrefersReducedMotion();
+  const order = useMemo(() => {
+    // Alternating, ours first, exactly as they were taken.
+    const out = [];
+    for (let i = 0; i < Math.max(kicks.us.length, kicks.them.length); i += 1) {
+      if (i < kicks.us.length) out.push({ side: "us", scored: kicks.us[i], at: i });
+      if (i < kicks.them.length) out.push({ side: "them", scored: kicks.them[i], at: i });
+    }
+    return out;
+  }, [kicks]);
+
+  const [taken, setTaken] = useState(reduced ? order.length : 0);
+  useEffect(() => {
+    if (reduced) return undefined;
+    setTaken(0);
+    const timers = order.map((_, i) => setTimeout(() => setTaken(i + 1), KICK_STEP * (i + 1)));
+    return () => timers.forEach(clearTimeout);
+  }, [order, reduced]);
+
+  const row = (side) =>
+    order
+      .map((kick, i) => ({ ...kick, i }))
+      .filter((kick) => kick.side === side)
+      .map((kick) => (
+        <b
+          key={kick.i}
+          className={`tr-kick${kick.i < taken ? (kick.scored ? " is-in" : " is-out") : ""}`}
+          aria-hidden={kick.i >= taken}
+        />
+      ));
+
+  const score = {
+    us: kicks.us.filter((k, i) => k && order.findIndex((o) => o.side === "us" && o.at === i) < taken).length,
+    them: kicks.them.filter((k, i) => k && order.findIndex((o) => o.side === "them" && o.at === i) < taken).length,
+  };
+
+  return (
+    <span className="tr-shootout" aria-label={copy.match.beats.shootout?.[0] ?? "Penaltis"}>
+      <span className="tr-shootout__row">{row("us")}</span>
+      <span className="tr-shootout__score">
+        {score.us} – {score.them}
+      </span>
+      <span className="tr-shootout__row tr-shootout__row--them">{row("them")}</span>
+    </span>
+  );
 }
 
 /* How the ninety minutes are paced on screen. */
@@ -1495,12 +1503,24 @@ const BEAT_HOLD = 660;
  * clock carries on from that minute to full time - `finished` simply extends where it is
  * allowed to run to, so the match never restarts and never jumps.
  */
-function Broadcast({ broadcast, locale, finished, attempt = 0, onReach }) {
+function Broadcast({
+  broadcast,
+  locale,
+  finished,
+  attempt = 0,
+  onReach,
+  club = null,
+  opponent = null,
+  country = null,
+  national = false,
+}) {
   const copy = getCopy(locale);
   const reduced = usePrefersReducedMotion();
 
+  // Sorted and re-scored together: what he did belongs on the same clock as what the model
+  // did, and only the merged list knows what the board says. See `withStandings`.
   const beats = useMemo(
-    () => [...broadcast.beats, ...(finished?.beats ?? [])],
+    () => withStandings([...broadcast.beats, ...(finished?.beats ?? [])]),
     [broadcast.beats, finished],
   );
   /*
@@ -1513,7 +1533,12 @@ function Broadcast({ broadcast, locale, finished, attempt = 0, onReach }) {
    * is keyed on it - could never fire a second time, and the screen sat on "the match is
    * still going" for ever with a decision it would not accept.
    */
-  const stopAt = finished ? FULL_TIME : broadcast.moments?.[attempt] ?? broadcast.moment;
+  // Full time is only where the clock is allowed to run once the fixture has had every
+  // chance it owed. A `finish` for an attempt mid-match carries the line for that attempt
+  // and nothing else - see `narrateFinish` - so the clock still stops on the next one.
+  const stopAt = finished?.closed
+    ? FULL_TIME
+    : broadcast.moments?.[attempt] ?? broadcast.moment;
 
   const clock = useRef(0);
   const [minute, setMinute] = useState(0);
@@ -1570,14 +1595,31 @@ function Broadcast({ broadcast, locale, finished, attempt = 0, onReach }) {
   const latest = visible[visible.length - 1];
   const running = minute < stopAt;
 
+  // Keep the newest beat on screen. The feed is bounded, so without this the line that just
+  // landed - the one the clock stopped for - would arrive below the fold of its own box.
+  const feed = useRef(null);
+  useEffect(() => {
+    const el = feed.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [visible.length]);
+
   return (
     <div className="tr-live">
+      {/* The score bug: both badges, both names, the score and the clock on one band, the
+          way a broadcast puts them. It is also the only place the two clubs are named on a
+          live night - the header stands down for it. */}
       <div className="tr-live__scoreline">
-        <b>{broadcast.ourName}</b>
+        <b className="tr-live__side">
+          {national ? <Flag country={country} size={20} /> : <Crest club={club} size={22} />}
+          <span>{broadcast.ourName}</span>
+        </b>
         <span className="tr-live__score">
           {latest?.home ?? 0} – {latest?.away ?? 0}
         </span>
-        <b>{broadcast.theirName || copy.match.opponent}</b>
+        <b className="tr-live__side tr-live__side--away">
+          <span>{broadcast.theirName || copy.match.opponent}</span>
+          {opponent ? <Crest club={opponent} size={22} /> : null}
+        </b>
       </div>
 
       <div className="tr-live__clock">
@@ -1589,7 +1631,11 @@ function Broadcast({ broadcast, locale, finished, attempt = 0, onReach }) {
         ) : null}
       </div>
 
-      <ol className="tr-live__feed">
+      {/* The feed owns its own scroll and keeps the newest line in view. It is the one part
+          of this screen with no ceiling - a match can run to a dozen beats - and letting it
+          push the placements under the fold meant reading the match and answering it were
+          two different screens. */}
+      <ol className="tr-live__feed" ref={feed}>
         {visible.map((beat, i) => (
           <li
             key={`${beat.minute}-${beat.id}-${i}`}
@@ -1599,6 +1645,7 @@ function Broadcast({ broadcast, locale, finished, attempt = 0, onReach }) {
           >
             <i>{beat.minute}'</i>
             <span>{beatLine(beat, copy)}</span>
+            {beat.kicks ? <Shootout kicks={beat.kicks} copy={copy} /> : null}
           </li>
         ))}
       </ol>
@@ -1631,7 +1678,21 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
   // its trophy at DECIDES.absent and is neither his doing nor his fault, so it gets its own
   // verdict rather than borrowing the keeper's.
   const verdict = last ? (last.absent ? "none" : last.scored ? "yes" : "no") : null;
-  const mark = last ? (last.absent ? "absent" : last.scored ? "scored" : "saved") : null;
+  /*
+   * THE PICTURE IS OF THE SHOT, NOT OF THE FIXTURE.
+   *
+   * `last` is the whole decider's outcome, and on a night worth more than one chance its
+   * `scored` means "any of them went in". Drawing the scene from it put the goal on the
+   * wrong moment, both ways round: score the first of two and the fixture is not closed
+   * yet, so `last` is null and nothing is drawn at all - you score and the screen does not
+   * react. Then miss the second and `last.scored` is true from the FIRST one, so the ball
+   * flies in green over a shot that went over the bar.
+   *
+   * The attempt just resolved is what the drawing is a drawing of. `last` is still what
+   * the verdict at the end reads, because that one is a statement about the fixture.
+   */
+  const shown = matchday.lastAttempt ?? last;
+  const mark = shown ? (shown.absent ? "absent" : shown.scored ? "scored" : "saved") : null;
   const outcome = verdict ? copy.match.decides[last.decides]?.[verdict] ?? "" : "";
   const record = conversionRecord(run.state.conversion, run.state.ovr);
   // What coming through meant here. A keeper who guessed the corner did not score.
@@ -1643,6 +1704,9 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
   }, [shot.mode, matchday.broadcast, onWatch]);
 
   const live = shot.mode === MODES.MATCH;
+  // Live AND already built. The scoreboard carries the two clubs itself once it is on, so
+  // the header stops printing them a second time - see `tr-match__teams` below.
+  const onAir = live && Boolean(matchday.broadcast);
   const owed = fixture.chances ?? 1;
   const attempt = matchday.attempts?.length ?? 0;
 
@@ -1676,7 +1740,7 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
    * `last` reopens it because a settled moment is not a spoiler: a night the ball never
    * came to him is decided on arrival and has a verdict to draw straight away.
    */
-  const revealShot = !live || reached.chance || Boolean(last);
+  const revealShot = !live || reached.chance || Boolean(last) || Boolean(matchday.lastAttempt);
 
   // A continental final is the Eurocopa or the Copa América, never "the continental" -
   // the fixture is named after the cup that is actually being lifted.
@@ -1689,7 +1753,9 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
 
   return (
     <section className="tr-stage tr-stage--narrow">
-      <article className={`tr-match${mark ? ` is-${mark}` : ""}`}>
+      <article
+        className={`tr-match${mark ? ` is-${mark}` : ""}${onAir ? " is-live" : ""}`}
+      >
         <header className="tr-match__head">
           <div className="tr-match__bar">
             <p className="tr-eyebrow tr-eyebrow--alert">
@@ -1731,32 +1797,37 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             <h2 className="tr-display tr-display--lg">{title}</h2>
           </div>
 
-          <div className="tr-match__teams">
-            {/* A national final used to show nothing at all: the club crest was correctly
-                suppressed and nothing took its place, so the biggest night of a career
-                was the one screen with no badge on it. It is the country you are playing
-                for, so it is the flag. */}
-            {fixture.national ? (
-              <span className="tr-match__team">
-                <Flag country={country} size={28} />
-                <b>{locale === "es" ? country?.name_es : country?.name_en}</b>
-              </span>
-            ) : (
-              <span className="tr-match__team">
-                <Crest club={club} size={30} />
-                <b>{club?.shortName ?? club?.name ?? ""}</b>
-              </span>
-            )}
-            {opponent ? (
-              <>
-                <span className="tr-match__vs">{copy.match.versus}</span>
+          {/* Who is playing, unless the scoreboard is already saying it. On a live night
+              the two crests and the two names are on the score bug a few lines down, and
+              printing them twice was pushing the feed off the bottom of the screen. */}
+          {onAir ? null : (
+            <div className="tr-match__teams">
+              {/* A national final used to show nothing at all: the club crest was correctly
+                  suppressed and nothing took its place, so the biggest night of a career
+                  was the one screen with no badge on it. It is the country you are playing
+                  for, so it is the flag. */}
+              {fixture.national ? (
                 <span className="tr-match__team">
-                  <Crest club={opponent} size={30} />
-                  <b>{opponent.shortName ?? opponent.name}</b>
+                  <Flag country={country} size={28} />
+                  <b>{locale === "es" ? country?.name_es : country?.name_en}</b>
                 </span>
-              </>
-            ) : null}
-          </div>
+              ) : (
+                <span className="tr-match__team">
+                  <Crest club={club} size={30} />
+                  <b>{club?.shortName ?? club?.name ?? ""}</b>
+                </span>
+              )}
+              {opponent ? (
+                <>
+                  <span className="tr-match__vs">{copy.match.versus}</span>
+                  <span className="tr-match__team">
+                    <Crest club={opponent} size={30} />
+                    <b>{opponent.shortName ?? opponent.name}</b>
+                  </span>
+                </>
+              ) : null}
+            </div>
+          )}
 
           {/* A final drawn against the club the derby was going to be against is both
               things at once, and the second one is why the stadium sold out. */}
@@ -1788,6 +1859,10 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             finished={matchday.broadcast.finish}
             attempt={attempt}
             onReach={handleReach}
+            club={club}
+            opponent={opponent}
+            country={country}
+            national={fixture.national}
           />
         ) : null}
 
@@ -1796,7 +1871,7 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             does not exist at all until the match has reached the chance it is a picture
             of, because the furniture alone says which one it is. */}
         {revealShot ? (
-          <ShotScene type={shot.type} options={shot.options} gap={shot.gap} result={last} />
+          <ShotScene type={shot.type} options={shot.options} gap={shot.gap} result={shown} />
         ) : null}
 
         {last && atEnd ? (
@@ -1845,7 +1920,7 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
               </p>
             ) : null}
             {shot.mode === MODES.SKILL ? (
-              <ChanceTrack
+              <ChanceGame
                 key={attempt}
                 chance={shot.chance}
                 locale={locale}
@@ -2114,7 +2189,9 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
       <div className="tr-front__lead">
         <div className="tr-front__story">
           <h2 className="tr-display tr-display--xl tr-front__head">{headline.head}</h2>
-          <p className="tr-front__body">{headline.body}</p>
+          <p className={`tr-front__body${dropCapSafe(headline.body) ? "" : " is-plain"}`}>
+            {headline.body}
+          </p>
 
           <dl className="tr-front__stats">
             {stats.map((stat, statIndex) => (
@@ -2336,6 +2413,65 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
   );
 }
 
+/* ── What the year did to him ────────────────────────────────────────────────
+   The third of the between-screens beats, and the only one that is about the
+   player rather than the club. A career is one number moving, and until now that
+   number moved silently between the front page and the market: you read the
+   season, you picked a club, and somewhere in there your rating had changed. It
+   is the thing every offer on the next screen is priced against, so it gets the
+   same treatment the cup and the drop already get - the screen stops, says it,
+   and hands over.
+
+   Down is not a failure screen. A career has years that take something off you
+   and the game has never pretended otherwise; it is the same ceremony in red. */
+
+/** How long the rating holds the screen before it hands over to the market. */
+const GROWTH_HOLD = 2600;
+
+function GrowthReveal({ from, to, locale, onDone }) {
+  const copy = getCopy(locale);
+  const reduced = usePrefersReducedMotion();
+  const move = to - from;
+  const way = move > 0 ? "up" : move < 0 ? "down" : "flat";
+  // Counted rather than printed, because the count IS the thing being said.
+  const shown = useCountUp(to, { duration: 1100, delay: 420, enabled: !reduced });
+
+  useEffect(() => {
+    const timer = setTimeout(onDone, reduced ? GROWTH_HOLD - 900 : GROWTH_HOLD);
+    return () => clearTimeout(timer);
+  }, [onDone, reduced]);
+
+  useEffect(() => {
+    const skip = () => onDone();
+    window.addEventListener("keydown", skip);
+    return () => window.removeEventListener("keydown", skip);
+  }, [onDone]);
+
+  return (
+    <div
+      className={`tr-growth is-${way}${reduced ? " is-still" : ""}`}
+      role="dialog"
+      aria-label={`${copy.season.growthHeading} ${formatDelta(move)} OVR`}
+      onClick={onDone}
+    >
+      <div className="tr-growth__inner">
+        <p className="tr-growth__eyebrow">{copy.season.growthHeading}</p>
+
+        <div className="tr-growth__reading">
+          <span className="tr-growth__from">{from}</span>
+          <span className="tr-growth__arrow" aria-hidden="true">
+            <Icon name={way === "down" ? "down" : "up"} size={26} />
+          </span>
+          <span className="tr-growth__to">{reduced ? to : shown}</span>
+        </div>
+
+        <p className="tr-growth__move">{move === 0 ? copy.season.growthFlat : `${formatDelta(move)} OVR`}</p>
+        <p className="tr-ceremony__skip">{copy.season.ceremonySkip}</p>
+      </div>
+    </div>
+  );
+}
+
 function SeasonScreen({ run, locale, onNext }) {
   const copy = getCopy(locale);
   // The step's own seasons are not in state.history yet, so the run-up to the first one
@@ -2366,8 +2502,26 @@ function SeasonScreen({ run, locale, onNext }) {
   // Both can happen in one step - a cup in May and the drop in June is a real season. They
   // queue rather than overlap, and the cups go first: that is the order they happened in,
   // and ending on the drop is the note the front page then picks up.
+  /*
+   * What the step did to his rating, across every season in it. `before` is the history
+   * without this step's seasons, so its last entry is where he stood when the step opened -
+   * and on the very first step there is nothing behind him, which is the one case with
+   * nothing to compare and therefore nothing to show.
+   */
+  const [grown, setGrown] = useState(false);
+  const finishGrowth = useCallback(() => setGrown(true), []);
+  const growth = useMemo(() => {
+    const from = before[before.length - 1]?.ovr ?? null;
+    const to = run.seasonResults[run.seasonResults.length - 1]?.record?.ovr ?? null;
+    return from == null || to == null ? null : { from, to };
+  }, [before, run.seasonResults]);
+
+  // They queue rather than overlap, in the order they happened: the cups in May, the drop
+  // in June, and what the year left him at, last, because that is what the market is about
+  // to price him on.
   const ceremonyOpen = Boolean(won.length) && !celebrated;
   const dropOpen = Boolean(relegation) && !ceremonyOpen && !dropped;
+  const growthOpen = Boolean(growth) && !ceremonyOpen && !dropOpen && !grown;
 
   return (
     <section className="tr-stage">
@@ -2380,6 +2534,9 @@ function SeasonScreen({ run, locale, onNext }) {
           locale={locale}
           onDone={finishDrop}
         />
+      ) : null}
+      {growthOpen ? (
+        <GrowthReveal from={growth.from} to={growth.to} locale={locale} onDone={finishGrowth} />
       ) : null}
       {run.seasonResults.map((result, index) => {
         const previous = index === 0 ? before[before.length - 1] ?? null : run.seasonResults[index - 1].record;
@@ -2436,7 +2593,10 @@ function MarketScreen({
         <aside className={`tr-outlook${outlook.atRisk ? " is-risk" : ""}`}>
           <span className="tr-outlook__cell">
             <small>{copy.market.outlookHeading}</small>
-            <b>{fillTemplate(copy.market.outlookAge, { age: outlook.targetAge })}</b>
+            <b>{fillTemplate(copy.market.outlookAge, {
+                from: outlook.covers[0],
+                to: outlook.covers[1],
+              })}</b>
           </span>
           <span className="tr-outlook__cell">
             <small>{copy.market.outlookCycle}</small>
@@ -2460,7 +2620,11 @@ function MarketScreen({
         </aside>
       ) : null}
 
-      {run.state.clubWantsOut || run.state.forceTransfer ? (
+      {/* What the club WANTS only matters once it can act on it. While the deal runs it
+          cannot - that is what the years are for, and `offersWithFallback` ignores the
+          flag entirely - so printing "there is no option to stay" above a market whose
+          only card is "stay" was the screen contradicting itself in three lines. */}
+      {(run.state.clubWantsOut || run.state.forceTransfer) && !locked ? (
         <p className="tr-notice">{copy.market.wantsOut}</p>
       ) : null}
 
@@ -2469,7 +2633,10 @@ function MarketScreen({
           otherwise a market with one card on it looks like a bug. */}
       {locked ? (
         <p className="tr-notice tr-notice--locked">
-          {fillTemplate(copy.market.locked, { years: standing.contract.yearsLeft })}
+          {fillTemplate(
+            countOf(copy.market.lockedOne, copy.market.locked, standing.contract.yearsLeft),
+            { years: standing.contract.yearsLeft },
+          )}
         </p>
       ) : null}
 
@@ -2674,7 +2841,9 @@ function RetiredScreen({ run, locale, onRestart }) {
           <span>{copy.retired.eyebrow}</span>
         </header>
         <h2 className="tr-display tr-display--xl tr-front__head">{verdict.head}</h2>
-        <p className="tr-front__body">{verdict.body}</p>
+        <p className={`tr-front__body${dropCapSafe(verdict.body) ? "" : " is-plain"}`}>
+          {verdict.body}
+        </p>
       </article>
 
       <dl className="tr-totals">
@@ -2795,6 +2964,12 @@ function RetiredScreen({ run, locale, onRestart }) {
  * own build-up, a copy key that did not exist. `render.test.js` server-renders each of
  * these against a real run, which needs no DOM and catches all three shapes.
  */
+/**
+ * The cabinet on its own, because it is the one piece of the rail with a state machine in
+ * it - press a cup, it names itself - and the rail is not a screen anything can mount.
+ */
+export { TrophyShelf };
+
 export const SCREENS = {
   setup: SetupScreen,
   youth: YouthScreen,
