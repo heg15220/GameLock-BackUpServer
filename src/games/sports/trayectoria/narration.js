@@ -39,6 +39,44 @@ const SITUATIONS = [
 ];
 
 /**
+ * The match between the goals. These are events the simulator actually draws, not filler
+ * selected by the UI. Weighting is deliberately asymmetric: pressure produces shots and
+ * saves, a closed game produces recoveries, blocks and set pieces.
+ */
+const FLOW_EVENTS = [
+  { id: "shotUs", side: "us", category: "chance", weight: 12 },
+  { id: "shotThem", side: "them", category: "chance", weight: 12 },
+  { id: "saveUs", side: "us", category: "save", weight: 8 },
+  { id: "saveThem", side: "them", category: "save", weight: 8 },
+  { id: "tackleUs", side: "us", category: "defence", weight: 8 },
+  { id: "tackleThem", side: "them", category: "defence", weight: 8 },
+  { id: "keyPassUs", side: "us", category: "creation", weight: 7 },
+  { id: "keyPassThem", side: "them", category: "creation", weight: 7 },
+  { id: "cornerUs", side: "us", category: "setpiece", weight: 5 },
+  { id: "cornerThem", side: "them", category: "setpiece", weight: 5 },
+  { id: "offsideUs", side: "us", category: "offside", weight: 3 },
+  { id: "offsideThem", side: "them", category: "offside", weight: 3 },
+];
+
+const PLAYER_EVENTS = {
+  keeper: ["playerSave", "playerClaim", "playerSave", "playerLongPass"],
+  defensive: ["playerTackle", "playerBlock", "playerInterception", "playerCarry"],
+  support: ["playerTackle", "playerRecovery", "playerKeyPass", "playerCross"],
+  creator: ["playerKeyPass", "playerThroughBall", "playerCarry", "playerShot"],
+  forward: ["playerRun", "playerShot", "playerHoldUp", "playerKeyPass"],
+};
+
+const eventFrom = (next, catalogue) => {
+  const total = catalogue.reduce((sum, event) => sum + (event.weight ?? 1), 0);
+  let target = next() * total;
+  for (const event of catalogue) {
+    target -= event.weight ?? 1;
+    if (target <= 0) return event;
+  }
+  return catalogue[0];
+};
+
+/**
  * How the night stands, from our side, at the moment a beat happens.
  *
  * The copy is chosen with it - see `beatLines` in copy.js - because half the good lines are
@@ -80,6 +118,8 @@ export function narrateMatch({
   national = false,
   ourName = "",
   theirName = "",
+  group = "forward",
+  ovr = 70,
 }) {
   const next = createStream(seed, "narration", fixtureId, season);
   const situation = pickSituation(next);
@@ -107,6 +147,39 @@ export function narrateMatch({
       id: side === "us" ? "goalUs" : "goalThem",
     });
   });
+
+  // A full broadcast now has a football texture of its own. The count varies by night and
+  // the minutes are sampled independently, then sorted with the goals. Near-duplicates are
+  // nudged apart so the feed breathes instead of dumping four lines on 37'.
+  const occupied = new Set(laid.map((beat) => beat.minute));
+  const flowCount = randInt(next, 6, 10) + (situation.id === "twoTwo" ? 2 : 0);
+  const addAtFreeMinute = (beat, from = 5, to = Math.max(8, moment - 3)) => {
+    let minute = randInt(next, from, to);
+    let guard = 0;
+    while (occupied.has(minute) && guard < 8) {
+      minute = minute >= to ? from : minute + 1;
+      guard += 1;
+    }
+    occupied.add(minute);
+    laid.push({ minute, ...beat });
+  };
+  for (let index = 0; index < flowCount; index += 1) {
+    addAtFreeMinute(eventFrom(next, FLOW_EVENTS));
+  }
+
+  // The player is visible in the kind of work his position actually performs. OVR affects
+  // frequency, never the truth of a goal or the result: these are touches inside the match,
+  // while the decisive chance remains the player's input.
+  const repertoire = PLAYER_EVENTS[group] ?? PLAYER_EVENTS.forward;
+  const playerCount = 1 + (next() < Math.max(0.12, Math.min(0.72, (ovr - 45) / 65)) ? 1 : 0);
+  for (let index = 0; index < playerCount; index += 1) {
+    addAtFreeMinute({
+      id: repertoire[Math.floor(next() * repertoire.length)],
+      side: "us",
+      category: group === "keeper" ? "save" : group === "defensive" ? "defence" : "player",
+      player: true,
+    });
+  }
 
   if (!goals.length) laid.push({ minute: 31, id: "tight" });
   laid.push({ minute: 45, id: "halfTime" });

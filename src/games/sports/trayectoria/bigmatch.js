@@ -474,6 +474,69 @@ export function opponentFor({ seed, season, world, club, competition, kind }) {
 }
 
 /**
+ * The opponent that makes this season's league match matter.
+ *
+ * This is deliberately not a permanent derby. The simulated table decides the story:
+ * title challenger, continental competitor, mid-table neighbour or survival rival. From
+ * the three closest credible clubs we make a seeded weighted draw, so a replay is stable
+ * while successive seasons do not collapse into the same fixture.
+ */
+export function leagueRivalFor({ seed, season, table = [], clubId }) {
+  const us = table.find((row) => row.clubId === clubId);
+  if (!us || table.length < 2) return null;
+
+  const size = table.length;
+  const continentalLine = Math.max(4, Math.ceil(size * 0.3));
+  const survivalLine = Math.max(2, size - 3);
+  let context = "table_neighbor";
+  let eligible = table.filter((row) => row.clubId !== clubId);
+
+  if (us.position <= 3) {
+    context = "title_race";
+    eligible = eligible.filter((row) => row.position <= Math.max(4, Math.ceil(size * 0.22)));
+  } else if (us.position <= continentalLine) {
+    context = "continental_race";
+    eligible = eligible.filter((row) => row.position <= continentalLine + 2);
+  } else if (us.position >= survivalLine) {
+    context = "survival_race";
+    eligible = eligible.filter((row) => row.position >= survivalLine - 2);
+  }
+
+  const closest = eligible
+    .sort(
+      (a, b) =>
+        Math.abs(a.points - us.points) - Math.abs(b.points - us.points) ||
+        Math.abs(a.position - us.position) - Math.abs(b.position - us.position) ||
+        String(a.clubId).localeCompare(String(b.clubId)),
+    )
+    .slice(0, 3);
+  if (!closest.length) return null;
+
+  const stream = createStream(seed, "league-rival", season, clubId);
+  const weights = [6, 3, 1].slice(0, closest.length);
+  let draw = stream() * weights.reduce((sum, weight) => sum + weight, 0);
+  let opponent = closest[0];
+  for (let index = 0; index < closest.length; index += 1) {
+    draw -= weights[index];
+    if (draw <= 0) {
+      opponent = closest[index];
+      break;
+    }
+  }
+
+  return {
+    opponentId: opponent.clubId,
+    context,
+    ourPosition: us.position,
+    opponentPosition: opponent.position,
+    ourPoints: us.points,
+    opponentPoints: opponent.points,
+    pointsGap: Math.abs(us.points - opponent.points),
+    leagueSize: size,
+  };
+}
+
+/**
  * Which of the season's matches actually mattered, in the order they are played, plus the
  * modifiers that keep the rest of the season honest about them.
  *
@@ -499,7 +562,9 @@ export function seasonFixtures({
   effectiveReputation,
   calledUp = false,
   rivals = [],
+  leagueTable = [],
   titleMultipliers = {},
+  continentalEntry = null,
   conversion = null,
 }) {
   const modifiers = { titleMultipliers: {}, nationalMultipliers: {} };
@@ -512,14 +577,17 @@ export function seasonFixtures({
   // odds instead and a player above the level of his squad quietly loses the part of the
   // season the shot took over.
   const deltaMultiplier = multiplierFor(TITLE_DELTA_MULTIPLIER, delta);
-  const clubOdds = (trophy, key) =>
-    Math.min(
+  const clubOdds = (trophy, key) => {
+    if (trophy === "continental_a" && continentalEntry?.level !== "main") return 0;
+    if (trophy === "continental_b" && continentalEntry?.level !== "secondary") return 0;
+    return Math.min(
       1,
       oddsFor(trophy, effectiveReputation(key)) *
         deltaMultiplier *
         (titleMultipliers.all ?? 1) *
         (titleMultipliers[trophy] ?? 1),
     );
+  };
   const candidates = [];
   const push = (kind, extra = {}) => candidates.push({ kind, ...extra });
 
@@ -667,11 +735,14 @@ export function seasonFixtures({
     }
   }
 
-  // The derby always exists. It decides nothing and everyone remembers it.
-  if (rivals.length) {
+  // The league's defining match always exists. Its rival comes from this season's table,
+  // with the old stature-derived list retained only as a compatibility fallback.
+  const leagueRival = leagueRivalFor({ seed, season, table: leagueTable, clubId: club.id });
+  if (leagueRival || rivals.length) {
     const derby = createStream(seed, "fixture", "derby", season);
     push("clasico", {
-      opponentId: rivals[Math.floor(derby() * rivals.length)],
+      opponentId: leagueRival?.opponentId ?? rivals[Math.floor(derby() * rivals.length)],
+      leagueContext: leagueRival,
       // A derby you never got a kick in is the most derby thing there is, so it draws its
       // chances like everything else.
       chances: chancesAt("derby"),
@@ -819,6 +890,10 @@ export function matchEffects(results = []) {
     // A converted chance is not always a goal. A keeper who guesses the corner has saved
     // the final, not scored in it, and `GOAL_RATE.keeper` is zero for a reason.
     bonusAssists: 0,
+    // National-team deciders belong on the international line, not in the club totals.
+    nationalBonusGoals: 0,
+    nationalBonusAssists: 0,
+    nationalBonusSaves: 0,
     /*
      * How many deciders he was handed and how many he came through, whatever they produced.
      *
@@ -848,7 +923,11 @@ export function matchEffects(results = []) {
     // A stop is worth nothing here and everything to the trophy, which is the point.
     const came = result.converted ?? (result.scored ? 1 : 0);
     const produces = SHOT_PRODUCES[result.type] ?? PRODUCES.GOAL;
-    if (produces === PRODUCES.GOAL) effects.bonusGoals += came;
+    if (result.national) {
+      if (produces === PRODUCES.GOAL) effects.nationalBonusGoals += came;
+      else if (produces === PRODUCES.ASSIST) effects.nationalBonusAssists += came;
+      else if (produces === PRODUCES.STOP) effects.nationalBonusSaves += came;
+    } else if (produces === PRODUCES.GOAL) effects.bonusGoals += came;
     else if (produces === PRODUCES.ASSIST) effects.bonusAssists += came;
     // A night the ball never came to him is not a chance he was handed, so it is not one
     // he can be marked down for - see `absent` in outcomeOf.

@@ -22,6 +22,11 @@ import {
 import { shotScoringRate } from "./bigmatch.js";
 import { chance, createStream, pickWeighted, randInt } from "./rng.js";
 import {
+  continentalQualification,
+  simulateTournamentRun,
+  tournamentFor,
+} from "./tournaments.js";
+import {
   AWARD_ELIGIBLE_ROLES,
   BALLON_DOR,
   BALLON_DOR_POSITION_MULTIPLIER,
@@ -421,9 +426,25 @@ export function outputFor(next, { form = 1, ...spec }) {
   return poisson(next, expected * Math.max(0, form));
 }
 
-export function titleOddsFor({ trophy, club, ovr, delta, confederation, modifiers = {} }) {
+export function titleOddsFor({
+  trophy,
+  club,
+  ovr,
+  delta,
+  confederation,
+  continentalEntry = null,
+  modifiers = {},
+}) {
   const spec = TITLE_ODDS[trophy];
   if (!spec) return 0;
+
+  // Continental cups are invitations earned the previous year, not reputation lotteries.
+  // `null` preserves compatibility for isolated engine calls; real careers always pass an
+  // entry once a previous table exists.
+  if (continentalEntry) {
+    if (trophy === "continental_a" && continentalEntry.level !== "main") return 0;
+    if (trophy === "continental_b" && continentalEntry.level !== "secondary") return 0;
+  }
 
   const reputation = effectiveReputation(club, ovr, spec.key);
   let base =
@@ -447,13 +468,14 @@ export function titleOddsFor({ trophy, club, ovr, delta, confederation, modifier
  * player is looking. Same stream, same odds, same answer - only asked earlier.
  */
 export function rollTitle(seed, season, trophy, context) {
-  const { club, competition, ovr, delta, modifiers, latent = 0 } = context;
+  const { club, competition, ovr, delta, modifiers, latent = 0, continentalEntry = null } = context;
   const odds = titleOddsFor({
     trophy,
     club,
     ovr,
     delta,
     confederation: competition?.confederation,
+    continentalEntry,
     modifiers,
   });
   const next = createStream(seed, "title", trophy, season);
@@ -465,6 +487,84 @@ export function rollTitle(seed, season, trophy, context) {
 /** What the year the club is having looks like, before anything in it is rolled. */
 export const seasonLatent = (seed, season) =>
   standardNormal(createStream(seed, "fortune", season));
+
+/**
+ * A reproducible snapshot of the whole domestic table for this season.
+ *
+ * The career used to know only where the player's club finished. That was enough for
+ * qualification, but not enough to answer the more human question: who are we actually
+ * fighting in the table? This snapshot gives every club in the current division the same
+ * ingredients as the player's side: standing, a season-wide form draw and a deterministic
+ * tie break. Low latent is a good year, just like everywhere else in this engine.
+ *
+ * `club` may be the moved copy returned by `clubStanding`. When promotion or relegation
+ * puts it in a competition in which the immutable world does not list it, it replaces one
+ * entrant rather than creating a 21-team league.
+ */
+export function simulateLeagueTable({
+  seed,
+  season,
+  world,
+  club,
+  competition,
+  ovr = 70,
+  delta = 0,
+  latent = null,
+}) {
+  if (!world?.clubs || !club || !competition) return [];
+
+  const registered = Object.values(world.clubs).filter(
+    (candidate) => candidate.competitionId === competition.id && candidate.id !== club.id,
+  );
+  const originalInDivision = world.clubs[club.id]?.competitionId === competition.id;
+  const targetSize = Math.max(2, registered.length + (originalInDivision ? 1 : 0));
+
+  // A promoted side replaces a weak top-flight entrant; a relegated side replaces a
+  // strong second-tier entrant. Which exact club moves is data we do not model, so the id
+  // tie-break makes that missing half of the exchange stable and inspectable.
+  let entrants = registered;
+  if (!originalInDivision && registered.length >= targetSize) {
+    const weakestFirst = [...registered].sort(
+      (a, b) =>
+        (a.domestic_reputation ?? 0) - (b.domestic_reputation ?? 0) ||
+        String(a.id).localeCompare(String(b.id)),
+    );
+    const displaced = competition.tier === 1 ? weakestFirst[0] : weakestFirst.at(-1);
+    entrants = registered.filter((candidate) => candidate.id !== displaced?.id);
+  }
+  entrants = [...entrants, club];
+
+  const ratingFor = (candidate) => {
+    const isPlayerClub = candidate.id === club.id;
+    const reputation = isPlayerClub
+      ? effectiveReputation(candidate, ovr, "domestic")
+      : candidate.domestic_reputation ?? 0;
+    const year = isPlayerClub && latent != null
+      ? latent
+      : standardNormal(createStream(seed, "league-form", season, candidate.id));
+    // Twelve points per reputation rung preserves the hierarchy; annual form can still
+    // produce a Leicester-shaped surprise. The user's contribution is worth at most one
+    // rung, so a star can drag a side upwards without making the other ten irrelevant.
+    const playerLift = isPlayerClub ? Math.max(-12, Math.min(12, delta * 1.2)) : 0;
+    return reputation * 12 - year * 9 + playerLift;
+  };
+
+  const ranked = entrants
+    .map((candidate) => ({ clubId: candidate.id, rating: ratingFor(candidate) }))
+    .sort(
+      (a, b) => b.rating - a.rating || String(a.clubId).localeCompare(String(b.clubId)),
+    );
+
+  const span = Math.max(1, ranked.length - 1);
+  return ranked.map((row, index) => ({
+    clubId: row.clubId,
+    position: index + 1,
+    // Points are presentation and matchup context, not a second result roll. Keeping them
+    // monotonic guarantees that the printed table can never disagree with its positions.
+    points: Math.round(84 - (index * 56) / span),
+    rating: Number(row.rating.toFixed(3)),
+  }));
+}
 
 /**
  * The two competitions a COUNTRY plays, and where their odds actually live.
@@ -550,7 +650,7 @@ function rollTitles(seed, season, context) {
 }
 
 function rollNationalTeam(seed, season, context) {
-  const { country, ovr, age, modifiers } = context;
+  const { country, ovr, age, group, modifiers } = context;
   if (!country || modifiers.suspended) return null;
 
   const settled = modifiers.settledTitles ?? {};
@@ -570,6 +670,38 @@ function rollNationalTeam(seed, season, context) {
   const result = { calledUp: true, forced, caps: 0, titles: [] };
   const capsStream = createStream(seed, "national", "caps", season);
   result.caps = randInt(capsStream, 4, 12);
+
+  /*
+   * The selection used to record only appearances, so a striker could score in a World
+   * Cup final on screen and retire with no international goals anywhere in his record.
+   * These rates are deliberately separate from club output: international calendars are
+   * shorter and every appearance is against a stronger pool. They are pure and modest,
+   * with OVR providing a bounded quality lift and the player's position deciding what is
+   * plausible. A keeper records saves instead of being handed a fake scoring line.
+   */
+  const NATIONAL_RATE = {
+    keeper: { goals: 0, assists: 0, saves: 3.1 },
+    defensive: { goals: 0.07, assists: 0.06, saves: 0 },
+    support: { goals: 0.13, assists: 0.21, saves: 0 },
+    creator: { goals: 0.19, assists: 0.28, saves: 0 },
+    forward: { goals: 0.42, assists: 0.14, saves: 0 },
+  };
+  const rates = NATIONAL_RATE[group] ?? NATIONAL_RATE.support;
+  const quality = Math.max(0.75, Math.min(1.25, 1 + (ovr - 75) / 80));
+  result.goals = poisson(
+    createStream(seed, "national", "goals", season),
+    result.caps * rates.goals * quality,
+  ) + (modifiers.nationalBonusGoals ?? 0);
+  result.assists = poisson(
+    createStream(seed, "national", "assists", season),
+    result.caps * rates.assists * quality,
+  ) + (modifiers.nationalBonusAssists ?? 0);
+  if (group === "keeper") {
+    result.saves = poisson(
+      createStream(seed, "national", "saves", season),
+      result.caps * rates.saves * quality,
+    ) + (modifiers.nationalBonusSaves ?? 0);
+  }
 
   const fifaRep = country.fifa_reputation ?? 0;
   // A final the player took is still played out - the shot moved the odds, it did not end
@@ -813,6 +945,16 @@ export function simulateSeason(state, world, { season }) {
   const effectiveOvr = clampOvr(state.ovr + (modifiers.ovrTemp ?? 0));
   const squadLevel = squadLevelFor(club, effectiveOvr);
   const delta = effectiveOvr - squadLevel;
+  const previous = state.history?.[state.history.length - 1] ?? null;
+  const previousAtClub = previous?.clubId === club.id ? previous : null;
+  const continentalEntry = continentalQualification({
+    position: previousAtClub?.position ?? null,
+    confederation: competition?.confederation,
+    tier: standing.tier,
+    wonMain: Boolean(previousAtClub?.titles?.some((title) => title.trophy === "continental_a")),
+    wonCup: Boolean(previousAtClub?.titles?.some((title) => title.trophy === "cup")),
+    reputation: effectiveReputation(club, effectiveOvr, "continental"),
+  });
 
   const bands = keeper ? KEEPER_ROLE_BANDS : ROLE_BANDS;
   let role = roleFor(delta, keeper);
@@ -881,6 +1023,7 @@ export function simulateSeason(state, world, { season }) {
     club, competition, country, ovr: effectiveOvr, delta, role, modifiers, latent,
     age: state.age, group: state.group, goals,
     wonContinentalALastSeason: state.wonContinentalALastSeason,
+    continentalEntry,
   };
   const titles = rollTitles(state.seed, season, context);
   const national = rollNationalTeam(state.seed, season, context);
@@ -934,6 +1077,51 @@ export function simulateSeason(state, world, { season }) {
 
   const nextOvr = clampOvr(state.ovr + (development.perSeason ?? 0) + (state.pendingOvr ?? 0));
 
+  const position = leaguePosition({
+    club,
+    ovr: effectiveOvr,
+    delta,
+    latent,
+    wonLeague: keptTitles.some((title) => title.trophy === "league"),
+    relegated,
+    promoted,
+    size: Math.max(2, Object.values(world.clubs).filter((candidate) => candidate.competitionId === club.competitionId).length),
+  });
+  const nextContinentalEntry = continentalQualification({
+    position,
+    confederation: competition?.confederation,
+    tier: relegated ? 2 : standing.tier,
+    wonMain: keptTitles.some((title) => title.trophy === "continental_a"),
+    wonCup: keptTitles.some((title) => title.trophy === "cup"),
+    reputation: effectiveReputation(club, effectiveOvr, "continental"),
+  });
+
+  const tournamentRuns = [];
+  const clubTournament = tournamentFor({ confederation: competition?.confederation, club: true });
+  if (clubTournament && continentalEntry.level === "main") {
+    const entrants = Object.values(world.clubs).filter((candidate) =>
+      world.competitions[candidate.competitionId]?.confederation === competition?.confederation,
+    );
+    tournamentRuns.push(simulateTournamentRun({
+      id: clubTournament.id,
+      seed: state.seed,
+      season,
+      entrants,
+      player: club,
+      champion: keptTitles.some((title) => title.trophy === "continental_a"),
+    }));
+  }
+  if (national?.playedWorldCup) {
+    tournamentRuns.push(simulateTournamentRun({
+      id: "world_cup",
+      seed: state.seed,
+      season,
+      entrants: Object.values(world.countries),
+      player: country,
+      champion: national.titles?.some((title) => title.trophy === "world_cup"),
+    }));
+  }
+
   const record = {
     season,
     age: state.age,
@@ -957,15 +1145,10 @@ export function simulateSeason(state, world, { season }) {
      * and recorded here because the summer after this one has to read it: a Champions League
      * place is a finishing position, not a reputation.
      */
-    position: leaguePosition({
-      club,
-      ovr: effectiveOvr,
-      delta,
-      latent,
-      wonLeague: keptTitles.some((title) => title.trophy === "league"),
-      relegated,
-      promoted,
-    }),
+    position,
+    continentalEntry,
+    nextContinentalEntry,
+    tournamentRuns: tournamentRuns.filter(Boolean),
     // Which division this was actually played in, which is not always the one on the badge.
     division: { tier: standing.tier, shift: standing.shift, demoted: standing.demoted },
     suspended: Boolean(modifiers.suspended),
@@ -1027,9 +1210,26 @@ export function careerSummary(state) {
       acc.seasons += 1;
       acc.peakOvr = Math.max(acc.peakOvr, season.ovr);
       acc.peakValue = Math.max(acc.peakValue, season.value);
+      acc.bestLeagueFinish = season.position
+        ? Math.min(acc.bestLeagueFinish ?? season.position, season.position)
+        : acc.bestLeagueFinish;
+      acc.topFourFinishes += season.division?.tier === 1 && season.position <= 4 ? 1 : 0;
+      acc.promotions += season.promoted ? 1 : 0;
+      acc.relegations += season.relegated ? 1 : 0;
       return acc;
     },
-    { matches: 0, goals: 0, assists: 0, seasons: 0, peakOvr: 0, peakValue: 0 },
+    {
+      matches: 0,
+      goals: 0,
+      assists: 0,
+      seasons: 0,
+      peakOvr: 0,
+      peakValue: 0,
+      bestLeagueFinish: null,
+      topFourFinishes: 0,
+      promotions: 0,
+      relegations: 0,
+    },
   );
 
   const clubTitles = state.trophies.filter((t) => !t.national);
@@ -1043,5 +1243,14 @@ export function careerSummary(state) {
     awards: state.awards.length,
     caps: state.nationalCaps,
     goalsPerMatch: totals.matches ? totals.goals / totals.matches : 0,
+    contributions: totals.goals + totals.assists,
+    contributionsPerMatch: totals.matches
+      ? (totals.goals + totals.assists) / totals.matches
+      : 0,
+    leagueTitles: state.trophies.filter((t) => !t.national && t.trophy === "league").length,
+    continentalTitles: state.trophies.filter(
+      (t) => !t.national && (t.trophy === "continental_a" || t.trophy === "continental_b"),
+    ).length,
+    worldCups: state.trophies.filter((t) => t.national && t.trophy === "world_cup").length,
   };
 }

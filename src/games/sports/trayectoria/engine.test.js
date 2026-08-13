@@ -299,6 +299,12 @@ describe("season simulation", () => {
     expect(summary.seasons).toBe(RETIREMENT_AGE - START_AGE);
     expect(Number.isFinite(summary.goals)).toBe(true);
     expect(summary.titles).toBe(summary.titlesEarned + summary.titlesFromBench);
+    expect(summary.contributions).toBe(summary.goals + summary.assists);
+    expect(summary.bestLeagueFinish).toBeGreaterThan(0);
+    expect(summary.topFourFinishes).toBeGreaterThanOrEqual(0);
+    expect(summary.promotions).toBeGreaterThanOrEqual(0);
+    expect(summary.relegations).toBeGreaterThanOrEqual(0);
+    expect(summary.leagueTitles + summary.continentalTitles).toBeLessThanOrEqual(summary.titles);
   });
 
   it("replays identically from the same seed", () => {
@@ -724,6 +730,37 @@ describe("what the development panel says is coming", () => {
       expect(outlook.covers[1] - outlook.covers[0]).toBe(1);
       expect(outlook.covers[1]).toBe(outlook.targetAge);
     }
+  });
+
+  it("records position-specific international output in a called-up season", () => {
+    const country = "ESP";
+    const base = createCareer({ seed: "national-line", country, position: "DC" });
+    const clubId = youthOffers("national-line", base, world, 1)[0].clubId;
+    const state = {
+      ...base,
+      clubId,
+      ovr: 84,
+      modifiers: { titleMultipliers: {}, forceCallup: true },
+    };
+    const first = simulateSeason(state, world, { season: 3 }).record.national;
+    const replay = simulateSeason(state, world, { season: 3 }).record.national;
+    expect(first).toEqual(replay);
+    expect(first.caps).toBeGreaterThan(0);
+    expect(first.goals).toBeGreaterThanOrEqual(0);
+    expect(first.assists).toBeGreaterThanOrEqual(0);
+    expect(first.saves).toBeUndefined();
+
+    const keeper = {
+      ...state,
+      seed: "national-keeper-line",
+      position: "POR",
+      group: "keeper",
+    };
+    const keeperLine = simulateSeason(keeper, world, { season: 3 }).record.national;
+    expect(keeperLine.caps).toBeGreaterThan(0);
+    expect(keeperLine.saves).toBeGreaterThanOrEqual(0);
+    expect(keeperLine.goals).toBe(0);
+    expect(keeperLine.assists).toBe(0);
   });
 
   it("never claims a jump the player has already passed", () => {

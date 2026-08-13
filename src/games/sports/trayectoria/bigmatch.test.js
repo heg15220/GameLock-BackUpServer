@@ -13,6 +13,7 @@ import {
   derbyRivals,
   dropStakeFor,
   matchEffects,
+  leagueRivalFor,
   opponentFor,
   opponentPool,
   PRODUCES,
@@ -25,7 +26,7 @@ import {
   splitSeason,
   stakeFor,
 } from "./bigmatch.js";
-import { effectiveReputation, simulateSeason } from "./engine.js";
+import { effectiveReputation, simulateLeagueTable, simulateSeason } from "./engine.js";
 import { createStream } from "./rng.js";
 import { world } from "./world.js";
 
@@ -80,6 +81,84 @@ describe("the world has derbies even though the data does not", () => {
 
   it("returns nothing for a club that is not in the world", () => {
     expect(derbyRivals(world, "no-such-club")).toEqual([]);
+  });
+});
+
+describe("the season-defining league opponent", () => {
+  const competition = world.competitions[giant.competitionId];
+  const tableFor = (season) => simulateLeagueTable({
+    seed: "dynamic-rival",
+    season,
+    world,
+    club: giant,
+    competition,
+    ovr: 84,
+    delta: 5,
+  });
+
+  it("simulates one stable, complete table with unique positions", () => {
+    const table = tableFor(8);
+    expect(table).toEqual(tableFor(8));
+    expect(table).toHaveLength(
+      Object.values(world.clubs).filter((candidate) => candidate.competitionId === giant.competitionId).length,
+    );
+    expect(new Set(table.map((row) => row.clubId)).size).toBe(table.length);
+    expect(table.map((row) => row.position)).toEqual(
+      Array.from({ length: table.length }, (_, index) => index + 1),
+    );
+  });
+
+  it("chooses a seeded direct rival from the simulated table", () => {
+    const table = tableFor(8);
+    const result = leagueRivalFor({
+      seed: "dynamic-rival",
+      season: 8,
+      table,
+      clubId: giant.id,
+    });
+    expect(result).toEqual(
+      leagueRivalFor({ seed: "dynamic-rival", season: 8, table, clubId: giant.id }),
+    );
+    expect(result.opponentId).not.toBe(giant.id);
+    expect(result.pointsGap).toBeLessThanOrEqual(12);
+    expect(["title_race", "continental_race", "table_neighbor", "survival_race"]).toContain(
+      result.context,
+    );
+  });
+
+  it("puts that rival and its table story into the actual match", () => {
+    const leagueTable = tableFor(8);
+    const expected = leagueRivalFor({
+      seed: "dynamic-rival",
+      season: 8,
+      table: leagueTable,
+      clubId: giant.id,
+    });
+    const { fixtures } = seasonFixtures(
+      context(giant, { seed: "dynamic-rival", season: 8, leagueTable }),
+    );
+    const match = fixtures.find((fixture) => fixture.kind === "clasico") ??
+      fixtures.find((fixture) => fixture.derby);
+    expect(match.opponentId).toBe(expected.opponentId);
+    expect(match.leagueContext).toEqual(expected);
+  });
+
+  it("changes the competitive picture across seasons", () => {
+    const opponents = new Set();
+    const topFours = new Set();
+    for (let season = 0; season < 20; season += 1) {
+      const table = tableFor(season);
+      const result = leagueRivalFor({
+        seed: "dynamic-rival",
+        season,
+        table,
+        clubId: giant.id,
+      });
+      opponents.add(result.opponentId);
+      topFours.add(table.slice(0, 4).map((row) => row.clubId).join(":"));
+    }
+    expect(opponents.size).toBeGreaterThan(1);
+    expect(topFours.size).toBeGreaterThan(1);
   });
 });
 
@@ -265,6 +344,16 @@ describe("what converting is worth on the scoresheet", () => {
     const effects = matchEffects([result("parada_penal", 1), result("despeje", 2)]);
     expect(effects.bonusGoals).toBe(0);
     expect(effects.bonusAssists).toBe(0);
+  });
+
+  it("attributes a national decider to the selection, not the club", () => {
+    const goal = matchEffects([{ ...result("penal", 1), national: true }]);
+    expect(goal.bonusGoals).toBe(0);
+    expect(goal.nationalBonusGoals).toBe(1);
+
+    const save = matchEffects([{ ...result("parada_penal", 1), national: true }]);
+    expect(save.bonusGoals).toBe(0);
+    expect(save.nationalBonusSaves).toBe(1);
   });
 
   it("still settles the trophy whichever it was - that is the whole point", () => {

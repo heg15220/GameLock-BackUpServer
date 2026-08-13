@@ -21,6 +21,7 @@ const TABLET_DESKTOP_LAYOUT_GAME_IDS = new Set([
 const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([]);
 
 const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
+  "sports-trayectoria",
   "knowledge-domino-chain",
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",
@@ -90,6 +91,7 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
     !NATIVE_MOBILE_GAME_IDS.has(gameId) &&
     !forceDesktopTabletLayout;
   const viewportFormFactor = viewport.formFactor ?? "desktop";
+  const useTrajectoryMobileView = gameId === "sports-trayectoria" && viewportFormFactor === "phone";
   const categoryKey = String(game.category ?? "");
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
@@ -100,10 +102,14 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
       PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS.has(gameId)
     );
   const useCompactPortraitBottomAd = PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS.has(gameId);
+  const showTrajectoryMobileBottomAd =
+    gameId === "sports-trayectoria" && viewportFormFactor === "phone";
   const showMobileSystemBottomAd =
     adPreviewEnabled &&
     viewportFormFactor !== "desktop" &&
-    ((isStrategyCategory && useMobileGameShell) || showPortraitCompactBottomAd);
+    ((isStrategyCategory && useMobileGameShell) ||
+      showPortraitCompactBottomAd ||
+      showTrajectoryMobileBottomAd);
   const showShellManagedSystemBottomAd =
     showMobileSystemBottomAd &&
     isStrategyCategory &&
@@ -317,6 +323,23 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
                 ) : null}
 
                 <div className="launch-game-area-stage">
+                  {useTrajectoryMobileView ? (
+                    <div className="trayectoria-mobile-host" data-native-mobile-game="trayectoria">
+                      <Suspense
+                        fallback={
+                          <div className="launch-loading">
+                            <span className="launch-loading-dot" />
+                            <span className="launch-loading-dot" />
+                            <span className="launch-loading-dot" />
+                            <p>{t("loading")}</p>
+                          </div>
+                        }
+                      >
+                        <ActiveGame locale={locale} />
+                        {import.meta.env.VITE_BENCH ? <BenchReadyMarker gameId={gameId} /> : null}
+                      </Suspense>
+                    </div>
+                  ) : (
                   <div
                     className={launchPlaygroundClassName}
                     data-category={String(game.category ?? "").toLowerCase()}
@@ -348,6 +371,7 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
                       </div>
                     </div>
                   </div>
+                  )}
                 </div>
 
                 {hasDesktopAdRails ? (

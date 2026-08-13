@@ -3100,6 +3100,40 @@ body {
   min-width: 0;
 }
 
+/* Trayectoria ships its own phone view. This host intentionally bypasses the generic
+   arcade/dual-screen device bezel while retaining the system launch chrome and ad slot. */
+.trayectoria-mobile-host {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+@media (max-width: 640px) {
+  .game-playground[data-game-id="sports-trayectoria"] .playground-stage-main,
+  .launch-game-area[data-game-id="sports-trayectoria"] .launch-game-area-stage {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .launch-game-area[data-game-id="sports-trayectoria"] {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .launch-game-area[data-game-id="sports-trayectoria"] > *,
+  .game-playground[data-game-id="sports-trayectoria"] .trayectoria-mobile-host {
+    width: 100%;
+    max-width: none;
+  }
+
+  .launch-overlay--device-phone .launch-game-area[data-game-id="sports-trayectoria"] .launch-game-area-layout {
+    display: block;
+  }
+}
+
 .launch-game-area-layout--with-ads .playground-ad-column {
   position: sticky;
   top: 1rem;

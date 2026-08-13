@@ -18,6 +18,8 @@
  * expressed as code is a thing nobody checks at all.
  */
 
+import { createStream, randInt } from "./rng.js";
+
 /**
  * A knockout round, named by how many sides are in it when it starts.
  *
@@ -164,4 +166,142 @@ export function tournamentFor({ confederation, club = true }) {
         (spec.confederation === confederation || spec.confederation === null),
     ) ?? null
   );
+}
+
+/**
+ * Turn the previous league finish into next season's continental entry.
+ *
+ * The world data does not model coefficients or cup reallocation, so the slots are an
+ * explicit, conservative abstraction. Crucially, reputation never grants entry after a
+ * season has been played: it only seeds a new career's first year, where no prior table
+ * exists yet. Holders defend their title, as they do in both competitions.
+ */
+export function continentalQualification({
+  position = null,
+  confederation = null,
+  tier = 1,
+  wonMain = false,
+  wonCup = false,
+  reputation = 0,
+} = {}) {
+  if (tier !== 1 || !confederation) return { level: "none", reason: "division" };
+  if (wonMain) return { level: "main", reason: "holder" };
+
+  // A career begins in medias res. Until its first table exists, stature is the only
+  // honest evidence available about which continental list the club entered on.
+  if (!Number.isFinite(position)) {
+    if (reputation >= 3) return { level: "main", reason: "seeded" };
+    if (reputation >= 1) return { level: "secondary", reason: "seeded" };
+    return { level: "none", reason: "seeded" };
+  }
+
+  const mainSlots = confederation === "CONMEBOL" ? 6 : confederation === "UEFA" ? 4 : 2;
+  const secondarySlots = confederation === "CONMEBOL" || confederation === "UEFA" ? 2 : 1;
+  if (position <= mainSlots) return { level: "main", reason: "league", cutoff: mainSlots };
+  if (wonCup || position <= mainSlots + secondarySlots) {
+    return { level: "secondary", reason: wonCup ? "cup" : "league", cutoff: mainSlots + secondarySlots };
+  }
+  return { level: "none", reason: "league", cutoff: mainSlots + secondarySlots };
+}
+
+const identityOf = (entry) => entry?.id ?? entry?.fifa ?? null;
+const nameOf = (entry) => entry?.shortName ?? entry?.short_name ?? entry?.name_es ?? entry?.name ?? identityOf(entry) ?? "—";
+const strengthOf = (entry) =>
+  entry?.continental_reputation ?? entry?.international_reputation ?? entry?.fifa_reputation ?? 2;
+
+/** A plausible score for one knockout tie, deterministic and never level after extra time. */
+function tieScore(next, ours, theirs, legs, forceWin) {
+  const edge = Math.max(-0.22, Math.min(0.22, (ours - theirs) * 0.055));
+  const naturalWin = next() < 0.5 + edge;
+  const won = forceWin ?? naturalWin;
+  const loser = randInt(next, 0, legs === 2 ? 3 : 2);
+  const margin = next() < 0.68 ? 1 : 2;
+  const winner = loser + margin;
+  return {
+    won,
+    home: won ? winner : loser,
+    away: won ? loser : winner,
+    extraTime: legs === 1 && loser >= 1 && next() < 0.24,
+    penalties: legs === 1 && next() < 0.12,
+  };
+}
+
+/**
+ * Simulate every stage of the player's tournament rather than jumping from entry to final.
+ * This is a compact player-centric bracket: it records the phase, every opponent, aggregate
+ * score and exit round. The forced final outcome keeps it consistent with the season's
+ * already-settled trophy roll.
+ */
+export function simulateTournamentRun({
+  id,
+  seed,
+  season,
+  entrants = [],
+  player,
+  qualified = true,
+  champion = false,
+  phasePosition = null,
+} = {}) {
+  const spec = TOURNAMENTS[id];
+  if (!spec || !qualified || !player) return null;
+  const playerId = identityOf(player);
+  const next = createStream(seed, "tournament-run", id, season, playerId);
+  const pool = entrants.filter((entry) => identityOf(entry) && identityOf(entry) !== playerId);
+  const playerStrength = strengthOf(player);
+
+  const phaseSize = spec.phase.kind === "league" ? spec.teams : spec.phase.perGroup;
+  const derivedPhasePosition = phasePosition ?? Math.max(
+    1,
+    Math.min(phaseSize, Math.round(phaseSize * (0.72 - playerStrength * 0.1 + next() * 0.42))),
+  );
+  const direct = spec.phase.kind === "league" && derivedPhasePosition <= spec.phase.direct;
+  const phaseQualified = spec.phase.kind === "league"
+    ? derivedPhasePosition <= spec.phase.playoff[1] || champion
+    : derivedPhasePosition <= spec.phase.qualify || champion;
+
+  const run = {
+    id,
+    phase: { kind: spec.phase.kind, position: derivedPhasePosition, qualified: phaseQualified, direct },
+    rounds: [],
+    eliminatedAt: phaseQualified ? null : "phase",
+    champion: false,
+  };
+  if (!phaseQualified) return run;
+
+  const rounds = roundsOf(id).filter((round) => !(id === "champions" && direct && round.id === "playoff"));
+  // A non-champion exits somewhere. Strong sides are more likely to travel further, while
+  // every round remains possible; champions are forced through the whole verified format.
+  let exitAt = rounds.length - 1;
+  if (!champion) {
+    const survival = Math.max(0.34, Math.min(0.78, 0.43 + playerStrength * 0.065));
+    exitAt = 0;
+    while (exitAt < rounds.length - 1 && next() < survival) exitAt += 1;
+  }
+
+  const used = new Set();
+  for (let index = 0; index < rounds.length; index += 1) {
+    const round = rounds[index];
+    const available = pool.filter((entry) => !used.has(identityOf(entry)));
+    const opponent = available.length ? available[Math.floor(next() * available.length)] : null;
+    if (opponent) used.add(identityOf(opponent));
+    const mustWin = champion || index < exitAt;
+    const score = tieScore(next, playerStrength, strengthOf(opponent), legsOf(id, round.id), mustWin);
+    run.rounds.push({
+      round: round.id,
+      legs: legsOf(id, round.id),
+      opponentId: identityOf(opponent),
+      opponent: nameOf(opponent),
+      score: { us: score.home, them: score.away },
+      extraTime: score.extraTime,
+      penalties: score.penalties,
+      won: mustWin,
+    });
+    if (!mustWin) {
+      run.eliminatedAt = round.id;
+      break;
+    }
+  }
+  run.champion = champion;
+  if (champion) run.eliminatedAt = null;
+  return run;
 }

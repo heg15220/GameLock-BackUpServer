@@ -991,15 +991,10 @@
   animation: tr-rise 460ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
 }
 
-.tr-ceremony__row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-end;
-  gap: clamp(18px, 5vw, 54px);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.tr-ceremony__stage {
+  display: grid;
+  place-items: center;
+  min-height: 166px;
 }
 
 .tr-ceremony__item {
@@ -1007,10 +1002,8 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  /* Each cup waits its turn: the stagger is what turns three trophies into three
-     moments instead of one crowded picture. */
+  list-style: none;
   animation: tr-lift 720ms cubic-bezier(0.16, 1.05, 0.3, 1) backwards;
-  animation-delay: calc(var(--i, 0) * 620ms + 220ms);
 }
 .tr-ceremony__item b {
   font-family: var(--tr-display);
@@ -1042,7 +1035,7 @@
   background: radial-gradient(circle, rgba(255, 226, 138, 0.5), transparent 66%);
   opacity: 0;
   animation: tr-flare 900ms ease-out backwards;
-  animation-delay: calc(var(--i, 0) * 620ms + 480ms);
+  animation-delay: 260ms;
   pointer-events: none;
 }
 @keyframes tr-flare {
@@ -1053,6 +1046,30 @@
 /* An individual award is not a cup, and should not be gold like one. */
 .tr-ceremony__item--award .tr-ceremony__cup { color: var(--tr-ink); }
 .tr-ceremony__item--award .tr-ceremony__cup { filter: drop-shadow(0 10px 22px rgba(238, 241, 247, 0.22)); }
+
+.tr-ceremony__progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+.tr-ceremony__progress > div { display: flex; gap: 6px; }
+.tr-ceremony__progress i {
+  width: 18px;
+  height: 2px;
+  background: rgba(146, 162, 190, 0.3);
+  transition: background 180ms ease, transform 180ms ease;
+}
+.tr-ceremony__progress i.is-on {
+  background: var(--tr-gold);
+  transform: scaleY(1.5);
+}
 
 .tr-ceremony__skip {
   margin: clamp(20px, 4vw, 34px) 0 0;
@@ -2232,6 +2249,45 @@
   letter-spacing: 0.04em;
 }
 
+.tr-match__league-context {
+  align-items: center;
+  background: color-mix(in srgb, var(--tr-accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tr-accent) 28%, transparent);
+  border-radius: 999px;
+  color: var(--tr-text-muted);
+  display: inline-flex;
+  font-size: 0.73rem;
+  font-weight: 700;
+  gap: 6px;
+  justify-self: center;
+  letter-spacing: 0.01em;
+  margin: 10px auto 0;
+  padding: 6px 10px;
+}
+
+.tr-live__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 9px;
+}
+.tr-live__stat {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: var(--tr-muted);
+}
+.tr-live__stat span { overflow: hidden; text-align: center; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: .08em; }
+.tr-live__stat b { color: var(--tr-ink); font-variant-numeric: tabular-nums; }
+.tr-live__stat i {
+  grid-column: 1 / -1;
+  height: 3px;
+  border-radius: 99px;
+  background: linear-gradient(to right, var(--tr-green) 0 var(--ours), rgba(255,255,255,.13) var(--ours) 100%);
+}
+
 /* The clock. The one thing on the page that is actually running. */
 .tr-live__clock {
   display: flex;
@@ -2329,6 +2385,28 @@
 .tr-live__beat.is-us span { color: var(--tr-green); font-weight: 600; }
 .tr-live__beat.is-them span { color: var(--tr-ink-red); }
 .tr-live__beat.is-decisive span { color: var(--tr-ink); font-weight: 700; }
+.tr-live__beat.is-player {
+  margin-left: -6px;
+  padding: 5px 7px;
+  border-left: 2px solid var(--tr-gold);
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(211, 169, 74, .12), transparent 72%);
+}
+.tr-live__beat.is-save:not(.is-player)::before,
+.tr-live__beat.is-defence:not(.is-player)::before,
+.tr-live__beat.is-creation:not(.is-player)::before,
+.tr-live__beat.is-setpiece:not(.is-player)::before {
+  flex: none;
+  width: 13px;
+  font-size: 10px;
+  line-height: 1.7;
+  text-align: center;
+  color: var(--tr-muted);
+}
+.tr-live__beat.is-save:not(.is-player)::before { content: "◆"; }
+.tr-live__beat.is-defence:not(.is-player)::before { content: "▰"; }
+.tr-live__beat.is-creation:not(.is-player)::before { content: "◇"; }
+.tr-live__beat.is-setpiece:not(.is-player)::before { content: "⌟"; }
 
 /* Which way this one is being played, said once, next to the kind of chance. */
 .tr-match__mode {
@@ -2819,6 +2897,35 @@
 .tr-front__club b { font-size: 16px; font-weight: 700; }
 .tr-front__club small { font-size: 11px; color: #6a6c60; }
 
+.tr-front__league-place {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 12px;
+  color: var(--tr-paper-ink);
+  background: rgba(18, 19, 15, 0.06);
+  border-left: 3px solid var(--tr-ink-red);
+}
+.tr-front__league-place span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: #5e6056;
+}
+.tr-front__league-place b {
+  flex: none;
+  font-family: var(--tr-display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+}
+
 /* The meter is on newsprint here, so it needs ink values rather than screen values. */
 .tr-front__card .tr-delta__track { background: rgba(18, 19, 15, 0.12); }
 /* Scoped to the inactive bands only: the active one must keep its role colour, which is
@@ -3013,6 +3120,46 @@
   letter-spacing: 0.01em;
 }
 .tr-front__note--shadow { border-left: 2px solid var(--tr-ink-red); padding-left: 12px; }
+
+.tr-front__note--national {
+  padding: 12px 14px;
+  background: rgba(18, 19, 15, 0.045);
+  border-top: 2px solid var(--tr-paper-ink);
+}
+.tr-front__national-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
+  gap: 1px;
+  margin: 10px 0 0;
+  background: rgba(18, 19, 15, 0.16);
+  border: 1px solid rgba(18, 19, 15, 0.16);
+}
+.tr-front__national-stats > div {
+  min-width: 0;
+  padding: 8px 9px;
+  background: var(--tr-paper);
+}
+.tr-front__national-stats dt {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tr-paper-mute);
+}
+.tr-front__national-stats dd {
+  margin: 3px 0 0;
+  font-family: var(--tr-display);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--tr-paper-ink);
+}
+.tr-front__national-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 7px;
+}
+.tr-front__national-notes small { margin-top: 0; }
 
 /* The folio: the running career total, set as the same label/number pairs as the season's
    own line so the two read as the small and the large of one thing. */
@@ -3307,6 +3454,97 @@
 .tr-compare tr.is-ahead td:nth-child(2) { color: var(--tr-green); }
 .tr-compare tr.is-behind td:nth-child(2) { color: var(--tr-ink-red); }
 
+/* Career dossier: deliberately its own composition, rather than a long pile of the
+   season cards. The identity and verdict form the cover; the rest reads as an archive. */
+.tr-retired__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr);
+  gap: 22px 28px;
+  padding: clamp(22px, 4vw, 42px);
+  background:
+    linear-gradient(135deg, rgba(232, 17, 45, .16), transparent 44%),
+    var(--tr-panel);
+  border: 1px solid var(--tr-line);
+  border-top: 4px solid var(--tr-ink-red);
+  border-radius: 12px;
+}
+.tr-retired__masthead {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--tr-line);
+  color: var(--tr-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.tr-retired__identity { display: flex; align-items: center; gap: 20px; min-width: 0; }
+.tr-retired__identity > div { min-width: 0; }
+.tr-retired__number { margin: 0 0 4px; color: var(--tr-ink-red); font-weight: 700; }
+.tr-retired__name { font-size: clamp(42px, 7vw, 78px); overflow-wrap: anywhere; }
+.tr-retired__bio,
+.tr-retired__span { margin: 8px 0 0; color: var(--tr-muted); line-height: 1.45; }
+.tr-retired__span { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.tr-retired__verdict {
+  align-self: stretch;
+  padding: 20px;
+  background: rgba(5, 7, 10, .52);
+  border-left: 2px solid var(--tr-ink-red);
+}
+.tr-retired__verdict h3 { margin-top: 12px; font-size: clamp(28px, 4vw, 48px); }
+.tr-retired__verdict > p:last-child { margin: 12px 0 0; color: var(--tr-muted); line-height: 1.55; }
+.tr-totals--primary { grid-template-columns: repeat(4, 1fr); }
+.tr-totals--primary > div { padding: 20px; }
+.tr-totals--primary dd { font-size: clamp(32px, 5vw, 52px); }
+.tr-retired__secondary {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin: 0;
+}
+.tr-retired__secondary > div { padding: 14px; border: 1px solid var(--tr-line); border-radius: 7px; }
+.tr-retired__secondary dt { color: var(--tr-muted); font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.tr-retired__secondary dd { margin: 5px 0 0; font-family: var(--tr-display); font-size: 23px; }
+.tr-retired__milestones,
+.tr-journey,
+.tr-compare { padding: 20px; background: var(--tr-panel); border: 1px solid var(--tr-line); border-radius: 10px; }
+.tr-retired__section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }
+.tr-retired__peak { display: flex; align-items: center; gap: 10px; flex: 0 1 330px; }
+.tr-retired__peak span { display: grid; gap: 3px; }
+.tr-retired__peak small { color: var(--tr-muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+.tr-retired__peak b { font-size: 12px; }
+.tr-retired__milestones ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1px;
+  margin: 18px 0 0;
+  padding: 1px;
+  list-style: none;
+  background: var(--tr-line);
+}
+.tr-retired__milestones li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; padding: 13px; background: var(--tr-panel-2); }
+.tr-retired__milestones li span { color: var(--tr-muted); font-size: 11px; }
+.tr-retired__milestones li b { font-family: var(--tr-display); font-size: 20px; color: var(--tr-gold); }
+.tr-journey ol { display: grid; gap: 0; margin: 18px 0 0; padding: 0; list-style: none; }
+.tr-journey li { position: relative; display: grid; grid-template-columns: auto minmax(120px, 1fr) auto minmax(150px, 1fr) auto; align-items: center; gap: 12px; padding: 13px 0; border-top: 1px solid var(--tr-line); }
+.tr-journey__line { position: absolute; left: 18px; top: -1px; bottom: -1px; width: 1px; background: var(--tr-line); }
+.tr-journey .tr-crest { position: relative; z-index: 1; background: var(--tr-panel); }
+.tr-journey__club { display: grid; gap: 3px; }
+.tr-journey__club small,
+.tr-journey li > span:not(.tr-journey__line),
+.tr-journey li > strong { color: var(--tr-muted); font-size: 11px; }
+.tr-journey li > strong { color: var(--tr-gold); }
+.tr-retired__legacy { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.tr-compare__score { display: grid; min-width: 160px; text-align: right; }
+.tr-compare__score small { color: var(--tr-muted); text-transform: uppercase; letter-spacing: .1em; }
+.tr-compare__score b { font-family: var(--tr-display); font-size: 34px; }
+.tr-compare__score span { color: var(--tr-muted); font-size: 10px; }
+.tr-compare__score.is-ahead b { color: var(--tr-green); }
+.tr-compare__score.is-behind b { color: var(--tr-ink-red); }
+
 /* ── Narrow screens ──────────────────────────────────────────────────────── */
 
 @media (max-width: 1040px) {
@@ -3346,15 +3584,165 @@
   .tr-front__card { flex-direction: row; flex-wrap: wrap; align-items: center; }
   .tr-front__card .tr-delta { flex: 1 1 200px; }
   .tr-front__cardhead { flex: 1 0 100%; }
+  .tr-front__league-place { flex: 1 1 210px; }
 }
 
 @media (max-width: 640px) {
-  .tr-shell { padding: 14px; border-radius: 16px; }
+  /* Trayectoria owns its phone layout. It is a continuous editorial surface with no
+     simulated console bezel, dual screen, or borrowed game controls. */
+  .tr-shell {
+    width: 100%;
+    min-width: 0;
+    min-height: 100dvh;
+    padding: 12px 12px 22px;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: clip;
+    background:
+      radial-gradient(circle at 92% 0%, rgba(232, 17, 45, .14), transparent 26rem),
+      linear-gradient(180deg, #080a0e, #0c0e12 48%, #11151d);
+  }
+  .tr-main,
+  .tr-stage,
+  .tr-setup { min-width: 0; width: 100%; }
+  .tr-stage { gap: 14px; }
+  .tr-display--xl { font-size: clamp(36px, 12vw, 52px); }
+  .tr-display--lg { font-size: clamp(27px, 9vw, 38px); }
+  .tr-lede { font-size: 13px; line-height: 1.48; }
+  .tr-btn { min-height: 46px; padding: 12px 14px; touch-action: manipulation; }
+  .tr-chip,
+  .tr-flagpick,
+  .tr-mode,
+  .tr-option { min-height: 44px; touch-action: manipulation; }
+
+  /* Persistent identity becomes a compact mobile dashboard: player, club, then four
+     equally sized readings. The trophy case scrolls horizontally instead of wrapping. */
+  .tr-header { gap: 9px; padding-bottom: 10px; }
+  .tr-header__number { width: 40px; height: 40px; font-size: 21px; border-radius: 7px; }
+  .tr-header__player { gap: 10px; }
+  .tr-header__player h1 { font-size: 25px; }
+  .tr-header__player p { display: block; max-width: calc(100vw - 86px); font-size: 10px; line-height: 1.45; }
+  .tr-header__player p .tr-flag { vertical-align: middle; }
+  .tr-rail { padding-top: 9px; }
+  .tr-pcard { width: 50px; padding: 7px 5px 5px; }
+  .tr-pcard__rating { font-size: 23px; }
+  .tr-pcard__badge { margin-top: 3px; padding-top: 3px; }
+  .tr-rail__club { gap: 8px; padding-left: 9px; }
+  .tr-rail__club b { font-size: 13px; }
+  .tr-rail__club small { font-size: 9px; }
+  .tr-rail__cells { margin-top: 9px; padding-top: 8px; }
+  .tr-rail__cell { min-height: 51px; padding: 3px 3px 7px; }
+  .tr-rail__label { font-size: 7px; letter-spacing: .08em; }
+  .tr-rail__value { font-size: 21px; }
+  .tr-rail__note { max-width: 21vw; overflow: hidden; font-size: 7.5px; text-overflow: ellipsis; }
+  .tr-rail > .tr-shelf__case { overflow: hidden; margin-top: 8px; padding-top: 7px; }
+  .tr-rail .tr-shelf { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .tr-rail .tr-shelf::-webkit-scrollbar { display: none; }
+  .tr-spine { gap: 1px; margin: 9px 0 15px; padding-bottom: 12px; }
+  .tr-spine__tick { min-width: 3px; }
+  .tr-spine__tick.is-now { height: 18px; }
+
+  /* Setup is thumb-first and stays readable at 320px. */
+  .tr-setup { gap: 17px; }
+  .tr-setup__grid { grid-template-columns: 1fr; gap: 12px; }
+  .tr-field--wide,
+  .tr-field--narrow,
+  .tr-field--choice,
+  .tr-field--full { grid-column: 1; }
+  .tr-field input,
+  .tr-field select { min-height: 46px; font-size: 16px; }
+  .tr-choice { display: grid; grid-template-columns: 1fr 1fr; }
+  .tr-choice .tr-chip { justify-content: center; padding-inline: 8px; }
+  .tr-seed { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .tr-flags { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 184px; padding: 5px; }
+  .tr-flagpick { gap: 7px; padding: 7px; font-size: 11px; }
+  .tr-modes legend small { display: block; margin: 4px 0 0; }
+  .tr-modes__row { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .tr-modes__row::-webkit-scrollbar { display: none; }
+  .tr-mode { flex: 0 0 min(78vw, 260px); scroll-snap-align: start; }
+  .tr-thesis { padding: 13px 14px; font-size: 12px; }
+
+  /* Decisions, offers and contract screens become a single purposeful reading order. */
+  .tr-desk,
+  .tr-talks { grid-template-columns: 1fr; gap: 14px; }
+  .tr-context,
+  .tr-talks__room,
+  .tr-talks__paper,
+  .tr-offer,
+  .tr-clause,
+  .tr-nationality,
+  .tr-outlook { padding: 14px; border-radius: 9px; }
+  .tr-card__options { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .tr-option { padding: 12px; }
+  .tr-offers { grid-template-columns: 1fr; gap: 10px; }
+  .tr-offer__head { gap: 9px; }
+  .tr-talks__actions,
+  .tr-clause__actions { display: grid; grid-template-columns: 1fr; width: 100%; }
+  .tr-talks__actions .tr-btn,
+  .tr-clause__actions .tr-btn { justify-content: center; width: 100%; }
+  .tr-sign { padding: 16px 14px; border-radius: 10px; }
+  .tr-sign__name { font-size: clamp(36px, 13vw, 52px); overflow-wrap: anywhere; }
+  .tr-sign__paper { padding: 15px 13px 12px; }
+  .tr-sign .tr-terms { grid-template-columns: 1fr 1fr; }
+  .tr-sign .tr-term { min-width: 0; }
+  .tr-sign__gained ul { display: grid; grid-template-columns: 1fr; }
+  .tr-outlook { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tr-outlook__risk { grid-column: 1 / -1; }
+  .tr-nationality__row { display: grid; grid-template-columns: 1fr 1fr; }
+  .tr-nationality__row .tr-chip { justify-content: center; padding-inline: 8px; }
+
+  /* The match keeps its broadcast rhythm but spends vertical space on the live story,
+     not furniture. Choices remain large enough for one-handed play. */
+  .tr-match { padding: 15px 13px; border-radius: 10px; }
+  .tr-match__bar { align-items: flex-start; gap: 8px; }
+  .tr-match__pips { gap: 4px; }
+  .tr-match__pips i { width: 7px; height: 7px; }
+  .tr-match__title { gap: 9px; }
+  .tr-match__emblem { width: 39px; height: 39px; }
+  .tr-match__teams { flex-wrap: wrap; gap: 5px 9px; }
+  .tr-match__team b { max-width: 30vw; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  .tr-match__league-context,
+  .tr-match__alsoderby { font-size: 10px; }
+  .tr-match__type { margin-top: 13px; padding: 10px 0; font-size: 17px; }
+  .tr-match__options { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .tr-match__options .tr-option { min-width: 0; padding: 10px 6px; }
+  .tr-match__options .tr-option__text { font-size: 10px; overflow-wrap: anywhere; }
+  .tr-live { margin-top: 11px; padding: 11px 9px; }
+  .tr-live__scoreline { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 6px; }
+  .tr-live__side { gap: 5px; font-size: 10px; }
+  .tr-live__score { font-size: 25px; }
+  .tr-live__stats { gap: 5px; }
+  .tr-live__stat { padding: 7px 4px; font-size: 8px; }
+  .tr-live__feed { min-height: 132px; max-height: 38dvh; padding-right: 3px; }
+  .tr-live__beat { grid-template-columns: 28px minmax(0, 1fr); gap: 7px; font-size: 11px; line-height: 1.4; }
+  .tr-live__skip { min-height: 40px; }
+  .tr-match__result { margin-top: 13px; }
+  .tr-match__verdict { font-size: clamp(29px, 11vw, 45px); }
+
+  /* Season newspaper becomes a narrow broadsheet. Its team card and international block
+     retain every datum, while tournament rounds become a swipeable timeline. */
+  .tr-front { padding: 16px 13px; border-radius: 3px; }
   .tr-front__body::first-letter { font-size: 42px; }
   .tr-front__masthead { flex-direction: column; gap: 4px; }
   .tr-front__dateline { text-align: left; }
+  .tr-front__lead { gap: 16px; }
+  .tr-front__head { font-size: clamp(37px, 12vw, 54px); }
+  .tr-front__body { font-size: 14px; }
+  .tr-front__stats { grid-template-columns: repeat(2, 1fr); }
+  .tr-front__stats > div { padding: 10px; }
+  .tr-front__card { display: grid; grid-template-columns: 1fr; align-items: stretch; padding: 13px; }
+  .tr-front__card .tr-delta,
+  .tr-front__league-place { width: 100%; }
+  .tr-front__vitals { justify-content: space-between; }
   .tr-front__notes { grid-template-columns: 1fr; gap: 14px; }
   .tr-front__vitals { gap: 16px; }
+  .tr-front__national-stats { grid-template-columns: repeat(2, 1fr); }
+  .tr-front__honours { gap: 7px; }
+  .tr-front__honours li { min-width: 0; }
+  .tr-tournament-run__rounds { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
+  .tr-tournament-run__rounds li { flex: 0 0 112px; scroll-snap-align: start; }
+  .tr-front__foot { align-items: flex-start; }
+  .tr-front__career { display: grid; grid-template-columns: repeat(2, 1fr); width: 100%; }
   /* Three columns and a fixture name do not fit on a phone. The match takes its own line
      and the call and the outcome share the one under it - and the column heads go, since
      there are no longer three columns for them to head. */
@@ -3362,23 +3750,11 @@
   .tr-front__match { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
   .tr-front__match b { grid-column: 1 / -1; }
   .tr-front__match span { text-align: left; }
-  .tr-setup__grid { grid-template-columns: repeat(2, 1fr); }
-  .tr-field--wide { grid-column: span 2; }
-  .tr-field--narrow { grid-column: span 1; }
-  .tr-field--choice { grid-column: span 2; }
-  /* Two columns of flags at most on a phone, and a shorter box so the button below it
-     is still on screen when the form opens. */
-  .tr-flags { grid-template-columns: repeat(auto-fill, minmax(126px, 1fr)); max-height: 156px; }
-  .tr-modes__row { grid-template-columns: 1fr; }
-  .tr-header { gap: 10px; }
   .tr-spine__tick i { display: none; }
   .tr-spine__tick.is-now i { display: block; }
-  .tr-offers { grid-template-columns: 1fr; }
   /* Two verdicts side by side still fit at this width and must stay side by side: the
      whole point of the row is that the same two answers are in the same two places. */
   .tr-verdict__label { letter-spacing: 0.08em; }
-  .tr-outlook { gap: 10px 18px; }
-  .tr-outlook__risk { margin-left: 0; }
   .tr-compare table { font-size: 13px; }
   .tr-crowds li { flex-wrap: wrap; }
   .tr-crowds__id { flex: 1 1 auto; }
@@ -3393,6 +3769,67 @@
     text-align: left;
     white-space: normal;
   }
+
+  /* Full career: cover, milestones, timeline and legacy are separate mobile chapters. */
+  .tr-retired__hero { grid-template-columns: 1fr; gap: 17px; padding: 18px 14px; }
+  .tr-retired__masthead { flex-direction: column; gap: 4px; }
+  .tr-retired__identity { align-items: flex-start; gap: 13px; }
+  .tr-retired__identity .tr-pcard { width: 62px; }
+  .tr-retired__name { font-size: clamp(39px, 14vw, 58px); }
+  .tr-retired__bio { font-size: 12px; }
+  .tr-retired__verdict { padding: 15px; }
+  .tr-totals--primary { grid-template-columns: repeat(2, 1fr); }
+  .tr-totals--primary > div { padding: 14px; }
+  .tr-retired__secondary { grid-template-columns: repeat(2, 1fr); gap: 7px; }
+  .tr-retired__secondary > div:last-child { grid-column: 1 / -1; }
+  .tr-retired__milestones,
+  .tr-journey,
+  .tr-compare,
+  .tr-chart { padding: 14px 12px; }
+  .tr-retired__section-head { display: grid; grid-template-columns: 1fr; }
+  .tr-retired__peak { padding-top: 10px; border-top: 1px solid var(--tr-line); }
+  .tr-retired__milestones ul { grid-template-columns: 1fr 1fr; }
+  .tr-retired__milestones li { grid-template-columns: auto 1fr; gap: 7px; padding: 10px 8px; }
+  .tr-retired__milestones li b { grid-column: 2; }
+  .tr-chart { overflow: hidden; }
+  .tr-chart__svg { min-width: 520px; transform-origin: left center; transform: scale(.62); margin-right: -38%; margin-bottom: -78px; }
+  .tr-chart__legend { gap: 10px; }
+  .tr-journey li { grid-template-columns: auto minmax(0, 1fr) auto; gap: 9px; }
+  .tr-journey li > span:not(.tr-journey__line) { grid-column: 2 / -1; }
+  .tr-journey li > strong { grid-column: 2 / -1; }
+  .tr-journey__seasons { text-align: right; }
+  .tr-retired__legacy { grid-template-columns: 1fr; }
+  .tr-cabinet ul { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .tr-cabinet li { min-width: 0; padding: 9px; }
+  .tr-cabinet li span { overflow: hidden; font-size: 9px; text-overflow: ellipsis; }
+  .tr-compare { overflow-x: auto; }
+  .tr-compare table { min-width: 330px; }
+
+  /* Between-screen reveals are real phone scenes. Fixed positioning keeps each trophy
+     centred even when the underlying season newspaper is several viewports tall. */
+  .tr-ceremony,
+  .tr-drop,
+  .tr-growth { position: fixed; inset: 0 0 58px; z-index: 210; padding: 18px; border-radius: 0; }
+  .tr-ceremony__stage { min-height: 210px; }
+  .tr-ceremony__cup { font-size: clamp(74px, 27vw, 112px); }
+  .tr-ceremony__item b { max-width: 86vw; font-size: clamp(27px, 9vw, 42px); }
+  .tr-ceremony__progress { width: min(82vw, 310px); }
+}
+
+@media (max-width: 640px) and (orientation: landscape) and (max-height: 540px) {
+  .tr-shell { padding: 9px 12px 16px; }
+  .tr-header__player p,
+  .tr-rail > .tr-shelf__case,
+  .tr-spine { display: none; }
+  .tr-rail { flex: 1; width: auto; margin-left: auto; padding: 0; border: 0; }
+  .tr-rail .tr-pcard,
+  .tr-rail__club { display: none; }
+  .tr-rail__cells { flex: 1; margin: 0; padding: 0; border: 0; }
+  .tr-rail__cell { min-height: 40px; }
+  .tr-live__feed { max-height: 30dvh; }
+  .tr-ceremony,
+  .tr-drop,
+  .tr-growth { bottom: 50px; }
 }
 
 /* Under this the two term cells stop being readable and go back to one per line: a
@@ -3449,6 +3886,44 @@
   backdrop-filter: blur(3px);
   cursor: pointer;
 }
+.tr-tournament-run__phase {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 9px;
+  font-size: 11px;
+  color: var(--tr-paper-mute);
+}
+.tr-tournament-run__phase b { color: var(--tr-paper-ink); text-transform: uppercase; letter-spacing: .1em; }
+.tr-tournament-run__rounds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 0;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid rgba(18, 19, 15, .24);
+}
+.tr-tournament-run__rounds li {
+  position: relative;
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 9px 10px 10px;
+  border-right: 1px solid rgba(18, 19, 15, .18);
+}
+.tr-tournament-run__rounds li:last-child { border-right: 0; }
+.tr-tournament-run__rounds li::after {
+  content: "";
+  position: absolute;
+  inset: auto 8px 0;
+  height: 3px;
+  background: var(--tr-green);
+}
+.tr-tournament-run__rounds li.is-lost::after { background: var(--tr-ink-red); }
+.tr-tournament-run__rounds small { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--tr-paper-mute); }
+.tr-tournament-run__rounds b { font-family: var(--tr-display); font-size: 20px; }
+.tr-tournament-run__rounds span { overflow: hidden; font-size: 10px; color: var(--tr-paper-mute); text-overflow: ellipsis; white-space: nowrap; }
 .tr-growth.is-up { background: radial-gradient(circle at 50% 42%, rgba(8, 40, 22, 0.94), rgba(6, 7, 10, 0.97) 66%); }
 .tr-growth.is-down { background: radial-gradient(circle at 50% 42%, rgba(44, 10, 14, 0.94), rgba(6, 7, 10, 0.97) 66%); }
 

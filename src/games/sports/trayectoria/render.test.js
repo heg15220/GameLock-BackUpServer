@@ -403,6 +403,97 @@ describe("every screen renders", () => {
     ),
   });
 
+  it("reveals several season honours through one animated slot at a time", () => {
+    const base = seasonRun("multi-honour-ceremony");
+    expect(base.phase).toBe(PHASES.SEASON);
+    const run = {
+      ...base,
+      seasonResults: base.seasonResults.map((result, index) =>
+        index === 0
+          ? {
+              ...result,
+              record: {
+                ...result.record,
+                titles: [
+                  { trophy: "league", earned: true },
+                  { trophy: "cup", earned: true },
+                ],
+                awards: [{ award: "ballon_dor" }],
+              },
+            }
+          : result,
+      ),
+    };
+    const html = draw(PHASES.SEASON, run, { locale: "es" });
+    expect((html.match(/tr-ceremony__item tr-ceremony__item--/g) ?? []).length).toBe(1);
+    expect(html).toContain("1 de 3");
+    expect((html.match(/tr-ceremony__progress/g) ?? []).length).toBe(1);
+  });
+
+  it("prints the club's final league position inside the season card", () => {
+    const run = seasonRun("league-position-card");
+    expect(run.phase).toBe(PHASES.SEASON);
+    const position = run.seasonResults[0].record.position;
+    expect(position).toBeGreaterThan(0);
+
+    for (const locale of ["es", "en"]) {
+      const copy = getCopy(locale);
+      const html = draw(PHASES.SEASON, run, { locale });
+      const card = html.match(/<aside class="tr-front__card">[\s\S]*?<\/aside>/)?.[0] ?? "";
+      expect(card).toContain(copy.season.leaguePosition);
+      expect(card).toContain(copy.season.leagueRank.replace("{at}", position));
+      expect(card).toContain("tr-front__league-place");
+    }
+  });
+
+  it("prints that season's international matches, goals and assists", () => {
+    const base = seasonRun("international-season-line");
+    expect(base.phase).toBe(PHASES.SEASON);
+    const run = {
+      ...base,
+      seasonResults: base.seasonResults.map((result, index) =>
+        index === 0
+          ? {
+              ...result,
+              record: {
+                ...result.record,
+                national: { calledUp: true, caps: 9, goals: 4, assists: 3, titles: [] },
+              },
+            }
+          : result,
+      ),
+    };
+    const html = draw(PHASES.SEASON, run, { locale: "es" });
+    const block = html.match(/tr-front__note--national[\s\S]*?<\/section>/)?.[0] ?? "";
+    expect(block).toContain("Partidos");
+    expect(block).toContain(">9<");
+    expect(block).toContain("Goles");
+    expect(block).toContain(">4<");
+    expect(block).toContain("Asistencias");
+    expect(block).toContain(">3<");
+
+    const keeperRun = {
+      ...run,
+      state: { ...run.state, position: "POR", group: "keeper" },
+      seasonResults: run.seasonResults.map((result, index) =>
+        index === 0
+          ? {
+              ...result,
+              record: {
+                ...result.record,
+                national: { calledUp: true, caps: 7, goals: 0, assists: 0, saves: 24, titles: [] },
+              },
+            }
+          : result,
+      ),
+    };
+    const keeperHtml = draw(PHASES.SEASON, keeperRun, { locale: "es" });
+    const keeperBlock = keeperHtml.match(/tr-front__note--national[\s\S]*?<\/section>/)?.[0] ?? "";
+    expect(keeperBlock).toContain("Paradas");
+    expect(keeperBlock).toContain(">24<");
+    expect(keeperBlock).not.toContain("Asistencias");
+  });
+
   it("gives the drop the screen when the club goes down", () => {
     // Going down was one red word in the same strip that reports a served suspension.
     // It is the biggest thing that can happen to a club in a season, so it gets the

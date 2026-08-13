@@ -67,6 +67,7 @@ import {
   rollNationalTitle,
   rollTitle,
   seasonLatent,
+  simulateLeagueTable,
   simulateSeason,
   squadLevelFor,
   youthOffers,
@@ -85,6 +86,7 @@ import {
 import { headlineFor, retirementVerdict, shadowNoteFor } from "./press.js";
 import { chance, createStream, pickWeighted } from "./rng.js";
 import { shadowComparison, simulateShadowCareer } from "./rival.js";
+import { continentalQualification } from "./tournaments.js";
 import {
   CALLUP_THRESHOLD,
   CAREER_MODES,
@@ -466,6 +468,29 @@ function fixtureContext(run) {
   // The same OVR the season will be simulated at, temporary modifiers included, so the
   // odds being split are the odds that will actually be rolled.
   const ovr = state.ovr + (state.modifiers?.ovrTemp ?? 0);
+  const previous = state.history?.[state.history.length - 1] ?? null;
+  const previousAtClub = previous?.clubId === club?.id ? previous : null;
+  const continentalEntry = continentalQualification({
+    position: previousAtClub?.position ?? null,
+    confederation: competition?.confederation,
+    tier: competition?.tier ?? 1,
+    wonMain: Boolean(previousAtClub?.titles?.some((title) => title.trophy === "continental_a")),
+    wonCup: Boolean(previousAtClub?.titles?.some((title) => title.trophy === "cup")),
+    reputation: club ? effectiveReputation(club, ovr, "continental") : 0,
+  });
+  const delta = club ? ovr - squadLevelFor(club, ovr) : 0;
+  const leagueTable = club
+    ? simulateLeagueTable({
+        seed: state.seed,
+        season: run.season,
+        world,
+        club,
+        competition,
+        ovr,
+        delta,
+        latent: seasonLatent(state.seed, run.season),
+      })
+    : [];
 
   return {
     seed: state.seed,
@@ -477,16 +502,18 @@ function fixtureContext(run) {
     country,
     ovr,
     age: state.age,
-    delta: club ? ovr - squadLevelFor(club, ovr) : 0,
+    delta,
     effectiveReputation: (key) => (club ? effectiveReputation(club, ovr, key) : 0),
     calledUp: state.ovr >= threshold,
     rivals: club ? derbyRivals(world, club.id) : [],
+    leagueTable,
     // What he has actually converted so far. Without this the split prices every decider
     // at what a blind guess is worth, and any skill above that quietly prints trophies.
     conversion: state.conversion,
     // Whatever the card the player just took did to this season's odds. It is already in
     // `state.modifiers`, and the split has to be made against the odds it left behind.
     titleMultipliers: state.modifiers?.titleMultipliers ?? {},
+    continentalEntry,
   };
 }
 
@@ -1009,6 +1036,8 @@ export function watchMatch(run, locale = "es") {
     national: Boolean(fixture.national),
     ourName,
     theirName: opponent?.shortName ?? opponent?.name ?? "",
+    group: run.state.group,
+    ovr: run.state.ovr,
   });
 
   /*

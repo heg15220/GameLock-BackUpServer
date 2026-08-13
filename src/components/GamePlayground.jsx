@@ -55,6 +55,7 @@ const DigHoleTreasureGame = lazy(() => import("../games/arcade/dig-hole-treasure
 const ValleTranquiloGame = lazy(() => import("../games/arcade/valle-tranquilo"));
 const SummitAscentGame = lazy(() => import("../games/arcade/summit-ascent"));
 const KnowledgeSudokuGame = () => <KnowledgeArcadeGame variant="sudoku" />;
+const TrayectoriaGame = lazy(() => import("../games/sports/trayectoria"));
 const KnowledgeAhorcadoGame = () => <KnowledgeArcadeGame variant="ahorcado" />;
 const KnowledgePacienciaGame = () => <KnowledgeArcadeGame variant="paciencia" />;
 const KnowledgePuzleGame = () => <KnowledgeArcadeGame variant="puzle" />;
@@ -105,6 +106,7 @@ const GAME_COMPONENTS = {
   "platformer-sky-runner": PlatformerGame,
   "fighter-neon-dojo": FighterGame,
   "sports-head-soccer-arena": HeadSoccerGame,
+  "sports-trayectoria": TrayectoriaGame,
   "arcade-pacman-maze-protocol": PacmanGame,
   "arcade-reactor-toss": ReactorTossGame,
   "arcade-territory-war": TerritoryWarGame,
@@ -278,6 +280,7 @@ const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([
 ]);
 
 const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
+  "sports-trayectoria",
   "knowledge-domino-chain",
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",
@@ -369,6 +372,7 @@ function GamePlayground({ game, locale: localeOverride }) {
     viewport.isMobile &&
     !NATIVE_MOBILE_GAME_IDS.has(gameId) &&
     !forceDesktopTabletLayout;
+  const useTrajectoryMobileView = gameId === "sports-trayectoria" && viewportFormFactor === "phone";
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
   const adPreviewActiveForGame = adPreviewEnabled && !GAME_AD_PREVIEW_DISABLED_IDS.has(gameId);
@@ -386,10 +390,14 @@ function GamePlayground({ game, locale: localeOverride }) {
       PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS.has(gameId)
     );
   const useCompactPortraitBottomAd = PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS.has(gameId);
+  const showTrajectoryMobileBottomAd =
+    gameId === "sports-trayectoria" && viewportFormFactor === "phone";
   const showMobileSystemBottomAd =
     adPreviewActiveForGame &&
     viewportFormFactor !== "desktop" &&
-    ((isStrategyCategory && useMobileGameShell) || showPortraitCompactBottomAd);
+    ((isStrategyCategory && useMobileGameShell) ||
+      showPortraitCompactBottomAd ||
+      showTrajectoryMobileBottomAd);
   const showShellManagedSystemBottomAd =
     showMobileSystemBottomAd &&
     isStrategyCategory &&
@@ -467,7 +475,13 @@ function GamePlayground({ game, locale: localeOverride }) {
 
         <div className="playground-stage-main">
           {ActiveGame ? (
-            useMobileGameShell ? (
+            useTrajectoryMobileView ? (
+              <div className="trayectoria-mobile-host" data-native-mobile-game="trayectoria">
+                <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
+                  <ActiveGame locale={resolvedLocale} />
+                </Suspense>
+              </div>
+            ) : useMobileGameShell ? (
               <MobileGameShell
                 game={game}
                 viewport={viewport}

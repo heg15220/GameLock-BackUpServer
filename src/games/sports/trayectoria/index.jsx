@@ -1594,6 +1594,19 @@ function Broadcast({
   const visible = beats.filter((beat) => beat.minute <= minute);
   const latest = visible[visible.length - 1];
   const running = minute < stopAt;
+  const liveStats = useMemo(() => {
+    const count = (side, ids) => visible.filter((beat) => beat.side === side && ids.includes(beat.id)).length;
+    const shots = {
+      us: count("us", ["shotUs", "goalUs", "playerShot"]),
+      them: count("them", ["shotThem", "goalThem"]),
+    };
+    const saves = { us: count("us", ["saveUs", "playerSave"]), them: count("them", ["saveThem"]) };
+    const danger = {
+      us: shots.us + count("us", ["keyPassUs", "cornerUs", "playerKeyPass", "playerThroughBall", "playerCross", "playerRun"]),
+      them: shots.them + count("them", ["keyPassThem", "cornerThem"]),
+    };
+    return { shots, saves, danger };
+  }, [visible]);
 
   // Keep the newest beat on screen. The feed is bounded, so without this the line that just
   // landed - the one the clock stopped for - would arrive below the fold of its own box.
@@ -1622,6 +1635,22 @@ function Broadcast({
         </b>
       </div>
 
+      <div className="tr-live__stats" aria-label={copy.match.liveStats.danger}>
+        {["shots", "saves", "danger"].map((key) => {
+          const ours = liveStats[key].us;
+          const theirs = liveStats[key].them;
+          const total = Math.max(1, ours + theirs);
+          return (
+            <div className="tr-live__stat" key={key}>
+              <b>{ours}</b>
+              <span>{copy.match.liveStats[key]}</span>
+              <i style={{ "--ours": `${(ours / total) * 100}%` }} />
+              <b>{theirs}</b>
+            </div>
+          );
+        })}
+      </div>
+
       <div className="tr-live__clock">
         <span className={`tr-live__minute${running ? " is-running" : ""}`}>{minute}'</span>
         {running ? (
@@ -1640,8 +1669,8 @@ function Broadcast({
           <li
             key={`${beat.minute}-${beat.id}-${i}`}
             className={`tr-live__beat${beat.decisive ? " is-decisive" : ""}${
-              beat.id === "goalUs" ? " is-us" : beat.id === "goalThem" ? " is-them" : ""
-            }`}
+              beat.side === "us" || beat.id === "goalUs" ? " is-us" : beat.side === "them" || beat.id === "goalThem" ? " is-them" : ""
+            }${beat.category ? ` is-${beat.category}` : ""}${beat.player ? " is-player" : ""}`}
           >
             <i>{beat.minute}'</i>
             <span>{beatLine(beat, copy)}</span>
@@ -1829,6 +1858,17 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             </div>
           )}
 
+          {fixture.leagueContext ? (
+            <p className="tr-match__league-context">
+              <Icon name="rival" size={13} />
+              {fillTemplate(copy.match.leagueContext[fixture.leagueContext.context], {
+                ours: fixture.leagueContext.ourPosition,
+                theirs: fixture.leagueContext.opponentPosition,
+                gap: fixture.leagueContext.pointsGap,
+              })}
+            </p>
+          ) : null}
+
           {/* A final drawn against the club the derby was going to be against is both
               things at once, and the second one is why the stadium sold out. */}
           {fixture.derby ? (
@@ -1969,9 +2009,9 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
    and a newspaper is printed the morning after. This is the night itself: the cups
    land one at a time, and then you read about them.                              */
 
-/** How long each trophy holds the screen before the next one lands. */
-const CEREMONY_STAGGER = 620;
-const CEREMONY_TAIL = 1400;
+/** A complete entrance and a short hold for every honour, with no overlap. */
+const CEREMONY_ITEM_HOLD = 1550;
+const CEREMONY_TAIL = 700;
 
 /**
  * Attach what a trophy needs to find its photograph: which competition it was won in, and
@@ -1994,20 +2034,23 @@ function honoursOf(record, country) {
 function TrophyCeremony({ honours, locale, onDone }) {
   const copy = getCopy(locale);
   const reduced = usePrefersReducedMotion();
+  const [current, setCurrent] = useState(0);
+  const honour = honours[current] ?? null;
 
-  // Dismisses itself once the last cup has landed, and on any input before that - the
-  // player who has seen it forty times must never be made to wait for it.
+  // A real queue rather than several mounted items with CSS delays. Changing `current`
+  // also changes the key below, so every trophy and award owns a fresh full animation.
   useEffect(() => {
     if (reduced) {
       onDone();
       return undefined;
     }
+    const last = current >= honours.length - 1;
     const timer = setTimeout(
-      onDone,
-      honours.length * CEREMONY_STAGGER + CEREMONY_TAIL,
+      last ? onDone : () => setCurrent((index) => index + 1),
+      last ? CEREMONY_ITEM_HOLD + CEREMONY_TAIL : CEREMONY_ITEM_HOLD,
     );
     return () => clearTimeout(timer);
-  }, [honours.length, onDone, reduced]);
+  }, [current, honours.length, onDone, reduced]);
 
   useEffect(() => {
     const skip = () => onDone();
@@ -2024,17 +2067,16 @@ function TrophyCeremony({ honours, locale, onDone }) {
     >
       <div className="tr-ceremony__inner">
         <p className="tr-ceremony__eyebrow">{copy.season.ceremony}</p>
-        <ul className="tr-ceremony__row">
-          {honours.map((honour, index) => (
-            <li
-              key={`${honour.kind}-${honour.id}`}
+        {honour ? (
+          <div className="tr-ceremony__stage" aria-live="polite">
+            <article
+              key={`${current}-${honour.kind}-${honour.id}`}
               className={`tr-ceremony__item tr-ceremony__item--${honour.kind}`}
-              style={{ "--i": index }}
             >
               <span className="tr-ceremony__cup">
                 <Trophy
                   id={honour.id}
-                  size={honours.length > 2 ? 88 : 116}
+                  size={116}
                   competition={honour.competition}
                   confederation={honour.confederation}
                 />
@@ -2044,9 +2086,22 @@ function TrophyCeremony({ honours, locale, onDone }) {
                   ? AWARD_LABELS[locale][honour.id]
                   : TROPHY_LABELS[locale][honour.id]}
               </b>
-            </li>
-          ))}
-        </ul>
+            </article>
+          </div>
+        ) : null}
+        {honours.length > 1 ? (
+          <div className="tr-ceremony__progress">
+            <span>{fillTemplate(copy.season.ceremonyCount, {
+              current: current + 1,
+              total: honours.length,
+            })}</span>
+            <div aria-hidden="true">
+              {honours.map((entry, index) => (
+                <i key={`${entry.kind}-${entry.id}-${index}`} className={index <= current ? "is-on" : ""} />
+              ))}
+            </div>
+          </div>
+        ) : null}
         <p className="tr-ceremony__skip">{copy.season.ceremonySkip}</p>
       </div>
     </div>
@@ -2229,6 +2284,16 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
             </div>
           </div>
 
+          {record.position ? (
+            <div className="tr-front__league-place">
+              <span>
+                <Icon name="trophy" size={14} strokeWidth={1.7} />
+                {copy.season.leaguePosition}
+              </span>
+              <b>{fillTemplate(copy.season.leagueRank, { at: record.position })}</b>
+            </div>
+          ) : null}
+
           <DeltaMeter
             ovr={record.ovr}
             squadLevel={record.ovr - record.delta}
@@ -2268,6 +2333,11 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
       {record.relegated ? (
         <p className="tr-front__flag tr-front__flag--bad">{copy.season.relegated}</p>
       ) : null}
+      {record.nextContinentalEntry ? (
+        <p className={`tr-front__flag${record.nextContinentalEntry.level === "none" ? "" : " tr-front__flag--good"}`}>
+          {copy.season.continentalNext[record.nextContinentalEntry.level]}
+        </p>
+      ) : null}
       {/* Going down used to change nothing: the club was still first division in August.
           Now it stays down until it plays its way back, and this is the season that says
           so - the badge on the fixture list is the only thing that did not move. */}
@@ -2293,6 +2363,28 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
           </ul>
         </section>
       ) : null}
+
+      {record.tournamentRuns?.map((run) => (
+        <section className="tr-front__section tr-tournament-run" key={run.id}>
+          <p className="tr-front__label">
+            <Icon name="trophy" size={13} strokeWidth={1.7} />
+            {run.id === "world_cup" ? copy.season.tournamentRunWorld : copy.season.tournamentRun}
+          </p>
+          <div className="tr-tournament-run__phase">
+            <span>{fillTemplate(copy.season.tournamentPhase, { position: run.phase.position })}</span>
+            <b>{run.champion ? copy.season.tournamentChampion : copy.season.tournamentExit}</b>
+          </div>
+          <ol className="tr-tournament-run__rounds">
+            {run.rounds.map((round) => (
+              <li key={round.round} className={round.won ? "is-won" : "is-lost"}>
+                <small>{round.round.replace("r32", "1/16").replace("r16", "1/8").replace("quarter", "1/4").replace("semi", "1/2").replace("final", "Final").replace("playoff", "Play-off")}</small>
+                <b>{round.score.us}–{round.score.them}</b>
+                <span>{round.opponent}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
 
       {record.bigMatches?.length ? (
         <section className="tr-front__section">
@@ -2344,14 +2436,38 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
 
       <div className="tr-front__notes">
         {report.national ? (
-          <section className="tr-front__note">
+          <section className="tr-front__note tr-front__note--national">
             <p className="tr-front__label">
               <Icon name="shield" size={13} strokeWidth={1.7} />
               {copy.season.nationalTeam}
             </p>
-            <p>{fillTemplate(copy.season.nationalCaps, { caps: report.national.caps })}</p>
-            {report.national.playedWorldCup ? <small>{copy.season.playedWorldCup}</small> : null}
-            {report.national.forced ? <small>{copy.season.forcedCallup}</small> : null}
+            <dl className="tr-front__national-stats">
+              <div>
+                <dt>{copy.season.nationalMatches}</dt>
+                <dd>{report.national.caps}</dd>
+              </div>
+              {keeper ? (
+                <div>
+                  <dt>{copy.season.nationalSaves}</dt>
+                  <dd>{report.national.saves ?? 0}</dd>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <dt>{copy.season.nationalGoals}</dt>
+                    <dd>{report.national.goals ?? 0}</dd>
+                  </div>
+                  <div>
+                    <dt>{copy.season.nationalAssists}</dt>
+                    <dd>{report.national.assists ?? 0}</dd>
+                  </div>
+                </>
+              )}
+            </dl>
+            <div className="tr-front__national-notes">
+              {report.national.playedWorldCup ? <small>{copy.season.playedWorldCup}</small> : null}
+              {report.national.forced ? <small>{copy.season.forcedCallup}</small> : null}
+            </div>
           </section>
         ) : null}
 
@@ -2823,42 +2939,138 @@ function CareerChart({ run, locale }) {
   );
 }
 
+/** Consecutive spells, rather than a set of badges: leaving and returning is a story. */
+function careerStints(history = []) {
+  return history.reduce((stints, season) => {
+    let stint = stints[stints.length - 1];
+    if (!stint || stint.clubId !== season.clubId) {
+      stint = {
+        clubId: season.clubId,
+        fromAge: season.age,
+        toAge: season.age,
+        seasons: 0,
+        matches: 0,
+        goals: 0,
+        assists: 0,
+        titles: 0,
+      };
+      stints.push(stint);
+    }
+    stint.toAge = season.age;
+    stint.seasons += 1;
+    stint.matches += season.matches;
+    stint.goals += season.goals;
+    stint.assists += season.assists;
+    stint.titles += season.titles?.length ?? 0;
+    return stints;
+  }, []);
+}
+
 function RetiredScreen({ run, locale, onRestart }) {
   const copy = getCopy(locale);
   const { summary, verdict, comparison } = run;
   const trophies = run.state.trophies;
+  const country = world.countries[run.state.country] ?? null;
+  const peak = peakSeason(run.state.history);
+  const peakClub = peak ? world.clubs[peak.clubId] ?? null : null;
+  const stints = careerStints(run.state.history);
 
   const counted = trophies.reduce((acc, trophy) => {
     acc[trophy.trophy] = (acc[trophy.trophy] ?? 0) + 1;
     return acc;
   }, {});
 
-  const totals = [
+  const primaryTotals = [
     { label: copy.retired.seasons, value: summary.seasons },
     { label: copy.retired.matches, value: summary.matches },
     { label: copy.retired.goals, value: summary.goals },
     { label: copy.retired.assists, value: summary.assists },
+  ];
+  const secondaryTotals = [
     { label: copy.retired.peakOvr, value: summary.peakOvr },
     { label: copy.retired.peakValue, value: formatValue(summary.peakValue, locale) },
     { label: copy.retired.clubs, value: summary.clubs.length },
     { label: copy.retired.caps, value: summary.caps },
+    { label: copy.retired.contributionRate, value: summary.contributionsPerMatch.toFixed(2) },
   ];
+  const milestones = [
+    {
+      icon: "trophy",
+      label: copy.retired.bestLeague,
+      value: summary.bestLeagueFinish
+        ? fillTemplate(copy.season.leagueRank, { at: summary.bestLeagueFinish })
+        : "—",
+    },
+    { icon: "up", label: copy.retired.topFour, value: summary.topFourFinishes },
+    { icon: "trophy", label: copy.retired.leagueTitles, value: summary.leagueTitles },
+    { icon: "trophy", label: copy.retired.continentalTitles, value: summary.continentalTitles },
+    { icon: "sport", label: copy.retired.worldCups, value: summary.worldCups },
+    { icon: "up", label: copy.retired.promotions, value: summary.promotions },
+    { icon: "down", label: copy.retired.relegations, value: summary.relegations },
+  ];
+  const comparisonKeys = comparison
+    ? [
+        ["goals", copy.retired.goals],
+        ["titles", copy.season.titles],
+        ["awards", copy.season.awards],
+        ["peakOvr", copy.retired.peakOvr],
+      ]
+    : [];
+  const wonComparison = comparisonKeys.filter(([key]) => comparison.verdict[key] > 0).length;
+  const lostComparison = comparisonKeys.filter(([key]) => comparison.verdict[key] < 0).length;
+  const comparisonSummary = comparison
+    ? fillTemplate(
+        wonComparison > lostComparison
+          ? copy.retired.comparisonWon
+          : lostComparison > wonComparison
+            ? copy.retired.comparisonLost
+            : copy.retired.comparisonDraw,
+        { won: wonComparison, lost: lostComparison, total: comparisonKeys.length },
+      )
+    : null;
 
   return (
-    <section className="tr-stage">
-      <article className="tr-front tr-front--final">
-        <header className="tr-front__masthead">
+    <section className="tr-stage tr-retired">
+      <article className="tr-retired__hero">
+        <header className="tr-retired__masthead">
           <span>{copy.title}</span>
-          <span>{copy.retired.eyebrow}</span>
+          <span>{copy.retired.dossier} · {copy.retired.eyebrow}</span>
         </header>
-        <h2 className="tr-display tr-display--xl tr-front__head">{verdict.head}</h2>
-        <p className={`tr-front__body${dropCapSafe(verdict.body) ? "" : " is-plain"}`}>
-          {verdict.body}
-        </p>
+        <div className="tr-retired__identity">
+          <PlayerCard
+            ovr={summary.peakOvr}
+            position={run.state.position}
+            country={country}
+            locale={locale}
+            size="career"
+          />
+          <div>
+            <p className="tr-retired__number">#{run.state.number}</p>
+            <h2 className="tr-display tr-retired__name">{run.state.surname}</h2>
+            <p className="tr-retired__bio">
+              {fillTemplate(copy.retired.identity, {
+                position: POSITION_LABELS[locale][run.state.position] ?? run.state.position,
+                country: locale === "es" ? country?.name_es : country?.name_en,
+                foot: run.state.foot === "left" ? copy.retired.leftFoot : copy.retired.rightFoot,
+              })}
+            </p>
+            <p className="tr-retired__span">
+              {fillTemplate(copy.retired.careerSpan, {
+                from: run.state.history[0]?.age ?? START_AGE,
+                to: run.state.history.at(-1)?.age ?? RETIREMENT_AGE,
+              })}
+            </p>
+          </div>
+        </div>
+        <div className="tr-retired__verdict">
+          <p className="tr-eyebrow tr-eyebrow--alert">{copy.retired.eyebrow}</p>
+          <h3 className="tr-display">{verdict.head}</h3>
+          <p>{verdict.body}</p>
+        </div>
       </article>
 
-      <dl className="tr-totals">
-        {totals.map((total, index) => (
+      <dl className="tr-totals tr-totals--primary">
+        {primaryTotals.map((total, index) => (
           <div key={total.label} style={{ "--i": index }}>
             <dt>{total.label}</dt>
             <dd>
@@ -2868,11 +3080,80 @@ function RetiredScreen({ run, locale, onRestart }) {
         ))}
       </dl>
 
+      <dl className="tr-retired__secondary">
+        {secondaryTotals.map((total) => (
+          <div key={total.label}>
+            <dt>{total.label}</dt>
+            <dd>{total.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <section className="tr-retired__milestones">
+        <div className="tr-retired__section-head">
+          <div>
+            <p className="tr-eyebrow">{copy.retired.milestones}</p>
+            <p className="tr-lede">{copy.retired.milestonesLede}</p>
+          </div>
+          {peak ? (
+            <div className="tr-retired__peak">
+              <Crest club={peakClub} size={34} />
+              <span>
+                <small>{copy.retired.peakSeason}</small>
+                <b>{fillTemplate(copy.retired.peakSeasonValue, {
+                  ovr: peak.ovr,
+                  age: peak.age,
+                  club: peakClub?.shortName ?? peakClub?.name ?? "",
+                })}</b>
+              </span>
+            </div>
+          ) : null}
+        </div>
+        <ul>
+          {milestones.map((milestone) => (
+            <li key={milestone.label}>
+              <Icon name={milestone.icon} size={17} />
+              <span>{milestone.label}</span>
+              <b>{milestone.value}</b>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <CareerChart run={run} locale={locale} />
 
+      <section className="tr-journey">
+        <p className="tr-eyebrow">{copy.retired.journey}</p>
+        <p className="tr-lede">{copy.retired.journeyLede}</p>
+        <ol>
+          {stints.map((stint, index) => {
+            const club = world.clubs[stint.clubId] ?? null;
+            return (
+              <li key={`${stint.clubId}-${stint.fromAge}-${index}`} style={{ "--i": index }}>
+                <span className="tr-journey__line" aria-hidden="true" />
+                <Crest club={club} size={38} />
+                <div className="tr-journey__club">
+                  <b>{club?.shortName ?? club?.name ?? ""}</b>
+                  <small>{fillTemplate(copy.retired.stintAges, {
+                    from: stint.fromAge,
+                    to: stint.toAge,
+                  })}</small>
+                </div>
+                <span className="tr-journey__seasons">
+                  {fillTemplate(copy.retired.stintSeasons, { count: stint.seasons })}
+                </span>
+                <span>{fillTemplate(copy.retired.stintOutput, stint)}</span>
+                <strong>{fillTemplate(copy.retired.stintTitles, { count: stint.titles })}</strong>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+
+      <div className="tr-retired__legacy">
       <section className="tr-cabinet">
         <p className="tr-eyebrow">{copy.retired.cabinet}</p>
-        {trophies.length ? (
+        {trophies.length || run.state.awards.length ? (
           <>
             <ul>
               {Object.entries(counted).map(([trophy, count], index) => (
@@ -2923,13 +3204,23 @@ function RetiredScreen({ run, locale, onRestart }) {
           <p className="tr-crowds__empty">{copy.retired.noIdolatry}</p>
         )}
       </section>
+      </div>
 
       {comparison ? (
         <section className="tr-compare">
-          <p className="tr-eyebrow">{copy.retired.comparison}</p>
-          <p className="tr-lede">
-            {fillTemplate(copy.retired.comparisonLede, { surname: comparison.surname })}
-          </p>
+          <div className="tr-retired__section-head">
+            <div>
+              <p className="tr-eyebrow">{copy.retired.comparison}</p>
+              <p className="tr-lede">
+                {fillTemplate(copy.retired.comparisonLede, { surname: comparison.surname })}
+              </p>
+            </div>
+            <div className={`tr-compare__score${wonComparison > lostComparison ? " is-ahead" : wonComparison < lostComparison ? " is-behind" : ""}`}>
+              <small>{copy.retired.finalScore}</small>
+              <b>{wonComparison}–{lostComparison}</b>
+              <span>{comparisonSummary}</span>
+            </div>
+          </div>
           <table>
             <thead>
               <tr>
@@ -2939,12 +3230,7 @@ function RetiredScreen({ run, locale, onRestart }) {
               </tr>
             </thead>
             <tbody>
-              {[
-                ["goals", copy.retired.goals],
-                ["titles", copy.season.titles],
-                ["awards", copy.season.awards],
-                ["peakOvr", copy.retired.peakOvr],
-              ].map(([key, label]) => (
+              {comparisonKeys.map(([key, label]) => (
                 <tr key={key} className={comparison.verdict[key] >= 0 ? "is-ahead" : "is-behind"}>
                   <th scope="row">{label}</th>
                   <td>{comparison.yours[key]}</td>
@@ -3055,6 +3341,29 @@ export default function TrayectoriaGame() {
                 ? availableAsks(current).map((ask) => ask.id)
                 : current.offers?.map((offer) => offer.clubId) ?? [],
         fixture: current.matchday?.fixtures?.[current.matchday.index]?.kind ?? null,
+        leagueContext: current.matchday?.fixtures?.[current.matchday.index]?.leagueContext ?? null,
+        seasonReport:
+          current.phase === PHASES.SEASON
+            ? current.seasonResults.map(({ record }) => ({
+                season: record.season,
+                position: record.position,
+                national: record.national?.calledUp
+                  ? {
+                      matches: record.national.caps,
+                      goals: record.national.goals ?? 0,
+                      assists: record.national.assists ?? 0,
+                      saves: record.national.saves ?? null,
+                    }
+                  : null,
+                continentalNext: record.nextContinentalEntry?.level ?? null,
+                tournaments: record.tournamentRuns?.map((tournament) => ({
+                  id: tournament.id,
+                  phasePosition: tournament.phase.position,
+                  eliminatedAt: tournament.eliminatedAt,
+                  champion: tournament.champion,
+                })) ?? [],
+              }))
+            : null,
         contract: current.state.contract
           ? {
               years: current.state.contract.yearsLeft,
@@ -3071,7 +3380,11 @@ export default function TrayectoriaGame() {
   const standing = run ? currentStanding(run) : null;
 
   return (
-    <div className="tr-shell">
+    <div
+      className="tr-shell"
+      data-career-phase={run?.phase ?? "setup"}
+      data-mobile-view="trayectoria"
+    >
       {run ? (
         <header className="tr-header">
           <div className="tr-header__player">

@@ -17,6 +17,8 @@ import {
   qualifiersOf,
   roundsOf,
   tournamentFor,
+  continentalQualification,
+  simulateTournamentRun,
 } from "./tournaments.js";
 
 describe("the five formats", () => {
@@ -114,5 +116,46 @@ describe("the five formats", () => {
         expect(ROUNDS[round], `${id} usa una ronda que no existe: ${round}`).toBeTruthy();
       }
     }
+  });
+});
+
+describe("qualification and full runs", () => {
+  it("uses the table, cup and holder rules rather than club reputation", () => {
+    expect(continentalQualification({ position: 4, confederation: "UEFA" }).level).toBe("main");
+    expect(continentalQualification({ position: 5, confederation: "UEFA" }).level).toBe("secondary");
+    expect(continentalQualification({ position: 12, confederation: "UEFA", reputation: 5 }).level).toBe("none");
+    expect(continentalQualification({ position: 12, confederation: "UEFA", wonCup: true }).level).toBe("secondary");
+    expect(continentalQualification({ position: 12, confederation: "UEFA", wonMain: true }).level).toBe("main");
+    expect(continentalQualification({ position: 6, confederation: "CONMEBOL" }).level).toBe("main");
+  });
+
+  it("simulates every round and makes a champion win the final", () => {
+    const player = { id: "us", name: "Nos", continental_reputation: 4 };
+    const entrants = Array.from({ length: 48 }, (_, index) => ({
+      id: `team-${index}`,
+      name: `Team ${index}`,
+      continental_reputation: index % 6,
+    }));
+    const run = simulateTournamentRun({
+      id: "world_cup", seed: "complete", season: 8, entrants, player, champion: true,
+    });
+    expect(run.phase.qualified).toBe(true);
+    expect(run.rounds.map((round) => round.round)).toEqual(["r32", "r16", "quarter", "semi", "final"]);
+    expect(run.rounds.every((round) => round.won && round.score.us > round.score.them)).toBe(true);
+    expect(run.champion).toBe(true);
+    expect(run.eliminatedAt).toBeNull();
+  });
+
+  it("is deterministic and stops a losing run at its exit round", () => {
+    const args = {
+      id: "champions", seed: "exit", season: 3,
+      player: { id: "us", name: "Nos", continental_reputation: 2 },
+      entrants: Array.from({ length: 36 }, (_, index) => ({ id: `c-${index}`, name: `C ${index}`, continental_reputation: index % 6 })),
+    };
+    const first = simulateTournamentRun(args);
+    expect(first).toEqual(simulateTournamentRun(args));
+    expect(first.champion).toBe(false);
+    expect(first.rounds[first.rounds.length - 1].won).toBe(false);
+    expect(first.eliminatedAt).toBe(first.rounds[first.rounds.length - 1].round);
   });
 });
