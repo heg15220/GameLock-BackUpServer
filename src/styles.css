@@ -3100,12 +3100,28 @@ body {
   min-width: 0;
 }
 
-/* Trayectoria ships its own phone view. This host intentionally bypasses the generic
+/* Trayectoria ships its own touch views. This host intentionally bypasses the generic
    arcade/dual-screen device bezel while retaining the system launch chrome and ad slot. */
 .trayectoria-mobile-host {
   width: 100%;
   min-width: 0;
   max-width: none;
+}
+
+.trayectoria-mobile-host--tablet {
+  width: min(100%, 1100px);
+  margin-inline: auto;
+}
+
+.launch-overlay--device-tablet .launch-game-area[data-game-id="sports-trayectoria"] {
+  align-items: stretch;
+  padding-inline: clamp(0.75rem, 2.2vw, 1.5rem);
+}
+
+.launch-overlay--device-tablet .launch-game-area[data-game-id="sports-trayectoria"] .launch-game-area-stage,
+.game-playground.playground-device-tablet[data-game-id="sports-trayectoria"] .playground-stage-main {
+  width: 100%;
+  min-width: 0;
 }
 
 @media (max-width: 640px) {

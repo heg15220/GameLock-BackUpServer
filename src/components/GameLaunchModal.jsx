@@ -91,7 +91,9 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
     !NATIVE_MOBILE_GAME_IDS.has(gameId) &&
     !forceDesktopTabletLayout;
   const viewportFormFactor = viewport.formFactor ?? "desktop";
-  const useTrajectoryMobileView = gameId === "sports-trayectoria" && viewportFormFactor === "phone";
+  const useTrajectoryNativeView =
+    gameId === "sports-trayectoria" &&
+    (viewportFormFactor === "phone" || viewportFormFactor === "tablet");
   const categoryKey = String(game.category ?? "");
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
@@ -323,8 +325,13 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
                 ) : null}
 
                 <div className="launch-game-area-stage">
-                  {useTrajectoryMobileView ? (
-                    <div className="trayectoria-mobile-host" data-native-mobile-game="trayectoria">
+                  {useTrajectoryNativeView ? (
+                    <div
+                      className={`trayectoria-mobile-host trayectoria-mobile-host--${viewportFormFactor}`}
+                      data-native-mobile-game="trayectoria"
+                      data-native-device={viewportFormFactor}
+                      data-native-orientation={viewport.orientation}
+                    >
                       <Suspense
                         fallback={
                           <div className="launch-loading">

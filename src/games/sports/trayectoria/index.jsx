@@ -161,6 +161,50 @@ function StatValue({ value, change, delay = 0, format }) {
  * invented shields says less than the names alone do. So a missing crest renders nothing
  * and the name beside it carries the row on its own; every caller pairs the two.
  */
+/** Keep a phase change pointed at its useful content inside the native touch camera. */
+function useDeviceCameraFocus(targetRef, ready = true) {
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (!ready) return undefined;
+
+    const target = targetRef.current;
+    const nativeDevice = target
+      ?.closest(".trayectoria-mobile-host")
+      ?.closest(".launch-overlay--device-phone, .launch-overlay--device-tablet");
+    const genericDevice = target?.closest(
+      ".mobile-game-shell--device-phone, .mobile-game-shell--device-tablet",
+    );
+    const scrollContainer = nativeDevice
+      ? target.closest(".launch-body")
+      : genericDevice
+        ? target.closest(".tr-shell")
+        : null;
+    if (!target || !scrollContainer) return undefined;
+
+    let settleTimer = 0;
+    const alignTarget = () => {
+      const targetBox = target.getBoundingClientRect();
+      const scrollBox = scrollContainer.getBoundingClientRect();
+      const top = scrollContainer.scrollTop + targetBox.top - scrollBox.top - 12;
+      scrollContainer.scrollTo({
+        top: Math.max(0, top),
+        behavior: reduced ? "auto" : "smooth",
+      });
+    };
+    const frame = requestAnimationFrame(() => {
+      alignTarget();
+      // Fonts and crests can finish laying out just after the phase switches.
+      settleTimer = window.setTimeout(alignTarget, 450);
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(settleTimer);
+    };
+  }, [ready, reduced, targetRef]);
+}
+
 function Crest({ club, size = 44 }) {
   const [failed, setFailed] = useState(false);
   if (!club?.crest || failed) return null;
@@ -1071,6 +1115,8 @@ function ContractSheet({ terms, locale, opening = null, compact = false }) {
  */
 function NegotiationScreen({ run, locale, onAsk, onAgree, onBack }) {
   const copy = getCopy(locale);
+  const startRef = useRef(null);
+  useDeviceCameraFocus(startRef);
   const deal = run.deal;
   if (!deal) return null;
 
@@ -1082,7 +1128,7 @@ function NegotiationScreen({ run, locale, onAsk, onAgree, onBack }) {
 
   return (
     <section className="tr-stage tr-talks">
-      <article className="tr-talks__room">
+      <article className="tr-talks__room" ref={startRef}>
         <header className="tr-talks__head">
           <p className="tr-eyebrow">
             <Icon name="directiva" size={14} /> {copy.talks.eyebrow}
@@ -2197,7 +2243,7 @@ function Honour({ honour, locale, index }) {
  * the same season. Everything the engine worked out gets printed - the delta, the call-up,
  * the development cycle - since a report that hides its own workings is just a score.
  */
-function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) {
+function SeasonFront({ result, previous, careerTotals, keeper, locale, index, statsRef = null }) {
   const copy = getCopy(locale);
   const { record, headline, shadowNote } = result;
   const club = world.clubs[record.clubId];
@@ -2259,7 +2305,7 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index }) 
             {headline.body}
           </p>
 
-          <dl className="tr-front__stats">
+          <dl className="tr-front__stats" ref={statsRef}>
             {stats.map((stat, statIndex) => (
               <div key={stat.key} className={stat.rate ? "is-rate" : undefined}>
                 <dt>
@@ -2601,6 +2647,7 @@ function GrowthReveal({ from, to, locale, onDone }) {
 
 function SeasonScreen({ run, locale, onNext }) {
   const copy = getCopy(locale);
+  const firstStatsRef = useRef(null);
   // The step's own seasons are not in state.history yet, so the run-up to the first one
   // comes from what was already recorded.
   const before = run.state.history.slice(0, run.state.history.length - run.seasonResults.length);
@@ -2649,6 +2696,8 @@ function SeasonScreen({ run, locale, onNext }) {
   const ceremonyOpen = Boolean(won.length) && !celebrated;
   const dropOpen = Boolean(relegation) && !ceremonyOpen && !dropped;
   const growthOpen = Boolean(growth) && !ceremonyOpen && !dropOpen && !grown;
+  const summaryReady = !ceremonyOpen && !dropOpen && !growthOpen;
+  useDeviceCameraFocus(firstStatsRef, summaryReady);
 
   return (
     <section className="tr-stage">
@@ -2676,6 +2725,7 @@ function SeasonScreen({ run, locale, onNext }) {
             keeper={run.state.position === "POR"}
             locale={locale}
             index={index}
+            statsRef={index === 0 ? firstStatsRef : null}
           />
         );
       })}
@@ -2695,6 +2745,8 @@ function MarketScreen({
   onRefuseClause,
 }) {
   const copy = getCopy(locale);
+  const startRef = useRef(null);
+  useDeviceCameraFocus(startRef);
   const outlook = run.outlook;
   const standing = currentStanding(run);
   const currentClubName = standing.club?.shortName ?? standing.club?.name ?? "";
@@ -2706,7 +2758,7 @@ function MarketScreen({
 
   return (
     <section className="tr-stage">
-      <header className="tr-stage__head">
+      <header className="tr-stage__head" ref={startRef}>
         <p className="tr-eyebrow">{copy.market.heading}</p>
         <p className="tr-lede">{copy.market.lede}</p>
       </header>

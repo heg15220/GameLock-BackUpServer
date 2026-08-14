@@ -372,7 +372,9 @@ function GamePlayground({ game, locale: localeOverride }) {
     viewport.isMobile &&
     !NATIVE_MOBILE_GAME_IDS.has(gameId) &&
     !forceDesktopTabletLayout;
-  const useTrajectoryMobileView = gameId === "sports-trayectoria" && viewportFormFactor === "phone";
+  const useTrajectoryNativeView =
+    gameId === "sports-trayectoria" &&
+    (viewportFormFactor === "phone" || viewportFormFactor === "tablet");
   const isStrategyCategory = categoryKey === "Estrategia" || categoryKey === "Strategy";
   const isKnowledgeCategory = categoryKey === "Conocimiento" || categoryKey === "Knowledge";
   const adPreviewActiveForGame = adPreviewEnabled && !GAME_AD_PREVIEW_DISABLED_IDS.has(gameId);
@@ -475,8 +477,13 @@ function GamePlayground({ game, locale: localeOverride }) {
 
         <div className="playground-stage-main">
           {ActiveGame ? (
-            useTrajectoryMobileView ? (
-              <div className="trayectoria-mobile-host" data-native-mobile-game="trayectoria">
+            useTrajectoryNativeView ? (
+              <div
+                className={`trayectoria-mobile-host trayectoria-mobile-host--${viewportFormFactor}`}
+                data-native-mobile-game="trayectoria"
+                data-native-device={viewportFormFactor}
+                data-native-orientation={viewport.orientation}
+              >
                 <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
                   <ActiveGame locale={resolvedLocale} />
                 </Suspense>

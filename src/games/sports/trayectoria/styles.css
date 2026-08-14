@@ -3587,6 +3587,107 @@
   .tr-front__league-place { flex: 1 1 210px; }
 }
 
+/* ── Native tablet view ─────────────────────────────────────────────────────
+   Tablet is an editorial dashboard rather than a stretched phone or a simulated
+   console. Portrait keeps paired information visible; landscape restores the wider
+   decision desk while preserving large touch targets and a bounded reading measure. */
+.trayectoria-mobile-host--tablet .tr-shell {
+  width: 100%;
+  min-width: 0;
+  min-height: calc(100dvh - 108px);
+  padding: clamp(20px, 3vw, 32px);
+  border-radius: 18px;
+  overflow: clip;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.38);
+}
+
+.trayectoria-mobile-host--tablet .tr-main,
+.trayectoria-mobile-host--tablet .tr-stage,
+.trayectoria-mobile-host--tablet .tr-setup {
+  width: 100%;
+  min-width: 0;
+}
+
+.trayectoria-mobile-host--tablet .tr-stage { gap: clamp(16px, 2.2vw, 24px); }
+.trayectoria-mobile-host--tablet .tr-setup { max-width: 880px; }
+.trayectoria-mobile-host--tablet .tr-setup__grid { gap: 16px; }
+.trayectoria-mobile-host--tablet .tr-flags { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.trayectoria-mobile-host--tablet .tr-header {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.7fr) minmax(0, 1.3fr);
+  align-items: start;
+  gap: 18px 24px;
+  padding-bottom: 16px;
+}
+
+.trayectoria-mobile-host--tablet .tr-header__player { padding-top: 4px; }
+.trayectoria-mobile-host--tablet .tr-rail {
+  width: 100%;
+  margin-left: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.trayectoria-mobile-host--tablet .tr-rail__club { flex: 1 1 auto; }
+.trayectoria-mobile-host--tablet .tr-rail__cells { flex: 1 0 100%; }
+.trayectoria-mobile-host--tablet .tr-rail__cell { flex: 1; min-width: 0; }
+.trayectoria-mobile-host--tablet .tr-header .tr-spine { grid-column: 1 / -1; }
+
+.trayectoria-mobile-host--tablet .tr-btn,
+.trayectoria-mobile-host--tablet .tr-option,
+.trayectoria-mobile-host--tablet .tr-ask,
+.trayectoria-mobile-host--tablet .tr-mode,
+.trayectoria-mobile-host--tablet .tr-flagpick {
+  min-height: 46px;
+}
+
+.trayectoria-mobile-host--tablet .tr-offers {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.trayectoria-mobile-host--tablet .tr-front {
+  padding: clamp(22px, 3.4vw, 38px);
+}
+.trayectoria-mobile-host--tablet .tr-front__lead {
+  grid-template-columns: minmax(0, 1.45fr) minmax(230px, 0.75fr);
+  gap: clamp(18px, 2.8vw, 30px);
+}
+.trayectoria-mobile-host--tablet .tr-front__card {
+  flex-direction: column;
+  align-items: stretch;
+}
+.trayectoria-mobile-host--tablet .tr-front__stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.trayectoria-mobile-host--tablet .tr-retired__legacy {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.trayectoria-mobile-host--tablet[data-native-orientation="portrait"] .tr-desk,
+.trayectoria-mobile-host--tablet[data-native-orientation="portrait"] .tr-talks {
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.trayectoria-mobile-host--tablet[data-native-orientation="landscape"] .tr-desk {
+  grid-template-columns: minmax(0, 1.45fr) minmax(250px, 0.75fr);
+}
+.trayectoria-mobile-host--tablet[data-native-orientation="landscape"] .tr-talks {
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+}
+
+@media (max-width: 760px) {
+  .trayectoria-mobile-host--tablet .tr-header { grid-template-columns: 1fr; }
+  .trayectoria-mobile-host--tablet .tr-header .tr-spine { grid-column: auto; }
+  .trayectoria-mobile-host--tablet .tr-front__lead { grid-template-columns: 1fr; }
+  .trayectoria-mobile-host--tablet .tr-front__card {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+}
+
 @media (max-width: 640px) {
   /* Trayectoria owns its phone layout. It is a continuous editorial surface with no
      simulated console bezel, dual screen, or borrowed game controls. */
