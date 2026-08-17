@@ -80,9 +80,56 @@ describe("a season's worth", () => {
       20 * IDOLATRY.perGoal +
       10 * IDOLATRY.perAssist +
       IDOLATRY.promotion +
-      IDOLATRY.award +
+      IDOLATRY.award * IDOLATRY.awardWeight.ballon_dor +
       IDOLATRY.nationalTitle;
     expect(value).toBeCloseTo(expected, 5);
+  });
+
+  /**
+   * The two things a crowd remembers longest, and the two the table used to price like
+   * everything else: the night the club won the continent, and the year one of its own was
+   * the best player in the world.
+   */
+  it("pays far more for a continental cup than for a league", () => {
+    const league = seasonIdolatry({ record: season({ titles: [{ trophy: "league", earned: true }] }) });
+    const continental = seasonIdolatry({
+      record: season({ titles: [{ trophy: "continental_a", earned: true }] }),
+    });
+    expect(continental).toBeGreaterThan(league);
+    expect(continental - IDOLATRY.perSeason).toBeCloseTo(
+      IDOLATRY.titleEarned * IDOLATRY.titleWeight.continental_a,
+      5,
+    );
+    // The second continental is worth more than a league and less than the main one.
+    const secondary = seasonIdolatry({
+      record: season({ titles: [{ trophy: "continental_b", earned: true }] }),
+    });
+    expect(secondary).toBeGreaterThan(league);
+    expect(secondary).toBeLessThan(continental);
+  });
+
+  it("still charges a continental won from the bench at bench prices", () => {
+    const earned = seasonIdolatry({ record: season({ titles: [{ trophy: "continental_a", earned: true }] }) });
+    const attended = seasonIdolatry({ record: season({ titles: [{ trophy: "continental_a", earned: false }] }) });
+    expect(attended).toBeLessThan(earned);
+    expect(attended - IDOLATRY.perSeason).toBeCloseTo(
+      IDOLATRY.titleAttended * IDOLATRY.titleWeight.continental_a,
+      5,
+    );
+  });
+
+  it("pays far more for a Balón de Oro than for a Bota de Oro", () => {
+    const ballon = seasonIdolatry({ record: season({ awards: [{ award: "ballon_dor" }] }) });
+    const boot = seasonIdolatry({ record: season({ awards: [{ award: "golden_boot" }] }) });
+    expect(ballon).toBeGreaterThan(boot);
+    // A keeper's version of the same award is the same award.
+    const glove = seasonIdolatry({ record: season({ awards: [{ award: "golden_glove" }] }) });
+    expect(glove).toBeCloseTo(ballon, 5);
+  });
+
+  it("prices an unknown trophy or award at the ordinary rate rather than at zero", () => {
+    const odd = seasonIdolatry({ record: season({ titles: [{ trophy: "some_new_cup", earned: true }] }) });
+    expect(odd - IDOLATRY.perSeason).toBeCloseTo(IDOLATRY.titleEarned, 5);
   });
 
   it("gives a suspended season nothing: you were not there", () => {

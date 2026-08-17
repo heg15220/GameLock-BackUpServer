@@ -25,7 +25,7 @@ import {
   watchMatch,
 } from "./career.js";
 import { DECIDES } from "./bigmatch.js";
-import { shootoutFor } from "./narration.js";
+import { narrateFinish, narrateMatch, shootoutFor } from "./narration.js";
 import { world } from "./world.js";
 
 /**
@@ -291,5 +291,97 @@ describe("the shootout", () => {
 
   it("is the same tie every time, from the same seed", () => {
     expect(shootoutFor("same", true)).toEqual(shootoutFor("same", true));
+  });
+});
+
+/**
+ * "Si se empata una final de copa nacional se deben SIEMPRE disputar los penaltis."
+ *
+ * The tests above stage one real career each and check the finals they happen to produce.
+ * This checks the rule itself, exhaustively, on the function that owns it - every number of
+ * chances, every way they can go, both results - because "always" is a claim about the whole
+ * space and a career only ever samples it.
+ *
+ * It also covers the two holes found while auditing that claim, neither of which a career
+ * test would have failed on:
+ *
+ *  - A LATE GOAL THAT WAS NOT A GOAL. The guard on the "somebody settles it late" beat was
+ *    `final.home !== final.away`, which is true of every match that is not level - so a
+ *    final we were winning 2-1 and DID win pushed a "they score" line carrying the same
+ *    2-1 it already had. The scoreboard never moved and the feed had told a small lie.
+ *  - A SHOOTOUT NOBODY HAD DECIDED. `won` is null on anything that is not a final, and
+ *    `shootoutFor` read null as false: every level semi-final in the game's history was
+ *    lost from twelve yards.
+ */
+describe("a knockout that finishes level", () => {
+  const build = (seed, chances) =>
+    narrateMatch({
+      seed,
+      season: 4,
+      fixtureId: `f-${seed}`,
+      kind: "final_copa",
+      chances,
+      ourName: "Nos",
+      theirName: "Ellos",
+    });
+
+  const decided = (finish) =>
+    finish.final.home !== finish.final.away ||
+    finish.beats.some((beat) => beat.id === "shootoutWon" || beat.id === "shootoutLost");
+
+  it("always goes to penalties in a cup final, whatever he did with his chances", () => {
+    let shootouts = 0;
+    for (let i = 0; i < 400; i += 1) {
+      const chances = i % 4;
+      const built = build(`pens-${i}`, chances);
+      // Every way the night can go: none in, all in, and the mixtures between.
+      const attempts = Array.from({ length: chances }, (_, k) => (i + k) % 3 === 0);
+      const won = i % 2 === 0;
+      const finish = narrateFinish(built, attempts, { closed: true, won, shootout: true });
+      expect(decided(finish), `final sin resolver: ${finish.final.home}-${finish.final.away}`).toBe(true);
+      if (finish.final.home === finish.final.away) {
+        shootouts += 1;
+        // And the tie goes the way the cup already went, never the other way.
+        expect(finish.won).toBe(won);
+      }
+    }
+    // Not a branch nobody reaches: a level final is an ordinary night.
+    expect(shootouts).toBeGreaterThan(20);
+  });
+
+  it("never announces a late goal that leaves the scoreboard where it was", () => {
+    for (let i = 0; i < 400; i += 1) {
+      const chances = i % 4;
+      const built = build(`late-${i}`, chances);
+      const attempts = Array.from({ length: chances }, (_, k) => (i + k) % 2 === 0);
+      const finish = narrateFinish(built, attempts, { closed: true, won: i % 2 === 0, shootout: true });
+      const late = finish.beats.find((beat) => beat.late);
+      if (!late) continue;
+      // A goal beat has to have moved the board it is printed on.
+      const before = built.standing;
+      const scoredByUs = attempts.filter(Boolean).length;
+      const moved =
+        late.id === "goalUs"
+          ? late.home > before.home + scoredByUs
+          : late.away > before.away;
+      expect(moved, `gol fantasma en el ${late.minute}'`).toBe(true);
+    }
+  });
+
+  it("does not hand every undecided shootout to the other side", () => {
+    // A semi-final has no trophy attached, so `won` arrives null. Over many ties it has to
+    // come out roughly even rather than always lost.
+    let ours = 0;
+    let total = 0;
+    for (let i = 0; i < 300; i += 1) {
+      const built = build(`semi-${i}`, 0);
+      const finish = narrateFinish(built, [], { closed: true, won: null, shootout: true });
+      if (finish.final.home !== finish.final.away) continue;
+      total += 1;
+      if (finish.won) ours += 1;
+    }
+    expect(total).toBeGreaterThan(20);
+    expect(ours).toBeGreaterThan(0);
+    expect(ours).toBeLessThan(total);
   });
 });

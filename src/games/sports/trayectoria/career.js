@@ -12,10 +12,13 @@
  * The shape of a career, per step:
  *
  *   YOUTH ─┐
- *          ├─▶ NEGOTIATION ─▶ SIGNING ─▶ EVENT ─▶ MATCH ─▶ SEASON ─▶ MARKET ─┐
- *   MARKET ┘                              ▲   └─ one per season ─┤           │
- *                                         └─────────────────────────────────┘
- *                                                                  └──▶ RETIRED
+ *          ├─▶ NEGOTIATION ─▶ SIGNING ─▶ EVENT ─▶ MATCH ─▶ TOURNAMENT ─▶ SEASON ─▶ MARKET ─┐
+ *   MARKET ┘                              ▲   └── one per season ──┤                       │
+ *                                         └───────────────────────────────────────────────┘
+ *                                                                              └──▶ RETIRED
+ *
+ * TOURNAMENT only opens in a season whose side reached the last sixteen of a continental
+ * cup or a World Cup; every other year goes straight from the last decider to the report.
  *
  * A "step" is one decision cycle. In `intensa` it is one season, in `expres` three: the
  * mode does not change the simulation, only how often you get to touch it. MATCH is the
@@ -38,7 +41,7 @@ import {
 } from "./bigmatch.js";
 import { MODES, modeFor } from "./matchmode.js";
 import { buildChance, judgeChance } from "./minigames.js";
-import { narrateFinish, narrateMatch } from "./narration.js";
+import { narrateFinish, narrateMatch, narrateTie } from "./narration.js";
 import {
   ASKS,
   CONTRACT,
@@ -86,7 +89,7 @@ import {
 import { headlineFor, retirementVerdict, shadowNoteFor } from "./press.js";
 import { chance, createStream, pickWeighted } from "./rng.js";
 import { shadowComparison, simulateShadowCareer } from "./rival.js";
-import { continentalQualification } from "./tournaments.js";
+import { TOURNAMENTS, continentalQualification } from "./tournaments.js";
 import {
   CALLUP_THRESHOLD,
   CAREER_MODES,
@@ -100,6 +103,16 @@ export const PHASES = {
   SIGNING: "signing",
   EVENT: "event",
   MATCH: "match",
+  /**
+   * The knockout nights of a continental cup or a World Cup, from the last sixteen on.
+   *
+   * MATCH is the phase where the player decides something. This is the phase where his side
+   * does: the bracket has already been simulated by the time it opens - see
+   * `simulateTournamentRun` - and every tie in the queue plays out live with nothing to
+   * press. It sits between MATCH and SEASON because that is when it happens: the ties are a
+   * thing the season did, and the report is the morning after.
+   */
+  TOURNAMENT: "tournament",
   SEASON: "season",
   MARKET: "market",
   RETIRED: "retired",
@@ -219,6 +232,7 @@ function openStep(run) {
     injury,
     seasonResults: [],
     matchday: null,
+    tournament: null,
     deal: null,
     signing: null,
     clauseOffer: null,
@@ -376,6 +390,7 @@ export function startCareer({ seed, surname, number, foot, country, position, mo
     injury: null,
     seasonResults: [],
     matchday: null,
+    tournament: null,
     deal: null,
     signing: null,
     clauseOffer: null,
@@ -711,6 +726,115 @@ function playSeason(run, plan, matchResults, locale) {
   };
 }
 
+/* ── The knockout nights ─────────────────────────────────────────────────────────
+   From the last sixteen on, a continental run is watched rather than read. The bracket
+   itself was simulated inside the season - `simulateTournamentRun` - so nothing here
+   decides anything; this is the queue that turns its rounds into evenings, and the
+   narration that plays them. See PHASES.TOURNAMENT.                                  */
+
+/** What a side is called on a scoreboard, whether it is a club or a country. */
+function displayName(world, id, locale) {
+  const club = world?.clubs?.[id];
+  if (club) return club.shortName ?? club.name ?? "";
+  const country = world?.countries?.[id];
+  if (country) return (locale === "en" ? country.name_en : country.name_es) ?? country.fifa ?? "";
+  return "";
+}
+
+/**
+ * Every tie of this season worth sitting through, in the order they were played.
+ *
+ * A round the bracket never reached is not in `run.rounds` at all, so a side that went out
+ * in the play-off simply has no queue - which is the correct amount of ceremony for it.
+ * The round the side was eliminated IN is very much in the queue: going out of a quarter
+ * final is a night too, and a game that only narrates the ones you win is a highlights reel.
+ */
+export function liveTiesOf(run, record, locale = "es") {
+  const ties = [];
+  for (const tournament of record?.tournamentRuns ?? []) {
+    const spec = TOURNAMENTS[tournament.id];
+    const national = spec ? !spec.club : false;
+    const ourId = national ? run.state.country : record.clubId;
+    for (const round of tournament.rounds ?? []) {
+      if (!round.live) continue;
+      const legScores = round.legScores?.length
+        ? round.legScores
+        : [{ us: round.score.us, them: round.score.them }];
+      ties.push({
+        id: `${record.season}-${tournament.id}-${round.round}`,
+        season: record.season,
+        tournamentId: tournament.id,
+        round: round.round,
+        legs: round.legs,
+        national,
+        ourId,
+        opponentId: round.opponentId,
+        ourName: displayName(run.world, ourId, locale) || round.opponent,
+        theirName: displayName(run.world, round.opponentId, locale) || round.opponent,
+        // The leg that settles it is the one that is played out; the other is what you
+        // carried into it. See `narrateTie`.
+        score: legScores[legScores.length - 1],
+        firstLeg: legScores.length > 1 ? legScores[0] : null,
+        aggregate: round.score,
+        won: round.won,
+        penalties: Boolean(round.penalties),
+        extraTime: Boolean(round.extraTime),
+        champion: Boolean(tournament.champion) && round.round === "final",
+      });
+    }
+  }
+  return ties;
+}
+
+/** The tie at the head of the queue, built into ninety minutes. */
+const broadcastFor = (run, tie) =>
+  narrateTie({
+    seed: `${run.state.seed}:${tie.id}`,
+    round: tie.round,
+    legs: tie.legs,
+    ourName: tie.ourName,
+    theirName: tie.theirName,
+    score: tie.score,
+    aggregate: tie.aggregate,
+    firstLeg: tie.firstLeg,
+    won: tie.won,
+    penalties: tie.penalties,
+    extraTime: tie.extraTime,
+  });
+
+/**
+ * Open the knockout queue of the season that has just been played, or return null when it
+ * has none - which is most seasons, for most careers.
+ */
+function openTournament(run, locale = "es") {
+  const record = run.seasonResults[run.seasonResults.length - 1]?.record;
+  const ties = liveTiesOf(run, record, locale);
+  if (!ties.length) return null;
+  return {
+    ...run,
+    phase: PHASES.TOURNAMENT,
+    matchday: null,
+    tournament: { season: record.season, ties, index: 0, broadcast: broadcastFor(run, ties[0]) },
+  };
+}
+
+/** Move on to the next tie, or hand the step back to the season loop once they are done. */
+export function nextTie(run, locale = "es") {
+  if (run.phase !== PHASES.TOURNAMENT || !run.tournament) return run;
+  const { ties, index } = run.tournament;
+  if (index + 1 < ties.length) {
+    return {
+      ...run,
+      tournament: {
+        ...run.tournament,
+        index: index + 1,
+        broadcast: broadcastFor(run, ties[index + 1]),
+      },
+    };
+  }
+  return openMatchday({ ...run, tournament: null }, locale);
+}
+
 /**
  * Open the matches of the next season in this step, or close the step if there are none
  * left to play.
@@ -755,9 +879,14 @@ function openMatchday(run, locale = "es") {
       });
     }
     current = playSeason(current, plan.modifiers, [], locale);
+    // A season that went deep into a continental cup is watched before the next one starts.
+    // The queue returns here through `nextTie`, and `seasonResults` has already grown, so
+    // the loop picks up exactly where it left off.
+    const watching = openTournament(current, locale);
+    if (watching) return watching;
   }
 
-  return { ...current, phase: PHASES.SEASON, matchday: null, played: true };
+  return { ...current, phase: PHASES.SEASON, matchday: null, tournament: null, played: true };
 }
 
 /**
@@ -1097,7 +1226,10 @@ export function nextFixture(run, locale = "es") {
       },
     });
   }
-  return openMatchday(playSeason(run, run.matchday.plan, played, locale), locale);
+  // The season the shots just decided, and then the knockout nights it produced - the last
+  // sixteen onwards is watched, not read, so it comes before the report of the year.
+  const settled = playSeason(run, run.matchday.plan, played, locale);
+  return openTournament(settled, locale) ?? openMatchday(settled, locale);
 }
 
 /**
@@ -1505,14 +1637,40 @@ export function currentStanding(run) {
   const idolatry = idolatryAt(run.state.idolatry, run.state.clubId);
   const contract = run.state.contract?.clubId === run.state.clubId ? run.state.contract : null;
   const last = run.state.history[run.state.history.length - 1] ?? null;
+
+  /*
+   * THE RATING THE SEASON WILL ACTUALLY BE PLAYED AT.
+   *
+   * A decision card can leave an `ovrTemp` - a knock, a fallout, a summer that sharpened
+   * him - and everything that decides the year reads `state.ovr + ovrTemp`: `fixtureContext`
+   * splits the season's odds at it, `simulateSeason` rolls every trophy at it, and
+   * `settleFinal` prices a final at it. The screens read `state.ovr` on its own, so the card
+   * in the masthead said 55 while the season was being played at 53 - and the delta cell,
+   * which is the number this entire model turns on, was out by the same two.
+   *
+   * That is precisely the promise this interface makes everywhere else: the exit cost is on
+   * the offer, the conversion rate is on the match screen, the growth band is on the market
+   * card. The game shows you the number it is about to use. So the standing reports the
+   * effective rating, keeps the base beside it, and hands the screens `ovrTemp` so the card
+   * can say that the difference is a loan and not growth.
+   *
+   * Nothing outside a live step moves: `simulateSeason` clears the modifiers on its way out,
+   * so by the market screen `ovrTemp` is zero and `ovr === baseOvr`.
+   */
+  const ovrTemp = run.state.modifiers?.ovrTemp ?? 0;
+  const ovr = Math.max(1, Math.min(99, Math.round(run.state.ovr + ovrTemp)));
+
   return {
     club,
     competition,
     // Where the club actually is, which is only the same as the badge until it moves.
     division: club ? { tier, shift, demoted } : null,
     country: run.world.countries[run.state.country] ?? null,
-    squadLevel: club ? squadLevelFor(club, run.state.ovr) : null,
-    delta: club ? run.state.ovr - squadLevelFor(club, run.state.ovr) : null,
+    ovr,
+    baseOvr: run.state.ovr,
+    ovrTemp,
+    squadLevel: club ? squadLevelFor(club, ovr) : null,
+    delta: club ? ovr - squadLevelFor(club, ovr) : null,
     // What the last season was worth to his development, so the header can say whether
     // he is in a place that is still making him better.
     growth: last?.growth ?? null,

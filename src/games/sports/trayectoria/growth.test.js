@@ -84,24 +84,40 @@ function afterSeasons(steps = 2, seed = "growth") {
 
 const show = (run) => mount(React.createElement(SCREENS.season, { run, locale: "es", onNext: () => {} }));
 
+/** Force the step to have been played at a given rating, whatever the career produced. */
+const playedAt = (run, ovr) => ({
+  ...run,
+  seasonResults: run.seasonResults.map((result, index) =>
+    index === 0 ? { ...result, record: { ...result.record, ovr } } : result,
+  ),
+});
+
 describe("the rating, between the season and the market", () => {
-  it("says nothing on the very first step, because there is nothing to compare", () => {
+  /**
+   * THE FIRST STEP HAS THE MOST TO SAY, and it used to say nothing.
+   *
+   * The reveal compared the previous step's record to this one's - both on the history
+   * timeline - so on step one there was no "previous" and it stayed silent, which meant a
+   * sixteen-year-old's first season, the single biggest jump of a career, went unremarked.
+   * It now bridges the rating the season was PLAYED at to the rating he is on NOW, and
+   * that exists from the very first season. See the note in `SeasonScreen`.
+   */
+  it("speaks on the very first step, because the first year is a real jump", () => {
     const run = afterSeasons(1);
     expect(run.phase).toBe(PHASES.SEASON);
+    const played = run.seasonResults[0].record.ovr;
+    expect(run.state.ovr, "el primer año no movió el OVR").not.toBe(played);
+
     const view = show(run);
-    expect(view.growth(), "nothing to compare and it showed something anyway").toBeNull();
+    expect(view.growth(), "el primer año creció y la pantalla se calló").toBeTruthy();
+    expect(view.text()).toContain(copy.season.growthHeading);
+    // It starts on what the year was played at, not on some earlier season.
+    expect(view.container.querySelector(".tr-growth__from")?.textContent).toBe(String(played));
     view.unmount();
   });
 
   it("holds the screen with the rating and then hands over on its own", () => {
-    const run = afterSeasons(1);
-    // A step whose history already has a season behind it: force one in so there is a
-    // before and an after without driving a second full step through the harness.
-    const withPast = {
-      ...run,
-      state: { ...run.state, history: [{ ...run.state.history[0], ovr: run.state.history[0].ovr - 3 }, ...run.state.history] },
-    };
-    const view = show(withPast);
+    const view = show(playedAt(afterSeasons(1), 40));
     const panel = view.growth();
     expect(panel, "no rating reveal at all").toBeTruthy();
     expect(view.text()).toContain(copy.season.growthHeading);
@@ -116,12 +132,27 @@ describe("the rating, between the season and the market", () => {
 
   it("colours the reading by which way the year went", () => {
     const run = afterSeasons(1);
-    const worse = {
-      ...run,
-      state: { ...run.state, history: [{ ...run.state.history[0], ovr: run.state.history[0].ovr + 5 }, ...run.state.history] },
-    };
-    const view = show(worse);
+    // Played the year well above where it left him: the year went backwards.
+    const view = show(playedAt(run, run.state.ovr + 5));
     expect(view.growth()?.getAttribute("class")).toContain("is-down");
+    view.unmount();
+
+    const better = show(playedAt(run, run.state.ovr - 5));
+    expect(better.growth()?.getAttribute("class")).toContain("is-up");
+    better.unmount();
+  });
+
+  /**
+   * The whole point of the change: the number it lands on is the number the masthead card
+   * is showing. They were a full season apart - the reveal animated 68 -> 72 while the card
+   * read 76 - because the two were reading different timelines.
+   */
+  it("lands on the rating the player is actually on now", () => {
+    const run = afterSeasons(1);
+    const view = show(run);
+    const from = Number(view.container.querySelector(".tr-growth__from")?.textContent);
+    const move = view.text().match(/([+-]\d+) OVR/);
+    expect(from + (move ? Number(move[1]) : 0)).toBe(run.state.ovr);
     view.unmount();
   });
 });

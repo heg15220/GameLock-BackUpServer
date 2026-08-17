@@ -119,6 +119,21 @@ export const roundsOf = (id) =>
   (TOURNAMENTS[id]?.knockout ?? []).map((round) => ROUNDS[round]).filter(Boolean);
 
 /**
+ * The rounds that are watched rather than reported.
+ *
+ * From the last sixteen on, a continental run stops being a line in the season summary and
+ * becomes a night: `career.js` queues one of these per round and the same broadcast the
+ * deciders use plays it out. Before that it stays a result, and deliberately so - the point
+ * of a knockout is that it narrows, and a competition that narrates its qualifying rounds
+ * with the same weight as its final has no shape left.
+ *
+ * The play-off round and the World Cup's round of thirty-two sit below the line on purpose:
+ * "octavos de final en adelante" is where a real broadcast starts treating it as an event.
+ */
+export const LIVE_ROUNDS = ["r16", "quarter", "semi", "final"];
+export const isLiveRound = (round) => LIVE_ROUNDS.includes(round);
+
+/**
  * How many sides come out of the group or league phase.
  *
  * Checked rather than assumed, because it is the one number a format can get wrong in a way
@@ -209,21 +224,89 @@ const nameOf = (entry) => entry?.shortName ?? entry?.short_name ?? entry?.name_e
 const strengthOf = (entry) =>
   entry?.continental_reputation ?? entry?.international_reputation ?? entry?.fifa_reputation ?? 2;
 
-/** A plausible score for one knockout tie, deterministic and never level after extra time. */
-function tieScore(next, ours, theirs, legs, forceWin) {
+/**
+ * How often a knockout tie is still level when the football runs out.
+ *
+ * This used to be zero: `tieScore` drew a margin of one or two and handed the tie to
+ * whoever it had already decided, so no tie in the game's history had ever gone to
+ * penalties. That is not a small omission - a shootout is the single most recognisable
+ * thing a knockout does, and a competition that has never had one is visibly not the
+ * competition it claims to be.
+ *
+ * A two-legged tie is level on aggregate rather more often than a one-off is level at
+ * ninety minutes, which is what the two numbers say. Either way the answer is the same:
+ * extra time, and then twelve yards. See `settleTie`.
+ */
+const LEVEL_ODDS = { 1: 0.19, 2: 0.24 };
+
+/** Spread one side's aggregate across the legs of the tie. */
+function splitAcrossLegs(next, total, legs) {
+  if (legs <= 1) return [total];
+  const first = randInt(next, 0, total);
+  return [first, total - first];
+}
+
+/**
+ * One knockout tie, played out: who went through, what it finished, and how.
+ *
+ * The aggregate is drawn first and then split across the legs, rather than the other way
+ * round, because the aggregate is the thing that has to be true - it is what decides the
+ * tie - and a pair of leg scores that happen to add up to the wrong number is a tie the
+ * narration cannot tell. A level aggregate is not a draw: it is a shootout, and `won` still
+ * says which way it went, because a champion is forced through the whole verified format.
+ */
+function settleTie(next, ours, theirs, legs, forceWin) {
   const edge = Math.max(-0.22, Math.min(0.22, (ours - theirs) * 0.055));
   const naturalWin = next() < 0.5 + edge;
   const won = forceWin ?? naturalWin;
+
+  const level = next() < (LEVEL_ODDS[legs] ?? LEVEL_ODDS[1]);
   const loser = randInt(next, 0, legs === 2 ? 3 : 2);
-  const margin = next() < 0.68 ? 1 : 2;
+  const margin = level ? 0 : next() < 0.68 ? 1 : 2;
   const winner = loser + margin;
+
+  // The scoreline as OUR side reads it, whichever way the tie went.
+  const us = level ? loser : won ? winner : loser;
+  const them = level ? loser : won ? loser : winner;
+  const ourLegs = splitAcrossLegs(next, us, legs);
+  const theirLegs = splitAcrossLegs(next, them, legs);
+
   return {
     won,
-    home: won ? winner : loser,
-    away: won ? loser : winner,
-    extraTime: legs === 1 && loser >= 1 && next() < 0.24,
-    penalties: legs === 1 && next() < 0.12,
+    home: us,
+    away: them,
+    // Every leg of the tie, in order. The last one is the night it is settled on.
+    legScores: ourLegs.map((goals, index) => ({ us: goals, them: theirLegs[index] })),
+    // Level when the whistle goes means the extra half hour, and then the spot.
+    extraTime: level,
+    penalties: level,
   };
+}
+
+/**
+ * Who comes out of the bombo, and why it is not simply a uniform draw.
+ *
+ * The field is now the real one (see qualified.js), which fixes the names but not the shape
+ * of the competition: drawn flat, a Champions League final is as likely to be against the
+ * thirty-sixth seed as against Real Madrid, and every round of it reads like a first round.
+ * A knockout narrows in strength as well as in number - the sides that survive to a semi are
+ * the sides that were always going to - so the draw leans harder on reputation the deeper it
+ * gets. `depth` runs 0 at the first knockout round to 1 at the final.
+ *
+ * Still no upsets removed: the weakest side in the pool can be drawn in the final, it is
+ * simply not as likely as the strongest one. That is the whole difference between a bracket
+ * and a raffle.
+ */
+function drawOpponent(next, available, depth) {
+  if (!available.length) return null;
+  const tilt = 0.6 + depth * 1.9;
+  const weights = available.map((entry) => (strengthOf(entry) + 1) ** tilt);
+  let target = next() * weights.reduce((sum, weight) => sum + weight, 0);
+  for (let index = 0; index < available.length; index += 1) {
+    target -= weights[index];
+    if (target <= 0) return available[index];
+  }
+  return available[available.length - 1];
 }
 
 /**
@@ -255,9 +338,22 @@ export function simulateTournamentRun({
     Math.min(phaseSize, Math.round(phaseSize * (0.72 - playerStrength * 0.1 + next() * 0.42))),
   );
   const direct = spec.phase.kind === "league" && derivedPhasePosition <= spec.phase.direct;
+  /**
+   * Third in the group and through anyway.
+   *
+   * The 2026 World Cup takes the eight best third places out of twelve groups, and the Euro
+   * the four best out of six - which the format table has always said and the simulation
+   * has always ignored, so finishing third was death in a tournament where it is a coin
+   * flip. Two thirds of them go through, so two thirds of them go through.
+   */
+  const thirdPlace =
+    spec.phase.kind === "groups" &&
+    spec.phase.bestThirds &&
+    derivedPhasePosition === spec.phase.qualify + 1 &&
+    next() < spec.phase.bestThirds / spec.phase.groups;
   const phaseQualified = spec.phase.kind === "league"
     ? derivedPhasePosition <= spec.phase.playoff[1] || champion
-    : derivedPhasePosition <= spec.phase.qualify || champion;
+    : derivedPhasePosition <= spec.phase.qualify || thirdPlace || champion;
 
   const run = {
     id,
@@ -282,19 +378,23 @@ export function simulateTournamentRun({
   for (let index = 0; index < rounds.length; index += 1) {
     const round = rounds[index];
     const available = pool.filter((entry) => !used.has(identityOf(entry)));
-    const opponent = available.length ? available[Math.floor(next() * available.length)] : null;
+    const opponent = drawOpponent(next, available, index / Math.max(1, rounds.length - 1));
     if (opponent) used.add(identityOf(opponent));
     const mustWin = champion || index < exitAt;
-    const score = tieScore(next, playerStrength, strengthOf(opponent), legsOf(id, round.id), mustWin);
+    const legs = legsOf(id, round.id);
+    const score = settleTie(next, playerStrength, strengthOf(opponent), legs, mustWin);
     run.rounds.push({
       round: round.id,
-      legs: legsOf(id, round.id),
+      legs,
       opponentId: identityOf(opponent),
       opponent: nameOf(opponent),
       score: { us: score.home, them: score.away },
+      legScores: score.legScores,
       extraTime: score.extraTime,
       penalties: score.penalties,
       won: mustWin,
+      // Whether this is a night the player is shown rather than told about. See LIVE_ROUNDS.
+      live: isLiveRound(round.id),
     });
     if (!mustWin) {
       run.eliminatedAt = round.id;

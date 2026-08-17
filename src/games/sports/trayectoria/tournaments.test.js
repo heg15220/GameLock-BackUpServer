@@ -129,7 +129,7 @@ describe("qualification and full runs", () => {
     expect(continentalQualification({ position: 6, confederation: "CONMEBOL" }).level).toBe("main");
   });
 
-  it("simulates every round and makes a champion win the final", () => {
+  it("simulates every round and makes a champion come through all of them", () => {
     const player = { id: "us", name: "Nos", continental_reputation: 4 };
     const entrants = Array.from({ length: 48 }, (_, index) => ({
       id: `team-${index}`,
@@ -141,7 +141,19 @@ describe("qualification and full runs", () => {
     });
     expect(run.phase.qualified).toBe(true);
     expect(run.rounds.map((round) => round.round)).toEqual(["r32", "r16", "quarter", "semi", "final"]);
-    expect(run.rounds.every((round) => round.won && round.score.us > round.score.them)).toBe(true);
+    /*
+     * Won every round - but NOT necessarily on the scoreline. A tie can finish level and be
+     * settled from twelve yards, which is the one thing this simulation used never to be
+     * able to do: `settleTie` draws a margin of zero and the shootout answers it. So the
+     * guard is that a champion is never eliminated, and that a level tie is always a
+     * shootout rather than an unresolved draw.
+     */
+    expect(run.rounds.every((round) => round.won)).toBe(true);
+    for (const round of run.rounds) {
+      const level = round.score.us === round.score.them;
+      expect(round.penalties).toBe(level);
+      if (!level) expect(round.score.us).toBeGreaterThan(round.score.them);
+    }
     expect(run.champion).toBe(true);
     expect(run.eliminatedAt).toBeNull();
   });

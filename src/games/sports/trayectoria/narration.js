@@ -248,6 +248,160 @@ export function narrateMatch({
   };
 }
 
+/**
+ * A knockout night the player's side plays and he does not decide.
+ *
+ * From the last sixteen on, a continental run stopped being a bracket in the season summary
+ * and became something you sit through - see LIVE_ROUNDS in tournaments.js. That is a
+ * different job from `narrateMatch`, and the difference is the whole reason this is its own
+ * function: a decider is built UP TO the player's chance and left open, because he answers
+ * it. A tie has no question in it. The result arrived from the bracket before a ball was
+ * kicked, so this builds the entire ninety minutes and closes them, and the only thing the
+ * player does is watch his club go through or go out.
+ *
+ * Which is also why it is worth watching at all. `narrateMatch` cannot be reused with a
+ * `chances: 0` and a shrug, because the two rules at the top of this file still bind: the
+ * score is honest, and it is the score the bracket says. Everything here is built backwards
+ * from `score` and `aggregate`, so the feed can never show a goal the tie did not have.
+ *
+ * ONE LEG IS NARRATED, and it is the last one. A two-legged European tie is two nights and
+ * one of them decides it; narrating both would double every season's screens to tell the
+ * player something the aggregate already says. So the return leg is played and the first
+ * leg arrives as what it really is by then - a scoreline you carry into the second.
+ */
+export function narrateTie({
+  seed,
+  round,
+  legs = 1,
+  ourName = "",
+  theirName = "",
+  score = { us: 0, them: 0 },
+  aggregate = null,
+  firstLeg = null,
+  won = true,
+  penalties = false,
+  extraTime = false,
+} = {}) {
+  const next = createStream(seed, "tie", round);
+  const laid = [{ minute: 0, id: "kickoff" }];
+
+  // The goals this leg actually had, placed across the ninety rather than invented.
+  const goals = [];
+  for (let i = 0; i < (score.us ?? 0); i += 1) goals.push("us");
+  for (let i = 0; i < (score.them ?? 0); i += 1) goals.push("them");
+  for (let i = goals.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(next() * (i + 1));
+    [goals[i], goals[j]] = [goals[j], goals[i]];
+  }
+  const occupied = new Set([0, 45, FULL_TIME]);
+  const place = (from, to) => {
+    let minute = randInt(next, from, to);
+    let guard = 0;
+    while (occupied.has(minute) && guard < 12) {
+      minute = minute >= to ? from : minute + 1;
+      guard += 1;
+    }
+    occupied.add(minute);
+    return minute;
+  };
+  const spread = Math.max(1, Math.floor(80 / (goals.length + 1)));
+  goals.forEach((side, index) => {
+    laid.push({
+      minute: place(
+        Math.max(3, 6 + spread * index),
+        Math.min(FULL_TIME - 2, 8 + spread * (index + 1) + 6),
+      ),
+      id: side === "us" ? "goalUs" : "goalThem",
+    });
+  });
+
+  // The football between them, exactly as a decider draws it.
+  const flowCount = randInt(next, 7, 11);
+  for (let index = 0; index < flowCount; index += 1) {
+    const event = eventFrom(next, FLOW_EVENTS);
+    laid.push({ minute: place(4, FULL_TIME - 3), ...event });
+  }
+  if (!goals.length) laid.push({ minute: place(26, 38), id: "tight" });
+  laid.push({ minute: 45, id: "halfTime" });
+  laid.push({ minute: place(66, 74), id: score.us < score.them ? "chasing" : "pressing" });
+
+  let home = 0;
+  let away = 0;
+  const beats = laid
+    .sort((a, b) => a.minute - b.minute)
+    .map((beat, index) => {
+      if (beat.id === "goalUs") home += 1;
+      if (beat.id === "goalThem") away += 1;
+      return {
+        ...beat,
+        home,
+        away,
+        state: standingOf(home, away),
+        ourName,
+        theirName,
+        variant: Math.floor(next() * 64) + index,
+      };
+    });
+
+  // The whistle, and everything a level tie still owes: the extra half hour, the spot, and
+  // the one line that says which of the two is still in the competition.
+  const closing = [];
+  const closingBeat = (id, extra = {}) => ({
+    minute: FULL_TIME,
+    id,
+    ourName,
+    theirName,
+    home,
+    away,
+    state: standingOf(home, away),
+    decisive: true,
+    ...extra,
+  });
+  // The extra half hour is announced BEFORE the whistle, because that is the order it
+  // happens in: ninety minutes run out, the tie is level, and only then is it over.
+  if (extraTime) closing.push(closingBeat("extraTime", { variant: goals.length }));
+  closing.push(closingBeat("fullTime", { variant: round?.length ?? 0 }));
+
+  let kicks = null;
+  if (penalties) {
+    kicks = shootoutFor(`${seed}:${round}:${ourName}:${theirName}`, won);
+    closing.push(closingBeat("shootout", { kicks, variant: goals.length }));
+    closing.push(
+      closingBeat(won ? "shootoutWon" : "shootoutLost", {
+        variant: goals.length + 3,
+        shootoutScore: kicks.score,
+      }),
+    );
+  }
+  closing.push(closingBeat(won ? "tieWon" : "tieLost", { variant: goals.length + 5 }));
+
+  return {
+    round,
+    legs,
+    ourName,
+    theirName,
+    // No chance is ever handed over, so the clock has nowhere to stop before full time.
+    moment: FULL_TIME,
+    moments: [],
+    chances: 0,
+    aggregate,
+    firstLeg,
+    penalties,
+    extraTime,
+    beats,
+    standing: { home, away },
+    finish: {
+      closed: true,
+      scored: false,
+      converted: 0,
+      final: { home, away },
+      won,
+      beats: closing,
+      shootout: kicks,
+    },
+  };
+}
+
 /** How often a penalty in a shootout goes in. The real figure sits around three in four. */
 const SHOOTOUT_RATE = 0.74;
 
@@ -404,13 +558,25 @@ export function narrateFinish(
      * claimed about a missed final: eleven other players are on the pitch, and often enough
      * one of them wins it anyway. The odds do not move; only the story now matches them.
      */
-    if (won !== null && final.home !== final.away) {
-      // The ninety minutes disagree with the result: somebody settles it late. This is the
-      // ordinary way a match that was already decided elsewhere gets told.
+    const contradicts =
+      won !== null &&
+      final.home !== final.away &&
+      won !== final.home > final.away;
+    if (contradicts) {
+      /*
+       * The ninety minutes disagree with the result: somebody settles it late. This is the
+       * ordinary way a match that was already decided elsewhere gets told.
+       *
+       * Only when they actually disagree. The guard used to be `final.home !== final.away`,
+       * which is true of every match that is not level - so a final we were winning 2-1 and
+       * DID win pushed a "they score" beat carrying the same 2-1 it already had. The line
+       * announced a goal, the scoreboard did not move, and the feed had told a lie small
+       * enough to be unfixable by reading it.
+       */
       const minute = Math.min(FULL_TIME - 1, Math.max(broadcast.moment + 2, 86));
-      const ourGoal = won && final.home < final.away;
+      const ourGoal = won;
       if (ourGoal) final.home = final.away + 1;
-      else if (!won && final.home > final.away) final.away = final.home + 1;
+      else final.away = final.home + 1;
       beats.push(
         beat(minute, ourGoal ? "goalUs" : "goalThem", {
           home: final.home,
@@ -435,7 +601,19 @@ export function narrateFinish(
      * feed was getting wrong when it left a cup final reading 1-1.
      */
     if (shootout && final.home === final.away) {
-      const kicks = shootoutFor(`${broadcast.ourName}:${broadcast.theirName}:${broadcast.moment}`, won);
+      const key = `${broadcast.ourName}:${broadcast.theirName}:${broadcast.moment}`;
+      /*
+       * A tie nobody has answered still has to be answered.
+       *
+       * `won` arrives from the trophy roll on a final and is null everywhere else - a
+       * semi-final, most of all, which is a knockout with no trophy attached to it. Handed
+       * a null, `shootoutFor` read it as false and drew a shootout the other side won, so
+       * every level semi-final in the game's history ended in defeat from twelve yards. It
+       * is a coin now, off the same key, which is what a shootout nobody has pre-decided is.
+       */
+      const settled = won === null ? createStream(key, "shootout-winner")() < 0.5 : won;
+      const kicks = shootoutFor(key, settled);
+      won = settled;
       beats.push(
         beat(FULL_TIME, "shootout", {
           home: final.home,

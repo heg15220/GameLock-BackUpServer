@@ -136,6 +136,51 @@ export const NT_TOURNAMENT = {
   },
 };
 
+/**
+ * The competitions themselves, by name.
+ *
+ * The season summary has always called a continental run "el camino continental", which is
+ * the taxonomy again: nobody watches the continental, they watch the Champions League. Now
+ * that the knockout rounds are played on screen the tournament has to introduce itself, so
+ * it is named after the thing that is actually being won.
+ */
+export const TOURNAMENT_LABELS = {
+  es: {
+    champions: "la Champions League",
+    libertadores: "la Copa Libertadores",
+    euro: "la Eurocopa",
+    copa_america: "la Copa América",
+    world_cup: "el Mundial",
+  },
+  en: {
+    champions: "the Champions League",
+    libertadores: "the Copa Libertadores",
+    euro: "the Euros",
+    copa_america: "the Copa América",
+    world_cup: "the World Cup",
+  },
+};
+
+/** Which round of the bracket this night is. Keyed by the ids in tournaments.js. */
+export const ROUND_LABELS = {
+  es: {
+    playoff: "Play-off",
+    r32: "Dieciseisavos",
+    r16: "Octavos de final",
+    quarter: "Cuartos de final",
+    semi: "Semifinal",
+    final: "Final",
+  },
+  en: {
+    playoff: "Play-off",
+    r32: "Round of 32",
+    r16: "Round of 16",
+    quarter: "Quarter-final",
+    semi: "Semi-final",
+    final: "Final",
+  },
+};
+
 /** The kind of chance it is - which is what makes the three placements mean something. */
 export const SHOT_LABELS = {
   es: {
@@ -631,6 +676,23 @@ const COPY = {
           "Falla el {us} el último. Y hasta aquí.",
           "Pierde el {us} desde los once metros.",
         ],
+        /* Las eliminatorias que se ven de octavos en adelante - ver LIVE_ROUNDS - no las
+           decide el jugador: las mira. Estas son las dos líneas que las cierran. */
+        extraTime: [
+          "Se acaban los noventa. Hay prórroga.",
+          "Nada que separar. Media hora más.",
+          "Treinta minutos más para deshacer el empate.",
+        ],
+        tieWon: [
+          "El {us} pasa de ronda.",
+          "Y el {us} sigue vivo en el torneo.",
+          "Billete para la siguiente. Es del {us}.",
+        ],
+        tieLost: [
+          "El {us} se queda fuera.",
+          "Se acaba aquí el torneo para el {us}.",
+          "Pasa el {them}. Al {us} le toca mirar el resto desde casa.",
+        ],
       },
       ntFinal: "Final de {cup}",
       record: "En partidos decisivos: {scored} de {taken} · el modelo te da un {rate}%",
@@ -720,6 +782,32 @@ const COPY = {
       },
     },
 
+    /**
+     * Las eliminatorias que se juegan en pantalla.
+     *
+     * De octavos en adelante, la Champions, la Libertadores y el Mundial dejan de ser una
+     * línea en el resumen y pasan a ser una noche - ver LIVE_ROUNDS. El jugador no decide
+     * nada aquí: mira. Por eso el texto no le pregunta nada, solo le cuenta dónde está su
+     * equipo y qué se juega esta noche.
+     */
+    tournament: {
+      eyebrow: "Noche de eliminatoria",
+      lede: "Esto no lo juegas tú. Lo juega tu equipo, y tú lo ves.",
+      /** El partido que se narra: el único, o la vuelta de la eliminatoria. */
+      singleLeg: "Partido único",
+      secondLeg: "Partido de vuelta",
+      firstLeg: "Ida: {us}–{them}",
+      aggregate: "Global: {us}–{them}",
+      through: "El {club} pasa de ronda",
+      out: "El {club} queda eliminado",
+      champion: "Campeones de {cup}",
+      /** Cuántas noches quedan en la cola de esta temporada. */
+      counter: "{n} de {total}",
+      next: "Seguir",
+      last: "Al resumen de la temporada",
+      versus: "Contra",
+    },
+
     season: {
       eyebrow: "Temporada",
       /** Dónde acabó el club. Desde la temporada que viene, también por qué juega Europa. */
@@ -733,6 +821,9 @@ const COPY = {
       titles: "Títulos",
       awards: "Premios",
       development: "Desarrollo",
+      /* Dónde te deja: es el número que la carta del encabezado está mostrando mientras
+         lees esta página. La nota decía cuánto creciste y nunca a cuánto. */
+      developmentLands: "Te deja en {ovr} OVR",
       doubled: "Doble tirada: se queda la peor por no jugar",
       attended: "asistido",
       earned: "ganado",
@@ -751,6 +842,8 @@ const COPY = {
       tournamentPhase: "Fase inicial: {position}º",
       tournamentChampion: "Campeón",
       tournamentExit: "Eliminado",
+      /** Una eliminatoria puede acabar en tablas: el resumen tiene que decir cómo se rompió. */
+      onPenalties: " (pen.)",
       continentalNext: { main: "Clasificado para la máxima continental", secondary: "Clasificado para la segunda continental", none: "Sin plaza continental" },
       /* Cabecera de la tabla de resultados. Un periódico rotula sus columnas: sin esto,
          "Al segundo palo" junto a "GOL" no dice cuál es la elección y cuál el desenlace. */
@@ -773,6 +866,10 @@ const COPY = {
          estabas dentro. */
       relegationEyebrow: "Bajáis",
       relegationNote: "El {club} jugará una división más abajo.",
+      /* Subir tenía la misma pantalla que cumplir una sanción: una línea. Es lo más
+         grande que le pasa a un club en una temporada, igual que bajar. */
+      promotionEyebrow: "Subís",
+      promotionNote: "El {club} jugará una división más arriba.",
       perMatch: "Goles por partido",
       nationalTeam: "Selección",
       nationalCaps: "{caps} partidos internacionales",
@@ -913,6 +1010,9 @@ const COPY = {
 
     common: {
       ovr: "OVR",
+      /* Lo que una carta de decisión te presta o te quita esta temporada. Va en la carta
+         porque el modelo simula el año con ello dentro: ver `currentStanding`. */
+      ovrTemp: "temporal",
       squad: "Plantilla",
       delta: "Distancia",
       age: "Edad",
@@ -1265,6 +1365,23 @@ const COPY = {
           "{us} put the last one away. That is that.",
           "{us} win it on penalties.",
         ],
+        /* The ties watched from the last sixteen on - see LIVE_ROUNDS - are not the
+           player's to decide. He watches them. These are the two lines that close one. */
+        extraTime: [
+          "Ninety minutes gone. Extra time.",
+          "Nothing to separate them. Half an hour more.",
+          "Another thirty minutes to break the deadlock.",
+        ],
+        tieWon: [
+          "{us} go through.",
+          "And {us} are still in this competition.",
+          "The ticket to the next round belongs to {us}.",
+        ],
+        tieLost: [
+          "{us} are out.",
+          "The competition ends here for {us}.",
+          "{them} go through. {us} watch the rest of it from home.",
+        ],
         shootoutLost: [
           "{them} take the shootout.",
           "{us} miss the last one. And that is that.",
@@ -1350,6 +1467,32 @@ const COPY = {
       },
     },
 
+    /**
+     * The ties that are played on screen.
+     *
+     * From the last sixteen on, the Champions League, the Libertadores and the World Cup
+     * stop being a line in the summary and become a night - see LIVE_ROUNDS. The player
+     * decides nothing here: he watches. So none of this asks him anything; it only says
+     * where his side stands and what is at stake tonight.
+     */
+    tournament: {
+      eyebrow: "Knockout night",
+      lede: "This one is not yours to play. It is your side's, and you watch it.",
+      /** The match being narrated: the only one, or the second leg of the tie. */
+      singleLeg: "One-off tie",
+      secondLeg: "Second leg",
+      firstLeg: "First leg: {us}–{them}",
+      aggregate: "Aggregate: {us}–{them}",
+      through: "{club} go through",
+      out: "{club} are out",
+      champion: "Champions of {cup}",
+      /** How many nights are left in this season's queue. */
+      counter: "{n} of {total}",
+      next: "Continue",
+      last: "To the season report",
+      versus: "Versus",
+    },
+
     season: {
       eyebrow: "Season",
       /** Where the club finished. From next season, also why it is or is not in Europe. */
@@ -1363,6 +1506,9 @@ const COPY = {
       titles: "Trophies",
       awards: "Awards",
       development: "Development",
+      /* Where it leaves you: the number the masthead card is showing while this page is
+         being read. The note said how much he grew and never what he grew to. */
+      developmentLands: "Leaves you on {ovr} OVR",
       doubled: "Double roll: the worse one stands, for not playing",
       attended: "attended",
       earned: "earned",
@@ -1381,6 +1527,8 @@ const COPY = {
       tournamentPhase: "Opening phase: {position}",
       tournamentChampion: "Champions",
       tournamentExit: "Eliminated",
+      /** A tie can finish level, so the summary has to say how it was broken. */
+      onPenalties: " (pens)",
       continentalNext: { main: "Qualified for the main continental cup", secondary: "Qualified for the secondary continental cup", none: "No continental place" },
       resultsCols: { fixture: "Match", choice: "Where he put it", outcome: "Outcome" },
       noChoice: "—",
@@ -1395,6 +1543,10 @@ const COPY = {
       growthFlat: "No change",
       relegationEyebrow: "Down you go",
       relegationNote: "{club} will play a division lower.",
+      /* Going up had the same screen a served suspension has: one line. It is the biggest
+         thing that happens to a club in a season, exactly as going down is. */
+      promotionEyebrow: "Up you go",
+      promotionNote: "{club} will play a division higher.",
       perMatch: "Goals per match",
       nationalTeam: "National team",
       nationalCaps: "{caps} international matches",
@@ -1535,6 +1687,9 @@ const COPY = {
 
     common: {
       ovr: "OVR",
+      /* What a decision card is lending or taking from you this season. It is on the card
+         because the model simulates the year with it included: see `currentStanding`. */
+      ovrTemp: "temporary",
       squad: "Squad",
       delta: "Distance",
       age: "Age",

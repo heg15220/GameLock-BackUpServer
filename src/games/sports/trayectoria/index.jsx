@@ -21,6 +21,7 @@ import {
   completeSigning,
   currentStanding,
   nextFixture,
+  nextTie,
   openMarket,
   playChance,
   refuseClause,
@@ -52,7 +53,9 @@ import {
   PROFILE_LABELS,
   REASON_LABELS,
   ROLE_LABELS,
+  ROUND_LABELS,
   SHOT_LABELS,
+  TOURNAMENT_LABELS,
   THEME_LABELS,
   TROPHY_LABELS,
   WAGE_ROLE_LABELS,
@@ -416,18 +419,37 @@ const OVR_TIERS = [
 export const ovrTier = (ovr) =>
   (OVR_TIERS.find((tier) => ovr >= tier.min) ?? OVR_TIERS[OVR_TIERS.length - 1]).key;
 
-function PlayerCard({ ovr, position, country, locale, size = "sm" }) {
+function PlayerCard({ ovr, position, country, locale, size = "sm", temp = 0 }) {
   const copy = getCopy(locale);
   const tier = ovrTier(ovr);
   const pulsing = useChangePulse(ovr);
+  /*
+   * The rating on the card is the one the season is about to be played at, `ovrTemp`
+   * included - see `currentStanding`. A card that showed the base while the model rolled
+   * a different number was the one place this interface broke its own rule.
+   *
+   * But a loan is not growth, and without saying so a −2 from a knock reads exactly like
+   * losing two points for good. So the difference is printed on the corner, signed, and
+   * the card is marked as borrowed rather than earned.
+   */
+  const borrowed = Math.round(temp);
   return (
     <div
-      className={`tr-pcard tr-pcard--${size} is-${tier}${pulsing ? " is-changed" : ""}`}
+      className={`tr-pcard tr-pcard--${size} is-${tier}${pulsing ? " is-changed" : ""}${
+        borrowed ? " is-temp" : ""
+      }`}
       role="img"
-      aria-label={`${copy.common.ovr} ${ovr} · ${POSITION_LABELS[locale][position] ?? position}`}
+      aria-label={`${copy.common.ovr} ${ovr}${
+        borrowed ? ` (${formatDelta(borrowed)} ${copy.common.ovrTemp})` : ""
+      } · ${POSITION_LABELS[locale][position] ?? position}`}
     >
       <b className="tr-pcard__rating">{ovr}</b>
       <span className="tr-pcard__pos">{position}</span>
+      {borrowed ? (
+        <span className={`tr-pcard__temp${borrowed > 0 ? " is-up" : " is-down"}`} aria-hidden="true">
+          {formatDelta(borrowed)}
+        </span>
+      ) : null}
       {/* The nation and not the club: the card is what you are, and the crest beside it
           in the rail is already saying where you happen to be this year. */}
       <span className="tr-pcard__badge">
@@ -444,8 +466,16 @@ function PlayerCard({ ovr, position, country, locale, size = "sm" }) {
  * shelf grows to the right as the career runs. It lives in the masthead rather than in the
  * decision panel because it is the one part of a player's profile that is true on every
  * screen - what he has actually won does not depend on which phase he is in.
+ *
+ * THE INDIVIDUAL HONOURS BELONG HERE TOO, and for a long time they did not: the model has
+ * rolled a Ballon d'Or since the first version, drawn a silhouette for it since the second,
+ * and the only place it ever appeared was a number on the retirement page. A player who won
+ * three of them carried a cabinet that said nothing about it for twenty years. They sit
+ * after the trophies, because that is the order a real one is arranged in - the team's
+ * silverware first, then what they gave you on your own - and they are marked apart, since
+ * a Ballon d'Or is not a cup the side won.
  */
-function TrophyShelf({ trophies, locale, size = 20 }) {
+function TrophyShelf({ trophies, awards = [], locale, size = 20 }) {
   const copy = getCopy(locale);
   /*
    * Which one he is looking at. The shelf is a row of silhouettes with a number on the
@@ -457,25 +487,30 @@ function TrophyShelf({ trophies, locale, size = 20 }) {
 
   const shelf = useMemo(() => {
     const byTrophy = new Map();
-    for (const trophy of trophies) {
-      const key = `${trophy.trophy}${trophy.national ? ":nt" : ""}`;
+    const add = (key, entry) => {
       const seen = byTrophy.get(key);
       if (seen) seen.count += 1;
-      else {
-        byTrophy.set(key, {
-          key,
-          trophy: trophy.trophy,
-          national: Boolean(trophy.national),
-          count: 1,
-        });
-      }
+      else byTrophy.set(key, { key, count: 1, ...entry });
+    };
+    for (const trophy of trophies) {
+      add(`${trophy.trophy}${trophy.national ? ":nt" : ""}`, {
+        kind: "trophy",
+        trophy: trophy.trophy,
+        national: Boolean(trophy.national),
+      });
+    }
+    // Always after the cups, whatever order the career won them in.
+    for (const award of awards ?? []) {
+      add(`award:${award.award}`, { kind: "award", trophy: award.award, national: false });
     }
     return [...byTrophy.values()];
-  }, [trophies]);
+  }, [trophies, awards]);
 
   if (!shelf.length) return null;
 
-  const nameOf = (entry) => TROPHY_LABELS[locale][entry.trophy] ?? entry.trophy;
+  const nameOf = (entry) =>
+    (entry.kind === "award" ? AWARD_LABELS[locale][entry.trophy] : TROPHY_LABELS[locale][entry.trophy]) ??
+    entry.trophy;
   // Read back off the shelf rather than held as an object, so a cup won since it was
   // pressed shows its new count and one that cannot be there any more simply closes.
   const open = shelf.find((entry) => entry.key === picked) ?? null;
@@ -488,8 +523,8 @@ function TrophyShelf({ trophies, locale, size = 20 }) {
             <button
               type="button"
               className={`tr-shelf__item${entry.national ? " is-national" : ""}${
-                open?.key === entry.key ? " is-open" : ""
-              }`}
+                entry.kind === "award" ? " is-award" : ""
+              }${open?.key === entry.key ? " is-open" : ""}`}
               // Still there for a mouse, which gets the answer without a press.
               title={`${nameOf(entry)} ×${entry.count}`}
               aria-pressed={open?.key === entry.key}
@@ -506,7 +541,12 @@ function TrophyShelf({ trophies, locale, size = 20 }) {
       {/* Named underneath rather than over the shelf: a popover on the row would cover the
           cups either side of the one being asked about. */}
       {open ? (
-        <p className={`tr-shelf__named${open.national ? " is-national" : ""}`} aria-live="polite">
+        <p
+          className={`tr-shelf__named${open.national ? " is-national" : ""}${
+            open.kind === "award" ? " is-award" : ""
+          }`}
+          aria-live="polite"
+        >
           <span>{nameOf(open)}</span>
           <b>
             {fillTemplate(open.count === 1 ? copy.hud.wonTimes : copy.hud.wonTimesPlural, {
@@ -529,8 +569,11 @@ function StatRail({ run, standing, locale }) {
   return (
     <div className="tr-rail">
       {/* Who you are, then where you are, then what that is currently worth. */}
+      {/* `standing.ovr`, not `state.ovr`: the rating the season is actually being played
+          at, so the card and the model can never be showing two different numbers. */}
       <PlayerCard
-        ovr={run.state.ovr}
+        ovr={standing.ovr}
+        temp={standing.ovrTemp}
         position={run.state.position}
         country={standing.country}
         locale={locale}
@@ -581,8 +624,10 @@ function StatRail({ run, standing, locale }) {
       ) : null}
       </StatCells>
 
-      {/* The vitrina, on its own line so it never squeezes the four readings above it. */}
-      <TrophyShelf trophies={run.state.trophies} locale={locale} />
+      {/* The vitrina, on its own line so it never squeezes the four readings above it.
+          Cups and individual honours both: a Balón de Oro is part of a player's profile
+          in exactly the way a league title is, and it had never been on this row. */}
+      <TrophyShelf trophies={run.state.trophies} awards={run.state.awards} locale={locale} />
     </div>
   );
 }
@@ -1355,9 +1400,12 @@ function ContextPanel({ run, locale }) {
         </div>
       </div>
 
+      {/* Same rating the card in the masthead is showing, and the same one the season is
+          about to be rolled at. The meter is the whole thesis; it cannot be the one place
+          that reads a stale number. */}
       <DeltaMeter
-        ovr={run.state.ovr}
-        squadLevel={standing.squadLevel ?? run.state.ovr}
+        ovr={standing.ovr}
+        squadLevel={standing.squadLevel ?? standing.ovr}
         keeper={run.state.position === "POR"}
         locale={locale}
         compact
@@ -1532,6 +1580,14 @@ function Shootout({ kicks, copy }) {
   );
 }
 
+/**
+ * How long the drawing stays on the shot just taken, when nothing else is holding it.
+ *
+ * Only the played mode needs this: a narrated one has the clock running on to the next
+ * chance and that gap is the hold. See `holding` in MatchScreen.
+ */
+const SHOT_HOLD = 1400;
+
 /* How the ninety minutes are paced on screen. */
 const MINUTES_PER_SECOND = 10;
 /** A goal has to land. The clock stops dead on every beat for this long. */
@@ -1558,6 +1614,7 @@ function Broadcast({
   club = null,
   opponent = null,
   country = null,
+  opponentCountry = null,
   national = false,
 }) {
   const copy = getCopy(locale);
@@ -1677,7 +1734,13 @@ function Broadcast({
         </span>
         <b className="tr-live__side tr-live__side--away">
           <span>{broadcast.theirName || copy.match.opponent}</span>
-          {opponent ? <Crest club={opponent} size={22} /> : null}
+          {/* A knockout of the World Cup has two countries in it, and the away side used to
+              have nowhere to put one: the score bug drew a crest or nothing at all. */}
+          {national ? (
+            opponentCountry ? <Flag country={opponentCountry} size={20} /> : null
+          ) : opponent ? (
+            <Crest club={opponent} size={22} />
+          ) : null}
         </b>
       </div>
 
@@ -1766,8 +1829,7 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
    * The attempt just resolved is what the drawing is a drawing of. `last` is still what
    * the verdict at the end reads, because that one is a statement about the fixture.
    */
-  const shown = matchday.lastAttempt ?? last;
-  const mark = shown ? (shown.absent ? "absent" : shown.scored ? "scored" : "saved") : null;
+  const settled = matchday.lastAttempt ?? last;
   const outcome = verdict ? copy.match.decides[last.decides]?.[verdict] ?? "" : "";
   const record = conversionRecord(run.state.conversion, run.state.ovr);
   // What coming through meant here. A keeper who guessed the corner did not score.
@@ -1802,6 +1864,47 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
 
   const atChance = !live || reached.chance;
   const atEnd = !live || reached.end;
+
+  /*
+   * THE FIGURES GO BACK.
+   *
+   * `matchday.lastAttempt` is not cleared until the whole fixture closes, so on a night
+   * worth more than one chance the drawing simply never returned to the situation: the
+   * second chance was asked for over a frozen picture of the first, with the keeper still
+   * lying where he had dived, the flight still drawn and the ball still sitting in the net.
+   * The player was aiming at a goal that already had a ball in it.
+   *
+   * So the result is HELD and then released, and the two modes get the hold they already
+   * have. In live mode it is the clock: `atChance` is false while the match runs on to the
+   * next chance and true the moment it arrives, which is exactly when the picture should
+   * stop being about the last one. The played mode has no such gap - the next minigame
+   * mounts immediately - so it gets a short beat of its own, long enough to see the ball go
+   * in and no longer.
+   *
+   * A closed fixture always shows: at that point the drawing is the verdict.
+   */
+  const [holding, setHolding] = useState(false);
+  useEffect(() => {
+    if (live || !matchday.lastAttempt) return undefined;
+    setHolding(true);
+    const timer = setTimeout(() => setHolding(false), SHOT_HOLD);
+    return () => clearTimeout(timer);
+  }, [live, matchday.lastAttempt]);
+
+  const shown = matchday.last || (live ? !atChance : holding) ? settled : null;
+  const mark = shown ? (shown.absent ? "absent" : shown.scored ? "scored" : "saved") : null;
+
+  /*
+   * Which of the two pictures is on screen, and never both.
+   *
+   * In the blind mode the scene is the only picture there is. In the played mode the
+   * SURFACE is the picture - it is the same stadium with a game drawn on it - so the scene
+   * only appears for the moment a result is being held, and the surface stands down while
+   * it is. That trade is what keeps the whole moment on one screen.
+   */
+  const skill = shot.mode === MODES.SKILL;
+  const showScene = !skill || Boolean(shown);
+  const showPlay = skill && !matchday.last && !shown;
   /*
    * Whether the chance is allowed to be named yet.
    *
@@ -1955,8 +2058,16 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
         {/* The situation itself. Before the shot it shows the chance and nothing else -
             drawing the flight in advance would give away the guess - and in live mode it
             does not exist at all until the match has reached the chance it is a picture
-            of, because the furniture alone says which one it is. */}
-        {revealShot ? (
+            of, because the furniture alone says which one it is.
+
+            ONE PITCH, NEVER TWO. When the moment is played rather than guessed, the
+            surface below IS this drawing with a game on it - same stadium, same goal, same
+            figures - so showing both stacked the same stadium twice and asked the player to
+            work out which of the two he was allowed to touch. On a phone the pair did not
+            even fit: two 5:3 pitches plus the masthead is more than the stage is tall, so
+            the thing you actually play was under the fold. The scene stands down for the
+            played mode and comes back for the moment the result is being held. */}
+        {revealShot && showScene ? (
           <ShotScene type={shot.type} options={shot.options} gap={shot.gap} result={shown} />
         ) : null}
 
@@ -2005,13 +2116,17 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
                 {fillTemplate(copy.match.ofChances, { n: attempt + 1, total: owed })}
               </p>
             ) : null}
-            {shot.mode === MODES.SKILL ? (
-              <ChanceGame
-                key={attempt}
-                chance={shot.chance}
-                locale={locale}
-                onSettle={onPlay}
-              />
+            {skill ? (
+              // Stood down while the drawing holds the shot just taken, so the beat is a
+              // beat and not two pitches at once.
+              showPlay ? (
+                <ChanceGame
+                  key={attempt}
+                  chance={shot.chance}
+                  locale={locale}
+                  onSettle={onPlay}
+                />
+              ) : null
             ) : !atChance ? (
               <p className="tr-match__waiting">{copy.match.waiting}</p>
             ) : (
@@ -2040,6 +2155,130 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             )}
             <p className="tr-match__foot">{copy.match.lede}</p>
           </>
+        )}
+      </article>
+    </section>
+  );
+}
+
+/**
+ * The knockout nights, which are the only ones the player has nothing to do in.
+ *
+ * Everything else in this game asks you something. This asks you nothing, on purpose: from
+ * the last sixteen of a continental cup or a World Cup, your side plays a tie and you watch
+ * it - the result was settled by the bracket before the screen opened, and there is no
+ * placement to press and no minigame to be good at. See PHASES.TOURNAMENT.
+ *
+ * Which is exactly why it is worth building. A career that only ever sees the three matches
+ * its own player decided has a Champions League that consists of a scoreline in a summary;
+ * this is the other twenty nights of it, the ones you sit through as a supporter rather
+ * than as a footballer, and the difference between the two is most of what a season feels
+ * like from the inside.
+ *
+ * The tie is a TIE and not a match, so the screen has to say three things the scoreboard
+ * cannot: which leg this is, what the first one finished, and who is actually through. A
+ * side beaten 0-1 on the night and in the semi-final on aggregate is the most ordinary
+ * result in European football and the one a single scoreline reports backwards.
+ */
+function TournamentScreen({ run, locale, onNext }) {
+  const copy = getCopy(locale);
+  const stage = run.tournament;
+  const [ended, setEnded] = useState(false);
+  const tie = stage?.ties?.[stage.index] ?? null;
+  useEffect(() => setEnded(false), [tie?.id]);
+  const handleReach = useCallback((at) => {
+    if (at >= FULL_TIME) setEnded(true);
+  }, []);
+  if (!tie || !stage.broadcast) return null;
+
+  const ourSide = tie.national ? world.countries[tie.ourId] : world.clubs[tie.ourId];
+  const theirSide = tie.national ? world.countries[tie.opponentId] : world.clubs[tie.opponentId];
+  const cup = TOURNAMENT_LABELS[locale][tie.tournamentId] ?? tie.tournamentId;
+  const round = ROUND_LABELS[locale][tie.round] ?? tie.round;
+  const last = stage.index + 1 >= stage.ties.length;
+
+  return (
+    <section className="tr-stage tr-stage--narrow">
+      <article className={`tr-tie${ended ? (tie.won ? " is-through" : " is-out") : " is-live"}`}>
+        <header className="tr-tie__head">
+          <div className="tr-tie__bar">
+            <p className="tr-eyebrow tr-eyebrow--alert">
+              <Icon name="trophy" size={14} />
+              {copy.tournament.eyebrow}
+            </p>
+            <span className="tr-tie__counter">
+              {fillTemplate(copy.tournament.counter, {
+                n: stage.index + 1,
+                total: stage.ties.length,
+              })}
+            </span>
+          </div>
+          <div className="tr-tie__title">
+            <h2 className="tr-display tr-display--lg">{round}</h2>
+            <p className="tr-tie__cup">{cup}</p>
+          </div>
+          {/* Which of the two nights this is, and what you carry into it. A one-off says so
+              rather than pretending the question does not arise. */}
+          <p className="tr-tie__legs">
+            <span>{tie.legs > 1 ? copy.tournament.secondLeg : copy.tournament.singleLeg}</span>
+            {tie.firstLeg ? (
+              <b>
+                {fillTemplate(copy.tournament.firstLeg, {
+                  us: tie.firstLeg.us,
+                  them: tie.firstLeg.them,
+                })}
+              </b>
+            ) : null}
+          </p>
+        </header>
+
+        {/* KEYED ON THE TIE, and it has to be. `Broadcast` keeps the clock in a ref and
+            remembers the minute it last announced, so the second night of a queue would
+            open with the clock already sitting on ninety and its "we have arrived" effect
+            already spent - a finished match nobody could get past. Every tie is a new
+            match, so every tie gets a new component. */}
+        <Broadcast
+          key={tie.id}
+          broadcast={stage.broadcast}
+          locale={locale}
+          finished={stage.broadcast.finish}
+          onReach={handleReach}
+          club={tie.national ? null : ourSide}
+          opponent={tie.national ? null : theirSide}
+          country={tie.national ? ourSide : null}
+          opponentCountry={tie.national ? theirSide : null}
+          national={tie.national}
+        />
+
+        {ended ? (
+          <div className="tr-tie__result">
+            {/* The aggregate, because on a two-legged tie it is the only number that
+                answers the question the ninety minutes just raised. */}
+            {tie.legs > 1 ? (
+              <p className="tr-tie__aggregate">
+                {fillTemplate(copy.tournament.aggregate, {
+                  us: tie.aggregate.us,
+                  them: tie.aggregate.them,
+                })}
+              </p>
+            ) : null}
+            <p className="tr-tie__verdict">
+              {tie.champion
+                ? fillTemplate(copy.tournament.champion, { cup })
+                : fillTemplate(tie.won ? copy.tournament.through : copy.tournament.out, {
+                    club: tie.ourName,
+                  })}
+            </p>
+            <button
+              type="button"
+              className="tr-btn tr-btn--primary tr-btn--block"
+              onClick={onNext}
+            >
+              {last ? copy.tournament.last : copy.tournament.next}
+            </button>
+          </div>
+        ) : (
+          <p className="tr-tie__foot">{copy.tournament.lede}</p>
         )}
       </article>
     </section>
@@ -2154,7 +2393,7 @@ function TrophyCeremony({ honours, locale, onDone }) {
   );
 }
 
-/* ── The other night ──────────────────────────────────────────────────────────
+/* ── The other night, both ways ───────────────────────────────────────────────
    Going down was one red word on the front page, in the same strip that says a
    suspension was served. It is the biggest thing that can happen to a club in a
    season and it read like a footnote, so it gets the screen the way a trophy does.
@@ -2164,15 +2403,29 @@ function TrophyCeremony({ honours, locale, onDone }) {
    That is the whole image, because it is literally what happened - the club was on
    one side of a line and now it is on the other. No destination league is named:
    the world does not always model the division below, and `clubStanding` is careful
-   not to invent one (see engine.js), so neither does this.                       */
+   not to invent one (see engine.js), so neither does this.
 
-/** How long the drop holds the screen before it hands over to the front page. */
+   GOING UP HAD NO SCREEN AT ALL, which was the asymmetry nobody had noticed: the
+   model has recorded `record.promoted` since promotion existed, `IDOLATRY.promotion`
+   prices it above a trophy, and the only place a career ever saw it was the same
+   one-line flag. So it is the same screen read the other way - green, and the club
+   comes UP through the line instead of falling through it. One component with a
+   direction rather than two, because the image is identical and only the sign of it
+   changes; two copies would drift the first time either was touched.              */
+
+/** How long it holds the screen before it hands over to the front page. */
 const DROP_HOLD = 3200;
 
-function RelegationDrop({ club, locale, onDone }) {
+const DIVISION_MOVE = {
+  down: { modifier: "", word: "relegated", eyebrow: "relegationEyebrow", note: "relegationNote" },
+  up: { modifier: " is-up", word: "promoted", eyebrow: "promotionEyebrow", note: "promotionNote" },
+};
+
+function DivisionMove({ club, direction = "down", locale, onDone }) {
   const copy = getCopy(locale);
   const reduced = usePrefersReducedMotion();
   const name = club?.shortName ?? club?.name ?? "";
+  const spec = DIVISION_MOVE[direction] ?? DIVISION_MOVE.down;
 
   // Unlike the trophy ceremony, reduced motion does not skip this outright. That
   // preference asks for no movement, not for less information, and this screen exists to
@@ -2190,13 +2443,13 @@ function RelegationDrop({ club, locale, onDone }) {
 
   return (
     <div
-      className={`tr-drop${reduced ? " is-still" : ""}`}
+      className={`tr-drop${spec.modifier}${reduced ? " is-still" : ""}`}
       role="dialog"
-      aria-label={copy.season.relegated}
+      aria-label={copy.season[spec.word]}
       onClick={onDone}
     >
       <div className="tr-drop__inner">
-        <p className="tr-drop__eyebrow">{copy.season.relegationEyebrow}</p>
+        <p className="tr-drop__eyebrow">{copy.season[spec.eyebrow]}</p>
 
         <div className="tr-drop__stage">
           <span className="tr-drop__line" aria-hidden="true" />
@@ -2206,8 +2459,8 @@ function RelegationDrop({ club, locale, onDone }) {
           </div>
         </div>
 
-        <p className="tr-drop__word">{copy.season.relegated}</p>
-        <p className="tr-drop__note">{fillTemplate(copy.season.relegationNote, { club: name })}</p>
+        <p className="tr-drop__word">{copy.season[spec.word]}</p>
+        <p className="tr-drop__note">{fillTemplate(copy.season[spec.note], { club: name })}</p>
         <p className="tr-ceremony__skip">{copy.season.ceremonySkip}</p>
       </div>
     </div>
@@ -2243,7 +2496,7 @@ function Honour({ honour, locale, index }) {
  * the same season. Everything the engine worked out gets printed - the delta, the call-up,
  * the development cycle - since a report that hides its own workings is just a score.
  */
-function SeasonFront({ result, previous, careerTotals, keeper, locale, index, statsRef = null }) {
+function SeasonFront({ result, previous, careerTotals, keeper, locale, index, statsRef = null, landedOvr = null }) {
   const copy = getCopy(locale);
   const { record, headline, shadowNote } = result;
   const club = world.clubs[record.clubId];
@@ -2423,8 +2676,14 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index, st
           <ol className="tr-tournament-run__rounds">
             {run.rounds.map((round) => (
               <li key={round.round} className={round.won ? "is-won" : "is-lost"}>
-                <small>{round.round.replace("r32", "1/16").replace("r16", "1/8").replace("quarter", "1/4").replace("semi", "1/2").replace("final", "Final").replace("playoff", "Play-off")}</small>
-                <b>{round.score.us}–{round.score.them}</b>
+                <small>{ROUND_LABELS[locale][round.round] ?? round.round}</small>
+                {/* The aggregate, and - now that a tie can actually finish level - which
+                    of them were settled from twelve yards. A 2-2 with no note beside it
+                    is a knockout the summary has left unresolved. */}
+                <b>
+                  {round.score.us}–{round.score.them}
+                  {round.penalties ? <i>{copy.season.onPenalties}</i> : null}
+                </b>
                 <span>{round.opponent}</span>
               </li>
             ))}
@@ -2532,6 +2791,18 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index, st
               {copy.season.development}
             </p>
             <p className="tr-front__note-big">{signedOvr(report.development.applied)} OVR</p>
+            {/* Where it actually left him, which is the number the card in the masthead is
+                showing while this page is being read. The note said how much he grew and
+                never said what he grew TO, so the reader was left doing the arithmetic
+                between a page about last season and a card about this one - and the sum
+                does not even work, because a deferred `ovrReturn` lands here too. Passed
+                in rather than derived for exactly that reason: this is the rating itself,
+                not a total that ought to match it. */}
+            {landedOvr != null ? (
+              <p className="tr-front__note-lands">
+                {fillTemplate(copy.season.developmentLands, { ovr: landedOvr })}
+              </p>
+            ) : null}
             <small>
               {fillTemplate(copy.season.developmentShare, {
                 range: report.development.seasonRange.map(signedOvr).join(" / "),
@@ -2659,12 +2930,21 @@ function SeasonScreen({ run, locale, onNext }) {
     () => run.seasonResults.flatMap((result) => honoursOf(result.record, country)),
     [run.seasonResults, country],
   );
-  // The season the club went down, if one of them did. A step can be three seasons long,
-  // and a club can only be relegated once in any of them, so the first is the one.
-  const relegation = useMemo(
-    () => run.seasonResults.find((result) => result.record.relegated) ?? null,
-    [run.seasonResults],
-  );
+  /*
+   * The season the club changed division, if one of them did, and which way.
+   *
+   * A step can be three seasons long and a club can only move once in any of them (see
+   * OUR CALL #7 and `shiftDivision`), so the first is the one. Both directions are the
+   * same slot on purpose: they cannot both happen, and going up deserves the screen going
+   * down has had all along.
+   */
+  const divisionMove = useMemo(() => {
+    const result = run.seasonResults.find(
+      (entry) => entry.record.relegated || entry.record.promoted,
+    );
+    if (!result) return null;
+    return { record: result.record, direction: result.record.promoted ? "up" : "down" };
+  }, [run.seasonResults]);
 
   // Mounts fresh every time the phase opens, so the ceremony plays once per step and the
   // player is never shown last year's cups again.
@@ -2677,24 +2957,37 @@ function SeasonScreen({ run, locale, onNext }) {
   // queue rather than overlap, and the cups go first: that is the order they happened in,
   // and ending on the drop is the note the front page then picks up.
   /*
-   * What the step did to his rating, across every season in it. `before` is the history
-   * without this step's seasons, so its last entry is where he stood when the step opened -
-   * and on the very first step there is nothing behind him, which is the one case with
-   * nothing to compare and therefore nothing to show.
+   * What the step did to his rating - and the one place this screen has to be careful,
+   * because there are TWO ratings in play and they are a season apart.
+   *
+   *   `record.ovr`  the rating the season was PLAYED at. History. The front page prints
+   *                 it, the career curve is drawn from it, and the peak is measured on it.
+   *   `state.ovr`   the rating he is on NOW, development applied. The masthead card shows
+   *                 it, and it is what next season will be played at.
+   *
+   * They are consecutive points on one curve: `state.ovr = record.ovr + development`. This
+   * reveal used to compare `before.at(-1).ovr` to this step's `record.ovr` - both on the
+   * history timeline, which made it a replay of the PREVIOUS step's growth and left it a
+   * whole season behind the card beside it. Measured on one career: the age-21 screen
+   * animated 68 → 72 while the card read 76, and it was wrong that way every single year.
+   *
+   * So it bridges the two instead: from the rating the step's first season was played at,
+   * to the rating he now carries. That is this step's actual growth, it is the number the
+   * report's own development note is talking about, and it lands exactly on the card.
    */
   const [grown, setGrown] = useState(false);
   const finishGrowth = useCallback(() => setGrown(true), []);
   const growth = useMemo(() => {
-    const from = before[before.length - 1]?.ovr ?? null;
-    const to = run.seasonResults[run.seasonResults.length - 1]?.record?.ovr ?? null;
+    const from = run.seasonResults[0]?.record?.ovr ?? null;
+    const to = run.state.ovr;
     return from == null || to == null ? null : { from, to };
-  }, [before, run.seasonResults]);
+  }, [run.seasonResults, run.state.ovr]);
 
   // They queue rather than overlap, in the order they happened: the cups in May, the drop
   // in June, and what the year left him at, last, because that is what the market is about
   // to price him on.
   const ceremonyOpen = Boolean(won.length) && !celebrated;
-  const dropOpen = Boolean(relegation) && !ceremonyOpen && !dropped;
+  const dropOpen = Boolean(divisionMove) && !ceremonyOpen && !dropped;
   const growthOpen = Boolean(growth) && !ceremonyOpen && !dropOpen && !grown;
   const summaryReady = !ceremonyOpen && !dropOpen && !growthOpen;
   useDeviceCameraFocus(firstStatsRef, summaryReady);
@@ -2705,8 +2998,9 @@ function SeasonScreen({ run, locale, onNext }) {
         <TrophyCeremony honours={won} locale={locale} onDone={finish} />
       ) : null}
       {dropOpen ? (
-        <RelegationDrop
-          club={world.clubs[relegation.record.clubId] ?? null}
+        <DivisionMove
+          club={world.clubs[divisionMove.record.clubId] ?? null}
+          direction={divisionMove.direction}
           locale={locale}
           onDone={finishDrop}
         />
@@ -2726,6 +3020,10 @@ function SeasonScreen({ run, locale, onNext }) {
             locale={locale}
             index={index}
             statsRef={index === 0 ? firstStatsRef : null}
+            /* Only the last season of the step knows where the player currently stands -
+               an exprés step has three of these and only the last one ends on the card's
+               number. See the note on the two timelines above. */
+            landedOvr={index === run.seasonResults.length - 1 ? run.state.ovr : null}
           />
         );
       })}
@@ -3031,6 +3329,19 @@ function RetiredScreen({ run, locale, onRestart }) {
     acc[trophy.trophy] = (acc[trophy.trophy] ?? 0) + 1;
     return acc;
   }, {});
+  /*
+   * The individual honours, one line each.
+   *
+   * They used to collapse into a single row reading "3 Premios", which is the one summary
+   * in this whole page that hides rather than tells: three Ballons d'Or and three Golden
+   * Boots are not the same career, and the cabinet was the only screen a finished career
+   * has to say so. Same shape as the cups above them - silhouette, count, name - because
+   * they belong in the same cabinet and `trophies.jsx` has always drawn all three.
+   */
+  const countedAwards = run.state.awards.reduce((acc, award) => {
+    acc[award.award] = (acc[award.award] ?? 0) + 1;
+    return acc;
+  }, {});
 
   const primaryTotals = [
     { label: copy.retired.seasons, value: summary.seasons },
@@ -3215,12 +3526,17 @@ function RetiredScreen({ run, locale, onRestart }) {
                   <span>{TROPHY_LABELS[locale][trophy]}</span>
                 </li>
               ))}
-              {run.state.awards.length ? (
-                <li className="is-award" style={{ "--i": Object.keys(counted).length }}>
-                  <b>{run.state.awards.length}</b>
-                  <span>{copy.season.awards}</span>
+              {Object.entries(countedAwards).map(([award, count], index) => (
+                <li
+                  key={award}
+                  className="is-award"
+                  style={{ "--i": Object.keys(counted).length + index }}
+                >
+                  <TrophySilhouette id={award} size={30} />
+                  <b>{count}</b>
+                  <span>{AWARD_LABELS[locale][award] ?? award}</span>
                 </li>
-              ) : null}
+              ))}
             </ul>
             <p className="tr-cabinet__note">
               {fillTemplate(copy.retired.earnedNote, {
@@ -3326,6 +3642,7 @@ export const SCREENS = {
   negotiation: NegotiationScreen,
   signing: SigningScreen,
   match: MatchScreen,
+  tournament: TournamentScreen,
   season: SeasonScreen,
   market: MarketScreen,
   retired: RetiredScreen,
@@ -3357,6 +3674,10 @@ export default function TrayectoriaGame() {
   );
   const handleNextFixture = useCallback(
     () => setRun((prev) => nextFixture(prev, locale)),
+    [locale],
+  );
+  const handleNextTie = useCallback(
+    () => setRun((prev) => nextTie(prev, locale)),
     [locale],
   );
   const handleNext = useCallback(() => setRun((prev) => openMarket(prev, locale)), [locale]);
@@ -3393,6 +3714,20 @@ export default function TrayectoriaGame() {
                 ? availableAsks(current).map((ask) => ask.id)
                 : current.offers?.map((offer) => offer.clubId) ?? [],
         fixture: current.matchday?.fixtures?.[current.matchday.index]?.kind ?? null,
+        // The knockout night on screen, when there is one. The harness reads a phase by
+        // what it is showing, and TOURNAMENT shows a tie rather than a fixture.
+        tie: (() => {
+          const tie = current.tournament?.ties?.[current.tournament.index];
+          return tie
+            ? {
+                tournament: tie.tournamentId,
+                round: tie.round,
+                opponent: tie.theirName,
+                won: tie.won,
+                penalties: tie.penalties,
+              }
+            : null;
+        })(),
         leagueContext: current.matchday?.fixtures?.[current.matchday.index]?.leagueContext ?? null,
         seasonReport:
           current.phase === PHASES.SEASON
@@ -3490,6 +3825,9 @@ export default function TrayectoriaGame() {
             onWatch={handleWatch}
             onNext={handleNextFixture}
           />
+        ) : null}
+        {run?.phase === PHASES.TOURNAMENT ? (
+          <TournamentScreen run={run} locale={locale} onNext={handleNextTie} />
         ) : null}
         {run?.phase === PHASES.SEASON ? (
           <SeasonScreen run={run} locale={locale} onNext={handleNext} />

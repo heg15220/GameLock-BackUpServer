@@ -13,7 +13,7 @@ import React, { act } from "react";
 import { createRoot } from "react-dom/client";
 
 import { TrophyShelf, dropCapSafe } from "./index.jsx";
-import { TROPHY_LABELS, getCopy } from "./copy.js";
+import { AWARD_LABELS, TROPHY_LABELS, getCopy } from "./copy.js";
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -45,8 +45,11 @@ function mount(element) {
 const won = (trophy, times, national = false) =>
   Array.from({ length: times }, (_, i) => ({ trophy, national, season: i + 1 }));
 
-const shelf = (trophies) =>
-  mount(React.createElement(TrophyShelf, { trophies, locale: "es" }));
+const took = (award, times) =>
+  Array.from({ length: times }, (_, i) => ({ award, season: i + 1 }));
+
+const shelf = (trophies, awards = []) =>
+  mount(React.createElement(TrophyShelf, { trophies, awards, locale: "es" }));
 
 describe("the trophy case", () => {
   it("says nothing at all when nothing has been won", () => {
@@ -112,6 +115,49 @@ describe("the trophy case", () => {
     expect(view.cups()[0].getAttribute("aria-pressed")).toBe("false");
     view.press(0);
     expect(view.cups()[0].getAttribute("aria-pressed")).toBe("true");
+    view.unmount();
+  });
+
+  /**
+   * The individual honours, which the shelf never showed.
+   *
+   * The model has rolled a Balón de Oro since the first version and drew a silhouette for
+   * it soon after, and the only place either ever surfaced was a count on the retirement
+   * page. A player could win three of them and carry a cabinet that said nothing about it
+   * for the twenty years he was still playing.
+   */
+  it("puts the individual honours on the shelf, after the cups", () => {
+    const view = shelf(won("league", 2), [...took("ballon_dor", 2), ...took("golden_boot", 1)]);
+    const cups = view.cups();
+    expect(cups).toHaveLength(3);
+    // The cups first, whatever order the career collected them in.
+    expect(cups[0].className).not.toContain("is-award");
+    expect(cups[1].className).toContain("is-award");
+    expect(cups[2].className).toContain("is-award");
+    view.unmount();
+  });
+
+  it("names an award and counts it, like any other line on the shelf", () => {
+    const view = shelf([], took("ballon_dor", 3));
+    view.press(0);
+    expect(view.named()).toContain(AWARD_LABELS.es.ballon_dor);
+    expect(view.named()).toContain("3 veces");
+    expect(view.cups()[0].getAttribute("aria-label")).toContain(AWARD_LABELS.es.ballon_dor);
+    view.unmount();
+  });
+
+  it("opens on an award alone, with no cup ever won", () => {
+    const view = shelf([], took("golden_boot", 1));
+    // A career can be one great season and nothing on the team's shelf at all.
+    expect(view.cups()).toHaveLength(1);
+    view.press(0);
+    expect(view.named()).toContain(AWARD_LABELS.es.golden_boot);
+    view.unmount();
+  });
+
+  it("still says nothing when there is neither a cup nor an award", () => {
+    const view = shelf([], []);
+    expect(view.container.textContent).toBe("");
     view.unmount();
   });
 

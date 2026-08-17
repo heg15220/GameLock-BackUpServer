@@ -4,7 +4,9 @@ import { FIXTURE_KINDS, SHOT_TYPES } from "./bigmatch.js";
 import { FIXTURE_LABELS, PLACEMENT_LABELS, SHOT_LABELS } from "./copy.js";
 import { EVENTS } from "./events.js";
 import { FIXTURE_ICONS, ICON_NAMES, OPTION_ICONS, SHOT_ICONS, optionIcon } from "./icons.jsx";
-import { PLACEMENTS, SITUATIONS } from "./scene.jsx";
+import { PLACEMENTS, SITUATIONS, cameraFor } from "./scene.jsx";
+import { CAMERAS, CAMERA_VIEWBOX, POSE_NAMES } from "./pitch.jsx";
+import { CHANCE_MECHANIC, MECHANICS } from "./minigames.js";
 
 /**
  * The drawing is data, not artwork: a shot type is a row in three tables and a placement is
@@ -123,5 +125,83 @@ describe("every answer to a decision has a mark on it", () => {
     expect(grupito.icons.out).toBe("personal");
     expect(optionIcon(grupito, "out")).toBe("personal");
     expect(optionIcon({ theme: "sport" }, "out")).toBe(OPTION_ICONS.out);
+  });
+});
+
+
+/**
+ * The stadium, and the two promises it makes.
+ *
+ * `pitch.jsx` replaced a goal made of three strokes with one made of netting, stands and
+ * posed silhouettes, and the seven minigames moved onto it - so the drawing stopped being
+ * decoration and became the thing the player reads a chance off. Two classes of bug come
+ * with that, and neither of them throws:
+ *
+ *  - A POSE THAT IS NOT THERE. `SITUATIONS` now names a pose per chance. A typo falls back
+ *    to `stand`, so a header renders as a man waiting and nobody ever finds out.
+ *  - A CAMERA THAT DOES NOT MATCH ITS SURFACE. `pointIn` reads a pointer as a fraction of
+ *    the box and `judgeChance` measures the same fraction, so the moment a viewBox stops
+ *    having its surface's aspect ratio, what is drawn and what is judged come apart - and
+ *    the only symptom is a chance that feels wrong.
+ */
+describe("the stadium", () => {
+  it("names a pose that exists for every chance, on both sides of it", () => {
+    for (const [type, situation] of Object.entries(SITUATIONS)) {
+      if (situation.pose) {
+        expect(POSE_NAMES, `${type}: no such pose "${situation.pose}"`).toContain(situation.pose);
+      }
+      if (situation.keeperPose) {
+        expect(POSE_NAMES, `${type}: no such keeper pose "${situation.keeperPose}"`)
+          .toContain(situation.keeperPose);
+      }
+    }
+  });
+
+  /** A keeper already flat on the turf with nothing to dive at is not "ready". */
+  it("never opens a chance on a figure already committed", () => {
+    for (const [type, situation] of Object.entries(SITUATIONS)) {
+      expect(situation.keeperPose ?? "stand", `${type} starts mid-dive`).not.toBe("dive");
+      expect(situation.pose ?? "stand", `${type} starts mid-dive`).not.toBe("dive");
+    }
+  });
+
+  it("films a chance you are stopping from the goal, and one you are taking from behind", () => {
+    for (const [type, situation] of Object.entries(SITUATIONS)) {
+      expect(cameraFor(type), type).toBe(situation.stops ? CAMERAS.GOAL : CAMERAS.BEHIND);
+    }
+  });
+
+  /**
+   * The geometric promise. Both wide cameras have to share a ratio because their surface is
+   * given one ratio in CSS, and the two-dimensional one has to be square or the disc the
+   * judge measures is drawn as an ellipse.
+   */
+  it("gives every camera a viewBox, and the right shape", () => {
+    const ratio = (camera) => {
+      const box = CAMERA_VIEWBOX[camera];
+      expect(box, `no viewBox for ${camera}`).toBeTruthy();
+      const [, , w, h] = box.split(" ").map(Number);
+      return w / h;
+    };
+    expect(ratio(CAMERAS.BEHIND)).toBeCloseTo(ratio(CAMERAS.GOAL), 5);
+    expect(ratio(CAMERAS.AREA), "the two-dimensional camera is not square").toBeCloseTo(1, 5);
+    // And every camera the code can ask for is in the table.
+    for (const camera of Object.values(CAMERAS)) expect(CAMERA_VIEWBOX[camera]).toBeTruthy();
+  });
+
+  /**
+   * The mechanics that are measured along the PITCH rather than across the goal cannot use
+   * the close crop: it throws their target off the frame. Measured on a preview, a keeper's
+   * window had its whole zone outside the picture.
+   */
+  it("keeps the mechanics that need depth off the close camera", () => {
+    const needsDepth = [MECHANICS.WINDOW, MECHANICS.CHARGE];
+    const deep = Object.entries(CHANCE_MECHANIC)
+      .filter(([, mechanic]) => needsDepth.includes(mechanic))
+      .map(([type]) => type);
+    // Several of them belong to chances the player is STOPPING, which is exactly the case
+    // that would otherwise be cropped - so this is not a vacuous list.
+    expect(deep.some((type) => SITUATIONS[type]?.stops)).toBe(true);
+    expect(deep.length).toBeGreaterThan(3);
   });
 });

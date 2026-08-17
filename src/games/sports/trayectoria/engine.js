@@ -26,6 +26,7 @@ import {
   simulateTournamentRun,
   tournamentFor,
 } from "./tournaments.js";
+import { entrantsFor } from "./qualified.js";
 import {
   AWARD_ELIGIBLE_ROLES,
   BALLON_DOR,
@@ -354,6 +355,17 @@ export function developmentOutlook(state, growth = null) {
  * champions finish first, relegated sides finish in the drop, and a promoted side came up.
  * Anything that contradicts those is not a table, it is noise with a number on it.
  */
+/**
+ * How many places the drop zone is.
+ *
+ * Three is the figure nearly every twenty-side league uses, and it is the one number that
+ * has to be shared by the two halves of this: the places a relegated club is put INTO, and
+ * the places a surviving club must be kept OUT of. They were two separate constants by
+ * accident - `size - 2` on one branch and nothing at all on the other - which is exactly
+ * how a club could stay up in twentieth.
+ */
+export const RELEGATION_PLACES = 3;
+
 export function leaguePosition({
   club,
   ovr = 70,
@@ -381,10 +393,32 @@ export function leaguePosition({
 
   // A side that went down finished in the drop, whatever the arithmetic said; one that came
   // up won its division or was right behind whoever did.
-  if (relegated) return Math.max(size - 2, placed);
+  if (relegated) return Math.max(size - RELEGATION_PLACES + 1, placed);
   if (promoted) return Math.min(2, placed);
+
+  /*
+   * AND A SIDE THAT STAYED UP DID NOT FINISH IN THE DROP.
+   *
+   * This clamp only ever ran one way. `relegated` pushed a club down into the last three;
+   * nothing pulled a club back out of them, so the position - which is derived from
+   * reputation and the year's form, not from the relegation roll - was free to land on
+   * 20th in a season the club stayed up. Measured over a sweep of the form draw, a
+   * reputation-0 side finished in the relegation places in 44% of the seasons it survived
+   * and dead last in 31% of them: the front page read "Posición final en liga: 20.º" with
+   * no drop, no descent screen and a career that carried on in the first division.
+   *
+   * The fix is on this side of the line rather than the other, deliberately. Deriving
+   * `relegated` from the table instead would be re-rolling the drop off a number that was
+   * never meant to decide it, and `relegationOdds` is a balance table with measured
+   * behaviour behind it. So the RESULT stands and the table is made to agree with it: the
+   * safe places are compressed into 2..(size - RELEGATION_PLACES), which keeps the shape -
+   * a poor side still finishes near the bottom of what survival looks like - without ever
+   * printing a position the season did not mean.
+   */
+  const safeLast = Math.max(2, size - RELEGATION_PLACES);
+  const squeezed = 2 + ((placed - 2) * (safeLast - 2)) / Math.max(1, size - 2);
   // Only the champion is first.
-  return Math.max(2, placed);
+  return Math.max(2, Math.min(safeLast, Math.round(squeezed)));
 }
 
 export function matchesFor(next, role, club, ovr) {
@@ -1096,17 +1130,20 @@ export function simulateSeason(state, world, { season }) {
     reputation: effectiveReputation(club, effectiveOvr, "continental"),
   });
 
+  /*
+   * The two tournaments the season can put the player's side into, drawn from the sides that
+   * really qualified for them rather than from every club in the confederation - see
+   * qualified.js. The player's own club is passed in explicitly because the real list
+   * obviously does not name a side the career has just taken there for the first time.
+   */
   const tournamentRuns = [];
   const clubTournament = tournamentFor({ confederation: competition?.confederation, club: true });
   if (clubTournament && continentalEntry.level === "main") {
-    const entrants = Object.values(world.clubs).filter((candidate) =>
-      world.competitions[candidate.competitionId]?.confederation === competition?.confederation,
-    );
     tournamentRuns.push(simulateTournamentRun({
       id: clubTournament.id,
       seed: state.seed,
       season,
-      entrants,
+      entrants: entrantsFor(clubTournament.id, world, { include: [club] }),
       player: club,
       champion: keptTitles.some((title) => title.trophy === "continental_a"),
     }));
@@ -1116,7 +1153,7 @@ export function simulateSeason(state, world, { season }) {
       id: "world_cup",
       seed: state.seed,
       season,
-      entrants: Object.values(world.countries),
+      entrants: entrantsFor("world_cup", world, { include: country ? [country] : [] }),
       player: country,
       champion: national.titles?.some((title) => title.trophy === "world_cup"),
     }));

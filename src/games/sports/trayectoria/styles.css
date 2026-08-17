@@ -260,6 +260,28 @@
   opacity: 0.9;
 }
 
+/* What a decision card is lending or taking this season.
+   The rating on the face is the one the model is about to roll at (`currentStanding`), and
+   this is the part of it that is borrowed - so it sits on the corner where a card prints a
+   modifier, not in the number, which would read as growth the player has kept. */
+.tr-pcard__temp {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 0 3px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 13px;
+  letter-spacing: 0.02em;
+  border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.tr-pcard__temp.is-up { color: var(--tr-black); background: var(--tr-green); }
+.tr-pcard__temp.is-down { color: var(--tr-ink); background: var(--tr-ink-red); }
+/* Dashed, because the edge is the thing the card uses to say "this is your rating" and
+   right now part of it is on loan. */
+.tr-pcard.is-temp { border-style: dashed; }
+
 .tr-pcard.is-bronce { --tr-tier: #b07d4f; }
 .tr-pcard.is-plata { --tr-tier: #b9c2d0; }
 .tr-pcard.is-oro { --tr-tier: var(--tr-gold); }
@@ -1192,11 +1214,49 @@
   animation: tr-fade-in 420ms ease-out 1620ms backwards;
 }
 
+/* ── And the same thing upwards ───────────────────────────────────────────────
+   Promotion is the identical image with the sign flipped: the club starts below the
+   line, waits there, and comes up through it. Green rather than red, because that is
+   already the colour this game uses for the good end of a table. Everything else -
+   the overlay, the fixed stage, the flash on the crossing, the dismissal - is
+   inherited, so the two can never drift apart.                                   */
+
+.tr-drop.is-up {
+  background: radial-gradient(circle at 50% 44%, rgba(8, 42, 22, 0.94), rgba(6, 7, 10, 0.97) 64%);
+}
+.tr-drop.is-up .tr-drop__eyebrow,
+.tr-drop.is-up .tr-drop__word { color: var(--tr-green); }
+.tr-drop.is-up .tr-drop__line {
+  background: var(--tr-green);
+  animation:
+    tr-drop-line 420ms cubic-bezier(0.2, 0.8, 0.2, 1) 180ms backwards,
+    tr-rise-flash 460ms ease-out 1180ms backwards;
+}
+.tr-drop.is-up .tr-drop__club {
+  animation: tr-drop-rise 1500ms cubic-bezier(0.35, 0, 0.4, 1) 320ms backwards;
+}
+
+/* Held just below the line, then let go upwards. Mirrors `tr-drop-fall` exactly: 0%
+   puts the club's top edge on the line, -100% puts its bottom edge there. */
+@keyframes tr-drop-rise {
+  0% { opacity: 0; transform: translateY(26px); }
+  14% { opacity: 1; transform: translateY(14px); }
+  42% { opacity: 1; transform: translateY(14px); }
+  84% { transform: translateY(calc(-100% - 28px)); }
+  100% { transform: translateY(calc(-100% - 20px)); }
+}
+@keyframes tr-rise-flash {
+  0% { box-shadow: 0 0 0 0 rgba(53, 196, 106, 0); }
+  22% { box-shadow: 0 0 26px 5px rgba(53, 196, 106, 0.62); }
+  100% { box-shadow: 0 0 0 0 rgba(53, 196, 106, 0); }
+}
+
 /* Reduced motion gets the same screen with nothing moving on it - the message is the
    point, and withholding it would be reading the preference as "show me less". */
 .tr-drop.is-still,
 .tr-drop.is-still * { animation: none !important; }
 .tr-drop.is-still .tr-drop__club { transform: translateY(20px); }
+.tr-drop.is-up.is-still .tr-drop__club { transform: translateY(calc(-100% - 20px)); }
 
 /* The stage has to be the positioning context, or the overlay escapes to the page. */
 .tr-stage { position: relative; }
@@ -1285,6 +1345,19 @@
   border-radius: 8px;
 }
 .tr-shelf__item.is-national b { color: var(--tr-black); }
+
+/* An individual honour is not a cup the side won, and the shelf says so with a rounder
+   frame and a red edge rather than by hiding it in a count somewhere else. It is still
+   gold: nobody has ever thought of a Balón de Oro as anything but. */
+.tr-shelf__item.is-award {
+  border-radius: 50%;
+  border-color: rgba(232, 17, 45, 0.55);
+}
+.tr-shelf__item.is-award.is-open {
+  background: rgba(242, 183, 5, 0.26);
+  border-color: var(--tr-ink-red);
+}
+.tr-shelf__named.is-award span { color: var(--tr-gold); }
 
 /* ── The shadow, while the career is still running ───────────────────────────
    The retirement screen has always ended on a comparison against him. Being
@@ -1970,9 +2043,18 @@
    went. A counter reading "2 de 3" says the first half of that and hides the half the
    player is actually thinking about. */
 /* ── The moment, when it is yours ────────────────────────────────────────────
-   One track, three mechanics. The target is always drawn: this is a test of
-   timing and nerve, never of guessing where the goal is - the guessing lives in
-   the other mode, where the keeper is hidden behind three placements.        */
+   Seven mechanics, and every one of them played on the pitch it is happening on
+   rather than on a bar underneath it. See chancegames.jsx: the 0..1 the model
+   speaks is a line inside the picture - across the goal for the ones you aim,
+   up the grass for the ones you time, along the flight of the ball for the one
+   you power.
+
+   The surface carries the ASPECT RATIO OF ITS CAMERA and nothing else may set it.
+   `pointIn` reads a pointer as a fraction of this box and the judge measures the
+   same fraction, so the moment the box stops matching the viewBox, what is drawn
+   and what is judged come apart. Both wide cameras are 5:3; the two-dimensional
+   one is square, because a circle judged in 0..1 on both axes has to be drawn as
+   a circle.                                                                    */
 
 .tr-chance { margin-top: 18px; }
 .tr-chance__prompt {
@@ -1985,58 +2067,24 @@
   color: var(--tr-ink);
 }
 
-.tr-chance__track {
-  position: relative;
+.tr-chance__stage {
   display: block;
   width: 100%;
-  height: 58px;
   padding: 0;
+  aspect-ratio: 5 / 3;
+  overflow: hidden;
   cursor: pointer;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.25));
+  background: #0b0e14;
   border: 1px solid var(--tr-line);
   border-radius: 10px;
-  overflow: hidden;
-  touch-action: manipulation;
+  /* Or the phone scrolls the page instead of playing the chance. */
+  touch-action: none;
+  transition: border-color 180ms ease;
 }
-.tr-chance__track:active { border-color: rgba(232, 17, 45, 0.6); }
-
-/* Where it has to land. Green because it is the only thing on screen you want. */
-.tr-chance__target {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--from, 0%);
-  width: var(--size, 10%);
-  background: linear-gradient(180deg, rgba(53, 196, 106, 0.34), rgba(53, 196, 106, 0.14));
-  border-left: 1px solid rgba(53, 196, 106, 0.7);
-  border-right: 1px solid rgba(53, 196, 106, 0.7);
-}
-/* A window shrinks towards its own close, so the wait is visible as well as felt. */
-.tr-chance__track.is-window .tr-chance__target {
-  background: linear-gradient(180deg, rgba(242, 183, 5, 0.34), rgba(242, 183, 5, 0.12));
-  border-color: rgba(242, 183, 5, 0.75);
-}
-
-.tr-chance__marker {
-  position: absolute;
-  top: -2px;
-  bottom: -2px;
-  left: var(--at, 0%);
-  width: 3px;
-  margin-left: -1.5px;
-  background: var(--tr-ink);
-  box-shadow: 0 0 14px rgba(238, 241, 247, 0.75);
-}
-.tr-chance__locked {
-  position: absolute;
-  top: 8px;
-  bottom: 8px;
-  left: var(--at, 0%);
-  width: 2px;
-  margin-left: -1px;
-  background: var(--tr-ink-red);
-  opacity: 0.85;
-}
+.tr-chance__stage:hover { border-color: rgba(233, 240, 250, 0.28); }
+.tr-chance__stage:active { border-color: rgba(232, 17, 45, 0.6); }
+.tr-chance__stage.is-area { aspect-ratio: 1; max-width: min(100%, 340px); margin: 0 auto; }
+.tr-chance__pitch { display: block; width: 100%; height: 100%; }
 
 .tr-chance__hint {
   margin: 10px 0 0;
@@ -2047,164 +2095,82 @@
   color: var(--tr-muted);
 }
 
-/* ── The four that are not a tap ─────────────────────────────────────────────
-   Same frame, same green target, four different verbs. Each one has to LOOK
-   like the thing it asks for before it is read: a bar that fills is a hold, a
-   field with a ring in it is a place, a run-up across the top is a clock you
-   are racing. Nothing here is decoration - if a mark moves, it is because the
-   player is being judged on where it was when he let go.
-   The dragged ones take `touch-action: none`, or the phone scrolls the page
-   instead of playing the chance.                                             */
+/* ── What is being asked, drawn on the grass ─────────────────────────────────
+   One vocabulary across all seven: GREEN is the thing you are trying to hit,
+   GOLD is you, and RED is the strike itself. Nothing here is decoration - if a
+   mark moves, it is because the player is being judged on where it was when he
+   let go.                                                                     */
 
-.tr-chance__track.is-charge,
-.tr-chance__track.is-feint { touch-action: none; }
-.tr-chance__track.is-dive {
-  height: clamp(150px, 34vw, 210px);
-  touch-action: none;
+/* The target. Always drawn: this is a test of timing and nerve, never of
+   guessing where the goal is - the guessing lives in the blind shot. */
+.tr-play__band {
+  fill: rgba(53, 196, 106, 0.22);
+  stroke: var(--tr-green);
+  stroke-width: 0.8;
 }
-/* AIM is the one that is judged in two dimensions, and the judge measures a circle in
-   0..1 on BOTH axes. On a wide box that circle is an ellipse in pixels, so the ring on
-   screen would be pointing at a target that is not there. Square, and they agree. */
-.tr-chance__track.is-aim {
-  width: min(100%, 340px);
-  height: auto;
-  aspect-ratio: 1;
-  margin: 0 auto;
-  touch-action: none;
-}
+.tr-play__band.is-ground { fill: rgba(53, 196, 106, 0.16); }
 
-/* CHARGE. Fills from the left and does not come back; live it goes red, because
-   what you are watching is something you have to let go of. */
-.tr-chance__fill {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: var(--at, 0%);
-  background: linear-gradient(90deg, rgba(238, 241, 247, 0.16), rgba(238, 241, 247, 0.38));
-  border-right: 3px solid var(--tr-ink);
-  box-shadow: 0 0 16px rgba(238, 241, 247, 0.5);
+/* The sight running across the goal, and the calls already locked in behind it. */
+.tr-play__sight {
+  stroke: var(--tr-gold);
+  stroke-width: 2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(242, 183, 5, 0.55));
 }
-.tr-chance__fill.is-live {
-  background: linear-gradient(90deg, rgba(232, 17, 45, 0.2), rgba(232, 17, 45, 0.42));
-  border-right-color: var(--tr-ink-red);
-  box-shadow: 0 0 18px rgba(232, 17, 45, 0.55);
+.tr-play__locked {
+  stroke: rgba(242, 183, 5, 0.45);
+  stroke-width: 1.4;
+  stroke-dasharray: 3 3;
 }
 
-/* AIM. The only two-dimensional one, so the target is a ring rather than a band and
-   the field gets the faint grid that says "this is a space, not a line". */
-.tr-chance__track.is-aim {
-  background:
-    linear-gradient(90deg, rgba(238, 241, 247, 0.05) 1px, transparent 1px) 0 0 / 25% 100%,
-    linear-gradient(180deg, rgba(238, 241, 247, 0.05) 1px, transparent 1px) 0 0 / 100% 25%,
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.25));
+/* The flight: the ball's own path, previewed while you decide what to do to it. */
+.tr-play__curl {
+  fill: none;
+  stroke: var(--tr-ink-red);
+  stroke-width: 2;
+  stroke-linecap: round;
 }
-/* The disc, exactly the size the judge uses: `--r` is the tolerance, and on a square box
-   the same percentage on both axes is the same number of pixels. It travels. */
-.tr-chance__spot {
-  position: absolute;
-  left: var(--x, 50%);
-  top: var(--y, 50%);
-  width: calc(var(--r, 10%) * 2);
-  height: calc(var(--r, 10%) * 2);
-  transform: translate(-50%, -50%);
-  border: 1px solid rgba(53, 196, 106, 0.75);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(53, 196, 106, 0.26), rgba(53, 196, 106, 0.06) 70%);
-}
-/* A crosshair rather than a dot: on a phone the thumb sits exactly on the point being
-   aimed with, and the lines carry on either side of it. */
-.tr-chance__reticle {
-  position: absolute;
-  left: var(--x, 50%);
-  top: var(--y, 50%);
-  width: 18px;
-  height: 18px;
-  transform: translate(-50%, -50%);
-  border: 2px solid var(--tr-ink);
-  border-radius: 50%;
-  box-shadow: 0 0 14px rgba(238, 241, 247, 0.7);
-}
-.tr-chance__reticle::before,
-.tr-chance__reticle::after {
-  content: "";
-  position: absolute;
-  background: rgba(238, 241, 247, 0.55);
-}
-.tr-chance__reticle::before {
-  left: 50%;
-  top: -100vmax;
-  bottom: -100vmax;
-  width: 1px;
-  margin-left: -0.5px;
-}
-.tr-chance__reticle::after {
-  top: 50%;
-  left: -100vmax;
-  right: -100vmax;
-  height: 1px;
-  margin-top: -0.5px;
+.tr-play__curl.is-live { stroke: var(--tr-gold); }
+.tr-play__ghost {
+  fill: none;
+  stroke: rgba(53, 196, 106, 0.5);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
 }
 
-/* DIVE. The side runs across the goal and the run-up runs across the top: two calls,
-   two marks, both on screen at once because you make them in one movement. */
-.tr-chance__track.is-dive .tr-chance__target { top: 34px; }
-.tr-chance__run {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 22px;
-  border-bottom: 1px solid var(--tr-line);
-  background:
-    linear-gradient(90deg, transparent var(--from, 0%), rgba(242, 183, 5, 0.3) var(--from, 0%),
-      rgba(242, 183, 5, 0.3) calc(var(--from, 0%) + var(--size, 10%)), transparent calc(var(--from, 0%) + var(--size, 10%)));
+/* Him, arriving. Lit like an opponent rather than like you. */
+.tr-play__closer { color: #d3603f; }
+
+/* The two-dimensional one: the disc the judge measures, at the size it measures
+   it, and the crosshair that runs the full frame so a thumb never hides it. */
+.tr-play__disc {
+  fill: rgba(53, 196, 106, 0.18);
+  stroke: var(--tr-green);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
 }
-.tr-chance__run::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--at, 0%);
-  width: 3px;
-  margin-left: -1.5px;
-  background: var(--tr-ink-red);
-  box-shadow: 0 0 12px rgba(232, 17, 45, 0.7);
-}
-.tr-chance__keeper {
-  position: absolute;
-  bottom: 14px;
-  left: var(--at, 50%);
-  width: 16px;
-  height: 34px;
-  margin-left: -8px;
-  border-radius: 8px 8px 3px 3px;
-  background: var(--tr-ink);
-  box-shadow: 0 0 16px rgba(238, 241, 247, 0.45);
-  transition: left 90ms linear;
-}
-/* Gone. Committed, and leaning where he committed - a keeper on the floor is not
-   standing up again, which is the whole point of this one. */
-.tr-chance__keeper.is-gone {
-  height: 16px;
-  width: 34px;
-  margin-left: -17px;
-  border-radius: 8px;
-  background: var(--tr-ink-red);
+.tr-play__reticle line {
+  stroke: rgba(242, 183, 5, 0.6);
+  stroke-width: 0.9;
+  stroke-dasharray: 3 3;
 }
 
-/* FEINT. The bar is the beat, not a position, so it fills rather than sweeps and the
-   band is where the second touch has to land. */
-.tr-chance__beat {
-  position: absolute;
-  top: 10px;
-  bottom: 10px;
-  left: 0;
-  width: var(--at, 0%);
-  background: linear-gradient(90deg, rgba(238, 241, 247, 0.06), rgba(238, 241, 247, 0.3));
-  border-right: 3px solid var(--tr-ink);
+/* The crossbar, marked: on a hold, "too much" is a place on the picture rather than a
+   number nobody can see. */
+.tr-play__over {
+  stroke: var(--tr-ink-red);
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+  opacity: 0.75;
 }
-.tr-chance__beat.is-live { border-right-color: var(--tr-gold); }
+
+/* The strike, closing. When the ring reaches the ball it has been hit. */
+.tr-play__ring {
+  fill: none;
+  stroke: var(--tr-ink-red);
+  stroke-width: 1.6;
+  opacity: 0.9;
+}
 
 /* ── The ninety minutes, when they are not ───────────────────────────────────
    A live feed rather than a wall of text: the score sits still at the top and
@@ -2554,9 +2520,73 @@
 .tr-match__type.is-pending { color: var(--tr-muted); }
 .tr-match__type.is-pending .tr-icon { color: var(--tr-muted); opacity: 0.7; }
 
+/* ── The stadium ─────────────────────────────────────────────────────────────
+   `pitch.jsx` draws it and this decides what it is made of. The palette is the
+   game's own - the dark panel, the muted steel of the rail, red for the strike
+   and green for the goal - so this is the same interface with a pitch in it and
+   not a photograph pasted into a newspaper.
+
+   Everything the eye should not stop on is deliberately close in value to the
+   panel behind it: the crowd, the hoardings, the far ground. What is allowed to
+   be bright is the frame of the goal, the ball and the two figures, because that
+   is the whole of what the player is reading.                                 */
+
+.tr-pitch__tier { fill: #1b2130; }
+.tr-pitch__tier.is-far { fill: #141926; }
+.tr-pitch__head { fill: rgba(178, 194, 219, 0.34); }
+.tr-pitch__head-alt { fill: rgba(178, 194, 219, 0.18); }
+.tr-pitch__step { stroke: rgba(0, 0, 0, 0.55); stroke-width: 1.2; fill: none; }
+.tr-pitch__hoarding { fill: #070a10; }
+.tr-pitch__hoarding-lip { stroke: rgba(146, 162, 190, 0.2); stroke-width: 0.8; fill: none; }
+.tr-pitch__far { fill: #12251a; }
+
+/* Mown grass. Two greens a hair apart: any more contrast and the stripes become
+   the subject of the picture instead of its floor. */
+.tr-pitch__mow { fill: #16301f; }
+.tr-pitch__mow.is-dark { fill: #132a1b; }
+.tr-pitch__line { stroke: rgba(233, 240, 250, 0.28); stroke-width: 1.1; fill: none; }
+
+/* The net. A pattern of diamonds at very low opacity - it has to read as a mesh
+   without ever competing with the ball that is about to be hit into it. */
+.tr-pitch__mesh { fill: none; stroke: rgba(216, 228, 245, 0.3); stroke-width: 0.45; }
+.tr-pitch__panel { stroke: none; opacity: 0.85; }
+.tr-pitch__panel.is-roof { opacity: 0.5; }
+.tr-pitch__panel.is-floor { opacity: 0.4; }
+.tr-pitch__panel.is-back { opacity: 0.62; }
+/* The frame is the brightest thing on the pitch and it is meant to be: it is the
+   target, and every chance in the game is measured against it. */
+.tr-pitch__post { fill: #eef1f7; stroke: none; }
+
+/* The ball. */
+.tr-pitch__ball-skin { fill: #f4f7fb; stroke: rgba(9, 11, 16, 0.55); stroke-width: 0.5; }
+.tr-pitch__ball-panels { fill: #0b0e14; stroke: #0b0e14; stroke-width: 0.7; stroke-linecap: round; }
+.tr-pitch__ball-panels path:first-child { stroke: none; }
+
+/* ── The footballers ─────────────────────────────────────────────────────────
+   Filled, never outlined - the same call `trophies.jsx` made and for the same
+   reason: a silhouette is a shape. The limbs are round-capped strokes because a
+   limb has a thickness and a taper, and a stroke is the cheapest way to say so
+   without hand-drawing sixteen tapered quads per pose.                       */
+
+.tr-figure { color: #cfd8e6; }
+.tr-figure__limbs { fill: none; stroke: currentcolor; stroke-linecap: round; stroke-linejoin: round; }
+.tr-figure__leg { stroke-width: 4.6; }
+.tr-figure__arm { stroke-width: 3.4; }
+.tr-figure__torso { fill: currentcolor; stroke: currentcolor; stroke-width: 2.6; stroke-linejoin: round; }
+.tr-figure__head { fill: currentcolor; stroke: none; }
+
+/* The two people in the picture are told apart by value, not by outline: the man
+   you are watching is lit and the one in his way is not. */
+.tr-scene__taker { color: #f2f5fa; }
+.tr-scene__keeper { color: #8fa0bb; transition: transform 280ms cubic-bezier(0.2, 0.7, 0.3, 1); }
+.tr-scene__wall { color: #55627a; }
+.tr-scene__keeper.is-idle { color: #6f7d95; }
+/* On a chance he is STOPPING he is the keeper, so the keeper is the lit one. */
+.tr-pitch.is-goal .tr-scene__keeper { color: #f2f5fa; }
+
 /* ── The drawing ─────────────────────────────────────────────────────────────
    The goal is one drawing reused at two sizes: full width above the options, and
-   as a thumbnail on each of them. See scene.jsx — everything here is stroke.   */
+   as a thumbnail on each of them. See scene.jsx.                              */
 
 .tr-scene {
   position: relative;
@@ -2564,27 +2594,14 @@
   width: 100%;
   height: auto;
   margin: 16px 0 4px;
-  fill: none;
+  border-radius: 8px;
+  overflow: hidden;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.tr-scene__frame { stroke: var(--tr-ink); stroke-width: 2.4; }
-.tr-scene__ground { stroke: var(--tr-line); stroke-width: 1.6; }
-.tr-scene__net {
-  fill: rgba(146, 162, 190, 0.07);
-  stroke: rgba(146, 162, 190, 0.22);
-  stroke-width: 0.6;
-  stroke-dasharray: 3 4;
-}
-.tr-scene__keeper {
-  stroke: var(--tr-muted);
-  stroke-width: 1.8;
-  transition: transform 280ms cubic-bezier(0.2, 0.7, 0.3, 1);
-}
-.tr-scene__prop { stroke: var(--tr-muted); stroke-width: 1.5; }
-.tr-scene__cross { stroke: rgba(146, 162, 190, 0.55); stroke-width: 1.3; stroke-dasharray: 3 3; }
-.tr-scene__spot { fill: var(--tr-muted); stroke: none; }
-.tr-scene__ball { fill: var(--tr-ink); stroke: none; }
+.tr-scene__prop { stroke: var(--tr-muted); stroke-width: 1.5; fill: none; }
+.tr-scene__cross { stroke: rgba(233, 240, 250, 0.55); stroke-width: 1.3; stroke-dasharray: 3 3; fill: none; }
+.tr-scene__spot { fill: rgba(233, 240, 250, 0.7); stroke: none; }
 
 /* The flight is drawn only after the shot, and it draws rather than appears. */
 .tr-scene__flight {
@@ -2596,31 +2613,32 @@
 }
 .tr-scene.is-scored .tr-scene__flight { stroke: var(--tr-green); }
 .tr-scene__gap {
+  fill: none;
   stroke: var(--tr-green);
   stroke-width: 1.6;
   stroke-dasharray: 3 3;
   animation: tr-stamp 380ms cubic-bezier(0.2, 1.3, 0.4, 1) 420ms backwards;
 }
-.tr-scene.is-scored .tr-scene__ball { fill: var(--tr-green); }
+.tr-scene.is-scored .tr-pitch__ball-skin { fill: var(--tr-green); }
 
-/* The thumbnail. No net, no keeper: at this size only the target is readable. */
+/* The thumbnail. No stadium and no figures: at this size only the target is readable,
+   and everything else is noise competing with it. */
 .tr-aim {
   display: block;
   width: 100%;
   height: 62px;
-  fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.tr-aim .tr-scene__frame { stroke: var(--tr-muted); stroke-width: 3; }
-.tr-aim .tr-scene__ground { stroke: transparent; }
+.tr-aim .tr-pitch__post { fill: var(--tr-muted); }
+.tr-aim .tr-pitch__panel { opacity: 0.35; }
 .tr-aim__flight {
   stroke: rgba(146, 162, 190, 0.5);
   stroke-width: 2;
   stroke-dasharray: 4 4;
 }
 .tr-aim__target { fill: var(--tr-ink); stroke: none; }
-.tr-shot:hover:not(:disabled) .tr-aim .tr-scene__frame { stroke: var(--tr-ink); }
+.tr-shot:hover:not(:disabled) .tr-aim .tr-pitch__post { fill: var(--tr-ink); }
 .tr-shot:hover:not(:disabled) .tr-aim__flight { stroke: var(--tr-ink-red); }
 .tr-shot:hover:not(:disabled) .tr-aim__target { fill: var(--tr-ink-red); }
 
@@ -2722,6 +2740,109 @@
 }
 .tr-match.is-scored .tr-match__decides { border-left-color: var(--tr-green); }
 .tr-match.is-absent .tr-match__decides { border-left-color: rgba(146, 162, 190, 0.35); }
+
+/* ── The knockout nights ─────────────────────────────────────────────────────
+   The one card in the game with no button on it until the whistle goes. It is the
+   big-match card with the decision cut out: same panel, same red spine, and a top
+   edge that turns gold when the side goes through and grey when it does not - which
+   is the only verdict there is here, because none of it was the player's to answer.
+   See PHASES.TOURNAMENT.                                                        */
+
+.tr-tie {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(20px, 3.5vw, 30px);
+  background: var(--tr-panel);
+  border: 1px solid var(--tr-line);
+  /* Red while it is still being played, exactly like the big-match card: the spine must
+     not give the result away before the whistle. */
+  border-top: 3px solid var(--tr-ink-red);
+  border-radius: 10px;
+}
+.tr-tie::before {
+  content: "";
+  position: absolute;
+  inset: -40% 20% auto;
+  height: 240px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(232, 17, 45, 0.2), transparent 70%);
+  pointer-events: none;
+}
+.tr-tie.is-through { border-top-color: var(--tr-gold); }
+.tr-tie.is-through::before {
+  background: radial-gradient(ellipse at 50% 0%, rgba(242, 183, 5, 0.22), transparent 70%);
+}
+.tr-tie.is-out { border-top-color: var(--tr-muted); }
+.tr-tie.is-out::before { background: none; }
+
+.tr-tie__head { position: relative; }
+.tr-tie__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tr-tie__counter {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  font-variant-numeric: tabular-nums;
+}
+.tr-tie__title { margin-top: 8px; }
+.tr-tie__title .tr-display { margin: 0; font-size: clamp(22px, 3.6vw, 32px); }
+.tr-tie__cup {
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-gold);
+}
+/* Which leg this is, and what you carry into it. On a two-legged tie the number on
+   the left of this line explains the number the scoreboard is about to show. */
+.tr-tie__legs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin: 10px 0 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+}
+.tr-tie__legs b {
+  color: var(--tr-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.tr-tie__result { position: relative; margin-top: 18px; }
+.tr-tie__aggregate {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tr-muted);
+  font-variant-numeric: tabular-nums;
+}
+.tr-tie__verdict {
+  margin: 0 0 18px;
+  font-family: var(--tr-display);
+  font-size: clamp(26px, 6.5vw, 44px);
+  line-height: 1;
+  color: var(--tr-muted);
+  animation: tr-stamp 420ms cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
+}
+.tr-tie.is-through .tr-tie__verdict { color: var(--tr-gold); }
+.tr-tie__foot {
+  position: relative;
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--tr-muted);
+}
 
 /* ── The front page ──────────────────────────────────────────────────────── */
 
@@ -3119,6 +3240,18 @@
   line-height: 1;
   letter-spacing: 0.01em;
 }
+/* Where the year left him. Set between the size of the change above it and the small
+   print below, because it is the sentence that ties this page to the card in the
+   masthead - the reader should not have to add the two numbers up. */
+.tr-front__note-lands {
+  margin: 2px 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--tr-paper-ink);
+  font-variant-numeric: tabular-nums;
+}
+
 .tr-front__note--shadow { border-left: 2px solid var(--tr-ink-red); padding-left: 12px; }
 
 .tr-front__note--national {
@@ -3806,6 +3939,12 @@
   .tr-match__alsoderby { font-size: 10px; }
   .tr-match__type { margin-top: 13px; padding: 10px 0; font-size: 17px; }
   .tr-match__options { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  /* The pitch carries its own aspect ratio - it must not be given another one here, or
+     what is drawn and what is judged come apart. Only its ceiling moves. */
+  .tr-chance__stage { border-radius: 8px; }
+  .tr-chance__stage.is-area { max-width: min(100%, 74vw); }
+  .tr-chance__prompt { font-size: clamp(14px, 4.4vw, 18px); }
+  .tr-chance__hint { font-size: 10px; letter-spacing: .1em; }
   .tr-match__options .tr-option { min-width: 0; padding: 10px 6px; }
   .tr-match__options .tr-option__text { font-size: 10px; overflow-wrap: anywhere; }
   .tr-live { margin-top: 11px; padding: 11px 9px; }
@@ -3819,6 +3958,16 @@
   .tr-live__skip { min-height: 40px; }
   .tr-match__result { margin-top: 13px; }
   .tr-match__verdict { font-size: clamp(29px, 11vw, 45px); }
+
+  /* The knockout night is the same broadcast with no decision under it, so it folds the
+     same way: the furniture shrinks and the feed keeps the height it had. */
+  .tr-tie { padding: 15px 13px; }
+  .tr-tie__bar { align-items: flex-start; gap: 8px; }
+  .tr-tie__title .tr-display { font-size: clamp(19px, 5.4vw, 26px); }
+  .tr-tie__cup { font-size: 10px; }
+  .tr-tie__legs { gap: 6px; margin: 8px 0 11px; font-size: 10px; }
+  .tr-tie__result { margin-top: 13px; }
+  .tr-tie__verdict { font-size: clamp(22px, 7vw, 32px); }
 
   /* Season newspaper becomes a narrow broadsheet. Its team card and international block
      retain every datum, while tournament rounds become a swipeable timeline. */
@@ -3962,6 +4111,11 @@
   .tr-live { margin-top: 10px; padding: 10px 12px; }
   .tr-live__score { font-size: 24px; }
   .tr-live__feed { min-height: 84px; max-height: clamp(120px, 22vh, 200px); }
+  /* The knockout night is all feed - there is nothing under it to make room for - so it
+     gives the broadcast the same deal the live decider gets. */
+  .tr-tie { padding: clamp(16px, 2.6vw, 22px); }
+  .tr-tie__title .tr-display { font-size: clamp(20px, 3vw, 26px); }
+  .tr-tie__legs { margin: 8px 0 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4024,6 +4178,14 @@
 .tr-tournament-run__rounds li.is-lost::after { background: var(--tr-ink-red); }
 .tr-tournament-run__rounds small { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--tr-paper-mute); }
 .tr-tournament-run__rounds b { font-family: var(--tr-display); font-size: 20px; }
+/* "(pen.)" is a footnote on the score, not part of it. */
+.tr-tournament-run__rounds b i {
+  font-family: inherit;
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  color: var(--tr-paper-mute);
+}
 .tr-tournament-run__rounds span { overflow: hidden; font-size: 10px; color: var(--tr-paper-mute); text-overflow: ellipsis; white-space: nowrap; }
 .tr-growth.is-up { background: radial-gradient(circle at 50% 42%, rgba(8, 40, 22, 0.94), rgba(6, 7, 10, 0.97) 66%); }
 .tr-growth.is-down { background: radial-gradient(circle at 50% 42%, rgba(44, 10, 14, 0.94), rgba(6, 7, 10, 0.97) 66%); }

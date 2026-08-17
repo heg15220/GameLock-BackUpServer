@@ -48,6 +48,42 @@ export const IDOLATRY = {
   debut: 5,
 
   /**
+   * Not every cup is the same cup.
+   *
+   * Until now a league, a domestic cup and a European Cup were all worth `titleEarned`,
+   * which is a claim no supporter of any club anywhere has ever made. A side wins its
+   * league most decades and its continent once or twice in its history; the night it wins
+   * the second one is the night the players in it stop being players and become the
+   * photograph in the corridor. So the trophy carries a multiplier, and the continental is
+   * where nearly all of it lives.
+   *
+   * A multiplier rather than a flat bonus, deliberately: it scales the earned/attended
+   * split rather than flattening it, so a Champions League won from the bench is still
+   * worth a fraction of one won on the pitch. Anything not listed is worth one.
+   */
+  titleWeight: {
+    league: 1,
+    cup: 1,
+    /** The one that changes what a career is. */
+    continental_a: 2.2,
+    continental_b: 1.35,
+    club_world_cup: 1.7,
+  },
+
+  /**
+   * And the same, for what they give you on your own.
+   *
+   * A Balón de Oro is not a good season, it is the sentence a stand uses about you for the
+   * next forty years, and it was priced at exactly one Bota de Oro. The keeper's award sits
+   * with it because it is the same award: the best in the world at what you do.
+   */
+  awardWeight: {
+    ballon_dor: 2.2,
+    golden_glove: 2.2,
+    golden_boot: 1.2,
+  },
+
+  /**
    * What the wage costs you, per season, per doubling above the role you actually played.
    *
    * This is the only place money touches the model, and it touches the crowd rather than
@@ -105,6 +141,14 @@ export const IDOLATRY = {
 
   max: 100,
 };
+
+/**
+ * What this particular cup or honour is worth, against the ordinary one.
+ *
+ * Unlisted is one, on purpose: a table that has to name everything is a table that goes
+ * quietly wrong the first time a trophy is added to the model.
+ */
+export const weightOf = (table, id) => table?.[id] ?? 1;
 
 export const levelOf = (value) =>
   IDOLATRY_LEVELS.find((level) => value >= level.min) ?? IDOLATRY_LEVELS[IDOLATRY_LEVELS.length - 1];
@@ -170,12 +214,15 @@ export function seasonIdolatry({
   change += record.assists * IDOLATRY.perAssist;
 
   for (const title of record.titles ?? []) {
-    change += title.earned ? IDOLATRY.titleEarned : IDOLATRY.titleAttended;
+    const base = title.earned ? IDOLATRY.titleEarned : IDOLATRY.titleAttended;
+    change += base * weightOf(IDOLATRY.titleWeight, title.trophy);
   }
   for (const title of record.national?.titles ?? []) {
     change += IDOLATRY.nationalTitle;
   }
-  change += (record.awards?.length ?? 0) * IDOLATRY.award;
+  for (const award of record.awards ?? []) {
+    change += IDOLATRY.award * weightOf(IDOLATRY.awardWeight, award.award);
+  }
   if (record.promoted) change += IDOLATRY.promotion;
   if (debut) change += IDOLATRY.debut;
 

@@ -11,7 +11,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { leaguePosition } from "./engine.js";
+import { RELEGATION_PLACES, leaguePosition } from "./engine.js";
 import {
   PHASES, acceptOffer, agreeTerms, completeSigning, nextFixture, openMarket,
   playChance, resolveEvent, signYouthClub, startCareer, takeShot, watchMatch,
@@ -46,6 +46,39 @@ describe("where the club finished", () => {
           .toBeLessThanOrEqual(2);
       }
     }
+  });
+
+  /**
+   * The bug as it was reported: "Posición final en liga: 20.º" and no descent screen.
+   *
+   * The clamp only ever ran one way. `relegated` pushed a club INTO the last three and
+   * nothing pulled a surviving club back OUT of them, so a position derived from
+   * reputation and form was free to land on twentieth in a season the club stayed up.
+   * Measured before the fix, a reputation-0 side finished in the relegation places in
+   * 44% of the seasons it survived and dead last in 31% of them.
+   */
+  it("never puts a side that stayed up in the relegation places", () => {
+    for (const reputation of [0, 1, 2, 3, 4, 5]) {
+      const club = clubAt(reputation);
+      for (const latent of [-6, -2, -1, 0, 1, 2, 6]) {
+        for (const delta of [-40, -10, 0, 10, 40]) {
+          const at = leaguePosition({ club, latent, delta, relegated: false });
+          expect(
+            at,
+            `rep ${reputation}, latente ${latent}: ${at}.º y sin descender`,
+          ).toBeLessThanOrEqual(20 - RELEGATION_PLACES);
+        }
+      }
+    }
+  });
+
+  it("still finishes a poor side at the bottom of what survival looks like", () => {
+    // Compressing the safe places must not flatten them: a bad club in a bad year is
+    // still nearer the drop than a good club in a good one.
+    const poor = leaguePosition({ club: clubAt(0), latent: 2 });
+    const decent = leaguePosition({ club: clubAt(3), latent: -2 });
+    expect(poor).toBeGreaterThan(decent);
+    expect(poor).toBe(20 - RELEGATION_PLACES);
   });
 
   it("never leaves the table", () => {

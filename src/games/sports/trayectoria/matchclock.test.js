@@ -22,6 +22,8 @@ import {
   PHASES,
   agreeTerms,
   completeSigning,
+  liveTiesOf,
+  nextTie,
   resolveEvent,
   signYouthClub,
   startCareer,
@@ -29,6 +31,8 @@ import {
   takeShot,
   watchMatch,
 } from "./career.js";
+import { entrantsFor } from "./qualified.js";
+import { simulateTournamentRun } from "./tournaments.js";
 import { getCopy } from "./copy.js";
 import { buildChance } from "./minigames.js";
 import { SCREENS } from "./index.jsx";
@@ -304,17 +308,22 @@ describe("the chance track", () => {
   }
 
   const strike = (container) => {
-    const track = container.querySelector("button.tr-chance__track");
-    expect(track, "no track to strike").toBeTruthy();
+    const track = container.querySelector("button.tr-chance__stage");
+    expect(track, "no pitch to strike on").toBeTruthy();
     act(() => track.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
   };
 
+  /*
+   * Where the sight is, now that the chance is played on a pitch rather than on a bar.
+   * The marker used to be a span positioned by a CSS custom property; it is a line across
+   * the goal mouth, so its position is an SVG attribute and not a style string.
+   */
   const markerAt = (container) =>
-    container.querySelector(".tr-chance__marker")?.getAttribute("style") ?? "";
+    container.querySelector(".tr-play__sight")?.getAttribute("x1") ?? "";
 
   it("shows a track straight away, with no waiting and no placements", () => {
     const view = mount(React.createElement(SkillHarness, { initial: skillDecider(1) }));
-    expect(view.container.querySelector("button.tr-chance__track")).toBeTruthy();
+    expect(view.container.querySelector("button.tr-chance__stage")).toBeTruthy();
     expect(view.container.querySelectorAll("button.tr-shot")).toHaveLength(0);
     expect(view.text()).not.toContain(copy.match.waiting);
     view.unmount();
@@ -342,7 +351,7 @@ describe("the chance track", () => {
     runClock(200);
     strike(view.container);
     // Still on the track, now asking for the second touch.
-    expect(view.container.querySelector("button.tr-chance__track")).toBeTruthy();
+    expect(view.container.querySelector("button.tr-chance__stage")).toBeTruthy();
     expect(view.text()).toContain("2");
     strike(view.container);
     expect(view.text()).toContain(copy.match.next);
@@ -355,12 +364,22 @@ describe("the chance track", () => {
     expect(view.text()).toContain("Ocasión 1 de 2");
     strike(view.container);
 
-    // The second one is a new track, not the finished one left on screen.
+    /*
+     * The tally moves at once - he has taken one of two and the screen says so - but the
+     * SURFACE waits. There is only ever one pitch on this screen: while the drawing is
+     * holding the shot just taken, the thing you play stands down, and it comes back when
+     * the drawing lets go. See `showPlay` in MatchScreen.
+     */
     expect(view.text()).toContain("Ocasión 2 de 2");
-    expect(view.container.querySelector("button.tr-chance__track")).toBeTruthy();
+    expect(
+      view.container.querySelector("button.tr-chance__stage"),
+      "la superficie vuelve antes de que se vea el disparo anterior",
+    ).toBeNull();
     expect(view.text()).not.toContain(copy.match.next);
 
-    runClock(200);
+    // The beat passes, and the second one is a new track rather than the finished one.
+    runClock(2000);
+    expect(view.container.querySelector("button.tr-chance__stage")).toBeTruthy();
     strike(view.container);
     expect(view.text()).toContain(copy.match.next);
     view.unmount();
@@ -376,7 +395,7 @@ describe("the chance track", () => {
    */
   describe("the held ones", () => {
     const surface = (container) => {
-      const el = container.querySelector("button.tr-chance__track");
+      const el = container.querySelector("button.tr-chance__stage");
       expect(el, "no surface to play").toBeTruthy();
       return el;
     };
@@ -429,7 +448,7 @@ describe("the chance track", () => {
     it("moves the aim target while it is being tracked", () => {
       const view = play("cabezazo");
       const spot = () =>
-        view.container.querySelector(".tr-chance__spot")?.getAttribute("style") ?? "";
+        view.container.querySelector(".tr-play__disc")?.getAttribute("cx") ?? "";
       const before = spot();
       runClock(300);
       expect(spot(), "the target is standing still").not.toBe(before);
@@ -488,6 +507,66 @@ describe("the chance track", () => {
       view.unmount();
     });
   });
+
+  /**
+   * ONE PITCH, NEVER TWO.
+   *
+   * The situation drawing and the play surface are now the same stadium - same goal, same
+   * net, same figures - so showing both stacked drew it twice and asked the player to work
+   * out which of the two he was allowed to touch. It did not fit either: two 5:3 pitches
+   * plus the masthead is taller than a phone's stage, so the thing you actually play was
+   * under the fold. In the played mode the surface IS the picture, and the scene only comes
+   * back for the beat a result is being held on.
+   */
+  it("never draws the stadium twice on one screen", () => {
+    const view = mount(React.createElement(SkillHarness, { initial: skillDecider(2) }));
+    const pitches = () => view.container.querySelectorAll(".tr-pitch").length;
+
+    expect(pitches(), "dos campos a la vez al abrirse").toBe(1);
+    expect(view.container.querySelector("button.tr-chance__stage")).toBeTruthy();
+    expect(view.container.querySelector(".tr-scene"), "la escena no se apartó").toBeNull();
+
+    // Take one: the drawing takes the screen and the surface stands down.
+    strike(view.container);
+    expect(pitches(), "dos campos a la vez mientras se ve el disparo").toBe(1);
+    expect(view.container.querySelector(".tr-scene")).toBeTruthy();
+
+    // And back again for the next chance.
+    runClock(2000);
+    expect(pitches(), "dos campos a la vez en la ocasión siguiente").toBe(1);
+    expect(view.container.querySelector("button.tr-chance__stage")).toBeTruthy();
+    view.unmount();
+  });
+
+  /**
+   * And the same release in the played mode, which has no clock to wait for.
+   *
+   * The narrated one holds the picture of the shot just taken while the match runs on to
+   * the next chance; here the next minigame mounts immediately, so the hold is a beat of
+   * its own (`SHOT_HOLD`). Without it the second chance was played over a frozen drawing
+   * of the first - keeper on the floor, ball already in the net.
+   */
+  it("lets the drawing go on its own once the beat is up", () => {
+    const view = mount(
+      React.createElement(SkillHarness, { initial: skillDecider(2, "penal", "reset-skill") }),
+    );
+    const sceneClass = () =>
+      view.container.querySelector(".tr-scene")?.getAttribute("class") ?? "";
+    const resolved = () => /is-scored|is-saved|is-absent/.test(sceneClass());
+
+    const stage = view.container.querySelector("button.tr-chance__stage");
+    expect(stage, "no surface to play").toBeTruthy();
+    act(() => stage.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
+    expect(resolved(), "nothing drawn after the first chance").toBe(true);
+
+    // The beat passes and the figures go back to where a chance starts.
+    runClock(3000);
+    expect(resolved(), "la segunda ocasión se juega sobre el dibujo de la primera").toBe(false);
+    // And there is still a chance to play, so this is a reset and not a finished fixture.
+    expect(view.container.querySelector("button.tr-chance__stage")).toBeTruthy();
+    view.unmount();
+  });
+
 });
 
 /**
@@ -526,4 +605,137 @@ describe("the scene under a multi-chance decider", () => {
     expect(sceneClass(view.container), "a goal drawn over a miss").not.toContain("is-scored");
     view.unmount();
   });
+});
+
+
+/**
+ * The knockout queue, mounted and clicked through.
+ *
+ * Four ties in a season is four separate ninety minutes on one screen, and `Broadcast` keeps
+ * the clock in a ref: without a key per tie, the second night opened with the clock already
+ * on ninety and its arrival effect already spent, which is a finished match with no button
+ * on it and a career that cannot continue. `render.test.js` cannot see that - it renders
+ * once and never advances - so it is checked here, where the thing is alive.
+ */
+function knockoutQueue(seed = "queue-clock") {
+  let run = startCareer(
+    { seed, surname: "MOLINA", number: 9, foot: "left", country: "ESP", position: "DC", mode: "intensa" },
+    world,
+  );
+  run = completeSigning(agreeTerms(signYouthClub(run, run.offers[0].clubId)));
+
+  const club = world.clubs["real-madrid"];
+  const tournament = simulateTournamentRun({
+    id: "champions",
+    seed,
+    season: 5,
+    entrants: entrantsFor("champions", world, { include: [club] }),
+    player: club,
+    champion: true,
+    phasePosition: 1,
+  });
+  const ties = liveTiesOf(
+    { ...run, state: { ...run.state, clubId: club.id } },
+    { season: 5, clubId: club.id, tournamentRuns: [tournament] },
+    "es",
+  );
+  expect(ties.length, "no live ties to walk").toBeGreaterThan(1);
+
+  const opened = {
+    ...run,
+    phase: PHASES.TOURNAMENT,
+    matchday: null,
+    tournament: { season: 5, ties, index: -1, broadcast: null },
+  };
+  return { run: nextTie(opened, "es"), ties };
+}
+
+function TieHarness({ initial }) {
+  const [run, setRun] = useState(initial);
+  const Screen = SCREENS.tournament;
+  return React.createElement(Screen, {
+    run,
+    locale: "es",
+    onNext: () => setRun((prev) => nextTie(prev, "es")),
+  });
+}
+
+describe("the knockout queue", () => {
+  it("plays every tie in turn instead of opening the second one already finished", () => {
+    const { run, ties } = knockoutQueue();
+    const view = mount(React.createElement(TieHarness, { initial: run }));
+
+    for (let index = 0; index < ties.length; index += 1) {
+      // Nothing to press until the whistle: this is the phase with no decision in it.
+      expect(
+        view.container.querySelector("button.tr-btn"),
+        `eliminatoria ${index + 1} ya resuelta al abrirse`,
+      ).toBeNull();
+
+      runClock();
+
+      const button = view.container.querySelector("button.tr-btn");
+      expect(button, `eliminatoria ${index + 1} nunca llegó al final`).toBeTruthy();
+      act(() => button.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
+    }
+
+    // The queue is spent, so the screen has nothing left to draw.
+    expect(view.container.textContent).toBe("");
+    view.unmount();
+  });
+
+  it("counts the clock up from nought on every one of them", () => {
+    const { run, ties } = knockoutQueue();
+    const view = mount(React.createElement(TieHarness, { initial: run }));
+
+    for (let index = 0; index < ties.length; index += 1) {
+      expect(view.text(), `el reloj no arrancó en la ${index + 1}`).toContain("0'");
+      runClock();
+      expect(view.text()).toContain("90'");
+      const button = view.container.querySelector("button.tr-btn");
+      act(() => button.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
+    }
+    view.unmount();
+  });
+});
+
+/**
+ * The figures go back between chances.
+ *
+ * `matchday.lastAttempt` is not cleared until the whole fixture closes, so a night worth
+ * more than one chance asked for the second one over a frozen picture of the first: the
+ * keeper still lying where he had dived, the flight still drawn, the ball still in the net.
+ * The player was aiming at a goal that already had a ball in it.
+ *
+ * Mounted rather than reasoned about, because the release is a timer in one mode and the
+ * broadcast clock in the other, and neither exists until the thing is alive.
+ */
+describe("between two chances", () => {
+  const sceneClass = (container) =>
+    container.querySelector(".tr-scene")?.getAttribute("class") ?? "";
+  const resolved = (container) =>
+    /is-scored|is-saved|is-absent/.test(sceneClass(container));
+
+  it("puts the keeper back on his line once the match reaches the next one", () => {
+    const view = show(narratedDecider(2, "reset-live"));
+    runClock();
+
+    // Take the first, and the drawing is of it.
+    const run = narratedDecider(2, "reset-live");
+    const first = [...view.container.querySelectorAll("button.tr-shot")];
+    act(() =>
+      first[run.matchday.shot.gap].dispatchEvent(new window.MouseEvent("click", { bubbles: true })),
+    );
+    expect(resolved(view.container), "nothing drawn after the first chance").toBe(true);
+
+    // The clock runs on to the second, and the picture stops being about the first.
+    runClock();
+    expect(view.text(), "never reached the second chance").toContain(copy.match.choose);
+    expect(
+      resolved(view.container),
+      "la segunda ocasión se pide sobre el dibujo de la primera",
+    ).toBe(false);
+    view.unmount();
+  });
+
 });

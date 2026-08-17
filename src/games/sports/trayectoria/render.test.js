@@ -26,6 +26,7 @@ import {
   agreeTerms,
   completeSigning,
   nextFixture,
+  nextTie,
   openMarket,
   playChance,
   resolveEvent,
@@ -34,7 +35,7 @@ import {
   takeShot,
   watchMatch,
 } from "./career.js";
-import { SHOT_LABELS, getCopy } from "./copy.js";
+import { SHOT_LABELS, fillTemplate, getCopy } from "./copy.js";
 import { SCREENS } from "./index.jsx";
 import { playableCountries, world } from "./world.js";
 
@@ -110,6 +111,14 @@ function walk(seed, locale) {
       }
       continue;
     }
+    if (run.phase === PHASES.TOURNAMENT) {
+      // The one phase with nothing to press: a knockout tie from the last sixteen on,
+      // played out while the player watches. Every tie in the queue is rendered.
+      draw(PHASES.TOURNAMENT, run, { locale });
+      seen.add(PHASES.TOURNAMENT);
+      run = nextTie(run, locale);
+      continue;
+    }
     if (run.phase === PHASES.SEASON) {
       draw(PHASES.SEASON, run, { locale });
       seen.add(PHASES.SEASON);
@@ -134,9 +143,20 @@ function walk(seed, locale) {
 }
 
 describe("every screen renders", () => {
-  it("walks a whole career in Spanish without throwing", () => {
-    const { seen, run } = walk("render-es", "es");
-    expect(run.phase).toBe(PHASES.RETIRED);
+  it("walks whole careers in Spanish without throwing, and draws every screen", () => {
+    /*
+     * Several careers rather than one, because one career no longer reaches every phase.
+     * TOURNAMENT only opens for a side that got into a continental cup AND out of its
+     * group phase, which is a good career rather than an average one - roughly half of
+     * them, measured. Pinning a lucky seed would make the coverage a coincidence; walking
+     * a handful and taking the union makes it a fact about the game.
+     */
+    const seen = new Set();
+    for (const seed of ["render-es", "render-b", "render-c", "render-d", "render-e"]) {
+      const walked = walk(seed, "es");
+      expect(walked.run.phase, `career ${seed} never retired`).toBe(PHASES.RETIRED);
+      for (const phase of walked.seen) seen.add(phase);
+    }
     // Everything except the setup screen, which has no run behind it.
     for (const phase of Object.values(PHASES)) {
       expect(seen.has(phase), `never rendered the "${phase}" screen`).toBe(true);
@@ -396,10 +416,53 @@ describe("every screen renders", () => {
     return run;
   };
 
+  /**
+   * Every SEASON screen of the first `count` steps, in order.
+   *
+   * `seasonRun` stops on the FIRST one, which is the single step with no growth reveal in
+   * it - there is nothing behind the opening season to compare against. A test that only
+   * ever saw that screen could not fail on anything the reveal does, which is exactly what
+   * happened to the first version of the growth-sync case below.
+   */
+  function* seasonScreens(seed, count = 3) {
+    let run = seasonRun(seed);
+    let guard = 0;
+    for (let step = 0; step < count && guard < 400; step += 1) {
+      if (run.phase !== PHASES.SEASON) return;
+      yield run;
+      run = openMarket(run, "es");
+      if (run.phase !== PHASES.MARKET) return;
+      run = acceptOffer(run, (run.offers.find((o) => o.stay) ?? run.offers[0]).clubId);
+      run = completeSigning(agreeTerms(run));
+      while (run.phase !== PHASES.SEASON && run.phase !== PHASES.RETIRED && guard < 400) {
+        guard += 1;
+        if (run.phase === PHASES.EVENT) run = resolveEvent(run, run.event.es.options[0].id);
+        else if (run.phase === PHASES.MATCH) {
+          const { shot } = run.matchday;
+          if (shot.mode === "match" && !run.matchday.broadcast) run = watchMatch(run, "es");
+          if (run.matchday.last) { run = nextFixture(run, "es"); continue; }
+          if (shot.mode === "skill") {
+            const aim = shot.chance.gates ?? [shot.chance.target];
+            run = playChance(run, shot.chance.gates ? aim : aim[0]);
+          } else run = takeShot(run, shot.options[0]);
+          if (run.phase === PHASES.MATCH && run.matchday.last) run = nextFixture(run, "es");
+        } else if (run.phase === PHASES.TOURNAMENT) run = nextTie(run, "es");
+        else return;
+      }
+    }
+  }
+
   const withRelegation = (run) => ({
     ...run,
     seasonResults: run.seasonResults.map((result, i) =>
       i === 0 ? { ...result, record: { ...result.record, relegated: true } } : result,
+    ),
+  });
+
+  const withPromotion = (run) => ({
+    ...run,
+    seasonResults: run.seasonResults.map((result, i) =>
+      i === 0 ? { ...result, record: { ...result.record, promoted: true } } : result,
     ),
   });
 
@@ -494,6 +557,78 @@ describe("every screen renders", () => {
     expect(keeperBlock).not.toContain("Asistencias");
   });
 
+  /**
+   * The two OVR timelines, and the season a whole step apart they used to be.
+   *
+   *   `record.ovr`  the rating the season was PLAYED at. History: the front page, the
+   *                 career curve, the peak.
+   *   `state.ovr`   the rating he is on NOW. The masthead card, and what next season will
+   *                 be played at.
+   *
+   * The growth reveal compared `before.at(-1).ovr` to this step's `record.ovr` - BOTH on
+   * the history timeline - so it replayed the previous step's growth and landed a whole
+   * season behind the card beside it. Measured on one career: the age-21 screen animated
+   * 68 → 72 while the card read 76, and it was wrong that way every single year.
+   */
+  it("ends the growth reveal on the rating the card is showing", () => {
+    let asserted = 0;
+    for (const seed of ["growth-sync-a", "growth-sync-b", "growth-sync-c"]) {
+      // The SECOND season onwards: the very first has nothing behind it, so it is the one
+      // case with no reveal at all - and the case the first version of this test only ever
+      // reached, which is how it passed against the bug it was written for.
+      for (const run of seasonScreens(seed, 4)) {
+        const html = draw(PHASES.SEASON, run);
+        /*
+         * The reveal queues behind the cups and the drop, so on a step that won something
+         * it is simply not in the markup yet - which is the whole test for whether it is
+         * on screen. Do NOT reach for `tr-ceremony` here: all three overlays share
+         * `tr-ceremony__skip`, so an `includes` on it is true whenever ANY of them is up,
+         * and the first version of this test skipped every single screen because of it.
+         */
+        const from = html.match(/tr-growth__from"[^>]*>(-?\d+)</);
+        if (!from) continue;
+        /*
+         * The destination is NOT read off `tr-growth__to`: that span holds `useCountUp`'s
+         * current value, which under `renderToStaticMarkup` is the 0 it starts counting
+         * from. The move is printed in full, so the landing is `from + move` - which is
+         * also exactly the arithmetic the player is doing while watching it.
+         */
+        const move = html.match(/tr-growth__move"[^>]*>([+-]?\d+) OVR</);
+        const landed = Number(from[1]) + (move ? Number(move[1]) : 0);
+
+        asserted += 1;
+        // Where it lands IS the card's number - there is no third timeline.
+        expect(landed, `${seed}: la revelación no acaba donde está la carta`).toBe(
+          run.state.ovr,
+        );
+        // And it starts where the step's first season was actually played.
+        expect(Number(from[1])).toBe(run.seasonResults[0].record.ovr);
+      }
+    }
+    // The guard that the last version of this test did not have.
+    expect(asserted, "ni una sola revelación llegó a comprobarse").toBeGreaterThan(4);
+  });
+
+  /**
+   * And the sentence that ties the front page to the card, so nobody has to add the two
+   * up - which does not even work, because a deferred `ovrReturn` lands there too.
+   */
+  it("says on the front page what the year left him on", () => {
+    let asserted = 0;
+    for (const locale of ["es", "en"]) {
+      const copy = getCopy(locale);
+      for (const run of seasonScreens("lands", 3)) {
+        const html = draw(PHASES.SEASON, run, { locale });
+        if (!html.includes("tr-front__note-lands")) continue;
+        asserted += 1;
+        expect(html).toContain(
+          fillTemplate(copy.season.developmentLands, { ovr: run.state.ovr }),
+        );
+      }
+    }
+    expect(asserted, "la portada nunca dijo dónde le deja el año").toBeGreaterThan(2);
+  });
+
   it("gives the drop the screen when the club goes down", () => {
     // Going down was one red word in the same strip that reports a served suspension.
     // It is the biggest thing that can happen to a club in a season, so it gets the
@@ -518,12 +653,41 @@ describe("every screen renders", () => {
     }
   });
 
-  it("keeps the drop off a season the club survived", () => {
+  /**
+   * And the same screen upwards, which never existed.
+   *
+   * `record.promoted` has been in the model since promotion did, `IDOLATRY.promotion`
+   * prices going up above a trophy, and a career's only sight of it was the one-line flag
+   * on the front page - the exact footnote the drop screen was built to stop being.
+   */
+  it("gives going up the same screen, the other way round", () => {
+    const base = seasonRun("up");
+    expect(base.phase).toBe(PHASES.SEASON);
+    const run = withPromotion(base);
+    const club = world.clubs[run.seasonResults[0].record.clubId];
+
+    for (const locale of ["es", "en"]) {
+      const copy = getCopy(locale);
+      const html = draw(PHASES.SEASON, run, { locale });
+      if (html.includes("tr-ceremony")) continue;
+
+      expect(html).toContain("is-up");
+      expect(html).toContain(copy.season.promotionEyebrow);
+      expect(html).toContain(copy.season.promoted);
+      expect(html).toContain(club.shortName ?? club.name);
+      expect(html).toContain("tr-drop__line");
+      // The word it must NOT reach for: this is the same component read the other way.
+      expect(html).not.toContain(copy.season.relegationEyebrow);
+    }
+  });
+
+  it("keeps the screen off a season the club neither went up nor down", () => {
     // The overlay is absolutely positioned over the stage, so one that renders when it
     // should not does not merely look wrong - it covers the report underneath it.
     const run = seasonRun("survived");
     expect(run.phase).toBe(PHASES.SEASON);
     expect(run.seasonResults.some((result) => result.record.relegated)).toBe(false);
+    expect(run.seasonResults.some((result) => result.record.promoted)).toBe(false);
     expect(draw(PHASES.SEASON, run)).not.toContain("tr-drop");
   });
 

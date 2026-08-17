@@ -12,6 +12,7 @@ import {
   currentStanding,
   eventContext,
   nextFixture,
+  nextTie,
   openMarket,
   playChance,
   refuseClause,
@@ -764,8 +765,77 @@ describe("standing", () => {
     run = signThrough(run, run.offers[0].clubId);
     const standing = currentStanding(run);
     expect(standing.club.id).toBe(run.state.clubId);
-    expect(standing.delta).toBe(run.state.ovr - standing.squadLevel);
+    expect(standing.delta).toBe(standing.ovr - standing.squadLevel);
     expect(standing.seasonsLeft).toBe(RETIREMENT_AGE - START_AGE);
+  });
+
+  /**
+   * The card in the masthead said 55 while the season was being rolled at 53.
+   *
+   * A decision card can leave an `ovrTemp`, and EVERYTHING that decides the year reads
+   * `state.ovr + ovrTemp` - `fixtureContext` splits the odds at it, `simulateSeason` rolls
+   * every trophy at it, `settleFinal` prices a final at it. The screens read `state.ovr`
+   * alone, so the two numbers this interface is loudest about - the rating on the card and
+   * the delta cell beside it - were both showing a value the model was not using. Measured
+   * over ten careers, 76 live screens disagreed.
+   *
+   * This is the guard, and it is a whole-career sweep rather than a staged case: the point
+   * is that there is no reachable state where the two differ.
+   */
+  it("shows the rating the season is actually being played at", () => {
+    let sawTemp = false;
+    let checked = 0;
+
+    // Walked one screen at a time rather than through `playToRetirement`, because the
+    // whole question is what a LIVE screen is showing between a card and its season.
+    const audit = (run) => {
+      const standing = currentStanding(run);
+      const temp = run.state.modifiers?.ovrTemp ?? 0;
+      if (temp !== 0) sawTemp = true;
+      checked += 1;
+      // What the card shows IS what the engine is about to simulate at.
+      expect(standing.ovr, "la carta y el modelo no coinciden").toBe(
+        Math.max(1, Math.min(99, Math.round(run.state.ovr + temp))),
+      );
+      expect(standing.ovrTemp).toBe(temp);
+      expect(standing.baseOvr).toBe(run.state.ovr);
+      // And the delta - the number the model turns on - comes off the same rating.
+      if (standing.club) expect(standing.delta).toBe(standing.ovr - standing.squadLevel);
+    };
+
+    for (const seed of ["ovr-sync-a", "ovr-sync-b", "ovr-sync-c"]) {
+      let run = start({ seed });
+      run = signThrough(run, run.offers[0].clubId);
+      let guard = 0;
+      while (run.phase !== PHASES.RETIRED && guard < 400) {
+        guard += 1;
+        audit(run);
+        if (run.phase === PHASES.EVENT) run = resolveEvent(run, run.event.es.options[0].id);
+        else if (run.phase === PHASES.MATCH) run = playMatches(run);
+        else if (run.phase === PHASES.TOURNAMENT) run = nextTie(run);
+        else if (run.phase === PHASES.SEASON) run = openMarket(run);
+        else if (run.phase === PHASES.MARKET) run = takeOffer(run, run.offers[0].clubId);
+        else break;
+      }
+    }
+    expect(checked).toBeGreaterThan(50);
+    // A career with no temporary modifier anywhere in it would pass this vacuously.
+    expect(sawTemp, "ninguna carta dejó un ovrTemp").toBe(true);
+  });
+
+  /** Outside a live step there is nothing on loan, so the two readings are the same. */
+  it("has no temporary rating left by the time the market opens", () => {
+    let run = start({ seed: "ovr-sync-market" });
+    run = signThrough(run, run.offers[0].clubId);
+    run = answerEvents(run);
+    run = playMatches(run);
+    while (run.phase === PHASES.TOURNAMENT) run = nextTie(run);
+    run = openMarket(run);
+
+    expect(run.phase).toBe(PHASES.MARKET);
+    const standing = currentStanding(run);
+    expect(standing.ovrTemp).toBe(0);
+    expect(standing.ovr).toBe(standing.baseOvr);
   });
 });
 
