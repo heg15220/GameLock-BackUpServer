@@ -34,7 +34,7 @@ import {
 } from "./career.js";
 import { CONTRACT, wagePremium } from "./contract.js";
 import { roleFor, roleLadder } from "./engine.js";
-import Icon, { FIXTURE_ICONS, SHOT_ICONS, optionIcon } from "./icons.jsx";
+import Icon, { FIXTURE_ICONS, SHOT_ICONS, beatIcon, optionIcon } from "./icons.jsx";
 import ShotScene, { PlacementDiagram } from "./scene.jsx";
 import { conversionRecord } from "./bigmatch.js";
 import { MODES } from "./matchmode.js";
@@ -1715,10 +1715,24 @@ function Shootout({ kicks, copy, onDone }) {
  */
 const SHOT_HOLD = 1400;
 
-/* How the ninety minutes are paced on screen. */
-const MINUTES_PER_SECOND = 10;
-/** A goal has to land. The clock stops dead on every beat for this long. */
-const BEAT_HOLD = 660;
+/*
+ * How the ninety minutes are paced on screen, and the two speeds they can be read at.
+ *
+ * `normal` is slower than the feed used to run. The old pace was set by how long a match
+ * takes rather than by how long a line takes to read: ten minutes a second with two thirds
+ * of a second on each beat meant the sentence you were half way through was already being
+ * pushed up by the next one. A live narration you cannot keep up with is a scrolling box,
+ * not a match.
+ *
+ * `fast` is exactly the pace that used to be the only one, kept for the reader who has
+ * seen enough of the build-up and wants the chance. It is a speed, not a skip: the beats
+ * still arrive in order and still stop the clock, they just stop it for less. Skipping
+ * outright is still a button of its own - see `skip` below.
+ */
+const LIVE_SPEEDS = {
+  normal: { minutesPerSecond: 5.5, beatHold: 1180 },
+  fast: { minutesPerSecond: 10, beatHold: 660 },
+};
 
 /**
  * The ninety minutes, on a clock.
@@ -1772,6 +1786,12 @@ function Broadcast({
 
   const clock = useRef(0);
   const [minute, setMinute] = useState(0);
+  /*
+   * Which of the two paces the match is being watched at. It survives a chance - the
+   * component stays mounted across the placements - so a reader who asked for the quick
+   * version once is not asked to keep asking for it every twenty minutes.
+   */
+  const [fast, setFast] = useState(false);
 
   useEffect(() => {
     if (reduced) {
@@ -1780,8 +1800,11 @@ function Broadcast({
       return undefined;
     }
 
+    const pace = fast ? LIVE_SPEEDS.fast : LIVE_SPEEDS.normal;
     let raf = 0;
     let last = performance.now();
+    // Deliberately reset by the speed change that restarts this effect, so pressing the
+    // fast button during a hold takes effect on the spot rather than after it.
     let holdUntil = 0;
 
     const run = (now) => {
@@ -1790,11 +1813,11 @@ function Broadcast({
 
       if (now >= holdUntil && clock.current < stopAt) {
         const from = clock.current;
-        const to = Math.min(stopAt, from + (delta / 1000) * MINUTES_PER_SECOND);
+        const to = Math.min(stopAt, from + (delta / 1000) * pace.minutesPerSecond);
         // Crossing a beat stops the clock on it, so the feed is punctuated rather than
         // scrolled. Kick-off is excluded: nobody needs a pause before it starts.
         if (beats.some((beat) => beat.minute > from && beat.minute <= to && beat.minute > 0)) {
-          holdUntil = now + BEAT_HOLD;
+          holdUntil = now + pace.beatHold;
         }
         clock.current = to;
         if (Math.floor(to) !== Math.floor(from)) setMinute(Math.floor(to));
@@ -1804,12 +1827,13 @@ function Broadcast({
 
     raf = requestAnimationFrame(run);
     return () => cancelAnimationFrame(raf);
-  }, [beats, reduced, stopAt]);
+  }, [beats, reduced, stopAt, fast]);
 
   const skip = useCallback(() => {
     clock.current = stopAt;
     setMinute(stopAt);
   }, [stopAt]);
+  const toggleSpeed = useCallback(() => setFast((was) => !was), []);
 
   const reached = beats.filter((beat) => beat.minute <= minute);
   /*
@@ -1906,12 +1930,26 @@ function Broadcast({
         })}
       </div>
 
+      {/* Two buttons, and they do different things. `faster` changes the pace of a match
+          you are still watching; `skip` stops watching and jumps to the next thing that
+          needs you. Collapsing them into one was the temptation and would have cost the
+          reader the middle option: see the build-up, just not all of it. */}
       <div className="tr-live__clock">
         <span className={`tr-live__minute${running ? " is-running" : ""}`}>{minute}'</span>
         {running ? (
-          <button type="button" className="tr-live__skip" onClick={skip}>
-            {copy.match.skip}
-          </button>
+          <span className="tr-live__pace">
+            <button
+              type="button"
+              className={`tr-live__skip tr-live__faster${fast ? " is-on" : ""}`}
+              onClick={toggleSpeed}
+              aria-pressed={fast}
+            >
+              {copy.match.faster}
+            </button>
+            <button type="button" className="tr-live__skip" onClick={skip}>
+              {copy.match.skip}
+            </button>
+          </span>
         ) : null}
       </div>
 
@@ -1928,6 +1966,8 @@ function Broadcast({
             }${beat.category ? ` is-${beat.category}` : ""}${beat.player ? " is-player" : ""}`}
           >
             <i>{beat.minute}'</i>
+            {/* The mark for what just happened, before the words for it. See BEAT_ICONS. */}
+            <Icon name={beatIcon(beat.id)} size={15} className="tr-live__mark" />
             <span>{beatLine(beat, copy)}</span>
                   {beat.kicks ? (
               <Shootout kicks={beat.kicks} copy={copy} onDone={handleKicksDone} />

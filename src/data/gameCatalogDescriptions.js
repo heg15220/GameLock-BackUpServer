@@ -276,8 +276,8 @@ export const gameCatalogDescriptions = {
     en: "Pseudo-3D doubles padel: position, smash and play the glass walls.",
   },
   "sports-trayectoria": {
-    es: "Carrera de futbolista de los 16 a los 40: elige club, decide y dispara en las finales.",
-    en: "A footballer's career from 16 to 40: pick clubs, decide, and take the shot in the finals.",
+    es: "Carrera de futbolista de los 16 a los 40: elige club, decide y resuelve las jugadas decisivas de cada temporada.",
+    en: "A footballer's career from 16 to 40: pick clubs, decide, and settle the plays each season comes down to.",
   },
   "arcade-shell-game": {
     es: "El juego de los vasos: sigue la bola mientras cruzan más rápido.",

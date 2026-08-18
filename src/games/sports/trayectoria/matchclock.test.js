@@ -68,8 +68,14 @@ function mount(element) {
   };
 }
 
-/** Let the match run. Wrapped in `act` so React flushes everything the frames caused. */
-function runClock(ms = 30_000) {
+/**
+ * Let the match run. Wrapped in `act` so React flushes everything the frames caused.
+ *
+ * Generous on purpose: the feed's normal pace is a reading pace, not a stopwatch one - see
+ * LIVE_SPEEDS - so ninety minutes plus a hold on every beat is comfortably more than the
+ * thirty seconds this used to allow, and a short window here fails as "the clock hung".
+ */
+function runClock(ms = 90_000) {
   act(() => {
     vi.advanceTimersByTime(ms);
   });

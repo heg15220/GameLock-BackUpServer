@@ -2430,6 +2430,23 @@
   cursor: pointer;
 }
 .tr-live__skip:hover { color: var(--tr-ink); border-color: var(--tr-ink); }
+/* Faster, then skip: the order they escalate in. */
+.tr-live__pace {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tr-live__faster::before {
+  content: "»";
+  margin-right: 5px;
+  font-size: 12px;
+  line-height: 1;
+  vertical-align: -1px;
+}
+.tr-live__faster.is-on {
+  color: var(--tr-gold);
+  border-color: var(--tr-gold);
+}
 
 /* How many sights of goal this one owes him, when it owes more than one. */
 .tr-match__tally {
@@ -2483,9 +2500,22 @@
   color: var(--tr-muted);
   font-variant-numeric: tabular-nums;
 }
+/* The mark for what happened, between the minute and the words. It used to be one of four
+   abstract shapes on four of the categories - a diamond meant "a save was made somewhere" -
+   and every other line had nothing at all. Now every beat carries the drawing of its own
+   action (see BEAT_ICONS), which is what makes a scrolling feed readable at a glance. */
+.tr-live__mark {
+  flex: none;
+  margin-top: 1px;
+  color: var(--tr-muted);
+  opacity: .85;
+}
 .tr-live__beat.is-us span { color: var(--tr-green); font-weight: 600; }
+.tr-live__beat.is-us .tr-live__mark { color: var(--tr-green); }
 .tr-live__beat.is-them span { color: var(--tr-ink-red); }
+.tr-live__beat.is-them .tr-live__mark { color: var(--tr-ink-red); }
 .tr-live__beat.is-decisive span { color: var(--tr-ink); font-weight: 700; }
+.tr-live__beat.is-decisive .tr-live__mark { color: var(--tr-ink); opacity: 1; }
 .tr-live__beat.is-player {
   margin-left: -6px;
   padding: 5px 7px;
@@ -2493,21 +2523,8 @@
   border-radius: 3px;
   background: linear-gradient(90deg, rgba(211, 169, 74, .12), transparent 72%);
 }
-.tr-live__beat.is-save:not(.is-player)::before,
-.tr-live__beat.is-defence:not(.is-player)::before,
-.tr-live__beat.is-creation:not(.is-player)::before,
-.tr-live__beat.is-setpiece:not(.is-player)::before {
-  flex: none;
-  width: 13px;
-  font-size: 10px;
-  line-height: 1.7;
-  text-align: center;
-  color: var(--tr-muted);
-}
-.tr-live__beat.is-save:not(.is-player)::before { content: "◆"; }
-.tr-live__beat.is-defence:not(.is-player)::before { content: "▰"; }
-.tr-live__beat.is-creation:not(.is-player)::before { content: "◇"; }
-.tr-live__beat.is-setpiece:not(.is-player)::before { content: "⌟"; }
+/* His own touches are gold everywhere else on this screen; the mark follows the line. */
+.tr-live__beat.is-player .tr-live__mark { color: var(--tr-gold); opacity: 1; }
 
 /* Which way this one is being played, said once, next to the kind of chance. */
 .tr-match__mode {

@@ -219,6 +219,124 @@ const PATHS = {
       <path d="M8 15l3 3 2-1.5 3 2" />
     </>
   ),
+
+  /* ── The live feed ───────────────────────────────────────────── */
+  /* A narrated match is a list of sentences, and a list of sentences all looks the same.
+     These are what the eye reads before the words: one mark per KIND of action, so a goal,
+     a save and a corner are told apart at a glance while scrolling. They are drawn on the
+     same 24-grid as everything else - see BEAT_ICONS below for which beat gets which. */
+
+  // Kick-off, half time, full time: the whistle.
+  whistle: (
+    <>
+      <path d="M10 8h6.5a4.5 4.5 0 1 1 0 9H10a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2z" />
+      <path d="M8 10.5H3.8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1H8" />
+      <circle cx="16.4" cy="12.5" r="1.4" />
+    </>
+  ),
+  // A goal: the ball in the net, which is the only picture that means it.
+  net: (
+    <>
+      <path d="M3 20V7h18v13" />
+      <path d="M7.5 7v13M16.5 7v13M3 13.5h18" opacity=".35" />
+      <circle cx="12" cy="16" r="3" />
+    </>
+  ),
+  // An attempt: the ball and the line it travelled.
+  shot: (
+    <>
+      <circle cx="17.5" cy="6.5" r="2.6" />
+      <path d="M3 20c3.5-1.5 7.5-4.5 11-8.5" strokeDasharray="2.6 2.4" />
+      <path d="M3 20h4M3 20v-4" />
+    </>
+  ),
+  // A save: the glove.
+  glove: (
+    <>
+      <path d="M7 21v-6l-1.6-1.6a1.9 1.9 0 0 1 2.7-2.7L9 11.7V6.2a1.5 1.5 0 0 1 3 0v3.6" />
+      <path d="M12 9.8V5.4a1.5 1.5 0 0 1 3 0v4.6" />
+      <path d="M15 10V7.6a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-1.6 4.1L15.2 21" />
+    </>
+  ),
+  // A tackle, a block, an interception: the boot arriving at the ball.
+  tackle: (
+    <>
+      <path d="M3 19v-4h4l3 2h4a4 4 0 0 1 4 4H4a1 1 0 0 1-1-1z" />
+      <circle cx="17" cy="7" r="2.6" />
+      <path d="M8 15V9" opacity=".45" />
+    </>
+  ),
+  // The pass that breaks a line, which is the one that gets narrated.
+  pass: (
+    <>
+      <path d="M5 4v16M19 4v16" opacity=".45" />
+      <path d="M8 12h8M13 9l3 3-3 3" />
+    </>
+  ),
+  // A ball hung into the area from outside.
+  centre: (
+    <>
+      <path d="M3.5 20C5 11.5 11 5.5 19.5 4" />
+      <path d="M15.5 3.5 20 4.2 18.8 8.6" />
+      <circle cx="4" cy="20" r="1.4" />
+    </>
+  ),
+  // A corner: the flag in the quadrant.
+  corner: (
+    <>
+      <path d="M6 21V4l8 2.6L6 9.2" />
+      <path d="M3 21h18" />
+      <path d="M3 21a9 9 0 0 1 8-9" opacity=".45" />
+    </>
+  ),
+  // Offside: the linesman's flag, up.
+  offside: (
+    <>
+      <path d="M5 21 14.5 3.5" />
+      <path d="M11 10.5 20.5 7.5 16.5 15z" />
+    </>
+  ),
+  // A run: him, gone.
+  sprint: (
+    <>
+      <circle cx="15.5" cy="4.8" r="2.2" />
+      <path d="M9 21l3.2-5.2-2.2-3.3L13.2 8l3 2.2 2.3 2.6" />
+      <path d="M2.5 9h4M1.5 13.5h4.5M3.5 18h3" opacity=".5" />
+    </>
+  ),
+  // Two players and the ball between them: holding it up, winning it back.
+  duel: (
+    <>
+      <circle cx="6.5" cy="6" r="2.2" />
+      <path d="M2.5 19v-4A3.5 3.5 0 0 1 6 11.5h1" />
+      <circle cx="17.5" cy="6" r="2.2" />
+      <path d="M21.5 19v-4a3.5 3.5 0 0 0-3.5-3.5h-1" />
+      <circle cx="12" cy="16.5" r="2.4" />
+    </>
+  ),
+  // The moment it comes down to him.
+  target: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M12 1.8v3.4M12 18.8v3.4M1.8 12h3.4M18.8 12h3.4" />
+    </>
+  ),
+  // And the one that did not go in: over the bar.
+  wide: (
+    <>
+      <path d="M3 21v-9h18v9" opacity=".5" />
+      <circle cx="18" cy="4.6" r="2.4" />
+      <path d="M4.5 17c2.5-6.5 6-10 11-11.5" strokeDasharray="2.6 2.4" />
+    </>
+  ),
+  // A night the ball never came to him: he watched it.
+  watching: (
+    <>
+      <path d="M2.5 12S6 6.5 12 6.5 21.5 12 21.5 12 18 17.5 12 17.5 2.5 12 2.5 12z" />
+      <circle cx="12" cy="12" r="2.4" />
+    </>
+  ),
 };
 
 export const ICON_NAMES = Object.keys(PATHS);
@@ -299,6 +417,104 @@ export const OPTION_ICONS = {
 export function optionIcon(event, optionId) {
   return event?.icons?.[optionId] ?? OPTION_ICONS[optionId] ?? event?.theme ?? "ball";
 }
+
+/**
+ * Which mark goes on each line of a live match.
+ *
+ * The narrated deciders are read while they are running - a line lands, the clock stops on
+ * it for a beat, and the next one arrives underneath - and a column of sentences in the
+ * same size and colour gives the eye nothing to hold on to. A goal, a corner and a
+ * clearance all read as "text" until you have read them.
+ *
+ * So every beat id in `copy.match.beats` gets a glyph, and the glyph is of the ACTION
+ * rather than of the beat: the same picture for a shot whoever took it, the same net for a
+ * goal whoever scored it. Which side it belongs to is already said in colour by the feed,
+ * and saying it twice would be two marks arguing about one line.
+ *
+ * Keyed by the beat id, which is the language-independent half - see `beatLine` - so a mark
+ * can never fall out of step with a sentence that was rewritten in one locale only.
+ */
+export const BEAT_ICONS = {
+  // The whistle: the three moments nobody plays.
+  kickoff: "whistle",
+  halfTime: "whistle",
+  fullTime: "whistle",
+  extraTime: "whistle",
+
+  // The ball in the net, from either end, by any boot.
+  goalUs: "net",
+  goalThem: "net",
+  playerGoal: "net",
+  scored: "net",
+  conceded: "net",
+
+  // Attempts, and the hands that answer them.
+  shotUs: "shot",
+  shotThem: "shot",
+  playerShot: "shot",
+  saveUs: "glove",
+  saveThem: "glove",
+  playerSave: "glove",
+  playerClaim: "glove",
+  stopped: "glove",
+
+  // The defending half of a match.
+  tackleUs: "tackle",
+  tackleThem: "tackle",
+  playerTackle: "tackle",
+  playerBlock: "tackle",
+  playerInterception: "tackle",
+
+  // The passing half of it.
+  keyPassUs: "pass",
+  keyPassThem: "pass",
+  playerKeyPass: "pass",
+  playerThroughBall: "pass",
+  playerLongPass: "pass",
+  assisted: "pass",
+  playerCross: "centre",
+
+  // Set pieces and the flag.
+  cornerUs: "corner",
+  cornerThem: "corner",
+  offsideUs: "offside",
+  offsideThem: "offside",
+
+  // Him, with the ball at his feet or somebody on his back.
+  playerRun: "sprint",
+  playerCarry: "sprint",
+  playerHoldUp: "duel",
+  playerRecovery: "duel",
+
+  // What the match is about at that point of it.
+  tight: "clock",
+  pressing: "up",
+  chasing: "up",
+  holding: "shield",
+
+  // His moment, and the two ways out of it.
+  chance: "target",
+  missed: "wide",
+  assistMissed: "wide",
+
+  // Nights the ball never arrived.
+  untouched: "watching",
+  bystander: "watching",
+
+  // From twelve yards, and where the tie ended up.
+  shootout: "penal",
+  shootoutWon: "trophy",
+  shootoutLost: "down",
+  tieWon: "trophy",
+  tieLost: "down",
+};
+
+/**
+ * The mark for one beat. `ball` is the fallback rather than nothing, because a feed where
+ * some lines are indented under a glyph and others are not reads as broken rather than as
+ * quiet - and a beat id added later would be exactly that until somebody noticed.
+ */
+export const beatIcon = (id) => BEAT_ICONS[id] ?? "ball";
 
 /** Which glyph names a fixture, so the match screen and the report agree. */
 export const FIXTURE_ICONS = {

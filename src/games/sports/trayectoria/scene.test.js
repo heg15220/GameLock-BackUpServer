@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import { FIXTURE_KINDS, SHOT_TYPES } from "./bigmatch.js";
 import { FIXTURE_LABELS, PLACEMENT_LABELS, SHOT_LABELS } from "./copy.js";
 import { EVENTS } from "./events.js";
-import { FIXTURE_ICONS, ICON_NAMES, OPTION_ICONS, SHOT_ICONS, optionIcon } from "./icons.jsx";
+import { BEAT_ICONS, FIXTURE_ICONS, ICON_NAMES, OPTION_ICONS, SHOT_ICONS, beatIcon } from "./icons.jsx";
+import { optionIcon } from "./icons.jsx";
+import { getCopy } from "./copy.js";
 import { PLACEMENTS, SITUATIONS, cameraFor } from "./scene.jsx";
 import { CAMERAS, CAMERA_VIEWBOX, POSE_NAMES } from "./pitch.jsx";
 import { CHANCE_MECHANIC, MECHANICS } from "./minigames.js";
@@ -205,5 +207,33 @@ describe("the stadium", () => {
     // Three of them: the keeper's close-in work and the defender's tackle. The four shots
     // at a goal have no mechanic left to crop - they are a zone. See CHANCE_MECHANIC.
     expect(deep.length).toBeGreaterThan(2);
+  });
+});
+
+/**
+ * Every line of a live match carries the mark of what happened in it - see BEAT_ICONS -
+ * and a beat with no mark is not a crash, it is a sentence sitting a glyph's width to the
+ * left of the ones above it. So the two lists are held together here: a beat that gets a
+ * new kind of line in copy.js has to be given a picture of it at the same time.
+ */
+describe("every beat of a live match is marked", () => {
+  const beatIds = Object.keys(getCopy("es").match.beats);
+
+  it("names a glyph for every line the feed can print", () => {
+    for (const id of beatIds) {
+      expect(BEAT_ICONS[id], `no mark for the "${id}" beat`).toBeTruthy();
+      expect(ICON_NAMES, `BEAT_ICONS.${id} points at a missing glyph`).toContain(BEAT_ICONS[id]);
+    }
+  });
+
+  it("says the same thing in both languages", () => {
+    expect(Object.keys(getCopy("en").match.beats).sort()).toEqual([...beatIds].sort());
+  });
+
+  it("maps nothing to a glyph that is not drawn, and falls back to one that is", () => {
+    for (const [id, glyph] of Object.entries(BEAT_ICONS)) {
+      expect(ICON_NAMES, `BEAT_ICONS.${id} points at a missing glyph`).toContain(glyph);
+    }
+    expect(ICON_NAMES).toContain(beatIcon("a-beat-nobody-has-written-yet"));
   });
 });

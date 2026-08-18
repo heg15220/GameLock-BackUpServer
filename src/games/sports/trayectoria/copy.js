@@ -520,6 +520,9 @@ const COPY = {
         dive: "Arrastra hacia el lado y suelta",
       },
       skip: "Adelantar",
+      /* Dos botones distintos: `faster` acelera el partido que estás viendo, `skip` deja
+         de verlo. Ver LIVE_SPEEDS en index.jsx. */
+      faster: "Más rápido",
       liveStats: { shots: "Tiros", saves: "Paradas", danger: "Peligro" },
       waiting: "El partido sigue…",
       ofChances: "Ocasión {n} de {total}",
@@ -1329,6 +1332,7 @@ const COPY = {
         dive: "Drag to a side and release",
       },
       skip: "Skip ahead",
+      faster: "Faster",
       liveStats: { shots: "Shots", saves: "Saves", danger: "Threat" },
       waiting: "The match is still going…",
       ofChances: "Chance {n} of {total}",
