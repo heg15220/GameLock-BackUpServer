@@ -166,7 +166,7 @@ function Opponent({ chance, u = 0.5, pose = null, className = "tr-scene__keeper"
 }
 
 /* ── One touch, and two of them ──────────────────────────────────────────────
-   Sweep, window and bend all run a marker along a line and stop it. Bend is the
+   Sweep and window both run a marker along a line and stop it. A second gate is the
    two-gate case of the same act, which is why it is not a fourth surface: the
    second call is the same call again, and the first one stays on screen as the
    argument for the second.
@@ -746,116 +746,12 @@ function TheDive({ chance, where, when, committed }) {
   );
 }
 
-/* ── Two touches and the beat between them ───────────────────────────────────
-   The only chance where WHERE you press is irrelevant. Sell it, then go - and
-   what the model reads is the gap.
-
-   Drawn as the man in front of you losing his balance. He leans further the
-   longer you wait, and the band is the moment his weight is fully on the wrong
-   foot. Wait past it and he has recovered.                                    */
-
-function FeintGame({ chance, copy, reduced, onSettle }) {
-  const [beat, setBeat] = useState(0);
-  const [running, setRunning] = useState(false);
-  const started = useRef(0);
-  const done = useRef(false);
-  const camera = cameraFor(chance.shotType);
-
-  const settle = useCallback(
-    (value) => {
-      if (done.current) return;
-      done.current = true;
-      onSettle(value);
-    },
-    [onSettle],
-  );
-
-  useEffect(() => {
-    if (!running || reduced) return undefined;
-    let raf = 0;
-    const step = (now) => {
-      const elapsed = (now - started.current) / 1000 / chance.period;
-      if (elapsed >= 1) {
-        // You sold it so well that the defender went and came back.
-        setBeat(1);
-        settle(1);
-        return;
-      }
-      setBeat(elapsed);
-      raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [running, reduced, chance.period, settle]);
-
-  const touch = () => {
-    if (reduced) {
-      if (!running) setRunning(true);
-      else settle(chance.target);
-      return;
-    }
-    if (!running) {
-      started.current = performance.now();
-      setRunning(true);
-      return;
-    }
-    settle((performance.now() - started.current) / 1000 / chance.period);
-  };
-
-  const at = reduced && running ? chance.target : beat;
-
-  return (
-    <Surface
-      mechanic={chance.mechanic}
-      camera={camera}
-      prompt={running ? copy.match.chanceGo : copy.match.chancePrompt[chance.mechanic]}
-      hint={copy.match.chanceHint[chance.mechanic]}
-      label={copy.match.chancePrompt[chance.mechanic]}
-      onClick={touch}
-    >
-      <TheFeint chance={chance} at={at} running={running} />
-    </Surface>
-  );
-}
-
-/** Him, going the wrong way. */
-function TheFeint({ chance, at, running }) {
-  const tol = chance.tolerance;
-  // He leans across the mouth as the beat runs, and the band is where he is beaten.
-  const lean = (t) => 0.5 + t * 0.42;
-  const bandFrom = mouthX(lean(Math.max(0, chance.target - tol)));
-  const bandTo = mouthX(lean(Math.min(1, chance.target + tol)));
-
-  return (
-    <>
-      <Taker chance={chance} pose={running ? "run" : "stand"} />
-      <rect
-        className="tr-play__band"
-        x={Math.min(bandFrom, bandTo)}
-        y={GOAL.top}
-        width={Math.max(1, Math.abs(bandTo - bandFrom))}
-        height={MOUTH.h}
-      />
-      <Figure
-        x={mouthX(lean(at))}
-        y={GOAL.bottom}
-        height={32}
-        pose={running ? "dive" : "spread"}
-        facing={1}
-        className="tr-scene__keeper"
-      />
-    </>
-  );
-}
-
 const SURFACES = {
   [MECHANICS.SWEEP]: TrackGame,
   [MECHANICS.WINDOW]: TrackGame,
-  [MECHANICS.BEND]: TrackGame,
   [MECHANICS.CHARGE]: ChargeGame,
   [MECHANICS.AIM]: AimGame,
   [MECHANICS.DIVE]: DiveGame,
-  [MECHANICS.FEINT]: FeintGame,
 };
 
 /**

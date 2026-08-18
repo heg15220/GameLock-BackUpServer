@@ -23,10 +23,12 @@ import { shotScoringRate } from "./bigmatch.js";
 import { chance, createStream, pickWeighted, randInt } from "./rng.js";
 import {
   continentalQualification,
+  playerPull,
   simulateTournamentRun,
   tournamentFor,
 } from "./tournaments.js";
 import { entrantsFor } from "./qualified.js";
+import { TRUST } from "./tone.js";
 import {
   AWARD_ELIGIBLE_ROLES,
   BALLON_DOR,
@@ -940,6 +942,16 @@ export function createCareer({
      * its deciders off this rather than off an assumption - see `conversionRate`.
      */
     conversion: { taken: 0, scored: 0 },
+    /*
+     * What the people who pay him make of him. Moved by what he says in a press room and
+     * by nothing else - see tone.js - and read by `clubWantsOut` in career.js.
+     */
+    trust: TRUST.start,
+    /*
+     * Where he has been putting them lately. Read by the opposition keeper rather than by
+     * the model - a placement you keep using is one he is standing on. See keeper.js.
+     */
+    shots: [],
     /** The deal you are on: years, wage, role promise and buy-out. See contract.js. */
     contract: null,
     /** Idolatría by club id, plus the clubs that will never forgive the way you left. */
@@ -965,7 +977,7 @@ export function createCareer({
  * Simulate a single season at the player's current club and return the next state plus
  * a record of what happened. Pure: same state in, same season out.
  */
-export function simulateSeason(state, world, { season }) {
+export function simulateSeason(state, world, { season, tournamentRuns: prebuiltRuns = null }) {
   const registered = world.clubs[state.clubId];
   if (!registered) throw new Error(`simulateSeason: unknown club ${state.clubId}`);
   // Not the club the data describes - the club this career has left behind it.
@@ -1136,27 +1148,50 @@ export function simulateSeason(state, world, { season }) {
    * qualified.js. The player's own club is passed in explicitly because the real list
    * obviously does not name a side the career has just taken there for the first time.
    */
-  const tournamentRuns = [];
-  const clubTournament = tournamentFor({ confederation: competition?.confederation, club: true });
-  if (clubTournament && continentalEntry.level === "main") {
-    tournamentRuns.push(simulateTournamentRun({
-      id: clubTournament.id,
-      seed: state.seed,
-      season,
-      entrants: entrantsFor(clubTournament.id, world, { include: [club] }),
-      player: club,
-      champion: keptTitles.some((title) => title.trophy === "continental_a"),
-    }));
-  }
-  if (national?.playedWorldCup) {
-    tournamentRuns.push(simulateTournamentRun({
-      id: "world_cup",
-      seed: state.seed,
-      season,
-      entrants: entrantsFor("world_cup", world, { include: country ? [country] : [] }),
-      player: country,
-      champion: national.titles?.some((title) => title.trophy === "world_cup"),
-    }));
+  /*
+   * THE BRACKETS ARE HANDED IN, NOT DRAWN HERE.
+   *
+   * They used to be drawn at this point, backwards from the trophies just rolled above -
+   * which is exactly why a continental run could only ever be told AFTER the season, behind
+   * the final that season had already played as a standalone decider. A competition
+   * described twice, in the wrong order.
+   *
+   * `career.js` builds them with the season's plan now (see `stageTournaments`), plays their
+   * ties in the order football plays them, and hands the finished runs back here to be
+   * recorded. Falling back to drawing them keeps this function usable on its own, which the
+   * engine tests and any caller outside the career loop rely on.
+   */
+  const recentMatches = (state.history ?? [])
+    .slice(-2)
+    .reverse()
+    .map((entry) => entry.matches ?? 0);
+  const pull = playerPull({ ovr: effectiveOvr, matches, previous: recentMatches });
+
+  let tournamentRuns = prebuiltRuns ?? [];
+  if (!prebuiltRuns) {
+    const clubTournament = tournamentFor({ confederation: competition?.confederation, club: true });
+    if (clubTournament && continentalEntry.level === "main") {
+      tournamentRuns.push(simulateTournamentRun({
+        id: clubTournament.id,
+        seed: state.seed,
+        season,
+        entrants: entrantsFor(clubTournament.id, world, { include: [club] }),
+        player: club,
+        pull,
+        champion: keptTitles.some((title) => title.trophy === "continental_a"),
+      }));
+    }
+    if (national?.playedWorldCup) {
+      tournamentRuns.push(simulateTournamentRun({
+        id: "world_cup",
+        seed: state.seed,
+        season,
+        entrants: entrantsFor("world_cup", world, { include: country ? [country] : [] }),
+        player: country,
+        pull,
+        champion: national.titles?.some((title) => title.trophy === "world_cup"),
+      }));
+    }
   }
 
   const record = {

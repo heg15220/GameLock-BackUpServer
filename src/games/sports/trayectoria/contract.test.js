@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { CAREER_MODES } from "./tables.js";
+
 import {
   PHASES, acceptOffer, agreeTerms, completeSigning, nextFixture, openMarket,
   playChance, resolveEvent, signYouthClub, startCareer, takeShot, watchMatch,
@@ -11,6 +13,7 @@ import {
   CLAUSE,
   CONTRACT,
   ROLE_WAGE,
+  askAvailable,
   askOdds,
   breachYears,
   clauseOdds,
@@ -721,5 +724,110 @@ describe("staying put while the deal runs", () => {
     const after = acceptOffer(run, run.offers[0].clubId);
     // Nothing in force any more: staying is a new deal, and it is argued for.
     expect(after.phase).toBe(PHASES.NEGOTIATION);
+  });
+});
+
+/**
+ * "En los modos normal y exprés, la duración de los contratos se tiene que adaptar."
+ *
+ * Everything a contract mechanically does, it does at the market: it guarantees "stay" is
+ * on the table and it stops the club pushing you out - see `offersWithFallback`. But the
+ * market only opens once a STEP, and a step is one season in intensa, two in normal and
+ * three in exprés. A one-year deal signed in exprés was therefore over after the first of
+ * the three seasons it was meant to cover, and by the time the only screen that reads it
+ * came round it had nothing left to say: the player had signed a promise nobody could be
+ * held to.
+ */
+describe("a deal is as long as the mode makes it", () => {
+  const offer = (seasonsPerStep, i) =>
+    openingTerms({
+      seed: `span-${i}`,
+      season: i % 12,
+      clubId: `club-${i % 7}`,
+      reputation: i % 6,
+      strength: 3,
+      tier: i % 5 === 0 ? 2 : 1,
+      projectedDelta: (i % 11) - 5,
+      age: 17 + (i % 18),
+      value: 5_000_000,
+      seasonsAtClub: i % 4,
+      idolatryHere: (i * 7) % 100,
+      stay: i % 3 === 0,
+      seasonsPerStep,
+    });
+
+  it("never runs out in the middle of a step, in any mode", () => {
+    for (const mode of Object.values(CAREER_MODES)) {
+      for (let i = 0; i < 400; i += 1) {
+        const terms = offer(mode.seasonsPerStep, i);
+        expect(
+          terms.years % mode.seasonsPerStep,
+          `${terms.years} seasons on a ${mode.seasonsPerStep}-season step`,
+        ).toBe(0);
+        // And it always reaches at least the next summer the player can act in.
+        expect(terms.years).toBeGreaterThanOrEqual(mode.seasonsPerStep);
+      }
+    }
+  });
+
+  it("offers longer deals the slower the career runs, and keeps them football-shaped", () => {
+    const longest = (seasonsPerStep) =>
+      Math.max(...Array.from({ length: 400 }, (_, i) => offer(seasonsPerStep, i).years));
+    expect(longest(1)).toBe(CONTRACT.maxYears);
+    expect(longest(2)).toBeGreaterThan(longest(1));
+    // Never a deal nobody in football would sign, whatever the mode.
+    expect(longest(3)).toBeLessThanOrEqual(CONTRACT.stepUp(CONTRACT.maxYears, 3));
+    expect(longest(3)).toBeLessThanOrEqual(7);
+  });
+
+  /**
+   * WHAT A DEAL IS WORTH IN SUMMERS, which is the only unit that matters to the player.
+   *
+   * It cannot be the same in every mode and it should not pretend to be: a football
+   * contract tops out around six seasons, so a mode where three of them pass between
+   * decisions can never lock a career out of five markets the way the slowest one can.
+   * What has to be true is the floor - a deal always reaches the next one - and that the
+   * faster the career, the fewer of its decisions any single signature takes away.
+   */
+  it("always reaches the next market, and takes fewer of them the faster the career runs", () => {
+    const markets = (seasonsPerStep) => {
+      const all = Array.from({ length: 400 }, (_, i) => offer(seasonsPerStep, i));
+      return {
+        least: Math.min(...all.map((terms) => terms.years / seasonsPerStep)),
+        mean: all.reduce((sum, terms) => sum + terms.years / seasonsPerStep, 0) / all.length,
+      };
+    };
+    const fast = markets(3);
+    const even = markets(2);
+    const slow = markets(1);
+
+    // The floor, and it is the whole point: no signature is ever already spent.
+    for (const mode of [fast, even, slow]) expect(mode.least).toBe(1);
+    // A signature costs a fast career less of its own steering than a slow one.
+    expect(fast.mean).toBeLessThan(even.mean);
+    expect(even.mean).toBeLessThan(slow.mean);
+    // And none of them hands a whole career away in one summer.
+    expect(slow.mean).toBeLessThan(CONTRACT.maxYears);
+  });
+
+  it("carries the unit it was written in, so the asks argue in the same one", () => {
+    for (const mode of Object.values(CAREER_MODES)) {
+      const terms = offer(mode.seasonsPerStep, 3);
+      expect(terms.seasonsPerStep).toBe(mode.seasonsPerStep);
+      const short = ASKS_BY_ID.short;
+      if (!askAvailable(short, terms)) continue;
+      const shorter = short.apply(terms);
+      // A step shorter, never a season that would strand him mid-cycle.
+      expect(shorter.years % mode.seasonsPerStep).toBe(0);
+      expect(shorter.years).toBeGreaterThanOrEqual(mode.seasonsPerStep);
+      expect(shorter.years).toBeLessThan(terms.years);
+    }
+  });
+
+  it("never offers to shorten a deal that is already one cycle", () => {
+    for (const mode of Object.values(CAREER_MODES)) {
+      const shortest = { years: mode.seasonsPerStep, seasonsPerStep: mode.seasonsPerStep };
+      expect(askAvailable(ASKS_BY_ID.short, shortest)).toBe(false);
+    }
   });
 });

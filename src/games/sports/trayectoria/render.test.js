@@ -19,6 +19,7 @@
 import { describe, expect, it } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFileSync } from "node:fs";
 
 import {
   PHASES,
@@ -36,7 +37,9 @@ import {
   watchMatch,
 } from "./career.js";
 import { SHOT_LABELS, fillTemplate, getCopy } from "./copy.js";
-import { SCREENS } from "./index.jsx";
+import { SHOT_TYPES } from "./bigmatch.js";
+import { buildChance } from "./minigames.js";
+import { SCREENS, ovrTier } from "./index.jsx";
 import { playableCountries, world } from "./world.js";
 
 const noop = () => {};
@@ -365,24 +368,48 @@ describe("every screen renders", () => {
   });
 
   it("names the chance straight away when the ball is at his feet", () => {
-    // The gate above is for the live mode only. In the played mode the shot type IS the
-    // question being asked, so hiding it would leave the screen with nothing on it.
-    for (let i = 0; i < 60; i += 1) {
-      let run = start(`feet-${i}`);
-      run = completeSigning(agreeTerms(signYouthClub(run, run.offers[0].clubId)));
-      if (run.phase === PHASES.EVENT) run = resolveEvent(run, run.event.es.options[0].id);
-      if (run.phase !== PHASES.MATCH) continue;
-      const { shot } = run.matchday;
-      if (shot.mode !== "skill") continue;
-      if ((run.matchday.fixtures[run.matchday.index].chances ?? 1) < 1) continue;
+    /*
+     * The gate above is for the live mode only. In the played mode the shot type IS the
+     * question being asked, so hiding it would leave the screen with nothing on it.
+     *
+     * Staged rather than hunted for. A played chance is rare now - the four that are a shot
+     * at a goal are a zone, asked with a flick or a button, so only a goalkeeper's night, a
+     * tackle or a through ball still has a game (see CHANCE_MECHANIC) - and driving seeds
+     * until a seventeen-year-old is handed one is a wait, not a test. What is under test is
+     * the screen's contract, so the screen is given the state it is a contract about.
+     */
+    let run = start("feet");
+    run = completeSigning(agreeTerms(signYouthClub(run, run.offers[0].clubId)));
+    if (run.phase === PHASES.EVENT) run = resolveEvent(run, run.event.es.options[0].id);
+    expect(run.phase).toBe(PHASES.MATCH);
 
-      const html = draw(PHASES.MATCH, run);
-      expect(html).toContain(SHOT_LABELS.es[shot.type]);
-      expect(html).toContain("tr-scene");
-      expect(html).not.toContain(getCopy("es").match.shotPending);
-      return;
-    }
-    throw new Error("no seed produced a playable skill decider");
+    const { index, fixtures } = run.matchday;
+    const type = "entrada";
+    const played = {
+      ...run,
+      matchday: {
+        ...run.matchday,
+        fixtures: fixtures.map((fixture, i) => (i === index ? { ...fixture, chances: 1 } : fixture)),
+        shot: {
+          ...run.matchday.shot,
+          type,
+          options: SHOT_TYPES[type],
+          mode: "skill",
+          chance: buildChance({
+            seed: "feet",
+            season: run.season,
+            fixtureId: fixtures[index].id,
+            shotType: type,
+            ovr: run.state.ovr,
+          }),
+        },
+      },
+    };
+
+    const html = draw(PHASES.MATCH, played);
+    expect(html).toContain(SHOT_LABELS.es[type]);
+    expect(html).toContain("tr-scene");
+    expect(html).not.toContain(getCopy("es").match.shotPending);
   });
 
   /**
@@ -726,6 +753,46 @@ describe("every screen renders", () => {
       // And the card is marked as its own state, not as a miss.
       expect(html).toContain("is-absent");
       expect(html).not.toContain("is-saved");
+    }
+  });
+});
+
+/**
+ * The card's rarity, which is the only place in this interface where a number becomes an
+ * object. `elite` used to start at 85 and have no ceiling, so the five hardest points of a
+ * career - the ones most careers never reach - changed nothing about the thing the player
+ * is holding.
+ */
+describe("the rating card knows how rare it is", () => {
+  it("gives ninety and up a tier of its own, and keeps the ones below it where they were", () => {
+    expect(ovrTier(99)).toBe("prisma");
+    expect(ovrTier(90)).toBe("prisma");
+    expect(ovrTier(89)).toBe("elite");
+    expect(ovrTier(85)).toBe("elite");
+    expect(ovrTier(84)).toBe("oro");
+    expect(ovrTier(75)).toBe("oro");
+    expect(ovrTier(74)).toBe("plata");
+    expect(ovrTier(65)).toBe("plata");
+    expect(ovrTier(64)).toBe("bronce");
+    expect(ovrTier(1)).toBe("bronce");
+  });
+
+  it("never leaves a rating without a tier, and enters each band exactly once", () => {
+    let previous = null;
+    const seen = [];
+    for (let ovr = 1; ovr <= 99; ovr += 1) {
+      const tier = ovrTier(ovr);
+      expect(tier, `no tier for ${ovr}`).toBeTruthy();
+      if (tier !== previous) seen.push(tier);
+      previous = tier;
+    }
+    expect(seen).toEqual(["bronce", "plata", "oro", "elite", "prisma"]);
+  });
+
+  it("has a card style for every tier it can produce", () => {
+    const css = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
+    for (const tier of ["bronce", "plata", "oro", "elite", "prisma"]) {
+      expect(css, `no card style for the "${tier}" tier`).toContain(`.tr-pcard.is-${tier}`);
     }
   });
 });

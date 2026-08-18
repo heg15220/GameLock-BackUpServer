@@ -202,6 +202,8 @@ describe("the stadium", () => {
     // Several of them belong to chances the player is STOPPING, which is exactly the case
     // that would otherwise be cropped - so this is not a vacuous list.
     expect(deep.some((type) => SITUATIONS[type]?.stops)).toBe(true);
-    expect(deep.length).toBeGreaterThan(3);
+    // Three of them: the keeper's close-in work and the defender's tackle. The four shots
+    // at a goal have no mechanic left to crop - they are a zone. See CHANCE_MECHANIC.
+    expect(deep.length).toBeGreaterThan(2);
   });
 });

@@ -61,15 +61,25 @@ function blindRate(chance, runs = 40000) {
 }
 
 describe("the roster", () => {
-  it("gives every kind of chance a mechanic that exists", () => {
-    for (const shotType of Object.keys(SHOT_TYPES)) {
-      const mechanic = CHANCE_MECHANIC[shotType];
-      expect(mechanic, `no mechanic for ${shotType}`).toBeTruthy();
+  /**
+   * NOT EVERY CHANCE HAS A GAME, and that is deliberate now.
+   *
+   * The four that are a shot at a goal ask one question - which of the goal's five zones -
+   * and they ask it with a flick or a button rather than with four different bars. What is
+   * left here is the keeper's four, where the act genuinely is something else, and the two
+   * that are not a duel with a keeper at all. See CHANCE_MECHANIC and aim.jsx.
+   */
+  it("gives every mechanic it names a game that exists", () => {
+    for (const [shotType, mechanic] of Object.entries(CHANCE_MECHANIC)) {
+      expect(SHOT_TYPES[shotType], `${shotType} is not a chance the game deals`).toBeTruthy();
       expect(Object.values(MECHANICS)).toContain(mechanic);
+    }
+    for (const shotType of ["penal", "falta", "mano_a_mano", "cabezazo"]) {
+      expect(CHANCE_MECHANIC[shotType], `${shotType} still has a minigame`).toBeUndefined();
     }
   });
 
-  it("uses all seven of them", () => {
+  it("uses every one of them", () => {
     const used = new Set(Object.values(CHANCE_MECHANIC));
     expect(used.size).toBe(Object.keys(MECHANICS).length);
   });
@@ -79,10 +89,28 @@ describe("the roster", () => {
    * roster your position can be handed - and a keeper seeing two games in fifteen seasons
    * is the whole complaint.
    */
-  it("gives every position at least four different games", () => {
+  it("never asks a position to play the same game twice", () => {
     for (const [group, types] of Object.entries(REPERTOIRE)) {
-      const mechanics = new Set(types.map((type) => CHANCE_MECHANIC[type]));
-      expect(mechanics.size, `${group} only plays ${[...mechanics].join(", ")}`).toBeGreaterThanOrEqual(4);
+      const mechanics = new Set(
+        types.map((type) => CHANCE_MECHANIC[type]).filter(Boolean),
+      );
+      /*
+       * As many different games as the position has chances - which used to be a flat
+       * "at least four" and is now the honest version of the same rule. A centre-back's
+       * repertoire is two moments, the corner and the tackle (see REPERTOIRE), so four
+       * was a number he could not reach; what must never happen is two of his chances
+       * being the same thing with a different label on it.
+       */
+      /*
+       * Counted over the chances that HAVE a game. A striker's four are all zones now, so
+       * he plays none of these - and the rule that matters is still that no position is
+       * handed the same game twice under two different names.
+       */
+      const played = types.filter((type) => CHANCE_MECHANIC[type]);
+      expect(
+        mechanics.size,
+        `${group} plays ${played.length} games with only ${mechanics.size} of them distinct`,
+      ).toBe(played.length);
     }
   });
 });

@@ -74,15 +74,39 @@ function resolveMoment(run, hit = true, locale = "es") {
     guard += 1;
     const { shot } = current.matchday;
     if (shot.mode === "skill") {
-      const aim = shot.chance.gates ?? [shot.chance.target];
-      // Dead on the target converts; a whole tolerance off the mark cannot.
-      const inputs = aim.map((value) =>
-        hit ? value : Math.min(1, value + shot.chance.tolerance * 4 + 0.3),
-      );
-      current = playChance(current, shot.chance.gates ? inputs : inputs[0]);
+      /*
+       * AN AIM IS A POINT, not a number, and this never knew it: `chance.target` is
+       * undefined for the one mechanic measured in two dimensions, so every through ball a
+       * career was handed was answered with `undefined` and judged as a total miss. The
+       * midfielder's whole repertoire was being played by a harness that could not play it.
+       * See `targetsOf`.
+       */
+      if (shot.chance.spot) {
+        const spot = shot.chance.spot;
+        const away = shot.chance.tolerance * 4 + 0.3;
+        current = playChance(
+          current,
+          hit
+            ? { x: spot.x + (spot.travel?.x ?? 0), y: spot.y + (spot.travel?.y ?? 0), t: 1 }
+            : { x: Math.min(1, spot.x + away), y: Math.min(1, spot.y + away), t: 1 },
+        );
+      } else {
+        const aim = shot.chance.gates ?? [shot.chance.target];
+        // Dead on the target converts; a whole tolerance off the mark cannot.
+        const inputs = aim.map((value) =>
+          hit ? value : Math.min(1, value + shot.chance.tolerance * 4 + 0.3),
+        );
+        current = playChance(current, shot.chance.gates ? inputs : inputs[0]);
+      }
     } else {
-      const index = hit ? shot.gap : (shot.gap + 1) % shot.options.length;
-      current = takeShot(watchMatch(current, locale), shot.options[index]);
+      /*
+       * Missing on purpose means SHOOTING AT HIM. The keeper commits to one zone and every
+       * other one is a goal (see `saveOdds`), so "the option next to the gap" stopped being
+       * a miss the moment the model stopped covering everything but one place - both runs
+       * scored and the two ways of playing a career came out identical.
+       */
+      const choice = hit ? shot.options[shot.gap] : shot.keeperAt ?? shot.options[0];
+      current = takeShot(watchMatch(current, locale), choice);
     }
   }
   return current;
@@ -107,15 +131,28 @@ function answerEvents(run, locale = "es") {
   return current;
 }
 
+/**
+ * Every night of a season, in the order the season plays them.
+ *
+ * TOURNAMENT is in the loop because it is in the season now. The knockout ties used to be
+ * queued after the whole year had been played and rolled; they are rounds of a competition
+ * the player is in the middle of, so a season alternates between a tie his side plays and a
+ * night he decides. A driver that only knew about MATCH stopped dead on the first last
+ * sixteen and never reached the market.
+ */
 function playMatches(run, locale = "es", hit = true) {
   let current = run;
   let guard = 0;
-  while (current.phase === PHASES.MATCH && guard < 40) {
+  while ((current.phase === PHASES.MATCH || current.phase === PHASES.TOURNAMENT) && guard < 60) {
     guard += 1;
+    if (current.phase === PHASES.TOURNAMENT) {
+      current = nextTie(current, locale);
+      continue;
+    }
     current = resolveMoment(current, hit, locale);
     current = nextFixture(current, locale);
   }
-  expect(guard).toBeLessThan(40);
+  expect(guard).toBeLessThan(60);
   return current;
 }
 
@@ -442,11 +479,13 @@ describe("the three matches", () => {
     const play = (seed, hit) => {
       let run = atFirstShot({ seed });
       let guard = 0;
-      while (run.phase === PHASES.MATCH && guard < 40) {
+      // TOURNAMENT is part of a season now, so a driver that only knows MATCH stops on the
+      // first knockout tie and never reaches the report. See `playMatches`.
+      while ((run.phase === PHASES.MATCH || run.phase === PHASES.TOURNAMENT) && guard < 60) {
         guard += 1;
-        run = nextFixture(resolveMoment(run, hit));
+        run = run.phase === PHASES.TOURNAMENT ? nextTie(run) : nextFixture(resolveMoment(run, hit));
       }
-      return run.seasonResults[0].record;
+      return run.seasonResults[0]?.record ?? null;
     };
 
     /*
@@ -455,19 +494,48 @@ describe("the three matches", () => {
      * test is about what happens when he DOES get a chance, so it finds a season that
      * offers one rather than assuming every season does.
      */
-    let hit = null;
-    let miss = null;
-    for (let i = 0; i < 20 && !hit; i += 1) {
+    /*
+     * MEASURED OVER MANY SEEDS, because one is no longer a proof.
+     *
+     * It used to be: find the gap and it is a goal, miss it and it is a save. The keeper
+     * commits to one of five zones now and can reach all of them - see `saveOdds` - so
+     * putting it in the angle he has just left converts most of the time rather than every
+     * time, and shooting at him goes in occasionally. One season could always come out
+     * level by luck; what has to be true is the direction, over enough of them.
+     */
+    let seasons = 0;
+    let hitGoals = 0;
+    let missGoals = 0;
+    let differed = 0;
+    for (let i = 0; i < 40; i += 1) {
       const seed = `shots-${i}`;
-      const played = play(seed, true);
-      if (!played.bigMatches.some((match) => match.taken > 0)) continue;
-      hit = played;
-      miss = play(seed, false);
+      const hit = play(seed, true);
+      if (!hit?.bigMatches?.some((match) => match.taken > 0)) continue;
+      const miss = play(seed, false);
+      if (!miss) continue;
+      seasons += 1;
+      hitGoals += hit.goals;
+      missGoals += miss.goals;
+      if (
+        JSON.stringify(hit.bigMatches.map((m) => m.scored)) !==
+        JSON.stringify(miss.bigMatches.map((m) => m.scored))
+      ) {
+        differed += 1;
+      }
     }
-    expect(hit, "no seed gave him a chance in its first season").toBeTruthy();
+    expect(seasons, "no seed gave him a chance in its first season").toBeGreaterThan(4);
 
-    expect(hit.goals).toBeGreaterThan(miss.goals);
-    expect(hit.bigMatches.map((m) => m.scored)).not.toEqual(miss.bigMatches.map((m) => m.scored));
+    // Going for the corner he has vacated is worth goals, which is the whole of the moment.
+    expect(hitGoals).toBeGreaterThan(missGoals);
+    /*
+     * And the two ways of playing it are not the same career - though they agree more often
+     * than they used to, which is the model working rather than the test weakening. The
+     * night's coin is the same for both runs, so the outcomes only diverge when it falls
+     * BETWEEN the two save odds: the angle he left (beaten roughly one time in five) and
+     * the zone next to him (beaten around half the time). Everything outside that band is
+     * a goal either way or a save either way, exactly as football is.
+     */
+    expect(differed, "the shot never changed anything").toBeGreaterThanOrEqual(seasons / 5);
   });
 
   it("is still a pure function of the seed when the shots are the same", () => {
@@ -1450,7 +1518,15 @@ describe("how often the season gets a verdict", () => {
         did_not.push(...bandsOf(position, `through-${i}`, false));
       }
     }
-    expect(shareOf(came, "inspirado")).toBeGreaterThan(shareOf(did_not, "inspirado") * 1.8);
+    /*
+     * Half again as many inspired seasons, where it used to be nearly twice as many. The
+     * threshold moved because the model did, in both directions at once: coming through is
+     * no longer certain when you pick right - a hard night puts a quarter of them over the
+     * bar, see `offTargetOdds` - and shooting straight at him is no longer certain to fail,
+     * because a keeper is beaten on his own zone often enough to matter. The signal is
+     * smaller and it is the honest size.
+     */
+    expect(shareOf(came, "inspirado")).toBeGreaterThan(shareOf(did_not, "inspirado") * 1.5);
     expect(shareOf(did_not, "gris")).toBeGreaterThan(shareOf(came, "gris"));
   });
 
@@ -1499,8 +1575,13 @@ describe("a final and its trophy", () => {
       run = answerEvents(run);
 
       let inner = 0;
-      while (run.phase === PHASES.MATCH && inner < 40) {
+      // TOURNAMENT is part of a season now, not a queue after it - see `playMatches`.
+      while ((run.phase === PHASES.MATCH || run.phase === PHASES.TOURNAMENT) && inner < 60) {
         inner += 1;
+        if (run.phase === PHASES.TOURNAMENT) {
+          run = nextTie(run);
+          continue;
+        }
         const { fixtures, index } = run.matchday;
         const fixture = fixtures[index];
         const watched = fixture.kind === "final_copa";

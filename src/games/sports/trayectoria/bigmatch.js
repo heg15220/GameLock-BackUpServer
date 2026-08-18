@@ -25,6 +25,16 @@
  * Pure: no React, no clock, no world mutation.
  */
 
+import {
+  BLIND_CONVERSION,
+  ZONES,
+  bestAgainst,
+  keeperDifficulty,
+  keeperDive,
+  keeperTell,
+  offTargetOdds,
+  saveOdds,
+} from "./keeper.js";
 import { chance, createStream, randInt } from "./rng.js";
 import {
   CONTINENTAL_CYCLE,
@@ -157,9 +167,21 @@ export const NAILED_FROM_OVR = (ovr) => Math.max(0.02, Math.min(0.14, (ovr - 55)
  * the guesses that were wrong.
  */
 export function shotScoringRate(ovr) {
-  const hint = HINT_FROM_OVR(ovr);
-  const gap = hint * (1 / 2) + (1 - hint) * (1 / 3);
-  return gap + (1 - gap) * NAILED_FROM_OVR(ovr);
+  /*
+   * READ OFF THE KEEPER, not off an assumption about him.
+   *
+   * This used to assert a flat one-in-three, which was true of the old model only because
+   * that model WAS a flat one-in-three - the opposition was a coin that happened to agree
+   * with the number written here. A keeper who commits to one of five zones concedes rather
+   * more than that, which is also what a real penalty does, and deriving the figure means
+   * the two can never drift apart again. See BLIND_CONVERSION.
+   *
+   * The read is deliberately not in it. It names where he is leaning rather than removing
+   * an option (see `keeperTell`), so what it is worth depends on whether the player listens
+   * - and a budget priced on the assumption that he always does would be paying out for
+   * something the model cannot promise.
+   */
+  return Math.min(0.97, BLIND_CONVERSION + (1 - BLIND_CONVERSION) * NAILED_FROM_OVR(ovr));
 }
 
 /**
@@ -258,23 +280,40 @@ export function splitSeason(budget, stages) {
  * scores nothing. See REPERTOIRE.
  */
 export const SHOT_TYPES = {
-  // Striker.
-  penal: ["izquierda", "centro", "derecha"],
-  mano_a_mano: ["cruzado", "primer-palo", "picadita"],
-  cabezazo: ["primer-palo", "segundo-palo", "atras"],
-  falta: ["barrera", "palo-largo", "rasa"],
-  volea: ["abajo", "escuadra", "cruzada"],
-  // Goalkeeper. The three options are where HE goes, not where the ball does.
-  parada_penal: ["izquierda", "centro", "derecha"],
-  salida_mano_a_mano: ["achique", "palo-corto", "abajo"],
-  tiro_lejano: ["escuadra", "abajo", "cruzada"],
-  centro_lateral: ["salida", "primer-palo", "segundo-palo"],
-  // Defender.
-  despeje: ["primer-palo", "centro", "segundo-palo"],
-  entrada: ["adelantarse", "aguantar", "cerrar"],
-  anticipo: ["primer-palo", "atras", "cruzado"],
-  // Midfield.
+  /*
+   * FOUR SITUATIONS, TWO SIDES, AND TWO THAT ARE NEITHER.
+   *
+   * There used to be thirteen kinds of chance and they had drifted apart: a volley from the
+   * edge, a clearance off the line and an interception were three different pictures of
+   * three different games, and no player ever saw more than four of them. The list is the
+   * four moments football actually stops for - a penalty, a free kick, a one-on-one and a
+   * ball into the area - plus the two that belong to somebody other than a finisher.
+   *
+   * The four are the SAME situation from either side. A penalty is a penalty; whether you
+   * are the man striking it or the man on the line is what your position decides, and the
+   * pair share a drawing, a set of placements and a keeper. See `stops` in scene.jsx.
+   */
+
+  // The four, from the side that is trying to score. All of them aim at the same five
+  // places, because a goal has five places in it and a private vocabulary per situation -
+  // "picadita", "barrera", "al segundo palo" - was thirteen names for one question.
+  penal: ZONES,
+  falta: ZONES,
+  mano_a_mano: ZONES,
+  cabezazo: ZONES,
+
+  // The same four from inside the goal, and the same five zones: where HE goes, not where
+  // the ball does. He can reach any of them - see `saveOdds` - which is exactly why
+  // choosing one is a decision.
+  parada_penal: ZONES,
+  tiro_lejano: ZONES,
+  salida_mano_a_mano: ZONES,
+  centro_lateral: ZONES,
+
+  // And the two that are not a shot at all: the pass that makes the goal, and the tackle
+  // that stops one. Neither has a mirror, because neither is a duel with a goalkeeper.
   pase_gol: ["al-hueco", "atras", "cruzado"],
+  entrada: ["adelantarse", "aguantar", "cerrar"],
 };
 
 /**
@@ -289,17 +328,14 @@ export const PRODUCES = { GOAL: "goal", ASSIST: "assist", STOP: "stop" };
 
 export const SHOT_PRODUCES = {
   penal: PRODUCES.GOAL,
+  falta: PRODUCES.GOAL,
   mano_a_mano: PRODUCES.GOAL,
   cabezazo: PRODUCES.GOAL,
-  falta: PRODUCES.GOAL,
-  volea: PRODUCES.GOAL,
   parada_penal: PRODUCES.STOP,
-  salida_mano_a_mano: PRODUCES.STOP,
   tiro_lejano: PRODUCES.STOP,
+  salida_mano_a_mano: PRODUCES.STOP,
   centro_lateral: PRODUCES.STOP,
-  despeje: PRODUCES.STOP,
   entrada: PRODUCES.STOP,
-  anticipo: PRODUCES.STOP,
   pase_gol: PRODUCES.ASSIST,
 };
 
@@ -316,11 +352,15 @@ export const SHOT_PRODUCES = {
  * the original five, unchanged, so nothing about an existing forward career moves.
  */
 export const REPERTOIRE = {
-  keeper: ["parada_penal", "salida_mano_a_mano", "tiro_lejano", "centro_lateral"],
-  defensive: ["despeje", "entrada", "anticipo", "cabezazo"],
-  support: ["pase_gol", "falta", "volea", "mano_a_mano"],
-  creator: ["pase_gol", "falta", "volea", "mano_a_mano"],
-  forward: ["penal", "mano_a_mano", "cabezazo", "falta", "volea"],
+  // All four, from the line. A goalkeeper's career is the same four moments as everybody
+  // else's, seen from the only place in the stadium they look different from.
+  keeper: ["parada_penal", "tiro_lejano", "salida_mano_a_mano", "centro_lateral"],
+  // A centre-back's decisive night is the corner he wins it with and the tackle he saves
+  // it with. Two moments, which is exactly how many a centre-back gets.
+  defensive: ["cabezazo", "entrada"],
+  support: ["pase_gol", "falta", "mano_a_mano", "cabezazo"],
+  creator: ["pase_gol", "falta", "mano_a_mano", "cabezazo"],
+  forward: ["penal", "mano_a_mano", "cabezazo", "falta"],
 };
 
 /**
@@ -336,16 +376,36 @@ export const REPERTOIRE = {
  *    Nothing about the model reads it - it is chronology, and chronology is the one thing
  *    a career simulation cannot get wrong without the player noticing immediately.
  */
+/**
+ * The deciders that are not fixtures at all, but ROUNDS.
+ *
+ * Four of the nine used to be staged next to the competition they belonged to: a European
+ * Cup final was rolled from its own odds, played in its own screen, and then the bracket of
+ * the very same edition was narrated afterwards - last sixteen, quarter, semi and a second
+ * final that was free to disagree with the first. The competition was described twice and
+ * in the wrong order.
+ *
+ * They are the same nights with the same budget. What this says is where they are PLAYED:
+ * the run reaches that round, the earlier ties are watched in the order football plays
+ * them, and this one is his. See `stageTournaments` in career.js.
+ */
+export const TOURNAMENT_NIGHTS = {
+  final_continental: { trophy: "continental_a", club: true, round: "final" },
+  semifinal_continental: { trophy: "continental_a", club: true, round: "semi" },
+  final_mundial: { trophy: "world_cup", club: false, round: "final", tournament: "world_cup" },
+  final_continental_nt: { trophy: "continental_nt", club: false, round: "final" },
+};
+
 export const FIXTURE_KINDS = {
-  final_mundial: { weight: 100, when: 9, shots: ["penal", "mano_a_mano", "volea"], decides: "world_cup", national: true },
+  final_mundial: { weight: 100, when: 9, shots: ["penal", "mano_a_mano", "cabezazo"], decides: "world_cup", national: true },
   final_continental_nt: { weight: 95, when: 8, shots: ["penal", "cabezazo", "mano_a_mano"], decides: "continental_nt", national: true },
-  final_continental: { weight: 90, when: 6, shots: ["mano_a_mano", "volea", "penal"], decides: "continental_a" },
+  final_continental: { weight: 90, when: 6, shots: ["mano_a_mano", "penal", "falta"], decides: "continental_a" },
   ascenso: { weight: 86, when: 7, shots: ["cabezazo", "falta", "mano_a_mano"], decides: "promotion" },
   salvacion: { weight: 85, when: 5, shots: ["penal", "cabezazo", "mano_a_mano"], decides: "survival" },
-  titulo_liga: { weight: 80, when: 4, shots: ["mano_a_mano", "cabezazo", "volea"], decides: "league" },
+  titulo_liga: { weight: 80, when: 4, shots: ["mano_a_mano", "cabezazo", "falta"], decides: "league" },
   final_copa: { weight: 70, when: 3, shots: ["falta", "penal", "mano_a_mano"], decides: "cup" },
-  semifinal_continental: { weight: 60, when: 2, shots: ["volea", "mano_a_mano", "falta"], decides: "semifinal" },
-  clasico: { weight: 40, when: 1, shots: ["cabezazo", "volea", "falta", "mano_a_mano"], decides: "derby" },
+  semifinal_continental: { weight: 60, when: 2, shots: ["mano_a_mano", "falta", "cabezazo"], decides: "semifinal" },
+  clasico: { weight: 40, when: 1, shots: ["cabezazo", "falta", "mano_a_mano"], decides: "derby" },
 };
 
 const oddsFor = (trophy, reputation) => TITLE_ODDS[trophy]?.odds?.[reputation] ?? 0;
@@ -568,7 +628,7 @@ export function seasonFixtures({
   conversion = null,
 }) {
   const modifiers = { titleMultipliers: {}, nationalMultipliers: {} };
-  if (!club) return { fixtures: [], modifiers };
+  if (!club) return { fixtures: [], tournaments: [], modifiers };
 
   // What he actually converts, not what the model guessed he would. See `conversionRate`.
   const rate = conversionRate(ovr, conversion);
@@ -792,7 +852,7 @@ export function seasonFixtures({
 
   // And now, and only now, they are put in the order they are played in. Importance chose
   // them; the calendar sorts them.
-  const fixtures = staged
+  const nights = staged
     .slice(0, MATCHES_PER_SEASON)
     .sort((a, b) => FIXTURE_KINDS[a.kind].when - FIXTURE_KINDS[b.kind].when)
     .map((fixture, index) => ({
@@ -806,14 +866,40 @@ export function seasonFixtures({
       derby: Boolean(fixture.derby),
     }));
 
-  return { fixtures, modifiers };
+  /*
+   * WHICH OF THEM ARE FIXTURES AND WHICH ARE ROUNDS.
+   *
+   * They are all drawn, ranked and cut together, which is the whole reason the split
+   * happens here and not earlier: a World Cup final still crowds a derby out of the three,
+   * so nothing about how much of a season the player decides has moved. What has moved is
+   * where the survivors are PLAYED - see TOURNAMENT_NIGHTS and `stageTournaments` in
+   * career.js. A European Cup final is the last round of a European Cup now, with the ties
+   * that led to it in front of it, instead of a fixture standing next to the bracket of the
+   * same edition and contradicting it.
+   */
+  const fixtures = nights.filter((night) => !TOURNAMENT_NIGHTS[night.kind]);
+  const tournaments = nights
+    .filter((night) => TOURNAMENT_NIGHTS[night.kind])
+    .map((night) => ({ ...night, ...TOURNAMENT_NIGHTS[night.kind] }));
+
+  return { fixtures, tournaments, modifiers };
 }
 
 /**
  * Set up one shot. The gap is where the keeper is not; it is drawn now and only revealed
  * once the player has committed.
  */
-export function shotFor({ seed, season, fixture, ovr, group = "forward" }) {
+export function shotFor({
+  seed,
+  season,
+  fixture,
+  ovr,
+  group = "forward",
+  // Everything the man in the other goal knows: what the night is worth, who his side are,
+  // what this player has been converting, and where he has been putting them. See keeper.js.
+  keeper = null,
+  attempt = 0,
+}) {
   const spec = FIXTURE_KINDS[fixture.kind];
   const typeStream = createStream(seed, "shot", "type", fixture.id, season);
 
@@ -836,19 +922,66 @@ export function shotFor({ seed, season, fixture, ovr, group = "forward" }) {
   }
   const options = SHOT_TYPES[type];
 
-  const gapStream = createStream(seed, "shot", "gap", fixture.id, season);
-  const gap = randInt(gapStream, 0, options.length - 1);
+  /*
+   * WHERE THE KEEPER GOES, AND WHAT KIND OF NIGHT HE IS HAVING.
+   *
+   * Not "which option is the gap" any more. The keeper commits to one of the five and can
+   * reach all of them from there, less and less well the further it is - so there is no
+   * safe corner and no free one either. Drawn per ATTEMPT, leaning towards the zones this
+   * player has been using. See `keeperDive` and `saveOdds`.
+   */
+  const difficulty = keeper?.difficulty ?? keeperDifficulty({ decides: fixture.decides });
+  const stops = (SHOT_PRODUCES[type] ?? PRODUCES.GOAL) === PRODUCES.STOP;
 
-  const nailedStream = createStream(seed, "shot", "nailed", fixture.id, season);
-  const nailed = chance(nailedStream, NAILED_FROM_OVR(ovr));
+  /*
+   * WHERE HE GOES. One zone, and the only one he can stop.
+   *
+   * Drawn per ATTEMPT and leaning towards the zones this player has been using. On a chance
+   * he is STOPPING this is the other side of the same duel - where the SHOOTER put it - so
+   * the memory is read the other way up: a shooter aims away from the corner you keep
+   * diving to. See `keeperDive`.
+   */
+  const keeperAt = keeperDive({
+    seed,
+    season,
+    fixtureId: fixture.id,
+    attempt,
+    zones: options,
+    memory: keeper?.memory ?? [],
+    difficulty,
+    avoid: stops,
+  });
+  /*
+   * The one coin of the night, drawn here so `resolveShot` can stay pure. Everything else
+   * about the moment is a decision or a table; this is the part that is a save or a goal.
+   */
+  const roll = createStream(seed, "shot", "roll", fixture.id, season, attempt)();
+  /*
+   * And the one before it: whether the shot was ever a shot. A hard night is mostly this -
+   * see `offTargetOdds` - and it is drawn separately so the feed can tell the difference
+   * between a keeper who saved it and a ball that went over the bar.
+   */
+  const wild = createStream(seed, "shot", "wild", fixture.id, season, attempt)();
+  const offTarget = offTargetOdds(difficulty, ovr);
 
-  // The read removes one option the keeper has covered - never the gap itself.
-  const hintStream = createStream(seed, "shot", "hint", fixture.id, season);
-  let ruledOut = null;
-  if (chance(hintStream, HINT_FROM_OVR(ovr))) {
-    const wrong = options.map((_, index) => index).filter((index) => index !== gap);
-    ruledOut = wrong[Math.floor(hintStream() * wrong.length)];
-  }
+  /*
+   * WHAT A RATING BUYS, and it is no longer an option struck off the list.
+   *
+   * `ruledOut` removed one placement, which was information while the keeper covered
+   * everything but one place. Under a keeper who commits it is the opposite of a favour:
+   * four zones out of five are a goal, so taking one away can only cost you. The read is a
+   * read now - it names the zone his memory is pulling him towards, when there is one worth
+   * naming, and the player does what he likes with it. See `keeperTell`.
+   */
+  const readStream = createStream(seed, "shot", "read", fixture.id, season, attempt);
+  const tell = chance(readStream, HINT_FROM_OVR(ovr))
+    ? keeperTell({ zones: options, memory: keeper?.memory ?? [], difficulty })
+    : null;
+
+  const nailed = chance(
+    createStream(seed, "shot", "nailed", fixture.id, season, attempt),
+    NAILED_FROM_OVR(ovr),
+  );
 
   return {
     fixtureId: fixture.id,
@@ -856,25 +989,80 @@ export function shotFor({ seed, season, fixture, ovr, group = "forward" }) {
     type,
     produces: SHOT_PRODUCES[type] ?? PRODUCES.GOAL,
     options,
-    gap,
+    // Where the keeper went - the one place in the goal this cannot be put.
+    keeperAt,
+    /*
+     * And the best place it can. `gap` has always meant WHERE THE KEEPER IS NOT, and it has
+     * to keep meaning that: everything downstream reads it as the good answer, so pointing
+     * it at him inverted the lot. See `bestAgainst`.
+     */
+    gap: bestAgainst(options, keeperAt),
     nailed,
-    ruledOut,
+    // The read, when there was one. Never removes an option - see `keeperTell`.
+    tell,
+    ruledOut: null,
+    roll,
+    wild,
+    offTarget,
+    // What he is up against, so the screen can say so and the next attempt can rebuild it.
+    keeper: { difficulty, attempt },
   };
 }
 
 /** Commit to a placement. Scoring means finding the gap - or being good enough not to need it. */
 export function resolveShot(shot, choice) {
   const picked = shot.options.indexOf(choice);
-  const foundGap = picked === shot.gap;
-  const scored = foundGap || shot.nailed;
+  const stops = (SHOT_PRODUCES[shot.type] ?? PRODUCES.GOAL) === PRODUCES.STOP;
+  /*
+   * HE WENT ONE WAY. Anywhere else is in.
+   *
+   * There is no distance term any more and there should never have been one: a keeper who
+   * dives to the top left does not save the bottom right, and a model that let him do it a
+   * seventh of the time put SAVED on a screen showing him going the other way. `saveOdds`
+   * is zero everywhere except the zone he chose, and not certain even there.
+   */
+  /*
+   * FIRST, WAS IT A SHOT AT ALL.
+   *
+   * Drawn before the keeper because it happens before him: over the bar, wide of the post,
+   * a yard too close. It is what a big night actually does to a footballer, and it is the
+   * only thing left that a keeper's night can lean on once he only saves the zone he went
+   * to. Named separately so nothing ever calls it a save. See `offTargetOdds`.
+   */
+  const wide = (shot.wild ?? 1) < (shot.offTarget ?? 0);
+  const save = wide ? 0 : saveOdds(choice, shot.keeperAt, shot.keeper?.difficulty);
+  /*
+   * COMING THROUGH IS NOT THE SAME EVENT ON BOTH SIDES OF THE DUEL.
+   *
+   * `save` is the chance the ball is stopped, and that is the geometry whichever way round
+   * the player is standing. What it MEANS flips: a striker comes through when the ball beats
+   * it, a goalkeeper comes through when it does not.
+   */
+  const stopped = !wide && (shot.roll ?? 1) < save;
+  /*
+   * A keeper whose opponent skies it has not made a save, and he has not conceded either -
+   * he comes through the night without touching the ball, which is a thing that happens.
+   */
+  const came = stops ? wide || stopped : !wide && !stopped;
+  /*
+   * The bailout the top of the game has always had: sometimes it comes off anyway. Never on
+   * a ball that went over the bar, though - the drawing puts that one outside the frame,
+   * and a goal marked on a shot drawn missing the goal is the exact contradiction this
+   * whole model was rebuilt to stop.
+   */
+  const scored = came || (shot.nailed && !wide);
   return {
     ...shot,
     choice,
     picked,
-    foundGap,
+    save,
+    // Over, wide, or straight at him: a shot the keeper never had to answer.
+    offTarget: wide,
+    // Whether he found a way past him at all - the thing the verdict is about.
+    foundGap: stops ? choice === shot.keeperAt : choice !== shot.keeperAt,
     scored,
-    // Beating a keeper who read you is the moment worth printing.
-    nailedIt: scored && !foundGap,
+    // Coming through when the geometry said you would not is the moment worth printing.
+    nailedIt: scored && (stops ? save <= 0 : save > 0),
   };
 }
 

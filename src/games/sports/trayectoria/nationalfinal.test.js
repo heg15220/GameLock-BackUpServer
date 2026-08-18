@@ -74,6 +74,10 @@ function atNationalFinal(seed, trophy, chances = 1) {
       matchday: {
         ...run.matchday,
         fixtures: [only],
+        // The season's calendar, with this as its only night. See `showNight`.
+        queue: [{ when: 0, kind: "fixture", at: 0 }],
+        cursor: 0,
+        runs: [],
         index: 0,
         shot: { ...shot, kind, fixtureId: only.id, mode: "match", chance: null },
         attempts: [],

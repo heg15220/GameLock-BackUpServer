@@ -2,7 +2,7 @@
  * The formats, checked against the competitions they claim to be.
  *
  * A bracket that is internally consistent but wrong about reality still draws, still plays
- * and still says "Champions League" at the top - which is exactly why this is worth having.
+ * and still says "Copa de Europa" at the top - which is exactly why this is worth having.
  * Every number below is one anybody can verify against a real edition in ten seconds, and
  * that is the point: these change, and the World Cup changed last.
  */
@@ -18,6 +18,8 @@ import {
   roundsOf,
   tournamentFor,
   continentalQualification,
+  matchInertia,
+  playerPull,
   simulateTournamentRun,
 } from "./tournaments.js";
 
@@ -169,5 +171,88 @@ describe("qualification and full runs", () => {
     expect(first.champion).toBe(false);
     expect(first.rounds[first.rounds.length - 1].won).toBe(false);
     expect(first.eliminatedAt).toBe(first.rounds[first.rounds.length - 1].round);
+  });
+});
+
+/**
+ * WHOSE RUN IT IS.
+ *
+ * A tournament used to be drawn from the badge and nothing else, which made it the one part
+ * of a career the career could not reach: the same club went exactly as far in its ninth
+ * season as in its first, whoever happened to be playing for it. These lock in the two
+ * things that now move it - what he is rated right now, and how much football he is
+ * actually playing, with this season weighted above the two behind it.
+ */
+describe("the player's weight on his own tournament", () => {
+  const field = Array.from({ length: 36 }, (_, index) => ({
+    id: `c-${index}`,
+    name: `C ${index}`,
+    continental_reputation: index % 6,
+  }));
+  const club = { id: "us", name: "Nos", continental_reputation: 2 };
+
+  /** How often a run of this shape reaches the final at all, over a decent sample. */
+  const reachesFinal = (pull) => {
+    let finals = 0;
+    const runs = 600;
+    for (let i = 0; i < runs; i += 1) {
+      const run = simulateTournamentRun({
+        id: "champions", seed: `pull-${i}`, season: 2, entrants: field, player: club, pull,
+      });
+      if ((run?.rounds ?? []).some((round) => round.round === "final")) finals += 1;
+    }
+    return finals / runs;
+  };
+
+  it("counts the current season above the ones behind it", () => {
+    // Same three seasons, different order: the one being played is the one that counts.
+    const rising = matchInertia(44, [10, 8]);
+    const falling = matchInertia(8, [44, 44]);
+    expect(rising).toBeGreaterThan(falling);
+    // And the extremes are the extremes.
+    expect(matchInertia(0, [0, 0])).toBe(0);
+    expect(matchInertia(60, [60, 60])).toBe(1);
+    // A first season is measured against itself, not against two it has not had.
+    expect(matchInertia(38, [])).toBeCloseTo(1, 6);
+  });
+
+  it("rates a player by what he is now, damped by whether he is on the pitch", () => {
+    const star = playerPull({ ovr: 90, matches: 44, previous: [42, 40] });
+    const squad = playerPull({ ovr: 76, matches: 24, previous: [22, 20] });
+    const reserve = playerPull({ ovr: 62, matches: 8, previous: [6, 4] });
+    expect(star).toBeGreaterThan(squad);
+    expect(squad).toBeGreaterThan(reserve);
+    expect(reserve).toBeLessThan(0);
+
+    // The same rating, a season spent injured: he cannot carry a side he is not in.
+    const absent = playerPull({ ovr: 90, matches: 4, previous: [42, 40] });
+    expect(absent).toBeLessThan(star);
+    expect(absent).toBeGreaterThan(reserve);
+  });
+
+  it("moves how far the side actually goes", () => {
+    const withStar = reachesFinal(playerPull({ ovr: 90, matches: 44, previous: [42, 40] }));
+    const withReserve = reachesFinal(playerPull({ ovr: 62, matches: 8, previous: [6, 4] }));
+    // Not a rounding difference: the same club is a different side with a great player in
+    // it, which is the whole claim.
+    expect(withStar).toBeGreaterThan(withReserve * 3);
+    // And it is still a tournament, not a coronation.
+    expect(withStar).toBeLessThan(0.5);
+  });
+
+  it("never lets the pull put a side outside the range the formats are drawn for", () => {
+    for (const pull of [-9, -1, 0, 1, 9]) {
+      const run = simulateTournamentRun({
+        id: "champions", seed: "range", season: 1, entrants: field, player: club, pull,
+      });
+      expect(run).toBeTruthy();
+      expect(run.phase.position).toBeGreaterThanOrEqual(1);
+      expect(run.phase.position).toBeLessThanOrEqual(TOURNAMENTS.champions.teams);
+    }
+  });
+
+  it("changes nothing for a run that is not given one", () => {
+    const args = { id: "champions", seed: "neutral", season: 1, entrants: field, player: club };
+    expect(simulateTournamentRun({ ...args, pull: 0 })).toEqual(simulateTournamentRun(args));
   });
 });

@@ -77,6 +77,10 @@ function atCupFinal(seed = "cupfinal", chances = 1) {
       matchday: {
         ...run.matchday,
         fixtures: [only],
+        // The season's calendar, with this as its only night. See `showNight`.
+        queue: [{ when: 0, kind: "fixture", at: 0 }],
+        cursor: 0,
+        runs: [],
         index: 0,
         shot: { ...shot, kind: "final_copa", fixtureId: only.id, mode: "match", chance: null },
         attempts: [],
@@ -206,6 +210,12 @@ describe("a final he never got a touch in", () => {
       matchday: {
         ...run.matchday,
         fixtures: [first, final],
+        queue: [
+          { when: 0, kind: "fixture", at: 0 },
+          { when: 1, kind: "fixture", at: 1 },
+        ],
+        cursor: 0,
+        runs: [],
         index: 0,
         shot: { ...shot, fixtureId: first.id, mode: "skill", chance: null },
         attempts: [],
@@ -291,6 +301,103 @@ describe("the shootout", () => {
 
   it("is the same tie every time, from the same seed", () => {
     expect(shootoutFor("same", true)).toEqual(shootoutFor("same", true));
+  });
+
+  /**
+   * THE RULES, KICK BY KICK.
+   *
+   * Two of them were being counted wrong, and both came from measuring "kicks remaining" as
+   * one shared number when the two sides do not have the same number left at every point.
+   *
+   *  1. After OUR kick in round three we have taken three and they have taken two - so they
+   *     have three left, not two. Read as two, a 3-0 was declared over at a point where the
+   *     other side could still make it 3-3.
+   *  2. Past five each the shared count says "nobody has any left", which the same test read
+   *     as "whoever is ahead has won" - so the tie ended the instant we scored our sixth,
+   *     with the opponent never invited to answer it. Sudden death is a PAIR.
+   */
+  const replay = (kicks) => {
+    const order = [];
+    for (let i = 0; i < Math.max(kicks.us.length, kicks.them.length); i += 1) {
+      if (i < kicks.us.length) order.push({ side: "us", scored: kicks.us[i] });
+      if (i < kicks.them.length) order.push({ side: "them", scored: kicks.them[i] });
+    }
+    return order;
+  };
+
+  it("never stops while the trailing side can still catch up", () => {
+    for (let i = 0; i < 200; i += 1) {
+      const kicks = shootoutFor(`rules-${i}`, i % 2 === 0);
+      const order = replay(kicks);
+      let us = 0;
+      let them = 0;
+      let usTaken = 0;
+      let themTaken = 0;
+      order.forEach((kick, index) => {
+        if (kick.side === "us") {
+          usTaken += 1;
+          if (kick.scored) us += 1;
+        } else {
+          themTaken += 1;
+          if (kick.scored) them += 1;
+        }
+        const last = index === order.length - 1;
+        const usLeft = Math.max(0, 5 - usTaken);
+        const themLeft = Math.max(0, 5 - themTaken);
+        // In sudden death a tie is only settled by a COMPLETED pair - being one goal up
+        // with the other side still to take theirs is not a win.
+        const sudden = usTaken > 5 || themTaken > 5;
+        const over = sudden
+          ? usTaken === themTaken && us !== them
+          : us > them + themLeft || them > us + usLeft;
+        /*
+         * Both directions, and the second one is the one that matters. A tie that stops too
+         * LATE is easy to see; a tie that stops too EARLY simply ends, and every assertion
+         * that only walks the kicks it was given walks right past it. The last kick has to
+         * be the kick that settled it, and no kick before it can have.
+         */
+        const sequence = `${kicks.us.map(Number).join("")}/${kicks.them.map(Number).join("")}`;
+        expect(over, `${sequence}: ${last ? "stopped at" : "kicked on after"} ${us}-${them}`).toBe(
+          last,
+        );
+      });
+    }
+  });
+
+  it("gives both sides the same number of kicks once it goes to sudden death", () => {
+    let suddenDeaths = 0;
+    for (let i = 0; i < 400; i += 1) {
+      const kicks = shootoutFor(`sudden-${i}`, i % 2 === 0);
+      if (kicks.us.length <= 5 && kicks.them.length <= 5) continue;
+      suddenDeaths += 1;
+      // Nobody wins sudden death with an extra kick in hand.
+      expect(
+        kicks.us.length,
+        `${kicks.us.length} v ${kicks.them.length} kicks in sudden death`,
+      ).toBe(kicks.them.length);
+      // Level after five each is the only way to get there.
+      expect(kicks.us.slice(0, 5).filter(Boolean).length).toBe(
+        kicks.them.slice(0, 5).filter(Boolean).length,
+      );
+      // And every sudden-death pair before the last one was level.
+      for (let pair = 5; pair < kicks.us.length - 1; pair += 1) {
+        expect(kicks.us[pair]).toBe(kicks.them[pair]);
+      }
+      // The last pair is the one that differs.
+      const last = kicks.us.length - 1;
+      expect(kicks.us[last]).not.toBe(kicks.them[last]);
+    }
+    expect(suddenDeaths, "no shootout ever reached sudden death").toBeGreaterThan(5);
+  });
+
+  it("never takes more than five each before sudden death, or fewer than three", () => {
+    for (let i = 0; i < 200; i += 1) {
+      const kicks = shootoutFor(`bounds-${i}`, i % 3 === 0);
+      expect(kicks.us.length).toBeGreaterThanOrEqual(3);
+      // The regulation five, and then only complete pairs.
+      if (kicks.us.length > 5) expect(kicks.us.length).toBe(kicks.them.length);
+      else expect(Math.abs(kicks.us.length - kicks.them.length)).toBeLessThanOrEqual(1);
+    }
   });
 });
 

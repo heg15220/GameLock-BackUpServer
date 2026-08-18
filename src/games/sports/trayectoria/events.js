@@ -1357,6 +1357,17 @@ export const EVENTS = [
 
   {
     id: "rueda-de-presentacion",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      promise: "chulesco",
+      measured: "profesional",
+      group: "institucional",
+    },
+    room: { stand: "chulesco", board: "institucional" },
     // Only ever on arrival, and it matters more the bigger the room.
     weight: (c) => (c.seasonsAtClub > 0 ? 0 : c.clubReputation >= 3 ? 250 : 185),
     theme: "prensa",
@@ -1404,6 +1415,17 @@ export const EVENTS = [
   },
   {
     id: "preguntan-por-el-rival",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      praise: "institucional",
+      compete: "chulesco",
+      deflect: "profesional",
+    },
+    room: { stand: "chulesco", board: "profesional" },
     // The shadow is only worth a question once both of you are worth asking about.
     weight: (c) => (c.ovr >= 68 ? 170 : 50),
     theme: "prensa",
@@ -1437,6 +1459,17 @@ export const EVENTS = [
   },
   {
     id: "preguntan-por-el-entrenador",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      back: "institucional",
+      honest: "sincero",
+      nothing: "profesional",
+    },
+    room: { stand: "sincero", board: "institucional" },
     weight: (c) => (c.role === "suplente" || c.role === "rotacion_baja" ? 205 : 120),
     theme: "prensa",
     es: {
@@ -1469,6 +1502,17 @@ export const EVENTS = [
   },
   {
     id: "la-pregunta-por-el-companero",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      loyal: "institucional",
+      tell: "sincero",
+      joke: "chulesco",
+    },
+    room: { stand: "institucional", board: "institucional" },
     weight: 155,
     theme: "prensa",
     es: {
@@ -1501,12 +1545,23 @@ export const EVENTS = [
   },
   {
     id: "preguntan-por-tu-futuro",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      commit: "sincero",
+      open: "chulesco",
+      dodge: "profesional",
+    },
+    room: { stand: "sincero", board: "profesional" },
     // There has to be a deal to be asked about, and somebody who would actually come.
     weight: (c) => (c.contractYearsLeft > 0 ? (c.ovr >= 72 && c.seasonsAtClub >= 2 ? 205 : 60) : 0),
     theme: "prensa",
     es: {
       title: "¿Te vas en junio?",
-      body: "Queda un año de contrato y en la sala hay tres periodistas que ya han escrito que te vas. Te lo preguntan de frente para poder titular con tu cara.",
+      body: "Con {years} por delante, en la sala hay tres periodistas que ya han escrito que te vas. Te lo preguntan de frente para poder titular con tu cara.",
       options: [
         { id: "commit", label: "\"Me quedo\"", detail: "+7 idolatría · cláusula ×0,9" },
         { id: "open", label: "\"Escucharé lo que llegue\"", detail: "−5 idolatría · cláusula ×1,2" },
@@ -1515,7 +1570,7 @@ export const EVENTS = [
     },
     en: {
       title: "Are you leaving in June?",
-      body: "A year left on the deal, and three of the reporters in the room have already written that you are going. They ask you straight so they can run it with your face on it.",
+      body: "With {years} still to run, three of the reporters in the room have already written that you are going. They ask you straight so they can run it with your face on it.",
       options: [
         { id: "commit", label: "\"I am staying\"", detail: "+7 idolatry · buy-out ×0.9" },
         { id: "open", label: "\"I will listen\"", detail: "−5 idolatry · buy-out ×1.2" },
@@ -1534,6 +1589,17 @@ export const EVENTS = [
   },
   {
     id: "la-grada-silbo",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      defend: "sincero",
+      challenge: "chulesco",
+      neutral: "profesional",
+    },
+    room: { stand: "sincero", board: "profesional" },
     weight: (c) => (c.idolatry < 45 ? 185 : 95),
     theme: "prensa",
     es: {
@@ -1566,6 +1632,17 @@ export const EVENTS = [
   },
   {
     id: "el-arbitro-de-ayer",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      explode: "chulesco",
+      measured: "profesional",
+      refuse: "institucional",
+    },
+    room: { stand: "chulesco", board: "institucional" },
     weight: 160,
     theme: "prensa",
     es: {
@@ -1598,6 +1675,17 @@ export const EVENTS = [
   },
   {
     id: "la-frase-que-no-dijiste",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      deny: "profesional",
+      own: "sincero",
+      ignore: "institucional",
+    },
+    room: { stand: "sincero", board: "profesional" },
     weight: (c) => (c.ovr >= 70 ? 155 : 70),
     theme: "prensa",
     es: {
@@ -1626,6 +1714,17 @@ export const EVENTS = [
   },
   {
     id: "preguntan-por-la-seleccion",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      claim: "chulesco",
+      humble: "profesional",
+      club: "institucional",
+    },
+    room: { stand: "chulesco", board: "institucional" },
     weight: (c) => (c.ovr >= 74 ? 185 : 45),
     theme: "prensa",
     es: {
@@ -1658,6 +1757,17 @@ export const EVENTS = [
   },
   {
     id: "el-nino-de-la-ultima-fila",
+    /*
+     * HOW it is said, and who is listening. `tones` names each answer; `room` says what
+     * this particular question makes the stand and the board want to hear. See tone.js -
+     * the two are very often not the same thing, and that is the card.
+     */
+    tones: {
+      time: "sincero",
+      brief: "profesional",
+      skip: "chulesco",
+    },
+    room: { stand: "sincero", board: "profesional" },
     weight: 135,
     theme: "prensa",
     es: {

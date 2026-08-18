@@ -31,7 +31,9 @@
  */
 
 import {
+  FIXTURE_KINDS,
   PRODUCES,
+  TOURNAMENT_NIGHTS,
   conversionRate,
   derbyRivals,
   matchEffects,
@@ -39,8 +41,10 @@ import {
   seasonFixtures,
   shotFor,
 } from "./bigmatch.js";
-import { MODES, modeFor } from "./matchmode.js";
-import { buildChance, judgeChance } from "./minigames.js";
+import { keeperDifficulty, keeperMemory, rememberShot } from "./keeper.js";
+import { MODES, modeFor, playsRound } from "./matchmode.js";
+import { TRUST, applyTrust, settleTrust, toneEffect, trustAt } from "./tone.js";
+import { CHANCE_MECHANIC, buildChance, judgeChance } from "./minigames.js";
 import { narrateFinish, narrateMatch, narrateTie } from "./narration.js";
 import {
   ASKS,
@@ -89,12 +93,25 @@ import {
 import { headlineFor, retirementVerdict, shadowNoteFor } from "./press.js";
 import { chance, createStream, pickWeighted } from "./rng.js";
 import { shadowComparison, simulateShadowCareer } from "./rival.js";
-import { TOURNAMENTS, continentalQualification } from "./tournaments.js";
+import { entrantsFor } from "./qualified.js";
+import {
+  TOURNAMENTS,
+  LIVE_ROUNDS,
+  continentalQualification,
+  isLiveRound,
+  matchInertia,
+  playerPull,
+  simulateTournamentRun,
+  tournamentFor,
+  whenOf,
+} from "./tournaments.js";
 import {
   CALLUP_THRESHOLD,
   CAREER_MODES,
   CLUB_MATCH_MULTIPLIER,
+  CONTINENTAL_CYCLE,
   RETIREMENT_AGE,
+  WORLD_CUP_CYCLE,
 } from "./tables.js";
 
 export const PHASES = {
@@ -275,6 +292,13 @@ function openNegotiation(run, clubId, { youth = false } = {}) {
     stay,
     // The first deal a career signs is always a single season. See openingTerms.
     youth,
+    /*
+     * And how long a season has to be to mean anything. A contract's whole job is done at
+     * the market, the market opens once a step, and a step is three seasons in exprés - so
+     * the mode is what decides whether "un año" is a promise or a formality. See
+     * CONTRACT.stepUp.
+     */
+    seasonsPerStep: modeOf(run.state.mode).seasonsPerStep,
   });
 
   return {
@@ -422,7 +446,29 @@ export function resolveEvent(run, optionId, locale = "es") {
   const next = createStream(run.state.seed, "resolve", event.id, run.step);
   const { effects, outcome } = event.resolve(next, optionId);
 
+  /*
+   * WHAT IT COST TO SAY IT THAT WAY.
+   *
+   * The card's own `effects` are what was DECIDED - the clause moved, the manager was
+   * backed. This is what was heard. A press room has two audiences and they very often want
+   * opposite things (see tone.js), so the same answer that has the stand singing your name
+   * is the one the board reads over breakfast and remembers in June.
+   *
+   * Folded in here rather than inside `resolve` because every card would otherwise have to
+   * remember to do it, and the one that forgot would be the one nobody noticed.
+   */
+  const tone = event.tones?.[optionId] ?? null;
+  const heard = tone ? toneEffect(tone, event.room ?? {}) : { idolatry: 0, trust: 0 };
+
   let state = applyEffects(run.state, effects);
+  if (tone) {
+    state = {
+      ...applyEffects(state, { idolatry: heard.idolatry }),
+      trust: applyTrust(trustAt(state), heard.trust),
+      // What he said and how, so the season page can say why the board went cold.
+      saidLately: [...(state.saidLately ?? []), { step: run.step, tone, ...heard }].slice(-8),
+    };
+  }
 
   // The injury is not a decision: it is applied alongside whatever you chose.
   if (run.injury) {
@@ -540,7 +586,7 @@ function fixtureContext(run) {
  * ways out produce the same `scored`, and `conversionRate` measures whichever mix of the
  * two this career actually ended up playing.
  */
-function shotAt(run, fixtures, index) {
+function shotAt(run, fixtures, index, attempt = 0, taken = []) {
   const fixture = fixtures[index];
   const shot = shotFor({
     seed: run.state.seed,
@@ -550,6 +596,8 @@ function shotAt(run, fixtures, index) {
     // Which repertoire the night can draw from: a keeper is not handed one-on-ones to
     // finish, and a centre-back's decisive moment is mostly the one he stops.
     group: run.state.group,
+    attempt,
+    keeper: keeperFacing(run, fixture),
   });
 
   const { club } = standingOf(run);
@@ -564,14 +612,29 @@ function shotAt(run, fixtures, index) {
     // A night worth no sight of goal is watched whatever the roll would have said; there
     // is no moment to hand him. See modeFor.
     chances: fixture.chances ?? 1,
+    // And how much football he has actually been playing, this season above the two behind
+    // it. The same figure the bracket is drawn with - see `matchInertia`.
+    inertia: inertiaOf(run.state),
   });
+
+  /*
+   * A CHANCE WITH NO GAME OF ITS OWN IS NEVER SKILL.
+   *
+   * The four that are a shot at a goal ask one question - which of the five zones - and
+   * they are asked the same way whichever mode the roll came up with: a flick on a phone,
+   * a button on a desktop. See CHANCE_MECHANIC and aim.jsx. Only the goalkeeper's four,
+   * the through ball and the tackle still have a game to play.
+   */
+  const playable = Boolean(CHANCE_MECHANIC[shot.type]);
+
 
   return {
     ...shot,
-    mode,
+    attempt,
+    mode: playable ? mode : MODES.MATCH,
     // Only built for the mode that needs it, so a watched match costs nothing to set up.
     chance:
-      mode === MODES.SKILL
+      playable && mode === MODES.SKILL
         ? buildChance({
             seed: run.state.seed,
             season: run.season,
@@ -610,12 +673,26 @@ function withMatchEffects(modifiers = {}, plan = {}, results = []) {
     return merged;
   };
 
+  /*
+   * The same problem one level up, and the same fix. A trophy answered by the bracket is
+   * settled at PLAN time (see `stageTournaments`) and a trophy answered by a decider is
+   * settled on the night, so both can be true in one season - and a plain spread let
+   * whichever arrived second throw the other away, handing a cup that had already been
+   * decided back to the dice.
+   */
+  const settledTitles = {
+    ...(modifiers.settledTitles ?? {}),
+    ...(plan.settledTitles ?? {}),
+    ...(effects.settledTitles ?? {}),
+  };
+
   return {
     ...modifiers,
     ...plan,
     ...effects,
     titleMultipliers: compound("titleMultipliers"),
     nationalMultipliers: compound("nationalMultipliers"),
+    ...(Object.keys(settledTitles).length ? { settledTitles } : {}),
   };
 }
 
@@ -623,7 +700,7 @@ function withMatchEffects(modifiers = {}, plan = {}, results = []) {
  * Play one season, with whatever the player did in its big matches folded in first, and
  * write its headline - because a row of numbers is not a story.
  */
-function playSeason(run, plan, matchResults, locale) {
+function playSeason(run, plan, matchResults, locale, tournamentRuns = []) {
   const season = run.season;
   const previous =
     run.seasonResults[run.seasonResults.length - 1]?.record ??
@@ -637,7 +714,16 @@ function playSeason(run, plan, matchResults, locale) {
       ...contractModifiers(run.state.contract),
     },
   };
-  const { state: nextState, record } = simulateSeason(state, run.world, { season });
+  /*
+   * The brackets are handed IN rather than built here, and that is the whole reordering.
+   * They were drawn after the fact - from the trophies this call was about to roll - which
+   * is why the competition could only ever be narrated after the season, behind the final
+   * the season had already played. They are drawn with the plan now. See `stageTournaments`.
+   */
+  const { state: nextState, record } = simulateSeason(state, run.world, {
+    season,
+    tournamentRuns,
+  });
 
   // What the season was worth to this club's crowd. Folded in here rather than in the
   // engine because idolatría spans a career, and simulateSeason only knows a season.
@@ -673,13 +759,27 @@ function playSeason(run, plan, matchResults, locale) {
   // and OUR CALL #8 for why the shield had to move here from the contract.
   const limits = CAREER_MODES[state.mode] ?? CAREER_MODES.intensa;
   const patience = patienceFor(after);
+  /*
+   * AND WHETHER THE PEOPLE WHO PAY HIM STILL WANT HIM THERE.
+   *
+   * `benchStreak` is the football reason a club gives up on a player and it was the only
+   * one. What a player SAYS is the other, and it is the one every dressing room actually
+   * loses people over: a season of headlines nobody at the club asked for. `trust` carries
+   * it - see tone.js - and it drifts back towards the middle every year, because a club
+   * forgets faster than a crowd does and slower than the player would like.
+   */
+  const trust = settleTrust(trustAt(state));
+  record.trust = { before: trustAt(state), after: trust };
   const clubWantsOut =
     nextState.benchStreak >= limits.benchLimit + patience ||
-    nextState.lowRotationStreak >= limits.lowRotationLimit + patience;
+    nextState.lowRotationStreak >= limits.lowRotationLimit + patience ||
+    trust < TRUST.breaking;
   record.patience = patience;
   // The record is already in `nextState.history` by reference, so the season keeps the
   // shots that decided it - and what the wage cost it - wherever it is read from later.
   record.bigMatches = matchResults;
+  // The board's memory, one season older. Carried on the state so the next summer reads it.
+  nextState.trust = trust;
   record.wagePressure = pressure;
   record.wage = state.contract?.clubId === record.clubId ? state.contract.wage : null;
 
@@ -750,19 +850,41 @@ function displayName(world, id, locale) {
  * final is a night too, and a game that only narrates the ones you win is a highlights reel.
  */
 export function liveTiesOf(run, record, locale = "es") {
+  return tiesOf(run, record?.tournamentRuns ?? [], record?.clubId, record?.season ?? run.season, locale);
+}
+
+/**
+ * The same list, from a set of runs that have not been folded into a record yet.
+ *
+ * Which is now the ordinary case: the brackets are built with the season's plan rather than
+ * after it - see `stageTournaments` - so the ties exist before there is a record to hang
+ * them on. `liveTiesOf` stays as the reader for a season already played.
+ */
+export function tiesOf(run, runs, clubId, season, locale = "es") {
   const ties = [];
-  for (const tournament of record?.tournamentRuns ?? []) {
+  for (const tournament of runs ?? []) {
+    if (!tournament) continue;
     const spec = TOURNAMENTS[tournament.id];
     const national = spec ? !spec.club : false;
-    const ourId = national ? run.state.country : record.clubId;
+    const ourId = national ? run.state.country : clubId;
     for (const round of tournament.rounds ?? []) {
       if (!round.live) continue;
+      // The night he has not answered yet has no scoreline to narrate, and putting one on
+      // the queue would be a broadcast of a match nobody has played.
+      if (round.pending) continue;
+      /*
+       * And the night he DID answer is not queued either. He has just played it, with its
+       * own ninety minutes and its own verdict; narrating the same round again immediately
+       * afterwards is the exact duplication this whole reordering exists to remove - only
+       * with the two halves the right way round instead of the wrong one.
+       */
+      if (round.decides) continue;
       const legScores = round.legScores?.length
         ? round.legScores
         : [{ us: round.score.us, them: round.score.them }];
       ties.push({
-        id: `${record.season}-${tournament.id}-${round.round}`,
-        season: record.season,
+        id: `${season}-${tournament.id}-${round.round}`,
+        season,
         tournamentId: tournament.id,
         round: round.round,
         legs: round.legs,
@@ -780,10 +902,18 @@ export function liveTiesOf(run, record, locale = "es") {
         penalties: Boolean(round.penalties),
         extraTime: Boolean(round.extraTime),
         champion: Boolean(tournament.champion) && round.round === "final",
+        // Which night of the season this is. A bracket is a run-up, so its rounds sit in
+        // the weeks before the competition's own slot rather than all on one date.
+        when: whenOf(tournament.when ?? 6, round.round),
+        // A tie he answered himself is still watched afterwards - this is the replay of
+        // the night, not a second asking of it.
+        decided: Boolean(round.decides),
+        // And whether he was in the side for it. See `roundOdds`.
+        played: round.played ?? null,
       });
     }
   }
-  return ties;
+  return ties.sort((a, b) => a.when - b.when);
 }
 
 /** The tie at the head of the queue, built into ninety minutes. */
@@ -800,47 +930,473 @@ const broadcastFor = (run, tie) =>
     won: tie.won,
     penalties: tie.penalties,
     extraTime: tie.extraTime,
+    // Whether he is in the side for this one, and what kind of footballer walks out if he
+    // is. The tie is simulated either way; this is what puts him inside it - and what
+    // gives him a share of the goals the night already had. See GOAL_SHARE.
+    played: tie.played,
+    group: run.state.group,
+    ovr: run.state.ovr,
   });
 
+/* -- The season, as one calendar --------------------------------------------------
+   A season used to be told in two halves that did not know about each other. The three
+   deciders were played first, straight off `seasonFixtures`; the season was then rolled;
+   and only then were the knockout ties of the SAME season narrated. So a European Cup
+   final was played in the first screen of the year and the last sixteen of that very
+   edition in the fifth, followed by a second final free to disagree with the first.
+
+   There is one queue now. The brackets are built with the plan, before a ball is kicked,
+   and every night of the season - a tie his side plays and a night he decides himself -
+   goes into it and is sorted by the calendar. See `whenOf` in tournaments.js.        */
+
+/** Where each competition's final sits in the season, so its rounds can lead up to it. */
+const CUP_WHEN = {
+  continental_a: FIXTURE_KINDS.final_continental.when,
+  world_cup: FIXTURE_KINDS.final_mundial.when,
+  continental_nt: FIXTURE_KINDS.final_continental_nt.when,
+};
+
+/** When a night is played: a fixture has its own slot, a bracket round leads up to one. */
+const whenOfNight = (night) =>
+  night.round ? whenOf(CUP_WHEN[night.trophy] ?? 6, night.round) : FIXTURE_KINDS[night.kind].when;
+
 /**
- * Open the knockout queue of the season that has just been played, or return null when it
- * has none - which is most seasons, for most careers.
+ * Which cups the player's side is actually in this season, and what each one is worth.
+ *
+ * Only the ones the model already grants: the club's continental place has to be `main`
+ * (see `continentalQualification`), and a country only plays a finals tournament in the
+ * year its cycle comes round. The Euro and the Copa America used to be in neither list -
+ * there was no bracket for them at all, only the standalone final - so half the national
+ * tournaments in the game existed as a single night and nothing else.
  */
-function openTournament(run, locale = "es") {
-  const record = run.seasonResults[run.seasonResults.length - 1]?.record;
-  const ties = liveTiesOf(run, record, locale);
-  if (!ties.length) return null;
+function cupsFor(run, context) {
+  const { state, world } = run;
+  const { club, competition } = standingOf(run);
+  const country = world.countries[state.country] ?? null;
+  const cups = [];
+  if (!club) return cups;
+
+  if (context.continentalEntry?.level === "main") {
+    const spec = tournamentFor({ confederation: competition?.confederation, club: true });
+    if (spec) cups.push({ id: spec.id, trophy: "continental_a", national: false, side: club });
+  }
+  if (context.calledUp && country) {
+    if (WORLD_CUP_CYCLE(state.age)) {
+      cups.push({ id: "world_cup", trophy: "world_cup", national: true, side: country });
+    }
+    if (CONTINENTAL_CYCLE(state.age)) {
+      const spec = tournamentFor({ confederation: country.confederation, club: false });
+      if (spec) cups.push({ id: spec.id, trophy: "continental_nt", national: true, side: country });
+    }
+  }
+  return cups;
+}
+
+/**
+ * Build every bracket the season is going to play, BEFORE it is played.
+ *
+ * Two shapes come out of this, and the difference is whether the season handed the player a
+ * night in that competition:
+ *
+ *  - A cup he DECIDES. The run is forced to reach his round (`reaches`) and stops dead
+ *    there (`decidesAt`, with nothing answered yet). The ties in front of it are real and
+ *    can be watched; the round itself and everything past it does not exist until he has
+ *    taken it. `closeCup` finishes the job once he has.
+ *  - A cup he does not. There is nobody to wait for, so the trophy is rolled here, with the
+ *    same odds and the same modifiers the season would have used, and the whole bracket is
+ *    built to agree with it. `rollTitles` then honours the answer instead of asking again -
+ *    the rule `settleFinal` has followed for club cups since the ceremony started
+ *    contradicting the scoreboard.
+ */
+function stageTournaments(run, plan, context, locale = "es") {
+  const { state, world } = run;
+  const nights = plan.tournaments ?? [];
+  const settledTitles = {};
+  const runs = [];
+
+  // What he is worth to a bracket right now: the rating of this exact season, damped and
+  // lifted by how much football he has been playing. See `playerPull`.
+  const ovr = clampToOvr(state.ovr + (state.modifiers?.ovrTemp ?? 0));
+  const previous = (state.history ?? []).slice(-3).reverse();
+  const pull = playerPull({
+    ovr,
+    matches: previous[0]?.matches ?? 0,
+    previous: previous.slice(1).map((entry) => entry.matches ?? 0),
+  });
+
+  const inertia = inertiaOf(state);
+  const delta = deltaOf(run);
+
+  for (const cup of cupsFor(run, context)) {
+    const night = nights.find((entry) => entry.trophy === cup.trophy) ?? null;
+    const base = {
+      id: cup.id,
+      seed: state.seed,
+      season: run.season,
+      entrants: entrantsFor(cup.id, world, { include: cup.side ? [cup.side] : [] }),
+      player: cup.side,
+      pull,
+    };
+
+    /*
+     * WHICH OF THESE NIGHTS HE IS ACTUALLY IN.
+     *
+     * Not which he decides - the ties are simulated, and they stay simulated: a bracket is
+     * a competition his side plays, and it plays whether or not the ball comes to him. Only
+     * the night the season was PRICED on is his to answer, and that one comes from the
+     * budget, as it always has.
+     *
+     * What is rolled here is the team sheet. A European run used to be narrated with the
+     * player missing from it entirely - ninety minutes of his own quarter-final naming the
+     * two clubs, the shots and the corners, and never him. So each round asks whether he is
+     * in the eleven, off what he is rated right now and how much football he has been
+     * playing: at the top he is in nearly all of them, a squad player is in almost none,
+     * and a season spent injured takes them away. See `roundOdds`.
+     */
+    const path = LIVE_ROUNDS.filter(
+      (round) => TOURNAMENTS[cup.id]?.knockout?.includes(round),
+    );
+    const plays = path.filter((round) =>
+      playsRound({
+        seed: state.seed,
+        season: run.season,
+        tournamentId: cup.id,
+        round,
+        delta,
+        role: state.lastRole,
+        inertia,
+      }),
+    );
+    const decidesAt = night ? [night.round] : [];
+
+    /*
+     * The run carries its own terms. It is rebuilt from scratch every time he answers one
+     * of its rounds - that is what keeps the ties already watched identical, see
+     * `simulateTournamentRun` - so it has to remember what it was built with.
+     */
+    const terms = {
+      when: CUP_WHEN[cup.trophy] ?? 6,
+      trophy: cup.trophy,
+      national: cup.national,
+      decidesAt,
+      plays,
+      answers: {},
+      // Which of his rounds carries the cup, so `closeCup` knows when to roll it.
+      settlesAt: night ? night.round : null,
+      reaches: night ? night.round : null,
+    };
+
+    const built = night
+      ? simulateTournamentRun({ ...base, reaches: night.round, decidesAt, plays })
+      : null;
+
+    if (night) {
+      // Unknown until he answers the night the cup is priced on.
+      runs.push({ ...built, ...terms, championRoll: null });
+      continue;
+    }
+
+    /*
+     * Nobody is taking the trophy night, so the cup is rolled here - exactly as the season
+     * would have - and the bracket is built to end the way the cabinet will say it ended.
+     *
+     * His earlier rounds still stand in front of it, and they are still his to lose: fail
+     * one and the run is over, whatever the roll said. So a cup he was going to win and
+     * then went out of in the quarter-final has to stop being a cup he won.
+     */
+    const modifiers = withMatchEffects(state.modifiers ?? {}, plan.modifiers ?? {}, []);
+    const won = rollCup(run, cup.trophy, modifiers);
+    settledTitles[cup.trophy] = won;
+    runs.push({
+      ...simulateTournamentRun({ ...base, champion: won, plays }),
+      ...terms,
+      championRoll: won,
+    });
+  }
+
+  return { runs: runs.filter(Boolean), settledTitles };
+}
+
+
+/**
+ * The same night, one chance later.
+ *
+ * Only the keeper moves. A fixture is one match: the kind of chance it produces and whether
+ * it is played or called blind were settled when it opened and have no business changing
+ * halfway through - rebuilding the whole shot turned the second of three penalties into a
+ * free kick, and a minigame into a guess. What is rebuilt is the read: a new dive, drawn
+ * for this attempt, with everything he has done tonight in the keeper's memory.
+ */
+function nextRead(run, fixture, played) {
+  const shot = run.matchday.shot;
+  const read = shotFor({
+    seed: run.state.seed,
+    season: run.season,
+    fixture,
+    ovr: run.state.ovr,
+    group: run.state.group,
+    attempt: played.length,
+    keeper: keeperFacing(run, fixture),
+  });
   return {
-    ...run,
-    phase: PHASES.TOURNAMENT,
-    matchday: null,
-    tournament: { season: record.season, ties, index: 0, broadcast: broadcastFor(run, ties[0]) },
+    ...shot,
+    attempt: played.length,
+    // Everything the keeper decides, and the coin the night turns on. All of it, or the
+    // second chance is resolved against the first one's dive.
+    keeperAt: read.keeperAt,
+    roll: read.roll,
+    gap: read.gap,
+    ruledOut: read.ruledOut,
+    keeper: read.keeper,
   };
 }
 
-/** Move on to the next tie, or hand the step back to the season loop once they are done. */
-export function nextTie(run, locale = "es") {
-  if (run.phase !== PHASES.TOURNAMENT || !run.tournament) return run;
-  const { ties, index } = run.tournament;
-  if (index + 1 < ties.length) {
-    return {
-      ...run,
-      tournament: {
-        ...run.tournament,
-        index: index + 1,
-        broadcast: broadcastFor(run, ties[index + 1]),
-      },
-    };
-  }
-  return openMatchday({ ...run, tournament: null }, locale);
+/**
+ * THE KEEPER THIS NIGHT PUTS IN FRONT OF HIM.
+ *
+ * Three things the model already knows and had never used: what the match is worth, who the
+ * opposition are, and what this player has been converting. A World Cup final against the
+ * strongest side in the draw, taken by a man who has scored his last six, is not the coin a
+ * Sunday in November is - and until now it was exactly the same coin. See keeper.js.
+ *
+ * Tonight's attempts are the half of the memory that matters most - put the first one to
+ * his left and he is standing there for the second - and they arrive through `state.shots`
+ * like everything else he has seen.
+ */
+function keeperFacing(run, fixture) {
+  const { world, state } = run;
+  const opponent = fixture.opponentId
+    ? world.clubs[fixture.opponentId] ?? world.countries[fixture.opponentId] ?? null
+    : null;
+  const reputation =
+    opponent?.continental_reputation ??
+    opponent?.international_reputation ??
+    opponent?.fifa_reputation ??
+    0;
+
+  return {
+    difficulty: keeperDifficulty({
+      decides: fixture.decides,
+      reputation,
+      form: conversionRate(state.ovr, state.conversion),
+    }),
+    /*
+     * COUNTED ONCE. `state.shots` is a rolling tail that `recordAttempt` appends to as each
+     * chance is taken, so it ALREADY holds tonight's attempts - handing them in again beside
+     * it filed every shot twice, which quietly halved how much career the keeper's five-deep
+     * dossier could hold. See `rememberShot`.
+     */
+    memory: keeperMemory(state.shots ?? []),
+  };
+}
+
+/** How far above the squad he is, which is what every "is this yours" roll turns on. */
+function deltaOf(run) {
+  const { club } = standingOf(run);
+  if (!club) return 0;
+  const ovr = clampToOvr(run.state.ovr + (run.state.modifiers?.ovrTemp ?? 0));
+  return ovr - squadLevelFor(club, ovr);
 }
 
 /**
- * Open the matches of the next season in this step, or close the step if there are none
- * left to play.
+ * Finish a bracket the player has just answered.
+ *
+ * `cameThrough` is his night; `won` is what the cup did about it. They are two questions
+ * and only a final collapses them into one - come through a semi and the run gains a final
+ * that still has to be played by somebody. The run is rebuilt rather than patched, which is
+ * safe because nothing about the forcing touches the stream: the ties already watched come
+ * back identical. See `simulateTournamentRun`.
+ */
+function closeCup(run, tournamentRun, { round, cameThrough, won }) {
+  const { state, world } = run;
+  const side = tournamentRun.national
+    ? world.countries[state.country]
+    : world.clubs[standingOf(run).club?.id];
+  if (!side) return tournamentRun;
+
+  const answers = { ...(tournamentRun.answers ?? {}), [round]: cameThrough };
+  /*
+   * The cup is only answered on the night the season priced it. Every other round he plays
+   * is worth the tie and nothing else - go out in the quarter-final and the trophy is gone
+   * whatever it was rolled at, which is what `champion` below is being told.
+   */
+  const championRoll =
+    round === tournamentRun.settlesAt ? Boolean(won) : tournamentRun.championRoll;
+
+  const ovr = clampToOvr(state.ovr + (state.modifiers?.ovrTemp ?? 0));
+  const previous = (state.history ?? []).slice(-3).reverse();
+  const rebuilt = simulateTournamentRun({
+    id: tournamentRun.id,
+    seed: state.seed,
+    season: run.season,
+    entrants: entrantsFor(tournamentRun.id, world, { include: [side] }),
+    player: side,
+    pull: playerPull({
+      ovr,
+      matches: previous[0]?.matches ?? 0,
+      previous: previous.slice(1).map((entry) => entry.matches ?? 0),
+    }),
+    reaches: tournamentRun.reaches,
+    decidesAt: tournamentRun.decidesAt,
+    plays: tournamentRun.plays,
+    answers,
+    // A cup he came through the final of is a cup he won, and one somebody else settled is
+    // whatever the roll said. Either way the bracket says the same thing the cabinet will.
+    champion: Boolean(championRoll),
+  });
+  return {
+    ...rebuilt,
+    when: tournamentRun.when,
+    trophy: tournamentRun.trophy,
+    national: tournamentRun.national,
+    decidesAt: tournamentRun.decidesAt,
+    reaches: tournamentRun.reaches,
+    settlesAt: tournamentRun.settlesAt,
+    plays: tournamentRun.plays,
+    answers,
+    championRoll,
+  };
+}
+
+/**
+ * How much football he has been playing, as one number the whole game can read.
+ *
+ * The season being played is not in `history` yet - it is the one being set up - so this is
+ * the last three that are, weighted towards the most recent. Used in two places that used
+ * to disagree about the same player: how far his side goes in a cup, and whether the
+ * decisive night is his to take.
+ */
+const inertiaOf = (state) => {
+  const recent = (state.history ?? []).slice(-3).reverse();
+  return matchInertia(recent[0]?.matches ?? 0, recent.slice(1).map((entry) => entry.matches ?? 0));
+};
+
+/** The trophy roll a cup uses when the player is not the one answering it. */
+function rollCup(run, trophy, modifiers) {
+  const { state, world } = run;
+  if (NATIONAL_TROPHIES.includes(trophy)) {
+    return rollNationalTitle(state.seed, run.season, trophy, {
+      country: world.countries[state.country] ?? null,
+      modifiers,
+    });
+  }
+  const { club, competition } = standingOf(run);
+  if (!club) return false;
+  const ovr = clampToOvr(state.ovr + (modifiers.ovrTemp ?? 0));
+  return rollTitle(state.seed, run.season, trophy, {
+    club,
+    competition,
+    ovr,
+    delta: ovr - squadLevelFor(club, ovr),
+    modifiers,
+    latent: seasonLatent(state.seed, run.season),
+  });
+}
+
+/**
+ * The whole season as an ordered list of nights, and the cursor that walks it.
+ *
+ * A night is either a tie his side plays - watched, nothing to press - or a fixture he
+ * decides. Both are in one list because both happen in one season, and the only thing that
+ * ever put them in the wrong order was that they used to live in two.
+ */
+function programmeOf(run, plan, runs, locale) {
+  const { club } = standingOf(run);
+  const ties = tiesOf(run, runs, club?.id, run.season, locale);
+  /*
+   * A NIGHT IN A COMPETITION YOUR SIDE IS OUT OF DOES NOT HAPPEN.
+   *
+   * Every round he is due to play is laid out with the plan, which is right - the calendar
+   * has to exist before the season does. But the rounds are also his to lose: go out in the
+   * semi-final and the final of that tournament is not a match anybody plays, and leaving
+   * it in the queue had him walking out for a World Cup final his country had been knocked
+   * out of a fortnight earlier - and winning it.
+   *
+   * The run always knows which of its rounds is the next one waiting on him (`pendingAt`),
+   * and it is rebuilt every time he answers one. So the queue carries exactly that round
+   * and no other: each answer reveals the next, and a run that has ended reveals nothing.
+   */
+  const playable = matchNightsOf(plan).filter(
+    (fixture) =>
+      !fixture.tournamentId ||
+      runs.some((entry) => entry?.id === fixture.tournamentId && entry.pendingAt === fixture.round),
+  );
+  return [
+    ...ties.map((tie) => ({ when: tie.when, kind: "tie", tie })),
+    ...playable.map((fixture) => ({ when: whenOfNight(fixture), kind: "fixture", at: fixture.index })),
+  ].sort((a, b) => a.when - b.when);
+}
+
+/** Every night he decides this season, tournament rounds included, in calendar order. */
+const matchNightsOf = (plan) =>
+  [...(plan.fixtures ?? []), ...(plan.tournaments ?? [])]
+    .sort((a, b) => whenOfNight(a) - whenOfNight(b))
+    .map((fixture, index) => ({ ...fixture, index }));
+
+/**
+ * Show whatever the cursor is pointing at, or close the season once it has run off the end.
+ *
+ * The one place either phase is entered. A tie opens TOURNAMENT, a fixture opens MATCH, and
+ * the queue does not care which is which - which is the whole point of having one.
+ */
+function showNight(run, locale = "es") {
+  const day = run.matchday;
+  if (!day) return run;
+  const night = day.queue[day.cursor];
+
+  if (!night) {
+    // Every night played. Now the season can be rolled, with the brackets it produced.
+    const settled = playSeason(run, day.plan, day.results, locale, day.runs);
+    return openMatchday({ ...settled, matchday: null, tournament: null }, locale);
+  }
+
+  if (night.kind === "tie") {
+    const ties = day.queue.filter((entry) => entry.kind === "tie").map((entry) => entry.tie);
+    return {
+      ...run,
+      phase: PHASES.TOURNAMENT,
+      tournament: {
+        season: day.season,
+        ties,
+        index: ties.findIndex((tie) => tie.id === night.tie.id),
+        broadcast: broadcastFor(run, night.tie),
+      },
+    };
+  }
+
+  // `settleIfUntouched` because a fixture can be one that gives him no sight of goal, and
+  // then there is no input to wait for.
+  return settleIfUntouched({
+    ...run,
+    phase: PHASES.MATCH,
+    tournament: null,
+    matchday: {
+      ...day,
+      index: night.at,
+      attempts: [],
+      lastAttempt: null,
+      shot: shotAt(run, day.fixtures, night.at),
+      broadcast: null,
+      last: null,
+    },
+  });
+}
+
+/** Move the cursor on one night. */
+const advance = (run, locale = "es") =>
+  showNight({ ...run, matchday: { ...run.matchday, cursor: run.matchday.cursor + 1 } }, locale);
+
+/** Move on to the next night of the season. */
+export function nextTie(run, locale = "es") {
+  if (run.phase !== PHASES.TOURNAMENT || !run.matchday) return run;
+  return advance(run, locale);
+}
+
+/**
+ * Open the season, or close the step if there are none left to play.
  *
  * A season with nothing on the line - and a season spent serving a ban - is simulated
- * straight through, so the phase only ever opens on a match that actually exists.
+ * straight through, so a phase only ever opens on a night that actually exists.
  */
 function openMatchday(run, locale = "es") {
   let current = run;
@@ -852,38 +1408,61 @@ function openMatchday(run, locale = "es") {
     !current.state.retired &&
     current.state.age < RETIREMENT_AGE
   ) {
-    // A ban is served, not played: no shots, and the plan that goes with them is dropped
-    // so the season is rolled exactly as it would have been.
-    const plan = current.state.modifiers?.suspended
-      ? { fixtures: [], modifiers: {} }
-      : seasonFixtures(fixtureContext(current));
+    // A ban is served, not played: no shots, no bracket, and the plan that goes with them
+    // is dropped so the season is rolled exactly as it would have been.
+    // Derived once. It simulates a whole league table, and both the fixture draw and the
+    // brackets are asking the same question of the same season.
+    const context = current.state.modifiers?.suspended ? null : fixtureContext(current);
+    const plan = context
+      ? seasonFixtures(context)
+      : { fixtures: [], tournaments: [], modifiers: {} };
 
-    if (plan.fixtures.length) {
-      // `settleIfUntouched` because the very first fixture of a season can be one that
-      // gives him no sight of goal, and then there is no input to wait for.
-      return settleIfUntouched({
-        ...current,
-        phase: PHASES.MATCH,
-        matchday: {
-          season: current.season,
-          fixtures: plan.fixtures,
-          plan: plan.modifiers,
-          index: 0,
-          results: [],
-          attempts: [],
-          lastAttempt: null,
-          shot: shotAt(current, plan.fixtures, 0),
-          broadcast: null,
-          last: null,
+    const staged = context
+      ? stageTournaments(current, plan, context, locale)
+      : { runs: [], settledTitles: {} };
+    const modifiers = Object.keys(staged.settledTitles).length
+      ? { ...plan.modifiers, settledTitles: staged.settledTitles }
+      : plan.modifiers;
+
+    /*
+     * The night knows which cup it is a round of. `seasonFixtures` cannot say - it deals in
+     * trophies, and which competition a trophy is played in depends on the confederation -
+     * so the id is stamped on here, off the run that was just built for it. The screen needs
+     * it to be able to say "Final - la Copa de Europa" instead of naming a fixture kind.
+     */
+    const tournaments = [
+      ...(plan.tournaments ?? []).map((night) => ({
+        ...night,
+        tournamentId: staged.runs.find((entry) => entry.trophy === night.trophy)?.id ?? null,
+      })),
+    ];
+    const fixtures = matchNightsOf({ ...plan, tournaments });
+    const queue = programmeOf(current, { ...plan, tournaments }, staged.runs, locale);
+
+    if (queue.length) {
+      return showNight(
+        {
+          ...current,
+          matchday: {
+            season: current.season,
+            fixtures,
+            plan: modifiers,
+            runs: staged.runs,
+            queue,
+            cursor: 0,
+            index: 0,
+            results: [],
+            attempts: [],
+            lastAttempt: null,
+            shot: null,
+            broadcast: null,
+            last: null,
+          },
         },
-      });
+        locale,
+      );
     }
-    current = playSeason(current, plan.modifiers, [], locale);
-    // A season that went deep into a continental cup is watched before the next one starts.
-    // The queue returns here through `nextTie`, and `seasonResults` has already grown, so
-    // the loop picks up exactly where it left off.
-    const watching = openTournament(current, locale);
-    if (watching) return watching;
+    current = playSeason(current, modifiers, [], locale, staged.runs);
   }
 
   return { ...current, phase: PHASES.SEASON, matchday: null, tournament: null, played: true };
@@ -926,6 +1505,7 @@ function settleIfUntouched(run) {
         ? { ...broadcast, finish: narrateFinish(broadcast, [], {
               won: settled ? settled.won : null,
               shootout: goesToPenalties(matchday.fixtures[matchday.index]),
+              produces: matchday.shot?.produces,
             }) }
         : broadcast,
     },
@@ -957,14 +1537,44 @@ export function playChance(run, inputs) {
   if (shot.mode !== MODES.SKILL || !shot.chance) return run;
 
   const judged = judgeChance(shot.chance, inputs);
+  const picked = playedPlacement(shot, judged);
   return recordAttempt(run, {
     ...shot,
     ...judged,
-    // The blind shot reports which placement was chosen; a played one reports where the
-    // ball actually went, so the report can name it either way.
-    choice: shot.options[Math.min(shot.options.length - 1, Math.floor(judged.accuracy * shot.options.length))],
+    /*
+     * WHICH PLACEMENT A PLAYED CHANCE CAME OUT AS.
+     *
+     * A minigame is a gesture, not a menu, so the model has to name the gesture before
+     * anything downstream can talk about it - `ShotScene` puts the keeper on `picked` and
+     * the season table prints `choice`. Neither was being given one: `picked` was simply
+     * never set, so the drawing held the result of a chance with the goalkeeper standing
+     * where he had been waiting and no ball on the pitch at all, and `choice` was read off
+     * `accuracy`, which meant a clean finish always reported the LAST option in the list
+     * while the verdict beside it named a different one as the gap.
+     */
+    picked,
+    choice: shot.options[picked],
     foundGap: judged.clean,
   });
+}
+
+/**
+ * Where a played chance ended up, as one of the placements the blind mode would have named.
+ *
+ * Clean means he found the gap - that is what `judgeChance` measures - so it IS the gap. A
+ * miss went somewhere else, and which somewhere is taken off the gesture itself so the same
+ * play always reads back the same way. The option lists are not in spatial order (see
+ * SHOT_TYPES), so this is a naming convention rather than a measurement; what matters is
+ * that the drawing, the verdict and the season table all get the same answer.
+ */
+function playedPlacement(shot, judged) {
+  if (judged.clean) return shot.gap;
+  const wrong = shot.options.map((_, index) => index).filter((index) => index !== shot.gap);
+  if (!wrong.length) return shot.gap;
+  const first = Array.isArray(judged.inputs) ? judged.inputs[0] : judged.inputs;
+  const value = typeof first === "number" ? first : (first?.x ?? 0);
+  const at = Math.floor(Math.max(0, Math.min(0.999, value)) * wrong.length);
+  return wrong[at];
 }
 
 /**
@@ -1008,8 +1618,22 @@ const goesToPenalties = (fixture) =>
   Boolean(fixture?.decides) && !LEVEL_IS_A_RESULT.has(fixture.decides);
 
 function settleFinal(run, fixture, outcome) {
-  if (!FINALS.has(fixture.kind)) return null;
-  const trophy = fixture.decides;
+  /*
+   * A SEMI-FINAL IS ALSO A NIGHT THE CUP HAS TO ANSWER.
+   *
+   * It never used to be, and it did not need to be: the semi was a fixture standing beside
+   * a bracket that was drawn afterwards, so the trophy could safely be left to the end of
+   * the season. Now the bracket is drawn with the plan and continues past his night - come
+   * through a semi and the run gains a final somebody has to play - so the run cannot be
+   * closed until the cup has a result. `TOURNAMENT_NIGHTS` names the trophy, because
+   * `fixture.decides` on a semi says "semifinal", which is a stage and not a cup.
+   */
+  const stage = TOURNAMENT_NIGHTS[fixture.kind];
+  // `tie` rounds are the ones in front of the night the season was priced on. They settle
+  // the eliminatoria and nothing else - rolling a cup at the last sixteen would answer in
+  // February the question the final is there to ask.
+  if (!FINALS.has(fixture.kind) && !(stage && !stage.tie)) return null;
+  const trophy = stage?.trophy ?? fixture.decides;
   if (!trophy) return null;
 
   // The same modifiers the season would have rolled this with: the step's plan, the cards
@@ -1064,12 +1688,32 @@ function recordAttempt(run, resolved) {
   const settled = outcome ? settleFinal(run, fixture, outcome) : null;
   if (settled) outcome.settledTitle = settled;
 
+  /*
+   * THE KEEPER GETS UP AND HAS A LOOK AT YOU.
+   *
+   * The shot was built once per fixture, so a night worth three sights of goal asked the
+   * same question three times: one gap, drawn before the first of them, unchanged by
+   * anything that happened. The most profitable thing a player could do was find it and
+   * stop varying, which is the opposite of what the moment is supposed to be about.
+   *
+   * So the next chance is rebuilt on the spot, with this one in the keeper's memory. See
+   * `keeperFacing` and `keeperDive`.
+   */
+  const state = {
+    ...run.state,
+    // What he has been doing lately, kept short. A keeper is not a database.
+    shots: rememberShot(run.state.shots ?? [], resolved?.choice),
+  };
+  const next = closed ? run.matchday.shot : nextRead({ ...run, state }, fixture, played);
+
   return {
     ...run,
+    state,
     matchday: {
       ...run.matchday,
       attempts: played,
       lastAttempt: resolved,
+      shot: next,
       last: outcome,
       /*
        * Narrate it NOW, not at full time.
@@ -1090,6 +1734,9 @@ function recordAttempt(run, resolved) {
               closed,
               won: settled ? settled.won : null,
               shootout: goesToPenalties(fixture),
+              // A save is not a goal and a chance he did not save is one for them. The
+              // feed reads this off the same `produces` the season totals do.
+              produces: run.matchday.shot?.produces,
             }),
           }
         : broadcast,
@@ -1167,6 +1814,9 @@ export function watchMatch(run, locale = "es") {
     theirName: opponent?.shortName ?? opponent?.name ?? "",
     group: run.state.group,
     ovr: run.state.ovr,
+    // Which scoreline the night is built around: a striker's chance decides a match he can
+    // win, a keeper's decides one he can lose. See STOP_SITUATIONS in narration.js.
+    produces: shot.produces,
   });
 
   /*
@@ -1191,6 +1841,7 @@ export function watchMatch(run, locale = "es") {
     finish: narrateFinish(built, [], {
       won: settled ? settled.won : null,
       shootout: goesToPenalties(fixture),
+      produces: shot.produces,
     }),
   };
 
@@ -1209,28 +1860,105 @@ export function watchMatch(run, locale = "es") {
 export function nextFixture(run, locale = "es") {
   if (run.phase !== PHASES.MATCH || !run.matchday?.last) return run;
   const { fixtures, index, results, last } = run.matchday;
+  const fixture = fixtures[index];
   const played = [...results, last];
 
-  if (index + 1 < fixtures.length) {
-    return settleIfUntouched({
-      ...run,
-      matchday: {
-        ...run.matchday,
-        index: index + 1,
-        results: played,
-        attempts: [],
-        lastAttempt: null,
-        shot: shotAt(run, fixtures, index + 1),
-        broadcast: null,
-        last: null,
-      },
-    });
+  /*
+   * A NIGHT THAT WAS A ROUND LEAVES A BRACKET WAITING ON IT.
+   *
+   * The run was built with this round left open - no result, no rounds after it, because
+   * none of them had happened. Now they have: he came through or he did not, the cup was
+   * answered with him, and the rest of the competition can be drawn and dropped into the
+   * calendar behind him. That is the whole of what "the final is a round of the tournament"
+   * buys, and it is why this cannot be done at the end of the season like everything else.
+   */
+  let matchday = { ...run.matchday, results: played };
+  const stage = TOURNAMENT_NIGHTS[fixture.kind];
+  if (stage) {
+    const pending = matchday.runs.find(
+      (entry) => entry.pendingAt === (fixture.round ?? null) && entry.id === fixture.tournamentId,
+    );
+    if (pending) {
+      /*
+       * WHAT HIS NIGHT DID TO THE BRACKET, which is not the same question as whether he
+       * came through it.
+       *
+       * His shot moves the odds - that is what `settle` is for, and the whole budget is
+       * priced off it - and the roll still decides the cup. So on a FINAL the tie follows
+       * the trophy: score and lose it anyway and the feed already knows how to say so (see
+       * the `contradicts` branch in narrateFinish), but a bracket that crowned him champion
+       * for scoring would be the drawing contradicting the cabinet all over again.
+       *
+       * A semi has no trophy of its own, so it follows him - except when the cup was won,
+       * which is proof he got past it whatever the night looked like.
+       */
+      const round = fixture.round ?? pending.pendingAt;
+      /*
+       * A FINAL IS THE TROPHY, WHOEVER STAGED IT.
+       *
+       * Two kinds of final can reach him. One is the night the season was priced on: his
+       * shot moved the odds through `settle` and `settleFinal` has just rolled the cup with
+       * them. The other is a final his own form handed him in a competition the budget did
+       * not pick - see `roundOdds` - where the cup was rolled with the plan and his shot
+       * does not move it.
+       *
+       * Either way the tie follows the trophy, because a final IS the trophy. Read off his
+       * conversion instead, the second kind crowned him champion of a cup the cabinet had
+       * already recorded as lost. Every round in front of a final is the opposite: it is the
+       * tie and nothing else, so there it is his own night that decides.
+       */
+      const rolled =
+        pending.settlesAt === round
+          ? Boolean(last?.settledTitle?.won)
+          : Boolean(pending.championRoll);
+      const settles = round === "final";
+      const closed = closeCup(run, pending, {
+        round,
+        cameThrough: settles ? rolled : Boolean(last?.scored),
+        won: rolled,
+      });
+      const runs = matchday.runs.map((entry) => (entry === pending ? closed : entry));
+      /*
+       * GOING OUT IS LOSING THE CUP, whatever it was rolled at.
+       *
+       * A cup with no decisive final has its trophy rolled with the plan, before a ball is
+       * kicked, so the bracket can be built to agree with it. His own rounds still stand in
+       * front of that: fail the quarter-final and the run is over - and a run that is over
+       * cannot go on to lift the thing. Written into the plan rather than into the night,
+       * because a round is not a trophy night and has no `settledTitle` of its own.
+       */
+      const plan =
+        closed.eliminatedAt && closed.trophy
+          ? {
+              ...matchday.plan,
+              settledTitles: { ...matchday.plan?.settledTitles, [closed.trophy]: false },
+            }
+          : matchday.plan;
+      matchday = { ...matchday, plan, runs, queue: requeue(run, matchday, runs, locale) };
+    }
   }
-  // The season the shots just decided, and then the knockout nights it produced - the last
-  // sixteen onwards is watched, not read, so it comes before the report of the year.
-  const settled = playSeason(run, run.matchday.plan, played, locale);
-  return openTournament(settled, locale) ?? openMatchday(settled, locale);
+
+  return advance({ ...run, matchday }, locale);
 }
+
+/**
+ * The calendar, rebuilt around ties that did not exist when it was first laid out.
+ *
+ * Only nights still ahead of the cursor can move. Everything already played stays exactly
+ * where it was played - a queue that reshuffled behind the cursor would replay a tie or
+ * skip one - so the new rounds are simply merged into the part of the season that has not
+ * happened yet, in the order football plays them.
+ */
+function requeue(run, matchday, runs, locale) {
+  const seen = new Set(
+    matchday.queue.slice(0, matchday.cursor + 1).map((night) => nightKey(night)),
+  );
+  const rebuilt = programmeOf(run, { fixtures: matchday.fixtures, tournaments: [] }, runs, locale);
+  const ahead = rebuilt.filter((night) => !seen.has(nightKey(night)));
+  return [...matchday.queue.slice(0, matchday.cursor + 1), ...ahead.sort((a, b) => a.when - b.when)];
+}
+
+const nightKey = (night) => (night.kind === "tie" ? `tie:${night.tie.id}` : `fixture:${night.at}`);
 
 /**
  * Countries that would actually call you up, for the passport event. Offering federations

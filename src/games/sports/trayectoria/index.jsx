@@ -38,6 +38,8 @@ import Icon, { FIXTURE_ICONS, SHOT_ICONS, optionIcon } from "./icons.jsx";
 import ShotScene, { PlacementDiagram } from "./scene.jsx";
 import { conversionRecord } from "./bigmatch.js";
 import { MODES } from "./matchmode.js";
+import AimSurface, { useCoarsePointer } from "./aim.jsx";
+import { trustAt, trustLevelOf } from "./tone.js";
 import ChanceGame from "./chancegames.jsx";
 import usePrefersReducedMotion from "./motion.js";
 import { FULL_TIME, withStandings } from "./narration.js";
@@ -54,6 +56,9 @@ import {
   REASON_LABELS,
   ROLE_LABELS,
   ROUND_LABELS,
+  TONE_LABELS,
+  TONE_WANTS,
+  TRUST_LABELS,
   SHOT_LABELS,
   TOURNAMENT_LABELS,
   THEME_LABELS,
@@ -410,6 +415,22 @@ function StatCell({ label, value, note, tone, fill = null }) {
  * a sheen rather than a colour of its own.
  */
 const OVR_TIERS = [
+  /*
+   * NINETY IS ITS OWN THING.
+   *
+   * Elite started at 85 and had no ceiling, so the last five points of a career - the ones
+   * that take longest and that most careers never see - changed the card by nothing at all.
+   * A player who spent four seasons climbing from 86 to 91 was holding the same object he
+   * held before he started. Ninety is where the model itself stops treating a rating as a
+   * rating: it is the top of `BALLON_DOR`, the top of the call-up thresholds, and roughly
+   * the number a squad is built around rather than reinforced with.
+   *
+   * Drawn as the one card that is not a metal. Bronze, silver and gold are a ladder and the
+   * top of a ladder is still a rung; this is prismatic, which is the genre's own way of
+   * saying "there is no metal above this one" - and it keeps the game's materials, because
+   * the panel underneath is the same dark panel every card in this interface is made of.
+   */
+  { min: 90, key: "prisma" },
   { min: 85, key: "elite" },
   { min: 75, key: "oro" },
   { min: 65, key: "plata" },
@@ -1001,6 +1022,32 @@ function YouthScreen({ run, locale, onSign }) {
   );
 }
 
+/**
+ * What a card is allowed to say about the career it is being dealt to.
+ *
+ * Small on purpose. A press question that names a number has to name the RIGHT one - a room
+ * asking a man with four years left whether he is leaving in June because his deal runs out
+ * is the kind of thing that makes the whole screen stop being believable - and everything
+ * here is read straight off the state rather than written into the card.
+ */
+function eventValues(run, locale) {
+  const copy = getCopy(locale);
+  /*
+   * WHAT IS LEFT, not what was signed. The two are different facts and the card wants the
+   * first: a room asking whether you are leaving in June is asking about the end of the
+   * deal, and "queda un año" over a panel reading four seasons is the kind of thing that
+   * stops a screen being believable. See `yearsLeft` in contract.js.
+   */
+  const years = run.state.contract?.yearsLeft ?? 0;
+  const club = run.world.clubs[run.state.clubId];
+  return {
+    years: fillTemplate(countOf(copy.contract.yearsOne, copy.contract.yearsValue, years), {
+      years,
+    }),
+    club: club?.shortName ?? club?.name ?? "",
+  };
+}
+
 function EventScreen({ run, locale, onResolve }) {
   const copy = getCopy(locale);
   const event = run.event;
@@ -1027,7 +1074,32 @@ function EventScreen({ run, locale, onResolve }) {
             {copy.event.eyebrow} · {THEME_LABELS[locale][event.theme] ?? event.theme}
           </p>
           <h2 className="tr-display tr-display--lg">{text.title}</h2>
-          <p className="tr-card__body">{text.body}</p>
+          {/* `{years}` and the like, filled from the career the question is being asked of.
+              A press room that says "a year left on your deal" to a man with four is the
+              one thing a card like this must never do. */}
+          <p className="tr-card__body">{fillTemplate(text.body, eventValues(run, locale))}</p>
+          {/*
+            WHAT THE ROOM IS AFTER, when the question has an appetite.
+            Said out loud rather than left to be discovered, because this game shows the
+            odds it is about to roll everywhere else - and because reading the room is the
+            decision. The two halves usually want different things. See tone.js.
+          */}
+          {event.room?.stand || event.room?.board ? (
+            <p className="tr-card__room">
+              <Icon name="prensa" size={13} />
+              {fillTemplate(
+                event.room.stand && event.room.board
+                  ? copy.event.roomWants
+                  : event.room.stand
+                    ? copy.event.roomStand
+                    : copy.event.roomBoard,
+                {
+                  stand: TONE_WANTS[locale][event.room.stand] ?? "",
+                  board: TONE_WANTS[locale][event.room.board] ?? "",
+                },
+              )}
+            </p>
+          ) : null}
           <div className="tr-card__options">
             {text.options.map((option, index) => (
               <button
@@ -1047,6 +1119,13 @@ function EventScreen({ run, locale, onResolve }) {
                   <b>{option.label}</b>
                   <small>{option.detail}</small>
                 </span>
+                {/* And in what register. The label is the whole of the new decision: which
+                    of the two rooms you are answering. */}
+                {event.tones?.[option.id] ? (
+                  <span className={`tr-option__tone is-${event.tones[option.id]}`}>
+                    {TONE_LABELS[locale][event.tones[option.id]]}
+                  </span>
+                ) : null}
               </button>
             ))}
           </div>
@@ -1086,6 +1165,23 @@ function ContractSheet({ terms, locale, opening = null, compact = false }) {
         terms.years === 1
           ? copy.contract.yearsOne
           : fillTemplate(copy.contract.yearsValue, { years: terms.years }),
+      /*
+       * WHAT THE YEARS ACTUALLY BUY.
+       *
+       * A contract does its whole job at the market, and the market opens once a step - one
+       * season in intensa, three in exprés. So "3 temporadas" is a different promise in
+       * each mode, and only in the fastest one is the number on the sheet the number of
+       * summers it protects. Said out loud wherever the two differ. See CONTRACT.stepUp.
+       */
+      note:
+        (terms.seasonsPerStep ?? 1) > 1
+          ? (() => {
+              const markets = Math.round(terms.years / terms.seasonsPerStep);
+              return markets === 1
+                ? copy.contract.cycleOne
+                : fillTemplate(copy.contract.cycles, { n: markets });
+            })()
+          : null,
     },
     {
       key: "wage",
@@ -1451,6 +1547,24 @@ function ContextPanel({ run, locale }) {
         </small>
       </section>
 
+      {/*
+        AND THE OTHER AUDIENCE.
+        The stand has had a bar since the first version; the people who pay him have never
+        had one, and they are the ones who decide whether he is still here in June. Moved
+        by what he says in a press room and by nothing else - see tone.js - and read by
+        `clubWantsOut`, so a career of headlines the board did not ask for really does end
+        a stay.
+      */}
+      <section className="tr-context__block">
+        <p className="tr-front__label">
+          <Icon name="directiva" size={13} /> {copy.event.trust}
+        </p>
+        <div className={`tr-trust is-${trustLevelOf(trustAt(run.state)).key}`}>
+          <i style={{ "--fill": `${trustAt(run.state)}%` }} />
+          <b>{TRUST_LABELS[locale][trustLevelOf(trustAt(run.state)).key]}</b>
+        </div>
+      </section>
+
       {/* The cabinet as it fills, not a running total of it. This is the player's profile
           in career mode: every cup he has actually lifted, in the order he lifted them,
           building up along the shelf as the years go by. A number said the same thing and
@@ -1532,7 +1646,7 @@ function beatLine(beat, copy) {
  */
 const KICK_STEP = 520;
 
-function Shootout({ kicks, copy }) {
+function Shootout({ kicks, copy, onDone }) {
   const reduced = usePrefersReducedMotion();
   const order = useMemo(() => {
     // Alternating, ours first, exactly as they were taken.
@@ -1551,6 +1665,19 @@ function Shootout({ kicks, copy }) {
     const timers = order.map((_, i) => setTimeout(() => setTaken(i + 1), KICK_STEP * (i + 1)));
     return () => timers.forEach(clearTimeout);
   }, [order, reduced]);
+
+  /*
+   * NOTHING PAST HERE UNTIL THE LAST KICK HAS BEEN TAKEN.
+   *
+   * The whole of a shootout is finding out in order, and the feed was giving it away: every
+   * line after this one sits on minute ninety, so "y la tanda es suya" and the verdict on
+   * the screen behind it both landed the instant the clock stopped - five seconds before
+   * the kicks that were supposed to be deciding it had finished walking across. The reader
+   * knew who had gone through and then watched the players find out.
+   */
+  useEffect(() => {
+    if (taken >= order.length) onDone?.();
+  }, [taken, order.length, onDone]);
 
   const row = (side) =>
     order
@@ -1684,19 +1811,38 @@ function Broadcast({
     setMinute(stopAt);
   }, [stopAt]);
 
+  const reached = beats.filter((beat) => beat.minute <= minute);
+  /*
+   * A shootout is a wall the feed cannot be read past.
+   *
+   * Every closing beat is on minute ninety, so the moment the clock stops they are all
+   * "reached" at once - the kicks, the line saying who won the shootout, and the line
+   * saying who is through. The kicks then walk across the screen one at a time under an
+   * announcement of how they end. So the feed stops AT the shootout and only opens again
+   * once the last penalty has been taken.
+   */
+  const [kicksDone, setKicksDone] = useState(false);
+  const shootoutAt = reached.findIndex((beat) => beat.kicks);
+  useEffect(() => setKicksDone(false), [shootoutAt >= 0 ? reached[shootoutAt]?.minute : null]);
+  const handleKicksDone = useCallback(() => setKicksDone(true), []);
+  const holdingKicks = shootoutAt >= 0 && !kicksDone;
+  const visible = holdingKicks ? reached.slice(0, shootoutAt + 1) : reached;
+
   // Tell the screen when the match has actually got there, once per stage. Until it has,
   // there are no placements to press - the chance has not happened yet.
   const announced = useRef(null);
   useEffect(() => {
-    if (minute >= stopAt && announced.current !== stopAt) {
+    // `holdingKicks` is the other half of the no-spoiler rule: the screen around the feed
+    // reads this to decide when it may print who went through, so it has to wait for the
+    // last penalty exactly as the feed does.
+    if (minute >= stopAt && !holdingKicks && announced.current !== stopAt) {
       announced.current = stopAt;
       onReach?.(stopAt);
     }
-  }, [minute, stopAt, onReach]);
+  }, [minute, stopAt, holdingKicks, onReach]);
 
-  const visible = beats.filter((beat) => beat.minute <= minute);
   const latest = visible[visible.length - 1];
-  const running = minute < stopAt;
+  const running = minute < stopAt || holdingKicks;
   const liveStats = useMemo(() => {
     const count = (side, ids) => visible.filter((beat) => beat.side === side && ids.includes(beat.id)).length;
     const shots = {
@@ -1783,7 +1929,9 @@ function Broadcast({
           >
             <i>{beat.minute}'</i>
             <span>{beatLine(beat, copy)}</span>
-            {beat.kicks ? <Shootout kicks={beat.kicks} copy={copy} /> : null}
+                  {beat.kicks ? (
+              <Shootout kicks={beat.kicks} copy={copy} onDone={handleKicksDone} />
+            ) : null}
           </li>
         ))}
       </ol>
@@ -1803,6 +1951,8 @@ function Broadcast({
  */
 function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
   const copy = getCopy(locale);
+  // Finger or mouse. Decides how the placement is asked for, never which ones there are.
+  const coarse = useCoarsePointer();
   const matchday = run.matchday;
   if (!matchday?.shot) return null;
 
@@ -1815,7 +1965,26 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
   // A decider has three endings, not two. `absent` - the ball never came to him - settles
   // its trophy at DECIDES.absent and is neither his doing nor his fault, so it gets its own
   // verdict rather than borrowing the keeper's.
-  const verdict = last ? (last.absent ? "none" : last.scored ? "yes" : "no") : null;
+  /*
+   * WHAT THE NIGHT DECIDED, which is a claim about the cabinet and therefore has to come
+   * from the cabinet.
+   *
+   * Read off `scored` alone, a final he scored in printed "la copa es vuestra" whether or
+   * not the cup was actually won - and now that the bracket beside it says which, the two
+   * would be contradicting each other on the same screen. A night that settled a trophy
+   * says what the trophy did; every other night is still about the shot.
+   */
+  const verdict = last
+    ? last.absent
+      ? "none"
+      : last.settledTitle
+        ? last.settledTitle.won
+          ? "yes"
+          : "no"
+        : last.scored
+          ? "yes"
+          : "no"
+    : null;
   /*
    * THE PICTURE IS OF THE SHOT, NOT OF THE FIXTURE.
    *
@@ -1922,8 +2091,19 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
 
   // A continental final is the Eurocopa or the Copa América, never "the continental" -
   // the fixture is named after the cup that is actually being lifted.
-  const title =
-    fixture.kind === "final_continental_nt"
+  /*
+   * WHAT THIS NIGHT IS.
+   *
+   * A continental night is a ROUND now, not a fixture standing next to a bracket - the ties
+   * that led to it were played on this same screen's sibling a moment ago (see `showNight`
+   * in career.js), so naming it "Final continental" and leaving it there would be the one
+   * place the game stopped telling the player which competition he was in. The cup names
+   * itself, and the round says how far his side has come in it.
+   */
+  const cup = fixture.tournamentId ? TOURNAMENT_LABELS[locale][fixture.tournamentId] : null;
+  const title = cup
+    ? ROUND_LABELS[locale][fixture.round] ?? FIXTURE_LABELS[locale][fixture.kind]
+    : fixture.kind === "final_continental_nt"
       ? fillTemplate(copy.match.ntFinal, {
           cup: NT_TOURNAMENT[locale][country?.confederation] ?? FIXTURE_LABELS[locale][fixture.kind],
         })
@@ -1972,7 +2152,11 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             <span className={`tr-match__emblem tr-match__emblem--${fixture.decides}`}>
               <Icon name={FIXTURE_ICONS[fixture.kind] ?? "ball"} size={30} strokeWidth={1.4} />
             </span>
-            <h2 className="tr-display tr-display--lg">{title}</h2>
+            <div>
+              <h2 className="tr-display tr-display--lg">{title}</h2>
+              {/* Which competition the round belongs to. Only on a night that is one. */}
+              {cup ? <p className="tr-match__cup">{cup}</p> : null}
+            </div>
           </div>
 
           {/* Who is playing, unless the scoreboard is already saying it. On a live night
@@ -2074,7 +2258,13 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
         {last && atEnd ? (
           <div className="tr-match__result">
             <p className="tr-match__verdict">
-              {last.absent ? copy.match.absent : last.scored ? verdicts.won : verdicts.lost}
+              {last.absent
+                ? copy.match.absent
+                : last.scored
+                  ? verdicts.won
+                  : last.offTarget
+                    ? verdicts.wide ?? verdicts.lost
+                    : verdicts.lost}
             </p>
             {/* The gap is only worth naming if somebody shot at it. Printing where the
                 keeper was not, on a night no shot was taken, reads as a verdict on a
@@ -2082,9 +2272,17 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             <p className={last.absent ? "tr-match__untouched" : "tr-match__gap"}>
               {last.absent
                 ? copy.match.absentNote
-                : fillTemplate(verdicts.gap, { placement: placement(shot.options[shot.gap]) })}
+                : fillTemplate(verdicts.gap, {
+                    placement: placement(shot.keeperAt ?? shot.options[shot.gap]),
+                  })}
             </p>
-            {last.nailedIt ? <p className="tr-match__nailed">{copy.match.nailed}</p> : null}
+            {/* Being read and coming through anyway - said from the side it happened on.
+                See `nailed` in copy.js: a keeper is not the man who "read it". */}
+            {last.nailedIt ? (
+              <p className="tr-match__nailed">
+                {copy.match.nailed[shot.produces] ?? copy.match.nailed.goal}
+              </p>
+            ) : null}
             <p className="tr-match__decides">{outcome}</p>
             <button
               type="button"
@@ -2130,28 +2328,55 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
             ) : !atChance ? (
               <p className="tr-match__waiting">{copy.match.waiting}</p>
             ) : (
-              <>
-                    <p className="tr-match__prompt">{copy.match.choose}</p>
-                <div className="tr-match__options">
-                  {shot.options.map((option, optionIndex) => {
-                    const ruled = shot.ruledOut === optionIndex;
-                    return (
-                      <button
-                        key={option}
-                        type="button"
-                        className={`tr-shot${ruled ? " is-ruled" : ""}`}
-                        style={{ "--i": optionIndex }}
-                        disabled={ruled}
-                        onClick={() => onShoot(option)}
-                      >
-                        <PlacementDiagram type={shot.type} placement={option} />
-                        <b>{placement(option)}</b>
-                        {ruled ? <small>{copy.match.read}</small> : null}
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
+              /*
+               * ONE CHOICE, TWO HANDS.
+               *
+               * A placement is a DIRECTION, and on a phone three words in a row is the
+               * wrong instrument for one: you read it, translate it, and press a
+               * rectangle. With a finger on the glass the honest input is the gesture the
+               * situation already is - flick the ball where you want it. With a mouse it
+               * is a button, because a swipe with a mouse is a worse click. Both hand the
+               * model exactly the same placement. See aim.jsx.
+               */
+              coarse ? (
+                <AimSurface
+                  type={shot.type}
+                  options={shot.options}
+                  ruledOut={shot.ruledOut}
+                  label={copy.match.aim}
+                  hint={
+                    shot.ruledOut != null
+                      ? fillTemplate(copy.match.aimRuled, {
+                          placement: placement(shot.options[shot.ruledOut]),
+                        })
+                      : copy.match.aimHint
+                  }
+                  onAim={onShoot}
+                />
+              ) : (
+                <>
+                  <p className="tr-match__prompt">{copy.match.choose}</p>
+                  <div className="tr-match__options">
+                    {shot.options.map((option, optionIndex) => {
+                      const ruled = shot.ruledOut === optionIndex;
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          className={`tr-shot${ruled ? " is-ruled" : ""}`}
+                          style={{ "--i": optionIndex }}
+                          disabled={ruled}
+                          onClick={() => onShoot(option)}
+                        >
+                          <PlacementDiagram type={shot.type} placement={option} />
+                          <b>{placement(option)}</b>
+                          {ruled ? <small>{copy.match.read}</small> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )
             )}
             <p className="tr-match__foot">{copy.match.lede}</p>
           </>
@@ -2170,7 +2395,7 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
  * placement to press and no minigame to be good at. See PHASES.TOURNAMENT.
  *
  * Which is exactly why it is worth building. A career that only ever sees the three matches
- * its own player decided has a Champions League that consists of a scoreline in a summary;
+ * its own player decided has a European Cup that consists of a scoreline in a summary;
  * this is the other twenty nights of it, the ones you sit through as a supporter rather
  * than as a footballer, and the difference between the two is most of what a season feels
  * like from the inside.
@@ -2221,6 +2446,14 @@ function TournamentScreen({ run, locale, onNext }) {
               rather than pretending the question does not arise. */}
           <p className="tr-tie__legs">
             <span>{tie.legs > 1 ? copy.tournament.secondLeg : copy.tournament.singleLeg}</span>
+            {/* Whether he is in the eleven. The tie plays out either way - the bracket
+                simulates it - but a night he is on the pitch for reads differently, and
+                the feed below has him in it. See `roundOdds`. */}
+            {tie.played === null ? null : (
+              <b className={`tr-tie__sheet${tie.played ? " is-in" : " is-out"}`}>
+                {tie.played ? copy.tournament.youPlay : copy.tournament.youWatch}
+              </b>
+            )}
             {tie.firstLeg ? (
               <b>
                 {fillTemplate(copy.tournament.firstLeg, {
@@ -2278,7 +2511,9 @@ function TournamentScreen({ run, locale, onNext }) {
             </button>
           </div>
         ) : (
-          <p className="tr-tie__foot">{copy.tournament.lede}</p>
+          <p className="tr-tie__foot">
+            {tie.played ? copy.tournament.ledePlaying : copy.tournament.lede}
+          </p>
         )}
       </article>
     </section>

@@ -140,24 +140,84 @@ export const NT_TOURNAMENT = {
  * The competitions themselves, by name.
  *
  * The season summary has always called a continental run "el camino continental", which is
- * the taxonomy again: nobody watches the continental, they watch the Champions League. Now
+ * the taxonomy again: nobody watches the continental, they watch the cup by its name. Now
  * that the knockout rounds are played on screen the tournament has to introduce itself, so
  * it is named after the thing that is actually being won.
+ *
+ * `champions` is the id in tournaments.js and stays what it is - it is a key, not a name.
+ * What it is CALLED is "la Copa de Europa", which is what the trophy is and what the
+ * competition is called in Spanish outside a broadcast rights deal.
  */
 export const TOURNAMENT_LABELS = {
   es: {
-    champions: "la Champions League",
+    champions: "la Copa de Europa",
     libertadores: "la Copa Libertadores",
     euro: "la Eurocopa",
     copa_america: "la Copa América",
     world_cup: "el Mundial",
   },
   en: {
-    champions: "the Champions League",
+    champions: "the European Cup",
     libertadores: "the Copa Libertadores",
     euro: "the Euros",
     copa_america: "the Copa América",
     world_cup: "the World Cup",
+  },
+};
+
+/**
+ * HOW AN ANSWER SOUNDS, in the four registers a press room actually has.
+ *
+ * Castilian rather than Río de la Plata - `chulesco` where another game would say
+ * "canchero" - and named from the outside, the way a headline would describe it, because
+ * that is who is judging. See tone.js.
+ */
+export const TONE_LABELS = {
+  es: {
+    institucional: "Institucional",
+    profesional: "Profesional",
+    sincero: "Sincero",
+    chulesco: "Chulesco",
+  },
+  en: {
+    institucional: "Company line",
+    profesional: "Professional",
+    sincero: "Straight",
+    chulesco: "Cocky",
+  },
+};
+
+/** What the two audiences in the room are hoping to hear, said plainly. */
+export const TONE_WANTS = {
+  es: {
+    institucional: "que cierres filas",
+    profesional: "que no te salgas del guion",
+    sincero: "que digas lo que piensas",
+    chulesco: "un titular",
+  },
+  en: {
+    institucional: "you to close ranks",
+    profesional: "you to stay on script",
+    sincero: "you to say what you think",
+    chulesco: "a headline",
+  },
+};
+
+/** And how the board is feeling about you. Five bands, so it reads without a number. */
+export const TRUST_LABELS = {
+  es: {
+    intocable: "Intocable",
+    respaldado: "Respaldado",
+    vigilado: "Vigilado",
+    cuestionado: "Cuestionado",
+    sentenciado: "Sentenciado",
+  },
+  en: {
+    intocable: "Untouchable",
+    respaldado: "Backed",
+    vigilado: "Watched",
+    cuestionado: "Questioned",
+    sentenciado: "Finished",
   },
 };
 
@@ -188,14 +248,11 @@ export const SHOT_LABELS = {
     mano_a_mano: "Mano a mano",
     cabezazo: "Cabezazo al área",
     falta: "Falta directa",
-    volea: "Volea desde la frontal",
     parada_penal: "Penalti en contra",
     salida_mano_a_mano: "Se te va solo",
     tiro_lejano: "Disparo desde la frontal",
     centro_lateral: "El centro al área",
-    despeje: "Despeje bajo palos",
     entrada: "La entrada",
-    anticipo: "El anticipo",
     pase_gol: "El último pase",
   },
   en: {
@@ -203,14 +260,11 @@ export const SHOT_LABELS = {
     mano_a_mano: "One on one",
     cabezazo: "Header in the box",
     falta: "Free kick",
-    volea: "Volley from the edge",
     parada_penal: "Penalty against you",
     salida_mano_a_mano: "He is through on you",
     tiro_lejano: "Shot from the edge",
     centro_lateral: "The cross",
-    despeje: "Clearance off the line",
     entrada: "The tackle",
-    anticipo: "The interception",
     pase_gol: "The final ball",
   },
 };
@@ -218,52 +272,36 @@ export const SHOT_LABELS = {
 /** Where you put it. The keys are shared across shot types, so one table covers all. */
 export const PLACEMENT_LABELS = {
   es: {
-    izquierda: "A su izquierda",
+    // Las cinco zonas de la portería, vistas desde detrás del que chuta: izquierda es la
+    // izquierda de la imagen. Las mismas para el que para - ahí es adonde va él.
+    "arriba-izquierda": "Arriba a la izquierda",
+    "arriba-derecha": "Arriba a la derecha",
     centro: "Por el centro",
-    derecha: "A su derecha",
-    cruzado: "Cruzada",
-    "primer-palo": "Al primer palo",
-    picadita: "Picada por encima",
-    "segundo-palo": "Al segundo palo",
+    "abajo-izquierda": "Abajo a la izquierda",
+    "abajo-derecha": "Abajo a la derecha",
+    // Y las dos jugadas que no son un disparo a puerta.
+    "al-hueco": "Al hueco, entre líneas",
     atras: "Peinada hacia atrás",
-    barrera: "Por encima de la barrera",
-    "palo-largo": "Al palo largo",
-    rasa: "Rasa por debajo",
-    abajo: "Abajo, a ras de hierba",
-    escuadra: "A la escuadra",
-    cruzada: "Cruzada al otro palo",
-    // Adonde vas tú, no adonde va el balón.
-    achique: "Achicar y hacerte grande",
-    "palo-corto": "Cerrar el palo corto",
-    salida: "Salir a por él",
+    cruzado: "Cruzada",
     adelantarse: "Adelantarte a la jugada",
     aguantar: "Aguantar de pie",
     cerrar: "Cerrarle la diagonal",
-    // Y adonde pones el pase.
-    "al-hueco": "Al hueco, entre líneas",
   },
   en: {
-    izquierda: "To his left",
+    // The goal's five places, seen from behind the man striking it: left is the left of the
+    // picture. The same five for the man stopping it - that is where HE goes.
+    "arriba-izquierda": "Top left",
+    "arriba-derecha": "Top right",
     centro: "Down the middle",
-    derecha: "To his right",
-    cruzado: "Across him",
-    "primer-palo": "Near post",
-    picadita: "Dinked over him",
-    "segundo-palo": "Far post",
+    "abajo-izquierda": "Bottom left",
+    "abajo-derecha": "Bottom right",
+    // And the two moments that are not a shot at a goal.
+    "al-hueco": "Into the space, between the lines",
     atras: "Nodded back across",
-    barrera: "Over the wall",
-    "palo-largo": "Far corner",
-    rasa: "Low under the wall",
-    abajo: "Low, along the grass",
-    escuadra: "Into the top corner",
-    cruzada: "Across to the far post",
-    achique: "Come out and stand tall",
-    "palo-corto": "Cover the near post",
-    salida: "Come and claim it",
+    cruzado: "Across him",
     adelantarse: "Read it early",
     aguantar: "Stay on your feet",
     cerrar: "Close the angle",
-    "al-hueco": "Into the space, between the lines",
   },
 };
 
@@ -368,6 +406,11 @@ const COPY = {
       years: "Duración",
       yearsValue: "{years} temporadas",
       yearsOne: "1 temporada",
+      /* En normal y exprés pasan varias temporadas entre un mercado y el siguiente, así que
+         lo que compra un contrato no se mide en años sino en mercados: hasta cuántos veranos
+         llega la promesa. Ver CONTRACT.stepUp. */
+      cycleOne: "Llega al próximo mercado",
+      cycles: "Llega a {n} mercados",
       yearsLeft: "Quedan {years}",
       expired: "Contrato vencido",
       wage: "Ficha",
@@ -434,6 +477,12 @@ const COPY = {
 
     event: {
       eyebrow: "La decisión",
+      /* Lo que busca cada uno en la sala. Se dice en voz alta porque este juego enseña
+         siempre la tirada que va a hacer - y porque leer la sala ES la decisión. */
+      roomWants: "La grada quiere {stand}. El club, {board}.",
+      roomStand: "La grada quiere {stand}.",
+      roomBoard: "El club quiere {board}.",
+      trust: "Confianza del club",
       injuryEyebrow: "Parte médico",
       injuryNote: "No se elige. Ocurre y sigues.",
       matchesLost: "partidos menos",
@@ -457,23 +506,18 @@ const COPY = {
       chancePrompt: {
         sweep: "Para el marcador dentro del hueco",
         window: "Espera. Golpea antes de que se cierre",
-        bend: "Primero la potencia, luego la rosca",
         charge: "Carga el golpeo y suéltalo en la banda",
         aim: "Va en movimiento. Suéltala donde va a estar",
         dive: "Adivina el lado. Y el momento",
-        feint: "Amaga primero. Luego vete",
       },
       chanceGate: "Toque {n} de {total}",
       /** El segundo tiempo del amago: ya has vendido la finta, ahora es cuándo sales. */
-      chanceGo: "Ahora",
       chanceHint: {
         sweep: "Pulsa en cualquier sitio para golpear",
         window: "Pulsa en cualquier sitio para golpear",
-        bend: "Pulsa en cualquier sitio para golpear",
         charge: "Mantén pulsado y suelta",
         aim: "Arrastra la mira y suelta encima",
         dive: "Arrastra hacia el lado y suelta",
-        feint: "Dos toques: el amago y el disparo",
       },
       skip: "Adelantar",
       liveStats: { shots: "Tiros", saves: "Paradas", danger: "Peligro" },
@@ -593,6 +637,15 @@ const COPY = {
         playerShot: ["Te fabricas el espacio y pruebas al portero desde lejos.", "Recibes entre líneas, giras y disparas sin pensarlo.", "Atacas el rechace y obligas al guardameta a intervenir."],
         playerRun: ["Atacas la espalda de la defensa y arrastras a dos contigo.", "Tu desmarque abre un pasillo que el {us} aprovecha.", "Cambias de dirección y apareces libre entre los centrales."],
         playerHoldUp: ["Aguantas de espaldas, proteges el balón y das aire al equipo.", "Fijas a los centrales y descargas de cara con criterio.", "Te llevas el contacto, conservas la pelota y permite subir al bloque."],
+        /* Una de las que el partido ya tenía, y resulta que la mete él. El marcador no se
+           mueve - es el del cuadro - sólo se sabe de quién es. Ver GOAL_SHARE. */
+        playerGoal: [
+          "¡La metes tú! Y en una noche de estas.",
+          "Cae, y la firma tuya. El estadio te busca.",
+          "Aparece el gol, y aparece con tu nombre.",
+          "La mandas dentro. De estas se acuerda uno veinte años.",
+          "Gol tuyo en una eliminatoria. Justo la que hay que meter.",
+        ],
         tight: [
           "No se abre. Se juega en el barro del centro del campo.",
           "Ni una. Dos equipos con más miedo a perder que ganas de ganar.",
@@ -612,6 +665,15 @@ const COPY = {
           "Ahora sí: el {us} vive en campo contrario.",
           "El {us} aprieta y el {them} se mete atrás.",
           "Se juega en un pañuelo delante del área del {them}.",
+        ],
+        /* Un equipo por delante en el marcador no aprieta: aguanta. Es el tramo final que
+           le toca a casi toda noche de portero o de central - ver STOP_SITUATIONS. */
+        holding: [
+          "El {us} junta líneas y se agarra al resultado.",
+          "El {us} da un paso atrás. Toca sufrir.",
+          "Se acorta el campo: el {us} defiende lo que tiene.",
+          "El {them} vuelca el ataque y el {us} se mete en su área.",
+          "Quedan minutos y el {us} sólo mira el reloj.",
         ],
         chasing: [
           "El {us} necesita el partido y se va a por él.",
@@ -641,6 +703,40 @@ const COPY = {
           "Fuera. Te llevas las manos a la cabeza.",
           "Al palo. El estadio se levanta y se vuelve a sentar.",
           "No la coges bien. Se marcha alta.",
+        ],
+        /*
+         * Salir bien de la tuya no siempre es marcar. Un portero que para el penalti no
+         * se pone 1-0: deja el marcador donde estaba, y el que no lo para encaja. Ver
+         * PRODUCE_BEATS en narration.js - estas son las cuatro líneas que faltaban y por
+         * las que una parada se narraba como un gol tuyo.
+         */
+        stopped: [
+          "¡La sacas! No pasa de ahí.",
+          "La paras tú. El marcador no se mueve.",
+          "Te tiras y la despejas. Sigue todo igual.",
+          "Llegas. El estadio suelta el aire de golpe.",
+          "No entra porque estabas tú.",
+        ],
+        conceded: [
+          "Se te va. Gol en contra.",
+          "No llegas. La cuelan y el marcador cambia.",
+          "Te la meten. Ahí queda la noche.",
+          "Vas a un lado y la ponen al otro. Dentro.",
+          "No hay nada que hacer: entra.",
+        ],
+        assisted: [
+          "La pones tú y la empujan dentro. ¡Gol!",
+          "Tu pase acaba en la red. Asistencia.",
+          "La dejas muerta y sólo hay que empujarla. Dentro.",
+          "El último pase es tuyo. Y entra.",
+          "La rompes con un pase y alguien la remata. Gol.",
+        ],
+        assistMissed: [
+          "Tu pase llega y el remate no.",
+          "La pones y se estrella en el portero. Qué pena.",
+          "Se la dejas franca y la manda fuera.",
+          "El pase era bueno. El final, no.",
+          "Llega el balón, no llega el gol.",
         ],
         untouched: [
           "Y el partido pasa de largo. No te llega ni una.",
@@ -707,6 +803,11 @@ const COPY = {
       alsoDerby: "Y además es el partido de la temporada.",
       lede: "Todo lo demás lo juega el modelo. Esto lo juegas tú.",
       choose: "Elige dónde la pones",
+      /* En táctil la colocación no se lee, se hace: deslizas hacia donde la mandas. Ver
+         aim.jsx - es la misma pregunta con la mano que tienes delante. */
+      aim: "Desliza hacia donde la mandas",
+      aimHint: "Arrastra desde el balón y suelta sobre el destino",
+      aimRuled: "Le has leído la intención: por ahí no ({placement})",
       read: "Te da tiempo a leerle: por ahí no va.",
       gapWas: "El hueco: {placement}",
       scored: "GOL",
@@ -716,9 +817,14 @@ const COPY = {
        * el veredicto tiene que decir lo que de verdad pasó en el área.
        */
       verdicts: {
-        goal: { won: "GOL", lost: "LA PARÓ", gap: "El hueco: {placement}" },
-        stop: { won: "LA SACAS", lost: "GOL EN CONTRA", gap: "La puso: {placement}" },
-        assist: { won: "ASISTENCIA", lost: "NO LLEGA", gap: "El hueco estaba: {placement}" },
+        /* `wide` es el desenlace que el modelo nuevo separó: un balón que se va por encima
+           no es una parada, y llamarlo así era la misma mentira que dibujar al portero en la
+           esquina contraria. Ver `offTargetOdds`. */
+        goal: { won: "GOL", lost: "LA PARÓ", wide: "FUERA", gap: "Se tiró a: {placement}" },
+        /* Las opciones de una parada son ADONDE VAS TÚ, no adonde va el balón - ver
+           SHOT_TYPES. "La puso: Achicar y hacerte grande" no quería decir nada. */
+        stop: { won: "LA SACAS", lost: "GOL EN CONTRA", wide: "LA MANDA FUERA", gap: "La puso: {placement}" },
+        assist: { won: "ASISTENCIA", lost: "NO LLEGA", wide: "SE LE VA LARGO", gap: "Iban a cubrir: {placement}" },
       },
       /**
        * El tercer desenlace. Ni gol ni parada: el balón no pasó por él, y el partido no se
@@ -726,7 +832,16 @@ const COPY = {
        */
       absent: "NO TE LLEGÓ",
       absentNote: "Ni una. El partido se resolvió sin pasar por tus botas.",
-      nailed: "Adivinó el lado y no llegó igual.",
+      /**
+       * Haber acertado y que no sirviera de nada, contado desde el lado que toca. Escrita
+       * sólo para el delantero, la misma línea le decía a un portero que acababa de parar
+       * un penalti que "adivinó el lado y no llegó igual" - de él, y era mentira dos veces.
+       */
+      nailed: {
+        goal: "Adivinó el lado y no llegó igual.",
+        stop: "Te fuiste al otro lado y llegaste igual.",
+        assist: "Le llegó tapado y la metió igual.",
+      },
       next: "Seguir",
       summary: "Los partidos del año",
       /**
@@ -785,16 +900,23 @@ const COPY = {
     /**
      * Las eliminatorias que se juegan en pantalla.
      *
-     * De octavos en adelante, la Champions, la Libertadores y el Mundial dejan de ser una
+     * De octavos en adelante, la Copa de Europa, la Libertadores y el Mundial dejan de ser una
      * línea en el resumen y pasan a ser una noche - ver LIVE_ROUNDS. El jugador no decide
      * nada aquí: mira. Por eso el texto no le pregunta nada, solo le cuenta dónde está su
      * equipo y qué se juega esta noche.
      */
     tournament: {
       eyebrow: "Noche de eliminatoria",
+      /* Dos pies, porque son dos noches distintas. La eliminatoria la resuelve el cuadro
+         en los dos casos - no hay nada que pulsar - pero estar dentro no es verla. */
       lede: "Esto no lo juegas tú. Lo juega tu equipo, y tú lo ves.",
+      ledePlaying: "No hay nada que pulsar: esta la resuelve el partido. Pero estás en él.",
       /** El partido que se narra: el único, o la vuelta de la eliminatoria. */
       singleLeg: "Partido único",
+      /* Si sales o no en la lista es lo primero que un futbolista mira. La eliminatoria se
+         juega igual - la simula el cuadro - pero no es lo mismo verla desde el campo. */
+      youPlay: "Sales de inicio",
+      youWatch: "Te quedas fuera de la convocatoria",
       secondLeg: "Partido de vuelta",
       firstLeg: "Ida: {us}–{them}",
       aggregate: "Global: {us}–{them}",
@@ -847,7 +969,7 @@ const COPY = {
       continentalNext: { main: "Clasificado para la máxima continental", secondary: "Clasificado para la segunda continental", none: "Sin plaza continental" },
       /* Cabecera de la tabla de resultados. Un periódico rotula sus columnas: sin esto,
          "Al segundo palo" junto a "GOL" no dice cuál es la elección y cuál el desenlace. */
-      resultsCols: { fixture: "Partido", choice: "Dónde la puso", outcome: "Desenlace" },
+      resultsCols: { fixture: "Partido", choice: "Tu decisión", outcome: "Desenlace" },
       /* Cuando no hubo remate no hay nada que rotular, y la columna no puede quedarse en
          blanco: una casilla vacía se lee como un dato que falta. */
       noChoice: "—",
@@ -1097,6 +1219,11 @@ const COPY = {
       years: "Length",
       yearsValue: "{years} seasons",
       yearsOne: "1 season",
+      /* In normal and exprés several seasons pass between one market and the next, so what
+         a contract buys is not measured in years but in markets: how many summers the
+         promise reaches. See CONTRACT.stepUp. */
+      cycleOne: "Covers the next market",
+      cycles: "Covers {n} markets",
       yearsLeft: "{years} left",
       expired: "Contract expired",
       wage: "Wage",
@@ -1163,6 +1290,12 @@ const COPY = {
 
     event: {
       eyebrow: "The decision",
+      /* What each half of the room is after. Said out loud because this game always shows
+         the roll it is about to make - and because reading the room IS the decision. */
+      roomWants: "The stand wants {stand}. The club wants {board}.",
+      roomStand: "The stand wants {stand}.",
+      roomBoard: "The club wants {board}.",
+      trust: "Club's confidence",
       injuryEyebrow: "Medical report",
       injuryNote: "Not a choice. It happens and you carry on.",
       matchesLost: "matches lost",
@@ -1183,23 +1316,17 @@ const COPY = {
       chancePrompt: {
         sweep: "Stop the marker inside the gap",
         window: "Wait. Hit it before it closes",
-        bend: "Power first, then the curl",
         charge: "Load the strike, let go on the band",
         aim: "It is moving. Release where it will be",
         dive: "Pick your side. And your moment",
-        feint: "Sell it first. Then go",
       },
       chanceGate: "Touch {n} of {total}",
-      /** The second half of a feint: the dummy is sold, now it is when you go. */
-      chanceGo: "Now",
       chanceHint: {
         sweep: "Press anywhere to strike",
         window: "Press anywhere to strike",
-        bend: "Press anywhere to strike",
         charge: "Hold, then release",
         aim: "Drag the crosshair and release on it",
         dive: "Drag to a side and release",
-        feint: "Two touches: the dummy and the shot",
       },
       skip: "Skip ahead",
       liveStats: { shots: "Shots", saves: "Saves", danger: "Threat" },
@@ -1287,6 +1414,15 @@ const COPY = {
         playerShot: ["You make the yard and test the keeper from range.", "You receive between the lines, turn and shoot at once.", "You attack the rebound and force the goalkeeper to work."],
         playerRun: ["You attack the space behind and drag two defenders with you.", "Your run opens the lane that {us} use.", "You change direction and appear free between the centre-backs."],
         playerHoldUp: ["You hold it with your back to goal and give the side air.", "You pin the centre-backs and lay it off intelligently.", "You absorb the contact, keep it and let the block advance."],
+        /* One the match already had, and it turns out to be his. The scoreline does not
+           move - it is the bracket's - only the name on it. See GOAL_SHARE. */
+        playerGoal: [
+          "You score it! On a night like this one.",
+          "It goes in, and it is yours. The ground comes looking for you.",
+          "The goal arrives, and it arrives with your name on it.",
+          "You put it away. Twenty years from now you will still have this one.",
+          "Your goal in a knockout tie. Exactly the one you are there for.",
+        ],
         tight: [
           "Nothing in it. The game is being fought in midfield.",
           "Not a chance between them. Two sides afraid of losing.",
@@ -1306,6 +1442,15 @@ const COPY = {
           "{us} are living in the other half now.",
           "{us} press and {them} drop deeper.",
           "It is all happening on the edge of the {them} box.",
+        ],
+        /* A side in front does not press: it holds on. This is the last twenty minutes of
+           almost every goalkeeper's and defender's night - see STOP_SITUATIONS. */
+        holding: [
+          "{us} drop the lines and dig in on the scoreline.",
+          "{us} take a step back. This is going to hurt.",
+          "The pitch shortens: {us} defend what they have.",
+          "{them} throw everyone forward and {us} retreat into their own box.",
+          "Minutes left, and {us} are only watching the clock.",
         ],
         chasing: [
           "{us} need this one and they go after it.",
@@ -1335,6 +1480,40 @@ const COPY = {
           "Wide. Your hands go to your head.",
           "Off the post. The ground stands up and sits back down.",
           "You do not catch it properly. Over the bar.",
+        ],
+        /*
+         * Coming through is not always scoring. A keeper who saves the penalty does not go
+         * 1-0 up for it: he leaves the board where it was, and the one who does not save it
+         * concedes. See PRODUCE_BEATS in narration.js - these are the four lines that were
+         * missing, and why a save used to be narrated as a goal of your own.
+         */
+        stopped: [
+          "You get there! It goes no further.",
+          "You save it. The scoreboard does not move.",
+          "You go down and push it away. Nothing changes.",
+          "You reach it. The ground lets out its breath at once.",
+          "It does not go in, because you were there.",
+        ],
+        conceded: [
+          "It beats you. They score.",
+          "You cannot reach it. They put it away and the board turns.",
+          "It goes past you. That is the night.",
+          "You go one way, they put it the other. In.",
+          "Nothing you could do: it is in.",
+        ],
+        assisted: [
+          "You lay it on and it is bundled in. Goal!",
+          "Your pass ends in the net. An assist.",
+          "You leave it on a plate and it is tapped home.",
+          "The last pass is yours. And it goes in.",
+          "You break them open with a pass and somebody finishes it.",
+        ],
+        assistMissed: [
+          "Your pass arrives. The finish does not.",
+          "You put it on and it is straight at the keeper.",
+          "You leave it clean for him and he puts it wide.",
+          "The pass was right. The ending was not.",
+          "The ball gets there; the goal does not.",
         ],
         untouched: [
           "And the game goes past you. Not one sight of it.",
@@ -1401,20 +1580,40 @@ const COPY = {
       alsoDerby: "And it is the match of the season, too.",
       lede: "The model plays everything else. This one you play.",
       choose: "Choose where you put it",
+      /* On a touchscreen a placement is not read, it is made: you flick it where you want
+         it to go. See aim.jsx - the same question, asked of the hand in front of it. */
+      aim: "Flick it where you want it",
+      aimHint: "Drag from the ball and let go on the target",
+      aimRuled: "You have read him: not that side ({placement})",
       read: "You get long enough to read him: not that side.",
       gapWas: "The gap: {placement}",
       scored: "GOAL",
       saved: "SAVED",
       /** Coming through is not always scoring. See PRODUCES. */
       verdicts: {
-        goal: { won: "GOAL", lost: "SAVED", gap: "The gap: {placement}" },
-        stop: { won: "YOU GET THERE", lost: "HE SCORES", gap: "He put it: {placement}" },
-        assist: { won: "ASSIST", lost: "IT DOES NOT COME OFF", gap: "The space was: {placement}" },
+        /* `wide` is the outcome the new model separated out: a ball over the bar is not a
+           save, and calling it one was the same lie as drawing the keeper in the other
+           corner. See `offTargetOdds`. */
+        goal: { won: "GOAL", lost: "SAVED", wide: "WIDE", gap: "He went: {placement}" },
+        /* A save's options are where YOU go, not where the ball goes - see SHOT_TYPES.
+           "He put it: Come out and stand tall" did not mean anything. */
+        stop: { won: "YOU GET THERE", lost: "HE SCORES", wide: "HE PUTS IT WIDE", gap: "He put it: {placement}" },
+        assist: { won: "ASSIST", lost: "IT DOES NOT COME OFF", wide: "OVERHIT", gap: "They covered: {placement}" },
       },
       /** The third outcome: neither goal nor save, and the only one he cannot be blamed for. */
       absent: "NEVER CAME",
       absentNote: "Not one. The match settled itself without passing through your boots.",
-      nailed: "He read it and still could not reach it.",
+      /**
+       * Being right and having it count for nothing, told from the side it happened on.
+       * Written for the striker alone, the same line told a goalkeeper who had just saved a
+       * penalty that "he read it and still could not reach it" - about himself, and wrong
+       * twice over.
+       */
+      nailed: {
+        goal: "He read it and still could not reach it.",
+        stop: "You went the other way and got there anyway.",
+        assist: "It came to him marked and he finished it anyway.",
+      },
       next: "Continue",
       summary: "The matches that mattered",
       /** `none` is the night nothing came to him: it settles at DECIDES.absent, off-stage. */
@@ -1470,16 +1669,23 @@ const COPY = {
     /**
      * The ties that are played on screen.
      *
-     * From the last sixteen on, the Champions League, the Libertadores and the World Cup
+     * From the last sixteen on, the European Cup, the Libertadores and the World Cup
      * stop being a line in the summary and become a night - see LIVE_ROUNDS. The player
      * decides nothing here: he watches. So none of this asks him anything; it only says
      * where his side stands and what is at stake tonight.
      */
     tournament: {
       eyebrow: "Knockout night",
+      /* Two footers, because they are two different nights. The bracket settles the tie
+         either way - there is nothing to press - but being in it is not watching it. */
       lede: "This one is not yours to play. It is your side's, and you watch it.",
+      ledePlaying: "Nothing to press: the match settles this one. But you are in it.",
       /** The match being narrated: the only one, or the second leg of the tie. */
       singleLeg: "One-off tie",
+      /* Whether you are in the side is the first thing a footballer looks for. The tie is
+         played either way - the bracket simulates it - but watching it is not the same. */
+      youPlay: "You start",
+      youWatch: "You are not in the squad",
       secondLeg: "Second leg",
       firstLeg: "First leg: {us}–{them}",
       aggregate: "Aggregate: {us}–{them}",
@@ -1530,7 +1736,7 @@ const COPY = {
       /** A tie can finish level, so the summary has to say how it was broken. */
       onPenalties: " (pens)",
       continentalNext: { main: "Qualified for the main continental cup", secondary: "Qualified for the secondary continental cup", none: "No continental place" },
-      resultsCols: { fixture: "Match", choice: "Where he put it", outcome: "Outcome" },
+      resultsCols: { fixture: "Match", choice: "Your call", outcome: "Outcome" },
       noChoice: "—",
       /* The night itself, before the morning's write-up. See trophies.jsx. */
       ceremony: "You lifted it",

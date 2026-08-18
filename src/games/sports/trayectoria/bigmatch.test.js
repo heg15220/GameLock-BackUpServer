@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { PLACEMENT_LABELS } from "./copy.js";
+import { BLIND_CONVERSION, KEEPER, ZONES, keeperDifficulty } from "./keeper.js";
 import {
   FIXTURE_KINDS,
   CONVERSION_PRIOR,
@@ -297,15 +299,51 @@ describe("what each position is actually asked to do", () => {
     expect([...seen].filter((type) => SHOT_PRODUCES[type] === PRODUCES.STOP).length).toBeGreaterThan(0);
   });
 
-  it("keeps the striker's five exactly as they were", () => {
-    expect(REPERTOIRE.forward).toEqual(["penal", "mano_a_mano", "cabezazo", "falta", "volea"]);
+  /**
+   * FOUR SITUATIONS, TWO SIDES, AND TWO THAT ARE NEITHER.
+   *
+   * Thirteen kinds of chance had drifted into three different games - a volley from the
+   * edge, a clearance off the line and an interception were three pictures nobody saw more
+   * than four of. The list is the four moments football stops for, taken from whichever
+   * side your position puts you on, plus the pass that makes a goal and the tackle that
+   * stops one.
+   */
+  it("offers exactly the four situations, from both sides, plus the pass and the tackle", () => {
+    expect(REPERTOIRE.forward).toEqual(["penal", "mano_a_mano", "cabezazo", "falta"]);
+    // The same four, from inside the goal.
+    expect(REPERTOIRE.keeper).toEqual([
+      "parada_penal",
+      "tiro_lejano",
+      "salida_mano_a_mano",
+      "centro_lateral",
+    ]);
+    // A centre-back gets the corner he wins finals with and the tackle he saves them with.
+    expect(REPERTOIRE.defensive).toEqual(["cabezazo", "entrada"]);
+    // And a midfielder's is the last pass.
+    expect(REPERTOIRE.creator).toContain("pase_gol");
+
+    // Nothing outside the six a player can ever be handed.
+    const offered = new Set(Object.values(REPERTOIRE).flat());
+    expect([...offered].sort()).toEqual(Object.keys(SHOT_TYPES).sort());
   });
 
-  it("gives every chance in every repertoire three options and a verdict", () => {
+  it("gives every chance in every repertoire somewhere to put it and a verdict", () => {
     for (const pool of Object.values(REPERTOIRE)) {
       for (const type of pool) {
-        expect(SHOT_TYPES[type], `${type} has no options`).toHaveLength(3);
+        const options = SHOT_TYPES[type];
+        expect(options, `${type} has no options`).toBeTruthy();
         expect(Object.values(PRODUCES)).toContain(SHOT_PRODUCES[type]);
+        /*
+         * A shot at a goal offers the goal's five places; the two moments that are not a
+         * shot keep three of their own. Every option has to be somewhere the drawing
+         * knows about, which is the thing that used to break silently.
+         */
+        const shooting = options === ZONES || options.every((o) => ZONES.includes(o));
+        expect(options.length, `${type}`).toBe(shooting ? ZONES.length : 3);
+        for (const option of options) {
+          expect(PLACEMENT_LABELS.es[option], `${type}: ${option} has no name`).toBeTruthy();
+          expect(PLACEMENT_LABELS.en[option], `${type}: ${option} has no name`).toBeTruthy();
+        }
       }
     }
   });
@@ -341,7 +379,7 @@ describe("what converting is worth on the scoresheet", () => {
   });
 
   it("does not put a saved penalty on a goalkeeper's scoring record", () => {
-    const effects = matchEffects([result("parada_penal", 1), result("despeje", 2)]);
+    const effects = matchEffects([result("parada_penal", 1), result("centro_lateral", 2)]);
     expect(effects.bonusGoals).toBe(0);
     expect(effects.bonusAssists).toBe(0);
   });
@@ -397,7 +435,17 @@ describe("splitting a season between the player and the model", () => {
 
   it("scores better shots for better players, which is what the split then pays out", () => {
     expect(shotScoringRate(90)).toBeGreaterThan(shotScoringRate(60));
-    expect(shotScoringRate(50)).toBeCloseTo(1 / 3 + (2 / 3) * NAILED_FROM_OVR(50), 10);
+    /*
+     * The prior is READ OFF THE KEEPER now, not asserted beside him. It used to be a flat
+     * third, which was only true because the opposition was a flat third - a coin that
+     * happened to agree with the number written here. See BLIND_CONVERSION.
+     */
+    expect(shotScoringRate(50)).toBeCloseTo(
+      BLIND_CONVERSION + (1 - BLIND_CONVERSION) * NAILED_FROM_OVR(50),
+      10,
+    );
+    // And it is still the honest measure of a blind guess: what the model actually does.
+    expect(shotScoringRate(50)).toBeGreaterThan(BLIND_CONVERSION);
   });
 });
 
@@ -554,11 +602,27 @@ describe("the shot", () => {
     }
   });
 
-  it("gives a better player the read more often", () => {
+  /**
+   * A READ IS A READ, not an option struck off the list.
+   *
+   * `ruledOut` removed a placement, which was information while the keeper covered
+   * everything but one place. Under a keeper who commits it is the opposite of a favour -
+   * four zones in five are a goal, so taking one away can only cost you - so what a rating
+   * buys is `tell`: the zone his memory is pulling him towards. See `keeperTell`.
+   */
+  it("gives a better player the read more often, and never takes an option away", () => {
     const reads = (ovr) => {
       let count = 0;
       for (let season = 0; season < 300; season += 1) {
-        if (shotFor({ seed: `read-${season}`, season, fixture, ovr }).ruledOut !== null) count += 1;
+        const shot = shotFor({
+          seed: `read-${season}`,
+          season,
+          fixture,
+          ovr,
+          keeper: { difficulty: 0.8, memory: ["centro", "centro", "centro"] },
+        });
+        expect(shot.ruledOut, "the read still removes an option").toBeNull();
+        if (shot.tell) count += 1;
       }
       return count;
     };
@@ -566,6 +630,19 @@ describe("the shot", () => {
     // And it is a read, not a gift: at 62 OVR there is nothing to read with.
     expect(HINT_FROM_OVR(62)).toBe(0);
     expect(HINT_FROM_OVR(99)).toBeLessThanOrEqual(0.6);
+  });
+
+  it("has nothing to tell him about a keeper with no habit to give away", () => {
+    for (let season = 0; season < 40; season += 1) {
+      const shot = shotFor({
+        seed: `blank-${season}`,
+        season,
+        fixture,
+        ovr: 99,
+        keeper: { difficulty: 0.9, memory: [] },
+      });
+      expect(shot.tell, "read a lean off a keeper who has seen nothing").toBeNull();
+    }
   });
 
   it("keeps the bailout small at every level", () => {
@@ -576,26 +653,62 @@ describe("the shot", () => {
 });
 
 describe("resolving a shot", () => {
-  const base = { options: ["izquierda", "centro", "derecha"], gap: 1, nailed: false, ruledOut: null };
+  /*
+   * The keeper went to the middle, the night is ordinary, and neither coin has been asked
+   * to do anything: `roll` at 1 is a ball that beats whatever he can do, `wild` at 1 is a
+   * shot that was on target. Everything below moves one of the two.
+   */
+  const base = {
+    type: "penal",
+    options: ZONES,
+    keeperAt: "centro",
+    gap: ZONES.indexOf("abajo-derecha"),
+    keeper: { difficulty: KEEPER.typical },
+    roll: 1,
+    wild: 1,
+    offTarget: 0.2,
+    nailed: false,
+    ruledOut: null,
+  };
+  const away = "abajo-derecha";
 
-  it("scores when it finds the gap", () => {
-    const result = resolveShot(base, "centro");
-    expect(result.foundGap).toBe(true);
-    expect(result.scored).toBe(true);
-    expect(result.nailedIt).toBe(false);
+  it("scores anywhere the keeper did not go", () => {
+    for (const zone of ZONES) {
+      if (zone === base.keeperAt) continue;
+      const result = resolveShot(base, zone);
+      expect(result.save, `${zone}`).toBe(0);
+      expect(result.scored, `${zone}`).toBe(true);
+      expect(result.foundGap).toBe(true);
+      expect(result.nailedIt).toBe(false);
+    }
   });
 
-  it("is saved when it does not, unless the player was good enough anyway", () => {
-    expect(resolveShot(base, "izquierda").scored).toBe(false);
-    const nailed = resolveShot({ ...base, nailed: true }, "izquierda");
+  it("is saved where he did go, unless the player was good enough anyway", () => {
+    const at = resolveShot({ ...base, roll: 0 }, base.keeperAt);
+    expect(at.save).toBeGreaterThan(0.5);
+    expect(at.scored).toBe(false);
+    expect(at.foundGap).toBe(false);
+
+    const nailed = resolveShot({ ...base, roll: 0, nailed: true }, base.keeperAt);
     expect(nailed.scored).toBe(true);
-    expect(nailed.foundGap).toBe(false);
     expect(nailed.nailedIt).toBe(true);
   });
 
+  /**
+   * The other way of not scoring, and the one that must never be called a save: the ball
+   * went over the bar. See `offTargetOdds`.
+   */
+  it("calls a shot that missed the goal what it was", () => {
+    const wide = resolveShot({ ...base, wild: 0 }, away);
+    expect(wide.offTarget).toBe(true);
+    expect(wide.scored).toBe(false);
+    // Nothing about it is the keeper's doing.
+    expect(wide.save).toBe(0);
+  });
+
   it("records what was chosen, so the report can print it", () => {
-    expect(resolveShot(base, "derecha").choice).toBe("derecha");
-    expect(resolveShot(base, "derecha").picked).toBe(2);
+    expect(resolveShot(base, away).choice).toBe(away);
+    expect(resolveShot(base, away).picked).toBe(ZONES.indexOf(away));
   });
 });
 
@@ -853,10 +966,45 @@ describe("big matches do not hand out silverware", () => {
     const total = fixture.chances ?? 1;
     let converted = 0;
     for (let attempt = 0; attempt < total; attempt += 1) {
-      const live = shot.options.filter((_, index) => index !== shot.ruledOut);
+      /*
+       * REBUILT PER ATTEMPT, exactly as `nextRead` does in the real loop.
+       *
+       * The keeper commits and the night is rolled once per chance, so resolving three
+       * attempts against one `shotFor` shares one coin between them - the outcomes stop
+       * being independent and `convertsOneOf`, which the budget is priced with, stops
+       * describing them. A night worth three then converted far less often than the split
+       * had paid for, and the drift this test measures is exactly that gap.
+       */
+      /*
+       * With the keeper the real loop would put in front of him - see `keeperFacing` in
+       * career.js. Left out, `shotFor` fell back to a keeper priced on the stake alone,
+       * which is a far easier night than any real one: no opponent, no reputation, no
+       * record to prepare for. The rate then measured well above the prior the split had
+       * been paid at, which is the one thing this test exists to catch.
+       */
+      const opponent = fixture.opponentId
+        ? world.clubs[fixture.opponentId] ?? world.countries[fixture.opponentId] ?? null
+        : null;
+      const read = shotFor({
+        seed,
+        season,
+        fixture,
+        ovr,
+        attempt,
+        keeper: {
+          difficulty: keeperDifficulty({
+            decides: fixture.decides,
+            reputation:
+              opponent?.continental_reputation ?? opponent?.international_reputation ?? 0,
+            form: shotScoringRate(ovr),
+          }),
+          memory: [],
+        },
+      });
+      const live = read.options.filter((_, index) => index !== read.ruledOut);
       const stream = createStream(seed, "guess", fixture.id, attempt);
       const pick = live[Math.floor(stream() * live.length)];
-      if (resolveShot(shot, pick).scored) converted += 1;
+      if (resolveShot(read, pick).scored) converted += 1;
     }
     return {
       ...shot,

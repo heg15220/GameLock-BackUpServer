@@ -39,6 +39,38 @@ const SITUATIONS = [
 ];
 
 /**
+ * The same table for a night the player is the one STOPPING it.
+ *
+ * A chance that produces a save is the mirror image of one that produces a goal, and the
+ * scoreline has to be the mirror image too. Handed the table above, a goalkeeper was sent
+ * out 0-1 down and told that saving the penalty was "a huge step towards the league" over
+ * a feed that still read 0-1 at full time: coming through had preserved a defeat. A save
+ * defends something, so these are the scorelines there is something to defend - a lead or
+ * a level game - and conceding is what takes it away.
+ */
+const STOP_SITUATIONS = [
+  { id: "narrowLead", weight: 34, home: 1, away: 0 },
+  { id: "level", weight: 30, home: 1, away: 1 },
+  { id: "goalless", weight: 22, home: 0, away: 0 },
+  { id: "twoOne", weight: 14, home: 2, away: 1 },
+];
+
+/**
+ * What converting one of his chances actually puts on the board.
+ *
+ * The three are not the same event with different words on it. A goal and an assist both
+ * end with the ball in their net; a save ends with the ball in nobody's, and FAILING one
+ * ends with it in ours. Read as a goal either way - which is what this file did - a keeper
+ * who saved the decisive penalty went 1-0 up for it and a keeper who was beaten conceded
+ * nothing, so the scoreboard said the opposite of the match on both halves of the outcome.
+ */
+const PRODUCE_BEATS = {
+  goal: { came: "scored", failed: "missed" },
+  assist: { came: "assisted", failed: "assistMissed" },
+  stop: { came: "stopped", failed: "conceded" },
+};
+
+/**
  * The match between the goals. These are events the simulator actually draws, not filler
  * selected by the UI. Weighting is deliberately asymmetric: pressure produces shots and
  * saves, a closed game produces recoveries, blocks and set pieces.
@@ -57,6 +89,26 @@ const FLOW_EVENTS = [
   { id: "offsideUs", side: "us", category: "offside", weight: 3 },
   { id: "offsideThem", side: "them", category: "offside", weight: 3 },
 ];
+
+/**
+ * HOW OFTEN ONE OF THE NIGHT'S GOALS IS HIS.
+ *
+ * Being in the side and having a chance are two different things, and the tie narration only
+ * ever had the first: he appeared, he did some work, and every goal his side scored belonged
+ * to nobody. A forward who starts a quarter-final and never once has a sight of goal in
+ * fifteen seasons of them is not a forward.
+ *
+ * So a goal the tie ALREADY HAS can be his. Nothing about the scoreline moves - it is the
+ * bracket's, and the bracket is the competition - only who put it in. That is the honest
+ * version of "he had chances": the match is what it is, and he is in it.
+ */
+const GOAL_SHARE = {
+  keeper: 0,
+  defensive: 0.16,
+  support: 0.3,
+  creator: 0.34,
+  forward: 0.55,
+};
 
 const PLAYER_EVENTS = {
   keeper: ["playerSave", "playerClaim", "playerSave", "playerLongPass"],
@@ -87,14 +139,17 @@ const eventFrom = (next, catalogue) => {
 export const standingOf = (home, away) =>
   home > away ? "ahead" : home < away ? "behind" : "level";
 
-const pickSituation = (next) => {
-  const total = SITUATIONS.reduce((sum, s) => sum + s.weight, 0);
+const pickSituation = (next, produces = "goal") => {
+  // One draw either way, so switching tables does not move the stream for the careers that
+  // were already using the first one.
+  const table = produces === "stop" ? STOP_SITUATIONS : SITUATIONS;
+  const total = table.reduce((sum, s) => sum + s.weight, 0);
   let target = next() * total;
-  for (const situation of SITUATIONS) {
+  for (const situation of table) {
     target -= situation.weight;
     if (target <= 0) return situation;
   }
-  return SITUATIONS[0];
+  return table[0];
 };
 
 /**
@@ -120,9 +175,10 @@ export function narrateMatch({
   theirName = "",
   group = "forward",
   ovr = 70,
+  produces = "goal",
 }) {
   const next = createStream(seed, "narration", fixtureId, season);
-  const situation = pickSituation(next);
+  const situation = pickSituation(next, produces);
   const moment = randInt(next, MOMENT_WINDOW[0], MOMENT_WINDOW[1]);
 
   // Laid out first WITHOUT a score, because the minutes are not generated in order: the
@@ -152,7 +208,7 @@ export function narrateMatch({
   // the minutes are sampled independently, then sorted with the goals. Near-duplicates are
   // nudged apart so the feed breathes instead of dumping four lines on 37'.
   const occupied = new Set(laid.map((beat) => beat.minute));
-  const flowCount = randInt(next, 6, 10) + (situation.id === "twoTwo" ? 2 : 0);
+  const flowCount = randInt(next, 6, 10) + (situation.home + situation.away >= 4 ? 2 : 0);
   const addAtFreeMinute = (beat, from = 5, to = Math.max(8, moment - 3)) => {
     let minute = randInt(next, from, to);
     let guard = 0;
@@ -183,9 +239,17 @@ export function narrateMatch({
 
   if (!goals.length) laid.push({ minute: 31, id: "tight" });
   laid.push({ minute: 45, id: "halfTime" });
+  // What the last twenty minutes are ABOUT, read off the scoreline rather than off the
+  // name of the situation: a side one goal up is holding on, not pressing, and the table a
+  // keeper's night is drawn from is full of exactly that.
   laid.push({
     minute: Math.min(70, moment - 6),
-    id: situation.id === "behind" ? "chasing" : "pressing",
+    id:
+      situation.home < situation.away
+        ? "chasing"
+        : situation.home > situation.away
+          ? "holding"
+          : "pressing",
   });
 
   /*
@@ -281,6 +345,9 @@ export function narrateTie({
   won = true,
   penalties = false,
   extraTime = false,
+  group = "forward",
+  ovr = 70,
+  played = null,
 } = {}) {
   const next = createStream(seed, "tie", round);
   const laid = [{ minute: 0, id: "kickoff" }];
@@ -305,14 +372,18 @@ export function narrateTie({
     return minute;
   };
   const spread = Math.max(1, Math.floor(80 / (goals.length + 1)));
+  // Kept as a list so one of ours can be handed to him below without moving the scoreline.
+  const ours = [];
   goals.forEach((side, index) => {
-    laid.push({
+    const beat = {
       minute: place(
         Math.max(3, 6 + spread * index),
         Math.min(FULL_TIME - 2, 8 + spread * (index + 1) + 6),
       ),
       id: side === "us" ? "goalUs" : "goalThem",
-    });
+    };
+    laid.push(beat);
+    if (side === "us") ours.push(beat);
   });
 
   // The football between them, exactly as a decider draws it.
@@ -321,16 +392,69 @@ export function narrateTie({
     const event = eventFrom(next, FLOW_EVENTS);
     laid.push({ minute: place(4, FULL_TIME - 3), ...event });
   }
+
+  /*
+   * AND HIM, IF HE PLAYED.
+   *
+   * This was the hole in the whole idea. A continental run is the part of a career that
+   * takes years to earn, and it was narrated with the player absent from it: the feed named
+   * the two clubs, the shots, the saves and the corners, and the man the career is about
+   * never appeared in ninety minutes of his own quarter-final. The bracket was his club's;
+   * he was reading about it.
+   *
+   * `played` is the team sheet - see `roundOdds`, which asks whether a man of his rating,
+   * in his role, playing as much as he has been, is in the side for this round. When he is,
+   * the same repertoire a decisive night draws on puts him in the match: a keeper claims
+   * crosses, a centre-back throws himself in front of things, a midfielder threads the
+   * pass. He does not decide the tie - the tie was settled by the bracket - he plays in it,
+   * which is the difference between a competition happening to you and one you are in.
+   *
+   * `null` means nobody asked, which is every caller outside the career loop. Those get the
+   * feed exactly as it was.
+   */
+  /*
+   * ONE OF THEM CAN BE HIS.
+   *
+   * Drawn before the furniture so the choice is made against the goals the tie actually
+   * had - it never invents one, and it never takes one away. `mine` is an index into the
+   * goals for us, or -1 for a night somebody else settled.
+   */
+  let mine = -1;
+  if (played && ours.length) {
+    const share = (GOAL_SHARE[group] ?? GOAL_SHARE.forward) * Math.max(0.5, Math.min(1.3, ovr / 78));
+    if (next() < share) mine = Math.floor(next() * ours.length);
+  }
+  if (mine >= 0) ours[mine].id = "playerGoal";
+
+  if (played) {
+    const repertoire = PLAYER_EVENTS[group] ?? PLAYER_EVENTS.forward;
+    const touches = 1 + (next() < Math.max(0.15, Math.min(0.8, (ovr - 45) / 62)) ? 1 : 0);
+    for (let index = 0; index < touches; index += 1) {
+      laid.push({
+        minute: place(6, FULL_TIME - 4),
+        id: repertoire[Math.floor(next() * repertoire.length)],
+        side: "us",
+        category: group === "keeper" ? "save" : group === "defensive" ? "defence" : "player",
+        player: true,
+      });
+    }
+  }
+
   if (!goals.length) laid.push({ minute: place(26, 38), id: "tight" });
   laid.push({ minute: 45, id: "halfTime" });
-  laid.push({ minute: place(66, 74), id: score.us < score.them ? "chasing" : "pressing" });
+  laid.push({
+    minute: place(66, 74),
+    id:
+      score.us < score.them ? "chasing" : score.us > score.them ? "holding" : "pressing",
+  });
 
   let home = 0;
   let away = 0;
   const beats = laid
     .sort((a, b) => a.minute - b.minute)
     .map((beat, index) => {
-      if (beat.id === "goalUs") home += 1;
+      // A goal of his is a goal of ours, obviously - see SCORED_BY.
+      if (beat.id === "goalUs" || beat.id === "playerGoal") home += 1;
       if (beat.id === "goalThem") away += 1;
       return {
         ...beat,
@@ -339,6 +463,7 @@ export function narrateTie({
         state: standingOf(home, away),
         ourName,
         theirName,
+        player: beat.player || beat.id === "playerGoal",
         variant: Math.floor(next() * 64) + index,
       };
     });
@@ -378,6 +503,10 @@ export function narrateTie({
   return {
     round,
     legs,
+    // Whether he was in the side for this one. The screen prints it; nothing reads it.
+    played,
+    // And whether one of the night's goals was his.
+    scored: mine >= 0,
     ourName,
     theirName,
     // No chance is ever handed over, so the clock has nowhere to stop before full time.
@@ -410,7 +539,9 @@ const SHOOTOUT_RATE = 0.74;
  *
  * Real rules: five each, alternating, and the moment one side cannot be caught it stops -
  * which is why a shootout is very often 4-3 after nine kicks and not ten. Level after five
- * goes to sudden death, one pair at a time.
+ * goes to SUDDEN DEATH: one pair at a time, both sides take theirs, and the first pair that
+ * differs settles it. See `settledAfter` for the two ways this used to get the counting
+ * wrong.
  *
  * The WINNER IS NOT DRAWN HERE. It arrives from the trophy roll, because the cup was
  * already decided before anybody walked up - see `settleFinal` in career.js. What this does
@@ -418,15 +549,28 @@ const SHOOTOUT_RATE = 0.74;
  * seed until one does. That keeps every sequence a plausible one rather than a rigged last
  * kick, and it stays pure: same seed, same tie, same order.
  */
-export function shootoutFor(seed, won) {
-  const decided = (us, them, round) => {
-    const left = Math.max(0, 5 - round);
-    // Once the trailing side cannot catch up even by scoring everything it has left.
-    if (us > them + left) return "us";
-    if (them > us + left) return "them";
-    return null;
-  };
+/** Five each, and then it is one pair at a time until a pair differs. */
+export const SHOOTOUT_KICKS = 5;
 
+/**
+ * Whether the tie is already over, counted from what each side has actually taken.
+ *
+ * The two sides do NOT have the same number of kicks left at every point, and reading it as
+ * if they did is how this got the rules wrong. After our kick in round three we have taken
+ * three and they have taken two: we have two left and they have three. Measured with one
+ * shared "kicks remaining" the shootout stopped at 3-0 there, which is not over - three
+ * kicks is exactly enough for them to make it 3-3.
+ */
+const settledAfter = (us, them, usTaken, themTaken) => {
+  const usLeft = Math.max(0, SHOOTOUT_KICKS - usTaken);
+  const themLeft = Math.max(0, SHOOTOUT_KICKS - themTaken);
+  // Once the trailing side cannot catch up even by scoring everything it has left.
+  if (us > them + themLeft) return "us";
+  if (them > us + usLeft) return "them";
+  return null;
+};
+
+export function shootoutFor(seed, won) {
   for (let attempt = 0; attempt < 40; attempt += 1) {
     const next = createStream(seed, "shootout", attempt);
     const us = [];
@@ -435,20 +579,33 @@ export function shootoutFor(seed, won) {
     let scoredThem = 0;
     let winner = null;
 
-    for (let round = 1; round <= 20 && !winner; round += 1) {
+    for (let round = 1; round <= 30 && !winner; round += 1) {
+      /*
+       * SUDDEN DEATH IS A PAIR, NOT A KICK.
+       *
+       * Past five each, the rule is that both sides take one and the tie is settled only if
+       * they differ. Checked after our kick as well - which the shared count above made it
+       * do, since it read "no kicks left" as "whoever is ahead has won" - it ended the
+       * shootout the instant we scored the sixth, with the other side never invited to take
+       * theirs. A 6-5 that the opponent was not allowed to answer is not a shootout.
+       */
+      const suddenDeath = round > SHOOTOUT_KICKS;
+
       const ours = next() < SHOOTOUT_RATE;
       us.push(ours);
       if (ours) scoredUs += 1;
-      winner = decided(scoredUs, scoredThem, round);
-      if (winner) break;
+      if (!suddenDeath) {
+        winner = settledAfter(scoredUs, scoredThem, us.length, them.length);
+        if (winner) break;
+      }
 
       const theirs = next() < SHOOTOUT_RATE;
       them.push(theirs);
       if (theirs) scoredThem += 1;
-      winner = decided(scoredUs, scoredThem, round);
-      // Sudden death: level after five, the first pair that differs settles it.
-      if (!winner && round >= 5) {
+      if (suddenDeath) {
         if (scoredUs !== scoredThem) winner = scoredUs > scoredThem ? "us" : "them";
+      } else {
+        winner = settledAfter(scoredUs, scoredThem, us.length, them.length);
       }
     }
 
@@ -460,8 +617,23 @@ export function shootoutFor(seed, won) {
   return { us: [won], them: [!won], score: { us: won ? 1 : 0, them: won ? 0 : 1 } };
 }
 
-/** The beats that actually put the ball in the net, and whose net it goes into. */
-const SCORED_BY = { goalUs: "home", scored: "home", goalThem: "away" };
+/**
+ * The beats that actually put the ball in the net, and whose net it goes into.
+ *
+ * The player's own moment is three different events - see PRODUCE_BEATS - and only two of
+ * them move the board in our favour. `stopped` is deliberately absent: a save is the ball
+ * NOT going in, and counting it as a goal is how a goalkeeper's clean sheet used to be
+ * narrated as a 1-0 he scored himself.
+ */
+const SCORED_BY = {
+  goalUs: "home",
+  // A goal of the tie that turned out to be his. Same goal, same scoreline, named owner.
+  playerGoal: "home",
+  scored: "home",
+  assisted: "home",
+  goalThem: "away",
+  conceded: "away",
+};
 
 /**
  * The merged match, with every beat carrying the score as it ACTUALLY stood.
@@ -503,7 +675,7 @@ export function withStandings(beats) {
 export function narrateFinish(
   broadcast,
   attempts = [],
-  { closed = true, won = null, shootout = false } = {},
+  { closed = true, won = null, shootout = false, produces = "goal" } = {},
 ) {
   if (!broadcast) {
     return { beats: [], final: { home: 0, away: 0 }, won: false, scored: false, closed };
@@ -511,8 +683,14 @@ export function narrateFinish(
 
   const taken = Array.isArray(attempts) ? attempts : [];
   const converted = taken.filter(Boolean).length;
+  // WHAT COMING THROUGH DID TO THE SCOREBOARD, which is not the same question as whether
+  // he came through. A goal and an assist are one for us; a save is nothing for anybody,
+  // and the ones he did not make are one for them. See PRODUCE_BEATS.
+  const named = PRODUCE_BEATS[produces] ?? PRODUCE_BEATS.goal;
+  const stops = produces === "stop";
+  const conceded = stops ? taken.length - converted : 0;
   const { home, away } = broadcast.standing;
-  const final = { home: home + converted, away };
+  const final = { home: home + (stops ? 0 : converted), away: away + conceded };
 
   const beat = (minute, id, extra = {}) => ({
     minute,
@@ -525,12 +703,14 @@ export function narrateFinish(
   });
 
   // One line per chance, on the minute it happened, with the score as it stood after it.
-  let running = home;
-  const beats = taken.map((scored, i) => {
-    if (scored) running += 1;
-    return beat(broadcast.moments[i] ?? broadcast.moment, scored ? "scored" : "missed", {
-      home: running,
-      away,
+  let runningHome = home;
+  let runningAway = away;
+  const beats = taken.map((came, i) => {
+    if (came && !stops) runningHome += 1;
+    if (!came && stops) runningAway += 1;
+    return beat(broadcast.moments[i] ?? broadcast.moment, came ? named.came : named.failed, {
+      home: runningHome,
+      away: runningAway,
       variant: i * 7 + broadcast.moment,
     });
   });

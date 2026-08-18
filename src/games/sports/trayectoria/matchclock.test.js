@@ -33,7 +33,7 @@ import {
 } from "./career.js";
 import { entrantsFor } from "./qualified.js";
 import { simulateTournamentRun } from "./tournaments.js";
-import { getCopy } from "./copy.js";
+import { fillTemplate, getCopy } from "./copy.js";
 import { buildChance } from "./minigames.js";
 import { SCREENS } from "./index.jsx";
 import { world } from "./world.js";
@@ -115,9 +115,12 @@ function narratedDecider(chances, seed = "clock") {
 }
 
 /** The match screen, holding its own run the way the game does. */
-function Harness({ initial }) {
+function Harness({ initial, expose }) {
   const [run, setRun] = useState(initial);
   const Screen = SCREENS.match;
+  // The keeper is rebuilt between attempts - see `nextRead` - so a test that wants to shoot
+  // AT him has to read the live run rather than a fresh copy of the one it started with.
+  expose?.(run);
   return React.createElement(Screen, {
     run,
     locale: "es",
@@ -128,7 +131,8 @@ function Harness({ initial }) {
   });
 }
 
-const show = (initial) => mount(React.createElement(Harness, { initial }));
+const show = (initial, expose) =>
+  mount(React.createElement(Harness, { initial, expose }));
 
 describe("the live clock", () => {
   it("does not offer the shot before the match has reached it", () => {
@@ -346,17 +350,6 @@ describe("the chance track", () => {
     view.unmount();
   });
 
-  it("wants both touches of a free kick before it settles anything", () => {
-    const view = mount(React.createElement(SkillHarness, { initial: skillDecider(1, "falta") }));
-    runClock(200);
-    strike(view.container);
-    // Still on the track, now asking for the second touch.
-    expect(view.container.querySelector("button.tr-chance__stage")).toBeTruthy();
-    expect(view.text()).toContain("2");
-    strike(view.container);
-    expect(view.text()).toContain(copy.match.next);
-    view.unmount();
-  });
 
   it("gives him a fresh track for every chance the fixture owes", () => {
     const view = mount(React.createElement(SkillHarness, { initial: skillDecider(2) }));
@@ -414,7 +407,7 @@ describe("the chance track", () => {
     };
 
     it("settles a charge when the hold is released", () => {
-      const view = play("volea");
+      const view = play("centro_lateral");
       const el = surface(view.container);
       point(el, "pointerdown");
       runClock(300);
@@ -425,7 +418,7 @@ describe("the chance track", () => {
     });
 
     it("takes a charge away from anyone who never lets go", () => {
-      const view = play("volea");
+      const view = play("centro_lateral");
       point(surface(view.container), "pointerdown");
       // Past the top of the bar: over it, and the fixture resolves without a release.
       runClock(4000);
@@ -434,7 +427,7 @@ describe("the chance track", () => {
     });
 
     it("settles an aim where the drag is released", () => {
-      const view = play("cabezazo");
+      const view = play("pase_gol");
       const el = surface(view.container);
       point(el, "pointerdown", 0.3, 0.4);
       point(el, "pointermove", 0.6, 0.5);
@@ -446,7 +439,7 @@ describe("the chance track", () => {
     });
 
     it("moves the aim target while it is being tracked", () => {
-      const view = play("cabezazo");
+      const view = play("pase_gol");
       const spot = () =>
         view.container.querySelector(".tr-play__disc")?.getAttribute("cx") ?? "";
       const before = spot();
@@ -456,7 +449,7 @@ describe("the chance track", () => {
     });
 
     it("takes the aim away from anyone who never goes for it", () => {
-      const view = play("cabezazo");
+      const view = play("pase_gol");
       surface(view.container);
       // The run finishes with nobody on it: the ball went through and he was not there.
       runClock(4000);
@@ -484,18 +477,6 @@ describe("the chance track", () => {
       view.unmount();
     });
 
-    it("measures a feint by the beat between the two touches", () => {
-      const view = play("mano_a_mano");
-      const el = surface(view.container);
-      act(() => el.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
-      // The dummy is sold; the prompt changes and nothing has been decided yet.
-      expect(view.text()).toContain(copy.match.chanceGo);
-      expect(view.text()).not.toContain(copy.match.next);
-      runClock(400);
-      act(() => el.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
-      expect(view.text()).toContain(copy.match.next);
-      view.unmount();
-    });
 
     it("takes the feint away from anyone who never goes", () => {
       const view = play("mano_a_mano");
@@ -582,22 +563,30 @@ describe("the scene under a multi-chance decider", () => {
     container.querySelector(".tr-scene")?.getAttribute("class") ?? "";
 
   it("draws the goal on the chance that went in, and the miss on the one that did not", () => {
-    const view = show(narratedDecider(2));
+    let live = null;
+    const view = show(narratedDecider(2), (run) => {
+      live = run;
+    });
+    const press = (index) =>
+      act(() =>
+        [...view.container.querySelectorAll("button.tr-shot")][index].dispatchEvent(
+          new window.MouseEvent("click", { bubbles: true }),
+        ),
+      );
 
     runClock();
-    // Convert the first: the placement the keeper is not at.
-    const first = [...view.container.querySelectorAll("button.tr-shot")];
-    const run = narratedDecider(2);
-    act(() =>
-      first[run.matchday.shot.gap].dispatchEvent(new window.MouseEvent("click", { bubbles: true })),
-    );
+    // Convert the first: anywhere the keeper is not.
+    press(live.matchday.shot.gap);
     expect(sceneClass(view.container), "no drawing after a goal").toContain("is-scored");
 
-    // Miss the second.
+    /*
+     * And miss the second by shooting AT HIM, read off the live run. The keeper commits to
+     * one zone and every other one is a goal, so "some option that is not the first shot's
+     * gap" stopped being a miss - it was four fifths of a goal. See `saveOdds`.
+     */
     runClock();
-    const second = [...view.container.querySelectorAll("button.tr-shot")].filter((b) => !b.disabled);
-    const wrong = second.find((_, i) => i !== run.matchday.shot.gap) ?? second[0];
-    act(() => wrong.dispatchEvent(new window.MouseEvent("click", { bubbles: true })));
+    const shot = live.matchday.shot;
+    press(shot.options.indexOf(shot.keeperAt));
     runClock();
 
     // The fixture went in - one of them did - but the picture is of the shot that missed.
@@ -641,11 +630,30 @@ function knockoutQueue(seed = "queue-clock") {
   );
   expect(ties.length, "no live ties to walk").toBeGreaterThan(1);
 
+  /*
+   * A queue is a `matchday` whose every night is a tie - the knockout rounds share the
+   * season's calendar with the deciders now, and the same cursor walks both. See
+   * `showNight` in career.js. `cursor: -1` is "not started".
+   */
   const opened = {
     ...run,
     phase: PHASES.TOURNAMENT,
-    matchday: null,
-    tournament: { season: 5, ties, index: -1, broadcast: null },
+    tournament: null,
+    matchday: {
+      season: 5,
+      fixtures: [],
+      plan: {},
+      runs: [],
+      queue: ties.map((tie) => ({ when: tie.when ?? 0, kind: "tie", tie })),
+      cursor: -1,
+      index: 0,
+      results: [],
+      attempts: [],
+      lastAttempt: null,
+      shot: null,
+      broadcast: null,
+      last: null,
+    },
   };
   return { run: nextTie(opened, "es"), ties };
 }
@@ -681,6 +689,62 @@ describe("the knockout queue", () => {
 
     // The queue is spent, so the screen has nothing left to draw.
     expect(view.container.textContent).toBe("");
+    view.unmount();
+  });
+
+  /**
+   * NOBODY IS TOLD WHO WENT THROUGH BEFORE THE LAST PENALTY.
+   *
+   * Every closing beat of a tie sits on minute ninety, so the instant the clock stopped the
+   * feed printed all of them at once: the kicks, "y la tanda es suya", and the verdict on
+   * the screen behind it. The kicks then walked across one at a time - five seconds of
+   * drama underneath an announcement of how it ends. The reader knew, and then watched the
+   * players find out.
+   */
+  it("never says who is through until the last penalty has been taken", () => {
+    // A queue of ties, walked until one of them is settled from twelve yards.
+    // A shootout is roughly one tie in five, so the seed is searched for rather than
+    // asserted over: what is under test is the reveal, not how often football gets there.
+    let found = null;
+    for (let i = 0; i < 40 && !found; i += 1) {
+      const queue = knockoutQueue(`spot-kicks-${i}`);
+      const index = queue.ties.findIndex((tie) => tie.penalties);
+      if (index >= 0) found = { ...queue, at: index };
+    }
+    expect(found, "no tie in forty brackets went to penalties").toBeTruthy();
+    const { run, ties, at } = found;
+
+    let current = run;
+    for (let i = 0; i < at; i += 1) current = nextTie(current, "es");
+    const tie = ties[at];
+
+    const view = mount(React.createElement(TieHarness, { initial: current }));
+    // The ninety minutes, but not a millisecond of the shootout.
+    runClock();
+
+    const verdict = fillTemplate(
+      tie.won ? getCopy("es").tournament.through : getCopy("es").tournament.out,
+      { club: tie.ourName },
+    );
+    const shootout = view.container.querySelector(".tr-shootout");
+    expect(shootout, "the kicks were never drawn").toBeTruthy();
+
+    // The kicks are on screen and not one of them has been taken, so nothing may say how
+    // it ends: no verdict, no line about the shootout, and no button to move on.
+    const partial = view.text();
+    expect(partial, "the verdict was printed over the run-up").not.toContain(verdict);
+    for (const line of getCopy("es").match.beats.shootoutWon) {
+      expect(partial).not.toContain(fillTemplate(line, { us: tie.ourName, them: tie.theirName }));
+    }
+    for (const line of getCopy("es").match.beats.shootoutLost) {
+      expect(partial).not.toContain(fillTemplate(line, { us: tie.ourName, them: tie.theirName }));
+    }
+    expect(view.container.querySelector("button.tr-btn"), "already offering to move on").toBeNull();
+
+    // Let every kick land, and only then does the tie say what it was.
+    runClock();
+    expect(view.text(), "the tie never announced itself").toContain(verdict);
+    expect(view.container.querySelector("button.tr-btn")).toBeTruthy();
     view.unmount();
   });
 

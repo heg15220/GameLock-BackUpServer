@@ -229,7 +229,6 @@ export const SHOT_ICONS = {
   mano_a_mano: "mano_a_mano",
   cabezazo: "cabezazo",
   falta: "falta",
-  volea: "volea",
   // The repertoires that stop it and the one that supplies it borrow the glyph of the
   // chance they are answering: a saved penalty is still a penalty, and an interception is
   // a cross that never arrived. Drawing eight more marks would say less, not more.
@@ -237,9 +236,7 @@ export const SHOT_ICONS = {
   salida_mano_a_mano: "mano_a_mano",
   tiro_lejano: "volea",
   centro_lateral: "cabezazo",
-  despeje: "volea",
   entrada: "mano_a_mano",
-  anticipo: "cabezazo",
   pase_gol: "falta",
 };
 

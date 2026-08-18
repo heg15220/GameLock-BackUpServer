@@ -40,36 +40,37 @@ import {
   PitchStage,
   at,
 } from "./pitch.jsx";
+import { ZONE_AT } from "./keeper.js";
 
 export { GOAL, at };
 
-/** Every placement in the game, as a point in that mouth. */
+/**
+ * Every placement in the game, as a point in that mouth.
+ *
+ * The five zones come from keeper.js rather than being written again here, because they are
+ * the same five the keeper is measured against - `saveOdds` reads the distance between two
+ * of them, and a drawing that put them anywhere else would be showing the player a goal the
+ * model is not using. There was one list per situation before: "picadita", "barrera", "al
+ * segundo palo", twenty-one names for one spatial question.
+ */
 export const PLACEMENTS = {
-  izquierda: [0.8, 0.55],
-  centro: [0.5, 0.45],
-  derecha: [0.2, 0.55],
-  cruzado: [0.79, 0.7],
-  "primer-palo": [0.18, 0.45],
-  picadita: [0.5, 0.16],
-  "segundo-palo": [0.82, 0.33],
+  ...ZONE_AT,
+  // The two chances that are not a shot at a goal keep their own places, because neither is
+  // a duel with a keeper: where the pass is put, and where the defender meets the man.
+  "al-hueco": [0.6, 0.5],
   atras: [0.32, 0.62],
-  barrera: [0.66, 0.18],
-  "palo-largo": [0.85, 0.26],
-  rasa: [0.42, 0.88],
-  abajo: [0.28, 0.88],
-  escuadra: [0.87, 0.1],
-  cruzada: [0.75, 0.55],
-  // Where the man stopping it goes, rather than where the ball does. Same frame, same
-  // units - the goal mouth is the goal mouth from either side of it.
-  achique: [0.5, 0.75],
-  "palo-corto": [0.22, 0.6],
-  salida: [0.5, 0.3],
+  cruzado: [0.79, 0.7],
   adelantarse: [0.35, 0.7],
   aguantar: [0.55, 0.65],
   cerrar: [0.72, 0.72],
-  // And where the pass is put.
-  "al-hueco": [0.6, 0.5],
 };
+
+/**
+ * How close to the middle of the goal counts as not having gone anywhere. Half a yard
+ * either side of the spot: enough to catch every placement the tables put on u = 0.5 and
+ * the two that sit just off it, and nothing that reads as a corner.
+ */
+const CENTRE_BAND = 0.12;
 
 /**
  * Where each kind of chance is struck from, how much the flight bends, and what has to be
@@ -86,7 +87,6 @@ export const SITUATIONS = {
   mano_a_mano: { from: [95, 92], bend: 0.1, keeper: [0.5, 0.68], advance: 16, scale: 1.35, pose: "run", keeperPose: "spread" },
   cabezazo: { from: [62, 76], bend: 0.3, keeper: [0.46, 0.6], pose: "head" },
   falta: { from: [70, 112], bend: 0.42, keeper: [0.34, 0.62], pose: "strike" },
-  volea: { from: [116, 106], bend: 0.16, keeper: [0.55, 0.6], pose: "strike" },
   pase_gol: { from: [86, 104], bend: 0.24, keeper: [0.5, 0.6], pose: "run" },
 
   /**
@@ -108,9 +108,7 @@ export const SITUATIONS = {
   },
   tiro_lejano: { from: [104, 112], bend: 0.14, keeper: [0.5, 0.6], stops: true, keeperPose: "stand" },
   centro_lateral: { from: [26, 88], bend: 0.36, keeper: [0.42, 0.55], stops: true, keeperPose: "head" },
-  despeje: { from: [78, 84], bend: 0.2, keeper: [0.5, 0.6], stops: true, keeperPose: "head" },
   entrada: { from: [92, 96], bend: 0.08, keeper: [0.5, 0.66], advance: 12, scale: 1.2, stops: true, keeperPose: "run" },
-  anticipo: { from: [34, 86], bend: 0.32, keeper: [0.48, 0.58], stops: true, keeperPose: "run" },
 };
 
 /**
@@ -167,7 +165,7 @@ export function Furniture({ type }) {
   }
   // The cross that put the ball there, so the header has something to be a header of -
   // and the same delivery for the two chances that are about meeting one before he does.
-  if (type === "cabezazo" || type === "centro_lateral" || type === "anticipo") {
+  if (type === "cabezazo" || type === "centro_lateral") {
     return (
       <g className="tr-scene__prop">
         <path d="M 12 104 Q 34 66 60 74" className="tr-scene__cross" />
@@ -175,16 +173,149 @@ export function Furniture({ type }) {
       </g>
     );
   }
-  if (type === "volea") {
-    return (
-      <g className="tr-scene__prop">
-        <path d="M 128 74 Q 124 92 116 104" className="tr-scene__cross" />
-        <path d="M 112 97 L 116 105 L 121 99" className="tr-scene__cross" />
-      </g>
-    );
-  }
   // One on one: the keeper is already off his line, which is the whole picture.
   return null;
+}
+
+/**
+ * WHO IS WHERE, once a chance has been answered.
+ *
+ * Pulled out of the component and kept pure because it is the half of this file that can be
+ * WRONG. A pose that is a shade off is a drawing note; a keeper standing in the wrong corner
+ * is the picture calling the verdict beside it a liar, and that is a thing a test can hold
+ * on to. Everything below it is React.
+ */
+export function stageShot({ type, options = [], gap = null, result = null }) {
+  const situation = SITUATIONS[type] ?? SITUATIONS.penal;
+
+  // A night the ball never came to him has a result but no shot in it, so the drawing stays
+  // the situation it always was: no flight, no dive, and above all no gap ringed - the gap
+  // is where a keeper was not, and no keeper was ever asked anything.
+  const shot = result && !result.absent ? result : null;
+  // On a chance the player is STOPPING, the gap is where the opponent put it - so it is
+  // the ball's destination and not a ring drawn beside it.
+  const stops = Boolean(situation.stops);
+  const gapAt = gap != null && options[gap] ? at(...PLACEMENTS[options[gap]]) : null;
+
+  // Who moves where. Shooting: the ball goes to his choice and the keeper covers it or is
+  // beaten by it. Stopping: the ball goes to the gap and the figure in the goal is HIM,
+  // going where he chose - the two landing on the same point is the save.
+  let keeperSpot = situation.keeper;
+  let target = null;
+  if (shot) {
+    if (stops) {
+      if (options[shot.picked]) keeperSpot = PLACEMENTS[options[shot.picked]];
+      /*
+       * WHERE THE SHOOTER PUT IT.
+       *
+       * On a chance the player is stopping, `keeperAt` is not a keeper at all - it is the
+       * zone the man in front of him chose, drawn from the other side of the same duel.
+       * That is where the ball is. Pointed at `gap` instead, the drawing put the ball in
+       * the corner he SHOULD have covered rather than the one it was hit into, so a save
+       * and a goal were the same picture with different colours.
+       */
+      target = PLACEMENTS[shot.keeperAt] ? at(...PLACEMENTS[shot.keeperAt]) : gapAt;
+    } else if (shot.keeperAt && PLACEMENTS[shot.keeperAt]) {
+      /*
+       * HE WENT WHERE HE WENT.
+       *
+       * No longer inferred from the outcome. The model names the zone the keeper committed
+       * to - see `keeperDive` - so the drawing can simply put him there, and the picture is
+       * the same fact the save was calculated from rather than a reconstruction of it that
+       * had to be kept in step by hand.
+       */
+      keeperSpot = PLACEMENTS[shot.keeperAt];
+      if (options[shot.picked]) target = at(...PLACEMENTS[options[shot.picked]]);
+      /*
+       * AND A SHOT THAT MISSED IS DRAWN MISSING.
+       *
+       * A ball that went over the bar is not a save and must not look like one. `offTarget`
+       * is the half of a hard night the keeper has nothing to do with - see
+       * `offTargetOdds` - so the flight carries on past the frame, away from the middle,
+       * and the keeper is left standing wherever he committed.
+       */
+      if (shot.offTarget && target) {
+        const spot = PLACEMENTS[options[shot.picked]];
+        target = at(spot[0] + (spot[0] - 0.5) * 0.55, spot[1] + (spot[1] - 0.5) * 0.7);
+      }
+    } else {
+      /*
+       * WHERE THE KEEPER WAS, and the model has always known: the gap is the one place he
+       * is NOT, so any shot that did not find it was struck at a keeper standing on it.
+       *
+       * Read off `scored` instead, this drew the picture contradicting the sentence beside
+       * it. A shot the player NAILED - he was read and beat the keeper anyway, which is
+       * what `nailedIt` means and what the note under the verdict says out loud - counted
+       * as scored, so the keeper was moved to the first option that was not the gap: some
+       * third corner of the goal, nowhere near the ball, under a line insisting that he
+       * had guessed right. Only a shot that actually found the gap is a shot the keeper
+       * went the wrong way for.
+       */
+      const beaten = options.findIndex((option, index) => index !== gap);
+      const covered = shot.foundGap ? beaten : shot.picked;
+      if (options[covered]) keeperSpot = PLACEMENTS[options[covered]];
+      if (options[shot.picked]) target = at(...PLACEMENTS[options[shot.picked]]);
+    }
+  }
+
+  const keeperAt = at(keeperSpot[0], keeperSpot[1]);
+  /*
+   * Once he has committed he is diving - but a dive is a dive TO A SIDE, and a third of the
+   * placements in this game are down the middle.
+   *
+   * `centro`, `picadita`, `achique` and `salida` all sit on u = 0.5, and `facing` reads
+   * anything from 0.5 up as going right, so a penalty saved down the middle was drawn as a
+   * keeper flat out towards the right-hand post with the ball sitting in the centre of the
+   * goal - the picture saying he went the wrong way over a verdict reading LA PARÓ. A man
+   * who stayed where he was did not throw himself anywhere: he made himself big, or went up
+   * for the cross if that is what the situation was.
+   */
+  const central = Math.abs(keeperSpot[0] - 0.5) <= CENTRE_BAND;
+  const held = situation.keeperPose === "head" ? "head" : "spread";
+  const keeperPose = shot ? (central ? held : "dive") : situation.keeperPose ?? "stand";
+  /*
+   * A dive is one shape and which way it goes is a transform - see POSES.dive.
+   *
+   * Normally that is simply which half of the goal he ended up in. The exception is the
+   * keeper who came through WITHOUT reading it: `nailedIt` on a chance he is stopping means
+   * he went one way and got to a ball going the other, so he is turned towards the ball
+   * rather than away from it - which is the difference between a save at full stretch and
+   * a keeper diving out of the picture under the word SAVED.
+   */
+  /*
+   * HOW HIGH THE DIVE IS.
+   *
+   * `v` used to move nothing: the figure stood on the goal line whatever height it was
+   * covering, which was right when the placements were mostly along the ground and wrong
+   * the moment the goal became five zones with two of them in the roof. A keeper going to
+   * the top corner leaves the floor; one going low does not.
+   */
+  const lift = shot
+    ? Math.max(0, 0.5 - keeperSpot[1]) * (GOAL.bottom - GOAL.top) * 0.55
+    : 0;
+  const reaching = Boolean(stops && shot && shot.nailedIt && target);
+  const facing = reaching
+    ? target.x >= keeperAt.x
+      ? 1
+      : -1
+    : keeperSpot[0] < 0.5
+      ? -1
+      : 1;
+
+  return {
+    situation,
+    shot,
+    stops,
+    keeperSpot,
+    keeperAt,
+    keeperPose,
+    facing,
+    lift,
+    target,
+    // The ring is drawn where a keeper was NOT, which only means anything on a chance the
+    // player was shooting at.
+    gapPoint: shot && !stops ? gapAt : null,
+  };
 }
 
 /**
@@ -195,43 +326,9 @@ export function Furniture({ type }) {
  * ball's path is drawn to where it was actually hit, and the gap is ringed.
  */
 export default function ShotScene({ type, options = [], gap = null, result = null }) {
-  const situation = SITUATIONS[type] ?? SITUATIONS.penal;
   const camera = cameraFor(type);
-
-  // A night the ball never came to him has a result but no shot in it, so the drawing stays
-  // the situation it always was: no flight, no dive, and above all no gap ringed - the gap
-  // is where a keeper was not, and no keeper was ever asked anything.
-  const shot = result && !result.absent ? result : null;
-  // On a chance the player is STOPPING, the gap is where the opponent put it - so it is
-  // the ball's destination and not a ring drawn beside it.
-  const stops = Boolean(situation.stops);
-  const gapAt = gap != null && options[gap] ? at(...PLACEMENTS[options[gap]]) : null;
-  const gapPoint = shot && !stops ? gapAt : null;
-
-  // Who moves where. Shooting: the ball goes to his choice and the keeper covers it or is
-  // beaten by it. Stopping: the ball goes to the gap and the figure in the goal is HIM,
-  // going where he chose - the two landing on the same point is the save.
-  let keeperSpot = situation.keeper;
-  let target = null;
-  if (shot) {
-    if (stops) {
-      if (options[shot.picked]) keeperSpot = PLACEMENTS[options[shot.picked]];
-      target = gapAt;
-    } else {
-      const beaten = options.findIndex((option, index) => index !== gap);
-      const covered = shot.scored ? beaten : shot.picked;
-      if (options[covered]) keeperSpot = PLACEMENTS[options[covered]];
-      if (options[shot.picked]) target = at(...PLACEMENTS[options[shot.picked]]);
-    }
-  }
-
-  const keeperAt = at(keeperSpot[0], keeperSpot[1]);
-  // Once he has committed he is diving, whichever side of the goal he ended up on. Before
-  // that he is whatever the situation says he is WAITING in - never the dive itself, or the
-  // frame opens on a keeper already flat out with nothing to dive at.
-  const keeperPose = shot ? "dive" : situation.keeperPose ?? "stand";
-  // A dive is one shape and which way it goes is a transform - see POSES.dive.
-  const facing = keeperSpot[0] < 0.5 ? -1 : 1;
+  const { situation, shot, stops, keeperAt, keeperPose, facing, lift, target, gapPoint } =
+    stageShot({ type, options, gap, result });
 
   return (
     <svg
@@ -250,7 +347,7 @@ export default function ShotScene({ type, options = [], gap = null, result = nul
             moves his DIVE and not his feet. */}
         <Figure
           x={keeperAt.x}
-          y={GOAL.bottom + (situation.advance ?? 0) * (shot ? 0 : 1)}
+          y={GOAL.bottom + (situation.advance ?? 0) * (shot ? 0 : 1) - lift}
           height={34 * (shot ? 1 : situation.scale ?? 1)}
           pose={keeperPose}
           facing={facing}

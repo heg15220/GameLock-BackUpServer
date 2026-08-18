@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { MODES, MODE_ODDS, modeFor, skillOdds } from "./matchmode.js";
+import { MODES, MODE_ODDS, ROUND_ODDS, modeFor, roundOdds, skillOdds } from "./matchmode.js";
 import { CHANCE_MECHANIC, MECHANICS, buildChance, judgeChance, skillOf } from "./minigames.js";
 import { FULL_TIME, MOMENT_WINDOW, narrateFinish, narrateMatch, withStandings } from "./narration.js";
 import { SHOT_TYPES } from "./bigmatch.js";
@@ -79,7 +79,7 @@ describe("who takes the important ones", () => {
     // And it is only the zero that does it - one chance still rolls both ways.
     const rolled = new Set(
       Array.from({ length: 200 }, (_, i) =>
-        modeFor({ seed: `some-${i}`, season: 1, fixtureId: "f", delta: 0, role: "titular", shotType: "volea", chances: 1 }),
+        modeFor({ seed: `some-${i}`, season: 1, fixtureId: "f", delta: 0, role: "titular", shotType: "cabezazo", chances: 1 }),
       ),
     );
     expect(rolled.has(MODES.SKILL)).toBe(true);
@@ -91,11 +91,11 @@ describe("who takes the important ones", () => {
     for (let i = 0; i < n; i += 1) {
       const mode = modeFor({
         seed: `dist-${i}`, season: 1, fixtureId: "f",
-        delta: 4, role: "titular", shotType: "volea",
+        delta: 4, role: "titular", shotType: "cabezazo",
       });
       if (mode === MODES.SKILL) skill += 1;
     }
-    const expected = skillOdds({ delta: 4, role: "titular", shotType: "volea" });
+    const expected = skillOdds({ delta: 4, role: "titular", shotType: "cabezazo" });
     expect(skill / n).toBeCloseTo(expected, 1);
   });
 });
@@ -104,9 +104,12 @@ describe("the chance itself", () => {
   const chanceFor = (shotType, ovr) =>
     buildChance({ seed: "c", season: 1, fixtureId: "f", shotType, ovr });
 
-  it("gives every kind of chance a mechanic", () => {
-    for (const shotType of Object.keys(SHOT_TYPES)) {
-      expect(CHANCE_MECHANIC[shotType], `no mechanic for ${shotType}`).toBeTruthy();
+  it("gives a mechanic only to the chances that are not simply a zone", () => {
+    // The four shots at a goal are asked with a flick or a button - see CHANCE_MECHANIC.
+    for (const shotType of ["penal", "falta", "mano_a_mano", "cabezazo"]) {
+      expect(CHANCE_MECHANIC[shotType], `${shotType} still has a minigame`).toBeUndefined();
+    }
+    for (const shotType of Object.keys(CHANCE_MECHANIC)) {
       const chance = chanceFor(shotType, 80);
       expect(Object.values(MECHANICS)).toContain(chance.mechanic);
     }
@@ -139,17 +142,9 @@ describe("the chance itself", () => {
     expect(judgeChance({ ...chance, nailed: false }, wide).scored).toBe(false);
   });
 
-  it("wants both touches on a free kick, and judges by the worse one", () => {
-    const chance = chanceFor("falta", 80);
-    expect(chance.gates).toHaveLength(2);
-    const both = judgeChance({ ...chance, nailed: false }, chance.gates);
-    expect(both.scored).toBe(true);
-    const half = judgeChance({ ...chance, nailed: false }, [chance.gates[0], 0.99]);
-    expect(half.scored).toBe(false);
-  });
 
   it("keeps the bail-out a great player always had", () => {
-    const chance = { ...chanceFor("volea", 95), nailed: true };
+    const chance = { ...chanceFor("centro_lateral", 95), nailed: true };
     const result = judgeChance(chance, 0.99);
     expect(result.scored).toBe(true);
     expect(result.clean).toBe(false);
@@ -393,5 +388,105 @@ describe("the ninety minutes", () => {
     }
     // The opening line is not the same one every single match.
     expect(variants.size).toBeGreaterThan(1);
+  });
+});
+
+/**
+ * The third thing that decides whose night it is.
+ *
+ * `delta` compares two ratings and knows nothing about whether the man is on the pitch, so
+ * a season spent injured or frozen out cost a player nothing at all when May came round: he
+ * was still handed the penalty in the cup final on the strength of a number. Matches are
+ * the evidence a rating is only a claim about - see `matchInertia` in tournaments.js.
+ */
+describe("how much football he is playing", () => {
+  it("hands the moment more often to the man who is actually in the side", () => {
+    // Deliberately mid-table: a first-choice striker on a penalty is already pinned to the
+    // ceiling by `max`, and a term that cannot move a saturated number proves nothing.
+    const base = { delta: 0, role: "rotacion_alta", shotType: "mano_a_mano" };
+    const regular = skillOdds({ ...base, inertia: 1 });
+    const squad = skillOdds({ ...base, inertia: 0.5 });
+    const absent = skillOdds({ ...base, inertia: 0 });
+    expect(regular).toBeGreaterThan(squad);
+    expect(squad).toBeGreaterThan(absent);
+    // And it is worth less than the shirt, which is the bigger claim about the same thing.
+    expect(regular - absent).toBeLessThan(
+      Math.abs(MODE_ODDS.role.titular - MODE_ODDS.role.suplente),
+    );
+  });
+
+  it("leaves every caller that does not mention it exactly where it was", () => {
+    for (const delta of [-8, 0, 6]) {
+      for (const role of ["titular", "suplente"]) {
+        expect(skillOdds({ delta, role })).toBe(skillOdds({ delta, role, inertia: 0.5 }));
+      }
+    }
+  });
+
+  it("never lets it push the odds outside the bounds the mix guarantees", () => {
+    for (const inertia of [-3, 0, 0.5, 1, 4]) {
+      for (const delta of [-40, 0, 40]) {
+        const odds = skillOdds({ delta, role: "suplente", shotType: "cabezazo", inertia });
+        expect(odds).toBeGreaterThanOrEqual(MODE_ODDS.min);
+        expect(odds).toBeLessThanOrEqual(MODE_ODDS.max);
+      }
+    }
+  });
+});
+
+/**
+ * WHOSE EUROPEAN RUN IT IS.
+ *
+ * A different question from `skillOdds`, which asks how a night is played once it is his.
+ * This asks whether it is his at all, round by round, and it is the thing that makes a
+ * great player's bracket feel like his rather than his club's: at the top essentially every
+ * round of a run comes down to him, which is what a side built around one footballer looks
+ * like. A squad player watches nearly all of them.
+ */
+describe("which knockout rounds are his to decide", () => {
+  const path = ["r16", "quarter", "semi", "final"];
+  const allFour = (args) => path.reduce((odds, round) => odds * roundOdds({ ...args, round }), 1);
+
+  it("hands nearly every round to the best player in the competition", () => {
+    const best = { delta: 12, role: "titular", inertia: 1 };
+    for (const round of path) {
+      expect(roundOdds({ ...best, round })).toBeGreaterThan(0.9);
+    }
+    // And the whole run, more often than not, which is the ask.
+    expect(allFour(best)).toBeGreaterThan(0.8);
+  });
+
+  it("hands almost none of it to a reserve", () => {
+    const reserve = { delta: -8, role: "suplente", inertia: 0.15 };
+    for (const round of path) expect(roundOdds({ ...reserve, round })).toBeLessThan(0.12);
+    expect(allFour(reserve)).toBeLessThan(0.01);
+  });
+
+  it("climbs with the rating, the shirt and the minutes, and never leaves the bounds", () => {
+    const rising = [
+      { delta: -8, role: "suplente", inertia: 0.15 },
+      { delta: -2, role: "rotacion_alta", inertia: 0.55 },
+      { delta: 4, role: "titular", inertia: 0.95 },
+      { delta: 10, role: "titular", inertia: 1 },
+    ].map((args) => roundOdds({ ...args, round: "quarter" }));
+    for (let i = 1; i < rising.length; i += 1) {
+      expect(rising[i]).toBeGreaterThan(rising[i - 1]);
+    }
+    for (const odds of rising) {
+      expect(odds).toBeGreaterThanOrEqual(ROUND_ODDS.min);
+      expect(odds).toBeLessThanOrEqual(ROUND_ODDS.max);
+    }
+  });
+
+  it("takes a season on the treatment table off a great player's run", () => {
+    const fit = { delta: 9, role: "titular", inertia: 1, round: "semi" };
+    const hurt = { ...fit, inertia: 0.15 };
+    expect(roundOdds(hurt)).toBeLessThan(roundOdds(fit));
+  });
+
+  it("turns to him more the deeper the run goes", () => {
+    const base = { delta: 0, role: "rotacion_alta", inertia: 0.5 };
+    const odds = path.map((round) => roundOdds({ ...base, round }));
+    for (let i = 1; i < odds.length; i += 1) expect(odds[i]).toBeGreaterThanOrEqual(odds[i - 1]);
   });
 });

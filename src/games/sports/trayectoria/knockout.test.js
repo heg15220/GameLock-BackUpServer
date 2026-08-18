@@ -293,6 +293,35 @@ describe("the queue", () => {
     }
   });
 
+/**
+ * A run parked on a queue of ties and nothing else.
+ *
+ * The knockout nights are part of the season's own calendar now rather than a list bolted
+ * on after it - see `showNight` in career.js - so a queue is a `matchday` whose every night
+ * happens to be a tie, walked by the same cursor that walks the deciders. `cursor: -1` is
+ * "not started": the first `nextTie` steps onto the first night.
+ */
+const queuedTies = (base, ties, cursor = -1, season = 4) => ({
+  ...base,
+  phase: PHASES.TOURNAMENT,
+  tournament: null,
+  matchday: {
+    season,
+    fixtures: [],
+    plan: {},
+    runs: [],
+    queue: ties.map((tie) => ({ when: tie.when ?? 0, kind: "tie", tie })),
+    cursor,
+    index: 0,
+    results: [],
+    attempts: [],
+    lastAttempt: null,
+    shot: null,
+    broadcast: null,
+    last: null,
+  },
+});
+
   it("has nothing to queue for a side that never got there", () => {
     const run = careerAt("nothing");
     expect(liveTiesOf(run, record({ tournamentRuns: [] }))).toEqual([]);
@@ -302,21 +331,7 @@ describe("the queue", () => {
     const base = careerAt("draw");
     const ties = liveTiesOf(base, record(), "es");
     const tie = ties.find((entry) => entry.round === "quarter");
-    const run = {
-      ...base,
-      phase: PHASES.TOURNAMENT,
-      matchday: null,
-      tournament: {
-        season: 4,
-        ties,
-        index: ties.indexOf(tie),
-        broadcast: nextTie({
-          ...base,
-          phase: PHASES.TOURNAMENT,
-          tournament: { season: 4, ties, index: ties.indexOf(tie) - 1, broadcast: null },
-        }).tournament.broadcast,
-      },
-    };
+    const run = nextTie(queuedTies(base, ties, ties.indexOf(tie) - 1));
     const html = renderToStaticMarkup(
       React.createElement(SCREENS.tournament, { run, locale: "es", onNext: () => {} }),
     );
@@ -331,12 +346,7 @@ describe("the queue", () => {
   it("walks the whole queue and then hands the step back", () => {
     const base = careerAt("walk");
     const ties = liveTiesOf(base, record());
-    let run = {
-      ...base,
-      phase: PHASES.TOURNAMENT,
-      matchday: null,
-      tournament: { season: 4, ties, index: 0, broadcast: null },
-    };
+    let run = nextTie(queuedTies(base, ties));
     for (let i = 0; i < ties.length - 1; i += 1) {
       run = nextTie(run);
       expect(run.phase).toBe(PHASES.TOURNAMENT);

@@ -57,6 +57,24 @@ const WAGE_LADDER = ["titular", "rotacion_alta", "rotacion_baja", "suplente"];
 export const CONTRACT = {
   minYears: 1,
   maxYears: 5,
+
+  /**
+   * A DEAL HAS TO REACH THE NEXT SUMMER YOU ARE ALLOWED TO HAVE ONE.
+   *
+   * Everything a contract mechanically does, it does at the market: it guarantees "stay" is
+   * on the table and it stops the club pushing you out (see `offersWithFallback`). But the
+   * market only opens once a STEP, and a step is one season in intensa, two in normal and
+   * three in exprés - so a one-year deal signed in exprés expired after the first of the
+   * three seasons it was supposed to cover, and by the time the only screen that reads it
+   * came round it had nothing left to say. The player had signed a four-word promise that
+   * was over before anybody could hold anybody to it.
+   *
+   * So a term is rounded UP to a whole number of steps. What a club is offering is not
+   * "three seasons", it is "one more cycle of this career" - and in a mode where three
+   * seasons pass between decisions, one cycle is what three seasons are.
+   */
+  stepUp: (years, seasonsPerStep = 1) =>
+    Math.max(1, Math.ceil(years / seasonsPerStep)) * seasonsPerStep,
   /** A buy-out is a multiple of the wage; the bigger the club, the sillier the multiple. */
   clauseMultiple: [6, 8, 10, 14, 18, 25],
   /** Asking for a shorter deal is the one thing that costs the club almost nothing. */
@@ -207,6 +225,12 @@ export function openingTerms({
   idolatryHere = 0,
   stay = false,
   youth = false,
+  /*
+   * How many seasons pass between one market and the next. Every term below is drawn in
+   * seasons, as football does; this is what turns the answer into something the career can
+   * actually be held to. See CONTRACT.stepUp.
+   */
+  seasonsPerStep = 1,
 }) {
   const next = createStream(seed, "contract", clubId, season);
   const pay = { reputation, strength, tier };
@@ -218,6 +242,9 @@ export function openingTerms({
   // See OUR CALL #8. One season is the default and the overwhelming majority; length is
   // something only a first-division side with a title to chase has a reason to offer.
   const contender = tier === 1 && reputation >= CONTRACT.contenderFrom;
+  // Carried on the terms so every later reading of them - the asks, the sheet - measures a
+  // deal in the same units the club offered it in.
+  const perStep = Math.max(1, seasonsPerStep);
   let years = 1;
 
   /*
@@ -271,7 +298,15 @@ export function openingTerms({
       note("needed");
     }
   }
-  years = Math.max(CONTRACT.minYears, Math.min(CONTRACT.maxYears, years));
+  /*
+   * Rounded up to whole steps, and the ceiling with it: a deal that runs out halfway
+   * through a step is a deal that was never in force when it mattered, and a five-season
+   * maximum in exprés would be under two markets anyway. `maxYears` is the football
+   * number; the mode decides how many of those a promise has to be worth.
+   */
+  const span = Math.max(1, seasonsPerStep);
+  const longest = CONTRACT.stepUp(CONTRACT.maxYears, span);
+  years = Math.max(span, Math.min(longest, CONTRACT.stepUp(years, span)));
 
   /* ── Wage ───────────────────────────────────────────────────────────────── */
   if (strength >= 4) note("strongLeague");
@@ -307,6 +342,8 @@ export function openingTerms({
   return {
     clubId,
     years,
+    // The unit the deal was written in, so the asks argue in it too. See CONTRACT.stepUp.
+    seasonsPerStep: perStep,
     wage,
     wageRole: wageBand(wage, pay),
     rolePromise: promised,
@@ -399,9 +436,17 @@ export const ASKS = [
     id: "short",
     cost: 0.14,
     icon: "years",
-    /** Nothing to shorten at the minimum, and the club will not sign for half a season. */
-    available: (terms) => terms.years > CONTRACT.minYears,
-    apply: (terms) => ({ ...terms, years: Math.max(CONTRACT.minYears, terms.years - 1) }),
+    /*
+     * Nothing to shorten at the minimum, and the club will not sign for half a season - nor
+     * for half a step, which is the same thing said in the units the career runs in. A deal
+     * argued down to something that expires before the next market would be the player
+     * asking for the one term that cannot be honoured.
+     */
+    available: (terms) => terms.years > CONTRACT.stepUp(1, terms.seasonsPerStep ?? 1),
+    apply: (terms) => {
+      const span = Math.max(1, terms.seasonsPerStep ?? 1);
+      return { ...terms, years: Math.max(span, terms.years - span) };
+    },
   },
 ];
 

@@ -22,7 +22,6 @@
  *          left. The gap is drawn before you look, so it is a read and not just a reflex.
  *   WINDOW ONE TOUCH. A chance that closes - the keeper advancing, the defender arriving.
  *          Late is worth more; too late is gone.
- *   BEND   TWO TOUCHES. How hard, then how much curl.
  *   CHARGE HOLD AND RELEASE. A bar climbs while you hold it and does not come back. Let go
  *          inside the band; hold past it and it is over the bar.
  *   AIM    DRAG AND RELEASE, on something that is MOVING. The only one in two dimensions:
@@ -30,7 +29,6 @@
  *          up rather than where it is.
  *   DIVE   ONE COMMITTED GESTURE, judged twice - which way you went and when you went. You
  *          cannot take it back, because that is what diving is.
- *   FEINT  TWO TOUCHES, and what is measured is the BEAT between them, not where they land.
  *          Sell it, then go.
  *
  * ── The one thing that had to be got right ────────────────────────────────────
@@ -49,11 +47,9 @@ import { NAILED_FROM_OVR } from "./bigmatch.js";
 export const MECHANICS = {
   SWEEP: "sweep",
   WINDOW: "window",
-  BEND: "bend",
   CHARGE: "charge",
   AIM: "aim",
   DIVE: "dive",
-  FEINT: "feint",
 };
 
 /**
@@ -67,23 +63,30 @@ export const MECHANICS = {
  * time a header, you place it. You do not place a clearance, you hit it. A dive is the one
  * thing on a football pitch you genuinely cannot take back.
  */
+/**
+ * Which chances are a game of their own, and which are simply AIMED.
+ *
+ * THE FOUR THAT ARE A SHOT AT A GOAL ARE NOT HERE, and that is the point. A penalty, a free
+ * kick, a one-on-one and a header all ask the same question - which of the goal's five
+ * zones - and there is no reason for them to ask it four different ways. They were a
+ * sweeping marker, a two-gate bend, a feint and a held bar: four skills, none of which was
+ * the skill the moment is actually about, and each of which asked a phone for a gesture it
+ * had no business asking. You flick the ball where you want it, or you press the button
+ * for it. See aim.jsx, and `keeperDive` for the half that answers back.
+ *
+ * What is left is the four a goalkeeper plays, where the act really is different - he is
+ * not choosing a corner, he is choosing whether to leave his line and when - and the two
+ * that are not a duel with a keeper at all: the through ball, where WHERE is the whole
+ * question, and the tackle, where WHEN is.
+ */
 export const CHANCE_MECHANIC = {
-  // Striker. The penalty stays a sweep: it is the game's signature and the first one
-  // anybody plays.
-  penal: MECHANICS.SWEEP,
-  mano_a_mano: MECHANICS.FEINT,
-  cabezazo: MECHANICS.AIM,
-  falta: MECHANICS.BEND,
-  volea: MECHANICS.CHARGE,
   // Keeper. The penalty is the dive; coming for a cross is how far you are willing to go.
   parada_penal: MECHANICS.DIVE,
   salida_mano_a_mano: MECHANICS.WINDOW,
   tiro_lejano: MECHANICS.SWEEP,
   centro_lateral: MECHANICS.CHARGE,
-  // Defender. A clearance is struck, a tackle is timed, an interception is a held nerve.
-  despeje: MECHANICS.CHARGE,
+  // Defender. A tackle is timed.
   entrada: MECHANICS.WINDOW,
-  anticipo: MECHANICS.FEINT,
   // Midfield. The through ball is the one pass where WHERE is the whole question.
   pase_gol: MECHANICS.AIM,
 };
@@ -106,7 +109,6 @@ export const TUNING = {
   /** The window's width in the same units, and how fast it closes. */
   window: { at60: 0.1, at95: 0.19, closeAt60: 1.4, closeAt95: 1.0 },
   /** Two gates, wider each because both of them have to land. */
-  bend: { at60: 0.11, at95: 0.2 },
   /**
    * The band on a climbing bar, and the seconds it takes to fill. Better players get a
    * SLOWER bar: a charge cannot be waited out like a sweep can, so composure here is time
@@ -118,7 +120,6 @@ export const TUNING = {
   /** Two calls out of one gesture, so it is priced like the other two-call game. */
   dive: { at60: 0.11, at95: 0.2, runAt60: 1.5, runAt95: 1.9 },
   /** The beat between two touches, and the length of the bar that beat is measured on. */
-  feint: { at60: 0.085, at95: 0.155, beatAt60: 1.2, beatAt95: 1.6 },
   /** Below this the chance is simply harder than the player is good. */
   floorOvr: 60,
   ceilOvr: 95,
@@ -221,22 +222,15 @@ export function buildChance({ seed, season, fixtureId, shotType, ovr }) {
     };
   }
 
-  if (mechanic === MECHANICS.FEINT) {
-    return {
-      ...base,
-      // The beat, as a fraction of the bar below. Never so short that both touches are one
-      // tap, never so long that the defender has gone by.
-      target: 0.3 + next() * 0.45,
-      tolerance: lerp(TUNING.feint.at60, TUNING.feint.at95, skill),
-      // Seconds the beat is measured against, so the input is a duration read as 0..1.
-      period: lerp(TUNING.feint.beatAt60, TUNING.feint.beatAt95, skill),
-    };
-  }
-
+  /*
+   * Anything the table does not name. Two gates on one travelling marker, which is the
+   * most general shape a chance can have - and unreachable in practice, because every
+   * mechanic in CHANCE_MECHANIC has a branch above.
+   */
   return {
     ...base,
     gates: [place(), place()],
-    tolerance: lerp(TUNING.bend.at60, TUNING.bend.at95, skill),
+    tolerance: lerp(TUNING.sweep.at60, TUNING.sweep.at95, skill),
     period: lerp(TUNING.sweep.speedAt60, TUNING.sweep.speedAt95, skill),
   };
 }
@@ -278,7 +272,7 @@ function missBy(target, value) {
  *
  * `inputs` is what the player committed - where the marker stopped, how long the bar was
  * held, the beat between two touches, or the point a drag was released at. One value for
- * the single-call mechanics, two for a bend or a dive, a `{x, y}` for an aim. All of it is
+ * the single-call mechanics, two for a dive, a `{x, y}` for an aim. All of it is
  * in the same 0..1 units, so one comparison covers all seven.
  *
  * Returns the same shape `resolveShot` does, because the rest of the game already knows
