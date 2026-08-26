@@ -9,7 +9,7 @@
 | **Referencia estructural** | *Inazuma Eleven* (Level-5, Nintendo DS, 2008) |
 | **Duración objetivo** | ~8 horas de campaña para un jugador medio |
 | **Plataforma** | Web (React 18 + Vite), escritorio y móvil; caja móvil real 352×515 px |
-| **Idiomas** | **Dos versiones completas: español (idioma de escritura) e inglés adaptado.** Ver §12 |
+| **Idiomas** | **Dos versiones completas: español (idioma de escritura) e inglés adaptado.** Ver §13 |
 | **Fecha** | 2026-08-26 |
 | **Estado** | Diseño aprobado en brainstorming — pendiente de plan de implementación |
 
@@ -574,9 +574,78 @@ Un jugador completista añade 2-3 horas (escaramuzas opcionales, vínculos secun
 
 ---
 
-## 10. Dirección de arte
+## 10. Dificultad: tres modos
 
-### 10.1 La doble pantalla
+**Requisito explícito: tres modos de dificultad —fácil, medio y difícil— bien diferenciados en la experiencia de juego.** Se elige al empezar la campaña y se puede cambiar entre capítulos.
+
+### 10.1 La regla que los define
+
+> **La dificultad mueve cuánto te miran y cuánto margen tienes. Nunca cuánto pegan los enemigos.**
+
+Las estadísticas de todo adversario del juego son **idénticas en los tres modos**. El Tasador tiene los mismos números en fácil que en difícil. Lo que cambia es el cerco: con qué frecuencia dejas rastro, cuánto tarda alguien en atar cabos, cuánto margen te da el reloj, cuánto se recupera entre golpes y **cuánto te cuenta el juego de lo que está pasando a tus espaldas**.
+
+La razón es de identidad. Este juego no trata de vencer a un rival difícil: trata de sostener una mentira. Un modo difícil que subiera el daño enemigo estaría endureciendo la parte que menos importa y dejando intacta la que da nombre al juego. **Que "difícil" signifique "te miran más" es lo que hace que los tres modos sean tres versiones del mismo juego y no tres juegos distintos.**
+
+Corolario práctico: los tres modos comparten historia, reparto, capítulos, técnicas y finales. Ninguno recorta contenido. Un jugador de fácil ve exactamente el mismo juego.
+
+### 10.2 Fácil — *Leyenda urbana*
+
+**Para quien viene por la historia.** El poder de Fulgor es un rumor que la ciudad casi disfruta; nadie tiene demasiada prisa por ponerle nombre. El jugador comete errores y la ciudad se los perdona.
+
+| Eje | Valor |
+|---|---|
+| Generación de pistas | **×0.6** |
+| Umbrales de expediente | **+2** |
+| Decaimiento de `interes` | **×2** (4/día) |
+| Contramedidas | 1 bloque retira **2 pistas**, y nunca fallan |
+| Reloj de Intervención | **+2 turnos** |
+| Regeneración de Carga | **+12/turno** |
+| Compostura | Los escalones de castigo empiezan 15 puntos más abajo |
+| Caer en escaramuza | Imposible: la Compostura se detiene en 1. Sólo las Intervenciones decisivas pueden tumbarte |
+| Intervención fallada | Se resuelve como **Parcial**, nunca como Fallida |
+| Desenlace de ruina | Bloqueado hasta el capítulo 11 |
+| Avisos | El panel de expedientes dice **cuántas pistas faltan** para cerrar cada uno, y el juego avisa cuando alguien llega a obsesivo |
+
+### 10.3 Medio — *Doble vida*
+
+**El juego tal y como está diseñado.** Todos los valores de este documento son los de este modo; los otros dos son desviaciones de aquí. Es el modo por defecto y el que se equilibra primero.
+
+| Eje | Valor |
+|---|---|
+| Todos | **Los valores base de §3, §4, §5 y §7** |
+| Avisos | El panel muestra las pistas que cada personaje tiene, **no cuántas le faltan**. El estado (latente / activo / obsesivo) sí es visible |
+
+### 10.4 Difícil — *Sin máscara*
+
+**Para quien ya sabe cómo funciona el cerco y quiere que apriete.** Marés ha decidido que quiere un nombre, y lo quiere ya.
+
+| Eje | Valor |
+|---|---|
+| Generación de pistas | **×1.4** |
+| Umbrales de expediente | **−1** |
+| Decaimiento de `interes` | **×0.5** (1/día), y todos los suelos suben 10 |
+| Contramedidas | 1 bloque retira **1 pista**, y **fallan un 25%** de las veces (pierdes el bloque igual) |
+| Reloj de Intervención | **−1 turno** |
+| Regeneración de Carga | **+5/turno** |
+| Compostura | Los escalones empiezan 10 puntos más arriba |
+| Techo de éxito en duelo | **0.90** en vez de 0.95 (el suelo de 0.05 no se toca: nada es imposible) |
+| Desenlace de ruina | Disponible desde el **capítulo 6** |
+| Personajes obsesivos | Aparecen **dentro de las Intervenciones** como testigo móvil: te siguen por el escenario |
+| Avisos | Ninguno. El panel muestra el número de pistas de cada expediente y nada más. **No sabes lo cerca que estás hasta que ocurre** |
+
+### 10.5 Cómo se implementa
+
+- Un único objeto `DIFICULTAD` en `tables.js` con las tres filas. **Ningún módulo puro conoce el nombre del modo**: `suspicion.js`, `intervention.js` y `duel.js` reciben los multiplicadores ya resueltos. Así se puede añadir un cuarto modo, o dejar que el jugador ajuste ejes sueltos, sin tocar una sola línea de lógica.
+- **El modo forma parte del estado guardado** y viaja en el código de transferencia (§15), porque una partida importada tiene que seguir siendo la partida que era.
+- **Se puede cambiar entre capítulos, en los dos sentidos, sin penalización ni marca.** El juego no juzga al jugador que baja de difícil a medio en el capítulo 9: la campaña dura ocho horas y la vida cambia. Dentro de un capítulo el modo está fijo, para que las cuentas de ese capítulo sean coherentes.
+- **Los nombres de los tres modos se adaptan, no se traducen** (§13.2): *Leyenda urbana* → **Urban Legend**, *Doble vida* → **Double Life**, *Sin máscara* → **No Mask**.
+- `balance.test.js` (§14.3) corre su Monte Carlo **en los tres modos**, y la comprobación que de verdad importa es que produzcan tres experiencias distintas y no tres etiquetas: el objetivo de calibración es **~2% / ~12% / ~35% de campañas que terminan con el héroe desenmascarado**. Si los tres modos caen en la misma banda, la dificultad es decorativa y hay que ensanchar los ejes.
+
+---
+
+## 11. Dirección de arte
+
+### 11.1 La doble pantalla
 
 El layout es el argumento visual de todo el juego.
 
@@ -601,7 +670,7 @@ El layout es el argumento visual de todo el juego.
 
 En escritorio los dos paneles se colocan lado a lado con la misma proporción interna, dentro de un marco que **evoca** una consola sin imitarla literalmente. **La bisagra es un elemento de diseño real**: una línea horizontal con un tratamiento propio que separa "lo que ves" de "lo que decides".
 
-### 10.2 Dos paletas para dos vidas
+### 11.2 Dos paletas para dos vidas
 
 La decisión visual más importante: **la vida civil y la vida de héroe no comparten paleta**, y la transición entre ellas es un momento.
 
@@ -627,7 +696,7 @@ La decisión visual más importante: **la vida civil y la vida de héroe no comp
 
 Y el detalle que ata las dos paletas: **cuando el jugador está en vida civil pero un expediente está en estado obsesivo, entra cian en la escena civil** — un reflejo, una farola, la pantalla de un móvil. La vida de héroe manchando la normal. Es una señal de estado disfrazada de atmósfera.
 
-### 10.3 Estilo gráfico
+### 11.3 Estilo gráfico
 
 Herencia declarada de *Inazuma Eleven*: **acuarela y anime**. Traducido a lo que este repo puede sostener:
 
@@ -637,7 +706,7 @@ Herencia declarada de *Inazuma Eleven*: **acuarela y anime**. Traducido a lo que
 - **Rutas:** se dibujan mientras arrastras, con un trazo que **cambia de color según la visibilidad de la ruta** — cálido para expuesta, azul apagado para sombra. El jugador ve el compromiso mientras lo hace, no después.
 - **Técnicas:** el corte de cámara. Fondo de líneas de velocidad, la silueta del héroe a gran tamaño, el nombre de la técnica en tipografía de impacto, 1.5-2.5 s. **Es lo que la gente va a recordar.**
 
-### 10.4 Tipografía
+### 11.4 Tipografía
 
 - **Titulares y nombres de técnica:** una grotesca condensada de mucho peso, en mayúsculas, con inclinación. Debe gritar.
 - **Diálogo y cuerpo:** una humanista legible a 14 px en móvil.
@@ -645,7 +714,7 @@ Herencia declarada de *Inazuma Eleven*: **acuarela y anime**. Traducido a lo que
 
 Tres familias, ni una más, todas desde Google Fonts (permitido por la CSP de artefactos) con pila de reserva completa.
 
-### 10.5 Accesibilidad
+### 11.5 Accesibilidad
 
 - Nunca sólo color: la visibilidad se dice con puntos, la afinidad con icono, el estado del expediente con etiqueta.
 - Contraste AA mínimo en ambas paletas.
@@ -654,11 +723,11 @@ Tres familias, ni una más, todas desde Google Fonts (permitido por la CSP de ar
 
 ---
 
-## 11. Banda sonora y audio
+## 12. Banda sonora y audio
 
 Requisito explícito: **banda sonora propia, con música libre de derechos y suficiente variedad para distintos momentos, contextos y ambientes.**
 
-### 11.1 Restricción legal, primero
+### 12.1 Restricción legal, primero
 
 Este proyecto tiene monetización y consentimiento de cookies documentados (`docs/cookie-consent-and-monetization.md`). Eso significa **uso comercial**, y de ahí sale la regla dura:
 
@@ -680,7 +749,7 @@ Fuentes admitidas, en orden de preferencia:
 
 **Disciplina obligatoria:** un fichero `docs/audio-licenses.md` con una fila por pista — nombre de archivo, título original, autor, licencia, URL de origen, fecha de descarga y qué modificaciones se hicieron. Los créditos CC-BY salen además **dentro del juego**, en una pantalla de créditos accesible desde el menú. Sin esa fila, la pista no entra en el repositorio. Esto no es burocracia: es lo que hace que el juego se pueda publicar.
 
-### 11.2 Arquitectura musical: capas adaptativas
+### 12.2 Arquitectura musical: capas adaptativas
 
 La decisión técnica que hace que 28 pistas suenen a muchas más. Las piezas de Intervención **no son un archivo, son tres**, alineados al mismo tempo y compás:
 
@@ -694,7 +763,7 @@ Las tres se lanzan a la vez con Howler, en bucle, y sólo se mueve su volumen (r
 
 Para las pistas de capas se buscan fuentes con **stems separados** (OpenGameArt suele tenerlos) o se construyen las capas a partir de una pista CC0 mediante filtrado y mezcla — de ahí que `ND` esté prohibida.
 
-### 11.3 Listado de pistas
+### 12.3 Listado de pistas
 
 **28 piezas musicales + 5 stingers + 12 ambientes.** Cada una con función, carácter, duración de bucle y dónde suena.
 
@@ -764,7 +833,7 @@ Para las pistas de capas se buscan fuentes con **stems separados** (OpenGameArt 
 
 lluvia sobre chapa · tráfico lejano · zumbido de transformador · pasillo de instituto · oleaje en el muelle · sirena a distancia · gente en plaza · ventilación de oficina · monitor de hospital · viento en altura · fluorescente parpadeando · silencio de ciudad sin luz
 
-### 11.4 Reglas de mezcla
+### 12.4 Reglas de mezcla
 
 - **La música baja a −12 dB durante el diálogo** y vuelve al terminar la línea.
 - **Un solo crossfade** entre pistas, de 1200 ms. Nunca dos pistas completas a la vez salvo las capas de una misma pieza.
@@ -772,7 +841,7 @@ lluvia sobre chapa · tráfico lejano · zumbido de transformador · pasillo de 
 - **Ambientes siempre por debajo de −20 dB**: se notan al quitarlos, no al ponerlos.
 - **Tres deslizadores independientes** (música / efectos / ambiente) y silencio maestro. Se guardan.
 
-### 11.5 Presupuesto técnico
+### 12.5 Presupuesto técnico
 
 - Formato **OGG Vorbis** con respaldo **MP3** (Howler negocia solo).
 - Objetivo **≤ 900 KB por pista** de bucle; ≤ 250 KB por ambiente; ≤ 40 KB por stinger.
@@ -782,11 +851,11 @@ lluvia sobre chapa · tráfico lejano · zumbido de transformador · pasillo de 
 
 ---
 
-## 12. Bilingüismo: dos versiones completas
+## 13. Bilingüismo: dos versiones completas
 
 **Requisito explícito: el juego existe en dos versiones completas, español e inglés, y la inglesa es una adaptación, no una traducción.** Esto no es una tarea de final de proyecto: es una restricción que condiciona cómo se escribe cada línea desde la primera.
 
-### 12.1 La regla que lo gobierna todo
+### 13.1 La regla que lo gobierna todo
 
 > **Ninguna cadena de texto vive en un componente.** Todo el texto del juego —diálogo, nombres de técnica, informes de expediente, titulares de prensa, botones, mensajes de error, descripciones del catálogo, pistas de control— vive en `copy.js`, con la misma clave en `es` y en `en`.
 
@@ -794,7 +863,7 @@ Es la regla que ya sostiene `copy.js` en Trayectoria, y hay una razón dura para
 
 `copy.test.js` es el guardián: toda clave presente en `es` debe existir en `en`, y ninguna cadena puede quedarse sin par. Ese test se escribe con la primera línea de diálogo, no con la última.
 
-### 12.2 Adaptar, no traducir
+### 13.2 Adaptar, no traducir
 
 La versión inglesa se escribe con criterio propio en cada uno de estos frentes:
 
@@ -808,12 +877,12 @@ La versión inglesa se escribe con criterio propio en cada uno de estos frentes:
 
 - **Los tratamientos y registros.** *Doña Pilar* no tiene equivalente inglés; en `en` se resuelve con el nombre y un registro de habla que transmite la misma distancia respetuosa, más una nota de contexto la primera vez que aparece.
 - **Los nombres de técnica.** Son nombres de hissatsu: tienen que **sonar bien gritados**, no ser exactos. *Puño de Tormenta* → **Thunderfist** (no "Storm Fist", que es correcto y no suena a nada). *Arco Voltaico* → **Arc Flash**, que además es el término técnico real. *Vaho* → **Blackout Step**. *Fulgor* → **Blaze** para la técnica, pero **el título del juego se mantiene: FULGOR**, en las dos versiones, como nombre propio. Cada técnica se aprueba por cómo suena, no por su literalidad.
-- **El nombre del héroe.** Si el jugador puede nombrarlo (§16, decisión abierta n.º 2), el listado de sugerencias es distinto en cada idioma, no traducido.
+- **El nombre del héroe.** Si el jugador puede nombrarlo (§17, decisión abierta n.º 2), el listado de sugerencias es distinto en cada idioma, no traducido.
 - **La prensa.** *El Faro de Marés* → **The Marés Beacon**. Los titulares de Marga se reescriben con la gramática titular inglesa (sin artículos, verbo en presente), que es un género propio y no admite traducción literal.
 - **Los informes de Sabater.** El español policial y el inglés policial tienen fraseología distinta. Se escriben dos veces, con la jerga real de cada uno.
 - **Los juegos de palabras y el habla adolescente.** Las conversaciones de Isma y Dani son lo que más se resiente en una traducción literal. Se reescriben buscando el mismo efecto, no las mismas palabras. **Si un chiste no funciona en inglés, se cambia el chiste.**
 
-### 12.3 Consecuencias técnicas
+### 13.3 Consecuencias técnicas
 
 | Aspecto | Requisito |
 |---|---|
@@ -824,9 +893,9 @@ La versión inglesa se escribe con criterio propio en cada uno de estos frentes:
 | **Tipografía** | Las tres familias elegidas deben tener juego completo de acentos y `ñ`. Se verifica antes de fijarlas, no después |
 | **Metadatos de catálogo** | Título, descripción y `CONTROL_HINTS` en `es` y `en`, como exige `registry.jsx` |
 | **Selector de idioma** | Se resuelve con `resolveBrowserLanguage` (el utilitario que ya usa el repositorio) y se puede cambiar **dentro del juego**, sin perder la partida. El idioma es un ajuste guardado, no una decisión de arranque |
-| **Audio** | Ninguna pista lleva voz cantada con letra inteligible. Esto **simplifica el bilingüismo enormemente** y es una razón más para preferir instrumental en la selección de música (§11) |
+| **Audio** | Ninguna pista lleva voz cantada con letra inteligible. Esto **simplifica el bilingüismo enormemente** y es una razón más para preferir instrumental en la selección de música (§12) |
 
-### 12.4 Proceso de escritura
+### 13.4 Proceso de escritura
 
 Cada capítulo se escribe en dos pasadas dentro de la misma fase de producción, nunca en fases distintas:
 
@@ -838,11 +907,11 @@ Cada capítulo se escribe en dos pasadas dentro de la misma fase de producción,
 
 ---
 
-## 13. Arquitectura técnica
+## 14. Arquitectura técnica
 
 Se sigue la estratificación que ya funciona en `src/games/sports/trayectoria/`: **motor puro abajo, React arriba, y el balance en tablas separadas**. Ese juego demuestra que una campaña narrativa larga con motor propio y suite de tests cabe en este repositorio.
 
-### 13.1 Capas
+### 14.1 Capas
 
 ```
 tables.js         Balance. Stats, técnicas, piezas de traje, umbrales, costes.
@@ -863,7 +932,8 @@ story.js          Los 12 capítulos COMO DATOS: gatillos, escenas, banderas,
 game.js           La máquina de fases, como reducer:
                   CAPITULO → BLOQUE → ESCENA → INTERVENCION → DUELO
                   → BALANCE → BLOQUE → ... → EPILOGO
-save.js           Serialización a localStorage, versionada con migraciones.
+save.js           localStorage (3 ranuras) + código de transferencia base64url.
+                  Versionado, con migraciones. Ver §15.
    ↓
 audio.js          Howler. Capas adaptativas, ducking, carga perezosa.
 scene.jsx         Canvas del panel superior: escenario, nodos, figuras, cortes.
@@ -878,17 +948,17 @@ styles.css        Las dos paletas y el layout de doble panel.
 
 **La regla que hace esto mantenible:** ningún módulo puro importa React y ningún componente contiene una regla de juego. Cada módulo puro se prueba solo, sin DOM.
 
-### 13.2 Decisiones técnicas
+### 14.2 Decisiones técnicas
 
 **Canvas 2D, no Phaser.** Phaser está en el proyecto, pero este juego no necesita un motor: no hay física, ni scroll, ni detección de colisiones. Necesita dibujar nodos, siluetas y cortes de cámara. Canvas 2D directo (como `pitch.jsx` de trayectoria) es más ligero, más controlable y evita meter un motor de 1 MB en el paquete.
 
-**Guardado, y no es opcional.** Un juego de 8 horas sin guardar no existe. `localStorage`, tres ranuras, autoguardado al final de cada bloque y antes de cada Intervención decisiva. El estado guardado lleva `version` y `save.js` tiene migraciones desde el primer día — un guardado de 8 horas roto por un cambio de formato es la peor forma posible de perder a un jugador.
+**Guardado, y no es opcional.** Un juego de 8 horas sin guardar no existe, y sin poder llevárselo a otro dispositivo, tampoco. `localStorage`, tres ranuras, autoguardado al final de cada bloque y antes de cada Intervención decisiva, guardado manual en cualquier momento, y **código de transferencia exportable** — todo el sistema está detallado en **§15**. El estado guardado lleva `version` y `save.js` tiene migraciones desde el primer día: un guardado de 8 horas roto por un cambio de formato es la peor forma posible de perder a un jugador.
 
 **Todo determinista bajo semilla.** Una partida es reproducible desde su semilla y su lista de acciones. Esto es lo que hace posible probar el equilibrio con Monte Carlo, exactamente como se hizo en `bigmatch.test.js`: mil partidas simuladas para responder "¿cuántas terminan desenmascaradas?".
 
 **Presupuesto de rendimiento:** 60 fps en el canvas durante los cortes; el resto del tiempo el canvas está mayormente estático y se redibuja por eventos. Sin bucle de render permanente cuando no hay animación — importante para la batería en móvil durante una sesión larga.
 
-### 13.3 Suite de pruebas
+### 14.3 Suite de pruebas
 
 Vitest, siguiendo el patrón del repositorio (un `*.test.js` junto a cada módulo):
 
@@ -897,11 +967,11 @@ Vitest, siguiendo el patrón del repositorio (un `*.test.js` junto a cada módul
 - `intervention.test.js` — el reloj siempre avanza; todo escenario es conexo (no hay nodos inalcanzables); todo objetivo es alcanzable dentro del reloj **desde cualquier ruta válida**.
 - `calendar.test.js` — los bloques cuadran; las interrupciones no pueden encadenarse infinitamente.
 - `story.test.js` — los doce capítulos son alcanzables; ninguna bandera se lee antes de escribirse; todo final tiene condición alcanzable. **Un grafo de historia sin este test se rompe en silencio.**
-- `save.test.js` — ida y vuelta de serialización; cada migración se prueba contra un guardado real de la versión anterior.
+- `save.test.js` — ida y vuelta de serialización; **ida y vuelta del código de transferencia sobre un estado de final de campaña, comprobando que el resultado es idéntico y que no pasa del presupuesto de 1.400 caracteres**; que un código truncado, alterado un carácter o de otro juego se rechace en vez de importarse a medias; y cada migración probada contra un código real exportado con la versión anterior.
 - `copy.test.js` — toda clave existe en `es` y en `en`.
-- `balance.test.js` — **Monte Carlo.** 1000 partidas con políticas distintas (temerario / prudente / social / aislado). Comprueba que ninguna política gana siempre y que la banda de duración cae en 6-11 h.
+- `balance.test.js` — **Monte Carlo.** 1000 partidas con políticas distintas (temerario / prudente / social / aislado), **× los tres modos de dificultad**. Comprueba que ninguna política gana siempre, que la banda de duración cae en 6-11 h, y que los tres modos separan de verdad: ~2% / ~12% / ~35% de campañas desenmascaradas (§10.5). Tres modos que caen en la misma banda son tres etiquetas, no tres dificultades.
 
-### 13.4 Integración en el catálogo
+### 14.4 Integración en el catálogo
 
 Del precedente ya verificado en este repositorio, dar de alta un juego nuevo requiere **todo** esto:
 
@@ -918,23 +988,79 @@ Del precedente ya verificado en este repositorio, dar de alta un juego nuevo req
 
 ---
 
-## 14. Producción
+## 15. Guardado y transferencia entre dispositivos
+
+**Requisito explícito: el jugador puede guardar en cualquier momento y exportar un código con el que continuar la partida en otro navegador o en otro dispositivo.** El patrón ya existe y funciona en este repositorio —**Valle Tranquilo** (`src/arcade/valle-tranquilo/index.html`)— así que FULGOR lo reimplementa con el mismo mecanismo, no con uno nuevo.
+
+En un juego de 8 horas esto deja de ser una comodidad y pasa a ser una condición de existencia: **nadie termina una campaña de 8 horas en el mismo navegador donde la empezó.** Se empieza en el portátil y se sigue en el móvil del autobús, o al revés.
+
+### 15.1 Las dos mitades del sistema
+
+**Guardado local.** `localStorage`, **tres ranuras** (la campaña es larga y el jugador querrá comparar rumbos distintos). Autoguardado con rebote al final de cada bloque, al cerrar cada Intervención y antes de cada Intervención decisiva; guardado manual disponible **en cualquier momento** desde el menú. Valle Tranquilo usa `queueAutosave(320)` con una bandera `SAVE_SUSPENDED` para no guardar en medio de una transición: el mismo cuidado aplica aquí, y con más motivo, porque guardar a mitad de un duelo dejaría un estado a medias.
+
+**Código de transferencia.** Una cadena de texto que el jugador copia y pega en otro dispositivo. Idéntico al de Valle Tranquilo en forma y en técnica:
+
+```
+FG1.eyJ2IjoxLCJnIjpbNCwyLDE4LDcxLDMzXSwiZSI6W1swLDMsWzEsNCw3XV0...
+└┬┘ └────────────────────────────────────────────────────────────
+ │   base64url del JSON compacto (+ → -, / → _, sin relleno)
+ └── prefijo con versión de formato
+```
+
+### 15.2 Cómo se mantiene corto
+
+Éste es el trabajo real, y es el que Valle Tranquilo ya resolvió. Un volcado ingenuo del estado de FULGOR —doce capítulos de banderas, veinte expedientes con sus listas de pistas, cuarenta técnicas, seis piezas de traje, veinte vínculos— produciría un código imposible de pegar. Las cuatro técnicas que lo evitan:
+
+1. **Diferencia contra una base limpia, no volcado completo.** Al importar, el juego **se reinicia a un estado inicial limpio y luego aplica el snapshot encima** (`resetGameState()` → `applySavePayload()` en Valle Tranquilo). Así el código sólo carga lo que se ha desviado de una partida nueva. Todo lo que sigue en su valor por defecto **no ocupa nada**.
+2. **Claves de una letra y tablas de índices.** Nada de `{"expedientes": {"sabater": {"interes": 42}}}`. Las claves del payload son letras (`g` global, `e` expedientes, `t` técnicas, `j` traje, `v` vínculos, `h` banderas de historia) y **todo identificador se guarda como su índice en una tabla ordenada** (`SAVE_EXPEDIENTE_KEYS`, `SAVE_TECNICA_KEYS`, …), igual que `SAVE_ITEM_KEYS` allí. Un expediente pasa de ~60 bytes a `[0,42,[1,4,7]]`.
+3. **Se omite lo vacío.** Cada bloque del payload sólo se escribe si tiene contenido (`if(inv.length) payload.i=inv`). Una partida en el capítulo 2 produce un código diminuto y va creciendo con la campaña.
+4. **Los conjuntos de banderas van como listas de índices**, no como objetos de booleanos (`flagIndexes`).
+
+**Presupuesto:** ≤ 1.400 caracteres de código exportado en el peor caso (final del capítulo 12, todos los expedientes tocados, traje completo). El modal muestra el recuento de caracteres, como hace Valle Tranquilo, para que el jugador vea que lo ha copiado entero.
+
+Si al medirlo con una partida real se pasa del presupuesto, la palanca **no** es comprimir más: es dejar de guardar el detalle histórico ya resuelto. Un expediente cerrado no necesita su lista de pistas, sólo su desenlace.
+
+### 15.3 Integridad
+
+Un código de transferencia mal pegado no puede destruir ocho horas de partida en silencio.
+
+- **Checksum corto** al final del payload. Si no cuadra, se rechaza el código entero y se avisa: *"El código está incompleto o dañado."* Un truncado a mitad no debe importarse "casi bien".
+- **Versión de formato en el prefijo** (`FG1.`) y validación explícita al aplicar — Valle Tranquilo comprueba `[1,2].includes(payload.v)`. Cuando el formato cambie, la versión anterior se **migra**, nunca se rechaza: un código exportado hace tres meses tiene que seguir entrando.
+- **Importar nunca sobrescribe sin preguntar.** El modal ofrece las dos rutas por separado, como allí: *importar sobre esta partida* (con confirmación explícita) o *importar en una ranura libre*.
+
+### 15.4 Interfaz
+
+Un solo modal, **Guardado y transferencia**, accesible desde el menú de pausa en cualquier momento:
+
+- **Arriba, EXPORTAR:** el código en un campo de sólo lectura, el recuento de caracteres, un botón **Copiar** (con `navigator.clipboard` y camino de reserva por selección, porque el portapapeles falla en bastantes navegadores móviles) y un botón **Guardar ahora**.
+- **Abajo, IMPORTAR:** un campo donde pegar, y el botón de importar.
+- **Y en la pantalla de inicio**, junto a "Partida nueva" y "Continuar", una tercera opción: **Importar código**. Es lo que hace Valle Tranquilo con `openImportModal(true)` en modo bloqueado, y es imprescindible: el jugador que llega a un dispositivo nuevo **no tiene partida que continuar**, así que la puerta de entrada tiene que estar en el arranque.
+
+Todos los textos de este modal viven en `copy.js` en `es` y `en`, como todo lo demás (§13).
+
+### 15.5 Lo que se descartó
+
+**Exportar la semilla más la lista de decisiones** en lugar de un snapshot. Es tentador —FULGOR es determinista bajo semilla (§14.2), así que la partida se podría *reproducir* en vez de *describir*— y daría un código mucho más corto. Se descarta porque un reproductor es **frágil frente a cualquier cambio de equilibrio**: si en una actualización se toca una tabla de `tables.js`, todos los códigos exportados hasta entonces reproducen una partida distinta a la que el jugador vivió, y a veces imposible. El snapshot describe el estado y sobrevive a los reajustes. Es la misma razón por la que Valle Tranquilo guarda estado y no historia.
+
+---
+
+## 16. Producción
 
 Seis fases. Cada una termina en algo jugable — nunca en "el motor está hecho pero no se puede jugar".
 
 ### Fase 1 — El vertical slice *(el hito que decide si el juego existe)*
 
-Un solo capítulo, el 3 ("El Tasador"), completo de principio a fin: apertura civil, tres bloques con decisiones reales, dos escaramuzas, la Intervención decisiva con duelos, balance y epílogo. Con tres expedientes activos, cuatro técnicas, el traje improvisado, cuatro pistas de música **y el capítulo escrito en los dos idiomas** — el vertical slice también sirve para medir cuánto cuesta realmente la doble pasada de escritura (§12.4).
+Un solo capítulo, el 3 ("El Tasador"), completo de principio a fin: apertura civil, tres bloques con decisiones reales, dos escaramuzas, la Intervención decisiva con duelos, balance y epílogo. Con tres expedientes activos, cuatro técnicas, el traje improvisado, cuatro pistas de música **y el capítulo escrito en los dos idiomas** — el vertical slice también sirve para medir cuánto cuesta realmente la doble pasada de escritura (§13.4).
 
 **Este es el hito que hay que atacar primero y el único que responde la pregunta de verdad: ¿es divertido gestionar un secreto?** Si la respuesta es no, se cambia el diseño aquí, no en el capítulo 11.
 
 ### Fase 2 — Los sistemas al completo
 
-`suspicion`, `duel`, `intervention`, `suit`, `bonds`, `calendar`, `progress` terminados y probados. Catálogo de 40 técnicas. Cinco generaciones de traje. Veinte expedientes. Banco de 40 escaramuzas. Guardado con migraciones.
+`suspicion`, `duel`, `intervention`, `suit`, `bonds`, `calendar`, `progress` terminados y probados. Catálogo de 40 técnicas. Cinco generaciones de traje. Veinte expedientes. Banco de 40 escaramuzas. **Guardado completo con migraciones y código de transferencia (§15), medido contra el presupuesto de 1.400 caracteres con un estado de final de campaña sintético** — se mide aquí, con los sistemas cerrados, no cuando ya haya doce capítulos escritos encima.
 
 ### Fase 3 — Contenido: capítulos 1-6
 
-Acto I y mitad del II. Fondos de nueve distritos. Retratos del reparto principal. Primera pasada de música. **Criterio de aceptación: un capítulo no está terminado hasta que lo está en español y en inglés** (§12.4).
+Acto I y mitad del II. Fondos de nueve distritos. Retratos del reparto principal. Primera pasada de música. **Criterio de aceptación: un capítulo no está terminado hasta que lo está en español y en inglés** (§13.4).
 
 ### Fase 4 — Contenido: capítulos 7-12
 
@@ -948,12 +1074,12 @@ Banda sonora completa con capas adaptativas. Los 40 cortes de cámara de técnic
 
 Monte Carlo de equilibrio. Ajuste de umbrales de expediente contra datos, no contra intuición. Paso completo de accesibilidad. Auditoría en la caja móvil real de 352×515 — **no en un emulador con `vh`**, que en esa caja miente — **y hecha en los dos idiomas**, porque una cadena inglesa más larga desborda un botón que en español cabía. La versión inglesa no se traduce aquí: aquí sólo se revisa, porque ya se escribió capítulo a capítulo en las Fases 3 y 4.
 
-### 14.1 Riesgos
+### 16.1 Riesgos
 
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
 | **El sistema de expedientes no es divertido, sólo estresante** | Fatal | Es lo que la Fase 1 existe para averiguar. Palanca de rescate: bajar el ritmo de pistas y subir la eficacia de las Contramedidas, para que gestionar el secreto se sienta como jugar bien y no como que te castiguen |
-| **El volumen de escritura, × 2 idiomas** (12 capítulos + 20 personajes × 12 estados, en es y en) | **Alto — el riesgo de producción número 1** | `copy.js` estructurado y bilingüe desde el día 1, `copy.test.js` desde la primera línea, y la doble pasada dentro de la misma fase (§12.4). Retraducir 40.000 palabras al final cuesta más que escribirlas dos veces y produce una versión inglesa que se nota traducida. Se mide en la Fase 1 antes de comprometer las Fases 3 y 4 |
+| **El volumen de escritura, × 2 idiomas** (12 capítulos + 20 personajes × 12 estados, en es y en) | **Alto — el riesgo de producción número 1** | `copy.js` estructurado y bilingüe desde el día 1, `copy.test.js` desde la primera línea, y la doble pasada dentro de la misma fase (§13.4). Retraducir 40.000 palabras al final cuesta más que escribirlas dos veces y produce una versión inglesa que se nota traducida. Se mide en la Fase 1 antes de comprometer las Fases 3 y 4 |
 | **Las 40 animaciones de técnica se comen la producción** | Alto | Sistema de plantillas: **cinco** plantillas de corte (una por familia) parametrizadas por color, silueta y nombre. Sólo las 8 técnicas insignia llevan animación única |
 | **Deriva de duración: 4 h o 14 h en vez de 8** | Medio | Medir desde la Fase 3 con jugadores reales por capítulo, no al final |
 | **Licencias de audio mal documentadas** | Medio-alto, legal | Ninguna pista entra al repositorio sin su fila en `audio-licenses.md`. Regla de puerta, no de revisión |
@@ -962,7 +1088,7 @@ Monte Carlo de equilibrio. Ajuste de umbrales de expediente contra datos, no con
 
 ---
 
-## 15. Lo que este juego NO es
+## 17. Lo que este juego NO es
 
 Explícito, porque el alcance de un proyecto se defiende con lo que se descarta:
 
@@ -976,7 +1102,7 @@ Explícito, porque el alcance de un proyecto se defiende con lo que se descarta:
 
 ---
 
-## 16. Decisiones cerradas y abiertas
+## 18. Decisiones cerradas y abiertas
 
 **Cerradas en el brainstorming:**
 
@@ -988,19 +1114,20 @@ Explícito, porque el alcance de un proyecto se defiende con lo que se descarta:
 - Doble pantalla estilo DS como layout nativo. ✔
 - Banda sonora propia con música libre de derechos, variada por contexto. ✔
 - **Dos versiones completas, española e inglesa, la inglesa adaptada y no traducida, escritas en paralelo capítulo a capítulo.** ✔
+- **Guardado en cualquier momento y código de transferencia exportable entre navegadores y dispositivos, con el mecanismo de Valle Tranquilo.** ✔
+- **Tres modos de dificultad —fácil, medio y difícil— que mueven el cerco y el margen, nunca las estadísticas enemigas.** ✔
 
 **Abiertas — a resolver antes o durante la Fase 1:**
 
 1. **Vínculo romántico con Julia: ¿opcional o troncal?** Recomendación: opcional, pero con la bisagra (su padre) troncal. Que la trama no dependa de un romance, pero que el romance haga la trama más dura.
 2. **¿El jugador nombra al héroe?** Recomendación: sí. Marga se lo pregunta en el capítulo 7 y la ciudad adopta el nombre elegido. "FULGOR" queda como título del juego y como nombre por defecto.
-3. **¿Dificultad seleccionable?** Recomendación: sí, pero **sólo mueve la generación de pistas y los umbrales**, nunca las estadísticas de combate. Que "difícil" signifique "te miran más", no "pegan más fuerte".
-4. **¿Nueva partida+?** Recomendación: fuera del alcance de la primera versión.
-5. **Volumen de escritura definitivo.** Estimación de 35.000–45.000 palabras en español, **y otro tanto en inglés**. Hay que confirmarlo tras escribir el capítulo 3 completo en los dos idiomas y extrapolar: es la incógnita más grande del presupuesto de producción.
-6. **Nombres de técnica en inglés.** Las de §5.7 necesitan una pasada dedicada con criterio de sonoridad, no de literalidad (§12.2). Las cuatro propuestas ahí son ejemplos del criterio, no la lista final.
+3. **¿Nueva partida+?** Recomendación: fuera del alcance de la primera versión.
+4. **Volumen de escritura definitivo.** Estimación de 35.000–45.000 palabras en español, **y otro tanto en inglés**. Hay que confirmarlo tras escribir el capítulo 3 completo en los dos idiomas y extrapolar: es la incógnita más grande del presupuesto de producción.
+5. **Nombres de técnica en inglés.** Las de §5.7 necesitan una pasada dedicada con criterio de sonoridad, no de literalidad (§13.2). Las cuatro propuestas ahí son ejemplos del criterio, no la lista final.
 
 ---
 
-## 17. Referencias
+## 19. Referencias
 
 - [Inazuma Eleven (videojuego) — Wikipedia](https://en.wikipedia.org/wiki/Inazuma_Eleven_(video_game))
 - [Inazuma Eleven, análisis de la versión DS — Nintendo Life](https://www.nintendolife.com/reviews/2011/03/inazuma_eleven_ds)
