@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="pasoCorto">
+  <defs>
+    <filter id="paper"><feTurbulence baseFrequency=".045" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.4"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  
+    <rect width="128" height="128" rx="22" fill="#0d1220"/>
+    <circle cx="64" cy="64" r="50" fill="#38e1ff" opacity=".08"/>
+    <g stroke="#38e1ff" stroke-width="5" stroke-linecap="round" filter="url(#glow)"><path d="M81.5 68.0L104.9 73.4"/><path d="M74.8 78.4L93.5 103.1"/><path d="M63.1 82.0L61.1 119.9"/><path d="M51.7 77.2L35.4 94.7"/><path d="M46.1 66.2L15.4 70.0"/><path d="M48.9 54.2L17.0 33.5"/><path d="M58.7 46.8L51.7 23.8"/><path d="M71.0 47.4L83.1 18.9"/><path d="M80.0 55.8L113.9 38.6"/></g>
+    <g transform="translate(32 32)" fill="none" stroke="#f4f8ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 45c0-19 8-30 19-30s19 11 19 30"/><path d="M8 45h48M23 45v10M41 45v10"/></g>
+    <path d="M14 106h100" stroke="#38e1ff" stroke-width="4"/>
+  
+</svg>

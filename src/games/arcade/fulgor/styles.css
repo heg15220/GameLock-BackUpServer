@@ -1,0 +1,949 @@
+/**
+ * FULGOR.
+ *
+ * EL LAYOUT ES EL ARGUMENTO VISUAL DEL JUEGO (§11.1). La doble pantalla de la DS —escena
+ * arriba, comandos táctiles abajo— no es nostalgia: es la proporción exacta de un móvil en
+ * vertical, y la caja de 352×515 de este catálogo es una DS abierta. Todo lo que hay aquí
+ * cuelga de esa idea, incluida la bisagra, que es un elemento de diseño real y no una línea
+ * decorativa: separa lo que ves de lo que decides.
+ *
+ * DOS PALETAS PARA DOS VIDAS (§11.2). La vida civil y la de héroe no comparten color, y el
+ * cambio entre ellas es un momento. Se hace con un atributo en la raíz del juego
+ * (`data-vida="civil" | "heroe"`), así que un componente nunca elige colores: elige vida.
+ *
+ * EL CIAN ESTÁ RACIONADO. `#38e1ff` sólo aparece en tres sitios: el poder de Dani, la barra
+ * de Carga y la letra del logotipo. Nunca en botones, nunca en decoración. Cuando aparece,
+ * significa que hay electricidad en pantalla — y por eso `--fg-cian` no se usa como color de
+ * texto en ninguna regla de este archivo salvo en esos tres.
+ *
+ * ALTURAS: NADA DE `vh`. La caja móvil real de este catálogo mide 352×515 dentro de un shell
+ * que ya tiene su propia altura, así que `vh` miente ahí y una media query de `max-height`
+ * también. Todo el reparto vertical se hace con flex y porcentajes del contenedor.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap");
+
+.fg-shell {
+  /* ── Vida civil: de día, cálida y gastada (§11.2) ───────────────────────────── */
+  --fg-civil-fondo: #f4ede3;
+  --fg-civil-tinta: #2a2622;
+  --fg-civil-acento: #c8622d;
+  --fg-civil-apoyo: #7d8a6f;
+  --fg-civil-piel: #e8c9a8;
+  --fg-civil-linea: rgba(42, 38, 34, 0.16);
+  --fg-civil-panel: #ece2d4;
+
+  /* ── Vida de héroe: de noche, fría y eléctrica ──────────────────────────────── */
+  --fg-heroe-fondo: #0d1220;
+  --fg-heroe-tinta: #e8f4ff;
+  --fg-heroe-acento: #38e1ff;
+  --fg-heroe-peligro: #ff4d5e;
+  --fg-heroe-sombra: #6b4bd6;
+  --fg-heroe-linea: rgba(232, 244, 255, 0.16);
+  --fg-heroe-panel: #131b2e;
+
+  /* El color de Dani. Racionado: poder, Carga, logotipo. Nada más. */
+  --fg-cian: #38e1ff;
+
+  /* Afinidades, para iconos y bordes de técnica. */
+  --fg-rayo: #38e1ff;
+  --fg-luz: #ffd98a;
+  --fg-sombra: #6b4bd6;
+  --fg-materia: #b98d63;
+
+  /* Resueltos por la vida en curso: ningún componente elige color, elige vida. */
+  --fg-fondo: var(--fg-civil-fondo);
+  --fg-tinta: var(--fg-civil-tinta);
+  --fg-acento: var(--fg-civil-acento);
+  --fg-apoyo: var(--fg-civil-apoyo);
+  --fg-linea: var(--fg-civil-linea);
+  --fg-panel: var(--fg-civil-panel);
+
+  --fg-display: "Archivo Black", "Archivo", "Arial Black", sans-serif;
+  --fg-cuerpo: "Archivo", "Segoe UI", system-ui, sans-serif;
+  --fg-mono: "Roboto Mono", ui-monospace, "Courier New", monospace;
+
+  position: relative;
+  /* El contenedor que mide la disposición de la doble pantalla. Ver el `@container` de
+     abajo: sin este nombre, la consulta nunca casa y el juego se queda siempre en columna. */
+  container: fg-consola / inline-size;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--fg-fondo);
+  color: var(--fg-tinta);
+  font-family: var(--fg-cuerpo);
+  font-size: 14px;
+  line-height: 1.45;
+  /* El cambio de vida es un momento, así que se ve: 420 ms de transición de color. */
+  transition: background-color 420ms ease, color 420ms ease;
+}
+
+.fg-shell[data-vida="heroe"] {
+  --fg-fondo: var(--fg-heroe-fondo);
+  --fg-tinta: var(--fg-heroe-tinta);
+  --fg-acento: var(--fg-heroe-peligro);
+  --fg-apoyo: #5b7fa6;
+  --fg-linea: var(--fg-heroe-linea);
+  --fg-panel: var(--fg-heroe-panel);
+}
+
+/**
+ * El detalle que ata las dos paletas (§11.2): cuando el jugador está en vida civil pero un
+ * expediente está en estado obsesivo, entra cian en la escena civil. Una señal de estado
+ * disfrazada de atmósfera — la vida de héroe manchando la normal.
+ */
+.fg-shell[data-vida="civil"][data-obsesivo="true"] .fg-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 82% 14%, rgba(56, 225, 255, 0.22), transparent 46%);
+  mix-blend-mode: multiply;
+}
+
+/* ── La doble pantalla (§11.1) ─────────────────────────────────────────────────── */
+
+.fg-stage {
+  position: relative;
+  flex: 0 0 58%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--fg-panel);
+}
+
+.fg-stage__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/**
+ * La bisagra. Es un elemento de diseño real (§11.1): una línea con tratamiento propio, con
+ * su sombra a un lado y su brillo al otro, para que se lea como el pliegue de una consola
+ * abierta y no como un borde de caja.
+ */
+.fg-hinge {
+  position: relative;
+  flex: 0 0 10px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.28),
+    var(--fg-linea) 42%,
+    var(--fg-linea) 58%,
+    rgba(255, 255, 255, 0.1)
+  );
+}
+
+.fg-hinge::before,
+.fg-hinge::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--fg-linea);
+  transform: translateY(-50%);
+}
+.fg-hinge::before { left: 14px; }
+.fg-hinge::after { right: 14px; }
+
+.fg-board {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/**
+ * En escritorio los dos paneles se ponen lado a lado con la misma proporción interna, dentro
+ * de un marco que EVOCA una consola sin imitarla (§11.1).
+ *
+ * EL UMBRAL MIDE EL HUECO, NO LA VENTANA. Esto era un `@media (min-width: 720px)`, y ahí
+ * estaba el fallo: una media query mide el navegador. Dentro del marco del catálogo —unos
+ * 400 px de ancho— en un monitor de 1440, la condición se cumplía y el juego se partía en
+ * dos columnas dentro de una caja estrecha. El `@container` mide `.fg-shell`, que es el
+ * hueco real, y es la misma lección que ya costó una vez con `vh` en la caja móvil: dentro
+ * de un contenedor, las unidades de ventana mienten.
+ */
+@container fg-consola (min-width: 720px) {
+  .fg-shell {
+    flex-direction: row;
+    font-size: 15px;
+    border: 1px solid var(--fg-linea);
+  }
+  .fg-stage { flex: 0 0 58%; }
+  .fg-hinge {
+    flex: 0 0 10px;
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.28),
+      var(--fg-linea) 42%,
+      var(--fg-linea) 58%,
+      rgba(255, 255, 255, 0.1)
+    );
+  }
+  .fg-hinge::before,
+  .fg-hinge::after {
+    top: auto;
+    left: 50%;
+    width: 3px;
+    height: 22px;
+    transform: translateX(-50%);
+  }
+  .fg-hinge::before { top: 14px; }
+  .fg-hinge::after { bottom: 14px; }
+}
+
+/* ── Tipografía ────────────────────────────────────────────────────────────────── */
+
+/** Titulares y nombres de técnica: grotesca condensada, mayúsculas, inclinada. Debe gritar. */
+.fg-display {
+  font-family: var(--fg-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  transform: skewX(-6deg);
+}
+
+.fg-display--xl { font-size: clamp(30px, 8vw, 56px); }
+.fg-display--lg { font-size: clamp(20px, 5.4vw, 32px); }
+.fg-display--sm { font-size: clamp(13px, 3.4vw, 16px); }
+
+/** El logotipo: la única letra del juego que lleva cian. */
+.fg-logo { color: var(--fg-tinta); }
+.fg-logo em { color: var(--fg-cian); font-style: normal; }
+
+/** Expedientes y documentos: monoespaciada. Un informe tiene que parecer un informe. */
+.fg-mono {
+  font-family: var(--fg-mono);
+  font-size: 0.86em;
+  letter-spacing: -0.01em;
+}
+
+.fg-muted { opacity: 0.68; }
+.fg-tiny { font-size: 11px; line-height: 1.3; }
+
+/* ── Botones ───────────────────────────────────────────────────────────────────── */
+
+.fg-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--fg-linea);
+  border-radius: 10px;
+  background: var(--fg-panel);
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  /* 40 px de alto mínimo: es un juego que se juega con el pulgar en 352 px de ancho. */
+  touch-action: manipulation;
+  transition: transform 120ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.fg-btn:hover:not(:disabled) { border-color: var(--fg-acento); }
+.fg-btn:active:not(:disabled) { transform: translateY(1px); }
+.fg-btn:disabled { opacity: 0.42; cursor: not-allowed; }
+
+.fg-btn:focus-visible {
+  outline: 2px solid var(--fg-acento);
+  outline-offset: 2px;
+}
+
+.fg-btn--primary {
+  background: var(--fg-acento);
+  border-color: var(--fg-acento);
+  color: var(--fg-fondo);
+}
+
+.fg-btn--ghost { background: transparent; }
+
+.fg-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  object-fit: contain;
+  border-radius: 22%;
+}
+
+/* ── Las dos barras ────────────────────────────────────────────────────────────── */
+
+.fg-meters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.fg-meter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.fg-meter__track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--fg-linea);
+  overflow: hidden;
+}
+
+.fg-meter__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+  transition: width 260ms ease, background-color 260ms ease;
+}
+
+/* Carga es el segundo de los tres sitios donde vive el cian. */
+.fg-meter--carga .fg-meter__fill { background: var(--fg-cian); }
+.fg-meter--compostura .fg-meter__fill { background: var(--fg-apoyo); }
+
+/**
+ * Los escalones de Compostura no son sólo un número: cambian de color Y de etiqueta, porque
+ * §11.5 dice que nunca se informa sólo con color. El nombre del escalón se imprime al lado.
+ */
+.fg-meter--compostura[data-escalon="tocado"] .fg-meter__fill { background: #d9a441; }
+.fg-meter--compostura[data-escalon="roto"] .fg-meter__fill { background: #e07a3c; }
+.fg-meter--compostura[data-escalon="agotado"] .fg-meter__fill { background: var(--fg-heroe-peligro); }
+.fg-meter--compostura[data-escalon="caido"] .fg-meter__fill { background: var(--fg-heroe-peligro); }
+
+/* ── La rejilla de comandos (§11.1) ────────────────────────────────────────────── */
+
+.fg-commands {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.fg-command {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 52px;
+  padding: 7px 9px;
+  border: 1px solid var(--fg-linea);
+  border-radius: 10px;
+  background: var(--fg-panel);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.fg-command:disabled { opacity: 0.4; cursor: not-allowed; }
+.fg-command:focus-visible { outline: 2px solid var(--fg-acento); outline-offset: 2px; }
+
+.fg-command__nombre {
+  font-family: var(--fg-display);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.fg-command__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+/* Borde por afinidad: color Y icono, nunca sólo color. */
+.fg-command[data-afinidad="rayo"] { border-left: 3px solid var(--fg-rayo); }
+.fg-command[data-afinidad="luz"] { border-left: 3px solid var(--fg-luz); }
+.fg-command[data-afinidad="sombra"] { border-left: 3px solid var(--fg-sombra); }
+.fg-command[data-afinidad="materia"] { border-left: 3px solid var(--fg-materia); }
+
+.fg-vis {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.fg-vis i {
+  display: inline-block;
+  box-sizing: border-box;
+  border: 1.4px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.45;
+}
+.fg-vis i[data-filled="true"] { background: currentColor; opacity: 1; }
+
+/* Visibilidad 3 en rojo, pero los puntos ya lo dicen sin el color. */
+.fg-vis[data-nivel="0"] { color: var(--fg-apoyo); }
+.fg-vis[data-nivel="3"] { color: var(--fg-heroe-peligro); }
+
+/* ── El mapa de nodos ──────────────────────────────────────────────────────────── */
+
+.fg-map { display: block; width: 100%; height: 100%; touch-action: none; }
+
+/** El grosor del anillo dice la visibilidad del nodo; el relleno, lo que hay dentro (§11.3). */
+.fg-node { cursor: pointer; }
+.fg-node__ring { fill: none; stroke: currentColor; }
+.fg-node--actual .fg-node__ring { stroke: var(--fg-cian); stroke-width: 3; }
+.fg-node--objetivo .fg-node__ring { stroke: var(--fg-heroe-peligro); }
+
+/**
+ * La ruta cambia de color mientras la arrastras (§11.3): cálido para expuesta, azul apagado
+ * para sombra. El jugador ve el compromiso MIENTRAS lo hace, no después — que es la
+ * diferencia entre una decisión y una sorpresa.
+ */
+.fg-route { fill: none; stroke-width: 3; stroke-linecap: round; }
+.fg-route--visible { stroke: #e07a3c; stroke-dasharray: none; }
+.fg-route--sombra { stroke: #5b7fa6; stroke-dasharray: 5 4; }
+
+/* ── El corte de cámara de técnica (§1.4, §11.3) ───────────────────────────────── */
+
+.fg-cut {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--fg-heroe-fondo);
+  color: var(--fg-heroe-tinta);
+  overflow: hidden;
+  z-index: 5;
+}
+
+.fg-cut__nombre {
+  position: relative;
+  z-index: 2;
+  font-family: var(--fg-display);
+  font-size: clamp(24px, 8vw, 46px);
+  text-transform: uppercase;
+  transform: skewX(-8deg);
+  text-shadow: 0 0 18px currentColor;
+  animation: fg-cut-in 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fg-cut__art {
+  position: absolute;
+  width: min(54%, 210px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  opacity: 0.76;
+  filter: drop-shadow(0 0 22px currentColor);
+  transform: rotate(-8deg) scale(1.15);
+}
+
+.fg-cut .fg-silhouette { position: relative; z-index: 2; }
+
+/** Líneas de velocidad. Puro CSS: no hay imagen que cargar ni frame que decodificar. */
+.fg-cut__lineas {
+  position: absolute;
+  inset: -30%;
+  background: repeating-linear-gradient(
+    100deg,
+    transparent 0 6px,
+    currentColor 6px 7px,
+    transparent 7px 16px
+  );
+  opacity: 0.16;
+  animation: fg-speed 620ms linear infinite;
+}
+
+.fg-cut[data-afinidad="rayo"] { color: var(--fg-rayo); }
+.fg-cut[data-afinidad="luz"] { color: var(--fg-luz); }
+.fg-cut[data-afinidad="sombra"] { color: var(--fg-sombra); }
+.fg-cut[data-afinidad="materia"] { color: var(--fg-materia); }
+
+@keyframes fg-cut-in {
+  from { transform: skewX(-8deg) scale(1.5); opacity: 0; }
+  to { transform: skewX(-8deg) scale(1); opacity: 1; }
+}
+
+@keyframes fg-speed {
+  from { background-position: 0 0; }
+  to { background-position: 120px 0; }
+}
+
+/* ── Expedientes ───────────────────────────────────────────────────────────────── */
+
+/** Papel de informe: es la única superficie del juego que imita un documento. */
+.fg-dossier {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--fg-linea);
+  border-radius: 10px;
+  background: var(--fg-panel);
+  font-family: var(--fg-mono);
+}
+
+.fg-dossier__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--fg-linea);
+}
+
+.fg-dossier__nombre { font-family: var(--fg-cuerpo); font-weight: 700; }
+
+.fg-clue {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 0;
+  font-size: 11px;
+  border-top: 1px dotted var(--fg-linea);
+}
+
+.fg-clue[data-tipo="intima"] { color: var(--fg-heroe-sombra); }
+.fg-clue[data-tipo="digital"] { color: var(--fg-apoyo); }
+
+.fg-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fg-estado[data-estado="obsesivo"] { color: var(--fg-heroe-peligro); }
+.fg-estado[data-estado="activo"] { color: #d9a441; }
+.fg-estado[data-estado="cerrado"] { color: var(--fg-heroe-sombra); }
+
+/* ── Traje ─────────────────────────────────────────────────────────────────────── */
+
+.fg-slots {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.fg-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--fg-linea);
+  border-radius: 10px;
+  background: var(--fg-panel);
+}
+
+.fg-slot__art {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  align-self: center;
+  border-radius: 10px;
+}
+
+.fg-material-art { width: 20px; height: 20px; object-fit: contain; border-radius: 5px; }
+
+.fg-slot__bar { height: 5px; border-radius: 3px; background: var(--fg-linea); overflow: hidden; }
+.fg-slot__fill { height: 100%; background: var(--fg-apoyo); }
+
+.fg-slot[data-banda="reconocible"] .fg-slot__fill { background: #d9a441; }
+.fg-slot[data-banda="comprometida"] .fg-slot__fill { background: #e07a3c; }
+.fg-slot[data-banda="destruida"] .fg-slot__fill { background: var(--fg-heroe-peligro); }
+
+/* ── Escenas de diálogo ────────────────────────────────────────────────────────── */
+
+.fg-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.fg-scene--illustrated,
+.fg-duel-stage,
+.fg-chapter-backdrop {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--fg-panel);
+}
+
+.fg-scene--illustrated::before,
+.fg-duel-stage::before,
+.fg-chapter-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: linear-gradient(to top, rgba(13, 18, 32, 0.84), rgba(13, 18, 32, 0.1)), var(--fg-scene-art);
+  background-position: center;
+  background-size: cover;
+}
+
+.fg-scene--illustrated::after,
+.fg-duel-stage::after,
+.fg-chapter-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  box-shadow: inset 0 0 48px rgba(5, 8, 14, 0.42);
+}
+
+.fg-portrait { object-fit: contain; border-radius: 14px 14px 4px 4px; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25)); }
+.fg-portrait--heroe { filter: saturate(0.8) brightness(0.76) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.45)); }
+.fg-silhouette { object-fit: contain; }
+.fg-silhouette--glow { filter: drop-shadow(0 0 10px #38e1ff); }
+
+.fg-duel-stage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  padding: 12px 18px;
+  color: var(--fg-heroe-tinta);
+}
+
+.fg-chapter-backdrop {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 18px;
+  color: #f6f1e9;
+}
+
+.fg-chapter-backdrop__kicker {
+  width: fit-content;
+  padding: 3px 7px;
+  border-left: 3px solid #38e1ff;
+  background: rgba(13, 18, 32, 0.72);
+  font: 600 10px var(--fg-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.fg-scene__linea {
+  padding: 10px 12px;
+  border-left: 3px solid var(--fg-acento);
+  border-radius: 0 10px 10px 0;
+  background: var(--fg-panel);
+  font-size: 14px;
+}
+
+.fg-scene__quien {
+  font-family: var(--fg-display);
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--fg-acento);
+}
+
+/* ── Prensa ────────────────────────────────────────────────────────────────────── */
+
+.fg-press {
+  padding: 12px;
+  border-radius: 8px;
+  background: #efe8da;
+  color: #12130f;
+  transform: rotate(-1.2deg);
+}
+
+.fg-press__cabecera {
+  padding-bottom: 4px;
+  border-bottom: 3px solid #b3242f;
+  font-family: var(--fg-display);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.fg-press__titular {
+  margin-top: 8px;
+  font-family: var(--fg-display);
+  font-size: clamp(17px, 5vw, 26px);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* ── Modal de guardado ─────────────────────────────────────────────────────────── */
+
+.fg-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(6, 9, 16, 0.72);
+}
+
+.fg-modal__caja {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+  max-height: 100%;
+  padding: 14px;
+  border: 1px solid var(--fg-linea);
+  border-radius: 14px;
+  background: var(--fg-fondo);
+  overflow-y: auto;
+}
+
+.fg-code {
+  width: 100%;
+  min-height: 76px;
+  padding: 8px;
+  border: 1px solid var(--fg-linea);
+  border-radius: 8px;
+  background: var(--fg-panel);
+  color: inherit;
+  font-family: var(--fg-mono);
+  font-size: 10px;
+  line-height: 1.35;
+  word-break: break-all;
+  resize: none;
+}
+
+/* ── Accesibilidad (§11.5) ─────────────────────────────────────────────────────── */
+
+.fg-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/**
+ * `prefers-reduced-motion` apaga las líneas de velocidad y los destellos y acorta el corte a
+ * un fundido — RESPETANDO EL HUECO TEMPORAL, para que el ritmo del juego no cambie. Un corte
+ * que dura menos cambiaría el compás de la escena, y eso es una diferencia de diseño y no de
+ * accesibilidad.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .fg-shell,
+  .fg-btn,
+  .fg-meter__fill { transition: none; }
+
+  .fg-cut__lineas { animation: none; opacity: 0.06; }
+  .fg-cut__nombre { animation: fg-cut-fade 200ms ease; text-shadow: none; }
+}
+
+@keyframes fg-cut-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/** El ajuste de "animaciones cortas" del §11.5: en 8 horas, ver lo mismo 40 veces es un problema. */
+.fg-shell[data-cortes="breves"] .fg-cut__nombre { animation-duration: 120ms; }
+.fg-shell[data-cortes="ninguno"] .fg-cut { display: none; }
+
+/* ══ EL PRÓLOGO Y LA APERTURA ═══════════════════════════════════════════════════════
+ *
+ * Las dos pantallas que sólo se ven una vez por partida, y que ocupan la pantalla ENTERA
+ * en vez de la mitad de arriba: no son escena ni panel, son el paso previo al juego, y
+ * partirlas por la bisagra las convertiría en una pantalla de opciones.
+ */
+
+.fg-prologo {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 14px 14px;
+  gap: 8px;
+  background: var(--fg-fondo);
+  color: var(--fg-tinta);
+  overflow-y: auto;
+}
+
+.fg-prologo__cinta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+}
+
+/* Cada carta entra desde abajo. El `key` por carta en el componente es lo que hace que la
+   animación se vuelva a disparar en cada paso en vez de correr una sola vez. */
+/**
+ * LA CARTA ES LA QUE SE DESPLAZA, NO LA PANTALLA.
+ *
+ * Con la carta a `flex: 1` y el botón detrás en el flujo, una carta larga empujaba el botón
+ * fuera del área visible: en el marco de 352×515 del móvil el jugador veía media frase y
+ * ningún modo de seguir. Ahora el que desborda y se desplaza es este bloque, y el botón y la
+ * cinta de «Saltar» se quedan clavados arriba y abajo.
+ */
+.fg-prologo__carta {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  text-align: center;
+  animation: fg-prologo-entra 320ms ease-out both;
+}
+
+/**
+ * Centrado que NO se come el principio al desbordar.
+ *
+ * `justify-content: center` en un contenedor con desplazamiento deja el primer trozo del
+ * contenido por encima del origen de desplazamiento, y ahí no se llega ni con el dedo ni con
+ * la rueda: el título de la carta quedaba cortado por arriba y no había forma de verlo. Los
+ * márgenes automáticos centran igual cuando sobra sitio y se rinden cuando falta.
+ */
+.fg-prologo__carta > :first-child { margin-top: auto; }
+.fg-prologo__carta > :last-child { margin-bottom: auto; }
+
+.fg-prologo__cinta,
+.fg-prologo > .fg-btn--primary { flex: 0 0 auto; }
+
+/* En el marco del móvil el título de la carta compite con el texto, y gana el texto. */
+.fg-prologo__carta h2 { margin: 0; font-size: clamp(14px, 4.2vw, 20px); }
+
+@keyframes fg-prologo-entra {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.fg-prologo__caras {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.fg-prologo__cara {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+}
+
+.fg-prologo__cara img {
+  width: 44px;
+  height: 44px;
+  image-rendering: pixelated;
+  border: 2px solid var(--fg-linea);
+  border-radius: 3px;
+  background: var(--fg-panel);
+}
+
+.fg-prologo__icono {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--fg-linea);
+  border-radius: 50%;
+  background: var(--fg-panel);
+}
+
+.fg-prologo__lineas {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 44ch;
+}
+
+/* Las tres líneas de una carta entran escalonadas. Es lo que convierte un párrafo en tres
+   frases: el ojo llega a la segunda cuando ya ha acabado la primera. */
+.fg-prologo__linea {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  animation: fg-prologo-entra 300ms ease-out both;
+}
+
+.fg-prologo__linea:first-child { font-weight: 600; }
+
+/* ── La apertura ─────────────────────────────────────────────────────────────────── */
+
+/**
+ * Sobre negro y sólo negro, aunque la partida esté en vida civil: la apertura es la única
+ * pantalla del juego que no pertenece a ninguna de las dos vidas.
+ */
+.fg-apertura {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #07080d;
+  color: #e8f4ff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.fg-apertura__frase {
+  margin: 0;
+  max-width: 30ch;
+  font-family: var(--fg-display);
+  font-size: clamp(17px, 5.2vw, 26px);
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  animation: fg-apertura-frase 2600ms ease-out both;
+}
+
+/* Entra, se sostiene, se va. Los tres tiempos son los de `RITMO_APERTURA` en `prologo.js`:
+   620 ms de entrada, 1400 de sostenimiento y 580 de salida sobre un total de 2600. */
+@keyframes fg-apertura-frase {
+  0%   { opacity: 0; transform: translateY(14px); filter: blur(3px); }
+  24%  { opacity: 1; transform: none; filter: none; }
+  78%  { opacity: 1; transform: none; filter: none; }
+  100% { opacity: 0; transform: translateY(-8px); filter: blur(2px); }
+}
+
+.fg-apertura__pie {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  opacity: 0.42;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fg-prologo__carta,
+  .fg-prologo__linea { animation: none; }
+  .fg-apertura__frase { animation: fg-apertura-frase 2600ms steps(1, end) both; }
+}

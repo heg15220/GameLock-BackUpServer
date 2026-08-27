@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="punoTormenta">
+  <defs>
+    <filter id="paper"><feTurbulence baseFrequency=".045" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.4"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  
+    <rect width="128" height="128" rx="22" fill="#0d1220"/>
+    <circle cx="64" cy="64" r="50" fill="#38e1ff" opacity=".08"/>
+    <g stroke="#38e1ff" stroke-width="5" stroke-linecap="round" filter="url(#glow)"><path d="M81.7 67.4L105.2 72.0"/><path d="M75.3 78.0L94.8 102.1"/><path d="M63.7 82.0L63.0 120.0"/><path d="M52.2 77.6L36.4 95.7"/><path d="M46.2 66.8L15.6 71.7"/><path d="M48.6 54.7L16.0 35.2"/><path d="M58.1 47.0L50.3 24.3"/><path d="M70.5 47.2L81.6 18.3"/><path d="M79.7 55.3L113.0 36.9"/></g>
+    <g transform="translate(32 32)" fill="none" stroke="#f4f8ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 36c9-18 33-18 42 0-9 18-33 18-42 0z"/><circle cx="32" cy="36" r="7"/></g>
+    <path d="M14 106h100" stroke="#38e1ff" stroke-width="4"/>
+  
+</svg>

@@ -1,0 +1,7 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fulgor QA</title>
+<style>html,body,#root{width:100%;height:100%;margin:0}body{display:grid;place-items:center;overflow:hidden;background:#080d18}#root{width:min(100vw,760px);height:min(100vh,720px)}</style></head>
+<body><div id="root"></div><script type="module">
+import React from "react"; import {createRoot} from "react-dom/client"; import FulgorGame from "/src/games/arcade/fulgor/index.jsx";
+createRoot(document.getElementById("root")).render(React.createElement(FulgorGame,{locale:"es"}));
+let attempts=0; const boot=setInterval(()=>{document.querySelector(".fg-btn--primary")?.click(); attempts+=1; if(document.querySelector(".fg-mundo__lienzo")||attempts>12){clearInterval(boot); if(location.search.includes("map")) setTimeout(()=>document.querySelector('.fg-atajo[aria-label="Mapa"]')?.click(),300)}},300);
+</script></body></html>

@@ -14,6 +14,9 @@ const DIRECT_TOUCH_GAME_IDS = new Set([
   // A career is decided by pressing the option you mean. There is nothing to steer,
   // so a virtual pad would take up half the screen to control nothing.
   "sports-trayectoria",
+  // FULGOR draws its own lower panel: the commands ARE the bottom half of the screen.
+  // A virtual pad would be a second control deck sitting on top of the real one.
+  "arcade-fulgor",
   "racing-race2dpro",
   "racing-sunset-slipstream",
 ]);

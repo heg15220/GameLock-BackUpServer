@@ -1,0 +1,637 @@
+/**
+ * FULGOR — el mundo y la caja de diálogo.
+ *
+ * Hereda las variables de `styles.css` (`--fg-cian`, `--fg-tinta`, `--fg-panel`…), que ya
+ * traen las dos paletas del juego: la civil y la heroica. Aquí no se declara ni un color
+ * nuevo que no sea del mundo.
+ *
+ * LA REGLA DE ORO DE ESTE ARCHIVO: `image-rendering: pixelated`. El lienzo mide 176×144 de
+ * verdad y se estira por CSS al hueco que haya. Sin esa línea, el navegador interpola y
+ * todo el trabajo de píxel de `tiles.js` y `sprites.js` se convierte en puré.
+ *
+ * Y LA SEGUNDA: aquí se mide en `px` y en `%`, nunca en `vh` ni con `max-height`. Dentro de
+ * la caja móvil del catálogo —352×515 reales— las unidades de ventana mienten: describen el
+ * navegador, no el hueco en el que este juego vive.
+ */
+
+/**
+ * El mundo LLENA el hueco de la pantalla de arriba y el lienzo se ajusta dentro con
+ * `object-fit: contain`.
+ *
+ * Con `aspect-ratio` en el contenedor pasaba lo contrario: el mundo imponía su proporción a
+ * la mitad superior y dejaba una franja muerta debajo, del color del panel, que se leía como
+ * que el juego se había quedado a medio cargar. Quien manda sobre el reparto vertical es
+ * `.fg-stage`, que es la doble pantalla; el mundo se adapta a lo que le den.
+ */
+.fg-mundo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #0a0e18;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+
+.fg-mundo__lienzo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* El backing store se pinta a 2×: en pantallas HiDPI conserva bordes limpios sin
+     depender del reescalado borroso de un lienzo de 176 px. */
+  image-rendering: auto;
+}
+
+/* ── La caja de diálogo ───────────────────────────────────────────────────────────── */
+
+.fg-dialogo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  cursor: pointer;
+  /* El diálogo oscurece la escena lo justo para que el texto gane, no para taparla: en la
+     referencia se sigue viendo dónde estás mientras alguien te habla. */
+  background: linear-gradient(to bottom, transparent 40%, rgba(8, 12, 20, 0.42) 100%);
+}
+
+/**
+ * EL RETRATO SANGRA, y sangra HACIA ARRIBA, no hacia los lados.
+ *
+ * `align-self: flex-end` con un alto mayor que la caja lo hace subir por encima del borde
+ * superior: eso es lo que lo pone EN la escena en vez de dentro de un marco.
+ *
+ * A un tercio de ancho se comía la placa del nombre y media caja: el busto ganaba y el
+ * texto —que es a lo que la caja sirve— perdía. Un cuarto de ancho con diez píxeles de
+ * solape basta para que se vea que está delante, y deja la placa libre.
+ */
+.fg-dialogo__retrato {
+  position: relative;
+  z-index: 2;
+  align-self: flex-end;
+  width: 25%;
+  max-width: 96px;
+  margin: 0 -10px -2px 2px;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(2px -1px 0 rgba(8, 12, 20, 0.55));
+}
+
+.fg-dialogo__caja {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  margin: 0 6px 6px 0;
+  /* El relleno izquierdo despeja el solape del retrato: el texto empieza donde el busto
+     termina, nunca por debajo de él. */
+  padding: 14px 24px 12px 22px;
+  min-height: 66px;
+  border: 2px solid var(--fg-cian, #38e1ff);
+  border-radius: 8px;
+  background: rgba(16, 23, 40, 0.95);
+  box-shadow: inset 0 0 0 2px rgba(56, 225, 255, 0.16);
+}
+
+/** La placa monta sobre el borde. Es lo que rompe el rectángulo. */
+.fg-dialogo__placa {
+  position: absolute;
+  top: -11px;
+  left: 20px;
+  padding: 2px 10px;
+  border: 2px solid var(--fg-cian, #38e1ff);
+  border-radius: 4px;
+  background: var(--fg-cian, #38e1ff);
+  color: #0b1220;
+  font: 700 11px/1.3 var(--fg-display, system-ui, sans-serif);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.fg-dialogo__texto {
+  margin: 0;
+  color: #eaf4ff;
+  font: 500 13px/1.45 var(--fg-cuerpo, system-ui, sans-serif);
+  /* Reserva dos líneas de alto fijo: si la caja creciera y encogiera con cada frase, el
+     mundo daría saltos detrás de ella. */
+  min-height: 2.9em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.fg-dialogo__avance {
+  position: absolute;
+  right: 9px;
+  bottom: 6px;
+  color: var(--fg-cian, #38e1ff);
+  font-size: 11px;
+  animation: fg-avance 1s ease-in-out infinite;
+}
+
+.fg-dialogo__avance--espera { opacity: 0; }
+
+@keyframes fg-avance {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fg-dialogo__avance { animation: none; }
+}
+
+/* Sólo para lectores de pantalla. */
+.fg-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── El cruce: velo, cartela, vuelta ──────────────────────────────────────────────── */
+
+/**
+ * La transición de zona y de bloque, con la forma de la de dormir de Valle Tranquilo.
+ *
+ * Cubre `.fg-shell` ENTERA, las dos pantallas, y no sólo el mundo. Un velo que dejara el
+ * panel de abajo encendido no sería un viaje: sería un recuadro apagándose. La consola
+ * entera se va a negro y vuelve, que es lo que convierte un salto en un paso.
+ */
+.fg-cruce {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 9, 16, 0);
+  pointer-events: none;
+  /* Entra rápido y sale despacio: el corte tiene que ser tajante y la vuelta amable. */
+  transition: background-color 380ms ease-in;
+}
+
+.fg-cruce--on {
+  background: rgba(6, 9, 16, 1);
+  pointer-events: all;
+  transition: background-color 340ms ease-out;
+}
+
+.fg-cruce__carta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 24px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.fg-cruce--on .fg-cruce__carta {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 180ms;
+}
+
+.fg-cruce__titulo {
+  font: 700 15px/1.2 var(--fg-display, system-ui, sans-serif);
+  letter-spacing: 0.08em;
+  color: var(--fg-cian, #38e1ff);
+  text-transform: uppercase;
+}
+
+.fg-cruce__sub {
+  max-width: 30ch;
+  font: 500 11px/1.5 var(--fg-cuerpo, system-ui, sans-serif);
+  color: rgba(232, 244, 255, 0.62);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fg-cruce,
+  .fg-cruce__carta { transition-duration: 60ms; }
+}
+
+/* ── La pantalla de abajo en exploración ──────────────────────────────────────────── */
+
+.fg-controles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+  padding: 8px 10px 10px;
+}
+
+/** La cinta: capítulo, sitio y reloj. Es lo que sustituye al menú como brújula. */
+.fg-cinta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--fg-linea);
+}
+
+.fg-cinta__hilo { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+
+.fg-cinta__cap {
+  font: 700 10px/1 var(--fg-display, system-ui, sans-serif);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-acento);
+}
+
+.fg-cinta__titulo {
+  font: 600 13px/1.2 var(--fg-cuerpo, system-ui, sans-serif);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fg-cinta__lugar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--fg-apoyo);
+}
+
+/** La única brújula del juego, y es suave a propósito: dice el barrio, nunca la puerta. */
+.fg-cinta__foco { opacity: 0.75; font-style: italic; }
+
+.fg-cinta__reloj {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--fg-apoyo);
+}
+
+.fg-cinta__reloj strong { color: var(--fg-tinta); }
+.fg-cinta__reloj strong[data-bloque="noche"] { color: var(--fg-cian); }
+
+.fg-mision {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid color-mix(in srgb, var(--fg-cian) 45%, transparent);
+  border-radius: 9px;
+  background: linear-gradient(105deg, color-mix(in srgb, var(--fg-cian) 13%, transparent), rgba(8, 14, 28, 0.32));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 5px 16px rgba(0,0,0,.16);
+}
+
+.fg-mision--aqui { border-color: var(--fg-acento); }
+.fg-mision__icono { color: var(--fg-cian); font-size: 17px; text-align: center; filter: drop-shadow(0 0 5px currentColor); }
+.fg-mision--aqui .fg-mision__icono { color: var(--fg-acento); }
+.fg-mision__texto { display: flex; flex-direction: column; min-width: 0; }
+.fg-mision__texto small { color: var(--fg-apoyo); font: 700 8px/1.2 var(--fg-display); letter-spacing: .12em; text-transform: uppercase; }
+.fg-mision__texto strong { color: var(--fg-tinta); font: 700 11px/1.25 var(--fg-display); }
+.fg-mision__texto > span { overflow: hidden; color: var(--fg-apoyo); font: 500 9px/1.25 var(--fg-cuerpo); text-overflow: ellipsis; white-space: nowrap; }
+.fg-mision__destino { padding: 3px 6px; border-radius: 999px; background: var(--fg-linea); color: var(--fg-tinta); font: 700 8px/1 var(--fg-display); text-transform: uppercase; }
+
+.fg-dialogo__opciones { display: grid; gap: 4px; margin-top: 7px; }
+.fg-dialogo__opciones button { display: flex; align-items: center; gap: 7px; width: 100%; padding: 5px 7px; border: 1px solid rgba(56,225,255,.3); border-radius: 5px; background: rgba(5,12,24,.72); color: #eaf4ff; font: 600 10px/1.25 var(--fg-cuerpo); text-align: left; cursor: pointer; }
+.fg-dialogo__opciones button:hover,
+.fg-dialogo__opciones button:focus-visible { border-color: var(--fg-cian); background: rgba(56,225,255,.14); outline: none; }
+.fg-dialogo__opciones button span { display: grid; place-items: center; flex: 0 0 17px; height: 17px; border-radius: 50%; background: var(--fg-cian); color: #07101d; font-weight: 800; }
+.fg-dialogo:has(.fg-dialogo__opciones) .fg-dialogo__caja { min-height: 126px; }
+
+/* ── Mapa desplegable de Marés ─────────────────────────────────────────────────── */
+.fg-city-map {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+  padding-top: 4px;
+}
+
+.fg-city-map__head { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
+.fg-city-map__head h2 { margin: 1px 0 0; }
+.fg-city-map__head p { margin: 0; color: var(--fg-cian); font: 700 10px/1.25 var(--fg-cuerpo); text-align: right; }
+.fg-city-map__frame {
+  position: relative;
+  flex: 1;
+  min-height: 148px;
+  overflow: hidden;
+  border: 1px solid var(--fg-linea);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 72% 22%, rgba(56,225,255,.11), transparent 30%),
+    linear-gradient(145deg, #101b2a, #09111e 72%);
+  box-shadow: inset 0 0 30px rgba(0,0,0,.34);
+}
+.fg-city-map__frame::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.fg-city-map svg { display: block; width: 100%; height: 100%; min-height: 148px; }
+.fg-city-map__coast { fill: rgba(30,48,65,.76); stroke: rgba(107,153,178,.25); stroke-width: 2; }
+.fg-city-map__road { stroke: rgba(157,178,196,.25); stroke-width: 3; stroke-linecap: round; }
+.fg-city-map__road--route { stroke: var(--fg-cian); stroke-width: 5; stroke-dasharray: 7 5; filter: drop-shadow(0 0 3px rgba(56,225,255,.7)); animation: fg-map-route 1.2s linear infinite; }
+@keyframes fg-map-route { to { stroke-dashoffset: -12; } }
+.fg-city-map__node .fg-city-map__dot { fill: #26394b; stroke: #7890a3; stroke-width: 2; }
+.fg-city-map__node.is-open .fg-city-map__dot { fill: #dce7ec; stroke: #fff; }
+.fg-city-map__node.is-current .fg-city-map__dot { fill: var(--fg-acento); stroke: #fff; }
+.fg-city-map__node.is-mission .fg-city-map__dot { fill: var(--fg-cian); stroke: #fff; }
+.fg-city-map__node.is-locked { opacity: .38; }
+.fg-city-map__node text { fill: #dce8f2; font: 700 9px/1 var(--fg-cuerpo); paint-order: stroke; stroke: #09111e; stroke-width: 3px; stroke-linejoin: round; }
+.fg-city-map__node .fg-city-map__badge { fill: #09111e; stroke: none; font-size: 7px; }
+.fg-city-map__mission { fill: var(--fg-cian); stroke: #fff; stroke-width: 1; }
+.fg-city-map__pulse { fill: none; stroke: var(--fg-cian); stroke-width: 2; opacity: .7; animation: fg-map-pulse 1.6s ease-out infinite; }
+@keyframes fg-map-pulse { from { transform: scale(.55); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
+.fg-city-map__legend { display: flex; flex-wrap: wrap; gap: 5px 12px; color: var(--fg-apoyo); font: 600 9px/1.2 var(--fg-cuerpo); }
+.fg-city-map__legend span { display: inline-flex; align-items: center; gap: 4px; }
+.fg-city-map__legend i { width: 9px; height: 9px; border-radius: 50%; background: #617285; }
+.fg-city-map__legend i.is-current { background: var(--fg-acento); }
+.fg-city-map__legend i.is-mission { border-radius: 2px; background: var(--fg-cian); transform: rotate(45deg); }
+.fg-city-map__legend i.is-route { width: 16px; height: 3px; border-radius: 2px; background: var(--fg-cian); }
+.fg-city-map__legend i.is-locked { opacity: .35; }
+
+@media (max-width: 430px) {
+  .fg-city-map__head p { max-width: 42%; font-size: 9px; }
+  .fg-city-map__frame { min-height: 135px; }
+  .fg-city-map__legend { gap: 4px 8px; font-size: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fg-city-map__road--route,
+  .fg-city-map__pulse { animation: none; }
+}
+
+/* ── Las dos barras ──────────────────────────────────────────────────────────────── */
+
+.fg-barras { display: flex; gap: 10px; }
+.fg-barra { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
+
+.fg-barra__vía {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fg-linea);
+  overflow: hidden;
+}
+
+.fg-barra__lleno { display: block; height: 100%; transition: width 240ms ease; }
+.fg-barra--carga .fg-barra__lleno { background: var(--fg-cian); }
+.fg-barra--compostura .fg-barra__lleno { background: var(--fg-apoyo); }
+/* El escalón de Compostura tiene color propio: §11.5 prohíbe decir nada sólo con color,
+   y por eso el escalón también se nombra en el panel de duelo. Aquí es refuerzo. */
+.fg-barra--compostura[data-escalon="tocado"] .fg-barra__lleno { background: #d8a34a; }
+.fg-barra--compostura[data-escalon="roto"] .fg-barra__lleno { background: var(--fg-acento); }
+
+/* ── El mando ────────────────────────────────────────────────────────────────────── */
+
+.fg-mandos {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 0;
+}
+
+.fg-cruceta {
+  position: relative;
+  flex: 0 0 auto;
+  width: 108px;
+  height: 108px;
+}
+
+.fg-cruceta__tecla {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid var(--fg-linea);
+  background: var(--fg-panel);
+  cursor: pointer;
+  /* Sin resaltado azul del navegador al mantener pulsado en móvil. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fg-cruceta__tecla:active { background: var(--fg-cian); border-color: var(--fg-cian); }
+
+/* Las puntas se redondean por fuera y quedan rectas por dentro: así las cuatro teclas
+   leen como UNA cruceta y no como cuatro botones sueltos. */
+.fg-cruceta__tecla--arriba { left: 36px; top: 0; border-radius: 7px 7px 0 0; border-bottom: 0; }
+.fg-cruceta__tecla--abajo  { left: 36px; top: 72px; border-radius: 0 0 7px 7px; border-top: 0; }
+.fg-cruceta__tecla--izq    { left: 0; top: 36px; border-radius: 7px 0 0 7px; border-right: 0; }
+.fg-cruceta__tecla--der    { left: 72px; top: 36px; border-radius: 0 7px 7px 0; border-left: 0; }
+
+.fg-cruceta__centro {
+  position: absolute;
+  left: 36px;
+  top: 36px;
+  width: 36px;
+  height: 36px;
+  background: var(--fg-panel);
+  border-top: 2px solid var(--fg-linea);
+  border-bottom: 2px solid var(--fg-linea);
+}
+
+.fg-mandos__derecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/**
+ * El botón A se APAGA con su motivo en vez de desaparecer. Es la misma regla que el menú de
+ * duelo aplica a las técnicas: esconder una opción es esconder información, y este juego
+ * trata de información.
+ */
+.fg-boton-accion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 84px;
+  padding: 10px 14px;
+  border: 2px solid var(--fg-cian);
+  border-radius: 12px;
+  background: var(--fg-panel);
+  color: var(--fg-tinta);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 120ms ease, opacity 160ms ease;
+}
+
+.fg-boton-accion:active { transform: scale(0.96); }
+
+.fg-boton-accion:disabled {
+  border-color: var(--fg-linea);
+  opacity: 0.45;
+  cursor: default;
+}
+
+.fg-boton-accion__letra {
+  font: 700 15px/1 var(--fg-display, system-ui, sans-serif);
+  color: var(--fg-cian);
+}
+
+.fg-boton-accion:disabled .fg-boton-accion__letra { color: var(--fg-apoyo); }
+
+.fg-boton-accion__texto {
+  font: 600 10px/1.2 var(--fg-cuerpo, system-ui, sans-serif);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fg-atajos { display: flex; gap: 6px; }
+
+.fg-atajo {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--fg-linea);
+  border-radius: 9px;
+  background: var(--fg-panel);
+  color: var(--fg-tinta);
+  cursor: pointer;
+}
+
+.fg-atajo--activo { border-color: var(--fg-cian); color: var(--fg-cian); }
+
+/* ── El estado que cambia paseando ───────────────────────────────────────────────── */
+
+.fg-estado {
+  display: flex;
+  padding: 5px 12px;
+  border: 1px solid var(--fg-linea);
+  border-radius: 999px;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--fg-apoyo);
+}
+
+.fg-estado__dato { display: flex; align-items: baseline; gap: 5px; }
+.fg-estado__et { text-transform: uppercase; letter-spacing: 0.06em; font-size: 9px; }
+.fg-estado__dato strong { font-size: 13px; color: var(--fg-tinta); }
+
+/**
+ * Quién te está mirando más. Va a la derecha del todo y en el color de alerta porque es la
+ * única cosa de esta cinta que puede acabar con la partida.
+ */
+.fg-estado__ojo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--fg-acento);
+  font-weight: 600;
+}
+
+/* Las flechas de la cruceta heredan el color del botón y se invierten al pulsarla. */
+.fg-cruceta__tecla { display: grid; place-items: center; color: var(--fg-tinta); opacity: 0.72; }
+.fg-cruceta__tecla:hover { opacity: 1; }
+.fg-cruceta__tecla:active { color: #0b1220; opacity: 1; }
+
+/* ── La Intervención ─────────────────────────────────────────────────────────────── */
+
+/**
+ * El borde se enciende cuando estás dentro de un cono. Es un AVISO, no una regla: quien
+ * cobra la exposición es `exposureAt`. Pero sin él, el jugador se entera de que lo han
+ * visto cuando ya se lo han cobrado, y eso es lo que convierte un sistema de sigilo en una
+ * lotería.
+ */
+.fg-mundo--intervencion::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 0 rgba(255, 138, 92, 0);
+  transition: box-shadow 220ms ease;
+}
+
+.fg-mundo--visto::after {
+  box-shadow: inset 0 0 22px 4px rgba(255, 138, 92, 0.55);
+}
+
+/* ── La pantalla de abajo durante la Intervención ────────────────────────────────── */
+
+.fg-controles--intervencion { gap: 6px; }
+
+/** El reloj ocupa el sitio que ocupaba el diagrama, y en el tamaño que merece. */
+.fg-reloj { display: flex; align-items: baseline; gap: 6px; }
+.fg-reloj strong {
+  font: 700 26px/1 var(--fg-display, system-ui, sans-serif);
+  color: var(--fg-cian);
+}
+.fg-reloj span {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fg-apoyo);
+}
+.fg-reloj[data-apurado="true"] strong {
+  color: var(--fg-acento);
+  animation: fg-apuro 0.9s ease-in-out infinite;
+}
+
+@keyframes fg-apuro {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fg-reloj[data-apurado="true"] strong { animation: none; }
+}
+
+.fg-agravamiento {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--fg-apoyo);
+}
+.fg-agravamiento strong { color: var(--fg-acento); }
+
+.fg-objetivos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+}
+
+.fg-objetivos li::before {
+  content: "◆ ";
+  color: var(--fg-apoyo);
+}
+.fg-objetivos li[data-principal="true"] { font-weight: 600; }
+.fg-objetivos li[data-principal="true"]::before { color: var(--fg-cian); }
+.fg-objetivos li[data-cumplido="true"] {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.fg-vigilancia {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 190px;
+  font-size: 10px;
+  color: var(--fg-apoyo);
+  transition: color 200ms ease;
+}
+.fg-vigilancia[data-visto="true"] { color: var(--fg-acento); font-weight: 600; }
+.fg-vigilancia span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.fg-retirarse { font-size: 11px; padding: 5px 12px; }

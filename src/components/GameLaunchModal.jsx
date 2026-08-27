@@ -22,6 +22,7 @@ const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([]);
 
 const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
   "sports-trayectoria",
+  "arcade-fulgor",
   "knowledge-domino-chain",
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",

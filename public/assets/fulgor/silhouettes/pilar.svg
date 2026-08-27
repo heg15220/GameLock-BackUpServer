@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="144" viewBox="0 0 72 144" role="img" aria-label="pilar silhouette">
+  <defs>
+    <filter id="paper"><feTurbulence baseFrequency=".045" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.4"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  
+  <rect width="72" height="144" fill="none"/>
+  <g fill="#101728" stroke="#8a7f6f" stroke-width="2.5" filter="url(#glow)">
+    <circle cx="36" cy="23" r="14"/>
+    <path d="M36 38c14 0 22 10 23 26l4 31-10 3-4 42H38l-3-37-4 37H20l-3-42-10-3 5-31c2-16 10-26 24-26z"/>
+  </g>
+  
+
+</svg>

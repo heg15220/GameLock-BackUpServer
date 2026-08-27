@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="relampago">
+  <defs>
+    <filter id="paper"><feTurbulence baseFrequency=".045" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.4"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  
+    <rect width="128" height="128" rx="22" fill="#0d1220"/>
+    <circle cx="64" cy="64" r="50" fill="#d28b52" opacity=".08"/>
+    <g stroke="#d28b52" stroke-width="5" stroke-linecap="round" filter="url(#glow)"><path d="M82.0 64.9L105.9 66.2"/><path d="M77.2 76.3L99.8 97.4"/><path d="M66.2 81.9L70.8 119.6"/><path d="M54.2 79.1L41.1 99.2"/><path d="M46.8 69.3L17.1 78.3"/><path d="M47.4 57.0L12.5 42.1"/><path d="M55.8 48.0L44.9 26.6"/><path d="M68.0 46.5L75.0 16.3"/><path d="M78.4 53.2L108.7 30.3"/></g>
+    <g transform="translate(32 32)" fill="none" stroke="#f4f8ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 36c9-18 33-18 42 0-9 18-33 18-42 0z"/><circle cx="32" cy="36" r="7"/></g>
+    <path d="M14 106h100" stroke="#d28b52" stroke-width="4"/>
+  
+</svg>
