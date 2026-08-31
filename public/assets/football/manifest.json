@@ -1,0 +1,2025 @@
+{
+ "clubs": {},
+ "competitions": {
+  "2-bundesliga": {
+   "name": "2. Bundesliga",
+   "file": "2-bundesliga.svg",
+   "status": "ok",
+   "page": "2. Bundesliga",
+   "source": "https://upload.wikimedia.org/wikipedia/en/7/7b/2._Bundesliga_logo.svg",
+   "bytes": 7161
+  },
+  "bundesliga": {
+   "name": "Bundesliga",
+   "file": "bundesliga.svg",
+   "status": "ok",
+   "page": "Austrian Football Bundesliga",
+   "source": "https://upload.wikimedia.org/wikipedia/en/2/29/Admiral_Bundesliga.svg",
+   "bytes": 7026
+  },
+  "liga-mx": {
+   "name": "Liga MX",
+   "file": "liga-mx.svg",
+   "status": "ok",
+   "page": "Liga MX",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/2/22/Liga_MX_logo.svg",
+   "bytes": 109935
+  },
+  "brasileirao": {
+   "name": "Brasileirão",
+   "file": "brasileirao.svg",
+   "status": "ok",
+   "page": "Campeonato Brasileiro Série A",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Campeonato_Brasileiro_S%C3%A9rie_A_logo_%282024%29.svg",
+   "bytes": 17703
+  },
+  "championship": {
+   "name": "Championship",
+   "file": "championship.svg",
+   "status": "ok",
+   "page": "EFL Championship",
+   "source": "https://upload.wikimedia.org/wikipedia/en/0/0f/EFL_Championship_Logo.svg",
+   "bytes": 50063
+  },
+  "laliga": {
+   "name": "LaLiga",
+   "file": "laliga.svg",
+   "status": "ok",
+   "page": "La Liga",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/5/54/LaLiga_EA_Sports_2023_Vertical_Logo.svg",
+   "bytes": 4206
+  },
+  "laliga-2": {
+   "name": "LaLiga 2",
+   "file": "laliga-2.svg",
+   "status": "ok",
+   "page": "La Liga",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/5/54/LaLiga_EA_Sports_2023_Vertical_Logo.svg",
+   "bytes": 4206
+  },
+  "liga-profesional": {
+   "name": "Liga Profesional",
+   "file": "liga-profesional.png",
+   "status": "ok",
+   "page": "AFA Liga Profesional de Fútbol",
+   "source": "https://upload.wikimedia.org/wikipedia/en/thumb/a/ad/Liga_profesional_afa_logo26.png/250px-Liga_profesional_afa_logo26.png",
+   "bytes": 25086
+  },
+  "ligue-1": {
+   "name": "Ligue 1",
+   "file": "ligue-1.svg",
+   "status": "ok",
+   "page": "Ligue 1",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Logo_Ligue_1_McDonald%27s_2024.svg",
+   "bytes": 3352
+  },
+  "serie-a": {
+   "name": "Serie A",
+   "file": "serie-a.svg",
+   "status": "ok",
+   "page": "Serie A",
+   "source": "https://upload.wikimedia.org/wikipedia/en/a/ab/Serie_A_ENILIVE_logo.svg",
+   "bytes": 13152
+  },
+  "premier-league": {
+   "name": "Premier League",
+   "file": "premier-league.svg",
+   "status": "ok",
+   "page": "Premier League",
+   "source": "https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg",
+   "bytes": 7877
+  },
+  "ligue-2": {
+   "name": "Ligue 2",
+   "file": "ligue-2.svg",
+   "status": "ok",
+   "page": "Ligue 1",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Logo_Ligue_1_McDonald%27s_2024.svg",
+   "bytes": 3352
+  },
+  "liga-de-primera": {
+   "name": "Liga de Primera",
+   "status": "no-image",
+   "page": "Liga de Primera",
+   "query": "Liga de Primera"
+  },
+  "copa-de-primera": {
+   "name": "Copa de Primera",
+   "status": "no-image",
+   "page": "2026 Copa de Primera",
+   "query": "Copa de Primera"
+  },
+  "serie-b": {
+   "name": "Serie B",
+   "file": "serie-b.svg",
+   "status": "ok",
+   "page": "Serie A",
+   "source": "https://upload.wikimedia.org/wikipedia/en/a/ab/Serie_A_ENILIVE_logo.svg",
+   "bytes": 13152
+  },
+  "liga-bolivia": {
+   "name": "Liga Bolivia",
+   "file": "liga-bolivia.svg",
+   "status": "ok",
+   "page": "Bolivia women's national football team",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/a/af/Kit_shorts.svg",
+   "bytes": 222
+  },
+  "liga-uruguaya": {
+   "name": "Liga Uruguaya",
+   "file": "liga-uruguaya.png",
+   "status": "ok",
+   "page": "Supercopa Uruguaya",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Logo_Supercopa_Uruguaya.png/120px-Logo_Supercopa_Uruguaya.png",
+   "bytes": 7075
+  },
+  "liga-futve": {
+   "name": "Liga FUTVE",
+   "file": "liga-futve.png",
+   "status": "ok",
+   "page": "Liga FUTVE",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Liga_FUTVE_2023.png/250px-Liga_FUTVE_2023.png",
+   "bytes": 39666
+  },
+  "liga-dimayor": {
+   "name": "Liga Dimayor",
+   "file": "liga-dimayor.svg",
+   "status": "ok",
+   "page": "Liga DIMAYOR",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/e/e0/BetPlay-Dimayor_logo.svg",
+   "bytes": 19235
+  },
+  "liga1": {
+   "name": "Liga1",
+   "file": "liga1.png",
+   "status": "ok",
+   "page": "Liga 1 (Peru)",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Liga1_%28Per%C3%BA%29_logo.png/250px-Liga1_%28Per%C3%BA%29_logo.png",
+   "bytes": 8999
+  },
+  "primera-nacional": {
+   "name": "Primera Nacional",
+   "file": "primera-nacional.svg",
+   "status": "ok",
+   "page": "Primera Nacional",
+   "source": "https://upload.wikimedia.org/wikipedia/en/8/8e/Primera_Nacional_Logo.svg",
+   "bytes": 6036
+  },
+  "ligapro-serie-a": {
+   "name": "LigaPro Serie A",
+   "file": "ligapro-serie-a.svg",
+   "status": "ok",
+   "page": "LigaPro Serie A",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Football_of_Ecuador_-_Liga_Pro_logo_%28normal%29.svg",
+   "bytes": 470351
+  },
+  "por-primeira-liga": {
+   "name": "Primeira Liga",
+   "file": "por-primeira-liga.svg",
+   "status": "ok",
+   "page": "Primeira Liga",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Liga_Portugal_Betclic_logo.svg",
+   "bytes": 8075
+  },
+  "usa-mls": {
+   "name": "MLS",
+   "file": "usa-mls.svg",
+   "status": "ok",
+   "page": "Major League Soccer",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Major_League_Soccer_logo.svg",
+   "bytes": 5387
+  },
+  "superliga-turquia": {
+   "name": "Süper Lig",
+   "file": "superliga-turquia.svg",
+   "status": "ok",
+   "page": "Süper Lig",
+   "source": "https://upload.wikimedia.org/wikipedia/en/0/0f/Turkish_S%C3%BCper_Lig_logo_%282024%29.svg",
+   "bytes": 11449
+  },
+  "liga-premier-de-rusia": {
+   "name": "Premyer-Liga",
+   "file": "liga-premier-de-rusia.svg",
+   "status": "ok",
+   "page": "Russian Premier League",
+   "source": "https://upload.wikimedia.org/wikipedia/en/a/aa/Russian_Premier_League.svg",
+   "bytes": 7158
+  },
+  "eredivisie": {
+   "name": "Eredivisie",
+   "file": "eredivisie.png",
+   "status": "ok",
+   "page": "Eredivisie",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/VriendenLoterij_Eredivisie_Logo.png/250px-VriendenLoterij_Eredivisie_Logo.png",
+   "bytes": 15124
+  },
+  "primera-division-costa-rica": {
+   "name": "Primera División",
+   "file": "primera-division-costa-rica.svg",
+   "status": "ok",
+   "page": "Liga FPD",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Liga_Promerica.svg",
+   "bytes": 182819
+  },
+  "liga-nacional-guatemala": {
+   "name": "Liga Nacional de Guatemala",
+   "file": "liga-nacional-guatemala.png",
+   "status": "ok",
+   "page": "Liga Bantrab",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Liga_bantrab_gt.png",
+   "bytes": 6571
+  },
+  "hon-liga-nacional": {
+   "name": "Liga Nacional",
+   "file": "hon-liga-nacional.png",
+   "status": "ok",
+   "page": "Liga Bantrab",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Liga_bantrab_gt.png",
+   "bytes": 6571
+  },
+  "ekstraklasa": {
+   "name": "Ekstraklasa",
+   "file": "ekstraklasa.svg",
+   "status": "ok",
+   "page": "Ekstraklasa",
+   "source": "https://upload.wikimedia.org/wikipedia/en/5/51/PKO_ESA_t%C4%85o_tonalne_rgb.svg",
+   "bytes": 19985
+  },
+  "slv-primera-division": {
+   "name": "Primera División",
+   "file": "slv-primera-division.jpg",
+   "status": "ok",
+   "page": "Primera División de El Salvador",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Logo_Primera_Divisi%C3%B3n_de_El_Salvador.jpg/330px-Logo_Primera_Divisi%C3%B3n_de_El_Salvador.jpg",
+   "bytes": 16742
+  },
+  "liga-primera-de-nicaragua": {
+   "name": "Liga Primera",
+   "file": "liga-primera-de-nicaragua.png",
+   "status": "ok",
+   "page": "Liga Primera",
+   "source": "https://upload.wikimedia.org/wikipedia/en/thumb/9/92/Liga_Primera_de_Nicaragua.png/250px-Liga_Primera_de_Nicaragua.png",
+   "bytes": 15334
+  },
+  "liga-dominicana-de-futbol": {
+   "name": "Liga Dominicana",
+   "file": "liga-dominicana-de-futbol.png",
+   "status": "ok",
+   "page": "Liga Dominicana de Fútbol",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/LDF.png/250px-LDF.png",
+   "bytes": 22247
+  },
+  "pan-primera-division": {
+   "name": "Primera División",
+   "file": "pan-primera-division.jpg",
+   "status": "ok",
+   "page": "Primera División de El Salvador",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Logo_Primera_Divisi%C3%B3n_de_El_Salvador.jpg/330px-Logo_Primera_Divisi%C3%B3n_de_El_Salvador.jpg",
+   "bytes": 16742
+  }
+ },
+ "flags": {
+  "AND": {
+   "name": "Andorra",
+   "file": "andorra.svg",
+   "status": "ok",
+   "bytes": 30510
+  },
+  "UAE": {
+   "name": "United Arab Emirates",
+   "file": "united-arab-emirates.svg",
+   "status": "ok",
+   "bytes": 266
+  },
+  "AFG": {
+   "name": "Afghanistan",
+   "file": "afghanistan.svg",
+   "status": "ok",
+   "bytes": 19192
+  },
+  "ATG": {
+   "name": "Antigua & Barbuda",
+   "file": "antigua-and-barbuda.svg",
+   "status": "ok",
+   "bytes": 743
+  },
+  "AIA": {
+   "name": "Anguilla",
+   "file": "anguilla.svg",
+   "status": "ok",
+   "bytes": 2304
+  },
+  "ALB": {
+   "name": "Albania",
+   "file": "albania.svg",
+   "status": "ok",
+   "bytes": 3126
+  },
+  "ARM": {
+   "name": "Armenia",
+   "file": "armenia.svg",
+   "status": "ok",
+   "bytes": 228
+  },
+  "ANG": {
+   "name": "Angola",
+   "file": "angola.svg",
+   "status": "ok",
+   "bytes": 1602
+  },
+  "ARG": {
+   "name": "Argentina",
+   "file": "argentina.svg",
+   "status": "ok",
+   "bytes": 3461
+  },
+  "ASA": {
+   "name": "American Samoa",
+   "file": "american-samoa.svg",
+   "status": "ok",
+   "bytes": 30449
+  },
+  "AUT": {
+   "name": "Austria",
+   "file": "austria.svg",
+   "status": "ok",
+   "bytes": 195
+  },
+  "AUS": {
+   "name": "Australia",
+   "file": "australia.svg",
+   "status": "ok",
+   "bytes": 1296
+  },
+  "ARU": {
+   "name": "Aruba",
+   "file": "aruba.svg",
+   "status": "ok",
+   "bytes": 9003
+  },
+  "AZE": {
+   "name": "Azerbaijan",
+   "file": "azerbaijan.svg",
+   "status": "ok",
+   "bytes": 501
+  },
+  "BIH": {
+   "name": "Bosnia & Herzegovina",
+   "file": "bosnia.svg",
+   "status": "ok",
+   "bytes": 1240
+  },
+  "BRB": {
+   "name": "Barbados",
+   "file": "barbados.svg",
+   "status": "ok",
+   "bytes": 628
+  },
+  "BAN": {
+   "name": "Bangladesh",
+   "file": "bangladesh.svg",
+   "status": "ok",
+   "bytes": 187
+  },
+  "BEL": {
+   "name": "Belgium",
+   "file": "belgium.svg",
+   "status": "ok",
+   "bytes": 302
+  },
+  "BFA": {
+   "name": "Burkina Faso",
+   "file": "burkina-faso.svg",
+   "status": "ok",
+   "bytes": 353
+  },
+  "BUL": {
+   "name": "Bulgaria",
+   "file": "bulgaria.svg",
+   "status": "ok",
+   "bytes": 225
+  },
+  "BHR": {
+   "name": "Bahrain",
+   "file": "bahrain.svg",
+   "status": "ok",
+   "bytes": 252
+  },
+  "BDI": {
+   "name": "Burundi",
+   "file": "burundi.svg",
+   "status": "ok",
+   "bytes": 1078
+  },
+  "BEN": {
+   "name": "Benin",
+   "file": "benin.svg",
+   "status": "ok",
+   "bytes": 499
+  },
+  "BER": {
+   "name": "Bermuda",
+   "file": "bermuda.svg",
+   "status": "ok",
+   "bytes": 22464
+  },
+  "BRU": {
+   "name": "Brunei",
+   "file": "brunei-darussalam.svg",
+   "status": "ok",
+   "bytes": 13340
+  },
+  "BOL": {
+   "name": "Bolivia",
+   "file": "bolivia.svg",
+   "status": "ok",
+   "bytes": 102880
+  },
+  "BRA": {
+   "name": "Brazil",
+   "file": "brazil.svg",
+   "status": "ok",
+   "bytes": 7140
+  },
+  "BAH": {
+   "name": "Bahamas",
+   "file": "bahamas.svg",
+   "status": "ok",
+   "bytes": 557
+  },
+  "BHU": {
+   "name": "Bhutan",
+   "file": "bhutan.svg",
+   "status": "ok",
+   "bytes": 24784
+  },
+  "BOT": {
+   "name": "Botswana",
+   "file": "botswana.svg",
+   "status": "ok",
+   "bytes": 264
+  },
+  "BLR": {
+   "name": "Belarus",
+   "file": "belarus.svg",
+   "status": "ok",
+   "bytes": 2078
+  },
+  "BLZ": {
+   "name": "Belize",
+   "file": "belize.svg",
+   "status": "ok",
+   "bytes": 42505
+  },
+  "CAN": {
+   "name": "Canada",
+   "file": "canada.svg",
+   "status": "ok",
+   "bytes": 625
+  },
+  "COD": {
+   "name": "Congo DR",
+   "file": "congo-dr.svg",
+   "status": "ok",
+   "bytes": 334
+  },
+  "CTA": {
+   "name": "Central African Republic",
+   "file": "central-african-republic.svg",
+   "status": "ok",
+   "bytes": 687
+  },
+  "CGO": {
+   "name": "Congo",
+   "file": "congo.svg",
+   "status": "ok",
+   "bytes": 470
+  },
+  "SUI": {
+   "name": "Switzerland",
+   "file": "switzerland.svg",
+   "status": "ok",
+   "bytes": 290
+  },
+  "CIV": {
+   "name": "Côte d’Ivoire",
+   "file": "ivory-coast.svg",
+   "status": "ok",
+   "bytes": 277
+  },
+  "COK": {
+   "name": "Cook Islands",
+   "file": "cook-islands.svg",
+   "status": "ok",
+   "bytes": 1898
+  },
+  "CHI": {
+   "name": "Chile",
+   "file": "chile.svg",
+   "status": "ok",
+   "bytes": 552
+  },
+  "CMR": {
+   "name": "Cameroon",
+   "file": "cameroon.svg",
+   "status": "ok",
+   "bytes": 840
+  },
+  "CHN": {
+   "name": "China",
+   "file": "china.svg",
+   "status": "ok",
+   "bytes": 813
+  },
+  "COL": {
+   "name": "Colombia",
+   "file": "colombia.svg",
+   "status": "ok",
+   "bytes": 286
+  },
+  "CRC": {
+   "name": "Costa Rica",
+   "file": "costa-rica.svg",
+   "status": "ok",
+   "bytes": 290
+  },
+  "CUB": {
+   "name": "Cuba",
+   "file": "cuba.svg",
+   "status": "ok",
+   "bytes": 610
+  },
+  "CPV": {
+   "name": "Cape Verde",
+   "file": "cabo-verde.svg",
+   "status": "ok",
+   "bytes": 1411
+  },
+  "CUW": {
+   "name": "Curaçao",
+   "file": "curacao.svg",
+   "status": "ok",
+   "bytes": 687
+  },
+  "CYP": {
+   "name": "Cyprus",
+   "file": "cyprus.svg",
+   "status": "ok",
+   "bytes": 5466
+  },
+  "CZE": {
+   "name": "Czechia",
+   "file": "czech-republic.svg",
+   "status": "ok",
+   "bytes": 225
+  },
+  "GER": {
+   "name": "Germany",
+   "file": "germany.svg",
+   "status": "ok",
+   "bytes": 221
+  },
+  "DJI": {
+   "name": "Djibouti",
+   "file": "djibouti.svg",
+   "status": "ok",
+   "bytes": 585
+  },
+  "DEN": {
+   "name": "Denmark",
+   "file": "denmark.svg",
+   "status": "ok",
+   "bytes": 236
+  },
+  "DMA": {
+   "name": "Dominica",
+   "file": "dominica.svg",
+   "status": "ok",
+   "bytes": 15787
+  },
+  "DOM": {
+   "name": "Dominican Republic",
+   "file": "dominican-republic.svg",
+   "status": "ok",
+   "bytes": 40346
+  },
+  "ALG": {
+   "name": "Algeria",
+   "file": "algeria.svg",
+   "status": "ok",
+   "bytes": 294
+  },
+  "ECU": {
+   "name": "Ecuador",
+   "file": "ecuador.svg",
+   "status": "ok",
+   "bytes": 28777
+  },
+  "EST": {
+   "name": "Estonia",
+   "file": "estonia.svg",
+   "status": "ok",
+   "bytes": 225
+  },
+  "EGY": {
+   "name": "Egypt",
+   "file": "egypt.svg",
+   "status": "ok",
+   "bytes": 8726
+  },
+  "ERI": {
+   "name": "Eritrea",
+   "file": "eritrea.svg",
+   "status": "ok",
+   "bytes": 3158
+  },
+  "ESP": {
+   "name": "Spain",
+   "file": "spain.svg",
+   "status": "ok",
+   "bytes": 80958
+  },
+  "ETH": {
+   "name": "Ethiopia",
+   "file": "ethiopia.svg",
+   "status": "ok",
+   "bytes": 1145
+  },
+  "FIN": {
+   "name": "Finland",
+   "file": "finland.svg",
+   "status": "ok",
+   "bytes": 234
+  },
+  "FIJ": {
+   "name": "Fiji",
+   "file": "fiji.svg",
+   "status": "ok",
+   "bytes": 24100
+  },
+  "FRO": {
+   "name": "Faroe Islands",
+   "file": "faroe-islands.svg",
+   "status": "ok",
+   "bytes": 555
+  },
+  "FRA": {
+   "name": "France",
+   "file": "france.svg",
+   "status": "ok",
+   "bytes": 241
+  },
+  "GAB": {
+   "name": "Gabon",
+   "file": "gabon.svg",
+   "status": "ok",
+   "bytes": 271
+  },
+  "ENG": {
+   "name": "England",
+   "file": "england.svg",
+   "status": "ok",
+   "bytes": 239
+  },
+  "NIR": {
+   "name": "Northern Ireland",
+   "file": "northern-ireland.svg",
+   "status": "ok",
+   "bytes": 22278
+  },
+  "SCO": {
+   "name": "Scotland",
+   "file": "scotland.svg",
+   "status": "ok",
+   "bytes": 228
+  },
+  "WAL": {
+   "name": "Wales",
+   "file": "wales.svg",
+   "status": "ok",
+   "bytes": 9096
+  },
+  "GRN": {
+   "name": "Grenada",
+   "file": "grenada.svg",
+   "status": "ok",
+   "bytes": 1712
+  },
+  "GEO": {
+   "name": "Georgia",
+   "file": "georgia.svg",
+   "status": "ok",
+   "bytes": 1313
+  },
+  "GHA": {
+   "name": "Ghana",
+   "file": "ghana.svg",
+   "status": "ok",
+   "bytes": 293
+  },
+  "GIB": {
+   "name": "Gibraltar",
+   "file": "gibraltar.svg",
+   "status": "ok",
+   "bytes": 2889
+  },
+  "GAM": {
+   "name": "Gambia",
+   "file": "gambia.svg",
+   "status": "ok",
+   "bytes": 543
+  },
+  "GUI": {
+   "name": "Guinea",
+   "file": "guinea.svg",
+   "status": "ok",
+   "bytes": 292
+  },
+  "EQG": {
+   "name": "Equatorial Guinea",
+   "file": "equatorial-guinea.svg",
+   "status": "ok",
+   "bytes": 4941
+  },
+  "GRE": {
+   "name": "Greece",
+   "file": "greece.svg",
+   "status": "ok",
+   "bytes": 868
+  },
+  "GUA": {
+   "name": "Guatemala",
+   "file": "guatemala.svg",
+   "status": "ok",
+   "bytes": 31352
+  },
+  "GUM": {
+   "name": "Guam",
+   "file": "guam.svg",
+   "status": "ok",
+   "bytes": 4327
+  },
+  "GNB": {
+   "name": "Guinea-Bissau",
+   "file": "guinea-bissau.svg",
+   "status": "ok",
+   "bytes": 846
+  },
+  "GUY": {
+   "name": "Guyana",
+   "file": "guyana.svg",
+   "status": "ok",
+   "bytes": 493
+  },
+  "HKG": {
+   "name": "Hong Kong",
+   "file": "hong-kong.svg",
+   "status": "ok",
+   "bytes": 727
+  },
+  "HON": {
+   "name": "Honduras",
+   "file": "honduras.svg",
+   "status": "ok",
+   "bytes": 1144
+  },
+  "CRO": {
+   "name": "Croatia",
+   "file": "croatia.svg",
+   "status": "ok",
+   "bytes": 30732
+  },
+  "HAI": {
+   "name": "Haiti",
+   "file": "haiti.svg",
+   "status": "ok",
+   "bytes": 13301
+  },
+  "HUN": {
+   "name": "Hungary",
+   "file": "hungary.svg",
+   "status": "ok",
+   "bytes": 264
+  },
+  "IDN": {
+   "name": "Indonesia",
+   "file": "indonesia.svg",
+   "status": "ok",
+   "bytes": 178
+  },
+  "IRL": {
+   "name": "Ireland",
+   "file": "ireland.svg",
+   "status": "ok",
+   "bytes": 289
+  },
+  "ISR": {
+   "name": "Israel",
+   "file": "israel.svg",
+   "status": "ok",
+   "bytes": 834
+  },
+  "IND": {
+   "name": "India",
+   "file": "india.svg",
+   "status": "ok",
+   "bytes": 1090
+  },
+  "IRQ": {
+   "name": "Iraq",
+   "file": "iraq.svg",
+   "status": "ok",
+   "bytes": 1420
+  },
+  "IRN": {
+   "name": "Iran",
+   "file": "iran.svg",
+   "status": "ok",
+   "bytes": 15397
+  },
+  "ISL": {
+   "name": "Iceland",
+   "file": "iceland.svg",
+   "status": "ok",
+   "bytes": 509
+  },
+  "ITA": {
+   "name": "Italy",
+   "file": "italy.svg",
+   "status": "ok",
+   "bytes": 289
+  },
+  "JAM": {
+   "name": "Jamaica",
+   "file": "jamaica.svg",
+   "status": "ok",
+   "bytes": 401
+  },
+  "JOR": {
+   "name": "Jordan",
+   "file": "jordan.svg",
+   "status": "ok",
+   "bytes": 727
+  },
+  "JPN": {
+   "name": "Japan",
+   "file": "japan.svg",
+   "status": "ok",
+   "bytes": 470
+  },
+  "KEN": {
+   "name": "Kenya",
+   "file": "kenya.svg",
+   "status": "ok",
+   "bytes": 1421
+  },
+  "KGZ": {
+   "name": "Kyrgyzstan",
+   "file": "kyrgyzstan.svg",
+   "status": "ok",
+   "bytes": 4743
+  },
+  "CAM": {
+   "name": "Cambodia",
+   "file": "cambodia.svg",
+   "status": "ok",
+   "bytes": 7122
+  },
+  "COM": {
+   "name": "Comoros",
+   "file": "comoros.svg",
+   "status": "ok",
+   "bytes": 1053
+  },
+  "SKN": {
+   "name": "St. Kitts & Nevis",
+   "file": "saint-kitts-and-nevis.svg",
+   "status": "ok",
+   "bytes": 796
+  },
+  "PRK": {
+   "name": "North Korea",
+   "file": "north-korea.svg",
+   "status": "ok",
+   "bytes": 783
+  },
+  "KOR": {
+   "name": "South Korea",
+   "file": "south-korea.svg",
+   "status": "ok",
+   "bytes": 1061
+  },
+  "KUW": {
+   "name": "Kuwait",
+   "file": "kuwait.svg",
+   "status": "ok",
+   "bytes": 517
+  },
+  "CAY": {
+   "name": "Cayman Islands",
+   "file": "cayman-islands.svg",
+   "status": "ok",
+   "bytes": 23386
+  },
+  "KAZ": {
+   "name": "Kazakhstan",
+   "file": "kazakhstan.svg",
+   "status": "ok",
+   "bytes": 7094
+  },
+  "LAO": {
+   "name": "Laos",
+   "file": "laos.svg",
+   "status": "ok",
+   "bytes": 456
+  },
+  "LBN": {
+   "name": "Lebanon",
+   "file": "lebanon.svg",
+   "status": "ok",
+   "bytes": 2770
+  },
+  "LCA": {
+   "name": "St. Lucia",
+   "file": "saint-lucia.svg",
+   "status": "ok",
+   "bytes": 352
+  },
+  "LIE": {
+   "name": "Liechtenstein",
+   "file": "liechtenstein.svg",
+   "status": "ok",
+   "bytes": 7318
+  },
+  "SRI": {
+   "name": "Sri Lanka",
+   "file": "sri-lanka.svg",
+   "status": "ok",
+   "bytes": 10724
+  },
+  "LBR": {
+   "name": "Liberia",
+   "file": "liberia.svg",
+   "status": "ok",
+   "bytes": 713
+  },
+  "LES": {
+   "name": "Lesotho",
+   "file": "lesotho.svg",
+   "status": "ok",
+   "bytes": 1133
+  },
+  "LTU": {
+   "name": "Lithuania",
+   "file": "lithuania.svg",
+   "status": "ok",
+   "bytes": 439
+  },
+  "LUX": {
+   "name": "Luxembourg",
+   "file": "luxembourg.svg",
+   "status": "ok",
+   "bytes": 225
+  },
+  "LVA": {
+   "name": "Latvia",
+   "file": "latvia.svg",
+   "status": "ok",
+   "bytes": 263
+  },
+  "LBY": {
+   "name": "Libya",
+   "file": "libya.svg",
+   "status": "ok",
+   "bytes": 549
+  },
+  "MAR": {
+   "name": "Morocco",
+   "file": "morocco.svg",
+   "status": "ok",
+   "bytes": 247
+  },
+  "MDA": {
+   "name": "Moldova",
+   "file": "moldova.svg",
+   "status": "ok",
+   "bytes": 11126
+  },
+  "MNE": {
+   "name": "Montenegro",
+   "file": "montenegro.svg",
+   "status": "ok",
+   "bytes": 56372
+  },
+  "MAD": {
+   "name": "Madagascar",
+   "file": "madagascar.svg",
+   "status": "ok",
+   "bytes": 299
+  },
+  "MKD": {
+   "name": "North Macedonia",
+   "file": "macedonia.svg",
+   "status": "ok",
+   "bytes": 379
+  },
+  "MLI": {
+   "name": "Mali",
+   "file": "mali.svg",
+   "status": "ok",
+   "bytes": 273
+  },
+  "MYA": {
+   "name": "Myanmar",
+   "file": "myanmar.svg",
+   "status": "ok",
+   "bytes": 710
+  },
+  "MNG": {
+   "name": "Mongolia",
+   "file": "mongolia.svg",
+   "status": "ok",
+   "bytes": 1397
+  },
+  "MAC": {
+   "name": "Macao",
+   "file": "macao.svg",
+   "status": "ok",
+   "bytes": 1370
+  },
+  "MTN": {
+   "name": "Mauritania",
+   "file": "mauritania.svg",
+   "status": "ok",
+   "bytes": 437
+  },
+  "MSR": {
+   "name": "Montserrat",
+   "file": "montserrat.svg",
+   "status": "ok",
+   "bytes": 5832
+  },
+  "MLT": {
+   "name": "Malta",
+   "file": "malta.svg",
+   "status": "ok",
+   "bytes": 13925
+  },
+  "MRI": {
+   "name": "Mauritius",
+   "file": "mauritius.svg",
+   "status": "ok",
+   "bytes": 316
+  },
+  "MDV": {
+   "name": "Maldives",
+   "file": "maldives.svg",
+   "status": "ok",
+   "bytes": 286
+  },
+  "MWI": {
+   "name": "Malawi",
+   "file": "malawi.svg",
+   "status": "ok",
+   "bytes": 3563
+  },
+  "MEX": {
+   "name": "Mexico",
+   "file": "mexico.svg",
+   "status": "ok",
+   "bytes": 84753
+  },
+  "MAS": {
+   "name": "Malaysia",
+   "file": "malaysia.svg",
+   "status": "ok",
+   "bytes": 1378
+  },
+  "MOZ": {
+   "name": "Mozambique",
+   "file": "mozambique.svg",
+   "status": "ok",
+   "bytes": 2563
+  },
+  "NAM": {
+   "name": "Namibia",
+   "status": "no-iso"
+  },
+  "NCL": {
+   "name": "New Caledonia",
+   "file": "new-caledonia.svg",
+   "status": "ok",
+   "bytes": 1328
+  },
+  "NIG": {
+   "name": "Niger",
+   "file": "niger.svg",
+   "status": "ok",
+   "bytes": 273
+  },
+  "NGA": {
+   "name": "Nigeria",
+   "file": "nigeria.svg",
+   "status": "ok",
+   "bytes": 257
+  },
+  "NCA": {
+   "name": "Nicaragua",
+   "file": "nicaragua.svg",
+   "status": "ok",
+   "bytes": 17249
+  },
+  "NED": {
+   "name": "Netherlands",
+   "file": "netherlands.svg",
+   "status": "ok",
+   "bytes": 225
+  },
+  "NOR": {
+   "name": "Norway",
+   "file": "norway.svg",
+   "status": "ok",
+   "bytes": 318
+  },
+  "NEP": {
+   "name": "Nepal",
+   "file": "nepal.svg",
+   "status": "ok",
+   "bytes": 1005
+  },
+  "NZL": {
+   "name": "New Zealand",
+   "file": "new-zealand.svg",
+   "status": "ok",
+   "bytes": 2172
+  },
+  "OMA": {
+   "name": "Oman",
+   "file": "oman.svg",
+   "status": "ok",
+   "bytes": 22223
+  },
+  "PAN": {
+   "name": "Panama",
+   "file": "panama.svg",
+   "status": "ok",
+   "bytes": 521
+  },
+  "PER": {
+   "name": "Peru",
+   "file": "peru.svg",
+   "status": "ok",
+   "bytes": 186
+  },
+  "TAH": {
+   "name": "French Polynesia",
+   "file": "french-polynesia.svg",
+   "status": "ok",
+   "bytes": 4030
+  },
+  "PHI": {
+   "name": "Philippines",
+   "file": "philippines.svg",
+   "status": "ok",
+   "bytes": 1382
+  },
+  "PAK": {
+   "name": "Pakistan",
+   "file": "pakistan.svg",
+   "status": "ok",
+   "bytes": 725
+  },
+  "POL": {
+   "name": "Poland",
+   "file": "poland.svg",
+   "status": "ok",
+   "bytes": 215
+  },
+  "PUR": {
+   "name": "Puerto Rico",
+   "file": "puerto-rico.svg",
+   "status": "ok",
+   "bytes": 625
+  },
+  "PLE": {
+   "name": "Palestine",
+   "file": "palestine.svg",
+   "status": "ok",
+   "bytes": 276
+  },
+  "POR": {
+   "name": "Portugal",
+   "file": "portugal.svg",
+   "status": "ok",
+   "bytes": 8001
+  },
+  "PNG": {
+   "name": "Palau",
+   "file": "palau.svg",
+   "status": "ok",
+   "bytes": 466
+  },
+  "PAR": {
+   "name": "Paraguay",
+   "file": "paraguay.svg",
+   "status": "ok",
+   "bytes": 16184
+  },
+  "QAT": {
+   "name": "Qatar",
+   "file": "qatar.svg",
+   "status": "ok",
+   "bytes": 354
+  },
+  "ROU": {
+   "name": "Romania",
+   "file": "romania.svg",
+   "status": "ok",
+   "bytes": 302
+  },
+  "SRB": {
+   "name": "Serbia",
+   "file": "serbia.svg",
+   "status": "ok",
+   "bytes": 181634
+  },
+  "RUS": {
+   "name": "Russia",
+   "file": "russia.svg",
+   "status": "ok",
+   "bytes": 225
+  },
+  "RWA": {
+   "name": "Rwanda",
+   "file": "rwanda.svg",
+   "status": "ok",
+   "bytes": 755
+  },
+  "KSA": {
+   "name": "Saudi Arabia",
+   "file": "saudi-arabia.svg",
+   "status": "ok",
+   "bytes": 9968
+  },
+  "SOL": {
+   "name": "Solomon Islands",
+   "file": "solomon-islands.svg",
+   "status": "ok",
+   "bytes": 940
+  },
+  "SEY": {
+   "name": "Seychelles",
+   "file": "seychelles.svg",
+   "status": "ok",
+   "bytes": 317
+  },
+  "SDN": {
+   "name": "Sudan",
+   "file": "sudan.svg",
+   "status": "ok",
+   "bytes": 505
+  },
+  "SWE": {
+   "name": "Sweden",
+   "file": "sweden.svg",
+   "status": "ok",
+   "bytes": 209
+  },
+  "SIN": {
+   "name": "Singapore",
+   "file": "singapore.svg",
+   "status": "ok",
+   "bytes": 889
+  },
+  "SVN": {
+   "name": "Slovenia",
+   "file": "slovenia.svg",
+   "status": "ok",
+   "bytes": 1993
+  },
+  "SVK": {
+   "name": "Slovakia",
+   "file": "slovakia.svg",
+   "status": "ok",
+   "bytes": 1182
+  },
+  "SLE": {
+   "name": "Sierra Leone",
+   "file": "sierra-leone.svg",
+   "status": "ok",
+   "bytes": 272
+  },
+  "SMR": {
+   "name": "San Marino",
+   "file": "san-marino.svg",
+   "status": "ok",
+   "bytes": 15683
+  },
+  "SEN": {
+   "name": "Senegal",
+   "file": "senegal.svg",
+   "status": "ok",
+   "bytes": 421
+  },
+  "SOM": {
+   "name": "Somalia",
+   "file": "somalia.svg",
+   "status": "ok",
+   "bytes": 483
+  },
+  "SUR": {
+   "name": "Suriname",
+   "file": "suriname.svg",
+   "status": "ok",
+   "bytes": 312
+  },
+  "SSD": {
+   "name": "South Sudan",
+   "file": "south-sudan.svg",
+   "status": "ok",
+   "bytes": 398
+  },
+  "STP": {
+   "name": "São Tomé & Príncipe",
+   "file": "sao-tome-and-principe.svg",
+   "status": "ok",
+   "bytes": 954
+  },
+  "SLV": {
+   "name": "El Salvador",
+   "file": "el-salvador.svg",
+   "status": "ok",
+   "bytes": 77273
+  },
+  "SYR": {
+   "name": "Syria",
+   "file": "syria.svg",
+   "status": "ok",
+   "bytes": 366
+  },
+  "SWZ": {
+   "name": "Eswatini",
+   "file": "eswatini.svg",
+   "status": "ok",
+   "bytes": 4663
+  },
+  "TCA": {
+   "name": "Turks & Caicos Islands",
+   "file": "turks-and-caicos-islands.svg",
+   "status": "ok",
+   "bytes": 7117
+  },
+  "CHA": {
+   "name": "Chad",
+   "file": "chad.svg",
+   "status": "ok",
+   "bytes": 271
+  },
+  "TOG": {
+   "name": "Togo",
+   "file": "togo.svg",
+   "status": "ok",
+   "bytes": 708
+  },
+  "THA": {
+   "name": "Thailand",
+   "file": "thailand.svg",
+   "status": "ok",
+   "bytes": 284
+  },
+  "TJK": {
+   "name": "Tajikistan",
+   "file": "tajikistan.svg",
+   "status": "ok",
+   "bytes": 1843
+  },
+  "TLS": {
+   "name": "Timor-Leste",
+   "file": "timor-leste.svg",
+   "status": "ok",
+   "bytes": 611
+  },
+  "TKM": {
+   "name": "Turkmenistan",
+   "file": "turkmenistan.svg",
+   "status": "ok",
+   "bytes": 38349
+  },
+  "TUN": {
+   "name": "Tunisia",
+   "file": "tunisia.svg",
+   "status": "ok",
+   "bytes": 343
+  },
+  "TGA": {
+   "name": "Tonga",
+   "file": "tonga.svg",
+   "status": "ok",
+   "bytes": 352
+  },
+  "TUR": {
+   "name": "Türkiye",
+   "file": "turkey.svg",
+   "status": "ok",
+   "bytes": 549
+  },
+  "TRI": {
+   "name": "Trinidad & Tobago",
+   "file": "trinidad-and-tobago.svg",
+   "status": "ok",
+   "bytes": 304
+  },
+  "TPE": {
+   "name": "Taiwan",
+   "file": "chinese-taipei.svg",
+   "status": "ok",
+   "bytes": 2499
+  },
+  "TAN": {
+   "name": "Tanzania",
+   "file": "tanzania.svg",
+   "status": "ok",
+   "bytes": 548
+  },
+  "UKR": {
+   "name": "Ukraine",
+   "file": "ukraine.svg",
+   "status": "ok",
+   "bytes": 234
+  },
+  "UGA": {
+   "name": "Uganda",
+   "file": "uganda.svg",
+   "status": "ok",
+   "bytes": 3929
+  },
+  "USA": {
+   "name": "United States",
+   "file": "usa.svg",
+   "status": "ok",
+   "bytes": 648
+  },
+  "URU": {
+   "name": "Uruguay",
+   "file": "uruguay.svg",
+   "status": "ok",
+   "bytes": 1724
+  },
+  "UZB": {
+   "name": "Uzbekistan",
+   "file": "uzbekistan.svg",
+   "status": "ok",
+   "bytes": 1498
+  },
+  "VIN": {
+   "name": "St. Vincent & Grenadines",
+   "file": "saint-vincent-and-the-grenadines.svg",
+   "status": "ok",
+   "bytes": 429
+  },
+  "VEN": {
+   "name": "Venezuela",
+   "file": "venezuela.svg",
+   "status": "ok",
+   "bytes": 1206
+  },
+  "VGB": {
+   "name": "British Virgin Islands",
+   "file": "british-virgin-islands.svg",
+   "status": "ok",
+   "bytes": 10018
+  },
+  "VIR": {
+   "name": "U.S. Virgin Islands",
+   "file": "us-virgin-islands.svg",
+   "status": "ok",
+   "bytes": 8518
+  },
+  "VIE": {
+   "name": "Vietnam",
+   "file": "vietnam.svg",
+   "status": "ok",
+   "bytes": 490
+  },
+  "VAN": {
+   "name": "Vanuatu",
+   "file": "vanuatu.svg",
+   "status": "ok",
+   "bytes": 2006
+  },
+  "SAM": {
+   "name": "Samoa",
+   "file": "samoa.svg",
+   "status": "ok",
+   "bytes": 687
+  },
+  "KOS": {
+   "name": "Kosovo",
+   "file": "kosovo.svg",
+   "status": "ok",
+   "bytes": 8267
+  },
+  "YEM": {
+   "name": "Yemen",
+   "file": "yemen.svg",
+   "status": "ok",
+   "bytes": 287
+  },
+  "RSA": {
+   "name": "South Africa",
+   "file": "south-africa.svg",
+   "status": "ok",
+   "bytes": 860
+  },
+  "ZAM": {
+   "name": "Zambia",
+   "file": "zambia.svg",
+   "status": "ok",
+   "bytes": 5421
+  },
+  "ZIM": {
+   "name": "Zimbabwe",
+   "file": "zimbabwe.svg",
+   "status": "ok",
+   "bytes": 6186
+  }
+ },
+ "trophies": {
+  "league/liga-mx": {
+   "name": "league/liga-mx",
+   "file": "league__liga-mx.png",
+   "status": "cached"
+  },
+  "cup/mex-copa-mx": {
+   "name": "cup/mex-copa-mx",
+   "file": "cup__mex-copa-mx.png",
+   "status": "cached"
+  },
+  "league/2-bundesliga": {
+   "name": "league/2-bundesliga",
+   "file": "league__2-bundesliga.png",
+   "status": "cached"
+  },
+  "cup/ger-dfb-pokal": {
+   "name": "cup/ger-dfb-pokal",
+   "file": "cup__ger-dfb-pokal.png",
+   "status": "cached"
+  },
+  "league/brasileirao": {
+   "name": "league/brasileirao",
+   "file": "league__brasileirao.png",
+   "status": "cached"
+  },
+  "cup/bra-copa-do-brasil": {
+   "name": "cup/bra-copa-do-brasil",
+   "file": "cup__bra-copa-do-brasil.png",
+   "status": "cached"
+  },
+  "league/bundesliga": {
+   "name": "league/bundesliga",
+   "file": "league__bundesliga.png",
+   "status": "cached"
+  },
+  "league/championship": {
+   "name": "league/championship",
+   "file": "league__championship.webp",
+   "status": "cached"
+  },
+  "cup/eng-fa-cup": {
+   "name": "cup/eng-fa-cup",
+   "file": "cup__eng-fa-cup.png",
+   "status": "cached"
+  },
+  "league/laliga": {
+   "name": "league/laliga",
+   "file": "league__laliga.png",
+   "status": "cached"
+  },
+  "cup/esp-copa-del-rey": {
+   "name": "cup/esp-copa-del-rey",
+   "file": "cup__esp-copa-del-rey.png",
+   "status": "cached"
+  },
+  "league/laliga-2": {
+   "name": "league/laliga-2",
+   "file": "league__laliga-2.png",
+   "status": "cached"
+  },
+  "league/liga-profesional": {
+   "name": "league/liga-profesional",
+   "file": "league__liga-profesional.png",
+   "status": "cached"
+  },
+  "cup/arg-copa-argentina": {
+   "name": "cup/arg-copa-argentina",
+   "file": "cup__arg-copa-argentina.png",
+   "status": "cached"
+  },
+  "league/ligue-1": {
+   "name": "league/ligue-1",
+   "file": "league__ligue-1.png",
+   "status": "cached"
+  },
+  "cup/fra-coupe-de-france": {
+   "name": "cup/fra-coupe-de-france",
+   "file": "cup__fra-coupe-de-france.png",
+   "status": "cached"
+  },
+  "league/ligue-2": {
+   "name": "league/ligue-2",
+   "file": "league__ligue-2.png",
+   "status": "cached"
+  },
+  "league/premier-league": {
+   "name": "league/premier-league",
+   "file": "league__premier-league.png",
+   "status": "cached"
+  },
+  "league/serie-a": {
+   "name": "league/serie-a",
+   "file": "league__serie-a.png",
+   "status": "cached"
+  },
+  "cup/ita-coppa-italia": {
+   "name": "cup/ita-coppa-italia",
+   "file": "cup__ita-coppa-italia.png",
+   "status": "cached"
+  },
+  "league/serie-b": {
+   "name": "league/serie-b",
+   "file": "league__serie-b.webp",
+   "status": "cached"
+  },
+  "league/copa-de-primera": {
+   "name": "league/copa-de-primera",
+   "file": "league__copa-de-primera.png",
+   "status": "cached"
+  },
+  "cup/par-copa-paraguay": {
+   "name": "cup/par-copa-paraguay",
+   "file": "cup__par-copa-paraguay.png",
+   "status": "cached"
+  },
+  "cup/bol-copa-bolivia": {
+   "name": "copa bolivia",
+   "file": "cup__bol-copa-bolivia.svg",
+   "status": "cached",
+   "source_site": "wikipedia"
+  },
+  "league/liga-de-primera": {
+   "name": "league/liga-de-primera",
+   "file": "league__liga-de-primera.png",
+   "status": "cached"
+  },
+  "cup/chi-copa-chile": {
+   "name": "cup/chi-copa-chile",
+   "file": "cup__chi-copa-chile.png",
+   "status": "cached"
+  },
+  "league/liga-dimayor": {
+   "name": "league/liga-dimayor",
+   "file": "league__liga-dimayor.png",
+   "status": "cached"
+  },
+  "cup/col-copa-colombia": {
+   "name": "cup/col-copa-colombia",
+   "file": "cup__col-copa-colombia.png",
+   "status": "cached"
+  },
+  "league/liga-futve": {
+   "name": "league/liga-futve",
+   "file": "league__liga-futve.png",
+   "status": "cached"
+  },
+  "cup/ven-copa-venezuela": {
+   "name": "cup/ven-copa-venezuela",
+   "file": "cup__ven-copa-venezuela.png",
+   "status": "cached"
+  },
+  "league/liga-uruguaya": {
+   "name": "league/liga-uruguaya",
+   "file": "league__liga-uruguaya.png",
+   "status": "cached"
+  },
+  "cup/uru-copa-uruguay": {
+   "name": "cup/uru-copa-uruguay",
+   "file": "cup__uru-copa-uruguay.png",
+   "status": "cached"
+  },
+  "league/liga1": {
+   "name": "league/liga1",
+   "file": "league__liga1.svg",
+   "status": "cached"
+  },
+  "league/ligapro-serie-a": {
+   "name": "league/ligapro-serie-a",
+   "file": "league__ligapro-serie-a.svg",
+   "status": "cached"
+  },
+  "cup/ecu-copa-ecuador": {
+   "name": "cup/ecu-copa-ecuador",
+   "file": "cup__ecu-copa-ecuador.png",
+   "status": "cached"
+  },
+  "league/primera-nacional": {
+   "name": "league/primera-nacional",
+   "file": "league__primera-nacional.png",
+   "status": "cached"
+  },
+  "league/usa-mls": {
+   "name": "league/usa-mls",
+   "file": "league__usa-mls.png",
+   "status": "cached"
+  },
+  "cup/usa-us-open": {
+   "name": "us open",
+   "file": "cup__usa-us-open.svg",
+   "status": "cached",
+   "source_site": "wikipedia"
+  },
+  "league/por-primeira-liga": {
+   "name": "league/por-primeira-liga",
+   "file": "league__por-primeira-liga.svg",
+   "status": "cached"
+  },
+  "cup/por-taca-de-portugal": {
+   "name": "taca de portugal",
+   "file": "cup__por-taca-de-portugal.svg",
+   "status": "cached",
+   "source_site": "wikipedia"
+  },
+  "league/superliga-turquia": {
+   "name": "league/superliga-turquia",
+   "file": "league__superliga-turquia.png",
+   "status": "cached"
+  },
+  "cup/tur-copa-turquia": {
+   "name": "cup/tur-copa-turquia",
+   "file": "cup__tur-copa-turquia.png",
+   "status": "cached"
+  },
+  "league/liga-premier-de-rusia": {
+   "name": "league/liga-premier-de-rusia",
+   "file": "league__liga-premier-de-rusia.png",
+   "status": "cached"
+  },
+  "cup/rus-copa-rusia": {
+   "name": "copa rusia",
+   "file": "cup__rus-copa-rusia.svg",
+   "status": "cached",
+   "source_site": "wikipedia"
+  },
+  "league/eredivisie": {
+   "name": "league/eredivisie",
+   "file": "league__eredivisie.png",
+   "status": "cached"
+  },
+  "cup/ned-knvb-cup": {
+   "name": "cup/ned-knvb-cup",
+   "file": "cup__ned-knvb-cup.png",
+   "status": "cached"
+  },
+  "league/ekstraklasa": {
+   "name": "league/ekstraklasa",
+   "file": "league__ekstraklasa.png",
+   "status": "cached"
+  },
+  "cup/pol-puchar-polski": {
+   "name": "cup/pol-puchar-polski",
+   "file": "cup__pol-puchar-polski.png",
+   "status": "cached"
+  },
+  "league/primera-division-costa-rica": {
+   "name": "league/primera-division-costa-rica",
+   "file": "league__primera-division-costa-rica.png",
+   "status": "cached"
+  },
+  "league/hon-liga-nacional": {
+   "name": "league/hon-liga-nacional",
+   "file": "league__hon-liga-nacional.png",
+   "status": "cached"
+  },
+  "cup/supercopa-guatemala": {
+   "name": "cup/supercopa-guatemala",
+   "file": "cup__supercopa-guatemala.png",
+   "status": "cached"
+  },
+  "cup/slv-copa-presidente": {
+   "name": "cup/slv-copa-presidente",
+   "status": "missing"
+  },
+  "cup/copa-primera-de-nicaragua": {
+   "name": "cup/copa-primera-de-nicaragua",
+   "file": "cup__copa-primera-de-nicaragua.png",
+   "status": "cached"
+  },
+  "international/AFC/champions-league-elite": {
+   "name": "international/AFC/champions-league-elite",
+   "file": "international__AFC__champions-league-elite.png",
+   "status": "cached"
+  },
+  "international/CONCACAF/concachampions": {
+   "name": "international/CONCACAF/concachampions",
+   "status": "missing"
+  },
+  "international/CONMEBOL/copa-america": {
+   "name": "international/CONMEBOL/copa-america",
+   "file": "international__CONMEBOL__copa-america.png",
+   "status": "cached"
+  },
+  "international/CONMEBOL/copa-sudamericana": {
+   "name": "international/CONMEBOL/copa-sudamericana",
+   "file": "international__CONMEBOL__copa-sudamericana.png",
+   "status": "cached"
+  },
+  "international/CONMEBOL/libertadores": {
+   "name": "international/CONMEBOL/libertadores",
+   "file": "international__CONMEBOL__libertadores.png",
+   "status": "cached"
+  },
+  "international/FIFA/club-world-cup": {
+   "name": "international/FIFA/club-world-cup",
+   "file": "international__FIFA__club-world-cup.png",
+   "status": "cached"
+  },
+  "international/FIFA/world-cup": {
+   "name": "international/FIFA/world-cup",
+   "file": "international__FIFA__world-cup.png",
+   "status": "cached"
+  },
+  "international/UEFA/champions-league": {
+   "name": "international/UEFA/champions-league",
+   "file": "international__UEFA__champions-league.png",
+   "status": "cached"
+  },
+  "international/UEFA/europa-league": {
+   "name": "international/UEFA/europa-league",
+   "file": "international__UEFA__europa-league.png",
+   "status": "cached"
+  },
+  "international/FIFA/ballon-dor": {
+   "name": "international/FIFA/ballon-dor",
+   "file": "international__FIFA__ballon-dor.png",
+   "status": "cached"
+  },
+  "international/FIFA/golden-glove": {
+   "name": "international/FIFA/golden-glove",
+   "file": "international__FIFA__golden-glove.png",
+   "status": "cached"
+  },
+  "international/OFC/nations-cup": {
+   "name": "international/OFC/nations-cup",
+   "file": "international__OFC__nations-cup.png",
+   "status": "cached"
+  },
+  "international/UEFA/golden-boot": {
+   "name": "international/UEFA/golden-boot",
+   "file": "international__UEFA__golden-boot.png",
+   "status": "cached"
+  },
+  "league/liga-bolivia": {
+   "name": "Liga Bolivia",
+   "file": "league__liga-bolivia.svg",
+   "status": "ok",
+   "page": "Bolivian Football Federation",
+   "source": "https://upload.wikimedia.org/wikipedia/en/d/d4/Bolivian_Football_Federation_logo.svg",
+   "bytes": 87439,
+   "source_site": "wikipedia"
+  },
+  "league/liga-nacional-guatemala": {
+   "name": "Liga Nacional de Guatemala",
+   "file": "league__liga-nacional-guatemala.png",
+   "status": "ok",
+   "page": "Liga Bantrab",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Liga_bantrab_gt.png",
+   "bytes": 6571,
+   "source_site": "wikipedia"
+  },
+  "league/slv-primera-division": {
+   "name": "Primera División",
+   "file": "league__slv-primera-division.png",
+   "status": "ok",
+   "page": "Primera División de El Salvador",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Logo_Primera_Divisi%C3%B3n_de_El_Salvador.jpg/330px-Logo_Primera_Divisi%C3%B3n_de_El_Salvador.jpg",
+   "bytes": 16742,
+   "source_site": "wikipedia"
+  },
+  "league/liga-primera-de-nicaragua": {
+   "name": "Liga Primera",
+   "file": "league__liga-primera-de-nicaragua.png",
+   "status": "ok",
+   "page": "Liga Primera",
+   "source": "https://upload.wikimedia.org/wikipedia/en/thumb/9/92/Liga_Primera_de_Nicaragua.png/250px-Liga_Primera_de_Nicaragua.png",
+   "bytes": 15334,
+   "source_site": "wikipedia"
+  },
+  "league/liga-dominicana-de-futbol": {
+   "name": "Liga Dominicana",
+   "file": "league__liga-dominicana-de-futbol.png",
+   "status": "ok",
+   "page": "Liga Dominicana de Fútbol",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/LDF.png/250px-LDF.png",
+   "bytes": 22247,
+   "source_site": "wikipedia"
+  },
+  "league/pan-primera-division": {
+   "name": "Primera División",
+   "file": "league__pan-primera-division.png",
+   "status": "ok",
+   "page": "Cristian Martínez (Panamanian footballer)",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Cristian_Martinez_England_v_Panama_27_June_26-083.jpg/250px-Cristian_Martinez_England_v_Panama_27_June_26-083.jpg",
+   "bytes": 26514,
+   "source_site": "wikipedia"
+  },
+  "international/UEFA/euro": {
+   "name": "UEFA/euro",
+   "file": "international__UEFA__euro.png",
+   "status": "ok",
+   "page": "UEFA European Championship",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Coupe_Henri_Delaunay_2017.jpg/250px-Coupe_Henri_Delaunay_2017.jpg",
+   "bytes": 20961,
+   "source_site": "wikipedia"
+  },
+  "international/CONCACAF/gold-cup": {
+   "name": "CONCACAF/gold-cup",
+   "file": "international__CONCACAF__gold-cup.svg",
+   "status": "ok",
+   "page": "CONCACAF Gold Cup",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Concacaf_Gold_Cup_2021.svg",
+   "bytes": 18201,
+   "source_site": "wikipedia"
+  },
+  "international/AFC/asian-cup": {
+   "name": "AFC/asian-cup",
+   "file": "international__AFC__asian-cup.png",
+   "status": "ok",
+   "page": "AFC Asian Cup",
+   "source": "https://upload.wikimedia.org/wikipedia/en/thumb/4/4d/AFC_Asian_Cup.png/250px-AFC_Asian_Cup.png",
+   "bytes": 52882,
+   "source_site": "wikipedia"
+  },
+  "international/CAF/africa-cup-of-nations": {
+   "name": "CAF/africa-cup-of-nations",
+   "file": "international__CAF__africa-cup-of-nations.png",
+   "status": "ok",
+   "page": "Africa Cup of Nations",
+   "source": "https://upload.wikimedia.org/wikipedia/en/thumb/c/cf/Africa_Cup_of_Nation_official_logo.png/250px-Africa_Cup_of_Nation_official_logo.png",
+   "bytes": 61590,
+   "source_site": "wikipedia"
+  },
+  "international/CONCACAF/champions-cup": {
+   "name": "CONCACAF/champions-cup",
+   "file": "international__CONCACAF__champions-cup.svg",
+   "status": "ok",
+   "page": "CONCACAF Champions Cup",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/3/3e/CONCACAF_Champions_Cup_logo.svg",
+   "bytes": 8064,
+   "source_site": "wikipedia"
+  },
+  "international/CONCACAF/central-american-cup": {
+   "name": "CONCACAF/central-american-cup",
+   "file": "international__CONCACAF__central-american-cup.svg",
+   "status": "ok",
+   "page": "CONCACAF Central American Cup",
+   "source": "https://upload.wikimedia.org/wikipedia/commons/1/10/Logo_CONCACAF_Central_American_Cup.svg",
+   "bytes": 6873,
+   "source_site": "wikipedia"
+  },
+  "international/CAF/champions-league": {
+   "name": "CAF/champions-league",
+   "file": "international__CAF__champions-league.png",
+   "status": "ok",
+   "page": "CAF Champions League",
+   "source": "https://upload.wikimedia.org/wikipedia/en/d/d5/CAF_Champions_League.png",
+   "bytes": 61913,
+   "source_site": "wikipedia"
+  },
+  "international/CAF/confederation-cup": {
+   "name": "CAF/confederation-cup",
+   "file": "international__CAF__confederation-cup.png",
+   "status": "ok",
+   "page": "CAF Confederation Cup",
+   "source": "https://upload.wikimedia.org/wikipedia/en/5/50/CAF-Confederation-Cup.png",
+   "bytes": 67751,
+   "source_site": "wikipedia"
+  },
+  "international/OFC/champions-league": {
+   "name": "OFC/champions-league",
+   "file": "international__OFC__champions-league.png",
+   "status": "ok",
+   "page": "OFC Men's Champions League",
+   "source": "https://upload.wikimedia.org/wikipedia/en/thumb/4/46/Ofc-champions-league-logo-%282013%29.png/250px-Ofc-champions-league-logo-%282013%29.png",
+   "bytes": 101326,
+   "source_site": "wikipedia"
+  },
+  "international/AFC/champions-league-two": {
+   "name": "AFC/champions-league-two",
+   "file": "international__AFC__champions-league-two.svg",
+   "status": "ok",
+   "page": "AFC Champions League Two",
+   "source": "https://upload.wikimedia.org/wikipedia/en/8/81/AFC_Champions_League_Two.svg",
+   "bytes": 147557,
+   "source_site": "wikipedia"
+  }
+ }
+}
