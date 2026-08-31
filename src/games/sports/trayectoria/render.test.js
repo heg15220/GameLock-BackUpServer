@@ -36,17 +36,23 @@ import {
   takeShot,
   watchMatch,
 } from "./career.js";
-import { SHOT_LABELS, fillTemplate, getCopy } from "./copy.js";
+import { POSITION_ABBREVIATIONS, SHOT_LABELS, fillTemplate, getCopy } from "./copy.js";
 import { SHOT_TYPES } from "./bigmatch.js";
 import { buildChance } from "./minigames.js";
-import { SCREENS, ovrTier } from "./index.jsx";
+import ChanceGame from "./chancegames.jsx";
+import {
+  SCREENS,
+  matchOutcomeVerdict,
+  ovrTier,
+  usesRoleActionButtons,
+} from "./index.jsx";
 import { playableCountries, world } from "./world.js";
 
 const noop = () => {};
 
-const start = (seed = "render") =>
+const start = (seed = "render", position = "DC") =>
   startCareer(
-    { seed, surname: "MOLINA", number: 9, foot: "left", country: "ESP", position: "DC", mode: "intensa" },
+    { seed, surname: "MOLINA", number: 9, foot: "left", country: "ESP", position, mode: "intensa" },
     world,
   );
 
@@ -144,6 +150,99 @@ function walk(seed, locale) {
   }
   return { seen, run };
 }
+
+describe("the finished-match summary follows the match result", () => {
+  it("does not call a goalkeeper's successful save a victory when their team loses", () => {
+    const saved = { scored: true, absent: false };
+
+    expect(matchOutcomeVerdict(saved, { won: false, final: { home: 1, away: 2 } })).toBe("no");
+    expect(matchOutcomeVerdict(saved, { won: true, final: { home: 2, away: 1 } })).toBe("yes");
+  });
+
+  it("describes a level league match as a draw, even when the player's chance went out", () => {
+    const missed = { scored: false, absent: false };
+    const finish = { won: false, final: { home: 1, away: 1 }, beats: [] };
+
+    expect(matchOutcomeVerdict(missed, finish)).toBe("draw");
+    expect(getCopy("es").match.decides.derby.draw).toContain("empate");
+    expect(getCopy("en").match.decides.derby.draw).toContain("level");
+  });
+
+  it("does not call a cup match a draw when the level score was settled on penalties", () => {
+    const scored = { scored: true, absent: false };
+    const finish = {
+      won: true,
+      final: { home: 1, away: 1 },
+      beats: [{ id: "shootoutWon" }],
+    };
+
+    expect(matchOutcomeVerdict(scored, finish)).toBe("yes");
+  });
+
+  it("keeps the action-based fallback when there is no live full-time result", () => {
+    expect(matchOutcomeVerdict({ scored: true, absent: false })).toBe("yes");
+    expect(matchOutcomeVerdict({ scored: false, absent: false })).toBe("no");
+  });
+});
+
+describe("position-specific chance surfaces", () => {
+  const drawChance = (shotType) =>
+    renderToStaticMarkup(
+      React.createElement(ChanceGame, {
+        chance: buildChance({ seed: "surface", season: 4, fixtureId: shotType, shotType, ovr: 78 }),
+        locale: "es",
+        onSettle: noop,
+      }),
+    );
+
+  it("draws a defensive duel instead of the old sweeping marker", () => {
+    const html = drawChance("entrada");
+    expect(html).toContain("is-tackle");
+    expect(html).toContain("tr-play__defender");
+    expect(html).toContain("tr-play__attacker");
+    expect(html).toContain("tr-play__danger-lane");
+    expect(html).not.toContain("tr-play__sight");
+  });
+
+  it("draws a key pass through a back line to a team-mate running at goal", () => {
+    const html = drawChance("pase_gol");
+    expect(html).toContain("is-pass");
+    expect(html).toContain("tr-play__back-line");
+    expect(html).toContain("tr-play__runner");
+    expect(html).toContain("tr-play__pass");
+    expect(html).not.toContain("tr-play__reticle");
+  });
+});
+
+describe("touch match controls by playing line", () => {
+  it("keeps explicit action buttons for goalkeepers, defenders and midfielders", () => {
+    for (const position of ["POR", "DFC", "LI", "LD", "MCD", "MC", "MI", "MD", "MCO"]) {
+      expect(usesRoleActionButtons(position), position).toBe(true);
+    }
+  });
+
+  it("leaves the directional touch surface available to forwards", () => {
+    for (const position of ["EI", "ED", "DC"]) {
+      expect(usesRoleActionButtons(position), position).toBe(false);
+    }
+  });
+});
+
+describe("localised position abbreviations", () => {
+  it("uses football's English position codes without changing the internal Spanish keys", () => {
+    expect(POSITION_ABBREVIATIONS.en).toEqual({
+      POR: "GK", DFC: "CB", LI: "LB", LD: "RB",
+      MCD: "CDM", MC: "CM", MI: "LM", MD: "RM",
+      MCO: "CAM", EI: "LW", ED: "RW", DC: "ST",
+    });
+
+    const setup = draw("setup", null, { locale: "en" });
+    for (const abbreviation of Object.values(POSITION_ABBREVIATIONS.en)) {
+      expect(setup).toContain(`>${abbreviation} · `);
+    }
+    expect(setup).not.toContain(">POR · Goalkeeper");
+  });
+});
 
 describe("every screen renders", () => {
   it("walks whole careers in Spanish without throwing, and draws every screen", () => {
@@ -421,8 +520,8 @@ describe("every screen renders", () => {
    * is `record.relegated`, so that is what gets set: whether the engine produces the flag
    * is engine.test.js's business, and what the report does with it is this file's.
    */
-  const seasonRun = (seed = "down") => {
-    let run = start(seed);
+  const seasonRun = (seed = "down", position = "DC") => {
+    let run = start(seed, position);
     run = completeSigning(agreeTerms(signYouthClub(run, run.offers[0].clubId)));
     let guard = 0;
     while (run.phase !== PHASES.SEASON && run.phase !== PHASES.RETIRED && guard < 400) {
@@ -451,6 +550,59 @@ describe("every screen renders", () => {
    * ever saw that screen could not fail on anything the reveal does, which is exactly what
    * happened to the first version of the growth-sync case below.
    */
+  /**
+   * LA FICHA DE QUIEN DEFIENDE.
+   *
+   * Un portero y un central salían con "Goles 0 · Asistencias 0 · 0.00 por partido": tres
+   * ceros que no son una temporada discreta, son una ficha que no se puede leer, porque
+   * `GOAL_RATE.keeper` es cero POR DISEÑO. Se comprueba sobre el HTML de verdad porque el
+   * fallo estaba justo ahí: el modelo tenía razón y la pantalla contaba lo que no era.
+   */
+  it("cuenta la temporada de un portero con los goles que encajó", () => {
+    const copy = getCopy("es");
+    const run = seasonRun("keeper-line", "POR");
+    expect(run.phase).toBe(PHASES.SEASON);
+    const html = draw(PHASES.SEASON, run, { locale: "es" });
+
+    expect(html).toContain(copy.season.conceded);
+    expect(html).toContain(copy.season.concededPerMatch);
+    // Y ya no le cuenta lo que su posición no puede hacer.
+    expect(html).not.toContain(copy.season.assists);
+    expect(html).not.toContain(copy.season.perMatch);
+  });
+
+  it("anchors the mobile camera on the season dateline and the top of the market", () => {
+    const season = seasonRun("mobile-camera");
+    expect(season.phase).toBe(PHASES.SEASON);
+
+    const seasonHtml = draw(PHASES.SEASON, season, { locale: "es" });
+    expect(seasonHtml).toContain('data-camera-anchor="season-summary"');
+    expect(seasonHtml.indexOf('data-camera-anchor="season-summary"')).toBeLessThan(
+      seasonHtml.indexOf("tr-front__stats"),
+    );
+
+    const market = openMarket(season, "es");
+    expect(market.phase).toBe(PHASES.MARKET);
+    expect(draw(PHASES.MARKET, market, { locale: "es" })).toContain(
+      'data-camera-anchor="market-start"',
+    );
+  });
+
+  it("mide igual a la línea defensiva, y deja al centrocampista con sus goles", () => {
+    const copy = getCopy("es");
+    for (const position of ["DFC", "LI", "LD"]) {
+      const html = draw(PHASES.SEASON, seasonRun(`def-${position}`, position), { locale: "es" });
+      expect(html, position).toContain(copy.season.conceded);
+      expect(html, position).not.toContain(copy.season.assists);
+    }
+    // Todo el centro del campo mantiene goles y asistencias; también el pivote defensivo.
+    for (const position of ["MCD", "MC", "MI", "MD", "MCO", "DC"]) {
+      const html = draw(PHASES.SEASON, seasonRun(`att-${position}`, position), { locale: "es" });
+      expect(html, position).toContain(copy.season.assists);
+      expect(html, position).not.toContain(copy.season.conceded);
+    }
+  });
+
   function* seasonScreens(seed, count = 3) {
     let run = seasonRun(seed);
     let guard = 0;
@@ -794,5 +946,21 @@ describe("the rating card knows how rare it is", () => {
     for (const tier of ["bronce", "plata", "oro", "elite", "prisma"]) {
       expect(css, `no card style for the "${tier}" tier`).toContain(`.tr-pcard.is-${tier}`);
     }
+  });
+});
+
+describe("the phone layout keeps choices swipeable and comparable", () => {
+  const css = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
+
+  it("gives the pace selector a horizontal touch scroller", () => {
+    expect(css).toContain(".trayectoria-mobile-host--phone .tr-modes__row");
+    expect(css).toMatch(/\.tr-modes__row\s*\{[\s\S]*?overflow-x:\s*auto;[\s\S]*?touch-action:\s*pan-x;/);
+    expect(css).toContain("scroll-snap-stop: always");
+  });
+
+  it("keeps two contract cards in every phone row", () => {
+    expect(css).toContain(".trayectoria-mobile-host--phone .tr-offers");
+    expect(css).toMatch(/\.tr-offers\s*\{\s*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+    expect(css).toMatch(/\.tr-shell\s*\{[\s\S]*?box-sizing:\s*border-box;/);
   });
 });

@@ -34,6 +34,17 @@ export const POSITIONS = {
   DC: { group: "forward", line: "attack" },
 };
 
+/**
+ * QUIÉN ENSEÑA GOLES ENCAJADOS Y QUIÉN GOLES.
+ *
+ * Se decide por LÍNEA y no por grupo, y la diferencia importa: el grupo `support` mete en
+ * el mismo saco a un lateral y a un centrocampista, y el grupo `defensive` a un central y
+ * a un mediocentro defensivo. Lo que comparten un portero y un central no es el rol en el
+ * ataque: es que a los dos se les mide por lo que entró.
+ */
+export const defendsTheGoal = (position) =>
+  ["keeper", "defence"].includes(POSITIONS[position]?.line);
+
 export const DEVELOPMENT_PROFILES = ["early", "normal", "late"];
 export const PROFILE_WEIGHTS = { early: 0.1, normal: 0.8, late: 0.1 };
 
@@ -197,6 +208,34 @@ export const ASSIST_RATE = {
   defensive: [0.15, 0.10, 0.07, 0.04, 0.02, 0.01, 0.0],
   keeper: [0, 0, 0, 0, 0, 0, 0],
 };
+
+/**
+ * GOLES ENCAJADOS, que es la métrica de quien defiende.
+ *
+ * Un portero y un central no tienen goles ni asistencias que enseñar — `GOAL_RATE.keeper`
+ * es cero por diseño — así que su temporada se contaba con dos ceros y una tasa de 0.00.
+ * Eso no es una ficha discreta: es una ficha vacía. Lo que mide su año es lo que entró
+ * detrás de él.
+ *
+ * Sale del club antes que del jugador, y así tiene que ser: encajar es un hecho colectivo.
+ * La reputación doméstica pone la base (un campeón encaja ~0,7 por partido; un recién
+ * ascendido, ~1,7), el delta la corrige —quien está muy por encima de su plantilla la
+ * sostiene, quien está por debajo la hunde— y la fortuna de la temporada la mueve como
+ * mueve todo lo demás.
+ */
+export const CONCEDED_RATE = [1.70, 1.45, 1.25, 1.05, 0.85, 0.68];
+
+/**
+ * Cuánto corrige el jugador a su club, por banda de delta. Es una horquilla estrecha a
+ * propósito: un portero enorme en un equipo malo encaja menos, no encaja poco.
+ */
+export const CONCEDED_DELTA_MULTIPLIER = [0.82, 0.88, 0.94, 1.0, 1.06, 1.12, 1.18];
+
+/**
+ * Y cuánto pesa el puesto. El portero responde de la portería entera; un central, de casi
+ * toda; un lateral, de su banda. Nadie más responde de esto, y por eso el resto no la ve.
+ */
+export const CONCEDED_RESPONSIBILITY = { keeper: 1, defence: 1 };
 
 /** Strong sides attack more, so the same player scores more in them. */
 export const CLUB_OUTPUT_MULTIPLIER = [0.55, 0.68, 0.80, 0.92, 1.06, 1.20];

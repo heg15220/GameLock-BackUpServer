@@ -37,6 +37,8 @@ import {
   CAREER_MODES,
   CLUB_MATCH_MULTIPLIER,
   CLUB_OUTPUT_MULTIPLIER,
+  CONCEDED_DELTA_MULTIPLIER,
+  CONCEDED_RATE,
   CLUB_WORLD_CUP_CONMEBOL,
   CLUB_WORLD_CUP_CYCLE,
   CONTINENTAL_CYCLE,
@@ -460,6 +462,33 @@ export function outputFor(next, { form = 1, ...spec }) {
   const expected = expectedOutput(spec);
   if (expected <= 0) return 0;
   return poisson(next, expected * Math.max(0, form));
+}
+
+/**
+ * Los goles que entraron detrás de él.
+ *
+ * La única cifra que mide la temporada de quien defiende, y por eso se dibuja igual que
+ * las otras: una expectativa del club corregida por el jugador, y un Poisson alrededor.
+ *
+ * `stops` son las paradas y entradas decisivas que hizo A MANO en las noches grandes. Se
+ * restan aquí por la misma razón por la que los goles de esas noches se SUMAN al delantero
+ * un poco más abajo: son los que puso él, y la ficha tiene que decirlo. Un portero que
+ * saca un penalti en una final ha evitado un gol, y su línea del año debe notarlo.
+ */
+export function expectedConceded({ club, ovr, delta, matches }) {
+  if (matches <= 0) return 0;
+  const base = CONCEDED_RATE[effectiveReputation(club, ovr, "domestic")] ?? CONCEDED_RATE[3];
+  return base * matches * (CONCEDED_DELTA_MULTIPLIER[deltaBand(delta)] ?? 1);
+}
+
+export function concededFor(next, { form = 1, stops = 0, ...spec }) {
+  const expected = expectedConceded(spec);
+  if (expected <= 0) return 0;
+  // La forma de la temporada se INVIERTE aquí: un buen año del club es encajar menos, y
+  // `form` tiene media 1 con el bien hacia arriba. Sin esto, el año en que todo salió
+  // redondo sería también el año en que más goles entraron.
+  const drawn = poisson(next, expected / Math.max(0.2, form));
+  return Math.max(0, drawn - stops);
 }
 
 export function titleOddsFor({
@@ -1043,6 +1072,16 @@ export function simulateSeason(state, world, { season, tournamentRuns: prebuiltR
   const spec = { group: state.group, delta, club, ovr: effectiveOvr, matches };
   const goals = outputFor(goalStream, { ...spec, kind: "goals", form }) + bigMatchGoals;
   const assists = outputFor(assistStream, { ...spec, kind: "assists", form }) + bigMatchAssists;
+  /*
+   * Lo que entró detrás de él. Se calcula SIEMPRE, aunque sólo la vean el portero y la
+   * línea defensiva (ver `showsConceded`): encajar le pasa al equipo entero, y una cifra
+   * que sólo existe para quien la mira acaba siendo una cifra que nadie puede comprobar.
+   */
+  const conceded = concededFor(createStream(state.seed, "conceded", season), {
+    ...spec,
+    form,
+    stops: modifiers.suspended ? 0 : modifiers.bonusStops ?? 0,
+  });
 
   /*
    * What the year asked of him, kept beside what he did with it.
@@ -1231,6 +1270,7 @@ export function simulateSeason(state, world, { season, tournamentRuns: prebuiltR
     // What was asked of him, and the deciders he was handed. `seasonBand` marks the season
     // against these; nothing in the model reads them.
     expected,
+    conceded,
     deciders,
     growth,
     development: { ...development, applied: development.perSeason ?? 0 },
@@ -1279,6 +1319,7 @@ export function careerSummary(state) {
       acc.matches += season.matches;
       acc.goals += season.goals;
       acc.assists += season.assists;
+      acc.conceded += season.conceded ?? 0;
       acc.seasons += 1;
       acc.peakOvr = Math.max(acc.peakOvr, season.ovr);
       acc.peakValue = Math.max(acc.peakValue, season.value);
@@ -1294,6 +1335,7 @@ export function careerSummary(state) {
       matches: 0,
       goals: 0,
       assists: 0,
+      conceded: 0,
       seasons: 0,
       peakOvr: 0,
       peakValue: 0,

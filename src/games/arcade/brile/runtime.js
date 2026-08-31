@@ -3,8 +3,9 @@
 // A top-down 6v6 dodgeball on a fenced graveyard court split by a centre line.
 // You control ONE player of team A (the rest of both teams are AI). Hit an
 // in-court rival with a thrown ball (before it bounces) to send them to the
-// graveyard (the prisoner strip behind their side); catch a ball in the air to
-// send the THROWER there instead. Prisoners keep throwing from the strip and
+// graveyard (the prisoner strip behind their side). Catching a ball in the air
+// sends nobody down: it cancels the throw and gives your team the ball.
+// Prisoners keep throwing from the strip and
 // return to their court the moment one of their throws lands a hit. A team loses
 // when it has no players left in its own court.
 //
@@ -799,8 +800,11 @@ export class BrileRuntime {
       : target.defBallId === ball.id && target.defType === "catch";
 
     if (caught) {
-      // The defender snatches it: the THROWER is sent down (if still in court),
-      // and the catcher keeps the ball in hand.
+      // The defender snatches it and keeps the ball in hand. NOBODY goes down on
+      // a catch: this is balón prisionero, not American dodgeball. A clean catch
+      // is a SAVE — it cancels the throw and hands your team the ball, which is
+      // reward enough. Sending the thrower to the graveyard for a throw that was
+      // caught punishes the only aggressive act the game asks for.
       ball.state = "held";
       ball.owner = target.id;
       ball.live = false;
@@ -810,7 +814,6 @@ export class BrileRuntime {
       target.timesHeld += 1;
       target.defBallId = null;
       target.defType = null;
-      if (thrower && thrower.zone === "court") this._sendToPrison(thrower);
       if (target.isPlayer) this.stats.catches += 1;
       this.audio?.playCatch?.();
     } else {

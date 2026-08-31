@@ -265,6 +265,7 @@ const JOYSTICK_REPEAT_INTERVAL_MS = 70;
 function MobileJoystick({
   buttonsBySlot,
   activeSlots,
+  cuedSlots = [],
   onDirectionChange,
   onDirectionRepeat,
 }) {
@@ -418,10 +419,19 @@ function MobileJoystick({
           releaseJoystick();
         }}
       >
-        <span className={`mobile-control-deck__joystick-mark slot-up${activeSlots.includes("up") ? " is-live" : ""}`} />
-        <span className={`mobile-control-deck__joystick-mark slot-right${activeSlots.includes("right") ? " is-live" : ""}`} />
-        <span className={`mobile-control-deck__joystick-mark slot-down${activeSlots.includes("down") ? " is-live" : ""}`} />
-        <span className={`mobile-control-deck__joystick-mark slot-left${activeSlots.includes("left") ? " is-live" : ""}`} />
+        {["up", "right", "down", "left"].map((slot) => (
+          <span
+            key={slot}
+            className={[
+              "mobile-control-deck__joystick-mark",
+              `slot-${slot}`,
+              activeSlots.includes(slot) ? "is-live" : "",
+              cuedSlots.includes(slot) ? "is-cued" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          />
+        ))}
         <span
           className="mobile-control-deck__joystick-thumb"
           style={{
@@ -481,12 +491,19 @@ function renderCluster({
     const activeSlots = directionalSlots
       .filter((entry) => isButtonActive(entry.button))
       .map((entry) => entry.slot);
+    // The game can ask for one direction NOW (`cue` in the profile). Without it a
+    // stick is silent about rhythm, and a game whose whole mechanic is alternating
+    // in time becomes guesswork.
+    const cuedSlots = directionalSlots
+      .filter((entry) => entry.button.cued)
+      .map((entry) => entry.slot);
 
     return (
       <div className={clusterClassName}>
         <MobileJoystick
           buttonsBySlot={buttonsBySlot}
           activeSlots={activeSlots}
+          cuedSlots={cuedSlots}
           onDirectionChange={(previousSlots, nextSlots) => {
             const previousButtons = previousSlots.map((slot) => buttonsBySlot[slot]).filter(Boolean);
             const nextButtons = nextSlots.map((slot) => buttonsBySlot[slot]).filter(Boolean);
@@ -605,6 +622,9 @@ export default function MobileControlDeck({
 
   const mapButtons = (buttons = []) => buttons.map((button) => resolveRuntimeButton(button, snapshot));
   const preferLeftJoystick = profile.leftPadMode !== "buttons";
+  // Some sticks are gesture sticks: one push is one action, and holding must not
+  // machine-gun it. Those profiles opt out of the repeat timer entirely.
+  const leftPadRepeats = profile.leftPadRepeat !== false;
   const shouldRenderButton = (button) => {
     if (button.hiddenRuntime) {
       return false;
@@ -627,7 +647,7 @@ export default function MobileControlDeck({
     onRequestFullscreen,
     onHoldStateChange: updateHoldState,
     onDirectionChange: updateDirectionalState,
-    onDirectionRepeat: repeatDirectionalInputs,
+    onDirectionRepeat: leftPadRepeats ? repeatDirectionalInputs : undefined,
     setTappedId,
   });
   const leftSupportNode = leftSupportButtons?.length

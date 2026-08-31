@@ -97,7 +97,7 @@ describe("the roster", () => {
       /*
        * As many different games as the position has chances - which used to be a flat
        * "at least four" and is now the honest version of the same rule. A centre-back's
-       * repertoire is two moments, the corner and the tackle (see REPERTOIRE), so four
+       * repertoire is two moments, the tackle and the clearance (see REPERTOIRE), so four
        * was a number he could not reach; what must never happen is two of his chances
        * being the same thing with a different label on it.
        */
@@ -150,10 +150,10 @@ describe("no mechanic is the easy one", () => {
     expect(skillOf(99)).toBe(1);
   });
 
-  /** The aim disc is derived from the sweep band, so the two cannot drift apart by hand. */
-  it("matches the two-dimensional target to the flat ones by area", () => {
+  /** The pass disc is derived from the flat band, so the two cannot drift apart by hand. */
+  it("matches the through-ball target to the flat ones by area", () => {
     for (const at of ["at60", "at95"]) {
-      expect(Math.PI * TUNING.aim[at] ** 2).toBeCloseTo(2 * TUNING.sweep[at], 6);
+      expect(Math.PI * TUNING.pass[at] ** 2).toBeCloseTo(2 * TUNING.sweep[at], 6);
     }
   });
 });

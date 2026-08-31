@@ -771,3 +771,91 @@ describe("what the development panel says is coming", () => {
     }
   });
 });
+
+/**
+ * LO QUE ENTRÓ DETRÁS DE ÉL.
+ *
+ * La única cifra con la que se puede contar la temporada de un portero o un central:
+ * `GOAL_RATE.keeper` es cero por diseño, así que su ficha eran tres ceros y una tasa de
+ * 0.00 — una temporada que no se podía leer. Medido antes de escribir estas pruebas, sale
+ * en 0,74 por partido en un grande y 1,50 en un recién ascendido, que es el fútbol que hay.
+ */
+describe("goles encajados", () => {
+  const clubAt = (reputation) =>
+    Object.values(world.clubs).find((club) => club.domestic_reputation === reputation) ??
+    Object.values(world.clubs)[0];
+
+  const seasonAt = (club, { ovr = 78, position = "POR", seed = "enc", modifiers = {} } = {}) => {
+    const state = {
+      ...createCareer({ seed, country: "ESP", position }),
+      clubId: club.id,
+      ovr,
+      modifiers: { titleMultipliers: {}, ...modifiers },
+    };
+    return simulateSeason(state, world, { season: 0 }).record;
+  };
+
+  // Encajados por partido sobre el total, no la media de las medias: un año de quince
+  // partidos no puede pesar lo mismo que uno de cuarenta.
+  const rateOver = (club, options = {}) => {
+    let conceded = 0;
+    let matches = 0;
+    for (let i = 0; i < 40; i += 1) {
+      const record = seasonAt(club, { ...options, seed: `${options.seed ?? "enc"}-${i}` });
+      conceded += record.conceded;
+      matches += record.matches;
+    }
+    return matches ? conceded / matches : 0;
+  };
+
+  it("está en la ficha de todas las temporadas, se mire o no", () => {
+    const record = seasonAt(clubAt(3));
+    expect(record.conceded).toBeGreaterThanOrEqual(0);
+    expect(Number.isInteger(record.conceded)).toBe(true);
+  });
+
+  it("un club grande encaja menos que uno pequeño", () => {
+    expect(rateOver(clubAt(5))).toBeLessThan(rateOver(clubAt(0)));
+  });
+
+  it("se mueve en cifras de fútbol y no de baloncesto", () => {
+    // Un grande por debajo de uno por partido; el peor club, sin pasar de tres.
+    expect(rateOver(clubAt(5))).toBeLessThan(1);
+    expect(rateOver(clubAt(0))).toBeGreaterThan(0.9);
+    expect(rateOver(clubAt(0))).toBeLessThan(3);
+  });
+
+  it("el jugador corrige a su club: muy por encima se encaja menos", () => {
+    const club = clubAt(2);
+    // Mismo club, dos jugadores: uno muy por encima de la plantilla y otro por debajo.
+    expect(rateOver(club, { ovr: 88, seed: "alto" })).toBeLessThan(
+      rateOver(club, { ovr: 66, seed: "bajo" }),
+    );
+  });
+
+  it("las paradas decisivas se descuentan: son goles que evitó él", () => {
+    const club = clubAt(2);
+    const sinParadas = [];
+    const conParadas = [];
+    for (let i = 0; i < 30; i += 1) {
+      sinParadas.push(seasonAt(club, { seed: `p-${i}` }).conceded);
+      conParadas.push(seasonAt(club, { seed: `p-${i}`, modifiers: { bonusStops: 3 } }).conceded);
+    }
+    const suma = (xs) => xs.reduce((a, b) => a + b, 0);
+    expect(suma(conParadas)).toBeLessThan(suma(sinParadas));
+    // Y nunca por debajo de cero, por muchas que pare.
+    for (const value of conParadas) expect(value).toBeGreaterThanOrEqual(0);
+  });
+
+  it("sin partidos no se encaja nada", () => {
+    expect(seasonAt(clubAt(3), { modifiers: { suspended: true } }).conceded).toBe(0);
+  });
+
+  it("se acumula en el total de la carrera", () => {
+    let state = { ...createCareer({ seed: "tot", country: "ESP", position: "POR" }), clubId: clubAt(2).id, ovr: 80 };
+    for (let season = 0; season < 4; season += 1) ({ state } = simulateSeason(state, world, { season }));
+    const summary = careerSummary(state);
+    expect(summary.conceded).toBe(state.history.reduce((sum, s) => sum + s.conceded, 0));
+    expect(summary.conceded).toBeGreaterThan(0);
+  });
+});

@@ -596,6 +596,7 @@ function shotAt(run, fixtures, index, attempt = 0, taken = []) {
     // Which repertoire the night can draw from: a keeper is not handed one-on-ones to
     // finish, and a centre-back's decisive moment is mostly the one he stops.
     group: run.state.group,
+    position: run.state.position,
     attempt,
     keeper: keeperFacing(run, fixture),
   });
@@ -1135,6 +1136,7 @@ function nextRead(run, fixture, played) {
     fixture,
     ovr: run.state.ovr,
     group: run.state.group,
+    position: run.state.position,
     attempt: played.length,
     keeper: keeperFacing(run, fixture),
   });

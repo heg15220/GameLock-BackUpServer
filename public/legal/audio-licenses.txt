@@ -99,64 +99,7 @@ The net cue stays synthesized: a dead, muffled thud has no good CC0 recording,
 and synthesis does that particular job well.
 
 
-3. FULGOR - BANDA SONORA, STINGERS Y AMBIENTES
------------------------------------------------
-
-Status:  PENDING. No audio has been added to the repository for this game yet.
-
-This section is the gate, not the review. FULGOR's design budgets 28 music pieces (three of
-them delivered as three synchronised layers each), 5 stingers and 12 ambience beds, and the
-rule agreed for it is a hard one:
-
-  NO TRACK ENTERS THE REPOSITORY WITHOUT ITS ROW HERE.
-
-The project is advertising-supported, which means commercial use, and that rules two licence
-families out entirely:
-
-  NC (non-commercial)  - incompatible with an ad-supported build.
-  ND (no derivatives)  - incompatible with what this game does to its music. The adaptive
-                         layers of the score are built by cutting, looping and separating
-                         source material into stems, and every one of those is a derivative
-                         work. ND would forbid the technique the soundtrack is designed around.
-
-Admissible, in order of preference:
-
-  Source                          Licence                 Use
-  ------------------------------- ----------------------- --------------------------------
-  OpenGameArt (CC0 filter)        CC0                     Game loops and stingers
-  Kenney.nl                       CC0                     Interface and effects
-  BigSoundBank                    CC0                     Real-world ambience
-  freesound.org (CC0 filter)      CC0                     Rain, traffic, transformer hum
-  Musopen / IMSLP                 Public domain           Strings and piano for scenes
-  Free Music Archive (CC0/CC-BY)  CC0 / CC-BY 4.0         Themes and beds
-  Incompetech (Kevin MacLeod)     CC-BY 4.0               Large catalogue by mood
-  Pixabay Music                   Pixabay Content Licence  Fill only, verified track by track
-
-Two notes checked against the sources before this section was written:
-
-  - Incompetech remains CC-BY 4.0 and permits commercial use, with a required credit line in
-    the form "Title - Kevin MacLeod (incompetech.com) - Licensed under Creative Commons: By
-    Attribution 4.0 - https://creativecommons.org/licenses/by/4.0/". Any CC-BY track used
-    also needs that credit inside the game, on a credits screen reachable from the menu.
-  - The Pixabay Content Licence permits commercial use without attribution, but forbids
-    redistributing the content AS music files. Embedded in a game that is not redistribution,
-    so it is admissible - but it is last on the list and every track must be checked on its
-    own page, because Pixabay hosts contributor uploads and the licence is theirs to get wrong.
-
-Path when the files arrive: public/assets/fulgor/audio/
-
-They live in public/ rather than being imported from the module on purpose: the game loads
-only the current chapter's tracks (three files at boot, not a 26 MB manifest), and files
-imported statically from a module are pulled into the bundle whole, which would defeat that.
-
-Per-file budget: 900 KB per music loop, 250 KB per ambience, 40 KB per stinger, 26 MB total.
-
-  File            Original                Author      Licence   Source URL      Edit
-  --------------- ----------------------- ----------- --------- --------------- ------------
-  (empty - add one row per file before it is committed)
-
-
-4. SOUNDS NOT YET DOCUMENTED
+3. SOUNDS NOT YET DOCUMENTED
 -----------------------------
 
 The following audio files predate this registry and their licences have not been

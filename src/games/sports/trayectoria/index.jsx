@@ -51,6 +51,7 @@ import {
   IDOLATRY_LABELS,
   NT_TOURNAMENT,
   PLACEMENT_LABELS,
+  POSITION_ABBREVIATIONS,
   POSITION_LABELS,
   PROFILE_LABELS,
   REASON_LABELS,
@@ -81,11 +82,47 @@ import {
   seriesBounds,
   seriesPath,
 } from "./report.js";
-import { GROWTH, POSITIONS, RETIREMENT_AGE, START_AGE } from "./tables.js";
+import { GROWTH, POSITIONS, RETIREMENT_AGE, START_AGE, defendsTheGoal } from "./tables.js";
 import { playableCountries, world } from "./world.js";
 import "./styles.css";
 
 const randomSeed = () => Math.random().toString(36).slice(2, 9).toUpperCase();
+
+/**
+ * Roles whose match interventions stay as explicit choices on touch devices.
+ *
+ * A keeper, defender or midfielder is choosing the football action to take, rather than
+ * aiming a forward's finish. Keeping those choices as buttons also makes the phone and
+ * tablet version agree with the desktop version instead of replacing them with the
+ * directional touch surface.
+ */
+export const usesRoleActionButtons = (position) =>
+  ["keeper", "defence", "midfield"].includes(POSITIONS[position]?.line);
+
+/**
+ * What the line below a finished decider is allowed to claim about the match.
+ *
+ * `last.scored` means that the player completed their action. For a goalkeeper that is a
+ * save, not a win: the rest of the match may still have left their side behind. A live
+ * broadcast already carries the actual full-time result, so it takes precedence over the
+ * individual action. Skill-only moments have no simulated scoreline and keep the original
+ * action-based fallback.
+ */
+export function matchOutcomeVerdict(last, finish = null) {
+  if (!last) return null;
+  if (last.absent) return "none";
+  if (last.settledTitle) return last.settledTitle.won ? "yes" : "no";
+  const levelAtFullTime =
+    Number.isFinite(finish?.final?.home) &&
+    Number.isFinite(finish?.final?.away) &&
+    finish.final.home === finish.final.away;
+  const decidedAfterFullTime = finish?.beats?.some(
+    (beat) => beat.id === "shootout" || beat.id === "shootoutWon" || beat.id === "shootoutLost",
+  );
+  if (levelAtFullTime && !decidedAfterFullTime) return "draw";
+  if (typeof finish?.won === "boolean") return finish.won ? "yes" : "no";
+  return last.scored ? "yes" : "no";
+}
 
 /** An OVR change, always signed, so a gain and a loss are told apart at a glance. */
 const signedOvr = (value) => `${value > 0 ? "+" : ""}${value.toFixed(1)}`;
@@ -142,14 +179,20 @@ function useCountUp(target, { duration = 900, delay = 0, enabled = true } = {}) 
 }
 
 /** A headline number that counts up, with its movement against last season beside it. */
-function StatValue({ value, change, delay = 0, format }) {
+/**
+ * `lowerIsBetter` separa dos cosas que hasta ahora eran una: hacia dónde se movió el
+ * número y si eso está bien. En goles encajados subir es rojo, y la flecha tiene que
+ * seguir apuntando hacia arriba de todas formas — o el lector no sabe qué pasó.
+ */
+function StatValue({ value, change, delay = 0, format, lowerIsBetter = false }) {
   const counted = useCountUp(value, { delay, enabled: typeof value === "number" });
   const shown = typeof value === "number" ? counted : value;
+  const good = lowerIsBetter ? change < 0 : change > 0;
   return (
     <>
       {format ? format(shown) : shown}
       {typeof change === "number" && change !== 0 ? (
-        <i className={`tr-move ${change > 0 ? "is-up" : "is-down"}`}>
+        <i className={`tr-move ${good ? "is-up" : "is-down"}`}>
           {change > 0 ? "▲" : "▼"}
           {Math.abs(change)}
         </i>
@@ -170,7 +213,7 @@ function StatValue({ value, change, delay = 0, format }) {
  * and the name beside it carries the row on its own; every caller pairs the two.
  */
 /** Keep a phase change pointed at its useful content inside the native touch camera. */
-function useDeviceCameraFocus(targetRef, ready = true) {
+function useDeviceCameraFocus(targetRef, ready = true, alignment = "target") {
   const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
@@ -194,7 +237,13 @@ function useDeviceCameraFocus(targetRef, ready = true) {
     const alignTarget = () => {
       const targetBox = target.getBoundingClientRect();
       const scrollBox = scrollContainer.getBoundingClientRect();
-      const top = scrollContainer.scrollTop + targetBox.top - scrollBox.top - 12;
+      /* Most screens lead with the decision itself. The market is different: its
+         persistent player header is part of the contract comparison, so entering that
+         phase must restore the very top of the game instead of cropping it away. */
+      const top =
+        alignment === "container-start"
+          ? 0
+          : scrollContainer.scrollTop + targetBox.top - scrollBox.top - 12;
       scrollContainer.scrollTo({
         top: Math.max(0, top),
         behavior: reduced ? "auto" : "smooth",
@@ -210,7 +259,7 @@ function useDeviceCameraFocus(targetRef, ready = true) {
       cancelAnimationFrame(frame);
       window.clearTimeout(settleTimer);
     };
-  }, [ready, reduced, targetRef]);
+  }, [alignment, ready, reduced, targetRef]);
 }
 
 function Crest({ club, size = 44 }) {
@@ -465,7 +514,7 @@ function PlayerCard({ ovr, position, country, locale, size = "sm", temp = 0 }) {
       } · ${POSITION_LABELS[locale][position] ?? position}`}
     >
       <b className="tr-pcard__rating">{ovr}</b>
-      <span className="tr-pcard__pos">{position}</span>
+      <span className="tr-pcard__pos">{POSITION_ABBREVIATIONS[locale][position] ?? position}</span>
       {borrowed ? (
         <span className={`tr-pcard__temp${borrowed > 0 ? " is-up" : " is-down"}`} aria-hidden="true">
           {formatDelta(borrowed)}
@@ -767,7 +816,7 @@ function SetupScreen({ locale, onStart }) {
           <select value={form.position} onChange={(event) => set("position", event.target.value)}>
             {Object.keys(POSITIONS).map((position) => (
               <option key={position} value={position}>
-                {position} · {POSITION_LABELS[locale][position]}
+                {POSITION_ABBREVIATIONS[locale][position] ?? position} · {POSITION_LABELS[locale][position]}
               </option>
             ))}
           </select>
@@ -1991,8 +2040,10 @@ function Broadcast({
  */
 function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
   const copy = getCopy(locale);
-  // Finger or mouse. Decides how the placement is asked for, never which ones there are.
+  // Finger or mouse. Forwards may aim with a gesture; the other lines keep the same
+  // explicit action buttons on desktop, phone and tablet.
   const coarse = useCoarsePointer();
+  const roleActionButtons = usesRoleActionButtons(run.state.position);
   const matchday = run.matchday;
   if (!matchday?.shot) return null;
 
@@ -2012,19 +2063,10 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
    * Read off `scored` alone, a final he scored in printed "la copa es vuestra" whether or
    * not the cup was actually won - and now that the bracket beside it says which, the two
    * would be contradicting each other on the same screen. A night that settled a trophy
-   * says what the trophy did; every other night is still about the shot.
+   * says what the trophy did; a live night says what the full-time score did; only a
+   * skill-only moment without a simulated scoreline falls back to the player's action.
    */
-  const verdict = last
-    ? last.absent
-      ? "none"
-      : last.settledTitle
-        ? last.settledTitle.won
-          ? "yes"
-          : "no"
-        : last.scored
-          ? "yes"
-          : "no"
-    : null;
+  const verdict = matchOutcomeVerdict(last, matchday.broadcast?.finish);
   /*
    * THE PICTURE IS OF THE SHOT, NOT OF THE FIXTURE.
    *
@@ -2378,7 +2420,7 @@ function MatchScreen({ run, locale, onShoot, onPlay, onWatch, onNext }) {
                * is a button, because a swipe with a mouse is a worse click. Both hand the
                * model exactly the same placement. See aim.jsx.
                */
-              coarse ? (
+              coarse && !roleActionButtons ? (
                 <AimSurface
                   type={shot.type}
                   options={shot.options}
@@ -2771,7 +2813,7 @@ function Honour({ honour, locale, index }) {
  * the same season. Everything the engine worked out gets printed - the delta, the call-up,
  * the development cycle - since a report that hides its own workings is just a score.
  */
-function SeasonFront({ result, previous, careerTotals, keeper, locale, index, statsRef = null, landedOvr = null }) {
+function SeasonFront({ result, previous, careerTotals, keeper, defends = false, locale, index, summaryRef = null, landedOvr = null }) {
   const copy = getCopy(locale);
   const { record, headline, shadowNote } = result;
   const club = world.clubs[record.clubId];
@@ -2784,21 +2826,47 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index, st
    * own. Marking all four identically was the whole problem: "0.00" read as a fourth
    * thing that happened rather than as the arithmetic on the two beside it.
    */
-  const stats = [
-    { key: "matches", icon: "clock", label: copy.season.matches, value: record.matches, change: report.changes.matches },
-    { key: "goals", icon: "ball", label: copy.season.goals, value: record.goals, change: report.changes.goals },
-    { key: "assists", icon: "handshake", label: copy.season.assists, value: record.assists, change: report.changes.assists },
-    {
-      key: "perMatch",
-      rate: true,
-      label: copy.season.perMatch,
-      value: report.perMatch.toFixed(2),
-    },
-  ];
+  /*
+   * Y CUÁLES SON SUS TRES CIFRAS.
+   *
+   * Un portero y un central salían con "0 goles, 0 asistencias, 0.00 por partido": tres
+   * ceros que no eran una temporada discreta, eran una ficha vacía. `GOAL_RATE.keeper` es
+   * cero POR DISEÑO, así que la ficha no podía decir nada de su año mientras se empeñara
+   * en contar goles. Lo que mide su año es lo que entró detrás de él.
+   */
+  const stats = defends
+    ? [
+        { key: "matches", icon: "clock", label: copy.season.matches, value: record.matches, change: report.changes.matches },
+        {
+          key: "conceded",
+          icon: "shield",
+          label: copy.season.conceded,
+          value: record.conceded ?? 0,
+          change: report.changes.conceded,
+          lowerIsBetter: true,
+        },
+        {
+          key: "concededPerMatch",
+          rate: true,
+          label: copy.season.concededPerMatch,
+          value: report.concededPerMatch.toFixed(2),
+        },
+      ]
+    : [
+        { key: "matches", icon: "clock", label: copy.season.matches, value: record.matches, change: report.changes.matches },
+        { key: "goals", icon: "ball", label: copy.season.goals, value: record.goals, change: report.changes.goals },
+        { key: "assists", icon: "handshake", label: copy.season.assists, value: record.assists, change: report.changes.assists },
+        {
+          key: "perMatch",
+          rate: true,
+          label: copy.season.perMatch,
+          value: report.perMatch.toFixed(2),
+        },
+      ];
 
   return (
     <article className="tr-front" style={{ "--i": index }}>
-      <header className="tr-front__masthead">
+      <header className="tr-front__masthead" ref={summaryRef} data-camera-anchor="season-summary">
         <span className="tr-front__logo">{copy.title}</span>
         <span className="tr-front__dateline">
           {copy.season.eyebrow} · {copy.common.age} {record.age} ·{" "}
@@ -2833,7 +2901,7 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index, st
             {headline.body}
           </p>
 
-          <dl className="tr-front__stats" ref={statsRef}>
+          <dl className="tr-front__stats">
             {stats.map((stat, statIndex) => (
               <div key={stat.key} className={stat.rate ? "is-rate" : undefined}>
                 <dt>
@@ -2841,7 +2909,12 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index, st
                   {stat.label}
                 </dt>
                 <dd>
-                  <StatValue value={stat.value} change={stat.change} delay={statIndex * 90} />
+                  <StatValue
+                    value={stat.value}
+                    change={stat.change}
+                    delay={statIndex * 90}
+                    lowerIsBetter={stat.lowerIsBetter}
+                  />
                 </dd>
               </div>
             ))}
@@ -3118,9 +3191,10 @@ function SeasonFront({ result, previous, careerTotals, keeper, locale, index, st
             <dt>{copy.season.matches}</dt>
             <dd>{careerTotals.matches}</dd>
           </div>
+          {/* La carrera hasta aquí, con la misma cifra que la ficha del año. */}
           <div>
-            <dt>{copy.season.goals}</dt>
-            <dd>{careerTotals.goals}</dd>
+            <dt>{defends ? copy.season.conceded : copy.season.goals}</dt>
+            <dd>{defends ? careerTotals.conceded ?? 0 : careerTotals.goals}</dd>
           </div>
           <div>
             <dt>{copy.season.titles}</dt>
@@ -3193,7 +3267,7 @@ function GrowthReveal({ from, to, locale, onDone }) {
 
 function SeasonScreen({ run, locale, onNext }) {
   const copy = getCopy(locale);
-  const firstStatsRef = useRef(null);
+  const firstSummaryRef = useRef(null);
   // The step's own seasons are not in state.history yet, so the run-up to the first one
   // comes from what was already recorded.
   const before = run.state.history.slice(0, run.state.history.length - run.seasonResults.length);
@@ -3265,7 +3339,7 @@ function SeasonScreen({ run, locale, onNext }) {
   const dropOpen = Boolean(divisionMove) && !ceremonyOpen && !dropped;
   const growthOpen = Boolean(growth) && !ceremonyOpen && !dropOpen && !grown;
   const summaryReady = !ceremonyOpen && !dropOpen && !growthOpen;
-  useDeviceCameraFocus(firstStatsRef, summaryReady);
+  useDeviceCameraFocus(firstSummaryRef, summaryReady);
 
   return (
     <section className="tr-stage">
@@ -3292,9 +3366,10 @@ function SeasonScreen({ run, locale, onNext }) {
             previous={previous}
             careerTotals={careerToDate(run.state.history, result.record.season)}
             keeper={run.state.position === "POR"}
+            defends={defendsTheGoal(run.state.position)}
             locale={locale}
             index={index}
-            statsRef={index === 0 ? firstStatsRef : null}
+            summaryRef={index === 0 ? firstSummaryRef : null}
             /* Only the last season of the step knows where the player currently stands -
                an exprés step has three of these and only the last one ends on the card's
                number. See the note on the two timelines above. */
@@ -3319,7 +3394,7 @@ function MarketScreen({
 }) {
   const copy = getCopy(locale);
   const startRef = useRef(null);
-  useDeviceCameraFocus(startRef);
+  useDeviceCameraFocus(startRef, true, "container-start");
   const outlook = run.outlook;
   const standing = currentStanding(run);
   const currentClubName = standing.club?.shortName ?? standing.club?.name ?? "";
@@ -3331,7 +3406,7 @@ function MarketScreen({
 
   return (
     <section className="tr-stage">
-      <header className="tr-stage__head" ref={startRef}>
+      <header className="tr-stage__head" ref={startRef} data-camera-anchor="market-start">
         <p className="tr-eyebrow">{copy.market.heading}</p>
         <p className="tr-lede">{copy.market.lede}</p>
       </header>
@@ -3618,18 +3693,33 @@ function RetiredScreen({ run, locale, onRestart }) {
     return acc;
   }, {});
 
+  /* La carrera terminada se resume con la misma vara con la que se contó cada año: al que
+     defendió no se le cierra la vitrina con dos ceros. */
+  const defends = defendsTheGoal(run.state.position);
   const primaryTotals = [
     { label: copy.retired.seasons, value: summary.seasons },
     { label: copy.retired.matches, value: summary.matches },
-    { label: copy.retired.goals, value: summary.goals },
-    { label: copy.retired.assists, value: summary.assists },
+    ...(defends
+      ? [
+          { label: copy.season.conceded, value: summary.conceded ?? 0 },
+          {
+            label: copy.season.concededPerMatch,
+            value: (summary.matches ? (summary.conceded ?? 0) / summary.matches : 0).toFixed(2),
+          },
+        ]
+      : [
+          { label: copy.retired.goals, value: summary.goals },
+          { label: copy.retired.assists, value: summary.assists },
+        ]),
   ];
   const secondaryTotals = [
     { label: copy.retired.peakOvr, value: summary.peakOvr },
     { label: copy.retired.peakValue, value: formatValue(summary.peakValue, locale) },
     { label: copy.retired.clubs, value: summary.clubs.length },
     { label: copy.retired.caps, value: summary.caps },
-    { label: copy.retired.contributionRate, value: summary.contributionsPerMatch.toFixed(2) },
+    ...(defends
+      ? []
+      : [{ label: copy.retired.contributionRate, value: summary.contributionsPerMatch.toFixed(2) }]),
   ];
   const milestones = [
     {
@@ -4054,7 +4144,8 @@ export default function TrayectoriaGame() {
             <div>
               <h1 className="tr-display">{run.state.surname}</h1>
               <p>
-                {run.state.position} · {POSITION_LABELS[locale][run.state.position]} ·{" "}
+                {POSITION_ABBREVIATIONS[locale][run.state.position] ?? run.state.position} ·{" "}
+                {POSITION_LABELS[locale][run.state.position]} ·{" "}
                 <Flag country={standing.country} size={14} />{" "}
                 {locale === "es" ? standing.country?.name_es : standing.country?.name_en}
                 {" · "}

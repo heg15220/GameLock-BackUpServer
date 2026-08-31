@@ -4414,6 +4414,32 @@
   background: rgba(34, 211, 238, 0.72);
 }
 
+/* «Ahora hacia aquí»: la marca late para que el pulgar sepa a qué lado ir sin
+   apartar la vista del escenario. Empujar al lado contrario RESTA energía en
+   juegos como Saltos Selváticos, así que esto no es decoración. */
+.mobile-control-deck__joystick-mark.is-cued {
+  background: rgba(250, 204, 21, 0.92);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  animation: mobile-control-deck-cue 620ms ease-in-out infinite;
+}
+
+/* Late con la sombra y no con transform: cada marca se centra con su propio
+   translate y animar transform la sacaría de sitio. */
+@keyframes mobile-control-deck-cue {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(250, 204, 21, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-control-deck__joystick-mark.is-cued {
+    animation: none;
+  }
+}
+
 .mobile-control-deck__joystick-mark.slot-up {
   top: 12%;
   left: 50%;

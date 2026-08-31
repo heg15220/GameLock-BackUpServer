@@ -34,6 +34,7 @@
   --tr-body: "Archivo", "Segoe UI", system-ui, sans-serif;
 
   position: relative;
+  box-sizing: border-box;
   padding: clamp(16px, 3vw, 28px);
   border-radius: 24px;
   color: var(--tr-ink);
@@ -2178,7 +2179,7 @@
    went. A counter reading "2 de 3" says the first half of that and hides the half the
    player is actually thinking about. */
 /* ── The moment, when it is yours ────────────────────────────────────────────
-   Seven mechanics, and every one of them played on the pitch it is happening on
+   Six mechanics, and every one of them played on the pitch it is happening on
    rather than on a bar underneath it. See chancegames.jsx: the 0..1 the model
    speaks is a line inside the picture - across the goal for the ones you aim,
    up the grass for the ones you time, along the flight of the ball for the one
@@ -2231,7 +2232,7 @@
 }
 
 /* ── What is being asked, drawn on the grass ─────────────────────────────────
-   One vocabulary across all seven: GREEN is the thing you are trying to hit,
+   One vocabulary across all six: GREEN is the thing you are trying to hit,
    GOLD is you, and RED is the strike itself. Nothing here is decoration - if a
    mark moves, it is because the player is being judged on where it was when he
    let go.                                                                     */
@@ -2276,6 +2277,30 @@
 /* Him, arriving. Lit like an opponent rather than like you. */
 .tr-play__closer { color: #d3603f; }
 
+/* The defensive duel. The route to goal is danger, the inside figure is the player and
+   the short gold reach is the action available to them; no detached sweeping cursor. */
+.tr-play__danger-lane {
+  fill: none;
+  stroke: rgba(232, 17, 45, 0.58);
+  stroke-width: 8;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+.tr-play__band.is-tackle {
+  fill: rgba(53, 196, 106, 0.2);
+  stroke-width: 1.2;
+}
+.tr-play__defender { color: var(--tr-gold); }
+.tr-play__attacker,
+.tr-play__opponent { color: #d3603f; }
+.tr-play__tackle-reach {
+  stroke: var(--tr-gold);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-dasharray: 3 2;
+  filter: drop-shadow(0 0 3px rgba(242, 183, 5, 0.45));
+}
+
 /* The two-dimensional one: the disc the judge measures, at the size it measures
    it, and the crosshair that runs the full frame so a thumb never hides it. */
 .tr-play__disc {
@@ -2288,6 +2313,35 @@
   stroke: rgba(242, 183, 5, 0.6);
   stroke-width: 0.9;
   stroke-dasharray: 3 3;
+}
+
+/* The key pass: a back line to break, a run towards goal and the pass preview from the
+   midfielder's boot. These marks make the outcome a clear chance rather than an abstract
+   moving target. */
+.tr-play__back-line {
+  stroke: rgba(211, 96, 63, 0.78);
+  stroke-width: 1.4;
+  stroke-dasharray: 5 3;
+}
+.tr-play__run-lane {
+  fill: none;
+  stroke: rgba(53, 196, 106, 0.72);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 5 4;
+}
+.tr-play__runner { color: var(--tr-green); }
+.tr-play__pass {
+  stroke: rgba(242, 183, 5, 0.42);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 4 3;
+}
+.tr-play__pass.is-aiming {
+  stroke: var(--tr-gold);
+  stroke-width: 2.2;
+  stroke-dasharray: none;
+  filter: drop-shadow(0 0 3px rgba(242, 183, 5, 0.5));
 }
 
 /* The crossbar, marked: on a hold, "too much" is a place on the picture rather than a
@@ -4051,8 +4105,10 @@
   flex-direction: column;
   align-items: stretch;
 }
+/* Cuatro columnas fijas dejaban un hueco en la ficha de quien defiende, que tiene tres
+   cifras y no cuatro. `auto-fit` reparte las que haya. */
 .trayectoria-mobile-host--tablet .tr-front__stats {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
 }
 .trayectoria-mobile-host--tablet .tr-retired__legacy {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4081,6 +4137,55 @@
     align-items: center;
   }
 }
+
+/* The desktop device preview is still a PHONE even though the browser window around it
+   is wide. These three interactions therefore key off the explicit host as well as the
+   physical viewport media query below. */
+.trayectoria-mobile-host--phone .tr-setup,
+.trayectoria-mobile-host--phone .tr-modes { width: 100%; min-width: 0; }
+.trayectoria-mobile-host--phone .tr-modes__row {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+  padding: 2px clamp(28px, 12vw, 48px) 6px 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-padding-inline: 0 clamp(28px, 12vw, 48px);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+}
+.trayectoria-mobile-host--phone .tr-modes__row::-webkit-scrollbar { display: none; }
+.trayectoria-mobile-host--phone .tr-mode {
+  flex: 0 0 min(78vw, 260px);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+.trayectoria-mobile-host--phone .tr-offers {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-items: stretch;
+}
+.trayectoria-mobile-host--phone .tr-offer { min-width: 0; gap: 10px; padding: 10px 8px; }
+.trayectoria-mobile-host--phone .tr-offer__head { align-items: flex-start; flex-wrap: wrap; gap: 7px; }
+.trayectoria-mobile-host--phone .tr-offer__head .tr-crest { width: 28px !important; height: 28px !important; }
+.trayectoria-mobile-host--phone .tr-offer__id h3 { font-size: 12px; line-height: 1.15; overflow-wrap: anywhere; }
+.trayectoria-mobile-host--phone .tr-offer__id p { font-size: 8px; line-height: 1.35; letter-spacing: .05em; overflow-wrap: anywhere; }
+.trayectoria-mobile-host--phone .tr-offer .tr-tag { flex: 0 0 auto; padding: 2px 5px; font-size: 7px; }
+.trayectoria-mobile-host--phone .tr-offer .tr-delta { gap: 13px; }
+.trayectoria-mobile-host--phone .tr-offer .tr-delta__marker { min-width: 29px; height: 20px; padding-inline: 4px; }
+.trayectoria-mobile-host--phone .tr-offer .tr-delta__marker b { font-size: 11px; }
+.trayectoria-mobile-host--phone .tr-offer .tr-delta__foot { display: grid; gap: 3px; font-size: 8px; }
+.trayectoria-mobile-host--phone .tr-offer .tr-delta__squad { gap: 4px; letter-spacing: .05em; }
+.trayectoria-mobile-host--phone .tr-offer .tr-delta__role { font-size: 8px; letter-spacing: .04em; }
+.trayectoria-mobile-host--phone .tr-offer .tr-verdicts { grid-template-columns: 1fr; gap: 6px; }
+.trayectoria-mobile-host--phone .tr-offer .tr-verdict { gap: 3px; padding: 6px; }
+.trayectoria-mobile-host--phone .tr-offer .tr-verdict__label { font-size: 7px; letter-spacing: .06em; }
+.trayectoria-mobile-host--phone .tr-offer .tr-verdict__value { font-size: 15px; }
+.trayectoria-mobile-host--phone .tr-offer .tr-verdict__detail { font-size: 8px; }
+.trayectoria-mobile-host--phone .tr-offer > .tr-btn { min-height: 40px; padding: 8px 5px; font-size: 10px; }
 
 @media (max-width: 640px) {
   /* Trayectoria owns its phone layout. It is a continuous editorial surface with no
@@ -4152,9 +4257,22 @@
   .tr-flags { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 184px; padding: 5px; }
   .tr-flagpick { gap: 7px; padding: 7px; font-size: 11px; }
   .tr-modes legend small { display: block; margin: 4px 0 0; }
-  .tr-modes__row { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .tr-modes__row {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+    padding: 2px clamp(28px, 12vw, 48px) 6px 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 0 clamp(28px, 12vw, 48px);
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+  }
   .tr-modes__row::-webkit-scrollbar { display: none; }
-  .tr-mode { flex: 0 0 min(78vw, 260px); scroll-snap-align: start; }
+  .tr-mode { flex: 0 0 min(78vw, 260px); scroll-snap-align: start; scroll-snap-stop: always; }
   .tr-thesis { padding: 13px 14px; font-size: 12px; }
 
   /* Decisions, offers and contract screens become a single purposeful reading order. */
@@ -4169,8 +4287,28 @@
   .tr-outlook { padding: 14px; border-radius: 9px; }
   .tr-card__options { display: grid; grid-template-columns: 1fr; gap: 8px; }
   .tr-option { padding: 12px; }
-  .tr-offers { grid-template-columns: 1fr; gap: 10px; }
-  .tr-offer__head { gap: 9px; }
+  /* Two contracts remain visible together so the mobile choice is a comparison, not a
+     sequence of isolated full-width cards. Their inner typography gives up space before
+     the information does. */
+  .tr-offers { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-items: stretch; }
+  .tr-offer { min-width: 0; gap: 10px; padding: 10px 8px; }
+  .tr-offer__head { align-items: flex-start; flex-wrap: wrap; gap: 7px; }
+  .tr-offer__head .tr-crest { width: 28px !important; height: 28px !important; }
+  .tr-offer__id h3 { font-size: 12px; line-height: 1.15; overflow-wrap: anywhere; }
+  .tr-offer__id p { font-size: 8px; line-height: 1.35; letter-spacing: .05em; overflow-wrap: anywhere; }
+  .tr-offer .tr-tag { flex: 0 0 auto; padding: 2px 5px; font-size: 7px; }
+  .tr-offer .tr-delta { gap: 13px; }
+  .tr-offer .tr-delta__marker { min-width: 29px; height: 20px; padding-inline: 4px; }
+  .tr-offer .tr-delta__marker b { font-size: 11px; }
+  .tr-offer .tr-delta__foot { display: grid; gap: 3px; font-size: 8px; }
+  .tr-offer .tr-delta__squad { gap: 4px; letter-spacing: .05em; }
+  .tr-offer .tr-delta__role { font-size: 8px; letter-spacing: .04em; }
+  .tr-offer .tr-verdicts { grid-template-columns: 1fr; gap: 6px; }
+  .tr-offer .tr-verdict { gap: 3px; padding: 6px; }
+  .tr-offer .tr-verdict__label { font-size: 7px; letter-spacing: .06em; }
+  .tr-offer .tr-verdict__value { font-size: 15px; }
+  .tr-offer .tr-verdict__detail { font-size: 8px; }
+  .tr-offer > .tr-btn { min-height: 40px; padding: 8px 5px; font-size: 10px; }
   .tr-talks__actions,
   .tr-clause__actions { display: grid; grid-template-columns: 1fr; width: 100%; }
   .tr-talks__actions .tr-btn,

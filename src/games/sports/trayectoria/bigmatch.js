@@ -39,6 +39,7 @@ import { chance, createStream, randInt } from "./rng.js";
 import {
   CONTINENTAL_CYCLE,
   CONTINENTAL_WIN,
+  POSITIONS,
   PROMOTION_ODDS,
   TITLE_DELTA_MULTIPLIER,
   TITLE_ODDS,
@@ -314,6 +315,10 @@ export const SHOT_TYPES = {
   // that stops one. Neither has a mirror, because neither is a duel with a goalkeeper.
   pase_gol: ["al-hueco", "atras", "cruzado"],
   entrada: ["adelantarse", "aguantar", "cerrar"],
+  // Y el que se juega de espaldas a tu propia portería: el balón ya está dentro del área
+  // y sólo hay que sacarlo. No se coloca, se golpea, y por eso son tres SITIOS y no cinco:
+  // arriba y lejos, a la banda, o jugarla — que es lo valiente y lo que más se paga.
+  despeje: ["arriba", "banda", "jugarla"],
 };
 
 /**
@@ -336,6 +341,7 @@ export const SHOT_PRODUCES = {
   salida_mano_a_mano: PRODUCES.STOP,
   centro_lateral: PRODUCES.STOP,
   entrada: PRODUCES.STOP,
+  despeje: PRODUCES.STOP,
   pase_gol: PRODUCES.ASSIST,
 };
 
@@ -346,22 +352,42 @@ export const SHOT_PRODUCES = {
  * positions collapse to the four the football does: the man in the goal, the man stopping
  * it, the man supplying it and the man finishing it.
  *
- * A defender gets three defensive moments and a corner, which is exactly the shape of a
- * real centre-back's decisive night - he saves it three times and wins it once with his
- * head. A midfielder's is the last pass and the shot from distance. The striker's list is
- * the original five, unchanged, so nothing about an existing forward career moves.
+ * A defender gets only the two interventions that defend the goal: a tackle or a
+ * clearance. A midfielder's is the last pass or an attacking chance. The striker's list
+ * remains fully offensive, so each line now receives moments that match its role.
  */
 export const REPERTOIRE = {
   // All four, from the line. A goalkeeper's career is the same four moments as everybody
   // else's, seen from the only place in the stadium they look different from.
   keeper: ["parada_penal", "tiro_lejano", "salida_mano_a_mano", "centro_lateral"],
-  // A centre-back's decisive night is the corner he wins it with and the tackle he saves
-  // it with. Two moments, which is exactly how many a centre-back gets.
-  defensive: ["cabezazo", "entrada"],
+  // A defender's decisive night is spent DEFENDING: the tackle and the clearance are the
+  // two moments the game is won with from there. No attacking header leaks into this pool.
+  defensive: ["entrada", "despeje"],
   support: ["pase_gol", "falta", "mano_a_mano", "cabezazo"],
   creator: ["pase_gol", "falta", "mano_a_mano", "cabezazo"],
   forward: ["penal", "mano_a_mano", "cabezazo", "falta"],
 };
+
+/**
+ * WHICH POOL A POSITION ACTUALLY PLAYS, WHICH IS NOT ALWAYS ITS GROUP'S.
+ *
+ * The groups were drawn for OUTPUT - how much a position scores and assists - and two of
+ * them straddle a line: `support` holds full-backs and central midfielders, `defensive`
+ * holds centre-backs and holding midfielders. Feed the chances off the group and a
+ * full-back spends his big nights taking free kicks while a holding midfielder spends his
+ * clearing corners, which is each one playing the other's game.
+ *
+ * The line settles it. Everyone in the back four defends; everyone in midfield gets the
+ * last pass and the shot. Above midfield nothing changes.
+ */
+export function repertoireFor({ position, group = "forward" } = {}) {
+  const line = POSITIONS[position]?.line;
+  if (line === "keeper") return REPERTOIRE.keeper;
+  if (line === "defence") return REPERTOIRE.defensive;
+  // A holding midfielder is a midfielder: the last pass and the shot from distance.
+  if (line === "midfield" && group === "defensive") return REPERTOIRE.support;
+  return REPERTOIRE[group] ?? REPERTOIRE.forward;
+}
 
 /**
  * What can be on the line, and when.
@@ -895,6 +921,8 @@ export function shotFor({
   fixture,
   ovr,
   group = "forward",
+  // The position itself, because two groups straddle a line - see `repertoireFor`.
+  position = null,
   // Everything the man in the other goal knows: what the night is worth, who his side are,
   // what this player has been converting, and where he has been putting them. See keeper.js.
   keeper = null,
@@ -907,7 +935,7 @@ export function shotFor({
   // known for - a World Cup final leans on the penalty spot, a cup final on a free kick.
   // The preference degrades to a flat draw for a position whose repertoire it names none
   // of, which is every position but the striker's.
-  const pool = REPERTOIRE[group] ?? REPERTOIRE.forward;
+  const pool = repertoireFor({ position, group });
   const preferred = new Set(spec.shots ?? []);
   const weights = pool.map((entry) => (preferred.has(entry) ? 2 : 1));
   const total = weights.reduce((sum, weight) => sum + weight, 0);
@@ -1078,6 +1106,9 @@ export function matchEffects(results = []) {
     // A converted chance is not always a goal. A keeper who guesses the corner has saved
     // the final, not scored in it, and `GOAL_RATE.keeper` is zero for a reason.
     bonusAssists: 0,
+    // Las que paró él. `concededFor` las resta de lo que entró: un penalti sacado en una
+    // final es un gol que no está en la ficha, igual que el del delantero sí lo está.
+    bonusStops: 0,
     // National-team deciders belong on the international line, not in the club totals.
     nationalBonusGoals: 0,
     nationalBonusAssists: 0,
@@ -1117,6 +1148,7 @@ export function matchEffects(results = []) {
       else if (produces === PRODUCES.STOP) effects.nationalBonusSaves += came;
     } else if (produces === PRODUCES.GOAL) effects.bonusGoals += came;
     else if (produces === PRODUCES.ASSIST) effects.bonusAssists += came;
+    else if (produces === PRODUCES.STOP) effects.bonusStops += came;
     // A night the ball never came to him is not a chance he was handed, so it is not one
     // he can be marked down for - see `absent` in outcomeOf.
     effects.deciders.taken += result.taken ?? (result.absent ? 0 : 1);

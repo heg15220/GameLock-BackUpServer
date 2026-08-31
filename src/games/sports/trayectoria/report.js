@@ -200,11 +200,15 @@ export function seasonReport(record, previous = null) {
     changes: {
       goals: movement(record, previous, "goals"),
       assists: movement(record, previous, "assists"),
+      // Menos es mejor aquí, y la flecha lo sabe: ver `concededMovement`.
+      conceded: movement(record, previous, "conceded"),
       matches: movement(record, previous, "matches"),
       ovr: movement(record, previous, "ovr"),
       value: movement(record, previous, "value"),
     },
     perMatch: record.matches ? record.goals / record.matches : 0,
+    // La otra tasa. La ficha de quien defiende se lee con ésta, no con la de goles.
+    concededPerMatch: record.matches ? (record.conceded ?? 0) / record.matches : 0,
     // A season where you were called up but won nothing still belongs on the page.
     national: record.national?.calledUp ? record.national : null,
     development,
@@ -226,11 +230,12 @@ export function careerToDate(history, throughSeason) {
       matches: totals.matches + season.matches,
       goals: totals.goals + season.goals,
       assists: totals.assists + season.assists,
+      conceded: totals.conceded + (season.conceded ?? 0),
       titles: totals.titles + season.titles.length,
       awards: totals.awards + season.awards.length,
       caps: totals.caps + (season.national?.caps ?? 0),
     }),
-    { seasons: 0, matches: 0, goals: 0, assists: 0, titles: 0, awards: 0, caps: 0 },
+    { seasons: 0, matches: 0, goals: 0, assists: 0, conceded: 0, titles: 0, awards: 0, caps: 0 },
   );
 }
 

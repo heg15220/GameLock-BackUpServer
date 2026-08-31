@@ -141,6 +141,41 @@ const show = (initial, expose) =>
   mount(React.createElement(Harness, { initial, expose }));
 
 describe("the live clock", () => {
+  it("uses desktop-style action buttons for non-forwards on touch screens", () => {
+    const originalMatchMedia = window.matchMedia;
+    window.matchMedia = vi.fn(() => ({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+
+    try {
+      for (const position of ["POR", "DFC", "MC"]) {
+        const initial = narratedDecider(1, `touch-${position}`);
+        const view = show({
+          ...initial,
+          state: { ...initial.state, position },
+        });
+        runClock();
+
+        expect(
+          view.container.querySelectorAll("button.tr-shot").length,
+          `${position} lost its action buttons`,
+        ).toBeGreaterThan(0);
+        expect(view.container.querySelector(".tr-aimer"), `${position} got touch aiming`).toBeNull();
+        view.unmount();
+      }
+
+      const forward = show(narratedDecider(1, "touch-DC"));
+      runClock();
+      expect(forward.container.querySelector(".tr-aimer")).toBeTruthy();
+      expect(forward.container.querySelectorAll("button.tr-shot")).toHaveLength(0);
+      forward.unmount();
+    } finally {
+      window.matchMedia = originalMatchMedia;
+    }
+  });
+
   it("does not offer the shot before the match has reached it", () => {
     const view = show(narratedDecider(1));
     // Kick-off has happened; the chance has not.

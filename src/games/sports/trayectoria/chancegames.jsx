@@ -1,5 +1,5 @@
 /**
- * The seven ways a chance gets played, on the pitch it is happening on.
+ * The six ways a chance gets played, on the pitch it is happening on.
  *
  * `minigames.js` is the model - where the target is, how wide, how fast - and has no React
  * in it. This is the other half: one surface per mechanic, each one a different verb in the
@@ -9,7 +9,7 @@
  *
  * ── Why these are drawn on a pitch ────────────────────────────────────────────
  *
- * They used to be grey bars. Seven mechanics, each correct, each keyed off the player's
+ * They used to be grey bars. Six mechanics, each correct, each keyed off the player's
  * position by `CHANCE_MECHANIC` - and all of them rendered as the same rectangle with a
  * marker running along it. A goalkeeper's penalty save and a striker's finish were the same
  * screen with different words over it, which meant the one thing the model has always known
@@ -361,6 +361,107 @@ function ClosingRun({ chance, target, tolerance, at }) {
   );
 }
 
+/* ── Win the ball ───────────────────────────────────────────────────────────
+   A defender does not stop a cursor. They read a touch, protect the route to goal and
+   commit when the ball separates from the attacker. The model still judges one instant,
+   but the surface now shows the football event that instant represents. */
+
+function TackleGame({ chance, copy, reduced, onSettle }) {
+  const [run, setRun] = useState(0);
+  const done = useRef(false);
+
+  const settle = useCallback(
+    (at) => {
+      if (done.current) return;
+      done.current = true;
+      onSettle(at);
+    },
+    [onSettle],
+  );
+
+  useEffect(() => {
+    if (reduced) return undefined;
+    const start = performance.now();
+    let raf = 0;
+    const step = (now) => {
+      const elapsed = (now - start) / 1000 / chance.period;
+      if (elapsed >= 1) {
+        setRun(1);
+        settle(1);
+        return;
+      }
+      setRun(elapsed);
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [chance.period, reduced, settle]);
+
+  const at = reduced ? chance.target : run;
+  return (
+    <Surface
+      mechanic={chance.mechanic}
+      camera={CAMERAS.BEHIND}
+      prompt={copy.match.chancePrompt[chance.mechanic]}
+      hint={copy.match.chanceHint[chance.mechanic]}
+      label={copy.match.chancePrompt[chance.mechanic]}
+      onClick={() => settle(at)}
+    >
+      <TackleField chance={chance} at={at} />
+    </Surface>
+  );
+}
+
+function TackleField({ chance, at }) {
+  const attackerY = runY(at);
+  const contactY = runY(chance.target);
+  const upper = runY(Math.min(1, chance.target + chance.tolerance));
+  const lower = runY(Math.max(0, chance.target - chance.tolerance));
+  const top = Math.min(upper, lower);
+
+  return (
+    <>
+      {/* The channel to goal and the exposed-touch zone: context, not a detached gauge. */}
+      <path className="tr-play__danger-lane" d={`M 108 114 L 108 ${GOAL.bottom + 2}`} />
+      <rect
+        className="tr-play__band is-tackle"
+        x="78"
+        y={top}
+        width="54"
+        height={Math.max(3, Math.abs(lower - upper))}
+        rx="5"
+      />
+
+      {/* You hold the inside line. The opponent and ball advance together until the touch
+          enters range, which is the visual information the tap is judged against. */}
+      <Figure
+        x="82"
+        y={contactY + 7}
+        height="34"
+        pose="stand"
+        facing="1"
+        className="tr-play__defender"
+      />
+      <Figure
+        x="108"
+        y={attackerY + 2}
+        height="34"
+        pose="run"
+        facing="-1"
+        className="tr-play__attacker"
+      />
+      <Ball x="108" y={attackerY - 5} r="3.4" />
+      <line
+        className="tr-play__tackle-reach"
+        x1="87"
+        y1={contactY}
+        x2="105"
+        y2={attackerY - 4}
+      />
+    </>
+  );
+}
+
 /* ── Hold and release ────────────────────────────────────────────────────────
    The bar climbs while you hold it and it does not come back. That is the whole
    difference from a sweep: a sweep forgives you by coming round again, and this
@@ -510,7 +611,7 @@ function PowerArc({ chance, at, live }) {
    thumb covers the point you are aiming with, and the lines stay visible either
    side of it.                                                                 */
 
-function AimGame({ chance, copy, reduced, onSettle }) {
+function AimGame({ chance, copy, reduced, onSettle, passing = false }) {
   const field = useRef(null);
   const [aim, setAim] = useState(null);
   const [run, setRun] = useState(0);
@@ -587,8 +688,49 @@ function AimGame({ chance, copy, reduced, onSettle }) {
         settle(spot, reduced ? 1 : held.current.t);
       }}
     >
-      <AimField chance={chance} spot={spot} at={at} />
+      {passing ? (
+        <KeyPassField chance={chance} spot={spot} at={at} />
+      ) : (
+        <AimField chance={chance} spot={spot} at={at} />
+      )}
     </Surface>
+  );
+}
+
+/** A through ball rather than a generic target: passer, back line and runner all visible. */
+function KeyPassField({ chance, spot, at }) {
+  const box = { x: 44, y: 4, size: 112 };
+  const px = (u) => box.x + u * box.size;
+  const py = (v) => box.y + v * box.size;
+  const radius = chance.tolerance * box.size;
+  const passer = { x: px(0.5), y: py(0.9) };
+  const start = { x: px(chance.spot.x), y: py(chance.spot.y) };
+  const finishSpot = spotAt(chance.spot, 1);
+  const finish = { x: px(finishSpot.x), y: py(finishSpot.y) };
+
+  return (
+    <>
+      {/* The defensive line makes the consequence legible: beat it and the runner is in. */}
+      <line className="tr-play__back-line" x1={box.x + 5} y1={py(0.67)} x2={box.x + box.size - 5} y2={py(0.67)} />
+      <Figure x={px(0.24)} y={py(0.67) + 7} height="22" pose="stand" facing="1" className="tr-play__opponent" />
+      <Figure x={px(0.76)} y={py(0.67) + 7} height="22" pose="stand" facing="-1" className="tr-play__opponent" />
+
+      {/* The run attacks goal. Its destination and tolerance are exactly what the judge uses. */}
+      <path className="tr-play__run-lane" d={`M ${start.x} ${start.y} L ${finish.x} ${finish.y}`} />
+      <circle className="tr-play__disc" cx={px(spot.x)} cy={py(spot.y)} r={radius} />
+      <Figure x={px(spot.x)} y={py(spot.y) + 8} height="22" pose="run" facing={finish.x < start.x ? -1 : 1} className="tr-play__runner" />
+
+      {/* You are the passer. Dragging draws the ball through the line into the run. */}
+      <Figure x={passer.x - 6} y={passer.y + 7} height="23" pose="strike" facing="1" className="tr-scene__taker" />
+      <line
+        className={`tr-play__pass${at ? " is-aiming" : ""}`}
+        x1={passer.x}
+        y1={passer.y}
+        x2={at ? px(at.x) : passer.x}
+        y2={at ? py(at.y) : passer.y}
+      />
+      <Ball x={at ? px(at.x) : passer.x} y={at ? py(at.y) : passer.y} r="3.6" />
+    </>
   );
 }
 
@@ -750,7 +892,8 @@ const SURFACES = {
   [MECHANICS.SWEEP]: TrackGame,
   [MECHANICS.WINDOW]: TrackGame,
   [MECHANICS.CHARGE]: ChargeGame,
-  [MECHANICS.AIM]: AimGame,
+  [MECHANICS.TACKLE]: TackleGame,
+  [MECHANICS.PASS]: (props) => <AimGame {...props} passing />,
   [MECHANICS.DIVE]: DiveGame,
 };
 

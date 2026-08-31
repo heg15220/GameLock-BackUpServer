@@ -275,10 +275,6 @@ export const gameCatalogDescriptions = {
     es: "Pádel por parejas en pseudo-3D: coloca, remata y juega las paredes de cristal.",
     en: "Pseudo-3D doubles padel: position, smash and play the glass walls.",
   },
-  "arcade-fulgor": {
-    es: "Tienes el rayo y dos vidas que no pueden tocarse: cada persona lleva su propio expediente sobre ti.",
-    en: "You have the lightning and two lives that must never touch: everyone keeps their own file on you.",
-  },
   "sports-trayectoria": {
     es: "Carrera de futbolista de los 16 a los 40: elige club, decide y resuelve las jugadas decisivas de cada temporada.",
     en: "A footballer's career from 16 to 40: pick clubs, decide, and settle the plays each season comes down to.",

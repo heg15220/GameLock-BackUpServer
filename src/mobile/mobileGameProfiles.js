@@ -14,9 +14,6 @@ const DIRECT_TOUCH_GAME_IDS = new Set([
   // A career is decided by pressing the option you mean. There is nothing to steer,
   // so a virtual pad would take up half the screen to control nothing.
   "sports-trayectoria",
-  // FULGOR draws its own lower panel: the commands ARE the bottom half of the screen.
-  // A virtual pad would be a second control deck sitting on top of the real one.
-  "arcade-fulgor",
   "racing-race2dpro",
   "racing-sunset-slipstream",
 ]);
@@ -87,6 +84,8 @@ function control(id, label, options = {}) {
     stateLabels: options.stateLabels ?? null,
     screenLabels: options.screenLabels ?? null,
     visibility: options.visibility ?? null,
+    // { path, equals }: la señal de «ahora esta dirección» que el mando enciende.
+    cue: options.cue ?? null,
     extraClassName: options.extraClassName ?? null,
   };
 }
@@ -710,8 +709,8 @@ export function getMobileControlProfile(game, locale = "es") {
         heading: t(locale, "Brilé", "Dodgeball"),
         hint: t(
           locale,
-          "Mueve el joystick para colocarte y esquivar. Con el balón, Lanzar apunta solo al rival más peligroso; Atrapar cázalo justo cuando te llega para brilar al lanzador. Dificultad y «Otra vez»/«Cambiar» en los botones del panel.",
-          "Move the joystick to reposition and dodge. Holding the ball, Throw auto-aims at the most dangerous rival; Catch it right as it reaches you to send the thrower out. Difficulty and «Again»/«Change» are in the panel buttons.",
+          "Mueve el joystick para colocarte y esquivar. Con el balón, Lanzar apunta solo al rival más peligroso; Atrapar cázalo justo cuando te llega: te salvas y te quedas el balón. Dificultad y «Otra vez»/«Cambiar» en los botones del panel.",
+          "Move the joystick to reposition and dodge. Holding the ball, Throw auto-aims at the most dangerous rival; Catch it right as it reaches you: you are safe and you keep the ball. Difficulty and «Again»/«Change» are in the panel buttons.",
         ),
         // Joystick to move; two big action taps mirror the keyboard throw/catch.
         leftPad: directionalPad(locale, {
@@ -753,25 +752,35 @@ export function getMobileControlProfile(game, locale = "es") {
         heading: t(locale, "Liana", "Vine"),
         hint: t(
           locale,
-          "Alterna ◀ y ▶ al ritmo del vaivén: se enciende el que toca en cada pasada por abajo. Cuando lleves impulso, ¡Saltar! justo al cruzar la marca amarilla (la altura de la plataforma). La dificultad está aquí abajo.",
-          "Alternate ◀ and ▶ in time with the swing: the right one lights up on each pass through the bottom. Once you've built momentum, hit Jump! as you cross the yellow marker (the platform's height). Difficulty is down here.",
+          "Empuja el joystick hacia el punto amarillo que se enciende: ése es el lado al que toca sacudir la liana en esta pasada, y empujar al contrario te QUITA impulso. Un empujón, una sacudida. Cuando lleves impulso, ¡Saltar! justo al cruzar la marca amarilla (la altura de la plataforma). La dificultad está aquí abajo.",
+          "Push the stick toward the yellow dot that lights up: that is the way to shake the vine on this pass, and pushing the other way TAKES momentum away. One push, one shake. Once you've built momentum, hit Jump! as you cross the yellow marker (the platform's height). Difficulty is down here.",
         ),
-        // The shake is a two-way motion, so it gets two buttons under the left
-        // thumb; the right thumb only ever commits to the jump.
+        // The shake is a two-way motion under the left thumb; the right thumb only
+        // ever commits to the jump. The ids have to READ as directions: the deck
+        // resolves a joystick's slots from the button id, not from its key code.
         leftPad: [
-          control("pumpBack", t(locale, "◀ Atrás", "◀ Back"), {
+          control("pumpLeft", t(locale, "◀ Atrás", "◀ Back"), {
             type: "tap",
             inputs: [input("ArrowLeft", "ArrowLeft")],
             visibility: { screens: ["swing"] },
+            cue: { path: "player.pumpCue", equals: -1 },
           }),
-          control("pumpFwd", t(locale, "Alante ▶", "Forward ▶"), {
+          control("pumpRight", t(locale, "Alante ▶", "Forward ▶"), {
             type: "tap",
             inputs: [input("ArrowRight", "ArrowRight")],
             visibility: { screens: ["swing"] },
+            cue: { path: "player.pumpCue", equals: 1 },
           }),
         ],
-        // Two taps, not a joystick: the alternation *is* the mechanic.
-        leftPadMode: "buttons",
+        // A stick, not two taps: swinging a vine is a body throwing its weight
+        // from one side to the other, and a thumb doing the same reads as that.
+        // The alternation survives because one push is one shake.
+        //
+        // AND IT MUST NOT AUTO-REPEAT. A held stick would machine-gun shakes in
+        // one direction, which is exactly what the keyboard already refuses to do
+        // ("holding a key must not auto-fire the shake", in the game's own keydown
+        // handler). Every shake has to be a deliberate push.
+        leftPadRepeat: false,
         // Difficulty taps click the on-screen menu cards and auto-hide once the
         // match starts (their targets disappear); the rest follows the screen.
         rightPad: [

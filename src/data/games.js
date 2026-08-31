@@ -23,7 +23,6 @@ import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.
 import sportsPingPongArenaImage from "../assets/games/sports-ping-pong-arena.svg";
 import sportsPadelArenaImage from "../assets/games/sports-padel-arena.svg";
 import sportsTrayectoriaImage from "../assets/games/sports-trayectoria.svg";
-import arcadeFulgorImage from "../assets/games/arcade-fulgor.png";
 import arcadeShellGameImage from "../assets/games/arcade-shell-game.svg";
 import arcadePulsoExactoImage from "../assets/games/arcade-pulso-exacto.svg";
 import arcadeDistanciaJustaImage from "../assets/games/arcade-distancia-justa.svg";
@@ -124,7 +123,7 @@ import arcadeSummitAscentImage from "../assets/games/arcade-summit-ascent-gamepl
  *   objective_es / objective_en    Ã¢â‚¬â€œ 1-2 sentence goal statement (shown in modal)
  *   howToPlay_es / howToPlay_en    Ã¢â‚¬â€œ brief control summary (shown in modal)
  */
-export const games = [
+const gamesInSourceOrder = [
 {
     id: "arcade-shell-game",
     image: arcadeShellGameImage,
@@ -345,14 +344,14 @@ export const games = [
     category: "Arcade",
     tagline: "Balon prisionero en el cementerio: brila y vacia el campo rival.",
     description:
-      "Balon prisionero (brile) cenital 6 contra 6 en un cementerio vallado partido por la linea central. Manejas a un jugador del equipo azul y el resto son IA. Con el balon lanzas al rival mas peligroso; si le das antes de que bote queda brilado y pasa al cementerio detras de su campo, desde donde sigue lanzando y vuelve si acierta. Atrapa un balon al vuelo para mandar al lanzador al cementerio, o esquiva moviéndote. Gana el equipo que deja al rival sin nadie en su campo. Una rampa de presion tensa la partida con el tiempo para que siempre se resuelva.",
+      "Balon prisionero (brile) cenital 6 contra 6 en un cementerio vallado partido por la linea central. Manejas a un jugador del equipo azul y el resto son IA. Con el balon lanzas al rival mas peligroso; si le das antes de que bote queda brilado y pasa al cementerio detras de su campo, desde donde sigue lanzando y vuelve si acierta. Atrapa un balon al vuelo y te salvas quedandote con el balon, o esquiva moviéndote. Gana el equipo que deja al rival sin nadie en su campo. Una rampa de presion tensa la partida con el tiempo para que siempre se resuelva.",
     objective_es:
       "Brilar a todos los rivales para vaciar su campo, atrapando balones al vuelo y volviendo del cementerio con tus aciertos.",
     howToPlay_es:
-      "WASD o flechas mueven (arrastra sobre el tablero o cruceta en movil). Espacio/J lanza al rival mas peligroso; K/Mayus atrapa (pulsalo justo cuando te llega para cazarlo y brilar al lanzador). No cruces la linea central. Enter empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
+      "WASD o flechas mueven (arrastra sobre el tablero o cruceta en movil). Espacio/J lanza al rival mas peligroso; K/Mayus atrapa (pulsalo justo cuando te llega: te salvas y te quedas el balon). No cruces la linea central. Enter empieza, P pausa, R reinicia, M sonido y F pantalla completa.",
     highlights: [
       "Balon prisionero 6v6 (tu + IAs) en cementerio vallado con dos zonas de brilados y linea central infranqueable.",
-      "Auto-target al lanzar y ventana de atrapada con timing: cazar al vuelo manda al lanzador al cementerio.",
+      "Auto-target al lanzar y ventana de atrapada con timing: cazar al vuelo anula el tiro y te deja el balon.",
       "Presos que lanzan desde el cementerio y regresan al campo en cuanto brilan a un rival, como el brile real.",
       "Dos balones en juego y feed automatico de balones perdidos hacia los presos para que la accion no pare.",
       "Tres dificultades que ajustan punteria, reflejos y cadencia de la IA; mejor tiempo de victoria en local.",
@@ -367,14 +366,14 @@ export const games = [
     category_en: "Arcade",
     tagline_en: "Graveyard dodgeball: strike out the rivals and empty their court.",
     description_en:
-      "Top-down 6-a-side dodgeball in a fenced graveyard split by a centre line. You control one blue-team player and the rest are AI. Holding the ball you throw at the most dangerous rival; hit them before it bounces and they're out, sent to the graveyard behind their court, from where they keep throwing and return on a hit. Catch a ball midair to send the thrower out instead, or dodge by moving. A team wins when the other has nobody left in its court. A pressure ramp tightens the match over time so it always resolves.",
+      "Top-down 6-a-side dodgeball in a fenced graveyard split by a centre line. You control one blue-team player and the rest are AI. Holding the ball you throw at the most dangerous rival; hit them before it bounces and they're out, sent to the graveyard behind their court, from where they keep throwing and return on a hit. Catch a ball midair and you are safe with the ball in hand, or dodge by moving. A team wins when the other has nobody left in its court. A pressure ramp tightens the match over time so it always resolves.",
     objective_en:
       "Strike out every rival to empty their court, catching balls midair and returning from the graveyard on your hits.",
     howToPlay_en:
-      "WASD or arrows move (drag on the field or use the D-pad on mobile). Space/J throws at the most dangerous rival; K/Shift catches (press it right as a ball reaches you to snatch it and send the thrower out). Don't cross the centre line. Enter starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
+      "WASD or arrows move (drag on the field or use the D-pad on mobile). Space/J throws at the most dangerous rival; K/Shift catches (press it right as a ball reaches you: you are safe and you keep the ball). Don't cross the centre line. Enter starts, P pauses, R restarts, M sound, and F toggles fullscreen.",
     highlights_en: [
       "6v6 dodgeball (you + AIs) in a fenced graveyard with two prisoner zones and an uncrossable centre line.",
-      "Auto-target throwing and a timing-based catch window: snatching midair sends the thrower to the graveyard.",
+      "Auto-target throwing and a timing-based catch window: snatching midair cancels the throw and hands you the ball.",
       "Prisoners throw from the graveyard and return to court the instant they land a hit, like real dodgeball.",
       "Two balls in play and automatic feeding of stray balls to the prisoners so the action never stalls.",
       "Three difficulties tuning AI aim, reflexes and throw cadence; best winning time persisted locally.",
@@ -3530,79 +3529,6 @@ export const games = [
     techFocus_en: "Continuous subsurface mask, depth-based find placement, and a lightweight sell-and-upgrade loop.",
   },
   {
-    id: "arcade-fulgor",
-    image: arcadeFulgorImage,
-    sessionTime: "8 h de campana",
-
-    title: "FULGOR",
-    category: "Juegos",
-    tagline: "Tienes quince anos, tienes el rayo y tienes dos vidas que no pueden tocarse.",
-    description:
-      "Un action-RPG narrativo por capitulos sobre sostener una mentira. Dani Vela tiene quince anos, encuentra una llave en el suelo con una nota que dice «si has leido esto, eres el elegido», abre un cofre en una subestacion y un rayo lo atraviesa. A partir de ahi el juego no va de pegar: va de gestionar informacion. No hay barra de sospecha, hay gente. Cada persona del reparto lleva su propio expediente sobre el heroe, con sus pistas concretas y su umbral, y cada una solo percibe ciertos tipos de rastro: tu hermana lee las quemaduras en tus manos, la inspectora lee las camaras, la portera lee los horarios. Una misma descarga apagando un incendio genera una pista Digital delante de una camara municipal, una Testimonial delante de tu vecina y ninguna si nadie mira. La pregunta que el juego hace durante ocho horas no es si puedes ganar el combate, sino si puedes ganarlo sin que Nuria ate cabos. Mares son nueve distritos que se abren por capitulos; el dia son tres bloques y las emergencias los interrumpen, asi que jugar es elegir a quien fallas. Y la paradoja que lo sostiene todo: subir el vinculo con alguien te da coartadas y recursos, y a la vez le da a esa persona una mirada mas cercana. No hay jugada dominante.",
-    objective_es:
-      "Llegar al capitulo doce con la vida que estabas protegiendo todavia en pie. Hay siete finales y el juego no los ordena: que te descubran no es una pantalla de derrota, es un final escrito con su epilogo.",
-    howToPlay_es:
-      "La pantalla esta partida en dos, como una consola abierta: arriba la escena, abajo los comandos. En la vida civil gastas los tres bloques del dia en clase, vinculos, entrenamiento, taller, trabajo, investigacion, contramedidas o patrulla. Cuando salta una Intervencion arrastras el dedo de nodo a nodo por un plano pequeno con el reloj corriendo: la calle es rapida y expuesta, las azoteas lentas y limpias. Al entrar en un nodo ocupado la escena se congela y aparece el menu de tecnicas, cada una con su coste de Carga, su afinidad, su probabilidad y sus puntitos de visibilidad, siempre antes de elegir.",
-    highlights: [
-      "El secreto no es un medidor: son trece expedientes, uno por persona, cada uno con sus pistas y su umbral.",
-      "Cinco tipos de pista (Testimonial, Fisica, Temporal, Digital e Intima) y cada personaje solo puede percibir los suyos.",
-      "La misma accion produce pruebas distintas segun quien este delante, y ese es el sistema entero.",
-      "Ganar rapido es delatarse: las tecnicas que resuelven un duelo de un golpe son las que mas te exponen.",
-      "Cuarenta tecnicas en cinco familias, y Sentido, la que no hace dano y compra informacion, es la del jugador experto.",
-      "Cuatro afinidades en ciclo cerrado: la Materia se lleva la corriente, y el capitulo 3 te lo ensena a golpes.",
-      "Dos recursos con castigos distintos: la Carga se gasta y la Compostura se rompe, y romperse SUBE tu visibilidad.",
-      "Un traje de seis ranuras donde cada pieza es un compromiso: la mascara que mejor tapa es la que peor deja ver.",
-      "La integridad del traje habla con la sospecha: por debajo de 30 vas dejando trozos con nombre y direccion.",
-      "Tres modos de dificultad que mueven cuanto te miran y cuanto margen tienes, nunca cuanto pegan los demas.",
-      "Doce capitulos de unos 40 minutos y siete finales, ninguno etiquetado como bueno ni como malo.",
-      "Mares, nueve distritos compactos que se abren por capitulos, con sus puntos de entrenamiento repartidos.",
-      "Las Intervenciones no se repiten: una fallada cambia el capitulo y la historia sigue desde ahi.",
-      "Nadie muere: los adversarios se contienen, y Contener es una accion de primera clase que no deja rastro.",
-      "Guardado en tres ranuras y codigo de transferencia exportable para seguir la partida en otro dispositivo.",
-      "Determinista por semilla: la misma semilla y las mismas decisiones dan la misma campana.",
-      "Escrito entero en espanol y en ingles, con el ingles adaptado y no traducido.",
-    ],
-    difficulty: "Media",
-    multiplayer: "Un jugador",
-    viability: "Alta: motor puro por capas sin fisica ni scroll, estado serializable y campana completa simulable por semilla.",
-    visualStyle: "Doble pantalla estilo consola con bisagra real, y dos paletas que no se mezclan: crema de papel para la vida civil, azul de medianoche para la de heroe, con el cian electrico racionado al poder de Dani, la barra de Carga y el logotipo.",
-    techFocus: "Siete modulos puros por debajo y React por encima, con el balance en tablas separadas: expedientes, duelos, escenarios generados y comprobados como grafos conexos, y una maquina de fases como reductor determinista.",
-
-    title_en: "FULGOR",
-    category_en: "Games",
-    tagline_en: "You are fifteen, you have the lightning, and you have two lives that must never touch.",
-    description_en:
-      "A chapter-based narrative action RPG about keeping a lie standing. Dani Vela is fifteen, finds a key on the pavement with a note reading (if you are reading this, you are the one), opens a chest in a substation and is struck by lightning. From there the game is not about hitting things: it is about managing information. There is no suspicion bar, there are people. Every member of the cast keeps their own file on the hero, with named pieces of evidence and a threshold, and each of them can only perceive certain kinds of trace: your sister reads the burns on your hands, the inspector reads the cameras, the concierge reads what time you came home. The same discharge putting out a fire files a Digital clue in front of a council camera, a Testimony clue in front of your neighbour and nothing at all if nobody is looking. The question the game asks for eight hours is not whether you can win the fight, but whether you can win it without Nuria putting it together. Mares is nine districts that open chapter by chapter; a day is three blocks and emergencies interrupt them, so playing is choosing who to let down. And the paradox holding it all up: raising a bond buys you alibis and resources, and gives that person a closer look at you. There is no dominant play.",
-    objective_en:
-      "Reach chapter twelve with the life you were protecting still standing. There are seven endings and the game does not rank them: being found out is not a defeat screen, it is a written ending with its own epilogue.",
-    howToPlay_en:
-      "The screen is split in two, like an open console: the scene on top, the commands underneath. In civilian life you spend the three blocks of the day on school, bonds, training, the workshop, work, digging, countermeasures or patrol. When an Intervention starts you drag your finger from node to node across a small plan with the clock running: the street is fast and exposed, the rooftops slow and clean. Enter an occupied node and the scene freezes into the technique menu, each one showing its Charge cost, its affinity, its odds and its visibility dots, always before you choose.",
-    highlights_en: [
-      "The secret is not a meter: it is thirteen files, one per person, each with its own evidence and threshold.",
-      "Five kinds of clue (Testimony, Physical, Timing, Digital and Intimate) and each character can only perceive their own.",
-      "The same action files different evidence depending on who is standing there, and that is the whole system.",
-      "Winning fast gives you away: the techniques that settle a duel in one blow are the ones that expose you most.",
-      "Forty techniques across five families, and Sense, the one that does no damage and buys information, is the expert family.",
-      "Four affinities in a closed cycle: Matter carries the current away, and chapter 3 teaches you that the hard way.",
-      "Two resources punished differently: Charge is spent and Composure breaks, and breaking RAISES your visibility.",
-      "A six-slot suit where every piece is a trade: the mask that hides you best is the one you see worst through.",
-      "Suit integrity talks to suspicion: below 30 you start leaving pieces behind, each with a name and an address.",
-      "Three difficulty modes that move how hard they look at you and how much room you get, never how hard anyone hits.",
-      "Twelve chapters of about 40 minutes and seven endings, none labelled good or bad.",
-      "Mares: nine compact districts opening chapter by chapter, with training spots scattered across them.",
-      "Interventions are never replayed: a failed one changes the chapter and the story carries on from there.",
-      "Nobody dies: opponents are contained, and Contain is a first-class action that leaves no trace.",
-      "Three save slots and an exportable transfer code to carry the campaign to another device.",
-      "Seed-deterministic: the same seed and the same decisions give the same campaign.",
-      "Written in full in Spanish and in English, with the English adapted rather than translated.",
-    ],
-    difficulty_en: "Medium",
-    multiplayer_en: "Single player",
-    viability_en: "High: a layered pure engine with no physics or scrolling, serialisable state and a full campaign simulable from its seed.",
-    visualStyle_en: "A dual-screen console layout with a real hinge, and two palettes that never mix: paper cream for the civilian life, midnight blue for the hero life, with the electric cyan rationed to the power of Dani, the Charge bar and the logo.",
-    techFocus_en: "Seven pure modules underneath and React on top, with balance in separate tables: dossiers, duels, generated scenarios verified as connected graphs, and a phase machine as a deterministic reducer.",
-  },
-  {
     id: "arcade-valle-tranquilo",
     image: arcadeValleTranquiloImage,
     sessionTime: "8-20 min",
@@ -3829,7 +3755,7 @@ export const games = [
     image: sportsTrayectoriaImage,
     sessionTime: "10-20 min",
 
-    title: "Trayectoria",
+    title: "Carrera futbolera",
     category: "Deportes",
     tagline: "Simulador de carrera futbolistica: de los 16 a los 40, decision a decision.",
     description:
@@ -3868,7 +3794,7 @@ export const games = [
     visualStyle: "Prensa deportiva: panel oscuro para lo que decides y papel de periodico crema para lo que ya paso, con titulares en condensada y tinta roja reservada al filete de cabecera y al marcador de distancia.",
     techFocus: "Motor de simulacion determinista por semilla con flujos RNG independientes, maquina de fases pura como reductor, generador de titulares por reglas y un rival simulado con el mismo motor.",
 
-    title_en: "Trayectoria",
+    title_en: "Football Career",
     category_en: "Sports",
     tagline_en: "A football career simulator: from 16 to 40, one decision at a time.",
     description_en:
@@ -3974,3 +3900,13 @@ export const games = [
     techFocus_en: "Vertical world with smoothed camera, limb-rigged climber with phase reach, fall + rope-catch physics, seeded procedural generation, and per-band weather particles.",
   },
 ];
+
+/* Keep the football career immediately behind the lead Sports card without changing its
+   stable id or forcing the very large source catalogue to duplicate the whole entry. */
+export const games = (() => {
+  const ordered = gamesInSourceOrder.filter((game) => game.id !== "sports-trayectoria");
+  const firstSports = ordered.findIndex((game) => game.category === "Deportes");
+  const footballCareer = gamesInSourceOrder.find((game) => game.id === "sports-trayectoria");
+  ordered.splice(firstSports + 1, 0, footballCareer);
+  return ordered;
+})();

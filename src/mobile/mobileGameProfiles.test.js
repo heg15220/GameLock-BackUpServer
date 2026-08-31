@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getMobileControlProfile, getResponsiveMobileShellMode } from "./mobileGameProfiles.js";
-import { resolveRuntimeButton } from "./mobileDeckRuntime.js";
+import { evaluateCue, resolveRuntimeButton } from "./mobileDeckRuntime.js";
 
 const phone = { isMobile: true, formFactor: "phone", orientation: "portrait" };
 
@@ -85,5 +85,47 @@ describe("mobile control decks for the newer arcade and sports games", () => {
         expect(resolveRuntimeButton(button, null).hiddenRuntime).toBeUndefined();
       });
     });
+  });
+});
+
+describe("la señal de dirección del joystick", () => {
+  const liana = (locale = "es") =>
+    getMobileControlProfile({ id: "arcade-saltos-selvaticos" }, locale);
+
+  it("Saltos Selváticos se maneja con stick, no con dos botones", () => {
+    const profile = liana();
+    // El mando resuelve las ranuras del stick por el ID del botón, no por su tecla.
+    expect(profile.leftPad.map((button) => button.id)).toEqual(["pumpLeft", "pumpRight"]);
+    expect(profile.leftPadMode).toBeUndefined();
+  });
+
+  it("el stick no auto-repite: una sacudida es un empujón deliberado", () => {
+    expect(liana().leftPadRepeat).toBe(false);
+  });
+
+  it("enciende el lado que el juego pide en cada pasada", () => {
+    const [izquierda, derecha] = liana().leftPad;
+    const conCue = (button, pumpCue) =>
+      resolveRuntimeButton(button, { screen: "swing", player: { pumpCue } }).cued;
+
+    expect(conCue(izquierda, -1)).toBe(true);
+    expect(conCue(izquierda, 1)).toBe(false);
+    expect(conCue(derecha, 1)).toBe(true);
+    expect(conCue(derecha, -1)).toBe(false);
+  });
+
+  it("sin señal —o sin snapshot todavía— no enciende nada", () => {
+    const [izquierda] = liana().leftPad;
+    expect(resolveRuntimeButton(izquierda, { screen: "swing", player: { pumpCue: 0 } }).cued).toBe(false);
+    // Sin snapshot (el sondeo va cada 220 ms) la señal está apagada, no rota.
+    expect(resolveRuntimeButton(izquierda, null).cued).toBe(false);
+  });
+
+  it("evaluateCue lee rutas anidadas y no revienta con lo que falta", () => {
+    const button = { cue: { path: "player.pumpCue", equals: 1 } };
+    expect(evaluateCue(button, { player: { pumpCue: 1 } })).toBe(true);
+    expect(evaluateCue(button, { player: {} })).toBe(false);
+    expect(evaluateCue(button, {})).toBe(false);
+    expect(evaluateCue({}, { player: { pumpCue: 1 } })).toBe(false);
   });
 });

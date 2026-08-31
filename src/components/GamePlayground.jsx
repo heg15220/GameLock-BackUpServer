@@ -53,7 +53,6 @@ const IceStrikeProGame = lazy(() => import("../games/arcade/ice-strike-pro"));
 const StickBrawlShowdownGame = lazy(() => import("../games/arcade/stick-brawl-showdown"));
 const DigHoleTreasureGame = lazy(() => import("../games/arcade/dig-hole-treasure"));
 const ValleTranquiloGame = lazy(() => import("../games/arcade/valle-tranquilo"));
-const FulgorGame = lazy(() => import("../games/arcade/fulgor"));
 const SummitAscentGame = lazy(() => import("../games/arcade/summit-ascent"));
 const KnowledgeSudokuGame = () => <KnowledgeArcadeGame variant="sudoku" />;
 const TrayectoriaGame = lazy(() => import("../games/sports/trayectoria"));
@@ -108,7 +107,6 @@ const GAME_COMPONENTS = {
   "fighter-neon-dojo": FighterGame,
   "sports-head-soccer-arena": HeadSoccerGame,
   "sports-trayectoria": TrayectoriaGame,
-  "arcade-fulgor": FulgorGame,
   "arcade-pacman-maze-protocol": PacmanGame,
   "arcade-reactor-toss": ReactorTossGame,
   "arcade-territory-war": TerritoryWarGame,
@@ -183,7 +181,6 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-stick-brawl-showdown": "Fighter arcade avanzado: A/D o flechas mover, W/arriba saltar, S/abajo bloquear, G/espacio jab, H/enter cross, J/K patadas, F proyectil, B super, P pausa y R reinicia.",
     "arcade-dig-hole-treasure": "Juego de excavacion continua: click cava, A/D o flechas mueven, W/arriba/Espacio suben, abajo baja, I/J/K/L excavan arriba/izq/abajo/der, E/Enter interactua, M abre el puesto, P pausa, R reinicia y F pantalla completa.",
     "arcade-summit-ascent": "Escalada vertical 2D: ↑/W escala, ↓/S baja, ←→/A D mueve lateral, J esquiva escombros, Espacio planta anclaje con piolet, Q bebe agua (+12 stamina), E entra/sale de cueva. Elige montaña entre 3 prototipos.",
-    "arcade-fulgor": "Empieza con un prólogo de cinco cartas que te cuenta quién eres, quién te mira y qué se te pide; se puede saltar. La pantalla está partida en dos: arriba se ve Marés y abajo se decide. Se anda con la cruceta o con las flechas y se habla con el botón A o con el espacio, que es también lo que avanza el texto —el primer toque completa la frase y el segundo pasa a la siguiente—. No hay menú de acciones: las nueve cosas que puedes hacer con un bloque del día son gente y sitios de la ciudad, así que hablar con tu hermana en la plaza ES quedar con ella, y hacerlo gasta la tarde. El día tiene tres bloques y una emergencia puede sonar en cualquiera. En una Intervención caminas el mismo distrito de noche, con los testigos de pie y sus conos de luz en el suelo, y el reloj de arriba no cuenta tu fracaso: dice qué va a empeorar en el turno siguiente. En un duelo cada técnica enseña su coste de Carga y sus puntitos de visibilidad ANTES de elegirla, y Contener cierra el combate sin ganarlo y sin dejar una prueba. Los iconos de arriba a la derecha abren el mapa, los expedientes, el traje y el guardado, desde donde exportas un código para seguir la partida en otro dispositivo. Se guarda solo.",
     "arcade-valle-tranquilo": "Sandbox de granja pixel-art: WASD/flechas mueven, 1-9 cambian herramienta, Espacio usa la herramienta activa, E habla con vecinos, B abre tienda, Z duerme y M entra a la mina.",
     "sports-basketball-court": "Baloncesto 6 posiciones: arriba/abajo ajustan arco, izq/der desviacion lateral, W/S potencia, Space/Enter lanza. P pausa, R nueva ronda y F pantalla completa.",
     "sports-ping-pong-arena": "Tenis de mesa en primera persona: la pala es tu dedo o el raton. Mueve la pala para interceptar y desliza rapido al golpear para dar potencia y direccion; hacia arriba liftado, hacia abajo cortado. Desliza hacia delante o Espacio para sacar. Teclado: flechas mueven, W liftado / S cortado. En el menu elige dificultad y formato. P pausa, R reinicia y F pantalla completa.",
@@ -241,7 +238,6 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-stick-brawl-showdown": "Advanced arcade fighter: A/D or arrows move, W/up jump, S/down block, G/space jab, H/enter cross, J/K kicks, F projectile, B super, P pause, R restart.",
     "arcade-dig-hole-treasure": "2D digging run: click digs, A/D or arrows move, W/up/Space jumps, I/J/K/L dig up/left/down/right, T places a torch, B triggers the jetpack, E/Enter interacts with outpost, door, and treasure, M opens the market, P pauses, R restarts, and F toggles fullscreen.",
     "arcade-summit-ascent": "Vertical 2D climbing: ↑/W climbs, ↓/S descends, ←→/A D lateral move, J dodges debris, Space plants an ice-axe anchor, Q drinks water (+12 stamina), E enters/leaves a cave. Pick from 3 mountain prototypes.",
-    "arcade-fulgor": "It opens with a five-card prologue telling you who you are, who is watching and what is being asked of you; it can be skipped. The screen is split in two: Marés on top, decisions underneath. Walk with the d-pad or the arrow keys and talk with A or space, which also advances text — the first press completes the line, the second moves on. There is no action menu: the nine things you can spend a block of the day on are people and places in the city, so talking to your sister in the square IS seeing her, and it costs you the afternoon. A day has three blocks and an emergency can go off in any of them. In an Intervention you walk the same district at night, with the witnesses standing there and their cones of light on the ground, and the clock at the top doesn't count your failure: it says what gets worse next turn. In a duel every technique shows its Charge cost and its visibility dots BEFORE you commit, and Contain settles a fight without winning it and without leaving a trace. The icons top right open the map, the files, the suit and the save dialog, where you export a code to carry the game to another device. It saves itself.",
     "arcade-valle-tranquilo": "Pixel-art farming sandbox: WASD/arrows move, 1-9 swaps tools, Space uses the active tool, E talks to villagers, B opens the shop, Z sleeps, and M enters the mine.",
     "sports-basketball-court": "Basketball 6 spots: up/down tune arc, left/right lateral aim, W/S power, Space/Enter shoots. P pauses, R starts a new round, and F toggles fullscreen.",
     "sports-ping-pong-arena": "First-person table tennis: the paddle is your finger or the mouse. Move the paddle to intercept and flick quickly as you hit to set power and direction; up gives topspin, down backspin. Flick forward or Space to serve. Keyboard: arrows move, W topspin / S backspin. Pick difficulty and format in the menu. P pauses, R restarts, and F toggles fullscreen.",
@@ -285,7 +281,6 @@ const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([
 
 const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
   "sports-trayectoria",
-  "arcade-fulgor",
   "knowledge-domino-chain",
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",

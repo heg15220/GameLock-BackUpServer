@@ -355,6 +355,7 @@ export const SHOT_ICONS = {
   tiro_lejano: "volea",
   centro_lateral: "cabezazo",
   entrada: "mano_a_mano",
+  despeje: "cabezazo",
   pase_gol: "falta",
 };
 

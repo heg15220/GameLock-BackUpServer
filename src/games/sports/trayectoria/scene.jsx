@@ -63,6 +63,10 @@ export const PLACEMENTS = {
   adelantarse: [0.35, 0.7],
   aguantar: [0.55, 0.65],
   cerrar: [0.72, 0.72],
+  // Y adónde sale el balón despejado: arriba y lejos, abierto a la banda, o al pie.
+  arriba: [0.5, 0.18],
+  banda: [0.14, 0.58],
+  jugarla: [0.66, 0.78],
 };
 
 /**
@@ -109,6 +113,9 @@ export const SITUATIONS = {
   tiro_lejano: { from: [104, 112], bend: 0.14, keeper: [0.5, 0.6], stops: true, keeperPose: "stand" },
   centro_lateral: { from: [26, 88], bend: 0.36, keeper: [0.42, 0.55], stops: true, keeperPose: "head" },
   entrada: { from: [92, 96], bend: 0.08, keeper: [0.5, 0.66], advance: 12, scale: 1.2, stops: true, keeperPose: "run" },
+  // El único que sale de dentro del área hacia fuera: el balón viene del centro del área
+  // pequeña y tú lo mandas lejos. Misma cámara cerrada que el resto de lo que se para.
+  despeje: { from: [64, 90], bend: 0.05, keeper: [0.5, 0.72], advance: 8, scale: 1.25, stops: true, keeperPose: "spread" },
 };
 
 /**

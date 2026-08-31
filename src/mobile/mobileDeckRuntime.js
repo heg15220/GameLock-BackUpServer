@@ -39,9 +39,34 @@ export function evaluateVisibility(button, snapshot) {
   return true;
 }
 
+// Reads a dotted path out of the snapshot: "player.pumpCue" → snapshot.player.pumpCue.
+function readPath(snapshot, path) {
+  return String(path ?? "")
+    .split(".")
+    .filter(Boolean)
+    .reduce((value, key) => (value == null ? undefined : value[key]), snapshot);
+}
+
+/**
+ * Some controls have to say "this one, NOW": the game publishes which way is due
+ * and the deck lights that control up. Declared as data — { path, equals } — so a
+ * profile never has to reach into a runtime.
+ */
+export function evaluateCue(button, snapshot) {
+  const rule = button?.cue;
+  if (!rule || !snapshot) {
+    return false;
+  }
+  return readPath(snapshot, rule.path) === rule.equals;
+}
+
 export function resolveRuntimeButton(button, snapshot) {
   if (!evaluateVisibility(button, snapshot)) {
     return { ...button, hiddenRuntime: true };
+  }
+
+  if (button.cue) {
+    button = { ...button, cued: evaluateCue(button, snapshot) };
   }
 
   // Labels that follow the run: one deck slot can read "Empezar", "¡PARAR!" or

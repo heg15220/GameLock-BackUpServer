@@ -21,6 +21,20 @@ export const POSITION_LABELS = {
   },
 };
 
+/** Display codes are localised; the Spanish identifiers remain the model's stable keys. */
+export const POSITION_ABBREVIATIONS = {
+  es: {
+    POR: "POR", DFC: "DFC", LI: "LI", LD: "LD",
+    MCD: "MCD", MC: "MC", MI: "MI", MD: "MD",
+    MCO: "MCO", EI: "EI", ED: "ED", DC: "DC",
+  },
+  en: {
+    POR: "GK", DFC: "CB", LI: "LB", LD: "RB",
+    MCD: "CDM", MC: "CM", MI: "LM", MD: "RM",
+    MCO: "CAM", EI: "LW", ED: "RW", DC: "ST",
+  },
+};
+
 export const ROLE_LABELS = {
   es: {
     titular: "Titular",
@@ -253,6 +267,7 @@ export const SHOT_LABELS = {
     tiro_lejano: "Disparo desde la frontal",
     centro_lateral: "El centro al área",
     entrada: "La entrada",
+    despeje: "El balón en tu área",
     pase_gol: "El último pase",
   },
   en: {
@@ -265,6 +280,7 @@ export const SHOT_LABELS = {
     tiro_lejano: "Shot from the edge",
     centro_lateral: "The cross",
     entrada: "The tackle",
+    despeje: "The ball in your box",
     pase_gol: "The final ball",
   },
 };
@@ -286,6 +302,10 @@ export const PLACEMENT_LABELS = {
     adelantarse: "Adelantarte a la jugada",
     aguantar: "Aguantar de pie",
     cerrar: "Cerrarle la diagonal",
+    // El despeje. "Jugarla" es la valiente: sacas jugando en vez de reventarla.
+    arriba: "Reventarla arriba",
+    banda: "A la banda, fuera del área",
+    jugarla: "Sacarla jugando",
   },
   en: {
     // The goal's five places, seen from behind the man striking it: left is the left of the
@@ -302,6 +322,10 @@ export const PLACEMENT_LABELS = {
     adelantarse: "Read it early",
     aguantar: "Stay on your feet",
     cerrar: "Close the angle",
+    // The clearance. "Play it out" is the brave one: you pass instead of hammering it.
+    arriba: "Hammer it clear",
+    banda: "Out to the touchline",
+    jugarla: "Play it out",
   },
 };
 
@@ -366,7 +390,7 @@ export const PROFILE_LABELS = {
 
 const COPY = {
   es: {
-    title: "Trayectoria",
+    title: "Carrera futbolera",
     subtitle: "Veinticuatro años de carrera. Ninguno se repite.",
 
     setup: {
@@ -508,6 +532,8 @@ const COPY = {
         window: "Espera. Golpea antes de que se cierre",
         charge: "Carga el golpeo y suéltalo en la banda",
         aim: "Va en movimiento. Suéltala donde va a estar",
+        tackle: "Protege la portería. Entra cuando se le escape el balón",
+        pass: "Rompe la línea. Filtra el pase hacia la carrera",
         dive: "Adivina el lado. Y el momento",
       },
       chanceGate: "Toque {n} de {total}",
@@ -517,6 +543,8 @@ const COPY = {
         window: "Pulsa en cualquier sitio para golpear",
         charge: "Mantén pulsado y suelta",
         aim: "Arrastra la mira y suelta encima",
+        tackle: "Pulsa para meter el pie y recuperar",
+        pass: "Arrastra desde el balón y suelta por delante del compañero",
         dive: "Arrastra hacia el lado y suelta",
       },
       skip: "Adelantar",
@@ -855,46 +883,55 @@ const COPY = {
         league: {
           yes: "Un paso enorme hacia la liga.",
           no: "La liga se complica. Aún no está perdida.",
+          draw: "El empate deja la liga abierta.",
           none: "La liga se decide sin que te llegue una.",
         },
         cup: {
           yes: "La copa es vuestra.",
           no: "La copa se queda en el otro vestuario.",
+          draw: "La copa sigue abierta tras el empate.",
           none: "La copa se juega sin pasar por ti.",
         },
         continental_a: {
           yes: "Campeones de Europa —o de lo que toque—.",
           no: "La final se pierde y no habrá otra igual.",
+          draw: "La final sigue abierta tras el empate.",
           none: "La final se resuelve lejos de tus botas.",
         },
         world_cup: {
           yes: "Campeón del mundo.",
           no: "No entró. La copa se decide sin tu firma.",
+          draw: "El Mundial sigue abierto tras el empate.",
           none: "El Mundial se decide sin que la toques.",
         },
         continental_nt: {
           yes: "Continental para tu selección.",
           no: "No entró. El torneo sigue sin ti.",
+          draw: "El torneo sigue abierto tras el empate.",
           none: "El torneo se decide contigo dentro y fuera del partido.",
         },
         semifinal: {
           yes: "A la final, y de tu mano.",
           no: "La eliminatoria queda cuesta arriba.",
+          draw: "La eliminatoria sigue abierta tras el empate.",
           none: "La eliminatoria sigue su curso, y no la firmas tú.",
         },
         promotion: {
           yes: "Un pie en la categoría de arriba.",
           no: "El ascenso se pone cuesta arriba.",
+          draw: "El empate deja el ascenso abierto.",
           none: "El ascenso se juega sin tu nombre en él.",
         },
         survival: {
           yes: "Un paso hacia la permanencia.",
           no: "La permanencia se pone fea.",
+          draw: "Un punto que no resuelve la permanencia.",
           none: "La permanencia se pelea sin que te llegue una.",
         },
         derby: {
           yes: "El partido de la temporada no da títulos. Se recuerda igual.",
           no: "El partido de la temporada se pierde.",
+          draw: "El partido de la temporada termina en empate.",
           none: "El partido de la temporada se juega sin ti.",
         },
       },
@@ -940,6 +977,10 @@ const COPY = {
       matches: "Partidos",
       goals: "Goles",
       assists: "Asistencias",
+      /* La ficha de quien defiende. Un portero y un central no tienen goles que enseñar
+         —su tasa es cero por diseño—, así que su año se mide por lo que entró detrás. */
+      conceded: "Goles encajados",
+      concededPerMatch: "Goles encajados por partido",
       role: "Rol",
       value: "Valor",
       caps: "Internacionalidades",
@@ -1182,7 +1223,7 @@ const COPY = {
   },
 
   en: {
-    title: "Trayectoria",
+    title: "Football Career",
     subtitle: "Twenty-four years of a career. No two the same.",
 
     setup: {
@@ -1321,6 +1362,8 @@ const COPY = {
         window: "Wait. Hit it before it closes",
         charge: "Load the strike, let go on the band",
         aim: "It is moving. Release where it will be",
+        tackle: "Protect the goal. Tackle when the ball gets away",
+        pass: "Break the line. Thread the pass into the run",
         dive: "Pick your side. And your moment",
       },
       chanceGate: "Touch {n} of {total}",
@@ -1329,6 +1372,8 @@ const COPY = {
         window: "Press anywhere to strike",
         charge: "Hold, then release",
         aim: "Drag the crosshair and release on it",
+        tackle: "Press to step in and win the ball",
+        pass: "Drag from the ball and release ahead of your team-mate",
         dive: "Drag to a side and release",
       },
       skip: "Skip ahead",
@@ -1625,46 +1670,55 @@ const COPY = {
         league: {
           yes: "A huge step towards the league.",
           no: "The league gets harder. It is not gone.",
+          draw: "The draw leaves the title race open.",
           none: "The league is decided without a ball reaching you.",
         },
         cup: {
           yes: "The cup is yours.",
           no: "The cup stays in the other dressing room.",
+          draw: "The cup remains open after the draw.",
           none: "The cup is played out without passing through you.",
         },
         continental_a: {
           yes: "Continental champions.",
           no: "The final is lost, and there is never another like it.",
+          draw: "The final remains open after the draw.",
           none: "The final settles far from your boots.",
         },
         world_cup: {
           yes: "World champion.",
           no: "No goal. The cup is decided without you.",
+          draw: "The World Cup remains open after the draw.",
           none: "The World Cup is decided without you touching it.",
         },
         continental_nt: {
           yes: "A continental title for your nation.",
           no: "No goal. The tournament carries on without you.",
+          draw: "The tournament remains open after the draw.",
           none: "The tournament is decided with you on the pitch and out of it.",
         },
         semifinal: {
           yes: "Into the final, and by your foot.",
           no: "The tie is uphill now.",
+          draw: "The tie remains open after the draw.",
           none: "The tie runs its course, and not by your foot.",
         },
         promotion: {
           yes: "One foot in the division above.",
           no: "Going up just got harder.",
+          draw: "The draw leaves promotion open.",
           none: "Promotion is played out without your name on it.",
         },
         survival: {
           yes: "A step towards staying up.",
           no: "Staying up just got ugly.",
+          draw: "A point that settles nothing in the survival fight.",
           none: "Survival is fought for without a ball reaching you.",
         },
         derby: {
           yes: "The match of the season wins nothing. It is remembered anyway.",
           no: "The match of the season is lost.",
+          draw: "The match of the season ends level.",
           none: "The match of the season is played out without you.",
         },
       },
@@ -1710,6 +1764,10 @@ const COPY = {
       matches: "Matches",
       goals: "Goals",
       assists: "Assists",
+      /* The line for a man who defends. A keeper and a centre-back have no goals to show
+         - their rate is zero by design - so their year is measured by what went in. */
+      conceded: "Goals conceded",
+      concededPerMatch: "Goals conceded per match",
       role: "Role",
       value: "Value",
       caps: "Caps",

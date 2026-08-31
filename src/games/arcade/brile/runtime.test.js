@@ -89,7 +89,7 @@ describe("hit resolution", () => {
     expect(rt._byId("A0").zone).toBe("court");
   });
 
-  it("a caught ball sends the THROWER down and the catcher keeps the ball", () => {
+  it("a caught ball brilas nobody: the catcher is safe and keeps the ball", () => {
     const rt = make();
     rt.startGame("normal");
     rt.elapsedMs = START_GRACE_MS + 500;
@@ -97,11 +97,26 @@ describe("hit resolution", () => {
     const you = rt.player;
     rt.catchArmedUntil = rt.elapsedMs + 1000; // human armed the catch in time
     const ball = flightBall(rt, "B", thrower.id);
+    const courtB = rt._courtCount("B");
     rt._resolveContact(ball, you);
-    expect(thrower.zone).toBe("prison");
     expect(you.zone).toBe("court");
     expect(you.holding).toBe(ball.id);
     expect(rt.stats.catches).toBe(1);
+    // Catching is a save, not an elimination: the thrower stays on their feet.
+    expect(thrower.zone).toBe("court");
+    expect(rt._courtCount("B")).toBe(courtB);
+  });
+
+  it("a caught throw never costs the thrower their place, prisoner or not", () => {
+    const rt = make();
+    rt.startGame("normal");
+    rt.elapsedMs = START_GRACE_MS + 500;
+    const thrower = rt.players.find((p) => p.team === "B" && p.zone === "prison");
+    const you = rt.player;
+    rt.catchArmedUntil = rt.elapsedMs + 1000;
+    rt._resolveContact(flightBall(rt, "B", thrower.id), you);
+    expect(thrower.zone).toBe("prison");
+    expect(you.zone).toBe("court");
   });
 
   it("an unarmed human just gets hit", () => {

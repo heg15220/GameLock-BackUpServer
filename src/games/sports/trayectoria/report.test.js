@@ -118,7 +118,7 @@ describe("career to date", () => {
 
   it("accumulates only up to the season asked for", () => {
     expect(careerToDate(history, 1)).toEqual({
-      seasons: 2, matches: 70, goals: 23, assists: 10, titles: 1, awards: 0, caps: 6,
+      seasons: 2, matches: 70, goals: 23, assists: 10, conceded: 0, titles: 1, awards: 0, caps: 6,
     });
   });
 

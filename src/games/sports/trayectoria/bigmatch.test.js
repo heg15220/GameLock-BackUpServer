@@ -293,10 +293,68 @@ describe("what each position is actually asked to do", () => {
     expect([...keeper].some((type) => forward.has(type))).toBe(false);
   });
 
-  it("leaves a centre-back the corner he wins finals with", () => {
+  it("never asks a defender to finish an attacking chance", () => {
     const seen = new Set(Array.from({ length: 80 }, (_, s) => draw("defensive", s).type));
-    expect(seen).toContain("cabezazo");
-    expect([...seen].filter((type) => SHOT_PRODUCES[type] === PRODUCES.STOP).length).toBeGreaterThan(0);
+    expect([...seen].every((type) => SHOT_PRODUCES[type] === PRODUCES.STOP)).toBe(true);
+    expect(seen).toEqual(new Set(["entrada", "despeje"]));
+  });
+
+  /**
+   * WHAT A DEFENDER'S NIGHT IS SPENT DOING.
+   *
+   * A defender's decisive moments are the ones he defends. Both ways of doing so must be
+   * present, and no successful intervention may be counted as a goal or an assist.
+   */
+  it("spends a defender's big nights defending", () => {
+    const drawn = Array.from({ length: 120 }, (_, s) => draw("defensive", s).type);
+    const stops = drawn.filter((type) => SHOT_PRODUCES[type] === PRODUCES.STOP).length;
+    expect(stops).toBe(drawn.length);
+    // And both ways of defending are really handed out, not just the tackle.
+    expect(new Set(drawn)).toContain("entrada");
+    expect(new Set(drawn)).toContain("despeje");
+  });
+
+  /**
+   * THE POOL FOLLOWS THE LINE, NOT THE OUTPUT GROUP.
+   *
+   * Two groups straddle a line: `support` holds full-backs and central midfielders, and
+   * `defensive` holds centre-backs and holding midfielders. Drawn off the group, a
+   * full-back took the free kicks and a holding midfielder cleared the corners.
+   */
+  it("gives the back four defending and the midfield the ball", () => {
+    const forPosition = (position, group) =>
+      new Set(
+        Array.from({ length: 60 }, (_, season) =>
+          shotFor({ seed: "line", season, fixture, ovr: 80, group, position }).type),
+      );
+
+    for (const back of ["DFC", "LI", "LD"]) {
+      const seen = forPosition(back, back === "DFC" ? "defensive" : "support");
+      expect(seen, back).toEqual(new Set(["entrada", "despeje"]));
+      expect([...seen].every((type) => SHOT_PRODUCES[type] === PRODUCES.STOP), back).toBe(true);
+    }
+
+    // Every midfielder can make the last pass or finish an attacking chance, including
+    // the holding midfielder whose output group would otherwise make him a defender.
+    const midfield = {
+      MCD: "defensive",
+      MC: "support",
+      MI: "creator",
+      MD: "creator",
+      MCO: "creator",
+    };
+    for (const [position, group] of Object.entries(midfield)) {
+      const seen = forPosition(position, group);
+      expect(seen, `${position} never supplies a key pass`).toContain("pase_gol");
+      expect([...seen].some((type) => SHOT_PRODUCES[type] === PRODUCES.GOAL), position).toBe(true);
+      expect(
+        [...seen].every((type) => [PRODUCES.GOAL, PRODUCES.ASSIST].includes(SHOT_PRODUCES[type])),
+        `${position} was handed a defensive intervention`,
+      ).toBe(true);
+    }
+
+    // A goalkeeper is unmoved by any of this.
+    expect([...forPosition("POR", "keeper")].every((type) => REPERTOIRE.keeper.includes(type))).toBe(true);
   });
 
   /**
@@ -305,10 +363,10 @@ describe("what each position is actually asked to do", () => {
    * Thirteen kinds of chance had drifted into three different games - a volley from the
    * edge, a clearance off the line and an interception were three pictures nobody saw more
    * than four of. The list is the four moments football stops for, taken from whichever
-   * side your position puts you on, plus the pass that makes a goal and the tackle that
-   * stops one.
+   * side your position puts you on, plus the pass that makes a goal, the tackle and the
+   * clearance that stop one.
    */
-  it("offers exactly the four situations, from both sides, plus the pass and the tackle", () => {
+  it("offers the attacking and defensive situations assigned to each line", () => {
     expect(REPERTOIRE.forward).toEqual(["penal", "mano_a_mano", "cabezazo", "falta"]);
     // The same four, from inside the goal.
     expect(REPERTOIRE.keeper).toEqual([
@@ -317,12 +375,15 @@ describe("what each position is actually asked to do", () => {
       "salida_mano_a_mano",
       "centro_lateral",
     ]);
-    // A centre-back gets the corner he wins finals with and the tackle he saves them with.
-    expect(REPERTOIRE.defensive).toEqual(["cabezazo", "entrada"]);
-    // And a midfielder's is the last pass.
-    expect(REPERTOIRE.creator).toContain("pase_gol");
+    // A defender only tackles or clears.
+    expect(REPERTOIRE.defensive).toEqual(["entrada", "despeje"]);
+    // A midfielder can supply the last pass or finish the move.
+    for (const pool of [REPERTOIRE.support, REPERTOIRE.creator]) {
+      expect(pool).toContain("pase_gol");
+      expect(pool.some((type) => SHOT_PRODUCES[type] === PRODUCES.GOAL)).toBe(true);
+    }
 
-    // Nothing outside the six a player can ever be handed.
+    // Every defined chance belongs to at least one positional repertoire.
     const offered = new Set(Object.values(REPERTOIRE).flat());
     expect([...offered].sort()).toEqual(Object.keys(SHOT_TYPES).sort());
   });
@@ -334,8 +395,8 @@ describe("what each position is actually asked to do", () => {
         expect(options, `${type} has no options`).toBeTruthy();
         expect(Object.values(PRODUCES)).toContain(SHOT_PRODUCES[type]);
         /*
-         * A shot at a goal offers the goal's five places; the two moments that are not a
-         * shot keep three of their own. Every option has to be somewhere the drawing
+         * A shot at a goal offers the goal's five places; moments that are not a shot keep
+         * three options of their own. Every option has to be somewhere the drawing
          * knows about, which is the thing that used to break silently.
          */
         const shooting = options === ZONES || options.every((o) => ZONES.includes(o));

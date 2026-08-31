@@ -1423,23 +1423,17 @@ describe("a career is played from the position it is played in", () => {
     expect(run.state.history.reduce((sum, record) => sum + record.goals, 0)).toBe(0);
   });
 
-  it("gives a centre-back defending to do and a corner to win it with", () => {
+  it("gives a centre-back only tackles and clearances in decisive moments", () => {
     const run = careerAs("DFC", "repertoire");
     const matches = run.state.history.flatMap((record) => record.bigMatches ?? []);
     const types = new Set(matches.map((match) => match.type));
     expect(types.size).toBeGreaterThan(0);
-    for (const type of types) expect(REPERTOIRE.defensive).toContain(type);
+    expect(types).toEqual(new Set(["entrada", "despeje"]));
 
-    // Both halves of the repertoire have to actually pay out the way they claim to: a
-    // headed corner is a goal on his sheet, everything else he does is not.
-    const headers = matches.filter((match) => match.type === "cabezazo" && match.scored);
+    // Successful interventions stop danger; they never become goals or assists.
     const stops = matches.filter((match) => match.produces === PRODUCES.STOP && match.scored);
-    expect(headers.length, "a whole career without a decisive corner").toBeGreaterThan(0);
     expect(stops.length, "a whole career without a decisive stop").toBeGreaterThan(0);
-    for (const match of headers) expect(match.produces).toBe(PRODUCES.GOAL);
-    expect(run.state.history.reduce((sum, record) => sum + record.goals, 0)).toBeGreaterThanOrEqual(
-      headers.reduce((sum, match) => sum + (match.converted ?? 1), 0),
-    );
+    for (const match of matches) expect(match.produces).toBe(PRODUCES.STOP);
   });
 
   it("lets a midfielder's last pass show up as an assist rather than a goal", () => {

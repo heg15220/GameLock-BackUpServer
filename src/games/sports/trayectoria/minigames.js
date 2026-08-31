@@ -6,15 +6,14 @@
  * tolerances and the verdict - with no React in it, so the whole thing is testable and the
  * screen only has to animate a number.
  *
- * SEVEN MECHANICS. This file used to argue for three, on the grounds that one vocabulary is
+ * SIX MECHANICS. This file used to argue for three, on the grounds that one vocabulary is
  * what makes the game readable and nobody should have to learn a second marker because the
  * ball arrived from a corner instead of the spot. That was right about the vocabulary and
  * wrong about the count, and the arithmetic is what settles it: the repertoire is filtered
  * by position (see REPERTOIRE in bigmatch.js), so a career is four or five kinds of chance,
  * not thirteen. Under three mechanics a goalkeeper played TWO games - a dozen sweeps and a
- * dozen windows across fifteen seasons - and so did a centre-back. Seven puts four or five
- * in front of every position, which is still three or four sightings of each per career:
- * enough to learn one, which was the real point all along.
+ * dozen windows across fifteen seasons - and so did a centre-back. The dedicated tackle
+ * and through-ball surfaces now keep each positional action recognisably football-specific.
  *
  * Each of them is one verb, and no two share it:
  *
@@ -24,9 +23,8 @@
  *          Late is worth more; too late is gone.
  *   CHARGE HOLD AND RELEASE. A bar climbs while you hold it and does not come back. Let go
  *          inside the band; hold past it and it is over the bar.
- *   AIM    DRAG AND RELEASE, on something that is MOVING. The only one in two dimensions:
- *          the ball is going somewhere and so is the man, and you have to be where it ends
- *          up rather than where it is.
+ *   TACKLE ONE TOUCH as the attacker exposes the ball on the route to goal.
+ *   PASS   DRAG AND RELEASE into a team-mate's run beyond the defensive line.
  *   DIVE   ONE COMMITTED GESTURE, judged twice - which way you went and when you went. You
  *          cannot take it back, because that is what diving is.
  *          Sell it, then go.
@@ -48,7 +46,8 @@ export const MECHANICS = {
   SWEEP: "sweep",
   WINDOW: "window",
   CHARGE: "charge",
-  AIM: "aim",
+  TACKLE: "tackle",
+  PASS: "pass",
   DIVE: "dive",
 };
 
@@ -85,10 +84,12 @@ export const CHANCE_MECHANIC = {
   salida_mano_a_mano: MECHANICS.WINDOW,
   tiro_lejano: MECHANICS.SWEEP,
   centro_lateral: MECHANICS.CHARGE,
-  // Defender. A tackle is timed.
-  entrada: MECHANICS.WINDOW,
-  // Midfield. The through ball is the one pass where WHERE is the whole question.
-  pase_gol: MECHANICS.AIM,
+  // Defender. The opponent carries the ball towards goal; commit when it is exposed.
+  entrada: MECHANICS.TACKLE,
+  // You do not place a clearance, you hit it: hold the contact and let go inside the band.
+  despeje: MECHANICS.CHARGE,
+  // Midfield. Lead the team-mate through the defensive line and into a clear chance.
+  pase_gol: MECHANICS.PASS,
 };
 
 /**
@@ -108,6 +109,8 @@ export const TUNING = {
   sweep: { at60: 0.085, at95: 0.155, speedAt60: 1.35, speedAt95: 0.95 },
   /** The window's width in the same units, and how fast it closes. */
   window: { at60: 0.1, at95: 0.19, closeAt60: 1.4, closeAt95: 1.0 },
+  /** A single exposed touch while an attacker drives at the back line. */
+  tackle: { at60: 0.1, at95: 0.19, runAt60: 1.4, runAt95: 1.85 },
   /** Two gates, wider each because both of them have to land. */
   /**
    * The band on a climbing bar, and the seconds it takes to fill. Better players get a
@@ -115,8 +118,8 @@ export const TUNING = {
    * to think rather than a second pass.
    */
   charge: { at60: 0.085, at95: 0.155, fillAt60: 1.15, fillAt95: 1.7 },
-  /** The radius of the disc, area-matched to the sweep band, and the seconds of the run. */
-  aim: { at60: discFor(0.085), at95: discFor(0.155), runAt60: 1.6, runAt95: 2.2 },
+  /** Spatial precision for a pass, with enough time to read the defensive line. */
+  pass: { at60: discFor(0.085), at95: discFor(0.155), runAt60: 1.8, runAt95: 2.35 },
   /** Two calls out of one gesture, so it is priced like the other two-call game. */
   dive: { at60: 0.11, at95: 0.2, runAt60: 1.5, runAt95: 1.9 },
   /** The beat between two touches, and the length of the bar that beat is measured on. */
@@ -176,6 +179,16 @@ export function buildChance({ seed, season, fixtureId, shotType, ovr }) {
     };
   }
 
+  if (mechanic === MECHANICS.TACKLE) {
+    return {
+      ...base,
+      // The attacker takes one loose touch after entering the final third.
+      target: 0.48 + next() * 0.24,
+      tolerance: lerp(TUNING.tackle.at60, TUNING.tackle.at95, skill),
+      period: lerp(TUNING.tackle.runAt60, TUNING.tackle.runAt95, skill),
+    };
+  }
+
   if (mechanic === MECHANICS.CHARGE) {
     return {
       ...base,
@@ -187,27 +200,25 @@ export function buildChance({ seed, season, fixtureId, shotType, ovr }) {
     };
   }
 
-  if (mechanic === MECHANICS.AIM) {
-    const radius = lerp(TUNING.aim.at60, TUNING.aim.at95, skill);
-    /*
-     * The whole run stays inside the field. Two reasons, and the second is the important
-     * one: a disc hanging half off the edge is a smaller target than the same disc in the
-     * middle, so where the model happened to put it would decide how hard the chance was -
-     * and the parity this file promises is measured on the area of that disc.
-     */
-    const inside = () => radius + next() * (1 - 2 * radius);
-    const from = { x: inside(), y: inside() };
-    const to = { x: inside(), y: inside() };
-
+  if (mechanic === MECHANICS.PASS) {
+    const radius = lerp(TUNING.pass.at60, TUNING.pass.at95, skill);
+    const startX = 0.28 + next() * 0.44;
+    const finishX = Math.max(radius, Math.min(1 - radius, startX + (next() - 0.5) * 0.28));
+    const startY = 1 - radius;
+    // The receiver gets beyond the back line but remains in front of goal: a clear chance,
+    // not a figure already standing in the net before the pass has been played.
+    const finishY = Math.max(radius, 0.5);
     return {
       ...base,
-      // A point that TRAVELS - the run being made, the cross coming across - rather than a
-      // coordinate sitting still. `spotAt` says where it is at a given moment, and the only
-      // place in this file where the error is not one-dimensional measures against that.
-      spot: { x: from.x, y: from.y, travel: { x: to.x - from.x, y: to.y - from.y } },
+      // The receiver attacks the space beyond the back line and towards goal. Unlike the
+      // generic moving target, this run always turns possession into a clear chance.
+      spot: {
+        x: startX,
+        y: startY,
+        travel: { x: finishX - startX, y: finishY - startY },
+      },
       tolerance: radius,
-      // Seconds for the run. It happens once: miss it and the ball has gone.
-      period: lerp(TUNING.aim.runAt60, TUNING.aim.runAt95, skill),
+      period: lerp(TUNING.pass.runAt60, TUNING.pass.runAt95, skill),
     };
   }
 
@@ -273,7 +284,7 @@ function missBy(target, value) {
  * `inputs` is what the player committed - where the marker stopped, how long the bar was
  * held, the beat between two touches, or the point a drag was released at. One value for
  * the single-call mechanics, two for a dive, a `{x, y}` for an aim. All of it is
- * in the same 0..1 units, so one comparison covers all seven.
+ * in the same 0..1 units, so one comparison covers all six.
  *
  * Returns the same shape `resolveShot` does, because the rest of the game already knows
  * how to read that and a decider must not care which way it was played.
