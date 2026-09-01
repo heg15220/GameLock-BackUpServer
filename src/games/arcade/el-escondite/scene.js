@@ -250,22 +250,6 @@ const PAINTERS = {
   fountain: drawFountain,
 };
 
-// ── Overlays on a place ──────────────────────────────────────────────────────
-function drawTellMarks(ctx, r, strength) {
-  // Two little arcs either side, the visual of something shifting inside.
-  ctx.save();
-  ctx.globalAlpha = 0.35 + strength * 0.65;
-  ctx.strokeStyle = "#fff3c4";
-  ctx.lineWidth = Math.max(1.6, r * 0.07);
-  ctx.lineCap = "round";
-  for (const side of [-1, 1]) {
-    ctx.beginPath();
-    ctx.arc(side * r * 0.95, -r * 0.55, r * 0.28, side > 0 ? -0.9 : Math.PI + 0.35, side > 0 ? 0.5 : Math.PI + 1.7);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
 function drawResultBadge(ctx, r, hits) {
   // Below the object, not above it: the top row of places sits under the HUD
   // rail and a badge up there would be half-hidden by it.
@@ -321,20 +305,11 @@ export function drawScene(ctx, snap, w, h, timeMs = 0, hoverId = null) {
   for (const spot of order) {
     const state = snapSpots[spot.id] ?? {};
     const r = spot.r;
-    const tell = state.tell ?? 0;
     const reveal = state.reveal ?? 0;
     const hovered = playing && hoverId === spot.id && !state.searched;
 
     ctx.save();
     ctx.translate(spot.cx, spot.cy);
-
-    // A place with somebody in it twitches. That wobble is the only information
-    // the seeker ever gets, so it has to be visible without being a label.
-    if (tell > 0) {
-      const wobble = Math.sin(timeMs / 55) * r * 0.06 * tell;
-      ctx.translate(wobble, 0);
-      ctx.rotate(Math.sin(timeMs / 70) * 0.05 * tell);
-    }
 
     // Ground shadow under the object.
     ctx.fillStyle = "rgba(30, 45, 20, 0.16)";
@@ -356,8 +331,6 @@ export function drawScene(ctx, snap, w, h, timeMs = 0, hoverId = null) {
     if (state.searched) ctx.globalAlpha = 0.62;
     (PAINTERS[spot.kind] ?? drawBush)(ctx, r);
     ctx.restore();
-
-    if (tell > 0) drawTellMarks(ctx, r, tell);
 
     // Hiders that were caught here step out and stay out.
     const caught = state.searched ? state.hits ?? 0 : 0;

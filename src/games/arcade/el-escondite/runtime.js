@@ -6,12 +6,9 @@
 // pick can end the round in one go. The seeker wins by finding all three; the
 // hiders win if even one is still hidden when the time or the searches run out.
 //
-// Played straight that is a blind 5-from-7 guess, which is a lottery rather
-// than a game. The one thing added here is the thing hide and seek actually
-// turns on: **an occupied hiding place gives itself away**. Every so often a
-// place with somebody in it twitches — the tube rocks, the dome shakes — for a
-// fraction of a second. Difficulty is entirely how often and how long those
-// tells last, so paying attention is what improves your odds, not luck.
+// Hiding places never give away their occupants before a search. Difficulty is
+// controlled only by how much the three hiders spread out: an easy round often
+// rewards one lucky search with several finds, while hard always separates them.
 //
 // Time is owned through `advanceTime(ms)`, so a round is deterministic: seed
 // it, feed it milliseconds, and the same hiders end up in the same places.
@@ -26,12 +23,10 @@ export const REVEAL_MS = 900; // how long a searched place shows its result
 
 export const DIFFICULTIES = ["facil", "normal", "dificil"];
 
-// How the hiding places behave per difficulty: how often an occupied one gives
-// a tell, how long it lasts, and how much the hiders spread out.
 const TUNING = {
-  facil:   { tellEveryMs: 1500, tellMs: 620, spread: 0.15 },
-  normal:  { tellEveryMs: 2400, tellMs: 420, spread: 0.55 },
-  dificil: { tellEveryMs: 3600, tellMs: 260, spread: 1 },
+  facil:   { spread: 0.15 },
+  normal:  { spread: 0.55 },
+  dificil: { spread: 1 },
 };
 
 const BEST_KEY = "elEscondorBestScore";
@@ -124,8 +119,6 @@ export class ElEscondideRuntime {
       searched: false,   // already used a search here
       hits: 0,           // how many hiders were caught here
       revealMs: 0,       // countdown of the "just searched" flash
-      tellMs: 0,         // countdown of a visible tell
-      nextTellMs: 0,     // when this place next gives itself away
     }));
   }
 
@@ -157,10 +150,9 @@ export class ElEscondideRuntime {
   }
 
   _advance(dtMs) {
-    // Reveal flashes and tells run in every state so a finished round settles.
+    // Search-result flashes continue settling after the round ends.
     for (const spot of this.spots) {
       if (spot.revealMs > 0) spot.revealMs = Math.max(0, spot.revealMs - dtMs);
-      if (spot.tellMs > 0) spot.tellMs = Math.max(0, spot.tellMs - dtMs);
     }
 
     if (this.state !== "seeking") {
@@ -170,21 +162,6 @@ export class ElEscondideRuntime {
 
     this.elapsedMs += dtMs;
     this.msLeft = Math.max(0, ROUND_MS - this.elapsedMs);
-
-    // An occupied place gives itself away now and then. A place already
-    // searched has nothing left to hide, so it stays still.
-    const tuning = TUNING[this.difficulty];
-    for (const spot of this.spots) {
-      if (spot.searched) continue;
-      const occupied = this.hiderSpots.includes(spot.id);
-      if (!occupied) continue;
-      spot.nextTellMs -= dtMs;
-      if (spot.nextTellMs <= 0) {
-        spot.tellMs = tuning.tellMs;
-        spot.nextTellMs = tuning.tellEveryMs * (0.6 + this.rng() * 0.8);
-        this.audio?.playRustle?.();
-      }
-    }
 
     if (this.msLeft <= 0) this._finish(false);
     else this.emit();
@@ -202,10 +179,6 @@ export class ElEscondideRuntime {
     const tuning = TUNING[this.difficulty];
     this.spots = this._freshSpots();
     this.hiderSpots = placeHiders(this.rng, tuning.spread);
-    for (const spot of this.spots) {
-      // Stagger the first tell so they do not all fire on the same frame.
-      spot.nextTellMs = tuning.tellEveryMs * (0.25 + this.rng() * 0.9);
-    }
     this.foundCount = 0;
     this.searchesLeft = MAX_SEARCHES;
     this.elapsedMs = 0;
@@ -236,7 +209,6 @@ export class ElEscondideRuntime {
 
     spot.searched = true;
     spot.revealMs = REVEAL_MS;
-    spot.tellMs = 0;
     this.searchesLeft -= 1;
 
     const hits = this.hiderSpots.filter((s) => s === spotId).length;
@@ -355,9 +327,8 @@ export class ElEscondideRuntime {
         id: spot.id,
         searched: spot.searched,
         hits: spot.hits,
-        // 0..1 flash right after a search, and 0..1 while giving a tell.
+        // 0..1 flash right after a search. Occupancy stays fully secret.
         reveal: spot.revealMs > 0 ? spot.revealMs / REVEAL_MS : 0,
-        tell: spot.tellMs > 0 ? Math.min(1, spot.tellMs / 260) : 0,
         // Only once the round is decided does the board admit where they were.
         occupied: over ? this.hiderSpots.filter((s) => s === spot.id).length : null,
       })),

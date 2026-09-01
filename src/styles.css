@@ -33397,6 +33397,7 @@ button.brisca-card.playable:disabled {
 .ss-overlay {
   position: absolute;
   inset: 0;
+  z-index: 6;
   display: grid;
   place-items: center;
   padding: 1rem;
@@ -33409,6 +33410,7 @@ button.brisca-card.playable:disabled {
 }
 
 .ss-panel {
+  box-sizing: border-box;
   display: grid;
   justify-items: center;
   gap: 0.7rem;
@@ -33800,6 +33802,30 @@ button.brisca-card.playable:disabled {
   }
   .ss-gauge {
     width: min(300px, 90%);
+  }
+  .ss-stage--gameover .ss-board,
+  .ss-stage--gameover .ss-record {
+    display: none;
+  }
+  .ss-stage--gameover .ss-overlay {
+    overflow-y: auto;
+    place-items: start center;
+    padding: 0.4rem;
+  }
+  .ss-stage--gameover .ss-panel {
+    gap: 0.4rem;
+    max-height: none;
+    padding: 0.55rem;
+  }
+  .ss-stage--gameover .ss-result-list {
+    gap: 0.24rem;
+  }
+  .ss-stage--gameover .ss-result-list li {
+    min-height: 36px;
+    padding: 0.32rem 0.45rem;
+  }
+  .ss-stage--gameover .ss-primary {
+    min-height: 42px;
   }
 }
 

@@ -159,7 +159,7 @@ export default function SaltosSelvaticosGame() {
         </div>
       </div>
 
-      <div className="ss-stage">
+      <div className={`ss-stage ss-stage--${screen}`}>
         <canvas
           ref={canvasRef}
           className="ss-canvas"

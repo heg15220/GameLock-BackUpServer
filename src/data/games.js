@@ -193,14 +193,14 @@ const gamesInSourceOrder = [
     category: "Arcade",
     tagline: "Tres se esconden en siete sitios y tu tienes cinco busquedas.",
     description:
-      "Adaptacion del minijuego El escondite de Wii Party. Tres rivales se esconden en los siete sitios de un parque y tu eres quien busca: cinco busquedas y treinta segundos. Mirar en un sitio encuentra a todos los que haya dentro, y pueden esconderse varios juntos, asi que una eleccion afortunada cierra la ronda de golpe. Jugado a ciegas seria una loteria de cinco entre siete, asi que aqui un escondite ocupado se delata: cada cierto tiempo tiembla durante una fraccion de segundo. La dificultad es exactamente cada cuanto tiembla, cuanto dura y si los tres se reparten o se amontonan.",
+      "Adaptacion del minijuego El escondite de Wii Party. Tres rivales se esconden en los siete sitios de un parque y tu eres quien busca: cinco busquedas y treinta segundos. Mirar en un sitio encuentra a todos los que haya dentro, y pueden esconderse varios juntos, asi que una eleccion afortunada cierra la ronda de golpe. Ningun escondite ocupado se mueve ni se marca antes de buscar. La dificultad depende solo de si los tres rivales se reparten o se amontonan.",
     objective_es:
       "Encontrar a los tres escondidos con cinco busquedas y antes de que acaben los 30 segundos.",
     howToPlay_es:
-      "Haz clic o toca un escondite para mirar dentro, o usa las teclas 1-7. Un escondite ocupado tiembla de vez en cuando: esa es la unica pista. P pausa, R reinicia, M sonido y F pantalla completa.",
+      "Haz clic o toca un escondite para mirar dentro, o usa las teclas 1-7. No hay temblores ni marcas que revelen los escondites ocupados. P pausa, R reinicia, M sonido y F pantalla completa.",
     highlights: [
       "Reglas fieles al original: 7 escondites, 3 escondidos, 5 busquedas, 30 segundos y varios pueden compartir sitio.",
-      "El temblor del escondite ocupado convierte una loteria en un juego de observacion, y es lo unico que mueve la dificultad.",
+      "Ocultacion limpia: ningun efecto visual o dato del snapshot delata un escondite antes de registrarlo.",
       "Buscar un sitio saca a todos los que haya dentro, asi que acertar donde se amontonaron cierra la ronda de una vez.",
       "Al terminar, los escondites que no miraste ensenan lo que guardaban: perder tambien explica por que.",
       "Parque dibujado por codigo (torre, iglu, caseta, tubo, arbusto, avioneta y fuente) sin un solo asset que cargar.",
@@ -210,19 +210,19 @@ const gamesInSourceOrder = [
     multiplayer: "Un jugador contra 3 rivales IA",
     viability: "Alta: runtime ligero, canvas procedural sin assets y estado serializable.",
     visualStyle: "Parque soleado a media distancia con siete piezas de juegos infantiles repartidas y monigotes sin cara.",
-    techFocus: "Reparto sembrado de escondidos, temblores temporizados por dificultad, hit test compartido con el pintor y render procedural puro.",
+    techFocus: "Reparto sembrado de escondidos, ocupacion privada hasta el resultado, hit test compartido con el pintor y render procedural puro.",
 
     category_en: "Arcade",
     tagline_en: "Three hide across seven places and you get five searches.",
     description_en:
-      "An adaptation of Wii Party's Hide and Seek minigame. Three rivals hide across a park's seven places and you are the seeker: five searches and thirty seconds. Searching a place finds everyone inside it, and several of them can share one, so a lucky pick ends the round on the spot. Played blind that would be a five-from-seven lottery, so here an occupied hiding place gives itself away: every so often it twitches for a fraction of a second. Difficulty is exactly how often it twitches, how long for, and whether the three split up or pile in together.",
+      "An adaptation of Wii Party's Hide and Seek minigame. Three rivals hide across a park's seven places and you are the seeker: five searches and thirty seconds. Searching a place finds everyone inside it, and several of them can share one, so a lucky pick ends the round on the spot. No occupied hiding place moves or gets marked before a search. Difficulty only changes whether the three rivals split up or pile in together.",
     objective_en:
       "Find all three hiders within five searches and before the 30 seconds run out.",
     howToPlay_en:
-      "Click or tap a hiding place to look inside, or use the 1-7 keys. An occupied place twitches now and then: that is the only clue. P pauses, R restarts, M sound, and F toggles fullscreen.",
+      "Click or tap a hiding place to look inside, or use the 1-7 keys. No shake or marker reveals occupied hiding places. P pauses, R restarts, M sound, and F toggles fullscreen.",
     highlights_en: [
       "Faithful to the original: 7 places, 3 hiders, 5 searches, 30 seconds, and several may share a place.",
-      "The twitch of an occupied place turns a lottery into a game of attention, and it is the only thing difficulty moves.",
+      "Clean concealment: no visual effect or snapshot field reveals a hiding place before it is searched.",
       "Searching a place pulls out everyone in it, so guessing where they piled in ends the round in one go.",
       "When it is over, the places you never searched show what they were holding: losing explains itself.",
       "A park drawn entirely in code (tower, dome, hut, tube, bush, toy plane and fountain) with no asset to load.",
@@ -232,7 +232,7 @@ const gamesInSourceOrder = [
     multiplayer_en: "One player against 3 AI rivals",
     viability_en: "High: lightweight runtime, procedural asset-free canvas, serialisable state.",
     visualStyle_en: "A sunny mid-distance park with seven pieces of playground scattered across it and faceless figures.",
-    techFocus_en: "Seeded hider placement, difficulty-timed tells, a hit test shared with the painter, and pure procedural rendering.",
+    techFocus_en: "Seeded hider placement, occupancy kept private until results, a hit test shared with the painter, and pure procedural rendering.",
   },
 
   {

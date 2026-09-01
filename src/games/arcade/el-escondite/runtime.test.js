@@ -129,28 +129,17 @@ describe("ElEscondideRuntime", () => {
     expect(rt.snapshot().lastScore).toBeGreaterThan(0);
   });
 
-  it("only ever gives a tell from a place that is occupied and unsearched", () => {
-    const rt = fresh({ difficulty: "facil" });
+  it("never publishes or plays a clue that marks an occupied hiding place", () => {
+    let rustles = 0;
+    const rt = fresh({
+      difficulty: "facil",
+      audio: { playRustle: () => { rustles += 1; } },
+    });
     rt.hiderSpots = [1, 1, 4];
-    for (let i = 0; i < 40; i += 1) {
-      rt.advanceTime(200);
-      for (const spot of rt.snapshot().spots) {
-        if (spot.tell > 0) {
-          expect([1, 4]).toContain(spot.id);
-          expect(spot.searched).toBe(false);
-        }
-      }
-    }
-  });
-
-  it("stops tells from a place once it has been searched", () => {
-    const rt = fresh({ difficulty: "facil" });
-    rt.hiderSpots = [1, 4, 6];
-    rt.search(1);
-    for (let i = 0; i < 40; i += 1) {
-      rt.advanceTime(200);
-      expect(rt.snapshot().spots[1].tell).toBe(0);
-    }
+    for (let i = 0; i < 40; i += 1) rt.advanceTime(200);
+    expect(rt.snapshot().spots.every((spot) => !("tell" in spot))).toBe(true);
+    expect(rt.snapshot().spots.every((spot) => spot.occupied === null)).toBe(true);
+    expect(rustles).toBe(0);
   });
 
   it("holds the clock while paused", () => {
@@ -190,10 +179,8 @@ describe("ElEscondideRuntime", () => {
   });
 
   it("keeps hard rounds winnable but not easy", () => {
-    // A seeker who reads the tells perfectly should still be able to win on
-    // hard; a seeker who ignores them and searches 1-5 blindly should mostly
-    // lose. This checks the blind baseline is genuinely poor, which is what
-    // makes the tells worth watching.
+    // Hard mode always spreads the three hiders, so searching 1-5 blindly
+    // should sometimes work but lose much more often than it wins.
     let blindWins = 0;
     for (let seed = 0; seed < 200; seed += 1) {
       const rt = new ElEscondideRuntime({ seed });

@@ -521,6 +521,32 @@
   line-height: 1.24;
 }
 
+/* Selected touch-stage arcades keep one compact advert inside the lower
+   "Estado de partida" panel instead of placing it over the gameplay screen. */
+.mobile-game-shell__system-bottom-ad--game-status {
+  min-height: 72px;
+  padding: 0.46rem 0.56rem;
+  border-radius: 18px;
+}
+
+.mobile-game-shell__system-bottom-ad--game-status .ad-preview-card__eyebrow {
+  font-size: 0.48rem;
+}
+
+.mobile-game-shell__system-bottom-ad--game-status .ad-preview-card__title {
+  font-size: 0.76rem;
+}
+
+.mobile-game-shell__system-bottom-ad--game-status .ad-preview-card__description {
+  display: none;
+}
+
+.mobile-game-shell__system-bottom-ad--game-status .ad-preview-card__meta,
+.mobile-game-shell__system-bottom-ad--game-status .ad-preview-card__footer {
+  font-size: 0.57rem;
+  line-height: 1.2;
+}
+
 .mobile-game-shell__system-bottom-spacer {
   height: calc(var(--mobile-shell-system-ad-space) + env(safe-area-inset-bottom, 0px));
   min-height: calc(var(--mobile-shell-system-ad-space) + env(safe-area-inset-bottom, 0px));
@@ -7600,4 +7626,42 @@
   min-height: 0;
   margin-top: 0;
   aspect-ratio: auto;
+}
+
+/* Saltos Selvaticos owns the full isolated stage too. Its final standings are
+   an HTML overlay inside .ss-stage; stretching the stage and allowing that
+   overlay to scroll keeps all four ranking rows reachable on short phones. */
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].saltos-selvaticos {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  [data-mobile-stage-target="true"].ss-stage {
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  margin-top: 0;
+  aspect-ratio: auto;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"] .ss-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  .ss-stage--gameover .ss-overlay {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  .ss-stage--gameover .ss-panel {
+  max-height: none;
 }

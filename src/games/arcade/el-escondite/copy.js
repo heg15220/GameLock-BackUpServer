@@ -27,20 +27,20 @@ export const COPY = {
     difficulty: "Dificultad",
     difficulties: { facil: "Fácil", normal: "Normal", dificil: "Difícil" },
     difficultyNotes: {
-      facil: "Se esconden juntos y el escondite tiembla mucho y a menudo.",
-      normal: "Se reparten a medias y el temblor es más breve.",
-      dificil: "Cada uno a un sitio distinto y el temblor es un parpadeo.",
+      facil: "Suelen compartir escondite: una búsqueda puede encontrar a varios.",
+      normal: "A veces comparten sitio y otras veces se reparten.",
+      dificil: "Cada rival elige un escondite distinto.",
     },
     menuLead:
       "Tres jugadores se esconden en los siete sitios del parque y tú los buscas. Tienes cinco búsquedas y treinta segundos; al mirar en un sitio encuentras a todos los que haya dentro, y pueden esconderse varios juntos.",
     menuTip:
-      "No adivines: mira. Un escondite ocupado se mueve de vez en cuando, y ese temblor es la única pista que vas a tener.",
+      "Ningún escondite delata quién hay dentro. Administra tus cinco búsquedas y usa los resultados anteriores para cubrir el parque.",
     winLead: "¡Los has encontrado a los tres!",
     loseTime: "Se acabó el tiempo.",
     loseSearches: "Te quedaste sin búsquedas.",
     revealLead: "Ahí estaban.",
     hint:
-      "Haz clic o toca un escondite para mirar dentro (también valen las teclas 1-7). Un escondite ocupado tiembla de vez en cuando. Cinco búsquedas, 30 segundos y tres escondidos. P pausa, R reinicia, M sonido y F pantalla completa.",
+      "Haz clic o toca un escondite para mirar dentro (también valen las teclas 1-7). No hay temblores ni marcas antes de buscar. Cinco búsquedas, 30 segundos y tres escondidos. P pausa, R reinicia, M sonido y F pantalla completa.",
   },
   en: {
     title: "Hide and Seek",
@@ -68,20 +68,20 @@ export const COPY = {
     difficulty: "Difficulty",
     difficulties: { facil: "Easy", normal: "Normal", dificil: "Hard" },
     difficultyNotes: {
-      facil: "They hide together, and the place shakes often and for a while.",
-      normal: "They half split up, and the shake is briefer.",
-      dificil: "Every one in a different place, and the shake is a blink.",
+      facil: "They often share a hiding place, so one search may find several.",
+      normal: "They sometimes share a place and sometimes spread out.",
+      dificil: "Each rival chooses a different hiding place.",
     },
     menuLead:
       "Three players hide across the park's seven places and you look for them. You get five searches and thirty seconds; searching a place finds everyone inside it, and several of them can hide together.",
     menuTip:
-      "Do not guess — watch. An occupied hiding place shifts every so often, and that twitch is the only clue you are going to get.",
+      "No hiding place gives away who is inside. Manage your five searches and use previous results to cover the park.",
     winLead: "You found all three!",
     loseTime: "Time ran out.",
     loseSearches: "You ran out of searches.",
     revealLead: "That is where they were.",
     hint:
-      "Click or tap a hiding place to look inside (keys 1-7 work too). An occupied place twitches now and then. Five searches, 30 seconds, three hiders. P pauses, R restarts, M sound, and F toggles fullscreen.",
+      "Click or tap a hiding place to look inside (keys 1-7 work too). There are no shakes or marks before searching. Five searches, 30 seconds, three hiders. P pauses, R restarts, M sound, and F toggles fullscreen.",
   },
 };
 

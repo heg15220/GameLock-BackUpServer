@@ -1,6 +1,5 @@
-// El Escondite sound. The important cue is `playRustle`: it is the audible half
-// of a hiding place giving itself away, so it is soft, short and unmistakably
-// "something moved in there" rather than a musical note.
+// El Escondite sound: feedback begins only after a search, so audio cannot
+// disclose which untouched hiding place is occupied.
 
 import { createArcadeAudio, readStoredMuted } from "../shared/wiiPartyAudio.js";
 
@@ -14,11 +13,6 @@ export function createEscondideAudio(initialMuted = false) {
   return createArcadeAudio(
     MUTED_KEY,
     ({ tone, noise, sweep }) => ({
-      // Something shifted inside a hiding place.
-      playRustle: (t) => {
-        noise(t, 0.09, 0.16, 1800, 0.8, "highpass");
-        noise(t + 0.06, 0.07, 0.1, 1500, 0.9, "highpass");
-      },
       // Searched a place and caught somebody.
       playFound: (t) => {
         tone(660, t, 0.1, 0.28, "triangle");
