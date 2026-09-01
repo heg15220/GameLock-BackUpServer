@@ -370,6 +370,40 @@ export function developmentOutlook(state, growth = null) {
  */
 export const RELEGATION_PLACES = 3;
 
+/**
+ * The places a second-tier promotion play-off is contested from: third to sixth.
+ *
+ * A play-off is not a fixture the season decided to hand out - it is where the club
+ * FINISHED. Reaching one is the same statement as "third, fourth, fifth or sixth", and
+ * winning one is not the same statement as "champion": a side that goes up through the
+ * play-off finished behind the two that went up automatically, and the table has to say
+ * so. Left out, the summary of a season whose whole June was a promotion play-off read
+ * "Posición final en liga: 14.º", which is a table that never played the match.
+ */
+export const PLAYOFF_PLACES = 4;
+
+/**
+ * And how far above the drop a side that had to play for its life finished.
+ *
+ * The mirror image, and the one the player notices first: a survival final is a season
+ * spent in the bottom three or four, so ninth is not a near miss, it is a different year
+ * entirely. Only ever applied to a club that stayed up - going down is already anchored
+ * into the drop by `relegated`.
+ */
+export const SURVIVAL_PLACES = 3;
+
+/**
+ * Put a derived position inside the band a night that was actually played implies.
+ *
+ * Linear rather than a clamp, so the shape survives: inside a promotion play-off band a
+ * club whose numbers said fourth still finishes above one whose numbers said eleventh.
+ */
+function squeezeInto(placed, first, last, size) {
+  if (last <= first) return first;
+  const spread = (placed - 1) / Math.max(1, size - 1);
+  return Math.max(first, Math.min(last, first + Math.round(spread * (last - first))));
+}
+
 export function leaguePosition({
   club,
   ovr = 70,
@@ -378,6 +412,13 @@ export function leaguePosition({
   wonLeague = false,
   relegated = false,
   promoted = false,
+  /*
+   * Whether the season came down to one of the two nights that ARE a finishing position.
+   * See PLAYOFF_PLACES and SURVIVAL_PLACES - these are the only inputs here that are not
+   * a roll but a match the player stood in, so they outrank the arithmetic.
+   */
+  promotionPlayoff = false,
+  survivalPlayoff = false,
   size = 20,
 }) {
   if (wonLeague) return 1;
@@ -398,7 +439,29 @@ export function leaguePosition({
   // A side that went down finished in the drop, whatever the arithmetic said; one that came
   // up won its division or was right behind whoever did.
   if (relegated) return Math.max(size - RELEGATION_PLACES + 1, placed);
+
+  /*
+   * AND A SIDE THAT PLAYED THE PLAY-OFF FINISHED IN THE PLAY-OFF PLACES.
+   *
+   * Before `promoted`, deliberately. Automatic promotion and a play-off are two different
+   * seasons: the first is first or second, the second is third to sixth and stays third to
+   * sixth whichever way the night went. Reading the play-off through `promoted` printed a
+   * club that went up through it as champions of a division it had finished fifth in.
+   */
+  if (promotionPlayoff) {
+    const first = Math.min(3, size);
+    const last = Math.max(first, Math.min(size, 2 + PLAYOFF_PLACES));
+    return squeezeInto(placed, first, last, size);
+  }
   if (promoted) return Math.min(2, placed);
+
+  // A survival final is the bottom of the table with one match left, so a club that came
+  // through one finished just above the drop rather than halfway up. `relegated` above has
+  // already put the ones that did not through the other half of the same rule.
+  if (survivalPlayoff) {
+    const bottom = Math.max(2, size - RELEGATION_PLACES);
+    return squeezeInto(placed, Math.max(2, bottom - SURVIVAL_PLACES + 1), bottom, size);
+  }
 
   /*
    * AND A SIDE THAT STAYED UP DID NOT FINISH IN THE DROP.
@@ -547,6 +610,40 @@ export function rollTitle(seed, season, trophy, context) {
   // Exactly `odds`, but in sympathy with the rest of the club's year: this is where
   // doubles come from, and where a barren season stays barren.
   return fortunateChance(next, odds, latent, SEASON_COHESION[trophy] ?? 0);
+}
+
+/**
+ * The two ends of the table, asked as one question wherever they are asked from.
+ *
+ * `rollTitle` exists so a cup final can be answered on the night it is played and then
+ * honoured by the season instead of rolled a second time. These are that rule for the
+ * other two things a season can decide - going up and going down - and they exist for the
+ * same reason: `settleFinal` needs the answer before the shoot-out that ends a level
+ * play-off, and `simulateSeason` needs it to be the same answer.
+ *
+ * Same stream, same odds, same multipliers. Asking early and asking late are the same
+ * question, so nothing about how often a club goes up or down has moved.
+ */
+export function rollPromotion(seed, season, { ovr, latent = 0, modifiers = {} }) {
+  const odds = tableLookup(PROMOTION_ODDS, ovr).odds * (modifiers.promotionMultiplier ?? 1);
+  return fortunateChance(
+    createStream(seed, "promotion", season),
+    odds,
+    latent,
+    SEASON_COHESION.promotion,
+  );
+}
+
+export function rollRelegation(seed, season, { ovr, latent = 0, modifiers = {} }) {
+  const odds = relegationOdds(ovr) * (modifiers.relegationMultiplier ?? 1);
+  // The one outcome the season's fortune should make LESS likely: a side having its best
+  // year in a decade does not go down with it.
+  return unfortunateChance(
+    createStream(seed, "relegation", season),
+    odds,
+    latent,
+    SEASON_COHESION.relegation,
+  );
 }
 
 /** What the year the club is having looks like, before anything in it is rolled. */
@@ -1114,35 +1211,40 @@ export function simulateSeason(state, world, { season, tournamentRuns: prebuiltR
   const national = rollNationalTeam(state.seed, season, context);
   const awards = rollAwards(state.seed, season, { ...context, titles });
 
-  // Promotion and relegation, which invert who is responsible for the result. A play-off
-  // or a survival six-pointer the player took a shot in overrides the roll entirely.
+  /*
+   * Promotion and relegation, which invert who is responsible for the result.
+   *
+   * Both can arrive ALREADY ANSWERED. A play-off and a survival final are knockouts, so
+   * they are settled on the night the player stood in them - the same stream, the same
+   * odds, one step earlier - exactly the way a cup final is (see `settleFinal` in
+   * career.js). Without that the night had no winner to narrate and the shoot-out that
+   * ends a level one had nobody to give it to, so the two of them were the only matches in
+   * the game allowed to finish square and stop there.
+   *
+   * The multipliers are how a play-off the player did not reach stays as likely as it was
+   * before big matches existed: what the decider took, the ordinary roll gives back.
+   */
+  const settledOutcomes = modifiers.settledTitles ?? {};
   let promoted = false;
   let relegated = false;
-  // The multipliers are how a play-off the player did not reach stays as likely as it was
-  // before big matches existed: what the decider took, the ordinary roll gives back.
+  // Whether the season came down to one of those two nights, which is also a statement
+  // about the table - see `leaguePosition`.
+  let promotionPlayoff = false;
+  let survivalPlayoff = false;
   if (competition?.tier === 2) {
-    const odds =
-      tableLookup(PROMOTION_ODDS, effectiveOvr).odds * (modifiers.promotionMultiplier ?? 1);
+    promotionPlayoff = settledOutcomes.promotion !== undefined;
     promoted =
       modifiers.forcePromotion ??
-      fortunateChance(
-        createStream(state.seed, "promotion", season),
-        odds,
-        latent,
-        SEASON_COHESION.promotion,
-      );
+      (promotionPlayoff
+        ? settledOutcomes.promotion
+        : rollPromotion(state.seed, season, { ovr: effectiveOvr, latent, modifiers }));
   } else if (effectiveReputation(club, effectiveOvr, "domestic") === 0) {
-    const odds = relegationOdds(effectiveOvr) * (modifiers.relegationMultiplier ?? 1);
-    // The one outcome the season's fortune should make LESS likely: a side having its
-    // best year in a decade does not go down with it.
+    survivalPlayoff = settledOutcomes.survival !== undefined;
     relegated =
       modifiers.forceRelegation ??
-      unfortunateChance(
-        createStream(state.seed, "relegation", season),
-        odds,
-        latent,
-        SEASON_COHESION.relegation,
-      );
+      (survivalPlayoff
+        ? !settledOutcomes.survival
+        : rollRelegation(state.seed, season, { ovr: effectiveOvr, latent, modifiers }));
   }
   // Going down wipes the club silverware won on the way.
   const keptTitles = relegated ? [] : titles;
@@ -1170,6 +1272,9 @@ export function simulateSeason(state, world, { season, tournamentRuns: prebuiltR
     wonLeague: keptTitles.some((title) => title.trophy === "league"),
     relegated,
     promoted,
+    // A night that was played is a claim about the table, and it outranks the arithmetic.
+    promotionPlayoff,
+    survivalPlayoff,
     size: Math.max(2, Object.values(world.clubs).filter((candidate) => candidate.competitionId === club.competitionId).length),
   });
   const nextContinentalEntry = continentalQualification({

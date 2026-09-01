@@ -72,6 +72,8 @@ import {
   NATIONAL_TROPHIES,
   roleFor,
   rollNationalTitle,
+  rollPromotion,
+  rollRelegation,
   rollTitle,
   seasonLatent,
   simulateLeagueTable,
@@ -1610,14 +1612,29 @@ const FINALS = new Set(["final_copa", "final_continental", "final_mundial", "fin
 /**
  * What a level scoreline MEANS at ninety minutes.
  *
- * In a league, promotion or survival match a draw is a result: the table takes it and the
- * season carries on. Everywhere else it is a question, and football has always answered it
- * the same way. So a knockout that finishes square goes to penalties - which is also what
- * stops a cup final sitting on screen reading 1-1 with a trophy in the cabinet.
+ * In a LEAGUE match a draw is a result: the table takes the point and the season carries
+ * on. Everywhere else it is a question, and football has always answered it the same way.
+ * So a knockout that finishes square goes to penalties - which is also what stops a cup
+ * final sitting on screen reading 1-1 with a trophy in the cabinet.
+ *
+ * The promotion play-off and the survival final used to be in this set, and they had no
+ * business being there: neither is a league match. A play-off tie ended 1-1 and the season
+ * moved on without saying who had gone up, which made them the only two nights in the game
+ * where the biggest match of the year simply stopped. They are knockouts, `settleFinal`
+ * gives them a winner, and a level one is now settled from twelve yards like every other.
  */
-const LEVEL_IS_A_RESULT = new Set(["league", "promotion", "survival", "derby"]);
+const LEVEL_IS_A_RESULT = new Set(["league", "derby"]);
 const goesToPenalties = (fixture) =>
   Boolean(fixture?.decides) && !LEVEL_IS_A_RESULT.has(fixture.decides);
+
+/**
+ * The two nights that decide a table rather than a cup.
+ *
+ * They are settled the same way a final is - see `settleFinal` - and honoured by
+ * `simulateSeason` instead of rolled again, so the shoot-out that ends a level play-off
+ * gives the tie to whoever really goes up.
+ */
+const TABLE_DECIDERS = new Set(["promotion", "survival"]);
 
 function settleFinal(run, fixture, outcome) {
   /*
@@ -1631,6 +1648,38 @@ function settleFinal(run, fixture, outcome) {
    * `fixture.decides` on a semi says "semifinal", which is a stage and not a cup.
    */
   const stage = TOURNAMENT_NIGHTS[fixture.kind];
+
+  /*
+   * GOING UP AND STAYING UP ARE ALSO ANSWERS SOMEBODY HAS TO GIVE ON THE NIGHT.
+   *
+   * They used to be given in August, by `simulateSeason`, months after the match that was
+   * supposed to be about them - which is why a promotion play-off was allowed to finish
+   * 1-1 and stop there, and why the season summary was then free to file the same club
+   * fourteenth. Rolled here, with the same stream and the same odds the season would have
+   * used and every multiplier this very night put on them, the answer exists before the
+   * whistle: the feed can hand a level tie to whoever really went up, and the table has to
+   * agree with the night it was decided on. See `rollPromotion` / `rollRelegation`.
+   *
+   * `won` is read the way the player reads it - going up, and staying up.
+   */
+  if (TABLE_DECIDERS.has(fixture.decides)) {
+    const { club } = standingOf(run);
+    if (!club) return null;
+    const modifiers = withMatchEffects(run.state.modifiers ?? {}, run.matchday.plan ?? {}, [outcome]);
+    const spec = {
+      ovr: clampToOvr(run.state.ovr + (modifiers.ovrTemp ?? 0)),
+      latent: seasonLatent(run.state.seed, run.season),
+      modifiers,
+    };
+    return {
+      trophy: fixture.decides,
+      won:
+        fixture.decides === "promotion"
+          ? rollPromotion(run.state.seed, run.season, spec)
+          : !rollRelegation(run.state.seed, run.season, spec),
+    };
+  }
+
   // `tie` rounds are the ones in front of the night the season was priced on. They settle
   // the eliminatoria and nothing else - rolling a cup at the last sixteen would answer in
   // February the question the final is there to ask.

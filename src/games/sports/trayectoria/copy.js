@@ -916,15 +916,17 @@ const COPY = {
           draw: "La eliminatoria sigue abierta tras el empate.",
           none: "La eliminatoria sigue su curso, y no la firmas tú.",
         },
+        /* El play-off y la final por la permanencia se deciden en la noche que se juegan
+           - ver `settleFinal` -, así que ya no son un paso hacia nada: son la respuesta. */
         promotion: {
-          yes: "Un pie en la categoría de arriba.",
-          no: "El ascenso se pone cuesta arriba.",
+          yes: "Ascenso. El equipo sube.",
+          no: "No hay ascenso. Otro año aquí abajo.",
           draw: "El empate deja el ascenso abierto.",
-          none: "El ascenso se juega sin tu nombre en él.",
+          none: "El ascenso se decide sin que la toques.",
         },
         survival: {
-          yes: "Un paso hacia la permanencia.",
-          no: "La permanencia se pone fea.",
+          yes: "Permanencia. El equipo se queda.",
+          no: "No hay permanencia. El equipo baja.",
           draw: "Un punto que no resuelve la permanencia.",
           none: "La permanencia se pelea sin que te llegue una.",
         },
@@ -1703,15 +1705,17 @@ const COPY = {
           draw: "The tie remains open after the draw.",
           none: "The tie runs its course, and not by your foot.",
         },
+        /* The play-off and the survival final are settled on the night they are played -
+           see `settleFinal` - so they are no longer a step towards anything. */
         promotion: {
-          yes: "One foot in the division above.",
-          no: "Going up just got harder.",
+          yes: "Promotion. Up they go.",
+          no: "No promotion. Another year down here.",
           draw: "The draw leaves promotion open.",
-          none: "Promotion is played out without your name on it.",
+          none: "Promotion is decided without a ball reaching you.",
         },
         survival: {
-          yes: "A step towards staying up.",
-          no: "Staying up just got ugly.",
+          yes: "They stay up. Survival.",
+          no: "No survival. Down they go.",
           draw: "A point that settles nothing in the survival fight.",
           none: "Survival is fought for without a ball reaching you.",
         },
