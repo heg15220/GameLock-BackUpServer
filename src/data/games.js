@@ -25,6 +25,11 @@ import sportsPadelArenaImage from "../assets/games/sports-padel-arena.svg";
 import sportsTrayectoriaImage from "../assets/games/sports-trayectoria.svg";
 import arcadeShellGameImage from "../assets/games/arcade-shell-game.svg";
 import arcadePulsoExactoImage from "../assets/games/arcade-pulso-exacto.svg";
+import arcadePasoAPasoImage from "../assets/games/arcade-paso-a-paso.svg";
+import arcadeElEscondideImage from "../assets/games/arcade-el-escondite.svg";
+import arcadeLaCombaImage from "../assets/games/arcade-la-comba.svg";
+import arcadeObstaculosRodantesImage from "../assets/games/arcade-obstaculos-rodantes.svg";
+import arcadeCaidaLibreImage from "../assets/games/arcade-caida-libre.svg";
 import arcadeDistanciaJustaImage from "../assets/games/arcade-distancia-justa.svg";
 import arcadeTerrorZombiImage from "../assets/games/arcade-terror-zombi.svg";
 import arcadeBrileImage from "../assets/games/arcade-brile.svg";
@@ -176,6 +181,268 @@ const gamesInSourceOrder = [
     viability_en: "High: pure tested choreography, deterministic Canvas engine, and serialisable state.",
     visualStyle_en: "Green felt table under a warm spotlight, vermilion plastic cups with specular highlights and an ivory ball, over a night-blue backdrop.",
     techFocus_en: "Choreography generated as pure data with testable invariants (the ball ends where the game says, and simultaneous crosses never share a cup), plus procedural rendering with depth and painter's ordering.",
+  },
+
+  {
+    id: "arcade-el-escondite",
+    image: arcadeElEscondideImage,
+    sessionTime: "2-4 min",
+
+    title: "El escondite",
+    title_en: "Hide and Seek",
+    category: "Arcade",
+    tagline: "Tres se esconden en siete sitios y tu tienes cinco busquedas.",
+    description:
+      "Adaptacion del minijuego El escondite de Wii Party. Tres rivales se esconden en los siete sitios de un parque y tu eres quien busca: cinco busquedas y treinta segundos. Mirar en un sitio encuentra a todos los que haya dentro, y pueden esconderse varios juntos, asi que una eleccion afortunada cierra la ronda de golpe. Jugado a ciegas seria una loteria de cinco entre siete, asi que aqui un escondite ocupado se delata: cada cierto tiempo tiembla durante una fraccion de segundo. La dificultad es exactamente cada cuanto tiembla, cuanto dura y si los tres se reparten o se amontonan.",
+    objective_es:
+      "Encontrar a los tres escondidos con cinco busquedas y antes de que acaben los 30 segundos.",
+    howToPlay_es:
+      "Haz clic o toca un escondite para mirar dentro, o usa las teclas 1-7. Un escondite ocupado tiembla de vez en cuando: esa es la unica pista. P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Reglas fieles al original: 7 escondites, 3 escondidos, 5 busquedas, 30 segundos y varios pueden compartir sitio.",
+      "El temblor del escondite ocupado convierte una loteria en un juego de observacion, y es lo unico que mueve la dificultad.",
+      "Buscar un sitio saca a todos los que haya dentro, asi que acertar donde se amontonaron cierra la ronda de una vez.",
+      "Al terminar, los escondites que no miraste ensenan lo que guardaban: perder tambien explica por que.",
+      "Parque dibujado por codigo (torre, iglu, caseta, tubo, arbusto, avioneta y fuente) sin un solo asset que cargar.",
+      "Motor determinista dirigido por advanceTime con semilla reproducible, 16 tests y bridge QA render_game_to_text.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Un jugador contra 3 rivales IA",
+    viability: "Alta: runtime ligero, canvas procedural sin assets y estado serializable.",
+    visualStyle: "Parque soleado a media distancia con siete piezas de juegos infantiles repartidas y monigotes sin cara.",
+    techFocus: "Reparto sembrado de escondidos, temblores temporizados por dificultad, hit test compartido con el pintor y render procedural puro.",
+
+    category_en: "Arcade",
+    tagline_en: "Three hide across seven places and you get five searches.",
+    description_en:
+      "An adaptation of Wii Party's Hide and Seek minigame. Three rivals hide across a park's seven places and you are the seeker: five searches and thirty seconds. Searching a place finds everyone inside it, and several of them can share one, so a lucky pick ends the round on the spot. Played blind that would be a five-from-seven lottery, so here an occupied hiding place gives itself away: every so often it twitches for a fraction of a second. Difficulty is exactly how often it twitches, how long for, and whether the three split up or pile in together.",
+    objective_en:
+      "Find all three hiders within five searches and before the 30 seconds run out.",
+    howToPlay_en:
+      "Click or tap a hiding place to look inside, or use the 1-7 keys. An occupied place twitches now and then: that is the only clue. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "Faithful to the original: 7 places, 3 hiders, 5 searches, 30 seconds, and several may share a place.",
+      "The twitch of an occupied place turns a lottery into a game of attention, and it is the only thing difficulty moves.",
+      "Searching a place pulls out everyone in it, so guessing where they piled in ends the round in one go.",
+      "When it is over, the places you never searched show what they were holding: losing explains itself.",
+      "A park drawn entirely in code (tower, dome, hut, tube, bush, toy plane and fountain) with no asset to load.",
+      "Deterministic advanceTime-driven engine with a reproducible seed, 16 tests, and a render_game_to_text QA bridge.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "One player against 3 AI rivals",
+    viability_en: "High: lightweight runtime, procedural asset-free canvas, serialisable state.",
+    visualStyle_en: "A sunny mid-distance park with seven pieces of playground scattered across it and faceless figures.",
+    techFocus_en: "Seeded hider placement, difficulty-timed tells, a hit test shared with the painter, and pure procedural rendering.",
+  },
+
+  {
+    id: "arcade-la-comba",
+    image: arcadeLaCombaImage,
+    sessionTime: "2-5 min",
+
+    title: "La comba",
+    title_en: "Jump Rope",
+    category: "Arcade",
+    tagline: "Dale a la comba con ritmo: cinco Mii saltan si vas a tiempo.",
+    description:
+      "Adaptacion del minijuego La comba de Wii Party. Tu no saltas: tu das a la comba. Cada vuelta de cuerda es un golpe de ritmo que pide una pulsacion dentro de una ventana, y cinco Mii en la plaza saltan mientras la aciertes. La comba acelera sin parar, asi que el ritmo comodo del salto 10 ya no vale en el 40. Como en el original, ir a tiempo les saca notas musicales y descompensarse les hace sudar; tres vueltas seguidas fuera de tiempo y alguien se enreda, la comba se para y hay que recogerla mientras el reloj sigue corriendo.",
+    objective_es:
+      "Llegar al numero de saltos que te piden antes de que se acabe el minuto.",
+    howToPlay_es:
+      "Marca cada vuelta con Espacio, flecha arriba, clic o toque, justo cuando la cuerda toca el suelo. Un anillo bajo la comba repite la senal. P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Reglas fieles al original: das a la comba, no saltas, y el objetivo de saltos cambia con la dificultad.",
+      "Notas musicales cuando vas a tiempo y sudor cuando te descompensas, exactamente el feedback que describe la guia.",
+      "La comba acelera de forma continua hasta un techo, asi que la dificultad es una curva y no un numero.",
+      "Tres fallos seguidos enredan a un saltador: la comba se para 1,2 s y el reloj no.",
+      "Plaza dibujada por codigo con casas, adoquines, dos que dan a la cuerda y cinco que saltan, sin assets.",
+      "Motor determinista dirigido por advanceTime con juicio de ventana testeado, 18 tests y bridge QA render_game_to_text.",
+    ],
+    difficulty: "Media-Alta",
+    multiplayer: "Un jugador",
+    viability: "Alta: reloj de compas ligero, canvas procedural y estado serializable.",
+    visualStyle: "Plaza de pueblo con casas de tejado rojo, suelo adoquinado, cuerda amarilla en arco y monigotes sin cara.",
+    techFocus: "Reloj de compas con periodo variable, juicio por distancia a la pulsacion mas cercana y render procedural puro.",
+
+    category_en: "Arcade",
+    tagline_en: "Turn the rope on the beat and five Miis keep skipping.",
+    description_en:
+      "An adaptation of Wii Party's Jump Rope minigame. You are not the one jumping — you turn the rope. Every turn is a beat that asks for one press inside a window, and five Miis in the square keep skipping as long as you land them. The rope speeds up the whole time, so the rhythm that felt comfortable at jump 10 will not do at jump 40. As in the original, staying on the beat brings musical notes off them and drifting makes them sweat; three turns off the beat in a row and somebody catches a foot, the rope stops, and it has to be picked back up while the clock keeps running.",
+    objective_en:
+      "Reach the number of jumps you were set before the minute is up.",
+    howToPlay_en:
+      "Mark every turn with Space, the up arrow, a click or a tap, right as the rope hits the ground. A ring under the rope repeats the cue. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "Faithful to the original: you turn the rope rather than jump, and the jump target moves with the difficulty.",
+      "Musical notes when you are on the beat and sweat when you drift — exactly the feedback the guide describes.",
+      "The rope accelerates continuously up to a floor, so the difficulty is a curve rather than a number.",
+      "Three misses in a row trips a jumper: the rope stops for 1.2s and the clock does not.",
+      "A town square drawn in code with houses, paving, two turners and five jumpers, and no assets.",
+      "Deterministic advanceTime-driven engine with a tested timing window, 18 tests, and a render_game_to_text QA bridge.",
+    ],
+    difficulty_en: "Medium-Hard",
+    multiplayer_en: "Single player",
+    viability_en: "High: a lightweight beat clock, procedural canvas, and serialisable state.",
+    visualStyle_en: "A town square with red-roofed houses, paved ground, a yellow rope in an arc, and faceless figures.",
+    techFocus_en: "A variable-period beat clock, judging by distance to the nearest beat, and pure procedural rendering.",
+  },
+
+  {
+    id: "arcade-obstaculos-rodantes",
+    image: arcadeObstaculosRodantesImage,
+    sessionTime: "2-4 min",
+
+    title: "Obstaculos rodantes",
+    title_en: "Rolling Obstacles",
+    category: "Arcade",
+    tagline: "Salta troncos y barriles y llega el primero al final del puente.",
+    description:
+      "Adaptacion del minijuego Obstaculos rodantes de Wii Party. Cuatro corredores bajan un puente de madera de cien metros mientras troncos y barriles ruedan hacia ellos, y gana el primero en cruzar. El control del original es el diseno entero: una pulsacion salta y pulsar otra vez en el aire te sostiene un poco mas. Eso convierte la separacion entre obstaculos en una decision: un salto pasa 3,3 metros por encima de la altura de un barril, y el par mas apretado que genera la pista esta a 3,8, asi que un obstaculo suelto es un salto y una pareja pegada hay que mantenerla en el aire. Chocar no elimina: te frena 0,7 s, y con tres rivales al lado eso basta.",
+    objective_es:
+      "Cruzar los 100 metros del puente antes que los otros tres corredores.",
+    howToPlay_es:
+      "Espacio, flecha arriba, W, clic o toque para saltar. Pulsa otra vez en el aire para quedarte suspendido; tienes tres pulsaciones extra por salto. P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Los dos controles del original: una sacudida salta y sacudir repetidamente te suspende para encadenar obstaculos.",
+      "Fisica de paso fijo con aceleracion continua, gravedad e impulsos de suspension separados por cooldown.",
+      "Los obstaculos ruedan de verdad hacia el peloton y el contacto usa barrido por anchura para impedir atravesarlos entre frames.",
+      "Los cuatro corredores comparten salto y colision fisicos; la dificultad solo cambia como leen y encadenan cada peligro.",
+      "Escena procedural multicapa con sol, montanas, rio, carriles, rivales visibles, lineas de velocidad, sacudida y destello de impacto.",
+      "Motor determinista dirigido por advanceTime con semilla reproducible, 18 tests y bridge QA render_game_to_text.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Un jugador contra 3 rivales IA",
+    viability: "Alta: integracion de paso fijo, canvas procedural y estado serializable.",
+    visualStyle: "Arcade diurno multicapa: puente de cuatro carriles sobre un barranco con rio, montanas, velocidad, impactos y los cuatro corredores visibles.",
+    techFocus: "Integracion fija con aceleracion e impulso, obstaculos moviles, colision barrida, IA sobre la misma fisica y render procedural con parallax.",
+
+    category_en: "Arcade",
+    tagline_en: "Jump the logs and barrels and reach the end of the bridge first.",
+    description_en:
+      "An adaptation of Wii Party's Rolling Obstacles minigame. Four runners head down a hundred-metre wooden bridge while logs and barrels roll toward them, and the first one across wins. The original's control is the whole design: one press jumps, and pressing again in mid-air holds you up a little longer. That turns the obstacle spacing into a decision: a jump spends 3.3 metres above barrel height and the tightest pair the track builds is 3.8 apart, so a lone obstacle is a jump and a tight pair is a jump you keep alive. A hit does not knock you out: it costs 0.7s of speed, and with three rivals alongside that is enough.",
+    objective_en:
+      "Cross the bridge's 100 metres ahead of the other three runners.",
+    howToPlay_en:
+      "Space, the up arrow, W, a click or a tap to jump. Press again in mid-air to hang there; you get three extra presses per jump. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "Both of the original's controls: one shake jumps, repeated shakes hold you up to chain obstacles.",
+      "Fixed-step physics with continuous acceleration, gravity, and cooldown-separated hang-time impulses.",
+      "Obstacles genuinely roll toward the pack and use width-aware swept contact so low frame rates cannot tunnel through them.",
+      "All four runners share physical jumps and collision; difficulty only changes how well rivals read and chain each hazard.",
+      "Layered procedural scene with sun, mountains, river, lanes, visible rivals, speed lines, camera shake, and impact bursts.",
+      "Deterministic advanceTime-driven engine with a reproducible seed, 18 tests, and a render_game_to_text QA bridge.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "One player against 3 AI rivals",
+    viability_en: "High: fixed-step integration, procedural canvas, and serialisable state.",
+    visualStyle_en: "Layered daytime arcade art: a four-lane bridge over a river gorge, mountain depth, speed, impacts, and all four runners in view.",
+    techFocus_en: "Fixed integration with acceleration and impulses, moving obstacles, swept collision, AI on shared physics, and procedural parallax rendering.",
+  },
+
+  {
+    id: "arcade-caida-libre",
+    image: arcadeCaidaLibreImage,
+    sessionTime: "1-3 min",
+
+    title: "Caida libre",
+    title_en: "Free Fall",
+    category: "Arcade",
+    tagline: "Dos trampillas, una buena. Cae dos veces y se acabo tu vuelo.",
+    description:
+      "Adaptacion del minijuego Caida libre de Wii Party. Tres plataformas colgadas del cielo y, en cada una, dos trampillas: una aguanta y la otra es una nube. La guia del original es rotunda al respecto y este juego no disimula: es una moneda al aire y nada aqui la inclina, asi que sobrevivir las tres sale una de cada dos veces. Lo que si conserva son los cinco segundos previos, con los cuatro jugadores a la vista y libertad para cambiarse de lado hasta el ultimo instante: los rivales dudan, se colocan y se cambian a su ritmo, asi que el consejo de la propia guia (ponte donde la mayoria y al menos compartireis suerte) es algo que puedes ejecutar.",
+    objective_es:
+      "Cruzar las tres plataformas sin acumular dos caidas.",
+    howToPlay_es:
+      "Izquierda y derecha, A y D, o tocando cada mitad para desplazarte con inercia. Espacio fija la eleccion, abre las trampillas y concede puntos de valentia segun el tiempo restante. Dos caidas y quedas fuera. P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Reglas fieles al original: tres plataformas, dos trampillas, dos caidas y estas fuera.",
+      "Azar honesto: la trampilla mala se sortea a cara o cruz y los tests fijan que seguir a la mayoria no mejora las probabilidades, solo comparte suerte.",
+      "Movimiento fisico con aceleracion lateral, frenado, inclinacion, rebote al salvarse y caida con gravedad.",
+      "Puntuacion de valentia: fijar pronto la eleccion da mas puntos a cambio de renunciar a copiar el ultimo movimiento rival.",
+      "Los rivales dudan y se colocan a distintos momentos, y un interrogante marca a quien aun no se ha decidido.",
+      "La trampilla mala nunca sale en el snapshot mientras alguien pueda moverse: no hay forma de leerla en pantalla.",
+      "Motor determinista dirigido por advanceTime con semilla reproducible, estado fisico completo y bridge QA render_game_to_text.",
+    ],
+    difficulty: "Facil",
+    multiplayer: "Un jugador contra 3 rivales IA",
+    viability: "Alta: runtime minimo, canvas procedural y estado serializable.",
+    visualStyle: "Circuito aereo pseudo-3D con plataformas apiladas, estratos de nubes, islas flotantes, profundidad atmosferica y mitades rosa y azul.",
+    techFocus: "Integracion fisica fija, movimiento por muelle amortiguado, gravedad, puntuacion de compromiso, sorteo oculto y render procedural multicapa.",
+
+    category_en: "Arcade",
+    tagline_en: "Two trapdoors, one holds. Fall twice and your flight is over.",
+    description_en:
+      "An adaptation of Wii Party's Free Fall minigame. Three platforms hanging in the sky and, on each one, two trapdoors: one holds and the other is a cloud. The original's guide is blunt about it and this game does not pretend otherwise: it is a coin toss and nothing here weights it, so surviving all three comes up once in every two runs. What it does keep is the five seconds beforehand, with all four players in plain sight and free to switch sides until the last instant: the rivals hesitate, commit and change their minds on their own schedules, so the guide's own advice — stand where most of them are and at least you share their luck — is something you can act on.",
+    objective_en:
+      "Cross all three platforms without taking two falls.",
+    howToPlay_en:
+      "Left and right, A and D, or tap each half to move with inertia. Space locks the choice, opens the doors, and awards bravery points based on the remaining time. Two falls and you are out. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "Faithful to the original: three platforms, two trapdoors, two falls and you are out.",
+      "Honest luck: the bad door is a fair coin, and the tests pin that following the crowd does not improve the odds, it only shares them.",
+      "Physical motion with lateral acceleration, braking, lean, a safe landing bounce, and gravity-driven falls.",
+      "Bravery scoring: lock your choice early for more points, at the cost of giving up the rivals' final tell.",
+      "Rivals hesitate and commit at different moments, and a question mark marks whoever has not decided yet.",
+      "The bad door never appears in the snapshot while anybody can still move: there is no way to read it off the screen.",
+      "Deterministic advanceTime-driven engine with a reproducible seed, complete physical state, and a render_game_to_text QA bridge.",
+    ],
+    difficulty_en: "Easy",
+    multiplayer_en: "One player against 3 AI rivals",
+    viability_en: "High: a minimal runtime, procedural canvas, and serialisable state.",
+    visualStyle_en: "A pseudo-3D aerial course with stacked platforms, cloud strata, floating islands, atmospheric depth, and pink-and-blue doors.",
+    techFocus_en: "Fixed physics integration, damped spring movement, gravity, commitment scoring, a hidden draw, and layered procedural rendering.",
+  },
+
+  {
+    id: "arcade-paso-a-paso",
+    image: arcadePasoAPasoImage,
+    sessionTime: "3-6 min",
+
+    title: "Paso a paso",
+    title_en: "Step by Step",
+    category: "Arcade",
+    tagline: "Elige 1, 3 o 5; si nadie lo repite, subes esos escalones.",
+    description:
+      "Duelo de intuicion inspirado en el minijuego Paso a paso de Wii Party. Cuatro escaladores comparten una escalera de doce escalones y cada ronda dispones de diez segundos para elegir en secreto entre el 1, el 3 y el 5. Los numeros se ensenan a la vez: quien saque uno que no haya repetido nadie sube esos escalones y quien coincida se queda donde esta. El 5 es el que mas sube y por eso el que mas gente quiere, asi que la partida entera se juega en la cabeza de los demas. Tres rivales con caracter propio (impulsiva, prudente y lectora) hacen que mirar lo que sacaron en rondas anteriores valga puntos, y en la recta final el marcador canta cuantos escalones le faltan a cada uno.",
+    objective_es:
+      "Ser el primero en subir los doce escalones eligiendo cada ronda un numero que no elija ningun rival.",
+    howToPlay_es:
+      "Cada ronda tienes 10 segundos para elegir 1, 3 o 5 con la cruceta (izquierda 1, arriba 3, derecha 5), con las teclas 1/3/5 o tocando las cartas. Al acabar el tiempo se ensenan todos los numeros a la vez. P pausa, R reinicia, M sonido y F pantalla completa.",
+    highlights: [
+      "Reglas fieles al original: 1, 3 o 5 en secreto, 10 segundos por ronda, coincidir no sube a nadie y gana el primero en llegar al escalon 12.",
+      "Tres rivales con personalidad legible (impulsiva, prudente y lectora) construidos como desviaciones del equilibrio de Nash del juego, calculado en codigo.",
+      "La lectora vigila el numero que repites y se sienta encima: castigar al que se acomoda en un solo numero es la respuesta correcta en una carrera.",
+      "Marcador que canta los escalones que le faltan a cada escalador y sus ultimos numeros, la informacion que el original te deja memorizar.",
+      "Escena dibujada por codigo: ladera soleada, doce escalones de tronco y una puerta de madera en la cima, sin un solo asset que cargar.",
+      "Motor determinista dirigido por advanceTime con semilla reproducible, 30 tests y bridge QA render_game_to_text.",
+    ],
+    difficulty: "Media",
+    multiplayer: "Un jugador contra 3 rivales IA",
+    viability: "Alta: runtime ligero, canvas procedural sin assets, estado serializable y cero dependencias extra.",
+    visualStyle: "Ladera verde soleada con montanas nevadas al fondo, escalera de doce troncos y globos de numero sobre cada escalador.",
+    techFocus: "Equilibrio de estrategia mixta calculado en codigo, personalidades IA como desviaciones medibles de el, resolucion de coincidencias y render procedural puro.",
+
+    category_en: "Arcade",
+    tagline_en: "Pick 1, 3 or 5; if nobody repeats it, you climb that many steps.",
+    description_en:
+      "A duel of intuition inspired by Wii Party's Step by Step minigame. Four climbers share a twelve-step staircase and every round you get ten seconds to secretly choose between 1, 3 and 5. The numbers are revealed at once: anyone whose number nobody else picked climbs that many steps, and anyone who clashed stays put. 5 climbs fastest and is therefore what everyone wants, so the whole match is played inside the other players' heads. Three rivals with distinct characters (impulsive, cautious and reader) make watching their previous numbers actually pay, and down the stretch the scoreboard spells out how many steps each of them still needs.",
+    objective_en:
+      "Be the first to climb all twelve steps by picking a number no rival picks that round.",
+    howToPlay_en:
+      "Each round you get 10 seconds to pick 1, 3 or 5 on the d-pad (left 1, up 3, right 5), with the 1/3/5 keys, or by tapping the cards. When time runs out every number is revealed at once. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    highlights_en: [
+      "Faithful to the original: 1, 3 or 5 in secret, 10 seconds per round, clashing moves nobody, and first to step 12 wins.",
+      "Three rivals with legible personalities (impulsive, cautious, reader) built as deviations from the game's Nash equilibrium, which is solved in code.",
+      "The reader watches the number you keep repeating and sits on it: punishing a player who settles on one number is the correct move in a race.",
+      "A scoreboard that spells out how many steps each climber still needs and their recent numbers — the information the original leaves you to memorise.",
+      "A scene drawn entirely in code: sunny hillside, twelve log steps and a wooden gate at the summit, with no asset to load.",
+      "Deterministic advanceTime-driven engine with a reproducible seed, 30 tests, and a render_game_to_text QA bridge.",
+    ],
+    difficulty_en: "Medium",
+    multiplayer_en: "One player against 3 AI rivals",
+    viability_en: "High: lightweight runtime, procedural asset-free canvas, serialisable state, and no extra dependencies.",
+    visualStyle_en: "A sunny green hillside under snowy peaks, a twelve-log staircase, and a number balloon over every climber.",
+    techFocus_en: "A mixed-strategy equilibrium solved in code, AI personalities as measurable deviations from it, clash resolution, and pure procedural rendering.",
   },
 
   {

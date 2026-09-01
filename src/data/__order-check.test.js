@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { games } from "./games.js";
 
 describe("catalog order", () => {
-  it("keeps all 77 games, unique ids", () => {
-    expect(games.length).toBe(77);
-    expect(new Set(games.map((g) => g.id)).size).toBe(77);
+  it("keeps all 82 games, unique ids", () => {
+    expect(games.length).toBe(82);
+    expect(new Set(games.map((g) => g.id)).size).toBe(82);
   });
   it("puts Trilero first in Arcade", () => {
     expect(games.filter((g) => g.category === "Arcade")[0].id).toBe("arcade-shell-game");

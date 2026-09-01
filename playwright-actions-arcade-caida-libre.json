@@ -1,0 +1,10 @@
+{
+  "steps": [
+    { "buttons": ["enter"], "frames": 2 },
+    { "buttons": [], "frames": 10 },
+    { "buttons": ["right"], "frames": 8 },
+    { "buttons": [], "frames": 20 },
+    { "buttons": ["left"], "frames": 5 },
+    { "buttons": [], "frames": 15 }
+  ]
+}

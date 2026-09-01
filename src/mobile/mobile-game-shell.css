@@ -7541,3 +7541,63 @@
 [data-game-id="sports-trayectoria"] .mobile-game-shell__stage-viewport .tr-live__feed {
   min-height: 76px;
 }
+
+/* Paso a Paso fills its stage on mobile: at 16/9 the hillside is barely 200px
+   tall inside a ~500px stage box and the rest is dead space. The scene's
+   geometry detects the tall box and climbs steeper to suit it (see
+   stairGeometry), so the canvas can simply take the height it is given. */
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].paso-a-paso {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  [data-mobile-stage-target="true"].pap-stage {
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  margin-top: 0;
+  aspect-ratio: auto;
+}
+
+/* Paso a Paso has exactly three actions and they are the whole game: 1, 3 and 5.
+   The deck's default two-column action grid pushes the 5 onto a second row,
+   which on a phone in landscape falls below the panel's scroll edge — a number
+   you have to go looking for inside a ten-second timer is a number you cannot
+   pick. Three columns puts the whole choice on one row in every orientation. */
+.mobile-game-shell[data-game-id="arcade-paso-a-paso"] .mobile-control-deck__cluster--actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* The five Wii Party minis fill their stage on mobile instead of leaving a dead
+   band under a 16/9 letterbox; each scene reads the box it is given and lays
+   itself out for a tall one. Same treatment as Paso a Paso. */
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].el-escondite,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].la-comba,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].obstaculos-rodantes,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  > [data-mobile-stage-branch="true"].caida-libre {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  [data-mobile-stage-target="true"].esc-stage,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  [data-mobile-stage-target="true"].comba-stage,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  [data-mobile-stage-target="true"].obst-stage,
+.mobile-game-shell__stage-viewport[data-mobile-stage-isolated="true"]
+  [data-mobile-stage-target="true"].caida-stage {
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  margin-top: 0;
+  aspect-ratio: auto;
+}

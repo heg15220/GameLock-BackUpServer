@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none">
+  <defs>
+    <linearGradient id="esc-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4fa9e8"/><stop offset="100%" stop-color="#d5edfb"/>
+    </linearGradient>
+    <linearGradient id="esc-grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7ec06a"/><stop offset="100%" stop-color="#5aa74d"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="140" fill="url(#esc-sky)"/>
+  <path d="M-4 140 L-4 40 Q100 32 204 40 L204 140 Z" fill="url(#esc-grass)"/>
+  <path d="M-4 96 Q60 84 120 96 Q170 106 204 92" stroke="#e3c893" stroke-width="13" fill="none" stroke-linecap="round"/>
+
+  <!-- dome -->
+  <path d="M28 74 a20 20 0 0 1 40 0 Z" fill="#f5f2ee"/>
+  <path d="M28 74 a20 20 0 0 1 15 -18 L48 74 Z" fill="#f08fb0"/>
+  <path d="M40 74 a8 8 0 0 1 16 0 Z" fill="#3b3128"/>
+
+  <!-- tube -->
+  <g>
+    <rect x="18" y="104" width="13" height="19" rx="5" fill="#e0574f"/>
+    <rect x="30" y="104" width="13" height="19" rx="5" fill="#ffc94a"/>
+    <rect x="42" y="104" width="13" height="19" rx="5" fill="#4fb0d8"/>
+    <ellipse cx="19" cy="113.5" rx="4" ry="8" fill="#2f2a22"/>
+  </g>
+
+  <!-- hut -->
+  <rect x="118" y="58" width="34" height="22" rx="3" fill="#f0e2c8"/>
+  <rect x="130" y="66" width="12" height="14" rx="2" fill="#3b3128"/>
+  <path d="M113 58 L135 40 L157 58 Z" fill="#4aa3c8"/>
+
+  <!-- bush with a hider peeking -->
+  <ellipse cx="92" cy="108" rx="20" ry="15" fill="#3f8f42"/>
+  <ellipse cx="86" cy="100" rx="11" ry="9" fill="#54a755"/>
+  <circle cx="100" cy="98" r="6" fill="#f3cfa8"/>
+  <path d="M94 96 a6 6 0 0 1 12 0 Z" fill="#1f6b33"/>
+
+  <!-- plane -->
+  <rect x="148" y="100" width="42" height="12" rx="6" fill="#4f7fe0"/>
+  <rect x="160" y="92" width="24" height="7" rx="3" fill="#e0574f"/>
+  <circle cx="158" cy="114" r="4" fill="#2f2a22"/>
+  <circle cx="181" cy="114" r="4" fill="#2f2a22"/>
+
+  <!-- the magnifier: this is a searching game -->
+  <circle cx="152" cy="30" r="16" fill="#ffffff" fill-opacity="0.34" stroke="#fffdf2" stroke-width="4"/>
+  <path d="M163 41 L176 54" stroke="#fffdf2" stroke-width="6" stroke-linecap="round"/>
+</svg>

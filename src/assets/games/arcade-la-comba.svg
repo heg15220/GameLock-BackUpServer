@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none">
+  <defs>
+    <linearGradient id="cmb-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5cb2e8"/><stop offset="100%" stop-color="#dff0fb"/>
+    </linearGradient>
+    <linearGradient id="cmb-ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c8a678"/><stop offset="100%" stop-color="#a9885c"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="140" fill="url(#cmb-sky)"/>
+  <!-- townhouses -->
+  <g>
+    <rect x="6" y="44" width="42" height="52" rx="2" fill="#e9d6bc"/><path d="M2 44 L27 28 L52 44 Z" fill="#c06a52"/>
+    <rect x="54" y="52" width="40" height="44" rx="2" fill="#dfc9a8"/><path d="M50 52 L74 37 L98 52 Z" fill="#a85a46"/>
+    <rect x="100" y="40" width="44" height="56" rx="2" fill="#efe1c8"/><path d="M96 40 L122 24 L148 40 Z" fill="#b8654e"/>
+    <rect x="150" y="50" width="44" height="46" rx="2" fill="#e2cdb0"/><path d="M146 50 L172 35 L198 50 Z" fill="#9e5140"/>
+  </g>
+  <g fill="#4a5f74" fill-opacity="0.6">
+    <rect x="14" y="56" width="8" height="9"/><rect x="32" y="56" width="8" height="9"/>
+    <rect x="62" y="64" width="8" height="9"/><rect x="80" y="64" width="8" height="9"/>
+    <rect x="110" y="52" width="8" height="9"/><rect x="128" y="52" width="8" height="9"/>
+    <rect x="160" y="62" width="8" height="9"/><rect x="178" y="62" width="8" height="9"/>
+  </g>
+  <rect x="0" y="96" width="200" height="44" fill="url(#cmb-ground)"/>
+
+  <!-- the rope, mid-swing over the jumpers -->
+  <path d="M26 100 Q100 44 174 100" stroke="#e8d24a" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <!-- turners, seen from behind -->
+  <g>
+    <rect x="20" y="86" width="11" height="16" rx="4" fill="#2f6fe0"/><circle cx="25.5" cy="80" r="7" fill="#1d4a9c"/>
+    <rect x="169" y="86" width="11" height="16" rx="4" fill="#3aa8c0"/><circle cx="174.5" cy="80" r="7" fill="#24707f"/>
+  </g>
+
+  <!-- five jumpers, airborne -->
+  <g>
+    <g><rect x="55" y="82" width="9" height="13" rx="3.5" fill="#e04f5f"/><circle cx="59.5" cy="77" r="6" fill="#f3cfa8"/><path d="M53.5 77 a6 6 0 0 1 12 0 Z" fill="#8e2f39"/></g>
+    <g><rect x="73" y="80" width="9" height="13" rx="3.5" fill="#2f9e4f"/><circle cx="77.5" cy="75" r="6" fill="#f3cfa8"/><path d="M71.5 75 a6 6 0 0 1 12 0 Z" fill="#1c5f2f"/></g>
+    <g><rect x="91" y="79" width="9" height="13" rx="3.5" fill="#e8a317"/><circle cx="95.5" cy="74" r="6" fill="#f3cfa8"/><path d="M89.5 74 a6 6 0 0 1 12 0 Z" fill="#8b620e"/></g>
+    <g><rect x="109" y="80" width="9" height="13" rx="3.5" fill="#8f5fd0"/><circle cx="113.5" cy="75" r="6" fill="#f3cfa8"/><path d="M107.5 75 a6 6 0 0 1 12 0 Z" fill="#56397d"/></g>
+    <g><rect x="127" y="82" width="9" height="13" rx="3.5" fill="#e07f3f"/><circle cx="131.5" cy="77" r="6" fill="#f3cfa8"/><path d="M125.5 77 a6 6 0 0 1 12 0 Z" fill="#8a4c26"/></g>
+  </g>
+
+  <!-- in time: notes -->
+  <g fill="#3f6fd8">
+    <ellipse cx="88" cy="56" rx="4" ry="3" transform="rotate(-20 88 56)"/><rect x="90.6" y="45" width="1.6" height="11"/>
+    <path d="M92.2 45 q6 1.6 4.6 6 q0-3.4-4.6-4.2 Z"/>
+    <ellipse cx="112" cy="50" rx="3.4" ry="2.6" transform="rotate(-20 112 50)"/><rect x="114.2" y="41" width="1.4" height="9"/>
+    <path d="M115.6 41 q5 1.4 3.8 5 q0-2.8-3.8-3.6 Z"/>
+  </g>
+</svg>

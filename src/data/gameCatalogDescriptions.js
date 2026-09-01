@@ -283,6 +283,26 @@ export const gameCatalogDescriptions = {
     es: "El juego de los vasos: sigue la bola mientras cruzan más rápido.",
     en: "The cups game: follow the ball as the cups cross ever faster.",
   },
+  "arcade-el-escondite": {
+    es: "Tres se esconden en siete sitios; te quedan 5 búsquedas.",
+    en: "Three hide across seven places; you get 5 searches.",
+  },
+  "arcade-la-comba": {
+    es: "Dale a la comba con ritmo y cuenta los saltos.",
+    en: "Turn the rope on the beat and count the jumps.",
+  },
+  "arcade-obstaculos-rodantes": {
+    es: "Salta troncos y barriles y llega el primero.",
+    en: "Jump the logs and barrels and finish first.",
+  },
+  "arcade-caida-libre": {
+    es: "Desciende por un circuito pseudo-3D, lee al grupo y fija pronto tu elección para sumar valentía.",
+    en: "Descend a pseudo-3D sky course, read the crowd, and lock early to score bravery.",
+  },
+  "arcade-paso-a-paso": {
+    es: "Elige 1, 3 o 5 en secreto; si nadie lo repite, subes esos escalones.",
+    en: "Secretly pick 1, 3 or 5; if nobody repeats it, you climb that many steps.",
+  },
   "arcade-pulso-exacto": {
     es: "Para el cronómetro justo en el tiempo objetivo, de memoria.",
     en: "Stop the clock right on the target time, from memory.",

@@ -54,6 +54,11 @@ const StickBrawlShowdownGame = lazy(() => import("../games/arcade/stick-brawl-sh
 const DigHoleTreasureGame = lazy(() => import("../games/arcade/dig-hole-treasure"));
 const ValleTranquiloGame = lazy(() => import("../games/arcade/valle-tranquilo"));
 const SummitAscentGame = lazy(() => import("../games/arcade/summit-ascent"));
+const PasoAPasoGame = lazy(() => import("../games/arcade/paso-a-paso"));
+const ElEscondideGame = lazy(() => import("../games/arcade/el-escondite"));
+const LaCombaGame = lazy(() => import("../games/arcade/la-comba"));
+const ObstaculosRodantesGame = lazy(() => import("../games/arcade/obstaculos-rodantes"));
+const CaidaLibreGame = lazy(() => import("../games/arcade/caida-libre"));
 const KnowledgeSudokuGame = () => <KnowledgeArcadeGame variant="sudoku" />;
 const TrayectoriaGame = lazy(() => import("../games/sports/trayectoria"));
 const KnowledgeAhorcadoGame = () => <KnowledgeArcadeGame variant="ahorcado" />;
@@ -123,6 +128,11 @@ const GAME_COMPONENTS = {
   "arcade-stick-brawl-showdown": StickBrawlShowdownGame,
   "arcade-dig-hole-treasure": withStrategyIntro("arcade-dig-hole-treasure", DigHoleTreasureGame),
   "arcade-summit-ascent": SummitAscentGame,
+  "arcade-paso-a-paso": PasoAPasoGame,
+  "arcade-el-escondite": ElEscondideGame,
+  "arcade-la-comba": LaCombaGame,
+  "arcade-obstaculos-rodantes": ObstaculosRodantesGame,
+  "arcade-caida-libre": CaidaLibreGame,
   "arcade-valle-tranquilo": ValleTranquiloGame,
   "sports-basketball-court":   BasketballCourtGame,
   "sports-ping-pong-arena":    PingPongArenaGame,
@@ -180,6 +190,11 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-ice-strike-pro": "←→/AD apuntan, W sube potencia, Q giro interior, E giro exterior, Espacio lanza. S barre durante el vuelo. R reinicia, Esc menú.",
     "arcade-stick-brawl-showdown": "Fighter arcade avanzado: A/D o flechas mover, W/arriba saltar, S/abajo bloquear, G/espacio jab, H/enter cross, J/K patadas, F proyectil, B super, P pausa y R reinicia.",
     "arcade-dig-hole-treasure": "Juego de excavacion continua: click cava, A/D o flechas mueven, W/arriba/Espacio suben, abajo baja, I/J/K/L excavan arriba/izq/abajo/der, E/Enter interactua, M abre el puesto, P pausa, R reinicia y F pantalla completa.",
+    "arcade-paso-a-paso": "Paso a paso: 4 escaladores, 12 escalones. Cada ronda tienes 10 s para elegir 1, 3 o 5 (izquierda 1, arriba 3, derecha 5, o las teclas 1/3/5). Los numeros repetidos no suben a nadie: quien saque un numero unico avanza esos escalones. P pausa, R reinicia, M sonido y F pantalla completa.",
+    "arcade-el-escondite": "Tres rivales se esconden en siete sitios del parque. Clic/toque en un escondite o teclas 1-7 para mirar dentro; un escondite ocupado tiembla de vez en cuando. 5 busquedas y 30 s. P pausa, R reinicia, M sonido y F pantalla completa.",
+    "arcade-la-comba": "Marca cada vuelta de la comba con Espacio, flecha arriba, clic o toque, justo cuando la cuerda toca el suelo. A tiempo suma un salto; tres fallos seguidos y alguien tropieza. P pausa, R reinicia, M sonido y F pantalla completa.",
+    "arcade-obstaculos-rodantes": "Espacio, flecha arriba, W, clic o toque para saltar troncos y barriles. Pulsa otra vez en el aire para quedarte suspendido y encadenar dos obstaculos seguidos. Chocar te frena. P pausa, R reinicia, M sonido y F pantalla completa.",
+    "arcade-caida-libre": "Izquierda y derecha (o A y D, o tocando cada mitad) te desplazan con inercia. Espacio fija la eleccion, abre ya y suma valentia segun el tiempo restante. Dos caidas y quedas fuera. P pausa, R reinicia, M sonido y F pantalla completa.",
     "arcade-summit-ascent": "Escalada vertical 2D: ↑/W escala, ↓/S baja, ←→/A D mueve lateral, J esquiva escombros, Espacio planta anclaje con piolet, Q bebe agua (+12 stamina), E entra/sale de cueva. Elige montaña entre 3 prototipos.",
     "arcade-valle-tranquilo": "Sandbox de granja pixel-art: WASD/flechas mueven, 1-9 cambian herramienta, Espacio usa la herramienta activa, E habla con vecinos, B abre tienda, Z duerme y M entra a la mina.",
     "sports-basketball-court": "Baloncesto 6 posiciones: arriba/abajo ajustan arco, izq/der desviacion lateral, W/S potencia, Space/Enter lanza. P pausa, R nueva ronda y F pantalla completa.",
@@ -237,6 +252,11 @@ const CONTROL_HINTS_BY_LOCALE = {
     "arcade-ice-strike-pro": "←→/AD aim, W raise power, Q in-turn, E out-turn, Space deliver. S sweeps mid-flight. R restart, Esc menu.",
     "arcade-stick-brawl-showdown": "Advanced arcade fighter: A/D or arrows move, W/up jump, S/down block, G/space jab, H/enter cross, J/K kicks, F projectile, B super, P pause, R restart.",
     "arcade-dig-hole-treasure": "2D digging run: click digs, A/D or arrows move, W/up/Space jumps, I/J/K/L dig up/left/down/right, T places a torch, B triggers the jetpack, E/Enter interacts with outpost, door, and treasure, M opens the market, P pauses, R restarts, and F toggles fullscreen.",
+    "arcade-paso-a-paso": "Step by Step: 4 climbers, 12 steps. Each round you get 10s to pick 1, 3 or 5 (left 1, up 3, right 5, or the 1/3/5 keys). Repeated numbers move nobody: whoever picks a number no one else picked climbs that many steps. P pauses, R restarts, M sound, and F toggles fullscreen.",
+    "arcade-el-escondite": "Three rivals hide across the seven places in the park. Click or tap a hiding place, or press 1-7, to look inside; an occupied place twitches now and then. 5 searches and 30s. P pauses, R restarts, M sound, F fullscreen.",
+    "arcade-la-comba": "Mark every turn of the rope with Space, up arrow, a click or a tap, right as it hits the ground. On the beat scores a jump; three misses in a row and somebody trips. P pauses, R restarts, M sound, F fullscreen.",
+    "arcade-obstaculos-rodantes": "Space, up arrow, W, a click or a tap jumps the logs and barrels. Press again in mid-air to hang there and chain two obstacles. A hit costs you speed. P pauses, R restarts, M sound, F fullscreen.",
+    "arcade-caida-libre": "Left and right (or A and D, or tapping each half) move you with inertia. Space locks the choice, opens early, and scores bravery from the time left. Two falls and you are out. P pauses, R restarts, M sound, F fullscreen.",
     "arcade-summit-ascent": "Vertical 2D climbing: ↑/W climbs, ↓/S descends, ←→/A D lateral move, J dodges debris, Space plants an ice-axe anchor, Q drinks water (+12 stamina), E enters/leaves a cave. Pick from 3 mountain prototypes.",
     "arcade-valle-tranquilo": "Pixel-art farming sandbox: WASD/arrows move, 1-9 swaps tools, Space uses the active tool, E talks to villagers, B opens the shop, Z sleeps, and M enters the mine.",
     "sports-basketball-court": "Basketball 6 spots: up/down tune arc, left/right lateral aim, W/S power, Space/Enter shoots. P pauses, R starts a new round, and F toggles fullscreen.",

@@ -33802,3 +33802,1427 @@ button.brisca-card.playable:disabled {
     width: min(300px, 90%);
   }
 }
+
+/* ── Paso a Paso / Step by Step ─────────────────────────────────────────────── */
+/* A sunny hillside inside the same cream arcade card as the other minis. The
+   canvas owns the world; everything here is the paper trim around it — a wooden
+   HUD rail, three risk-coloured number cards (green 1, amber 3, red 5, so the
+   trade-off is legible before you read a word) and a scoreboard that prints the
+   one fact the reference leaves in your head: how many steps each rival needs. */
+
+.paso-a-paso {
+  background:
+    radial-gradient(circle at 82% -22%, rgba(125, 211, 252, 0.28), transparent 48%),
+    linear-gradient(165deg, #fffef8 0%, #f4fbee 100%);
+}
+
+.pap-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.pap-actions button {
+  border: 1px solid rgba(124, 83, 39, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #4a3a24;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.5rem 0.76rem;
+  cursor: pointer;
+}
+
+.pap-actions button:hover {
+  border-color: rgba(169, 118, 63, 0.7);
+  background: #fff;
+}
+
+/* ── Stage ─────────────────────────────────────────────────────────────────── */
+.pap-stage {
+  position: relative;
+  margin-top: 0.7rem;
+  aspect-ratio: 16 / 9;
+  min-height: 240px;
+  border: 1px solid rgba(124, 83, 39, 0.32);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #7ec4ea;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.pap-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pap-topbar {
+  position: absolute;
+  inset: 0.5rem 0.6rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.34rem 0.62rem;
+  border-radius: 999px;
+  background: rgba(62, 41, 20, 0.58);
+  backdrop-filter: blur(3px);
+  color: #fff8ea;
+  font-size: 0.76rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.pap-round strong,
+.pap-phase {
+  font-weight: 800;
+}
+
+.pap-phase {
+  opacity: 0.86;
+  text-align: right;
+}
+
+.pap-timer {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-width: 42%;
+}
+
+.pap-timer-value {
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.4em;
+  text-align: center;
+}
+
+.pap-timer-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  overflow: hidden;
+}
+
+.pap-timer-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffd15c, #ffe9a8);
+  transition: width 120ms linear;
+}
+
+.pap-timer.is-urgent .pap-timer-value {
+  color: #ffd0cb;
+}
+
+.pap-timer.is-urgent .pap-timer-fill {
+  background: linear-gradient(90deg, #ff6b5c, #ffb199);
+}
+
+/* ── Number cards ──────────────────────────────────────────────────────────── */
+/* Under the stage rather than over it, and always mounted so the row never
+   jumps between rounds — outside the pick window they simply lock. */
+.pap-cards {
+  display: flex;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-top: 0.6rem;
+}
+
+.pap-cards:not(.pap-cards--pick) .pap-card {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: 0 2px 0 rgba(90, 60, 26, 0.2);
+}
+
+.pap-cards:not(.pap-cards--pick) .pap-card.is-picked {
+  opacity: 1;
+}
+
+/* Both of these also carry .is-picked, whose rule is declared further down; the
+   doubled class keeps the result colour from losing to it on source order. */
+.pap-card.is-picked.is-good {
+  border-color: #2f9e4f;
+  box-shadow: 0 3px 0 rgba(47, 158, 79, 0.4), 0 0 0 3px rgba(47, 158, 79, 0.22);
+}
+
+.pap-card.is-picked.is-clash {
+  border-color: #d9483c;
+  box-shadow: 0 3px 0 rgba(217, 72, 60, 0.4), 0 0 0 3px rgba(217, 72, 60, 0.22);
+}
+
+.pap-card:disabled {
+  pointer-events: none;
+}
+
+.pap-card {
+  flex: 0 1 106px;
+  display: grid;
+  justify-items: center;
+  gap: 0.05rem;
+  padding: 0.4rem 0.2rem 0.5rem;
+  border: 2px solid var(--pap-card-line, rgba(124, 83, 39, 0.4));
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fffdf6 0%, var(--pap-card-tint, #fff3dd) 100%);
+  color: #40331f;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(90, 60, 26, 0.28);
+  transition: transform 110ms ease, box-shadow 110ms ease, border-color 110ms ease;
+}
+
+.pap-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(90, 60, 26, 0.3);
+}
+
+.pap-card:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(90, 60, 26, 0.3);
+}
+
+.pap-card.is-picked {
+  border-color: #2f6fe0;
+  box-shadow: 0 4px 0 rgba(47, 111, 224, 0.45), 0 0 0 3px rgba(47, 111, 224, 0.22);
+}
+
+.pap-card-arrow {
+  font-size: 0.82rem;
+  opacity: 0.62;
+  line-height: 1;
+}
+
+.pap-card-number {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--pap-card-line, #40331f);
+}
+
+/* Small is safe, big is greedy — the cards say so before the rules do. */
+.pap-card--1 { --pap-card-line: #2f9e4f; --pap-card-tint: #e8f7e6; }
+.pap-card--3 { --pap-card-line: #d08a12; --pap-card-tint: #fdf1d6; }
+.pap-card--5 { --pap-card-line: #d9483c; --pap-card-tint: #fde9e6; }
+
+/* ── Overlays ──────────────────────────────────────────────────────────────── */
+.pap-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0.8rem;
+  background: rgba(30, 46, 24, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+.pap-panel {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  width: min(560px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(124, 83, 39, 0.3);
+  border-radius: 18px;
+  background: rgba(255, 253, 245, 0.96);
+  text-align: center;
+  box-shadow: 0 14px 30px rgba(40, 30, 12, 0.25);
+}
+
+.pap-panel--slim {
+  width: min(280px, 100%);
+}
+
+.pap-lead {
+  margin: 0;
+  color: #4d4536;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.pap-tip {
+  margin: 0;
+  padding: 0.42rem 0.6rem;
+  border-radius: 12px;
+  background: rgba(255, 214, 120, 0.28);
+  color: #6a4f1c;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.pap-panel-label {
+  color: #7a6b52;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.pap-diffs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.44rem;
+  width: 100%;
+}
+
+.pap-diff {
+  flex: 1 1 150px;
+  display: grid;
+  gap: 0.16rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid rgba(124, 83, 39, 0.28);
+  border-radius: 14px;
+  background: #fffdf6;
+  color: #40331f;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pap-diff strong {
+  font-size: 0.9rem;
+}
+
+.pap-diff em {
+  color: #6d6353;
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.pap-diff.is-active {
+  border-color: #2f6fe0;
+  background: #eef4ff;
+  box-shadow: 0 0 0 2px rgba(47, 111, 224, 0.2);
+}
+
+.pap-primary {
+  border: 1px solid rgba(124, 83, 39, 0.4);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffcf5c 0%, #f2a72c 100%);
+  color: #46320c;
+  font: inherit;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.55rem 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(120, 78, 16, 0.4);
+}
+
+.pap-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(120, 78, 16, 0.4);
+}
+
+.pap-outcome {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #3c5c2a;
+}
+
+.pap-final-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 0.9rem;
+  color: #6d6353;
+  font-size: 0.78rem;
+}
+
+.pap-final-stats strong {
+  color: #40331f;
+}
+
+.pap-final-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.pap-act-back {
+  border: 1px solid rgba(124, 83, 39, 0.28);
+  border-radius: 999px;
+  background: #fffdf6;
+  color: #5a4a30;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.52rem 1rem;
+  cursor: pointer;
+}
+
+/* ── Scoreboard ────────────────────────────────────────────────────────────── */
+.pap-board {
+  display: grid;
+  gap: 0.34rem;
+  margin-top: 0.65rem;
+}
+
+.pap-row {
+  display: grid;
+  grid-template-columns: 12px minmax(96px, 1fr) auto minmax(84px, auto) minmax(70px, 1.4fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.34rem 0.55rem;
+  border: 1px solid rgba(124, 83, 39, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.78rem;
+}
+
+.pap-row.is-you {
+  border-color: rgba(47, 111, 224, 0.45);
+  background: rgba(238, 244, 255, 0.85);
+}
+
+.pap-row.is-climbing {
+  border-color: rgba(47, 158, 79, 0.55);
+}
+
+.pap-chip {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pap-color, #888);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.pap-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.34rem;
+  font-weight: 700;
+  color: #3b3323;
+}
+
+.pap-name em {
+  font-style: normal;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #7d7160;
+  padding: 0.04rem 0.34rem;
+  border-radius: 999px;
+  background: rgba(124, 83, 39, 0.1);
+  cursor: help;
+}
+
+.pap-steps {
+  color: #6d6353;
+  font-variant-numeric: tabular-nums;
+}
+
+.pap-steps strong {
+  color: #2c2417;
+  font-size: 0.94rem;
+}
+
+.pap-needs {
+  color: #7d7160;
+  font-size: 0.72rem;
+}
+
+.pap-needs.is-closing {
+  color: #b4471f;
+  font-weight: 800;
+}
+
+.pap-track {
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(124, 83, 39, 0.16);
+  overflow: hidden;
+}
+
+.pap-track-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--pap-color, #888);
+  transition: width 320ms ease;
+}
+
+.pap-history {
+  display: flex;
+  gap: 0.16rem;
+  justify-content: flex-end;
+}
+
+.pap-history em {
+  min-width: 1.15rem;
+  padding: 0.02rem 0;
+  border-radius: 5px;
+  background: rgba(124, 83, 39, 0.12);
+  color: #5c5142;
+  font-style: normal;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.pap-hint {
+  margin: 0.55rem 0 0;
+  color: #6d6353;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+/* ── Narrow screens ────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .pap-card {
+    flex: 1 1 0;
+    padding: 0.34rem 0.15rem 0.42rem;
+  }
+  .pap-card-number {
+    font-size: 1.55rem;
+  }
+  .pap-topbar {
+    font-size: 0.7rem;
+  }
+  .pap-phase {
+    display: none;
+  }
+  .pap-row {
+    grid-template-columns: 12px 1fr auto auto;
+    row-gap: 0.28rem;
+  }
+  .pap-track {
+    grid-column: 1 / -1;
+  }
+  .pap-history {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+/* ── Wii Party minis: El escondite / La comba / Obstáculos rodantes /
+      Caída libre ─────────────────────────────────────────────────────────────
+   Four games that share one shell — a cream arcade card, a canvas stage with a
+   translucent HUD rail, a menu overlay with a difficulty picker, and a hint
+   line — so the furniture is written once here against grouped selectors and
+   each game only adds its own accent colour and its own controls below. */
+
+.el-escondite,
+.la-comba,
+.obstaculos-rodantes,
+.caida-libre {
+  background:
+    radial-gradient(circle at 82% -22%, rgba(125, 211, 252, 0.26), transparent 48%),
+    linear-gradient(165deg, #fffef8 0%, #f4fbee 100%);
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+.esc-actions,
+.comba-actions,
+.obst-actions,
+.caida-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.esc-actions button,
+.comba-actions button,
+.obst-actions button,
+.caida-actions button {
+  border: 1px solid rgba(124, 83, 39, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #4a3a24;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.5rem 0.76rem;
+  cursor: pointer;
+}
+
+.esc-actions button:hover,
+.comba-actions button:hover,
+.obst-actions button:hover,
+.caida-actions button:hover {
+  border-color: rgba(169, 118, 63, 0.7);
+  background: #fff;
+}
+
+/* ── Stage ───────────────────────────────────────────────────────────────── */
+.esc-stage,
+.comba-stage,
+.obst-stage,
+.caida-stage {
+  position: relative;
+  margin-top: 0.7rem;
+  aspect-ratio: 16 / 9;
+  min-height: 240px;
+  border: 1px solid rgba(124, 83, 39, 0.32);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #7ec4ea;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  touch-action: manipulation;
+}
+
+.esc-canvas,
+.comba-canvas,
+.obst-canvas,
+.caida-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.esc-stage--seeking .esc-canvas,
+.caida-stage--choosing .caida-canvas {
+  cursor: pointer;
+}
+
+/* ── HUD rail ────────────────────────────────────────────────────────────── */
+.esc-topbar,
+.comba-topbar,
+.obst-topbar,
+.caida-topbar {
+  position: absolute;
+  inset: 0.5rem 0.6rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.34rem 0.62rem;
+  border-radius: 999px;
+  background: rgba(62, 41, 20, 0.58);
+  backdrop-filter: blur(3px);
+  color: #fff8ea;
+  font-size: 0.76rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.esc-timer,
+.comba-timer,
+.caida-timer {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-width: 38%;
+}
+
+.esc-timer-value,
+.comba-timer-value,
+.caida-timer-value {
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.4em;
+  text-align: center;
+}
+
+.esc-timer-track,
+.comba-timer-track,
+.caida-timer-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  overflow: hidden;
+}
+
+.esc-timer-fill,
+.comba-timer-fill,
+.caida-timer-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffd15c, #ffe9a8);
+  transition: width 120ms linear;
+}
+
+.esc-timer.is-urgent .esc-timer-value,
+.comba-timer.is-urgent .comba-timer-value,
+.caida-timer.is-urgent .caida-timer-value {
+  color: #ffd0cb;
+}
+
+.esc-timer.is-urgent .esc-timer-fill,
+.comba-timer.is-urgent .comba-timer-fill,
+.caida-timer.is-urgent .caida-timer-fill {
+  background: linear-gradient(90deg, #ff6b5c, #ffb199);
+}
+
+/* Searches left, and falls taken: five and two little pips. */
+.esc-searches,
+.caida-strikes {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.esc-searches em,
+.caida-strikes em {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+}
+
+.esc-searches em.is-left,
+.caida-strikes em.is-safe {
+  background: #ffe27a;
+}
+
+.esc-searches em.is-used,
+.caida-strikes em.is-hit {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.caida-strikes em.is-hit {
+  background: #ff6b5c;
+  border-color: #ffd0cb;
+}
+
+/* ── Overlays ────────────────────────────────────────────────────────────── */
+.esc-overlay,
+.comba-overlay,
+.obst-overlay,
+.caida-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0.8rem;
+  background: rgba(30, 46, 24, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+.esc-panel,
+.comba-panel,
+.obst-panel,
+.caida-panel {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  width: min(560px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(124, 83, 39, 0.3);
+  border-radius: 18px;
+  background: rgba(255, 253, 245, 0.96);
+  text-align: center;
+  box-shadow: 0 14px 30px rgba(40, 30, 12, 0.25);
+}
+
+.esc-panel--slim,
+.comba-panel--slim,
+.obst-panel--slim,
+.caida-panel--slim {
+  width: min(280px, 100%);
+}
+
+.esc-lead,
+.comba-lead,
+.obst-lead,
+.caida-lead {
+  margin: 0;
+  color: #4d4536;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.esc-tip,
+.comba-tip,
+.obst-tip,
+.caida-tip {
+  margin: 0;
+  padding: 0.42rem 0.6rem;
+  border-radius: 12px;
+  background: rgba(255, 214, 120, 0.28);
+  color: #6a4f1c;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.esc-panel-label,
+.comba-panel-label,
+.obst-panel-label,
+.caida-panel-label {
+  color: #7a6b52;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.esc-outcome,
+.comba-outcome,
+.obst-outcome,
+.caida-outcome {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #3c5c2a;
+}
+
+.esc-final-stats,
+.comba-final-stats,
+.obst-final-stats,
+.caida-final-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 0.9rem;
+  color: #6d6353;
+  font-size: 0.78rem;
+}
+
+.esc-final-stats strong,
+.comba-final-stats strong,
+.obst-final-stats strong,
+.caida-final-stats strong {
+  color: #40331f;
+}
+
+.esc-final-actions,
+.comba-final-actions,
+.obst-final-actions,
+.caida-final-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* ── Difficulty picker ───────────────────────────────────────────────────── */
+.esc-diffs,
+.comba-diffs,
+.obst-diffs,
+.caida-diffs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.44rem;
+  width: 100%;
+}
+
+.esc-diff,
+.comba-diff,
+.obst-diff,
+.caida-diff {
+  flex: 1 1 150px;
+  display: grid;
+  gap: 0.16rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid rgba(124, 83, 39, 0.28);
+  border-radius: 14px;
+  background: #fffdf6;
+  color: #40331f;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.esc-diff strong,
+.comba-diff strong,
+.obst-diff strong,
+.caida-diff strong {
+  font-size: 0.9rem;
+}
+
+.esc-diff em,
+.comba-diff em,
+.obst-diff em,
+.caida-diff em {
+  color: #6d6353;
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.esc-diff.is-active,
+.comba-diff.is-active,
+.obst-diff.is-active,
+.caida-diff.is-active {
+  border-color: #2f6fe0;
+  background: #eef4ff;
+  box-shadow: 0 0 0 2px rgba(47, 111, 224, 0.2);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.esc-primary,
+.comba-primary,
+.obst-primary,
+.caida-primary {
+  border: 1px solid rgba(124, 83, 39, 0.4);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffcf5c 0%, #f2a72c 100%);
+  color: #46320c;
+  font: inherit;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.55rem 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(120, 78, 16, 0.4);
+}
+
+.esc-primary:active,
+.comba-primary:active,
+.obst-primary:active,
+.caida-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(120, 78, 16, 0.4);
+}
+
+.esc-act-back,
+.comba-act-back,
+.obst-act-back,
+.caida-act-back {
+  border: 1px solid rgba(124, 83, 39, 0.28);
+  border-radius: 999px;
+  background: #fffdf6;
+  color: #5a4a30;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.52rem 1rem;
+  cursor: pointer;
+}
+
+.esc-hint,
+.comba-hint,
+.obst-hint,
+.caida-hint {
+  margin: 0.55rem 0 0;
+  color: #6d6353;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+/* ── La comba: the two meters under the square ───────────────────────────── */
+.comba-meters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.6rem;
+}
+
+.comba-meter {
+  flex: 1 1 160px;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.74rem;
+  color: #6d6353;
+}
+
+.comba-meter em {
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.comba-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(124, 83, 39, 0.16);
+  overflow: hidden;
+}
+
+.comba-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #2f9e4f;
+  transition: width 200ms ease;
+}
+
+.comba-bar--sync .comba-bar-fill {
+  background: #3f6fd8;
+}
+
+.comba-bar--sync .comba-bar-fill.is-low {
+  background: #d9483c;
+}
+
+.comba-recover {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  padding: 0.34rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(217, 72, 60, 0.85);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+/* ── Obstáculos rodantes: the position bar ───────────────────────────────── */
+.obst-stage {
+  border-color: rgba(91, 57, 26, 0.48);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.42),
+    0 18px 38px rgba(48, 73, 42, 0.2);
+}
+
+.obst-stage.is-impact {
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 206, 92, 0.72),
+    0 18px 42px rgba(117, 61, 26, 0.28);
+}
+
+.obst-physics-hud {
+  position: absolute;
+  left: 0.72rem;
+  bottom: 1.35rem;
+  display: grid;
+  gap: 0.24rem;
+  width: min(190px, 34%);
+  padding: 0.48rem 0.58rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 14px;
+  background: rgba(41, 28, 15, 0.62);
+  color: #fff8ea;
+  backdrop-filter: blur(5px);
+  pointer-events: none;
+}
+
+.obst-speed-readout,
+.obst-impulses {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.obst-speed-readout strong {
+  color: #ffe27a;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.obst-speed-track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.obst-speed-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #72d478, #ffe16a, #ff9d4b);
+  transition: width 80ms linear;
+}
+
+.obst-impulses {
+  justify-content: flex-start;
+}
+
+.obst-impulses i {
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.54);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.obst-impulses i.is-ready {
+  background: #ffe27a;
+  box-shadow: 0 0 8px rgba(255, 226, 122, 0.68);
+}
+
+.obst-jump-cue {
+  position: absolute;
+  right: 0.72rem;
+  bottom: 1.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.38rem 0.54rem;
+  border-radius: 12px;
+  background: rgba(41, 28, 15, 0.58);
+  color: #fff8ea;
+  font-size: 0.67rem;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.obst-jump-cue kbd {
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-bottom-width: 3px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffe27a;
+  font: inherit;
+  padding: 0.18rem 0.34rem;
+}
+
+.obst-positions {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.6rem;
+}
+
+.obst-lane {
+  display: grid;
+  grid-template-columns: minmax(66px, auto) 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.74rem;
+}
+
+.obst-lane-name {
+  font-style: normal;
+  font-weight: 700;
+  color: #3b3323;
+}
+
+.obst-lane.is-you .obst-lane-name {
+  color: #2f6fe0;
+}
+
+.obst-lane-track {
+  position: relative;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(124, 83, 39, 0.16);
+}
+
+.obst-lane-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--obst-color, #888);
+  opacity: 0.35;
+}
+
+.obst-lane-dot {
+  position: absolute;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  margin-left: -6.5px;
+  border-radius: 50%;
+  background: var(--obst-color, #888);
+  border: 2px solid #fffdf6;
+  transform: translateY(-50%);
+  transition: left 90ms linear;
+}
+
+.obst-lane.is-stumbling .obst-lane-dot {
+  background: #d9483c;
+}
+
+/* ── Caída libre: the two doors ──────────────────────────────────────────── */
+.caida-libre {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(110, 203, 255, 0.3), transparent 32%),
+    linear-gradient(155deg, #f8fcff 0%, #eaf6ff 54%, #fff7eb 100%);
+}
+
+.caida-stage {
+  border-color: rgba(27, 98, 157, 0.42);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    0 20px 44px rgba(24, 91, 139, 0.22);
+}
+
+.caida-stage.is-falling {
+  animation: caida-impact-shake 180ms ease-out 1;
+}
+
+@keyframes caida-impact-shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 2px); }
+  55% { transform: translate(3px, -1px); }
+  78% { transform: translate(-1px, 1px); }
+}
+
+.caida-progress-readout {
+  display: grid;
+  line-height: 1.1;
+}
+
+.caida-progress-readout small {
+  margin-top: 0.16rem;
+  color: #ffe583;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.caida-flight-hud {
+  position: absolute;
+  left: 0.7rem;
+  bottom: 0.72rem;
+  display: grid;
+  gap: 0.34rem;
+  min-width: min(178px, 34%);
+  padding: 0.45rem 0.56rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  background: rgba(18, 57, 91, 0.62);
+  color: #f7fbff;
+  backdrop-filter: blur(5px);
+  pointer-events: none;
+}
+
+.caida-depth-route {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.28rem;
+}
+
+.caida-depth-route::before {
+  content: "";
+  position: absolute;
+  inset: 50% 5px auto;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.caida-depth-route i {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.64);
+  border-radius: 4px;
+  background: #4d9fe0;
+  transform: rotate(45deg);
+}
+
+.caida-depth-route i.is-passed { background: #32b56c; }
+.caida-depth-route i.is-current {
+  background: #ffe269;
+  box-shadow: 0 0 0 3px rgba(255, 226, 105, 0.24), 0 0 12px rgba(255, 226, 105, 0.66);
+}
+
+.caida-crowd-readout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.42rem;
+  font-size: 0.67rem;
+  font-weight: 900;
+}
+
+.caida-crowd-readout em {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.56rem;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.caida-lock {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.72rem;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 0.02rem 0.4rem;
+  padding: 0.4rem 0.58rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgba(31, 74, 116, 0.88), rgba(16, 45, 76, 0.9));
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 7px 18px rgba(10, 39, 69, 0.3);
+}
+
+.caida-lock:hover { transform: translateY(-1px); }
+.caida-lock span { font-size: 0.68rem; font-weight: 850; }
+.caida-lock strong { color: #ffe269; font-size: 0.78rem; }
+.caida-lock em {
+  grid-column: 1 / -1;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.54rem;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.caida-mechanic-tip {
+  margin: 0;
+  color: #365d7d;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.caida-doors {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.6rem;
+}
+
+.caida-doors {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.caida-door {
+  display: grid;
+  justify-items: center;
+  gap: 0.06rem;
+  padding: 0.5rem 0.3rem 0.56rem;
+  border: 2px solid var(--wp-line, rgba(124, 83, 39, 0.4));
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fffdf6 0%, var(--wp-tint, #fff3dd) 100%);
+  color: #40331f;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(90, 60, 26, 0.24);
+  transition: transform 110ms ease, box-shadow 110ms ease, border-color 110ms ease;
+}
+
+.caida-door:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(90, 60, 26, 0.24);
+}
+
+.caida-door:disabled {
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.caida-door.is-picked {
+  opacity: 1;
+  border-color: #2f6fe0;
+  box-shadow: 0 4px 0 rgba(47, 111, 224, 0.42), 0 0 0 3px rgba(47, 111, 224, 0.2);
+}
+
+/* The verdict, once the doors are open. Doubled class so it outranks
+   .is-picked, which is declared above and would otherwise win on source order. */
+.caida-door.is-picked.is-cloud {
+  border-color: #d9483c;
+  box-shadow: 0 4px 0 rgba(217, 72, 60, 0.42), 0 0 0 3px rgba(217, 72, 60, 0.2);
+}
+
+.caida-door.is-picked.is-safe {
+  border-color: #2f9e4f;
+  box-shadow: 0 4px 0 rgba(47, 158, 79, 0.42), 0 0 0 3px rgba(47, 158, 79, 0.2);
+}
+
+.caida-door-arrow {
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--wp-line, #40331f);
+}
+
+.caida-door-name {
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.caida-door--left { --wp-line: #e8607f; --wp-tint: #fde9ee; }
+.caida-door--right { --wp-line: #4f9fe0; --wp-tint: #e7f2fd; }
+/* ── Player chips ────────────────────────────────────────────────────────── */
+.caida-board {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.36rem;
+  margin-top: 0.55rem;
+}
+
+.caida-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.24rem 0.55rem;
+  border: 1px solid rgba(124, 83, 39, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 0.73rem;
+  color: #3b3323;
+}
+
+.caida-chip.is-you {
+  border-color: rgba(47, 111, 224, 0.45);
+  background: rgba(238, 244, 255, 0.9);
+  font-weight: 700;
+}
+
+.caida-chip.is-out {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.caida-chip-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--caida-color, #888);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.caida-chip strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Narrow screens ──────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .esc-topbar,
+  .comba-topbar,
+  .obst-topbar,
+  .caida-topbar {
+    font-size: 0.68rem;
+    gap: 0.4rem;
+  }
+  .caida-door {
+    padding: 0.4rem 0.2rem 0.46rem;
+  }
+  .caida-door-arrow {
+    font-size: 1.1rem;
+  }
+  .caida-door-name {
+    font-size: 0.68rem;
+  }
+  .caida-flight-hud {
+    left: 0.4rem;
+    bottom: 0.42rem;
+    min-width: min(138px, 43%);
+    padding: 0.34rem 0.4rem;
+  }
+  .caida-lock {
+    right: 0.4rem;
+    bottom: 0.42rem;
+    padding: 0.32rem 0.4rem;
+  }
+  .caida-lock span { font-size: 0.6rem; }
+  .caida-lock em { display: none; }
+  .obst-lane {
+    grid-template-columns: minmax(54px, auto) 1fr;
+    font-size: 0.68rem;
+  }
+  .obst-physics-hud {
+    left: 0.42rem;
+    bottom: 0.72rem;
+    width: min(154px, 46%);
+    padding: 0.34rem 0.42rem;
+  }
+  .obst-jump-cue {
+    right: 0.42rem;
+    bottom: 0.72rem;
+  }
+  .obst-jump-cue kbd {
+    display: none;
+  }
+  .comba-meter {
+    flex-basis: 100%;
+  }
+}

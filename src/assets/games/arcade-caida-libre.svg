@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none">
+  <defs>
+    <linearGradient id="cai-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3f9fe0"/><stop offset="100%" stop-color="#cfe9fa"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="140" fill="url(#cai-sky)"/>
+  <g fill="#ffffff" fill-opacity="0.9">
+    <ellipse cx="30" cy="130" rx="30" ry="12"/><ellipse cx="96" cy="136" rx="34" ry="13"/><ellipse cx="168" cy="128" rx="28" ry="11"/>
+  </g>
+  <g fill="#ffffff" fill-opacity="0.62">
+    <ellipse cx="42" cy="22" rx="18" ry="7"/><ellipse cx="158" cy="30" rx="16" ry="6"/>
+  </g>
+
+  <!-- hazard rim -->
+  <g>
+    <rect x="16" y="62" width="168" height="7" fill="#2f2a24"/>
+    <g fill="#f2c53d">
+      <path d="M16 62 h12 l-7 7 h-12 Z"/><path d="M40 62 h12 l-7 7 h-12 Z"/><path d="M64 62 h12 l-7 7 h-12 Z"/>
+      <path d="M88 62 h12 l-7 7 h-12 Z"/><path d="M112 62 h12 l-7 7 h-12 Z"/><path d="M136 62 h12 l-7 7 h-12 Z"/>
+      <path d="M160 62 h12 l-7 7 h-12 Z"/>
+    </g>
+  </g>
+
+  <!-- two trapdoors: left holds, right has swung open -->
+  <rect x="16" y="69" width="84" height="26" rx="4" fill="#e8607f"/>
+  <rect x="16" y="95" width="84" height="7" rx="3" fill="#a8394f"/>
+  <path d="M56 76 l-9 8 h18 Z" fill="#ffffff" fill-opacity="0.4"/>
+
+  <g transform="rotate(52 184 69)">
+    <rect x="100" y="69" width="84" height="26" rx="4" fill="#4f9fe0"/>
+    <rect x="100" y="95" width="84" height="7" rx="3" fill="#2e6ba3"/>
+  </g>
+
+  <!-- two standing safe on the left -->
+  <g>
+    <rect x="38" y="48" width="10" height="15" rx="4" fill="#2f6fe0"/><circle cx="43" cy="42" r="6.6" fill="#f3cfa8"/><path d="M36.4 40 a6.6 6.6 0 0 1 13.2 0 Z" fill="#1a4489"/>
+    <rect x="68" y="48" width="10" height="15" rx="4" fill="#2f9e4f"/><circle cx="73" cy="42" r="6.6" fill="#f3cfa8"/><path d="M66.4 40 a6.6 6.6 0 0 1 13.2 0 Z" fill="#1c5f2f"/>
+  </g>
+  <ellipse cx="43" cy="64" rx="9" ry="2.6" fill="none" stroke="#ffffff" stroke-width="2"/>
+
+  <!-- one dropping through the open door -->
+  <g transform="rotate(28 128 104)">
+    <rect x="123" y="98" width="10" height="15" rx="4" fill="#e04f5f"/>
+    <path d="M122 100 l-7 -7 M134 100 l7 -7" stroke="#e04f5f" stroke-width="3.6" stroke-linecap="round"/>
+    <circle cx="128" cy="92" r="6.6" fill="#f3cfa8"/><path d="M121.4 90 a6.6 6.6 0 0 1 13.2 0 Z" fill="#8e2f39"/>
+  </g>
+</svg>

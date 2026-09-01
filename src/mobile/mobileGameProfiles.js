@@ -5,6 +5,13 @@ const DIRECT_TOUCH_GAME_IDS = new Set([
   // The cups are the buttons: you point at the one you mean, so a virtual pad
   // would only get between the finger and the table.
   "arcade-shell-game",
+  // The seven hiding places, the two trapdoors, the rope and the jump are all
+  // things you point at: a virtual pad would only sit between the finger and
+  // the thing it means.
+  "arcade-el-escondite",
+  "arcade-la-comba",
+  "arcade-obstaculos-rodantes",
+  "arcade-caida-libre",
   "arcade-orchard-match-blast",
   "arcade-reactor-toss",
   "arcade-golf-tour-2d",
@@ -802,6 +809,62 @@ export function getMobileControlProfile(game, locale = "es") {
             },
           }),
           menuTap("changeSetup", t(locale, "Cambiar dificultad", "Change difficulty"), ".ss-act-back", {
+            tone: "accent",
+          }),
+        ],
+        utilities: utilityRow(locale),
+      };
+    case "arcade-paso-a-paso":
+      // The Wii original puts the three numbers on the d-pad, so the deck keeps
+      // that arrangement literally: 1 left, 3 up, 5 right. The stage is the
+      // hillside and nothing else, which is why the number a rival still needs
+      // is painted next to them on the canvas rather than only in the
+      // scoreboard the shell hides.
+      return {
+        layout: "split",
+        heading: t(locale, "Tu número", "Your number"),
+        hint: t(
+          locale,
+          "Elige 1, 3 o 5 antes de que acaben los 10 segundos. Coincidir no sube a nadie.",
+          "Pick 1, 3 or 5 before the 10 seconds run out. Clashing moves nobody.",
+        ),
+        // The three numbers are actions, not directions. Laid out as a d-pad the
+        // shell puts the third one on a second row, and a phone in landscape
+        // clips that row clean off — leaving the 5 unreachable. As a flat action
+        // row all three fit on one line in every orientation; the keys they send
+        // still keep the Wii mapping (1 left, 3 up, 5 right).
+        leftPad: [],
+        rightPad: [
+          control("pick1", "1", {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("ArrowLeft", "ArrowLeft")],
+            visibility: { screens: ["pick"] },
+          }),
+          control("pick3", "3", {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("ArrowUp", "ArrowUp")],
+            visibility: { screens: ["pick"] },
+          }),
+          control("pick5", "5", {
+            type: "tap",
+            tone: "primary",
+            inputs: [input("ArrowRight", "ArrowRight")],
+            visibility: { screens: ["pick"] },
+          }),
+          ...difficultyTaps(locale, "diff", (key) => `.pap-diff--${key}`),
+          control("advance", t(locale, "Comenzar", "Start"), {
+            type: "tap",
+            tone: "accent",
+            inputs: [input("Space", " ")],
+            visibility: { screens: ["menu", "gameover"] },
+            screenLabels: {
+              menu: t(locale, "▶ Comenzar", "▶ Start"),
+              gameover: t(locale, "▶ Otra vez", "▶ Again"),
+            },
+          }),
+          menuTap("changeSetup", t(locale, "Cambiar dificultad", "Change difficulty"), ".pap-act-back", {
             tone: "accent",
           }),
         ],

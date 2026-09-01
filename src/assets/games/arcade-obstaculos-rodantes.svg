@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none">
+  <defs>
+    <linearGradient id="obs-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#57ade8"/><stop offset="100%" stop-color="#dceffa"/>
+    </linearGradient>
+    <linearGradient id="obs-deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d8ad72"/><stop offset="100%" stop-color="#b9884f"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="140" fill="url(#obs-sky)"/>
+  <path d="M-4 90 L-4 62 Q40 52 84 62 Q140 74 204 58 L204 90 Z" fill="#8fbf74"/>
+  <g fill="#4f9950">
+    <ellipse cx="24" cy="80" rx="18" ry="14"/><ellipse cx="70" cy="78" rx="15" ry="12"/>
+    <ellipse cx="128" cy="80" rx="17" ry="13"/><ellipse cx="178" cy="77" rx="16" ry="12"/>
+  </g>
+  <rect x="0" y="86" width="200" height="10" fill="#3d7a46"/>
+
+  <!-- bridge deck -->
+  <rect x="0" y="96" width="200" height="44" fill="url(#obs-deck)"/>
+  <g stroke="#a97c46" stroke-width="1.4">
+    <path d="M14 96 L6 140"/><path d="M42 96 L34 140"/><path d="M70 96 L62 140"/>
+    <path d="M98 96 L90 140"/><path d="M126 96 L118 140"/><path d="M154 96 L146 140"/><path d="M182 96 L174 140"/>
+  </g>
+  <rect x="0" y="90" width="200" height="4" fill="#8b5f31"/>
+  <g fill="#8b5f31"><rect x="18" y="90" width="3" height="7"/><rect x="66" y="90" width="3" height="7"/><rect x="114" y="90" width="3" height="7"/><rect x="162" y="90" width="3" height="7"/></g>
+
+  <!-- barrels rolling in -->
+  <g>
+    <circle cx="120" cy="86" r="13" fill="#c98a46"/>
+    <path d="M108 82 a13 13 0 0 1 24 0" stroke="#8a5c26" stroke-width="2.4" fill="none"/>
+    <path d="M107 86 L133 86" stroke="#8a5c26" stroke-width="2"/>
+    <circle cx="170" cy="88" r="11" fill="#c98a46"/>
+    <path d="M160 85 a11 11 0 0 1 20 0" stroke="#8a5c26" stroke-width="2.2" fill="none"/>
+  </g>
+  <!-- a low log -->
+  <rect x="76" y="88" width="24" height="9" rx="4.5" fill="#b98a56"/>
+  <path d="M81 92.5 L95 92.5" stroke="#8a5c26" stroke-width="1.6"/>
+
+  <!-- the runner, mid-jump -->
+  <g>
+    <path d="M34 78 l-5 12 M34 78 l5 12" stroke="#1d4a9c" stroke-width="4.4" stroke-linecap="round"/>
+    <rect x="28.5" y="60" width="11" height="20" rx="4" fill="#2f6fe0"/>
+    <path d="M28 64 l-7 -8 M40 64 l7 -8" stroke="#2f6fe0" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="34" cy="52" r="7.6" fill="#f3cfa8"/>
+    <path d="M26.4 50 a7.6 7.6 0 0 1 15.2 0 Z" fill="#1a4489"/>
+  </g>
+  <g fill="#ffe27a"><circle cx="28" cy="38" r="2.4"/><circle cx="34" cy="38" r="2.4"/><circle cx="40" cy="38" r="2.4"/></g>
+</svg>
