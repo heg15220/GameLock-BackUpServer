@@ -965,8 +965,6 @@ const COPY = {
       through: "El {club} pasa de ronda",
       out: "El {club} queda eliminado",
       champion: "Campeones de {cup}",
-      /** Cuántas noches quedan en la cola de esta temporada. */
-      counter: "{n} de {total}",
       next: "Seguir",
       last: "Al resumen de la temporada",
       versus: "Contra",
@@ -1754,8 +1752,6 @@ const COPY = {
       through: "{club} go through",
       out: "{club} are out",
       champion: "Champions of {cup}",
-      /** How many nights are left in this season's queue. */
-      counter: "{n} of {total}",
       next: "Continue",
       last: "To the season report",
       versus: "Versus",

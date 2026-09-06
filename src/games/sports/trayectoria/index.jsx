@@ -2508,17 +2508,14 @@ function TournamentScreen({ run, locale, onNext }) {
     <section className="tr-stage tr-stage--narrow">
       <article className={`tr-tie${ended ? (tie.won ? " is-through" : " is-out") : " is-live"}`}>
         <header className="tr-tie__head">
+          {/* Sin contador de noches: "1 de 1" contaba el final de la cola antes de que el
+              partido terminara, y con ello si el equipo seguía vivo después de esta noche.
+              La eliminatoria se cuenta sola, ronda a ronda. */}
           <div className="tr-tie__bar">
             <p className="tr-eyebrow tr-eyebrow--alert">
               <Icon name="trophy" size={14} />
               {copy.tournament.eyebrow}
             </p>
-            <span className="tr-tie__counter">
-              {fillTemplate(copy.tournament.counter, {
-                n: stage.index + 1,
-                total: stage.ties.length,
-              })}
-            </span>
           </div>
           <div className="tr-tie__title">
             <h2 className="tr-display tr-display--lg">{round}</h2>
