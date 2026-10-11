@@ -61,6 +61,7 @@ const ObstaculosRodantesGame = lazy(() => import("../games/arcade/obstaculos-rod
 const CaidaLibreGame = lazy(() => import("../games/arcade/caida-libre"));
 const KnowledgeSudokuGame = () => <KnowledgeArcadeGame variant="sudoku" />;
 const TrayectoriaGame = lazy(() => import("../games/sports/trayectoria"));
+const ManagerGame = lazy(() => import("../games/sports/manager"));
 const KnowledgeAhorcadoGame = () => <KnowledgeArcadeGame variant="ahorcado" />;
 const KnowledgePacienciaGame = () => <KnowledgeArcadeGame variant="paciencia" />;
 const KnowledgePuzleGame = () => <KnowledgeArcadeGame variant="puzle" />;
@@ -112,6 +113,7 @@ const GAME_COMPONENTS = {
   "fighter-neon-dojo": FighterGame,
   "sports-head-soccer-arena": HeadSoccerGame,
   "sports-trayectoria": TrayectoriaGame,
+  "sports-manager": ManagerGame,
   "arcade-pacman-maze-protocol": PacmanGame,
   "arcade-reactor-toss": ReactorTossGame,
   "arcade-territory-war": TerritoryWarGame,
@@ -497,7 +499,13 @@ function GamePlayground({ game, locale: localeOverride }) {
 
         <div className="playground-stage-main">
           {ActiveGame ? (
-            useTrajectoryNativeView ? (
+            gameId === "sports-manager" ? (
+              <div className="manager-native-host">
+                <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
+                  <ActiveGame locale={resolvedLocale} />
+                </Suspense>
+              </div>
+            ) : useTrajectoryNativeView ? (
               <div
                 className={`trayectoria-mobile-host trayectoria-mobile-host--${viewportFormFactor}`}
                 data-native-mobile-game="trayectoria"

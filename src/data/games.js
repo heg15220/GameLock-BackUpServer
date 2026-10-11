@@ -23,6 +23,7 @@ import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.
 import sportsPingPongArenaImage from "../assets/games/sports-ping-pong-arena.svg";
 import sportsPadelArenaImage from "../assets/games/sports-padel-arena.svg";
 import sportsTrayectoriaImage from "../assets/games/sports-trayectoria.svg";
+import sportsManagerImage from "../assets/games/sports-manager.svg";
 import arcadeShellGameImage from "../assets/games/arcade-shell-game.svg";
 import arcadePulsoExactoImage from "../assets/games/arcade-pulso-exacto.svg";
 import arcadePasoAPasoImage from "../assets/games/arcade-paso-a-paso.svg";
@@ -4017,6 +4018,35 @@ const gamesInSourceOrder = [
     techFocus_en: "Custom pseudo-3D perspective projection, projectile physics with floor and glass rebounds, doubles AI for positioning and shot selection, and regulation padel rules with a tie-break.",
   },
 
+  {
+    id: "sports-manager",
+    image: sportsManagerImage,
+    sessionTime: "20-60 min",
+    title: "Modo mánager",
+    title_en: "Manager Legacy",
+    category: "Deportes",
+    category_en: "Sports",
+    tagline: "Elige una época. Construye un equipo. Escribe otra historia.",
+    tagline_en: "Choose an era. Build a team. Write another history.",
+    description: "Gestiona un club de fútbol entre 1990 y 2025 con ligas disponibles según los participantes documentados de cada temporada. Negocia fichajes, cesiones con opción u obligación de compra, contratos y cláusulas. Planifica incorporaciones según el mercado del receptor y encarga misiones de ojeo. Administra entrenamientos, descanso, lesiones y rotaciones mientras compites por el ascenso, la permanencia y los títulos. Las divisiones conectadas incluyen promociones según la época. El archivo abierto amplía las plantillas reales de varias épocas, y reutiliza los escudos y trofeos de Carrera futbolera. La cobertura histórica sigue siendo parcial: los jugadores generados y las estimaciones están identificados.",
+    description_en: "Manage a football club from 1990 to 2025 with leagues available according to documented participants for each season. Negotiate transfers, loans with optional or mandatory purchases, contracts and clauses. Plan arrivals around the receiving club’s window and commission scouting assignments. Manage training, rest, injuries and rotation as you compete for promotion, survival and silverware. Connected divisions include era-specific playoffs. Open archives expand real squads across several eras, while reusing Football Career crests and trophies. Historical coverage remains partial: generated players and estimates are identified.",
+    objective_es: "Construir una carrera como mánager: competir por títulos, desarrollar jóvenes y mantener el equilibrio entre plantilla y presupuesto.",
+    objective_en: "Build a managerial career: compete for trophies, develop young talent, and balance the squad and budget.",
+    howToPlay_es: "Todo con ratón o dedo. Elige temporada, liga y club y firma. Revisa Preparación para gestionar entrenamientos y bajas; Mejor once activa la rotación según condición. En Mercado, elige Compra o Cesión desde la ficha del jugador. Consulta Contratos y cesiones para renovar, comprar un cedido y revisar cuotas o derechos. Puedes negociar todo el año: la incorporación espera al mercado del receptor. Las fechas documentadas y estimadas están identificadas. Encarga informes y responde a la prensa. Dirigir partido avanza en intervalos y Simulación rápida usa el mismo motor. Consulta ascensos y promociones en Competiciones. Exporta una copia del guardado cuando quieras.",
+    howToPlay_en: "Use a mouse or touch. Choose a season, league and club and sign. Open Preparation to manage training and injuries; Best XI enables fitness-based rotation. In Market, choose Purchase or Loan from a player profile. Open Contracts & loans to renew, buy a loanee and review installments or rights. Negotiate year-round: registration waits for the receiving club’s window. Documented and estimated dates are labelled. Commission reports and speak to the press. Manage Match advances in intervals; Quick Simulation uses the same engine. View promotion and playoffs in Competitions. Export a save whenever you like.",
+    highlights: ["Participantes de liga documentados por temporada y plantillas históricas parciales.", "Ascensos, descensos y promociones entre divisiones conectadas.", "Lesiones, fatiga, recuperación, entrenamientos y rotación de jugadores.", "Cesiones, compras opcionales u obligatorias, renovaciones, cláusulas y pagos aplazados.", "Mercados del receptor con fuentes y misiones de ojeo progresivas.", "Guardado automático, importación, exportación y compatibilidad con partidas anteriores."],
+    highlights_en: ["Documented league participants by season and partial historical squads.", "Promotion, relegation and playoffs between connected divisions.", "Injuries, fatigue, recovery, training and player rotation.", "Loans, optional or mandatory purchases, renewals, clauses and deferred payments.", "Sourced receiving-club windows and progressive scouting assignments.", "Autosave, import, export and compatibility with earlier careers."],
+    difficulty: "Media",
+    difficulty_en: "Medium",
+    multiplayer: "Un jugador",
+    multiplayer_en: "Single player",
+    viability: "Motor determinista, datos abiertos con procedencia y partidas exportables.",
+    viability_en: "Deterministic engine, open data with provenance and exportable saves.",
+    visualStyle: "Despacho editorial en verde profundo y papel crema, con pizarra táctica y escudos reales.",
+    visualStyle_en: "An editorial office in deep green and cream paper, with a tactics board and real crests.",
+    techFocus: "Motor de jornadas reproducible, generación por época e importación abierta de resultados.",
+    techFocus_en: "Reproducible matchday engine, era-aware generation and open results ingestion.",
+  },
   {
     id: "sports-trayectoria",
     image: sportsTrayectoriaImage,

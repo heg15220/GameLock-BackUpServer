@@ -1,4 +1,5 @@
 export const NATIVE_MOBILE_GAME_IDS = new Set([
+  "sports-manager",
   "sports-trayectoria",
   "knowledge-domino-chain",
   "knowledge-crucigrama-mini",

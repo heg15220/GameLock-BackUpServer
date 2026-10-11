@@ -1,0 +1,1 @@
+export const formatMoney = (value, lang = 'es') => new Intl.NumberFormat(lang === 'es' ? 'es-ES' : 'en-GB', { style: 'currency', currency: 'EUR', notation: 'compact', maximumFractionDigits: 1 }).format(Number(value) || 0);

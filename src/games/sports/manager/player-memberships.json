@@ -1,0 +1,797 @@
+{
+  "schemaVersion": 1,
+  "fetchedAt": "2026-10-10T12:46:27.019Z",
+  "source": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q615|Q11571|Q43913|Q21621995|Q113704154|Q28967995&props=claims|labels|info&languages=es|en&format=json",
+  "sourceSha256": "b1e0435f402a771567fd05dab4ab088f0a626bedbd084bfe6a47e7e51203f366",
+  "license": "CC0-1.0",
+  "note": "Bounded six-player verification sample. Membership dates retain Wikidata precision; missing or uncertain data must not be interpreted as a full roster.",
+  "players": [
+    {
+      "wikidataId": "Q615",
+      "name": "Lionel Messi",
+      "birthDate": "1987-06-24",
+      "birthDatePrecision": "day",
+      "source": "https://www.wikidata.org/wiki/Q615",
+      "revision": 2555229044,
+      "memberships": [
+        {
+          "teamWikidataId": "Q2346842",
+          "clubId": null,
+          "start": {
+            "value": "2003",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2004",
+            "precision": "year"
+          },
+          "statementId": "q615$DBB4FAC7-2683-4289-AA35-762A57426902"
+        },
+        {
+          "teamWikidataId": "Q10467",
+          "clubId": null,
+          "start": {
+            "value": "2004",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2005",
+            "precision": "year"
+          },
+          "statementId": "q615$1C2ACC11-5029-49B2-815A-1B64CFEAE433"
+        },
+        {
+          "teamWikidataId": "Q7156",
+          "clubId": "barcelona",
+          "start": {
+            "value": "2004",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2021",
+            "precision": "year"
+          },
+          "statementId": "q615$2E112905-FA75-4ED4-9A93-A510408739BF"
+        },
+        {
+          "teamWikidataId": "Q483020",
+          "clubId": "paris-saint-germain",
+          "start": {
+            "value": "2021-08",
+            "precision": "month"
+          },
+          "end": {
+            "value": "2023-06-30",
+            "precision": "day"
+          },
+          "statementId": "Q615$3fc56b85-46f0-9e14-845e-d3e9fe13213f"
+        },
+        {
+          "teamWikidataId": "Q16844931",
+          "clubId": "inter-miami",
+          "start": {
+            "value": "2023-07-15",
+            "precision": "day"
+          },
+          "end": null,
+          "statementId": "Q615$431cdee6-4351-6766-9f89-6f7ad5853dc8"
+        },
+        {
+          "teamWikidataId": "Q1187790",
+          "clubId": null,
+          "start": {
+            "value": "2004",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2005",
+            "precision": "year"
+          },
+          "statementId": "q615$F78A4F6A-0C54-4465-8E26-FC54070662F6"
+        },
+        {
+          "teamWikidataId": "Q2462207",
+          "clubId": null,
+          "start": {
+            "value": "2008",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2008",
+            "precision": "year"
+          },
+          "statementId": "Q615$CF10CD27-493D-4446-B2A1-0865DACC9985"
+        },
+        {
+          "teamWikidataId": "Q79800",
+          "clubId": null,
+          "start": {
+            "value": "2005",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2026",
+            "precision": "year"
+          },
+          "statementId": "q615$300F63AB-02C6-4C69-8E8C-F904CB92FD9F"
+        }
+      ]
+    },
+    {
+      "wikidataId": "Q11571",
+      "name": "Cristiano Ronaldo",
+      "birthDate": "1985-02-05",
+      "birthDatePrecision": "day",
+      "source": "https://www.wikidata.org/wiki/Q11571",
+      "revision": 2553093492,
+      "memberships": [
+        {
+          "teamWikidataId": "Q18656",
+          "clubId": "manchester-united",
+          "start": {
+            "value": "2003",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2009",
+            "precision": "year"
+          },
+          "statementId": "q11571$074706D5-A77F-4969-AE50-9ECB06D4208E"
+        },
+        {
+          "teamWikidataId": "Q8682",
+          "clubId": "real-madrid",
+          "start": {
+            "value": "2009",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2018",
+            "precision": "year"
+          },
+          "statementId": "q11571$7F9EB9C2-71EA-41A8-ACD0-0E7FC8EB5146"
+        },
+        {
+          "teamWikidataId": "Q75729",
+          "clubId": "sporting-lisboa",
+          "start": {
+            "value": "2002",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2003",
+            "precision": "year"
+          },
+          "statementId": "q11571$1FF595B8-2740-40D6-844A-728371DF7AF1"
+        },
+        {
+          "teamWikidataId": "Q267245",
+          "clubId": null,
+          "start": {
+            "value": "2003",
+            "precision": "year"
+          },
+          "end": null,
+          "statementId": "Q11571$5c56b4b4-455a-5362-396a-c5d39b44bf06"
+        },
+        {
+          "teamWikidataId": "Q1630430",
+          "clubId": null,
+          "start": {
+            "value": "2002",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2003",
+            "precision": "year"
+          },
+          "statementId": "Q11571$6113af5f-4a31-e32a-98ec-51b61518ac1d"
+        },
+        {
+          "teamWikidataId": "Q3590758",
+          "clubId": null,
+          "start": {
+            "value": "2004",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2004",
+            "precision": "year"
+          },
+          "statementId": "Q11571$1d5658f3-444a-8769-d3cf-be3e532174d3"
+        },
+        {
+          "teamWikidataId": "Q1772776",
+          "clubId": null,
+          "start": {
+            "value": "2003",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2003",
+            "precision": "year"
+          },
+          "statementId": "Q11571$283a43c4-45d5-483b-e061-a67a458ca95a"
+        },
+        {
+          "teamWikidataId": "Q3590754",
+          "clubId": null,
+          "start": {
+            "value": "2001",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2002",
+            "precision": "year"
+          },
+          "statementId": "Q11571$9723e979-4a99-60df-e035-6d07b2e62fcf"
+        },
+        {
+          "teamWikidataId": "Q21079208",
+          "clubId": null,
+          "start": {
+            "value": "2001",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2001",
+            "precision": "year"
+          },
+          "statementId": "Q11571$6be11b73-4209-5d38-4556-0ca3113c167f"
+        },
+        {
+          "teamWikidataId": "Q1422",
+          "clubId": "juventus",
+          "start": {
+            "value": "2018",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2021-08-26",
+            "precision": "day"
+          },
+          "statementId": "Q11571$9048cdde-454d-5919-46dd-04483b8ad0a6"
+        },
+        {
+          "teamWikidataId": "Q18656",
+          "clubId": "manchester-united",
+          "start": {
+            "value": "2021-08-27",
+            "precision": "day"
+          },
+          "end": {
+            "value": "2022-11-22",
+            "precision": "day"
+          },
+          "statementId": "Q11571$bb6933e0-4d19-c4c5-c783-8ddf5ca6eac9"
+        },
+        {
+          "teamWikidataId": "Q482764",
+          "clubId": "al-nassr",
+          "start": {
+            "value": "2023-01",
+            "precision": "month"
+          },
+          "end": null,
+          "statementId": "Q11571$1e93b163-4ca4-4e1c-3623-a2d91023123b"
+        }
+      ]
+    },
+    {
+      "wikidataId": "Q43913",
+      "name": "Arjen Robben",
+      "birthDate": "1984-01-23",
+      "birthDatePrecision": "day",
+      "source": "https://www.wikidata.org/wiki/Q43913",
+      "revision": 2529582960,
+      "memberships": [
+        {
+          "teamWikidataId": "Q24711",
+          "clubId": "groningen",
+          "start": {
+            "value": "2000",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2002",
+            "precision": "year"
+          },
+          "statementId": "q43913$60C26AFC-E95A-4DC1-A109-E174D8B88F97"
+        },
+        {
+          "teamWikidataId": "Q11938",
+          "clubId": "psv",
+          "start": {
+            "value": "2002",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2004",
+            "precision": "year"
+          },
+          "statementId": "q43913$7D7A829E-B719-4202-A95B-AEED5DF29BE1"
+        },
+        {
+          "teamWikidataId": "Q9616",
+          "clubId": "chelsea",
+          "start": {
+            "value": "2004",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2007",
+            "precision": "year"
+          },
+          "statementId": "q43913$7C555D04-9242-439E-8E31-2811D52F240A"
+        },
+        {
+          "teamWikidataId": "Q15789",
+          "clubId": "bayern-munchen",
+          "start": {
+            "value": "2009",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2019",
+            "precision": "year"
+          },
+          "statementId": "q43913$A6C40247-935F-447A-9114-4F003C163DF2"
+        },
+        {
+          "teamWikidataId": "Q47050",
+          "clubId": null,
+          "start": {
+            "value": "2003",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2017",
+            "precision": "year"
+          },
+          "statementId": "q43913$22E556B3-AEE6-4D37-8DB5-036299A18712"
+        },
+        {
+          "teamWikidataId": "Q1811026",
+          "clubId": null,
+          "start": {
+            "value": "2001",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2003",
+            "precision": "year"
+          },
+          "statementId": "q43913$E4A12EA2-2C7D-4D18-869A-9C2A5F840FA7"
+        },
+        {
+          "teamWikidataId": "Q8682",
+          "clubId": "real-madrid",
+          "start": {
+            "value": "2007",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2009",
+            "precision": "year"
+          },
+          "statementId": "Q43913$55C45D1D-ECAF-421E-B530-5107421B019E"
+        },
+        {
+          "teamWikidataId": "Q601723",
+          "clubId": null,
+          "start": {
+            "value": "2000",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2000",
+            "precision": "year"
+          },
+          "statementId": "Q43913$B809007A-585D-4F49-A14C-ED8661E3C444"
+        },
+        {
+          "teamWikidataId": "Q514714",
+          "clubId": null,
+          "start": {
+            "value": "2001",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2002",
+            "precision": "year"
+          },
+          "statementId": "Q43913$62FCEE40-7CEA-45BE-9DFF-A816F3993426"
+        },
+        {
+          "teamWikidataId": "Q24711",
+          "clubId": "groningen",
+          "start": {
+            "value": "1996",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2000",
+            "precision": "year"
+          },
+          "statementId": "Q43913$c05a2b12-4484-bbdb-9d4d-4bf2d05a0f4c"
+        },
+        {
+          "teamWikidataId": "Q1837832",
+          "clubId": null,
+          "start": {
+            "value": "1989",
+            "precision": "year"
+          },
+          "end": {
+            "value": "1996",
+            "precision": "year"
+          },
+          "statementId": "Q43913$a55b31c8-46ed-cf93-596c-c084dbcb514f"
+        },
+        {
+          "teamWikidataId": "Q61768534",
+          "clubId": null,
+          "start": {
+            "value": "1999",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2000",
+            "precision": "year"
+          },
+          "statementId": "Q43913$4dfc0a8f-4ee5-2062-8875-61c13f369d0c"
+        },
+        {
+          "teamWikidataId": "Q24711",
+          "clubId": "groningen",
+          "start": {
+            "value": "2020-06",
+            "precision": "month"
+          },
+          "end": {
+            "value": "2021-07",
+            "precision": "month"
+          },
+          "statementId": "Q43913$545c67b1-42ec-356a-488f-09234cb8bc45"
+        }
+      ]
+    },
+    {
+      "wikidataId": "Q21621995",
+      "name": "Kylian Mbappé",
+      "birthDate": "1998-12-20",
+      "birthDatePrecision": "day",
+      "source": "https://www.wikidata.org/wiki/Q21621995",
+      "revision": 2553887472,
+      "memberships": [
+        {
+          "teamWikidataId": "Q109500422",
+          "clubId": null,
+          "start": {
+            "value": "2015",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2016",
+            "precision": "year"
+          },
+          "statementId": "Q21621995$2d6b97c7-4a74-e012-ca2c-98bf5346440d"
+        },
+        {
+          "teamWikidataId": "Q180305",
+          "clubId": "monaco",
+          "start": {
+            "value": "2015",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2018",
+            "precision": "year"
+          },
+          "statementId": "Q21621995$f9c6ba1c-40c4-66b3-a257-4809ce8e1762"
+        },
+        {
+          "teamWikidataId": "Q483020",
+          "clubId": "paris-saint-germain",
+          "start": {
+            "value": "2017",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2018",
+            "precision": "year"
+          },
+          "statementId": "Q21621995$30263121-4d99-2ae5-0fb9-5a4e8bd362c2"
+        },
+        {
+          "teamWikidataId": "Q483020",
+          "clubId": "paris-saint-germain",
+          "start": {
+            "value": "2018",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2024",
+            "precision": "year"
+          },
+          "statementId": "Q21621995$c8f74592-494e-34e4-2afd-dd405e8d44a2"
+        },
+        {
+          "teamWikidataId": "Q8682",
+          "clubId": "real-madrid",
+          "start": {
+            "value": "2024",
+            "precision": "year"
+          },
+          "end": null,
+          "statementId": "Q21621995$8c0d23f3-4c23-2743-6d66-3aa42aabc9cc"
+        },
+        {
+          "teamWikidataId": "Q1450568",
+          "clubId": null,
+          "start": {
+            "value": "2014",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2014",
+            "precision": "year"
+          },
+          "statementId": "Q21621995$0c6e4dd0-4c2e-da31-d98f-17cdbcdfca9b"
+        },
+        {
+          "teamWikidataId": "Q2701714",
+          "clubId": null,
+          "start": {
+            "value": "2016",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2016",
+            "precision": "year"
+          },
+          "statementId": "Q21621995$f35f0b4e-4092-7734-75fb-b7f0178de8a7"
+        },
+        {
+          "teamWikidataId": "Q47774",
+          "clubId": null,
+          "start": {
+            "value": "2017",
+            "precision": "year"
+          },
+          "end": null,
+          "statementId": "Q21621995$6ca9650a-47b4-1476-3c9a-759bddf06325"
+        }
+      ]
+    },
+    {
+      "wikidataId": "Q113704154",
+      "name": "Lamine Yamal",
+      "birthDate": "2007-07-13",
+      "birthDatePrecision": "day",
+      "source": "https://www.wikidata.org/wiki/Q113704154",
+      "revision": 2554178319,
+      "memberships": [
+        {
+          "teamWikidataId": "Q6124177",
+          "clubId": null,
+          "start": {
+            "value": "2022-02-01",
+            "precision": "day"
+          },
+          "end": {
+            "value": "2022-05-05",
+            "precision": "day"
+          },
+          "statementId": "Q113704154$c78d126a-4c7b-89e1-34cf-0dc00c309404"
+        },
+        {
+          "teamWikidataId": "Q3873503",
+          "clubId": null,
+          "start": {
+            "value": "2021-09-21",
+            "precision": "day"
+          },
+          "end": {
+            "value": "2021-11-26",
+            "precision": "day"
+          },
+          "statementId": "Q113704154$5b8944ef-4e65-c944-ead4-026319d8a999"
+        },
+        {
+          "teamWikidataId": "Q2310295",
+          "clubId": null,
+          "start": {
+            "value": "2022-10-16",
+            "precision": "day"
+          },
+          "end": {
+            "value": "2023-05-30",
+            "precision": "day"
+          },
+          "statementId": "Q113704154$da77602f-4dc6-2c46-c862-3a103f3564f4"
+        },
+        {
+          "teamWikidataId": "Q2713491",
+          "clubId": null,
+          "start": {
+            "value": "2022-10-25",
+            "precision": "day"
+          },
+          "end": {
+            "value": "2022-10-25",
+            "precision": "day"
+          },
+          "statementId": "Q113704154$df944c50-4daa-0b82-f558-0f55d34f2735"
+        },
+        {
+          "teamWikidataId": "Q42267",
+          "clubId": null,
+          "start": {
+            "value": "2023-09-08",
+            "precision": "day"
+          },
+          "end": null,
+          "statementId": "Q113704154$1e48cf4e-4a5a-bb33-6bce-c31d68fe7bf2"
+        },
+        {
+          "teamWikidataId": "Q7156",
+          "clubId": "barcelona",
+          "start": {
+            "value": "2023-07-01",
+            "precision": "day"
+          },
+          "end": null,
+          "statementId": "Q113704154$2a8f5e2a-4a4a-b6a0-1eee-472b8d8dce02"
+        },
+        {
+          "teamWikidataId": "Q10467",
+          "clubId": null,
+          "start": {
+            "value": "2023",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2023",
+            "precision": "year"
+          },
+          "statementId": "Q113704154$b5bfb1c8-4b33-ce24-b557-521d0703b107"
+        },
+        {
+          "teamWikidataId": "Q6124177",
+          "clubId": null,
+          "start": {
+            "value": "2021",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2021",
+            "precision": "year"
+          },
+          "statementId": "Q113704154$cf87d8be-46f7-4016-1314-eb17bd9b2339"
+        },
+        {
+          "teamWikidataId": "Q13562063",
+          "clubId": null,
+          "start": {
+            "value": "2014",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2023",
+            "precision": "year"
+          },
+          "statementId": "Q113704154$62192b47-418b-518b-73f2-0938a2e463c4"
+        }
+      ]
+    },
+    {
+      "wikidataId": "Q28967995",
+      "name": "Erling Haaland",
+      "birthDate": "2000-07-21",
+      "birthDatePrecision": "day",
+      "source": "https://www.wikidata.org/wiki/Q28967995",
+      "revision": 2551812883,
+      "memberships": [
+        {
+          "teamWikidataId": "Q995313",
+          "clubId": null,
+          "start": {
+            "value": "2016",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2017",
+            "precision": "year"
+          },
+          "statementId": "Q28967995$b5e57ec1-4339-13f2-335b-809fd5239d6c"
+        },
+        {
+          "teamWikidataId": "Q208552",
+          "clubId": null,
+          "start": {
+            "value": "2017",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2019",
+            "precision": "year"
+          },
+          "statementId": "Q28967995$d2d7725e-4735-c708-3544-1ad8661107c8"
+        },
+        {
+          "teamWikidataId": "Q994811",
+          "clubId": null,
+          "start": {
+            "value": "2019",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2020",
+            "precision": "year"
+          },
+          "statementId": "Q28967995$dea6105b-42cc-8ec9-ec45-a02eaa4a78e7"
+        },
+        {
+          "teamWikidataId": "Q41420",
+          "clubId": "borussia-dortmund",
+          "start": {
+            "value": "2020",
+            "precision": "year"
+          },
+          "end": {
+            "value": "2022",
+            "precision": "year"
+          },
+          "statementId": "Q28967995$6144550f-49c4-9050-9f61-6d1b802b7a06"
+        },
+        {
+          "teamWikidataId": "Q50602",
+          "clubId": "manchester-city",
+          "start": {
+            "value": "2022",
+            "precision": "year"
+          },
+          "end": null,
+          "statementId": "Q28967995$7a3a4d8f-4d9b-6f9e-d4b8-47cf896115ec"
+        },
+        {
+          "teamWikidataId": "Q3873545",
+          "clubId": null,
+          "start": {
+            "value": "2019-03-23",
+            "precision": "day"
+          },
+          "end": {
+            "value": "2019-05-30",
+            "precision": "day"
+          },
+          "statementId": "Q28967995$b79662ce-4f41-643d-cba7-a0baa9914410"
+        },
+        {
+          "teamWikidataId": "Q2446294",
+          "clubId": null,
+          "start": {
+            "value": "2018-09-11",
+            "precision": "day"
+          },
+          "end": {
+            "value": "2018-10-16",
+            "precision": "day"
+          },
+          "statementId": "Q28967995$0e92b953-46b5-c398-0a3f-6052e7233b24"
+        },
+        {
+          "teamWikidataId": "Q184387",
+          "clubId": null,
+          "start": {
+            "value": "2019-09-05",
+            "precision": "day"
+          },
+          "end": null,
+          "statementId": "Q28967995$7ea3ee18-460b-c1f7-e8d0-f1b8ee0cf7e5"
+        }
+      ]
+    }
+  ]
+}

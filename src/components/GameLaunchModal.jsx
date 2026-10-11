@@ -325,7 +325,14 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
                 ) : null}
 
                 <div className="launch-game-area-stage">
-                  {useTrajectoryNativeView ? (
+                  {gameId === "sports-manager" ? (
+                    <div className="manager-native-host">
+                      <Suspense fallback={<div className="launch-loading">{t("loading")}</div>}>
+                        <ActiveGame locale={locale} />
+                        {import.meta.env.VITE_BENCH ? <BenchReadyMarker gameId={gameId} /> : null}
+                      </Suspense>
+                    </div>
+                  ) : useTrajectoryNativeView ? (
                     <div
                       className={`trayectoria-mobile-host trayectoria-mobile-host--${viewportFormFactor}`}
                       data-native-mobile-game="trayectoria"

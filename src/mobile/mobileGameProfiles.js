@@ -1,6 +1,7 @@
 import { getMobileShellMode } from "../utils/mobileShellProfile";
 
 const DIRECT_TOUCH_GAME_IDS = new Set([
+  "sports-manager",
   "sports-ping-pong-arena",
   // The cups are the buttons: you point at the one you mean, so a virtual pad
   // would only get between the finger and the table.

@@ -1,0 +1,289 @@
+.fm-live-center {
+  --live-ink: #f3f5e9;
+  --live-muted: #a3ab94;
+  --live-line: #ffffff16;
+  --live-lime: #c8ff5f;
+  --live-away: #c1bbff;
+  color: var(--live-ink);
+  color-scheme: dark;
+  background: #181b15;
+  border: 1px solid #424734;
+  border-radius: 16px;
+  overflow: hidden;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  isolation: isolate;
+  container-type: inline-size;
+}
+.fm-live-center *, .fm-live-center *::before, .fm-live-center *::after { box-sizing: border-box; }
+.fm-live-center button, .fm-live-center select { font: inherit; }
+.fm-live-center button { cursor: pointer; }
+.fm-live-center button:disabled { cursor: not-allowed; opacity: .4; }
+.fm-live-center button:focus-visible, .fm-live-center select:focus-visible {
+  outline: 2px solid var(--live-lime); outline-offset: 3px;
+}
+.fm-live-center h2, .fm-live-center h3, .fm-live-center h4, .fm-live-center p { margin: 0; }
+.fm-live-topline { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 24px; border-bottom: 1px solid var(--live-line); background: #22251c; color: #bbc4a8; font-size: 9px; letter-spacing: 1.4px; }
+.fm-live-topline > span { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.fm-live-topline > span:first-child { color: var(--live-lime); font-weight: 700; flex-shrink: 0; }
+.fm-live-topline > span:last-child { text-align: right; justify-content: flex-end; letter-spacing: .5px; }
+.fm-live-topline i { display: inline-block; width: 3px; height: 3px; background: #697159; border-radius: 50%; flex-shrink: 0; }
+.fm-live-scoreboard { display: grid; grid-template-columns: minmax(0, 1fr) 170px minmax(0, 1fr); gap: 20px; align-items: center; padding: 28px 30px 22px; background: radial-gradient(ellipse at 50% 0%, #58673428, transparent 68%); }
+.fm-live-team { display: flex; align-items: center; gap: 17px; min-width: 0; }
+.fm-live-team-away { justify-content: flex-end; text-align: right; }
+.fm-live-team img { width: 64px; height: 64px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 5px 10px #0005); }
+.fm-live-crest-fallback { display: grid; place-items: center; width: 58px; height: 66px; clip-path: polygon(0 0, 100% 0, 90% 72%, 50% 100%, 10% 72%); background: #3f4933; font-size: 12px; color: #d9e6c0; font-weight: 850; }
+.fm-live-team small { font-size: 8px; font-weight: 700; letter-spacing: 1.8px; color: var(--live-muted); }
+.fm-live-center .fm-live-team h2 { margin-top: 6px; font-size: clamp(15px, 2.1vw, 24px); letter-spacing: -.6px; line-height: 1.15; overflow-wrap: anywhere; color: var(--live-ink); }
+.fm-live-score { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.fm-live-score > div:nth-child(2) { display: flex; justify-content: center; align-items: center; gap: 16px; font-size: 63px; line-height: 1.08; font-variant-numeric: tabular-nums; letter-spacing: -3px; }
+.fm-live-score > div:nth-child(2) > b { display: block; font-weight: 800; }
+.fm-live-score > div:nth-child(2) > span { color: #697257; font-weight: 350; transform: translateY(-3px); font-size: .68em; }
+.fm-live-score > small { font-size: 10px; color: var(--live-muted); }
+.fm-live-status { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #2f3723; border: 1px solid #6b86353d; padding: 4px 10px; border-radius: 5px; color: var(--live-lime); font-size: 9px; font-weight: 700; letter-spacing: .6px; min-width: 58px; }
+.fm-live-status i { width: 5px; height: 5px; background: currentColor; border-radius: 50%; }
+.fm-live-status-active i { animation: fm-live-signal 2.4s ease-in-out infinite; }
+.fm-live-scorers { display: grid; grid-template-columns: 1fr 1fr; gap: 35px; padding: 0 30px 19px; color: #adb99c; border-bottom: 1px solid var(--live-line); font-size: 10px; }
+.fm-live-scorers > div { display: flex; flex-wrap: wrap; gap: 7px 14px; }
+.fm-live-scorers > div:last-child { justify-content: flex-end; text-align: right; }
+.fm-live-scorers span { display: inline-flex; align-items: center; gap: 5px; }
+.fm-live-scorers b { color: #d5e0c5; }
+.fm-live-broadcast { display: grid; grid-template-columns: minmax(0, 1fr) 272px; border-top: 1px solid var(--live-line); }
+.fm-live-stage { min-width: 0; padding: 20px; }
+.fm-live-pitch-caption { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 13px; color: #aab79a; font-size: 8px; font-weight: 700; letter-spacing: 1px; }
+.fm-live-pitch-caption > span { display: flex; align-items: center; gap: 7px; }
+.fm-live-pitch-caption > span:first-child, .fm-live-pitch-caption > span:last-child { max-width: 36%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fm-live-pitch-caption i { width: 7px; height: 7px; border-radius: 2px; background: var(--live-lime); flex-shrink: 0; }
+.fm-live-pitch-caption > span:last-child i { background: var(--live-away); }
+.fm-live-rotate { transform: rotate(180deg); }
+.fm-live-pitch { position: relative; width: 100%; aspect-ratio: 1.58; min-height: 245px; overflow: hidden; border: 1px solid #586745; border-radius: 8px; background: repeating-linear-gradient(90deg, #405237 0%, #405237 10%, #394b31 10%, #394b31 20%); box-shadow: inset 0 0 65px #14201170; }
+.fm-live-pitch::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 48%, #07160925); pointer-events: none; z-index: 1; }
+.fm-live-pitch-lines { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #ceddb35c; stroke-width: 1.7; pointer-events: none; }
+.fm-live-pitch-goal { position: absolute; top: 43.5%; height: 13%; width: 2%; border: 1px solid #d6dec886; background: repeating-linear-gradient(0deg, transparent 0 5px, #f4f4d624 5px 6px), repeating-linear-gradient(90deg, transparent 0 5px, #f4f4d624 5px 6px); }
+.fm-live-pitch-goal-home { left: 1%; }.fm-live-pitch-goal-away { right: 1%; }
+.fm-live-center .fm-live-player { position: absolute; width: 48px; min-height: 40px; transform: translate(-50%, -50%); z-index: 3; padding: 0; border: 0; background: none; color: #eef3e2; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.fm-live-center .fm-live-player:disabled { opacity: 1; cursor: default; }
+.fm-live-shirt { width: 27px; height: 25px; display: grid; place-items: center; border-radius: 7px 7px 4px 4px; background: var(--live-lime); border: 1px solid #e0ffae; box-shadow: 0 3px 5px #1221087a; color: #23340f; font-size: 9px; font-weight: 850; letter-spacing: -.3px; position: relative; }
+.fm-live-shirt::before, .fm-live-shirt::after { content: ""; position: absolute; top: 3px; width: 6px; height: 9px; background: inherit; border: 1px solid #e0ffae; z-index: -1; }
+.fm-live-shirt::before { left: -5px; transform: rotate(26deg); border-radius: 3px 0 0 0; }
+.fm-live-shirt::after { right: -5px; transform: rotate(-26deg); border-radius: 0 3px 0 0; }
+.fm-live-player-away .fm-live-shirt { background: var(--live-away); border-color: #e2ddff; color: #2d2556; }
+.fm-live-player-away .fm-live-shirt::before, .fm-live-player-away .fm-live-shirt::after { border-color: #e2ddff; }
+.fm-live-player-label { font-size: 8px; line-height: 1.5; font-weight: 550; letter-spacing: -.1px; display: block; max-width: 77px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; background: #16250ace; border-radius: 3px; }
+.fm-live-player-selected .fm-live-shirt { outline: 2px solid #fff; outline-offset: 4px; }
+.fm-live-player-injured .fm-live-shirt { background: #edbdab; border-color: #f7d4c7; color: #662b16; box-shadow: 0 0 0 4px #f9b39333; }
+.fm-live-player-injured .fm-live-player-label { color: #ffd1bf; }
+.fm-live-player-scorer .fm-live-shirt { box-shadow: 0 0 0 7px #f2ff9c24, 0 0 22px #eeff9766; }
+.fm-live-ball { position: absolute; width: 9px; height: 9px; border: 2px solid #fff; background: #263b18; border-radius: 50%; box-shadow: 0 2px 4px #14220780; z-index: 5; transform: translate(-50%, -50%); pointer-events: none; }
+.fm-live-moment { position: relative; z-index: 2; max-width: 100%; min-height: 28px; padding: 7px 11px; border-radius: 5px; display: flex; align-items: center; gap: 7px; background: #121b10ed; border: 1px solid #d4e2b434; font-size: 9px; box-shadow: 0 4px 15px #081a1655; }
+.fm-live-moment span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.fm-live-moment strong, .fm-live-moment svg { flex-shrink: 0; }
+.fm-live-moment-goal { background: var(--live-lime); color: #172509; border-color: #ddffa1; font-weight: 650; }
+.fm-live-pitch-minute { position: absolute; top: 8px; right: 10px; font-size: 8px; color: #e5edd097; z-index: 2; }
+.fm-live-center .fm-live-illustration-note { font-size: 9px; color: #9ba68d; margin: 9px 0 0; line-height: 1.6; }
+.fm-live-playback { margin-top: 17px; }
+.fm-live-playback-main { display: flex; align-items: center; gap: 13px; }
+.fm-live-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 12px; min-height: 40px; border: 1px solid #586345; background: #2b3323; color: #e1e9d5; border-radius: 6px; font-size: 11px; font-weight: 600; transition: background .16s, border-color .16s; }
+.fm-live-button:hover:not(:disabled) { background: #3a462d; border-color: #849763; }
+.fm-live-play { background: #c8ff5f; color: #18250b; border-color: #c8ff5f; min-width: 112px; }
+.fm-live-play:hover:not(:disabled), .fm-live-primary:hover:not(:disabled) { background: #deff9f; border-color: #deff9f; }
+.fm-live-speed { display: flex; align-items: center; background: #22291a; border: 1px solid #455135; border-radius: 5px; padding: 3px; }
+.fm-live-speed button { border: 0; background: transparent; color: #a3b58b; padding: 6px 8px; min-width: 31px; min-height: 30px; border-radius: 3px; font-size: 10px; }
+.fm-live-speed button[aria-pressed=true] { color: #edf7df; background: #445731; }
+.fm-live-playback-clock { display: inline-flex; align-items: center; justify-content: flex-end; gap: 5px; margin-left: auto; color: var(--live-muted); font-size: 9px; white-space: nowrap; }
+.fm-live-time-progress { margin: 15px 0 13px; height: 3px; border-radius: 4px; background: #3b462f; overflow: hidden; }
+.fm-live-time-progress i { display: block; height: 100%; background: var(--live-lime); transition: width .25s; }
+.fm-live-jump { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.fm-live-jump .fm-live-button { font-size: 10px; padding: 8px 10px; min-height: 36px; }
+.fm-live-jump .fm-live-text-control { margin-left: auto; background: transparent; border-color: transparent; color: #c8d4b6; padding-right: 0; }
+.fm-live-relay { display: flex; flex-direction: column; min-width: 0; padding: 20px 18px; border-left: 1px solid var(--live-line); background: #1e2319; }
+.fm-live-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+.fm-live-center .fm-live-panel-heading h3 { display: flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: -.2px; color: #f1f5e8; }
+.fm-live-panel-heading h3 svg { color: #b6d68c; }
+.fm-live-panel-heading > span { font-size: 7px; font-weight: 700; letter-spacing: .8px; color: #91a077; text-align: right; }
+.fm-live-event-list { flex: 1; height: 252px; max-height: 345px; min-height: 180px; overflow: auto; scrollbar-width: thin; scrollbar-color: #596843 transparent; padding-right: 5px; }
+.fm-live-event { display: grid; grid-template-columns: 24px 21px minmax(0, 1fr); align-items: start; gap: 5px; padding: 12px 0; border-bottom: 1px solid #fafce40d; }
+.fm-live-event:first-child { padding-top: 3px; }.fm-live-event:last-child { border: 0; }
+.fm-live-event time { font-size: 10px; font-variant-numeric: tabular-nums; color: #99a584; font-weight: 650; padding-top: 1px; }
+.fm-live-event-icon { color: #77895e; }.fm-live-event-goal .fm-live-event-icon { color: var(--live-lime); }.fm-live-event-injury .fm-live-event-icon { color: #ffb896; }
+.fm-live-center .fm-live-event p { color: #c2ccb2; font-size: 10px; line-height: 1.6; }
+.fm-live-event-goal p { color: #ecfbd9; font-weight: 600; }
+.fm-live-stats { border-top: 1px solid #64734a55; padding-top: 16px; margin-top: 18px; }
+.fm-live-possession > div { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-size: 11px; }
+.fm-live-possession > div > span { color: #9daa8d; font-size: 10px; }
+.fm-live-possession > span { height: 4px; border-radius: 5px; background: var(--live-away); display: block; overflow: hidden; margin: 9px 0 13px; }
+.fm-live-possession i { display: block; height: 100%; background: var(--live-lime); border-right: 2px solid #1e2319; }
+.fm-live-stat-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 4px 0; font-size: 11px; }
+.fm-live-stat-row > span { color: #9daa8d; font-size: 10px; }
+.fm-live-stats > small { color: #8c9b7a; font-size: 8px; display: block; margin-top: 9px; }
+.fm-live-dugout { display: grid; grid-template-columns: minmax(360px, .95fr) minmax(0, 1.05fr); border-top: 1px solid var(--live-line); background: #252c1e; }
+.fm-live-tactical-panel { padding: 22px; border-right: 1px solid var(--live-line); }
+.fm-live-center .fm-live-tactical-panel > p { font-size: 10px; color: #a5b195; line-height: 1.75; margin-bottom: 20px; }
+.fm-live-center .fm-live-tactical-panel .fm-live-role-warning { font-size: 9px; line-height: 1.65; padding: 10px 11px; background: #c5aa4e14; border-left: 2px solid #b5a766; color: #d3caa2; margin-bottom: 16px; grid-column: 1/-1; }
+.fm-live-tactic-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fm-live-center .fm-live-tactic-fields label { display: flex; flex-direction: column; gap: 8px; color: #b8c4a8; font-size: 10px; font-weight: 550; }
+.fm-live-center .fm-live-tactic-fields select, .fm-live-center .fm-live-sub-lists select { width: 100%; min-width: 0; padding: 10px 8px; min-height: 40px; background: #181f13; border: 1px solid #4c5c37; color: #e5edd9; font-size: 11px; border-radius: 5px; }
+.fm-live-pressing { padding: 0; border: 0; margin: 19px 0 0; display: flex; gap: 5px; min-width: 0; }
+.fm-live-pressing legend { margin-bottom: 8px; color: #b8c4a8; font-size: 10px; }
+.fm-live-pressing button { display: flex; flex: 1; align-items: center; justify-content: center; flex-direction: column; gap: 6px; min-width: 0; min-height: 59px; padding: 10px 5px; border: 1px solid #4b5938; border-radius: 5px; background: #222a1a; color: #aebc9c; font-size: 9px; }
+.fm-live-pressing button[aria-pressed=true] { background: #3b4b26; border-color: #95b05f; color: var(--live-lime); }
+.fm-live-tactic-note { display: flex; gap: 8px; color: #9faa8d; font-size: 9px; line-height: 1.65; margin-top: 18px; }.fm-live-tactic-note svg { flex-shrink: 0; margin-top: 1px; }
+.fm-live-center .fm-live-assistant { display: flex; flex-direction: row; align-items: start; gap: 9px; color: #d5e2c3; font-size: 10px; line-height: 1.55; font-weight: 550; margin-top: 20px; }
+.fm-live-center .fm-live-assistant input { width: 17px; height: 17px; margin: 2px 0 0; flex-shrink: 0; accent-color: var(--live-lime); }
+.fm-live-assistant small { display: block; margin-top: 5px; color: #9eae8d; font-size: 9px; font-weight: 400; }
+.fm-live-pause-note { display: flex; align-items: center; justify-content: center; gap: 8px; background: #46543160; border-top: 1px solid #71884b40; border-bottom: 1px solid #71884b40; padding: 11px 20px; font-size: 10px; color: #d7e7bd; }.fm-live-pause-note svg { flex-shrink: 0; }
+.fm-live-sub-panel { min-width: 0; padding: 22px; }
+.fm-live-sub-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fm-live-sub-lists > div { min-width: 0; }
+.fm-live-center .fm-live-sub-lists h4 { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 650; color: #b2bea2; margin-bottom: 9px; }
+.fm-live-sub-lists h4 svg { color: #c2d9a2; }
+.fm-live-sub-lists select { margin-bottom: 9px; }
+.fm-live-roster-list { max-height: 214px; overflow: auto; scrollbar-width: thin; scrollbar-color: #65744b transparent; border: 1px solid #4b593535; border-radius: 5px; background: #1e2617; }
+.fm-live-roster-player { width: 100%; display: flex; align-items: center; gap: 7px; padding: 10px 8px; text-align: left; border: 0; border-bottom: 1px solid #f0f7dd0b; color: #e5edd9; background: none; min-height: 45px; }
+.fm-live-roster-player:last-child { border-bottom: 0; }.fm-live-roster-player:hover:not(:disabled) { background: #344125; }.fm-live-roster-player.fm-live-roster-selected { background: #3b4f25; box-shadow: inset 2px 0 0 var(--live-lime); }
+.fm-live-position { font-size: 7px; font-weight: 750; letter-spacing: .3px; color: #a4ba87; background: #46583466; border-radius: 3px; padding: 3px; width: 24px; flex-shrink: 0; text-align: center; }
+.fm-live-roster-name { font-size: 10px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fm-live-roster-name small { display: block; color: #ffb795; font-size: 8px; }
+.fm-live-condition { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; color: #c0e490; }
+.fm-live-condition > span { display: block; height: 3px; width: 28px; background: #586a3f75; border-radius: 2px; overflow: hidden; }
+.fm-live-condition i { display: block; height: 100%; background: currentColor; }.fm-live-condition b { font-size: 8px; font-weight: 550; }.fm-live-condition-mid { color: #e9cf76; }.fm-live-condition-low { color: #ffb193; }
+.fm-live-sub-confirm { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px; }
+.fm-live-sub-confirm > span { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; color: #a8b798; font-size: 9px; }
+.fm-live-primary { background: var(--live-lime); color: #20300d; border-color: var(--live-lime); flex-shrink: 0; font-size: 10px; }
+.fm-live-empty { color: #a3b08f; padding: 20px 12px; font-size: 10px; }
+@keyframes fm-live-signal { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+@container (max-width: 920px) {
+  .fm-live-broadcast { grid-template-columns: minmax(0, 1fr) 225px; }
+  .fm-live-scoreboard { padding: 24px 22px 20px; gap: 12px; grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr); }
+  .fm-live-team { gap: 12px; }.fm-live-team img { width: 51px; height: 51px; }.fm-live-center .fm-live-team h2 { font-size: 18px; }
+  .fm-live-score > div:nth-child(2) { font-size: 53px; gap: 12px; }
+  .fm-live-stage { padding: 16px; }.fm-live-relay { padding: 16px 13px; }
+  .fm-live-dugout { grid-template-columns: 1fr; }.fm-live-tactical-panel,.fm-live-sub-panel { padding: 18px; }
+  .fm-live-tactical-panel { border-right: 0; border-bottom: 1px solid var(--live-line); }
+  .fm-live-sub-lists { gap: 8px; }.fm-live-roster-player { padding: 10px 6px; gap: 5px; }.fm-live-position { width: 21px; font-size: 6px; }
+  .fm-live-jump .fm-live-text-control { margin-left: 0; }.fm-live-playback-main { gap: 8px; }.fm-live-playback-clock { font-size: 8px; }.fm-live-speed button { min-width: 27px; padding: 6px; }
+}
+@container (max-width: 720px) {
+  .fm-live-topline { padding: 13px 17px; gap: 8px; font-size: 8px; }
+  .fm-live-scoreboard { padding: 22px 17px 19px; grid-template-columns: minmax(0, 1fr) 104px minmax(0, 1fr); }
+  .fm-live-team { flex-direction: column; text-align: center; gap: 8px; }.fm-live-team-away { flex-direction: column-reverse; }.fm-live-team img { width: 52px; height: 52px; }
+  .fm-live-team small { display: none; }.fm-live-center .fm-live-team h2 { font-size: 15px; margin-top: 0; }.fm-live-score > div:nth-child(2) { font-size: 51px; }
+  .fm-live-broadcast { grid-template-columns: 1fr; }.fm-live-relay { border-left: 0; border-top: 1px solid var(--live-line); display: grid; grid-template-columns: 1.15fr 1fr; gap: 0 25px; padding: 19px 20px; }
+  .fm-live-relay > .fm-live-panel-heading { grid-column: 1/-1; }.fm-live-event-list { height: 175px; min-height: 0; }.fm-live-stats { border-top: 0; margin-top: 0; padding-top: 0; align-self: start; }
+  .fm-live-dugout { grid-template-columns: 1fr; }.fm-live-tactical-panel { border-right: 0; border-bottom: 1px solid var(--live-line); display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+  .fm-live-tactical-panel .fm-live-panel-heading { grid-column: 1/-1; }.fm-live-tactical-panel > p { grid-column: 1/-1; }.fm-live-pressing { margin-top: 0; }.fm-live-tactic-note, .fm-live-assistant { grid-column: 1/-1; }
+  .fm-live-pitch { aspect-ratio: 1.6; min-height: 260px; }.fm-live-stage { padding: 19px 20px; }.fm-live-pitch-caption { font-size: 8px; }.fm-live-playback { margin-top: 15px; }
+  .fm-live-jump .fm-live-text-control { margin-left: auto; }.fm-live-center .fm-live-tactical-panel > p { margin-bottom: 17px; }
+  .fm-live-sub-lists { gap: 14px; }.fm-live-roster-player { padding: 11px 9px; gap: 7px; }.fm-live-position { width: 25px; font-size: 7px; }
+}
+@container (max-width: 440px) {
+  .fm-live-center { border-radius: 10px; }
+  .fm-live-topline { padding: 12px 13px; font-size: 7px; letter-spacing: .9px; }.fm-live-topline > span:last-child { max-width: 47%; display: block; line-height: 1.6; }.fm-live-topline i { margin: 0 3px; }
+  .fm-live-scoreboard { grid-template-columns: minmax(0, 1fr) 91px minmax(0, 1fr); padding: 19px 12px; gap: 8px; }.fm-live-center .fm-live-team h2 { font-size: 12px; letter-spacing: -.2px; line-height: 1.3; }.fm-live-team img { width: 43px; height: 43px; }.fm-live-score > div:nth-child(2) { font-size: 43px; gap: 10px; }.fm-live-status { font-size: 7px; padding: 4px 7px; min-width: 50px; }.fm-live-score > small { font-size: 8px; }
+  .fm-live-scorers { padding: 0 13px 14px; gap: 18px; font-size: 8px; }.fm-live-scorers > div { gap: 5px; }
+  .fm-live-stage { padding: 15px 12px; }.fm-live-pitch-caption { font-size: 7px; letter-spacing: .5px; gap: 5px; }.fm-live-pitch-caption > span { gap: 4px; }.fm-live-pitch-caption > span:nth-child(2) { font-size: 6px; }
+  .fm-live-pitch { min-height: 245px; aspect-ratio: 1.34; }.fm-live-center .fm-live-player { width: 32px; min-height: 36px; gap: 3px; }.fm-live-shirt { width: 21px; height: 21px; font-size: 7px; border-radius: 5px 5px 3px 3px; }.fm-live-shirt::before,.fm-live-shirt::after { width: 5px; height: 8px; }.fm-live-shirt::before { left: -4px; }.fm-live-shirt::after { right: -4px; }.fm-live-player-label { max-width: 46px; font-size: 6px; padding: 0 2px; }.fm-live-moment { bottom: 7px; min-height: 25px; padding: 5px 8px; gap: 5px; font-size: 8px; }.fm-live-moment svg { width: 12px; height: 12px; }.fm-live-ball { width: 7px; height: 7px; border-width: 1.5px; }
+  .fm-live-center .fm-live-illustration-note { font-size: 8px; }.fm-live-playback-main { gap: 7px; flex-wrap: wrap; }.fm-live-play { min-width: 100px; padding: 9px; font-size: 10px; }.fm-live-playback-clock { font-size: 8px; }.fm-live-jump { gap: 5px; }.fm-live-jump .fm-live-button { font-size: 9px; padding: 8px; min-height: 39px; gap: 5px; }.fm-live-jump .fm-live-text-control { padding-left: 0; padding-right: 0; font-size: 8px; }
+  .fm-live-relay { display: flex; flex-direction: column; padding: 17px 14px; gap: 0; }.fm-live-event-list { flex: auto; height: 160px; min-height: 0; max-height: 160px; }.fm-live-stats { border-top: 1px solid #64734a55; padding-top: 14px; margin-top: 14px; width: 100%; }.fm-live-stat-row { padding: 3px 0; }.fm-live-stats > small { margin-top: 7px; }
+  .fm-live-tactical-panel { padding: 18px 14px; gap: 0 12px; }.fm-live-panel-heading { margin-bottom: 13px; }.fm-live-center .fm-live-panel-heading h3 { font-size: 12px; gap: 6px; }.fm-live-panel-heading > span { font-size: 6px; }.fm-live-center .fm-live-tactical-panel > p { font-size: 9px; }.fm-live-tactic-fields { gap: 6px; }.fm-live-center .fm-live-tactic-fields label { font-size: 9px; }.fm-live-center .fm-live-tactic-fields select { font-size: 9px; padding: 9px 4px; min-height: 42px; }.fm-live-pressing { gap: 3px; }.fm-live-pressing legend { font-size: 9px; }.fm-live-pressing button { padding: 7px 3px; min-height: 58px; font-size: 7px; }.fm-live-tactic-note { margin-top: 13px; font-size: 8px; }
+  .fm-live-sub-panel { padding: 18px 14px; }.fm-live-sub-lists { gap: 9px; }.fm-live-center .fm-live-sub-lists h4 { font-size: 9px; }.fm-live-center .fm-live-sub-lists select { font-size: 10px; padding: 9px 6px; min-height: 42px; }.fm-live-roster-list { max-height: 220px; }.fm-live-roster-player { min-height: 44px; padding: 8px 5px; gap: 5px; }.fm-live-position { display: none; }.fm-live-roster-name { font-size: 9px; }.fm-live-condition > span { width: 22px; }.fm-live-condition b { font-size: 7px; }.fm-live-sub-confirm { flex-direction: column; align-items: stretch; gap: 10px; }.fm-live-sub-confirm > span { min-height: 20px; }.fm-live-sub-confirm .fm-live-primary { min-height: 44px; }
+  .fm-live-tactical-panel { display: block; }.fm-live-center .fm-live-tactic-fields label { font-size: 11px; }.fm-live-center .fm-live-tactic-fields select { font-size: 12px; padding: 10px; }.fm-live-pressing { margin-top: 17px; }.fm-live-pressing legend { font-size: 11px; }.fm-live-pressing button { min-height: 52px; font-size: 10px; gap: 7px; }.fm-live-roster-name { font-size: 10px; }.fm-live-condition b { font-size: 9px; }.fm-live-player-label { font-size: 7px; }.fm-live-pause-note { font-size: 9px; text-align: left; padding: 10px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fm-live-center *, .fm-live-center *::before, .fm-live-center *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* Instructions are grouped by the phase of play they affect. */
+.fm-tactical-instructions { grid-column: 1/-1; min-width: 0; margin: 22px 0 8px; border-top: 1px solid var(--live-line); padding-top: 18px; }
+.fm-tactical-plan-title { display: flex; align-items: center; gap: 7px; color: #e1f8b6; font-size: 12px; font-weight: 700; }
+.fm-tactical-plan-title small { margin-left: auto; color: #adbc95; font-size: 10px; font-weight: 400; }
+.fm-tactical-presets { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; margin: 12px 0 18px; }
+.fm-live-center .fm-tactical-presets button { border: 1px solid #606e455e; background: #303a25; color: #d5e4bf; border-radius: 7px; font: inherit; font-size: 11px; padding: 10px 8px; min-height: 42px; cursor: pointer; }
+.fm-live-center .fm-tactical-presets button[aria-pressed=true] { border-color: #c7f56b; color: #e6ffb8; background: #475b2d; }
+.fm-live-center .fm-tactical-presets button:hover { border-color: #b9d98b; }
+.fm-tactical-phase { min-width: 0; border: 0; border-top: 1px solid #66734a38; padding: 14px 0 3px; margin: 0 0 12px; }
+.fm-tactical-phase legend { display: flex; align-items: center; gap: 7px; padding: 0 9px 0 0; color: #c6d4ad; font-size: 11px; font-weight: 700; }
+.fm-tactical-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.fm-tactical-phase-possession .fm-tactical-fields { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.fm-tactical-phase-defending .fm-tactical-fields { grid-template-columns: minmax(0,1fr); }
+.fm-live-center .fm-tactical-fields label { display: grid; align-content: start; gap: 7px; color: #bdc9a8; font-size: 10px; min-width: 0; }
+.fm-live-center .fm-tactical-fields select { min-width: 0; width: 100%; min-height: 42px; padding: 8px 6px; background: #283020; color: #edf7df; border: 1px solid #69764b70; border-radius: 6px; font: inherit; font-size: 11px; }
+.fm-live-center .fm-tactical-phase p { color: #9dab8b; font-size: 11px; line-height: 1.6; margin: 10px 0 2px; }
+.fm-live-center .fm-tactical-effort, .fm-live-center .fm-tactical-legacy { grid-column: 1/-1; font-size: 11px; color: #d6d8a3; line-height: 1.6; border-left: 2px solid #8eae53; padding-left: 10px; }
+.fm-tactical-instructions :is(button,select):focus-visible { outline: 2px solid #dcff9a; outline-offset: 3px; }
+@container (max-width: 440px) {
+  .fm-tactical-instructions { margin-top: 20px; }
+  .fm-tactical-phase-possession .fm-tactical-fields { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .fm-tactical-phase-possession .fm-tactical-fields label:last-child { grid-column: 1/-1; }
+  .fm-live-center .fm-tactical-fields label { font-size: 11px; }
+  .fm-live-center .fm-tactical-fields select { font-size: 12px; min-height: 44px; }
+  .fm-live-center .fm-tactical-presets button { font-size: 12px; min-height: 44px; }
+}
+
+/* Touchline controls stay before the pitch, with local typography isolated from the dashboard. */
+.fm-live-center .fm-live-topline { padding: 9px 20px; }
+.fm-live-center .fm-live-scoreboard { grid-template-columns: minmax(0, 1fr) 130px minmax(0, 1fr); gap: 14px; padding: 14px 24px; }
+.fm-live-center .fm-live-team { gap: 12px; }
+.fm-live-center .fm-live-team img { width: 48px; height: 48px; }
+.fm-live-center .fm-live-crest-fallback { width: 43px; height: 48px; }
+.fm-live-center .fm-live-scoreboard .fm-live-team h2 { font-size: clamp(17px, 1.7vw, 23px); margin-top: 4px; line-height: 1.15; letter-spacing: -.5px; }
+.fm-live-center .fm-live-score > div:nth-child(2) { font-size: 48px; gap: 12px; }
+.fm-live-center .fm-live-scorers { padding-bottom: 12px; }
+.fm-live-center .fm-live-stage { padding-top: 15px; }
+.fm-live-center .fm-live-playback { margin: 0 0 17px; }
+.fm-live-center .fm-live-playback-main { flex-wrap: wrap; gap: 10px; }
+.fm-live-center .fm-live-coach-nav { display: flex; align-items: center; gap: 7px; }
+.fm-live-center .fm-live-coach-nav .fm-live-button { min-height: 40px; font-size: 12px; padding: 8px 10px; }
+.fm-live-center .fm-live-coach-nav b { font-size: 10px; background: #c8ff5f1a; color: var(--live-lime); border-radius: 4px; min-width: 17px; padding: 1px 4px; }
+.fm-live-center .fm-live-time-progress { margin: 11px 0; }
+.fm-live-center .fm-live-pitch { max-height: 370px; }
+.fm-live-center .fm-live-moment { inset: auto; margin-top: 9px; padding: 8px 10px; font-size: 11px; }
+.fm-live-center .fm-live-moment span { white-space: normal; overflow: visible; line-height: 1.4; }
+.fm-live-center .fm-live-tactical-panel, .fm-live-center .fm-live-sub-panel { scroll-margin-top: 24px; }
+.fm-live-center .fm-live-tactical-panel:focus, .fm-live-center .fm-live-sub-panel:focus { outline: none; }
+.fm-live-center .fm-live-tactical-panel:focus-visible, .fm-live-center .fm-live-sub-panel:focus-visible { outline: 2px solid var(--live-lime); outline-offset: -4px; }
+.fm-live-center .fm-live-sub-lists h4 { font-size: 12px; }
+.fm-live-center .fm-live-roster-player { min-height: 51px; }
+.fm-live-center .fm-live-roster-name { font-size: 13px; white-space: normal; line-height: 1.35; overflow-wrap: anywhere; }
+.fm-live-center .fm-live-roster-name small { font-size: 11px; }
+.fm-live-center .fm-live-position { font-size: 9px; width: 28px; }
+.fm-live-center .fm-live-condition { flex-shrink: 0; }
+.fm-live-center .fm-live-condition b { font-size: 11px; }
+.fm-live-center .fm-live-tactic-fields label, .fm-live-center .fm-live-pressing legend { font-size: 12px; }
+.fm-live-center .fm-live-tactic-fields select, .fm-live-center .fm-live-sub-lists select { font-size: 13px; min-height: 43px; }
+.fm-live-center .fm-live-pressing button { font-size: 11px; }
+.fm-live-center .fm-live-assistant { font-size: 12px; }
+.fm-live-center .fm-live-assistant small, .fm-live-center .fm-live-sub-confirm > span, .fm-live-center .fm-live-tactic-note { font-size: 11px; }
+.fm-live-center .fm-live-sub-confirm .fm-live-primary { font-size: 12px; min-height: 43px; }
+.fm-live-center .fm-live-tactical-panel > p { font-size: 12px; }
+.fm-live-center .fm-live-tactical-panel .fm-live-role-warning { font-size: 11px; }
+@container (max-width: 920px) {
+  .fm-live-center .fm-live-coach-nav { margin-left: auto; }
+}
+@container (max-width: 720px) {
+  .fm-live-center .fm-live-scoreboard { grid-template-columns: minmax(0, 1fr) 94px minmax(0, 1fr); padding: 12px 17px; gap: 10px; }
+  .fm-live-center .fm-live-team { gap: 5px; }
+  .fm-live-center .fm-live-team img { width: 38px; height: 38px; }
+  .fm-live-center .fm-live-scoreboard .fm-live-team h2 { font-size: 16px; margin: 0; }
+  .fm-live-center .fm-live-score > div:nth-child(2) { font-size: 43px; }
+  .fm-live-center .fm-live-pitch { max-height: 340px; }
+}
+@container (max-width: 440px) {
+  .fm-live-center .fm-live-topline { padding: 8px 12px; }
+  .fm-live-center .fm-live-scoreboard { padding: 11px 12px; gap: 7px; grid-template-columns: minmax(0, 1fr) 83px minmax(0, 1fr); }
+  .fm-live-center .fm-live-scoreboard .fm-live-team h2 { font-size: 14px; line-height: 1.2; letter-spacing: -.2px; }
+  .fm-live-center .fm-live-team img { width: 34px; height: 34px; }
+  .fm-live-center .fm-live-score > div:nth-child(2) { font-size: 39px; gap: 10px; }
+  .fm-live-center .fm-live-coach-nav { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+  .fm-live-center .fm-live-coach-nav .fm-live-button { min-height: 39px; }
+  .fm-live-center .fm-live-playback-main { gap: 8px; }
+  .fm-live-center .fm-live-playback { margin-bottom: 15px; }
+  .fm-live-center .fm-live-pitch { max-height: 280px; }
+  .fm-live-center .fm-live-roster-name { font-size: 12px; }
+  .fm-live-center .fm-live-roster-list { max-height: 256px; }
+  .fm-live-center .fm-live-roster-player { padding: 9px 6px; gap: 6px; }
+  .fm-live-center .fm-live-position { display: none; }
+  .fm-live-center .fm-live-sub-lists select { font-size: 12px; }
+  .fm-live-center .fm-live-sub-lists h4 { font-size: 12px; }
+}

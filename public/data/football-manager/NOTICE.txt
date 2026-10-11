@@ -1,0 +1,20 @@
+FOOTBALL MANAGER: OPEN STRUCTURED DATA
+
+OpenFootball football.json: CC0-1.0 public-domain dedication.
+Repository: https://github.com/openfootball/football.json
+License: https://github.com/openfootball/football.json/blob/master/LICENSE.md
+
+Wikidata structured facts: CC0-1.0 public-domain dedication.
+Source policy: https://www.wikidata.org/wiki/Wikidata:Licensing
+API documentation: https://www.wikidata.org/wiki/Wikidata:Data_access
+
+The adjacent JSON files record source URLs, retrieval dates, SHA-256 hashes,
+Git commit or entity revisions, temporal cutoffs and coverage gaps.
+Ratings are GameLock simulation estimates derived from prior results.
+Missing results and incomplete player membership statements remain missing.
+
+These data licenses do not apply to football club crests, competition marks,
+portraits, trophy artwork or other assets already present in the application.
+No StatsBomb or football-data.org dataset is redistributed by this importer.
+
+See docs/football-manager-sources.md for methodology and reproduction.

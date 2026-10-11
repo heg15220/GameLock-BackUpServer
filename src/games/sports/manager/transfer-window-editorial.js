@@ -1,0 +1,118 @@
+// Factual dates transcribed from primary publications. Source documents retain
+// their own rights; this file does not claim their text/data is openly licensed.
+export const transferWindowSources = {
+  'figc-2018-revised': { url: 'https://figc.it/media/73440/32-modifiche-comunicato-ufficiale-59-del-01-06-2018.pdf', title: 'FIGC CU 32/A, 27 December 2018, sections 6–7, PDF page 5', scope: 'Serie A and Serie B ordinary domestic and international professional transfers; revised winter deadline', publishedAt: '2018-12-27', sha256: 'a9c8aa3bb4a1794e2acd9a1eeccd7440631311c757664338475efec50b9300d9', evidenceLevel: 'primary-document', license: 'No open license verified; factual dates only' },
+  'efl-2018-club-notice': { url: 'https://www.carlisleunited.co.uk/news/2018/august/eflrulestwoaugust18', title: 'Carlisle United: EFL rule changes 2018/19', publishedAt: '2018-08-08', scope: 'All EFL clubs: permanent transfers close 9 August; standard loans permitted until 31 August 2018', sha256: '49e81ad9c220f8f947dacfde08c1b7151db47eb2868b52d7f093aaa385481f15', evidenceLevel: 'member-club-rule-notice', license: 'No open license verified; factual dates only' },
+  'sjpf-2017': { url: 'https://sjogadores.pt/?id=8735&op=OP_SHOW_DETAIL&pt=news', title: 'SJPF: Liga registration rules 2017/18', publishedAt: '2017-06-30', scope: 'Portuguese professional league 2017/18 ordinary periods; unemployment exception not represented as a general window', sha256: '52b17c57c35ac38a1976ed3f9b0159077e95d3ad70378f99f30c4bd198615c14', evidenceLevel: 'professional-association', license: 'No open license verified; factual dates only' },
+  'lfp-2009': { url: 'https://www.lfp.fr/assets/2008_2009_83_90_c2f8050beb.pdf', title: 'LFP professional regulations 2009/10, PDF page 10', scope: 'Ligue 1 and Ligue 2 only; new 2009/10 column', publishedAt: '2009-06-24', sha256: '833cb42aa2574eb15ec1362913f5d7bf1244cc940a89b0ae2a9b053367743424', evidenceLevel: 'primary-document', license: 'No open license verified; factual dates only' },
+  'lfp-2011': { url: 'https://www.lfp.fr/assets/LFP_PV_CA_27_mai_2011_77e484dee4.pdf', title: 'LFP council 27 May 2011: professional registration periods 2011/12, PDF page 37', scope: 'Ligue 1 and Ligue 2 only; new 2011/12 column', publishedAt: '2011-05-27', sha256: '647487d962862b01c7504f26d3e6b65711c6cdda7d2a30ff58cea8db6e630b39', evidenceLevel: 'primary-document', license: 'No open license verified; factual dates only' },
+  'laliga-2012-report': { url: 'https://memorias.laliga.es/2012-2013/es/actividades_generales_2.html', title: 'LaLiga annual report 2012/13: registration closures', scope: 'Primera/Segunda: summer closes 31 August 2012; winter closes 31 January 2013. Openings not stated' },
+  'laliga-2011-report': { url: 'https://assets.laliga.com/assets/2019/12/17/originals/034f999b694c230a6c534bca5664661c.pdf', title: 'LaLiga annual report 2011/12, page 139', scope: 'Summer 2011 opening and closing; winter 2012 closing' },
+  'ffcm-winter-2012': { url: 'https://ffcm.es/pnfg/NNws_ShwNewDup?cod_primaria=1000057&cod_secundaria=1000672&codigo=1005176', title: 'FFCM: RFEF winter registration period 2012', scope: '2–31 January 2012, reproducing the RFEF announcement' },
+  'rfef-2016': { url: 'https://rfef.es/es/noticias/el-mercado-esta-en-marcha-hasta-cuando-se-pueden-fichar-jugadores', title: 'RFEF: registration windows 2016/17', scope: '1 July–31 August 2016; 2–31 January 2017' },
+  'dfb-professional-rule': { url: 'https://www.dfb.de/ueber-uns/der-dfb/internationale-transfers/internationale-transfers', title: 'DFB: professional international registration periods', scope: 'Current ordinary rule only: July/August and January, working-day adjustment. Not proof of a historical season' },
+  'dpa-germany-2012-close': { url: 'https://www.welt.de/newsticker/dpa_nt/infoline_nt/sport_nt/fussball_nt/article108616873/186-Millionen-Euro-fuer-neue-Spieler.html', title: 'dpa: German summer market closes 31 August 2012', scope: 'Closing date only', evidenceLevel: 'press-report' },
+  'dpa-germany-2013-close': { url: 'https://www.tagesspiegel.de/sport/transferperiode-endet-zwei-tage-spater-6940915.html', title: 'dpa: DFL moves 2013 deadline to 2 September', scope: 'Closing date only; contemporary report explicitly citing DFL', evidenceLevel: 'press-report' },
+  'lpfp-2013-rule': { url: 'https://sjogadores.pt/uploads/documentos/20130821140507_regulamentodascompeticoes2013-2014.pdf', title: 'LPFP competition regulations 2013/14, article 50', scope: 'Original league document hosted by players union: 1 July opening. Actual September closing checked separately', evidenceLevel: 'primary-document-copy' },
+  'nos-2013-close': { url: 'https://nos.nl/artikel/546914-sluitingstijden-transfermarkt', title: 'NOS: national deadlines on 2 September 2013', scope: 'Portugal summer closing only; general winter statement is not imported', evidenceLevel: 'press-report' },
+  'rtp-2012-close': { url: 'https://www.rtp.pt/noticias/1a-liga/a-crise-no-mercado-de-transferencias_d583932', title: 'RTP: Portuguese summer 2012 market closes 31 August', scope: 'Closing date only', evidenceLevel: 'press-report' },
+  'sjpf-2021': { url: 'https://sjogadores.pt/?id=11576&op=OP_SHOW_DETAIL&pt=news', title: 'SJPF: professional league periods 2021/22', scope: 'Portuguese first and second professional divisions only', evidenceLevel: 'professional-association' },
+  'sjpf-2023': { url: 'https://sjogadores.pt/?id=12707&op=OP_SHOW_DETAIL&pt=news', title: 'SJPF: professional league periods 2023/24', scope: 'Portuguese professional competitions; narrower than general FPF/TMS dates', evidenceLevel: 'professional-association' },
+  'sjpf-2024': { url: 'https://sjogadores.pt/?id=13324&op=OP_SHOW_DETAIL&pt=news', title: 'SJPF: professional league periods 2024/25', scope: 'Portuguese professional competitions; narrower than general FPF/TMS dates', evidenceLevel: 'professional-association' },
+  'sjpf-2025': { url: 'https://sjogadores.pt/?id=14006&op=OP_SHOW_DETAIL&pt=news', title: 'SJPF: professional league periods 2025/26', scope: 'Portuguese professional competitions; narrower than general FPF/TMS dates', evidenceLevel: 'professional-association' },
+  'lfp-2012-2013': { url: 'https://www.lfp.fr/assets/PV_CA_13_juin_2013_21f25729de.pdf', title: 'LFP: article 212, 2012/13 and 2013/14 (PDF page 16)', scope: 'Ligue 1 and Ligue 2; existing and amended registration dates', publishedAt: '2013-06-13', sha256: '4dc1a688672cacfddfaa45eb252b208a07ce6b2067b5108ffdc0f0e8ecafac2e', evidenceLevel: 'primary-document' },
+  'figc-2012': { url: 'https://files.figc.it/version/c%3AN2I4Mjc0ZWEtMDFhMy00%3AOTFmZTk1MDQtMDAwYi00/C_2_ContenutoGenerico_32007_StrilloComunicatoUfficiale_lstAllegati_Allegato_0_upfAllegato.pdf', title: 'FIGC: termini di tesseramento 2012/13', scope: 'Professional registrations and contract transfers, sections 6–7' },
+  'figc-2013': { url: 'https://www.figc.it/it/federazione/news/approvata-dal-consiglio-federale-la-nuova-stretta-contro-il-razzismo-h7ulo9jf', title: 'FIGC council, 4 June 2013', scope: 'Summer 2013 only; winter year contains a typo and is not imported' },
+  'figc-2014': { url: 'https://www.figc.it/FigcLegacyAssets/Assets/contentresources_2/ContenutoGenerico/101/C_2_ContenutoGenerico_2524402_StrilloComunicatoUfficiale_lstAllegati_0_upfAllegato.pdf', title: 'FIGC: termini di tesseramento 2014/15', scope: 'Professional contract transfers, section 7' },
+  'sjpf-winter-2014': { url: 'https://sjogadores.pt/index.php?id=4749&op=OP_SHOW_DETAIL&pt=gabinetejuridico', title: 'Sindicato dos Jogadores: winter 2014 registration dates', scope: 'Named European professional associations; winter only', evidenceLevel: 'professional-association' },
+  'bbc-summer-2012': { url: 'https://www.bbc.co.uk/sport/0/19076534', title: 'BBC Sport: August 2012 transfer window', scope: 'England, general summer window; earlier domestic registration after final competitive fixture excluded', evidenceLevel: 'press-report' },
+  'bbc-summer-2013-open': { url: 'https://www.bbc.co.uk/sport/23126803', title: 'BBC Sport: July 2013 transfer window', scope: 'England: general opening 1 July 2013; earlier domestic deals excluded', evidenceLevel: 'press-report' },
+  'bbc-summer-2013-close': { url: 'https://www.bbc.co.uk/sport/23904992', title: 'BBC Sport: September 2013 transfer window', scope: 'England: closure 2 September 2013; EFL emergency loan window is a different regime', evidenceLevel: 'press-report' },
+  'bbc-winter-2013': { url: 'https://www.bbc.co.uk/sport/20878119', title: 'BBC Sport: January 2013 transfers', scope: 'England: January 2013 general registration period', evidenceLevel: 'press-report' },
+  'dfb-third-2024': { url: 'https://www.dfb.de/news/detail/besuschkow-und-co-viel-bewegung-im-transferendspurt-der-3-liga-264071', title: 'DFB: 3. Liga deadline differs from Bundesliga in 2024', scope: '3. Liga summer closes 2 September 2024; opening not stated by article' },
+  'jleague-2013': { url: 'https://www.jleague.jp/img/aboutj/document/jnews/201/vol0201.pdf', title: 'J.League News 201: registration periods 2013', scope: 'J.League 2013 professional registrations' },
+  'mls-2017': { url: 'https://www.mlssoccer.com/news/what-you-need-know-about-2017-mls-secondary-transfer-window', title: 'MLS: 2017 registration windows', scope: 'MLS primary and secondary windows 2017' },
+  'mls-2019': { url: 'https://www.mlssoccer.com/news/mls-transfer-windows-are-set-2020-preseason-dates-also-released', title: 'MLS: retrospective 2019 windows', scope: '2019 dates only; announced 2020 dates superseded by Covid changes' },
+  'mls-2020-revised': { url: 'https://www.mlssoccer.com/news/mls-two-day-transfer-window-set-july-6-7-secondary-window-open-aug-12-oct-29', title: 'MLS: revised 2020 transfer periods', scope: '6–7 July and 12 August–29 October 2020; first window not certified' },
+  'mls-2021': { url: 'https://www.mlssoccer.com/news/official-2021-mls-primary-transfer-window-dates-amended', title: 'MLS: amended 2021 transfer windows', scope: 'Final amended 2021 primary and secondary periods' },
+  'mls-2022': { url: 'https://www.mlssoccer.com/news/2022-mls-roster-rules-and-regulations', title: 'MLS: 2022 roster rules and regulations', scope: 'MLS primary and secondary periods 2022' },
+  'fifa-cwc-2025': { url: 'https://inside.fifa.com/organisation/media-releases/groundbreaking-transfer-window-club-world-cup-32-teams-sign-new-players?requester=MediaHub', title: 'FIFA: exceptional registration period, 21 May 2025', scope: 'All affiliated clubs of the twenty named associations; 1–10 June 2025' },
+  'rfef-2013': { url: 'https://rfef.es/sites/default/files/pdf/circulares/circular%2019.pdf', title: 'RFEF Circular 19, 2013/14, disposición cuarta, página 2', scope: 'Primera, Segunda and Segunda B: 2013/14' },
+  'laliga-2020': { url: 'https://www.laliga.com/noticias/nota-informativa-periodo-inscripcion-2020-21', title: 'LaLiga: periodos de inscripción 2020/21', scope: 'LaLiga Santander and LaLiga SmartBank, 2020/21' },
+  'pl-2018': { url: 'https://www.premierleague.com/en/news/690895', title: 'Premier League: summer 2018 dates', scope: 'Premier League only; domestic and international starts differ' },
+  'pl-2019': { url: 'https://www.premierleague.com/es/news/1220224', title: 'Premier League: summer 2019 dates', scope: 'Premier League and Championship close early; League One/Two differ' },
+  'pl-2020': { url: 'https://www.premierleague.com/es/news/1725887', title: 'Premier League: summer 2020 dates', scope: 'General summer window and domestic PL/EFL extension' },
+  'pl-history': { url: 'https://www.premierleague.com/en/news/60258', title: 'Premier League: origins of the transfer window system', scope: 'Before 2002/03, transfers during the season until 31 March; reopening day not specified' },
+  'rfef-2025': { url: 'https://rfef.es/sites/default/files/2025-06/1._CNL_Primera_y_Segunda_Division.pdf', title: 'RFEF Primera y Segunda 2025/26', scope: '1 July–1 September 2025; 2 January–2 February 2026' },
+  'mls-2025': { url: 'https://www.mlssoccer.com/news/mls-transfer-windows-key-dates-for-the-2025-season', title: 'MLS: 2025 transfer window dates', scope: 'MLS: 31 January–23 April; 24 July–21 August 2025' },
+};
+const window = (slot, start, end, sourceId, extra = {}) => ({ slot, start, end, sourceIds: [sourceId], precision: 'confirmed', ...extra });
+export const editorialTransferSeasons = [
+  { country: 'ITA', year: 2018, season: '2018/19', competitionIds: ['serie-a', 'serie-b'], windows: [window('primary', '2018-07-01', '2018-08-17', 'figc-2018-revised', { sourcePage: 5, publishedAt: '2018-12-27' }), window('secondary', '2019-01-03', '2019-01-31', 'figc-2018-revised', { sourcePage: 5, publishedAt: '2018-12-27' })] },
+  { country: 'POR', year: 2017, season: '2017/18', competitionIds: ['por-primeira-liga'], windows: [window('primary', '2017-07-01', '2017-08-31', 'sjpf-2017'), window('secondary', '2018-01-01', '2018-01-31', 'sjpf-2017')] },
+  { country: 'ENG', year: 2018, season: '2018/19', competitionIds: ['championship', 'england-league-one', 'england-league-two'], windows: [
+    window('primary', '2018-06-09', '2018-08-09', 'efl-2018-club-notice', { sourceIds: ['fifa-tms-html-20190109033204', 'efl-2018-club-notice'], note: 'International opening from TMS; EFL permanent-transfer closing from the club notice. Earlier domestic opening is not certified here.' }),
+    window('exceptional', '2018-08-10', '2018-08-31', 'efl-2018-club-notice', { eligibility: 'english-efl-loan', note: 'EFL loan extension only; permanent transfers remain closed.' }),
+  ] },
+  { country: 'FRA', year: 2009, season: '2009/10', competitionIds: ['ligue-1', 'ligue-2'], windows: [window('primary', '2009-06-09', '2009-08-31', 'lfp-2009', { sourcePage: 10, publishedAt: '2009-06-24' }), window('secondary', '2010-01-04', '2010-02-01', 'lfp-2009', { sourcePage: 10, publishedAt: '2009-06-24' })] },
+  { country: 'FRA', year: 2011, season: '2011/12', competitionIds: ['ligue-1', 'ligue-2'], windows: [window('primary', '2011-06-09', '2011-08-31', 'lfp-2011', { sourcePage: 37, publishedAt: '2011-05-27' }), window('secondary', '2012-01-01', '2012-01-31', 'lfp-2011', { sourcePage: 37, publishedAt: '2011-05-27' })] },
+  ...[2012, 2013].map(year => ({ country: 'FRA', year, season: `${year}/${String(year + 1).slice(-2)}`, competitionIds: ['ligue-1', 'ligue-2'], windows: [
+    window('primary', year === 2012 ? '2012-06-13' : '2013-06-11', year === 2012 ? '2012-09-04' : '2013-09-02', 'lfp-2012-2013'),
+    window('secondary', `${year + 1}-01-01`, `${year + 1}-01-31`, 'lfp-2012-2013'),
+  ] })),
+  { country: 'ITA', year: 2012, season: '2012/13', windows: [window('primary', '2012-07-01', '2012-08-31', 'figc-2012'), window('secondary', '2013-01-03', '2013-01-31', 'figc-2012')] },
+  { country: 'ITA', year: 2013, season: '2013/14', windows: [window('primary', '2013-07-01', '2013-09-02', 'figc-2013')] },
+  { country: 'ITA', year: 2014, season: '2014/15', windows: [window('primary', '2014-07-01', '2014-09-01', 'figc-2014'), window('secondary', '2015-01-05', '2015-02-02', 'figc-2014')] },
+  ...[
+    ['AUT', '01-01', '01-31'], ['BEL', '01-01', '01-31'], ['GER', '01-01', '01-31'], ['GRE', '01-01', '01-31'],
+    ['ENG', '01-01', '01-31'], ['SCO', '01-01', '01-31'], ['POR', '01-02', '01-31'], ['ITA', '01-03', '01-31'],
+    ['NED', '01-03', '01-31'], ['SUI', '01-18', '02-17'], ['RUS', '01-28', '02-27'], ['POL', '02-01', '02-28'],
+  ].map(([country, start, end]) => ({ country, year: 2013, season: '2013/14', windows: [window('secondary', `2014-${start}`, `2014-${end}`, 'sjpf-winter-2014')] })),
+  { country: 'ENG', year: 2012, season: '2012/13', windows: [window('primary', '2012-07-01', '2012-08-31', 'bbc-summer-2012', { evidenceLevel: 'press-report', note: 'Periodo general; no reproduce la apertura doméstica individual tras el último partido de cada club.' }), window('secondary', '2013-01-01', '2013-01-31', 'bbc-winter-2013', { evidenceLevel: 'press-report' })] },
+  { country: 'ENG', year: 2013, season: '2013/14', windows: [window('primary', '2013-07-01', '2013-09-02', 'bbc-summer-2013-open', { sourceIds: ['bbc-summer-2013-open', 'bbc-summer-2013-close'], evidenceLevel: 'press-report', note: 'Periodo general; no reproduce la apertura doméstica individual tras el último partido de cada club.' })] },
+  ...[2012, 2013].map(year => ({ country: 'GER', year, season: `${year}/${String(year + 1).slice(-2)}`, windows: [window('primary', `${year}-07-01`, year === 2012 ? '2012-08-31' : '2013-09-02', `dpa-germany-${year}-close`, { sourceIds: [`dpa-germany-${year}-close`, 'dfb-professional-rule'], precision: 'estimated', endPrecision: 'confirmed', note: 'Cierre histórico documentado en prensa contemporánea; apertura estimada a partir de la regla ordinaria DFB, sin archivo exacto de ese extremo.' })] })),
+  { country: 'GER', year: 2024, season: '2024/25', competitionIds: ['bundesliga', '2-bundesliga'], windows: [window('primary', '2024-07-01', '2024-08-30', 'dfb-third-2024', { sourceIds: ['fifa-public-calendar', 'dfb-third-2024'], note: 'Apertura del calendario FIFA; DFB confirma cierre adelantado de Bundesliga y 2. Bundesliga al 30 de agosto. 3. Liga conserva el 2 de septiembre.' })] },
+  { country: 'POR', year: 2012, season: '2012/13', windows: [window('primary', '2012-07-01', '2012-08-31', 'rtp-2012-close', { precision: 'estimated', endPrecision: 'confirmed', note: 'Cierre histórico documentado por RTP; apertura del 1 de julio estimada, sin circular de esta temporada.' })] },
+  { country: 'POR', year: 2013, season: '2013/14', competitionIds: ['por-primeira-liga'], windows: [window('primary', '2013-07-01', '2013-09-02', 'lpfp-2013-rule', { sourceIds: ['lpfp-2013-rule', 'nos-2013-close'], evidenceLevel: 'mixed-primary-press', note: 'Apertura en reglamento LPFP; cierre efectivo documentado por NOS el 2 de septiembre.' })] },
+  ...[
+    [2021, '07-01', '08-31', '01-03', '01-31'], [2023, '07-03', '09-01', '01-02', '01-31'],
+    [2024, '07-01', '09-02', '01-02', '02-03'], [2025, '07-01', '09-01', '01-02', '02-02'],
+  ].map(([year, a, b, c, d]) => ({ country: 'POR', year, season: `${year}/${String(year + 1).slice(-2)}`, competitionIds: ['por-primeira-liga'], windows: [window('primary', `${year}-${a}`, `${year}-${b}`, `sjpf-${year}`), window('secondary', `${year + 1}-${c}`, `${year + 1}-${d}`, `sjpf-${year}`)] })),
+  { country: 'ESP', year: 2011, season: '2011/12', competitionIds: ['laliga', 'laliga-2'], windows: [window('primary', '2011-07-01', '2011-08-31', 'laliga-2011-report'), window('secondary', '2012-01-02', '2012-01-31', 'ffcm-winter-2012')] },
+  { country: 'ESP', year: 2012, season: '2012/13', competitionIds: ['laliga', 'laliga-2'], windows: [window('primary', '2012-07-02', '2012-08-31', 'laliga-2012-report', { precision: 'estimated', endPrecision: 'confirmed', note: 'Cierre acreditado por la memoria LaLiga; apertura estimada al primer lunes de julio, pendiente de circular original.' }), window('secondary', '2013-01-02', '2013-01-31', 'laliga-2012-report', { precision: 'estimated', endPrecision: 'confirmed', note: 'Cierre acreditado por la memoria LaLiga; apertura del 2 de enero estimada, pendiente de circular original.' })] },
+  { country: 'ESP', year: 2016, season: '2016/17', competitionIds: ['laliga', 'laliga-2'], windows: [window('primary', '2016-07-01', '2016-08-31', 'rfef-2016'), window('secondary', '2017-01-02', '2017-01-31', 'rfef-2016')] },
+  { country: 'JPN', year: 2013, season: '2013', windows: [window('primary', '2013-01-04', '2013-03-29', 'jleague-2013'), window('secondary', '2013-07-19', '2013-08-16', 'jleague-2013')] },
+  ...[
+    [2017, '02-14', '05-08', '07-10', '08-09', 'mls-2017'],
+    [2019, '02-13', '05-07', '07-09', '08-07', 'mls-2019'],
+    [2021, '03-10', '06-01', '07-07', '08-05', 'mls-2021'],
+    [2022, '02-10', '05-04', '07-07', '08-04', 'mls-2022'],
+  ].map(([year, a, b, c, d, source]) => ({ country: 'USA', year, season: String(year), windows: [window('primary', `${year}-${a}`, `${year}-${b}`, source), window('secondary', `${year}-${c}`, `${year}-${d}`, source)] })),
+  { country: 'USA', year: 2020, season: '2020', windows: [window('secondary', '2020-08-12', '2020-10-29', 'mls-2020-revised'), window('exceptional', '2020-07-06', '2020-07-07', 'mls-2020-revised')] },
+  { country: 'ESP', year: 2013, season: '2013/14', competitionIds: ['laliga', 'laliga-2'], windows: [
+    window('primary', '2013-07-01', '2013-09-02', 'rfef-2013'), window('secondary', '2014-01-02', '2014-01-31', 'rfef-2013'),
+  ] },
+  { country: 'ESP', year: 2020, season: '2020/21', competitionIds: ['laliga', 'laliga-2'], windows: [
+    window('primary', '2020-08-04', '2020-10-05', 'laliga-2020'), window('secondary', '2021-01-04', '2021-02-01', 'laliga-2020'),
+  ] },
+  // Only the documented summer slot replaces the fallback. Winter is still an
+  // estimate, not silently certified by a summer announcement.
+  { country: 'ENG', year: 2018, season: '2018/19', competitionIds: ['premier-league'], windows: [
+    window('primary', '2018-06-08', '2018-08-09', 'pl-2018'),
+    window('primary-domestic', '2018-05-17', '2018-08-09', 'pl-2018', { eligibility: 'domestic' }),
+  ] },
+  { country: 'ENG', year: 2019, season: '2019/20', competitionIds: ['premier-league'], windows: [
+    window('primary', '2019-06-11', '2019-08-08', 'pl-2019'),
+    window('primary-domestic', '2019-05-16', '2019-08-08', 'pl-2019', { eligibility: 'domestic' }),
+  ] },
+  { country: 'ENG', year: 2019, season: '2019/20', competitionIds: ['championship'], windows: [
+    window('primary', '2019-06-11', '2019-08-08', 'pl-2019', { sourceIds: ['fifa-tms-html-20190709153322', 'pl-2019'], note: 'International opening from TMS; Championship closing from the league announcement. Earlier domestic opening is not certified here.' }),
+  ] },
+  { country: 'ENG', year: 2020, season: '2020/21', competitionIds: ['premier-league', 'championship', 'england-league-one', 'england-league-two'], windows: [
+    window('primary', '2020-07-27', '2020-10-05', 'pl-2020'),
+    window('exceptional', '2020-10-05', '2020-10-16', 'pl-2020', { eligibility: 'english-efl' }),
+  ] },
+];
+export const exceptionalTransferWindows = 'ARG AUT BRA EGY ENG FRA GER ITA JPN KOR MEX MAR NZL POR KSA RSA ESP TUN UAE USA'.split(' ').map(country => ({
+  country, year: 2025, season: '2025', ...window('exceptional', '2025-06-01', '2025-06-10', 'fifa-cwc-2025'),
+}));

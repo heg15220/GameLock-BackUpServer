@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "sync:manager-data": "node scripts/sync-manager-data.mjs",
+    "sync:manager-rosters": "node scripts/sync-manager-rosters.mjs",
+    "test:manager": "node scripts/test-manager-unit.mjs",
     "dev": "vite",
     "backend:cosmic-vanguard": "node server/cosmic-vanguard-backend.mjs",
     "backend:penalty-shootout": "node server/penalty-shootout/index.mjs",
@@ -31,6 +34,8 @@
   "dependencies": {
     "howler": "^2.2.4",
     "ioredis": "^5.4.1",
+    "lucide-react": "^1.55.0",
+    "motion": "^14.1.0",
     "pg": "^8.20.0",
     "phaser": "^3.90.0",
     "react": "^18.2.0",

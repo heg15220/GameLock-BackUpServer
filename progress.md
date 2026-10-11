@@ -4831,3 +4831,234 @@ pm run build OK con NODE_OPTIONS=--max-old-space-size=4096.
 - Pulse Garden ahora explica el laberinto por celdas, la colocacion de balizas, la explosion en cruz y el riesgo de quedar dentro de la onda.
 - Resumenes de catalogo en `src/data/gameCatalogDescriptions.js` alineados con esas descripciones.
 - Validacion: `npm run build` OK.
+
+## 2026-10-10 - Modo mánager histórico
+- Petición: investigación e implementación multiagente de un mánager de fútbol por épocas con datos abiertos, escudos/trofeos existentes, fichajes, presupuestos, ojeadores, prensa, simulación y premios.
+- Nuevo juego `sports-manager`, reutiliza el mundo/recursos de Carrera futbolera. Selector 1990–2025; selección histórica ampliada 2012 y 2025 y cobertura por liga explícita. 35 ligas, participantes históricos top5 en ambas temporadas, resto aproximado. Plantillas mixtas con jugadores reales y generados identificados.
+- Datos reales OpenFootball CC0 + Wikidata CC0 integrados mediante scripts/sync-manager-data.mjs, instantáneas versionadas y procedencia. Datos previos al inicio para ratings; precios/potenciales/presupuestos son estimaciones. Documentación en docs/football-manager-sources.md.
+- Motor determinista liga ida/vuelta mundial, tácticas/once, fichajes con negociación salarial, ojeo, ruedas de prensa, copas nacionales/continentales/selecciones/Mundial de clubes simplificados, premios, evolución/retiro/cantera y guardado compacto validado.
+- Interfaz de despacho responsive con pizarra, mercados, informes, clasificaciones, resultados de copas, palmarés, guardado local y exportación/importación. Registro en catálogo y rutas/modal móvil/escritorio.
+- Verificación de lógica y datos: motor18tests, proveedores6tests, datos+integración12tests aprobados por agentes; pruebas Playwright completas scripts/test-football-manager.mjs, capturas output/manager/. Skill client copiado sin cambios a output por resolución del paquete Playwright; navegador usa PLAYWRIGHT_BROWSERS_PATH del usuario. En Windows tests/build necesitan salir del sandbox por EPERM realpath/red localhost.
+- Límites deliberadamente visibles: no todas las ligas/épocas/plantillas existentes, sin stats individuales completas ni lesiones/fatiga; torneos simplificados; marcas de escudos mantienen derechos originales.
+
+- Verificación final: 61 pruebas aprobadas (motor, datos históricos, proveedores, integración real, perfiles móviles y trofeos compartidos). Playwright completo aprobado en escritorio, teléfono y tableta, sin errores JS: fichajes, ojeo, prensa, once, partido detallado, temporada completa, copas, premios, siguiente temporada, recuperación e importación válida/inválida. Capturas revisadas en output/manager/browser y output/manager/skill-final.
+- Corregido desbordamiento en columnas estrechas mediante container queries; los logos y trofeos existentes se verifican cargados en las capturas. build de producción validado; vista previa local en http://127.0.0.1:5191/es/games/sports-manager.
+- Pendiente de ampliación de producto: cobertura completa mundial/histórica y atributos individuales oficiales con licencia compatible; formatos exactos por época, ascensos/descensos y lesiones/fatiga. El juego y documentación declaran estas limitaciones.
+
+## 2026-10-10 - Ampliación del mánager: archivo, divisiones y preparación
+- Petición de continuación multiagente: más ligas y plantillas históricas reales, ascensos, descensos, lesiones y fatiga.
+- Equipos paralelos: datos abiertos/plantillas, pirámides y reglas por época, salud/calendario/persistencia; integración y QA visual desde el agente principal.
+- Catálogo ampliado a 51 ligas con nuevas divisiones inglesas/alemanas/brasileñas/austríacas y países de Europa, Asia, Oceanía y África. Importación reproducible de 90 plantillas OpenFootball 2023/24 y afiliaciones fechadas Wikidata; precisión de temporada y cobertura parcial visibles por club.
+- Nuevas promociones jugables de ida/vuelta y desempates por época, movimientos equilibrados de clubes, reglas de filiales, cambios de ingresos al ascender/descender y notas de excepciones. Fuentes en docs/football-manager-divisions.md.
+- Condición, ritmo, lesiones por días, carga por minutos, sustituciones, rotación, entrenamientos y calendario con recuperación entre fechas. Las copas no hacen competir a un equipo simultáneamente. Ventana de fichajes y plazas sénior con exención sub21. Modelo y límites en docs/football-manager-simulation.md.
+- UI Preparación/parte médico, barras de condición, rotación automática/manual, fechas y descanso, zonas de clasificación, cuadros de promoción y movimientos confirmados. Selector 2023/24 y recuento real/generado por club.
+- Guardados v2 contienen su propia instantánea comprimida; se congela el catálogo v1 original para migración. Los partidos v1 aún abiertos se recalculan con el motor actual; resultados confirmados se conservan.
+- QA detectó y corrigió jornadas CPU duplicadas en una fecha, importación de promociones corruptas y fichajes bloqueados por juveniles de plantillas amplias. QA visual también detectó mezcla de una jugadora en club matriz y suplentes importados sobrevalorados: se añadieron filtro de género documentado, deduplicación de identidad y valoraciones conservadoras con regresión específica Barça2012.
+- Primera ronda: 61 pruebas integración/divisiones/recursos compartidos aprobadas y 31 pruebas salud/motor aprobadas; comprobación final de navegador/build pendiente tras correcciones de datos. Capturas y logs en output/manager-v2.
+
+- Verificación final: 113 pruebas aprobadas en datos/proveedores, motor, salud, divisiones, integración, perfiles móviles y trofeos. Integración definitiva recorre las 51 ligas y dos temporadas completas; partidas rápidas/detalladas y guardados coinciden.
+- Playwright completo aprobado en escritorio, teléfono y tableta, sin errores JS: entrenamiento, minutos/fatiga, fichajes, ojeo, prensa, promociones, cambio de división, premios, migración v1 y recuperación de partido abierto. Caso médico controlado adicional confirma baja de30→23días, exclusión del once y ausencia de recuperación instantánea al cambiar entrenamiento. Capturas revisadas en output/manager-v2/browser y output/manager-v2/medical.
+- Corregido recorte del título del mánager en móviles sin alterar el resto del catálogo. Build final aprobado (3m29s); permanece aviso de chunks grandes del proyecto. Vista previa de producción en http://127.0.0.1:5191/es/games/sports-manager (Vite preview). El servidor dev anterior se cerró por FSWatcher de Windows al regenerar dist; la vista previa de producción evita ese conflicto.
+- Cobertura final: 51 ligas, 90 listas de2023/24, 9316 identidades masculinas históricas documentadas. Jugadores reales en mundos jugables:965(2012),3649(2023),1001(2025). Las fuentes públicas y la API se reproducen con sync:manager-data y sync:manager-rosters; las partidas existentes conservan su mundo y las ampliaciones de catálogo se aplican a nuevas carreras.
+- Límites restantes declarados: faltan ligas/plantillas/escudos históricos y atributos individuales completos; calendarios, torneos y determinados reglamentos se aproximan. Nunca se presenta el relleno generado como una plantilla histórica real.
+
+
+## 2026-10-10 - Auditoría de afiliaciones y rigor del mánager
+
+- Petición: corregir Madrid 2013/14 (Bergessio, Ibarra y nombre de Marcelo) y revisar coherencia de la simulación mediante agentes de datos, plantillas y motor.
+- Causa reproducida en el guardado original: declaraciones P54 falsas presentes en Wikidata y aceptadas sin contraste; identidades y afiliaciones ahora se validan por separado. Se mantienen 13.248 afiliaciones sin validar en cuarentena y tres rechazadas, con procedencia auditable.
+- Cortes documentados: Madrid 2009 (24 jugadores), Madrid 2013 (23), Barça y Bayern 2013 (25 cada uno). Corte de 2013 al 3 de septiembre; salidas de Özil, Kaká, Higuaín, Callejón y Albiol coherentes. Casos Cantona 1992, Haaland 2019, Suárez 2020 y fichajes posteriores al corte corregidos.
+- Archivo CC0 ampliado con cinco listas inglesas 2014/15 y 123 identidades resueltas; 17 nombres ambiguos quedan excluidos. Se conservan fuentes de identidad y afiliación por separado, cumpleaños conocidos y estimación de edad donde falta fecha.
+- Motor: índices de plantilla consistentes tras movimientos, edad por fecha, laterales/centrales conocidos en el once automático, recuperación parcial de lesiones, salud materializada al fichar, reservas de emergencia no comerciables y copa nacional sin participantes descartados. Guardados y saldos validados.
+- UI: ficha desplegable de procedencia y fecha; posición de liga neutra antes de jugar; actualización explícita de guardados iniciales sin borrar fichajes ni progreso. Prueba de navegador con la partida defectuosa original y con una variante ya jugada aprobada en escritorio/móvil, sin errores.
+- La cobertura real disminuye al retirar afirmaciones no comprobadas. No se presentan datos sin revisar como plantillas reales completas; calendarios, atributos y presupuestos CPU siguen siendo modelos simplificados declarados.
+- Evidencias de esta pasada en output/manager-v3; documentación en docs/football-manager-sources.md, docs/football-manager-editorial-rosters.md y docs/football-manager-simulation.md.
+
+### Validación final de la auditoría
+
+- 140 pruebas aprobadas (115 del mánager y 25 de integración móvil/trofeos), ejecutadas por archivo en procesos independientes. El proceso conjunto de Vitest abortaba nativamente en Windows; `npm run test:manager` usa ahora un runner secuencial por archivo.
+- Navegador: temporada completa y todas las secciones aprobadas en escritorio, móvil y tablet, incluida la migración del guardado v1 real. Sin errores de consola.
+- Guardado v2 defectuoso de Madrid2013: actualización explícita, plantilla23real, fecha3Sep, nacimiento y roles naturales comprobados; carrera con progreso intacta. Mismo flujo aprobado sobre la compilación final.
+- Compilación aprobada en2m24s; persisten advertencias de tamaño de chunks. Se compiló en output/manager-v3/dist para conservar el servidor anterior durante el proceso. Preview actualizado en puerto5191 (PID17240); servidor de pruebas5192 detenido. Servidor existente del usuario conservado.
+- Capturas revisadas: output/manager-v3/history y output/manager-v3/production-skill. Resumen verificable en output/manager-v3/verification.json.
+
+
+## 2026-10-10 - Rediseño y banquillo interactivo
+
+- Petición: mejorar arte, interfaz, animaciones y gameplay; permitir cambios tácticos y sustituciones durante el encuentro.
+- Trabajo multiagente: motor incremental y persistencia, centro de partido, dirección visual y componentes; raíz integra navegación, librerías y QA.
+- Skills aplicadas: develop-web-game, find-skills y frontend-design consultada en su repositorio oficial. Motion y Lucide React instaladas; avisos distribuidos en public/data/manager-interface-licenses.txt.
+- Interfaz en curso: estadio SVG, campo con camisetas, despacho y navegación responsive, pestaña de partido, informe posterior, controles accesibles. Verificación pendiente en esta fase.
+
+## 2026-10-10 — Partidos dirigidos del modo mánager
+- Motor propio live-match.js calcula únicamente minutos jugados, pausas al descanso/prórroga y decisiones tácticas con desgaste según presión.
+- Cambios 3/5, banquillo 7/9, sin reingreso; control explícito SET_MATCH_AUTOSUBS y pausa de lesión para decidir manualmente.
+- Guardado v2 registra/reproduce decisiones con minuto y conserva el tramo observado de partidos v2 anteriores mediante el motor agregado de compatibilidad.
+- Regresiones del motor/salud y suite live-match.test.js. Navegador y build compartidos quedan a cargo del agente raíz para evitar conflictos.
+
+## 2026-10-10 - Football manager studio visual system (multi-agent)
+- Added studio-ui.jsx: original SVG stadium, upcoming fixture hero with existing club crests, and a tactical pitch with club-colour shirt markers and actual player fitness/rating.
+- Added studio-ui.css as the manager skin imported by styles.css: charcoal/olive/lime, existing Bricolage/Outfit typography, desktop sidebar, responsive icon tabs, legible provenance and medical/promotion panels.
+- Expanded only the manager launch shell to 1320px. No changes to simulation or historical assignments in this visual subtask.
+- Reduced-motion and keyboard focus styles included. Parent coordinates the develop-web-game Playwright loop and screenshot review to avoid concurrent heavy processes.
+
+
+## 2026-10-10 - Manager studio and live coaching final verification
+- Applied develop-web-game, find-skills and the official frontend-design skill. Added Motion and Lucide with bundled license notices. Original SVG stadium and tactical kit artwork reuse existing club crests.
+- Finished responsive studio navigation, dashboard, match centre, coaching shortcuts, accessible substitutions, formation/mentality/pressing, optional assistant, playback speeds and match report.
+- Player changes and tactics affect only future minutes; fatigue and injuries operate incrementally. Active matches persist through deterministic action replay. See docs/football-manager-interface.md and docs/football-manager-simulation.md for scope and limitations.
+- All 130 manager tests across 12 files passed. Initial combined run encountered a native memory failure collecting integration tests during concurrent heavy jobs; the isolated integration rerun passed 6/6, with the other 124 already passing.
+- Production build passed in 3m50s into output/manager-v4/dist. Expected client-directive and large-chunk warnings remain.
+- Production browser full-season journey passed: transfers, scouting, preparation, competitions, awards, promotion/relegation, legacy migration and save recovery; errors/failures empty.
+- Production live-coaching tests passed on desktop, phone and tablet: immutable played minutes, tactics, legal substitutions, halftime, autoplay/pause, save/reload and final minutes; browser errors empty. Screenshots visually inspected. The supplied game-development skill client also passed.
+- Detailed results: output/manager-v4/verification.json. Final preview is on port 5191 serving the new production build.
+
+
+## 2026-10-10 - Match movement and broadcast sequences
+- User requests possession-dependent movement, build-up, defending, recoveries, counterattacks, set pieces and polished goal animations.
+- Multi-agent work: manager_health owns versioned deterministic plays; manager_pyramids owns pitch choreography and playback; manager_database owns independent browser coverage and interface documentation. Root integrates final-whistle continuity, runtime observability and verification.
+- Applying develop-web-game skill. Read IFAB Laws 13, 14 and 17 for plausible set-piece positioning. Existing Motion and SVG artwork suffice; no new dependency or remote service needed.
+- Match centre now remains mounted at full time so the final play can finish before returning to the office.
+
+- Implemented modelVersion2 deterministic possession descriptors with genuine set-piece outcomes and a legacy visual adapter that preserves modelVersion1 results. Independent golden baseline matched previous score, events, statistics, minutes and condition exactly.
+- First visual browser pass confirmed coordinated movement and goal scorer/assist presentation with no page errors. Review found premature shot commentary and final-whistle reveal, plus pause/resume and automatic-substitution presentation edge cases; renderer is resolving these before final QA.
+- Focused engine tests passed: 23 engine, 20 health, 18 incremental/play/persistence tests; full integration is running separately. Stable browser fixtures now cover nine play types/cases, including a final-minute goal and a cleared corner.
+
+- Final affected unit/integration suites: 81/81 passed across engine(23), health(20), integration(6), live-match(11), live-play(7), pitch-scene(9) and match-center-model(5).
+- New browser suite passed9 checks on desktop/phone/tablet, including exact pause, measured1x/2x/4x movement, set pieces, cleared corner, delayed goal/shot narration, +5 resume, substitutions, save/reload and final-minute pause/goal. Browser and console errors empty.
+- Existing live-coaching regression also passed on all3 device sizes. Supplied develop-web-game client passed and screenshot/state inspected. Goal, final goal, penalty and phone screenshots inspected by root; an independent agent reviewed paused possession and the hidden final-minute goal.
+- Header now keeps the viewed match date/round after final whistle; office news cannot reveal the result early in the match panel. Build and final production-browser verification pending.
+
+- Production build passed in 3m48s into output/manager-v5/dist; expected dependency client-directive and large-chunk warnings remain.
+- Production presentation suite passed all 9 groups on desktop, phone and tablet; page and console errors empty. Measured playback: 0.99x, 2.04x and 4.20x. Final-minute header now retains the played match date and round. Production final-goal and phone screenshots visually reviewed.
+- Supplied develop-web-game client passed on production; setup state and screenshot verified. Final evidence: output/manager-v5/verification.json.
+- Local preview on port5191 now serves manager-v5 (PID9468); prior preview12524 replaced and temporary dev14324 stopped. User dev server18520 preserved.
+
+## 2026-10-10 - Dynamic tactical football (v6)
+- User requests gameplay research and natural movements reacting to managerial decisions. Applying develop-web-game; multi-agent roles: engine/compatibility, pitch choreography, independent source/browser audit; root owns coaching UI and integration.
+- Located official FM24 match-engine and FM26 tactics videos; consulting original developer explanations and football coaching sources. Do not claim footage observed when only text is accessible.
+- Six new instructions: width, passing, tempo, defensive line, transition on regain, and reaction to losing possession. Version3 matches use them; earlier matches preserve their simulation model.
+
+- Coaching UI now groups six instructions by possession, defending and transitions, with four editable presets and explicit trade-offs. The match feed names the changed instructions. A visual pass exposed cramped select fields; enlarged the tactical panel and made tablet panels stack.
+- Initial UI smoke passed with the correct direct-counter plan. A later exploratory pass was interrupted by Vite full reloads while agents were still editing; final browser QA will run after runtime freeze.
+- Review identified two motion correctness issues for renderer: avoid resetting the ball/players on coaching changes, and stop an intercepted pass before the intended receiver. Agent fixes are in progress and get regression coverage.
+
+- Runtime frozen after review. Legacy model2 complete-match SHA256 from pre-edit source is unchanged; model1 baseline and versioned replay also pass. Agent focused tests: live-match13, tactical-model7, live-play7 passed.
+- Root regression: engine23, health20, integration6, live-play7, match-center-model5 and pitch-scene17 passed. Unique affected total:98 tests across8files.
+- Independent tactical browser audit passed7 groups on desktop/phone/tablet with zero page/console errors. Inputs/presets, exact replay, actual pass routes, width, interceptions and substitutions validated. Root reviewed desktop-wide and mobile board; agents also reviewed direct/blocked routes, narrow and tablet.
+- Research sources and playback limitations documented in docs/football-manager-tactical-research.md; footage loaded but continuous playback could not be verified, so tactical conclusions rely on official developer and FIFA documentation.
+
+- General presentation browser regression passed all9groups on model3 with empty page/console errors; delayed goals including90thminute, setpieces, pause/speed, +5resume and substitutions retained. Supplied skill client also passed; final-goal and skill setup screenshots opened and inspected. Production build in progress.
+
+- Production build succeeded in3m50s into output/manager-v6/dist, with existing dependency client-directive and large-chunk warnings. Preview5191 now serves v6 (PID16348), replacing verified prior preview9468. Own temporary dev4756 was stopped before build; user dev18520 left alone. Final compiled tactical browser audit is running.
+
+- Final production tactical browser audit passed all7groups with zero page/console errors. Interception and phone pitch screenshots opened and inspected. Production preview is ready at /es/games/sports-manager?ui=tactics-v6.
+- Consolidated evidence: output/manager-v6/verification.json (98unique affected tests,7tactical development+7production browser groups,9presentation groups,skill client,build and compatibility). No pending implementation for this request; documented limits remain discrete simulation, one base formation and unverified continuous external-video playback.
+
+
+## Manager v7 — scouting, transfer windows and historical participants
+- User asks documented FC26/27-inspired recruitment and correct league membership per selected season. Multiagent ownership: health engine+market/scouting; database historical participants+sync; pyramids primary research+browser QA; root UI+integration.
+- Added staged negotiation desk, transfer calendar, shortlist, scouting networks/missions/reports, incoming-sale review, reserved finances and arrival timing. Initial September snapshots do not create an artificial new-market window. APIs and tests integrating; not yet validated.
+- New careers will allow only verified league-season memberships. Missing archives are reported, with no reuse of modern league compositions. Existing progressed career universes stay intact.
+
+- Development browser recruitment audit:7/7groups passed,0page/consoleerrors. Root opened desktop contract/scouting and phone contract/report screenshots; palette contrast corrected. QA also found a stale asking price when listing changes selection: fixed reset on actual selected player ID. Report cards now maintain~290px minimum and negotiation scrolling accounts for the sticky header. Final production run will verify these small UI fixes.
+- Runtime frozen after12market/scouting tests and31division tests. Critical fixes: externalclub pools cannot join promotion/relegation; summer arrivals preserve medical timestamps after offseason recovery. Historical archive final779pairs across36leagues/1990–2025, unsupportedpairs disabled. Broad regression pending now.
+
+V7 regression: all 185 manager unit tests now pass across 17 files. Historical tests cover all 779 supported league/season pairs. Four stale assertions were updated for the new archive revision and explicit external club pools; the footballer and match assertions remain in place. Test reports retain initial and corrected results under output/manager-v7/unit. Production build running into a fresh output/manager-v7/dist; task dev server5192 stopped, prior preview5191 preserved until successful replacement.
+
+V7 complete validation (2026-10-10): build passed in3m23s. Preview5191 now serves output/manager-v7/dist (PID14964); original user dev PID18520 preserved. Production browser suites: market7/7, coverage+v6compat6/6, tactics7/7; zero page/console errors. Original skill client passed with cookie dismissal, screenshot/state inspected. Reviewed production desktop and phone contract, scouting, source coverage, career setup and tactical pitch. Consolidated output/manager-v7/verification.json records185/185 unit tests and779 documented league/season pairs across36 leagues and36 years. Remaining limitations:15 catalog leagues lack accepted participant evidence; rosters remain partial; common Jan/Jul-Aug windows, no country/year-specific deadlines or advanced loans/clauses/renewal lifecycle. No pending implementation within the validated v7 scope.
+
+
+## 2026-10-10 — Manager v8: cesiones, cláusulas y fuentes históricas (en validación)
+- Trabajo multiagente: motor de contratos/cesiones, fuentes regionales y calendarios por asociación; integración y UI en el agente principal.
+- Nuevas pantallas de negociación de cesiones, contratos/renovaciones, derechos de recompra/futura venta y calendario de pagos. Las incorporaciones consultan receptor y origen, con excepción doméstica inglesa.
+- Archivo de ventanas congelado: 40 asociaciones, 51 ligas, 312 rangos documentados; 185 liga-temporadas con ambas ventanas ordinarias documentadas, 25 parciales y 1626 estimadas (1990–2025). Las estimaciones se muestran explícitamente.
+- Mercado anterior: 7 flujos de navegador aprobados sin errores, incluidos móvil y scouting. Nuevo QA de contratos en curso; los tres primeros flujos ya pasan.
+- Se detectaron y corrigieron dos omisiones de fromClubId en las cláusulas CPU y una carrera del watcher de Vite contra archivos temporales .cache.
+- Archivo Wikimedia nuevo separado bajo CC BY-SA 4.0, con revisiones y atribución. Importación por lotes/reanudable, filtros para cedidos salientes y plantillas de reserva. Descarga y auditoría regional aún en curso; no se ha sustituido todavía el preview v7 de 5191.
+
+- Fuentes v8 congeladas: 1223 combinaciones liga-temporada (779 previas +444 regionales:441 Wikimedia/3CC0),51ligas con al menos una temporada y las15nuevas disponibles2025. Los registros regionales conservan fase, licencia, revisión, historial y atribución.
+- Plantillas Wikimedia finales:86listas,2418registros jugador-temporada;33/944 en2012,31/837 en2013 y22/637 en2025. Auditoría confirma pertenencia de club/año, identidades únicas dentro de cada lista, nacionalidades válidas, nacimiento, procedencia y copia pública idéntica.
+- QA desarrollo:7flujos mercado y11contratos incluidos gestión entretemporadas, móviles y guardados; sin errores JS/console ni overflow. Motor23/23 ysalud20/20 finales pasan. Parserrosters4/4; parserregional13/13. Falta cierre de suites de datos y QA de producción.
+
+- Cierre de datos:47/47 pruebas pasan (parser13,participantes9,datos6,Wikimedia3,editoriales6,proveedores10). Se corrigió una guarda en los alias de jugadores sin nacimiento completo; regresión explícita incluida.
+- Primera compilación falló al abrir un sourcemap temporal de esbuild en Temp; log conservado en output/manager-v8/build-initial-failure.log. Reintento con TEMP/TMP exclusivos de .cache/manager-v8-build-tmp. Previewv7 sigue sin sustituirse hasta validar la compilación.
+
+- El segundo build confirmó agotamiento de memoria virtual (esbuild errno1455). Se activó json.stringify en Vite tras comprobar que los imports JSON del cliente son default; compila los datos mediante JSON.parse y evita árboles de sintaxis gigantes. Referencia: https://v4.vitejs.dev/config/shared-options#json-stringify .
+- Compilación final exit0 en2m52s con GOMEMLIMIT=512MiB y GOMAXPROCS=2, carpeta temporal propia y minificación habitual. Resultado en output/manager-v8/build-result.json. Preview de validación5193 PID19652.
+- Producción: contratos11/11, cobertura/compatibilidad6/6 y mercado7/7 pasan sin errores de navegador/consola. Cliente original de la skill pasa, hash idéntico al original; captura final del setup revisada. Revisadas también cesión móvil, calendario de pagos y fuentes móviles. Tácticas en curso.
+
+- V8 terminado:241pruebas únicas en22archivos (ejecución base más revalidaciones focales tras correcciones);31grupos en navegador de producción:contratos11,cobertura6,mercado7,tácticas7; errores/consoleErrors vacíos. Capturas de contratos, cobertura, inicio y partido en escritorio/móvil inspeccionadas. Cliente original de develop-web-game aprobado.
+- Preview5191 sirve v8 (PID5384), HTTP200 y referencia al asset compilado comprobados. Anterior14964 y staging19652 cerrados; dev del usuario18520 preservado. Informe consolidado output/manager-v8/verification.json.
+- Límites declarados:185liga-temporadas con ambas ventanas documentadas,25parciales y1626estimadas; no todas las51ligas disponibles en cada año; plantillas históricas parciales y formatos/reglamentos regionales simplificados. No se atribuyen fechas ni afiliaciones exactas cuando la evidencia solo es de temporada.
+
+
+## Manager v9 — historical sources expansion (2026-10-10)
+User authorized multi-agent expansion of transfer-window dates and missing squads across the51league catalogue. Agents own FIFA archive, Wikimedia parser/importer and CC0 historical sources. Root adds CC BY4.0 Pappalardo match-sheet evidence (98clubs2017; cutoff2017-09-01; cross-club identities excluded), shared-file identity fix, source/licence UI and a51×36coverage inspector/export. Existing saves remain immutable; unstarted saves can explicitly refresh. Validation pending.
+
+### Manager v9 completed — 2026-10-11
+Wikimedia:598lists/16025player-seasonrows/34leagues/34years; CC0:218lists/4779rows; research CC BY4.0:98lists/1944rows. Combined participant coverage:979club-seasons with source lists; transfer windows367fully documented,21partial,1448estimated out of1836. Fixed shared-source identity collisions, multi-ID bridges, Iniesta duplication, passport/national-team confusion and false complete-squad flags. Current data hashes audited across36worlds (465366player-seasons). 89 focused assertions pass;12production browser groups pass with no page/console errors, including quick matches and exact v6save replay. Skill client run and final screenshots inspected. Build succeeds (4m10s); previewPID21844 serves output/manager-v9/dist at5191. Existing saves remain unchanged; explicit fresh-career refresh available. Sources, reproducible importers and known gaps:docs/football-manager-archive-v9.md. Full verification:output/manager-v9/verification.json.
+
+## Manager v10 — 2026-10-11
+User requests further multi-agent reduction of1448estimated transfer-window combinations and historical squad gaps. Three agents resumed: archived windows; Wikimedia recovery and coverage; new open sources. Root owns integration, targeted primary-source research, coverage reporting and verification. v9previewPID21844 must remain available until v10verified. Baseline saved output/manager-v10/baseline.json.
+
+Manager v10 integration: verified primary LFP PDFs for2009/2011/2012/2013/2014 (PDFs/hash/rendered pages in output/manager-v10/lfp); supplied to window agent. Added parameterized all-world audit and coverage comparison script. Archive revision bumped to rosters-v10. EFL2018 loan-only extension now flows through loan scheduling, purchase conversions retain permanent windows, UI arrival controls/outgoing offers and expiry use the correct transaction type. Added integration regression for immediate August2018 loan versus January2019 purchase. Final data/test/build pending.
+
+Manager v10 data freeze: calendar612complete/19partial/1205estimated (243fewerestimated). Wikimedia879lists/24960rows/42leagues/36years; CC0222lists/5194rows. Combined1256club-seasonswithlists(+277). Runtimeaudit36worlds468077player-seasonrows/34583real. Window28,CC016,parser12,contracts+market27tests pass. Root archive/editorial/engine/data pass; data-test expectation updated because1990nowhasdocumentedlists, while incomplete flags remain mandatory. Wikimedia integration then production build/browser verification pending.
+
+
+## Manager archive v10 — final verification (2026-10-11)
+- Three research agents completed source expansion; 612 complete / 19 partial / 1205 estimated league-season window combinations, down from 1448 estimated. Combined club-season source lists: 1256 (was 979); partial coverage in 42 leagues, 9 without lists.
+- Production build passed; 125 unit tests and 14 desktop/mobile browser check groups passed, no JS/console errors. Legacy v6 save preserved, EFL 2018 loan arrival and January purchase verified with exact reload. Skill client executed and screenshots visually reviewed.
+- Verified v10 preview now serves port 5191, PID 17796; HTTP 200 and served archive counts confirmed. Old v9 preview and temporary 5193 test preview stopped after process verification. Existing saves retained.
+- Final report: output/manager-v10/verification.json; documentation: docs/football-manager-archive-v10.md. Remaining gaps explicitly declared; no assertion of complete historical squads or open licensing for official factual calendars.
+
+
+## Deportivo 2011/12 correction v11 (2026-10-11)
+User reports generated Deportivo squad. Three agents assigned: Wikimedia missing fetches, verified Deportivo editorial cut, systemic source-gap audit. Root handles runtime, coverage messaging and save-refresh/browser regression. Preserve existing saves; never replace player affiliations without evidence.
+
+### v11 diagnosis and verified Deportivo cut
+- No source roster existed for Deportivo2011; 2010 English table also exposed grouped-position parser gap. eswiki revision49439402 explicitly dates25players to2011-09-01. All25 identities/DOB crosschecked, no generated players; editorial8tests passed including global identity uniqueness.
+- Source provenance now propagates editorial CC-BY-SA metadata and individual biographies; source coverage reports25rows/licence. 5coverage tests passed. Missing-real-player setup message now explicit.
+- Regional importer repaired two spurious Ecuador details-link participants(2010,2011); 12real clubs per year and14tests passed.
+- Baseline gap audit:19361/20852club-seasons zero real, all without source/editorial rows; no source roster ends wholly empty. Files output/manager-v11/audit.
+- Waiting for optimized offline Wikimedia pass to publish final archive before runtime36year audit, production build and browser refresh regression.
+
+### v11 final verification and local preview
+- Final Wikimedia archive972lists/27803rows(+93/+2843), zero prior lists removed.82club-seasons previously all-generated now have real players; no nonempty-to-empty regressions. Combined source lists1348;19277club-seasons still zero real, explicitly not complete.
+- Runtime36world audit468768players/37198real, zero duplicate individual identifiers. Deportivo25/Getafe19/Sabadell23/Kaiserslautern36 accepted real players in2011.
+-43unit tests and10browser groups passed; desktop/mobile newcareer, explicit refresh of archived defectivev10save, exact squad/finance reload, sources/licensing, real match simulation, and missing-source warning. Skill client run, screenshots inspected.
+- Productionbuild success4m2s with8GB(project default); earlier4GBattempt failedOOM, log retained. Freed only reproduciblev8/v9dist/assets after path checks; all sources/data/reports andv10build preserved.
+- v11 preview live5191 PID19584; HTTP200 andliveDeportivo25rows/exactsnapshot verified. v10preview17796 andtemporary5193PID13688 stopped aftercommandlinechecks. No user saves modified.
+- Reports output/manager-v11/verification.json; docs/football-manager-roster-repair-v11.md anddocs/football-manager-deportivo-2011-v11.md. Remaining source gaps listed incandidate/auditmanifests; no claim of exhaustive historical squads.
+
+## v12 systemic historical roster coverage (2026-10-11)
+User requests comprehensive real squads across clubs/seasons. Agents assigned: exhaust remaining English season candidates with batched API, independent multilingual season provider, corroborated biography career intervals from existing cache. Root integrates identity namespaces/provenance, coverage, runtime validation and preview. Baselines saved in output/manager-v12. Preserve explicit gaps and all existing saves; no fabricated real identities or removal of quarantine without evidence.
+
+### Manager v12 — integrated evidence providers
+- Wired multilingual season lists and independently validated closed career spells into runtime. Biographies remain individual partial evidence, not complete squads.
+- Namespaced Wikipedia identities by language, preserved identity bridges across source preference, and deduplicated against curated player IDs.
+- Added year-interior provenance and v12 initial-save refresh revision.
+- First 36-world audit: 59,209 real player-seasons versus 37,198 baseline; zero duplicated linked identities. More English/multilingual downloads still running; numbers are provisional.
+
+- Reconciliation now distinguishes exact DOB/provider-ID homonyms (Scott Brown, Adriano, etc.), preserves evidence bridges and exposes rejection reasons. 11 pure identity tests passed.
+- Large JSON imports use stringify mode in Vitest, matching Vite, to prevent native/IPC failures from huge generated ASTs.
+- Initial integration checks: 6 archive coverage + 8 editorial + 3 Wikimedia tests passed.
+- Development browser checks: desktop/mobile Bolivar2025 (29 real/0 generated), Everton1995 individual-career evidence, save/reload and quick match all passed with zero JS/console errors; screenshots inspected.
+
+- Found cause of asymmetric Wikimedia429: multilingual UA lacked contact; English UA complied. Official2026 rate-limit documentation distinguishes unidentified10/min vs compliant bot200/min. Agents instructed to identify the same actual project honestly, use sequential shared2s cadence and honor Retry-After/maxlag, reverting to8s on429. No authentication or identity evasion.
+- Temporary development server5193 stopped after UI QA. Verified previous-release preview now runs on5191 PID12624 (old19584 no longer active).
+
+Manager v12 checkpoint-1: runtime audited 36 worlds, 84,080 real player-season rows and zero duplicate strong identities. Participant comparison adds46,882 real player-season rows vs v11 and documents5,386 previously empty club-years;470 decreases under review, not silently restored. Editorial regression8/8 passes. Ongoing imports uncovered unlinked-name homonyms (Henry/Vieira): importer owners tightening link provenance and positive retirement checks. Career publication held until corrected English source and gzip cache support are audited. Final build/browser QA pending.
+
+Manager v12 rigor fixes: season/career reconciliation now allows one validated interior calendar-year affiliation to resolve less precise split-season lists only (16 pure identity tests pass); annual or dated contradictions remain excluded. Added documented-depth guard to avoid generated extras in sufficiently balanced real squads (3 tests pass). Removed incorrect import cutoff at43; plausibility bound65 permits documented Buffon/Parma2022, covered by new regression pending refreshed dataset. Reports now retain temporal resolutions.
+
+Manager v12 final frozen datasets: English4042 lists/122469 rows, Spanish242/5037, careers18749 identities/70712 partial player-years. Fixed DaniBarcia DOB with scoped primary-club evidence; excluded Millonarios youth/unregistered blocks and demonstrably stale Bolivar2011 source. Runtime audit36 worlds:490823 player-season rows,149632 real, zero duplicate strong identities. Import-only audit agrees in all36 years. Participant delta:37164 ->149598 real rows;19277 ->12025 empty club-years;7252 newly documented;3857 no generated filler.1864 temporal conflicts resolved,3462 unresolved excluded. Coverage remains partial. Final tests/build/browser QA in progress.
+
+Manager v12 publication held again: first final editorial test exposed a test assumption (Buffon already curated and only has birthYear). Replaced import-age case with imported Fabio2025, preserving Buffon seed assertion. Reviewing every English >43 row then uncovered real wrong identities/coaches: Sanchis father1938, Molina1930, Hinshelwood1956, Ilsanker1967, Matsunaga1962. English importer reopened to reject closed pre-season senior careers without requiring literal former wording; careers and Spanish re-audit coordinated. Added runtime negative regressions. Previous final metrics now provisional until rebuilt.
+
+Manager v12 additional source correction: CC0 MichaelThomas MLS2012/2013 was incorrectly Q275823/1967/ENG; exact source-row correction now Q427832/1988-03-08/USA with official club evidence.19 CC0 tests pass,222lists/5194rows unchanged, mirror/rebuild hash b67039c649ce6f13498426a9558df27e992715267a99b7d5595c76e7786adbf8. Root propagates identityCorrection into provenance UI and adds Kansas2012 desktop/mobile QA scenario. English v6 offline rebuild now also excludes explicit staff sections, closed pre-season senior careers without requiring former wording, and unsupported over43 biographies; retains genuine player-coaches.21 parser tests pass.
+
+Manager v12 definitive sources frozen: English4042 lists/122390 rows, Spanish242/5037, careers18747 identities/70710 affiliations. Final36-world audit490777 rows/149586 real/0 duplicate strong IDs; import-only audit agrees in all36years. Selectable37164 ->149552 real (+112388);12025 empty club-years remain,7252 newly documented,3857 without generated filler,5 complete audited snapshots.3445 unresolved conflict groups excluded,1864 temporal resolutions.56 root regressions pass plus provider/parser suites.2019 complete-season save capacity3746314 UTF16bytes with exact normalized restore. Production build succeeds in7m10s; manager chunk74.5MB raw/11.6MB gzip remains a performance limitation and should be partitioned by season in follow-up. Production desktop/mobile QA underway.
+
+Manager v12 production QA complete:16 desktop/mobile roster scenarios passed,10 legacy Deportivo/other-club/gap-warning checks passed,zero JS/console errors. Screenshots inspected for Barca2019 source/after-match,Depor2024 setup,MichaelThomas correction,Stuttgart1990 career provenance,Bolivar mobile,Depor2011 real XI,missing-squad warning and skill production shot. Skill client passed. Source hashes still match final audit. Remaining coverage12025 empty plus3765 with1–10 real; no complete-coverage claim. Local preview replacingv11 on5191 withv12; test5193 stopped.

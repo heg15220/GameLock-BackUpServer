@@ -1,0 +1,311 @@
+/* Studio skin. Specificity deliberately wins over the original manager layout. */
+.fm-game.fm-game{--fm-ink:#f0f1e7;--fm-muted:#a4ad9c;--fm-line:#394332;--fm-paper:#181d17;--fm-accent:#c8ff5f;background:var(--fm-paper);color:var(--fm-ink);color-scheme:dark;border:1px solid var(--fm-line);border-radius:16px;font-family:"Outfit","Segoe UI",sans-serif;font-size:14px;line-height:1.55;font-variant-numeric:tabular-nums;isolation:isolate}
+.fm-game.fm-game :is(h1,h2,h3,h4){font-family:"Bricolage Grotesque","Segoe UI",sans-serif;font-weight:680}
+.fm-game.fm-game h2{font-size:clamp(25px,2.6vw,35px);line-height:1.12;letter-spacing:-.9px;text-wrap:balance}
+.fm-game.fm-game h3{font-size:18px;letter-spacing:-.35px}
+.fm-game.fm-game a{color:#c8ff5f;text-underline-offset:4px}
+.fm-game.fm-game :is(button,input,select,a,summary):focus-visible{outline:2px solid #c8ff5f;outline-offset:4px}
+.fm-game.fm-game label{color:#c7d1ba;font-weight:500;font-size:12px;gap:8px}
+.fm-game.fm-game input:not([type=checkbox]),.fm-game.fm-game select{min-height:47px;color:#eff3e5;background:#172014;border-color:#4c5a3d;border-radius:8px;padding:11px 13px}
+.fm-game.fm-game input::placeholder{color:#8d9b7e}
+.fm-game.fm-game input[type=checkbox]{width:18px;height:18px;accent-color:#c8ff5f}
+.fm-game.fm-game .fm-kicker{display:inline-flex;align-items:center;gap:7px;color:#a8b796;font-size:10px;letter-spacing:1.4px;font-weight:550}
+.fm-game.fm-game .fm-panel{padding:24px;border-color:#3d4933;background:#222b1d;border-radius:12px;min-width:0}
+.fm-game.fm-game .fm-button{display:inline-flex;gap:9px;min-height:43px;padding:10px 16px;border-color:#566844;border-radius:8px;background:#2b3822;color:#e2edd2;font-size:12px;font-weight:550}
+.fm-game.fm-game .fm-button:hover:not(:disabled){background:#3b4d2c;border-color:#93b66a;transform:translateY(-1px)}
+.fm-game.fm-game .fm-button.fm-primary{color:#1e2b11;background:#c8ff5f;border-color:#c8ff5f}
+.fm-game.fm-game .fm-button.fm-primary:hover:not(:disabled){background:#ddffac;border-color:#ddffac}
+.fm-game.fm-game .fm-button svg{width:16px;height:16px;flex-shrink:0}
+.fm-game.fm-game .fm-button.fm-small{min-height:35px;padding:7px 11px;font-size:11px}
+.fm-game.fm-game .fm-button.fm-start{min-height:53px;font-size:14px}
+.fm-game.fm-game .fm-text-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:35px;color:#c4d7a8;font-size:11px;text-decoration-color:#788f59}
+.fm-game.fm-game .fm-text-button:hover{color:#d4ff91}
+.fm-game.fm-game .fm-note{font-size:12px;color:#a8b796;line-height:1.7}
+.fm-game.fm-game .fm-live-dot{background:#c8ff5f;box-shadow:0 0 0 4px #c8ff5f0a}
+.fm-game.fm-game .fm-monogram{color:#d4e6b8;border-color:#7f9760;border-radius:9px}
+
+/* Cinematic setup: custom stadium architecture, visible club and clear choices. */
+.fm-game.fm-game .fm-hero{position:relative;isolation:isolate;overflow:hidden;min-height:330px;padding:39px 42px;border-bottom:1px solid #54683c;background:#1b251a;gap:28px}
+.fm-game.fm-game .fm-stadium-art{position:absolute;width:100%;height:100%;inset:0;z-index:-2;pointer-events:none}
+.fm-game.fm-game .fm-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#171e18 8%,#171e18ec 35%,#171e1840 75%)}
+.fm-game.fm-game .fm-hero-copy{position:relative;max-width:650px;z-index:1}
+.fm-game.fm-game .fm-hero h1{font-size:clamp(43px,5.5vw,73px);line-height:1;letter-spacing:-2.5px;font-weight:760;margin:23px 0 17px}
+.fm-game.fm-game .fm-hero h1 em{font:inherit;color:#c8ff5f}
+.fm-game.fm-game .fm-hero p{max-width:410px;color:#c3d0b6;font-size:14px;line-height:1.7}
+.fm-game.fm-game .fm-hero .fm-kicker{color:#cddaaf;font-size:10px}
+.fm-game.fm-game .fm-hero-features{display:flex;flex-wrap:wrap;gap:12px 23px;margin-top:22px;color:#c6d3b8}
+.fm-game.fm-game .fm-hero-features span{display:inline-flex;align-items:center;gap:7px;font-size:11px}
+.fm-game.fm-game .fm-hero-features svg{width:15px;height:15px;color:#c8ff5f}
+.fm-game.fm-game .fm-hero-mark{padding:20px 33px;gap:14px;border:0;border-radius:0;background:none;transform:rotate(-4deg);color:#e0ecc9}
+.fm-game.fm-game .fm-hero-mark>:is(img,svg){width:112px;height:112px;filter:drop-shadow(0 12px 14px #00100788)}
+.fm-game.fm-game .fm-hero-mark span{font-size:11px;letter-spacing:4px}
+.fm-game.fm-game .fm-hero-mark b{font-size:25px;letter-spacing:2px}
+.fm-game.fm-game .fm-setup-toolbar{background:#232d1d;border-color:#3f4e33;color:#bfcdaf;padding:13px 33px;font-size:12px;gap:11px}
+.fm-game.fm-game .fm-setup-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);padding:31px;gap:34px}
+.fm-game.fm-game .fm-new-career{gap:20px}
+.fm-game.fm-game .fm-era-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.fm-game.fm-game .fm-era-shortcuts button{min-height:86px;padding:12px;border-color:#465737;background:#1a2416;color:#dce8ce;gap:6px}
+.fm-game.fm-game .fm-era-shortcuts button b{font-size:17px;font-weight:600}
+.fm-game.fm-game .fm-era-shortcuts button span{font-size:10px;color:#a6b694}
+.fm-game.fm-game .fm-era-shortcuts button.is-active{background:#36492a;border-color:#c8ff5f;box-shadow:inset 0 -3px 0 #c8ff5f}
+.fm-game.fm-game .fm-era-shortcuts button.is-active b{color:#c8ff5f}
+.fm-game.fm-game .fm-fields{gap:14px}
+.fm-game.fm-game .fm-save-actions{gap:17px;margin-top:0}
+.fm-game.fm-game .fm-club-preview{padding:8px 14px}
+.fm-game.fm-game .fm-preview-identity{position:relative;padding:20px 12px 24px;margin:5px 0;gap:13px}
+.fm-game.fm-game .fm-preview-identity::before{content:"";position:absolute;top:0;width:190px;height:190px;border-radius:50%;border:1px solid #7a985d29;background:radial-gradient(circle,#627c4c21,transparent 70%);pointer-events:none}
+.fm-game.fm-game .fm-preview-identity>.fm-badge{position:relative;width:86px;height:86px;filter:drop-shadow(0 7px 10px #03100477)}
+.fm-game.fm-game .fm-preview-identity h2{position:relative;font-size:33px;margin-top:5px}
+.fm-game.fm-game .fm-preview-identity>span{font-size:12px;color:#aaba95}
+.fm-game.fm-game .fm-preview-players>div{padding:11px 0;font-size:13px;border-color:#3c4b31;gap:11px}
+.fm-game.fm-game .fm-preview-players small{font-size:10px;color:#9faf8d}
+.fm-game.fm-game .fm-preview-players b{font-size:15px;color:#d2e6b4}
+.fm-game.fm-game .fm-position{background:#384b29;border:1px solid #506639;border-radius:5px;color:#d0e5b0;min-width:32px;padding:4px 6px}
+.fm-game.fm-game .fm-roster-coverage{font-size:12px;line-height:1.7;color:#a5b897;padding:13px 0}
+.fm-game.fm-game .fm-roster-coverage strong{color:#cfdfbc;font-weight:500}
+.fm-game.fm-game .fm-coverage-status{font-size:11px;color:#b4c8a0;border-color:#a4cb71;line-height:1.6}
+
+/* Career shell: sidebar on a roomy studio viewport, scrolling tabs when narrow. */
+.fm-game.fm-game.fm-studio-layout{display:grid;grid-template-columns:177px minmax(0,1fr);grid-template-areas:"header header" "nav body" "nav footer" "confirm confirm";align-items:stretch}
+.fm-game.fm-game .fm-career-header{grid-area:header;padding:20px 28px;border-bottom:1px solid #415233;background:#222d1c;gap:20px}
+.fm-game.fm-game .fm-header-identity{gap:15px}
+.fm-game.fm-game .fm-header-identity h1{font-size:28px;font-weight:620;letter-spacing:-.8px;margin:4px 0}
+.fm-game.fm-game .fm-header-identity .fm-kicker{font-size:9px;color:#aac28d;letter-spacing:1.4px}
+.fm-game.fm-game .fm-header-identity small{font-size:12px;color:#b7caa5}
+.fm-game.fm-game .fm-header-season{gap:6px;align-items:flex-end}
+.fm-game.fm-game .fm-header-season span{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#c2d3ae;letter-spacing:0}
+.fm-game.fm-game .fm-header-season svg{width:13px;height:13px}
+.fm-game.fm-game .fm-header-season b{color:#c8ff5f;font-size:12px}
+.fm-game.fm-game .fm-tabs{grid-area:nav;display:flex;flex-direction:column;gap:6px;padding:22px 12px;background:#1f291a;border-right:1px solid #3b4c2c;border-bottom:0;min-width:0;overflow:visible}
+.fm-game.fm-game .fm-tabs button{display:flex;align-items:center;gap:10px;min-height:42px;border:1px solid transparent;border-radius:7px;padding:11px;text-align:left;font-size:12px;font-weight:450;color:#afc09b;background:transparent;transition:background .15s,color .15s}
+.fm-game.fm-game .fm-tabs button svg{width:16px;height:16px;flex-shrink:0;stroke-width:1.65}
+.fm-game.fm-game .fm-tabs button:hover{background:#2d3d21;color:#e0efcb}
+.fm-game.fm-game .fm-tabs button.is-active{background:#384d29;border-color:#506d37;color:#e4ffbe;box-shadow:inset 3px 0 0 #c8ff5f}
+.fm-game.fm-game .fm-tabs button.is-active svg{color:#c8ff5f}
+.fm-game.fm-game .fm-tabs .fm-match-tab{color:#ddf9b5;border-color:#647f43;margin-top:8px}
+.fm-game.fm-game .fm-career-body{grid-area:body;min-width:0;min-height:600px;padding:26px;gap:21px}
+.fm-game.fm-game .fm-section-heading{gap:18px}
+.fm-game.fm-game .fm-section-heading h2{margin-top:6px}
+.fm-game.fm-game .fm-pill{border:1px solid #526e39;border-radius:7px;background:#304226;color:#c9e2ad;padding:7px 10px;font-size:11px}
+.fm-game.fm-game .fm-office-grid{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:20px}
+.fm-game.fm-game .fm-stats{padding:18px 0;border-color:#3c4a30}
+.fm-game.fm-game .fm-stat{gap:6px;padding:0 16px;border-color:#3c4a30}
+.fm-game.fm-game .fm-stat:first-child{padding-left:0}
+.fm-game.fm-game .fm-stat>span{font-size:11px;color:#a4b690}
+.fm-game.fm-game .fm-stat>strong{font-family:"Bricolage Grotesque","Segoe UI",sans-serif;font-size:28px;font-weight:570;line-height:1.1;letter-spacing:-.8px}
+.fm-game.fm-game .fm-stat strong small{font-family:"Outfit",sans-serif;font-size:12px;color:#9cb184;font-weight:400;letter-spacing:0}
+.fm-game.fm-game .fm-stat>small{color:#a4b690}
+.fm-game.fm-game .fm-footer{grid-area:footer;padding:16px 26px;border-color:#3b4b2d;color:#9eb388;font-size:11px;gap:14px}
+.fm-game.fm-game .fm-footer>:is(span,div){display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.fm-game.fm-game .fm-footer svg{width:13px;height:13px}
+.fm-game.fm-game .fm-footer .fm-text-button{text-decoration:none;font-size:11px}
+.fm-game.fm-game .fm-live-return{display:flex;align-items:center;gap:12px;width:100%;padding:14px 17px;border:1px solid #778f4e;border-radius:9px;background:#384d27;color:#d8f2b4;text-align:left;font-size:12px}
+.fm-game.fm-game .fm-live-return>svg{width:18px;height:18px;flex-shrink:0;color:#c8ff5f}
+.fm-game.fm-game .fm-live-return b{margin-left:auto;font-weight:600;color:#c8ff5f}
+
+/* Match feature and tactical board. */
+.fm-game.fm-game .fm-dashboard-hero{position:relative;isolation:isolate;overflow:hidden;min-height:428px;padding:23px;border:1px solid #5c7040;border-radius:12px;background:#2c3d24;justify-content:flex-start}
+.fm-game.fm-game .fm-dashboard-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#1e2c1cef 5%,#263a21b0 50%,#24351eef)}
+.fm-game.fm-game .fm-stadium-art--match{opacity:.72}
+.fm-game.fm-game .fm-dashboard-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.fm-game.fm-game .fm-card-label{display:inline-flex;align-items:center;gap:8px;margin:0;color:#c2d7ac;font-size:11px;letter-spacing:0}
+.fm-game.fm-game .fm-card-label>svg{color:#c8ff5f}
+.fm-game.fm-game .fm-fixture-date{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:#a5bd8d;text-align:right}
+.fm-game.fm-game .fm-match-competition{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:24px;font-size:11px;color:#b3ca9b}
+.fm-game.fm-game .fm-match-competition .fm-badge{background:#e6eadb;padding:3px;border-radius:4px}
+.fm-game.fm-game .fm-match-teams{grid-template-columns:minmax(0,1fr) .6fr minmax(0,1fr);margin:24px 0 28px;gap:8px}
+.fm-game.fm-game .fm-match-teams>div{gap:10px}
+.fm-game.fm-game .fm-match-teams .fm-badge{width:78px;height:78px;filter:drop-shadow(0 8px 8px #07130577)}
+.fm-game.fm-game .fm-match-teams strong{font-size:15px;font-weight:500;max-width:135px;line-height:1.25}
+.fm-game.fm-game .fm-match-teams>div>small{font-size:10px;color:#a4bd8f}
+.fm-game.fm-game .fm-match-teams .fm-score{font-family:"Bricolage Grotesque",sans-serif;font-size:36px;font-weight:650}
+.fm-game.fm-game .fm-match-versus{color:#a6bf8e;font-size:26px;font-weight:400}
+.fm-game.fm-game .fm-match-teams .fm-score small{font-family:"Outfit",sans-serif;white-space:normal;font-size:10px;font-weight:400;letter-spacing:0;line-height:1.5}
+.fm-game.fm-game .fm-studio-crest-fallback{position:relative;width:76px;height:76px;display:grid;place-items:center;color:#b8d596}
+.fm-game.fm-game .fm-studio-crest-fallback b{position:absolute;font-size:12px}
+.fm-game.fm-game .fm-dashboard-actions{margin-top:auto}
+.fm-game.fm-game .fm-match-actions{gap:9px;flex-direction:row}
+.fm-game.fm-game .fm-match-actions .fm-button{min-height:45px;padding:11px 10px;font-size:11px}
+.fm-game.fm-game .fm-last-result{border-color:#536b3b;color:#c5d7b3;font-size:11px;padding-top:14px;margin-top:18px;gap:6px}
+.fm-game.fm-game .fm-last-result span{font-size:10px;color:#9db78a;text-transform:none;letter-spacing:0}
+.fm-game.fm-game .fm-last-result strong{font-weight:450}
+.fm-game.fm-game .fm-season-message{display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:32px 0}
+.fm-game.fm-game .fm-season-message>svg{color:#c8ff5f}
+.fm-game.fm-game .fm-season-message h3{font-size:29px}
+.fm-game.fm-game .fm-season-message p{font-size:13px;color:#b8cea5}
+.fm-game.fm-game .fm-live-feed p{font-size:12px;gap:9px}
+.fm-game.fm-game .fm-live-feed b{color:#c8ff5f}
+.fm-game.fm-game .fm-squad-pitch{min-width:0;display:flex;flex-direction:column;overflow:hidden;border:1px solid #537449;border-radius:12px;background:#2b4b2d}
+.fm-game.fm-game .fm-squad-pitch-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px 11px;background:#25412a;color:#e3eed8}
+.fm-game.fm-game .fm-squad-pitch-heading>div{display:flex;align-items:baseline;gap:13px}
+.fm-game.fm-game .fm-squad-pitch-heading .fm-kicker{font-size:9px;color:#aac29a}
+.fm-game.fm-game .fm-squad-pitch-heading strong{font-family:"Bricolage Grotesque",sans-serif;font-size:22px;font-weight:500;letter-spacing:-1px}
+.fm-game.fm-game .fm-squad-pitch-heading>span{display:flex;align-items:center;gap:6px;font-size:11px;color:#bfd7ad}
+.fm-game.fm-game .fm-pitch-surface{position:relative;isolation:isolate;min-height:344px;flex:1;background:radial-gradient(ellipse at 50% 40%,#41683e,#285032)}
+.fm-game.fm-game .fm-pitch-drawing{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.fm-game.fm-game .fm-kit-marker{position:absolute;width:calc(82% / var(--fm-row-count));max-width:115px;margin-left:0;margin-top:-28px;translate:-50% 0;text-align:center;z-index:1}
+.fm-game.fm-game .fm-kit-button{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:0;border:0;background:none;color:#f1f7e9}
+.fm-game.fm-game .fm-kit-button:disabled{opacity:1;cursor:default}
+.fm-game.fm-game .fm-kit{position:relative;display:block;width:41px;height:39px;filter:drop-shadow(0 3px 3px #081a1266)}
+.fm-game.fm-game .fm-kit>svg{display:block;width:100%;height:100%;fill:var(--kit-color);stroke:#ffffff70;stroke-width:1}
+.fm-game.fm-game .fm-kit svg .fm-kit-collar{fill:none;stroke:var(--kit-ink);stroke-width:1.7;opacity:.55}
+.fm-game.fm-game .fm-kit>b{position:absolute;top:13px;left:0;width:100%;color:var(--kit-ink);font-size:10px;font-weight:800}
+.fm-game.fm-game .fm-kit-rating{position:absolute;right:-9px;bottom:-1px;min-width:19px;padding:1px 3px;border:1px solid #9cbf79;border-radius:4px;background:#1b321b;color:#e1f4c7;font-size:9px;line-height:1.4}
+.fm-game.fm-game .fm-kit-name{display:block;max-width:calc(100% - 4px);padding:1px 5px;border-radius:3px;background:#152e21e8;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fm-game.fm-game .fm-kit-condition{display:block;width:32px;height:3px;overflow:hidden;border-radius:3px;background:#16271a}
+.fm-game.fm-game .fm-kit-condition i{display:block;height:100%;background:#c8ef96}
+.fm-game.fm-game .fm-kit-condition.is-tired i{background:#ecc178}
+.fm-game.fm-game .fm-kit-button>small{color:#d1e2c3;font-size:8px;line-height:1.3}
+.fm-game.fm-game .fm-kit-marker.is-unavailable .fm-kit{opacity:.5}
+.fm-game.fm-game .fm-kit-marker.is-unavailable small{color:#ffbea2}
+.fm-game.fm-game .fm-pitch-caption{display:flex;justify-content:space-between;gap:8px;padding:10px 13px;background:#223e28;color:#b5cba5;font-size:9px}
+.fm-game.fm-game .fm-pitch-empty{position:absolute;inset:40% 20px auto;text-align:center;color:#d5e6c5;font-size:13px}
+
+/* Table-led working screens keep their detail readable. */
+.fm-game.fm-game .fm-news article{gap:13px;padding:15px 0;font-size:13px;border-color:#3e5032}
+.fm-game.fm-game .fm-news article>:is(span,svg){width:17px;height:17px;flex-shrink:0;margin-top:2px;color:#a7c580}
+.fm-game.fm-game .fm-tactics{gap:16px}
+.fm-game.fm-game .fm-tactics>p{font-size:12px;color:#a8b995}
+.fm-game.fm-game .fm-table-scroll{background:#1e291b;border-color:#405333;border-radius:10px;scrollbar-color:#66804b #202a1b;scrollbar-width:thin}
+.fm-game.fm-game .fm-table{font-size:13px}
+.fm-game.fm-game .fm-table th{background:#2b3a23;color:#b0c398;font-size:10px;padding:14px;letter-spacing:.5px;font-weight:500}
+.fm-game.fm-game .fm-table td{padding:14px;border-color:#35462c}
+.fm-game.fm-game .fm-table tbody tr:hover{background:#2c3e23}
+.fm-game.fm-game .fm-table tr.is-own{background:#3a522b;color:#e6f6d0}
+.fm-game.fm-game .fm-table .fm-badge{padding:2px;background:#e4ead7;border-radius:4px}
+.fm-game.fm-game .fm-player-name small{font-size:10px;color:#a3b790;margin-top:3px}
+.fm-game.fm-game .fm-rating{background:#435e2d;border-color:#708d4c;color:#e0f8bf;border-radius:5px;min-width:31px;padding:4px 7px}
+.fm-game.fm-game .fm-market-filters{gap:18px}
+.fm-game.fm-game .fm-window-note{padding:14px 17px;border:0;border-left:3px solid #accc7c;border-radius:5px;background:#2f4224;color:#cbdcb8;font-size:12px;line-height:1.7}
+.fm-game.fm-game .fm-negotiation{background:#304426;border-color:#718f47;gap:18px}
+.fm-game.fm-game .fm-negotiation-result{border-color:#5a783c;font-size:13px;padding-top:14px;gap:10px}
+.fm-game.fm-game .fm-report-grid{gap:18px}
+.fm-game.fm-game .fm-report{gap:16px}
+.fm-game.fm-game .fm-report p,.fm-game.fm-game .fm-report-grid>.fm-panel>p{font-size:13px;color:#aebe9e;line-height:1.65}
+.fm-game.fm-game .fm-report>.fm-button{margin-top:auto}
+.fm-game.fm-game .fm-press{background:#242f1f;padding:31px;gap:23px}
+.fm-game.fm-game .fm-press h2{font-family:"Bricolage Grotesque",sans-serif;font-weight:550;line-height:1.22;font-size:clamp(26px,3vw,39px)}
+.fm-game.fm-game .fm-press-options button{padding:19px;border-color:#4e683b;background:#1c2a17;color:#e0eccf;gap:6px 14px}
+.fm-game.fm-game .fm-press-options button:hover:not(:disabled){background:#334b26;border-color:#a0c76c}
+.fm-game.fm-game .fm-press-options strong{font-size:15px;font-weight:500}
+.fm-game.fm-game .fm-press-options span{font-size:12px;color:#adbf9b}
+.fm-game.fm-game .fm-press-options b{color:#c9e89f}
+.fm-game.fm-game .fm-honours{gap:18px}
+.fm-game.fm-game .fm-honours .fm-panel{padding:30px 18px;gap:17px;border-color:#605b36;background:radial-gradient(ellipse at 50% 0,#75663230,transparent 75%),#2a2d1f}
+.fm-game.fm-game .fm-honours img{filter:drop-shadow(0 8px 9px #03100577)}
+.fm-game.fm-game .fm-honours p{font-size:12px;color:#bebe9f}
+.fm-game.fm-game .fm-honours strong{font-size:13px}
+
+/* Medical, training and promotion rules. */
+.fm-game.fm-game .fm-medical-ribbon{margin:0;padding:15px 18px;gap:18px;border-color:#465d36;border-radius:9px;background:#2a3b21;color:#d4e3c4;font-size:12px}
+.fm-game.fm-game .fm-medical-ribbon small{color:#a8bd93;font-size:10px}
+.fm-game.fm-game .fm-medical-ribbon button:hover{color:#c8ff5f}
+.fm-game.fm-game .fm-training,.fm-game.fm-game .fm-medical{margin-bottom:0}
+.fm-game.fm-game .fm-training>p{margin-top:13px;font-size:13px;color:#aaba99}
+.fm-game.fm-game .fm-training-plans{gap:12px;margin-top:22px}
+.fm-game.fm-game .fm-training-plans button{min-height:158px;padding:20px 17px 31px;border-color:#526f3d;border-radius:8px;background:#1c2b16;color:#dcebcf}
+.fm-game.fm-game .fm-training-plans button.is-active{background:#3c552a;border-color:#b7dc7a;box-shadow:inset 0 0 0 1px #a0c86b}
+.fm-game.fm-game .fm-training-plans button.is-active>span{color:#c8ff5f}
+.fm-game.fm-game .fm-training-plans small{color:#b9cea7;font-size:12px;line-height:1.6}
+.fm-game.fm-game .fm-injury-list article{border-color:#465738;padding:17px 0;gap:15px}
+.fm-game.fm-game .fm-injury-list small,.fm-game.fm-game .fm-cell-detail{color:#acba9b;font-size:10px}
+.fm-game.fm-game .fm-medical-cross{border-radius:8px;background:#693f2e;color:#ffb69d}
+.fm-game.fm-game .fm-fitness{color:#c3e89a;gap:5px}
+.fm-game.fm-game .fm-fitness small{font-size:10px;line-height:1.4}
+.fm-game.fm-game .fm-fitness-track{background:#435236}
+.fm-game.fm-game .fm-fitness.is-tired{color:#e8c885}
+.fm-game.fm-game .fm-fitness.is-exhausted,.fm-game.fm-game .fm-fitness.is-injured{color:#ffad93}
+.fm-game.fm-game .fm-division-panel{margin:4px 0 16px;padding:22px;border-color:#51663e;border-radius:10px;background:#2d3d23}
+.fm-game.fm-game .fm-division-rules details{border-color:#4b6538;padding:14px 0}
+.fm-game.fm-game .fm-division-rules summary small{color:#adbd97}
+.fm-game.fm-game .fm-division-rules p,.fm-game.fm-game .fm-division-rules a{font-size:12px;line-height:1.7}
+.fm-game.fm-game .fm-division-rules a{color:#c8ff5f}
+.fm-game.fm-game .fm-zone-legend{color:#b9cda4;font-size:10px;gap:13px}
+.fm-game.fm-game .fm-zone-promotion{background:#4d7336;color:#e4ffc7}
+.fm-game.fm-game .fm-zone-playoff{background:#356461;color:#c0f1e7}
+.fm-game.fm-game .fm-zone-relegation{background:#713f2d;color:#ffccb1}
+.fm-game.fm-game .fm-zone-barrage{background:#6b5b28;color:#ffe6a0}
+.fm-game.fm-game .fm-playoff-card{background:#23351b;border-color:#526d3b;padding:17px}
+.fm-game.fm-game .fm-playoff-tie{border-color:#516b3e}
+.fm-game.fm-game .fm-playoff-tie>b,.fm-game.fm-game .fm-division-movements p>span{color:#b3c69c}
+.fm-game.fm-game .fm-playoff-tie p,.fm-game.fm-game .fm-cup-results>p{font-size:11px}
+
+/* Historical provenance remains discoverable and readable. */
+.fm-game.fm-game .fm-source-panel{gap:22px}
+.fm-game.fm-game .fm-source-panel>p{font-size:13px;line-height:1.8;color:#b3c2a1}
+.fm-game.fm-game .fm-source-list p{font-size:12px;color:#acbe99;line-height:1.7}
+.fm-game.fm-game .fm-coverage-leagues span{font-size:10px;padding:6px 9px;background:#304324;color:#bbcca9}
+.fm-game.fm-game .fm-coverage-leagues span.is-documented{background:#425c2e;color:#dff3c0}
+.fm-game.fm-game .fm-player-provenance{font-size:11px;max-width:310px}
+.fm-game.fm-game .fm-player-provenance summary{font-size:10px;color:#a7bf92;padding:5px 0 0}
+.fm-game.fm-game .fm-player-provenance>div{padding:14px;gap:7px;border:1px solid #5a7740;border-radius:7px;background:#304523;line-height:1.65;color:#d2e4bd}
+.fm-game.fm-game .fm-player-provenance a{color:#c8ff5f}
+.fm-game.fm-game .fm-archive-update{margin-bottom:0;border-color:#6c8349;border-left-color:#c8ff5f;background:#304123;color:#dbe9c9;padding:19px;font-size:13px;line-height:1.65}
+.fm-game.fm-game .fm-archive-update p{color:#bbcfa3}
+.fm-game.fm-game .fm-status{border:1px solid #4b6737;background:#2d4323;color:#c4dbaa;padding:14px 17px;font-size:12px}
+.fm-game.fm-game .fm-notice{border:1px solid #937e43;border-radius:8px;background:#464020;color:#f3dfa8;font-size:13px}
+.fm-game.fm-game .fm-empty{font-size:13px;color:#a8b99a;padding:30px!important}
+.fm-game.fm-game .fm-confirm{grid-area:confirm;background:#344725;border-color:#61794a;padding:21px 26px}
+.fm-game.fm-game .fm-confirm p{font-size:13px;color:#d5e3c4}
+.manager-native-host{container-type:inline-size}
+
+/* Widen only this game's desktop launch; other game shells keep their sizing. */
+.launch-overlay:has(.manager-native-host) .launch-body{background:#111811}
+.launch-overlay:has(.manager-native-host) .launch-game-area{max-width:1360px;width:100%;margin-inline:auto;padding-inline:20px;background:transparent}
+.launch-overlay:has(.manager-native-host) .launch-game-area-layout{width:100%;max-width:1320px;margin-inline:auto}
+.launch-overlay:has(.manager-native-host) .launch-game-area-stage{width:100%;max-width:none;min-width:0;margin:0;background:transparent}
+.launch-overlay:has(.manager-native-host) .launch-game-area-layout--with-ads{display:block}
+.launch-overlay:has(.manager-native-host) .playground-ad-column{display:none}
+
+@container(max-width:960px){
+ .fm-game.fm-game.fm-studio-layout{grid-template-columns:1fr;grid-template-areas:"header" "nav" "body" "footer" "confirm"}
+ .fm-game.fm-game .fm-tabs{flex-direction:row;overflow-x:auto;gap:3px;padding:8px 14px;border-right:0;border-bottom:1px solid #455b32;scrollbar-width:thin;scrollbar-color:#728954 #26361c}
+ .fm-game.fm-game .fm-tabs button{flex-shrink:0;padding:9px 12px;font-size:11px;gap:7px}
+ .fm-game.fm-game .fm-tabs button.is-active{box-shadow:inset 0 -2px 0 #c8ff5f}
+ .fm-game.fm-game .fm-tabs .fm-match-tab{margin-top:0}
+}
+@container(max-width:680px){
+ .fm-game.fm-game .fm-hero{min-height:300px;padding:32px 25px}.fm-game.fm-game .fm-hero h1{font-size:51px;letter-spacing:-2px}.fm-game.fm-game .fm-hero-mark{display:none}
+ .fm-game.fm-game .fm-hero::after{background:linear-gradient(90deg,#172018f5,#172018c0 70%,#17201877)}
+ .fm-game.fm-game .fm-setup-grid{grid-template-columns:1fr;padding:21px;gap:25px}.fm-game.fm-game .fm-panel{padding:21px}.fm-game.fm-game .fm-fields{grid-template-columns:1fr 1fr}
+ .fm-game.fm-game .fm-setup-toolbar{padding:13px 24px;font-size:11px}.fm-game.fm-game .fm-career-header{padding:21px;gap:13px}
+ .fm-game.fm-game .fm-header-identity h1{font-size:26px}.fm-game.fm-game .fm-header-season span{font-size:10px}
+ .fm-game.fm-game .fm-career-body{padding:23px 19px;gap:21px}.fm-game.fm-game .fm-office-grid{grid-template-columns:1fr}
+ .fm-game.fm-game .fm-dashboard-hero{min-height:385px}.fm-game.fm-game .fm-squad-pitch{min-height:454px}.fm-game.fm-game .fm-pitch-surface{min-height:365px}
+ .fm-game.fm-game .fm-kit-name{font-size:12px}
+ .fm-game.fm-game .fm-stats-four{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 0}.fm-game.fm-game .fm-stats-four .fm-stat:nth-child(2){border-right:0}.fm-game.fm-game .fm-stats-four .fm-stat:nth-child(3){padding-left:0}
+ .fm-game.fm-game .fm-medical-ribbon{flex-wrap:wrap;gap:16px}.fm-game.fm-game .fm-medical-ribbon>span{flex:1}.fm-game.fm-game .fm-medical-ribbon button{flex-basis:100%;border-top:1px solid #4d6935;padding-top:12px}
+ .fm-game.fm-game .fm-training-plans{grid-template-columns:1fr}.fm-game.fm-game .fm-training-plans button{min-height:0;padding:20px 39px 20px 17px}.fm-game.fm-game .fm-training-plans b{top:20px;bottom:auto}
+ .fm-game.fm-game .fm-honours,.fm-game.fm-game .fm-report-grid{grid-template-columns:1fr}.fm-game.fm-game .fm-honours .fm-panel{padding:30px}
+ .fm-game.fm-game .fm-footer{flex-direction:column;align-items:flex-start;padding:17px 21px;gap:8px}
+ .fm-game.fm-game .fm-archive-update{flex-direction:column;align-items:stretch;gap:14px;padding:18px}.fm-game.fm-game .fm-archive-actions{flex-direction:row;flex-wrap:wrap;align-items:center}
+ .fm-game.fm-game .fm-live-return{flex-wrap:wrap}.fm-game.fm-game .fm-live-return b{margin-left:30px}
+}
+@container(max-width:440px){
+ .fm-game.fm-game h2{font-size:28px}.fm-game.fm-game .fm-hero{min-height:311px;padding:29px 20px}.fm-game.fm-game .fm-hero h1{font-size:43px;letter-spacing:-1.6px;line-height:1.02}
+ .fm-game.fm-game .fm-hero p{font-size:13px;max-width:278px}.fm-game.fm-game .fm-hero-features{gap:10px 16px}.fm-game.fm-game .fm-hero-features span{font-size:10px}.fm-game.fm-game .fm-hero .fm-kicker{font-size:9px}
+ .fm-game.fm-game .fm-setup-toolbar{padding:12px 18px;font-size:10px;gap:8px;flex-wrap:wrap}.fm-game.fm-game .fm-setup-toolbar .fm-text-button{font-size:10px}
+ .fm-game.fm-game .fm-setup-grid{padding:15px}.fm-game.fm-game .fm-panel{padding:19px}.fm-game.fm-game .fm-fields{grid-template-columns:1fr}
+ .fm-game.fm-game .fm-era-shortcuts button{padding:11px 9px;min-height:87px}.fm-game.fm-game .fm-era-shortcuts button b{font-size:15px}.fm-game.fm-game .fm-era-shortcuts button span{font-size:9px}
+ .fm-game.fm-game .fm-club-preview{padding:8px 5px}.fm-game.fm-game .fm-preview-identity h2{font-size:31px}
+ .fm-game.fm-game .fm-career-header{padding:18px 15px}.fm-game.fm-game .fm-header-identity{gap:10px}.fm-game.fm-game .fm-header-identity>.fm-badge{width:38px;height:38px}
+ .fm-game.fm-game .fm-header-identity h1{font-size:23px}.fm-game.fm-game .fm-header-identity .fm-kicker{font-size:8px;letter-spacing:1px}.fm-game.fm-game .fm-header-identity small{font-size:10px}
+ .fm-game.fm-game .fm-header-season{max-width:95px;gap:4px}.fm-game.fm-game .fm-header-season span{font-size:9px}.fm-game.fm-game .fm-header-season b{font-size:10px}
+ .fm-game.fm-game .fm-tabs{padding:8px 10px;gap:3px}.fm-game.fm-game .fm-tabs button{flex-direction:column;min-height:56px;gap:5px;padding:9px 12px;font-size:10px;line-height:1.2}.fm-game.fm-game .fm-tabs button svg{width:18px;height:18px}
+ .fm-game.fm-game .fm-career-body{padding:22px 15px;gap:20px}.fm-game.fm-game .fm-section-heading{gap:12px;flex-wrap:wrap}.fm-game.fm-game .fm-section-heading .fm-kicker{font-size:9px}.fm-game.fm-game .fm-pill{font-size:10px}
+ .fm-game.fm-game .fm-stat{padding:0 14px}.fm-game.fm-game .fm-stat>strong{font-size:27px}.fm-game.fm-game .fm-stat>span{font-size:10px}
+ .fm-game.fm-game .fm-dashboard-hero{padding:19px;min-height:390px}.fm-game.fm-game .fm-fixture-date{font-size:9px}.fm-game.fm-game .fm-card-label{font-size:10px}
+ .fm-game.fm-game .fm-match-teams .fm-badge{width:67px;height:67px}.fm-game.fm-game .fm-match-teams strong{font-size:14px}.fm-game.fm-game .fm-match-teams .fm-score{font-size:29px}
+ .fm-game.fm-game .fm-match-actions{flex-direction:column}.fm-game.fm-game .fm-match-actions .fm-button{font-size:12px;min-height:44px}
+ .fm-game.fm-game .fm-squad-pitch{min-height:420px}.fm-game.fm-game .fm-pitch-surface{min-height:333px}.fm-game.fm-game .fm-squad-pitch-heading{padding:15px 17px 11px}
+ .fm-game.fm-game .fm-kit-name{font-size:11px}.fm-game.fm-game .fm-kit{width:39px;height:37px}.fm-game.fm-game .fm-kit>b{top:12px}
+ .fm-game.fm-game .fm-pitch-caption{padding:10px 12px;font-size:8px}.fm-game.fm-game .fm-table th,.fm-game.fm-game .fm-table td{padding:12px}.fm-game.fm-game .fm-table{font-size:12px}
+ .fm-game.fm-game .fm-market-filters{gap:13px}.fm-game.fm-game .fm-market-filters>input{flex-basis:100%}.fm-game.fm-game .fm-market-filters label{font-size:11px}
+ .fm-game.fm-game .fm-tactics{gap:13px}.fm-game.fm-game .fm-tactics>p{max-width:none;font-size:11px}.fm-game.fm-game .fm-press{padding:21px 18px}.fm-game.fm-game .fm-press-options button{padding:17px}
+ .fm-game.fm-game .fm-press-options strong{font-size:14px}.fm-game.fm-game .fm-press-options span{font-size:11px}.fm-game.fm-game .fm-division-panel{padding:17px}
+ .fm-game.fm-game .fm-source-panel .fm-stat{padding:0 9px}.fm-game.fm-game .fm-source-panel .fm-stat:first-child{padding-left:0}.fm-game.fm-game .fm-source-panel .fm-stat>strong{font-size:25px}
+ .fm-game.fm-game .fm-setup>.fm-source-panel{margin:15px}
+}
+@media(max-width:960px){.fm-game.fm-game.fm-studio-layout{grid-template-columns:1fr;grid-template-areas:"header" "nav" "body" "footer" "confirm"}.fm-game.fm-game .fm-tabs{flex-direction:row;overflow-x:auto;border-right:0;padding:9px 12px;border-bottom:1px solid #405531}.fm-game.fm-game .fm-tabs button{flex-shrink:0}}
+@media(max-width:680px){.launch-overlay:has(.manager-native-host) .launch-game-area{padding-inline:0}.manager-native-host .fm-game.fm-game{border-radius:11px}}
+@media(prefers-reduced-motion:reduce){.fm-game.fm-game *,.fm-game.fm-game *::before,.fm-game.fm-game *::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}

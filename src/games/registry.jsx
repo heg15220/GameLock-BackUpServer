@@ -61,6 +61,7 @@ const BasketballCourtGame = lazy(() => import("./arcade/basketball-court"));
 const PingPongArenaGame = lazy(() => import("./arcade/ping-pong-arena"));
 const PadelArenaGame = lazy(() => import("./sports/padel-arena"));
 const TrayectoriaGame = lazy(() => import("./sports/trayectoria"));
+const ManagerGame = lazy(() => import("./sports/manager"));
 const ShellGameGame = lazy(() => import("./arcade/shell-game"));
 const PulsoExactoGame = lazy(() => import("./arcade/pulso-exacto"));
 const DistanciaJustaGame = lazy(() => import("./arcade/distancia-justa"));
@@ -177,6 +178,7 @@ export const GAME_REGISTRY = {
   "sports-ping-pong-arena":      PingPongArenaGame,
   "sports-padel-arena":          PadelArenaGame,
   "sports-trayectoria":          TrayectoriaGame,
+  "sports-manager":              ManagerGame,
   "arcade-shell-game":           ShellGameGame,
   "arcade-pulso-exacto":         PulsoExactoGame,
   "arcade-paso-a-paso":          PasoAPasoGame,
@@ -214,6 +216,7 @@ export function getGameComponent(gameId) {
 // ─── Control hints (bilingual) ────────────────────────────────────────────
 export const CONTROL_HINTS_BY_LOCALE = {
   es: {
+    "sports-manager": "Elige época, liga y club. Sigue las jugadas animadas: posesión, recuperaciones, contraataques y balón parado. Reproduce a 1×, 2× o 4×, pausa para ajustar formación, presión, amplitud, pases, ritmo, línea defensiva y transiciones, o cambiar jugadores. Reanuda desde el banquillo. Las decisiones afectan al tiempo restante. También puedes saltar minutos o ver el resultado. En Mercado, consulta al club, acuerda el traspaso y negocia salario, prima, duración y rol. Confirma una incorporación inmediata o futura según la ventana. En Ojeadores, elige perfil y red; avanza días sin saltar partidos para recibir informes. Gestiona lesiones y descanso. Guardado automático y exportación de partidas.",
     "adventure-echoes":            "WASD/flechas para moverse. Buscar, escanear, raciones, baliza y salto táctico (B).",
     "action-core-strike":          "WASD/flechas para moverse. Ráfaga, cohete, overdrive, defensa y botiquín por rondas.",
     "racing-neon-lanes":           "Izq/der cambia carril, arriba/abajo velocidad, espacio turbo, I item.",
@@ -304,6 +307,7 @@ export const CONTROL_HINTS_BY_LOCALE = {
     "racing-sunset-slipstream":    "Izq/der maniobra, arriba acelera, abajo enfria el ritmo, Espacio activa focus y R reinicia.",
   },
   en: {
+    "sports-manager": "Choose an era, league and club. Follow animated plays: possession, recoveries, counterattacks and set pieces. Play at 1×, 2× or 4×, pause to adjust formation, pressing, width, passing, tempo, defensive line and transitions, or substitute players. Then resume from the touchline. Decisions affect the remaining time. You can also skip minutes or go to full time. In Transfers, enquire with the club, agree a fee, then negotiate wages, bonus, duration and role. Confirm an immediate or future arrival according to the window. In Scouting, select a profile and network; advance days without skipping fixtures to receive reports. Manage injuries and rest. Autosave and save export available.",
     "adventure-echoes":            "WASD/arrows to move. Search, scan, rations, beacon and tactical jump (B).",
     "action-core-strike":          "WASD/arrows to move. Burst, rocket, overdrive, defense and medkit across rounds.",
     "racing-neon-lanes":           "Left/right changes lane, up/down speed, space turbo, I item.",

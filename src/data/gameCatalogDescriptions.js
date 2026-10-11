@@ -279,6 +279,10 @@ export const gameCatalogDescriptions = {
     es: "Carrera de futbolista de los 16 a los 40: elige club, decide y resuelve las jugadas decisivas de cada temporada.",
     en: "A footballer's career from 16 to 40: pick clubs, decide, and settle the plays each season comes down to.",
   },
+  "sports-manager": {
+    es: "Dirige desde el banquillo: cambia tácticas y jugadores en directo. Ligas verificadas por temporada, mercado de verano e invierno, ojeadores y ascensos. Plantillas históricas parciales.",
+    en: "Manage from the touchline: change tactics and players live. Verified season leagues, summer and winter transfers, scouting and promotion. Partial historical squads.",
+  },
   "arcade-shell-game": {
     es: "El juego de los vasos: sigue la bola mientras cruzan más rápido.",
     en: "The cups game: follow the ball as the cups cross ever faster.",
