@@ -26,6 +26,7 @@ import { pressAfterMatch, weeklyDressingRoom, checkPromises, addEvent } from './
 import { addInbox, addNews } from './inbox.js';
 import { seasonIncome, ticketPrice, moneyScale } from './economy.js';
 import { TACTIC_DEFAULTS } from './match.js';
+import { getAvailableYears } from '../league-memberships.js';
 
 export const CAREER_VERSION = 3;
 
@@ -42,7 +43,7 @@ export function defaultDeepLeagues(world, clubId) {
   return [...new Set([own, ...sameCountry, ...top])].slice(0, 10);
 }
 
-export function createCareer({ year = 2025, clubId, managerName = 'Mánager', seed = null, nationFifa = null, deepLeagues = null, avatar = 0 }) {
+export function createCareer({ year = getAvailableYears().at(-1), clubId, managerName = 'Mánager', seed = null, nationFifa = null, deepLeagues = null, avatar = 0 }) {
   const careerSeed = seed || `C${year}-${clubId}-${Date.now().toString(36)}`;
   const world = buildWorld(year, careerSeed);
   const club = world.clubs[clubId];

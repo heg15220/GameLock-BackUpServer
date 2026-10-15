@@ -6,6 +6,19 @@ const findPlayer=(snapshot,name)=>snapshot.players.find(player=>player.name===na
 const members=(snapshot,league)=>snapshot.clubs.filter(club=>club.competitionId===league).map(club=>club.id);
 
 describe('football manager historical data',()=>{
+  it('builds the current 2026/27 world with that season’s participants and documented players',()=>{
+    const snapshot=getManagerWorld(2026);
+    expect(snapshot.year).toBe(2026);
+    expect(members(snapshot,'laliga')).toHaveLength(20);
+    expect(members(snapshot,'laliga')).toEqual(expect.arrayContaining(['deportivo-la-coruna','racing-santander','malaga']));
+    const barcelona=snapshot.clubs.find(club=>club.id==='barcelona');
+    expect(barcelona.rosterCoverage.realPlayers).toBeGreaterThan(15);
+    const imported=snapshot.players.filter(player=>player.clubId==='barcelona'&&player.source==='wikimedia-season-squad');
+    expect(imported.length).toBeGreaterThan(15);
+    expect(snapshot.players.filter(player=>player.clubId==='barcelona'&&player.real).length).toBeGreaterThan(15);
+    for(const player of imported)expect(player.membershipSeason).toBe('2026/27');
+    expect(()=>getManagerWorld(2027)).toThrow(RangeError);
+  });
   it('puts the requested 2012 stars and prospects in their era-specific clubs',()=>{
     const snapshot=getManagerWorld(2012);
     expect(findPlayer(snapshot,'Lionel Messi')).toMatchObject({clubId:'barcelona',real:true,rating:96});

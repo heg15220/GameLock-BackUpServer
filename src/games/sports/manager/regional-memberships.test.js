@@ -6,6 +6,15 @@ const table=(count,context,kind='standings',prefix='Club')=>({context,kind,teams
 const htmlTable=(count,heading='Regular season')=>`<h2>${heading}</h2><table class="wikitable"><tr><th>Pos</th><th>Team</th><th>Pts</th></tr>${teams(count).map((team,i)=>`<tr><td>${i+1}</td><td><a href="/wiki/${team.article.replaceAll(' ','_')}">${team.name}</a><sup>1</sup></td><td>12</td></tr>`).join('')}</table>`;
 
 describe('attributed regional participant extraction',()=>{
+  it('keeps team columns aligned across shared stadiums and excludes attendance totals',()=>{
+    const html='<h2>Teams</h2><table><tr><th>Team</th><th>Stadium</th><th>City</th></tr>'+
+      Array.from({length:4},(_,i)=>`<tr><td><a href="/wiki/Club_${i*2}">Club ${i*2}</a></td><td rowspan="2">Shared ground</td><td>City</td></tr><tr><td><a href="/wiki/Club_${i*2+1}">Club ${i*2+1}</a></td><td><a href="/wiki/City">City</a></td></tr>`).join('')+'</table>';
+    const selected=selectWikiParticipants(parseWikiMembershipTables(html));
+    expect(selected.teams).toHaveLength(8);
+    expect(selected.teams.map(team=>team.article)).not.toContain('City');
+    const attendance=htmlTable(8,'Attendance').replace('</table>','<tr><td>9</td><td>League total</td><td>100</td></tr></table>');
+    expect(parseWikiMembershipTables(attendance).tables).toEqual([]);
+  });
   it('excludes season details navigation without discarding grouped or numeric clubs',()=>{
     const html=htmlTable(12,'Teams').replace('>Club 0</a>','>LDU Quito</a> (<a href="/wiki/2011_LDU_Quito_season">details</a>)')
       .replace('/wiki/Club_0','/wiki/LDU_Quito').replaceAll('Club_1"','1899_Hoffenheim"').replace('>Club 1</a>','>1899 Hoffenheim</a>');

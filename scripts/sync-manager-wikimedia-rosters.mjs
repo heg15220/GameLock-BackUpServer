@@ -2,6 +2,8 @@ import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { fetchWikimedia, backoffWikimedia } from './manager-wikimedia-rate-limit.mjs';
+import { seasonYears, latestSeasonYear } from './lib/manager-season-range.mjs';
+import { currentClubSeasonEvidence } from './lib/current-club-season.mjs';
 import { parseWikiRoster, wikiPlayerBirthDate, wikiPlayerFootballFacts } from '../src/games/sports/manager/wikimedia-roster-parser.js';
 
 const option = (name, fallback) => process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3) ?? fallback;
@@ -73,7 +75,9 @@ Object.assign(clubs,{
  atalanta:'Atalanta BC',bologna:'Bologna FC 1909','brescia-calcio':'Brescia Calcio',cagliari:'Cagliari Calcio',genoa:'Genoa CFC',lecce:'US Lecce',parma:'Parma Calcio 1913',sampdoria:'UC Sampdoria','sassuolo-calcio':'US Sassuolo Calcio','spal-2013-ferrara':'SPAL',torino:'Torino FC',udinese:'Udinese Calcio',verona:'Hellas Verona FC',empoli:'Empoli FC',palermo:'Palermo FC',livorno:'AS Livorno Calcio',siena:'AC Siena',catania:'Calcio Catania',cesena:'AC Cesena',novara:'Novara Calcio',pescara:'Delfino Pescara 1936',crotone:'FC Crotone',benevento:'Benevento Calcio',frosinone:'Frosinone Calcio',salernitana:'US Salernitana 1919',spezia:'Spezia Calcio',monza:'AC Monza','venezia-fc':'Venezia FC',bari:'AS Bari',
 });
 const yearArgument = option('years', 'all');
-const years = yearArgument === 'all' ? Array.from({length:36}, (_,i) => 1990+i) : yearArgument.split(',').map(Number);
+const years = yearArgument === 'all' ? seasonYears() : yearArgument.split(',').map(Number);
+const currentClubPages = process.argv.includes('--current-club-pages');
+if (currentClubPages && (years.length !== 1 || years[0] !== latestSeasonYear())) throw Error('Current club pages require the current season only');
 const offline = process.argv.includes('--offline');
 const quiet = process.argv.includes('--quiet');
 const compressCache=process.argv.includes('--compress-cache');
@@ -149,6 +153,12 @@ const previous = JSON.parse(await fs.readFile('src/games/sports/manager/wikimedi
 // Always merge with the published archive. A bounded or interrupted research
 // pass cannot remove validated clubs or years outside its selected scope.
 const seasons=structuredClone(previous.seasons), rejected=[], accepted=[], omittedRows=[];
+for(const year of years)for(const [id,record]of Object.entries(seasons[year]||{})){
+ const membership=Object.entries(memberships.seasons[year]||{}).find(([,league])=>league.teams.some(team=>team.clubId===id));
+ if(membership&&membership[0]!==record.competitionId){
+  delete seasons[year][id];rejected.push({year,id,reason:'roster-competition-mismatch',rosterCompetition:record.competitionId,participantCompetition:membership[0]});
+ }
+}
 const rosterRowsCache=new Map();
 const parsedRows=(source,requireSquadSection=false)=>{
  const key=`${source.pageId}:${source.revision}:${requireSquadSection}`;
@@ -197,10 +207,11 @@ async function importRoster({year,id,title,competitionId,name,season}){
   return;
  }
  const expectedPrefix=season.replace('/','–');
- if(!source.title.replaceAll('-', '–').startsWith(`${expectedPrefix} `) || !/ season$/i.test(source.title)) {
+ const currentEvidence=currentClubPages?currentClubSeasonEvidence(source,season):null;
+ if(currentClubPages?!currentEvidence:(!source.title.replaceAll('-', '–').startsWith(`${expectedPrefix} `) || !/ season$/i.test(source.title))) {
   rejected.push({year,id,title,redirect:source.title,reason:'not-the-requested-season'});return;
  }
- const allRows=parsedRows(source), rows=allRows.length>=11&&allRows.some(row=>row.position==='GK')?allRows:parsedRows(source,true);
+ const allRows=parsedRows(source,currentClubPages), rows=allRows.length>=11&&allRows.some(row=>row.position==='GK')?allRows:parsedRows(source,true);
  // A successfully re-read source invalidated by stricter identity rules must
  // not leave its stale, unverified fragment in the merge from an older run.
  if(seasons[year]?.[id]?.revision===String(source.revision))delete seasons[year][id];
@@ -236,6 +247,7 @@ async function importRoster({year,id,title,competitionId,name,season}){
  (seasons[year] ||= {})[id]={name,competitionId,source:`https://en.wikipedia.org/w/index.php?oldid=${source.revision}`,sourceSha256:hash(source.text),revision:String(source.revision),
   license:'CC-BY-SA-4.0',licenseUrl:'https://creativecommons.org/licenses/by-sa/4.0/',attribution:`Contributors to English Wikipedia, ${source.title}; extracted names, birth dates, nationalities and positions. Structured adaptation by GameLock.`,
   historyUrl:`https://en.wikipedia.org/w/index.php?title=${encodeURIComponent(source.title)}&action=history`,precision:'season',season,complete:false,parsedRows:rows.length,validatedRows:players.length,players};
+ if(currentEvidence)Object.assign(seasons[year][id],{seasonEvidence:currentEvidence,sourceRevisionDate:source.timestamp});
  accepted.push({year,id,competitionId,players:players.length});
  if(!quiet)console.log(JSON.stringify({year,club:id,players:players.length}));
 }
@@ -244,6 +256,7 @@ const inheritedArticles=new Map();
 for(const [,leagues]of Object.entries(memberships.seasons))for(const league of Object.values(leagues))for(const team of league.teams)if(team.article)inheritedArticles.set(team.clubId,team.article);
 const annualLeagues = new Set(['usa-mls','japan-j1','china-super-league','brasileirao','brasileirao-serie-b','liga1','ligapro-serie-a','copa-de-primera','liga-de-primera','liga-bolivia','liga-futve','liga-dominicana-de-futbol','sweden-allsvenskan','norway-eliteserien']);
 for(const year of years)for(const [competitionId,league] of Object.entries(memberships.seasons[year]||{}))for(const team of league.teams){
+ if(currentClubPages&&seasons[year]?.[team.clubId])continue;
  if(requestedLeagues.length&&!requestedLeagues.includes(competitionId))continue;
  const id=team.clubId, article=clubs[id] || team.article || inheritedArticles.get(team.clubId);
  if(requestedClubs && !requestedClubs.includes(id))continue;
@@ -251,7 +264,7 @@ for(const year of years)for(const [competitionId,league] of Object.entries(membe
  const annual=annualLeagues.has(competitionId) || (competitionId==='liga-uruguaya' && year>=2016) || (competitionId==='liga-profesional' && year>=2015);
  const sourceSeason=String(league.season||'').match(/^(\d{4})(?:[-–/](\d{2}|\d{4}))?$/);
  const season=sourceSeason && Number(sourceSeason[1])===year ? (sourceSeason[2]?`${year}/${sourceSeason[2].slice(-2)}`:String(year)) : annual?String(year):`${year}/${String(year+1).slice(-2)}`;
- jobs.push({year,id,title:`${season.replace('/','–')} ${article} season`,competitionId,name:team.name,season});
+ jobs.push({year,id,title:currentClubPages?article:`${season.replace('/','–')} ${article} season`,competitionId,name:team.name,season});
 }
 // Download scarce league/year sources first and rotate across leagues rather
 // than exhausting the history of the richest league before visiting another.
@@ -271,8 +284,8 @@ if(!offline&&option('identity-batch','global')==='global'){
  const identities=new Set();let scanned=0,structuredLists=0;
  for(const job of selected){
   let source;try{source=await readCache(job.title);}catch{}
-  if(source?.text&&source.title.replaceAll('-', '–').startsWith(`${job.season.replace('/','–')} `)&&/ season$/i.test(source.title)){
-   const allRows=parsedRows(source),rows=allRows.length>=11&&allRows.some(row=>row.position==='GK')?allRows:parsedRows(source,true);
+  if(source?.text&&(currentClubPages?currentClubSeasonEvidence(source,job.season):(source.title.replaceAll('-', '–').startsWith(`${job.season.replace('/','–')} `)&&/ season$/i.test(source.title)))){
+   const allRows=parsedRows(source,currentClubPages),rows=allRows.length>=11&&allRows.some(row=>row.position==='GK')?allRows:parsedRows(source,true);
    if(rows.length){structuredLists++;for(const row of rows)if(row.article&&world.countries[row.nationality])identities.add(row.article);}
   }
   if(++scanned%100===0)await fs.writeFile(`${reportDirectory}/preflight.json`,JSON.stringify({processed:scanned,total:selected.length,structuredLists,uniquePlayerTitles:identities.size,requests}));
@@ -293,7 +306,7 @@ for(const [year,clubs]of Object.entries(seasons))for(const [id,roster]of Object.
  if(roster.validatedRows!==undefined)roster.validatedRows=roster.players.length;
  if(!roster.players.length){delete clubs[id];rejected.push({year:Number(year),id,reason:'insufficient-players-after-identity-quarantine'});}
 }
-const result={revision:'2026-10-11-wikimedia-rosters-v6',license:'CC-BY-SA-4.0',licenseUrl:'https://creativecommons.org/licenses/by-sa/4.0/',seasons,rejected};
+const result={revision:'2026-10-15-wikimedia-rosters-v7',license:'CC-BY-SA-4.0',licenseUrl:'https://creativecommons.org/licenses/by-sa/4.0/',seasons,rejected};
 const count=Object.values(seasons).reduce((n,s)=>n+Object.values(s).reduce((m,c)=>m+c.players.length,0),0);
 if(!count)throw Error('No usable rosters; previous output preserved');
 await fs.mkdir('public/data/football-manager',{recursive:true});

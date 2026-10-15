@@ -7,6 +7,7 @@ const ALIASES = {
     'ath bilbao':'athletic-club','ath madrid':'atletico-madrid','atletico madrid':'atletico-madrid',
     sociedad:'real-sociedad',celta:'celta-vigo','la coruna':'deportivo-la-coruna','rcd la coruna':'deportivo-la-coruna',
     'rcd espanol':'espanyol',espanol:'espanyol',santander:'racing-santander','real racing santander':'racing-santander',
+    'real racing club de santander':'racing-santander',
     vallecano:'rayo-vallecano','sp gijon':'sporting-gijon','real sporting':'sporting-gijon',granada:'granada-cf',
     zaragoza:'real-zaragoza',oviedo:'oviedo',logrones:'cd-logrones',lerida:'ue-lleida',lleida:'ue-lleida',
     'real burgos cf':'real-burgos','barcelona b':'barcelona-b','barcelona ii':'barcelona-b','real madrid b':'real-madrid-castilla',

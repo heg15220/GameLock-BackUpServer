@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {OPENFOOTBALL_LEAGUES,CALENDAR_LEAGUES,footballMatches} from '../src/games/sports/manager/providers.js';
 import {managerCompetitionExtensions} from '../src/games/sports/manager/competitions.js';
 import {createMembershipClubResolver,parseMembershipCsv,validateSeasonParticipants} from '../src/games/sports/manager/membership-providers.js';
+import {firstSeasonYear,latestSeasonYear} from './lib/manager-season-range.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),cache=resolve(root,'.cache/football-manager-memberships');
 const args=process.argv.slice(2),offline=args.includes('--offline'),refresh=args.includes('--refresh');
@@ -53,7 +54,7 @@ for(const source of sources){
   for(const item of tree.tree??[]){
     if(!item.path.endsWith(`.${source.format}`))continue;
     const match=/(?:^|\/)(\d{4})(-\d{2})?\/([^/]+)$/.exec(item.path);if(!match)continue;
-    const year=Number(match[1]);if(year<1990||year>2025)continue;
+    const year=Number(match[1]);if(year<firstSeasonYear||year>latestSeasonYear())continue;
     let code=match[3].replace(/\.(?:json|csv)$/,'').replace(/^eng\./,'en.');
     if(code==='1-liga')code='es.1';if(code==='2-liga2')code='es.2';if(['us.1','1-mls'].includes(code))code='mls';
     const competition=competitions.find(comp=>codes[comp.id]===code);if(!competition)continue;
@@ -113,7 +114,8 @@ for(const [year,entries]of Object.entries(seasons)){
 const ordered=Object.fromEntries(Object.entries(seasons).sort(([a],[b])=>a-b).map(([year,entries])=>[year,Object.fromEntries(Object.entries(entries).sort(([a],[b])=>a.localeCompare(b)))]));
 const coverage=competitions.map(competition=>({competitionId:competition.id,years:Object.keys(ordered).filter(year=>ordered[year][competition.id]).map(Number)}));
 rejected.sort((a,b)=>a.year-b.year||a.competitionId.localeCompare(b.competitionId)||a.source.localeCompare(b.source));
-const snapshot={schemaVersion:1,revision:regional?'2026-10-10-participants-v2':'2026-10-10-participants-v1',range:{first:1990,last:2025},sources,seasons:ordered,coverage,rejected};
+const availableYears=Object.keys(ordered).map(Number);
+const snapshot={schemaVersion:1,revision:'2026-10-15-participants-v3',range:{first:Math.min(...availableYears),last:Math.max(...availableYears)},sources,seasons:ordered,coverage,rejected};
 for(const relative of ['src/games/sports/manager/league-memberships.json','public/data/football-manager/league-memberships.json']){
   const target=resolve(root,relative);await mkdir(dirname(target),{recursive:true});
   await writeFile(`${target}.tmp`,`${JSON.stringify(snapshot)}\n`);await rename(`${target}.tmp`,target);

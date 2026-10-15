@@ -11,7 +11,7 @@ import { playerIdentity } from './roster-providers.js';
 import { editorialRosters, editorialSeasonEvidence } from './editorial-rosters.js';
 import { getPlayerAge } from './player-age.js';
 import { hasPlayableRealDepth } from './roster-depth.js';
-import { getAvailableLeagues, getSeasonParticipants, getUnavailableLeagues, managerLeagueCatalog, membershipArchiveRevision } from './league-memberships.js';
+import { getAvailableYears, getAvailableLeagues, getSeasonParticipants, getUnavailableLeagues, managerLeagueCatalog, membershipArchiveRevision } from './league-memberships.js';
 export { getAvailableYears, getAvailableLeagues, getLeagueSeasonCoverage } from './league-memberships.js';
 
 export const dataSources = [
@@ -29,8 +29,7 @@ export const dataSources = [
   { id: 'trayectoria', name: 'Catálogo y recursos de Carrera Futbolera', license: 'Licencias originales de cada recurso; las marcas no se relicencian', url: '/assets/football/', scope: 'Clubes, países, escudos, logos y trofeos ya presentes. El catálogo no abarca todas las ligas del mundo.' },
 ];
 
-const FIRST_YEAR = 1990;
-const LAST_YEAR = 2025;
+const AVAILABLE_YEARS = getAvailableYears();
 const POSITIONS = ['GK','GK','DF','DF','DF','DF','DF','DF','DF','MF','MF','MF','MF','MF','MF','MF','FW','FW','FW','FW','FW','FW'];
 const ERA_CLUB_RATINGS = {
   2012: { barcelona:92, 'real-madrid':91, 'bayern-munchen':88, 'borussia-dortmund':85, 'manchester-united':86, 'manchester-city':86, chelsea:85, arsenal:82, liverpool:79, tottenham:82, juventus:85, 'ac-milan':81, inter:79, napoli:82, 'as-roma':78, 'atletico-madrid':83, malaga:79, valencia:81, 'athletic-club':78, 'paris-saint-germain':83, montpellier:77, lyon:79, porto:79, santos:77, monaco:64, 'rb-leipzig':47 },
@@ -228,7 +227,7 @@ function generatedPlayer(club,year,index,position,ceiling=91) {
 /** Synchronous, deterministic, independent worlds; never mutates Carrera data. */
 export function getManagerWorld(inputYear=2012) {
   const parsed=Number(inputYear);
-  if (!Number.isInteger(parsed)||parsed<FIRST_YEAR||parsed>LAST_YEAR) throw new RangeError(`El año debe estar entre ${FIRST_YEAR} y ${LAST_YEAR}.`);
+  if (!Number.isInteger(parsed)||!AVAILABLE_YEARS.includes(parsed)) throw new RangeError(`No hay participantes documentados para la temporada ${inputYear}.`);
   const year=parsed;
   const playableCompetitions=getAvailableLeagues(year);
   const competitions=[...playableCompetitions];

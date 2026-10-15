@@ -125,11 +125,12 @@ for(const [index,job]of jobs.entries()){
   const rosters=parseMultilingualRoster(text,countries,'es',{pageTitle:job.seasonArticle?page.title:null});
   if(!rosters.length){report.rejected.push({...job,reason:'no supported roster with explicit season'});continue;}
   for(const roster of rosters){
+   if(roster.year!==job.year){report.rejected.push({...job,declaredSeason:roster.season,reason:'not-the-requested-season'});continue;}
    const sourceExclusion=verifiedMultilingualSourceExclusion({clubId:job.clubId,year:roster.year,sourceRevision:String(revision.revid)});
    if(sourceExclusion){report.quarantinedEvidence.push(sourceExclusion);report.rejected.push({...job,declaredSeason:roster.season,reason:sourceExclusion.reason});continue;}
    if(roster.conflictingIdentities.length)report.conflictingRosterRows.push({year:roster.year,clubId:job.clubId,identities:roster.conflictingIdentities,sourceRevision:revision.revid});
-   // A stale heading can refer to the previous season. Retain that declared
-   // season only if the club's independent league catalog also confirms it.
+   // The explicit season and the independent participant list must both match
+   // the requested year; a stale heading must not update another season.
    const membership=Object.entries(memberships.seasons[roster.year]||{}).find(([,league])=>league.teams.some(t=>t.clubId===job.clubId));
    if(!membership || roster.year>job.year || job.year-roster.year>1){report.rejected.push({...job,declaredSeason:roster.season,reason:'season outside archived request/membership'});continue;}
    if(/^\d{4}$/.test(String(membership[1].season))&&roster.season.includes('/')){report.rejected.push({...job,declaredSeason:roster.season,catalogSeason:membership[1].season,reason:'cross-year roster conflicts with documented calendar-year competition'});continue;}

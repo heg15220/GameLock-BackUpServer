@@ -27,6 +27,13 @@ function runSeason(career, log = false) {
 }
 
 describe('career', () => {
+  it('starts in the latest documented season when the caller does not specify a year', () => {
+    const career = createCareer({ clubId: 'barcelona', managerName: 'Actual', seed: 'LATEST' });
+    expect(career.startYear).toBe(2026);
+    expect(career.year).toBe(2026);
+    expect(career.date).toBe('2026-07-01');
+    expect(career.season.year).toBe(2026);
+  });
   it('plays a full season with the national team and rolls over', () => {
     let t = Date.now();
     const career = createCareer({ year: 2025, clubId: 'barcelona', managerName: 'Test', seed: 'T1', nationFifa: 'ESP' });

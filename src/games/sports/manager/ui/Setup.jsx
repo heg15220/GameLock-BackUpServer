@@ -8,7 +8,6 @@ import { assignPositions } from '../career/positions.js';
 import { createStream } from '../career/util.js';
 
 const ERAS = [
-  { year: 2025, es: 'La actualidad', en: 'Today' },
   { year: 2018, es: 'La era del VAR', en: 'The VAR era' },
   { year: 2012, es: 'La era de los gigantes', en: 'The era of giants' },
   { year: 2005, es: 'Los galácticos', en: 'The Galácticos' },
@@ -26,6 +25,7 @@ function useYearWorld(year) {
     const id = setTimeout(() => {
       const world = getManagerWorld(year);
       cache.current.set(year, world);
+      if (cache.current.size > 2) cache.current.delete(cache.current.keys().next().value);
       setState({ year, world });
     }, 30);
     return () => clearTimeout(id);
@@ -38,7 +38,7 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
   const years = useMemo(() => getAvailableYears(), []);
   const [mode, setMode] = useState('home');
   const [step, setStep] = useState(0);
-  const [year, setYear] = useState(2025);
+  const [year, setYear] = useState(() => years[years.length - 1]);
   const [leagueId, setLeagueId] = useState(null);
   const [clubId, setClubId] = useState(null);
   const [nation, setNation] = useState(null);
@@ -49,6 +49,17 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
   const [deep, setDeep] = useState(null);
   const fileRef = useRef(null);
   const world = useYearWorld(year);
+  const eras = [{ year: years[years.length - 1], es: 'Temporada más reciente', en: 'Latest season' }, ...ERAS]
+    .filter((era, index, entries) => years.includes(era.year) && entries.findIndex((entry) => entry.year === era.year) === index);
+  const selectYear = (value) => {
+    if (!years.includes(value) || value === year) return;
+    setYear(value);
+    setLeagueId(null);
+    setClubId(null);
+    setNation(null);
+    setDeep(null);
+    setQuery('');
+  };
 
   const leagues = useMemo(() => (world ? world.competitions.filter((c) => c.simulated !== false && c.selectable !== false && world.clubs.some((club) => club.competitionId === c.id)) : []), [world]);
   const confLeagues = leagues.filter((l) => l.confederation === conf).sort((a, b) => (a.tier || 1) - (b.tier || 1) || (b.strength || 0) - (a.strength || 0));
@@ -69,7 +80,7 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
 
   useEffect(() => { if (leagues.length && !leagues.some((l) => l.id === leagueId)) setLeagueId(null); }, [leagues, leagueId]);
 
-  const steps = [t('Época', 'Era'), t('Liga', 'League'), t('Club', 'Club'), t('Selección', 'Country'), t('Tú', 'You')];
+  const steps = [t('Temporada', 'Season'), t('Liga', 'League'), t('Club', 'Club'), t('Selección', 'Country'), t('Tú', 'You')];
   const canNext = [Boolean(world), Boolean(league), Boolean(club), true, name.trim().length >= 2][step];
 
   const start = () => onStart({ year, clubId: club.id, managerName: name.trim(), nationFifa: nation, deepLeagues: deep, avatar });
@@ -125,13 +136,20 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
       <div className="mg-wizard__body">
         {step === 0 && (
           <section className="mg-step mg-step--era">
-            <h2>{t('¿En qué época empiezas?', 'Which era do you start in?')}</h2>
-            <p>{t('Las plantillas salen del archivo histórico de esa temporada. A partir de ahí, la historia la escribes tú.', "Squads come from that season's historical archive. From there, you write the story.")}</p>
+            <h2>{t('¿En qué temporada empiezas?', 'Which season do you start in?')}</h2>
+            <p>{t('Elige cualquier temporada del archivo. Las ligas y los jugadores documentados corresponden a ese año; las plantillas incompletas se completan con jugadores generados.', 'Choose any archived season. Documented leagues and players belong to that year; incomplete squads are filled with generated players.')}</p>
             <div className="mg-era-big" aria-live="polite"><b>{seasonLabel(year)}</b>{!world && <span className="mg-spin" aria-hidden="true" />}</div>
-            <input className="mg-range" type="range" min={years[0]} max={years[years.length - 1]} value={year} onChange={(e) => setYear(Number(e.target.value))} aria-label={t('Temporada', 'Season')} />
+            <label className="mg-season-select">
+              <span>{t('Todas las temporadas del histórico', 'All archived seasons')}</span>
+              <select value={year} onChange={(e) => selectYear(Number(e.target.value))}>
+                {[...years].reverse().map((availableYear) => <option key={availableYear} value={availableYear}>{seasonLabel(availableYear)}</option>)}
+              </select>
+            </label>
+            <input className="mg-range" type="range" min={0} max={years.length - 1} step={1} value={years.indexOf(year)} onChange={(e) => selectYear(years[Number(e.target.value)])} aria-label={t('Recorrer temporadas', 'Browse seasons')} aria-valuetext={seasonLabel(year)} />
+            <p className="mg-season-range">{seasonLabel(years[0])} — {seasonLabel(years[years.length - 1])} · {years.length} {t('temporadas disponibles', 'available seasons')}</p>
             <div className="mg-era-cards">
-              {ERAS.filter((e) => years.includes(e.year)).map((era) => (
-                <button type="button" key={era.year} className={year === era.year ? 'is-active' : ''} onClick={() => setYear(era.year)}>
+              {eras.map((era) => (
+                <button type="button" key={era.year} className={year === era.year ? 'is-active' : ''} aria-pressed={year === era.year} onClick={() => selectYear(era.year)}>
                   <b>{seasonLabel(era.year)}</b><span>{era[lang]}</span>
                 </button>
               ))}
@@ -255,6 +273,7 @@ function ClubPreview({ world, club, league, lang, t }) {
         <div><dt><Wallet size={13} />{t('Para fichar', 'Transfer budget')}</dt><dd>{money(club.budget, lang)}</dd></div>
         <div><dt><Building2 size={13} />{t('Estadio', 'Stadium')}</dt><dd>~{Math.round(capacityGuess / 1000)} {t('mil', 'k')}</dd></div>
       </dl>
+      {club.rosterCoverage && <p className="mg-roster-coverage">{club.rosterCoverage.realPlayers} {t('jugadores reales', 'real players')} · {club.rosterCoverage.generatedPlayers} {t('generados', 'generated players')}{club.rosterCoverage.source && <> · <a href={club.rosterCoverage.source} target="_blank" rel="noreferrer">{t('Fuente de la plantilla', 'Squad source')}</a></>}</p>}
       <h4>{t('Figuras', 'Key players')}</h4>
       <ul className="mg-preview-players">
         {players.map((p) => {

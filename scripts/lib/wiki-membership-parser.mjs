@@ -5,7 +5,7 @@ const teamHeader=/^(?:teams?|clubs?|clubes|equipos?(?: de f[uú]tbol)?|équipes?
 const standingHeader=/\b(?:pts|points|puntos|pj|pld|played|pos|position)\b/i;
 const participantsSection=/teams|equipos|équipes|participantes|participants|club information|stadia|stadiums|stadios|stades|locations/i;
 const elimination=/top scorers|goleadores|goalscorers|semi.final|quarter.final|finals|play.off|final phase|phase finale|relégation|relegation|promoci[oó]n|repechaje|cuartos|semifinal|descenso|acumulada|aggregate|overall|combined|annual table|liguilla|triangular|hexagonal|final round|championship (?:group|round)|grupo campeonato|fase campeonato/i;
-const nonParticipants=/manager|personnel|sponsor|relevos|entrenador|plantilla|transfer|traspas|foreign|extranjer|uniform|statistics|statistiques|estad[ií]stic|disciplin|fair.play|awards|tarjetas|best xi|best eleven|team of|alineaci[oó]n|\bkits?\b/i;
+const nonParticipants=/manager|personnel|sponsor|relevos|entrenador|plantilla|transfer|traspas|foreign|extranjer|uniform|statistics|statistiques|estad[ií]stic|attendance|asistencia|disciplin|fair.play|awards|tarjetas|best xi|best eleven|team of|alineaci[oó]n|\bkits?\b/i;
 const locationHeader=/stadium|ground|city|location|estadio|ciudad|sede|capacity|capacidad|stade|ville|capacité/i;
 
 /** Extract only labelled league participant/regular-standing tables, never arbitrary page links. */
@@ -15,10 +15,24 @@ export function parseWikiMembershipTables(html){
   const headings=[],tables=[];let namedStage=null;
   for(const element of document.querySelectorAll('h2,h3,h4,h5,table')){
     if(element.tagName.startsWith('H')){const level=Number(element.tagName.slice(1));headings[level]=clean(element.textContent);headings.length=level+1;if(/^(?:Apertura|Clausura|Invierno|Verano)(?:\s+\d+)?$/i.test(headings[level]))namedStage=headings[level];continue;}
-    const rows=[...element.rows].filter(row=>row.closest('table')===element);
+    const sourceRows=[...element.rows].filter(row=>row.closest('table')===element);
+    // Stadium/city cells frequently span several teams. DOM cell indices omit
+    // the occupied columns on following rows; expand spans before reading clubs.
+    const rows=[];
+    sourceRows.forEach((row,r)=>{
+      rows[r]??=[];
+      let c=0;
+      for(const cell of row.cells){
+        while(rows[r][c])c++;
+        for(let dr=0;dr<Math.max(1,cell.rowSpan);dr++)for(let dc=0;dc<Math.max(1,cell.colSpan);dc++){
+          rows[r+dr]??=[];rows[r+dr][c+dc]=cell;
+        }
+        c+=Math.max(1,cell.colSpan);
+      }
+    });
     let headerRow=-1,teamColumn=-1,headerText='';
     for(let index=0;index<Math.min(4,rows.length);index++){
-      const cells=[...rows[index].cells];
+      const cells=rows[index];
       const column=cells.findIndex(cell=>cell.tagName==='TH'&&teamHeader.test(clean(cell.textContent)));
       if(column>=0){headerRow=index;teamColumn=column;headerText=cells.map(cell=>clean(cell.textContent)).join(' ');break;}
     }
@@ -38,7 +52,7 @@ export function parseWikiMembershipTables(html){
     if(elimination.test(context)||nonParticipants.test(context)||personnelOnly||staffChanges)continue;
     const teams=[],seen=new Set();
     for(const row of rows.slice(headerRow+1)){
-      const cell=row.cells[teamColumn];if(!cell||row.cells.length<teamColumn+2)continue;
+      const cell=row[teamColumn];if(!cell||row.length<teamColumn+2)continue;
       const anchors=[...cell.querySelectorAll('a[href]')].filter(anchor=>{
         const href=anchor.getAttribute('href');return /^(?:\.\/|\/wiki\/|\/w\/index\.php\?title=)/.test(href)&&!/(?:File|Image|Template|Help|Category):/.test(href)&&clean(anchor.textContent).length>1;
       });
@@ -46,7 +60,7 @@ export function parseWikiMembershipTables(html){
       // Retain club identities, but not adjacent links to a club's season.
       for(const anchor of anchors.length?anchors:[null]){
         const name=clean(anchor?.textContent??cell.textContent).replace(/\s*\((?:C|R|P|O|A|Q)(?:,\s*[A-Z])*\)\s*$/,'');
-        if(!name||/^\d+$|^(?:Total|TBD|Por definir)$/i.test(name))continue;
+        if(!name||/^\d+$|^(?:(?:League\s+)?Total|TBD|Por definir)$/i.test(name))continue;
         const href=anchor?.getAttribute('href');
         const article=href?.startsWith('/w/index.php')?new URL(href,'https://en.wikipedia.org').searchParams.get('title').replace(/_/g,' '):href?decodeURIComponent(href.replace(/^(?:\.\/|\/wiki\/)/,'').split('#')[0]).replace(/_/g,' '):name;
         if(!article||seen.has(article))continue;

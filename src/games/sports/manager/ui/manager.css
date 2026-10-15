@@ -292,6 +292,9 @@ button.mg-row:hover { background: rgba(30, 58, 74, 0.7); border-color: var(--lin
 .mg-step h2 { font-family: var(--display); font-size: clamp(26px, 4cqw, 40px); font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
 .mg-step > p { color: var(--ink-2); margin-bottom: 16px; max-width: 720px; }
 .mg-era-big { display: flex; align-items: center; gap: 14px; margin: 18px 0 10px; }
+.mg-season-select { display: grid; gap: 8px; margin: 18px 0 12px; max-width: 420px; }
+.mg-season-select select { width: 100%; min-height: 44px; }
+.mg-season-range { color: var(--muted); font-size: 13px; }
 .mg-era-big b { font-family: var(--display); font-size: clamp(56px, 12cqw, 120px); font-weight: 800; line-height: 1; letter-spacing: -0.02em; background: linear-gradient(180deg, #fff, #7fe8d0); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .mg-era-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 18px; }
 .mg-era-cards button { display: grid; gap: 4px; padding: 14px; border-radius: 14px; border: 1px solid var(--line-2); background: var(--glass); text-align: left; transition: transform 0.15s, border-color 0.15s; }

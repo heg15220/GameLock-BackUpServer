@@ -11,9 +11,18 @@ const resolveId=createMembershipClubResolver(world,historicalResults);
 const roundRobin=(count)=>Array.from({length:count},(_,i)=>Array.from({length:count-i-1},(_,j)=>({team1:`Team ${i}`,team2:`Team ${i+j+1}`}))).flat();
 
 describe('documented league participants',()=>{
+  it('loads 2026/27 without treating similarly named clubs or reserves as their first teams',()=>{
+    expect(getAvailableLeagues(2026).length).toBeGreaterThanOrEqual(49);
+    expect(ids('liga-profesional',2026)).toContain('racing-club');
+    expect(ids('liga-profesional',2026)).not.toContain('racing-cordoba');
+    expect(ids('primera-nacional',2026)).toContain('racing-cordoba');
+    expect(ids('austria-2-liga',2026)).toEqual(expect.arrayContaining(['austria-wien-ii','sturm-graz-ii']));
+    expect(ids('austria-2-liga',2026)).not.toContain('austria-wien');
+    expect(ids('austria-2-liga',2026)).not.toContain('sturm-graz');
+  });
   it('offers only backed combinations, exposes every catalog gap and immutable source evidence',()=>{
     expect(managerLeagueCatalog).toHaveLength(51);
-    expect(getAvailableYears()).toEqual(Array.from({length:36},(_,index)=>1990+index));
+    expect(getAvailableYears()).toEqual(Array.from({length:37},(_,index)=>1990+index));
     expect(getAvailableYears('liga-dominicana-de-futbol')).toContain(2025);
     expect(getAvailableYears('liga-dominicana-de-futbol').every(year=>year>=2015)).toBe(true);
     expect(getLeagueSeasonCoverage('liga-mx',1990).available).toBe(false);
@@ -116,7 +125,7 @@ describe('documented league participants',()=>{
       expect(snapshot.coverage.totalLeagues+snapshot.coverage.unavailableLeagues.length).toBe(51);
       expect(new Set(snapshot.clubs.map(club=>club.id)).size).toBe(snapshot.clubs.length);
     }
-    expect(auditedCombinations).toBe(1223);
+    expect(auditedCombinations).toBe(1272);
   });
 });
 

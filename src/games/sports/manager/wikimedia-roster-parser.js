@@ -45,9 +45,10 @@ export function wikiPlayerName(raw, {allowLiteral=false} = {}) {
   return allowLiteral&&/^[\p{L}\p{M} .’'\-]+$/u.test(name)?{name,article:null}:null;
 }
 export function wikiBirthDate(text) {
+  const months=['january','february','march','april','may','june','july','august','september','october','november','december'];
   const templates = wikiTemplates(text, name => /^(age|birth date(?: and age)?|birth-date(?: and age)?|birth date and age2|bda|birthdate and age|dob|dts)$/.test(name));
   for (const template of templates) {
-    const numbers = template.parts.filter(part => /^\d+$/.test(part)).map(Number);
+    const numbers = template.parts.filter(part => !part.includes('=')).map(part => /^\d+$/.test(part) ? Number(part) : months.includes(part.toLowerCase()) ? months.indexOf(part.toLowerCase()) + 1 : NaN);
     // birth date and age2 starts with the reference date, then the birth date.
     const [year, month, day] = template.name.toLowerCase().replaceAll('_',' ') === 'birth date and age2' ? numbers.slice(3) : numbers;
     if (year >= 1900 && year <= 2025 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
@@ -58,7 +59,6 @@ export function wikiBirthDate(text) {
   // Older infoboxes sometimes store a literal date in this exact field.
   // Do not let Date.parse search a paragraph or guess an ambiguous 1/2/1980.
   const literalCandidates=[clean(text),...templates.flatMap(template=>template.parts.filter(part=>!part.includes('=')))];
-  const months=['january','february','march','april','may','june','july','august','september','october','november','december'];
   for(const candidate of literalCandidates){
     const iso=candidate.match(/^(\d{4})-(\d{2})-(\d{2})$/), english=candidate.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/), american=candidate.match(/^([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})$/);
     const year=Number(iso?.[1]||english?.[3]||american?.[3]),month=iso?Number(iso[2]):months.indexOf((english?.[2]||american?.[1]||'').toLowerCase())+1,day=Number(iso?.[3]||english?.[1]||american?.[2]);

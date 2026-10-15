@@ -25,11 +25,13 @@ if(args.includes('--memberships-only')){
 }
 const offline = args.includes('--offline');
 const refresh = args.includes('--refresh');
+const ratingsOnly = args.includes('--ratings-only');
 if (offline && refresh) throw new Error('--offline and --refresh are mutually exclusive');
-if (args.some(arg => !['--offline', '--refresh'].includes(arg) && !arg.startsWith('--years='))) throw new Error('Unknown option');
-const yearArg = args.find(arg => arg.startsWith('--years='))?.slice(8) ?? [1990,1994,1998,2002,2006,...Array.from({length:16},(_,i)=>2010+i)].join(',');
+if (args.some(arg => !['--offline', '--refresh', '--ratings-only'].includes(arg) && !arg.startsWith('--years='))) throw new Error('Unknown option');
+const { latestSeasonYear } = await import('./lib/manager-season-range.mjs');
+const yearArg = args.find(arg => arg.startsWith('--years='))?.slice(8) ?? [1990,1994,1998,2002,2006,...Array.from({length:latestSeasonYear()-2009},(_,i)=>2010+i)].join(',');
 const years = [...new Set(yearArg.split(',').map(Number))].sort((a, b) => a - b);
-if (!years.length || years.length > 36 || years.some(year => !Number.isInteger(year) || year < 1900 || year > 2100)) throw new Error('Provide 1–36 start years between 1900 and 2100');
+if (!years.length || years.some(year => !Number.isInteger(year) || year < 1900 || year > latestSeasonYear())) throw new Error('Provide valid start years up to the current season');
 const world = JSON.parse(await readFile(resolve(root, 'src/games/sports/trayectoria/world.data.json'), 'utf8'));
 await mkdir(cacheRoot, { recursive: true });
 await writeFile(resolve(cacheRoot, '.gitignore'), '*\n', 'utf8');
@@ -114,6 +116,21 @@ for (const year of years) {
     console.log(`${year} ${competitionId}: ${teams.length} clubs, ${prior?.matchesUsed ?? 0} prior matches, ${teams.filter(team => team.rating !== null).length} calibrated ratings`);
   }
   snapshot.seasons[year] = competitions;
+}
+
+if (ratingsOnly) {
+  // An incremental season refresh must preserve the historical archive and the
+  // independently audited identities/affiliations in player-memberships.json.
+  const previous = JSON.parse(await readFile(resolve(root, 'src/games/sports/manager/historical-results.json'), 'utf8'));
+  for (const year of years) if (!Object.keys(snapshot.seasons[year] || {}).length) throw new Error(`No results sources for ${year}; archive preserved`);
+  snapshot.seasons = { ...previous.seasons, ...snapshot.seasons };
+  snapshot.catalog = { ...previous.catalog, ...snapshot.catalog };
+  snapshot.missing = [...previous.missing.filter(row => !years.includes(row.year)), ...snapshot.missing];
+  snapshot.generatedAt = fetchedDates.sort().at(-1);
+  await saveJson('src/games/sports/manager/historical-results.json', snapshot);
+  await saveJson('public/data/football-manager/club-ratings.json', snapshot);
+  console.log(`Updated ratings for ${years.join(', ')}; historical seasons and player identities preserved.`);
+  process.exit(0);
 }
 
 const coreIds = ['Q615', 'Q11571', 'Q43913', 'Q21621995', 'Q113704154', 'Q28967995'];

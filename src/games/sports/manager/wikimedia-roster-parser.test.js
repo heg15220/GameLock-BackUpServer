@@ -13,6 +13,8 @@ describe('open season squad facts',()=>{
   expect(wikiPlayerName('{{sortname|Kevin|Müller|dab=footballer}}')).toEqual({name:'Kevin Müller',article:'Kevin Müller (footballer)'});
  });
  it('reads actual birth dates rather than a career or match date elsewhere',()=>{
+  expect(wikiBirthDate('{{Birth date and age|2006|December|15|df=y}}')).toBe('2006-12-15');
+  expect(wikiBirthDate('{{Birth date and age|2006|unknown|12|15}}')).toBeNull();
   expect(wikiBirthDate('{{Age|1993|04|25|2013|8|31}}')).toBe('1993-04-25');
   expect(wikiBirthDate('{{birth date and age2|2013|6|30|1981|1|1|df=y}}')).toBe('1981-01-01');
   expect(wikiBirthDate('{{Age|1993|02|31}}')).toBeNull();
