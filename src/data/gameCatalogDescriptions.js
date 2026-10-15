@@ -280,8 +280,8 @@ export const gameCatalogDescriptions = {
     en: "A footballer's career from 16 to 40: pick clubs, decide, and settle the plays each season comes down to.",
   },
   "sports-manager": {
-    es: "Dirige desde el banquillo: cambia tácticas y jugadores en directo. Ligas verificadas por temporada, mercado de verano e invierno, ojeadores y ascensos. Plantillas históricas parciales.",
-    en: "Manage from the touchline: change tactics and players live. Verified season leagues, summer and winter transfers, scouting and promotion. Partial historical squads.",
+    es: "Modo carrera de mánager: ficha en verano y en invierno, negocia con clubes y agentes, dirige partidos animados y, si quieres, lleva una selección a la Eurocopa, la Copa América o el Mundial.",
+    en: "Manager career: sign players in summer and winter, negotiate with clubs and agents, coach animated matches and, if you like, lead a country to the Euros, Copa América or World Cup.",
   },
   "arcade-shell-game": {
     es: "El juego de los vasos: sigue la bola mientras cruzan más rápido.",

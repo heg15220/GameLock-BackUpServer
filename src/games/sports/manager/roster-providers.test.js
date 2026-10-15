@@ -4,7 +4,7 @@ import { playerClubAtDate } from './providers.js';
 import { getManagerWorld } from './data.js';
 import rosters from './historical-rosters.json';
 import { world } from '../trayectoria/world.js';
-import { createManagerCareer } from './engine.js';
+import { createCareer } from './career/career.js';
 
 describe('expanded open historical rosters',()=>{
   it('parses real roster facts without confusing former clubs, positions or coaches',()=>{
@@ -121,8 +121,8 @@ describe('expanded open historical rosters',()=>{
     expect(player.memberships[0]).toMatchObject({verificationStatus:'rejected',auditReason:'club-entity-mismatch'});
   });
   it('keeps the men’s Barcelona 2012 lineup and does not turn undocumented reserves into stars',()=>{
-    const career=createManagerCareer({year:2012,clubId:'barcelona',seed:'historical-lineup'});
-    const players=career.world.players,barcelona=players.filter(p=>p.clubId==='barcelona');
+    const career=createCareer({year:2012,clubId:'barcelona',seed:'historical-lineup'});
+    const players=Object.values(career.world.players),barcelona=players.filter(p=>p.clubId==='barcelona');
     expect(players.some(p=>p.name==='Florencia Quiñones')).toBe(false);
     expect(barcelona.filter(p=>/Adriano Correia/.test(p.name))).toHaveLength(1);
     const firstTeam=career.lineup.map(id=>players.find(p=>p.id===id).name);
@@ -131,7 +131,7 @@ describe('expanded open historical rosters',()=>{
     expect(firstTeam).toContain('Sergio Busquets');
     for(const name of ['Andreu Fontàs','Oier Olazábal','Isaac Cuenca']){
       const p=barcelona.find(player=>player.name===name);
-      if(p)expect(p.rating).toBeLessThan(85);
+      if(p)expect(p.ovr).toBeLessThan(85);
       expect(firstTeam).not.toContain(name);
     }
     expect(rosters.historicalPlayers.every(p=>p.gender==='male')).toBe(true);

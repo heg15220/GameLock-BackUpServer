@@ -176,7 +176,7 @@ function addImportedPlayers(players,clubMap,year) {
     player.ratingSource='club-age-model-estimate';
     if(ids.has(player.id))player.id+=`-${row.wikidataId??(row.identityPageId?`${row.identityWiki||'en'}-${row.identityPageId}`:row.birthDate??row.birthYear)}`;
     if(ids.has(player.id))return;
-    Object.assign(player,extra);players.push(player);rememberIdentity(player);ids.add(player.id);remember(player);
+    Object.assign(player,extra);if(Number.isInteger(row.shirtNumber))player.shirtNumber=row.shirtNumber;players.push(player);rememberIdentity(player);ids.add(player.id);remember(player);
     for(const key of linkedPlayerIdentities(row))linkedExisting.add(key);
   };
   for(const row of historicalRosters.historicalPlayers??[]) {

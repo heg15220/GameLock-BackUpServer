@@ -303,6 +303,7 @@ const TABLET_LANDSCAPE_AD_DISABLED_GAME_IDS = new Set([
 
 const PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS = new Set([
   "sports-trayectoria",
+  "sports-manager",
   "knowledge-domino-chain",
   "knowledge-crucigrama-mini",
   "knowledge-sopa-letras-mega",
@@ -414,8 +415,10 @@ function GamePlayground({ game, locale: localeOverride }) {
       PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS.has(gameId)
     );
   const useCompactPortraitBottomAd = PORTRAIT_COMPACT_BOTTOM_AD_GAME_IDS.has(gameId);
+  // Native touch games (Trayectoria, Modo mánager) keep a bottom banner on phones in
+  // both orientations; tablets get it in portrait and side rails in landscape.
   const showTrajectoryMobileBottomAd =
-    gameId === "sports-trayectoria" && viewportFormFactor === "phone";
+    (gameId === "sports-trayectoria" || gameId === "sports-manager") && viewportFormFactor === "phone";
   const showMobileSystemBottomAd =
     adPreviewActiveForGame &&
     viewportFormFactor !== "desktop" &&

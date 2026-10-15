@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest';
 import {getManagerWorld,getManagerSnapshotDate} from './data.js';
-import {createManagerCareer} from './engine.js';
+import {createCareer} from './career/career.js';
 import {careerSeeds} from './rosters.js';
 import {editorialRosters} from './editorial-rosters.js';
 
@@ -63,9 +63,9 @@ describe('independently checked initial historical squads',()=>{
     expect(evidence.sources).toEqual(expect.arrayContaining([expect.stringContaining('oldid=49439402'),
       expect.stringContaining('action=history'),'https://www.rcdeportivo.es/es/protagonistas-plantillas-historicas']));
     expect(players.every(player=>player.ratingSource==='editorial-estimate')).toBe(true);
-    const career=createManagerCareer({year:2011,clubId:'deportivo-la-coruna',seed:'deportivo-2011-cut'});
-    expect(career.lineup).toHaveLength(11);
-    expect(career.lineup.every(id=>career.world.players.find(player=>player.id===id)?.real)).toBe(true);
+    const career=createCareer({year:2011,clubId:'deportivo-la-coruna',seed:'deportivo-2011-cut'});
+    expect(career.lineup.filter(Boolean)).toHaveLength(11);
+    expect(career.lineup.every(id=>career.world.players[id]?.real)).toBe(true);
   });
 
   it('reconstructs Madrid after the 2013 deadline without fabricated affiliations or fillers',()=>{
@@ -86,8 +86,8 @@ describe('independently checked initial historical squads',()=>{
     expect(named(world,'Karim Benzema').age).toBe(25);
     expect(named(world,'Luka Modrić').age).toBe(27);
     expect(world.clubs.find(club=>club.id==='real-madrid').rosterCoverage).toMatchObject({complete:true,realPlayers:23,generatedPlayers:0,precision:'exact-snapshot',snapshotDate:'2013-09-03'});
-    const career=createManagerCareer({year:2013,clubId:'real-madrid',seed:1314});
-    const xi=career.lineup.map(id=>career.world.players.find(player=>player.id===id));
+    const career=createCareer({year:2013,clubId:'real-madrid',seed:'1314'});
+    const xi=career.lineup.map(id=>career.world.players[id]);
     expect(xi.every(player=>player.real)).toBe(true);
     expect(xi.map(player=>player.name)).toEqual(expect.arrayContaining(['Cristiano Ronaldo','Karim Benzema','Gareth Bale','Luka Modrić','Xabi Alonso','Sergio Ramos','Marcelo']));
   });

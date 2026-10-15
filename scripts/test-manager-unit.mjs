@@ -5,8 +5,8 @@ import { spawnSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const directory = 'src/games/sports/manager';
-const tests = readdirSync(resolve(root, directory)).filter(name => name.endsWith('.test.js')).sort()
-  .map(name => `${directory}/${name}`);
+const tests = [directory, `${directory}/career`].flatMap((folder) => readdirSync(resolve(root, folder))
+  .filter(name => name.endsWith('.test.js')).sort().map(name => `${folder}/${name}`));
 if (process.argv.includes('--list')) {
   console.log(tests.join('\n'));
 } else {
