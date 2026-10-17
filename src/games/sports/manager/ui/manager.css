@@ -1305,43 +1305,71 @@ button.mg-card:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1px 
 /* Tablet landscape: reserve real side rails so the banners do not sit on the game. */
 .launch-game-area.launch-game-area--with-tablet-ads[data-game-id="sports-manager"] { padding-inline: 150px; }
 .launch-game-area.launch-game-area--with-tablet-ads[data-game-id="sports-manager"] .launch-tablet-ad-rail { width: 132px; top: 0.5rem; bottom: 0.5rem; }
+/* The page flows on tablets, so the rail runs the whole height of the game: its two
+   banners ride along stuck to the screen, each half of what is visible. */
+.launch-game-area.launch-game-area--with-tablet-ads[data-game-id="sports-manager"] .launch-tablet-ad-rail { --rail-card: calc((100dvh - 3.5rem - 2.25rem) / 2); display: block; overflow: visible; }
+.launch-game-area.launch-game-area--with-tablet-ads[data-game-id="sports-manager"] .launch-tablet-ad-card { position: sticky; top: 0.5rem; height: var(--rail-card); overflow: hidden; }
+.launch-game-area.launch-game-area--with-tablet-ads[data-game-id="sports-manager"] .launch-tablet-ad-card + .launch-tablet-ad-card { top: calc(0.5rem + var(--rail-card) + 0.75rem); margin-top: 0.75rem; }
 .launch-overlay--device-phone .launch-game-area[data-game-id="sports-manager"] { padding: 0.25rem 0.25rem 0; }
 .launch-overlay--device-phone .launch-game-area[data-game-id="sports-manager"] .launch-game-area-layout { display: block; }
 .launch-overlay--device-phone .manager-native-host .mg-root { border-radius: 12px; }
 .game-playground[data-game-id="sports-manager"] .playground-stage-main { min-width: 0; }
 
-/* Phones and tablets: the same native view as Trayectoria. No card, no gutter, no
-   rounded screen floating on the page; the game runs edge to edge under the launch bar. */
-.launch-overlay--device-phone .launch-game-area[data-game-id="sports-manager"],
-.launch-overlay--device-tablet .launch-game-area[data-game-id="sports-manager"] { padding-block: 0; align-items: stretch; }
-.launch-overlay--device-phone .launch-game-area[data-game-id="sports-manager"] { padding-inline: 0; }
-.launch-overlay--device-tablet .launch-game-area[data-game-id="sports-manager"]:not(.launch-game-area--with-tablet-ads) { padding-inline: 0; }
+/* ════════════ Phones and tablets: the Trayectoria model ════════════
+   No fixed box with its own scroll. The game flows down the launch page like
+   Trayectoria's: edge to edge on phones, a card with a gutter on tablets. Every part of
+   the manager stays; what changes is where it sits. The head (club, date, Continue and
+   the section tabs) docks to the top, the phone tab bar and Continue dock to the bottom
+   above the advert (sticky offsets already stop at the launch body's padding, which is
+   the advert's room, so bottom: 0 is right above it), and layers cover exactly the slice of the game on screen
+   (--mg-view-top / --mg-view-h, kept up to date by index.jsx). */
+.mg-head { display: contents; }
+.launch-overlay--device-phone .launch-game-area[data-game-id="sports-manager"] { padding: 0; align-items: stretch; }
+.launch-overlay--device-tablet .launch-game-area[data-game-id="sports-manager"] { padding-top: 1rem; padding-bottom: 2rem; align-items: stretch; }
+.launch-overlay--device-tablet .launch-game-area[data-game-id="sports-manager"]:not(.launch-game-area--with-tablet-ads) { padding-inline: clamp(0.75rem, 2.2vw, 1.5rem); }
 .manager-native-host--phone .mg-root,
-.manager-native-host--tablet .mg-root,
 .launch-overlay--device-phone .manager-native-host .mg-root { border-radius: 0; }
-.manager-native-host--tablet[data-native-orientation="landscape"] .mg-root { border-radius: 0; border-inline: 1px solid rgba(160, 220, 230, 0.13); }
+.manager-native-host--tablet { width: min(100%, 1100px); margin-inline: auto; }
+.launch-game-area--with-tablet-ads .manager-native-host--tablet { width: 100%; }
+.manager-native-host--tablet .mg-root { border-radius: 18px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.38); }
 
-/* Phone held sideways: there is no height to spare for a tab strip and a stage bar, so the
-   sections move to an icon rail on the left and Continue stays in the top bar. */
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-hub { grid-template-columns: 60px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-top { grid-column: 1 / -1; gap: 10px; padding: 4px 10px 4px 12px; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__brand .mg-logo,
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__club small,
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__date small { display: none; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__club strong { font-size: 17px; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__date strong { font-size: 14px; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-top .mg-continue { min-height: 40px; padding-block: 4px; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav { grid-column: 1; grid-row: 2; flex-direction: column; gap: 0; padding: 4px 0; overflow-x: hidden; overflow-y: auto; border-bottom: 0; border-right: 1px solid var(--line); }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav button { justify-content: center; width: 100%; min-height: 44px; padding: 0; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav button > span { display: none; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav button::after { left: 0; right: auto; top: 9px; bottom: 9px; width: 3px; height: auto; border-radius: 0 3px 3px 0; background: var(--accent); transform: scaleY(0); }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav button.is-active::after { transform: scaleY(1); }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav .mg-badge { position: absolute; top: 3px; right: 6px; min-width: 16px; height: 16px; font-size: 10px; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-stagebar,
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-bottom,
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-fab { display: none; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-main { grid-column: 2; grid-row: 2; }
-.manager-native-host--phone[data-native-orientation="landscape"] .mg-main__inner { padding: 12px 14px 24px; }
+.mg-root.is-flow { height: auto; min-height: var(--mg-h, 600px); overflow: clip; }
+.mg-root.is-flow .mg-hub { height: auto; min-height: var(--mg-h, 600px); display: flex; flex-direction: column; }
+.mg-root.is-flow .mg-head { display: block; position: sticky; top: 0; z-index: 26; background: rgba(3, 8, 12, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.mg-root.is-flow .mg-top { background: none; }
+.mg-root.is-flow .mg-main { flex: 1 0 auto; min-height: 0; overflow: visible; }
+.mg-root.is-flow .mg-bottom { position: sticky; bottom: 0; z-index: 26; }
+.mg-root.is-flow .mg-fab { position: sticky; z-index: 27; left: auto; right: auto; height: 0; margin: 0 12px; bottom: 66px; }
+.mg-root.is-flow .mg-fab .mg-continue { position: absolute; left: 0; right: 0; bottom: 0; }
+.mg-root.is-flow .mg-table th,
+.mg-root.is-flow .mg-club-preview,
+.mg-root.is-flow .mg-inbox__detail { top: var(--mg-head-h, 0px); }
+
+/* Setup and the wizard flow as well; the step bar and the Next/Sign button stay at hand. */
+.mg-root.is-flow .mg-setup { height: auto; min-height: var(--mg-h, 600px); overflow: visible; }
+.mg-root.is-flow .mg-setup--home { overflow: visible; }
+.mg-root.is-flow .mg-wizard__head { position: sticky; top: 0; z-index: 6; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); background: rgba(4, 10, 14, 0.9); }
+.mg-root.is-flow .mg-wizard__body { flex: 1 0 auto; overflow: visible; }
+.mg-root.is-flow .mg-wizard__foot { position: sticky; bottom: 0; z-index: 6; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); background: rgba(4, 10, 14, 0.9); }
+
+/* Layers (match, moments, sheets, loading, toasts) cover what the player is looking at. */
+.mg-root.is-flow .mg-matchflow,
+.mg-root.is-flow .mg-moment,
+.mg-root.is-flow .mg-sheet-layer,
+.mg-root.is-flow .mg-loading { inset: auto 0; top: var(--mg-view-top, 0px); height: var(--mg-view-h, var(--mg-h, 600px)); }
+.mg-root.is-flow .mg-sheet { max-height: calc(var(--mg-view-h, var(--mg-h, 700px)) - 32px); }
+.mg-root.is-flow .mg-toast { bottom: auto; top: calc(var(--mg-view-top, 0px) + var(--mg-view-h, var(--mg-h, 600px)) - 16px); translate: 0 -100%; }
+@container mg (max-width: 600px) {
+  .mg-root.is-flow .mg-main__inner { padding-bottom: 24px; }
+  .mg-root.is-flow .mg-sheet { max-height: calc(var(--mg-view-h, var(--mg-h, 700px)) - 10px); }
+  .mg-root.is-flow .mg-toast { top: calc(var(--mg-view-top, 0px) + var(--mg-view-h, var(--mg-h, 600px)) - 128px); }
+}
+
+/* Phone held sideways: little height, so the docked head is kept slim. */
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top { gap: 10px; padding: 4px 10px; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__brand .mg-logo { display: none; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top .mg-continue { min-height: 38px; padding-block: 4px; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav button { min-height: 38px; }
 
 .mg-crash { position: absolute; inset: 20px; z-index: 60; place-content: center; background: rgba(5, 11, 16, 0.96); }
 

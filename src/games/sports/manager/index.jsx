@@ -12,37 +12,104 @@ import { saveCareer, loadCareer, loadSummary, prepareExport, importCareer, delet
 import { unreadCount } from './career/inbox.js';
 import './ui/manager.css';
 
-/** Fit the game to the space its host gives it (launch modal, page, phone). */
+/** Hosts where the game is not a fixed box: it flows down the page, as Trayectoria does. */
+const FLOW_HOSTS = '.manager-native-host--phone, .manager-native-host--tablet';
+/** Layers that cover the game: they must cover what the player is looking at. */
+const OVERLAYS = '.mg-matchflow, .mg-moment, .mg-sheet-layer, .mg-loading';
+
+/** What scrolls the page around the game: the launch modal body, or the window. */
+function scrollerOf(root) {
+  return root.closest('.launch-body');
+}
+
+/** Where the game starts inside its scroller and how much of the scroller is visible. */
+function viewport(root) {
+  const body = scrollerOf(root);
+  if (!body) {
+    const top = root.getBoundingClientRect().top + window.scrollY;
+    return { offset: top, scroll: window.scrollY, visible: window.innerHeight, padBottom: 0 };
+  }
+  const padBottom = parseFloat(getComputedStyle(body).paddingBottom) || 0;
+  const offset = root.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop;
+  return { offset, scroll: body.scrollTop, visible: body.clientHeight - padBottom, padBottom };
+}
+
+/**
+ * Fit the game to the space its host gives it (launch modal, page, phone).
+ *
+ * On desktop the game is a box exactly as tall as the room under the launch bar. On
+ * phones and tablets it flows like Trayectoria: the page scrolls, so overlays are told
+ * which slice of the game is on screen (--mg-view-top/--mg-view-h) and sit there.
+ */
 function useFitHeight(rootRef) {
   const [height, setHeight] = useState(null);
+  const [flow, setFlow] = useState(false);
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return undefined;
+    const isFlow = () => Boolean(root.closest(FLOW_HOSTS));
+    const place = () => {
+      if (!isFlow()) return;
+      const { offset, scroll, visible } = viewport(root);
+      const top = Math.max(0, scroll - offset);
+      root.style.setProperty('--mg-view-top', `${Math.round(top)}px`);
+      root.style.setProperty('--mg-view-h', `${Math.round(visible - Math.max(0, offset - scroll))}px`);
+      // Sticky table heads and side panels sit under the docked head, not behind it.
+      const head = root.querySelector('.mg-head, .mg-wizard__head');
+      root.style.setProperty('--mg-head-h', `${head ? head.offsetHeight : 0}px`);
+    };
     const measure = () => {
-      const body = root.closest('.launch-body');
+      const body = scrollerOf(root);
+      setFlow(isFlow());
       if (body) {
-        const style = getComputedStyle(body);
-        const padBottom = parseFloat(style.paddingBottom) || 0;
-        const bodyRect = body.getBoundingClientRect();
-        const offset = root.getBoundingClientRect().top - bodyRect.top + body.scrollTop;
-        // Phones and tablets run edge to edge, so the breathing gap under the card goes too.
-        const gap = root.closest('.manager-native-host--phone, .manager-native-host--tablet') ? 0 : 6;
-        const available = body.clientHeight - padBottom - offset - gap;
+        const { offset, visible } = viewport(root);
+        // On desktop a small gap under the card; on phones and tablets the game simply fills
+        // the first screen and then grows with its content.
+        const available = visible - offset - (isFlow() ? 0 : 6);
         setHeight(Math.max(200, Math.round(available)));
       } else {
         setHeight(Math.max(520, Math.min(window.innerHeight - 24, 1000)));
       }
+      place();
     };
     measure();
-    const body = root.closest('.launch-body');
+    const body = scrollerOf(root);
+    const scroller = body || window;
     const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
     if (body && observer) observer.observe(body);
+    scroller.addEventListener('scroll', place, { passive: true });
     window.addEventListener('resize', measure);
     window.addEventListener('orientationchange', measure);
     const late = setTimeout(measure, 350);
-    return () => { observer?.disconnect(); window.removeEventListener('resize', measure); window.removeEventListener('orientationchange', measure); clearTimeout(late); };
+
+    // While a layer covers the game the page behind it must not scroll away under it.
+    let locked = false;
+    const lock = () => {
+      if (!isFlow()) return;
+      place();
+      const open = Boolean(root.querySelector(OVERLAYS));
+      if (open === locked) return;
+      locked = open;
+      const target = body || document.documentElement;
+      target.style.overflowY = open ? 'hidden' : '';
+    };
+    // The live match rewrites the DOM many times a second: look at most once per frame.
+    let frame = 0;
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; lock(); }); };
+    const overlays = typeof MutationObserver !== 'undefined' ? new MutationObserver(schedule) : null;
+    overlays?.observe(root, { childList: true, subtree: true });
+    return () => {
+      observer?.disconnect();
+      overlays?.disconnect();
+      cancelAnimationFrame(frame);
+      if (locked) (body || document.documentElement).style.overflowY = '';
+      scroller.removeEventListener('scroll', place);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('orientationchange', measure);
+      clearTimeout(late);
+    };
   }, [rootRef]);
-  return height;
+  return { height, flow };
 }
 
 export default function ManagerGame({ locale = 'es' }) {
@@ -63,11 +130,20 @@ export default function ManagerGame({ locale = 'es' }) {
   const [error, setError] = useState(null);
   const [transfer, setTransfer] = useState(null);
   const transferRequest = useRef(0);
-  const height = useFitHeight(rootRef);
+  const { height, flow } = useFitHeight(rootRef);
   const saveTimer = useRef(null);
   const stopRef = useRef(false);
 
   useEffect(() => { loadSummary().then(setSummary); }, []);
+  useEffect(() => {
+    // A page that flows keeps its scroll between sections; a new section starts at its top.
+    const root = rootRef.current;
+    if (!flow || !root) return;
+    const { offset, scroll } = viewport(root);
+    if (scroll <= offset) return;
+    const body = scrollerOf(root);
+    if (body) body.scrollTop = offset; else window.scrollTo(0, offset);
+  }, [flow, section.id, screen]);
   useEffect(() => {
     // Condensed display face for headings, loaded once for the whole page.
     if (document.getElementById('mg-font')) return;
@@ -270,7 +346,7 @@ export default function ManagerGame({ locale = 'es' }) {
 
   return (
     <ManagerContext.Provider value={value}>
-      <div ref={rootRef} className={`mg-root ${screen === 'setup' ? 'is-setup' : 'is-hub'}`} lang={lang} style={height ? { '--mg-h': `${height}px` } : undefined} data-testid="manager-root">
+      <div ref={rootRef} className={`mg-root ${screen === 'setup' ? 'is-setup' : 'is-hub'}${flow ? ' is-flow' : ''}`} lang={lang} style={height ? { '--mg-h': `${height}px` } : undefined} data-testid="manager-root">
         <Backdrop tint={career?.world.clubs[career.clubId]?.color} />
         {screen === 'setup' || !career
           ? <Setup summary={summary} onStart={startCareer} onResume={resumeCareer} onImport={importFile} onDelete={async () => { await deleteSave(); setSummary(null); }} />

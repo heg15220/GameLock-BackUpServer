@@ -115,33 +115,35 @@ export default function Hub() {
 
   return (
     <div className="mg-hub" style={{ '--club': club?.color || '#2ee6b0' }}>
-      <header className="mg-top">
-        <button type="button" className="mg-top__brand" onClick={() => go('central')} aria-label={t('Ir a la central', 'Go home')}>
-          <Logo size={40} />
-          <Crest team={club} size={34} />
-          <span className="mg-top__club">
-            <strong>{club?.short || club?.name}</strong>
-            <small>{career.managerName} · {seasonLabel(career.year)}</small>
-          </span>
-        </button>
-        <div className="mg-top__date">
-          <strong>{longDate(career.date, lang)}</strong>
-          <small>{L[lang].stages[career.stage]}</small>
-        </div>
-        <div className="mg-top__actions">
-          <button type="button" className={`mg-icon-btn mg-save-dot is-${saveState}`} onClick={exportCareer} aria-label={t('Guardar y exportar código', 'Save and export code')} title={saveState === 'failed' ? t('No se pudo guardar. Exportar una copia', 'Save failed. Export a copy') : t('Guardado automático · Exportar código', 'Autosave · Export code')}><Save size={16} /></button>
-          <ContinueButton />
-        </div>
-      </header>
-      <nav className="mg-nav" aria-label={t('Secciones', 'Sections')}>
-        {sections.map((s) => (
-          <button type="button" key={s.id} className={section.id === s.id ? 'is-active' : ''} aria-current={section.id === s.id ? 'page' : undefined} onClick={() => go(s.id)}>
-            <s.icon size={16} aria-hidden="true" />
-            <span>{s[lang]}</span>
-            {s.id === 'inbox' && unread > 0 && <b className="mg-badge">{unread}</b>}
+      <div className="mg-head">
+        <header className="mg-top">
+          <button type="button" className="mg-top__brand" onClick={() => go('central')} aria-label={t('Ir a la central', 'Go home')}>
+            <Logo size={40} />
+            <Crest team={club} size={34} />
+            <span className="mg-top__club">
+              <strong>{club?.short || club?.name}</strong>
+              <small>{career.managerName} · {seasonLabel(career.year)}</small>
+            </span>
           </button>
-        ))}
-      </nav>
+          <div className="mg-top__date">
+            <strong>{longDate(career.date, lang)}</strong>
+            <small>{L[lang].stages[career.stage]}</small>
+          </div>
+          <div className="mg-top__actions">
+            <button type="button" className={`mg-icon-btn mg-save-dot is-${saveState}`} onClick={exportCareer} aria-label={t('Guardar y exportar código', 'Save and export code')} title={saveState === 'failed' ? t('No se pudo guardar. Exportar una copia', 'Save failed. Export a copy') : t('Guardado automático · Exportar código', 'Autosave · Export code')}><Save size={16} /></button>
+            <ContinueButton />
+          </div>
+        </header>
+        <nav className="mg-nav" aria-label={t('Secciones', 'Sections')}>
+          {sections.map((s) => (
+            <button type="button" key={s.id} className={section.id === s.id ? 'is-active' : ''} aria-current={section.id === s.id ? 'page' : undefined} onClick={() => go(s.id)}>
+              <s.icon size={16} aria-hidden="true" />
+              <span>{s[lang]}</span>
+              {s.id === 'inbox' && unread > 0 && <b className="mg-badge">{unread}</b>}
+            </button>
+          ))}
+        </nav>
+      </div>
       <StageBar />
       <main className="mg-main" key={section.id}>
         <div className="mg-main__inner mg-enter">
