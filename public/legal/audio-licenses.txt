@@ -99,7 +99,58 @@ The net cue stays synthesized: a dead, muffled thud has no good CC0 recording,
 and synthesis does that particular job well.
 
 
-3. SOUNDS NOT YET DOCUMENTED
+3. MODO MÁNAGER — STADIUM ATMOSPHERE, CROWD REACTIONS AND REFEREE
+------------------------------------------------------------------
+
+Source:  Freesound (Music Technology Group, Universitat Pompeu Fabra)
+Site:    https://freesound.org/
+License: CC0 1.0 Universal (Public Domain Dedication) for every file below,
+         checked on each sound's page (the page shows the CC0 deed link,
+         http://creativecommons.org/publicdomain/zero/1.0/).
+         https://creativecommons.org/publicdomain/zero/1.0/
+
+CC0 requires no attribution; the authors are credited here as good practice.
+The edited copies were made from Freesound's high-quality MP3 previews:
+cut to one gesture, faded, loudness-normalised (RMS target per role) and,
+for the three beds, made into seamless loops by cross-fading the tail of the
+excerpt into its head (3 s).
+
+Path: src/games/sports/manager/assets/sounds/
+
+  File               Freesound sound (author)                                         Edit
+  ------------------ ---------------------------------------------------------------- ---------------
+  bed-calm.mp3       #829456 Millerntor Stadium Crowd Reaction Mood Waves (itmightgetloud) 150-196 s, loop
+  bed-lively.mp3     #829454 Millerntor Stadium General Ambience (itmightgetloud)        192-241 s, loop
+  bed-drums.mp3      #500250 Soccer fans screaming and playing drums, Chile (felix.blume) 146-190 s, loop
+  goal-1.mp3         #829455 Millerntor Stadium Crowd Reaction Goal (itmightgetloud)      0.6-12.5 s
+  goal-2.mp3         #829455 (same recording, second goal)                                15.0-28.5 s
+  goal-3.mp3         #829455 (same recording, third goal)                                 38.0-51.0 s
+  goal-4.mp3         #494352 Goal.wav, Cambuur Stadium Leeuwarden (Sandermotions)         5.0-13.8 s
+  ooh-1.mp3          #494362 Soccer stadium Oehh.wav (Sandermotions)                      2.4-7.6 s, mono
+  ooh-2.mp3          #612131 Crowd yelling huuuuu (60k persons), Mineirão (felix.blume)  29.6-40.0 s, mono
+  ooh-3.mp3          #764328 CRWDReac Excitement Build Up, Let Down (ShangusBurger)      0.9-5.6 s, mono
+  groan.mp3          #619007 crowd oh - disappointed (mrrap4food)                         0.0-2.2 s, mono
+  chant-1.mp3        #588617 Football Fans Chanting in Brighton (Urkki69)                 0.0-12.6 s
+  chant-2.mp3        #733614 stadium crowd sing (AxelTheCocker02)                         0.0-18.0 s
+  chant-3.mp3        #353418 football game in a big arena, Hanover (ckater)               1.5-15.5 s
+  boo-1.mp3          #557189 JM_AMB_INT_Crowd Sport 01 - Booing (Julien_Matthey)          1.0-15.5 s, mono
+  boo-2.mp3          #678538 AF Crowd Boo Hiss LOOP (mglennsound)                         0.0-10.1 s, mono
+  applause.mp3       #397434 Crowd Cheer (FoolBoyMedia)                                   0.0-19.0 s
+  whistle-long.mp3   #218318 Referee whistle blow, gymnasium (SpliceSound)                0.08-0.62 s, mono
+  whistle-short.mp3  #218318 (same recording)                                             0.08-0.30 s, mono
+  whistle-foul.mp3   #538422 Referee whistle sound (Rosa-Orenes256)                       0.02-0.36 s, mono
+
+Sound pages: https://freesound.org/s/<number>/
+
+How they are used (src/games/sports/manager/ui/match/audio.js): the beds play
+continuously and cross-fade with the home side's attacking pressure; the
+goal roars, "ooh"s and groans answer the outcome of each shot; boos follow
+fouls and cards against the home crowd's side; the whistle marks fouls,
+kick-offs, half time and full time (three blasts). Away goals are heard as a
+muffled cheer from the visitors' corner (low-pass filtered goal roar).
+
+
+4. SOUNDS NOT YET DOCUMENTED
 -----------------------------
 
 The following audio files predate this registry and their licences have not been

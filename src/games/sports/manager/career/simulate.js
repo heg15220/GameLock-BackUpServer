@@ -3,10 +3,11 @@
  * quick simulation for the fixtures nobody watches, and what a match leaves
  * on the players (minutes, goals, cards, fitness, form, injuries).
  */
-import { createStream, clamp, weighted, addDays } from './util.js';
+import { createStream, clamp, quantize, weighted, addDays } from './util.js';
 import { FORMATIONS, positionFit, POSITION_LINE } from './positions.js';
 import { pickLineup, pickBench, dynamicOvr, energyAt, isInjured, clubSquad } from './world.js';
-import { createMatch, quickResult, strengthFromLineup, playToEnd } from './match.js';
+import { createMatch, quickResult, strengthFromLineup, playToEnd, MATCH_CLOCK_RATE } from './match.js';
+import { styleTactics } from './tactics.js';
 import { isNation, recordResult, aggregateFor } from './competitions.js';
 import { nationStrength, nationPool } from './national.js';
 
@@ -53,7 +54,7 @@ export function teamSheet(career, teamId, date) {
     return {
       id: teamId, name: country?.name_es || fifa, nameEn: country?.name_en || fifa, short: country?.name_es || fifa, color: country?.color || '#333',
       kit: country?.kit || null, crest: country?.flag || null, national: true, formation, lineup, bench, players,
-      tactics: user ? { ...career.national.tactics } : {},
+      tactics: user ? { ...career.national.tactics } : styleTactics('balanced'), style: 'balanced',
     };
   }
   const club = world.clubs[teamId];
@@ -86,7 +87,8 @@ export function teamSheet(career, teamId, date) {
   const players = Object.fromEntries([...lineup, ...bench].map((id) => [id, snapshot(world.players[id], date, plan)]));
   return {
     id: teamId, name: club.name, short: club.short, color: club.color, crest: club.crest, formation, lineup, bench, players,
-    tactics: user ? { ...career.tactics } : { mentality: club.style === 'counter' ? 'defensive' : 'balanced', pressing: club.style === 'pressing' ? 'high' : 'medium', tempo: club.style === 'direct' ? 'fast' : club.style === 'possession' ? 'slow' : 'normal' },
+    // CPU clubs play to their identity: possession, direct, counter, pressing or balanced.
+    tactics: user ? { ...career.tactics } : styleTactics(club.style), style: club.style || 'balanced',
   };
 }
 
@@ -99,6 +101,10 @@ export function createFixtureMatch(career, fixture, userSide) {
     id: fixture.id, seed: career.seed, date: fixture.date, comp: { id: fixture.comp, type: comp?.type || 'friendly', stage: fixture.stage, name: comp?.name || null },
     home, away, userSide, neutral: Boolean(fixture.neutral), knockout: Boolean(fixture.ko), aggregate: aggregateFor(season, fixture),
     maxSubs: career.year >= 2020 ? 5 : 3, allowExtraTime: true,
+    // The CPU opponent: difficulty and AI behaviour chosen by the manager (FC 27 style).
+    cpu: { level: career.cpu?.level || 'professional', behaviour: career.cpu?.behaviour || 'dynamic' },
+    // The clock runs faster than the play, as in EA FC: about twenty minutes a match at 1x.
+    clockRate: MATCH_CLOCK_RATE,
   });
 }
 
@@ -217,10 +223,10 @@ export function applyParticipation(career, teamId, participants, comp, fixture, 
     }
     const before = energyAt(p, date, plan);
     const cost = x.energyEnd != null ? before - x.energyEnd : (x.slot === 'GK' ? 12 : 30 + Math.max(0, p.age - 29)) * x.minutes / 90;
-    p.energy = clamp(before - Math.max(0, cost), 5, 100);
+    p.energy = quantize(clamp(before - Math.max(0, cost), 5, 100), 1);
     p.energyDate = date;
-    p.form = clamp((p.form || 0) * 0.68 + (x.rating - 6.6) * 1.15, -3, 3);
-    p.morale = clamp((p.morale ?? 65) + (x.minutes >= 60 ? 1.2 : 0.4) + (x.scored > x.conceded ? 1.5 : x.scored < x.conceded ? -1.5 : 0), 5, 100);
+    p.form = quantize(clamp((p.form || 0) * 0.68 + (x.rating - 6.6) * 1.15, -3, 3), 2);
+    p.morale = quantize(clamp((p.morale ?? 65) + (x.minutes >= 60 ? 1.2 : 0.4) + (x.scored > x.conceded ? 1.5 : x.scored < x.conceded ? -1.5 : 0), 5, 100), 1);
     if (x.rc) p.susp = (p.susp || 0) + (x.rcStraight ? 2 : 1);
     if (x.yc && isClub) {
       p.yc = (p.yc || 0) + x.yc;
@@ -229,7 +235,7 @@ export function applyParticipation(career, teamId, participants, comp, fixture, 
     if (x.injury) {
       const injury = rollInjury(random || createStream(career.seed, 'inj', fixture.id, x.id), x.injury);
       p.injury = { name: injury.name, severity: injury.severity, until: addDays(date, injury.days), since: date };
-      p.form = clamp(p.form - 0.6, -3, 3);
+      p.form = quantize(clamp(p.form - 0.6, -3, 3), 2);
       if (teamId === career.clubId) career.flags.injuryNews = [...(career.flags.injuryNews || []), p.id];
     }
   }
@@ -237,7 +243,7 @@ export function applyParticipation(career, teamId, participants, comp, fixture, 
   if (isClub) {
     for (const p of clubSquad(world, teamId)) {
       if (!played.has(p.id) && p.susp > 0 && !participants.some((x) => x.id === p.id && x.rc)) p.susp -= 1;
-      if (!played.has(p.id)) p.form = (p.form || 0) * 0.92;
+      if (!played.has(p.id)) p.form = quantize((p.form || 0) * 0.92, 2);
     }
   }
 }

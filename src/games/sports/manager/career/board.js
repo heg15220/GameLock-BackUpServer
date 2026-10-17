@@ -2,25 +2,31 @@
  * The board: season objectives, confidence, budgets, the sack and job offers.
  */
 import { createStream, clamp, roundMoney, weighted } from './util.js';
-import { expectedRank, clubSquad } from './world.js';
+import { expectedRank, clubSquad, leagueRivals } from './world.js';
 import { moneyScale, seasonIncome } from './economy.js';
-import { sortTable, stageReached, nationId, isNation } from './competitions.js';
+import { sortTable, stageReached, nationId, isNation, leagueTable } from './competitions.js';
 import { addInbox, addNews } from './inbox.js';
 import { nationRating } from './national.js';
 
 const STAGE_ORDER = ['entered', 'r256', 'r128', 'r64', 'r32', 'group', 'r16', 'qf', 'sf', 'final', 'winner'];
 export const stageIndex = (stage) => STAGE_ORDER.indexOf(stage);
 
+const isGrouped = (league) => (league?.groups?.length || 0) > 1;
+
 function relegationSpots(career, league) {
-  const below = Object.values(career.world.leagues).some((l) => l.country === league.country && l.tier === league.tier + 1);
+  const below = Object.values(career.world.leagues).find((l) => l.country === league.country && l.tier === league.tier + 1 && l.clubIds.length >= 2);
   if (!below) return 0;
+  // Four clubs go down to a regional third tier (Segunda B, Primera Federación).
+  if (isGrouped(below)) return Math.min(4, below.clubIds.length);
   return league.clubIds.length >= 16 ? 3 : league.clubIds.length >= 10 ? 2 : 1;
 }
 
-export function promotionSpots(career, league) {
+/** Promotion places of the whole league; per regional group with `perGroup`. */
+export function promotionSpots(career, league, perGroup = false) {
   const above = Object.values(career.world.leagues).find((l) => l.country === league.country && l.tier === league.tier - 1);
   if (!above) return 0;
-  return relegationSpots(career, above);
+  const spots = relegationSpots(career, above);
+  return perGroup && isGrouped(league) ? Math.max(1, Math.ceil(spots / league.groups.length)) : spots;
 }
 
 export { relegationSpots };
@@ -30,10 +36,10 @@ export function setObjectives(career) {
   const world = career.world;
   const club = world.clubs[career.clubId];
   const league = world.leagues[club.leagueId];
-  const size = league.clubIds.length;
+  const size = leagueRivals(world, career.clubId).length;
   const expected = expectedRank(world, career.clubId);
-  const relegation = relegationSpots(career, league);
-  const promotion = promotionSpots(career, league);
+  const relegation = isGrouped(league) ? 0 : relegationSpots(career, league);
+  const promotion = promotionSpots(career, league, true);
   const objectives = [];
   let target;
   let key;
@@ -69,7 +75,7 @@ export function objectiveStatus(career) {
   const world = career.world;
   const club = world.clubs[career.clubId];
   const leagueComp = career.season.comps[`L:${club.leagueId}`];
-  const table = leagueComp ? sortTable(Object.values(leagueComp.table)) : [];
+  const table = leagueComp ? leagueTable(leagueComp, career.clubId) : [];
   const position = table.findIndex((row) => row.team === career.clubId) + 1;
   return career.board.objectives.map((objective) => {
     if (objective.type === 'league') {

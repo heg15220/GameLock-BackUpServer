@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { currentCompName } from '../career/competitions.js';
 import { Briefcase, Wallet, TrendingUp, TrendingDown, Medal, History, Target, ArrowLeftRight, Download, Check, X } from 'lucide-react';
 import { useManager } from './context.jsx';
 import { Crest, Meter, SectionTitle, Tabs, Flag, Pill, Empty, Portrait } from './components.jsx';
@@ -9,7 +10,7 @@ import { acceptJobOffer, declineJobOffer, leaveNationalJob } from '../career/car
 import { wageBill } from '../career/transfers.js';
 import Trophy from '../../trayectoria/trophies.jsx';
 
-const LEDGER_LABEL = {
+export const LEDGER_LABEL = {
   es: { wages: 'Sueldos', tv: 'Derechos de TV', commercial: 'Patrocinios', gate: 'Taquilla', prize: 'Premios', 'transfer-in': 'Ventas', 'transfer-out': 'Fichajes', instalment: 'Plazos de fichajes', 'signing-bonus': 'Primas de fichaje', release: 'Rescisiones' },
   en: { wages: 'Wages', tv: 'TV rights', commercial: 'Sponsors', gate: 'Gate receipts', prize: 'Prize money', 'transfer-in': 'Sales', 'transfer-out': 'Signings', instalment: 'Transfer instalments', 'signing-bonus': 'Signing bonuses', release: 'Releases' },
 };
@@ -139,8 +140,8 @@ function ManagerPanel() {
       <div className="mg-cabinet">
         {career.trophies.map((tr, i) => (
           <div key={i} className="mg-cabinet__item">
-            <Trophy id={tr.type === 'league' ? 'league' : tr.type === 'cup' ? 'cup' : tr.type === 'continental' ? (tr.name.includes('Europa') || tr.name.includes('Sudamericana') ? 'continental_b' : 'continental_a') : 'continental_nt'} competition={career.world.leagues[tr.leagueId]} confederation={tr.conf} size={56} />
-            <b>{Array.isArray(tr.name) ? tr.name[lang === 'es' ? 0 : 1] : tr.name}</b><small>{seasonLabel(tr.year)}</small>
+            <Trophy id={tr.type === 'league' ? 'league' : tr.type === 'cup' ? 'cup' : tr.type === 'continental' ? ((tr.level ?? (/Trofeo|Europa League|Liga Europa|Sudamericana|Copa AFC|Confederación|OFC Cup|Centroamericana/.test(tr.name) ? 2 : 1)) === 2 ? 'continental_b' : 'continental_a') : 'continental_nt'} competition={career.world.leagues[tr.leagueId]} confederation={tr.conf} size={56} />
+            <b>{Array.isArray(tr.name) ? tr.name[lang === 'es' ? 0 : 1] : currentCompName(tr.name)}</b><small>{seasonLabel(tr.year)}</small>
           </div>
         ))}
         {!career.trophies.length && <Empty icon={Medal} title={t('La vitrina espera su primer trofeo', 'The cabinet awaits its first trophy')} />}
@@ -151,7 +152,7 @@ function ManagerPanel() {
           <thead><tr><th>{t('Temporada', 'Season')}</th><th>{t('Club', 'Club')}</th><th>{t('Puesto', 'Pos')}</th><th>{t('Pts', 'Pts')}</th><th>{t('Títulos', 'Titles')}</th><th>{t('Máx. goleador', 'Top scorer')}</th></tr></thead>
           <tbody>
             {career.history.slice().reverse().map((h) => (
-              <tr key={h.year}><td>{seasonLabel(h.year)}</td><td><span className="mg-cell-team"><Crest team={teamInfo(career, h.clubId)} size={18} />{teamName(career, h.clubId, lang, true)}</span></td><td>{h.position}.º</td><td>{h.points}</td><td>{h.trophies.join(', ') || '—'}</td><td>{h.topScorer ? `${h.topScorer.name} (${h.topScorer.goals})` : '—'}</td></tr>
+              <tr key={h.year}><td>{seasonLabel(h.year)}</td><td><span className="mg-cell-team"><Crest team={teamInfo(career, h.clubId)} size={18} />{teamName(career, h.clubId, lang, true)}</span></td><td>{h.position}.º</td><td>{h.points}</td><td>{h.trophies.map(currentCompName).join(', ') || '—'}</td><td>{h.topScorer ? `${h.topScorer.name} (${h.topScorer.goals})` : '—'}</td></tr>
             ))}
           </tbody>
         </table>

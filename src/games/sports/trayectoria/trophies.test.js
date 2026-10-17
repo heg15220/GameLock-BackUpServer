@@ -73,11 +73,9 @@ describe("the photographs, and the map that finds them", () => {
     expect(trophyAssetFor("cup", { competition: comp })).toBe("/x/copa-del-rey.png");
   });
 
-  it("falls back to the league's own mark when no trophy was photographed", () => {
-    // A competition logo is already on disk from the crest fetch and names the title
-    // perfectly well, so a league should never reach the silhouette.
+  it("uses the original trophy illustration when no trophy was photographed", () => {
     expect(trophyAssetFor("league", { competition: { trophy: null, logo: "/x/logo.svg" } })).toBe(
-      "/x/logo.svg",
+      null,
     );
     // A cup has no logo bucket of its own, so it does drop through.
     expect(trophyAssetFor("cup", { competition: { cupTrophy: null, logo: "/x/logo.svg" } })).toBeNull();

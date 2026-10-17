@@ -8,6 +8,7 @@ Infraestructura base para produccion futura de la plataforma. El frontend se con
 - `wikipedia-gacha-backend`: Node en el puerto interno `8791`, con Postgres y Redis.
 - `penalty-shootout-backend`: Node en el puerto interno `8792`.
 - `cosmic-vanguard-backend`: Node en el puerto interno `8793`.
+- `manager-saves-backend`: Node en el puerto interno `8794`. Guarda las carreras del Modo mánager detrás de un código corto, en el volumen `manager_saves_data`; caducan tras `MANAGER_SAVES_RETENTION_DAYS` (365) días sin abrirse.
 - `db`: Postgres 16 para estado persistente.
 - `redis`: cache compartida para backends que lo soporten.
 - `certbot`: renovacion periodica de certificados.

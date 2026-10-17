@@ -6,6 +6,13 @@ const table=(count,context,kind='standings',prefix='Club')=>({context,kind,teams
 const htmlTable=(count,heading='Regular season')=>`<h2>${heading}</h2><table class="wikitable"><tr><th>Pos</th><th>Team</th><th>Pts</th></tr>${teams(count).map((team,i)=>`<tr><td>${i+1}</td><td><a href="/wiki/${team.article.replaceAll(' ','_')}">${team.name}</a><sup>1</sup></td><td>12</td></tr>`).join('')}</table>`;
 
 describe('attributed regional participant extraction',()=>{
+  it('permits a documented small league only with its explicit lower bound, never a lone group',()=>{
+    const parsed=parseWikiMembershipTables(htmlTable(6,'League table'));
+    expect(selectWikiParticipants(parsed).valid).toBe(false);
+    expect(selectWikiParticipants(parsed,{minTeams:6}).teams).toHaveLength(6);
+    expect(selectWikiParticipants(parseWikiMembershipTables(htmlTable(6,'Group A')),{minTeams:6}).valid).toBe(false);
+    expect(selectWikiParticipants(parsed,{minTeams:6,expectedCount:8}).valid).toBe(false);
+  });
   it('keeps team columns aligned across shared stadiums and excludes attendance totals',()=>{
     const html='<h2>Teams</h2><table><tr><th>Team</th><th>Stadium</th><th>City</th></tr>'+
       Array.from({length:4},(_,i)=>`<tr><td><a href="/wiki/Club_${i*2}">Club ${i*2}</a></td><td rowspan="2">Shared ground</td><td>City</td></tr><tr><td><a href="/wiki/Club_${i*2+1}">Club ${i*2+1}</a></td><td><a href="/wiki/City">City</a></td></tr>`).join('')+'</table>';
@@ -96,5 +103,37 @@ describe('attributed regional participant extraction',()=>{
   });
   it('refuses repeated identities across complementary groups',()=>{
     expect(selectWikiParticipants({tables:[table(6,'Regular / Group A'),table(6,'Regular / Group B')]}).valid).toBe(false);
+  });
+  it('combines additional geographic groups only with an explicit complete format',()=>{
+    const tables=['East','Centre','West'].map(group=>table(12,`Stadiums / Group ${group}`,'participants',group));
+    expect(selectWikiParticipants({tables},{maxTeams:48}).valid).toBe(false);
+    const options={maxTeams:48,groupSets:[['East','Centre','West']]};
+    expect(selectWikiParticipants({tables},options).teams).toHaveLength(36);
+    expect(selectWikiParticipants({tables:tables.slice(0,2)},options).valid).toBe(false);
+  });
+  it('validates all six zones of the exceptional Argentine 2020 tournament',()=>{
+    const labels=['1','2','3','4','5','6'];
+    const tables=labels.map(label=>table(4,`Group stage / Zone ${label}`,'standings',`Zone${label}`));
+    const options={groupSets:[labels]};
+    expect(selectWikiParticipants({tables,expectedCount:24},options).teams).toHaveLength(24);
+    expect(selectWikiParticipants({tables:tables.slice(0,5),expectedCount:24},options).valid).toBe(false);
+  });
+  it('combines inland and coastal streams, rejecting a partial national division',()=>{
+    const inland=table(8,'Inland stream / League table','standings','Inland');
+    const coastal=table(8,'Coastal stream / League table','standings','Coastal');
+    expect(selectWikiParticipants({tables:[inland]}).valid).toBe(false);
+    expect(selectWikiParticipants({tables:[inland,coastal]}).teams).toHaveLength(16);
+    expect(selectWikiParticipants({tables:[table(10,'League tables / Stream A'),table(10,'League tables / Stream B','standings','Other')]}).teams).toHaveLength(20);
+  });
+  it('excludes youth standings embedded in a senior-season page',()=>{
+    expect(parseWikiMembershipTables(htmlTable(22,'Results / 2024 U19 Championship under Super League results')).tables).toEqual([]);
+  });
+  it('combines French pools and reads annotated participant totals',()=>{
+    const first=htmlTable(9,'Première phase / Poule A'),second=htmlTable(9,'Première phase / Poule B').replaceAll('Club','Other');
+    const infobox='<table class="infobox"><tr><th>Participants</th><td>18 clubs (deux poules)</td></tr></table>';
+    const parsed=parseWikiMembershipTables(infobox+first+second);
+    expect(parsed.expectedCount).toBe(18);
+    expect(selectWikiParticipants(parsed).teams).toHaveLength(18);
+    expect(selectWikiParticipants(parseWikiMembershipTables(first)).valid).toBe(false);
   });
 });

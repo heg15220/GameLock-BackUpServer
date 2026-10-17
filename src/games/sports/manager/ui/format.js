@@ -1,6 +1,6 @@
 import { formatMoney } from '../career/economy.js';
 import { POSITION_LABEL, POSITION_NAME } from '../career/positions.js';
-import { isNation } from '../career/competitions.js';
+import { isNation, continentalName, currentCompName } from '../career/competitions.js';
 
 export const money = (value, lang) => formatMoney(value, lang);
 
@@ -77,6 +77,9 @@ export function teamInfo(career, id) {
 
 export function compName(comp, lang) {
   if (!comp) return '';
+  // Club competitions are named afresh (older saves stored the old brand names).
+  if (comp.type === 'continental' && comp.conf && comp.level) return continentalName(comp.conf, comp.level, lang);
+  if (comp.type === 'cup' && typeof comp.name === 'string') return currentCompName(comp.name);
   if (comp.type === 'qualifiers') return lang === 'es' ? `Clasificación · ${comp.name[0]}` : `${comp.name[1]} qualifiers`;
   if (Array.isArray(comp.name)) return comp.name[lang === 'es' ? 0 : 1];
   if (comp.type === 'continental' && lang === 'en' && comp.nameEn) return comp.nameEn;

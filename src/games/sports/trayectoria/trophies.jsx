@@ -27,9 +27,10 @@
  * none of it exists and every screen still has to be right.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 
 import { world } from "./world.js";
+import { thumbFor } from "../artwork-thumbs.js";
 
 /**
  * One filled path per trophy, on a 0 0 24 24 grid.
@@ -89,6 +90,26 @@ const SILHOUETTES = {
 export const TROPHY_IDS = Object.keys(SILHOUETTES);
 export const hasSilhouette = (id) => Object.hasOwn(SILHOUETTES, id);
 
+/** Original metallic illustration for any honour without a local photograph. */
+export function TrophyIllustration({ id, size = 48, title = null, confederation = null }) {
+  const key = useId().replace(/:/g, '');
+  const gold = ['world_cup', 'ballon_dor', 'golden_boot', 'golden_glove'].includes(id);
+  const ribbon = { UEFA: '#376cdb', CONMEBOL: '#45ae80', AFC: '#d44757', CAF: '#28ad74', CONCACAF: '#3c9dc7', OFC: '#658ee6' }[confederation] || '#3697a4';
+  return <svg viewBox="0 0 32 32" width={size} height={size} role={title ? 'img' : undefined} aria-label={title || undefined} aria-hidden={title ? undefined : true} className="tr-trophy__illustration">
+    <defs>
+      <linearGradient id={`${key}-metal`} x1="0" x2="1"><stop stopColor={gold ? '#8e5314' : '#657889'} /><stop offset=".24" stopColor={gold ? '#ffd46b' : '#e0eef4'} /><stop offset=".45" stopColor={gold ? '#fff2ba' : '#ffffff'} /><stop offset=".63" stopColor={gold ? '#ba791d' : '#829aa9'} /><stop offset=".82" stopColor={gold ? '#ffe8a1' : '#e9f5f9'} /><stop offset="1" stopColor={gold ? '#a36417' : '#78909e'} /></linearGradient>
+      <radialGradient id={`${key}-glow`}><stop stopColor={gold ? '#ffc95c' : ribbon} stopOpacity=".24" /><stop offset="1" stopColor={ribbon} stopOpacity="0" /></radialGradient>
+    </defs>
+    <circle cx="16" cy="15" r="15" fill={`url(#${key}-glow)`} />
+    <ellipse cx="16" cy="29" rx="10" ry="1.5" fill="#07131d" opacity=".25" />
+    {['league', 'cup', 'continental_a', 'continental_nt'].includes(id) && <g fill={ribbon} opacity=".9"><path d="M9 7 6 9 7 21 9 19 10 22 10 10Z" /><path d="m23 7 3 2-1 12-2-2-1 3V10Z" /></g>}
+    <g transform="translate(4 2)" fill={`url(#${key}-metal)`} stroke={gold ? '#d4ac5c' : '#d1e2e8'} strokeWidth=".18" strokeLinejoin="round">{SILHOUETTES[id] || SILHOUETTES.cup}</g>
+    <rect x="10" y="26" width="12" height="2.5" rx=".6" fill="#263d4b" />
+    <rect x="13" y="26.6" width="6" height="1.1" rx=".2" fill={gold ? '#e6bc5f' : '#a9bdc8'} />
+    <path d="M24 3v4m-2-2h4" stroke={gold ? '#ffe8a1' : '#e5f7ff'} strokeWidth=".7" opacity=".85" />
+  </svg>;
+}
+
 /** The silhouette on its own, for the places that never want a photograph. */
 export function TrophySilhouette({ id, size = 24, className = "", title = null }) {
   const shape = SILHOUETTES[id] ?? SILHOUETTES.cup;
@@ -131,10 +152,9 @@ export function trophyAssetFor(
   { competition = null, confederation = null, mirrored = MIRRORED } = {},
 ) {
   switch (trophy) {
-    // A league with no photographed trophy still has its own mark, already on disk from
-    // the competitions fetch. It names the title just as well as a cup would.
+    // Without a photograph, render the original cup illustration below.
     case "league":
-      return competition?.trophy ?? competition?.logo ?? null;
+      return competition?.trophy ?? null;
     case "cup":
       return competition?.cupTrophy ?? null;
     case "club_world_cup":
@@ -209,20 +229,25 @@ const AWARDS = {
  */
 export function Trophy({ id, size = 28, competition = null, confederation = null, title = null }) {
   const src = trophyAssetFor(id, { competition, confederation });
-  const [failed, setFailed] = useState(false);
+  // A small WebP copy first, then the original photograph, then the silhouette.
+  const thumb = thumbFor(src, size);
+  const [stage, setStage] = useState(0);
+  useEffect(() => setStage(0), [src]);
+  const shown = stage === 0 && thumb ? thumb : src;
 
-  if (!src || failed) {
-    return <TrophySilhouette id={id} size={size} title={title} />;
+  if (!src || stage === 2) {
+    return <TrophyIllustration id={id} size={size} title={title} confederation={confederation || competition?.conf || competition?.confederation} />;
   }
   return (
     <img
       className="tr-trophy__photo"
-      src={src}
+      src={shown}
       alt={title ?? ""}
       width={size}
       height={size}
       loading="lazy"
-      onError={() => setFailed(true)}
+      decoding="async"
+      onError={() => setStage(shown === thumb ? 1 : 2)}
     />
   );
 }

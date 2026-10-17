@@ -13,11 +13,20 @@ upstream cosmic_vanguard_backend {
   keepalive 32;
 }
 
+upstream manager_saves_backend {
+  server manager-saves-backend:8794;
+  keepalive 16;
+}
+
 limit_req_zone $binary_remote_addr zone=api_per_ip:10m rate=300r/m;
 limit_req_zone $binary_remote_addr zone=open_pack_per_ip:10m rate=120r/m;
 # Limite global para TODO (SPA + estaticos), no solo /api. 10 req/s por IP con
 # burst amplio: absorbe la rafaga de una carga de pagina pero corta floods.
 limit_req_zone $binary_remote_addr zone=global_per_ip:10m rate=600r/m;
+# Ficheros estaticos (escudos, chunks, imagenes): una pantalla del Modo manager
+# pide decenas de escudos de golpe y no debe recibir 429 por ello. Servirlos
+# cuesta casi nada; las conexiones por IP siguen acotadas por conn_per_ip.
+limit_req_zone $binary_remote_addr zone=static_per_ip:10m rate=3000r/m;
 # Conexiones concurrentes por IP: mata slow-loris y abre-conexiones.
 limit_conn_zone $binary_remote_addr zone=conn_per_ip:10m;
 
@@ -28,6 +37,10 @@ map $request_method $bad_method {
   GET            0;
   HEAD           0;
   POST           0;
+  # Modo manager: PUT actualiza una partida en la nube y DELETE la borra.
+  PUT            0;
+  DELETE         0;
+  OPTIONS        0;
 }
 
 server {
@@ -96,13 +109,37 @@ server {
     add_header Cache-Control "no-cache" always;
   }
 
-  location ~* \.(js|css|woff2?|svg|png|jpg|jpeg|webp|avif|ico)$ {
-    limit_req zone=global_per_ip burst=100 nodelay;
+  # Ficheros del build con hash en el nombre: nunca cambian, un ano en cache.
+  location ~* ^/assets/[^/]+\.(js|css|woff2?|svg|png|jpg|jpeg|webp|avif|ico)$ {
+    limit_req zone=static_per_ip burst=400 nodelay;
     limit_req_status 429;
+    gzip_static on;
     try_files $uri =404;
-    expires 30d;
-    add_header Cache-Control "public, max-age=2592000, immutable";
+    add_header Cache-Control "public, max-age=31536000, immutable";
+    add_header X-Content-Type-Options nosniff always;
     access_log off;
+  }
+
+  # Ficheros de public/ (escudos, trofeos, iconos): sin hash, asi que una semana
+  # y revalidacion en segundo plano para que un escudo corregido llegue solo.
+  location ~* \.(js|css|woff2?|svg|png|jpg|jpeg|webp|avif|ico|gif)$ {
+    limit_req zone=static_per_ip burst=400 nodelay;
+    limit_req_status 429;
+    gzip_static on;
+    try_files $uri =404;
+    add_header Cache-Control "public, max-age=604800, stale-while-revalidate=86400";
+    add_header X-Content-Type-Options nosniff always;
+    access_log off;
+  }
+
+  # Datos publicos (JSON): una hora en cache.
+  location ~* ^/data/.+\.json$ {
+    limit_req zone=static_per_ip burst=100 nodelay;
+    limit_req_status 429;
+    gzip_static on;
+    try_files $uri =404;
+    add_header Cache-Control "public, max-age=3600, stale-while-revalidate=86400";
+    add_header X-Content-Type-Options nosniff always;
   }
 
   location = /api/wikipedia-gacha/packs/open {
@@ -166,9 +203,28 @@ server {
     proxy_send_timeout 6s;
   }
 
+  # Modo mánager: compressed careers (up to 4 MB) behind a short code.
+  location /api/manager-saves {
+    limit_req zone=api_per_ip burst=20 nodelay;
+    limit_req_status 429;
+    client_max_body_size 5m;
+    proxy_pass http://manager_saves_backend;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_request_buffering on;
+    proxy_connect_timeout 1s;
+    proxy_read_timeout 20s;
+    proxy_send_timeout 20s;
+  }
+
   location / {
     limit_req zone=global_per_ip burst=100 nodelay;
     limit_req_status 429;
+    gzip_static on;
     try_files $uri $uri/ /index.html;
   }
 }

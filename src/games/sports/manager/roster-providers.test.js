@@ -4,6 +4,7 @@ import { playerClubAtDate } from './providers.js';
 import { getManagerWorld } from './data.js';
 import rosters from './historical-rosters.json';
 import { world } from '../trayectoria/world.js';
+import { managerLeagueCatalog } from './league-memberships.js';
 import { createCareer } from './career/career.js';
 
 describe('expanded open historical rosters',()=>{
@@ -72,7 +73,7 @@ describe('expanded open historical rosters',()=>{
     expect(barcelona.crest).toBe(world.clubs.barcelona.crest);
     expect(barcelona.rosterCoverage.realPlayers).toBe(data.players.filter(p=>p.clubId==='barcelona'&&p.real).length);
     expect(barcelona.rosterCoverage.precision).toBe('season');
-    expect(data.coverage.catalogLeagues).toBe(51);
+    expect(data.coverage.catalogLeagues).toBe(managerLeagueCatalog.length);
     const selectable=data.competitions.filter(competition=>competition.simulated!==false&&competition.selectable!==false);
     expect(selectable).toHaveLength(46);
     expect(data.coverage.totalLeagues).toBe(selectable.length);

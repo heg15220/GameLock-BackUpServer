@@ -3,6 +3,8 @@ import { createStream, hashSeed } from '../../trayectoria/rng.js';
 export { createStream, hashSeed };
 
 export const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+/** Round persistent fractional state to a fixed grid: saves stay small and exact. */
+export const quantize = (value, digits) => { const scale = 10 ** digits; return Math.round(value * scale) / scale; };
 export const lerp = (a, b, t) => a + (b - a) * t;
 export const round = (value, step = 1) => Math.round(value / step) * step;
 export const roundMoney = (value) => {

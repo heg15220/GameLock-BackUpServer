@@ -12,22 +12,52 @@ import { leagueRoundDates, roundRobin, seasonDates } from './calendar.js';
 export const nationId = (fifa) => `N:${fifa}`;
 export const isNation = (id) => typeof id === 'string' && id.startsWith('N:');
 
+/**
+ * Club competitions carry plain, generic names (no sponsor-era brands): the
+ * cup of each continent, and its second tier. Asia and Africa add "de Clubes"
+ * so they are not confused with the national-team tournaments.
+ */
 const CONTINENTAL_NAMES = {
-  UEFA: ['Liga de Campeones', 'Liga Europa'],
-  CONMEBOL: ['Copa Libertadores', 'Copa Sudamericana'],
-  CONCACAF: ['Copa de Campeones CONCACAF', 'Copa Centroamericana'],
-  AFC: ['Liga de Campeones de Asia', 'Copa AFC'],
-  CAF: ['Liga de Campeones de África', 'Copa Confederación CAF'],
-  OFC: ['Liga de Campeones de Oceanía', 'Copa de Oceanía'],
+  UEFA: ['Copa de Europa', 'Trofeo de Europa'],
+  CONMEBOL: ['Copa de Sudamérica', 'Trofeo de Sudamérica'],
+  CONCACAF: ['Copa de Norteamérica', 'Trofeo de Centroamérica'],
+  AFC: ['Copa de Asia de Clubes', 'Trofeo de Asia'],
+  CAF: ['Copa de África de Clubes', 'Trofeo de África'],
+  OFC: ['Copa de Oceanía', 'Trofeo de Oceanía'],
 };
 const CONTINENTAL_NAMES_EN = {
-  UEFA: ['Champions League', 'Europa League'],
-  CONMEBOL: ['Copa Libertadores', 'Copa Sudamericana'],
-  CONCACAF: ['CONCACAF Champions Cup', 'Central American Cup'],
-  AFC: ['AFC Champions League', 'AFC Cup'],
-  CAF: ['CAF Champions League', 'CAF Confederation Cup'],
-  OFC: ['OFC Champions League', 'OFC Cup'],
+  UEFA: ['European Cup', 'European Trophy'],
+  CONMEBOL: ['South American Cup', 'South American Trophy'],
+  CONCACAF: ['North American Cup', 'Central American Trophy'],
+  AFC: ['Asian Club Cup', 'Asian Trophy'],
+  CAF: ['African Club Cup', 'African Trophy'],
+  OFC: ['Oceania Cup', 'Oceania Trophy'],
 };
+
+export function continentalName(conf, level, lang = 'es') {
+  const names = lang === 'es' ? CONTINENTAL_NAMES : CONTINENTAL_NAMES_EN;
+  return names[conf]?.[level - 1] || (lang === 'es' ? `Copa ${conf}` : `${conf} Cup`);
+}
+
+/** Names older saves stored, mapped to today's (continental first tier/second tier, then national cups). */
+const RENAMED = {
+  'Liga de Campeones': 'Copa de Europa', 'Champions League': 'Copa de Europa', 'Liga Europa': 'Trofeo de Europa', 'Europa League': 'Trofeo de Europa',
+  'Copa Libertadores': 'Copa de Sudamérica', 'Copa Sudamericana': 'Trofeo de Sudamérica',
+  'Copa de Campeones CONCACAF': 'Copa de Norteamérica', 'CONCACAF Champions Cup': 'Copa de Norteamérica', 'Copa Centroamericana': 'Trofeo de Centroamérica', 'Central American Cup': 'Trofeo de Centroamérica',
+  'Liga de Campeones de Asia': 'Copa de Asia de Clubes', 'AFC Champions League': 'Copa de Asia de Clubes', 'Copa AFC': 'Trofeo de Asia', 'AFC Cup': 'Trofeo de Asia',
+  'Liga de Campeones de África': 'Copa de África de Clubes', 'CAF Champions League': 'Copa de África de Clubes', 'Copa Confederación CAF': 'Trofeo de África', 'CAF Confederation Cup': 'Trofeo de África',
+  'Liga de Campeones de Oceanía': 'Copa de Oceanía', 'OFC Champions League': 'Copa de Oceanía', 'OFC Cup': 'Trofeo de Oceanía',
+  'Copa del Rey': 'Copa de España', 'FA Cup': 'Copa de Inglaterra', 'DFB-Pokal': 'Copa de Alemania', 'Coppa Italia': 'Copa de Italia',
+  'Coupe de France': 'Copa de Francia', 'Taça de Portugal': 'Copa de Portugal', 'Copa KNVB': 'Copa de los Países Bajos', 'Copa de Turquía': 'Copa de Turquía',
+  'Copa do Brasil': 'Copa de Brasil', 'Copa Argentina': 'Copa de Argentina', 'US Open Cup': 'Copa de Estados Unidos', 'Copa Colombia': 'Copa de Colombia',
+  'Copa Chile': 'Copa de Chile', 'Copa Uruguay': 'Copa de Uruguay', 'Copa Ecuador': 'Copa de Ecuador', 'Copa Paraguay': 'Copa de Paraguay',
+  'Copa Bolivia': 'Copa de Bolivia', 'Copa Venezuela': 'Copa de Venezuela', 'Copa MX': 'Copa de México', 'Copa Presidente': 'Copa de El Salvador',
+};
+
+/** Today's name for a competition name that may come from an older save. */
+export function currentCompName(name) {
+  return RENAMED[name] || name;
+}
 
 export const TOURNAMENTS = {
   world: { name: ['Mundial', 'World Cup'], conf: null, size: 32, trophy: 'world_cup', slots: { UEFA: 13, CONMEBOL: 5, CONCACAF: 4, CAF: 5, AFC: 5 } },
@@ -61,9 +91,33 @@ export function sortTable(rows, names = {}) {
 }
 
 export function standings(comp, groupIndex = null) {
-  if (comp.type === 'league') return sortTable(Object.values(comp.table));
+  if (comp.type === 'league') return comp.groups?.length && groupIndex != null ? leagueTable(comp, null, groupIndex) : sortTable(Object.values(comp.table));
   const group = comp.groups?.[groupIndex ?? 0];
   return group ? sortTable(Object.values(group.table)) : [];
+}
+
+/** A league's table, or the regional group of `teamId` (or `groupIndex`) in a grouped league. */
+export function leagueTable(comp, teamId = null, groupIndex = null) {
+  if (!comp?.groups?.length) return comp ? sortTable(Object.values(comp.table)) : [];
+  const found = comp.groups.findIndex((group) => group.teams.includes(teamId));
+  const group = comp.groups[groupIndex ?? Math.max(0, found)];
+  return sortTable(group.teams.map((id) => comp.table[id]).filter(Boolean));
+}
+
+export const leagueGroupIndex = (comp, teamId) => (comp?.groups?.length ? comp.groups.findIndex((group) => group.teams.includes(teamId)) : -1);
+
+const perGame = (row) => (row.p ? row.pts / row.p : 0);
+const byPerGame = (a, b) => perGame(b) - perGame(a) || ((b.gf - b.ga) / (b.p || 1)) - ((a.gf - a.ga) / (a.p || 1)) || b.gf - a.gf;
+
+/** One ranking of a league. Parallel groups interleave: every group winner first, then the runners-up… */
+export function leagueRanking(comp) {
+  if (!comp.groups?.length) return sortTable(Object.values(comp.table)).map((row) => row.team);
+  const tables = comp.groups.map((group, index) => leagueTable(comp, null, index));
+  const ranking = [];
+  for (let place = 0; place < Math.max(...tables.map((rows) => rows.length)); place += 1) {
+    ranking.push(...tables.map((rows) => rows[place]).filter(Boolean).sort(byPerGame).map((row) => row.team));
+  }
+  return ranking;
 }
 
 /* ── Season construction ── */
@@ -90,16 +144,22 @@ export function buildLeagues(season, world) {
   for (const league of Object.values(world.leagues)) {
     if (league.clubIds.length < 2) continue;
     const random = createStream('league-order', season.year, league.id);
-    const teams = shuffle(random, league.clubIds);
-    const schedule = roundRobin(teams);
-    const roundDates = leagueRoundDates(dates, schedule.length, blocked);
+    // Regional groups (Segunda B, Primera Federación) play in parallel on the same dates.
+    const members = new Set(league.clubIds);
+    const groups = (league.groups || []).map((group) => ({ name: group.name, teams: group.clubIds.filter((id) => members.has(id)) })).filter((group) => group.teams.length >= 2);
+    const grouped = groups.length > 1 && groups.reduce((sum, group) => sum + group.teams.length, 0) === league.clubIds.length;
+    const schedules = grouped ? groups.map((group) => roundRobin(shuffle(random, group.teams))) : [roundRobin(shuffle(random, league.clubIds))];
+    const rounds = Math.max(...schedules.map((schedule) => schedule.length));
+    const roundDates = leagueRoundDates(dates, rounds, blocked);
     const comp = addComp(season, {
       id: `L:${league.id}`, type: 'league', leagueId: league.id, name: league.name, country: league.country, tier: league.tier,
-      teams: league.clubIds.slice(), rounds: schedule.length, table: Object.fromEntries(league.clubIds.map((id) => [id, emptyRow(id)])),
+      teams: league.clubIds.slice(), rounds, table: Object.fromEntries(league.clubIds.map((id) => [id, emptyRow(id)])),
+      ...(grouped ? { groups } : {}),
     });
-    schedule.forEach((pairs, round) => pairs.forEach(([home, away], i) => addFixture(season, {
-      id: `${comp.id}:${round}:${i}`, comp: comp.id, stage: 'league', round, date: roundDates[round] || roundDates[roundDates.length - 1], home, away,
-    })));
+    schedules.forEach((schedule, g) => schedule.forEach((pairs, round) => pairs.forEach(([home, away], i) => addFixture(season, {
+      id: grouped ? `${comp.id}:${round}:g${g}-${i}` : `${comp.id}:${round}:${i}`, comp: comp.id, stage: 'league', round, ...(grouped ? { group: g } : {}),
+      date: roundDates[round] || roundDates[roundDates.length - 1], home, away,
+    }))));
   }
 }
 
@@ -112,7 +172,8 @@ export function buildCups(season, world, cupName) {
     (byCountry[league.country] ||= []).push(league);
   }
   for (const [country, leagues] of Object.entries(byCountry)) {
-    const teams = leagues.sort((a, b) => a.tier - b.tier).flatMap((league) => league.clubIds.slice()
+    // Reserve sides do not enter the national cup.
+    const teams = leagues.sort((a, b) => a.tier - b.tier).flatMap((league) => league.clubIds.filter((id) => !world.clubs[id]?.reserveParentId)
       .sort((a, b) => world.clubs[b].rating - world.clubs[a].rating));
     if (teams.length < 4) continue;
     const top = leagues[0];
@@ -181,8 +242,8 @@ export function buildContinental(season, world, lastStandings = null) {
       if (!size) continue;
       const teams = entrants.slice(0, size);
       const comp = addComp(season, {
-        id: `K:${conf}:${level}`, type: 'continental', conf, level, name: CONTINENTAL_NAMES[conf]?.[level - 1] || `Copa ${conf}`,
-        nameEn: CONTINENTAL_NAMES_EN[conf]?.[level - 1] || `${conf} Cup`, teams, groups: [], ko: [], winner: null, phase: size >= 16 ? 'groups' : 'ko', finished: false,
+        id: `K:${conf}:${level}`, type: 'continental', conf, level, name: continentalName(conf, level, 'es'),
+        nameEn: continentalName(conf, level, 'en'), teams, groups: [], ko: [], winner: null, phase: size >= 16 ? 'groups' : 'ko', finished: false,
       });
       const shift = level === 2 ? 2 : 0;
       if (size >= 16) {
@@ -407,10 +468,15 @@ export function progressCompetitions(season, world) {
       comp.finished = true;
       events.push({ type: 'qualifiers-done', comp: comp.id, qualified: comp.qualified });
     } else if (comp.type === 'league') {
-      if (!comp.finished && Object.values(comp.table).every((row) => row.p === (comp.teams.length - 1) * 2)) {
+      const size = (team) => (comp.groups ? comp.groups.find((group) => group.teams.includes(team))?.teams.length : comp.teams.length) || comp.teams.length;
+      if (!comp.finished && Object.values(comp.table).every((row) => row.p === (size(row.team) - 1) * 2)) {
         comp.finished = true;
-        comp.winner = sortTable(Object.values(comp.table))[0].team;
-        events.push({ type: 'trophy', comp: comp.id, winner: comp.winner });
+        comp.winner = leagueRanking(comp)[0];
+        if (comp.groups) {
+          // Each regional group crowns its own champion.
+          comp.groupWinners = comp.groups.map((group, index) => leagueTable(comp, null, index)[0].team);
+          comp.groups.forEach((group, index) => events.push({ type: 'trophy', comp: comp.id, winner: comp.groupWinners[index], name: `${comp.name} · ${group.name}` }));
+        } else events.push({ type: 'trophy', comp: comp.id, winner: comp.winner });
       }
     }
   }

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { LayoutGrid, List, HeartPulse, Ban, TrendingUp, TrendingDown, Minus, Tag } from 'lucide-react';
 import { useManager } from './context.jsx';
-import { OvrBadge, PlayerCard, Meter, SectionTitle, Tabs, Portrait, Flag } from './components.jsx';
+import { OvrBadge, PlayerCard, Meter, SectionTitle, Tabs, Silhouette, Flag } from './components.jsx';
 import { money, posLabel, teamInfo } from './format.js';
 import { L } from './texts.js';
 import { clubSquad, dynamicOvr, energyAt, isInjured, moraleLabel } from '../career/world.js';
@@ -93,7 +93,7 @@ export default function Squad() {
                     <td><span className={`mg-pos mg-pos--${POSITION_LINE[p.pos]}`}>{posLabel(p.pos, lang)}</span></td>
                     <td>
                       <span className="mg-cell-player">
-                        <Portrait player={p} size={30} kit={club.color} />
+                        <Silhouette size={30} kit={club.color} className="is-chip" />
                         <span><b>{p.name}</b><small><Flag country={career.world.countries[p.nat]} size={9} /> #{p.number}{p.loan ? ` · ${t('cedido', 'loan')}` : ''}{listed[p.id] ? ` · ${t('en venta', 'listed')}` : ''}</small></span>
                       </span>
                     </td>

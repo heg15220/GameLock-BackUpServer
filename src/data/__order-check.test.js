@@ -12,11 +12,12 @@ describe("catalog order", () => {
   it("puts Cronologia Maestra first in Conocimiento", () => {
     expect(games.filter((g) => g.category === "Conocimiento")[0].id).toBe("knowledge-cronologia-maestra");
   });
-  it("puts Football Career second in Sports with both localized names", () => {
+  it("puts Manager second and Football Career third in Sports", () => {
     const sports = games.filter((g) => g.category === "Deportes");
-    expect(sports[1].id).toBe("sports-trayectoria");
-    expect(sports[1].title).toBe("Carrera futbolera");
-    expect(sports[1].title_en).toBe("Football Career");
+    expect(sports[1].id).toBe("sports-manager");
+    expect(sports[2].id).toBe("sports-trayectoria");
+    expect(sports[2].title).toBe("Carrera futbolera");
+    expect(sports[2].title_en).toBe("Football Career");
   });
   it("every entry still has id, category, title, image", () => {
     for (const g of games) {

@@ -10,12 +10,14 @@ ARG SITE_URL=https://www.game-lock.com
 ARG WIKIPEDIA_GACHA_BACKEND_URL=
 ARG PENALTY_SHOOTOUT_BACKEND_URL=
 ARG COSMIC_VANGUARD_BACKEND_URL=
+ARG MANAGER_SAVES_BACKEND_URL=
 ENV NODE_ENV=production
 ENV SITE_URL=${SITE_URL}
 ENV VITE_SITE_URL=${SITE_URL}
 ENV VITE_WIKIPEDIA_GACHA_BACKEND_URL=${WIKIPEDIA_GACHA_BACKEND_URL}
 ENV VITE_PENALTY_SHOOTOUT_BACKEND_URL=${PENALTY_SHOOTOUT_BACKEND_URL}
 ENV VITE_COSMIC_VANGUARD_BACKEND_URL=${COSMIC_VANGUARD_BACKEND_URL}
+ENV VITE_MANAGER_SAVES_BACKEND_URL=${MANAGER_SAVES_BACKEND_URL}
 
 COPY package.json package-lock.json ./
 # --include=dev es obligatorio: NODE_ENV=production (arriba) haria que npm ci
@@ -27,7 +29,8 @@ COPY public ./public
 COPY src ./src
 COPY scripts ./scripts
 
-RUN npm run build
+# Precompressed copies for nginx gzip_static: no per-request compression.
+RUN npm run build && node scripts/precompress-dist.mjs dist
 
 FROM nginx:1.27-alpine
 

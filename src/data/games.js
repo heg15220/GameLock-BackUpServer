@@ -23,7 +23,7 @@ import sportsBasketballCourtImage from "../assets/games/sports-basketball-court.
 import sportsPingPongArenaImage from "../assets/games/sports-ping-pong-arena.svg";
 import sportsPadelArenaImage from "../assets/games/sports-padel-arena.svg";
 import sportsTrayectoriaImage from "../assets/games/sports-trayectoria.svg";
-import sportsManagerImage from "../assets/games/sports-manager.svg";
+import sportsManagerImage from "../assets/games/sports-manager-catalog.webp";
 import arcadeShellGameImage from "../assets/games/arcade-shell-game.svg";
 import arcadePulsoExactoImage from "../assets/games/arcade-pulso-exacto.svg";
 import arcadePasoAPasoImage from "../assets/games/arcade-paso-a-paso.svg";
@@ -4200,10 +4200,13 @@ const gamesInSourceOrder = [
 
 /* Keep the football career immediately behind the lead Sports card without changing its
    stable id or forcing the very large source catalogue to duplicate the whole entry. */
+// Sports opens with Billar, then Manager Legacy and Football Career on the first row.
+const SPORTS_AFTER_FIRST = ["sports-manager", "sports-trayectoria"];
+
 export const games = (() => {
-  const ordered = gamesInSourceOrder.filter((game) => game.id !== "sports-trayectoria");
+  const ordered = gamesInSourceOrder.filter((game) => !SPORTS_AFTER_FIRST.includes(game.id));
   const firstSports = ordered.findIndex((game) => game.category === "Deportes");
-  const footballCareer = gamesInSourceOrder.find((game) => game.id === "sports-trayectoria");
-  ordered.splice(firstSports + 1, 0, footballCareer);
+  const lifted = SPORTS_AFTER_FIRST.map((id) => gamesInSourceOrder.find((game) => game.id === id));
+  ordered.splice(firstSports + 1, 0, ...lifted);
   return ordered;
 })();

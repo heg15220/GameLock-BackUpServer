@@ -6,7 +6,7 @@ import { ContinueButton } from './Hub.jsx';
 import { longDate, shortDate, teamInfo, teamName, fixtureLabel, money, seasonLabel, weekdayShort } from './format.js';
 import { L, newsText, objectiveText } from './texts.js';
 import { daysToSeasonEnd, nextUserFixtures, transferWindowInfo, ownLeagueComp } from '../career/career.js';
-import { sortTable } from '../career/competitions.js';
+import { leagueTable, leagueGroupIndex } from '../career/competitions.js';
 import { clubSquad, energyAt, isInjured } from '../career/world.js';
 import { objectiveStatus } from '../career/board.js';
 
@@ -137,13 +137,14 @@ function MiniTable() {
   const { career, lang, t, go } = useManager();
   const comp = ownLeagueComp(career);
   if (!comp) return null;
-  const table = sortTable(Object.values(comp.table));
+  const table = leagueTable(comp, career.clubId);
+  const group = comp.groups?.[leagueGroupIndex(comp, career.clubId)]?.name;
   const index = table.findIndex((row) => row.team === career.clubId);
   const start = Math.max(0, Math.min(table.length - 5, index - 2));
   const rows = table.slice(start, start + 5);
   return (
     <section className="mg-panel mg-mini-table">
-      <SectionTitle kicker={comp.name} title={t('Clasificación', 'Standings')}><button type="button" className="mg-link" onClick={() => go('competitions')}>{t('Ver todo', 'See all')}</button></SectionTitle>
+      <SectionTitle kicker={group ? `${comp.name} · ${lang === 'es' ? group : group.replace('Grupo', 'Group')}` : comp.name} title={t('Clasificación', 'Standings')}><button type="button" className="mg-link" onClick={() => go('competitions')}>{t('Ver todo', 'See all')}</button></SectionTitle>
       <table className="mg-table">
         <thead><tr><th>#</th><th>{t('Club', 'Club')}</th><th>PJ</th><th>DG</th><th>{t('Pts', 'Pts')}</th></tr></thead>
         <tbody>
@@ -159,7 +160,7 @@ function MiniTable() {
           })}
         </tbody>
       </table>
-      <div className="mg-mini-table__form"><span>{t('Racha', 'Form')}</span><FormGuide results={(table[index]?.form || []).map((r) => (lang === 'es' ? { W: 'V', D: 'E', L: 'D' }[r] : r))} /></div>
+      <div className="mg-mini-table__form"><span>{t('Racha', 'Form')}</span><FormGuide results={table[index]?.form || []} lang={lang} /></div>
     </section>
   );
 }

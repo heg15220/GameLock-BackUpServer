@@ -14,7 +14,7 @@ if (process.argv.includes('--list')) {
   // abort natively after retaining several independently bundled large archives.
   const failures = [];
   for (const test of tests) {
-    const result = spawnSync(process.execPath, [resolve(root, 'node_modules/vitest/vitest.mjs'), 'run', test, '--threads=false'], { cwd: root, stdio: 'inherit' });
+    const result = spawnSync(process.execPath, ['--max-old-space-size=8192', resolve(root, 'node_modules/vitest/vitest.mjs'), 'run', test, '--threads=false'], { cwd: root, stdio: 'inherit', env: { ...process.env, NODE_OPTIONS: [process.env.NODE_OPTIONS, '--max-old-space-size=8192'].filter(Boolean).join(' ') } });
     if (result.error || result.signal) {
       console.error(result.error || `Prueba interrumpida: ${result.signal}`);
       process.exit(1);

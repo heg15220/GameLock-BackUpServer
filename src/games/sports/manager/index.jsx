@@ -2,10 +2,13 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import useGameRuntimeBridge from '../../../utils/useGameRuntimeBridge';
 import { ManagerContext } from './ui/context.jsx';
 import Setup from './ui/Setup.jsx';
+import SaveTransfer from './ui/SaveTransfer.jsx';
 import Hub from './ui/Hub.jsx';
 import { Backdrop, LoadingScreen } from './ui/Backdrop.jsx';
 import { createCareer, continueCareer, userFixtureToday } from './career/career.js';
-import { saveCareer, loadCareer, loadSummary, exportCareer, importCareer, deleteSave } from './career/save.js';
+import { loadSeasonEvidence } from './evidence-archive.js';
+import { loadSeasonArchives } from './season-archives.js';
+import { saveCareer, loadCareer, loadSummary, prepareExport, importCareer, deleteSave, saveToCloud } from './career/save.js';
 import { unreadCount } from './career/inbox.js';
 import './ui/manager.css';
 
@@ -56,6 +59,8 @@ export default function ManagerGame({ locale = 'es' }) {
   const [sheet, setSheet] = useState(null);
   const [matchFixture, setMatchFixture] = useState(null);
   const [error, setError] = useState(null);
+  const [transfer, setTransfer] = useState(null);
+  const transferRequest = useRef(0);
   const height = useFitHeight(rootRef);
   const saveTimer = useRef(null);
   const stopRef = useRef(false);
@@ -104,13 +109,19 @@ export default function ManagerGame({ locale = 'es' }) {
   }, []);
 
   const pushMoments = useCallback((list) => setMoments((current) => [...current, ...list]), []);
+  // Development only: lets layout audits open moments without playing a season.
+  useEffect(() => {
+    if (!import.meta.env?.DEV || typeof window === 'undefined') return undefined;
+    window.__managerDebug = { career: () => careerRef.current, pushMoments, bump: () => bump?.(), start: (options) => startCareer(options), openMatch: (id) => setMatchFixture(id) };
+    return () => { delete window.__managerDebug; };
+  });
 
   /** Turn the stops of a continue step into on-screen moments. */
   const momentsFromStops = useCallback((career, result) => {
     const list = [];
     const latestInbox = career.inbox.slice(0, 12);
     for (const stop of result.stops || []) {
-      if (stop.kind === 'trophy') { if (career.flags.celebration) list.push({ type: 'celebration', ...career.flags.celebration }); continue; }
+      if (stop.kind === 'trophy') { const won = stop.celebration || career.flags.celebration; if (won) list.push({ type: 'celebration', ...won }); continue; }
       const item = latestInbox.find((entry) => entry.id === stop.id);
       if (!item) continue;
       if (item.kind === 'event') list.push({ type: 'event', event: item.event, inbox: item.id });
@@ -153,8 +164,10 @@ export default function ManagerGame({ locale = 'es' }) {
 
   const startCareer = useCallback((options) => {
     setLoading({ kind: 'create' });
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
+        // The season's career evidence (squads and ratings) must be in memory.
+        await Promise.all([loadSeasonEvidence(options.year), loadSeasonArchives(options.year)]);
         const career = createCareer(options);
         careerRef.current = career;
         setScreen('hub');
@@ -187,15 +200,47 @@ export default function ManagerGame({ locale = 'es' }) {
     try {
       const career = await importCareer(file);
       careerRef.current = career;
+      setMoments([]);
+      setSheet(null);
+      setMatchFixture(career.live && !career.live.complete ? career.live.id : null);
       setScreen('hub');
       setSection({ id: 'central', params: {} });
       bump();
       persist();
-    } catch { setError('import'); }
+    } catch (failure) {
+      // Short codes: an unknown code and a missing connection need different advice.
+      setError(failure?.status === 404 || failure?.message === 'invalid_code' ? 'import-code' : failure instanceof TypeError ? 'import-offline' : 'import');
+    }
     setLoading(null);
   }, [bump, persist]);
 
+  const openExport = useCallback(async () => {
+    if (!careerRef.current) return;
+    clearTimeout(saveTimer.current);
+    setSaveState('saving');
+    saveCareer(careerRef.current).then(() => setSaveState('saved'), () => setSaveState('failed'));
+    const request = ++transferRequest.current;
+    setTransfer({});
+    try {
+      const career = careerRef.current;
+      const prepared = await prepareExport(career);
+      if (request !== transferRequest.current) return;
+      setTransfer({ ...prepared, cloud: { state: 'saving' } });
+      // The short code needs the server; the long code and the file work without it.
+      try {
+        const cloud = await saveToCloud(career, prepared.blob);
+        if (request === transferRequest.current) setTransfer({ ...prepared, cloud: { state: 'saved', ...cloud } });
+      } catch (error) {
+        if (request === transferRequest.current) setTransfer({ ...prepared, cloud: { state: 'failed', error: error.message } });
+      }
+    } catch {
+      if (request === transferRequest.current) { setTransfer(null); setError('export'); }
+    }
+  }, []);
+  const closeExport = useCallback(() => { transferRequest.current++; setTransfer(null); }, []);
+
   const leave = useCallback(async () => {
+    clearTimeout(saveTimer.current);
     if (careerRef.current) await saveCareer(careerRef.current).catch(() => {});
     careerRef.current = null;
     setScreen('setup');
@@ -208,8 +253,8 @@ export default function ManagerGame({ locale = 'es' }) {
   const value = useMemo(() => ({
     career, version, lang, t, act, go, section, setSheet, sheet, advance, advancing, stopAdvance: () => { stopRef.current = true; },
     moments, setMoments, matchFixture, setMatchFixture, rootEl: rootRef.current, saveState, bump, persist,
-    exportCareer: () => careerRef.current && exportCareer(careerRef.current), leave, unread: career ? unreadCount(career) : 0,
-  }), [career, version, lang, t, act, go, section, sheet, advance, advancing, moments, matchFixture, saveState, bump, persist, leave]);
+    exportCareer: openExport, leave, unread: career ? unreadCount(career) : 0,
+  }), [career, version, lang, t, act, go, section, sheet, advance, advancing, moments, matchFixture, saveState, bump, persist, leave, openExport]);
 
   useGameRuntimeBridge({ version, screen, section }, () => {
     const c = careerRef.current;
@@ -229,9 +274,10 @@ export default function ManagerGame({ locale = 'es' }) {
           ? <Setup summary={summary} onStart={startCareer} onResume={resumeCareer} onImport={importFile} onDelete={async () => { await deleteSave(); setSummary(null); }} />
           : <Hub />}
         {loading && <LoadingScreen kind={loading.kind} />}
+        {transfer && <SaveTransfer transfer={transfer} onClose={closeExport} />}
         {error && (
           <div className="mg-toast mg-toast--bad" role="alert">
-            <span>{error === 'import' ? t('No se pudo abrir ese archivo de partida.', 'Could not open that save file.') : error === 'load' ? t('No se pudo cargar la partida guardada.', 'Could not load the saved career.') : t('Algo ha fallado al crear la carrera.', 'Something went wrong creating the career.')}</span>
+            <span>{error === 'import-code' ? t('Ese código de partida no existe o ha caducado. Revisa que esté completo.', 'That career code does not exist or has expired. Check it is complete.') : error === 'import-offline' ? t('No hay conexión con el servidor. Prueba más tarde o usa el código largo o el archivo.', 'The server cannot be reached. Try later or use the long code or the file.') : error === 'import' ? t('No se pudo abrir la partida. Comprueba que el código o archivo esté completo y sea compatible.', 'Could not open the save. Check that the code or file is complete and compatible.') : error === 'export' ? t('No se pudo preparar la exportación. Tu partida sigue abierta; inténtalo de nuevo.', 'Could not prepare the export. Your career is still open; try again.') : error === 'load' ? t('No se pudo cargar la partida guardada.', 'Could not load the saved career.') : t('Algo ha fallado al crear la carrera.', 'Something went wrong creating the career.')}</span>
             <button type="button" onClick={() => setError(null)}>OK</button>
           </div>
         )}

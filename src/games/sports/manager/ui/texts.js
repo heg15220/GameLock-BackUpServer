@@ -113,6 +113,7 @@ export function newsText(career, item, lang) {
       return { source: 'club', title: es ? `¡${pname(career, item.player)} gana ${names[item.award]}!` : `${pname(career, item.player)} wins ${names[item.award]}!`, body: es ? 'Un premio que también es del equipo.' : 'An award the whole squad shares.' };
     }
     case 'top-scorer': return { source: 'press', title: es ? `${pname(career, item.player)}, máximo goleador` : `${pname(career, item.player)} finishes top scorer`, body: es ? `${item.goals} goles en liga.` : `${item.goals} league goals.` };
+    case 'club-prestige': return { source: 'club', title: es ? 'EL CLUB CRECE' : 'THE CLUB IS GROWING', body: es ? `Los resultados han disparado el prestigio de ${career.world.clubs[item.club]?.name}: más ingresos, más socios y más atractivo para los fichajes. Ya hablan de nosotros como un club de nivel ${item.rep} de 5.` : `Results have lifted ${career.world.clubs[item.club]?.name}'s standing: more income, more members, more pull in the market. We are now talked about as a level ${item.rep} of 5 club.` };
     case 'promoted': return { source: 'club', title: es ? '¡ASCENSO!' : 'PROMOTED!', body: es ? `La próxima temporada jugaremos en ${career.world.leagues[item.league]?.name}.` : `Next season we play in ${career.world.leagues[item.league]?.name}.` };
     case 'relegated': return { source: 'club', title: es ? 'Descenso' : 'Relegated', body: es ? `Toca levantarse: jugaremos en ${career.world.leagues[item.league]?.name}.` : `Time to bounce back: we will play in ${career.world.leagues[item.league]?.name}.` };
     case 'window-open': return { source: 'press', title: es ? '¡Arranca el mercado de verano!' : 'The summer window is open!', body: es ? 'Los clubes ya pueden fichar hasta el 31 de agosto.' : 'Clubs can sign players until 31 August.' };
@@ -295,11 +296,17 @@ export function commentary(match, event, lang) {
   switch (event.type) {
     case 'kick-off': return es ? '¡Echa a rodar el balón!' : 'And we are under way!';
     case 'goal': {
-      const how = { header: es ? 'de cabeza' : 'with a header', 'corner-header': es ? 'de cabeza tras un córner' : 'with a header from a corner', long: es ? 'con un disparo lejano' : 'from long range', penalty: es ? 'de penalti' : 'from the spot', freekick: es ? 'de falta directa' : 'from a free kick', counter: es ? 'al contragolpe' : 'on the counter', 'one-on-one': es ? 'en un mano a mano' : 'one on one' }[event.kind] || (es ? 'con un buen disparo' : 'with a fine finish');
+      const how = { volley: es ? 'de volea' : 'with a volley', cutback: es ? 'tras un pase de la muerte' : 'from a cut-back', rebound: es ? 'aprovechando el rechace' : 'from the rebound', header: es ? 'de cabeza' : 'with a header', 'corner-header': es ? 'de cabeza tras un córner' : 'with a header from a corner', long: es ? 'con un disparo lejano' : 'from long range', penalty: es ? 'de penalti' : 'from the spot', freekick: es ? 'de falta directa' : 'from a free kick', counter: es ? 'al contragolpe' : 'on the counter', 'one-on-one': es ? 'en un mano a mano' : 'one on one', 'tap-in': es ? 'a placer en el área pequeña' : 'with a tap-in' }[event.kind] || (es ? 'con un buen disparo' : 'with a fine finish');
       const assist = event.assist ? (es ? ` Pase de ${n(event.assist)}.` : ` Assisted by ${n(event.assist)}.`) : '';
       return (es ? pick(['¡GOOOOL! ', '¡GOL, GOL, GOL! ', '¡Al fondo de la red! '], ...seed) : pick(['GOAL! ', 'GOAL, GOAL, GOAL! ', 'In the back of the net! '], ...seed)) + `${n(event.player)} (${side(event.side)}) ${how}.${assist}`;
     }
     case 'shot': {
+      if (event.outcome === 'post') return es ? pick([`¡Al palo! El disparo de ${n(event.player)} se estrella en la madera.`, `¡Uyyy! ${n(event.player)} manda el balón al poste.`, `¡La madera salva al ${side(event.side === 'home' ? 'away' : 'home')}! Remate de ${n(event.player)} al palo.`], ...seed)
+        : pick([`Off the post! ${n(event.player)} hits the woodwork.`, `Ooh! ${n(event.player)} rattles the post.`, `${n(event.player)} is denied by the frame of the goal!`], ...seed);
+      if (event.outcome === 'saved' && event.xg >= 0.3) return es ? pick([`¡Paradón de ${n(event.keeper)}! ${n(event.player)} lo tenía y no ha podido ser.`, `¡Increíble ${n(event.keeper)}! Le saca un mano a mano a ${n(event.player)}.`], ...seed)
+        : pick([`What a save by ${n(event.keeper)}! ${n(event.player)} had it all to score.`, `Incredible from ${n(event.keeper)}, denying ${n(event.player)} one on one.`], ...seed);
+      if (event.outcome === 'wide' && event.xg >= 0.3) return es ? pick([`¡Increíble lo que ha fallado ${n(event.player)}! Solo ante el portero y fuera.`, `¡No puede ser! ${n(event.player)} perdona una ocasión clarísima.`], ...seed)
+        : pick([`How has ${n(event.player)} missed that? Clean through and wide.`, `${n(event.player)} wastes a glorious chance!`], ...seed);
       if (event.outcome === 'saved') return es ? pick([`Disparo de ${n(event.player)}… ¡y gran parada de ${n(event.keeper)}!`, `${n(event.player)} lo intenta, pero ${n(event.keeper)} está atento.`, `¡Uy! ${n(event.keeper)} saca una mano salvadora ante ${n(event.player)}.`], ...seed)
         : pick([`${n(event.player)} shoots… great save by ${n(event.keeper)}!`, `${n(event.player)} tries it, but ${n(event.keeper)} is alert.`, `Ooh! ${n(event.keeper)} with a huge save from ${n(event.player)}.`], ...seed);
       if (event.outcome === 'blocked') return es ? `El tiro de ${n(event.player)} se estrella en un defensa.` : `${n(event.player)}'s shot is blocked.`;
@@ -310,6 +317,9 @@ export function commentary(match, event, lang) {
     case 'corner': return es ? `Córner para el ${side(event.side)}.` : `Corner to ${side(event.side)}.`;
     case 'foul': {
       if (event.inBox) return es ? `¡Penalti! ${n(event.player)} derriba a ${n(event.victim)} dentro del área.` : `Penalty! ${n(event.player)} brings down ${n(event.victim)} in the box.`;
+      if (event.dogso) return es ? `¡Falta de último hombre! ${n(event.player)} derriba a ${n(event.victim)}, que se iba solo hacia la portería.` : `Last-man foul! ${n(event.player)} brings down ${n(event.victim)}, who was clean through.`;
+      if (event.tactical) return es ? `Falta táctica de ${n(event.player)} para cortar la contra de ${n(event.victim)}.` : `Tactical foul by ${n(event.player)} to stop ${n(event.victim)} on the break.`;
+      if (event.dangerous) return es ? `Falta de ${n(event.player)} sobre ${n(event.victim)} al borde del área. Ojo a este balón parado.` : `Foul by ${n(event.player)} on ${n(event.victim)} on the edge of the box. Dangerous set piece.`;
       return es ? `Falta de ${n(event.player)} sobre ${n(event.victim)}.` : `Foul by ${n(event.player)} on ${n(event.victim)}.`;
     }
     case 'penalty-awarded': return es ? '¡El árbitro señala el punto de penalti!' : 'The referee points to the spot!';
@@ -323,12 +333,36 @@ export function commentary(match, event, lang) {
     case 'extra-time': return es ? '¡Vamos a la prórroga!' : 'We are going to extra time!';
     case 'shootout': return es ? `¡Tanda de penaltis! Termina ${event.pens.home}-${event.pens.away}.` : `Penalty shoot-out! It ends ${event.pens.home}-${event.pens.away}.`;
     case 'full-time': return es ? '¡Final del partido!' : 'Full time!';
-    case 'tactics': return es ? `Cambio táctico del ${side(event.side)}.` : `Tactical change by ${side(event.side)}.`;
+    case 'tactics': {
+      if (!event.cpu || !event.reason) return es ? `Cambio táctico del ${side(event.side)}.` : `Tactical change by ${side(event.side)}.`;
+      // What the CPU coach has seen, in a sentence.
+      const why = {
+        'focus-left': ['carga el juego por la izquierda, por donde le está haciendo daño', 'loads the play down the left, where it is hurting you'],
+        'focus-right': ['carga el juego por la derecha, por donde le está haciendo daño', 'loads the play down the right, where it is hurting you'],
+        'focus-center': ['busca más el juego por dentro', 'looks to play through the middle'],
+        crosses: ['empieza a colgar balones al área en cuanto puede', 'starts swinging balls into the box early'],
+        'in-behind': ['busca una y otra vez la espalda de la defensa', 'keeps looking for the space behind the defence'],
+        'beat-the-press': ['deja de salir jugando y busca en largo para saltar la presión', 'stops playing out and goes long to beat the press'],
+        'line-down': ['retrasa su línea defensiva para no conceder espacio a la espalda', 'drops its defensive line to deny the space behind'],
+        'protect-box': ['cierra el centro para proteger su área', 'narrows up to protect its box'],
+        'sit-and-break': ['se repliega y espera para salir a la contra', 'sits back and waits to break'],
+        'plan-gegenpress': ['adelanta líneas y presiona arriba', 'pushes up and presses high'],
+        'plan-wing-play': ['abre el campo y busca las bandas', 'goes wide and looks for the flanks'],
+        'plan-long-ball': ['juega en largo buscando a su delantero', 'goes long to its striker'],
+        'plan-counter-attack': ['se encierra para salir a la contra', 'sits deep to hit on the break'],
+        'plan-park-the-bus': ['se encierra atrás para defender el resultado', 'parks the bus to protect the result'],
+        'plan-tiki-taka': ['se dedica a tener el balón', 'settles down to keep the ball'],
+        'plan-balanced': ['vuelve a un planteamiento equilibrado', 'goes back to a balanced approach'],
+      };
+      const first = String(event.reason).split(',').find((r) => why[r]);
+      if (!first) return es ? `Cambio táctico del ${side(event.side)}.` : `Tactical change by ${side(event.side)}.`;
+      return es ? `Ajuste en el ${side(event.side)}: ${why[first][0]}.` : `${side(event.side)} adjust: ${why[first][1]}.`;
+    }
     default: return '';
   }
 }
 
-const withArticle = (name) => (/^(Copa|Liga|Coppa|Coupe|Taça|FA Cup|Eurocopa|Supercopa|Primera|Premier|Bundesliga|Serie|Ligue|Eredivisie)/.test(name) ? `la ${name}` : /^(Mundial|DFB|US Open)/.test(name) ? `el ${name}` : name);
+const withArticle = (name) => (/^(Copa|Liga|Coppa|Coupe|Taça|FA Cup|Eurocopa|Supercopa|Primera|Premier|Bundesliga|Serie|Ligue|Eredivisie)/.test(name) ? `la ${name}` : /^(Mundial|DFB|US Open|Trofeo)/.test(name) ? `el ${name}` : name);
 
 export function objectiveText(objective, career, lang) {
   const es = lang === 'es';

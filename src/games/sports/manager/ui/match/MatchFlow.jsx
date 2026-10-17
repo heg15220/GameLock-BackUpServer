@@ -1,14 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Play, Pause, FastForward, SkipForward, Repeat, LayoutGrid, MessageSquare, BarChart3, Users, X, Zap, Shield, Sparkles, Flag as FlagIcon } from 'lucide-react';
+import { Play, Pause, FastForward, SkipForward, Repeat, LayoutGrid, MessageSquare, BarChart3, Users, X, Zap, Shield, Sparkles, Flag as FlagIcon, Volume2, VolumeX, Save } from 'lucide-react';
 import { useManager } from '../context.jsx';
 import { Crest, OvrBadge, Portrait, ChoiceRow, FormGuide, Pill } from '../components.jsx';
 import { fixtureLabel, posLabel, teamInfo, teamName, compName, matchRatingTone } from '../format.js';
 import { L, commentary } from '../texts.js';
 import { startUserMatch, finishUserMatch, simulateUserMatch, userTeams } from '../../career/career.js';
-import { advanceMatch, userSubstitute, userSetTactics, userSetAutoSubs, userReplaceInjured, pendingInjuries, sideStrength, teamTalk, MENTALITIES, displayMinute } from '../../career/match.js';
+import { advanceMatch, userRequestSubstitution, userCancelSubstitution, userSetTactics, userSetAutoSubs, userReplaceInjured, pendingInjuries, sideStrength, teamTalk, MENTALITIES, displayMinute } from '../../career/match.js';
 import { FORMATION_KEYS } from '../../career/positions.js';
-import { PitchRenderer, chooseKits } from './pitch.js';
-import { Director } from './director.js';
+import { PRESETS, applyPreset, normalizeTactics, INSTRUCTIONS, TACTIC_DEFAULTS } from '../../career/tactics.js';
+import { TACTIC_TEXT } from '../tactics-texts.js';
+import { PitchRenderer, chooseKits, stadiumFor } from './pitch.js';
+import { Director, toWorld } from './director.js';
+import { StadiumAudio, readSoundPreference, writeSoundPreference } from './audio.js';
 import { createStream } from '../../career/util.js';
 import { generateName } from '../../career/names.js';
 import { lastName } from '../components.jsx';
@@ -27,7 +30,7 @@ export default function MatchFlow({ fixtureId }) {
     const list = [];
     for (const stop of stops) {
       const item = career.inbox.find((m) => m.id === stop.id);
-      if (stop.kind === 'trophy' && celebration) list.push({ type: 'celebration', ...celebration });
+      if (stop.kind === 'trophy' && (stop.celebration || celebration)) list.push({ type: 'celebration', ...(stop.celebration || celebration) });
       if (item?.kind === 'event') list.push({ type: 'event', event: item.event });
     }
     if (list.length) setMoments((m) => [...m, ...list]);
@@ -77,16 +80,14 @@ function PreMatch({ fixture, onPlay, onSim, onTactics }) {
   const userSide = preview.userSide;
   const stadiumOwner = career.world.clubs[fixture.home];
   const referee = generateName(createStream(career.seed, 'ref', fixture.id), career.world.clubs[fixture.home]?.country || 'ENG', 'UEFA');
-  const es = lang === 'es';
-  const formDisplay = (list) => list.map((r) => (es ? { W: 'V', D: 'E', L: 'D' }[r] : r));
   return (
     <div className="mg-matchflow mg-prematch">
       <div className="mg-prematch__head">
         <span className="mg-kicker">{fixtureLabel(career, fixture, lang)}</span>
         <div className="mg-prematch__teams">
-          <div className={userSide === 'home' ? 'is-user' : ''}><Crest team={home} size={96} /><b>{home.name}</b><FormGuide results={formDisplay(formOf(career, fixture.home))} /><OvrBadge value={Math.round(avgOvr(preview, 'home'))} /></div>
+          <div className={userSide === 'home' ? 'is-user' : ''}><Crest team={home} size={96} /><b>{home.name}</b><FormGuide results={formOf(career, fixture.home)} lang={lang} /><OvrBadge value={Math.round(avgOvr(preview, 'home'))} /></div>
           <div className="mg-prematch__vs"><span>VS</span><small>{fixture.neutral ? t('Campo neutral', 'Neutral venue') : stadiumOwner ? t(`Estadio del ${stadiumOwner.short}`, `${stadiumOwner.short} stadium`) : ''}</small><small>{t('Árbitro', 'Referee')}: {referee}</small></div>
-          <div className={userSide === 'away' ? 'is-user' : ''}><Crest team={away} size={96} /><b>{away.name}</b><FormGuide results={formDisplay(formOf(career, fixture.away))} /><OvrBadge value={Math.round(avgOvr(preview, 'away'))} /></div>
+          <div className={userSide === 'away' ? 'is-user' : ''}><Crest team={away} size={96} /><b>{away.name}</b><FormGuide results={formOf(career, fixture.away)} lang={lang} /><OvrBadge value={Math.round(avgOvr(preview, 'away'))} /></div>
         </div>
         <div className="mg-odds" aria-label={t('Probabilidades', 'Probabilities')}>
           <span style={{ flex: odds.home }}><b>{Math.round(odds.home * 100)}%</b><small>{home.short || home.name}</small></span>
@@ -133,7 +134,7 @@ function startUserMatchPreview(career, fixture) {
 const SPEEDS = [{ id: 1, label: '1×' }, { id: 2, label: '2×' }, { id: 4, label: '4×' }, { id: 'hl', label: '⚡' }];
 
 function LiveMatch({ fixture, onFinish }) {
-  const { career, lang, t } = useManager();
+  const { career, lang, t, exportCareer } = useManager();
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const rendererRef = useRef(null);
@@ -141,8 +142,8 @@ function LiveMatch({ fixture, onFinish }) {
   const matchRef = useRef(null);
   const [match, setMatchState] = useState(() => career.live && career.live.id === fixture.id ? career.live : startUserMatch(career, fixture.id));
   const [shown, setShown] = useState(() => ({ ...match.score }));
-  const [clock, setClock] = useState({ minute: displayMinute(match).minute, added: 0 });
-  const [feed, setFeed] = useState([]);
+  const [clock, setClock] = useState(() => displayMinute(match));
+  const [feed, setFeed] = useState(() => match.events.map((event, index) => ({ ...event, id: `restored-${index}`, text: commentary(match, event, lang) })).filter(event => event.text).slice(-80).reverse());
   const [speed, setSpeed] = useState(1);
   const [playing, setPlaying] = useState(false);
   const [panel, setPanel] = useState(null);
@@ -150,6 +151,8 @@ function LiveMatch({ fixture, onFinish }) {
   const [splash, setSplash] = useState(null);
   const [subOut, setSubOut] = useState(null);
   const [directorIdle, setDirectorIdle] = useState(true);
+  const [sound, setSound] = useState(() => readSoundPreference());
+  const audioRef = useRef(null);
   const playingRef = useRef(playing);
   const idleRef = useRef(true);
   const speedRef = useRef(speed);
@@ -171,9 +174,19 @@ function LiveMatch({ fixture, onFinish }) {
     const renderer = new PitchRenderer(canvas);
     const kits = chooseKits({ color: homeTeam.color, kit: homeTeam.kit }, { color: awayTeam.color, kit: awayTeam.kit });
     renderer.setTeams(matchRef.current, kits, [homeTeam.name.toUpperCase(), 'GAMELOCK', awayTeam.name.toUpperCase(), lang === 'es' ? 'MODO MÁNAGER' : 'MANAGER MODE']);
+    // The ground: the home club's own stadium (national teams and neutral venues play in the big one).
+    renderer.setStadium(stadiumFor({ national: fixture.home.startsWith('N:'), neutral: Boolean(fixture.neutral), capacity: career.world.clubs[fixture.home]?.capacity || 0 }));
     rendererRef.current = renderer;
+    const country = career.world.clubs[fixture.home]?.country || '';
+    const audio = new StadiumAudio({
+      enabled: readSoundPreference(),
+      neutral: Boolean(matchRef.current.neutral),
+      big: ['BRA', 'ARG', 'URU', 'CHI', 'COL', 'PER', 'ECU', 'PAR', 'BOL', 'VEN', 'MEX', 'TUR', 'GRE'].includes(country) || (career.world.clubs[fixture.home]?.capacity || 0) > 60000,
+    });
+    audioRef.current = audio;
     const director = new Director(renderer, {
       lang,
+      onCue: (type, info) => audio.cue(type, info),
       onEvent: (event, scene) => {
         const text = commentary(matchRef.current, event, lang);
         if (text) setFeed((list) => [{ id: `${scene.minute}-${list.length}`, minute: scene.minute ?? event.minute, added: scene.added, text, type: event.type, side: event.side, card: event.card }, ...list].slice(0, 80));
@@ -187,10 +200,18 @@ function LiveMatch({ fixture, onFinish }) {
     });
     director.sync(matchRef.current);
     directorRef.current = director;
-    // Place everyone in shape for kick-off.
-    const targets = director.shapeTargets({ x: 52.5, y: 34 }, null);
+    // Development only: lets gameplay audits read the pitch (bodies, ball, scene) from the browser.
+    if (import.meta.env?.DEV && typeof window !== 'undefined') window.__managerLive = { renderer, director, match: () => matchRef.current };
+    // Recover the saved phase and ball position when resuming a live match.
+    const savedBall = matchRef.current.phase !== 'pre' ? matchRef.current.ball : null;
+    if (savedBall) {
+      director.lastBallFrame = { side: savedBall.side, p: savedBall.p, a: savedBall.a };
+      director.possession = savedBall.side;
+      director.ball = { ...toWorld(savedBall.side, savedBall.a, savedBall.p), z: 0 };
+    }
+    const targets = savedBall ? director.shapeTargets(savedBall.side, director.lastBallFrame) : director.kickoffTargets('home');
     for (const [id, target] of Object.entries(targets)) { const body = renderer.bodies.get(id); if (body) { body.x = target.x; body.y = target.y; } }
-    renderer.setTargets(targets, { x: 52.5, y: 34, z: 0, snap: true }, 16);
+    renderer.setTargets(targets, { ...director.ball, snap: true }, 16);
     let last = performance.now();
     let frame;
     const loop = (now) => {
@@ -203,9 +224,21 @@ function LiveMatch({ fixture, onFinish }) {
         setMatch(next);
       }
       const sp = speedRef.current;
-      const factor = sp === 'hl' ? (director.scene?.kind === 'ambient' ? 9 : 2.2) : sp;
+      const factor = sp === 'hl' ? (director.scene && !director.scene.notable ? 14 : 1.6) : sp;
       const active = playingRef.current || director.busy;
       const scene = active ? director.update(dt, playingRef.current ? factor : 0.0001) : null;
+      {
+        const frame = director.lastBallFrame;
+        const homeP = frame.side === 'home' ? frame.p : 100 - frame.p;
+        const owner = director.possession;
+        const m = matchRef.current;
+        audio.setPaused(!playingRef.current || Boolean(m.pausedFor && !director.busy) || (m.complete && !director.busy));
+        audio.update(dt, {
+          homeAttack: owner === 'home' ? Math.max(0, Math.min(1, (homeP - 45) / 45)) : 0,
+          awayAttack: owner === 'away' ? Math.max(0, Math.min(1, ((100 - homeP) - 45) / 45)) : 0,
+          minute: scene?.minute ?? 0, diff: m.score.home - m.score.away, owner,
+        });
+      }
       if (scene?.minute !== undefined) setClock((c) => (c.minute === scene.minute && c.added === scene.added ? c : { minute: scene.minute, added: scene.added || 0 }));
       const idleNow = !director.busy;
       if (idleNow !== idleRef.current) { idleRef.current = idleNow; setDirectorIdle(idleNow); }
@@ -216,7 +249,7 @@ function LiveMatch({ fixture, onFinish }) {
     frame = requestAnimationFrame(loop);
     const observer = new ResizeObserver(() => renderer.resize());
     observer.observe(canvas);
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); };
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); audio.stop(); };
   }, []);
 
   useEffect(() => {
@@ -236,8 +269,25 @@ function LiveMatch({ fixture, onFinish }) {
   }, [finished]);
   useEffect(() => { if (pausedFor === 'injury' && injuries.length) setPanel('subs'); }, [pausedFor]);
 
-  const resume = () => { if (match.pausedFor) setMatch({ ...match, pausedFor: null }); setPlaying(true); };
-  const decide = (fn) => { try { const next = fn(matchRef.current); setMatch(next); directorRef.current?.sync(next); rendererRef.current?.setTeams(next, rendererRef.current.kits); } catch { /* invalid choice */ } };
+  const resume = () => { audioRef.current?.start(); if (match.pausedFor) setMatch({ ...match, pausedFor: null }); setPlaying(true); };
+  const decide = (fn) => {
+    try {
+      const before = matchRef.current;
+      const next = fn(before);
+      setMatch(next);
+      directorRef.current?.sync(next);
+      rendererRef.current?.setTeams(next, rendererRef.current.kits);
+      const fresh = next.events.slice(before.events.length).filter((e) => e.type === 'sub' || e.type === 'tactics');
+      if (fresh.length) setFeed((list) => [...fresh.reverse().map((e, i) => ({ id: `d${next.actions}-${i}`, minute: e.minute, added: e.added, text: commentary(next, e, lang), type: e.type, side: e.side })), ...list].slice(0, 80));
+    } catch { /* invalid choice */ }
+  };
+  const toggleSound = () => {
+    const on = !sound;
+    setSound(on);
+    writeSoundPreference(on);
+    audioRef.current?.setEnabled(on);
+    if (on) audioRef.current?.start();
+  };
   const toEnd = () => {
     const next = advanceMatch(matchRef.current, 200, { ignorePauses: true });
     directorRef.current?.skip();
@@ -248,7 +298,9 @@ function LiveMatch({ fixture, onFinish }) {
   };
 
   const own = match.sides[userSide];
-  const subsLeft = match.maxSubs - own.subs;
+  // Changes asked for but not made yet: they happen at the next stoppage.
+  const pendingSubs = own.pendingSubs || [];
+  const subsLeft = match.maxSubs - own.subs - pendingSubs.length;
 
   return (
     <div className="mg-matchflow mg-live">
@@ -296,7 +348,7 @@ function LiveMatch({ fixture, onFinish }) {
 
       <div className="mg-live__overlay">
           {!playing && !finished && !pausedFor && match.phase === 'pre' && (
-            <button type="button" className="mg-kickoff" onClick={() => setPlaying(true)}><Play size={26} /><span>{t('Comenzar partido', 'Kick off')}</span></button>
+            <button type="button" className="mg-kickoff" onClick={() => { audioRef.current?.start(); setPlaying(true); }}><Play size={26} /><span>{t('Comenzar partido', 'Kick off')}</span></button>
           )}
           {pausedFor === 'half-time' && <HalfTime match={match} onTalk={(tone) => decide((m) => teamTalk(m, tone))} onResume={resume} onSubs={() => setPanel('subs')} onTactics={() => setPanel('tactics')} />}
           {pausedFor === 'extra-time' && (
@@ -318,19 +370,35 @@ function LiveMatch({ fixture, onFinish }) {
         </div>
         <button type="button" className="mg-btn mg-btn--dark" onClick={() => { setPlaying(false); setPanel('subs'); }} disabled={match.complete}><Repeat size={16} />{t('Cambios', 'Subs')} <small>{subsLeft}</small></button>
         <button type="button" className="mg-btn mg-btn--dark" onClick={() => { setPlaying(false); setPanel('tactics'); }} disabled={match.complete}><LayoutGrid size={16} />{t('Táctica', 'Tactics')}</button>
+        <button type="button" className="mg-btn mg-btn--dark" disabled={match.complete} aria-label={t('Guardar y exportar partido', 'Save and export match')} onClick={() => { playingRef.current = false; setPlaying(false); career.live = matchRef.current; exportCareer(); }}><Save size={16} />{t('Guardar', 'Save')}</button>
         <button type="button" className="mg-btn mg-btn--ghost" onClick={toEnd} disabled={match.complete}><SkipForward size={16} />{t('Ir al final', 'Skip to end')}</button>
+        <button type="button" className="mg-btn mg-btn--round mg-btn--ghost mg-sound" onClick={toggleSound} aria-pressed={sound} aria-label={sound ? t('Silenciar estadio', 'Mute stadium') : t('Activar sonido del estadio', 'Turn stadium sound on')} title={sound ? t('Silenciar estadio', 'Mute stadium') : t('Activar sonido del estadio', 'Turn stadium sound on')}>{sound ? <Volume2 size={18} /> : <VolumeX size={18} />}</button>
       </div>
 
       {panel === 'subs' && (
-        <div className="mg-live-panel" role="dialog" aria-label={t('Cambios', 'Substitutions')}>
-          <header><h3>{t('Cambios', 'Substitutions')} <small>{own.subs}/{match.maxSubs}</small></h3><button type="button" className="mg-icon-btn" onClick={() => { setPanel(null); setSubOut(null); }}><X size={18} /></button></header>
-          <label className="mg-check"><input type="checkbox" checked={match.autoSubs} onChange={(e) => decide((m) => userSetAutoSubs(m, e.target.checked))} />{t('Que el segundo entrenador haga los cambios', 'Let the assistant make substitutions')}</label>
-          {injuries.length > 0 && <p className="mg-alert is-bad">{t(`${injuries[0].name} está lesionado. Elige quién entra.`, `${injuries[0].name} is injured. Choose who comes on.`)}</p>}
+        <div className="mg-live-panel mg-live-panel--subs" role="dialog" aria-label={t('Cambios', 'Substitutions')}>
+          <header><h3>{t('Cambios', 'Substitutions')} <small>{own.subs + pendingSubs.length}/{match.maxSubs}</small></h3><button type="button" className="mg-icon-btn" onClick={() => { setPanel(null); setSubOut(null); }}><X size={18} /></button></header>
+          <div className="mg-subs__info">
+            <label className="mg-check"><input type="checkbox" checked={match.autoSubs} onChange={(e) => decide((m) => userSetAutoSubs(m, e.target.checked))} />{t('Que el segundo entrenador haga los cambios', 'Let the assistant make substitutions')}</label>
+            {injuries.length > 0 && <p className="mg-alert is-bad">{t(`${injuries[0].name} está lesionado. Elige quién entra.`, `${injuries[0].name} is injured. Choose who comes on.`)}</p>}
+            {!injuries.length && <p className="mg-muted">{t('Elige quién sale y quién entra. Puedes pedir varios cambios: se harán todos juntos en la próxima interrupción del juego.', 'Choose who goes off and who comes on. You can ask for several: they all happen together at the next stoppage.')}</p>}
+            {pendingSubs.length > 0 && (
+              <ul className="mg-subs__pending">
+                {pendingSubs.map((sub, i) => (
+                  <li key={`${sub.out}-${sub.in}`}>
+                    <span className="is-on">▲ {match.players[sub.in]?.name}</span><span className="is-off">▼ {match.players[sub.out]?.name}</span>
+                    <em>{t('En la próxima interrupción', 'At the next stoppage')}</em>
+                    <button type="button" className="mg-link" onClick={() => decide((m) => userCancelSubstitution(m, i))}>{t('Anular', 'Cancel')}</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
           <div className="mg-subs">
             <div>
               <h4>{t('Sale', 'Off')}</h4>
               <ul>
-                {(injuries.length ? injuries : own.lineup.map((id) => match.players[id])).map((p) => (
+                {(injuries.length ? injuries : own.lineup.map((id) => match.players[id]).filter((p) => p && !pendingSubs.some((x) => x.out === p.id))).map((p) => (
                   <li key={p.id}><button type="button" className={subOut === p.id ? 'is-selected' : ''} onClick={() => setSubOut(p.id)}>
                     <span className="mg-pos">{posLabel(p.slot, lang)}</span><span>{p.name}</span><span className={`mg-rating is-${matchRatingTone(p.rating)}`}>{p.rating.toFixed(1)}</span><i className="mg-energy" style={{ '--e': `${p.energy}%` }} />{p.yc ? <span className="mg-card-icon is-yellow" /> : null}
                   </button></li>
@@ -340,8 +408,8 @@ function LiveMatch({ fixture, onFinish }) {
             <div>
               <h4>{t('Entra', 'On')}</h4>
               <ul>
-                {own.bench.map((id) => match.players[id]).filter((p) => p && !p.injured).map((p) => (
-                  <li key={p.id}><button type="button" disabled={!subOut || subsLeft <= 0} onClick={() => { decide((m) => (injuries.some((x) => x.id === subOut) ? userReplaceInjured(m, subOut, p.id) : userSubstitute(m, subOut, p.id))); setSubOut(null); }}>
+                {own.bench.map((id) => match.players[id]).filter((p) => p && !p.injured && !pendingSubs.some((x) => x.in === p.id)).map((p) => (
+                  <li key={p.id}><button type="button" disabled={!subOut || subsLeft <= 0} onClick={() => { decide((m) => (injuries.some((x) => x.id === subOut) ? userReplaceInjured(m, subOut, p.id) : userRequestSubstitution(m, subOut, p.id))); setSubOut(null); }}>
                     <span className="mg-pos">{posLabel(p.pos, lang)}</span><span>{p.name}</span><OvrBadge value={p.ovr} size="xs" />
                   </button></li>
                 ))}
@@ -352,17 +420,10 @@ function LiveMatch({ fixture, onFinish }) {
         </div>
       )}
       {panel === 'tactics' && (
-        <div className="mg-live-panel" role="dialog" aria-label={t('Táctica', 'Tactics')}>
+        <div className="mg-live-panel mg-live-panel--tactics" role="dialog" aria-label={t('Táctica', 'Tactics')}>
           <header><h3>{t('Táctica', 'Tactics')}</h3><button type="button" className="mg-icon-btn" onClick={() => setPanel(null)}><X size={18} /></button></header>
           <div className="mg-formations">{FORMATION_KEYS.map((f) => <button type="button" key={f} className={own.formation === f ? 'is-active' : ''} onClick={() => decide((m) => userSetTactics(m, { formation: f }))}>{f}</button>)}</div>
-          <ChoiceRow label={t('Mentalidad', 'Mentality')} value={own.tactics.mentality} onChange={(v) => decide((m) => userSetTactics(m, { mentality: v }))} options={MENTALITIES.map((id) => ({ id, label: L[lang].mentality[id] }))} />
-          <ChoiceRow label={t('Presión', 'Pressing')} value={own.tactics.pressing} onChange={(v) => decide((m) => userSetTactics(m, { pressing: v }))} options={['low', 'medium', 'high'].map((id) => ({ id, label: L[lang].pressing[id] }))} />
-          <ChoiceRow label={t('Ritmo', 'Tempo')} value={own.tactics.tempo} onChange={(v) => decide((m) => userSetTactics(m, { tempo: v }))} options={['slow', 'normal', 'fast'].map((id) => ({ id, label: L[lang].tempo[id] }))} />
-          <div className="mg-quick-tactics">
-            <button type="button" onClick={() => decide((m) => userSetTactics(m, { mentality: 'very-attacking', pressing: 'high', tempo: 'fast' }))}><Zap size={16} />{t('¡A por el partido!', 'Go for it!')}</button>
-            <button type="button" onClick={() => decide((m) => userSetTactics(m, { mentality: 'defensive', pressing: 'low', tempo: 'slow' }))}><Shield size={16} />{t('Proteger el resultado', 'Protect the lead')}</button>
-            <button type="button" onClick={() => decide((m) => userSetTactics(m, { mentality: 'balanced', pressing: 'medium', tempo: 'normal' }))}><FlagIcon size={16} />{t('Equilibrio', 'Balanced')}</button>
-          </div>
+          <LiveTactics tactics={own.tactics} onChange={(changes) => decide((m) => userSetTactics(m, changes))} />
           <button type="button" className="mg-btn mg-btn--primary" onClick={() => { setPanel(null); resume(); }}><Play size={16} />{t('Volver al partido', 'Back to the match')}</button>
         </div>
       )}
@@ -408,11 +469,26 @@ function StatsPanel({ match }) {
     [t('A puerta', 'On target'), s.home.sot, s.away.sot],
     ['xG', +s.home.xg.toFixed(2), +s.away.xg.toFixed(2)],
     [t('Ocasiones claras', 'Big chances'), s.home.bigChances, s.away.bigChances],
+    [t('Tiros en el área', 'Shots in the box'), s.home.shotsInBox || 0, s.away.shotsInBox || 0],
+    [t('Al palo', 'Woodwork'), s.home.woodwork || 0, s.away.woodwork || 0],
     [t('Córners', 'Corners'), s.home.corners, s.away.corners],
+    [t('Pases', 'Passes'), s.home.passes, s.away.passes],
+    [t('Precisión de pase', 'Pass accuracy'), Math.round(s.home.passOk / Math.max(1, s.home.passes) * 100), Math.round(s.away.passOk / Math.max(1, s.away.passes) * 100), '%'],
+    [t('Entradas al último tercio', 'Final-third entries'), s.home.finalThird || 0, s.away.finalThird || 0],
+    [t('Centros completados', 'Completed crosses'), s.home.crossOk || 0, s.away.crossOk || 0],
+    [t('Regates completados', 'Completed dribbles'), s.home.dribblesOk || 0, s.away.dribblesOk || 0],
+    [t('Entradas ganadas', 'Tackles won'), s.home.tackles, s.away.tackles],
+    [t('Intercepciones', 'Interceptions'), s.home.interceptions || 0, s.away.interceptions || 0],
+    [t('Despejes', 'Clearances'), s.home.clearances || 0, s.away.clearances || 0],
+    [t('Tiros bloqueados', 'Blocked shots'), s.home.blocked || 0, s.away.blocked || 0],
+    [t('Mano a mano', 'One-on-ones'), s.home.breakaways || 0, s.away.breakaways || 0],
+    [t('Recuperaciones en campo rival', 'High turnovers'), s.home.highTurnovers || 0, s.away.highTurnovers || 0],
+    [t('Contraataques', 'Counter-attacks'), s.home.counters || 0, s.away.counters || 0],
+    [t('Segundas jugadas ganadas', 'Second balls won'), s.home.secondBalls || 0, s.away.secondBalls || 0],
+    [t('Duelos aéreos ganados', 'Aerial duels won'), s.home.aerialsWon || 0, s.away.aerialsWon || 0],
     [t('Faltas', 'Fouls'), s.home.fouls, s.away.fouls],
     [t('Fueras de juego', 'Offsides'), s.home.offsides, s.away.offsides],
     [t('Paradas', 'Saves'), s.home.saves, s.away.saves],
-    [t('Precisión de pase', 'Pass accuracy'), Math.round(s.home.passOk / Math.max(1, s.home.passes) * 100), Math.round(s.away.passOk / Math.max(1, s.away.passes) * 100), '%'],
     [t('Amarillas', 'Yellow cards'), s.home.yc, s.away.yc],
     [t('Rojas', 'Red cards'), s.home.rc, s.away.rc],
   ];
@@ -557,3 +633,40 @@ function ShotMap({ shots }) {
 }
 
 export { Pill };
+
+/** In-match tactics: styles, FC-style quick tactics and the instructions that matter most during a game. */
+function LiveTactics({ tactics: raw, onChange }) {
+  const { lang, t } = useManager();
+  const T = TACTIC_TEXT[lang] || TACTIC_TEXT.es;
+  const tactics = normalizeTactics(raw);
+  const keys = ['mentality', ...Object.keys(INSTRUCTIONS)];
+  const style = (id) => { const p = applyPreset(tactics, id); onChange(Object.fromEntries(keys.map((k) => [k, p[k]]))); };
+  const pressOn = tactics.pressing === 'high' && tactics.block === 'high';
+  const boxOn = tactics.finalThird === 'early-cross' && ['attacking', 'very-attacking'].includes(tactics.mentality);
+  const quick = [
+    ['press', pressOn, () => onChange(pressOn ? { pressing: 'medium', block: 'mid', onLoss: 'standard' } : { pressing: 'high', block: 'high', onLoss: 'counter-press' })],
+    ['trap', tactics.offsideTrap, () => onChange({ offsideTrap: !tactics.offsideTrap })],
+    ['box', boxOn, () => onChange(boxOn ? { finalThird: 'balanced', mentality: 'balanced' } : { finalThird: 'early-cross', mentality: tactics.mentality === 'very-attacking' ? 'very-attacking' : 'attacking' })],
+    ['overload', tactics.setPieceOverload, () => onChange({ setPieceOverload: !tactics.setPieceOverload })],
+  ];
+  const row = (key) => (
+    <ChoiceRow key={key} label={T.instr[key]} value={tactics[key]} onChange={(v) => onChange({ [key]: v })} options={INSTRUCTIONS[key].map((id) => ({ id, label: T.opt[key][String(id)] }))} />
+  );
+  return (
+    <div className="mg-live-tactics">
+      <div className="mg-quick-tactics">
+        <button type="button" onClick={() => onChange({ mentality: 'very-attacking', block: 'high', pressing: 'high', tempo: 'fast', finalThird: 'early-cross', onLoss: 'counter-press', timeWasting: false })}><Zap size={16} />{t('¡A por el partido!', 'Go for it!')}</button>
+        <button type="button" onClick={() => onChange({ mentality: 'defensive', block: 'low', line: 'deep', pressing: 'medium', tempo: 'slow', onLoss: 'regroup', timeWasting: true })}><Shield size={16} />{t('Proteger el resultado', 'Protect the lead')}</button>
+        <button type="button" onClick={() => onChange(Object.fromEntries(keys.map((k) => [k, TACTIC_DEFAULTS[k]])))}><FlagIcon size={16} />{t('Equilibrio', 'Balanced')}</button>
+      </div>
+      <div className="mg-live-tactics__quick" role="group" aria-label={t('Tácticas rápidas', 'Quick tactics')}>
+        {quick.map(([id, on, toggle]) => <button type="button" key={id} className={on ? 'is-active' : ''} aria-pressed={on} onClick={toggle}>{T.quick[id]}</button>)}
+      </div>
+      <div className="mg-live-tactics__styles">
+        {Object.keys(PRESETS).map((id) => <button type="button" key={id} onClick={() => style(id)} title={T.presets[id][1]}>{T.presets[id][0]}</button>)}
+      </div>
+      <ChoiceRow label={t('Mentalidad', 'Mentality')} value={tactics.mentality} onChange={(v) => onChange({ mentality: v })} options={MENTALITIES.map((id) => ({ id, label: L[lang].mentality[id] }))} />
+      {['block', 'pressing', 'line', 'buildUp', 'tempo', 'width', 'finalThird', 'onLoss'].map(row)}
+    </div>
+  );
+}

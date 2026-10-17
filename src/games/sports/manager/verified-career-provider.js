@@ -1,4 +1,6 @@
-import archive from './verified-player-careers.json';
+import { seasonArchive, seasonArchiveMeta } from './season-archives.js';
+
+const archive = seasonArchiveMeta.verified;
 import {isPublishableCareerStint} from './career-affiliation.js';
 
 // Preserve one source per record: combining players into a single invented
@@ -7,7 +9,7 @@ const recordsByYear=new Map();
 export function getVerifiedCareerRecords(year){
   if(recordsByYear.has(Number(year)))return recordsByYear.get(Number(year));
   const records=[];
-  for(const player of archive.players||[]){
+  for(const player of seasonArchive(year).verifiedPlayers){
     const membership=player.eligibleSeasons.find(row=>row.year===Number(year));
     if(!membership)continue;
     const stint=player.careerStints.find(row=>row.index===membership.stintIndex);
@@ -27,4 +29,4 @@ export function getVerifiedCareerRecords(year){
   recordsByYear.set(Number(year),records);return records;
 }
 
-export const verifiedCareerArchiveInfo={revision:archive.revision,players:archive.players?.length||0,precision:archive.precision,complete:false};
+export const verifiedCareerArchiveInfo={revision:archive.revision,players:archive.playerCount,precision:archive.precision,complete:false};

@@ -1,13 +1,13 @@
-/**
- * Saving. A career holds the whole world (~18,000 players and every fixture of
- * the season), far beyond localStorage, so it lives in IndexedDB. Export and
- * import use a gzip-compressed JSON file when the browser supports it.
- */
-import { CAREER_VERSION } from './career.js';
+/** Compressed local autosave and self-contained portable files/codes. */
+import { encodeSnapshot, decodeSnapshot, snapshotCode, importSnapshotCode, validateCareer } from './save-format.js';
+import { looksLikeCloudCode, normalizeCloudCode, uploadCloudSave, downloadCloudSave } from './cloud-save.js';
 
 const DB_NAME = 'gamelock-manager';
 const STORE = 'careers';
 const KEY = 'autosave-v3';
+const SUMMARY_KEY = 'autosave-v3-summary';
+const CLOUD_KEY = 'cloud-codes-v1';
+let pendingWrite = Promise.resolve();
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -19,56 +19,65 @@ function openDb() {
   });
 }
 
-function strip(career) {
-  const { live, flags, ...rest } = career;
-  return { ...rest, live: live || null, flags: { stops: [] } };
+async function transaction(mode, action) {
+  const db = await openDb();
+  try {
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE, mode);
+      const request = action(tx.objectStore(STORE));
+      tx.oncomplete = () => resolve(request?.result);
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error || Error('save-aborted'));
+    });
+  } finally { db.close(); }
 }
 
-export async function saveCareer(career) {
-  const db = await openDb();
-  await new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, 'readwrite');
-    tx.objectStore(STORE).put({ savedAt: new Date().toISOString(), summary: summarize(career), career: strip(career) }, KEY);
-    tx.oncomplete = resolve;
-    tx.onerror = () => reject(tx.error);
-    tx.onabort = () => reject(tx.error);
+export function saveCareer(career) {
+  const savedAt = new Date().toISOString(), summary = summarize(career);
+  // Snapshot now; serialize writes in request order even if compression of a
+  // later, smaller snapshot finishes first. A failed save does not poison the queue.
+  const encoded = encodeSnapshot(career);
+  encoded.catch(() => {});
+  const operation = pendingWrite.catch(() => {}).then(async () => {
+    const blob = await encoded;
+    await transaction('readwrite', store => {
+      store.put({ savedAt, summary, blob }, KEY);
+      return store.put({ savedAt, ...summary, bytes: blob.size }, SUMMARY_KEY);
+    });
+    return { bytes: blob.size, savedAt };
   });
-  db.close();
+  pendingWrite = operation;
+  return operation;
 }
 
 export async function loadCareer() {
   try {
-    const db = await openDb();
-    const record = await new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE, 'readonly');
-      const request = tx.objectStore(STORE).get(KEY);
-      request.onsuccess = () => resolve(request.result || null);
-      request.onerror = () => reject(request.error);
-    });
-    db.close();
-    if (!record?.career || record.career.v !== CAREER_VERSION) return null;
-    return { ...record, career: { ...record.career, flags: { stops: [] } } };
-  } catch {
-    return null;
-  }
+    await pendingWrite.catch(() => {});
+    const record = await transaction('readonly', store => store.get(KEY));
+    if (!record) return null;
+    const career = record.blob ? await decodeSnapshot(record.blob) : validateCareer(record.career);
+    return { savedAt: record.savedAt, summary: record.summary, career };
+  } catch { return null; }
 }
 
 export async function loadSummary() {
-  const record = await loadCareer();
-  return record ? { savedAt: record.savedAt, ...record.summary } : null;
+  try {
+    await pendingWrite.catch(() => {});
+    const summary = await transaction('readonly', store => store.get(SUMMARY_KEY));
+    if (summary) return summary;
+    // Compatibility with the previous uncompressed IndexedDB record.
+    const record = await transaction('readonly', store => store.get(KEY));
+    return record?.summary ? { savedAt: record.savedAt, ...record.summary } : null;
+  } catch { return null; }
 }
 
-export async function deleteSave() {
-  try {
-    const db = await openDb();
-    await new Promise((resolve) => {
-      const tx = db.transaction(STORE, 'readwrite');
-      tx.objectStore(STORE).delete(KEY);
-      tx.oncomplete = resolve;
-      tx.onerror = resolve;
-    });
-    db.close();
-  } catch { /* nothing saved */ }
+export function deleteSave() {
+  const operation = pendingWrite.catch(() => {}).then(() => transaction('readwrite', store => {
+    store.delete(KEY);
+    return store.delete(SUMMARY_KEY);
+  }));
+  pendingWrite = operation;
+  return operation;
 }
 
 export function summarize(career) {
@@ -76,40 +85,49 @@ export function summarize(career) {
   return { manager: career.managerName, clubId: career.clubId, clubName: club?.name, crest: club?.crest, color: club?.color, date: career.date, year: career.year, startYear: career.startYear };
 }
 
-async function gzip(text) {
-  if (typeof CompressionStream === 'undefined') return new Blob([text], { type: 'application/json' });
-  const stream = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));
-  return new Response(stream).blob();
+export async function prepareExport(career) {
+  const date = career.date, club = career.world.clubs[career.clubId];
+  const slug = (club?.short || club?.name || 'club').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const blob = await encodeSnapshot(career);
+  return { blob, code: await snapshotCode(blob), name: `manager-${slug}-${date}.json${blob.type === 'application/gzip' ? '.gz' : ''}`, date };
 }
 
-async function gunzip(blob) {
-  const head = new Uint8Array(await blob.slice(0, 2).arrayBuffer());
-  if (head[0] === 0x1f && head[1] === 0x8b && typeof DecompressionStream !== 'undefined') {
-    return new Response(blob.stream().pipeThrough(new DecompressionStream('gzip'))).text();
-  }
-  return blob.text();
-}
-
-export async function exportCareer(career) {
-  const text = JSON.stringify({ format: 'gamelock-manager', v: CAREER_VERSION, career: strip(career) });
-  const blob = await gzip(text);
-  const compressed = blob.type !== 'application/json';
-  const club = career.world.clubs[career.clubId];
-  const name = `manager-${(club?.short || club?.name || 'club').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${career.date}.json${compressed ? '.gz' : ''}`;
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = name;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+export function downloadExport({ blob, name }) {
+  const url = URL.createObjectURL(blob), link = document.createElement('a');
+  link.href = url; link.download = name;
+  document.body.appendChild(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-export async function importCareer(file) {
-  if (file.size > 80 * 1024 * 1024) throw new Error('too-big');
-  const text = await gunzip(file);
-  const data = JSON.parse(text);
-  if (data?.format !== 'gamelock-manager' || data.v !== CAREER_VERSION || !data.career?.world) throw new Error('invalid');
-  return { ...data.career, flags: { stops: [] } };
+export async function exportCareer(career) { downloadExport(await prepareExport(career)); }
+
+/** The short code of each career on this device, by career seed. */
+async function cloudCodes() {
+  try { return (await transaction('readonly', store => store.get(CLOUD_KEY))) || {}; } catch { return {}; }
+}
+export async function getCloudCode(career) { return (await cloudCodes())[career.seed] || null; }
+async function rememberCloudCode(seed, code) {
+  const codes = await cloudCodes();
+  codes[seed] = code;
+  // A device keeps the codes of its latest careers only.
+  const entries = Object.entries(codes).slice(-20);
+  await transaction('readwrite', store => store.put(Object.fromEntries(entries), CLOUD_KEY)).catch(() => {});
+}
+
+/** Stores the export on the server under the career's short code (created on first use). */
+export async function saveToCloud(career, blob) {
+  const result = await uploadCloudSave(blob, await getCloudCode(career));
+  await rememberCloudCode(career.seed, result.code);
+  return result;
+}
+
+export async function importCareer(fileOrCode) {
+  if (typeof fileOrCode === 'string' && looksLikeCloudCode(fileOrCode)) {
+    const code = normalizeCloudCode(fileOrCode.trim());
+    const career = await decodeSnapshot(await downloadCloudSave(code));
+    // Saving on this device keeps updating the same code.
+    await rememberCloudCode(career.seed, code);
+    return career;
+  }
+  return typeof fileOrCode === 'string' ? importSnapshotCode(fileOrCode) : decodeSnapshot(fileOrCode);
 }

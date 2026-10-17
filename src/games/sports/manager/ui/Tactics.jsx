@@ -1,13 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { Wand2, Shirt, AlertTriangle, HeartPulse, Ban, RefreshCw } from 'lucide-react';
+import { Wand2, Shirt, AlertTriangle, HeartPulse, Ban, RefreshCw, Check } from 'lucide-react';
 import { useManager } from './context.jsx';
 import { ChoiceRow, OvrBadge, Portrait, SectionTitle, Meter, Pill } from './components.jsx';
 import { posLabel, teamInfo } from './format.js';
 import { L } from './texts.js';
+import { TACTIC_TEXT, TACTIC_GROUPS } from './tactics-texts.js';
 import { FORMATIONS, FORMATION_KEYS, positionFit } from '../career/positions.js';
 import { clubSquad, dynamicOvr, energyAt, isInjured, pickLineup, pickBench } from '../career/world.js';
 import { refreshLineup, setFormation } from '../career/career.js';
-import { MENTALITIES } from '../career/match.js';
+import { CPU_LEVELS, AI_BEHAVIOURS } from '../career/cpu.js';
+import { MENTALITIES, INSTRUCTIONS, PRESETS, ROLES, ROLE_LABEL, FOCUS_LABEL, ROLE_HINT, rolesFor, autoRoles, normalizeTactics, applyPreset, tacticalSummary } from '../career/tactics.js';
 import { lastName } from './components.jsx';
 
 function fitTone(fit) { return fit >= 0.99 ? 'good' : fit >= 0.9 ? 'ok' : fit >= 0.75 ? 'warn' : 'bad'; }
@@ -27,13 +29,21 @@ export function useLineupModel(scope) {
   return { squad, tactics, auto, lineup, bench, national };
 }
 
+/** The keys of every team instruction a preset sets. */
+const PRESET_KEYS = ['mentality', ...Object.keys(INSTRUCTIONS)];
+
 export default function Tactics({ scope = 'club' }) {
   const { career, lang, t, act } = useManager();
   const model = useLineupModel(scope);
-  const { squad, tactics, auto, lineup, bench, national } = model;
+  const { squad, auto, lineup, bench, national } = model;
+  const tactics = normalizeTactics(model.tactics);
+  const T = TACTIC_TEXT[lang] || TACTIC_TEXT.es;
   const [selected, setSelected] = useState(null);
+  const [tab, setTab] = useState('plan');
+  const [hint, setHint] = useState(null);
   const kit = national ? career.world.countries[career.national.fifa]?.color || '#c9a227' : teamInfo(career, career.clubId)?.color;
   const slots = FORMATIONS[tactics.formation];
+  const positions = slots.map(([pos]) => pos);
   const byId = Object.fromEntries(squad.map((p) => [p.id, p]));
   const reserves = squad.filter((p) => !lineup.includes(p.id) && !bench.includes(p.id));
   const date = career.date;
@@ -105,16 +115,44 @@ export default function Tactics({ scope = 'club' }) {
   const setTactic = (patch) => act((c) => {
     const target = national ? c.national.tactics : c.tactics;
     if (patch.formation) {
-      if (national) { target.formation = patch.formation; c.national.autoLineup = true; }
+      if (national) { target.formation = patch.formation; target.roles = {}; c.national.autoLineup = true; }
       else setFormation(c, patch.formation);
     }
     Object.assign(target, Object.fromEntries(Object.entries(patch).filter(([k]) => k !== 'formation')));
   });
+  const choose = (key, value) => { setTactic({ [key]: value }); setHint(key); };
+
+  // Roles: the manager's choice for a position, or what the coach would pick for whoever plays there.
+  const autoNow = useMemo(() => autoRoles(lineup.map((id) => byId[id]), positions, 'balanced'), [lineup.join(), tactics.formation, career.version]);
+  const roleAt = (i) => {
+    const key = tactics.roles[i];
+    if (key && rolesFor(positions[i]).includes(key.split(':')[0])) return { key, auto: false };
+    return { key: autoNow[i], auto: true };
+  };
+  const setRole = (i, key) => setTactic({ roles: { ...tactics.roles, [i]: key } });
 
   const strength = useMemo(() => {
     const ps = lineup.map((id, i) => (byId[id] ? dynamicOvr(byId[id], date, career.training) * positionFit(byId[id], slots[i][0]) : 40));
     return Math.round(ps.reduce((a, b) => a + b, 0) / 11);
   }, [lineup.join(), tactics.formation, career.version]);
+
+  const summary = tacticalSummary({ ...tactics, roles: Object.fromEntries(positions.map((_, i) => [i, roleAt(i).key])) }, positions);
+  const activePreset = Object.keys(PRESETS).find((id) => {
+    const preset = applyPreset(tactics, id);
+    return PRESET_KEYS.every((k) => preset[k] === tactics[k]);
+  });
+  const usePreset = (id) => {
+    const preset = applyPreset(tactics, id);
+    setTactic(Object.fromEntries(PRESET_KEYS.map((k) => [k, preset[k]])));
+    setHint(null);
+  };
+
+  const row = (key) => (
+    <ChoiceRow key={key} label={T.instr[key]} value={tactics[key]} onChange={(v) => choose(key, v)}
+      options={INSTRUCTIONS[key].map((id) => ({ id, label: T.opt[key][String(id)] }))} />
+  );
+  const hintKey = hint && TACTIC_GROUPS[tab]?.includes(hint) ? hint : TACTIC_GROUPS[tab]?.[0];
+  const slotRole = selected?.kind === 'slot' ? roleAt(selected.index) : null;
 
   return (
     <div className="mg-tactics">
@@ -133,6 +171,7 @@ export default function Tactics({ scope = 'club' }) {
               const p = byId[lineup[i]];
               const fit = p ? positionFit(p, pos) : 0;
               const energy = p ? energyAt(p, date, career.training) : 0;
+              const { key, auto: autoRole } = roleAt(i);
               return (
                 <button type="button" key={i} className={`mg-slot ${selected?.kind === 'slot' && selected.index === i ? 'is-selected' : ''} is-fit-${fitTone(fit)}`}
                   style={{ left: `${x}%`, top: `${100 - y}%`, '--kit': kit }} onClick={() => onSlot(i)}
@@ -141,12 +180,17 @@ export default function Tactics({ scope = 'club' }) {
                   <span className="mg-slot__shirt"><Shirt size={30} aria-hidden="true" /><b>{p?.number ?? ''}</b></span>
                   <span className="mg-slot__name">{p ? lastName(p.name) : '—'}</span>
                   <span className="mg-slot__meta"><em>{posLabel(pos, lang)}</em>{p && <OvrBadge value={dynamicOvr(p, date, career.training)} size="xs" />}</span>
+                  <span className={`mg-slot__role ${autoRole ? '' : 'is-set'}`}>{ROLE_LABEL[lang]?.[key.split(':')[0]]}</span>
                   {p && <span className="mg-slot__energy"><i style={{ width: `${energy}%` }} /></span>}
                   {p && (isInjured(p, date) || p.susp > 0) && <span className="mg-slot__alert">!</span>}
                 </button>
               );
             })}
           </div>
+          {slotRole && (
+            <RolePicker slot={positions[selected.index]} player={byId[lineup[selected.index]]} current={slotRole.key} isAuto={slotRole.auto}
+              onPick={(key) => setRole(selected.index, key)} T={T} />
+          )}
           {warnings.length > 0 && (
             <ul className="mg-warnings">
               {warnings.map((w) => (
@@ -163,13 +207,33 @@ export default function Tactics({ scope = 'club' }) {
             <div className="mg-formations">
               {FORMATION_KEYS.map((f) => <button type="button" key={f} className={tactics.formation === f ? 'is-active' : ''} onClick={() => setTactic({ formation: f })}>{f}</button>)}
             </div>
-            <ChoiceRow label={t('Mentalidad', 'Mentality')} value={tactics.mentality} onChange={(v) => setTactic({ mentality: v })} options={MENTALITIES.map((id) => ({ id, label: L[lang].mentality[id] }))} />
-            <ChoiceRow label={t('Presión', 'Pressing')} value={tactics.pressing} onChange={(v) => setTactic({ pressing: v })} options={['low', 'medium', 'high'].map((id) => ({ id, label: L[lang].pressing[id] }))} />
-            <ChoiceRow label={t('Ritmo', 'Tempo')} value={tactics.tempo} onChange={(v) => setTactic({ tempo: v })} options={['slow', 'normal', 'fast'].map((id) => ({ id, label: L[lang].tempo[id] }))} />
-            <p className="mg-muted">{tactics.pressing === 'high' ? t('Presionar arriba roba más balones, pero cansa más.', 'A high press wins the ball more often, but tires players.') : tactics.tempo === 'fast' ? t('Jugar rápido genera más ocasiones y más pérdidas.', 'Fast tempo creates more chances and more turnovers.') : t('Equilibrio entre atacar y defender.', 'A balance between attack and defence.')}</p>
+            <div className="mg-seg mg-tactics__tabs" role="tablist">
+              {Object.entries(T.tabs).map(([id, label]) => <button type="button" role="tab" aria-selected={tab === id} key={id} className={tab === id ? 'is-active' : ''} onClick={() => setTab(id)}>{label}</button>)}
+            </div>
+            {tab === 'plan' && (
+              <>
+                <h4 className="mg-tactics__head">{T.presetsTitle}</h4>
+                <div className="mg-presets">
+                  {Object.keys(PRESETS).map((id) => (
+                    <button type="button" key={id} className={activePreset === id ? 'is-active' : ''} onClick={() => usePreset(id)} title={T.presets[id][1]}>
+                      <b>{activePreset === id && <Check size={13} aria-hidden="true" />}{T.presets[id][0]}</b><small>{T.presets[id][1]}</small>
+                    </button>
+                  ))}
+                </div>
+                <ChoiceRow label={t('Mentalidad', 'Mentality')} value={tactics.mentality} onChange={(v) => setTactic({ mentality: v })} options={MENTALITIES.map((id) => ({ id, label: L[lang].mentality[id] }))} />
+                <TacticalSummary summary={summary} T={T} />
+                <h4 className="mg-tactics__head">{T.cpuTitle}</h4>
+                <ChoiceRow label={T.cpuLevelLabel} value={career.cpu?.level || 'professional'} onChange={(v) => act((c) => { c.cpu = { ...(c.cpu || {}), level: v }; })} options={CPU_LEVELS.map((id) => ({ id, label: T.cpuLevel[id] }))} />
+                <ChoiceRow label={T.cpuBehaviourLabel} value={career.cpu?.behaviour || 'dynamic'} onChange={(v) => act((c) => { c.cpu = { ...(c.cpu || {}), behaviour: v }; })} options={AI_BEHAVIOURS.map((id) => ({ id, label: T.cpuBehaviour[id] }))} />
+                <p className="mg-muted mg-tactics__hint">{T.cpuHelp[career.cpu?.behaviour || 'dynamic']} {T.cpuLevelHelp[career.cpu?.level || 'professional']}</p>
+              </>
+            )}
+            {tab !== 'plan' && TACTIC_GROUPS[tab].map(row)}
+            {tab !== 'plan' && hintKey && <p className="mg-muted mg-tactics__hint"><b>{T.instr[hintKey]}:</b> {T.help[hintKey][String(tactics[hintKey])]}</p>}
             <div className="mg-tactics__auto">
               <button type="button" className={`mg-btn ${auto ? 'mg-btn--primary' : 'mg-btn--ghost'} mg-btn--sm`} onClick={() => act((c) => { if (national) { c.national.autoLineup = true; } else { c.autoLineup = true; refreshLineup(c); } })}><Wand2 size={15} />{auto ? t('Once automático activado', 'Auto XI on') : t('Elegir mejor once', 'Pick best XI')}</button>
               {auto && <Pill tone="good" icon={RefreshCw}>{t('Se ajusta antes de cada partido', 'Updates before each match')}</Pill>}
+              {Object.keys(tactics.roles).length > 0 && <button type="button" className="mg-btn mg-btn--ghost mg-btn--sm" onClick={() => setTactic({ roles: {} })}>{T.resetRoles}</button>}
             </div>
           </div>
           <div className="mg-panel mg-bench">
@@ -177,10 +241,51 @@ export default function Tactics({ scope = 'club' }) {
             <PlayerList ids={bench} byId={byId} selected={selected} onPick={(id) => onPlayer(id, 'bench')} kit={kit} />
             <h4>{t('Fuera de la convocatoria', 'Not in squad')}</h4>
             <PlayerList ids={reserves.map((p) => p.id)} byId={byId} selected={selected} onPick={(id) => onPlayer(id, 'reserve')} kit={kit} />
-            <p className="mg-muted">{t('Toca un jugador y después una posición del campo para cambiarlos. También puedes arrastrarlos.', 'Tap a player and then a position on the pitch to swap them. You can also drag them.')}</p>
+            <p className="mg-muted">{t('Toca un jugador y después una posición del campo para cambiarlos. Toca una posición para elegir su rol. También puedes arrastrarlos.', 'Tap a player and then a position on the pitch to swap them. Tap a position to choose its role. You can also drag them.')}</p>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Role and focus for one position of the shape, FC IQ style. */
+function RolePicker({ slot, player, current, isAuto, onPick, T }) {
+  const { lang } = useManager();
+  const [id, focus] = current.split(':');
+  const role = ROLES[id];
+  return (
+    <div className="mg-panel mg-role-picker">
+      <header>
+        <h4>{T.roleTitle} · {posLabel(slot, lang)}{player ? ` · ${lastName(player.name)}` : ''}</h4>
+        {isAuto && <Pill tone="muted">{T.auto}</Pill>}
+      </header>
+      <div className="mg-role-picker__roles">
+        {rolesFor(slot).map((r) => (
+          <button type="button" key={r} className={r === id ? 'is-active' : ''} onClick={() => onPick(`${r}:${ROLES[r].focuses.includes(focus) ? focus : ROLES[r].focuses[0]}`)}>{ROLE_LABEL[lang][r]}</button>
+        ))}
+      </div>
+      {role && (
+        <div className="mg-role-picker__focus">
+          <span>{T.focusTitle}</span>
+          {role.focuses.map((f) => <button type="button" key={f} className={f === focus ? 'is-active' : ''} onClick={() => onPick(`${id}:${f}`)}>{FOCUS_LABEL[lang][f]}</button>)}
+        </div>
+      )}
+      <p className="mg-muted">{ROLE_HINT[lang][id]}</p>
+    </div>
+  );
+}
+
+function TacticalSummary({ summary, T }) {
+  return (
+    <div className="mg-summary">
+      <h4 className="mg-tactics__head">{T.summaryTitle}</h4>
+      <div className="mg-summary__grid">
+        {Object.entries(summary.ratings).map(([key, value]) => (
+          <div key={key} className="mg-summary__row"><span>{T.summary[key]}</span><Meter value={value} compact label={T.summary[key]} /><b>{value}</b></div>
+        ))}
+      </div>
+      {summary.notes.length > 0 && <ul className="mg-summary__notes">{summary.notes.map((n) => <li key={n.key} className={`is-${n.tone}`}>{T.notes[n.key]}</li>)}</ul>}
     </div>
   );
 }

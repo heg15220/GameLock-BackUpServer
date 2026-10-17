@@ -6,7 +6,7 @@
  * scout files a report. Reports follow FC 27's four blocks - fit, future,
  * cost and willingness - written in plain language by texts.js.
  */
-import { createStream, clamp, addDays, roundMoney, weighted, daysBetween } from './util.js';
+import { createStream, clamp, quantize, addDays, roundMoney, weighted, daysBetween } from './util.js';
 import { generateName } from './names.js';
 import { generateYouth } from './development.js';
 import { clubSquad, dynamicOvr, assignNumbers } from './world.js';
@@ -187,8 +187,8 @@ export function progressAcademy(career) {
   // Academy players grow every month with the first team.
   for (const youth of career.academy.players) {
     const random = createStream(career.seed, 'aca-dev', youth.id, career.date.slice(0, 7));
-    youth.prog = (youth.prog || 0) + (youth.pot - youth.ovr) * 0.035 + (random() - 0.4) * 0.3;
-    while (youth.prog >= 1) { youth.prog -= 1; youth.ovr = Math.min(youth.pot, youth.ovr + 1); }
+    youth.prog = quantize((youth.prog || 0) + (youth.pot - youth.ovr) * 0.035 + (random() - 0.4) * 0.3, 3);
+    while (youth.prog >= 1) { youth.prog = quantize(youth.prog - 1, 3); youth.ovr = Math.min(youth.pot, youth.ovr + 1); }
   }
 }
 

@@ -16,6 +16,25 @@ const GOAL_HALF = 3.66;
 const GOAL_HEIGHT = 2.44;
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/**
+ * Three grounds around the same pitch. The big one is the bowl the
+ * national teams and the best clubs play in; a mid-sized club has a lower
+ * stand with a roof line; a humble club plays in front of a few rows of
+ * terracing, gaps in the seats, a fence, and houses and trees behind.
+ * Only the stands change: the field is drawn exactly the same.
+ */
+const STADIUMS = {
+  large: { stand: 1, side: 1, empty: 0, glow: 0.22, back: null },
+  medium: { stand: 0.62, side: 0.7, empty: 0.16, glow: 0.17, back: 'roof' },
+  small: { stand: 0.34, side: 0.4, empty: 0.42, glow: 0.11, back: 'town' },
+};
+
+/** Which ground a match is played in, from the home side's stadium capacity. */
+export function stadiumFor({ national = false, neutral = false, capacity = 0 } = {}) {
+  if (national || neutral || capacity >= 52000) return 'large';
+  return capacity >= 20000 ? 'medium' : 'small';
+}
 const lerp = (a, b, t) => a + (b - a) * t;
 
 function hexToRgb(hex) {
@@ -33,11 +52,22 @@ export function chooseKits(home, away) {
   let awayMain = away.kit?.[0] || away.color || '#22d';
   if (colorDistance(homeMain, awayMain) < 120) awayMain = away.kit?.[1] || (luminance(homeMain) > 0.55 ? '#1b1f2a' : '#f4f4f0');
   if (colorDistance(homeMain, awayMain) < 120) awayMain = luminance(homeMain) > 0.55 ? '#1b1f2a' : '#f4f4f0';
+  const second = (team, main) => {
+    const list = (team.kit || []).filter((c) => c && colorDistance(c, main) > 60);
+    return list[0] || (luminance(main) > 0.55 ? '#1b1f2a' : '#f4f4f0');
+  };
+  const awayIsAlt = awayMain !== (away.kit?.[0] || away.color);
   return {
-    home: { main: homeMain, text: luminance(homeMain) > 0.6 ? '#101418' : '#ffffff', keeper: '#c6f24a' },
-    away: { main: awayMain, text: luminance(awayMain) > 0.6 ? '#101418' : '#ffffff', keeper: '#ff8a3d' },
+    home: { main: homeMain, shorts: second(home, homeMain), socks: home.kit?.[2] || homeMain, text: luminance(homeMain) > 0.6 ? '#101418' : '#ffffff', keeper: '#c6f24a' },
+    away: { main: awayMain, shorts: awayIsAlt ? (luminance(awayMain) > 0.55 ? '#1b1f2a' : '#f4f4f0') : second(away, awayMain), socks: awayIsAlt ? awayMain : (away.kit?.[2] || awayMain), text: luminance(awayMain) > 0.6 ? '#101418' : '#ffffff', keeper: '#ff8a3d' },
+    ref: { main: '#15171c', shorts: '#15171c', socks: '#15171c', text: '#e9ff4a', keeper: '#15171c' },
   };
 }
+
+const shortName = (name) => {
+  const parts = String(name || '').trim().split(/\s+/);
+  return parts.length > 1 ? parts.slice(-1)[0] : parts[0] || '';
+};
 
 export class PitchRenderer {
   constructor(canvas) {
@@ -56,6 +86,7 @@ export class PitchRenderer {
     this.time = 0;
     this.boardOffset = 0;
     this.boardTexts = ['GAMELOCK', 'MODO MÁNAGER'];
+    this.stadium = 'large';
     this.resize();
   }
 
@@ -63,8 +94,19 @@ export class PitchRenderer {
     this.kits = kits;
     if (boardTexts) this.boardTexts = boardTexts;
     for (const p of Object.values(match.players)) {
-      if (!this.bodies.has(p.id)) this.bodies.set(p.id, { id: p.id, x: p.side === 'home' ? 30 : 75, y: 34, tx: 30, ty: 34, side: p.side, number: p.number, keeper: p.pos === 'GK', on: false, phase: Math.random() * 10, down: 0, speed: 0 });
+      if (!this.bodies.has(p.id)) this.bodies.set(p.id, { id: p.id, x: p.side === 'home' ? 30 : 75, y: 34, tx: 30, ty: 34, side: p.side, number: p.number, name: shortName(p.name), keeper: p.pos === 'GK', on: false, phase: Math.random() * 10, down: 0, speed: 0 });
+      else this.bodies.get(p.id).keeper = p.slot === 'GK' || (p.pos === 'GK' && !p.slot);
     }
+    if (!this.bodies.has('__ref')) this.bodies.set('__ref', { id: '__ref', x: 45, y: 40, tx: 45, ty: 40, side: 'ref', number: '', name: '', keeper: false, on: false, phase: 0, down: 0, speed: 0, official: true });
+    for (const [id, y] of [['__ar1', -1.6], ['__ar2', WIDTH + 1.6]]) {
+      if (!this.bodies.has(id)) this.bodies.set(id, { id, x: id === '__ar1' ? 30 : 75, y, tx: 30, ty: y, side: 'ref', number: '', name: '', keeper: false, on: true, phase: 0, down: 0, speed: 0, official: true, linesman: true });
+    }
+  }
+
+  setStadium(tier) {
+    if (!STADIUMS[tier] || tier === this.stadium) return;
+    this.stadium = tier;
+    this.crowd = null;
   }
 
   resize() {
@@ -119,16 +161,27 @@ export class PitchRenderer {
   /* ── Simulation of bodies ── */
 
   setTargets(targets, ball, dtMs) {
+    const jump = this.snapBodies;
+    this.snapBodies = false;
     for (const [id, target] of Object.entries(targets)) {
       const body = this.bodies.get(id);
       if (!body) continue;
       body.tx = target.x; body.ty = target.y;
+      // In the dark of a cut the picture changes: everyone is already where the play has moved.
+      if (jump) { body.x = target.x; body.y = target.y; }
       body.on = true;
       body.down = target.down ? Math.min(1, body.down + dtMs / 300) : Math.max(0, body.down - dtMs / 500);
       body.dive = target.dive || 0;
+      body.sprint = Boolean(target.sprint);
     }
-    for (const body of this.bodies.values()) if (!targets[body.id]) body.on = false;
-    if (ball) this.ballTarget = ball;
+    for (const body of this.bodies.values()) if (!targets[body.id] && !body.linesman) body.on = false;
+    if (ball) {
+      this.ballTarget = ball;
+      // Assistant referees run their half of the touchline level with play.
+      const ar1 = this.bodies.get('__ar1'); const ar2 = this.bodies.get('__ar2');
+      if (ar1) { ar1.tx = clamp(ball.x, 52.5, LENGTH); ar1.ty = -1.6; }
+      if (ar2) { ar2.tx = clamp(ball.x, 0, 52.5); ar2.ty = WIDTH + 1.6; }
+    }
   }
 
   step(dtMs, speed = 1) {
@@ -139,11 +192,25 @@ export class PitchRenderer {
       const dx = body.tx - body.x;
       const dy = body.ty - body.y;
       const dist = Math.hypot(dx, dy);
-      const max = (body.dive ? 14 : 8.2) * dt * 1.6;
+      // A footballer at full sprint covers 7-8 m/s; a diving keeper is a little quicker over a metre or two.
+      const max = (body.dive ? 10 : body.sprint ? 9.6 : 7.6) * dt;
       const move = Math.min(dist, max, dist * 0.14 + max * 0.25);
       if (dist > 0.01) { body.x += (dx / dist) * move; body.y += (dy / dist) * move; }
       body.speed = lerp(body.speed, move / Math.max(dt, 0.001), 0.2);
       body.phase += body.speed * dt * 1.4;
+    }
+    // Bodies take up space: two players never stand on the same spot.
+    const live = [...this.bodies.values()].filter((b) => b.on && !b.linesman);
+    for (let i = 0; i < live.length; i += 1) {
+      for (let j = i + 1; j < live.length; j += 1) {
+        const p = live[i]; const q = live[j];
+        const dx = q.x - p.x; const dy = q.y - p.y;
+        const d = Math.hypot(dx, dy);
+        if (d >= 0.75 || p.down > 0.5 || q.down > 0.5) continue;
+        const push = (0.75 - Math.max(d, 0.01)) / 2;
+        const ux = d > 0.01 ? dx / d : 1; const uy = d > 0.01 ? dy / d : 0;
+        p.x -= ux * push; p.y -= uy * push; q.x += ux * push; q.y += uy * push;
+      }
     }
     if (this.ballTarget) {
       const b = this.ball;
@@ -157,10 +224,12 @@ export class PitchRenderer {
     this.netBulge.home = Math.max(0, this.netBulge.home - dt * 1.4);
     this.netBulge.away = Math.max(0, this.netBulge.away - dt * 1.4);
     this.flash = Math.max(0, this.flash - dt * 2.2);
+    this.fade = Math.max(0, (this.fade || 0) - dtMs / 450);
     this.shake = Math.max(0, this.shake - dt * 3);
     for (const p of this.particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 420 * dt; p.life -= dt; p.rot += p.vr * dt; }
     this.particles = this.particles.filter((p) => p.life > 0);
     this.labels = this.labels.filter((l) => (l.until -= dtMs) > 0);
+    if (this.subs && (this.subs.until -= dtMs) <= 0) this.subs = null;
     this.boardOffset = (this.boardOffset + dt * 40) % 10000;
   }
 
@@ -176,6 +245,16 @@ export class PitchRenderer {
       const v = 140 + Math.random() * 360;
       this.particles.push({ x: at.x, y: at.y, vx: Math.cos(angle) * v, vy: Math.sin(angle) * v - 260, life: 1.4 + Math.random() * 0.8, color: i % 3 === 0 ? '#ffffff' : i % 3 === 1 ? color : '#ffd34d', rot: Math.random() * 6, vr: (Math.random() - 0.5) * 12, size: 3 + Math.random() * 4 });
     }
+  }
+
+  /** The fourth official's board and the names, for the length of a substitution. */
+  showSubs(list, ms) {
+    this.subs = { list, until: ms, total: ms };
+  }
+
+  /** Start a cut transition (see draw). */
+  cut() {
+    this.fade = 1;
   }
 
   label(text, x, y, tone = 'info', ms = 1400) {
@@ -205,12 +284,15 @@ export class PitchRenderer {
     this.drawTrail(ctx);
     this.drawBall(ctx);
     this.drawLabels(ctx);
+    this.drawSubs(ctx);
     ctx.restore();
     for (const p of this.particles) {
       ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = clamp(p.life, 0, 1); ctx.fillStyle = p.color;
       ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2); ctx.restore();
     }
     if (this.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${this.flash * 0.35})`; ctx.fillRect(0, 0, w, h); }
+    // A broadcast cut: a brief dip to dark while the play jumps ahead.
+    if (this.fade > 0) { ctx.fillStyle = `rgba(3,7,11,${Math.sin(this.fade * Math.PI) * 0.55})`; ctx.fillRect(0, 0, w, h); }
   }
 
   drawStadium(ctx, w, h) {
@@ -226,10 +308,12 @@ export class PitchRenderer {
       const fy = ((seed * 4513 + 1297) % 2333) / 2333 * (this.field.top - 6);
       if ((seed % 5) === 0) { ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.beginPath(); ctx.arc(fx, fy, 1.4, 0, Math.PI * 2); ctx.fill(); }
     }
-    // Floodlight glow.
+    // Floodlight glow: a big ground's roof lights, or the pylons of a small one.
+    const st = STADIUMS[this.stadium] || STADIUMS.large;
+    const lampY = this.vertical ? 0 : this.field.top * (1 - st.stand) * 0.55;
     for (const x of [w * 0.08, w * 0.92]) {
-      const g = ctx.createRadialGradient(x, 0, 0, x, 0, w * 0.35);
-      g.addColorStop(0, 'rgba(210,235,255,0.22)'); g.addColorStop(1, 'rgba(210,235,255,0)');
+      const g = ctx.createRadialGradient(x, lampY, 0, x, lampY, w * (0.2 + st.glow));
+      g.addColorStop(0, `rgba(210,235,255,${st.glow})`); g.addColorStop(1, 'rgba(210,235,255,0)');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
     }
   }
@@ -238,28 +322,82 @@ export class PitchRenderer {
     const c = document.createElement('canvas');
     c.width = Math.round(w); c.height = Math.round(h);
     const g = c.getContext('2d');
-    const top = this.vertical ? this.field.top : this.field.top;
+    const st = STADIUMS[this.stadium] || STADIUMS.large;
+    const top = this.field.top;
+    // The stand only fills the lower part of the band in smaller grounds.
+    const standTop = top * (1 - st.stand);
     const palette = ['#2b3a4a', '#3c4b5c', '#1d2833', '#55606e', '#7d2f35', '#2d5b8a', '#c9c3b5', '#8a6d3a'];
     if (this.kits) palette.push(this.kits.home.main, this.kits.home.main, this.kits.away.main);
-    const rows = this.vertical ? Math.max(4, Math.floor(top / 5)) : Math.max(8, Math.floor(top / 5));
+    const seat = this.kits ? shade(this.kits.home.main, -0.55) : '#24323f';
+    if (st.back === 'town') this.paintTown(g, w, standTop);
+    if (st.back === 'roof') this.paintRoof(g, w, standTop);
+    if (st.stand < 1) {
+      // The back wall of a modest stand.
+      g.fillStyle = '#141c24'; g.fillRect(0, standTop, w, top - standTop);
+    }
+    const rows = Math.max(this.vertical ? 3 : 4, Math.floor((top - standTop) / 5));
     for (let r = 0; r < rows; r += 1) {
-      const y = 3 + r * (top - 6) / rows;
+      const y = standTop + 3 + r * (top - standTop - 6) / rows;
       for (let x = 2; x < w; x += 4 + (r % 3)) {
-        g.fillStyle = palette[Math.floor(Math.random() * palette.length)];
-        g.globalAlpha = 0.55 + Math.random() * 0.4;
-        g.fillRect(x + Math.random() * 2, y + Math.random() * 1.5, 2.4, 3);
+        const empty = Math.random() < st.empty;
+        g.fillStyle = empty ? seat : palette[Math.floor(Math.random() * palette.length)];
+        g.globalAlpha = empty ? 0.5 : 0.55 + Math.random() * 0.4;
+        g.fillRect(x + Math.random() * 2, y + Math.random() * 1.5, 2.4, empty ? 2 : 3);
       }
     }
     g.globalAlpha = 1;
-    const fade = g.createLinearGradient(0, 0, 0, top);
-    fade.addColorStop(0, 'rgba(4,8,13,0.75)'); fade.addColorStop(1, 'rgba(4,8,13,0)');
-    g.fillStyle = fade; g.fillRect(0, 0, w, top);
+    const fade = g.createLinearGradient(0, standTop, 0, top);
+    fade.addColorStop(0, `rgba(4,8,13,${st.stand < 1 ? 0.45 : 0.75})`); fade.addColorStop(1, 'rgba(4,8,13,0)');
+    g.fillStyle = fade; g.fillRect(0, standTop, w, top - standTop);
+    if (st.back === 'town') {
+      // A low fence in front of the terrace.
+      g.strokeStyle = 'rgba(190,200,205,0.35)'; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(0, top - 2); g.lineTo(w, top - 2); g.stroke();
+      for (let x = 0; x < w; x += 9) { g.beginPath(); g.moveTo(x, top - 7); g.lineTo(x, top - 2); g.stroke(); }
+    }
     // Side stands on the vertical layout.
     if (this.vertical) {
-      for (let x = 0; x < w * 0.06; x += 4) for (let y = top; y < h; y += 4) { g.fillStyle = palette[Math.floor(Math.random() * palette.length)]; g.globalAlpha = 0.35; g.fillRect(x, y, 2.4, 3); g.fillRect(w - x - 3, y, 2.4, 3); }
+      for (let x = 0; x < w * 0.06 * st.side; x += 4) for (let y = top; y < h; y += 4) {
+        const empty = Math.random() < st.empty;
+        g.fillStyle = empty ? seat : palette[Math.floor(Math.random() * palette.length)];
+        g.globalAlpha = 0.35; g.fillRect(x, y, 2.4, 3); g.fillRect(w - x - 3, y, 2.4, 3);
+      }
       g.globalAlpha = 1;
     }
     return c;
+  }
+
+  /** Behind a humble ground: rooftops, trees and two floodlight pylons against the night. */
+  paintTown(g, w, ground) {
+    if (ground < 6) return;
+    let x = 0;
+    while (x < w) {
+      const roofW = 22 + Math.random() * 40;
+      const roofH = ground * (0.25 + Math.random() * 0.45);
+      g.fillStyle = Math.random() < 0.5 ? '#0b1219' : '#0e161e';
+      g.fillRect(x, ground - roofH, roofW, roofH);
+      g.beginPath(); g.moveTo(x - 2, ground - roofH); g.lineTo(x + roofW / 2, ground - roofH - roofW * 0.25); g.lineTo(x + roofW + 2, ground - roofH); g.fill();
+      if (Math.random() < 0.6) { g.fillStyle = 'rgba(255,214,140,0.55)'; g.fillRect(x + roofW * 0.3, ground - roofH * 0.6, 3, 3); }
+      x += roofW + Math.random() * 10;
+      if (Math.random() < 0.35) {
+        g.fillStyle = '#08100c';
+        g.beginPath(); g.arc(x, ground - 8, 8 + Math.random() * 7, 0, Math.PI * 2); g.fill();
+        x += 12;
+      }
+    }
+    for (const px of [w * 0.08, w * 0.92]) {
+      g.strokeStyle = '#3a4650'; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(px, ground + 2); g.lineTo(px, Math.max(4, ground * 0.18)); g.stroke();
+      g.fillStyle = 'rgba(235,245,255,0.9)'; g.fillRect(px - 7, Math.max(2, ground * 0.18) - 4, 14, 5);
+    }
+  }
+
+  /** Behind a mid-sized stand: its roof edge with a strip of lights. */
+  paintRoof(g, w, ground) {
+    if (ground < 4) return;
+    g.fillStyle = '#0c141c'; g.fillRect(0, ground - 6, w, 6);
+    g.fillStyle = 'rgba(220,235,255,0.55)';
+    for (let x = 6; x < w; x += 26) g.fillRect(x, ground - 3, 10, 2);
   }
 
   fieldPath(ctx, inset = 0) {
@@ -392,12 +530,14 @@ export class PitchRenderer {
   }
 
   drawBody(ctx, body) {
-    const kit = this.kits?.[body.side];
+    const kit = this.kits?.[body.side] || (body.side === 'ref' ? { main: '#15171c', shorts: '#15171c', socks: '#15171c', text: '#e9ff4a', keeper: '#15171c' } : null);
     if (!kit) return;
     const p = this.project(body.x, body.y);
     const scale = Math.max(3, p.s * 1.08);
     const bob = Math.abs(Math.sin(body.phase)) * scale * 0.25 * clamp(body.speed / 6, 0, 1);
     const main = body.keeper ? kit.keeper : kit.main;
+    const shorts = body.keeper ? shade(kit.keeper, -0.5) : kit.shorts || shade(main, -0.45);
+    const socks = body.keeper ? kit.keeper : kit.socks || main;
     const height = scale * 3.1;
     ctx.save();
     ctx.translate(p.x, p.y - bob);
@@ -405,11 +545,18 @@ export class PitchRenderer {
     if (body.dive) ctx.rotate(body.dive * 1.1);
     // Legs (alternate with the stride).
     const stride = Math.sin(body.phase * 2) * scale * 0.45 * clamp(body.speed / 5, 0, 1);
-    ctx.strokeStyle = '#1b1b1b'; ctx.lineWidth = Math.max(1, scale * 0.38); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(-scale * 0.25, -height * 0.35); ctx.lineTo(-scale * 0.25 + stride, 0);
-    ctx.moveTo(scale * 0.25, -height * 0.35); ctx.lineTo(scale * 0.25 - stride, 0); ctx.stroke();
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#d9a982'; ctx.lineWidth = Math.max(1, scale * 0.34);
+    ctx.beginPath(); ctx.moveTo(-scale * 0.25, -height * 0.35); ctx.lineTo(-scale * 0.25 + stride * 0.5, -height * 0.18);
+    ctx.moveTo(scale * 0.25, -height * 0.35); ctx.lineTo(scale * 0.25 - stride * 0.5, -height * 0.18); ctx.stroke();
+    ctx.strokeStyle = socks; ctx.lineWidth = Math.max(1, scale * 0.38);
+    ctx.beginPath(); ctx.moveTo(-scale * 0.25 + stride * 0.5, -height * 0.18); ctx.lineTo(-scale * 0.25 + stride, 0);
+    ctx.moveTo(scale * 0.25 - stride * 0.5, -height * 0.18); ctx.lineTo(scale * 0.25 - stride, 0); ctx.stroke();
+    ctx.fillStyle = '#111';
+    ctx.fillRect(-scale * 0.25 + stride - scale * 0.2, -scale * 0.12, scale * 0.42, scale * 0.16);
+    ctx.fillRect(scale * 0.25 - stride - scale * 0.2, -scale * 0.12, scale * 0.42, scale * 0.16);
     // Shorts and shirt.
-    ctx.fillStyle = shade(main, -0.45);
+    ctx.fillStyle = shorts;
     ctx.fillRect(-scale * 0.55, -height * 0.48, scale * 1.1, height * 0.16);
     const torso = ctx.createLinearGradient(-scale, -height, scale, -height * 0.4);
     torso.addColorStop(0, shade(main, 0.18)); torso.addColorStop(1, shade(main, -0.22));
@@ -430,6 +577,19 @@ export class PitchRenderer {
       ctx.fillText(String(body.number ?? ''), 0, -height * 0.67);
     }
     ctx.restore();
+    if (body.highlight === 'event' && body.name && scale > 2.6) {
+      ctx.save();
+      ctx.font = `700 ${Math.max(9, Math.min(12, scale * 1.5))}px "Barlow Condensed", "Outfit", sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      const label = body.name;
+      const w = ctx.measureText(label).width + 8;
+      const y = p.y - height * 1.45 - bob;
+      ctx.fillStyle = 'rgba(6,12,18,0.72)';
+      ctx.beginPath(); ctx.roundRect?.(p.x - w / 2, y - 13, w, 14, 4); if (!ctx.roundRect) ctx.rect(p.x - w / 2, y - 13, w, 14); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillText(label, p.x, y);
+      ctx.restore();
+    }
     if (body.highlight) {
       ctx.strokeStyle = body.highlight === 'user' ? 'rgba(46,230,176,0.9)' : 'rgba(255,255,255,0.85)';
       ctx.lineWidth = 1.5;
@@ -463,6 +623,46 @@ export class PitchRenderer {
     ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#1b2733';
     ctx.beginPath(); ctx.arc(p.x + Math.cos(this.time * 9) * r * 0.25, p.y + Math.sin(this.time * 9) * r * 0.25, r * 0.32, 0, Math.PI * 2); ctx.fill();
+  }
+
+  drawSubs(ctx) {
+    if (!this.subs) return;
+    const { list, until, total } = this.subs;
+    const alpha = Math.min(1, (total - until) / 250, until / 300);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    // The board, held up over the halfway line on the near touchline.
+    const at = this.project(LENGTH / 2, WIDTH + 1.4, 3.2);
+    const rowH = 22;
+    const w = 54;
+    const h = rowH * list.length + 8;
+    ctx.fillStyle = 'rgba(10,12,14,0.92)';
+    ctx.fillRect(at.x - w / 2, at.y - h, w, h);
+    ctx.font = '800 16px "Barlow Condensed", "Outfit", sans-serif';
+    ctx.textBaseline = 'middle';
+    list.forEach((sub, k) => {
+      const y = at.y - h + 4 + rowH * k + rowH / 2;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ff4d4d'; ctx.fillText(String(sub.out?.number ?? '–'), at.x - 13, y);
+      ctx.fillStyle = '#3ddc84'; ctx.fillText(String(sub.on?.number ?? '–'), at.x + 13, y);
+    });
+    // Who comes on and who goes off, by name.
+    const lines = list.map((sub) => [sub.on?.name || '', sub.out?.name || '']);
+    const boxW = Math.min(this.w - 24, 300);
+    const lineH = 18;
+    const boxH = lines.length * lineH * 2 + 14;
+    const bx = Math.min(Math.max(12, at.x - boxW / 2), this.w - boxW - 12);
+    const by = Math.max(8, at.y - h - boxH - 10);
+    ctx.fillStyle = 'rgba(6,12,18,0.85)';
+    ctx.beginPath(); ctx.roundRect?.(bx, by, boxW, boxH, 10); if (!ctx.roundRect) ctx.rect(bx, by, boxW, boxH); ctx.fill();
+    ctx.textAlign = 'left';
+    ctx.font = '700 13px "Barlow Condensed", "Outfit", sans-serif';
+    lines.forEach(([on, off], k) => {
+      const y = by + 10 + k * lineH * 2 + lineH / 2;
+      ctx.fillStyle = '#3ddc84'; ctx.fillText('▲ ' + on, bx + 12, y);
+      ctx.fillStyle = '#ff8a8a'; ctx.fillText('▼ ' + off, bx + 12, y + lineH);
+    });
+    ctx.restore();
   }
 
   drawLabels(ctx) {

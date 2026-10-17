@@ -1,0 +1,77 @@
+import { chromium } from 'playwright';
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import { importSnapshotCode } from '../src/games/sports/manager/career/save-format.js';
+const base=process.env.MANAGER_TEST_URL||'http://127.0.0.1:5200',out='output/manager-global/production';
+await fs.mkdir(out,{recursive:true});
+const browser=await chromium.launch({headless:true}),errors=[],report=[];
+async function open(viewport){
+ const context=await browser.newContext({viewport});
+ await context.addInitScript(()=>localStorage.setItem('playforge.cookieConsent.v1',JSON.stringify({version:1,decided:true,updatedAt:new Date().toISOString(),preferences:{necessary:true}})));
+ const page=await context.newPage();page.setDefaultTimeout(180000);page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(`${base}/es/games/sports-manager`,{waitUntil:'domcontentloaded'});
+ await page.getByRole('button',{name:'Nueva carrera',exact:true}).waitFor();return{context,page};
+}
+try{
+ const{page,context}=await open({width:1440,height:1000});
+ await page.getByRole('button',{name:'Nueva carrera',exact:true}).click();
+ const years=page.getByLabel('Todas las temporadas del histórico');
+ await years.selectOption('2024');
+ assert.deepEqual(await page.locator('.mg-era-cards b').allTextContents(),['2024/25','2023/24','2022/23','2021/22','2020/21']);
+ await page.getByRole('button',{name:'Siguiente',exact:true}).click();
+ for(const conf of ['AFC','CAF']){
+  await page.getByRole('button',{name:conf,exact:true}).click();
+  await page.waitForFunction(()=>document.querySelectorAll('.mg-league-card').length>10);
+  await page.waitForFunction(()=>[...document.querySelectorAll('.mg-league-card img')].every(img=>img.complete));
+  const names=await page.locator('.mg-league-card strong').allTextContents();
+  await page.screenshot({path:`${out}/${conf.toLowerCase()}-leagues.png`});
+  report.push({case:`${conf}-documented-leagues`,count:names.length,names});
+ }
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.getByRole('button',{name:'Nueva carrera',exact:true}).click();
+ await page.getByLabel('Todas las temporadas del histórico').selectOption('1999');
+ await page.getByRole('button',{name:'Siguiente',exact:true}).click();
+ await page.getByRole('button',{name:'CONMEBOL',exact:true}).click();
+ await page.locator('.mg-league-card').filter({hasText:'Liga Profesional'}).click();
+ await page.getByRole('button',{name:'Siguiente',exact:true}).click();
+ assert.equal(await page.locator('.mg-club-tile').count(),20);
+ await page.locator('.mg-club-tile').filter({hasText:'Boca'}).click();
+ const coverage=await page.locator('.mg-roster-coverage').textContent();
+ assert.ok(Number(/(\d+)\s*jugadores reales/.exec(coverage)?.[1])>0,coverage);
+ await page.waitForFunction(()=>[...document.querySelectorAll('.mg-club-tile img')].every(img=>img.complete&&img.naturalWidth>0));
+ await page.screenshot({path:`${out}/argentina-1999.png`});
+ await page.getByRole('button',{name:'Siguiente',exact:true}).click();
+ await page.getByRole('button',{name:'Siguiente',exact:true}).click();
+ await page.getByPlaceholder('Tu nombre',{exact:true}).fill('Validación producción');
+ await page.getByRole('button',{name:'Firmar contrato',exact:true}).click();
+ await page.getByRole('button',{name:'¡A trabajar!',exact:true}).click();
+ await page.getByRole('button',{name:'Guardar y exportar código',exact:true}).click();
+ const codeBox=page.getByLabel('Código de exportación',{exact:true});await codeBox.waitFor();
+ const code=await codeBox.inputValue(),original=await importSnapshotCode(code);
+ await page.screenshot({path:`${out}/export-desktop.png`});
+ const{page:mobile,context:mobileContext}=await open({width:390,height:844});
+ await mobile.getByRole('button',{name:'Importar partida',exact:true}).click();
+ await mobile.getByLabel('Código de exportación',{exact:true}).fill(code);
+ await mobile.getByRole('button',{name:'Continuar con este código',exact:true}).click();
+ await mobile.getByRole('button',{name:'Guardar y exportar código',exact:true}).click();
+ const importedBox=mobile.getByLabel('Código de exportación',{exact:true});await importedBox.waitFor();
+ assert.deepEqual(await importSnapshotCode(await importedBox.inputValue()),original);
+ await mobile.screenshot({path:`${out}/export-mobile.png`});
+ report.push({case:'production-cross-device-roundtrip',passed:true,coverage});
+ const{page:live,context:liveContext}=await open({width:1280,height:900});
+ await live.getByRole('button',{name:'Importar partida',exact:true}).click();
+ await live.getByLabel('Código de exportación',{exact:true}).fill(await fs.readFile('output/manager-global/browser/live-code.txt','utf8'));
+ await live.getByRole('button',{name:'Continuar con este código',exact:true}).click();
+ await live.locator('.mg-scorebug__clock').waitFor();
+ assert.equal(await live.locator('.mg-scorebug__clock').textContent(),"37'");
+ assert.equal(await live.getByRole('button',{name:'Comenzar partido',exact:true}).count(),0);
+ assert.ok(await live.locator('.mg-feed li:not(.mg-muted)').count()>0);
+ await live.screenshot({path:`${out}/live-match-restored.png`});
+  await live.getByRole('button',{name:'Guardar y exportar partido',exact:true}).click();
+  const liveExport=live.getByLabel('Código de exportación',{exact:true});await liveExport.waitFor();
+  assert.equal((await importSnapshotCode(await liveExport.inputValue())).live.clock,37);
+ report.push({case:'production-live-match-minute-37',passed:true});
+ assert.deepEqual(errors,[]);await fs.writeFile(`${out}/report.json`,JSON.stringify({report,errors},null,2));
+ console.log(JSON.stringify({report,errors},null,2));
+ await context.close();await mobileContext.close();await liveContext.close();
+}finally{await browser.close();}

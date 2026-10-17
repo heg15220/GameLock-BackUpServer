@@ -1,7 +1,8 @@
 import { world } from '../trayectoria/world.js';
+import { clubArtwork } from './artwork.js';
 import historicalResults from './historical-results.json';
 import playerMemberships from './player-memberships.json';
-import historicalRosters from './historical-rosters.json';
+import { seasonArchive, seasonArchiveMeta } from './season-archives.js';
 import { getSeasonRosterArchive as seasonRosters, getSeasonRosterRecords, unambiguousSeasonPlayers, linkedPlayerIdentities, identitiesCompatible } from './season-roster-archive.js';
 import { getVerifiedCareerRecords } from './verified-career-provider.js';
 import { playerClubAtDate } from './providers.js';
@@ -11,10 +12,14 @@ import { playerIdentity } from './roster-providers.js';
 import { editorialRosters, editorialSeasonEvidence } from './editorial-rosters.js';
 import { getPlayerAge } from './player-age.js';
 import { hasPlayableRealDepth } from './roster-depth.js';
+import { seasonEvidence } from './evidence-archive.js';
 import { getAvailableYears, getAvailableLeagues, getSeasonParticipants, getUnavailableLeagues, managerLeagueCatalog, membershipArchiveRevision } from './league-memberships.js';
 export { getAvailableYears, getAvailableLeagues, getLeagueSeasonCoverage } from './league-memberships.js';
 
 export const dataSources = [
+  { id: 'football-artwork', name: 'Escudos y logos documentados', license: 'Licencia y titular indicados por archivo; marcas de sus propietarios', url: '/data/football-manager/artwork-sources.json', scope: 'Imágenes enlazadas explícitamente por las fichas de clubes y ligas, con revisión, archivo original y huella SHA-256. Se utiliza la imagen disponible, no necesariamente el diseño de cada temporada histórica. Los trofeos sin fotografía tienen una ilustración original del juego.' },
+  { id: 'wikipedia-career-evidence', name: 'Trayectorias y partidos de Wikipedia', license: 'CC-BY-SA-4.0', url: 'https://en.wikipedia.org/', scope: 'Fichas de futbolistas que enlazan a cada club: años por club, partidos y goles de liga, internacionalidades absolutas y posición. Sirven para completar plantillas y estimar medias (regularidad, internacionalidades ponderadas por el nivel de la selección en su época, nivel de sus clubes, goles y edad). Las medias son estimaciones originales del juego, ajustadas a la escala de la selección editorial.' },
+  { id: 'league-tables', name: 'Clasificaciones históricas', license: 'CC0-1.0 / CC-BY-SA-4.0', url: 'https://github.com/footballcsv', scope: 'Tablas finales recalculadas con los resultados partido a partido (footballcsv, OpenFootball) o tomadas del artículo de la temporada en Wikipedia. La fuerza de cada club mezcla su temporada y las dos anteriores sobre el nivel de su liga en esa época.' },
   { id: 'wikimedia-verified-careers', name: 'Trayectorias históricas de Wikimedia', license: 'CC-BY-SA-4.0', url: 'https://en.wikipedia.org/', scope: 'Biografías individuales con períodos cerrados por club. Solo se admiten años interiores inequívocos; se excluyen años de entrada y salida, préstamos y solapamientos. Son afiliaciones parciales, no plantillas completas ni fechas exactas de inscripción.' },
   { id: 'openfootball-historical', name: 'OpenFootball v0-format / MLS y plantillas históricas', license: 'CC0-1.0', url: 'https://github.com/openfootball/v0-format', scope: 'Listas parciales de 2005–2015, cruzadas con identidades fechadas de OpenFootball y Wikidata. Cada registro conserva fuente y revisión; no acredita una plantilla completa ni una fecha exacta de traspaso.' },
   { id: 'research-match-sheets', name: 'Pappalardo et al. / convocatorias 2017', license: 'CC-BY-4.0', url: 'https://doi.org/10.1038/s41597-019-0247-7', scope: 'Convocatorias de 98 clubes en cinco ligas antes del 1 de septiembre de 2017. Ausencias, lesiones y fichajes de última hora pueden dejar huecos; no demuestra inscripción continua. Valoraciones estimadas.' },
@@ -178,7 +183,7 @@ function addImportedPlayers(players,clubMap,year) {
     Object.assign(player,extra);if(Number.isInteger(row.shirtNumber))player.shirtNumber=row.shirtNumber;players.push(player);rememberIdentity(player);ids.add(player.id);remember(player);
     for(const key of linkedPlayerIdentities(row))linkedExisting.add(key);
   };
-  for(const row of historicalRosters.historicalPlayers??[]) {
+  for(const row of seasonArchive(year).historicalPlayers) {
     if(row.gender!=='male')continue;
     // A century-old open interval is not evidence that a retired player is active.
     const memberships=row.memberships.filter(m=>m.end||Number(m.start?.value.slice(0,4))>=year-12);
@@ -224,6 +229,74 @@ function generatedPlayer(club,year,index,position,ceiling=91) {
   return { id:`generated-${year}-${club.id}-${index}`,name:`${first[seed%first.length]} ${last[(seed>>>8)%last.length]}`,clubId:club.id,birthYear:year-age,age,nationality:country,position,rating,potential,real:false,source:'generated',ratingSource:'procedural-estimate', ...playerEconomics(rating,potential,age,year) };
 }
 
+const EDITORIAL_SOURCES=new Set(['curated','curated-verified','curated-career']);
+const SQUAD_LIMIT=32;
+const evidenceKey=(name,birthYear)=>`${playerIdentity(name,0).split(':')[0]}:${birthYear}`;
+const DETAIL_LINE={GK:'GK',CB:'DF',LB:'DF',RB:'DF',FB:'DF',WB:'DF',RWB:'DF',LWB:'DF',CDM:'MF',CM:'MF',CAM:'MF',LW:'FW',RW:'FW',W:'FW',ST:'FW'};
+/**
+ * Career evidence (Wikipedia infobox facts + league tables) for this season:
+ * re-rates every non-editorial player it can identify, and adds the
+ * documented players the season lists did not have. Editorial ratings and
+ * audited club cuts keep priority. Squads are trimmed to a realistic size by
+ * keeping the players who actually played.
+ */
+function mergeCareerEvidence(players,evidence,clubMap,year){
+  const byPage=new Map(),byKey=new Map(),byClubBirth=new Map();
+  for(const player of players){
+    if(player.identityPageId&&(player.identityWiki||'en')==='en')byPage.set(Number(player.identityPageId),player);
+    byKey.set(evidenceKey(canonicalName(player.name,player.birthYear,player.birthDate),player.birthYear),player);
+    if(player.birthDate)byClubBirth.set(`${player.clubId}:${player.birthDate}`,player);
+  }
+  const ids=new Set(players.map(p=>p.id));
+  const added=[];
+  for(const row of evidence.players){
+    const club=clubMap.get(row.clubId);
+    if(!club)continue;
+    const birthYear=Number(row.birthDate.slice(0,4));
+    const canonical=canonicalName(row.name,birthYear,row.birthDate);
+    // Same page, same canonical name and year, or the same birthday in the same squad.
+    const existing=byPage.get(row.pageid)||byKey.get(evidenceKey(canonical,birthYear))||byClubBirth.get(`${row.clubId}:${row.birthDate}`);
+    const line=DETAIL_LINE[row.pos]||'MF';
+    if(existing){
+      if(!EDITORIAL_SOURCES.has(existing.source)){
+        existing.rating=row.rating;existing.potential=Math.max(row.rating,row.potential);existing.ratingSource='career-evidence-model';
+        Object.assign(existing,playerEconomics(existing.rating,existing.potential,existing.age,year));
+      }
+      existing.detailedPos??=row.pos;existing.altPositions??=row.alt;existing.evidenceApps=row.apps;
+      if(!existing.nationality&&row.nat)existing.nationality=row.nat;
+      existing.birthDate??=row.birthDate;
+      continue;
+    }
+    if(editorialRosters[year]?.[row.clubId]?.complete)continue;
+    const player=makePlayer(canonical,birthYear,row.nat||club.country,line,row.rating,Math.max(row.rating,row.potential),row.clubId,year,'wikipedia-career');
+    if(ids.has(player.id))player.id+=`-${row.pageid}`;
+    if(ids.has(player.id))continue;
+    Object.assign(player,{birthDate:row.birthDate,ratingSource:'career-evidence-model',identityPageId:row.pageid,identityWiki:'en',
+      sourceUrl:`https://en.wikipedia.org/?curid=${row.pageid}`,sourceLicense:'CC-BY-SA-4.0',membershipPrecision:'career-years',
+      membershipSeason:`${year}`,detailedPos:row.pos,altPositions:row.alt,evidenceApps:row.apps,evidenceLoan:row.loan});
+    player.age=getPlayerAge(player,getManagerSnapshotDate(year),year);
+    Object.assign(player,playerEconomics(player.rating,player.potential,player.age,year));
+    ids.add(player.id);byKey.set(evidenceKey(canonical,birthYear),player);byPage.set(row.pageid,player);byClubBirth.set(`${row.clubId}:${row.birthDate}`,player);added.push(player);
+  }
+  const all=[...players,...added];
+  // Realistic squads: editorial and dated memberships first, then who played most.
+  const byClub=new Map();
+  for(const player of all){if(!byClub.has(player.clubId))byClub.set(player.clubId,[]);byClub.get(player.clubId).push(player);}
+  const keep=new Set();
+  for(const squad of byClub.values()){
+    if(squad.length<=SQUAD_LIMIT){for(const p of squad)keep.add(p.id);continue;}
+    const score=p=>(EDITORIAL_SOURCES.has(p.source)?1000:0)+(p.membershipVerified&&p.membershipPrecision!=='year-interior'?200:0)+(p.evidenceApps??(p.source==='wikipedia-career'?4:10))*2+p.rating*0.5;
+    const ranked=squad.slice().sort((a,b)=>score(b)-score(a));
+    const caps={GK:3,DF:11,MF:11,FW:8},lines={GK:0,DF:0,MF:0,FW:0};let kept=0;
+    for(const p of ranked){
+      if(kept>=SQUAD_LIMIT)break;
+      if(!EDITORIAL_SOURCES.has(p.source)&&lines[p.position]>=caps[p.position])continue;
+      keep.add(p.id);lines[p.position]+=1;kept+=1;
+    }
+  }
+  return all.filter(p=>keep.has(p.id));
+}
+
 /** Synchronous, deterministic, independent worlds; never mutates Carrera data. */
 export function getManagerWorld(inputYear=2012) {
   const parsed=Number(inputYear);
@@ -256,6 +329,7 @@ export function getManagerWorld(inputYear=2012) {
       club.competitionId=competition.id;club.selectable=true;club.membershipSource=competition.membershipSource;
       club.membershipSeason=competition.seasonLabel;
       club.seasonName=team.name;
+      if(team.reserveOf)club.reserveParentId=team.reserveOf;
       if(['rb-bragantino','akhmat','cf-montreal','new-york-rb','fc-dallas','sporting-kansas-city','san-jose-earthquakes','atletico-torque','cusco'].includes(club.id)){
         club.name=team.name;club.shortName=team.name;
       }
@@ -275,7 +349,11 @@ export function getManagerWorld(inputYear=2012) {
     club.competitionId=id;club.selectable=false;club.membershipSource='documented-player-background';
   }
 
+  const evidence=seasonEvidence(year);
   for(const club of clubs) {
+    if(RESERVE_PARENTS[club.id])club.reserveParentId=RESERVE_PARENTS[club.id];
+    // Reserve sides wear their first team's crest when they have no own artwork.
+    club.crest=clubArtwork(club.id)||club.crest||(club.reserveParentId?clubArtwork(club.reserveParentId)||world.clubs[club.reserveParentId]?.crest:null)||null;
     const competition=competitionMap.get(club.competitionId);
     club.country=competition?.country_fifa_code??'ESP';
     const editorial=ERA_CLUB_RATINGS[year]?.[club.id];
@@ -283,10 +361,12 @@ export function getManagerWorld(inputYear=2012) {
     const leagueAdjustment=Math.max(0,3-(competition?.strength??0))*3+Math.max(0,(competition?.tier??1)-1)*4;
     club.rating=clamp(Math.round(Number.isFinite(club.resultRating)?club.resultRating-leagueAdjustment:editorial??base),35,95);
     club.ratingSource=Number.isFinite(club.resultRating)?'previous-season-results-estimate':'editorial-estimate';
+    // League tables of this season and the two before, on the league's level in that era.
+    const tableStrength=evidence?.strength?.[club.id];
+    if(Number.isFinite(tableStrength)){club.rating=clamp(Math.round(tableStrength),35,95);club.ratingSource='league-table-evidence';}
     club.membershipSource??='current-catalog-estimate';
     club.budget=Math.round(Math.pow(Math.max(1,club.rating-43),2.2)*19000*Math.max(.18,Math.pow(1.045,year-2025))/100000)*100000;
     club.budget=Math.max(250000,club.budget);
-    if(RESERVE_PARENTS[club.id])club.reserveParentId=RESERVE_PARENTS[club.id];
   }
 
   let players=readCuratedPlayers(year,new Set(clubMap.keys()));
@@ -307,6 +387,7 @@ export function getManagerWorld(inputYear=2012) {
     player.age=getPlayerAge(player,getManagerSnapshotDate(year),year);
     Object.assign(player,playerEconomics(player.rating,player.potential,player.age,year));
   }
+  if(evidence)players=mergeCareerEvidence(players,evidence,clubMap,year);
   players=players.filter(player=>player.age>=16);
   for(const player of players) clubMap.get(player.clubId).playerIds.push(player.id);
   const playerMap=new Map(players.map(p=>[p.id,p]));
@@ -352,7 +433,7 @@ export function getManagerWorld(inputYear=2012) {
     summary:`${historicalCompetitions} de ${managerLeagueCatalog.length} ligas con participantes documentados para ${year}; ${clubs.length} clubes y ${realPlayers} jugadores reales seleccionados. Plantillas restantes generadas; medias, potenciales y finanzas estimados.`,
     totalLeagues:historicalCompetitions,catalogLeagues:managerLeagueCatalog.length,unavailableLeagues,externalClubs:clubs.filter(club=>club.selectable===false).length,totalClubs:clubs.length,realPlayers,generatedPlayers:players.length-realPlayers,historicalCompetitions,verifiedPlayers,rosterClubs,importedRealPlayers,
     seasonRosterClubs:Object.keys(seasonRosters(year)).length,completeRealSquads:clubs.filter(c=>c.rosterCoverage.complete).length,
-    quarantinedMemberships:historicalRosters.membershipAudit?.quarantinedMemberships??0,rejectedMemberships:historicalRosters.membershipAudit?.rejectedMemberships??0,
+    quarantinedMemberships:seasonArchiveMeta.historical.membershipAudit?.quarantinedMemberships??0,rejectedMemberships:seasonArchiveMeta.historical.membershipAudit?.rejectedMemberships??0,
     exhaustive:false,ratingsAreEstimates:true,rostersComplete:false,archiveRevision:membershipArchiveRevision+'-rosters-v12',snapshotDate:getManagerSnapshotDate(year),snapshotCutoff:Object.keys(seasonRosters(year)).length?'Listas documentadas durante la temporada; pueden incluir fichajes de invierno':year===2013?'3 de septiembre de 2013: después del cierre de mercado del día 2':'Cierre del 1 de septiembre del año inicial',
     limitations:[
       'No incluye todas las ligas del mundo ni todas las plantillas históricas.',

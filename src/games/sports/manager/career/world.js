@@ -4,22 +4,29 @@ import { assignPositions, deriveAttributes, FORMATIONS, positionFit, POSITION_LI
 import { KNOWN_POSITIONS, positionFromNumber } from './known-positions.js';
 import { marketValue, stadiumCapacity } from './economy.js';
 
+/** Position codes of the career evidence → game positions (sides drawn when unstated). */
+function evidencePosition(code, random) {
+  if (!code) return null;
+  if (code === 'FB') return random() < 0.5 ? 'RB' : 'LB';
+  if (code === 'WB') return random() < 0.5 ? 'RWB' : 'LWB';
+  if (code === 'W') return random() < 0.5 ? 'RW' : 'LW';
+  return POSITION_LINE[code] ? code : null;
+}
+
 export const GROWTH_PROFILES = ['early', 'standard', 'late', 'steady', 'explosive', 'durable'];
 
-/** Spanish names of the domestic cups we can name; anything else gets a generic name. */
-const CUP_NAMES = {
-  'esp-copa-del-rey': 'Copa del Rey', 'eng-fa-cup': 'FA Cup', 'ger-dfb-pokal': 'DFB-Pokal', 'ita-coppa-italia': 'Coppa Italia',
-  'fra-coupe-de-france': 'Coupe de France', 'por-taca-de-portugal': 'Taça de Portugal', 'ned-knvb-cup': 'Copa KNVB',
-  'tur-copa-turquia': 'Copa de Turquía', 'bra-copa-do-brasil': 'Copa do Brasil', 'arg-copa-argentina': 'Copa Argentina',
-  'usa-us-open': 'US Open Cup', 'col-copa-colombia': 'Copa Colombia', 'chi-copa-chile': 'Copa Chile', 'uru-copa-uruguay': 'Copa Uruguay',
-  'ecu-copa-ecuador': 'Copa Ecuador', 'par-copa-paraguay': 'Copa Paraguay', 'bol-copa-bolivia': 'Copa Bolivia', 'ven-copa-venezuela': 'Copa Venezuela',
-  'mex-copa-mx': 'Copa MX', 'supercopa-guatemala': 'Copa de Guatemala', 'slv-copa-presidente': 'Copa Presidente', 'copa-primera-de-nicaragua': 'Copa de Nicaragua',
-};
+/** "de", "de los", "de las" or "de la" in front of a country's Spanish name. */
+function ofCountry(name) {
+  if (/^(Islas|Bahamas|Bermudas|Maldivas|Comoras|Filipinas|Seychelles)\b/.test(name)) return `de las ${name}`;
+  if (/^(Países Bajos|Emiratos|Estados Unidos)\b/.test(name)) return `de los ${name}`;
+  if (/^República\b/.test(name)) return `de la ${name}`;
+  return `de ${name}`;
+}
 
+/** Every domestic cup is simply the cup of its country: Copa de España, Copa de Inglaterra… */
 export function cupName(cupId, country, lang = 'es') {
-  if (CUP_NAMES[cupId]) return CUP_NAMES[cupId];
   const name = lang === 'es' ? country?.name_es : country?.name_en;
-  return lang === 'es' ? `Copa de ${name || 'la Liga'}` : `${name || 'National'} Cup`;
+  return lang === 'es' ? `Copa ${name ? ofCountry(name) : 'de la Liga'}` : `${name || 'National'} Cup`;
 }
 
 const isExternal = (club) => String(club.competitionId || '').startsWith('external:');
@@ -43,6 +50,7 @@ export function buildWorld(year, seed) {
       tier: competition.tier || 1, strength: competition.strength ?? 0, logo: competition.logo || null,
       trophy: competition.trophy || null, cupTrophy: competition.cupTrophy || null, cupId: competition.domesticCupId || null,
       selectable: competition.selectable !== false, clubIds: [],
+      ...(competition.groups?.length > 1 ? { groups: competition.groups.map((group) => ({ name: group.name, clubIds: group.clubIds.slice() })) } : {}),
     };
   }
 
@@ -60,6 +68,7 @@ export function buildWorld(year, seed) {
       formation: ['4-3-3', '4-2-3-1', '4-4-2', '4-3-3', '3-5-2', '4-1-2-1-2'][Math.floor(random() * 6)],
       style: ['balanced', 'possession', 'direct', 'counter', 'pressing'][Math.floor(random() * 5)],
       youthFocus: random() < 0.3,
+      ...(club.reserveParentId ? { reserveParentId: club.reserveParentId } : {}),
     };
     if (league) league.clubIds.push(club.id);
   }
@@ -70,10 +79,14 @@ export function buildWorld(year, seed) {
     const random = createStream(seed, 'player', base.id);
     // Real position when known, the shirt number as a hint otherwise.
     const known = KNOWN_POSITIONS.get(base.name);
-    const hinted = !known && positionFromNumber(base.position, base.shirtNumber);
+    // The biography states the playing position ("left-back", "winger"…).
+    const statedRaw = !known && evidencePosition(base.detailedPos, random);
+    const stated = statedRaw && (!base.position || POSITION_LINE[statedRaw] === base.position) ? statedRaw : null;
+    const hinted = !known && !stated && positionFromNumber(base.position, base.shirtNumber);
     const drawn = assignPositions(base.position, random);
-    const pos = known && (POSITION_LINE[known.pos] === base.position || base.position !== 'GK') ? known.pos : hinted || drawn.pos;
-    const alt = known && pos === known.pos ? known.alt : hinted ? secondaryFor(hinted, random) : drawn.alt;
+    const pos = known && (POSITION_LINE[known.pos] === base.position || base.position !== 'GK') ? known.pos : stated || hinted || drawn.pos;
+    const statedAlt = stated ? (base.altPositions || []).map((code) => evidencePosition(code, random)).filter((code) => code && code !== stated).slice(0, 2) : [];
+    const alt = known && pos === known.pos ? known.alt : stated ? (statedAlt.length ? statedAlt : secondaryFor(stated, random)) : hinted ? secondaryFor(hinted, random) : drawn.alt;
     const born = base.birthDate || `${base.birthYear || year - 25}-${String(1 + Math.floor(random() * 12)).padStart(2, '0')}-${String(1 + Math.floor(random() * 28)).padStart(2, '0')}`;
     const player = {
       id: base.id, name: base.name, nat: base.nationality || null, born, pos, alt,
@@ -273,8 +286,16 @@ export function clubSquad(world, clubId) {
 export function expectedRank(world, clubId) {
   const league = world.leagues[world.clubs[clubId]?.leagueId];
   if (!league) return 1;
-  const ranked = league.clubIds.slice().sort((a, b) => world.clubs[b].rating - world.clubs[a].rating);
+  const ranked = leagueRivals(world, clubId).sort((a, b) => world.clubs[b].rating - world.clubs[a].rating);
   return ranked.indexOf(clubId) + 1;
+}
+
+/** The clubs a club competes with for places: its regional group in a grouped league. */
+export function leagueRivals(world, clubId) {
+  const league = world.leagues[world.clubs[clubId]?.leagueId];
+  if (!league) return [];
+  const group = league.groups?.find((g) => g.clubIds.includes(clubId));
+  return (group && league.groups.length > 1 ? group.clubIds : league.clubIds).filter((id) => league.clubIds.includes(id));
 }
 
 export const stableNoise = (...parts) => hash01(...parts) - 0.5;

@@ -1,18 +1,42 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { hash01 } from '../career/util.js';
 import { ratingTone, posLabel } from './format.js';
 import { useManager } from './context.jsx';
+import { thumbFor } from '../../artwork-thumbs.js';
+
+/* ── Brand: a chalk tactics board, our own mark ── */
+
+export function Logo({ size = 54, className = '' }) {
+  const uid = useId().replace(/:/g, '');
+  return (
+    <svg className={`mg-logo ${className}`} width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
+      <defs>
+        <linearGradient id={`lg-edge-${uid}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#2ee6b0" /><stop offset="1" stopColor="#8b7dff" /></linearGradient>
+        <linearGradient id={`lg-fill-${uid}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#123430" /><stop offset="1" stopColor="#07141a" /></linearGradient>
+      </defs>
+      <rect x="2" y="2" width="44" height="44" rx="13" fill={`url(#lg-fill-${uid})`} stroke={`url(#lg-edge-${uid})`} strokeWidth="2.2" />
+      <path d="M13 46V37.5h22V46M19.5 37.5a4.5 3.6 0 0 1 9 0" fill="none" stroke="rgba(255,255,255,.32)" strokeWidth="1.4" />
+      <circle cx="13.5" cy="13.5" r="3" fill="none" stroke="#fff" strokeWidth="2" />
+      <path d="M31 9.5l5.5 5.5M36.5 9.5L31 15" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+      <path d="M15.5 18.5C17 27 30 22.5 25.5 31" fill="none" stroke="#2ee6b0" strokeWidth="2.2" strokeLinecap="round" strokeDasharray="2.6 2.6" />
+      <path d="M21.6 29.6l3.6 3.4 1.7-4.7z" fill="#2ee6b0" />
+    </svg>
+  );
+}
 
 /* ── Crests and flags ── */
 
 export function Crest({ team, size = 40, className = '' }) {
-  const [broken, setBroken] = useState(false);
+  // 0: small WebP copy, 1: the original file, 2: nothing loads (lettered badge).
+  const [stage, setStage] = useState(0);
   const src = team?.crest;
-  useEffect(() => setBroken(false), [src]);
-  if (src && !broken) {
-    return <img className={`mg-crest ${team?.nation ? 'is-flag' : ''} ${className}`} src={src} width={size} height={size} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: size, height: team?.nation ? size * 0.72 : size }} />;
+  const thumb = thumbFor(src, size);
+  useEffect(() => setStage(0), [src]);
+  if (src && stage < 2) {
+    const shown = stage === 0 && thumb ? thumb : src;
+    return <img className={`mg-crest ${team?.nation ? 'is-flag' : ''} ${className}`} src={shown} width={size} height={size} alt="" loading="lazy" decoding="async" onError={() => setStage(shown === thumb ? 1 : 2)} style={{ width: size, height: team?.nation ? size * 0.72 : size }} />;
   }
   const color = team?.color || '#2a3c4c';
   return (
@@ -75,6 +99,24 @@ export function Portrait({ player, size = 56, kit = '#2a3c4c', className = '' })
   );
 }
 
+/** Anonymous head-and-shoulders: the squad shows silhouettes, never faces. */
+export function Silhouette({ size = 56, kit = '#2a3c4c', className = '' }) {
+  const uid = useId().replace(/:/g, '');
+  return (
+    <svg className={`mg-silhouette ${className}`} width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
+      <defs>
+        <linearGradient id={`sil-${uid}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".34" /><stop offset="1" stopColor="#fff" stopOpacity=".1" /></linearGradient>
+      </defs>
+      <g fill={`url(#sil-${uid})`}>
+        <ellipse cx="32" cy="24" rx="10.5" ry="12.5" />
+        <path d="M27 33.5h10v6.5c0 2-2.2 3.2-5 3.2s-5-1.2-5-3.2z" />
+        <path d="M5 64c1.5-13 9.5-20.5 21.5-21.8 1.6 1.9 3.3 2.9 5.5 2.9s3.9-1 5.5-2.9C49.5 43.5 57.5 51 59 64z" />
+      </g>
+      <path d="M26.6 42.6l5.4 5.6 5.4-5.6" fill="none" stroke={kit} strokeWidth="2.2" strokeLinejoin="round" opacity=".85" />
+    </svg>
+  );
+}
+
 /* ── Ratings and cards ── */
 
 export function OvrBadge({ value, size = 'md', delta = 0, range = null }) {
@@ -99,12 +141,12 @@ export function PlayerCard({ player, lang, kit, dynamic, onClick, compact = fals
   return (
     <Tag type={onClick ? 'button' : undefined} className={`mg-card mg-card--${tone} ${compact ? 'is-compact' : ''} ${highlight ? 'is-highlight' : ''}`} onClick={onClick}>
       <span className="mg-card__shine" aria-hidden="true" />
+      <span className="mg-card__art" aria-hidden="true"><Silhouette size={compact ? 64 : 92} kit={kit} /></span>
       <span className="mg-card__top">
         <b className="mg-card__ovr">{shownOvr}</b>
         <span className="mg-card__pos">{posLabel(player.pos, lang)}</span>
         {country && <Flag country={country} size={11} />}
       </span>
-      <Portrait player={player} size={compact ? 58 : 76} kit={kit} className="mg-card__face" />
       <span className="mg-card__name">{lastName(player.name)}</span>
       {!compact && (
         <span className="mg-card__attrs">
@@ -135,8 +177,10 @@ export function Meter({ value, max = 100, tone = 'auto', label, compact = false 
   );
 }
 
-export function FormGuide({ results = [] }) {
-  return <span className="mg-form">{results.slice(-5).map((r, i) => <i key={i} className={`is-${r}`}>{r}</i>)}</span>;
+/** Last five results, given as W/D/L; the letters follow the language, the colours never change. */
+export function FormGuide({ results = [], lang = 'es' }) {
+  const label = lang === 'es' ? { W: 'V', D: 'E', L: 'D' } : { W: 'W', D: 'D', L: 'L' };
+  return <span className="mg-formguide">{results.slice(-5).map((r, i) => <i key={i} className={`is-${r}`}>{label[r] || r}</i>)}</span>;
 }
 
 export function Pill({ children, tone = 'default', icon: Icon }) {

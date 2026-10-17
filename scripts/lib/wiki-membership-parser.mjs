@@ -5,7 +5,7 @@ const teamHeader=/^(?:teams?|clubs?|clubes|equipos?(?: de f[uú]tbol)?|équipes?
 const standingHeader=/\b(?:pts|points|puntos|pj|pld|played|pos|position)\b/i;
 const participantsSection=/teams|equipos|équipes|participantes|participants|club information|stadia|stadiums|stadios|stades|locations/i;
 const elimination=/top scorers|goleadores|goalscorers|semi.final|quarter.final|finals|play.off|final phase|phase finale|relégation|relegation|promoci[oó]n|repechaje|cuartos|semifinal|descenso|acumulada|aggregate|overall|combined|annual table|liguilla|triangular|hexagonal|final round|championship (?:group|round)|grupo campeonato|fase campeonato/i;
-const nonParticipants=/manager|personnel|sponsor|relevos|entrenador|plantilla|transfer|traspas|foreign|extranjer|uniform|statistics|statistiques|estad[ií]stic|attendance|asistencia|disciplin|fair.play|awards|tarjetas|best xi|best eleven|team of|alineaci[oó]n|\bkits?\b/i;
+const nonParticipants=/manager|personnel|sponsor|relevos|entrenador|plantilla|transfer|traspas|foreign|extranjer|uniform|statistics|statistiques|estad[ií]stic|attendance|asistencia|disciplin|fair.play|awards|tarjetas|best xi|best eleven|team of|alineaci[oó]n|\bkits?\b|\byouth\b|\b(?:U|under[ -]?)(?:1\d|2[0-3])\b/i;
 const locationHeader=/stadium|ground|city|location|estadio|ciudad|sede|capacity|capacidad|stade|ville|capacité/i;
 
 /** Extract only labelled league participant/regular-standing tables, never arbitrary page links. */
@@ -33,7 +33,7 @@ export function parseWikiMembershipTables(html){
     let headerRow=-1,teamColumn=-1,headerText='';
     for(let index=0;index<Math.min(4,rows.length);index++){
       const cells=rows[index];
-      const column=cells.findIndex(cell=>cell.tagName==='TH'&&teamHeader.test(clean(cell.textContent)));
+      const column=cells.findIndex(cell=>cell?.tagName==='TH'&&teamHeader.test(clean(cell.textContent)));
       if(column>=0){headerRow=index;teamColumn=column;headerText=cells.map(cell=>clean(cell.textContent)).join(' ');break;}
     }
     if(teamColumn<0)continue;
@@ -74,19 +74,24 @@ export function parseWikiMembershipTables(html){
     if(teams.length>=4&&teams.length<=48)tables.push({context,kind:isStandings?'standings':'participants',teams});
   }
   const infobox=[...document.querySelectorAll('table.infobox tr')].map(row=>({key:clean(row.querySelector('th')?.textContent),value:clean(row.querySelector('td')?.textContent)}));
-  const countRow=infobox.find(row=>/^(?:teams|number of teams|equipos|participantes)$/i.test(row.key));
+  const countRow=infobox.find(row=>/^(?:teams|number of teams|equipos|participantes|participants|équipes|clubs)$/i.test(row.key));
   const headingCount=[...document.querySelectorAll('h2,h3')].map(heading=>/(\d{1,2})\s+(?:clubs|équipes)\s+participants/i.exec(heading.textContent)).find(Boolean);
-  const expectedCount=/^\d{1,2}$/.test(countRow?.value??'')?Number(countRow.value):headingCount?Number(headingCount[1]):null;
+  const explicitCount=/^(\d{1,2})(?:\s|\(|$)/.exec(countRow?.value??'');
+  const expectedCount=explicitCount?Number(explicitCount[1]):headingCount?Number(headingCount[1]):null;
   dom.window.close();
   return {tables,expectedCount};
 }
 
-export function selectWikiParticipants(parsed,{expectedCount=null,maxTeams=32,preferredStage=null}={}){
+export function selectWikiParticipants(parsed,{expectedCount=null,minTeams=8,maxTeams=32,preferredStage=null,groupSets=[]}={}){
   const count=expectedCount??parsed.expectedCount;
   const grouped=new Map();
+  const allGroupSets=[['a','b'],['1','2'],['este','oeste'],['est','ouest'],['nord','sud'],['interior','metropolitana'],['inland','coastal'],['northern','southern'],...groupSets.map(set=>set.map(value=>value.toLowerCase()))];
+  const labels=[...new Set(allGroupSets.flat())].sort((a,b)=>b.length-a.length).map(label=>label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|');
+  const groupPattern=new RegExp(`^(.*?)(?:\\s*\\/\\s*)?(?:Zone|Group|Groupe|Poule|Zona|Grupo|Conferencia|Conference|Stream)\\s+(${labels})\\b.*$`,'i');
+  const suffixPattern=new RegExp(`^(.*?)(${labels})\\s+(?:Zone|Stream|Conference)(?:\\s+Standings|\\s*\\/.*)?$`,'i');
+  const directPattern=new RegExp(`^(.*?)(?:^|\\/\\s*)(${labels})\\s*$`,'i');
   for(const table of parsed.tables){
-    const match=/^(.*?)(?:\s*\/\s*)?(?:Zone|Group|Zona|Grupo|Conferencia)\s+(A|B|1|2|Este|Oeste)\b.*$/i.exec(table.context)
-      ??/^(.*?)(Interior|Metropolitana)\s+Zone(?:\s+Standings)?$/i.exec(table.context);
+    const match=suffixPattern.exec(table.context)??groupPattern.exec(table.context)??directPattern.exec(table.context);
     if(!match)continue;
     const parent=match[1].replace(/\s*\/\s*$/,'');
     const key=`${table.kind}:${parent}`;
@@ -96,19 +101,20 @@ export function selectWikiParticipants(parsed,{expectedCount=null,maxTeams=32,pr
   const unions=[];
   for(const [key,groups]of grouped){
     const keys=[...groups.keys()].sort().join(','),tables=[...groups.values()];
-    if(!['a,b','1,2','este,oeste','interior,metropolitana'].includes(keys))continue;
+    const acceptedGroups=allGroupSets.map(set=>[...set].sort().join(','));
+    if(!acceptedGroups.includes(keys))continue;
     const teams=tables.flatMap(table=>table.teams);
     if(new Set(teams.map(team=>team.article)).size!==teams.length)continue;
     // Only complementary, explicitly labelled groups of the same phase may
     // form a league. A lone group is never an entire participant list.
-    unions.push({context:key.slice(key.indexOf(':')+1),kind:tables[0].kind,teams,groups:tables.map(table=>table.context)});
+    unions.push({context:key.slice(key.indexOf(':')+1),kind:tables[0].kind,teams,groups:tables.map(table=>table.context),groupTables:[...groups].sort(([a],[b])=>a.localeCompare(b,undefined,{numeric:true})).map(([label,table])=>({label,name:table.context,teams:table.teams}))});
   }
-  const valid=[...parsed.tables,...unions].filter(table=>table.teams.length>=8&&table.teams.length<=maxTeams&&(!count||table.teams.length===count)
-    &&(table.groups||!/(?:Zone|Group|Zona|Grupo|Conferencia)\s+\S+|\S+\s+Zone\b/i.test(table.context)));
+  const valid=[...parsed.tables,...unions].filter(table=>table.teams.length>=minTeams&&table.teams.length<=maxTeams&&(!count||table.teams.length===count)
+    &&(table.groups||/\b(?:Groupe|Poule)\s+unique\b/i.test(table.context)||!/(?:Zone|Group|Groupe|Poule|Zona|Grupo|Conferencia|Conference|Stream)\s+\S+|\S+\s+(?:Zone|Stream|Conference)\b|(?:^|\/)\s*Central (?:East|West)\s*(?:\/|$)/i.test(table.context)));
   const namedStages=valid.filter(table=>table.kind==='standings'&&/apertura|clausura|verano|invierno|transici[oó]n/i.test(table.context));
   const stage=preferredStage?namedStages.find(table=>new RegExp(preferredStage,'i').test(table.context)):null;
   // A short or out-of-date stadium table cannot override a fuller regular table.
   const candidate=stage??valid.sort((a,b)=>b.teams.length-a.teams.length||(a.kind==='participants'?-1:1))[0];
   if(!candidate)return {valid:false,reason:'no-complete-labelled-team-table',tableCounts:parsed.tables.map(table=>({context:table.context,count:table.teams.length}))};
-  return {valid:true,teams:candidate.teams,tableContext:candidate.context,validation:{method:'complete-labelled-wikimedia-table',participantCount:candidate.teams.length,...(count?{expectedCount:count}:{}),...(candidate.groups?{combinedGroups:candidate.groups}:{})},stages:namedStages.map(table=>({name:table.context,teams:table.teams}))};
+  return {valid:true,teams:candidate.teams,tableContext:candidate.context,validation:{method:'complete-labelled-wikimedia-table',participantCount:candidate.teams.length,...(count?{expectedCount:count}:{}),...(candidate.groups?{combinedGroups:candidate.groups}:{})},stages:namedStages.map(table=>({name:table.context,teams:table.teams})),...(candidate.groupTables?{groups:candidate.groupTables}:{})};
 }

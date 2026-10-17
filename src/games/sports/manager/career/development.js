@@ -3,7 +3,7 @@
  * he peaks and how he declines. Monthly steps accumulate in `prog`; whole
  * points move the rating and every attribute with it.
  */
-import { createStream, clamp, iso, ageOn, roundMoney } from './util.js';
+import { createStream, clamp, quantize, iso, ageOn, roundMoney } from './util.js';
 import { assignPositions, deriveAttributes, ATTRIBUTE_KEYS, GK_ATTRIBUTE_KEYS } from './positions.js';
 import { generateName } from './names.js';
 import { marketValue, expectedWage } from './economy.js';
@@ -48,9 +48,9 @@ export function monthlyDevelopment(career) {
       delta = (random() - 0.5) * 0.18;
     }
     if (p.injury && p.injury.severity === 'severe' && p.injury.until > date) delta -= 0.15;
-    p.prog = (p.prog || 0) + delta;
-    while (p.prog >= 1) { p.prog -= 1; if (p.ovr < 99) { p.ovr += 1; shiftAttributes(p, 1); } }
-    while (p.prog <= -1) { p.prog += 1; if (p.ovr > 30) { p.ovr -= 1; shiftAttributes(p, -1); } }
+    p.prog = quantize((p.prog || 0) + delta, 3);
+    while (p.prog >= 1) { p.prog = quantize(p.prog - 1, 3); if (p.ovr < 99) { p.ovr += 1; shiftAttributes(p, 1); } }
+    while (p.prog <= -1) { p.prog = quantize(p.prog + 1, 3); if (p.ovr > 30) { p.ovr -= 1; shiftAttributes(p, -1); } }
     if (p.ovr > p.pot) p.pot = p.ovr;
     if (p.age >= peak + 2 && p.pot > p.ovr) p.pot = Math.max(p.ovr, p.pot - 1);
   }

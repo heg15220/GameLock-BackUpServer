@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { currentCompName } from '../career/competitions.js';
 import { Mail, ArrowRight, Check, X, Handshake, Trophy as TrophyIcon, Sparkles, Star } from 'lucide-react';
 import { useManager } from './context.jsx';
 import { Crest, PlayerCard, Stepper, Flag, OvrBadge, Pill } from './components.jsx';
@@ -9,6 +10,8 @@ import { respondOffer } from '../career/transfers.js';
 import { markRead } from '../career/inbox.js';
 import { objectiveStatus } from '../career/board.js';
 import { compTrophy } from './Competitions.jsx';
+import { LEDGER_LABEL } from './Office.jsx';
+import { playCelebration } from './match/audio.js';
 
 export default function Moments() {
   const { moments, setMoments } = useManager();
@@ -188,6 +191,7 @@ function Confetti({ color = '#ffd34d', count = 70 }) {
 
 function Celebration({ moment, onDone }) {
   const { career, lang, t } = useManager();
+  useEffect(() => { playCelebration('trophy'); }, [moment.comp]);
   const comp = career.season.comps[moment.comp];
   const team = teamInfo(career, moment.winner);
   return (
@@ -232,35 +236,104 @@ function Reveal({ moment, onDone }) {
 }
 
 function Review({ onDone }) {
-  const { career, lang, t } = useManager();
+  const { career, lang, t, setSheet } = useManager();
   const review = career.review || career.history[career.history.length - 1];
   useEffect(() => { if (!review) onDone(); }, [review, onDone]);
+  useEffect(() => { if (review?.trophies?.length) playCelebration('season'); }, [review]);
   if (!review) return null;
   const stateLabel = { 'on-track': t('Cumplido', 'Met'), done: t('Cumplido', 'Met'), close: t('Casi', 'Almost'), 'off-track': t('No cumplido', 'Missed'), failed: t('No cumplido', 'Missed'), pending: '—' };
   const awards = review.awards || {};
-  const awardRow = (key, label) => awards[key] && <li><Star size={14} /><span>{label}</span><b>{awards[key].name}</b><small>{teamName(career, awards[key].club, lang, true)}</small></li>;
+  const club = teamInfo(career, review.clubId || career.clubId);
+  const awardRow = (key, label) => awards[key] && <li key={key}><Star size={14} /><span>{label}</span><b>{awards[key].name}</b><small>{teamName(career, awards[key].club, lang, true)}</small></li>;
+  const figure = (row, label, unit) => row && (
+    <li key={label}><button type="button" onClick={() => career.world.players[row.id] && setSheet?.({ type: 'player', id: row.id })}><small>{label}</small><b>{row.name}</b><span>{row.value}{unit}</span></button></li>
+  );
+  const f = review.finances;
+  const kinds = f ? Object.entries(f.byKind).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 6) : [];
+  const grade = review.grade ?? 0.5;
+  const verdict = grade >= 0.9 ? t('Temporada sobresaliente', 'An outstanding season') : grade >= 0.6 ? t('Temporada notable', 'A good season') : grade >= 0.35 ? t('Temporada irregular', 'A mixed season') : t('Temporada decepcionante', 'A disappointing season');
+  const ordinal = ['st', 'nd', 'rd'][review.position - 1] || 'th';
+  const signed = (v) => `${v >= 0 ? '+' : ''}${v}`;
   return (
     <Overlay onClose={onDone} className="mg-moment--review">
-      <div className="mg-review">
-        <span className="mg-kicker">{t('Balance de la temporada', 'Season review')} · {seasonLabel(review.year)}</span>
-        <h2>{t(`${review.position}.º en liga`, `Finished ${review.position}`)}</h2>
+      {review.trophies?.length > 0 && <Confetti color={club?.color} count={60} />}
+      <div className="mg-review mg-review--full" style={{ '--club': club?.color }}>
+        <header className="mg-review__head">
+          <Crest team={club} size={56} />
+          <div>
+            <span className="mg-kicker">{t('Balance de la temporada', 'Season review')} · {seasonLabel(review.year)}</span>
+            <h2>{t(`${review.position}.º en liga`, `Finished ${review.position}${ordinal}`)}</h2>
+            <p className="mg-review__verdict">{verdict}</p>
+          </div>
+        </header>
         <div className="mg-review__record">{review.record && <><b>{review.record.w}</b>{t('V', 'W')} <b>{review.record.d}</b>{t('E', 'D')} <b>{review.record.l}</b>{t('D', 'L')} · {review.record.gf}:{review.record.ga} · <b>{review.points}</b> pts</>}</div>
-        {review.trophies?.length > 0 && <div className="mg-review__trophies"><TrophyIcon size={18} />{review.trophies.join(' · ')}</div>}
-        {review.status && (
-          <ul className="mg-objectives">{review.status.map((o) => <li key={o.id} className={`is-${o.state}`}><strong>{objectiveText(o, career, lang)}</strong><Pill tone={['on-track', 'done'].includes(o.state) ? 'good' : o.state === 'close' ? 'warn' : 'bad'}>{stateLabel[o.state]}</Pill></li>)}</ul>
-        )}
-        <ul className="mg-awards">
-          {awardRow('ballon', t('Balón de Oro', "Ballon d'Or"))}
-          {awardRow('boot', t('Bota de Oro', 'Golden Boot'))}
-          {awardRow('glove', t('Guante de Oro', 'Golden Glove'))}
-          {awardRow('young', t('Mejor joven', 'Best young player'))}
-        </ul>
-        {review.comps?.length > 0 && <p className="mg-muted">{review.comps.map((c) => `${c.name}: ${stageLabel(c.reached, lang)}`).join(' · ')}</p>}
-        <div className="mg-review__next">
-          <span>{t('Confianza de la directiva', 'Board confidence')} <b className={review.confidenceDelta >= 0 ? 'mg-up' : 'mg-down'}>{review.confidenceDelta >= 0 ? '+' : ''}{review.confidenceDelta ?? 0}</b></span>
-          {review.budgets && <span>{t('Presupuesto el año que viene', 'Next year budget')} <b>{money(review.budgets.transferBudget, lang)}</b></span>}
+        {review.trophies?.length > 0 && <div className="mg-review__trophies"><TrophyIcon size={18} />{review.trophies.map(currentCompName).join(' · ')}</div>}
+        <div className="mg-review__grid">
+          {review.standing?.length > 0 && (
+            <section className="mg-review__card">
+              <h4>{t('Clasificación', 'League table')}</h4>
+              <ol className="mg-review__table">
+                {review.standing.map((row, i) => (
+                  <li key={row.team} className={`${row.team === review.clubId ? 'is-user' : ''} ${i > 0 && row.pos - review.standing[i - 1].pos > 1 ? 'is-gap' : ''}`}>
+                    <span>{row.pos}</span><Crest team={teamInfo(career, row.team)} size={18} /><b>{teamName(career, row.team, lang, true)}</b><small>{signed(row.gd)}</small><strong>{row.pts}</strong>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+          <section className="mg-review__card">
+            <h4>{t('Figuras del equipo', 'Team standouts')}</h4>
+            <ul className="mg-review__figures">
+              {figure(review.topScorer && { ...review.topScorer, value: review.topScorer.goals }, t('Máximo goleador', 'Top scorer'), t(' goles', ' goals'))}
+              {figure(review.topAssist, t('Máximo asistente', 'Most assists'), t(' asist.', ' assists'))}
+              {figure(review.best && { ...review.best, value: Number(review.best.rating).toFixed(2) }, t('Mejor nota media', 'Best average rating'), '')}
+              {figure(review.ironMan, t('Más minutos', 'Most minutes'), "'")}
+              {figure(review.keeper, t('Porterías a cero', 'Clean sheets'), '')}
+              {figure(review.youngest, t('Joven revelación', 'Breakthrough youngster'), t(' partidos', ' apps'))}
+            </ul>
+          </section>
+          {f && (
+            <section className="mg-review__card">
+              <h4>{t('Cuentas del club', 'Club accounts')}</h4>
+              <ul className="mg-review__money">
+                <li><span>{t('Ingresos', 'Income')}</span><b className="mg-up">{money(f.income, lang)}</b></li>
+                <li><span>{t('Gastos', 'Spending')}</span><b className="mg-down">{money(f.spending, lang)}</b></li>
+                {kinds.map(([kind, amount]) => <li key={kind} className="is-detail"><span>{LEDGER_LABEL[lang]?.[kind] || kind}</span><b>{money(amount, lang)}</b></li>)}
+                <li className="is-total"><span>{t('Saldo actual', 'Current balance')}</span><b className={f.balance >= 0 ? 'mg-up' : 'mg-down'}>{money(f.balance, lang)}</b></li>
+              </ul>
+            </section>
+          )}
+          <section className="mg-review__card">
+            <h4>{t('Club y entrenador', 'Club and manager')}</h4>
+            <ul className="mg-review__money">
+              <li><span>{t('Prestigio del club', 'Club standing')}</span><b>{'★'.repeat(Math.max(1, Math.round(review.clubRep ?? 1)))} <small>{Number(review.clubRep ?? 1).toFixed(1)}/5</small></b></li>
+              <li><span>{t('Tu reputación', 'Your reputation')}</span><b>{review.reputation ?? Math.round(career.reputation)} <small className={(review.reputationDelta ?? 0) >= 0 ? 'mg-up' : 'mg-down'}>{signed(review.reputationDelta ?? 0)}</small></b></li>
+              <li><span>{t('Afición', 'Supporters')}</span><b>{review.fans ?? Math.round(career.fans ?? 65)}/100</b></li>
+              <li><span>{t('Confianza de la directiva', 'Board confidence')}</span><b className={(review.confidenceDelta ?? 0) >= 0 ? 'mg-up' : 'mg-down'}>{signed(review.confidenceDelta ?? 0)}</b></li>
+              {review.budgets && <li><span>{t('Presupuesto de fichajes', 'Transfer budget')}</span><b>{money(review.budgets.transferBudget, lang)}</b></li>}
+              {review.budgets && <li><span>{t('Masa salarial semanal', 'Weekly wage budget')}</span><b>{money(review.budgets.wageBudget, lang)}</b></li>}
+            </ul>
+          </section>
+          {review.status && (
+            <section className="mg-review__card is-wide">
+              <h4>{t('Objetivos de la directiva', 'Board objectives')}</h4>
+              <ul className="mg-objectives">{review.status.map((o) => <li key={o.id} className={`is-${o.state}`}><strong>{objectiveText(o, career, lang)}</strong><Pill tone={['on-track', 'done'].includes(o.state) ? 'good' : o.state === 'close' ? 'warn' : 'bad'}>{stateLabel[o.state]}</Pill></li>)}</ul>
+            </section>
+          )}
+          {(review.comps?.length > 0 || Object.keys(awards).length > 0) && (
+            <section className="mg-review__card is-wide">
+              <h4>{t('Copas y premios', 'Cups and awards')}</h4>
+              {review.comps?.length > 0 && <ul className="mg-review__cups">{review.comps.map((c) => <li key={c.comp}><span>{c.name}</span><b>{stageLabel(c.reached, lang)}</b></li>)}</ul>}
+              <ul className="mg-awards">
+                {awardRow('ballon', t('Balón de Oro', "Ballon d'Or"))}
+                {awardRow('boot', t('Bota de Oro', 'Golden Boot'))}
+                {awardRow('glove', t('Guante de Oro', 'Golden Glove'))}
+                {awardRow('young', t('Mejor joven', 'Best young player'))}
+              </ul>
+            </section>
+          )}
         </div>
-        <p className="mg-muted">{career.national ? t('Ahora llega el verano internacional. Después, nueva temporada.', 'Now comes the international summer. Then a new season.') : t('Pulsa Continuar para empezar la próxima temporada.', 'Press Continue to start next season.')}</p>
+        <p className="mg-muted">{career.national ? t('Ahora llega el verano internacional. Después, nueva temporada.', 'Now comes the international summer. Then a new season.') : t('Pulsa Seguir para empezar la próxima temporada.', 'Press Continue to start next season.')}</p>
         <button type="button" className="mg-btn mg-btn--primary mg-btn--xl" onClick={onDone}>{t('Seguir', 'Continue')}</button>
       </div>
     </Overlay>

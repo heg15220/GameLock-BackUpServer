@@ -1,6 +1,7 @@
 import { describe,it,expect } from 'vitest';
 import { getManagerWorld,getAvailableYears,dataSources } from './data.js';
 import { world } from '../trayectoria/world.js';
+import { managerLeagueCatalog,getAvailableLeagues } from './league-memberships.js';
 
 const findPlayer=(snapshot,name)=>snapshot.players.find(player=>player.name===name);
 const members=(snapshot,league)=>snapshot.clubs.filter(club=>club.competitionId===league).map(club=>club.id);
@@ -102,9 +103,9 @@ describe('football manager historical data',()=>{
     expect(snapshot.coverage.generatedPlayers).toBeGreaterThan(0);
     expect(snapshot.coverage.realPlayers).toBeGreaterThan(200);
     expect(snapshot.coverage.verifiedPlayers).toBeGreaterThan(1);
-    expect(approximate.coverage.historicalCompetitions).toBe(12);
-    expect(approximate.coverage.catalogLeagues).toBe(51);
-    expect(approximate.coverage.unavailableLeagues).toHaveLength(39);
+    expect(approximate.coverage.historicalCompetitions).toBe(getAvailableLeagues(1990).length);
+    expect(approximate.coverage.catalogLeagues).toBe(managerLeagueCatalog.length);
+    expect(approximate.coverage.unavailableLeagues).toHaveLength(managerLeagueCatalog.length-getAvailableLeagues(1990).length);
     // New 1990 lists can change the descriptive label, not the completeness claim.
     expect(approximate.coverage.exhaustive).toBe(false);
     expect(approximate.coverage.rostersComplete).toBe(false);

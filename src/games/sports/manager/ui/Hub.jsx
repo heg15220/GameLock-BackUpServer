@@ -4,7 +4,7 @@ import {
   Play, Square, MoreHorizontal, Download, LogOut, Save, Radio,
 } from 'lucide-react';
 import { useManager } from './context.jsx';
-import { Crest, Sheet } from './components.jsx';
+import { Crest, Logo, Sheet } from './components.jsx';
 import { longDate, teamInfo, seasonLabel } from './format.js';
 import { L } from './texts.js';
 import { userFixtureToday, isTournamentRunning } from '../career/career.js';
@@ -117,7 +117,7 @@ export default function Hub() {
     <div className="mg-hub" style={{ '--club': club?.color || '#2ee6b0' }}>
       <header className="mg-top">
         <button type="button" className="mg-top__brand" onClick={() => go('central')} aria-label={t('Ir a la central', 'Go home')}>
-          <span className="mg-logo" aria-hidden="true">MC</span>
+          <Logo size={40} />
           <Crest team={club} size={34} />
           <span className="mg-top__club">
             <strong>{club?.short || club?.name}</strong>
@@ -129,7 +129,7 @@ export default function Hub() {
           <small>{L[lang].stages[career.stage]}</small>
         </div>
         <div className="mg-top__actions">
-          <span className={`mg-save-dot is-${saveState}`} title={saveState === 'failed' ? t('No se pudo guardar', 'Save failed') : t('Guardado automático', 'Autosave')}><Save size={13} /></span>
+          <button type="button" className={`mg-icon-btn mg-save-dot is-${saveState}`} onClick={exportCareer} aria-label={t('Guardar y exportar código', 'Save and export code')} title={saveState === 'failed' ? t('No se pudo guardar. Exportar una copia', 'Save failed. Export a copy') : t('Guardado automático · Exportar código', 'Autosave · Export code')}><Save size={16} /></button>
           <ContinueButton />
         </div>
       </header>

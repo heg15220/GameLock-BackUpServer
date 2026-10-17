@@ -5,13 +5,13 @@
  * The career is one mutable object (the world alone holds ~18,000 players);
  * the interface keeps it in a ref and re-renders on a version counter.
  */
-import { createStream, clamp, addDays, weekday, dayOf, monthOf, roundMoney, iso, daysBetween } from './util.js';
+import { createStream, clamp, quantize, addDays, weekday, dayOf, monthOf, roundMoney, iso, daysBetween } from './util.js';
 import { buildWorld, clubSquad, pickLineup, pickBench, expectedRank, squadStrength, isInjured, assignNumbers } from './world.js';
 import { FORMATIONS } from './positions.js';
 import { stageOf, windowOpen, STAGES } from './calendar.js';
 import {
   createSeason, buildLeagues, buildCups, buildContinental, buildQualifiers, buildTournaments, progressCompetitions,
-  sortTable, nationId, isNation, tournamentsIn, TOURNAMENTS, stageReached,
+  sortTable, nationId, isNation, tournamentsIn, TOURNAMENTS, stageReached, leagueTable, leagueRanking, leagueGroupIndex,
 } from './competitions.js';
 import { cupName } from './world.js';
 import { nationsByConf, nationRating, ensureNationalFillers, autoCallUp, nationStrength } from './national.js';
@@ -24,9 +24,10 @@ import { monthlyDevelopment, seasonTurnover, generateYouth } from './development
 import { setObjectives, boardAfterMatch, boardMonthly, seasonReview, nextBudgets, generateJobOffers, nationalReview, relegationSpots } from './board.js';
 import { pressAfterMatch, weeklyDressingRoom, checkPromises, addEvent } from './events.js';
 import { addInbox, addNews } from './inbox.js';
-import { seasonIncome, ticketPrice, moneyScale } from './economy.js';
+import { seasonIncome, ticketPrice, moneyScale, stadiumCapacity } from './economy.js';
 import { TACTIC_DEFAULTS } from './match.js';
 import { getAvailableYears } from '../league-memberships.js';
+import { pruneUnreferencedRetirees } from './maintenance.js';
 
 export const CAREER_VERSION = 3;
 
@@ -175,6 +176,8 @@ export function refreshLineup(career) {
 export function setFormation(career, formation) {
   if (!FORMATIONS[formation]) return;
   career.tactics.formation = formation;
+  // Roles belong to the positions of a shape: a new shape starts from the coach's defaults.
+  career.tactics.roles = {};
   if (career.autoLineup) refreshLineup(career);
   else {
     // Keep the same eleven, reassigned to the new shape by fit.
@@ -221,9 +224,9 @@ function handleCompetitionEvents(career, events) {
       const mine = event.winner === career.clubId || (career.national && event.winner === nationId(career.national.fifa));
       addNews(career, { kind: 'trophy', comp: event.comp, winner: event.winner, mine });
       if (mine) {
-        career.trophies.push({ year: career.year, comp: event.comp, name: comp.name, type: comp.type, conf: comp.conf || null, leagueId: comp.leagueId || comp.trophyLeagueId || null, national: isNation(event.winner) });
+        career.trophies.push({ year: career.year, comp: event.comp, name: event.name || comp.name, type: comp.type, conf: comp.conf || null, level: comp.level || null, leagueId: comp.leagueId || comp.trophyLeagueId || null, national: isNation(event.winner) });
         career.flags.celebration = { comp: event.comp, winner: event.winner };
-        career.flags.stops.push({ kind: 'trophy' });
+        career.flags.stops.push({ kind: 'trophy', celebration: { comp: event.comp, winner: event.winner } });
         if (!isNation(event.winner)) {
           const prize = roundMoney((comp.type === 'continental' ? 18e6 / comp.level : comp.type === 'league' ? 10e6 : 3e6) * moneyScale(career.year));
           career.finances.transferBudget += roundMoney(prize * 0.5);
@@ -405,7 +408,7 @@ function seasonTurns(career) {
 function finalStandings(career) {
   const result = {};
   for (const comp of Object.values(career.season.comps)) {
-    if (comp.type === 'league') result[comp.leagueId] = sortTable(Object.values(comp.table)).map((row) => row.team);
+    if (comp.type === 'league') result[comp.leagueId] = leagueRanking(comp);
   }
   return result;
 }
@@ -415,7 +418,7 @@ function endOfClubSeason(career) {
   const world = career.world;
   const club = world.clubs[career.clubId];
   const league = career.season.comps[`L:${club.leagueId}`];
-  const table = sortTable(Object.values(league.table));
+  const table = leagueTable(league, career.clubId);
   const position = table.findIndex((row) => row.team === career.clubId) + 1;
   const prize = roundMoney(Math.max(0, (table.length - position + 1) / table.length) * seasonIncome(club, world.leagues[club.leagueId], career.year).tv * 0.4);
   if (prize) ledger(career, prize, 'prize', { comp: league.id });
@@ -427,6 +430,23 @@ function endOfClubSeason(career) {
   const squad = clubSquad(world, career.clubId);
   const topScorer = squad.slice().sort((a, b) => (b.stats?.g || 0) - (a.stats?.g || 0))[0];
   const best = squad.filter((p) => (p.stats?.apps || 0) >= 8).sort((a, b) => (b.stats.rs / b.stats.apps) - (a.stats.rs / a.stats.apps))[0];
+  const topAssist = squad.slice().sort((a, b) => (b.stats?.a || 0) - (a.stats?.a || 0))[0];
+  const ironMan = squad.slice().sort((a, b) => (b.stats?.mins || 0) - (a.stats?.mins || 0))[0];
+  const keeper = squad.filter((p) => p.pos === 'GK').sort((a, b) => (b.stats?.cs || 0) - (a.stats?.cs || 0))[0];
+  const youngest = squad.filter((p) => p.age <= 21 && (p.stats?.apps || 0) >= 5).sort((a, b) => (b.stats?.apps || 0) - (a.stats?.apps || 0))[0];
+  // Money of the season: everything booked since 1 July.
+  const since = iso(career.year, 7, 1);
+  const flows = career.finances.ledger.filter((row) => row.date >= since);
+  const byKind = {};
+  for (const row of flows) byKind[row.kind] = (byKind[row.kind] || 0) + row.amount;
+  const finances = {
+    income: flows.filter((r) => r.amount > 0).reduce((a, r) => a + r.amount, 0), spending: flows.filter((r) => r.amount < 0).reduce((a, r) => a + r.amount, 0),
+    balance: career.finances.balance, byKind,
+  };
+  // The table around us and at the top.
+  const around = new Set([0, 1, 2, 3, position - 2, position - 1, position, table.length - 1].filter((i) => i >= 0 && i < table.length));
+  const standing = [...around].sort((a, b) => a - b).map((i) => ({ pos: i + 1, team: table[i].team, pts: table[i].pts, gd: table[i].gf - table[i].ga, p: table[i].p ?? (table[i].w + table[i].d + table[i].l) }));
+  const person = (p, value) => (p ? { id: p.id, name: p.name, value } : null);
   const entry = {
     year: career.year, clubId: career.clubId, leagueId: club.leagueId, position, points: table[position - 1]?.pts || 0, of: table.length,
     record: table[position - 1] ? { w: table[position - 1].w, d: table[position - 1].d, l: table[position - 1].l, gf: table[position - 1].gf, ga: table[position - 1].ga } : null,
@@ -434,6 +454,11 @@ function endOfClubSeason(career) {
     topScorer: topScorer ? { id: topScorer.id, name: topScorer.name, goals: topScorer.stats?.g || 0 } : null,
     best: best ? { id: best.id, name: best.name, rating: +(best.stats.rs / best.stats.apps).toFixed(2) } : null,
     grade: review.grade, budgets,
+    topAssist: topAssist && (topAssist.stats?.a || 0) > 0 ? person(topAssist, topAssist.stats.a) : null,
+    ironMan: ironMan && (ironMan.stats?.mins || 0) > 0 ? person(ironMan, ironMan.stats.mins) : null,
+    keeper: keeper && (keeper.stats?.cs || 0) > 0 ? person(keeper, keeper.stats.cs) : null,
+    youngest: youngest ? person(youngest, youngest.stats.apps) : null,
+    finances, standing, clubRep: club.rep ?? 1, reputation: Math.round(career.reputation), fans: Math.round(career.fans ?? 65),
   };
   career.history.push(entry);
   career.review = { ...entry, status: review.status, confidenceDelta: review.confidenceDelta, reputationDelta: review.reputationDelta };
@@ -496,6 +521,7 @@ function rollover(career) {
     }
   }
   const previousLeague = world.clubs[career.clubId].leagueId;
+  evolveClubs(career);
   const turnover = seasonTurnover(career);
   const movements = applyPromotions(career);
   const userContractEnd = turnover.freed.filter((id) => world.players[id]?.clubId === null);
@@ -523,7 +549,7 @@ function rollover(career) {
   career.recentResults = [];
   career.review = null;
   career.board.warned = false;
-  for (const p of clubSquad(world, career.clubId)) p.morale = clamp((p.morale ?? 65) * 0.6 + 70 * 0.4, 30, 95);
+  for (const p of clubSquad(world, career.clubId)) p.morale = quantize(clamp((p.morale ?? 65) * 0.6 + 70 * 0.4, 30, 95), 1);
   buildSeasonFor(career);
   setObjectives(career);
   if (career.autoLineup) refreshLineup(career);
@@ -533,6 +559,53 @@ function rollover(career) {
   addInbox(career, { kind: 'new-season', year: career.year, move: myMove || null, freed: userContractEnd, stop: true });
   if (previousLeague !== world.clubs[career.clubId].leagueId) addNews(career, { kind: myMove?.up ? 'promoted' : 'relegated', club: career.clubId, league: world.clubs[career.clubId].leagueId });
   addNews(career, { kind: 'window-open', season: career.year });
+  pruneUnreferencedRetirees(career);
+}
+
+/**
+ * Clubs are not frozen in their history. Every summer each club's standing
+ * (reputation 0-5: income, crowd, stadium, pull in the market) drifts towards
+ * what its recent football deserves: where it finished, in how strong a
+ * league, and what it won. A small club run well for years becomes a big one;
+ * a giant that keeps finishing mid-table slowly loses its pull, cushioned by
+ * the fan base it started with.
+ */
+export function evolveClubs(career) {
+  const world = career.world;
+  const season = career.season;
+  const titles = new Map();
+  const award = (team, value) => { if (team && !String(team).startsWith('N:')) titles.set(team, (titles.get(team) || 0) + value); };
+  for (const comp of Object.values(season?.comps || {})) {
+    if (!comp.finished || !comp.winner) continue;
+    if (comp.type === 'league') award(comp.winner, 0.45);
+    else if (comp.type === 'cup') award(comp.winner, 0.25);
+    else if (comp.type === 'continental') award(comp.winner, comp.level === 1 ? 1.3 : comp.level === 2 ? 0.65 : 0.35);
+  }
+  // Reaching the latter stages of the top continental cup also counts.
+  for (const comp of Object.values(season?.comps || {})) {
+    if (comp.type !== 'continental' || comp.level !== 1) continue;
+    for (const round of (comp.ko || []).slice(-3)) for (const tie of round.ties || []) for (const team of [tie.a, tie.b]) award(team, 0.12);
+  }
+  for (const club of Object.values(world.clubs)) {
+    if (club.external || !club.leagueId) continue;
+    const league = world.leagues[club.leagueId];
+    const table = career.lastStandings?.[club.leagueId];
+    if (!league || !table?.length) continue;
+    const index = table.indexOf(club.id);
+    if (index < 0) continue;
+    club.baseRep ??= club.rep ?? 1;
+    const pct = table.length > 1 ? index / (table.length - 1) : 0.5;
+    const leaguePrestige = 0.6 + (league.strength ?? 0) * 0.75 - Math.max(0, (league.tier || 1) - 1) * 0.9;
+    const target = leaguePrestige + 1.6 * (1 - pct) - 0.4 + (titles.get(club.id) || 0);
+    const rep = club.rep ?? 1;
+    const step = clamp((target - rep) * 0.22, -0.15, 0.32);
+    const before = rep;
+    club.rep = clamp(rep + step, Math.max(0, club.baseRep - 1.5), 5);
+    club.rep = Math.round(club.rep * 100) / 100;
+    // A growing club enlarges its ground; nobody knocks stands down.
+    club.capacity = Math.max(club.capacity || 0, Math.min(stadiumCapacity(club), Math.round((club.capacity || 8000) * 1.12 / 100) * 100));
+    if (club.id === career.clubId && Math.floor(club.rep) > Math.floor(before)) addNews(career, { kind: 'club-prestige', club: club.id, rep: Math.floor(club.rep) });
+  }
 }
 
 /** Promotions and relegations between connected divisions. */
@@ -540,6 +613,12 @@ function applyPromotions(career) {
   const world = career.world;
   const moves = [];
   const leagues = Object.values(world.leagues);
+  // A reserve side never rises to its first team's division, nor above it.
+  const blocked = (id, target) => {
+    const parent = world.clubs[world.clubs[id]?.reserveParentId];
+    const parentLeague = parent && world.leagues[parent.leagueId];
+    return Boolean(parentLeague && parentLeague.country === target.country && parentLeague.tier <= target.tier);
+  };
   for (const upper of leagues) {
     const lower = leagues.find((l) => l.country === upper.country && l.tier === upper.tier + 1 && l.clubIds.length >= 2);
     if (!lower) continue;
@@ -548,15 +627,25 @@ function applyPromotions(career) {
     const upperTable = career.lastStandings?.[upper.id];
     const lowerTable = career.lastStandings?.[lower.id];
     if (!upperTable || !lowerTable) continue;
-    const down = upperTable.slice(-spots);
-    const up = lowerTable.slice(0, spots);
-    for (const id of down) moves.push({ club: id, from: upper.id, to: lower.id, up: false });
-    for (const id of up) moves.push({ club: id, from: lower.id, to: upper.id, up: true });
+    const up = lowerTable.filter((id) => !blocked(id, upper)).slice(0, spots);
+    const down = upperTable.slice(-up.length);
+    up.forEach((id, i) => {
+      // The relegated club takes the regional group the promoted one leaves.
+      const group = lower.groups?.findIndex((g) => g.clubIds.includes(id)) ?? -1;
+      moves.push({ club: id, from: lower.id, to: upper.id, up: true });
+      moves.push({ club: down[i], from: upper.id, to: lower.id, up: false, group });
+    });
   }
   for (const move of moves) {
     const club = world.clubs[move.club];
-    world.leagues[move.from].clubIds = world.leagues[move.from].clubIds.filter((id) => id !== move.club);
-    world.leagues[move.to].clubIds.push(move.club);
+    const from = world.leagues[move.from], to = world.leagues[move.to];
+    from.clubIds = from.clubIds.filter((id) => id !== move.club);
+    if (from.groups) for (const group of from.groups) group.clubIds = group.clubIds.filter((id) => id !== move.club);
+    to.clubIds.push(move.club);
+    if (to.groups?.length) {
+      const target = to.groups[move.group] || to.groups.slice().sort((a, b) => a.clubIds.length - b.clubIds.length)[0];
+      target.clubIds.push(move.club);
+    }
     club.leagueId = move.to;
     club.budget = roundMoney(club.budget * (move.up ? 1.5 : 0.7));
     if (move.club === career.clubId) {
@@ -681,8 +770,9 @@ export function ownLeagueComp(career) {
 export function leaguePosition(career) {
   const comp = ownLeagueComp(career);
   if (!comp) return null;
-  const table = sortTable(Object.values(comp.table));
-  return { position: table.findIndex((row) => row.team === career.clubId) + 1, size: table.length, row: table.find((row) => row.team === career.clubId) };
+  const table = leagueTable(comp, career.clubId);
+  const group = comp.groups?.[leagueGroupIndex(comp, career.clubId)]?.name || null;
+  return { position: table.findIndex((row) => row.team === career.clubId) + 1, size: table.length, row: table.find((row) => row.team === career.clubId), group };
 }
 
 export function daysToSeasonEnd(career) {

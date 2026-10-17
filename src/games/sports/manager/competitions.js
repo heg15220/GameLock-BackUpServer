@@ -1,4 +1,5 @@
 /** Manager-only extensions. Artwork stays with the existing Carrera catalogue. */
+import { globalLeagueSources } from './global-leagues.js';
 const rows = [
   ['england-league-one','League One','ENG','UEFA',3,0,'en.3'],
   ['england-league-two','League Two','ENG','UEFA',4,0,'en.4'],
@@ -18,10 +19,13 @@ const rows = [
   ['morocco-botola','Botola de Marruecos','MAR','CAF',1,0,'ma.1'],
 ];
 
-export const managerCompetitionExtensions = rows.map(([id,name,country_fifa_code,confederation,tier,strength,dataset,calendar]) => ({
+const existingIds = new Set(['liga-profesional', ...rows.map(row => row[0])]);
+export const managerCompetitionExtensions = [...rows.map(([id,name,country_fifa_code,confederation,tier,strength,dataset,calendar]) => ({
   id,name,country_fifa_code,confederation,tier,strength,dataset,
   seasonCalendar:calendar??'split',domesticCupId:null,logo:null,trophy:null,cupTrophy:null,
-}));
+})), ...globalLeagueSources.filter(league => !existingIds.has(league.id)).map(({ categories, ...league }) => ({
+  ...league, strength: 0, seasonCalendar: 'split', domesticCupId: null, logo: null, trophy: null, cupTrophy: null,
+}))];
 
 export const RESERVE_PARENTS = {
   'barcelona-b':'barcelona','fc-barcelona-b':'barcelona',

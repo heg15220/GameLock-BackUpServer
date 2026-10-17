@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Trophy as TrophyIcon, Goal, ListOrdered, Git
 import { useManager } from './context.jsx';
 import { Crest, Empty, OvrBadge, SectionTitle, Sheet, Tabs, Portrait, FormGuide } from './components.jsx';
 import { compName, money, posLabel, shortDate, stageLabel, teamInfo, teamName } from './format.js';
-import { sortTable, isNation } from '../career/competitions.js';
+import { sortTable, isNation, leagueTable, leagueGroupIndex } from '../career/competitions.js';
 import { relegationSpots, promotionSpots } from '../career/board.js';
 import { clubSquad } from '../career/world.js';
 import Trophy from '../../trayectoria/trophies.jsx';
@@ -56,8 +56,9 @@ export default function Competitions({ params }) {
 
 function zoneOf(career, comp, position, size) {
   const league = career.world.leagues[comp.leagueId];
-  const down = relegationSpots(career, league);
-  const up = promotionSpots(career, league);
+  const grouped = Boolean(comp.groups?.length);
+  const down = grouped ? 0 : relegationSpots(career, league);
+  const up = promotionSpots(career, league, grouped);
   if (position <= up) return 'promotion';
   if (league.tier === 1) {
     const slots = league.strength >= 2 ? 4 : league.strength === 1 ? 2 : 1;
@@ -71,8 +72,11 @@ function zoneOf(career, comp, position, size) {
 function LeagueView({ comp, onTeam }) {
   const { career, lang, t } = useManager();
   const [tab, setTab] = useState('table');
-  const table = sortTable(Object.values(comp.table));
-  const fixtures = Object.values(career.season.fixtures).filter((f) => f.comp === comp.id);
+  // Regional groups: open on the manager's own group.
+  const [group, setGroup] = useState(Math.max(0, leagueGroupIndex(comp, career.clubId)));
+  const grouped = Boolean(comp.groups?.length);
+  const table = grouped ? leagueTable(comp, null, group) : sortTable(Object.values(comp.table));
+  const fixtures = Object.values(career.season.fixtures).filter((f) => f.comp === comp.id && (!grouped || f.group === group));
   const rounds = comp.rounds;
   const playedRounds = Math.max(0, ...fixtures.filter((f) => f.done).map((f) => f.round + 1));
   const [round, setRound] = useState(Math.min(rounds - 1, playedRounds > 0 ? playedRounds - 1 : 0));
@@ -85,6 +89,15 @@ function LeagueView({ comp, onTeam }) {
   return (
     <>
       <Tabs tabs={[{ id: 'table', label: t('Clasificación', 'Table'), icon: ListOrdered }, { id: 'results', label: t('Jornadas', 'Matchdays') }, { id: 'scorers', label: t('Goleadores', 'Scorers'), icon: Goal }]} value={tab} onChange={setTab} label="league" />
+      {grouped && tab !== 'scorers' && (
+        <div className="mg-chips" role="tablist" aria-label={t('Grupos', 'Groups')}>
+          {comp.groups.map((g, i) => (
+            <button key={g.name} type="button" role="tab" aria-selected={group === i} className={group === i ? 'is-active' : ''} onClick={() => setGroup(i)}>
+              {lang === 'es' ? g.name : g.name.replace('Grupo', 'Group')}
+            </button>
+          ))}
+        </div>
+      )}
       {tab === 'table' && (
         <div className="mg-table-wrap mg-standings">
           <table className="mg-table mg-table--standings">
@@ -96,10 +109,10 @@ function LeagueView({ comp, onTeam }) {
                 return (
                   <tr key={row.team} className={`${row.team === career.clubId ? 'is-own' : ''} ${zone ? `zone-${zone}` : ''} is-clickable`} onClick={() => onTeam(row.team)}>
                     <td><span className="mg-rank">{i + 1}</span></td>
-                    <td><span className="mg-cell-team"><Crest team={teamInfo(career, row.team)} size={22} /><span>{teamName(career, row.team, lang)}</span></span></td>
+                    <td><span className="mg-cell-team"><Crest team={teamInfo(career, row.team)} size={20} /><span>{teamName(career, row.team, lang)}</span></span></td>
                     <td>{row.p}</td><td>{row.w}</td><td>{row.d}</td><td>{row.l}</td><td className="mg-hide-sm">{row.gf}</td><td className="mg-hide-sm">{row.ga}</td>
                     <td>{row.gf - row.ga > 0 ? '+' : ''}{row.gf - row.ga}</td><td><b>{row.pts}</b></td>
-                    <td className="mg-hide-sm"><FormGuide results={row.form.map((r) => (lang === 'es' ? { W: 'V', D: 'E', L: 'D' }[r] : r))} /></td>
+                    <td className="mg-hide-sm"><FormGuide results={row.form} lang={lang} /></td>
                     <td className="mg-hide-sm">{next ? <Crest team={teamInfo(career, next)} size={18} /> : '—'}</td>
                   </tr>
                 );

@@ -152,6 +152,35 @@ services:
     mem_limit: 512m
     cpus: "0.4"
 
+  manager-saves-backend:
+    build:
+      context: ..
+      dockerfile: deploy/backend-games/Dockerfile
+    container_name: manager-saves-backend
+    command: ["node", "server/manager-saves/index.mjs"]
+    # Tiempo para terminar los guardados en curso al redesplegar (SIGTERM).
+    stop_grace_period: 20s
+    environment:
+      TZ: ${TZ}
+      NODE_ENV: production
+      NODE_OPTIONS: ${NODE_OPTIONS}
+      PORT: "8794"
+      MANAGER_SAVES_DIR: /app/server/data/manager-saves
+      MANAGER_SAVES_RETENTION_DAYS: ${MANAGER_SAVES_RETENTION_DAYS:-365}
+    volumes:
+      - manager_saves_data:/app/server/data/manager-saves
+    expose:
+      - "8794"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8794/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    networks: [app-net]
+    mem_limit: 384m
+    cpus: "0.4"
+
   web:
     build:
       context: ..
@@ -164,6 +193,7 @@ services:
         WIKIPEDIA_GACHA_BACKEND_URL: ${WIKIPEDIA_GACHA_BACKEND_URL:-}
         PENALTY_SHOOTOUT_BACKEND_URL: ${PENALTY_SHOOTOUT_BACKEND_URL:-}
         COSMIC_VANGUARD_BACKEND_URL: ${COSMIC_VANGUARD_BACKEND_URL:-}
+        MANAGER_SAVES_BACKEND_URL: ${MANAGER_SAVES_BACKEND_URL:-}
     container_name: plataforma-juegos-web
     # Respaldar worker_rlimit_nofile 65535 de nginx dentro del contenedor.
     ulimits:
@@ -183,6 +213,8 @@ services:
       penalty-shootout-backend:
         condition: service_healthy
       cosmic-vanguard-backend:
+        condition: service_healthy
+      manager-saves-backend:
         condition: service_healthy
     ports:
       - "80:80"
@@ -233,6 +265,7 @@ volumes:
   postgres_data:
   penalty_shootout_stats:
   cosmic_vanguard_data:
+  manager_saves_data:
   certbot_conf:
   certbot_www:
 

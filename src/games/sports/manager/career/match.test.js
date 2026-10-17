@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createMatch, playToEnd, advanceMatch, userSubstitute, quickResult, sideStrength } from './match.js';
+import { createMatch, playToEnd, advanceMatch, userSubstitute, quickResult, sideStrength, shotXg } from './match.js';
 import { FORMATIONS } from './positions.js';
 import { createStream } from './util.js';
 import { deriveAttributes } from './positions.js';
@@ -80,5 +80,58 @@ describe('match engine calibration', () => {
     }
     console.log('shootouts', shootouts);
     expect(shootouts).toBeGreaterThan(5);
+  });
+
+  it('stages every minute as a coherent chain of actions by real players', () => {
+    let match = createMatch({ id: 'chain', seed: 'c', date: '2025-09-01', comp: { id: 'x' }, home: team('H', 76), away: team('A', 74) });
+    const kinds = new Set();
+    while (!match.complete) {
+      match = advanceMatch(match, 1, { ignorePauses: true });
+      for (const action of match.lastChain) {
+        kinds.add(action.t === 'pass' ? `pass:${action.kind}` : action.t === 'restart' ? `restart:${action.kind}` : action.t);
+        for (const key of ['from', 'to', 'by', 'victim', 'vs']) {
+          if (action[key]) expect(match.players[action[key]]).toBeTruthy();
+        }
+        if (action.t === 'pass' && action.ok) expect(match.players[action.to].side).toBe(action.side);
+        if (action.t === 'pass' && action.by) expect(match.players[action.by].side).not.toBe(action.side);
+        if (action.ev != null) expect(match.events[action.ev]).toBeTruthy();
+      }
+    }
+    for (const kind of ['pass:short', 'pass:long', 'carry', 'shot', 'restart:throw-in', 'restart:goal-kick', 'restart:kickoff']) expect(kinds.has(kind)).toBe(true);
+  });
+  it('has the volume and texture of a real match', () => {
+    let passes = 0; let accuracy = 0; let woodwork = 0; let throwIns = 0; let crosses = 0; const n = 80;
+    for (let i = 0; i < n; i += 1) {
+      const m = playToEnd(createMatch({ id: `v${i}`, seed: 'vol', date: '2025-09-01', comp: { id: 'x' }, home: team('H', 75), away: team('A', 75) }));
+      for (const s of ['home', 'away']) { passes += m.stats[s].passes; accuracy += m.stats[s].passOk; woodwork += m.stats[s].woodwork; throwIns += m.stats[s].throwIns; crosses += m.stats[s].crosses; }
+    }
+    accuracy /= passes; passes /= n; woodwork /= n; throwIns /= n; crosses /= n;
+    console.log('texture', { passes, accuracy, woodwork, throwIns, crosses });
+    expect(passes).toBeGreaterThan(650); expect(passes).toBeLessThan(1250);
+    expect(accuracy).toBeGreaterThan(0.75); expect(accuracy).toBeLessThan(0.9);
+    expect(woodwork).toBeGreaterThan(0.1);
+    expect(throwIns).toBeGreaterThan(20);
+    expect(crosses).toBeGreaterThan(15);
+  });
+  it('lets keepers win matches: a great one concedes clearly less than a poor one', () => {
+    const conceded = (gk) => {
+      let goals = 0;
+      for (let i = 0; i < 120; i += 1) {
+        const away = team('A', 75);
+        const keeperId = away.lineup[0];
+        away.players[keeperId] = { ...away.players[keeperId], ovr: gk, attrs: Object.fromEntries(Object.keys(away.players[keeperId].attrs).map((k) => [k, gk])) };
+        const m = playToEnd(createMatch({ id: `gk${i}`, seed: 'gk', date: '2025-09-01', comp: { id: 'x' }, neutral: true, home: team('H', 75), away }));
+        goals += m.score.home;
+      }
+      return goals / 120;
+    };
+    expect(conceded(90)).toBeLessThan(conceded(60) * 0.85);
+  });
+  it('values shots by distance and angle', () => {
+    expect(shotXg(89.5, 50, 'penalty')).toBeCloseTo(0.76);
+    expect(shotXg(95, 50, 'open')).toBeGreaterThan(shotXg(85, 50, 'open'));
+    expect(shotXg(85, 50, 'open')).toBeGreaterThan(shotXg(85, 22, 'open'));
+    expect(shotXg(72, 50, 'long')).toBeLessThan(0.06);
+    expect(shotXg(92, 50, 'header')).toBeLessThan(shotXg(92, 50, 'open'));
   });
 });

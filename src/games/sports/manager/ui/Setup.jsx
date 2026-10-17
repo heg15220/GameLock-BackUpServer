@@ -1,35 +1,48 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Flag as FlagIcon, Globe, Play, Search, Star, Trash2, Upload, Users, Wallet, Building2, Sparkles } from 'lucide-react';
 import { getAvailableYears, getManagerWorld } from '../data.js';
+import { loadSeasonEvidence } from '../evidence-archive.js';
+import { loadSeasonArchives } from '../season-archives.js';
 import { useManager } from './context.jsx';
-import { Crest, Flag, Portrait, OvrBadge } from './components.jsx';
+import { Crest, Flag, Logo, Portrait, OvrBadge, Sheet } from './components.jsx';
+import { thumbFor } from '../../artwork-thumbs.js';
+
+/** League logo: the small copy, the original if that fails, nothing if both do. */
+const logoProps = (src, px) => ({
+  src: thumbFor(src, px) || src,
+  onError: (e) => { const img = e.currentTarget; if (img.dataset.original !== '1' && thumbFor(src, px)) { img.dataset.original = '1'; img.src = src; } else img.style.display = 'none'; },
+});
 import { money, seasonLabel, posLabel } from './format.js';
 import { assignPositions } from '../career/positions.js';
 import { createStream } from '../career/util.js';
-
-const ERAS = [
-  { year: 2018, es: 'La era del VAR', en: 'The VAR era' },
-  { year: 2012, es: 'La era de los gigantes', en: 'The era of giants' },
-  { year: 2005, es: 'Los galácticos', en: 'The Galácticos' },
-  { year: 1998, es: 'Fin de siglo', en: 'Turn of the century' },
-];
 
 const CONFS = ['UEFA', 'CONMEBOL', 'CONCACAF', 'AFC', 'CAF'];
 
 function useYearWorld(year) {
   const cache = useRef(new Map());
   const [state, setState] = useState({ year: null, world: null });
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (cache.current.has(year)) { setState({ year, world: cache.current.get(year) }); return undefined; }
     setState((s) => ({ ...s, loadingYear: year }));
-    const id = setTimeout(() => {
+    let cancelled = false;
+    const id = setTimeout(async () => {
+      // Squads and ratings of that season come from lazily loaded archives.
+      try {
+        await Promise.all([loadSeasonEvidence(year), loadSeasonArchives(year)]);
+      } catch {
+        // No connection: keep waiting and try again, never show half a season.
+        if (!cancelled) setTimeout(() => setAttempt((n) => n + 1), 2000);
+        return;
+      }
+      if (cancelled) return;
       const world = getManagerWorld(year);
       cache.current.set(year, world);
       if (cache.current.size > 2) cache.current.delete(cache.current.keys().next().value);
       setState({ year, world });
     }, 30);
-    return () => clearTimeout(id);
-  }, [year]);
+    return () => { cancelled = true; clearTimeout(id); };
+  }, [year, attempt]);
   return state.year === year ? state.world : null;
 }
 
@@ -47,10 +60,12 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
   const [conf, setConf] = useState('UEFA');
   const [query, setQuery] = useState('');
   const [deep, setDeep] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [clubGroup, setClubGroup] = useState(0);
+  const [importCode, setImportCode] = useState('');
   const fileRef = useRef(null);
   const world = useYearWorld(year);
-  const eras = [{ year: years[years.length - 1], es: 'Temporada más reciente', en: 'Latest season' }, ...ERAS]
-    .filter((era, index, entries) => years.includes(era.year) && entries.findIndex((entry) => entry.year === era.year) === index);
+  const eras = years.filter((availableYear) => availableYear <= year).slice(-5).reverse();
   const selectYear = (value) => {
     if (!years.includes(value) || value === year) return;
     setYear(value);
@@ -89,7 +104,7 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
     return (
       <div className="mg-setup mg-setup--home">
         <div className="mg-setup__hero">
-          <span className="mg-logo" aria-hidden="true">MC</span>
+          <Logo size={58} />
           <span className="mg-kicker">{t('Modo carrera', 'Career mode')}</span>
           <h1>{t('Tu banquillo te espera', 'Your dugout awaits')}</h1>
           <p>{t('Elige época, club y, si quieres, una selección. Ficha en verano, compite, vuelve al mercado en invierno y pelea por todo hasta el gran torneo del verano.', 'Pick an era, a club and, if you like, a national team. Sign in summer, compete, return to the market in winter and fight for everything up to the big summer tournament.')}</p>
@@ -115,10 +130,21 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
             <Sparkles size={18} aria-hidden="true" />{t('Nueva carrera', 'New career')}
           </button>
           <div className="mg-setup__minor">
-            <button type="button" className="mg-btn mg-btn--ghost" onClick={() => fileRef.current?.click()}><Upload size={16} />{t('Importar partida', 'Import save')}</button>
+            <button type="button" className="mg-btn mg-btn--ghost" onClick={() => setImportOpen(true)}><Upload size={16} />{t('Importar partida', 'Import save')}</button>
             {summary && <button type="button" className="mg-btn mg-btn--ghost" onClick={onDelete}><Trash2 size={16} />{t('Borrar guardado', 'Delete save')}</button>}
           </div>
           <input ref={fileRef} type="file" accept=".json,.gz,application/json,application/gzip" hidden onChange={(e) => { const file = e.target.files?.[0]; if (file) onImport(file); e.target.value = ''; }} />
+          <Sheet open={importOpen} onClose={() => setImportOpen(false)} title={t('Importar partida', 'Import save')}>
+            <form className="mg-save-transfer" onSubmit={e => { e.preventDefault(); if (importCode.trim()) onImport(importCode); }}>
+              <p>{t('Escribe tu código de partida (XXXX-XXXX-XXXX-XXXX), pega un código largo o abre el archivo de la partida.', 'Type your career code (XXXX-XXXX-XXXX-XXXX), paste a long code or open the save file.')}</p>
+              <label htmlFor="mg-import-code">{t('Código de partida', 'Career code')}</label>
+              <textarea id="mg-import-code" value={importCode} onChange={e => setImportCode(e.target.value)} rows={3} spellCheck={false} autoCapitalize="characters" placeholder="ABCD-EFGH-JKMN-PQRS" />
+              <div className="mg-save-transfer__actions">
+                <button type="submit" className="mg-btn mg-btn--primary" disabled={!importCode.trim()}>{t('Continuar con este código', 'Continue with this code')}</button>
+                <button type="button" className="mg-btn" onClick={() => fileRef.current?.click()}><Upload size={16} />{t('Abrir archivo', 'Open file')}</button>
+              </div>
+            </form>
+          </Sheet>
         </div>
       </div>
     );
@@ -148,9 +174,9 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
             <input className="mg-range" type="range" min={0} max={years.length - 1} step={1} value={years.indexOf(year)} onChange={(e) => selectYear(years[Number(e.target.value)])} aria-label={t('Recorrer temporadas', 'Browse seasons')} aria-valuetext={seasonLabel(year)} />
             <p className="mg-season-range">{seasonLabel(years[0])} — {seasonLabel(years[years.length - 1])} · {years.length} {t('temporadas disponibles', 'available seasons')}</p>
             <div className="mg-era-cards">
-              {eras.map((era) => (
-                <button type="button" key={era.year} className={year === era.year ? 'is-active' : ''} aria-pressed={year === era.year} onClick={() => selectYear(era.year)}>
-                  <b>{seasonLabel(era.year)}</b><span>{era[lang]}</span>
+              {eras.map((era, index) => (
+                <button type="button" key={era} className={year === era ? 'is-active' : ''} aria-pressed={year === era} onClick={() => selectYear(era)}>
+                  <b>{seasonLabel(era)}</b><span>{index === 0 ? t('Temporada elegida', 'Selected season') : t(`${year - era} ${year - era === 1 ? 'año anterior' : 'años antes'}`, `${year - era} ${year - era === 1 ? 'year' : 'years'} earlier`)}</span>
                 </button>
               ))}
             </div>
@@ -169,8 +195,8 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
                   const country = world.countries.find((c) => c.fifa === l.country_fifa_code);
                   const count = world.clubs.filter((c) => c.competitionId === l.id).length;
                   return (
-                    <button type="button" key={l.id} className={`mg-league-card ${leagueId === l.id ? 'is-active' : ''}`} onClick={() => { setLeagueId(l.id); setClubId(null); }}>
-                      <span className="mg-league-card__logo">{l.logo ? <img src={l.logo} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : <Globe size={28} />}</span>
+                    <button type="button" key={l.id} className={`mg-league-card ${leagueId === l.id ? 'is-active' : ''}`} onClick={() => { setLeagueId(l.id); setClubId(null); setClubGroup(0); }}>
+                      <span className="mg-league-card__logo">{l.logo ? <img {...logoProps(l.logo, 64)} alt="" loading="lazy" decoding="async" /> : <Globe size={28} />}</span>
                       <strong>{l.name}</strong>
                       <span className="mg-league-card__meta">{country && <Flag country={country} size={12} />}{lang === 'es' ? country?.name_es : country?.name_en} · {t(`${l.tier || 1}.ª división`, `Tier ${l.tier || 1}`)}</span>
                       <span className="mg-league-card__count"><Users size={12} />{count} {t('clubes', 'clubs')}</span>
@@ -186,9 +212,18 @@ export default function Setup({ summary, onStart, onResume, onImport, onDelete }
         {step === 2 && world && league && (
           <section className="mg-step mg-step--club">
             <h2>{t('Elige tu club', 'Choose your club')}</h2>
+            {league.groups?.length > 1 && (
+              <div className="mg-chips" role="tablist" aria-label={t('Grupos', 'Groups')}>
+                {league.groups.map((g, i) => (
+                  <button key={g.name} type="button" role="tab" aria-selected={clubGroup === i} className={clubGroup === i ? 'is-active' : ''} onClick={() => setClubGroup(i)}>
+                    {lang === 'es' ? g.name : g.name.replace('Grupo', 'Group')}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="mg-club-pick">
               <div className="mg-club-grid">
-                {clubs.map((c) => (
+                {clubs.filter((c) => !(league.groups?.length > 1) || league.groups[clubGroup]?.clubIds.includes(c.id)).map((c) => (
                   <button type="button" key={c.id} className={`mg-club-tile ${clubId === c.id ? 'is-active' : ''}`} onClick={() => setClubId(c.id)} style={{ '--club': c.color || '#2a3c4c' }}>
                     <Crest team={{ crest: c.crest, name: c.name, abbr: c.abbreviation, color: c.color }} size={44} />
                     <strong>{c.shortName || c.name}</strong>
@@ -305,7 +340,7 @@ function DeepPicker({ world, club, deep, setDeep, t }) {
         {leagues.map((l) => (
           <label key={l.id} className={chosen.includes(l.id) ? 'is-on' : ''}>
             <input type="checkbox" checked={chosen.includes(l.id)} disabled={l.id === club.competitionId} onChange={() => toggle(l.id)} />
-            {l.logo && <img src={l.logo} alt="" width="18" height="18" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+            {l.logo && <img {...logoProps(l.logo, 18)} alt="" width="18" height="18" decoding="async" />}
             <span>{l.name}</span>
           </label>
         ))}

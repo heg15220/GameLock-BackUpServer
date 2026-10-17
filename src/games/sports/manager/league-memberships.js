@@ -1,9 +1,10 @@
 import archive from './league-memberships.json';
 import {world} from '../trayectoria/world.js';
 import {managerCompetitionExtensions} from './competitions.js';
+import {leagueArtwork,seasonLeagueLogo} from './artwork.js';
 
 export const membershipArchiveRevision=archive.revision;
-export const managerLeagueCatalog=[...Object.values(world.competitions),...managerCompetitionExtensions];
+export const managerLeagueCatalog=[...Object.values(world.competitions),...managerCompetitionExtensions].map(leagueArtwork);
 const catalog=new Map(managerLeagueCatalog.map(league=>[league.id,league]));
 
 export function getLeagueSeasonCoverage(competitionId,year){
@@ -24,7 +25,8 @@ export function getAvailableYears(competitionId){
 export function getAvailableLeagues(year){
   return managerLeagueCatalog.filter(league=>archive.seasons[String(year)]?.[league.id]).map(league=>{
     const coverage=getLeagueSeasonCoverage(league.id,year);
-    return {...league,historicalMembership:true,simulated:true,selectable:true,membershipSource:coverage.source,seasonLabel:coverage.seasonLabel,calendar:coverage.season.includes('-')?'split':'annual',membershipCoverage:coverage};
+    const record=archive.seasons[String(year)][league.id];
+    return {...league,...(record.leagueName?{name:record.leagueName}:{}),...(seasonLeagueLogo(league.id,year)?{logo:seasonLeagueLogo(league.id,year)}:{}),...(record.groups?.length>1?{groups:record.groups.map(group=>({name:group.name,clubIds:group.clubIds.slice()}))}:{}),historicalMembership:true,simulated:true,selectable:true,membershipSource:coverage.source,seasonLabel:coverage.seasonLabel,calendar:coverage.season.includes('-')?'split':'annual',membershipCoverage:coverage};
   });
 }
 

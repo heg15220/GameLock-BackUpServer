@@ -14,10 +14,10 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY server ./server
 
-RUN mkdir -p /app/server/data \
+RUN mkdir -p /app/server/data /app/server/data/manager-saves \
  && chown -R node:node /app/server/data
 
 USER node
-EXPOSE 8791 8792 8793
+EXPOSE 8791 8792 8793 8794
 
 CMD ["node", "server/wikipedia-gacha/index.mjs"]
