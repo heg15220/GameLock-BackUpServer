@@ -916,7 +916,8 @@ button.mg-card:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1px 
 .mg-warnings { display: grid; gap: 4px; }
 .mg-warnings li { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: rgba(255, 194, 75, 0.1); font-size: 12.5px; color: #ffe0a0; }
 .mg-warnings li.is-injured, .mg-warnings li.is-suspended, .mg-warnings li.is-empty { background: rgba(255, 93, 93, 0.12); color: #ffc4c4; }
-.mg-tactics__side { display: grid; gap: 12px; }
+.mg-tactics__side { display: grid; gap: 12px; min-width: 0; }
+.mg-tactics__side > * { min-width: 0; }
 .mg-tactics__controls { display: grid; gap: 4px; }
 .mg-formations { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
 .mg-formations button { min-height: 38px; border-radius: 10px; border: 1px solid var(--line-2); background: rgba(255, 255, 255, 0.04); font-family: var(--display); font-size: 17px; font-weight: 700; }
@@ -1308,6 +1309,39 @@ button.mg-card:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1px 
 .launch-overlay--device-phone .launch-game-area[data-game-id="sports-manager"] .launch-game-area-layout { display: block; }
 .launch-overlay--device-phone .manager-native-host .mg-root { border-radius: 12px; }
 .game-playground[data-game-id="sports-manager"] .playground-stage-main { min-width: 0; }
+
+/* Phones and tablets: the same native view as Trayectoria. No card, no gutter, no
+   rounded screen floating on the page; the game runs edge to edge under the launch bar. */
+.launch-overlay--device-phone .launch-game-area[data-game-id="sports-manager"],
+.launch-overlay--device-tablet .launch-game-area[data-game-id="sports-manager"] { padding-block: 0; align-items: stretch; }
+.launch-overlay--device-phone .launch-game-area[data-game-id="sports-manager"] { padding-inline: 0; }
+.launch-overlay--device-tablet .launch-game-area[data-game-id="sports-manager"]:not(.launch-game-area--with-tablet-ads) { padding-inline: 0; }
+.manager-native-host--phone .mg-root,
+.manager-native-host--tablet .mg-root,
+.launch-overlay--device-phone .manager-native-host .mg-root { border-radius: 0; }
+.manager-native-host--tablet[data-native-orientation="landscape"] .mg-root { border-radius: 0; border-inline: 1px solid rgba(160, 220, 230, 0.13); }
+
+/* Phone held sideways: there is no height to spare for a tab strip and a stage bar, so the
+   sections move to an icon rail on the left and Continue stays in the top bar. */
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-hub { grid-template-columns: 60px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top { grid-column: 1 / -1; gap: 10px; padding: 4px 10px 4px 12px; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__brand .mg-logo,
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__club small,
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__date small { display: none; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__club strong { font-size: 17px; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top__date strong { font-size: 14px; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-top .mg-continue { min-height: 40px; padding-block: 4px; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav { grid-column: 1; grid-row: 2; flex-direction: column; gap: 0; padding: 4px 0; overflow-x: hidden; overflow-y: auto; border-bottom: 0; border-right: 1px solid var(--line); }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav button { justify-content: center; width: 100%; min-height: 44px; padding: 0; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav button > span { display: none; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav button::after { left: 0; right: auto; top: 9px; bottom: 9px; width: 3px; height: auto; border-radius: 0 3px 3px 0; background: var(--accent); transform: scaleY(0); }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav button.is-active::after { transform: scaleY(1); }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-nav .mg-badge { position: absolute; top: 3px; right: 6px; min-width: 16px; height: 16px; font-size: 10px; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-stagebar,
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-bottom,
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-fab { display: none; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-main { grid-column: 2; grid-row: 2; }
+.manager-native-host--phone[data-native-orientation="landscape"] .mg-main__inner { padding: 12px 14px 24px; }
 
 .mg-crash { position: absolute; inset: 20px; z-index: 60; place-content: center; background: rgba(5, 11, 16, 0.96); }
 

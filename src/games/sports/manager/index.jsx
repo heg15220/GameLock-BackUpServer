@@ -25,7 +25,9 @@ function useFitHeight(rootRef) {
         const padBottom = parseFloat(style.paddingBottom) || 0;
         const bodyRect = body.getBoundingClientRect();
         const offset = root.getBoundingClientRect().top - bodyRect.top + body.scrollTop;
-        const available = body.clientHeight - padBottom - offset - 6;
+        // Phones and tablets run edge to edge, so the breathing gap under the card goes too.
+        const gap = root.closest('.manager-native-host--phone, .manager-native-host--tablet') ? 0 : 6;
+        const available = body.clientHeight - padBottom - offset - gap;
         setHeight(Math.max(200, Math.round(available)));
       } else {
         setHeight(Math.max(520, Math.min(window.innerHeight - 24, 1000)));

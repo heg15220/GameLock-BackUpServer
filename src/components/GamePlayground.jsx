@@ -503,7 +503,12 @@ function GamePlayground({ game, locale: localeOverride }) {
         <div className="playground-stage-main">
           {ActiveGame ? (
             gameId === "sports-manager" ? (
-              <div className="manager-native-host">
+              <div
+                className={`manager-native-host manager-native-host--${viewportFormFactor}`}
+                data-native-mobile-game="manager"
+                data-native-device={viewportFormFactor}
+                data-native-orientation={viewport.orientation}
+              >
                 <Suspense fallback={<p className="unsupported-game">{copy.loading}</p>}>
                   <ActiveGame locale={resolvedLocale} />
                 </Suspense>

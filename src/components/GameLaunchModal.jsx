@@ -329,7 +329,12 @@ function GameLaunchModal({ game, onClose, adPreviewEnabled, locale: routeLocale 
 
                 <div className="launch-game-area-stage">
                   {gameId === "sports-manager" ? (
-                    <div className="manager-native-host">
+                    <div
+                      className={`manager-native-host manager-native-host--${viewportFormFactor}`}
+                      data-native-mobile-game="manager"
+                      data-native-device={viewportFormFactor}
+                      data-native-orientation={viewport.orientation}
+                    >
                       <Suspense fallback={<div className="launch-loading">{t("loading")}</div>}>
                         <ActiveGame locale={locale} />
                         {import.meta.env.VITE_BENCH ? <BenchReadyMarker gameId={gameId} /> : null}
