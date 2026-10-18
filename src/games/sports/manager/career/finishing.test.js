@@ -47,12 +47,33 @@ function openLayout({ blocked = false, receiver = false } = {}) {
 afterEach(() => vi.restoreAllMocks());
 
 describe.each(['home', 'away'])('finishing decisions: %s (user and opponent)', (side) => {
+  it.each([{ p: 89, minimum: 44 }, { p: 81, minimum: 20 }])('shoots facing goal at $p with the real defensive shape', ({ p, minimum }) => {
+    let shots = 0;
+    for (let i = 0; i < 80; i++) {
+      const initial = matchAt(side, i, { p, last: 'carry' }, { tempo: 'slow', buildUp: 'short', finalThird: 'work-box' });
+      const layout = shape.layoutTeams(initial, initial.ball);
+      // Exercise the actual 2.6m close-down, without replacing positions.
+      expect(layout.gap).toBeLessThanOrEqual(2.6);
+      if (advanceMatch(initial, 1).lastChain[0]?.t === 'shot') shots++;
+    }
+    expect(shots).toBeGreaterThanOrEqual(minimum);
+  });
+
   it('takes clear box chances even with slow possession instructions', () => {
     openLayout();
     let shots = 0;
     for (let i = 0; i < 80; i++) {
       const result = advanceMatch(matchAt(side, i, {}, { tempo: 'slow', buildUp: 'short', finalThird: 'work-box' }), 1);
       if (result.lastChain[0]?.t === 'shot') shots++;
+    }
+    expect(shots).toBeGreaterThanOrEqual(64);
+  });
+
+  it('does not mistake the goalkeeper for an outfield marker near goal', () => {
+    openLayout();
+    let shots = 0;
+    for (let i = 0; i < 80; i++) {
+      if (advanceMatch(matchAt(side, i, { p: 97 }), 1).lastChain[0]?.t === 'shot') shots++;
     }
     expect(shots).toBeGreaterThanOrEqual(64);
   });

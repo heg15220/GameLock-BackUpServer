@@ -1179,10 +1179,12 @@ function situation(match, carrier, L) {
   const pos = L.pos;
   let space = 40;
   let crowd = 0;
+  let shotPressure = Infinity;
   for (const r of onPitch(match, other(side))) {
     if (!pos[r.id]) continue;
     const q = mirror(pos[r.id]);
     const d = metres(q, here);
+    if (r.slot !== 'GK') shotPressure = Math.min(shotPressure, d);
     if (d < 15) crowd += 1;
     const ahead = (q.p - here.p) * 1.05;
     if (ahead > 0 && Math.abs(q.a - here.a) * 0.68 < ahead + 3) space = Math.min(space, d);
@@ -1204,17 +1206,29 @@ function situation(match, carrier, L) {
   const behind = (100 - L.offside) * 1.05;
   const xg = here.p >= 60 ? shotXg(here.p, here.a, here.p < 80 ? 'long' : 'open') : 0;
   const block = here.p >= 60 ? shotBlock(match, pos, side, here).block : 0;
-  return { space, crowd, box, edge, runner, target, behind, xg, block, facing: ball.facing || 'goal' };
+  return { space, crowd, box, edge, runner, target, behind, xg, block, shotPressure, facing: ball.facing || 'goal' };
 }
 
 /** A clear finish should outrank routine circulation, whatever the player's role. */
-function finishingChance(ball, pressure, sit) {
-  if (sit.facing === 'back' || pressure < 4 || sit.block > 0.25) return 0;
+function finishingChance(ball, sit) {
+  // The keeper affects the save, not whether an unmarked forward will shoot.
+  const pressure = sit.shotPressure;
+  if (sit.facing === 'back' || pressure < 1.8 || sit.block > 0.6) return 0;
   const momentum = ['carry', 'dribble', 'through', 'cutback'].includes(ball.last);
-  if (inBox(ball) && sit.xg >= 0.065) return sit.facing === 'goal' ? (sit.xg >= 0.12 ? 0.9 : 0.72) : 0.62;
+  const clear = pressure >= 4 && sit.block <= 0.25;
+  // A defender screening from 2-3 metres is not a tackle. The normal shape
+  // always closes to that distance: requiring four metres made this branch
+  // unreachable even for a forward facing goal with time to strike.
+  if (inBox(ball) && sit.xg >= 0.065) {
+    if (clear) return sit.facing === 'goal' ? (sit.xg >= 0.12 ? 0.9 : 0.72) : 0.62;
+    if (sit.facing === 'goal' && pressure >= 2.2 && sit.block <= 0.55) return sit.xg >= 0.12 ? 0.65 : 0.5;
+  }
   // The central edge of the box, within roughly 25 metres of goal.
   if (ball.p >= 77 && ball.p < 84 && Math.abs(ball.a - 50) <= 18
-    && sit.xg >= 0.035 && pressure >= 4 && sit.block <= 0.25 && sit.facing === 'goal') return momentum ? 0.72 : 0.62;
+    && sit.xg >= 0.035 && sit.facing === 'goal') {
+    if (clear) return momentum ? 0.72 : 0.62;
+    if (pressure >= 2.2 && sit.block <= 0.55) return momentum ? 0.32 : 0.22;
+  }
   return 0;
 }
 
@@ -1237,13 +1251,14 @@ function finishInStride(match, chain, carrier, L, elapsed = 0, beaten = null) {
     L = { ...L, pos };
   }
   const sit = situation(match, carrier, L);
-  const pressure = nearestRival(match, L.pos, carrier.side, match.ball).dist;
   // Receiving and striking in one motion needs a cleaner touch than shooting
   // an already controlled ball. A runner is more often set to strike.
   const moving = ['carry', 'dribble'].includes(match.ball.last);
-  const readiness = moving ? 0.8 : clamp((control(carrier) - 40) / 90, 0.3, 0.8);
-  const chance = finishingChance(match.ball, pressure, sit) * readiness;
-  return chance && match.random() < chance ? shoot(match, chain, carrier, L) : 0;
+  const readiness = moving ? 1 : clamp(control(carrier) / 100, 0.6, 0.9);
+  const chance = finishingChance(match.ball, sit) * readiness;
+  const shoots = chance > 0 && match.random() < chance;
+  match.observeDecision?.({ moment: 'reception', side: carrier.side, player: carrier.id, p: match.ball.p, a: match.ball.a, ...sit, chance, choice: shoots ? 'shot' : 'control' });
+  return shoots ? shoot(match, chain, carrier, L) : 0;
 }
 
 function chooseKind(match, carrier, ball, pressure, sit) {
@@ -1329,12 +1344,16 @@ function chooseKind(match, carrier, ball, pressure, sit) {
   const diff = match.score[carrier.side] - match.score[other(carrier.side)];
   if (minute > 75 && diff < 0) { w.long *= 1.5; w.cross *= 1.3; w.shot *= 1.15; w.back *= 0.6; }
   if (minute > 80 && diff > 0) { w.back *= 1.4; w.short *= 1.1; w.through *= 0.7; w.shot *= 0.85; }
-  const finish = finishingChance(ball, pressure, sit);
+  // Speculative attempts should not displace a move into shooting range.
+  if (sit.xg < 0.035) w.shot *= 0.2;
+  const finish = finishingChance(ball, sit);
   if (finish) {
     const alternatives = Object.entries(w).reduce((sum, [key, value]) => sum + (key === 'shot' ? 0 : value), 0);
     w.shot = Math.max(w.shot, alternatives * finish / (1 - finish));
   }
-  return weighted(random, Object.keys(w), (key) => w[key]);
+  const choice = weighted(random, Object.keys(w), (key) => w[key]);
+  match.observeDecision?.({ moment: 'possession', side: carrier.side, player: carrier.id, p: ball.p, a: ball.a, ...sit, chance: finish, choice });
+  return choice;
 }
 
 /**
@@ -2176,8 +2195,10 @@ function shootout(match) {
 }
 
 /** Advance until the clock moves `minutes` match minutes, a pause, or the end. */
-export function advanceMatch(source, minutes = 1, { ignorePauses = false } = {}) {
+export function advanceMatch(source, minutes = 1, { ignorePauses = false, onDecision = null } = {}) {
   const match = cloneMatch(source);
+  // Optional observer for gameplay audits; never stored in careers or clones.
+  if (onDecision) Object.defineProperty(match, 'observeDecision', { value: onDecision });
   if (match.complete) return match;
   match.pausedFor = null;
   match.lastChain = [];

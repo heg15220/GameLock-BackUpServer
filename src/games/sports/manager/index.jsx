@@ -341,8 +341,9 @@ export default function ManagerGame({ locale = 'es' }) {
     return {
       mode: 'manager', date: c.date, stage: c.stage, club: club?.name, section: section.id, match: c.live ? { minute: c.live.clock, score: c.live.score, phase: c.live.phase } : null,
       budget: c.finances.transferBudget, inbox: unreadCount(c), confidence: Math.round(c.board.confidence),
+      ...(import.meta.env?.DEV && window.__managerLive ? { playback: window.__managerLive.playback() } : {}),
     };
-  });
+  }, (ms) => { if (import.meta.env?.DEV) window.__managerLive?.advanceTime(ms); });
 
   return (
     <ManagerContext.Provider value={value}>

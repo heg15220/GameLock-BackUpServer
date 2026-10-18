@@ -200,8 +200,6 @@ function LiveMatch({ fixture, onFinish }) {
     });
     director.sync(matchRef.current);
     directorRef.current = director;
-    // Development only: lets gameplay audits read the pitch (bodies, ball, scene) from the browser.
-    if (import.meta.env?.DEV && typeof window !== 'undefined') window.__managerLive = { renderer, director, match: () => matchRef.current };
     // Recover the saved phase and ball position when resuming a live match.
     const savedBall = matchRef.current.phase !== 'pre' ? matchRef.current.ball : null;
     if (savedBall) {
@@ -214,12 +212,11 @@ function LiveMatch({ fixture, onFinish }) {
     renderer.setTargets(targets, { ...director.ball, snap: true }, 16);
     let last = performance.now();
     let frame;
-    const loop = (now) => {
-      const dt = Math.min(64, now - last);
-      last = now;
+    let manual = false;
+    const step = (dt) => {
       const current = matchRef.current;
       if (playingRef.current && !director.busy && !current.complete && !current.pausedFor) {
-        const next = advanceMatch(current, 1);
+        const next = advanceMatch(current, 1, import.meta.env?.DEV ? { onDecision: window.__managerLive?.onDecision } : {});
         director.enqueue(current, next);
         setMatch(next);
       }
@@ -244,12 +241,28 @@ function LiveMatch({ fixture, onFinish }) {
       if (idleNow !== idleRef.current) { idleRef.current = idleNow; setDirectorIdle(idleNow); }
       renderer.step(dt, playingRef.current ? Math.min(factor, 3) : 0.25);
       renderer.draw();
+    };
+    // Development audits step this exact gameplay loop, including all scenes,
+    // pauses and rendering. They never replace match decisions with fixtures.
+    if (import.meta.env?.DEV && typeof window !== 'undefined') window.__managerLive = {
+      renderer, director, match: () => matchRef.current,
+      advanceTime: (ms) => {
+        manual = true;
+        for (let left = Math.min(Math.max(ms, 0), 60000); left > 0; left -= 16) step(Math.min(16, left));
+      },
+      resumeTime: () => { manual = false; last = performance.now(); },
+      playback: () => ({ playing: playingRef.current, busy: director.busy, minute: director.scene?.minute, action: director.scene?.action, ball: renderer.ball }),
+    };
+    const loop = (now) => {
+      const dt = Math.min(64, now - last);
+      last = now;
+      if (!manual) step(dt);
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
     const observer = new ResizeObserver(() => renderer.resize());
     observer.observe(canvas);
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); audio.stop(); };
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); audio.stop(); if (window.__managerLive?.director === director) delete window.__managerLive; };
   }, []);
 
   useEffect(() => {
