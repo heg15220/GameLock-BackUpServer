@@ -36,7 +36,7 @@
  * engine decided.
  *
  * Calibrated against typical top-flight averages (see match.test.js): about
- * 2.7 goals, 24-26 shots with a third on target and a quarter blocked, 9-11
+ * 3 goals, 26-28 shots with about a third on target and a quarter blocked, 9-11
  * corners, 22-25 fouls, ~4 yellow cards, 0.3 penalties, 850-1050 passes at
  * ~82%, crosses completed about one time in four.
  */
@@ -836,14 +836,17 @@ function deliverCross(match, chain, side, taker, from, { setPiece = false, type 
     const r = random();
     // Near-post flick-on to the far post.
     const far = runFor('far');
-    if (lofted && zone === 'near' && far && far.player !== attacker && r < 0.22) {
+    const directXg = shotXg(target.p, target.a, 'header') * (1 - pressure * 0.3);
+    if (lofted && zone === 'near' && far && far.player !== attacker && r < 0.22
+      && shotXg(far.at.p, far.at.a, 'header') * 0.91 > directXg * 1.2) {
       push(match, chain, { t: 'pass', kind: 'flick', side, from: attacker.id, to: far.player.id, p0: +target.p.toFixed(1), a0: +target.a.toFixed(1), p1: +far.at.p.toFixed(1), a1: +far.at.a.toFixed(1), ok: true, lofted: true, dur: 0.8 });
       match.ball = { ...match.ball, p: far.at.p, a: far.at.a, carrier: far.player.id };
       return 2.4 + resolveShot(match, chain, far.player, 'header', far.at, { creator: attacker, pressure: 0.3 });
     }
     // Knock-down to a teammate arriving at the edge.
     const edgeRun = runFor('edge') || runFor('spot');
-    if (lofted && edgeRun && edgeRun.player !== attacker && r > 0.86) {
+    if (lofted && edgeRun && edgeRun.player !== attacker && r > 0.86
+      && shotXg(edgeRun.at.p, edgeRun.at.a, 'volley') * 0.895 > directXg * 1.2) {
       const at = edgeRun.at;
       push(match, chain, { t: 'pass', kind: 'flick', side, from: attacker.id, to: edgeRun.player.id, p0: +target.p.toFixed(1), a0: +target.a.toFixed(1), p1: +at.p.toFixed(1), a1: +at.a.toFixed(1), ok: true, lofted: true, dur: 0.8 });
       match.ball = { ...match.ball, p: at.p, a: at.a, carrier: edgeRun.player.id };
@@ -1204,6 +1207,45 @@ function situation(match, carrier, L) {
   return { space, crowd, box, edge, runner, target, behind, xg, block, facing: ball.facing || 'goal' };
 }
 
+/** A clear finish should outrank routine circulation, whatever the player's role. */
+function finishingChance(ball, pressure, sit) {
+  if (sit.facing === 'back' || pressure < 4 || sit.block > 0.25) return 0;
+  const momentum = ['carry', 'dribble', 'through', 'cutback'].includes(ball.last);
+  if (inBox(ball) && sit.xg >= 0.065) return sit.facing === 'goal' ? (sit.xg >= 0.12 ? 0.9 : 0.72) : 0.62;
+  // The central edge of the box, within roughly 25 metres of goal.
+  if (ball.p >= 77 && ball.p < 84 && Math.abs(ball.a - 50) <= 18
+    && sit.xg >= 0.035 && pressure >= 4 && sit.block <= 0.25 && sit.facing === 'goal') return momentum ? 0.72 : 0.62;
+  return 0;
+}
+
+/** Use the space just created before the defence is laid out again around the new carrier. */
+function finishInStride(match, chain, carrier, L, elapsed = 0, beaten = null) {
+  if (carrier.slot === 'GK' || match.ball.p < 77) return 0;
+  if (elapsed > 0) {
+    // Cover defenders can react during the preceding action, but cannot
+    // teleport across the pitch or immediately undo a successful dribble.
+    const next = layout(match);
+    const pos = { ...L.pos };
+    const reach = Math.max(0, elapsed - 0.4) * 5.5;
+    for (const rival of onPitch(match, other(carrier.side))) {
+      if (rival.id === beaten) continue;
+      const from = pos[rival.id]; const to = next.pos[rival.id];
+      if (!from || !to) continue;
+      const step = Math.min(1, reach / Math.max(0.01, metres(from, to)));
+      pos[rival.id] = { p: from.p + (to.p - from.p) * step, a: from.a + (to.a - from.a) * step };
+    }
+    L = { ...L, pos };
+  }
+  const sit = situation(match, carrier, L);
+  const pressure = nearestRival(match, L.pos, carrier.side, match.ball).dist;
+  // Receiving and striking in one motion needs a cleaner touch than shooting
+  // an already controlled ball. A runner is more often set to strike.
+  const moving = ['carry', 'dribble'].includes(match.ball.last);
+  const readiness = moving ? 0.8 : clamp((control(carrier) - 40) / 90, 0.3, 0.8);
+  const chance = finishingChance(match.ball, pressure, sit) * readiness;
+  return chance && match.random() < chance ? shoot(match, chain, carrier, L) : 0;
+}
+
 function chooseKind(match, carrier, ball, pressure, sit) {
   const random = match.random;
   const zone = zoneOf(ball);
@@ -1287,6 +1329,11 @@ function chooseKind(match, carrier, ball, pressure, sit) {
   const diff = match.score[carrier.side] - match.score[other(carrier.side)];
   if (minute > 75 && diff < 0) { w.long *= 1.5; w.cross *= 1.3; w.shot *= 1.15; w.back *= 0.6; }
   if (minute > 80 && diff > 0) { w.back *= 1.4; w.short *= 1.1; w.through *= 0.7; w.shot *= 0.85; }
+  const finish = finishingChance(ball, pressure, sit);
+  if (finish) {
+    const alternatives = Object.entries(w).reduce((sum, [key, value]) => sum + (key === 'shot' ? 0 : value), 0);
+    w.shot = Math.max(w.shot, alternatives * finish / (1 - finish));
+  }
   return weighted(random, Object.keys(w), (key) => w[key]);
 }
 
@@ -1448,6 +1495,12 @@ function pass(match, chain, carrier, kind, L, { throwIn = false } = {}) {
     if (ball.counter > 0) ball.counter -= 1;
     // Playing through a high press leaves the pressers behind the ball.
     if (passerPressure < 2.6 && to.p > from.p + 12 && defT.block === 'high' && !ball.counter && random() < 0.45) ball.counter = 1;
+    // A high delivery won in a shooting position is a header, not a compulsory
+    // control with his back to goal. Resolve contact against the reception layout.
+    if (lofted && inBox(to) && shotXg(to.p, to.a, 'header') >= 0.035 && random() < 0.85) {
+      ball.facing = 'goal';
+      return dur + resolveShot(match, chain, receiver, 'header', to, { creator: carrier, pressure: clamp((6 - space) / 6, 0, 1), L });
+    }
     // A heavy first touch: what a pressing side waits for.
     const heavy = clamp(0.028 + ({ long: 0.07, switch: 0.05, through: 0.045 }[kind] || 0) + (space < 1.6 ? 0.04 : 0) - (control(receiver) - 70) / 700, 0.006, 0.17);
     if (closer && random() < heavy) {
@@ -1464,6 +1517,8 @@ function pass(match, chain, carrier, kind, L, { throwIn = false } = {}) {
     if (closer && space < 3.5 && random() < 0.092 * (boxFoul ? 0.03 : 1) * (closer.yc ? 0.5 : 1) * (defT.pressing === 'high' ? 1.25 : 1) * (defT.tackling === 'aggressive' ? 1.3 : defT.tackling === 'ease' ? 0.7 : 1)) {
       return dur + 1 + foul(match, chain, closer, receiver, to, { inBox: boxFoul });
     }
+    const finish = finishInStride(match, chain, receiver, L, dur);
+    if (finish) return dur + finish;
     // Give and go: a first-time return into the passer's run.
     if (kind === 'short' && !throwIn && ball.carrier === receiver.id && from.p > 30 && from.p < 86 && carrier.slot !== 'GK' && receiver.slot !== 'GK'
       && random() < (0.04 + role(carrier).run * 0.08 + (facing !== 'goal' ? 0.03 : 0) + (match.sides[side].tactics.buildUp === 'short' ? 0.03 : 0)) * factor(slider(match, side, 'firstTouch'), 0.6)) {
@@ -1596,7 +1651,8 @@ function carry(match, chain, carrier, L) {
   if (inBox(to)) match.stats[carrier.side].boxTouches += 1;
   ball.p = to.p; ball.a = to.a; ball.last = 'carry'; ball.facing = 'goal'; ball.trigger = null;
   if (ball.counter > 0) ball.counter -= 1;
-  return clamp(metres(from, to) / 6.5, 1, 3) + 0.8;
+  const duration = clamp(metres(from, to) / 6.5, 1, 3);
+  return duration + 0.8 + finishInStride(match, chain, carrier, L, duration);
 }
 
 function dribble(match, chain, carrier, L) {
@@ -1624,7 +1680,7 @@ function dribble(match, chain, carrier, L) {
     if (from.p < 66 && to.p >= 66) stats.finalThird += 1;
     if (inBox(to)) stats.boxTouches += 1;
     ball.p = to.p; ball.a = to.a; ball.last = 'dribble'; ball.facing = 'goal'; ball.trigger = null;
-    return 2.2;
+    return 2.2 + finishInStride(match, chain, carrier, L, 1.6, opponent.id);
   }
   push(match, chain, { t: 'dribble', side, from: carrier.id, vs: opponent.id, cover: cover?.id || null, ok: false, p0: from.p, a0: from.a, p1: +((from.p + to.p) / 2).toFixed(1), a1: +((from.a + to.a) / 2).toFixed(1), dur: 1.3 });
   adjust(carrier, -0.05);

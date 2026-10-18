@@ -42,30 +42,47 @@ function fakeRenderer() {
 }
 
 describe('match director', () => {
-  it('plays a manager match in about twenty minutes at 1x without cutting open play and puts the defender on the ball in every duel', () => {
+  it.each(['header', 'corner-header', 'volley'])('keeps the ball at contact height for a %s', (kind) => {
     const renderer = fakeRenderer();
-    let match = createMatch({ id: 'dir', seed: 'dir', date: '2025-09-01', comp: { id: 'x' }, home: team('H', 77), away: team('A', 76), clockRate: MATCH_CLOCK_RATE });
+    const match = createMatch({ id: 'air', seed: 'air', home: team('H', 75), away: team('A', 75) });
     const director = new Director(renderer, { lang: 'es' });
     director.sync(match);
-    let screen = 0;
+    const pass = director.sceneFor({ t: 'pass', kind: 'cross', side: 'home', from: 'H-8', to: 'H-9', p0: 85, a0: 10, p1: 90, a1: 50, ok: true, lofted: true }, match);
+    const shot = director.sceneFor({ t: 'shot', kind, side: 'home', from: 'H-9', p: 90, a: 50, aimA: 51, aimZ: 1, outcome: 'wide' }, match);
+    director.prepare([pass, shot]);
+    const height = kind === 'volley' ? 0.8 : 2.1;
+    expect(director.frame(pass, 1).ball.z).toBeCloseTo(height);
+    expect(director.frame(shot, 0).ball.z).toBeCloseTo(height);
+    expect(director.frame(shot, 0.1801).ball.z).toBeCloseTo(height, 2);
+  });
+
+  it('plays a manager match in about twenty minutes at 1x without cutting open play and puts the defender on the ball in every duel', () => {
     const gaps = [];
-    while (!match.complete || director.busy) {
-      if (!director.busy && !match.complete) { const next = advanceMatch(match, 1, { ignorePauses: true }); director.enqueue(match, next); match = next; }
-      const scene = director.update(16, 1);
-      screen += 16;
-      const a = scene?.action;
-      if (!a) continue;
-      const t = director.scene === scene ? director.elapsed / scene.duration : 1;
-      const duelist = a.t === 'foul' ? a.by : a.t === 'carry' && a.vs && !a.chase ? a.vs : null;
-      if (duelist && t > 0.85 && !scene.measured) {
-        scene.measured = true;
-        const b = renderer.bodies.get(duelist);
-        gaps.push(Math.hypot(b.x - renderer.ball.x, b.y - renderer.ball.y));
+    // Sample two matches: finishing decisions change how many duels a single seed contains.
+    for (const seed of ['dir', 'dir-2']) {
+      const renderer = fakeRenderer();
+      let match = createMatch({ id: 'dir', seed, date: '2025-09-01', comp: { id: 'x' }, home: team('H', 77), away: team('A', 76), clockRate: MATCH_CLOCK_RATE });
+      const director = new Director(renderer, { lang: 'es' });
+      director.sync(match);
+      let screen = 0;
+      while (!match.complete || director.busy) {
+        if (!director.busy && !match.complete) { const next = advanceMatch(match, 1, { ignorePauses: true }); director.enqueue(match, next); match = next; }
+        const scene = director.update(16, 1);
+        screen += 16;
+        const a = scene?.action;
+        if (!a) continue;
+        const t = director.scene === scene ? director.elapsed / scene.duration : 1;
+        const duelist = a.t === 'foul' ? a.by : a.t === 'carry' && a.vs && !a.chase ? a.vs : null;
+        if (duelist && t > 0.85 && !scene.measured) {
+          scene.measured = true;
+          const b = renderer.bodies.get(duelist);
+          gaps.push(Math.hypot(b.x - renderer.ball.x, b.y - renderer.ball.y));
+        }
       }
+      const minutes = screen / 60000;
+      expect(minutes).toBeGreaterThan(15);
+      expect(minutes).toBeLessThan(25);
     }
-    const minutes = screen / 60000;
-    expect(minutes).toBeGreaterThan(15);
-    expect(minutes).toBeLessThan(25);
     gaps.sort((x, y) => x - y);
     expect(gaps.length).toBeGreaterThan(10);
     expect(gaps[Math.floor(gaps.length / 2)]).toBeLessThan(2);

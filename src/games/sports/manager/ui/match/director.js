@@ -223,6 +223,10 @@ export class Director {
       const next = list.slice(i + 1).find((sc) => sc.action);
       const a = next?.action;
       if (!a || !cur.action) continue;
+      if (cur.action.t === 'pass' && cur.action.ok && cur.action.to === a.from) {
+        const header = a.t === 'shot' && ['header', 'corner-header'].includes(a.kind);
+        cur.receiveHeight = header || a.kind === 'flick' ? 2.1 : a.t === 'shot' && a.kind === 'volley' ? 0.8 : 0;
+      }
       const prep = [];
       const duelist = a.t === 'carry' && a.vs && !a.chase ? a.vs
         : a.t === 'dribble' ? a.vs
@@ -333,13 +337,14 @@ export class Director {
         const travel = (a.lofted ?? ['long', 'switch', 'cross'].includes(a.kind)) ? u : 1 - Math.pow(1 - u, 1.6);
         const lofted = a.lofted ?? ['long', 'switch', 'cross'].includes(a.kind);
         const height = a.kind === 'flick' ? 1.6 : lofted ? clamp(Math.hypot(toPt.x - from.x, toPt.y - from.y) / 7, 2.5, 9) : a.kind === 'through' ? 0.4 : 0;
-        ball = { x: lerp(from.x, toPt.x, travel), y: lerp(from.y, toPt.y, travel), z: Math.sin(travel * Math.PI) * height, fast: u > 0 && u < 1, trail: lofted || a.kind === 'through' };
+        const releaseHeight = a.kind === 'flick' ? 2.1 : 0;
+        ball = { x: lerp(from.x, toPt.x, travel), y: lerp(from.y, toPt.y, travel), z: lerp(releaseHeight, scene.receiveHeight || 0, travel) + Math.sin(travel * Math.PI) * height, fast: u > 0 && u < 1, trail: lofted || a.kind === 'through' };
         if (a.throw) {
           // Both feet behind the line, ball released from over the head.
           const line = { x: from.x, y: from.y < WIDTH / 2 ? -0.5 : WIDTH + 0.5 };
           overrides[a.from] = { ...line };
           ball = t < kick ? { x: line.x, y: line.y, z: 2.2 } : { x: lerp(line.x, toPt.x, travel), y: lerp(line.y, toPt.y, travel), z: lerp(2.2, 0.2, travel) + Math.sin(travel * Math.PI) * 1.3, fast: true };
-        } else if (t < kick) { ball = { ...from, z: 0 }; hold(a.from, from); }
+        } else if (t < kick) { ball = { ...from, z: releaseHeight }; hold(a.from, from); }
         else if (!a.wall) overrides[a.from] = { x: from.x + dirOf(side) * 1.2 * u, y: from.y };
         if (a.to && this.match.players[a.to]) {
           const runTo = a.ok ? toPt : toWorld(side, clamp(a.a1, 2, 98), clamp(a.p1 + 2, 2, 98));
@@ -461,8 +466,9 @@ export class Director {
         else end = { x: goalX + dirOf(side) * 2.5, y: aimY, z: a.aimZ };
         const scaled = goalAdjust(scene);
         const u2 = clamp((scaled(t) - kick) / flight, 0, 1);
-        ball = { x: lerp(from.x, end.x, u2), y: lerp(from.y, end.y, u2), z: lerp(0.1, end.z, u2) + Math.sin(u2 * Math.PI) * (a.kind === 'header' || a.kind === 'corner-header' ? 0.6 : 0.8), fast: u2 > 0 && u2 < 1, trail: true };
-        if (scaled(t) < kick) { ball = { ...from, z: a.kind === 'header' || a.kind === 'corner-header' ? 2.1 : 0 }; hold(a.from, from, 0.9); }
+        const contactHeight = ['header', 'corner-header'].includes(a.kind) ? 2.1 : a.kind === 'volley' ? 0.8 : 0.1;
+        ball = { x: lerp(from.x, end.x, u2), y: lerp(from.y, end.y, u2), z: lerp(contactHeight, end.z, u2) + Math.sin(u2 * Math.PI) * (contactHeight > 1 ? 0.6 : 0.8), fast: u2 > 0 && u2 < 1, trail: true };
+        if (scaled(t) < kick) { ball = { ...from, z: contactHeight }; hold(a.from, from, 0.9); }
         // After the shot: rebound off the keeper or post, ball in the net, or out.
         const after = clamp((scaled(t) - kick - flight) / 0.35, 0, 1);
         if (after > 0) {
